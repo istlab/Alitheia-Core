@@ -590,6 +590,31 @@ public class ProjectFile extends DAObject{
 
         return null;
     }
+
+    /**
+     * Constructs a hash map of all project version numbers where this
+     * particular file was modified, and the file's DAO Id in these versions.
+     * The project version number is used as a hash key, while the project
+     * file Id in that version as a hash value.
+     * 
+     * @param pf the project file DAO
+     * 
+     * @return the modifications hash map
+     */
+    public static HashMap<Long, Long> getFileModifications(ProjectFile pf) {
+        HashMap<Long, Long> result = new HashMap<Long, Long>();
+        if (pf != null) {
+            ProjectFile latest = getLatestVersion(
+                    pf.getProjectVersion(), pf.getFileName());
+            while (latest != null) {
+                result.put(
+                        latest.getProjectVersion().getVersion(),
+                        latest.getId());
+                latest = getPreviousFileVersion(latest);
+            }
+        }
+        return result;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

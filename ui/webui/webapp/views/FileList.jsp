@@ -36,8 +36,14 @@ if (selectedProject.isValid()) {
             Long fileId = strToLong(request.getParameter("fid"));
             VerboseFileView verboseView =
                 new VerboseFileView(selectedProject, fileId);
+            verboseView.setTerrier(terrier);
             verboseView.setServletPath(request.getServletPath());
             verboseView.setSettings(settings);
+            // Check if the user asks for a comparison with another version
+            if (request.getParameter("cvid") != null) {
+                verboseView.compareAgainst(
+                    strToLong(request.getParameter("cvid")));
+            }
             out.print(verboseView.getHtml(in));
 %>            <br/>
             <form method="GET" action="<%= request.getServletPath() %>">

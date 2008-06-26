@@ -48,6 +48,15 @@ public abstract class ListView {
     protected int maxStrLength = 50;
 
     /**
+     * Sets the <code>Terrier</code> connector instance.
+     * 
+     * @param terrier the <code>Terrier<code> instance
+     */
+    public void setTerrier (Terrier terrier) {
+        this.terrier = terrier;
+    }
+
+    /**
      * Sets the the user settings for this session.
      * 
      * @param settings the new settings

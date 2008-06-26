@@ -36,6 +36,7 @@ import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileGroup;
+import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -349,6 +350,30 @@ public abstract class WSProjectAccessor extends WSAccessor {
     public abstract WSProjectFile[] getFilesInDirectory(
             long projectVersionId,
             long directoryId) throws WSException;
+
+    /**
+     * This method returns an array of <code>WSFileModication<code> objects
+     * that represent all modification that were performed on the project file
+     * with the given Id.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectVersionId - the project version identifier
+     * @param projectFileId - the project file identifier
+     *
+     * @return The file's modification history as array,
+     *   or a <code>null</code> array when this file can not be found.
+     *
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with the SQO-OSS's web services service can
+     *    not be established</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSFileModification[] getFileModifications(
+            long projectVersionId,
+            long projectFileId) throws WSException;
 
 }
 

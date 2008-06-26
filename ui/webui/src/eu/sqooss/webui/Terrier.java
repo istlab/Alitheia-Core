@@ -37,11 +37,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.SortedMap;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
+import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
@@ -541,6 +544,40 @@ public class Terrier {
         return null;
     }
 
+    /**
+     * Retrieves the list of modification that were performed on the file
+     * with the given Id. A single modification is presented with a 
+     * <code>[Long, Long]</code> map token where the version number is used
+     * as a key, and the file Id in that version as a value.
+     * 
+     * @param versionId the project version's Id
+     * @param fileId the file id
+     * 
+     * @return The sorted (by version number) map of modification that were
+     *   performed on this file, or an empty list when none are found.
+     */
+    public SortedMap<Long, Long> getFileModification(
+            long versionId, long fileId) {
+        SortedMap<Long, Long> result = new TreeMap<Long, Long>();
+        if (isConnected()) {
+            try {
+                WSFileModification[] wsmods =
+                    connection.getProjectAccessor().getFileModifications(
+                            versionId, fileId);
+                if (wsmods != null)
+                    for (WSFileModification nextMod : wsmods)
+                        result.put(
+                                nextMod.getProjectVersionNum(),
+                                nextMod.getProjectFileId());
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the list of file modifications.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
 
     //========================================================================
     // METRIC RELATED SCL WRAPPER METHODS

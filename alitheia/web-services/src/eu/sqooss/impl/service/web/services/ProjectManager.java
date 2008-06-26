@@ -43,6 +43,7 @@ import java.util.Map;
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
+import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
@@ -600,8 +601,11 @@ public class ProjectManager extends AbstractManager {
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFilesInDirectory(String, String, long, long)
      */
-    public WSProjectFile[] getFilesInDirectory(String userName,
-            String password, long projectVersionId, long directoryId) {
+    public WSProjectFile[] getFilesInDirectory(
+            String userName,
+            String password,
+            long projectVersionId,
+            long directoryId) {
         // Log this call
         logger.info("Get files in directory!"
                 + " user: " + userName
@@ -635,6 +639,47 @@ public class ProjectManager extends AbstractManager {
             }
         }
         catch (IllegalArgumentException ex) {}
+        db.commitDBSession();
+        return result;
+    }
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getFileModifications(String, String, long, long)
+     */
+    public WSFileModification[] getFileModifications(
+            String userName,
+            String password,
+            long projectVersionId,
+            long projectFileId) {
+        // Log this call
+        logger.info("Get file modifications!"
+                + " user: " + userName
+                +";"
+                + " file Id: " + projectFileId);
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[]{projectVersionId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+            "Security violation in the get versions statistics operation!");
+        }
+        super.updateUserActivity(userName);
+        // Retrieve the result(s)
+        WSFileModification[] result = null;
+        ProjectFile pf = db.findObjectById(ProjectFile.class, projectFileId);
+        if (pf != null) {
+            HashMap<Long, Long> mods = ProjectFile.getFileModifications(pf);
+            if (mods.size() > 0) {
+                int index = 0;
+                result = new WSFileModification[mods.size()];
+                for (Long verNum : mods.keySet())
+                    result[index++] =
+                        new WSFileModification(verNum,mods.get(verNum));
+            }
+        }
         db.commitDBSession();
         return result;
     }

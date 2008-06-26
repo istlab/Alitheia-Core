@@ -70,6 +70,9 @@ public class Project extends WebuiItem {
 
     // Stores the list of Ids of all selected metrics
     private List<Long> selectedMetrics = new ArrayList<Long>();
+    
+    // Stores all project versions that were retrieved from this object
+    private HashMap<Long, Version> versions = new HashMap<Long, Version>();
 
     /**
      * Instantiates a new <code>Project</code> object, without initializing
@@ -205,6 +208,7 @@ public class Project extends WebuiItem {
         firstVersion = null;
         lastVersion = null;
         currentVersion = null;
+        versions.clear();
         metrics.clear();
         selectedMetrics = new ArrayList<Long>();
     }
@@ -329,6 +333,21 @@ public class Project extends WebuiItem {
             terrier.addError("Could not retrieve current version.");
             return null;
         }
+    }
+
+    // TODO: Document and integrate in the other memeber methods.
+    public Version getVersionById (Long versionId) {
+        Version result = null;
+        // Check in the versions cache first
+        if (versions.containsKey(versionId))
+            result = versions.get(versionId);
+        // Otherwise retrieve it from the SQO-OSS framework
+        else {
+            result = terrier.getVersion(this.getId(), versionId);
+            if (result != null)
+                versions.put(result.getId(), result);
+        }
+        return result;
     }
 
     /**

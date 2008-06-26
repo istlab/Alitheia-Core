@@ -36,6 +36,7 @@ package eu.sqooss.webui.view;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.SortedMap;
 
 import eu.sqooss.webui.File;
 import eu.sqooss.webui.Functions;
@@ -43,6 +44,7 @@ import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 /**
  * The class <code>VerboseFileView</code> renders an HTML sequence that
@@ -58,6 +60,8 @@ public class VerboseFileView extends ListView {
     // Hold the file Id
     private Long fileId;
 
+    private Long compareToVersion;
+
     /**
      * Instantiates a new <code>VerboseFileView</code> object, and initializes
      * it with the given project object and file Id.
@@ -69,6 +73,34 @@ public class VerboseFileView extends ListView {
         super();
         this.project = project;
         this.fileId = fileId;
+    }
+
+    // TODO: Add JavaDoc
+    public void compareAgainst(Long versionNumber) {
+        this.compareToVersion = versionNumber;
+    }
+
+    // TODO: Move somewhere else?
+    public HashMap<String, Result> getFileResults (Long fileId) {
+        HashMap<String, Result> result = new HashMap<String, Result>();
+        if (fileId == null)
+            return result;
+
+        // Construct the result request's object
+        WSMetricsResultRequest resultRequest = new WSMetricsResultRequest();
+        resultRequest.setDaObjectId(new long[]{fileId});
+        resultRequest.setProjectFile(true);
+        String[] mnemonics = new String[project.getSelectedMetrics().size()];
+        int index = 0;
+        for (String nextMnem : project.getSelectedMetricMnemonics().values())
+            mnemonics[index++] = nextMnem;
+        resultRequest.setMnemonics(mnemonics);
+
+        // Retrieve the evaluation results from the SQO-OSS framework
+        List<Result> results = terrier.getResults(resultRequest);
+        for (Result nextResult : results)
+            result.put(nextResult.getMnemonic(), nextResult);
+        return result;
     }
 
     public String getHtml(long in) {
@@ -88,6 +120,15 @@ public class VerboseFileView extends ListView {
             b.append(sp(in) + Functions.warning("No evaluation result."));
         }
         else {
+            // Retrieve the project version number of this file
+            Long curVerNum =
+                project.getVersionById(selFile.getVersion()).getNumber();
+            // Check if a comparison with another version is requested
+            boolean doCompare =
+                ((compareToVersion != null)
+                        && (compareToVersion.longValue()
+                                != curVerNum.longValue()));
+            Long compFileId = null;
             //================================================================
             // File information
             //================================================================
@@ -111,13 +152,33 @@ public class VerboseFileView extends ListView {
             b.append(sp(in) + "<span"
                     + " style=\"float: left; width: 60%; text-align:left;\">"
                     + "<b>Name: </b> " + fileName
+                    + " (<i>from v." + curVerNum + "</i>)"
+                    + "<input type=\"hidden\" name=\"fid\" value=\""
+                    + selFile.getId() + "\">"
                     + "</span>\n");
             // Display the "Compare against another version" field
+            SortedMap<Long, Long> mods = terrier.getFileModification(
+                    project.getCurrentVersion().getId(), fileId);
+            if (doCompare)
+                compFileId = mods.get(compareToVersion);
             b.append(sp(in++) + "<span"
                     + " style=\"float: right; width: 40%; text-align:right;\">\n"
                     + sp(in) + "<b>Compare with:</b>\n");
             b.append(sp(in++) + "<select name=\"cvid\" size=\"1\""
                     + " style=\"width:70px;\">\n");
+            for (Long verNum : mods.keySet()) {
+                String selStatus = "";
+                boolean selected = true;
+                if ((curVerNum < verNum) && (selected)) {
+                    selected = false;
+                    selStatus = " selected";
+                }
+                b.append(sp(in) + "<option"
+                        + selStatus
+                        + " value=\"" + verNum + "\">"
+                        + "v." + verNum
+                        + "</option>\n");
+            }
             b.append(sp(--in) + "</select>\n");
             b.append(sp(in) + "<input type=submit class=\"submit\""
                     + " value=\"Apply\">\n"
@@ -126,7 +187,7 @@ public class VerboseFileView extends ListView {
             b.append(sp(in) + "<br/>\n");
             b.append(sp(in) + "<br/>\n");
             //================================================================
-            // Results table
+            // Results (comparison) table
             //================================================================
             b.append(sp(in++) + "<div id=\"table\">\n");
             b.append(sp(in++) + "<table>\n");
@@ -135,13 +196,24 @@ public class VerboseFileView extends ListView {
             b.append(sp(in++) + "<tr class=\"head\">\n");
             b.append(sp(in) + "<td class=\"head\" style=\"width: 15%;\">"
                     + "Metric</td>\n");
-            b.append(sp(in) + "<td class=\"head\" style=\"width: 50%;\">"
+            b.append(sp(in) + "<td class=\"head\" style=\"width: 45%;\">"
                     + "Description</td>\n");
-            b.append(sp(in) + "<td class=\"head\" style=\"width: 35%;\">"
-                    + "Result</td>\n");
+            if ((doCompare) && (compFileId != null)) {
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 20%;\">"
+                        + "Result</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 20%;\">"
+                        + "In v." + compareToVersion + "</td>\n");
+            }
+            else {
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 40%;\">"
+                        + "Result</td>\n");
+            }
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</thead>\n");
             // Display all available results
+            HashMap<String, Result> compResults = null;
+            if ((doCompare) && (compFileId != null))
+                compResults = getFileResults(compFileId);
             HashMap<String, Metric> mnemToMetric =
                 new HashMap<String, Metric>();
             for (Result nextResult : selFileResults) {
@@ -168,6 +240,13 @@ public class VerboseFileView extends ListView {
                 b.append(sp(in) + "<td>"
                         + nextResult.getString()
                         + "</td>\n");
+                if ((doCompare) && (compFileId != null))
+                    b.append(sp(in) + "<td>"
+                            + ((compResults.containsKey(metric.getMnemonic()))
+                                    ? compResults.get(
+                                            metric.getMnemonic()).getString()
+                                    : "N/A")
+                            + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
             }
             b.append(sp(--in) + "</table>\n");

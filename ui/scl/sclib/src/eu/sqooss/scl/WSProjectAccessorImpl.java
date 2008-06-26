@@ -43,6 +43,7 @@ import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileGroup;
+import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -81,6 +82,8 @@ import eu.sqooss.ws.client.ws.GetVersionsCount;
 import eu.sqooss.ws.client.ws.GetVersionsCountResponse;
 import eu.sqooss.ws.client.ws.GetVersionsStatistics;
 import eu.sqooss.ws.client.ws.GetVersionsStatisticsResponse;
+import eu.sqooss.ws.client.ws.GetFileModifications;
+import eu.sqooss.ws.client.ws.GetFileModificationsResponse;
 
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
@@ -118,6 +121,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getRootDirectory";
     private static final String METHOD_NAME_GET_FILES_IN_DIRECTORY =
         "getFilesInDirectory";
+    private static final String METHOD_NAME_GET_FILE_MODIFICATIONS =
+        "getFileModifications";
 
     private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS =
         new WSStoredProject[0];
@@ -202,6 +207,37 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             }
         }
         return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFileModifications(long, long)
+     */
+    @Override
+    public WSFileModification[] getFileModifications(
+            long projectVersionId,
+            long projectFileId) throws WSException {
+        GetFileModificationsResponse response;
+        GetFileModifications params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILE_MODIFICATIONS)) {
+            params = new GetFileModifications();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_FILE_MODIFICATIONS, params);
+        } else {
+            params = (GetFileModifications) parameters.get(
+                    METHOD_NAME_GET_FILE_MODIFICATIONS);
+        }
+        synchronized (params) {
+            params.setProjectVersionId(projectVersionId);
+            params.setProjectFileId(projectFileId);
+            try {
+                response = wsStub.getFileModifications(params);
+            } catch (RemoteException e) {
+                throw new WSException(e);
+            }
+        }
+        return (WSFileModification[]) normalizeWSArrayResult(
+                response.get_return());
     }
 
     /**

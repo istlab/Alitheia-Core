@@ -46,6 +46,7 @@ import eu.sqooss.impl.service.web.services.UserManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
+import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
@@ -251,6 +252,28 @@ public class WebServices implements EventHandler{
             long projectId) {
         return projectManager.getFileGroupsByProjectId(
                 userName, password, projectId);
+    }
+
+    /**
+     * This method returns an array of <code>WSFileModication<code> objects
+     * that represent all modification that were performed on the project file
+     * with the given Id.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectVersionId the project version Id
+     * @param projectFileId the project file Id
+     * 
+     * @return The file's modification history as array,
+     *   or a <code>null</code> array when this file can not be found.
+     */
+    public WSFileModification[] getFileModifications(
+            String userName,
+            String password,
+            long projectVersionId,
+            long projectFileId) {
+        return projectManager.getFileModifications(
+                userName, password, projectVersionId, projectFileId);
     }
 
     /**
