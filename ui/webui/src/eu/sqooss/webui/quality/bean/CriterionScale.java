@@ -33,6 +33,28 @@
  */
 package eu.sqooss.webui.quality.bean;
 
+/**
+ * This enumeration type defines the ways criteria are compared to profiles in
+ * order to find the preference between them.
+ * 
+ * @author <a href="mailto:sskalist@gmail.com">sskalist &lt sskalist@gmail.com
+ *         &gt</a>
+ * 
+ */
 public enum CriterionScale {
-	LessIsBetter,MoreIsBetter,ValueIsBetter;	
+    /**
+     * This scale is used when we want to declare that the less the value of the
+     * metric (or profile) is, the better.
+     */
+    LessIsBetter,
+    /**
+     * This scale is used when we want to declare that the more the value of the
+     * metric (or profile) is, the better.
+     */
+    MoreIsBetter,
+    /**
+     * This scale is used when we want to declare that only a specific value of
+     * the metric (or profile) is better.
+     */
+    ValueIsBetter;
 }
