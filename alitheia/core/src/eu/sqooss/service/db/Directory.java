@@ -81,7 +81,7 @@ public class Directory extends DAObject {
      * not found. If true, it will be created.
      * @return A Directory record for the specified path or null on failure
      */
-    public static Directory getDirectory(String path, boolean create) {
+    public static synchronized Directory getDirectory(String path, boolean create) {
         
         DBService dbs = CoreActivator.getDBService();
         Map<String,Object> parameterMap = new HashMap<String,Object>();

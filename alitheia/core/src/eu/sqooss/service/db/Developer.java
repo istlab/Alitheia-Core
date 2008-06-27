@@ -152,7 +152,7 @@ public class Developer extends DAObject{
      *         <li>The passed email is invalid syntactically</li>
      *         <ul>
      */
-    public static Developer getDeveloperByEmail(String email, StoredProject sp){
+    public static synchronized Developer getDeveloperByEmail(String email, StoredProject sp){
         DBService dbs = CoreActivator.getDBService();
         
         Map<String,Object> parameterMap = new HashMap<String,Object>();
@@ -211,7 +211,7 @@ public class Developer extends DAObject{
      * @return A Developer record for the specified Developer or null on failure
      */
     @SuppressWarnings("unchecked")
-        public static Developer getDeveloperByUsername(String username, StoredProject sp) {
+        public static synchronized Developer getDeveloperByUsername(String username, StoredProject sp) {
 		
         DBService dbs = CoreActivator.getDBService();
 
