@@ -221,8 +221,17 @@ class SourceUpdater extends Job {
                     }
                     
                     dbs.addRecord(pf);
-                    
-                    if (pf.isDeleted()) {
+                   
+		    /*
+		     * Before entering the next block, examine whether the
+		     * deleted file was a directory or not. If there is
+		     * no path entry in the Directory table for the processed
+		     * file path, this means that the path is definetely not a
+		     * directory. If there is such an entry, it may be shared
+		     * with another project; this case is examined upon entering
+		     */
+                    if (pf.isDeleted() && 
+		            (Directory.getDirectory(chPath, false) != null)) {
                         /* Directories, when they are deleted, do not have type
                          * DIR, but something else. So we need to check on
                          * deletes whether this name was most recently a directory.
@@ -245,7 +254,7 @@ class SourceUpdater extends Job {
                 numRevisions ++;
 
                 /*Cleanup for huge projects*/
-                if (numRevisions % 2000 == 0) {
+                if (numRevisions % 200 == 0) {
                     logger.info("Commited 2000 revisions");
                     dbs.flushDBSession();
                 }
