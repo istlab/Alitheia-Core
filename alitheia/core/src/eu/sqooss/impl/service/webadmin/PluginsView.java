@@ -85,6 +85,7 @@ public class PluginsView extends AbstractView{
         // Recognized "action" parameter's values
         String actValInstall       = "installPlugin";
         String actValUninstall     = "uninstallPlugin";
+        String actValSync          = "syncPlugin";
         String actValReqAddProp    = "createProperty";
         String actValReqUpdProp    = "updateProperty";
         String actValConAddProp    = "confirmProperty";
@@ -179,6 +180,21 @@ public class PluginsView extends AbstractView{
                             e.append("Plug-in can not be uninstalled."
                                     + " Check log for details.");
                         }
+                    } 
+                    // =======================================================
+                    // 
+                    // =======================================================
+                    else if (reqValAction.equals(actValSync)) {
+                    	 if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
+                             e.append("Plug-in info cannot be retrieved."
+                                     + " Check log for details.");
+                         }
+                    	 
+                    	 if (sobjPA.getPlugin(sobjPA.getPluginInfo(reqValHashcode)) == null) {
+                    		 e.append("Plug-in service cannot be retrieved."
+                                     + " Check log for details.");
+                    	 }
+                    	compMA.syncMetrics(sobjPA.getPlugin(sobjPA.getPluginInfo(reqValHashcode)));
                     }
                 }
                 // Retrieve the selected plug-in's info object

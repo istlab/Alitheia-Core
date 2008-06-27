@@ -67,7 +67,7 @@ public interface MetricActivator {
      *
      * @param sp The plug-in to run
      */
-    public <T extends DAObject> void syncMetrics(AlitheiaPlugin ap);
+    public void syncMetrics(AlitheiaPlugin ap);
     
     /**
      * Synchronize a plug-in with the current state of the project

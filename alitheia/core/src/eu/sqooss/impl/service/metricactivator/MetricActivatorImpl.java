@@ -263,7 +263,7 @@ public class MetricActivatorImpl implements MetricActivator {
 
     /**{@inheritDoc}*/
     @SuppressWarnings("unchecked")
-    public <T extends DAObject> void syncMetrics(AlitheiaPlugin ap) {
+    public void syncMetrics(AlitheiaPlugin ap) {
         List<StoredProject> lp = 
             (List<StoredProject>) db.doHQL("from StoredProject");
         
