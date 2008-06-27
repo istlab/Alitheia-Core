@@ -54,6 +54,16 @@
           <xs:element name="type" nillable="true" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
+      <xs:element name="WSMetric" type="ax21:WSMetric"/>
+      <xs:complexType name="WSMetric">
+        <xs:sequence>
+          <xs:element name="description" nillable="true" type="xs:string"/>
+          <xs:element name="id" type="xs:long"/>
+          <xs:element name="metricTypeId" type="xs:long"/>
+          <xs:element name="mnemonic" nillable="true" type="xs:string"/>
+          <xs:element name="pluginId" type="xs:long"/>
+        </xs:sequence>
+      </xs:complexType>
       <xs:element name="WSMetricsRequest" type="ax21:WSMetricsRequest"/>
       <xs:complexType name="WSMetricsRequest">
         <xs:sequence>
@@ -63,16 +73,6 @@
           <xs:element name="isStoredProject" type="xs:boolean"/>
           <xs:element maxOccurs="unbounded" name="resourcesIds" type="xs:long"/>
           <xs:element name="skipResourcesIds" type="xs:boolean"/>
-        </xs:sequence>
-      </xs:complexType>
-      <xs:element name="WSMetric" type="ax21:WSMetric"/>
-      <xs:complexType name="WSMetric">
-        <xs:sequence>
-          <xs:element name="description" nillable="true" type="xs:string"/>
-          <xs:element name="id" type="xs:long"/>
-          <xs:element name="metricTypeId" type="xs:long"/>
-          <xs:element name="mnemonic" nillable="true" type="xs:string"/>
-          <xs:element name="pluginId" type="xs:long"/>
         </xs:sequence>
       </xs:complexType>
       <xs:element name="WSProjectFile" type="ax21:WSProjectFile"/>
@@ -325,6 +325,21 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSMetricType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getAllMetrics">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getAllMetricsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSMetric"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -683,6 +698,12 @@
   <wsdl:message name="getUserGroupsResponse">
     <wsdl:part name="part1" element="ns2:getUserGroupsResponse"/>
   </wsdl:message>
+  <wsdl:message name="getAllMetricsMessage">
+    <wsdl:part name="part1" element="ns2:getAllMetrics"/>
+  </wsdl:message>
+  <wsdl:message name="getAllMetricsResponse">
+    <wsdl:part name="part1" element="ns2:getAllMetricsResponse"/>
+  </wsdl:message>
   <wsdl:message name="getProjectVersionsByVersionNumbersMessage">
     <wsdl:part name="part1" element="ns2:getProjectVersionsByVersionNumbers"/>
   </wsdl:message>
@@ -870,6 +891,10 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getUserGroupsMessage" wsaw:Action="urn:getUserGroups"/>
       <wsdl:output message="axis2:getUserGroupsResponse"/>
     </wsdl:operation>
+    <wsdl:operation name="getAllMetrics">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getAllMetricsMessage" wsaw:Action="urn:getAllMetrics"/>
+      <wsdl:output message="axis2:getAllMetricsResponse"/>
+    </wsdl:operation>
     <wsdl:operation name="getProjectVersionsByVersionNumbers">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectVersionsByVersionNumbersMessage" wsaw:Action="urn:getProjectVersionsByVersionNumbers"/>
       <wsdl:output message="axis2:getProjectVersionsByVersionNumbersResponse"/>
@@ -1008,6 +1033,15 @@
     </wsdl:operation>
     <wsdl:operation name="getUserGroups">
       <soap:operation soapAction="urn:getUserGroups" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAllMetrics">
+      <soap:operation soapAction="urn:getAllMetrics" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1308,6 +1342,15 @@
     </wsdl:operation>
     <wsdl:operation name="getUserGroups">
       <soap12:operation soapAction="urn:getUserGroups" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAllMetrics">
+      <soap12:operation soapAction="urn:getAllMetrics" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
