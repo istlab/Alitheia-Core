@@ -42,13 +42,14 @@ import java.util.Comparator;
  * It also provides comparing methods in order to compare a profile against
  * another.
  * 
- * @author sskalist
+ * @author <a href="mailto:sskalist@gmail.com">sskalist &lt sskalist@gmail.com
+ *         &gt</a>
  * 
  */
 public enum SQOOSSProfiles implements Comparable<SQOOSSProfiles>,
 		Comparator<SQOOSSProfiles> {
 	/**
-	 * The four profiles as their are defined in according deliverable (D7) of
+	 * The four profiles as their are defined according to deliverable (D7) of
 	 * the SQO-OSS Documentation. <br>
 	 * They are order from worst to best and they should always remain in that
 	 * order for the comparing methods to work.
@@ -65,21 +66,28 @@ public enum SQOOSSProfiles implements Comparable<SQOOSSProfiles>,
 	}
 
 	/**
-	 * Gets the number of profiles
-	 * @return The number of profiles
+	 * Gets the number of profiles.
+	 * 
+	 * @return The number of profiles.
 	 */
 	public static int getNumberOfProfiles() {
 		return numberOfProfiles;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	/**
-	 * Compares two profiles. Returns a negative, zero or positive integer if <code>first</code> is less, equal or greater than the <code>second</code> respectively.
-	 * @return The ordinal difference of the <code>first</code> from the <code>second</code>.
+	 * Compares two profiles. Returns a negative, zero or positive integer if
+	 * <code>first</code> is less, equal or greater than the
+	 * <code>second</code> respectively.
+	 * 
+	 * @return The ordinal difference of the <code>first</code> from the
+	 *         <code>second</code>.
 	 */
-	//@Override
+	// @Override
 	public int compare(SQOOSSProfiles first, SQOOSSProfiles second) {
 		return first.compareTo(second);
 	}
