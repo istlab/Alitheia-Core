@@ -50,12 +50,21 @@ import java.util.Comparator;
 public enum SQOOSSProfiles implements Comparable<SQOOSSProfiles>,
 		Comparator<SQOOSSProfiles> {
 	/**
-	 * The four profiles as their are defined according to deliverable (D7) of
-	 * the SQO-OSS Documentation. <br>
-	 * They are order from worst to best and they should always remain in that
-	 * order for the comparing methods to work.
-	 */
-	Poor, Fair, Good, Excellent;
+     * The <code>Poor</code> profile.
+     */
+    Poor,
+    /**
+     * The <code>Fair</code> profile.
+     */
+    Fair,
+    /**
+     * The <code>Good</code> profile.
+     */
+    Good,
+    /**
+     * The <code>Excellent</code> profile.
+     */
+    Excellent;
 
 	/**
 	 * The number of profiles currently offered.
