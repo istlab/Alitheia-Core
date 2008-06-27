@@ -305,6 +305,43 @@ public class MetricManager extends AbstractManager {
         return result;
     }
 
+    /**
+     * This method will return the list of all metrics that are currently
+     * registered in the SQO-OSS framework.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * 
+     * @return The array with all metrics, or a <code>null<code> when none
+     *   are found.
+     */
+    public WSMetric[] getAllMetrics(String userName, String password) {
+        // Log this call
+        logger.info("Get all metrics!"
+                + " user: " + userName);
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkMetricsReadAccess(userName, password)) {
+            if (db.isDBSessionActive())
+                db.commitDBSession();
+            throw new SecurityException(
+                    "Security violation: Get all metrics is denied!");
+        }
+        super.updateUserActivity(userName);
+        // Retrieve the result(s)
+        WSMetric[] result = null;
+        List<Metric> metrics = db.findObjectsByProperties(
+                Metric.class, new Hashtable<String, Object>());
+        if ((metrics != null) && (metrics.size() > 0)) {
+            result = new WSMetric[metrics.size()];
+            int index = 0;
+            for (Metric nextMetric : metrics)
+                result[index++] = WSMetric.getInstance(nextMetric);
+        }
+        db.commitDBSession();
+        return result;
+    }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

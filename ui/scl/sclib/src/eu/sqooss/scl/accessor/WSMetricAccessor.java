@@ -114,7 +114,22 @@ public abstract class WSMetricAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSResultEntry[] getMetricsResult(WSMetricsResultRequest resultRequest) throws WSException;
-    
+
+    /**
+     * This method will return the list of all metrics that are currently
+     * registered in the SQO-OSS framework.
+     *
+     * @return The array with all metrics, or a <code>null<code> when none
+     *   are found.
+     *
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with the SQO-OSS framework can not be established</li>
+     *  <li>if the SQO-OSS framework (the WSS) threw an exception</li>
+     * <ul>
+     */
+    public abstract WSMetric[] getAllMetrics() throws WSException;
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

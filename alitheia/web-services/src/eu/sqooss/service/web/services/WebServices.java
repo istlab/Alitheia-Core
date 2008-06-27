@@ -536,12 +536,12 @@ public class WebServices implements EventHandler{
     }
 
     /**
-     * The method looks for the metrics. The request object gives the search criteria.
+     * This method performs a metrics lookup following the criteria specified
+     * in the given request object.
      *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
-     * @param request - the request object,
-     * the object contains the request information
+     * @param request - the request object
      *
      * @return The array of metrics,
      * or a <code>null</code> array when none are found.
@@ -551,6 +551,22 @@ public class WebServices implements EventHandler{
             String password,
             WSMetricsRequest request) {
         return metricManager.getMetricsByResourcesIds(userName, password, request);
+    }
+
+    /**
+     * This method will return the list of all metrics that are currently
+     * registered in the SQO-OSS framework.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * 
+     * @return The array with all metrics, or a <code>null<code> when none
+     *   are found.
+     */
+    public WSMetric[] getAllMetrics(
+            String userName,
+            String password) {
+        return metricManager.getAllMetrics(userName, password);
     }
 
     /**

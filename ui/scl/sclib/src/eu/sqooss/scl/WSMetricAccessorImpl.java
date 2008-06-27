@@ -55,16 +55,21 @@ import eu.sqooss.ws.client.ws.GetMetricsResult;
 import eu.sqooss.ws.client.ws.GetMetricsResultResponse;
 import eu.sqooss.ws.client.ws.GetProjectEvaluatedMetrics;
 import eu.sqooss.ws.client.ws.GetProjectEvaluatedMetricsResponse;
+import eu.sqooss.ws.client.ws.GetAllMetrics;
+import eu.sqooss.ws.client.ws.GetAllMetricsResponse;
 
 class WSMetricAccessorImpl extends WSMetricAccessor {
 
-    private static final String METHOD_NAME_GET_PROJECT_EVALUATED_METRICS    = "getMetricsByProjectId";
-    
-    private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS          = "getMetricTypesByIds";
-
-    private static final String METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS = "getMetricsByResourcesIds";
-
-    private static final String METHOD_NAME_GET_METRICS_RESULT           = "getMetricsResult";
+    private static final String METHOD_NAME_GET_ALL_METRICS =
+        "getAllMetrics";
+    private static final String METHOD_NAME_GET_PROJECT_EVALUATED_METRICS =
+        "getMetricsByProjectId";
+    private static final String METHOD_NAME_GET_METRIC_TYPES_BY_IDS =
+        "getMetricTypesByIds";
+    private static final String METHOD_NAME_GET_METRICS_BY_RESOURCES_IDS =
+        "getMetricsByResourcesIds";
+    private static final String METHOD_NAME_GET_METRICS_RESULT =
+        "getMetricsResult";
 
     private static final WSMetricType[] EMPTY_ARRAY_METRIC_TYPES = new WSMetricType[0];
     
@@ -82,6 +87,33 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
         } catch (AxisFault af) {
             throw new WSException(af);
         }
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSMetricAccessor#getAllMetrics()
+     */
+    @Override
+    public WSMetric[] getAllMetrics() throws WSException {
+        GetAllMetricsResponse response;
+        GetAllMetrics params;
+        if (parameters.containsKey(METHOD_NAME_GET_ALL_METRICS)) {
+            params = (GetAllMetrics) parameters.get(
+                    METHOD_NAME_GET_ALL_METRICS);
+        }
+        else {
+            params = new GetAllMetrics();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_ALL_METRICS, params);
+        }
+        synchronized (params) {
+            try {
+                response = wsStub.getAllMetrics(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSMetric[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**

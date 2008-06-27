@@ -373,7 +373,6 @@ public class Terrier {
         return result;
     }
 
-
     /**
      * Returns the current number of versions for the project with the
      * given Id.
@@ -424,7 +423,6 @@ public class Terrier {
         return result;
     }
 
-
     //========================================================================
     // SOURCE FILE RELATED SCL WRAPPER METHODS
     //========================================================================
@@ -452,7 +450,6 @@ public class Terrier {
             addError(connection.getError());
         return null;
     }
-
 
     /**
      * This method returns a list of all files located in the selected
@@ -483,7 +480,6 @@ public class Terrier {
             addError(connection.getError());
         return result;
     }
-
 
     /**
      * Retrieves all files that exist in the specified project version.
@@ -833,15 +829,17 @@ public class Terrier {
             return result;
         }
         try {
-            WSMetricsRequest request = new WSMetricsRequest();
-            request.setSkipResourcesIds(true);
-            request.setIsFileGroup(true);
-            request.setIsProjectFile(true);
-            request.setIsProjectVersion(true);
-            request.setIsStoredProject(true);
+//            WSMetricsRequest request = new WSMetricsRequest();
+//            request.setSkipResourcesIds(true);
+//            request.setIsFileGroup(true);
+//            request.setIsProjectFile(true);
+//            request.setIsProjectVersion(true);
+//            request.setIsStoredProject(true);
+//            WSMetric[] wsmetrics =
+//                connection.getMetricAccessor().getMetricsByResourcesIds(
+//                        request);
             WSMetric[] wsmetrics =
-                connection.getMetricAccessor().getMetricsByResourcesIds(
-                        request);
+                connection.getMetricAccessor().getAllMetrics();
             // Retrieve the metric types
             long[] typeIds = new long[wsmetrics.length];
             int index = 0;
