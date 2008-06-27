@@ -42,12 +42,12 @@ import eu.sqooss.webui.Project;
  * presents the metadata information of a single project.
  */
 public class ProjectInfoView extends ListView {
-    // Holds the project object
+    /** Holds the project object. */
     private Project project;
 
     /**
      * Instantiates a new project info view, and initializes it with the
-     * given project object
+     * given project object.
      * 
      * @param project the project
      */
@@ -56,6 +56,9 @@ public class ProjectInfoView extends ListView {
         this.project = project;
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.ListView#getHtml(long)
+     */
     public String getHtml(long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));

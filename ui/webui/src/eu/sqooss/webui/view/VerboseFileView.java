@@ -55,7 +55,7 @@ import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
  * revision.
  */
 public class VerboseFileView extends ListView {
-    // Holds the project object
+    /** Holds the project object. */
     private Project project;
 
     /*
@@ -83,7 +83,6 @@ public class VerboseFileView extends ListView {
         this.fileId = fileId;
     }
 
-
     /**
      * This method enables the display of evaluation results comparison.
      * When the given version number is valid and not equal to the current
@@ -106,6 +105,7 @@ public class VerboseFileView extends ListView {
      * The list of retrieved result is then converted to a collection indexed
      * by the mnemonic name of the metric that has calculated each result.
      * 
+     * @param metricMnemonics the mnemonic names of the selected metrics
      * @param fileId the project file's Id
      * 
      * @return The list of file results, or an empty list when none are found.
@@ -221,8 +221,9 @@ public class VerboseFileView extends ListView {
                 compareToFileId = mods.get(compareToVersion);
             // Create the version selection field
             b.append(sp(in++) + "<span"
-                    + " style=\"float: right; width: 40%; text-align:right;\">\n"
-                    + sp(in) + "<b>Compare with:</b>\n");
+                    + " style=\"float: right; width: 40%; text-align:right;\""
+                    + ">\n");
+            b.append(sp(in) + "<b>Compare with:</b>\n");
             b.append(sp(in++) + "<select name=\"cvnum\" size=\"1\""
                     + ((disableSelect) ? " disabled" : "")
                     + " style=\"width:70px;\">\n");
@@ -291,7 +292,9 @@ public class VerboseFileView extends ListView {
              * (version) results will be compared.
              */
             if ((doCompare) && (compareToFileId != null))
-                compResults = getFileResults(project.getSelectedMetricMnemonics().values(), compareToFileId);
+                compResults = getFileResults(
+                        project.getSelectedMetricMnemonics().values(),
+                        compareToFileId);
             // Holds a map from metric mnemonic to metric description object
             HashMap<String, Metric> mnemToMetric =
                 new HashMap<String, Metric>();

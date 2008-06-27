@@ -214,6 +214,13 @@ public class Project extends WebuiItem {
     }
 
     /**
+     * Flushes the list of evaluated metrics that is cached by this object.
+     */
+    public void flushMetrics() {
+        metrics.clear();
+    }
+
+    /**
      * Retrieves the list of all metrics that have been evaluated on this
      * project from the SQO-OSS framework, unless the cache contains some
      * data already.

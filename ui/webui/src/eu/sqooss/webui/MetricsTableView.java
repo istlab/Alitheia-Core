@@ -31,43 +31,43 @@
  *
  */
 
-
 package eu.sqooss.webui;
 
 import java.util.*;
 
-/** A bean for rendering a table or a list of Metrics available for a
- * project that is being evaluated.
+/**
+ * The class <code>MetricsTableView</code> renders an HTML sequence that
+ * present the specified metrics in a tabular format.
  *
  */
 public class MetricsTableView extends ListView {
 
-    // Stores the list of metric indexed by metric Id
-    Map<Long,Metric> metrics = new HashMap<Long,Metric>();
+    /** Holds the list of metric indexed by their Ids. */
+    private Map<Long,Metric> metrics = new HashMap<Long,Metric>();
 
-    // Stores the list of Ids of all selected metrics
+    /** Holds the list of metrics which will be displayed as selected. */
     private List<Long> selectedMetrics = new ArrayList<Long>();
 
-    // Holds the Id of the project, on which this metrics were evaluated
-    Long projectId = null;
+    /** Holds the Id of the project to which this view belongs. */
+    private Long projectId = null;
 
-    // Flag for enabling the visualization of metrics' Ids
-    boolean showId = false;
+    /** Enables the visualization of the metric Id column */
+    private boolean showId = false;
 
-    // Flag for enabling the selection of metrics
-    public boolean showChooser = false;
+    /** Enables the visualization of the metric select column */
+    private boolean showSelect = false;
 
-    // Flag for enabling the visualization of metrics' mnemonic names
-    boolean showMnemonic = true;
+    /** Enables the visualization of the metric mnemonic column */
+    private boolean showMnemonic = true;
 
-    // Flag for enabling the visualization of metrics' descriptions
-    boolean showDescription = true;
+    /** Enables the visualization of the metric description column */
+    private boolean showDescription = true;
 
-    // Flag for enabling the visualization of metrics' types
-    boolean showType = true;
+    /** Enables the visualization of the metric type column */
+    private boolean showType = true;
 
-    // Flag for enabling the links to the results page
-    public boolean showResult = true;
+    /** Enables the visualization of the metric result column */
+    private boolean showResult = true;
 
     // Flag for enabling the visualization of the metrics' table header
     boolean showHeader = true;
@@ -85,7 +85,8 @@ public class MetricsTableView extends ListView {
     String tableId = new String("table");
 
     /**
-     * Instantiates a new metrics table view, from a list of metrics.
+     * Instantiates a new <code>MetricsTableView</code>metrics object, and
+     * initializes it with the given metrics list.
      * 
      * @param metricsList the metrics list
      */
@@ -93,6 +94,16 @@ public class MetricsTableView extends ListView {
         if (metricsList != null)
             for (Metric nextMetric : metricsList)
                 metrics.put(nextMetric.getId(), nextMetric);
+    }
+
+    /**
+     * Adds an additional metric to the locally stored metrics list.
+     *
+     * @param metric a <code>Metric</code> instance
+     */
+    public void addMetric (Metric metric) {
+        if (metric != null)
+            metrics.put(metric.getId().longValue(), metric);
     }
 
     /**
@@ -105,14 +116,90 @@ public class MetricsTableView extends ListView {
     }
 
     /**
-     * Adds additional metric to the locally stored metrics list.
+     * This method enables or disables the visualization of the metric Id
+     * column, depending on the given boolean value:
+     * <ul>
+     *   <li>a value of <code>true<code> will enable the column
+     *   <li>a value of <code>false<code> will disable the column
+     * </ul>
      *
-     * @param metric a <code>Metric</code> instance
+     * @param show the boolean flag
      */
-    public void addMetric (Metric metric) {
-        metrics.put(metric.getId().longValue(), metric);
+    public void setShowId (boolean show) {
+        showId = show;
     }
 
+    /**
+     * This method enables or disables the visualization of the metric select
+     * column, depending on the given boolean value:
+     * <ul>
+     *   <li>a value of <code>true<code> will enable the column
+     *   <li>a value of <code>false<code> will disable the column
+     * </ul>
+     *
+     * @param show the boolean flag
+     */
+    public void setShowSelect (boolean show) {
+        showSelect = show;
+    }
+
+    /**
+     * This method enables or disables the visualization of the metric
+     * mnemonic column, depending on the given boolean value:
+     * <ul>
+     *   <li>a value of <code>true<code> will enable the column
+     *   <li>a value of <code>false<code> will disable the column
+     * </ul>
+     *
+     * @param show the boolean flag
+     */
+    public void setShowMnemonic (boolean show) {
+        showMnemonic = show;
+    }
+
+    /**
+     * This method enables or disables the visualization of the metric
+     * description column, depending on the given boolean value:
+     * <ul>
+     *   <li>a value of <code>true<code> will enable the column
+     *   <li>a value of <code>false<code> will disable the column
+     * </ul>
+     *
+     * @param show the boolean flag
+     */
+    public void setShowDescription (boolean show) {
+        showDescription = show;
+    }
+
+    /**
+     * This method enables or disables the visualization of the metric type
+     * column, depending on the given boolean value:
+     * <ul>
+     *   <li>a value of <code>true<code> will enable the column
+     *   <li>a value of <code>false<code> will disable the column
+     * </ul>
+     *
+     * @param show the boolean flag
+     */
+    public void setShowType (boolean show) {
+        showType = show;
+    }
+
+    /**
+     * This method enables or disables the visualization of the metric result
+     * column, depending on the given boolean value:
+     * <ul>
+     *   <li>a value of <code>true<code> will enable the column
+     *   <li>a value of <code>false<code> will disable the column
+     * </ul>
+     *
+     * @param show the boolean flag
+     */
+    public void setShowResult (boolean show) {
+        showResult = show;
+    }
+
+    // TODO: Replace with a property bundle
     /**
      * Constructs a proper error message when the list of metric is empty
      *
@@ -128,19 +215,18 @@ public class MetricsTableView extends ListView {
         }
     }
 
-
     /* (non-Javadoc)
      * @see eu.sqooss.webui.ListView#getHtml(long)
      */
     public String getHtml(long in) {
-        // Skip on emtpy metrics list
+        // Skip on empty metrics list
         if (metrics.isEmpty())
             return errNoMetrics();
 
-        // Calculate the number of required table columns
+        // Calculate the number of visible table columns
         int columns = 0;
         if (showId)             columns++;
-        if (showChooser)        columns++;
+        if (showSelect)         columns++;
         if (showMnemonic)       columns++;
         if (showDescription)    columns++;
         if (showType)           columns++;
@@ -179,7 +265,7 @@ public class MetricsTableView extends ListView {
             html.append(sp(in++) + "<tr" + head_class + ">\n");
             if (showId)
                 html.append(sp(in) + "<td" + head_class + ">ID</td>\n");
-            if (showChooser)
+            if (showSelect)
                 html.append(sp(in) + "<td" + head_class + ">Selection</td>\n");
             if (showMnemonic)
                 html.append(sp(in) + "<td" + head_class + ">Name</td>\n");
@@ -198,8 +284,22 @@ public class MetricsTableView extends ListView {
             html.append(sp(in++) + "<tfoot>\n");
             html.append(sp(in++) + "<tr" + foot_class + ">\n");
             html.append(sp(in) + "<td" + foot_class
-                    + " colspan=\"" + columns + "\">"
+                    + " colspan=\"" + (columns - 1) + "\">"
                     + "TOTAL: " + metrics.size() + " metrics"
+                    + "</td>\n");
+            html.append(sp(in) + "<td" + foot_class
+                    + " style=\"text-align: right;\""
+                    + " colspan=\"" + (columns - 1) + "\">"
+                    + "<form>"
+                    + "<input type=\"hidden\" name=\""
+                    + ((projectId == null)
+                            ? "refreshAllMetrics"
+                            : "refreshPrjMetrics" )
+                    + "\""
+                    + " value=\"true\">"
+                    + "<input type=\"submit\" class=\"submit\""
+                    + " value=\"Refresh\">"
+                    + "</form>"
                     + "</td>\n");
             html.append(sp(--in) + "</tr>\n");
             html.append(sp(--in) + "</tfoot>\n");
@@ -213,7 +313,7 @@ public class MetricsTableView extends ListView {
                 html.append(sp(in) + "<td " + cell_class + ">"
                         + key + "</td>\n");
             }
-            if (showChooser) {
+            if (showSelect) {
                 html.append(sp(in) + "<td " + cell_class + ">"
                         + ((selectedMetrics.contains(key))
                                 ? metrics.get(key).getDeselectMetricLink()
@@ -317,62 +417,6 @@ public class MetricsTableView extends ListView {
     */
     public void setTableId (String table_id) {
         tableId = table_id;
-    }
-
-    /*
-     * @param show Wether to show the Metric ID in the table or not.
-     */
-    public void setShowId (boolean show) {
-        showId = show;
-    }
-
-    /*
-    * @return The CSS class that is used for the whole table.
-    */
-    public boolean getShowId () {
-        return showId;
-    }
-
-    /*
-    * @return The CSS class that is used for the whole table.
-    */
-    public void setShowName (boolean show) {
-        showMnemonic = show;
-    }
-
-    /*
-    * @return true or false (show the name in the table or not?).
-    */
-    public boolean getShowName () {
-        return showMnemonic;
-    }
-
-    /*
-    * @param show Wether to show the Metric's description in the Table or not
-    */
-    public void setShowDescription (boolean show) {
-        showDescription = show;
-    }
-
-    /*
-    * @return true or false (Show Metric's description in the table?)
-    */
-    public boolean getShowDescription () {
-        return showDescription;
-    }
-
-    /*
-    * @return true or false (Show Metric's Type in the table?)
-    */
-    public boolean getShowType() {
-        return showType;
-    }
-
-    /*
-    * @param show wether to show the Metric's Type in the Table or not
-    */
-    public void setShowType(boolean showType) {
-        this.showType = showType;
     }
 
      public void setSelectedMetrics (List<Long> selected) {

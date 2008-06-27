@@ -122,12 +122,16 @@ if (selectedProject.isValid()) {
     //========================================================================
     // Indentation depth
     in = 9;
+    // Check if the user has requested a metrics refresh
+    if (request.getParameter("refreshPrjMetrics") != null) {
+        selectedProject.flushMetrics();
+    }
     // Prepare the metrics view
     MetricsTableView metricsView =
         new MetricsTableView(selectedProject.retrieveMetrics());
     metricsView.setProjectId(selectedProject.getId());
     metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
-    metricsView.showResult = false;
+    metricsView.setShowResult(false);
     // Display the metrics
     out.println(sp(in) + "<h2>Metrics for "
         + selectedProject.getName() + "</h2>");

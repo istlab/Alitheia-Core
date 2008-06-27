@@ -28,12 +28,11 @@ public void jspInit() {
 %><jsp:useBean
     id="terrier"
     class="eu.sqooss.webui.Terrier"
-    scope="session"
-/><jsp:setProperty name="terrier" property="*"
-/><%
-// Initialise the Terrier's configuration properties
-terrier.initConfig(configProperties);
-%><jsp:useBean
+    scope="session"><%
+    // Initialise the Terrier's configuration properties
+    terrier.initConfig(configProperties);
+%></jsp:useBean><jsp:setProperty name="terrier" property="*"
+/><jsp:useBean
     id="user"
     class="eu.sqooss.webui.User"
     scope="session"
