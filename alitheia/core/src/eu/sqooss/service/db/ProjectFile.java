@@ -236,11 +236,12 @@ public class ProjectFile extends DAObject{
         }
 
         String paramFile = "paramFile";
-        String paramVersion = "paramVersion";
+        String paramTimestamp = "paramTimestamp";
         String paramDir = "paramDir";
-
+        String paramProject = "paramProject";
+/*
         String query = "select pf from ProjectVersion pv, ProjectFile pf " +
-        		"where pv.timestamp in (" +
+        		"where pv.timestamp = (" +
         		"select max(pv2.timestamp) " +
         		"from ProjectVersion pv2, ProjectFile pf2 " +
         		"where pv2.timestamp < :" + paramVersion +
@@ -249,11 +250,20 @@ public class ProjectFile extends DAObject{
         		" and pf2.name = :" + paramFile +
         		" and pv2.project = pv.project )" +
         		"and pf.projectVersion = pv.id and pf.name = :" + paramFile;
-
+*/
+        String query ="select pf" +
+        		" from ProjectVersion pv, ProjectFile pf" +
+        		" where pf.projectVersion = pv.id " +
+        		" and pf.name = :" + paramFile +
+        		" and pf.dir = :" + paramDir +        		
+        		" and pv.project = :" + paramProject +
+        		" and pv.timestamp < :" + paramTimestamp +
+        		" order by pv.timestamp desc";
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());
-        parameters.put(paramVersion, pf.getProjectVersion().getTimestamp());
+        parameters.put(paramProject, pf.getProjectVersion().getProject());
+        parameters.put(paramTimestamp, pf.getProjectVersion().getTimestamp());
 
         List<?> projectFiles = dbs.doHQL(query, parameters);
 
