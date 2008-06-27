@@ -37,10 +37,11 @@ package eu.sqooss.webui.quality.bean;
 import java.util.Comparator;
 
 /**
- * This enumeration type defines the profiles/categories that the SQO-OSS is
- * currently supporting.<br>
- * It also provides comparing methods in order to compare a profile against
- * another.
+ * This enumeration type defines the four profiles as according to deliverable
+ * (D7) of the SQO-OSS Documentation. <br/> It also provides comparing methods
+ * in order to compare a profile against another.<br/> The profiles are ordered
+ * from worst to best (and they should always remain in that order for the
+ * comparing methods to work properly).
  * 
  * @author <a href="mailto:sskalist@gmail.com">sskalist &lt sskalist@gmail.com
  *         &gt</a>
