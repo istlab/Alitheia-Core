@@ -47,7 +47,6 @@ import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
-import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -580,6 +579,42 @@ public class Terrier {
     //========================================================================
 
     /**
+     * Retrieves the list of all metrics that are currently registered in the
+     * attached SQO-OSS framework.
+     *
+     * @return The list of all registered metric, or an empty list when none
+     *   are found.
+     */
+    public List<Metric> getAllMetrics() {
+        List<Metric> result = new ArrayList<Metric>();
+        if (isConnected()) {
+            try {
+                WSMetric[] wsmetrics =
+                    connection.getMetricAccessor().getAllMetrics();
+                if ((wsmetrics != null) && (wsmetrics.length > 0)) {
+                    // Retrieve the metric types
+                    long[] typeIds = new long[wsmetrics.length];
+                    int index = 0;
+                    for (WSMetric nextMetric : wsmetrics)
+                        typeIds[index++] = nextMetric.getMetricTypeId();
+                    getMetricTypesById(typeIds);
+                    // Create the result list
+                    for (WSMetric nextMetric : wsmetrics)
+                        result.add(new Metric(
+                                nextMetric,
+                                metricTypes.get(nextMetric.getMetricTypeId())));
+                }
+            }
+            catch (WSException wse) {
+                addError("Cannot retrieve the list of all metrics.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
+
+    /**
      * Retrieves the list of all metrics that has been evaluated on the
      * project with the given Id.
      *
@@ -595,14 +630,13 @@ public class Terrier {
                 WSMetric[] wsmetrics = 
                     connection.getMetricAccessor().getProjectEvaluatedMetrics(
                             projectId);
-                if (wsmetrics.length > 0) {
+                if ((wsmetrics != null) && (wsmetrics.length > 0)) {
                     // Retrieve the metric types
                     long[] typeIds = new long[wsmetrics.length];
                     int index = 0;
                     for (WSMetric nextMetric : wsmetrics)
                         typeIds[index++] = nextMetric.getMetricTypeId();
-                    HashMap<Long, String> metricTypes =
-                        getMetricTypesById(typeIds);
+                    getMetricTypesById(typeIds);
                     // Create the result list
                     for (WSMetric nextMetric : wsmetrics)
                         result.add(new Metric(
@@ -809,53 +843,6 @@ public class Terrier {
         else
             addError(connection.getError());
         return null;
-    }
-
-    //========================================================================
-    // TODO: FIX ME
-    //========================================================================
-
-    /**
-     * Retrieves the list of all metrics that are currently installed in the
-     * attached SQO-OSS framework.
-     *
-     * @return The list of all installed metric, or an empty list when none
-     *   are found.
-     */
-    public List<Metric> getAllMetrics() {
-        List<Metric> result = new ArrayList<Metric>();
-        if (!isConnected()) {
-            addError(connection.getError());
-            return result;
-        }
-        try {
-//            WSMetricsRequest request = new WSMetricsRequest();
-//            request.setSkipResourcesIds(true);
-//            request.setIsFileGroup(true);
-//            request.setIsProjectFile(true);
-//            request.setIsProjectVersion(true);
-//            request.setIsStoredProject(true);
-//            WSMetric[] wsmetrics =
-//                connection.getMetricAccessor().getMetricsByResourcesIds(
-//                        request);
-            WSMetric[] wsmetrics =
-                connection.getMetricAccessor().getAllMetrics();
-            // Retrieve the metric types
-            long[] typeIds = new long[wsmetrics.length];
-            int index = 0;
-            for (WSMetric nextMetric : wsmetrics)
-                typeIds[index++] = nextMetric.getMetricTypeId();
-            HashMap<Long, String> metricTypes =
-                getMetricTypesById(typeIds);
-            // Create the result list
-            for (WSMetric nextMetric : wsmetrics)
-                result.add(new Metric(
-                        nextMetric,
-                        metricTypes.get(nextMetric.getMetricTypeId())));
-        } catch (WSException wse) {
-            addError("Cannot retrieve the list of all metrics.");
-        }
-        return result;
     }
 
 }
