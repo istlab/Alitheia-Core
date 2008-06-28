@@ -47,20 +47,24 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
  */
 public class Project extends WebuiItem {
 
-    // Project metadata
-    private String  bts;
-    private String  repository;
-    private String  mail;
-    private String  contact;
-    private String  website;
+    /*
+     *  Project metadata fields
+     */
+    private String bts;
+    private String repository;
+    private String mail;
+    private String contact;
+    private String website;
 
-    // Holds the version number of the currently selected version
+    /** Holds the version number of the currently selected version. */
     private Long currentVersionId;
 
-    // Holds the number of versions in this project
+    /** Holds the number of versions in this project. */
     Long versionsCount = null;
 
-    // Versions cache
+    /*
+     * Versions cache
+     */
     private Version firstVersion = null;
     private Version lastVersion = null;
     private Version currentVersion = null;

@@ -162,7 +162,10 @@ public class File extends WebuiItem {
      * @return The rendered HTML content.
      */
     public String getStatusIcon(Long versionId) {
-        String iconname = "vcs_unchanged";
+        // TODO: Add status icons for folders
+        if (isDirectory) return icon("folder", 0, "Folder");
+
+        String iconname = "text-plain";
         String tooltip = null;
         if ((versionId != null) && (this.versionId == versionId))
             if (status.equals("ADDED")) {
@@ -218,8 +221,7 @@ public class File extends WebuiItem {
         StringBuilder html = new StringBuilder("");
         if (getIsDirectory()) {
             html.append(getStatusIcon(versionId)
-                    + "&nbsp;" + getDirLink()
-                    + " (<i>Folder</i>)\n");
+                    + "&nbsp;" + getDirLink() + "\n");
         }
         else {
             if (results.size() > 0) {
