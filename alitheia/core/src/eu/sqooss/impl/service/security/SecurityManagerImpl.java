@@ -411,6 +411,11 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
                     defaultUserGroup = groupManager.createGroup(userGroup, GroupType.Type.SYSTEM);
                 }
                 if (groupManager.addUserToGroup(defaultUserGroup.getId(), defaultUser.getId())) {
+                    //remove the system user from the default group
+                    String newUsersGroupDesc = this.getNewUsersGroup();
+                    Group newUsersGroup = groupManager.getGroup(newUsersGroupDesc);
+                    groupManager.deleteUserFromGroup(newUsersGroup.getId(),
+                            defaultUser.getId());
                     return;
                 } else {
                     logger.error("The default user isn't created!");
@@ -464,8 +469,8 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
             logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
             // Create the unprivileged SQO-OSS user
             db.startDBSession();
-            initDefaultUser();
             initNewUsersGroup();
+            initDefaultUser();
             storeConstantsInDB();
             db.commitDBSession();
         }
