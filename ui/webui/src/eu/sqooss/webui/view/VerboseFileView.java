@@ -148,8 +148,16 @@ public class VerboseFileView extends ListView {
         if (fileId != null)
             selFile = project.getCurrentVersion().getFile(fileId);
         // Retrieve the selected file's results
-        if (selFile != null)
+        if (selFile != null) {
             selFileResults = selFile.getResults();
+            if (selFileResults.isEmpty()) {
+                Collection<Result> results = getFileResults(
+                        project.getSelectedMetricMnemonics().values(),
+                        selFile.getId()).values();
+                for (Result nextResult : results)
+                    selFile.addResult(nextResult);
+            }
+        }
 
         if (selFile == null) {
             b.append(sp(in) + Functions.error("File not found!"));

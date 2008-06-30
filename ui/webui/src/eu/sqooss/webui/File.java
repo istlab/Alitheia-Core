@@ -224,23 +224,14 @@ public class File extends WebuiItem {
                     + "&nbsp;" + getDirLink() + "\n");
         }
         else {
-            if (results.size() > 0) {
-                html.append(getStatusIcon(versionId)
-                        + "&nbsp;" + getLink() + "\n");
-                if (settings.getShowFileResultsOverview()) {
-                    html.append("<ul>\n");
-                    for (Result nextResult : results)
-                        html.append("<li>" + nextResult.getMnemonic()
-                                + " : " + nextResult.getHtml(0));
-                    html.append("</ul>\n");
-                }
-            }
-            else {
-                html.append(getStatusIcon(versionId)
-                        + "&nbsp;" + getShortName());
-                if (settings.getShowFileResultsOverview())
-                    html.append(" (<i>No results found</i>)");
-                html.append("\n");
+            html.append(getStatusIcon(versionId)
+                    + "&nbsp;" + getLink() + "\n");
+            if (settings.getShowFileResultsOverview()) {
+                html.append("<ul>\n");
+                for (Result nextResult : results)
+                    html.append("<li>" + nextResult.getMnemonic()
+                            + " : " + nextResult.getHtml(0));
+                html.append("</ul>\n");
             }
         }
         return html.toString();

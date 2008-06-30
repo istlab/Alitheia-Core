@@ -278,9 +278,12 @@ public class Version extends WebuiItem {
             // Retrieve results from all selected metrics (if any)
             Map<Long, String> selectedMetrics =
                 project.getSelectedMetricMnemonics();
-            if ((project != null) && (files.size() > 0)) {
-                if (selectedMetrics.size() > 0)
-                    fetchFilesResults(selectedMetrics);
+            // .. but only if the user asked to
+            if (settings.getShowFileResultsOverview()) {
+                if ((project != null) && (files.size() > 0)) {
+                    if (selectedMetrics.size() > 0)
+                        fetchFilesResults(selectedMetrics);
+                }
             }
             // Ask the user to select some metrics, when none are selected
             if (selectedMetrics.isEmpty()) {
