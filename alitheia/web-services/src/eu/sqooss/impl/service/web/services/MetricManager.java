@@ -196,38 +196,53 @@ public class MetricManager extends AbstractManager {
         return (WSMetric[]) normalizeWSArrayResult(result);
     }
 
+    /**
+     * Retrieves the evaluation results of the specified metrics on the
+     * selected project resources.
+     * 
+     * @param userName the user's name used for authentication
+     * @param password the user's password used for authentication
+     * @param resultRequest the result request object
+     * 
+     * @return The array of metrics results, or <code>null</code> when the
+     *   specified metrics were not evaluated on the given resources.
+     */
     @SuppressWarnings("unchecked")
-    public WSResultEntry[] getMetricsResult(String userName, String password,
+    public WSResultEntry[] getMetricsResult(
+            String userName,
+            String password,
             WSMetricsResultRequest resultRequest) {
-        logger.info("Get metrics result! user: " + userName +
-                "; request: " + resultRequest.toString());
-
+        // Log this call
+        logger.info("Get metrics result!"
+                + " user: " + userName +
+                ";"
+                + " request: " + resultRequest.toString());
+        // Match against the current security policy
         db.startDBSession();
-
         if (!securityWrapper.checkMetricsReadAccess(userName, password)) {
             if (db.isDBSessionActive()) {
                 db.commitDBSession();
             }
             throw new SecurityException(
-                    "Security violation in the get metrics reault operation!");
+                    "Security violation: Get metrics results has been denied!");
         }
-
         super.updateUserActivity(userName);
-
+        // Retrieve the result(s)
         WSResultEntry[] result = null;
         List<WSResultEntry> resultsList = new ArrayList<WSResultEntry>();
-        // Retrieve the metrics by their mnemonics
-        List<Metric> metrics =
-            (List<Metric>) dbWrapper.getMetricsResultMetricsList(
-                    resultRequest);
-        if ((metrics != null) && (resultRequest.getDaObjectId() != null)) {
+        if ((resultRequest.getMnemonics() != null)
+                && (resultRequest.getDaObjectId() != null)) {
+            // Retrieve the required metric DAOs and sort them by plug-in DAO
+            Hashtable<AlitheiaPlugin, List<Metric>> plugins =
+                groupMetricsByPlugins(resultRequest.getMnemonics());
+            // Retrieve the evaluation results for each of the resource DAOs
             for (long nextDaoId : resultRequest.getDaObjectId()) {
-                // Find the DAO with this Id
+                // Extract the DAO with this Id
                 DAObject nextDao = dbWrapper.getMetricsResultDAObject(
                         resultRequest, nextDaoId);
                 // Retrieve the metric evaluations for this DAO
                 List<WSResultEntry> nextDaoResults =
-                    getMetricsResult(metrics, nextDao);
+                    getMetricsResult(plugins, nextDao);
                 if (nextDaoResults.size() > 0) {
                     for (WSResultEntry nextResult : nextDaoResults) {
                         nextResult.setDaoId(nextDaoId);
@@ -236,7 +251,7 @@ public class MetricManager extends AbstractManager {
                 }
             }
         }
-        
+        // Convert the result list into an array
         if (resultsList.size() > 0) {
             result = new WSResultEntry[resultsList.size()];
             resultsList.toArray(result);
@@ -245,13 +260,22 @@ public class MetricManager extends AbstractManager {
         return (WSResultEntry[]) normalizeWSArrayResult(result);
     }
 
-    private List<WSResultEntry> getMetricsResult(List<Metric> metrics, DAObject dao) {
+    /**
+     * Retrieve the results of one or more metric that were evaluated on
+     * the specified resource DAO.
+     * 
+     * @param plugins the plug-in to metric hash table
+     * @param dao the resource DAO
+     * 
+     * @return The list of metrics results, or an empty list when these
+     *   metrics were not evaluated for on this resource DAO.
+     */
+    private List<WSResultEntry> getMetricsResult(
+            Hashtable<AlitheiaPlugin, List<Metric>> plugins, DAObject dao) {
+        // Holds the evaluation results for the given resource DAO
         List<WSResultEntry> resultList = new ArrayList<WSResultEntry>();
-        if ((metrics == null) || (metrics.size() == 0) || (dao == null))
+        if ((plugins == null) || (plugins.size() == 0) || (dao == null))
             return resultList;
-
-        Hashtable<AlitheiaPlugin, List<Metric>> plugins =
-            groupMetricsByPlugins(metrics);
 
         for (AlitheiaPlugin nextPlugin : plugins.keySet()) {
             Result currentResult = null;
@@ -271,20 +295,34 @@ public class MetricManager extends AbstractManager {
         return resultList;
     }
 
-    private Hashtable<AlitheiaPlugin, List<Metric>>  groupMetricsByPlugins(List<Metric> metrics) {
+    /**
+     * Assembles a plug-in DAOs to metric DAOs hash table, based on the
+     * provided list of metric mnemonic names.
+     * 
+     * @param mnemonics the list of mnemonic names
+     * 
+     * @return The plug-in to metric hash table, or an empty map when the
+     *   given mnemonics list is empty or no metrics correspond to these
+     *   mnemonics.
+     */
+    private Hashtable<AlitheiaPlugin, List<Metric>> groupMetricsByPlugins(
+            String[] mnemonics) {
+        // Holds the plug-ins to metrics mapping
         Hashtable<AlitheiaPlugin, List<Metric>> plugins =
             new Hashtable<AlitheiaPlugin, List<Metric>>();
-        if ((metrics != null) && (metrics.size() != 0)) {
+        
+        if ((mnemonics != null) && (mnemonics.length > 0)) {
             AlitheiaPlugin currentPlugin = null;
-            for (Metric metric : metrics) {
-                currentPlugin = pluginAdmin.getImplementingPlugin(
-                        metric.getMnemonic());
+            for (String mnemonic : mnemonics) {
+                currentPlugin = pluginAdmin.getImplementingPlugin(mnemonic);
                 if (currentPlugin != null) {
                     if (plugins.containsKey(currentPlugin)) {
-                        plugins.get(currentPlugin).add(metric);
-                    } else {
+                        plugins.get(currentPlugin).add(
+                                Metric.getMetricByMnemonic(mnemonic));
+                    }
+                    else {
                         List<Metric> metricList = new ArrayList<Metric>(1);
-                        metricList.add(metric);
+                        metricList.add(Metric.getMetricByMnemonic(mnemonic));
                         plugins.put(currentPlugin, metricList);
                     }
                 }
