@@ -92,6 +92,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /**Types used to activate this metric*/
     private List<Class<? extends DAObject>> activationTypes = 
         new ArrayList<Class<? extends DAObject>>();
+    
+    /** Mnemonic names of all metrics registered by this plug-in */
+    private List<String> mnemonics = new ArrayList<String>();
 
     /** Cache the result of the mark evaluation function*/
     protected HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
@@ -191,19 +194,20 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *      not supported by this metric.
      */
      @SuppressWarnings("unchecked")
-	public Result getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
+     public Result getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
         boolean found = false;
         Result r = new Result();
 
-        List<Metric> metrics = getSupportedMetrics();
-
+        if (mnemonics.isEmpty()) {
+            for (Metric nextMetric : getSupportedMetrics())
+                mnemonics.add(nextMetric.getMnemonic());
+        }
         for (Metric m : l) {
-            if (!metrics.contains(m)) {
+            if (!mnemonics.contains(m.getMnemonic())) {
                 throw new MetricMismatchException("Metric " + m.getMnemonic()
                         + " not defined by plugin "
                         + Plugin.getPluginByHashcode(getUniqueKey()).getName());
             }
-            
             Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
             List<ResultEntry> re = null;
             while (i.hasNext()) {
