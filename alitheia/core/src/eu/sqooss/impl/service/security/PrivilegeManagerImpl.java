@@ -214,9 +214,13 @@ public class PrivilegeManagerImpl implements PrivilegeManager {
             return null;
         }
         String trimedPrivilegeName = privilegeName.trim();
+        int delimiterFirstIndex = trimedPrivilegeName.indexOf(
+                SecurityConstants.PrivilegeAction.DELIMITER);
+        int delimiterLastIndex = trimedPrivilegeName.lastIndexOf(
+                SecurityConstants.PrivilegeAction.DELIMITER);
         if (("".equals(trimedPrivilegeName)) ||
-                (trimedPrivilegeName.indexOf(SecurityConstants.PrivilegeAction.DELIMITER) !=
-                 trimedPrivilegeName.lastIndexOf(SecurityConstants.PrivilegeAction.DELIMITER)) ||
+                (delimiterFirstIndex == -1) ||
+                (delimiterFirstIndex != delimiterLastIndex) ||
                 (trimedPrivilegeName.startsWith(
                         Character.toString(SecurityConstants.PrivilegeAction.DELIMITER))) ||
                 (trimedPrivilegeName.endsWith(

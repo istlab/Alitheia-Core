@@ -60,9 +60,9 @@ public interface SecurityConstants {
      */
     public static final String URL_SQOOSS = "svc://sqooss";
     
-    public static final String ALL_PRIVILEGES = "<all privileges>";
+    public static final String ALL_PRIVILEGES = "all_privileges";
     
-    public static final String ALL_PRIVILEGE_VALUES = "<all privilege values>";
+    public static final String ALL_PRIVILEGE_VALUES = "all_privilegevalues";
     
     public static enum PrivilegeAction {
         
