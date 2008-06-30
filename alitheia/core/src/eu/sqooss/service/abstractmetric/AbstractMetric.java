@@ -208,10 +208,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                         + " not defined by plugin "
                         + Plugin.getPluginByHashcode(getUniqueKey()).getName());
             }
-            Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
             List<ResultEntry> re = null;
-            while (i.hasNext()) {
-                Class<? extends DAObject> c = i.next();
+            for (Class<? extends DAObject> c : getActivationTypes()) {
                 if (c.isInstance(o)) {
                     found = true;
                     try {
