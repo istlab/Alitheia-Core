@@ -5,6 +5,7 @@ import CosNaming
 import Alitheia_idl
 import eu
 import eu__POA
+import base64
 
 import eu.sqooss.impl.service.corba.alitheia
 from  eu.sqooss.impl.service.corba.alitheia import Developer
@@ -227,7 +228,9 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
 
     @staticmethod
     def anyFromObject(object):
-        if object.__class__ == long or object.__class__ == int:
+        if object == None:
+            return None
+        elif object.__class__ == long or object.__class__ == int:
             return CORBA.Any(CORBA.TC_long, long(object))
         elif object.__class__ == str:
             return CORBA.Any(CORBA.TC_string, object)
@@ -250,12 +253,15 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
         return self.db.findObjectById(any,long(id)).value()
       
     def findObjectsByProperties(self,type,properties):
+        print 'findObjectsByProperties'
         any = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + type.__name__ + ':1.0'), type())
+        print any.value()
         map = []
         
         for k, v in properties.iteritems():
             value = Database.anyFromObject(v)
-            map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
+            if value != None:
+                map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
 
         resultAny = self.db.findObjectsByProperties(any,map)
         result = []
@@ -270,7 +276,8 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
 
         for k, v in params.iteritems():
             value = Database.anyFromObject(v)
-            map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
+            if value != None:
+                map.append(eu.sqooss.impl.service.corba.alitheia.map_entry(k,value))
 
         resultAny = self.db.doHQL(hql,map)
         result = []
@@ -419,42 +426,66 @@ def StoredProjectInit(self, id=0, name='', website='', contact='', bugs='', repo
 
 OldDeveloperInit = Developer.__init__
 def DeveloperInit(self, id=0, name='', email='', username='', project=None):
+    if project is None:
+        project=StoredProject()
     return OldDeveloperInit(self, id, name, email, username, project)
 
 OldProjectVersionInit = ProjectVersion.__init__
-def ProjectVersionInit(self, id=0, project=None, version=None, timeStamp=None, committer=None, commitMsg=None, properties=None):
-    return OldProjectVersionInit(self, id, project, version, timeStamp, comitter, committer, commitMsg, properties)
+def ProjectVersionInit(self, id=0, project=None, version=-1, timeStamp=-1, committer=None, commitMsg='', properties=''):
+    if project is None:
+        project=StoredProject()
+    if committer is None:
+        committer=Developer()
+    return OldProjectVersionInit(self, id, project, version, timeStamp, committer, commitMsg, properties)
 
 OldProjectFileInit = ProjectFile.__init__
-def ProjectFileInit(self, id=0, name=None, version=None, status=None, isDirectory=False, dir=None):
+def ProjectFileInit(self, id=0, name='', version=None, status='', isDirectory=False, dir=Directory):
+    if version is None:
+        version=ProjectVersion()
     return OldProjectFileInit(self, id, name, version, status, isDirectory, dir)
 
 OldFileGroupInit = FileGroup.__init__
-def FileGroupInit(self, id=0, name=None, subPath=None, regex=None, recalcFreq=None, lastUsed=None, version=None):
+def FileGroupInit(self, id=0, name='', subPath='', regex='', recalcFreq=0, lastUsed='', version=None):
+    if version is None:
+        version=ProjectVersion()
     return OldFileGroupInit(self, id, name, subPath, regex, recalcFreq, lastUsed, version)
 
 OldPluginInit = Plugin.__init__
-def PluginInit(self, id=0, name=None, installdate=None):
+def PluginInit(self, id=0, name='', installdate=''):
     return OldPluginInit(self, id, name, installdate)
 
 OldMetricTypeInit = MetricType.__init__
-def MetricTypeInit(self, id=0, type=None):
+def MetricTypeInit(self, id=0, type=SourceCode):
     return OldMetricTypeInit(self, id, type)
 
 OldPluginConfigurationInit = PluginConfiguration.__init__
-def PluginConfigurationInit(self, id=0, name=None, value=None, type=None, msg=None, metricPlugin=None):
+def PluginConfigurationInit(self, id=0, name='', value='', type='', msg='', metricPlugin=None):
+    if metricPlugin is None:
+        metricPlugin=Plugin()
     return OldPluginConfiguration(self, id, name, value, type, msg, metricPlugin)
 
 OldMetricInit = Metric.__init__
-def MetricInit(self, id=0, metricPlugin=None, type=None, mnemonic=None, description=None):
+def MetricInit(self, id=0, metricPlugin=None, type=None, mnemonic='', description=''):
+    if metricPlugin is None:
+        metricPlugin=Plugin()
+    if type is None:
+        type=MetricType()
     return OldMetricInit(self, id, metricPlugin, type, mnemonic, description)
 
 OldProjectFileMeasurementInit = ProjectFileMeasurement.__init__
-def ProjectFileMeasurementInit(self, id=0, measureMetric=None, file=None, whenRun=None, result=None):
+def ProjectFileMeasurementInit(self, id=0, measureMetric=None, file=None, whenRun='', result=''):
+    if measureMetric is None:
+        measureMetric=Metric()
+    if file is None:
+        file=ProjectFile()
     return OldProjectFileMeasurementInit(self, id, measureMetric, file, whenRun, result)
 
 OldProjectVersionMeasurementInit = ProjectVersionMeasurement.__init__
-def ProjectVersionMeasurementInit(self, id=0, measureMetric=None, version=None, whenRun=None, result=None):
+def ProjectVersionMeasurementInit(self, id=0, measureMetric=None, version=None, whenRun='', result=''):
+    if measureMetric is None:
+        measureMetric=Metric()
+    if version is None:
+        version=ProjectVersion()
     return OldProjectVersionMeasurementInit(self, id, measureMetric, version, whenRun, result)
 
 
