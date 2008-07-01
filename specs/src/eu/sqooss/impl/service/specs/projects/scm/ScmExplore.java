@@ -7,6 +7,7 @@ import org.concordion.integration.junit4.ConcordionRunner;
 import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.dsl.SpProject;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 
 @RunWith(ConcordionRunner.class)
@@ -19,7 +20,7 @@ public class ScmExplore
         project.create();
     }
     
-    public boolean projectHasHistory(String projectName) throws InvalidRepositoryException
+    public boolean projectHasHistory(String projectName) throws InvalidRepositoryException, InvalidProjectRevisionException
     {
         return !new SpProject(projectName).revisions().isEmpty();
     }

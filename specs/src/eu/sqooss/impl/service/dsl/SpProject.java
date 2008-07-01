@@ -7,6 +7,7 @@ import java.util.List;
 import eu.sqooss.impl.service.SpecsActivator;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
@@ -94,8 +95,8 @@ public class SpProject implements SpEntity {
         persistent = false;
     }
     
-    public ArrayList<ProjectRevision> revisions() throws InvalidRepositoryException {
-        ArrayList<ProjectRevision> result = new ArrayList<ProjectRevision>();
+    public ArrayList<SpRevision> revisions() throws InvalidRepositoryException, InvalidProjectRevisionException {
+        ArrayList<SpRevision> result = new ArrayList<SpRevision>();
         
         TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
         tds.addAccessor(id, name, bugs, mail, repository);
@@ -103,7 +104,8 @@ public class SpProject implements SpEntity {
         
         ProjectRevision rev = new ProjectRevision(scm.getHeadRevision());
         while (rev!=null && rev.isValid() && rev.getSVNRevision()>0) {
-            result.add(rev);
+            scm.resolveProjectRevision(rev);
+            result.add(new SpRevision(this, rev));
             rev = rev.prev();
         }
 

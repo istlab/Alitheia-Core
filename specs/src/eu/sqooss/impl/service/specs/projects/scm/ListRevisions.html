@@ -21,8 +21,8 @@
         revisions. The last five are the following:</p>
         <table concordion:verifyRows="#revision : getLastFiveRevisions(#added_project)">
           <tr>
-            <th concordion:assertEquals="#revision.getSVNRevision()">Revision</th>
-            <th concordion:assertEquals="#revision.getDate()">Date</th>
+            <th concordion:assertEquals="#revision.number()">Revision</th>
+            <th concordion:assertEquals="#revision.date()">Date</th>
           </tr>
           <tr><td>38</td><td>2008-06-15 17:42:50 +0200</td></tr>
           <tr><td>37</td><td>2008-06-15 17:42:17 +0200</td></tr>
@@ -36,7 +36,7 @@
 
     <h2>See Also</h2>
     <ul>
-        <li><a href="">Can we know the changes contained in a revision?</a></li>
+        <li><a href="RevisionsChanges.html">Can we know the changes contained in a revision?</a></li>
     </ul>
 </body>
 </html>
