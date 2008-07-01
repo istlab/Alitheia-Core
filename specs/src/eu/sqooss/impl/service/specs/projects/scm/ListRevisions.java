@@ -8,6 +8,7 @@ import org.concordion.integration.junit4.ConcordionRunner;
 import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.dsl.SpProject;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 
@@ -21,12 +22,12 @@ public class ListRevisions
         project.create();
     }
     
-    public long getRevisionCount(String projectName)throws InvalidRepositoryException
+    public long getRevisionCount(String projectName)throws InvalidRepositoryException, InvalidProjectRevisionException
     {
         return new SpProject(projectName).revisions().size();
     }
     
-    public List<ProjectRevision> getLastFiveRevisions(String projectName) throws InvalidRepositoryException
+    public List<ProjectRevision> getLastFiveRevisions(String projectName) throws InvalidRepositoryException, InvalidProjectRevisionException
     {
         return new SpProject(projectName).revisions().subList(0, 5);
     }
