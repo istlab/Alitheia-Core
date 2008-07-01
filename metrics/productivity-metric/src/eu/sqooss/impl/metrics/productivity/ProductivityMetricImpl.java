@@ -145,6 +145,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
     public void run(ProjectVersion v) {
         ProductivityMetricJob j = new ProductivityMetricJob(bc, this, v);
         j.run();
+        markEvaluation(Metric.getMetricByMnemonic("PROD"), v.getProject());
     }
 
     public void run(Developer v) {
