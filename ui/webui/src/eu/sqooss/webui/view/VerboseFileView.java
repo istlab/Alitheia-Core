@@ -290,9 +290,11 @@ public class VerboseFileView extends ListView {
                         + metric.getDescription()
                         + "</td>\n");
                 b.append(sp(in) + "<td>"
-                        + selFile.getResults().get(mnemonic).getString()
+                        + ((selFileResults.containsKey(mnemonic))
+                                ? selFileResults.get(mnemonic).getString()
+                                : "N/A")
                         + "</td>\n");
-                // Display the comparison row (if a comparison was requested)
+                // Display the comparison cell (if a comparison was requested)
                 if ((doCompare) && (compareToFileId != null)) {
                     b.append(sp(in) + "<td>"
                             + ((compResults.containsKey(mnemonic))
