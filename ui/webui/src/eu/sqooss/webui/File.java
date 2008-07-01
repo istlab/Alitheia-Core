@@ -34,7 +34,9 @@
 package eu.sqooss.webui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.SortedMap;
 
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
@@ -63,8 +65,11 @@ public class File extends WebuiItem {
     // Holds the Id of the Directory DAO that match this folder's name
     Long toDirectoryId;
 
-    // The list of results from metric that has been evaluated on this file
-    private List<Result> results = new ArrayList<Result>();
+    /*
+     * The list of results from metric that has been evaluated on this file,
+     * indexed by metric mnemonic name.
+     */
+    private HashMap<String, Result> results = new HashMap<String, Result>();
 
     /**
      * Instantiates a new <code>File</code> and initializes its fields with
@@ -187,17 +192,25 @@ public class File extends WebuiItem {
      * @param resultEntry the result entry
      */
     public void addResult(Result resultEntry) {
-        if (results.contains(resultEntry) == false)
-            results.add(resultEntry);
+        if (results.values().contains(resultEntry) == false)
+            results.put(resultEntry.getMnemonic(), resultEntry);
     }
 
     /**
-     * Gets the list of results that are currently stored in this file.
+     * Gets the list of results that are currently stored in this file,
+     * indexed by metric's mnemonic name.
      * 
      * @return The list of results.
      */
-    public List<Result> getResults() {
+    public HashMap<String, Result> getResults() {
         return results;
+    }
+
+    /**
+     * Flushes the list of results that are currently stored in this file.
+     */
+    public void flushResults() {
+        results.clear();
     }
 
     /* (non-Javadoc)
@@ -228,9 +241,9 @@ public class File extends WebuiItem {
                     + "&nbsp;" + getLink() + "\n");
             if (settings.getShowFileResultsOverview()) {
                 html.append("<ul>\n");
-                for (Result nextResult : results)
-                    html.append("<li>" + nextResult.getMnemonic()
-                            + " : " + nextResult.getHtml(0));
+                for (String nextMnemonic : results.keySet())
+                    html.append("<li>" + nextMnemonic
+                            + " : " + results.get(nextMnemonic).getHtml(0));
                 html.append("</ul>\n");
             }
         }

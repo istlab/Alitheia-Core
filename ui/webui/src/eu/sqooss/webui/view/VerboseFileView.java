@@ -139,10 +139,12 @@ public class VerboseFileView extends ListView {
             return(sp(in) + Functions.error("Invalid project!"));
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
+        // Holds the list of currently selected metrics
+        Collection<String> mnemonics = project.getSelectedMetricMnemonics().values();
         // Holds the currently selected file's object
         File selFile = null;
         // Holds the evaluation results for the currently selected file
-        List<Result> selFileResults = new ArrayList<Result>();
+        HashMap<String, Result> selFileResults = new HashMap<String, Result>();
 
         // Retrieve the selected file's object
         if (fileId != null)
@@ -150,10 +152,18 @@ public class VerboseFileView extends ListView {
         // Retrieve the selected file's results
         if (selFile != null) {
             selFileResults = selFile.getResults();
-            if (selFileResults.isEmpty()) {
-                Collection<Result> results = getFileResults(
-                        project.getSelectedMetricMnemonics().values(),
-                        selFile.getId()).values();
+            /*
+             * Check, if the selected file's result set contains entries for
+             * all of the currently selected metrics
+             */ 
+            List<String> missingMnemonics = new ArrayList<String>(mnemonics);
+            for (String nextMnemonic : mnemonics)
+                if (selFileResults.keySet().contains(nextMnemonic))
+                    missingMnemonics.remove(nextMnemonic);
+            // Retrieve all missing metric results
+            if ((selFileResults.isEmpty()) || (missingMnemonics.size() > 0)) {
+                Collection<Result> results =
+                    getFileResults(missingMnemonics, selFile.getId()).values();
                 for (Result nextResult : results)
                     selFile.addResult(nextResult);
             }
@@ -300,19 +310,16 @@ public class VerboseFileView extends ListView {
              * (version) results will be compared.
              */
             if ((doCompare) && (compareToFileId != null))
-                compResults = getFileResults(
-                        project.getSelectedMetricMnemonics().values(),
-                        compareToFileId);
+                compResults = getFileResults(mnemonics, compareToFileId);
             // Holds a map from metric mnemonic to metric description object
             HashMap<String, Metric> mnemToMetric =
                 new HashMap<String, Metric>();
             // Display the evaluation results for the current file
-            for (Result nextResult : selFileResults) {
+            for (String mnemonic : mnemonics) {
                 /*
                  * Get the description object of the metric that has evaluated
                  * the current result.
                  */
-                String mnemonic = nextResult.getMnemonic();
                 Metric metric = null;
                 if (mnemToMetric.containsKey(mnemonic)) {
                     metric = mnemToMetric.get(mnemonic);
@@ -333,14 +340,13 @@ public class VerboseFileView extends ListView {
                         + metric.getDescription()
                         + "</td>\n");
                 b.append(sp(in) + "<td>"
-                        + nextResult.getString()
+                        + selFile.getResults().get(mnemonic).getString()
                         + "</td>\n");
-                // Display the comparison row (when a comparison is requested)
+                // Display the comparison row (if a comparison was requested)
                 if ((doCompare) && (compareToFileId != null)) {
                     b.append(sp(in) + "<td>"
-                            + ((compResults.containsKey(metric.getMnemonic()))
-                                    ? compResults.get(
-                                            metric.getMnemonic()).getString()
+                            + ((compResults.containsKey(mnemonic))
+                                    ? compResults.get(mnemonic).getString()
                                     : "N/A")
                             + "</td>\n");
                 }
