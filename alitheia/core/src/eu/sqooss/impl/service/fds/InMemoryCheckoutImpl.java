@@ -85,7 +85,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
 
         setRevision(r);
         Pattern p = Pattern.compile(".*");
-        createCheckout(root.createSubDirectory(scm.getSubProjectPath()),p);
+        createCheckout(root,p);
 
          entry = scm.getCommitLog(repoPath, r);
     }
@@ -100,7 +100,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
         root = new InMemoryDirectory(this);
 
         setRevision(r);
-        createCheckout(root.createSubDirectory(scm.getSubProjectPath()), p);
+        createCheckout(root, p);
 
          entry = scm.getCommitLog(repoPath, r);
     }
