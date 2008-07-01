@@ -51,7 +51,11 @@ else {
 //============================================================================
 // Show all metrics installed in the SQO-OSS framework
 //============================================================================
-out.println(sp(in) + "<h2>All installed metrics</h2>");
+// Check if the user has requested a metrics refresh
+if (request.getParameter("refreshAllMetrics") != null) {
+    // TODO: Still not cached
+}
+// Check if the user has requested to show/hide this view
 if (request.getParameter("showAllMetrics") != null) {
     // Check the "Show all installed metrics" flag
     if (request.getParameter("showAllMetrics").equals("true"))
@@ -59,17 +63,24 @@ if (request.getParameter("showAllMetrics") != null) {
     else if (request.getParameter("showAllMetrics").equals("false"))
         settings.setShowAllMetrics(false);
 }
-// Check if the user has requested a metrics refresh
-if (request.getParameter("refreshAllMetrics") != null) {
-    // TODO: Still not cached
-}
-// Add a link for show/hide all installed metrics
-if (settings.getShowAllMetrics())
-    out.println(sp(in) + "<a href=\"/metrics.jsp?showAllMetrics=false\">"
-        + "Hide all installed metrics" + "</a><br/>");
-else
-    out.println(sp(in) + "<a href=\"/metrics.jsp?showAllMetrics=true\">"
-        + "Show all installed metrics" + "</a><br/>");
+// Display the view's title name
+out.println(sp(in)
+    + "<span style=\"float: left; width: 90%; text-align:left;\">"
+    + "<h2>All installed metrics</h2>"
+    + "</span>");
+// Display the view's title bar
+out.println(sp(in)
+    + "<span style=\"float: right; width: 10%; text-align:right;\">"
+    + "<a href=\"/metrics.jsp?showAllMetrics="
+    + !settings.getShowAllMetrics()
+    + "\">"
+    + "<img alt=\""
+    + ((settings.getShowAllMetrics()) ? "Hide" : "Show")
+    + "\" src=\"/img/icons/16x16/"
+    + ((settings.getShowAllMetrics()) ? "list-remove.png" : "list-add.png")
+    + "\">"
+    + "</a>"
+    + "</span>");
 // Display all installed metrics
 if (settings.getShowAllMetrics()) {
     MetricsTableView allMetrics =

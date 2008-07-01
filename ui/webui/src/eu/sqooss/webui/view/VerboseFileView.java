@@ -223,8 +223,6 @@ public class VerboseFileView extends ListView {
                     + " value=\"Apply\">\n"
                     + sp (--in) + "</span>\n");
             b.append(sp(--in) + "</form>\n");
-            b.append(sp(in) + "<br/>\n");
-            b.append(sp(in) + "<br/>\n");
 
             //================================================================
             // Results (comparison) table
