@@ -33,10 +33,8 @@
 
 package eu.sqooss.webui.view;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.SortedMap;
 
 import eu.sqooss.webui.File;
@@ -45,7 +43,6 @@ import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
-import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 /**
  * The class <code>VerboseFileView</code> renders an HTML sequence that
@@ -96,41 +93,6 @@ public class VerboseFileView extends ListView {
         this.compareToVersion = versionNumber;
     }
 
-    // TODO: Move somewhere else?
-    /**
-     * This method will try to retrieve all evaluation results from the
-     * selected metrics (<i>specified by their mnemonics</i>) that were
-     * calculated on the project file with the given Id.
-     * <br/>
-     * The list of retrieved result is then converted to a collection indexed
-     * by the mnemonic name of the metric that has calculated each result.
-     * 
-     * @param metricMnemonics the mnemonic names of the selected metrics
-     * @param fileId the project file's Id
-     * 
-     * @return The list of file results, or an empty list when none are found.
-     */
-    public HashMap<String, Result> getFileResults (
-            Collection<String> metricMnemonics, Long fileId) {
-        HashMap<String, Result> result = new HashMap<String, Result>();
-        if (fileId == null) return result;
-
-        // Construct the result request's object
-        WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
-        reqResults.setDaObjectId(new long[]{fileId});
-        reqResults.setProjectFile(true);
-        String[] mnemonics = new String[metricMnemonics.size()];
-        int index = 0;
-        for (String nextMnem : metricMnemonics)
-            mnemonics[index++] = nextMnem;
-        reqResults.setMnemonics(mnemonics);
-
-        // Retrieve the evaluation results from the SQO-OSS framework
-        for (Result nextResult : terrier.getResults(reqResults))
-            result.put(nextResult.getMnemonic(), nextResult);
-        return result;
-    }
-
     /* (non-Javadoc)
      * @see eu.sqooss.webui.ListView#getHtml(long)
      */
@@ -140,7 +102,8 @@ public class VerboseFileView extends ListView {
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
         // Holds the list of currently selected metrics
-        Collection<String> mnemonics = project.getSelectedMetricMnemonics().values();
+        Collection<String> mnemonics =
+            project.getSelectedMetricMnemonics().values();
         // Holds the currently selected file's object
         File selFile = null;
         // Holds the evaluation results for the currently selected file
@@ -151,22 +114,8 @@ public class VerboseFileView extends ListView {
             selFile = project.getCurrentVersion().getFile(fileId);
         // Retrieve the selected file's results
         if (selFile != null) {
-            selFileResults = selFile.getResults();
-            /*
-             * Check, if the selected file's result set contains entries for
-             * all of the currently selected metrics
-             */ 
-            List<String> missingMnemonics = new ArrayList<String>(mnemonics);
-            for (String nextMnemonic : mnemonics)
-                if (selFileResults.keySet().contains(nextMnemonic))
-                    missingMnemonics.remove(nextMnemonic);
-            // Retrieve all missing metric results
-            if ((selFileResults.isEmpty()) || (missingMnemonics.size() > 0)) {
-                Collection<Result> results =
-                    getFileResults(missingMnemonics, selFile.getId()).values();
-                for (Result nextResult : results)
-                    selFile.addResult(nextResult);
-            }
+            selFile.setTerrier(this.terrier);
+            selFileResults = selFile.getResults(mnemonics);
         }
 
         if (selFile == null) {
@@ -174,6 +123,9 @@ public class VerboseFileView extends ListView {
         }
         else if (selFileResults.isEmpty()) {
             b.append(sp(in) + Functions.warning("No evaluation result."));
+        }
+        else if (mnemonics.isEmpty()) {
+            b.append(sp(in) + Functions.warning("No selected metrics."));
         }
         else {
             // Retrieve the selected file's version and name
@@ -310,7 +262,7 @@ public class VerboseFileView extends ListView {
              * (version) results will be compared.
              */
             if ((doCompare) && (compareToFileId != null))
-                compResults = getFileResults(mnemonics, compareToFileId);
+                compResults = selFile.getResults(mnemonics, compareToFileId);
             // Holds a map from metric mnemonic to metric description object
             HashMap<String, Metric> mnemToMetric =
                 new HashMap<String, Metric>();

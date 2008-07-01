@@ -34,19 +34,19 @@
 package eu.sqooss.webui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.SortedMap;
 
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
-// TODO: Auto-generated Javadoc
 /**
  * This class represents a single project file from a project version that
  * is stored in the SQO-OSS framework.
  * <br/>
- * It provides access to the project file's metadata and some convenience
- * functions for proper HTML rendering.
+ * It provides access to the project file's metadata, evaluation results and
+ * some convenience functions for proper HTML rendering.
  */
 public class File extends WebuiItem {
 
@@ -72,8 +72,9 @@ public class File extends WebuiItem {
     private HashMap<String, Result> results = new HashMap<String, Result>();
 
     /**
-     * Instantiates a new <code>File</code> and initializes its fields with
-     * the data stored in the given <code>WSProjectFile</code> object.
+     * Instantiates a new <code>File</code>, and initializes its metadata
+     * fields with the data stored in the given <code>WSProjectFile</code>
+     * object.
      *
      * @param wsFile the <code>WSProjectFile</code> instance
      */
@@ -90,7 +91,7 @@ public class File extends WebuiItem {
     }
 
     /**
-     * Gets the project version's Id.
+     * Gets the Id of the project version where this file belongs.
      *
      * @return The project version's Id.
      */
@@ -108,7 +109,14 @@ public class File extends WebuiItem {
     }
 
     /**
-     * Gets the file status.
+     * Gets the file status in this version.
+     * <br/>
+     * The file status's value can be one of the following:
+     * <ul>
+     *   <li>ADDED
+     *   <li>MODIFIED
+     *   <li>DELETED
+     * <ul>
      *
      * @return The file status.
      */
@@ -117,7 +125,7 @@ public class File extends WebuiItem {
     }
 
     /**
-     * This method will check if this project file is a directory.
+     * This method will check, if this project file is a directory.
      * 
      * @return <code>true<code> when this project file is a directory,
      *   or <code>false<code> otherwise.
@@ -127,63 +135,14 @@ public class File extends WebuiItem {
     }
 
     /**
-     * When this project file is a directory, then this method will return the
-     * Id of the directory DAO that matches the project file's name.
+     * When this project file is a directory, then this method will return
+     * the Id of the directory DAO that matches the project file's name.
      *
      * @return the Id of the matching directory DAO, or <code>null<code>
      *   when this project file is not a directory.
      */
     public Long getToDirectoryId() {
         return toDirectoryId;
-    }
-
-    /**
-     * Constructs a HTML link for selecting this file.
-     *
-     * @return The HTML link for selecting this file.
-     */
-    public String getLink() {
-        return "<a href=\"files.jsp?fid=" + id + "\">" + shortName + "</a>";
-    }
-
-    /**
-     * Constructs a HTML link for selecting this directory.
-     *
-     * @return The rendered HTML content.
-     */
-    public String getDirLink() {
-        return "<a href=\"files.jsp?"
-            + "did=" + toDirectoryId
-            + "\">" + shortName + "/</a>";
-    }
-
-    /**
-     * Return a HTML string showing a status icon indicating whether this file
-     * has been modified, deleted, added or left unchanged in the specified
-     * project version.
-     *
-     * @param versionId the version Id
-     *
-     * @return The rendered HTML content.
-     */
-    public String getStatusIcon(Long versionId) {
-        // TODO: Add status icons for folders
-        if (isDirectory) return icon("folder", 0, "Folder");
-
-        String iconname = "text-plain";
-        String tooltip = null;
-        if ((versionId != null) && (this.versionId == versionId))
-            if (status.equals("ADDED")) {
-                iconname = "vcs_add";
-                tooltip = "Added in this version";
-            } else if (status.equals("MODIFIED")) {
-                iconname = "vcs_update";
-                tooltip = "Modified in this version";
-            } else if (status.equals("DELETED")) {
-                iconname = "vcs_remove";
-                tooltip = "Removed in this version";
-            }
-        return icon(iconname, 0, tooltip);
     }
 
     /**
@@ -197,8 +156,74 @@ public class File extends WebuiItem {
     }
 
     /**
-     * Gets the list of results that are currently stored in this file,
-     * indexed by metric's mnemonic name.
+     * This method will try to retrieve from the SQO-OSS framework results
+     * from all of the selected metrics (<i>specified by their mnemonics</i>)
+     * that were evaluated on the project file with the given Id.
+     * <br/>
+     * The list is indexed by the mnemonic name of the metric that calculated
+     * the specific result entry.
+     * 
+     * @param mnemonics the mnemonic names of the selected metrics
+     * @param fileId the project file's Id
+     * 
+     * @return The list of file results, or an empty list when none are found.
+     */
+    public HashMap<String, Result> getResults (
+            Collection<String> mnemonics, Long fileId) {
+        HashMap<String, Result> result = new HashMap<String, Result>();
+        if ((fileId == null) 
+                || (mnemonics == null) 
+                || (mnemonics.isEmpty()))
+            return result;
+        /*
+         * Construct the result request's object.
+         */
+        WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
+        reqResults.setDaObjectId(new long[]{fileId});
+        reqResults.setProjectFile(true);
+        reqResults.setMnemonics(
+                mnemonics.toArray(new String[mnemonics.size()]));
+        /*
+         * Retrieve the evaluation results from the SQO-OSS framework
+         */
+        for (Result nextResult : terrier.getResults(reqResults))
+            result.put(nextResult.getMnemonic(), nextResult);
+        return result;
+    }
+
+    /**
+     * This method will try to retrieve from the SQO-OSS framework results
+     * from all of the selected metrics (<i>specified by their mnemonics</i>)
+     * that were evaluated on this project file. The file's results cache is
+     * taken into consideration, thus this method will retrieve only metric
+     * results that are currently missing.
+     * 
+     * @param mnemonics the mnemonic names of the selected metrics
+     */
+    public HashMap<String, Result> getResults (
+            Collection<String> mnemonics) {
+        if (isValid() == false) return new HashMap<String, Result>();
+        /*
+         * Check, if this file's results cache contains entries for all of
+         * the requested metrics.
+         */ 
+        List<String> missingMnemonics = new ArrayList<String>(mnemonics);
+        for (String nextMnemonic : mnemonics)
+            if (results.keySet().contains(nextMnemonic))
+                missingMnemonics.remove(nextMnemonic);
+        /*
+         * Retrieve all missing metric results.
+         */
+        if ((results.isEmpty()) || (missingMnemonics.size() > 0))
+            results.putAll(getResults(missingMnemonics, this.getId()));
+        return results;
+    }
+
+    /**
+     * Gets the list of results that are currently cached in this file.
+     * <br/>
+     * The list is indexed by the mnemonic name of the metric that calculated
+     * the specific result entry.
      * 
      * @return The list of results.
      */
@@ -207,7 +232,7 @@ public class File extends WebuiItem {
     }
 
     /**
-     * Flushes the list of results that are currently stored in this file.
+     * Flushes the list of results that are currently cached in this file.
      */
     public void flushResults() {
         results.clear();
@@ -223,6 +248,69 @@ public class File extends WebuiItem {
     }
 
     /**
+     * Constructs a HTML link for selecting this file. The generates HTML
+     * link tags will differ depending on the file type i.e. data file or
+     * a directory.
+     *
+     * @return The HTML link for selecting this file.
+     */
+    public String getLink() {
+        if (isDirectory)
+            return "<a href=\"files.jsp?"
+                + "did=" + toDirectoryId
+                + "\">" + shortName + "/</a>";
+        return "<a href=\"files.jsp"
+            + "?fid=" + id
+            + "\">" + shortName + "</a>";
+    }
+
+    /**
+     * Return a HTML string showing a status icon indicating whether this file
+     * has been modified, deleted, added or left unchanged in the specified
+     * project version.
+     *
+     * @param versionId the version Id
+     *
+     * @return The rendered HTML content.
+     */
+    public String getStatusIcon(Long versionId) {
+        String iconname = "";
+        String tooltip = "";
+        if (isDirectory) {
+            iconname = "folder";
+            tooltip = null;
+            // TODO: Add status icons for folders
+            if ((versionId != null) && (this.versionId == versionId))
+                if (status.equals("ADDED")) {
+                    iconname = "folder";
+                    tooltip = "Added in this version";
+                } else if (status.equals("MODIFIED")) {
+                    iconname = "folder";
+                    tooltip = "Modified in this version";
+                } else if (status.equals("DELETED")) {
+                    iconname = "folder";
+                    tooltip = "Removed in this version";
+                }
+        }
+        else {
+            iconname = "text-plain";
+            tooltip = null;
+            if ((versionId != null) && (this.versionId == versionId))
+                if (status.equals("ADDED")) {
+                    iconname = "vcs_add";
+                    tooltip = "Added in this version";
+                } else if (status.equals("MODIFIED")) {
+                    iconname = "vcs_update";
+                    tooltip = "Modified in this version";
+                } else if (status.equals("DELETED")) {
+                    iconname = "vcs_remove";
+                    tooltip = "Removed in this version";
+                }
+        }
+        return icon(iconname, 0, tooltip);
+    }
+
+    /**
      * Return a HTML representation of the file state and results in the given
      * project version.
      * 
@@ -232,13 +320,9 @@ public class File extends WebuiItem {
      */
     public String getHtml(Long versionId) {
         StringBuilder html = new StringBuilder("");
-        if (getIsDirectory()) {
-            html.append(getStatusIcon(versionId)
-                    + "&nbsp;" + getDirLink() + "\n");
-        }
-        else {
-            html.append(getStatusIcon(versionId)
-                    + "&nbsp;" + getLink() + "\n");
+        html.append(getStatusIcon(versionId)
+                + "&nbsp;" + getLink() + "\n");
+        if (getIsDirectory() == false) {
             if (settings.getShowFileResultsOverview()) {
                 html.append("<ul>\n");
                 for (String nextMnemonic : results.keySet())
