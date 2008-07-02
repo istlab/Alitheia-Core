@@ -115,7 +115,7 @@ if (selectedProject.isValid()) {
 %>                </td>
               </tr>
               <tr>
-                <td valign="top" style="padding-right: 30px; width: 60%;">
+                <td valign="top" style="width: 60%;">
                   <div class="win">
 <%
     //========================================================================
