@@ -37,6 +37,8 @@ public class SelectedSettings {
     private boolean showAllMetrics = false;
     private boolean showFileResultsOverview = false;
     private boolean showPVDevelopers = true;
+    private boolean showPVFileStat = true;
+    private boolean showPVMetrics = true;
 
     public void setShowAllMetrics(boolean flag) {
         showAllMetrics = flag;
@@ -60,6 +62,22 @@ public class SelectedSettings {
 
     public boolean getShowPVDevelopers() {
         return showPVDevelopers;
+    }
+
+    public void setShowPVFileStat(boolean showPVFileStat) {
+        this.showPVFileStat = showPVFileStat;
+    }
+
+    public boolean getShowPVFileStat() {
+        return showPVFileStat;
+    }
+
+    public void setShowPVMetrics(boolean showPVMetrics) {
+        this.showPVMetrics = showPVMetrics;
+    }
+
+    public boolean getShowPVMetrics() {
+        return showPVMetrics;
     }
 
 }

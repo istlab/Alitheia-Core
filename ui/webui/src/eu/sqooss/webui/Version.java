@@ -213,29 +213,29 @@ public class Version extends WebuiItem {
             return "No statistics available!";
         // Render the statistics page
         StringBuilder html = new StringBuilder("");
-        html.append(sp(in++) + "<table>\n");
+        html.append(sp(in++) + "<table class=\"borderless\">\n");
         html.append(sp(in) + "<tr>"
-                + "<td>" + icon("vcs_add")
+                + "<td class=\"borderless\">" + icon("vcs_add")
                 + "<strong>Files added:</strong>" + "</td>"
-                + "<td>" + stats.getAddedCount() + "</td>"
+                + "<td class=\"borderless\">" + stats.getAddedCount() + "</td>"
                 + "</tr>\n");
         html.append(sp(in) + "<tr>"
-                + "<td>" + icon("vcs_update")
+                + "<td class=\"borderless\">" + icon("vcs_update")
                 + "<strong>Files modified:</strong>" + "</td>"
-                + "<td>" + stats.getModifiedCount() + "</td>"
+                + "<td class=\"borderless\">" + stats.getModifiedCount() + "</td>"
                 + "</tr>\n");
         html.append(sp(in) + "<tr>"
-                + "<td>" + icon("vcs_remove")
+                + "<td class=\"borderless\">" + icon("vcs_remove")
                 + "<strong>Files deleted:</strong>" + "</td>"
-                + "<td>" + stats.getDeletedCount() + "</td>"
+                + "<td class=\"borderless\">" + stats.getDeletedCount() + "</td>"
                 + "</tr>\n");
         html.append(sp(in) + "<tr>"
-                + "<td colspan=\"2\"><hr />" + "</td>"
+                + "<td class=\"borderless\" colspan=\"2\"><hr />" + "</td>"
                 + "</tr>\n");
         html.append(sp(in) + "<tr>"
-                + "<td>" + icon("vcs_status")
+                + "<td class=\"borderless\">" + icon("vcs_status")
                 + "<strong>Total files changed:</strong>" + "</td>"
-                + "<td>" + stats.getTotalCount() + "</td>"
+                + "<td class=\"borderless\">" + stats.getTotalCount() + "</td>"
                 + "</tr>\n");
         html.append(sp(--in) + "</table>\n");
         return html.toString();

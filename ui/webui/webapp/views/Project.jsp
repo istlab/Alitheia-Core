@@ -130,7 +130,7 @@ if (selectedProject.isValid()) {
         else if (request.getParameter("showPVDevelopers").equals("false"))
             settings.setShowPVDevelopers(false);
     }
-    // Display the metrics
+    // Display the window title
     out.println(sp(in)
         + "<div class=\"winTitle\">"
         + "&nbsp;<b>Developers<b>"
@@ -147,35 +147,69 @@ if (selectedProject.isValid()) {
         + "</a>"
         + "</div>"
         + "</div>");
+    // Display the content
     if (settings.getShowPVDevelopers()) {
         // Prepare the developers view
         selectedProject.setTerrier(terrier);
         DevelopersListView developersView =
         new DevelopersListView(selectedProject.getDevelopers());
+        // Display the developers
         out.print(developersView.getHtml(in));
     }
 %>                  </div>
                 </td>
                 <td valign="top" style="width: 40%;">
+                  <div class="win">
 <%
     //========================================================================
     // Display the source file statistic of the selected project
     //========================================================================
     // Indentation depth
     in = 9;
-    if (selectedProject.getCurrentVersion() != null) {
-        out.println(sp(in) + "<h2>Files in Version "
-            + selectedProject.getCurrentVersion().getNumber()
-            + "</h2>");
-        out.print(selectedProject.getCurrentVersion().fileStats(in));
+    // Check if the user has requested to show/hide this view
+    if (request.getParameter("showPVFileStat") != null) {
+        if (request.getParameter("showPVFileStat").equals("true"))
+            settings.setShowPVFileStat(true);
+        else if (request.getParameter("showPVFileStat").equals("false"))
+            settings.setShowPVFileStat(false);
     }
-    else {
-        out.print(sp(in) + Functions.warning("No versions in Project"));
+    // Display the window title
+    out.println(sp(in)
+        + "<div class=\"winTitle\">"
+        + "&nbsp;<b>Files"
+        + ((selectedProject.getCurrentVersion() != null)
+            ? " in version "
+                + selectedProject.getCurrentVersion().getNumber()
+            : "")
+        + "<b>"
+        + "<div class=\"winTitleBar\">"
+        + "<a style=\"vertical-align: middle;\""
+        + " href=\"/projects.jsp?showPVFileStat="
+        + !settings.getShowPVFileStat()
+        + "\">"
+        + "<img alt=\""
+        + ((settings.getShowPVFileStat()) ? "Hide" : "Show")
+        + "\" src=\"/img/icons/16x16/"
+        + ((settings.getShowPVFileStat()) ? "list-remove.png" : "list-add.png")
+        + "\">"
+        + "</a>"
+        + "</div>"
+        + "</div>");
+    // Display the content
+    if (settings.getShowPVFileStat()) {
+        out.println(sp(in) + "<div id=\"table\">");
+        if (selectedProject.getCurrentVersion() != null)
+            out.print(selectedProject.getCurrentVersion().fileStats(in));
+        else
+            out.print(sp(in) + Functions.warning("No versions in Project"));
+        out.println(sp(in) + "</div>");
     }
-%>                </td>
+%>                  </div>
+                </td>
               </tr>
               <tr>
-                <td valign="top" colspan="2" style="padding-right: 30px; width: 100%;">
+                <td valign="top" colspan="2" style="width: 100%;">
+                  <div class="win">
 <%
     //========================================================================
     // Display the list of metrics that were evaluated on this project
@@ -186,17 +220,43 @@ if (selectedProject.isValid()) {
     if (request.getParameter("refreshPrjMetrics") != null) {
         selectedProject.flushMetrics();
     }
-    // Prepare the metrics view
-    MetricsTableView metricsView =
-        new MetricsTableView(selectedProject.retrieveMetrics());
-    metricsView.setProjectId(selectedProject.getId());
-    metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
-    metricsView.setShowResult(false);
-    // Display the metrics
-    out.println(sp(in) + "<h2>Metrics for "
-        + selectedProject.getName() + "</h2>");
-    out.print(metricsView.getHtml(in));
-%>                </td>
+    // Check if the user has requested to show/hide this view
+    if (request.getParameter("showPVMetrics") != null) {
+        if (request.getParameter("showPVMetrics").equals("true"))
+            settings.setShowPVMetrics(true);
+        else if (request.getParameter("showPVMetrics").equals("false"))
+            settings.setShowPVMetrics(false);
+    }
+    // Display the window title
+    out.println(sp(in)
+        + "<div class=\"winTitle\">"
+        + "&nbsp;<b>Evaluated metrics<b>"
+        + "<div class=\"winTitleBar\">"
+        + "<a style=\"vertical-align: middle;\""
+        + " href=\"/projects.jsp?showPVMetrics="
+        + !settings.getShowPVMetrics()
+        + "\">"
+        + "<img alt=\""
+        + ((settings.getShowPVMetrics()) ? "Hide" : "Show")
+        + "\" src=\"/img/icons/16x16/"
+        + ((settings.getShowPVMetrics()) ? "list-remove.png" : "list-add.png")
+        + "\">"
+        + "</a>"
+        + "</div>"
+        + "</div>");
+    // Display the content
+    if (settings.getShowPVMetrics()) {
+        // Prepare the metrics view
+        MetricsTableView metricsView =
+            new MetricsTableView(selectedProject.retrieveMetrics());
+        metricsView.setProjectId(selectedProject.getId());
+        metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
+        metricsView.setShowResult(false);
+        // Display the metrics
+        out.print(metricsView.getHtml(in));
+    }
+%>                  </div>
+                </td>
               </tr>
             </table>
           </div>
