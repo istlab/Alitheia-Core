@@ -181,7 +181,30 @@ a.button:visited {
 }
 
 a img {
-    border: 1px solid #cccccc;
+    border: 1px solid #000000;
+    background-color: #CCFFCC;
+    margin-right: 2px;
+}
+/* ===[ WINDOW CSS ]===================================================== */
+div.win {
+    width: 100%;
+    border: 1px solid #000000;
+}
+div.winTitle {
+    position:relative;
+    margin: 0;
+    width: 100%;
+    border-bottom: 1px solid #000000;
+    font-size: 1.2em;
+    background-color: #cccccc;
+}
+div.winTitleBar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10%;
+    text-align:right;
+    vertical-align: middle;
 }
 /* ===[ TABLES CSS ]===================================================== */
 #table {
@@ -189,7 +212,7 @@ a img {
     clear:both;
 }
 #table table {
-    margin-top: 1ex;
+    margin: 1ex;
     width: 100%;
     border: 1px solid #C6C6C5;
 }

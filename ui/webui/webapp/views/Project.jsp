@@ -116,6 +116,7 @@ if (selectedProject.isValid()) {
               </tr>
               <tr>
                 <td valign="top" style="padding-right: 30px; width: 60%;">
+                  <div class="win">
 <%
     //========================================================================
     // Display the list of developers that are working on this project
@@ -127,9 +128,18 @@ if (selectedProject.isValid()) {
     DevelopersListView developersView =
         new DevelopersListView(selectedProject.getDevelopers());
     // Display the metrics
-    out.println(sp(in) + "<h2>Developers</h2>");
+    out.println(sp(in)
+        + "<div class=\"winTitle\">"
+        + "&nbsp;<b>Developers<b>"
+        + "<div class=\"winTitleBar\">"
+        + "<a style=\"vertical-align: middle;\" href=\"/metrics.jsp?showAllMetrics=true\">"
+        + "<img alt=\"Show\" src=\"/img/icons/16x16/list-add.png\">"
+        + "</a>"
+        + "</div>"
+        + "</div>");
     out.print(developersView.getHtml(in));
-%>                </td>
+%>                  </div>
+                </td>
                 <td valign="top" style="width: 40%;">
 <%
     //========================================================================
