@@ -40,13 +40,15 @@ import eu.sqooss.service.db.Metric;
  * This class wraps the <code>eu.sqooss.service.db.Metric</code>
  */
 public class WSMetric {
-    
-    private long id;
-    private long pluginId;
-    private long metricTypeId;
-    private String mnemonic;
-    private String description;
-    
+
+    /** Metric metadata's fields */
+    private long    id;
+    private long    pluginId;
+    private long    metricTypeId;
+    private String  mnemonic;
+    private String  description;
+    private String  activator;
+
     /**
      * @return the id
      */
@@ -116,7 +118,28 @@ public class WSMetric {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
+    /**
+     * Gets the activation type that the parent plug-in has associated with
+     * this metric.
+     * 
+     * @return The metric's activation type.
+     */
+    public String getActivator() {
+        return activator;
+    }
+
+    /**
+     * Sets the activation type of this metric. Usually this should be the
+     * activation type that the plug-in associated with this metric during its
+     * registration.
+     * 
+     * @param activator the activation type
+     */
+    public void setActivator(String activator) {
+        this.activator = activator;
+    }
+
     /**
      * The method creates a new <code>WSMetric</code> object
      * from the existent DAO object.
@@ -174,7 +197,7 @@ public class WSMetric {
         }
         return result;
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -100,6 +100,8 @@ public class MetricManager extends AbstractManager {
         super.updateUserActivity(userName);
 
         WSMetric[] result = dbWrapper.getProjectEvaluatedMetrics(projectId);
+        // Attach the activation type for each of the retrieved metric
+        attachActivators(result);
 
         db.commitDBSession();
 
@@ -190,6 +192,8 @@ public class MetricManager extends AbstractManager {
             result = dbWrapper.getMetricsByResourcesIds(ids, isProjectFile,
                     isProjectVersion, isStoredProject, isFileGroup);
         }
+        // Attach the activation type for each of the retrieved metric
+        attachActivators(result);
 
         db.commitDBSession();
 
@@ -376,8 +380,32 @@ public class MetricManager extends AbstractManager {
             for (Metric nextMetric : metrics)
                 result[index++] = WSMetric.getInstance(nextMetric);
         }
+        // Attach the activation type for each of the retrieved metric
+        attachActivators(result);
+
         db.commitDBSession();
         return result;
+    }
+
+    /**
+     * Attaches the associated activation type to each metric that is
+     * specified in the given array.
+     * 
+     * @param metrics the array of metric object
+     */
+    private void attachActivators (WSMetric[] metrics) {
+        if ((metrics != null) && (metrics.length > 0)) {
+            for (WSMetric metric : metrics) {
+                try {
+                    AlitheiaPlugin plugin = pluginAdmin.getImplementingPlugin(
+                            metric.getMnemonic());
+                    metric.setActivator(plugin.getMetricActivationType(
+                            Metric.getMetricByMnemonic(
+                                    metric.getMnemonic())).getSimpleName());
+                }
+                catch (NullPointerException ex) { /* Do nothing */ }
+            }
+        }
     }
 
 }
