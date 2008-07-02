@@ -122,6 +122,7 @@
 <xs:sequence>
 <xs:element name="bugs" nillable="true" type="xs:string" />
 <xs:element name="contact" nillable="true" type="xs:string" />
+<xs:element maxOccurs="unbounded" name="developers" type="xs:long" />
 <xs:element name="id" type="xs:long" />
 <xs:element name="mail" nillable="true" type="xs:string" />
 <xs:element name="name" nillable="true" type="xs:string" />
