@@ -333,10 +333,10 @@ public class ProjectFile extends DAObject{
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version) {
         DBService dbs = CoreActivator.getDBService();
 
-        String paramVersion = "version_id";
+        String paramTimestamp = "timestamp";
         String paramProjectId = "project_id";
 
-        String query = "select pf " +
+        /*String query = "select pf " +
                        "from ProjectFile pf " +
                        "where ( pf.projectVersion.version, pf.name, pf.dir ) " +
                        "in ( " +
@@ -345,11 +345,24 @@ public class ProjectFile extends DAObject{
                        "    and pf2.projectVersion.version <=:" + paramVersion + " " +
                        "    group by pf2.dir, pf2.name " +
                        ") " +
-                       "and pf.status <> 'DELETED'";
-
+                       "and pf.status <> 'DELETED'";*/
+        String query = "select pf1 " +
+    	"from ProjectFile pf1, ProjectVersion pv1 " +
+    	"where  pf1.projectVersion = pv1 " +
+        " and pf1.status<>'DELETED' " +
+        " and pv1.project.id = :" + paramProjectId +
+        " and pv1.timestamp = ( " +
+        "    select max(pv.timestamp) " + 
+        "    from ProjectFile pf, ProjectVersion pv " +
+        "    where pf.projectVersion=pv " + 
+        "    and pv.timestamp <= :" +  paramTimestamp +
+        "    and pf.dir = pf1.dir " + 
+        "    and pf.name = pf1.name " +
+        "    and pv.project = pv1.project )";
+        
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, version.getVersion() );
-        parameters.put(paramProjectId, version.getProject().getId() );
+        parameters.put(paramTimestamp, version.getTimestamp());
+        parameters.put(paramProjectId, version.getProject());
 
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles==null) {
@@ -378,30 +391,32 @@ public class ProjectFile extends DAObject{
 
         DBService dbs = CoreActivator.getDBService();
 
-        String paramVersion = "version_id";
         String paramProjectId = "project_id";
         String paramDirectoryId = "directory_id";
+        String paramTimestamp = "timestamp";
 
-        String query = "select pf " +
-                       "from ProjectFile pf " +
-                       "where pf.dir.id=:" + paramDirectoryId +
-                       " and ( pf.projectVersion.version, pf.name ) " +
-                       "in ( " +
-                       "    select max( pf2.projectVersion.version ), pf2.name  from ProjectFile pf2 " +
-                       "    where pf2.projectVersion.project.id=:" + paramProjectId +
-                       "    and pf2.projectVersion.version <=:" + paramVersion +
-                       "    and pf2.dir=:" + paramDirectoryId +
-                       "    group by pf2.name " +
-                       ") " +
-                       "and pf.status <> 'DELETED'";
-
+        String query = "select pf1 " +
+        	"from ProjectFile pf1, ProjectVersion pv1 " +
+        	"where  pf1.projectVersion.id = pv1.id " +
+            " and pf1.status<>'DELETED' " +
+            " and pv1.project.id = :" + paramProjectId +
+            " and pf1.dir.id = :" + paramDirectoryId +
+            " and pv1.timestamp = ( " +
+            "    select max(pv.timestamp) " + 
+            "    from ProjectFile pf, ProjectVersion pv " +
+            "    where pf.projectVersion.id = pv.id " + 
+            "    and pv.timestamp <= :" +  paramTimestamp +
+            "    and pf.dir.id = pf1.dir.id " + 
+            "    and pf.name = pf1.name " +
+            "    and pv.project.id = pv1.project.id )"; 
+        
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, version.getVersion());
+        parameters.put(paramTimestamp, version.getTimestamp());
         parameters.put(paramProjectId, version.getProject().getId());
         parameters.put(paramDirectoryId, d.getId() );
         
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
-        if (projectFiles==null) {
+        if (projectFiles == null || projectFiles.size() == 0) {
             // Empty array list with a capacity of 1
             return new ArrayList<ProjectFile>(1);
         } else {
