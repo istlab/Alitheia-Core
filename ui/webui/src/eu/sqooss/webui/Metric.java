@@ -143,13 +143,15 @@ public class Metric extends WebuiItem {
     }
 
     public String getScope() {
-        if (this.type.equals(MetricType.SOURCE_CODE)) {
-            if (this.activator.equals(MetricActivator.PROJECTFILE))
-                return "Single source file";
-        }
-        else if (this.type.equals(MetricType.PROJECT_WIDE)) {
-            if (this.activator.equals(MetricActivator.DEVELOPER))
-                return "Developer statistics";
+        if ((type != null) && (activator != null)) {
+            if (this.type.equals(MetricType.SOURCE_CODE)) {
+                if (this.activator.equals(MetricActivator.PROJECTFILE))
+                    return "Single source file";
+            }
+            else if (this.type.equals(MetricType.PROJECT_WIDE)) {
+                if (this.activator.equals(MetricActivator.DEVELOPER))
+                    return "Developer statistics";
+            }
         }
         return "N/A";
     }
