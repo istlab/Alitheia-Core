@@ -57,6 +57,7 @@
       <xs:element name="WSMetric" type="ax21:WSMetric"/>
       <xs:complexType name="WSMetric">
         <xs:sequence>
+          <xs:element name="activator" nillable="true" type="xs:string"/>
           <xs:element name="description" nillable="true" type="xs:string"/>
           <xs:element name="id" type="xs:long"/>
           <xs:element name="metricTypeId" type="xs:long"/>
