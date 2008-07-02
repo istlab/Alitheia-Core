@@ -36,6 +36,7 @@ package eu.sqooss.webui;
 public class SelectedSettings {
     private boolean showAllMetrics = false;
     private boolean showFileResultsOverview = false;
+    private boolean showPVDevelopers = true;
 
     public void setShowAllMetrics(boolean flag) {
         showAllMetrics = flag;
@@ -51,6 +52,14 @@ public class SelectedSettings {
 
     public boolean getShowFileResultsOverview() {
         return showFileResultsOverview;
+    }
+
+    public void setShowPVDevelopers(boolean showPVDevelopers) {
+        this.showPVDevelopers = showPVDevelopers;
+    }
+
+    public boolean getShowPVDevelopers() {
+        return showPVDevelopers;
     }
 
 }

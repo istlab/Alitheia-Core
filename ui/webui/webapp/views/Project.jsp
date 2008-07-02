@@ -123,21 +123,37 @@ if (selectedProject.isValid()) {
     //========================================================================
     // Indentation depth
     in = 9;
-    // Prepare the developers view
-    selectedProject.setTerrier(terrier);
-    DevelopersListView developersView =
-        new DevelopersListView(selectedProject.getDevelopers());
+    // Check if the user has requested to show/hide this view
+    if (request.getParameter("showPVDevelopers") != null) {
+        if (request.getParameter("showPVDevelopers").equals("true"))
+            settings.setShowPVDevelopers(true);
+        else if (request.getParameter("showPVDevelopers").equals("false"))
+            settings.setShowPVDevelopers(false);
+    }
     // Display the metrics
     out.println(sp(in)
         + "<div class=\"winTitle\">"
         + "&nbsp;<b>Developers<b>"
         + "<div class=\"winTitleBar\">"
-        + "<a style=\"vertical-align: middle;\" href=\"/metrics.jsp?showAllMetrics=true\">"
-        + "<img alt=\"Show\" src=\"/img/icons/16x16/list-add.png\">"
+        + "<a style=\"vertical-align: middle;\""
+        + " href=\"/projects.jsp?showPVDevelopers="
+        + !settings.getShowPVDevelopers()
+        + "\">"
+        + "<img alt=\""
+        + ((settings.getShowPVDevelopers()) ? "Hide" : "Show")
+        + "\" src=\"/img/icons/16x16/"
+        + ((settings.getShowPVDevelopers()) ? "list-remove.png" : "list-add.png")
+        + "\">"
         + "</a>"
         + "</div>"
         + "</div>");
-    out.print(developersView.getHtml(in));
+    if (settings.getShowPVDevelopers()) {
+        // Prepare the developers view
+        selectedProject.setTerrier(terrier);
+        DevelopersListView developersView =
+        new DevelopersListView(selectedProject.getDevelopers());
+        out.print(developersView.getHtml(in));
+    }
 %>                  </div>
                 </td>
                 <td valign="top" style="width: 40%;">
