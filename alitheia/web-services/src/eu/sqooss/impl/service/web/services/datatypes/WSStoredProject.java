@@ -33,7 +33,9 @@
 package eu.sqooss.impl.service.web.services.datatypes;
 
 import java.util.List;
+import java.util.Set;
 
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
 
 /**
@@ -48,6 +50,7 @@ public class WSStoredProject {
     private String name;
     private String repository;
     private String website;
+    private long[] developers;
 
     /**
      * @return the bugs
@@ -146,7 +149,25 @@ public class WSStoredProject {
     public void setWebsite(String website) {
         this.website = website;
     }
-    
+
+    /**
+     * Returns the Ids of the developers that work on this project.
+     * 
+     * @return The list of developer Ids.
+     */
+    public long[] getDevelopers() {
+        return developers;
+    }
+
+    /**
+     * Sets the list of Ids of the developers that work on this project.
+     * 
+     * @param developers the list of developer Ids
+     */
+    public void setDevelopers(long[] developers) {
+        this.developers = developers;
+    }
+
     /**
      * The method creates a new <code>WSStoredProject</code> object
      * from the existent DAO object.
@@ -167,6 +188,14 @@ public class WSStoredProject {
             wsStoredProject.setName(storedProject.getName());
             wsStoredProject.setRepository(storedProject.getRepository());
             wsStoredProject.setWebsite(storedProject.getWebsite());
+            Set<Developer> developers = storedProject.getDevelopers();
+            if ((developers != null) && (developers.size() > 0)) {
+                int index = 0;
+                long[] developerIds = new long[developers.size()];
+                for (Developer developer : developers)
+                    developerIds[index++] = developer.getId();
+                wsStoredProject.setDevelopers(developerIds);
+            }
             return wsStoredProject;
         } catch (Exception e) {
             return null;
@@ -206,7 +235,7 @@ public class WSStoredProject {
         }
         return result;
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
