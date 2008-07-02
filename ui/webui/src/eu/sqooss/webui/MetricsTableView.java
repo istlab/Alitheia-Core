@@ -66,6 +66,9 @@ public class MetricsTableView extends ListView {
     /** Enables the visualization of the metric type column */
     private boolean showType = true;
 
+    /** Enables the visualization of the metric's activation type column */
+    private boolean showActivator = true;
+
     /** Enables the visualization of the metric result column */
     private boolean showResult = true;
 
@@ -230,6 +233,7 @@ public class MetricsTableView extends ListView {
         if (showMnemonic)       columns++;
         if (showDescription)    columns++;
         if (showType)           columns++;
+        if (showActivator)      columns++;
         if (showResult)         columns++;
 
         // Prepare some CSS tricks
@@ -273,6 +277,8 @@ public class MetricsTableView extends ListView {
                 html.append(sp(in) + "<td" + head_class + ">Description</td>\n");
             if (showType)
                 html.append(sp(in) + "<td" + head_class + ">Type</td>\n");
+            if (showActivator)
+                html.append(sp(in) + "<td" + head_class + ">Activator</td>\n");
             if (showResult)
                 html.append(sp(in) + "<td" + head_class + ">Results</td>\n");
             html.append(sp(--in) + "</tr>\n");
@@ -331,6 +337,10 @@ public class MetricsTableView extends ListView {
             if (showType) {
                 html.append(sp(in) + "<td " + cell_class + ">"
                         + metrics.get(key).getType() + "</td>\n");
+            }
+            if (showActivator) {
+                html.append(sp(in) + "<td " + cell_class + ">"
+                        + metrics.get(key).getActivator() + "</td>\n");
             }
             if (showResult) {
                 html.append(sp(in) + "<td " + cell_class + ">"

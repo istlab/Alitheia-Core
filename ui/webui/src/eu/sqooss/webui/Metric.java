@@ -44,30 +44,82 @@ import eu.sqooss.ws.client.datatypes.WSMetric;
  */
 public class Metric extends WebuiItem {
 
+    /** Metric meta-data */
     private String mnemonic;
-    private String type;
+    private MetricType type;
     private String description;
-    private String activationType;
-
-    /** Represents a ProjectFile activated metric. */
-    public static final String PROJECT_FILE = "PROJECT_FILE";
-
-    /** Represents a ProjectVersion activated metric. */
-    public static final String PROJECT_VERSION = "PROJECT_VERSION";
+    private MetricActivator activator;
 
     /**
-     * Constructs a new <code>Metric</code> from a <code>WSMetric</code>
-     * instance and a metric type.
-     *
-     * @param metric the metric object retrieved from the WSS call
-     * @param metricType the metric type
+     * This enumeration defines all metric types that are supported by the
+     * SQO-OSS framework.
+     * <br/>
+     * <i>Note: Synchronize this enumeration with the SQO-OSS types set when
+     * necessary.</i>
      */
-    public Metric (WSMetric metric, String metricType) {
-        mnemonic    = metric.getMnemonic();
-        id          = metric.getId();
-        type        = metricType;
-        description = metric.getDescription();
-        activationType = PROJECT_FILE;
+    public enum MetricType {
+        SOURCE_CODE,
+        MAILING_LIST,
+        BUG_DATABASE,
+        PROJECT_WIDE;
+
+        public static MetricType fromString(String type) {
+            if (type.equals(SOURCE_CODE.toString()))
+                return SOURCE_CODE;
+            else if (type.equals(MAILING_LIST.toString()))
+                return MAILING_LIST;
+            else if (type.equals(BUG_DATABASE.toString()))
+                return BUG_DATABASE;
+            else if (type.equals(PROJECT_WIDE.toString()))
+                return PROJECT_WIDE;
+            else
+                return null;
+        }
+    };
+
+    /**
+     * This enumeration defines all activation types that are supported by the
+     * SQO-OSS framework.
+     * <br/>
+     * <i>Note: Synchronize this enumeration with the SQO-OSS types set when
+     * necessary.</i>
+     */
+    public enum MetricActivator {
+        PROJECTFILE,
+        PROJECTVERSION,
+        DEVELOPER;
+
+        public static MetricActivator fromString(String type) {
+            if (type.equals(PROJECTFILE.toString()))
+                return PROJECTFILE;
+            else if (type.equals(PROJECTVERSION.toString()))
+                return PROJECTVERSION;
+            else if (type.equals(DEVELOPER.toString()))
+                return DEVELOPER;
+            else
+                return null;
+        }
+    };
+
+    /**
+     * Instantiates a new <code>Metric</code> object, initializes it with
+     * the metric data contained in the given <code>WSMetric</code>
+     * instance, and sets the specified metric type on it.
+     *
+     * @param metric the metric object
+     * @param type the metric type
+     */
+    public Metric (WSMetric metric, String type) {
+        if (metric != null) {
+            this.mnemonic    = metric.getMnemonic();
+            this.id          = metric.getId();
+            this.type        = MetricType.fromString(type);
+            this.description = metric.getDescription();
+            this.activator   = ((metric.getActivator() != null)
+                    ? MetricActivator.fromString(
+                            metric.getActivator().toUpperCase())
+                    : null);
+        }
     }
 
     public Long getId() {
@@ -78,32 +130,16 @@ public class Metric extends WebuiItem {
         return mnemonic;
     }
 
-    public String getType () {
-        // Note that this does not tell us wether we have a ProjectVersion
-        // or a ProjectFile metric
+    public MetricType getType () {
         return type;
-    }
-
-    public Boolean isProjectVersionMetric () {
-        return activationType == PROJECT_VERSION;
-    }
-
-    public Boolean isProjectFileMetric () {
-        return activationType == PROJECT_FILE;
-    }
-
-    public Integer getResult() {
-        // FIXME: Do something smart with types, maybe invent a Result class?
-        return getResultInteger();
-    }
-
-    public Integer getResultInteger() {
-        // FIXME: not all results will be 1337, some will also be 42
-        return 1337;
     }
 
     public String getDescription () {
         return description;
+    }
+
+    public MetricActivator getActivator() {
+        return activator;
     }
 
     public String getLink() {
