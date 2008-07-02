@@ -220,8 +220,6 @@ a img {
     background-color: #FFFF99;
 }
 #table tr.selected {
-    color: Green;
-    cursor: pointer;
     background-color: #FFFF99;
 }
 #table td.head {

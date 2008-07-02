@@ -142,6 +142,18 @@ public class Metric extends WebuiItem {
         return activator;
     }
 
+    public String getScope() {
+        if (this.type.equals(MetricType.SOURCE_CODE)) {
+            if (this.activator.equals(MetricActivator.PROJECTFILE))
+                return "Single source file";
+        }
+        else if (this.type.equals(MetricType.PROJECT_WIDE)) {
+            if (this.activator.equals(MetricActivator.DEVELOPER))
+                return "Developer statistics";
+        }
+        return "N/A";
+    }
+
     public String getLink() {
         return "<a href=\"/files.jsp?rid=" + getId() + "\">view results</a>";
         // TODO: Should go to results.jsp, with Mnem + ids

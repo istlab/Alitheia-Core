@@ -64,10 +64,13 @@ public class MetricsTableView extends ListView {
     private boolean showDescription = true;
 
     /** Enables the visualization of the metric type column */
-    private boolean showType = true;
+    private boolean showType = false;
 
     /** Enables the visualization of the metric's activation type column */
-    private boolean showActivator = true;
+    private boolean showActivator = false;
+
+    /** Enables the visualization of the metric's scope column */
+    private boolean showScope = true;
 
     /** Enables the visualization of the metric result column */
     private boolean showResult = true;
@@ -82,7 +85,7 @@ public class MetricsTableView extends ListView {
     String tableClass = new String("table");
 
     // CSS class to use for the individual cells of the table
-    String cellClass = new String();
+    String cellClass = new String("trans");
 
     // HTML table identifier
     String tableId = new String("table");
@@ -234,6 +237,7 @@ public class MetricsTableView extends ListView {
         if (showDescription)    columns++;
         if (showType)           columns++;
         if (showActivator)      columns++;
+        if (showScope)          columns++;
         if (showResult)         columns++;
 
         // Prepare some CSS tricks
@@ -279,6 +283,8 @@ public class MetricsTableView extends ListView {
                 html.append(sp(in) + "<td" + head_class + ">Type</td>\n");
             if (showActivator)
                 html.append(sp(in) + "<td" + head_class + ">Activator</td>\n");
+            if (showScope)
+                html.append(sp(in) + "<td" + head_class + ">Scope</td>\n");
             if (showResult)
                 html.append(sp(in) + "<td" + head_class + ">Results</td>\n");
             html.append(sp(--in) + "</tr>\n");
@@ -314,7 +320,10 @@ public class MetricsTableView extends ListView {
         // Table rows
         html.append(sp(in++) + "<tbody>\n");
         for (Long key: metrics.keySet()) {
-            html.append(sp(in++) + "<tr>\n");
+            if ((showSelect) && (selectedMetrics.contains(key)))
+                html.append(sp(in++) + "<tr class=\"selected\">\n");
+            else
+                html.append(sp(in++) + "<tr>\n");
             if (showId) {
                 html.append(sp(in) + "<td " + cell_class + ">"
                         + key + "</td>\n");
@@ -327,8 +336,8 @@ public class MetricsTableView extends ListView {
                         + "</td>\n");
             }
             if (showMnemonic) {
-                html.append(sp(in) + "<td " + cell_name_class + ">"
-                        + metrics.get(key).getMnemonic() + "</td>\n");
+                html.append(sp(in) + "<td " + cell_class + "><b>"
+                        + metrics.get(key).getMnemonic() + "</b></td>\n");
             }
             if (showDescription) {
                 html.append(sp(in) + "<td " + cell_class + ">"
@@ -341,6 +350,10 @@ public class MetricsTableView extends ListView {
             if (showActivator) {
                 html.append(sp(in) + "<td " + cell_class + ">"
                         + metrics.get(key).getActivator() + "</td>\n");
+            }
+            if (showScope) {
+                html.append(sp(in) + "<td " + cell_class + ">"
+                        + metrics.get(key).getScope() + "</td>\n");
             }
             if (showResult) {
                 html.append(sp(in) + "<td " + cell_class + ">"
