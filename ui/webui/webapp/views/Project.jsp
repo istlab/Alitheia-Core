@@ -118,6 +118,40 @@ if (selectedProject.isValid()) {
                 <td valign="top" style="padding-right: 30px; width: 60%;">
 <%
     //========================================================================
+    // Display the list of developers that are working on this project
+    //========================================================================
+    // Indentation depth
+    in = 9;
+    // Prepare the developers view
+    selectedProject.setTerrier(terrier);
+    DevelopersListView developersView =
+        new DevelopersListView(selectedProject.getDevelopers());
+    // Display the metrics
+    out.println(sp(in) + "<h2>Developers</h2>");
+    out.print(developersView.getHtml(in));
+%>                </td>
+                <td valign="top" style="width: 40%;">
+<%
+    //========================================================================
+    // Display the source file statistic of the selected project
+    //========================================================================
+    // Indentation depth
+    in = 9;
+    if (selectedProject.getCurrentVersion() != null) {
+        out.println(sp(in) + "<h2>Files in Version "
+            + selectedProject.getCurrentVersion().getNumber()
+            + "</h2>");
+        out.print(selectedProject.getCurrentVersion().fileStats(in));
+    }
+    else {
+        out.print(sp(in) + Functions.warning("No versions in Project"));
+    }
+%>                </td>
+              </tr>
+              <tr>
+                <td valign="top" colspan="2" style="padding-right: 30px; width: 100%;">
+<%
+    //========================================================================
     // Display the list of metrics that were evaluated on this project
     //========================================================================
     // Indentation depth
@@ -136,23 +170,6 @@ if (selectedProject.isValid()) {
     out.println(sp(in) + "<h2>Metrics for "
         + selectedProject.getName() + "</h2>");
     out.print(metricsView.getHtml(in));
-%>                </td>
-                <td valign="top" style="width: 40%;">
-<%
-    //========================================================================
-    // Display the source file statistic of the selected project
-    //========================================================================
-    // Indentation depth
-    in = 9;
-    if (selectedProject.getCurrentVersion() != null) {
-        out.println(sp(in) + "<h2>Files in Version "
-            + selectedProject.getCurrentVersion().getNumber()
-            + "</h2>");
-        out.print(selectedProject.getCurrentVersion().fileStats(in));
-    }
-    else {
-        out.print(sp(in) + Functions.warning("No versions in Project"));
-    }
 %>                </td>
               </tr>
             </table>

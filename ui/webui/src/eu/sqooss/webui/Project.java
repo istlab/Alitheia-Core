@@ -35,6 +35,7 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
+import eu.sqooss.webui.datatypes.Developer;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
@@ -48,13 +49,17 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
 public class Project extends WebuiItem {
 
     /*
-     *  Project metadata fields
+     *  Project meta-data fields
      */
     private String bts;
     private String repository;
     private String mail;
     private String contact;
     private String website;
+    private long[] developersIds;
+
+    /** Developers cache */
+    HashMap<Long, Developer> developers = new HashMap<Long, Developer>();
 
     /** Holds the version number of the currently selected version. */
     private Long currentVersionId;
@@ -115,6 +120,7 @@ public class Project extends WebuiItem {
             mail = p.getMail();
             contact = p.getContact();
             website = p.getWebsite();
+            developersIds = p.getDevelopers();
         }
     }
 
@@ -132,6 +138,7 @@ public class Project extends WebuiItem {
             mail = p.getMail();
             contact = p.getContact();
             website = p.getWebsite();
+            developersIds = p.getDevelopersIds();
         }
     }
 
@@ -185,6 +192,20 @@ public class Project extends WebuiItem {
         return repository;
     }
 
+    public long[] getDevelopersIds() {
+        return developersIds;
+    }
+
+    public Collection<Developer> getDevelopers() {
+        if ((isValid()) && (terrier != null) && (developers.isEmpty())){
+            if (developersIds != null) {
+                for (Developer nextDev : terrier.getDevelopers(developersIds))
+                    this.developers.put(nextDev.getId(), nextDev);
+            }
+        }
+        return developers.values();
+    }
+
     /**
      * Retrieves all the data that is required by this object from the
      * SQO-OSS framework, unless the cache contains some data already
@@ -214,6 +235,7 @@ public class Project extends WebuiItem {
         currentVersion = null;
         versions.clear();
         metrics.clear();
+        developers.clear();
         selectedMetrics = new ArrayList<Long>();
     }
 

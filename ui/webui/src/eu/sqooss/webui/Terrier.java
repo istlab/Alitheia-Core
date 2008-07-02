@@ -43,6 +43,8 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import eu.sqooss.scl.WSException;
+import eu.sqooss.webui.datatypes.Developer;
+import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSMetric;
@@ -415,6 +417,38 @@ public class Terrier {
             }
             catch (WSException e) {
                 addError("Can not retrieve statistics for project versions.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
+
+    //========================================================================
+    // DEVELOPER RELATED SCL WRAPPER METHODS
+    //========================================================================
+
+    /**
+     * Returns a list of developer's meta-data objects for the developers
+     * with the selected Ids.
+     *
+     * @param developersIds the list of developers Ids
+     *
+     * @return The list of developer's meta-data objects, or an empty list
+     *   when none are found.
+     */
+    public List<Developer> getDevelopers(long[] developersIds) {
+        List<Developer> result = new ArrayList<Developer>();
+        if (isConnected()) {
+            try {
+                WSDeveloper[] wsdevelopers =
+                    connection.getProjectAccessor().getDevelopersByIds(
+                            developersIds);
+                for (WSDeveloper nextDeveloper : wsdevelopers)
+                    result.add(new Developer(nextDeveloper));
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the list of project developers.");
             }
         }
         else
