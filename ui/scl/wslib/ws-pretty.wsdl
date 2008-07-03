@@ -105,6 +105,7 @@
       <xs:complexType name="WSMetricsResultRequest">
         <xs:sequence>
           <xs:element maxOccurs="unbounded" name="daObjectId" type="xs:long"/>
+          <xs:element name="developer" type="xs:boolean"/>
           <xs:element name="fileGroup" type="xs:boolean"/>
           <xs:element maxOccurs="unbounded" name="mnemonics" nillable="true" type="xs:string"/>
           <xs:element name="projectFile" type="xs:boolean"/>
