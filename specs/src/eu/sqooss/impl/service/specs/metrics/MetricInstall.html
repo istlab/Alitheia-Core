@@ -1,0 +1,46 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+  <body>
+    
+    <h1>Metric Install</h1>
+    
+    <p>Quality is meassured with different metric plugins. In order to use a plug-in, it needs to be installed.</p>
+    
+    <div class="example">
+      
+      <h3>Example</h3>
+      
+      <p>The system comes with registered, but not installed metric plug-ins. The default plug-in list is: </p>
+      <table concordion:verifyRows="#plugin : getPlugins()">
+        <tr>
+          <th concordion:assertEquals="#plugin.name">Plugin Name</th>
+          <th concordion:assertEquals="#plugin.insta;;ed">Installed</th>
+        </tr>
+        <tr>
+          <td>CLMT plug-in</td>
+          <td>false</td>
+        </tr>
+        <tr>
+          <td>Productivity metric plug-in</td>
+          <td>false</td>
+        </tr>
+        <tr>
+          <td>Wc metric plug-in</td>
+          <td>false</td>
+        </tr>
+      </table>
+    </div>
+    
+    <h2>Further Details</h2>
+    
+    <!--
+        Questions raised by this specification. Each one links to another finer grained active specification.
+        -->
+    <ul>
+      <li><a href="SpecTemplate.html">Another active specification?</a></li>
+      <li><a href="SpecTemplate.html">What about this specific case?</a></li>
+      <li><a href="SpecTemplate.html">What if it throws an exception?</a></li>
+    </ul>
+    
+    
+  </body>
+</html>
