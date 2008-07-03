@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 
+import eu.sqooss.webui.datatypes.File;
+
 public class FileListView extends ListView {
 
     // Contains the list of files that can be presented by this view

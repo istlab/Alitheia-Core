@@ -35,6 +35,7 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
+import eu.sqooss.webui.datatypes.File;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;

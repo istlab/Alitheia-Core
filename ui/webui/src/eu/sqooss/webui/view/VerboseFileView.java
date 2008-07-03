@@ -37,12 +37,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.SortedMap;
 
-import eu.sqooss.webui.File;
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
+import eu.sqooss.webui.datatypes.File;
 
 /**
  * The class <code>VerboseFileView</code> renders an HTML sequence that

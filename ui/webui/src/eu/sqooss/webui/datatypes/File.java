@@ -31,13 +31,15 @@
  *
  */
 
-package eu.sqooss.webui;
+package eu.sqooss.webui.datatypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import eu.sqooss.webui.Result;
+import eu.sqooss.webui.WebuiItem;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
@@ -48,7 +50,7 @@ import eu.sqooss.ws.client.datatypes.WSProjectFile;
  * It provides access to the project file's metadata, evaluation results and
  * some convenience functions for proper HTML rendering.
  */
-public class File extends WebuiItem {
+public class File extends AbstractDatatype {
 
     // The short name of this file
     private String shortName;
@@ -64,12 +66,6 @@ public class File extends WebuiItem {
 
     // Holds the Id of the Directory DAO that match this folder's name
     Long toDirectoryId;
-
-    /*
-     * The list of results from metric that has been evaluated on this file,
-     * indexed by metric mnemonic name.
-     */
-    private HashMap<String, Result> results = new HashMap<String, Result>();
 
     /**
      * Instantiates a new <code>File</code>, and initializes its metadata
@@ -143,108 +139,6 @@ public class File extends WebuiItem {
      */
     public Long getToDirectoryId() {
         return toDirectoryId;
-    }
-
-    /**
-     * Adds a new evaluation result entry to the list of result for this file.
-     *
-     * @param resultEntry the result entry
-     */
-    public void addResult(Result resultEntry) {
-        if (results.values().contains(resultEntry) == false)
-            results.put(resultEntry.getMnemonic(), resultEntry);
-    }
-
-    /**
-     * This method will try to retrieve from the SQO-OSS framework results
-     * from all of the selected metrics (<i>specified by their mnemonics</i>)
-     * that were evaluated on the project file with the given Id.
-     * <br/>
-     * The list is indexed by the mnemonic name of the metric that calculated
-     * the specific result entry.
-     * 
-     * @param mnemonics the mnemonic names of the selected metrics
-     * @param fileId the project file's Id
-     * 
-     * @return The list of file results, or an empty list when none are found.
-     */
-    public HashMap<String, Result> getResults (
-            Collection<String> mnemonics, Long fileId) {
-        HashMap<String, Result> result = new HashMap<String, Result>();
-        if ((fileId == null) 
-                || (mnemonics == null) 
-                || (mnemonics.isEmpty()))
-            return result;
-        /*
-         * Construct the result request's object.
-         */
-        WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
-        reqResults.setDaObjectId(new long[]{fileId});
-        reqResults.setProjectFile(true);
-        reqResults.setMnemonics(
-                mnemonics.toArray(new String[mnemonics.size()]));
-        /*
-         * Retrieve the evaluation results from the SQO-OSS framework
-         */
-        for (Result nextResult : terrier.getResults(reqResults))
-            result.put(nextResult.getMnemonic(), nextResult);
-        return result;
-    }
-
-    /**
-     * This method will try to retrieve from the SQO-OSS framework results
-     * from all of the selected metrics (<i>specified by their mnemonics</i>)
-     * that were evaluated on this project file. The file's results cache is
-     * taken into consideration, thus this method will retrieve only metric
-     * results that are currently missing.
-     * 
-     * @param mnemonics the mnemonic names of the selected metrics
-     */
-    public HashMap<String, Result> getResults (
-            Collection<String> mnemonics) {
-        if (isValid() == false) return new HashMap<String, Result>();
-        /*
-         * Check, if this file's results cache contains entries for all of
-         * the requested metrics.
-         */ 
-        List<String> missingMnemonics = new ArrayList<String>(mnemonics);
-        for (String nextMnemonic : mnemonics)
-            if (results.keySet().contains(nextMnemonic))
-                missingMnemonics.remove(nextMnemonic);
-        /*
-         * Retrieve all missing metric results.
-         */
-        if ((results.isEmpty()) || (missingMnemonics.size() > 0))
-            results.putAll(getResults(missingMnemonics, this.getId()));
-        return results;
-    }
-
-    /**
-     * Gets the list of results that are currently cached in this file.
-     * <br/>
-     * The list is indexed by the mnemonic name of the metric that calculated
-     * the specific result entry.
-     * 
-     * @return The list of results.
-     */
-    public HashMap<String, Result> getResults() {
-        return results;
-    }
-
-    /**
-     * Flushes the list of results that are currently cached in this file.
-     */
-    public void flushResults() {
-        results.clear();
-    }
-
-    /* (non-Javadoc)
-     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
-     */
-    public String getHtml(long in) {
-        StringBuilder b = new StringBuilder("");
-        b.append(sp(in) + getShortName());
-        return b.toString();
     }
 
     /**
@@ -332,5 +226,42 @@ public class File extends WebuiItem {
             }
         }
         return html.toString();
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getResults(java.util.Collection, java.lang.Long)
+     */
+    @Override
+    public HashMap<String, Result> getResults (
+            Collection<String> mnemonics, Long resourceId) {
+        HashMap<String, Result> result = new HashMap<String, Result>();
+        if ((resourceId == null) 
+                || (mnemonics == null) 
+                || (mnemonics.isEmpty()))
+            return result;
+        /*
+         * Construct the result request's object.
+         */
+        WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
+        reqResults.setDaObjectId(new long[]{resourceId});
+        reqResults.setProjectFile(true);
+        reqResults.setMnemonics(
+                mnemonics.toArray(new String[mnemonics.size()]));
+        /*
+         * Retrieve the evaluation results from the SQO-OSS framework
+         */
+        for (Result nextResult : terrier.getResults(reqResults))
+            result.put(nextResult.getMnemonic(), nextResult);
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.WebuiItem#getHtml(long)
+     */
+    @Override
+    public String getHtml(long in) {
+        StringBuilder b = new StringBuilder("");
+        b.append(sp(in) + getShortName());
+        return b.toString();
     }
 }
