@@ -110,7 +110,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         if ( p == null || p.isEmpty() ){
             return null;
         } 
-            
+        // TODO: Fix the fixed result
         res.add(new ResultEntry(1, ResultEntry.MIME_TYPE_TYPE_INTEGER, 
                 m.getMnemonic()));
         return res;
