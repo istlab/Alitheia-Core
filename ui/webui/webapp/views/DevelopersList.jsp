@@ -81,6 +81,7 @@ if (selectedProject.isValid()) {
         // Prepare the developers results view
         DevelopersResultView devResultsView =
             new DevelopersResultView(selectedProject);
+        devResultsView.setSettings(settings);
         devResultsView.setTerrier(terrier);
         // Display the developers results view
         out.print(devResultsView.getHtml(in));

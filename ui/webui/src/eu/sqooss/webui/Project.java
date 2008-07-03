@@ -270,6 +270,23 @@ public class Project extends WebuiItem {
         return metrics;
     }
 
+
+    /**
+     * Gets the metric with the given mnemonic name from the local cache.
+     * 
+     * @param mnemonic the metric's mnemonic name
+     * 
+     * @return The metric object, or <code>null</code> if there is no metric
+     * with this mnemonic name in the local cache.
+     */
+    public Metric getMetric(String mnemonic) {
+        if (mnemonic != null)
+            for (Metric nextMetric : metrics)
+                if (nextMetric.getMnemonic().equals(mnemonic))
+                    return nextMetric;
+        return null;
+    }
+
     /**
      * Sets the first version of this project.
      * 

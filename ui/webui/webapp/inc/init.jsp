@@ -64,6 +64,8 @@ public void jspInit() {
 %><%
 // Set an initial size of the servlet's response
 response.setBufferSize(16384);
+// Retrieve the user locale
+settings.setUserLocale(request.getLocale());
 // Default name for this application
 // TODO: Read it from the configuration bundle
 String appName  = "Alitheia";

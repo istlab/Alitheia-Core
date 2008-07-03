@@ -33,13 +33,25 @@
 
 package eu.sqooss.webui;
 
+import java.util.Locale;
+
 public class SelectedSettings {
+    private Locale userLocale = Locale.US;
+
     private boolean showAllMetrics = false;
     private boolean showFileResultsOverview = false;
     private boolean showPVDevelopers = true;
     private boolean showPVFileStat = true;
     private boolean showPVMetrics = true;
     private boolean showDevelopers = true;
+
+    public Locale getUserLocale() {
+        return userLocale;
+    }
+
+    public void setUserLocale(Locale userLocale) {
+        this.userLocale = userLocale;
+    }
 
     public void setShowAllMetrics(boolean flag) {
         showAllMetrics = flag;

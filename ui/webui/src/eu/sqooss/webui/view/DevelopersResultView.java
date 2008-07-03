@@ -39,6 +39,7 @@ import java.util.Map;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
+import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
@@ -118,8 +119,14 @@ public class DevelopersResultView extends ListView {
                         + " style=\"margin-bottom: 0;\">\n");
                 b.append(sp(in++) + "<thead>\n");
                 b.append(sp(in++) + "<tr class=\"borderless\">\n");
+                Metric metric = project.getMetric(nextMnemonic);
+                String metricLbl = nextMnemonic
+                    + ((metric != null)
+                            ? " : " + metric.getDescription()
+                            : "");
                 b.append(sp(in) + "<td class=\"attr\" style=\"width: 70%;\">"
-                        + "Metric: " + nextMnemonic + "</td>\n");
+                        + this.adjustRight(metricLbl, "...")
+                        + "</td>\n");
                 b.append(sp(in) + "<td class=\"borderless\" style=\"width: 30%;\">"
                         + "</td>\n");
                 b.append(sp(--in) + "</thead>\n");
@@ -147,9 +154,12 @@ public class DevelopersResultView extends ListView {
                             + "</td>\n");
                     Result result =
                         nextDeveloper.getResults().get(nextMnemonic);
-                    b.append(sp(in) + "<td>"
-                            + ((result != null) ? result.getHtml(in) : "N/A")
-                            + "</td>\n");
+                    String resultValue = "N/A";
+                    if (result != null) {
+                        result.setSettings(this.settings);
+                        resultValue = result.getHtml(in);
+                    }
+                    b.append(sp(in) + "<td>" + resultValue + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                 }
                 b.append(sp(--in) + "</table>\n");
