@@ -40,6 +40,7 @@ public class WSMetricsResultRequest {
     private boolean isProjectFile;
     private boolean isFileGroup;
     private boolean isProjectVersion;
+    private boolean isDeveloper;
     
     public Long[] getDaObjectId() {
         return daObjectId;
@@ -89,6 +90,14 @@ public class WSMetricsResultRequest {
         this.isProjectVersion = isProjectVersion;
     }
 
+    public boolean isDeveloper() {
+        return isDeveloper;
+    }
+
+    public void setDeveloper(boolean isDeveloper) {
+        this.isDeveloper = isDeveloper;
+    }
+
     /**
      * @see java.lang.Object#toString()
      */
@@ -122,7 +131,7 @@ public class WSMetricsResultRequest {
         }
         return stringRepresentation.toString();
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -43,6 +43,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
@@ -109,6 +110,8 @@ public class MetricManagerDatabase implements MetricManagerDBQueries {
             result = db.findObjectById(ProjectVersion.class, daoId);
         } else if (resultRequest.isStoredProject()) {
             result = db.findObjectById(StoredProject.class, daoId);
+        } else if (resultRequest.isDeveloper()) {
+            result = db.findObjectById(Developer.class, daoId);
         }
         return result;
     }
