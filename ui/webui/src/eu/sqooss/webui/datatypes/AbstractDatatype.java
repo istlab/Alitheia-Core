@@ -45,16 +45,16 @@ import eu.sqooss.webui.WebuiItem;
  * This class represents the base storage class for a single SQO-OSS resource
  * DAO.
  */
-public abstract class AbstractDatatype extends WebuiItem{
+public abstract class AbstractDatatype extends WebuiItem {
 
-    /*
-     * The list of results from metric that has been evaluated on this
-     * resource item, indexed by metric mnemonic name.
+    /**
+     * Holds the list of results from metric that has been evaluated on
+     * this resource item, indexed by metric mnemonic name.
      */
     protected HashMap<String, Result> results = new HashMap<String, Result>();
 
     /**
-     * Adds a new evaluation result entry to the list of result for this
+     * Adds a new evaluation result entry into the list of result for this
      * resource item.
      *
      * @param resultEntry the result entry

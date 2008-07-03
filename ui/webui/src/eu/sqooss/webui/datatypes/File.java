@@ -33,13 +33,10 @@
 
 package eu.sqooss.webui.datatypes;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import eu.sqooss.webui.Result;
-import eu.sqooss.webui.WebuiItem;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
