@@ -5,7 +5,7 @@
 in = 6;
 // Check is there is a connection with the SQO-OSS framework
 if (terrier.isConnected()) {
-    title = "Files";
+    title = "Project developers";
 %><%@ include file="/inc/header.jsp"
 %><%@ include file="/views/DevelopersList.jsp"
 %><%
