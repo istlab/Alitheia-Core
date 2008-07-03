@@ -58,24 +58,24 @@ public class DevelopersListView extends ListView {
         else {
             b.append(sp(in++) + "<div id=\"table\">\n");
             b.append(sp(in++) + "<table>\n");
-            b.append(sp(in++) + "<thead>");
-            b.append(sp(in++) + "<tr class=\"head\">");
+            b.append(sp(in++) + "<thead>\n");
+            b.append(sp(in++) + "<tr class=\"head\">\n");
             b.append(sp(in) + "<td class=\"head\" style=\"width: 60%;\">"
                     + "Real name" + "</td>\n");
             b.append(sp(in) + "<td class=\"head\" style=\"width: 40%;\">"
                     + "User name" + "</td>\n");
-            b.append(sp(--in) + "</tr>");
-            b.append(sp(--in) + "</thead>");
-            b.append(sp(in++) + "<tbody>");
+            b.append(sp(--in) + "</tr>\n");
+            b.append(sp(--in) + "</thead>\n");
+            b.append(sp(in++) + "<tbody>\n");
             for (Developer nextDev : developers) {
-                b.append(sp(in++) + "<tr>");
+                b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in) + "<td>" + nextDev.getName() + "</td>\n");
                 b.append(sp(in) + "<td>" + nextDev.getUsername() + "</td>\n");
-                b.append(sp(--in) + "</tr>");
+                b.append(sp(--in) + "</tr>\n");
             }
-            b.append(sp(--in) + "<tbody>");
+            b.append(sp(--in) + "</tbody>\n");
             b.append(sp(--in) + "</table>\n");
-            b.append(sp(--in) + "<div>\n");
+            b.append(sp(--in) + "</div>\n");
         }
         return b.toString();
     }

@@ -34,8 +34,8 @@
     padding: 0;
 }
 
-#news, #tagcloud, #selectedproject,
-#projectslist, #metricslist, #fileslist, #loginpage {
+#news, #tagcloud, #selectedproject, #projectslist,
+#metricslist, #fileslist, #developerslist, #loginpage {
     padding: 1ex;
     padding-left: 56px;
     min-height: 52px; /* 36px for image + 8px padding */

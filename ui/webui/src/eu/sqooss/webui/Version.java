@@ -44,18 +44,43 @@ import eu.sqooss.ws.client.datatypes.WSVersionStats;
  * This class represents a version of a project that has been evaluated
  * by the SQO-OSS framework.
  * <br/>
- * It provides access to the version's metadata and files.
+ * It provides access to the version's meta-data, source files contained in
+ * this version, and various methods for accessing and presenting version
+ * and file based results.
  */
 public class Version extends WebuiItem {
 
+    /*
+     * Project version's meta-data
+     */
     private Long projectId;
     private Long number;
+
+    /*
+     * 
+     */
     private Long filesNumber = null;
-    private List<Result> results;
+
+    /*
+     * Holds the list of results from metrics that has been evaluated on this
+     * project version, indexed by metric mnemonic name.
+     */
+    private HashMap<String, Result> results = new HashMap<String, Result>();
+
+    /*
+     * 
+     */
     private WSVersionStats stats = null;
+
+    /*
+     * 
+     */
     private Stack<Long> dirStack = new Stack<Long>();
 
-    // Contains a list of all files in this version indexed by their Id
+    /**
+     * A cache for all files that exist in this project version indexed by
+     * their file Id.
+     */
     protected SortedMap<Long, File> files = new TreeMap<Long, File>();
 
     /**
@@ -72,36 +97,59 @@ public class Version extends WebuiItem {
         if (wsVersion != null) {
             this.id = wsVersion.getId();
             try {
-                this.name = new Long(wsVersion.getVersion()).toString();
+                this.number = wsVersion.getVersion();
             }
             catch (NumberFormatException ex) {}
-            this.number = wsVersion.getVersion();
+            this.name = this.number.toString();
             this.projectId = wsVersion.getProjectId();
         }
         setTerrier(terrier);
     }
 
+    /**
+     * Gets the Id of the project where this version belongs.
+     * 
+     * @return The project Id.
+     */
     public Long getProjectId() {
         return projectId;
     }
 
+    /**
+     * Sets the Id of the project where this version belongs.
+     * 
+     * @param p the project Id
+     */
     public void setProjectId(Long p) {
         projectId = p;
     }
 
+    /**
+     * Gets the number of this version.
+     * 
+     * @return The version's number.
+     */
     public Long getNumber () {
         return number;
     }
 
+    /**
+     * Sets the number of this version.
+     * 
+     * @param n the version's number
+     */
     public void setNumber(Long n) {
         number = n;
     }
 
+    //========================================================================
+    // FILE RETRIEVAL METHODS
+    //========================================================================
+
     /**
-     * Return the number of files that exist in this particular project
-     * version.
+     * Gets the number of files that exist in this particular project version.
      * 
-     * @return the files number
+     * @return The number of files in this version.
      */
     public Long getFilesNumber() {
         if (filesNumber == null)
@@ -110,59 +158,54 @@ public class Version extends WebuiItem {
     }
 
     /**
+     * Gets the file with the given Id from the local cache.
+     * 
+     * @param fileId the file Id
+     * 
+     * @return The file object.
+     */
+    public File getFile(Long fileId) {
+        if (fileId != null)
+            return files.get(fileId);
+        return null;
+    }
+
+   /**
+    * Fills the local cache with the given list of files.
+    * 
+    * @param filesList the files list
+    */
+   public void setFiles(SortedMap<Long, File> filesList) {
+       if (filesList != null)
+           files = filesList;
+   }
+
+    /**
      * Retrieves all files that exist in this project version from the
-     * attached SQO-OSS framework. All files that are found will be copied
-     * into the <code>files<code> member field.
+     * attached SQO-OSS framework.
+     * <br/> All files that are found will be copied into the local cache i.e.
+     * the <code>files<code> member field.
      */
     public void getAllFiles() {
-        if (terrier == null)
-            return;
+        if (terrier == null) return;
         if (isValid()) {
-            // Fill the files cache if empty
-            if (files.isEmpty()) {
+            // Fill the files cache, if empty
+            if (files.isEmpty())
                 for (File nextFile : terrier.getFilesInVersion(id))
                     files.put(nextFile.getId(), nextFile);
-            }
         }
         else
             terrier.addError("Invalid project version!");
     }
 
-    public void switchDir(Long directoryId) {
-        // Skip if the user tries to switch to the same directory
-        if (dirStack.peek().equals(directoryId)) return;
-        // Flush the currently cached files
-        files.clear();
-        // Check if the user tries to switch to a higher level directory
-        if (dirStack.contains(directoryId))
-            while ((dirStack.isEmpty() == false)
-                    || (dirStack.peek().equals(directoryId) == false))
-                dirStack.pop();
-        // Add the sub-directory to the stack
-        else
-            dirStack.push(directoryId);
-    }
-
-    public void previousDir() {
-        // Shift one level higher in the directory tree
-        files.clear();
-        dirStack.pop();
-    }
-
-    public void topDir() {
-        // Switch to the root directory
-        files.clear();
-        dirStack.clear();
-    }
-
     /**
      * Fetch all files in the current directory that exist in this project
      * version from the attached SQO-OSS framework. All files that are found
-     * are copied into the <code>files<code> member.
+     * will be copied into the local cache i.e. the <code>files<code> member
+     * field.
      */
     public void getFilesInCurrentDirectory() {
-        if (terrier == null)
-            return;
+        if (terrier == null) return;
         if (isValid()) {
             // Fill the files cache if empty
             if (files.isEmpty()) {
@@ -188,6 +231,94 @@ public class Version extends WebuiItem {
         else
             terrier.addError("Invalid project version!");
     }
+
+    //========================================================================
+    // DIRECTORY NAVIGATION METHODS
+    //========================================================================
+
+    public void switchDir(Long directoryId) {
+        // Skip, if the user tries to switch to the same directory
+        if (dirStack.peek().equals(directoryId)) return;
+        // Flush the currently cached files
+        files.clear();
+        // Check if the user tries to switch to a higher level directory
+        if (dirStack.contains(directoryId))
+            while ((dirStack.isEmpty() == false)
+                    || (dirStack.peek().equals(directoryId) == false))
+                dirStack.pop();
+        // Add the sub-directory to the stack
+        else
+            dirStack.push(directoryId);
+    }
+
+    public void previousDir() {
+        // Shift one level higher in the directory tree
+        files.clear();
+        dirStack.pop();
+    }
+
+    public void topDir() {
+        // Switch to the root directory
+        files.clear();
+        dirStack.clear();
+    }
+
+    //========================================================================
+    // RESULT RETRIEVAL METHODS
+    //========================================================================
+
+    public void fetchVersionResults (Map<Long, String> selectedMetrics) {
+        if (isValid() == false) return;
+        if ((selectedMetrics == null) || (selectedMetrics.isEmpty())) return;
+        // Create an results request object
+        WSMetricsResultRequest request = new WSMetricsResultRequest();
+        request.setProjectVersion(true);
+        // Set the selected DAO Ids
+        request.setDaObjectId(new long[]{getId()});
+        // Set the mnemonics of the selected metrics
+        String[] mnemonics = new String[selectedMetrics.size()];
+        int index = 0;
+        for (String nextMnem : selectedMetrics.values()) {
+            mnemonics[index++] = nextMnem;
+        }
+        request.setMnemonics(mnemonics);
+        // Retrieve the evaluation result from the SQO-OSS framework
+        for (Result nextResult : terrier.getResults(request))
+            results.put(nextResult.getMnemonic(), nextResult);
+    }
+
+    public void fetchFilesResults (Map<Long, String> selectedMetrics) {
+        if (isValid() == false) return;
+        if ((selectedMetrics == null) || (selectedMetrics.isEmpty())) return;
+        if (files.isEmpty()) return;
+        // Create an results request object
+        WSMetricsResultRequest request =
+            new WSMetricsResultRequest();
+        request.setProjectFile(true);
+        // Set the selected DAO Ids
+        int index = 0;
+        long[] fileIds = new long[files.size()];
+        for (Long nextId : files.keySet()) {
+            fileIds[index++] = nextId;
+        }
+        request.setDaObjectId(fileIds);
+        // Set the mnemonics of the selected metrics
+        String[] mnemonics = new String[selectedMetrics.size()];
+        index = 0;
+        for (String nextMnem : selectedMetrics.values()) {
+            mnemonics[index++] = nextMnem;
+        }
+        request.setMnemonics(mnemonics);
+        // Retrieve the evaluation result from the SQO-OSS framework
+        for (Result nextResult : terrier.getResults(request)) {
+            if (files.containsKey(nextResult.getId()))
+                files.get(nextResult.getId()).addResult(nextResult);
+        }
+    }
+
+    //========================================================================
+    // RESULTS RENDERING METHODS
+    //========================================================================
 
     /**
      * Returns an HTML snippet presenting the file statistics in this project
@@ -242,26 +373,14 @@ public class Version extends WebuiItem {
     }
 
     /**
-     * Gets the file with the given Id from the local cache.
-     * 
-     * @param fileId the file Id
-     * 
-     * @return The file object.
-     */
-    public File getFile(Long fileId) {
-        if (fileId != null)
-            return files.get(fileId);
-        return null;
-    }
-
-    /**
      * Return an HTML list of all files in this version combined with results
-     * from the metrics that were selected for this project.
+     * (<i>file based</i>) from the metrics that were selected for this
+     * project.
      * 
      * @param project the project object
      * @param in the indentation depth
      * 
-     * @return The files list as HTML.
+     * @return The rendered HTML content.
      */
     public String listFiles(Project project, long in) {
         // Retrieve the list of files if not yet done
@@ -344,72 +463,21 @@ public class Version extends WebuiItem {
         }
     }
 
-    /** Set the internal list of Files.
-     *
-     */
-    public void setFiles(SortedMap<Long, File> f) {
-        if (f != null)
-            files = f;
-    }
-
-    public void fetchVersionResults () {
-        // prepare ResultRequester for file retrieval
-        long[] ids = {getId()};
-        WSMetricsResultRequest request = new WSMetricsResultRequest();
-        request.setDaObjectId(ids);
-        request.setProjectVersion(true);
-        String[] mnemonics = new String[1];
-        mnemonics[0] = "LOC"; // FIXME: Use metric here...
-        request.setMnemonics(mnemonics);
-        results = terrier.getResults(request);
-    }
-
-    public void fetchFilesResults (Map<Long, String> selectedMetrics) {
-        // Fetch the evaluation result for the files in the list
-        if (files.size() > 0) {
-            // Create an results request object
-            WSMetricsResultRequest resultRequest =
-                new WSMetricsResultRequest();
-            int index = 0;
-            long[] fileIds = new long[files.size()];
-            for (File nextFile : files.values()) {
-                fileIds[index++] = nextFile.getId();
-            }
-            resultRequest.setDaObjectId(fileIds);
-            resultRequest.setProjectFile(true);
-            String[] mnemonics = new String[selectedMetrics.size()];
-            index = 0;
-            for (String nextMnem : selectedMetrics.values()) {
-                mnemonics[index++] = nextMnem;
-            }
-            resultRequest.setMnemonics(mnemonics);
-            // Retrieve the evaluation result from the SQO-OSS framework
-            List<Result> results = terrier.getResults(resultRequest);
-            // Distribute the results between the files
-            if (results != null) {
-                // Prepare a file_id to file mapping
-                //Map<Long, File> filesMap = new HashMap<Long, File>();
-                //for (File nextFile : files.values())
-                //    filesMap.put(nextFile.getId(), nextFile);
-                for (Result nextResult : results) {
-                    //File affectedFile = filesMap.get(nextResult.getId());
-                    File affectedFile = files.get(nextResult.getId());
-                    if (affectedFile != null) {
-                        files.get(nextResult.getId()).addResult(nextResult);
-                    }
-                }
-            }
+    public String listResults(long in) {
+        StringBuilder b = new StringBuilder("");
+        if (results.isEmpty()) {
+            b.append(sp(in) + Functions.getMsg("No results available."));
+            return b.toString();
         }
-    }
-
-    public String showResults() {
-        StringBuilder html = new StringBuilder();
-        html.append("Found: " + results.size());
-        html.append("\n<ul>");
-        for (Result nextResult : results)
-            html.append("\n\t<li>" + nextResult.getHtml(0) + "</li>");
-        html.append("</ul>");
-        return html.toString();
+        // Display the evaluation result for this version
+        b.append(sp(in++) + "<ul>\n");
+        for (Result nextResult : results.values())
+            b.append(sp(in) + "<li>"
+                    + " Metric: " + nextResult.getMnemonic()
+                    + " Result: " + nextResult.getString()
+                    + "</li>");
+        b.append(sp(--in) + "</ul>\n");
+        return b.toString();
     }
 
     /* (non-Javadoc)
@@ -417,21 +485,8 @@ public class Version extends WebuiItem {
      */
     public String getHtml(long in) {
         StringBuilder html = new StringBuilder("");
-        html.append("<b>Version:</b> " + id);
-        html.append("<b>Results:</b> " + showResults());
+        html.append(sp(in) + listResults(in));
         return html.toString();
-    }
-
-    /** Return a short HTML representation of this Version.
-     */
-    public String shortName () {
-        return "v" + id;
-    }
-
-    /** Return a longer HTML representation of this Version.
-     */
-    public String longName () {
-        return getHtml(0); // Yeah, we're lazy.
     }
 
 }
