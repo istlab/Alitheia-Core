@@ -63,6 +63,28 @@ if (selectedProject.isValid()) {
         // Display the developers view
         out.print(developersView.getHtml(in));
     }
+    
+    if ((selectedProject.getSelectedDevelopers().size() > 0)
+        && (selectedProject.getSelectedMetricMnemonics().size() > 0)) {
+%>                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td valign="top" style="width: 1000%;">
+                  <div class="win">
+<%
+    // Display the window title
+    out.println(sp(in)
+        + "<div class=\"winTitle\">"
+        + "&nbsp;<b>Evaluation results<b>"
+        + "</div>");
+        // Prepare the developers results view
+        DevelopersResultView devResultsView =
+            new DevelopersResultView(selectedProject);
+        devResultsView.setTerrier(terrier);
+        // Display the developers results view
+        out.print(devResultsView.getHtml(in));
+    }
 %>                  </div>
                 </td>
               </tr>

@@ -35,6 +35,7 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
+import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.datatypes.Developer;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
@@ -448,6 +449,28 @@ public class Project extends WebuiItem {
         for (Long nextId : selectedMetrics) {
             for (Metric nextMetric : metrics)
                 if (nextMetric.getId().longValue() == nextId)
+                    result.put(nextId, nextMetric.getMnemonic());
+        }
+        return result;
+    }
+
+    /**
+     * Gets the mnemonic names of the currently selected metrics, indexed by
+     * metric Id. The mnemonics list will be constructed only of these metrics
+     * which match the specified metric activator.
+     * 
+     * @param filter the metric activator filter
+     * 
+     * @return The list of mnemonic names, or an empty list when none are
+     * selected.
+     */
+    public Map<Long, String> getSelectedMetricMnemonics(
+            MetricActivator filter) {
+        Map<Long, String> result = new HashMap<Long, String>();
+        for (Long nextId : selectedMetrics) {
+            for (Metric nextMetric : metrics)
+                if ((nextMetric.getId().longValue() == nextId)
+                        && (nextMetric.getActivator().equals(filter)))
                     result.put(nextId, nextMetric.getMnemonic());
         }
         return result;

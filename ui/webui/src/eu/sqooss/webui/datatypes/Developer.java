@@ -41,7 +41,7 @@ import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 // TODO: Add JavaDoc
-public class Developer  extends AbstractDatatype {
+public class Developer extends AbstractDatatype {
     /** Developer's meta-data */
     private String email;
     private String username;
@@ -112,7 +112,7 @@ public class Developer  extends AbstractDatatype {
          */
         WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
         reqResults.setDaObjectId(new long[]{resourceId});
-        reqResults.setProjectFile(true);
+        reqResults.setDeveloper(true);
         reqResults.setMnemonics(
                 mnemonics.toArray(new String[mnemonics.size()]));
         /*
