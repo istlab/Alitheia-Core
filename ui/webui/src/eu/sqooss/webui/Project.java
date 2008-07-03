@@ -58,9 +58,6 @@ public class Project extends WebuiItem {
     private String website;
     private long[] developersIds;
 
-    /** Developers cache */
-    HashMap<Long, Developer> developers = new HashMap<Long, Developer>();
-
     /** Holds the version number of the currently selected version. */
     private Long currentVersionId;
 
@@ -79,7 +76,13 @@ public class Project extends WebuiItem {
 
     // Stores the list of Ids of all selected metrics
     private List<Long> selectedMetrics = new ArrayList<Long>();
-    
+
+    /** Developers cache. */
+    HashMap<Long, Developer> developers = new HashMap<Long, Developer>();
+
+    /** Stores the list of Ids of all selected developers */
+    private List<Long> selectedDevelopers = new ArrayList<Long>();
+
     // Stores all project versions that were retrieved from this object
     private HashMap<Long, Version> versions = new HashMap<Long, Version>();
 
@@ -397,6 +400,10 @@ public class Project extends WebuiItem {
             return 0;
     }
 
+    //========================================================================
+    // METRIC SELECTION METHODS
+    //========================================================================
+
     /**
      * Adds the metric with the given Id to the list of metrics which results
      * will be displayed for this project in the various WebUI views.
@@ -420,7 +427,7 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Retrieve the list of Ids for all metrics that were selected for this
+     * Retrieve the list of Ids of all metrics that were selected for this
      * project.
      * 
      * @return the list of selected metric Ids
@@ -430,9 +437,10 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Gets the mnemonic names of the currently selected metrics.
+     * Gets the mnemonic names of the currently selected metrics, indexed by
+     * metric Id.
      * 
-     * @return The list mnemonic names, or an empty list when none are
+     * @return The list of mnemonic names, or an empty list when none are
      *   selected.
      */
     public Map<Long, String> getSelectedMetricMnemonics() {
@@ -444,6 +452,63 @@ public class Project extends WebuiItem {
         }
         return result;
     }
+
+    //========================================================================
+    // DEVELOPER SELECTION METHODS
+    //========================================================================
+
+    /**
+     * Adds the developer with the given Id to the list of selected
+     * developers.
+     * 
+     * @param id the developer Id
+     */
+    public void selectDeveloper (Long id) {
+        if (id != null)
+            selectedDevelopers.add(id);
+    }
+
+    /**
+     * Removes the developer with the given Id from the list of selected
+     * developers
+     * 
+     * @param id the developer Id
+     */
+    public void deselectDeveloper (Long id) {
+        if (id != null)
+            selectedDevelopers.remove(id);
+    }
+
+    /**
+     * Retrieve the list of Ids of all develoepers that were selected for this
+     * project.
+     * 
+     * @return the list of selected developers Ids
+     */
+    public List<Long> getSelectedDevelopersIds() {
+        return selectedDevelopers;
+    }
+
+    /**
+     * Gets the list of the currently selected developers, indexed by
+     * developer Id.
+     * 
+     * @return The list of selected developers, or an empty list when none
+     *   are selected.
+     */
+    public Map<Long, Developer> getSelectedDevelopers() {
+        Map<Long, Developer> result = new HashMap<Long, Developer>();
+        for (Long nextId : selectedDevelopers) {
+            for (Developer nextDeveloper : developers.values())
+                if (nextDeveloper.getId().longValue() == nextId)
+                    result.put(nextId, nextDeveloper);
+        }
+        return result;
+    }
+
+    //========================================================================
+    // RESULTS RENDERING METHODS
+    //========================================================================
 
     /* (non-Javadoc)
      * @see eu.sqooss.webui.WebuiItem#getHtml(long)

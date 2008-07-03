@@ -13,6 +13,21 @@ if (selectedProject.isValid()) {
 <%
     // Indentation depth
     in = 7;
+    // Check for a developer selection
+    if (request.getParameter("selectDeveloper") != null) {
+        try {
+            Long selId = new Long(request.getParameter("selectDeveloper"));
+            selectedProject.selectDeveloper(selId);
+        }
+        catch (NumberFormatException ex) {}
+    }
+    if (request.getParameter("deselectDeveloper") != null) {
+        try {
+            Long selId = new Long(request.getParameter("deselectDeveloper"));
+            selectedProject.deselectDeveloper(selId);
+        }
+        catch (NumberFormatException ex) {}
+    }
     // Check if the user has requested to show/hide this view
     if (request.getParameter("showDevelopers") != null) {
         if (request.getParameter("showDevelopers").equals("true"))
@@ -42,7 +57,9 @@ if (selectedProject.isValid()) {
         // Prepare the developers view
         selectedProject.setTerrier(terrier);
         DevelopersListView developersView =
-        new DevelopersListView(selectedProject.getDevelopers());
+            new DevelopersListView(selectedProject.getDevelopers());
+        developersView.setSelectedDevelopers(
+            selectedProject.getSelectedDevelopersIds());
         // Display the developers view
         out.print(developersView.getHtml(in));
     }

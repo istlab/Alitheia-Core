@@ -82,6 +82,16 @@ public class Developer  extends WebuiItem {
         return username;
     }
 
+    public String getSelectLink() {
+        return "<a href=\"/developers.jsp?"
+            + "selectDeveloper=" + getId() + "\">Select</a>";
+    }
+
+    public String getDeselectLink() {
+        return "<a href=\"/developers.jsp?"
+        + "deselectDeveloper=" + getId() + "\">Deselect</a>";
+    }
+
     @Override
     public String getHtml(long in) {
         return (sp(in) + getName());

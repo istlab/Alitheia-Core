@@ -35,18 +35,31 @@ package eu.sqooss.webui.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.datatypes.Developer;
 
 // TODO: Add JavaDoc
 public class DevelopersListView extends ListView {
-    /** Holds the list of developers */
+    /** Holds the list of all developers. */
     Collection<Developer> developers = new ArrayList<Developer>();
+
+    /** Holds the list of selected developers Ids. */
+    List<Long> selDevelopers = null; 
 
     public DevelopersListView (Collection<Developer> developers) {
         if (developers != null)
             this.developers = developers;
+    }
+
+    /**
+     * Sets the list of selected developers Ids.
+     * 
+     * @param selection the list of selected developers Ids
+     */
+    public void setSelectedDevelopers(List<Long> selection) {
+        selDevelopers = selection;
     }
 
     @Override
@@ -60,15 +73,32 @@ public class DevelopersListView extends ListView {
             b.append(sp(in++) + "<table>\n");
             b.append(sp(in++) + "<thead>\n");
             b.append(sp(in++) + "<tr class=\"head\">\n");
-            b.append(sp(in) + "<td class=\"head\" style=\"width: 60%;\">"
-                    + "Real name" + "</td>\n");
-            b.append(sp(in) + "<td class=\"head\" style=\"width: 40%;\">"
-                    + "User name" + "</td>\n");
+            if (selDevelopers != null) {
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 20%;\">"
+                        + "Selected" + "</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 50%;\">"
+                        + "Real name" + "</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 30%;\">"
+                        + "User name" + "</td>\n");
+            }
+            else {
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 60%;\">"
+                        + "Real name" + "</td>\n");
+                b.append(sp(in) + "<td class=\"head\" style=\"width: 40%;\">"
+                        + "User name" + "</td>\n");
+            }
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</thead>\n");
             b.append(sp(in++) + "<tbody>\n");
             for (Developer nextDev : developers) {
                 b.append(sp(in++) + "<tr>\n");
+                if (selDevelopers != null) {
+                    b.append(sp(in) + "<td>"
+                            + ((selDevelopers.contains(nextDev.getId()))
+                                    ? nextDev.getDeselectLink()
+                                    : nextDev.getSelectLink())
+                            + "</td>\n");
+                }
                 b.append(sp(in) + "<td>" + nextDev.getName() + "</td>\n");
                 b.append(sp(in) + "<td>" + nextDev.getUsername() + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
