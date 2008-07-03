@@ -1,0 +1,54 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<body>
+
+    <h1>Querying the Changes from a Revision</h1>
+
+    <p>In order to allow analysis involving the code history, the system should allow to explore projects
+    source control management.</p>
+    
+	<p>The system can create projects linked to a source control repository. The revisions of the source
+    code can be listed for those projects.</p>
+
+    <div class="example">
+
+        <h3>Example</h3>
+
+        <p concordion:execute="addProject(#added_project, #scm_path)">Given the system has a project named
+        "<span concordion:set="#added_project">iCopy</span>" which source repository lies in the
+        "<span concordion:set="#scm_path">../specs/data/iCopy/svn</span>".</p>
+
+        <p>Then the revision <span concordion:set="#revision">10</span> has the following files in the folder
+        "<span concordion:set="#folder">iCopy/Language Files</span>":</p>
+        <table concordion:verifyRows="#file : getFiles(#added_project, #revision, #folder)">
+          <tr>
+            <th concordion:assertEquals="#file">File</th>
+          </tr>
+          <tr><td>WinFormStrings.bg-BG.resx</td></tr>
+          <tr><td>WinFormStrings.de-DE.Designer.vb</td></tr>
+          <tr><td>WinFormStrings.de-DE.resx</td></tr>
+          <tr><td>WinFormStrings.it-IT.Designer.vb</td></tr>
+          <tr><td>WinFormStrings.it-IT.resx</td></tr>
+          <tr><td>WinFormStrings.ja-JP.resx</td></tr>
+        </table>
+
+        <p>Also the revision <span concordion:set="#revision">14</span> has the following files in the folder
+        "<span concordion:set="#folder">iCopy/Language Files</span>":</p>
+        <table concordion:verifyRows="#file : getFiles(#added_project, #revision, #folder)">
+          <tr>
+            <th concordion:assertEquals="#file">File</th>
+          </tr>
+          <tr><td>WinFormStrings.bg-BG.resx</td></tr>
+          <tr><td>WinFormStrings.de-DE.Designer.vb</td></tr>
+          <tr><td>WinFormStrings.de-DE.resx</td></tr>
+          <tr><td>WinFormStrings.it-IT.Designer.vb</td></tr>
+          <tr><td>WinFormStrings.it-IT.resx</td></tr>
+          <tr><td>WinFormStrings.ja-JP.resx</td></tr>
+          <tr><td>WinFormStrings.ru-RU.Designer.vb</td></tr>
+          <tr><td>WinFormStrings.ru-RU.resx</td></tr>
+        </table>
+        
+        
+    </div>
+
+</body>
+</html>

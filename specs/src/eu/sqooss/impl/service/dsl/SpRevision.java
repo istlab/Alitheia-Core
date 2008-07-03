@@ -1,11 +1,15 @@
 package eu.sqooss.impl.service.dsl;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.TreeSet;
 
 import eu.sqooss.impl.service.SpecsActivator;
+import eu.sqooss.service.fds.Checkout;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -43,6 +47,45 @@ public class SpRevision {
         tds.releaseAccessor(tds.getAccessor(project.id));
         
         return log.message(revision);
+    }
+    
+    public ArrayList<String> files()
+        throws InvalidRepositoryException,
+               InvalidProjectRevisionException,
+               IOException {
+        ArrayList<String> result = new ArrayList<String>();
+        
+        FDSService fds = SpecsActivator.alitheiaCore.getFDSService();
+        Checkout checkout = fds.getCheckout(project.id, revision);
+        
+        File root = checkout.getRoot();
+        ArrayList<File> files = collectFilesRec(root);
+        
+        TreeSet<String> paths = new TreeSet<String>();
+        for (File file : files) {
+            paths.add(file.getCanonicalPath().substring(root.getCanonicalPath().length()+1));
+        }
+        
+        fds.releaseCheckout(checkout);
+        
+        result.addAll(paths);
+        
+        return result;
+    }
+    
+    private ArrayList<File> collectFilesRec(File root) {
+        ArrayList<File> result = new ArrayList<File>();
+        
+        File[] files = root.listFiles();
+        
+        for (File file : files) {
+            result.add(file);
+            if (file.isDirectory()) {
+                result.addAll(collectFilesRec(file));
+            }
+        }
+        
+        return result;
     }
     
     public ArrayList<Change> changes()
