@@ -63,7 +63,7 @@ public class ProjectInfoView extends ListView {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
         StringBuilder html = new StringBuilder();
-        html.append(sp(in++) + "<table class=\"projectinfo\">\n");
+        html.append(sp(in++) + "<table>\n");
         // Project website
         html.append(sp(in++) + "<tr>\n");
         html.append(sp(in) + "<td>"

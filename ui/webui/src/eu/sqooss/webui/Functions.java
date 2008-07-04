@@ -144,22 +144,62 @@ public class Functions {
         return name;
     }
 
-    public static String error(String msg) {
-        return "<br/>"
-            + "<span class=\"error\">" + msg + "</span>"
-            + "<br/>\n";
+    public static String simpleWindow (String title, String content) {
+        StringBuilder b = new StringBuilder("");
+        b.append("<div class=\"win\">");
+        // Display the window title
+        b.append("<div class=\"winTitle\">" + title + "</div>");
+        b.append("<div class=\"winContent\">" + content + "</div>");
+        b.append("</div>\n");
+        return b.toString();
     }
 
-    public static String warning(String msg) {
-        return "<br/>"
-            + "<span class=\"warning\">" + msg + "</span>"
-            + "<br/>\n";
+    public static String error(String content) {
+        StringBuilder b = new StringBuilder("");
+        b.append("<div class=\"win\">");
+        // Display the window title
+        b.append("<div class=\"winTitle\""
+                + " style=\"padding-left: 1.5em;"
+                + " background: #FF6633 url(/img/icons/16x16/dialog-error.png) no-repeat;"
+                + " background-position: 0.2em 50%;\""
+                + ">"
+                + "Error"
+                + "</div>");
+        b.append("<div class=\"winContent\">" + content + "</div>");
+        b.append("</div>\n");
+        return b.toString();
     }
 
-    public static String debug(String msg) {
-        return "<br/>"
-            + "<span class=\"debug\">" + msg + "</span>"
-            + "<br/>\n";
+    public static String warning(String content) {
+        StringBuilder b = new StringBuilder("");
+        b.append("<div class=\"win\">");
+        // Display the window title
+        b.append("<div class=\"winTitle\""
+                + " style=\"padding-left: 1.5em;"
+                + " background: #FFFF99 url(/img/icons/16x16/dialog-warning.png) no-repeat;"
+                + " background-position: 0.2em 50%;\""
+                + ">"
+                + "Warning"
+                + "</div>");
+        b.append("<div class=\"winContent\">" + content + "</div>");
+        b.append("</div>\n");
+        return b.toString();
+    }
+
+    public static String information(String content) {
+        StringBuilder b = new StringBuilder("");
+        b.append("<div class=\"win\">");
+        // Display the window title
+        b.append("<div class=\"winTitle\""
+                + " style=\"padding-left: 1.5em;"
+                + " background: #CCCCCC url(/img/icons/16x16/dialog-information.png) no-repeat;"
+                + " background-position: 0.2em 50%;\""
+                + ">"
+                + "Information"
+                + "</div>");
+        b.append("<div class=\"winContent\">" + content + "</div>");
+        b.append("</div>\n");
+        return b.toString();
     }
 
     public static String icon(String name) {

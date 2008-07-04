@@ -84,10 +84,6 @@
     border: 0px;
 }
 
-table.projectinfo {
-    background-color: #f3f3f3;
-}
-
 ul.projectslist {
     list-style-type: square;
     margin: 0;
@@ -105,36 +101,6 @@ span.forget {
 
 span.forget a {
     color: #666;
-}
-
-span.error {
-    padding: 5px 2px 5px 2px;
-    background-color: #FF6633;
-    color: black;
-    text-align: left;
-    font-weight: bold;
-    width: 100%;
-    border: 1px solid #cccccc;
-}
-
-span.warning {
-    padding: 5px 2px 5px 2px;
-    background-color: #FFFF99;
-    color: black;
-    text-align: left;
-    font-weight: bold;
-    width: 100%;
-    border: 1px solid #cccccc;
-}
-
-span.debug {
-    padding: 5px 2px 5px 2px;
-    background-color: #66FF99;
-    color: black;
-    text-align: left;
-    font-weight: bold;
-    width: 100%;
-    border: 1px solid #cccccc;
 }
 
 a.button {
@@ -193,10 +159,11 @@ div.win {
 div.winTitle {
     position:relative;
     margin: 0;
-    width: 100%;
     border-bottom: 1px solid #000000;
     font-size: 1.2em;
-    background-color: #cccccc;
+    font-weight: bold;
+    padding-left: 0.5em;
+    background-color: #CCCCCC;
 }
 div.winTitleBar {
     position: absolute;
@@ -205,6 +172,9 @@ div.winTitleBar {
     width: 10%;
     text-align:right;
     vertical-align: middle;
+}
+div.winContent {
+    padding: 0.5em;
 }
 /* ===[ TABLES CSS ]===================================================== */
 #table {

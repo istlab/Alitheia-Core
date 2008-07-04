@@ -133,7 +133,7 @@ if (selectedProject.isValid()) {
     // Display the window title
     out.println(sp(in)
         + "<div class=\"winTitle\">"
-        + "&nbsp;<b>Developers<b>"
+        + "Developers"
         + "<div class=\"winTitleBar\">"
         + "<a style=\"vertical-align: middle;\""
         + " href=\"/projects.jsp?showPVDevelopers="
@@ -176,12 +176,11 @@ if (selectedProject.isValid()) {
     // Display the window title
     out.println(sp(in)
         + "<div class=\"winTitle\">"
-        + "&nbsp;<b>Files"
+        + "Files"
         + ((selectedProject.getCurrentVersion() != null)
             ? " in version "
                 + selectedProject.getCurrentVersion().getNumber()
             : "")
-        + "<b>"
         + "<div class=\"winTitleBar\">"
         + "<a style=\"vertical-align: middle;\""
         + " href=\"/projects.jsp?showPVFileStat="
@@ -230,7 +229,7 @@ if (selectedProject.isValid()) {
     // Display the window title
     out.println(sp(in)
         + "<div class=\"winTitle\">"
-        + "&nbsp;<b>Evaluated metrics<b>"
+        + "Evaluated metrics"
         + "<div class=\"winTitleBar\">"
         + "<a style=\"vertical-align: middle;\""
         + " href=\"/projects.jsp?showPVMetrics="

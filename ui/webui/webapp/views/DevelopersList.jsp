@@ -8,7 +8,7 @@ if (selectedProject.isValid()) {
 %>          <div id="developerslist" class="group">
             <table width="100%" border="0" background="none">
               <tr>
-                <td valign="top" style="width: 1000%;">
+                <td valign="top" style="width: 100%;">
                   <div class="win">
 <%
     // Indentation depth
@@ -70,7 +70,7 @@ if (selectedProject.isValid()) {
                 </td>
               </tr>
               <tr>
-                <td valign="top" style="width: 1000%;">
+                <td valign="top" style="width: 100%;">
                   <div class="win">
 <%
     // Display the window title
