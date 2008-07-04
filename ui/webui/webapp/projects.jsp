@@ -19,7 +19,6 @@ if (terrier.isConnected()) {
 // Display the list of evaluate project
     else {
 %>          <div id="projectslist" class="group">
-            <h2>Evaluated Projects</h2>
 <%@ include file="/views/EvaluatedProjectsList.jsp"
 %>          </div>
 <%

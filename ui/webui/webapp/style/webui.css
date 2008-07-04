@@ -86,11 +86,9 @@
 }
 
 ul.projectslist {
-    list-style-type: square;
+    list-style-image: url(/img/icons/16x16/document-preview.png);
     margin: 0;
-    padding: 0;
-    margin-left: 0px;
-    padding-left: 3px;
+    padding-left: 2em;
 }
 
 /* These are little link spans to unselect something. */

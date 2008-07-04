@@ -172,13 +172,16 @@ public class Functions {
         return b.toString();
     }
 
-    public static String simpleWindow (String title, String content) {
+    public static String simpleWindow (
+            long in, String title, String content) {
         StringBuilder b = new StringBuilder("");
-        b.append("<div class=\"win\">");
+        b.append(sp(in++) + "<div class=\"win\">\n");
         // Display the window title
-        b.append("<div class=\"winTitle\">" + title + "</div>");
-        b.append("<div class=\"winContent\">" + content + "</div>");
-        b.append("</div>\n");
+        b.append(sp(in) + "<div class=\"winTitle\">" + title + "</div>\n");
+        b.append(sp(in) + "<div class=\"winContent\">\n"
+                + content
+                + sp(in) + "</div>\n");
+        b.append(sp(--in) + "</div>\n");
         return b.toString();
     }
 

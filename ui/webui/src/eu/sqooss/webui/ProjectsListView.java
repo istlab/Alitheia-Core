@@ -165,7 +165,7 @@ public class ProjectsListView extends ListView {
                 p.setServletPath(getServletPath());
                 html.append(sp(in) + "<li>" + p.link() + "</li>\n");
             }
-            html.append(sp(--in) + "</ul>");
+            html.append(sp(--in) + "</ul>\n");
         }
         return html.toString();
     }

@@ -76,8 +76,8 @@ if (selectedProject.isValid()) {
         devResultsView.setSettings(settings);
         devResultsView.setTerrier(terrier);
         // Display the window
-        out.println(Functions.simpleWindow(
-            "Evaluation results", devResultsView.getHtml(in)));
+        out.println(Functions.simpleWindow(in, "Evaluation results",
+            devResultsView.getHtml(in)));
     }
 %>                </td>
               </tr>
