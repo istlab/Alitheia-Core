@@ -11,8 +11,10 @@
 }
 
 #contents table {
-    border: none;
-    border-width: 0 0 0 0;
+    width: 100%;
+    border: 0 none;
+    padding: 0;
+    background-color: #FFFFFF;
 }
 
 #contents thead {
@@ -21,11 +23,10 @@
 }
 
 #contents td {
-    border: none;
-    border-width: 0 0 0 0;
+    border: 0 none;
     margin: 0;
-    padding: 4px;
-    background-color: #fff;
+    padding: 0.25em;
+    background-color: #FFFFFF;
 }
 
 #sidebar ul {
@@ -153,8 +154,8 @@ a img {
 }
 /* ===[ WINDOW CSS ]===================================================== */
 div.win {
-    width: 100%;
     border: 1px solid #000000;
+    margin-bottom: 0.5em;
 }
 div.winTitle {
     position:relative;
@@ -182,7 +183,6 @@ div.winContent {
     clear:both;
 }
 #table table {
-    margin: 1ex;
     width: 100%;
     border: 1px solid #C6C6C5;
 }

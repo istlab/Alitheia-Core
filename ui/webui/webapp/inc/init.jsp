@@ -77,6 +77,10 @@ String msg      = "";
 long in = 0;
 // Holds the Id of the project that the user has selected (if any)
 Long projectId = null;
+String winTitle = null;
+String winContent = null;
+String winVisible = null;
+WinIcon winShowIco = null;
 
 //============================================================================
 // Check if the user has selected a project (or switched to a new project)

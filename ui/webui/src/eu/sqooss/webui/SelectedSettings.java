@@ -40,6 +40,8 @@ public class SelectedSettings {
 
     private boolean showAllMetrics = false;
     private boolean showFileResultsOverview = false;
+    private boolean showPVMetadata = true;
+    private boolean showPVVersions = true;
     private boolean showPVDevelopers = true;
     private boolean showPVFileStat = true;
     private boolean showPVMetrics = true;
@@ -99,6 +101,22 @@ public class SelectedSettings {
 
     public boolean getShowDevelopers() {
         return showDevelopers;
+    }
+
+    public void setShowPVMetadata(boolean showPVMetadata) {
+        this.showPVMetadata = showPVMetadata;
+    }
+
+    public boolean getShowPVMetadata() {
+        return showPVMetadata;
+    }
+
+    public void setShowPVVersions(boolean showPVVersions) {
+        this.showPVVersions = showPVVersions;
+    }
+
+    public boolean getShowPVVersions() {
+        return showPVVersions;
     }
 
 }

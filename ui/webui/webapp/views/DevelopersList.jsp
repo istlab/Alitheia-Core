@@ -8,11 +8,13 @@ if (selectedProject.isValid()) {
 %>          <div id="developerslist" class="group">
             <table width="100%" border="0" background="none">
               <tr>
-                <td valign="top" style="width: 100%;">
-                  <div class="win">
+                <td valign="top" style="width: 100%; padding-bottom: 0;">
 <%
+    //========================================================================
+    // Display the list of developers that are working on the current project
+    //========================================================================
     // Indentation depth
-    in = 7;
+    in = 9;
     // Check for a developer selection
     if (request.getParameter("selectDeveloper") != null) {
         try {
@@ -29,30 +31,20 @@ if (selectedProject.isValid()) {
         catch (NumberFormatException ex) {}
     }
     // Check if the user has requested to show/hide this view
-    if (request.getParameter("showDevelopers") != null) {
-        if (request.getParameter("showDevelopers").equals("true"))
+    winVisible = "showDevelopers";
+    if (request.getParameter(winVisible) != null) {
+        if (request.getParameter(winVisible).equals("true"))
             settings.setShowPVDevelopers(true);
-        else if (request.getParameter("showDevelopers").equals("false"))
+        else if (request.getParameter(winVisible).equals("false"))
             settings.setShowPVDevelopers(false);
     }
-    // Display the window title
-    out.println(sp(in)
-        + "<div class=\"winTitle\">"
-        + "&nbsp;<b>Developers in project " + selectedProject.getName() + "<b>"
-        + "<div class=\"winTitleBar\">"
-        + "<a style=\"vertical-align: middle;\""
-        + " href=\"/developers.jsp?showDevelopers="
-        + !settings.getShowDevelopers()
-        + "\">"
-        + "<img alt=\""
-        + ((settings.getShowDevelopers()) ? "Hide" : "Show")
-        + "\" src=\"/img/icons/16x16/"
-        + ((settings.getShowDevelopers()) ? "list-remove.png" : "list-add.png")
-        + "\">"
-        + "</a>"
-        + "</div>"
-        + "</div>");
-    // Display the content
+    // Construct the window's title icons
+    if (settings.getShowDevelopers())
+        winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+    else
+        winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+    // Construct the window's content
+    winContent = null;
     if (settings.getShowDevelopers()) {
         // Prepare the developers view
         selectedProject.setTerrier(terrier);
@@ -61,33 +53,33 @@ if (selectedProject.isValid()) {
         developersView.setSelectedDevelopers(
             selectedProject.getSelectedDevelopersIds());
         // Display the developers view
-        out.print(developersView.getHtml(in));
+        winContent = developersView.getHtml(in);
     }
-    
+    // Display the window
+    winTitle = "Developers in project " + selectedProject.getName();
+    out.print(Functions.interactiveWindow(
+        9, winTitle, winContent, new WinIcon[]{winShowIco}));
+
+    //========================================================================
+    // Display the available evaluation result for the selected developers
+    //========================================================================
     if ((selectedProject.getSelectedDevelopers().size() > 0)
         && (selectedProject.getSelectedMetricMnemonics().size() > 0)) {
-%>                  </div>
-                </td>
+%>                </td>
               </tr>
               <tr>
-                <td valign="top" style="width: 100%;">
-                  <div class="win">
+                <td valign="top" style="width: 100%; padding-top: 0;">
 <%
-    // Display the window title
-    out.println(sp(in)
-        + "<div class=\"winTitle\">"
-        + "&nbsp;<b>Evaluation results<b>"
-        + "</div>");
         // Prepare the developers results view
         DevelopersResultView devResultsView =
             new DevelopersResultView(selectedProject);
         devResultsView.setSettings(settings);
         devResultsView.setTerrier(terrier);
-        // Display the developers results view
-        out.print(devResultsView.getHtml(in));
+        // Display the window
+        out.println(Functions.simpleWindow(
+            "Evaluation results", devResultsView.getHtml(in)));
     }
-%>                  </div>
-                </td>
+%>                </td>
               </tr>
             </table>
 <%
