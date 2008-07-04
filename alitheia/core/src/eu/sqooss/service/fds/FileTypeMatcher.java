@@ -31,26 +31,40 @@
  * 
  */
 
-package eu.sqooss.impl.metrics.productivity;
+package eu.sqooss.service.fds;
 
 public class FileTypeMatcher {
 
+    private FileTypeMatcher instance;
+    
+    private FileTypeMatcher() { }
+    
+    public FileTypeMatcher getInstance() {
+        if (instance == null) {
+            instance = new FileTypeMatcher();
+        }
+        return instance;
+    }
+    
     public enum FileType {
         SRC, BIN, DOC, XML, TXT, TRANS
     }
 
-    private static String[] srcMimes = { ".c", ".java", ".h", ".py", "cpp",
-            ".C", ".sh", ".rb", ".el", ".m4", ".cs", ".xsl" };
+    private static String[] srcMimes = { ".c", ".java", ".h", ".py", ".cpp",
+            ".C", ".sh", ".rb", ".el", ".m4", ".cs", ".xsl", ".vb", ".patch", 
+            "Makefile", ".hpp", ".pl", ".js", ".sql", ".css", ".jsp", ".bat", 
+            ".php" };
 
     private static String[] docMimes = { ".txt", ".sgml", ".html", ".tex",
-            ".htm" };
+            ".htm", ".bib" };
 
     private static String[] xmlFormats = { ".xml", ".svn", ".argo", ".graffle",
-            ".vcproj", ".csproj" };
+            ".vcproj", ".csproj", ".rdf", ".wsdl", ".pom" };
 
     private static String[] binMimes = { ".pdf", ".png", ".jpg", ".tiff",
             ".dvi", ".gz", ".zip", ".gif", ".exe", ".jar", ".doc", ".png",
-            ".o", ".class", ".pyc", ".bmp", ".ico" };
+            ".o", ".class", ".pyc", ".bmp", ".ico", ".bz2", ".jpeg", ".war", 
+            ".tif", ".ppt", ".xls", ".mp3", ".wmf", ".gif", ".dll", ".so" };
 
     private static String[] transMimes = { ".po" };
 

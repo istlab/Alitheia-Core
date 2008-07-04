@@ -58,6 +58,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.fds.FileTypeMatcher;
 import eu.sqooss.service.logging.Logger;
 
 public class ProductivityMetricJob {

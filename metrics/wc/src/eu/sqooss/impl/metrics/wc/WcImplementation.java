@@ -57,6 +57,7 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.FileTypeMatcher;
 
 public class WcImplementation extends AbstractMetric implements Wc {
     
@@ -117,6 +118,12 @@ public class WcImplementation extends AbstractMetric implements Wc {
     public void run(ProjectFile pf) {
         // We do not support directories
         if (pf.getIsDirectory()) {
+            return;
+        }
+        
+        //We don't support binary files either
+        if (FileTypeMatcher.getFileType(pf.getName()).equals(
+                FileTypeMatcher.FileType.BIN)) {
             return;
         }
         
