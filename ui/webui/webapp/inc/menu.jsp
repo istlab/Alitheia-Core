@@ -10,21 +10,26 @@ in = 5;
           <legend>Menu</legend>
           <ul>
             <li><a href="/" title="Alitheia overview">Home</a></li>
+<%
+// Check is there is a connection with the SQO-OSS framework
+if (terrier.isConnected()) {
+%>
             <li><a href="/projects.jsp" title="Project details">Projects</a></li>
             <li><a href="/metrics.jsp" title="Metric details">Metrics</a></li>
 <%
-// Project related menu entries
-if (selectedProject.isValid()) {
+    // Project related menu entries
+    if (selectedProject.isValid()) {
 %>
             <li><a href="/developers.jsp" title="Project Developers">Developers</a></li>
             <li><a href="/files.jsp" title="Project Files">Files</a></li>
 <%
 }
-// Login related menu entries
-if (user.getLoggedIn()) {
+    // Login related menu entries
+    if (user.getLoggedIn()) {
 //        <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
-} else {
+    } else {
 //        <li><a href="/login.jsp" title="Click here to log in or register">Login</a></li>
+    }
 }
 %>          </ul>
         </fieldset>
