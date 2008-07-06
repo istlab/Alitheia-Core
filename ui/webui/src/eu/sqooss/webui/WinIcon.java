@@ -2,6 +2,7 @@ package eu.sqooss.webui;
 
 public class WinIcon {
     private String path;
+    private boolean status = true;
     private String image;
     private String parameter;
     private String value;
@@ -15,6 +16,12 @@ public class WinIcon {
     }
     public void setPath(String path) {
         this.path = path;
+    }
+    public boolean getStatus() {
+        return status;
+    }
+    public void setStatus(boolean status) {
+        this.status = status;
     }
     public String getImage() {
         return image;

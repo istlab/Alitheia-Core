@@ -146,6 +146,58 @@ public class Functions {
     }
 
     public static String interactiveWindow (
+            long in, String title, String content, String footer,
+            WinIcon[] icons, WinIcon[] toolbar) {
+        StringBuilder b = new StringBuilder("");
+        b.append(sp(in++) + "<div class=\"win\">\n");
+        // Display the window title
+        b.append(sp(in) + "<div class=\"winTitle\">" + title + "\n");
+        if ((icons != null) && (icons.length > 0)) {
+            b.append(sp(in++) + "<div class=\"winTitleBar\">\n");
+            for (WinIcon icon : icons)
+                b.append(sp(in) + "<a style=\"vertical-align: middle;\""
+                        + " href=\"" + icon.getPath()
+                        + "?" + icon.getParameter() + "=" + icon.getValue()
+                        + "\">"
+                        + "<img alt=\"" + icon.getAlt() + "\""
+                        + " src=\"" + icon.getImage() + "\">"
+                        + "</a>");
+            b.append(sp(--in) + "</div>\n");
+        }
+        b.append(sp(in) + "</div>\n");
+        // Display the window tool-bar
+        if ((toolbar != null) && (toolbar.length > 0)) {
+            b.append(sp(in++) + "<div class=\"winToolbar\">\n");
+            for (WinIcon icon : toolbar)
+                b.append(sp(in) + "<a class=\"tb\""
+                        + " style=\"vertical-align: middle;\""
+                        + " href=\"" + icon.getPath()
+                        + "?" + icon.getParameter() + "=" + icon.getValue()
+                        + "\">"
+                        + "<img alt=\"" + icon.getAlt() + "\""
+                        + "title=\"" + icon.getAlt() + "\""
+                        + ((icon.getStatus())
+                                ? "" 
+                                : " style=\"opacity: .25; filter: alpha(opacity=25);\"")
+                        + " src=\"" + icon.getImage() + "\">"
+                        + "</a>");
+            b.append(sp(--in) + "</div>\n");
+        }
+        // Display the window content
+        if (content != null)
+            b.append(sp(in) + "<div class=\"winContent\">\n"
+                    + content
+                    + sp(in) + "</div>\n");
+        // Display the window footer
+        if (footer != null)
+            b.append(sp(in++) + "<div class=\"winFooter\">\n"
+                    + sp(in) + footer
+                    + sp(--in) + "</div>\n");
+        b.append(sp(--in) + "</div>\n");
+        return b.toString();
+    }
+
+    public static String interactiveWindow (
             long in, String title, String content, WinIcon[] icons) {
         StringBuilder b = new StringBuilder("");
         b.append(sp(in++) + "<div class=\"win\">\n");

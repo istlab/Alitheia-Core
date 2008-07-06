@@ -82,7 +82,7 @@ public class Version extends WebuiItem {
      * A cache for all files that exist in this project version indexed by
      * their file Id.
      */
-    protected SortedMap<Long, File> files = new TreeMap<Long, File>();
+    public SortedMap<Long, File> files = new TreeMap<Long, File>();
 
     /**
      * Creates a new a <code>Version</code> instance.
@@ -374,94 +374,21 @@ public class Version extends WebuiItem {
     }
 
     /**
-     * Return an HTML list of all files in this version combined with results
-     * (<i>file based</i>) from the metrics that were selected for this
-     * project.
+     * Checks, if this version contains no files
      * 
-     * @param project the project object
-     * @param in the indentation depth
-     * 
-     * @return The rendered HTML content.
+     * @return <code>true</code>, if this version is empty,
+     *   or <code>false</code> otherwise.
      */
-    public String listFiles(Project project, long in) {
-        // Retrieve the list of files if not yet done
-        //getAllFiles();
-        getFilesInCurrentDirectory();
-        // Check if this version contains no files
-        if ((files.isEmpty()) && (dirStack.size() < 2)) {
-            return (sp(in) + Functions.warning(
-                    "No files found for this project version!"));
-        }
-        // Render the files list page (inclusive evaluation results)
-        else {
-            StringBuilder html = new StringBuilder();
-            // Retrieve results from all selected metrics (if any)
-            Map<Long, String> selectedMetrics =
-                project.getSelectedMetricMnemonics();
-            // .. but only if the user asked to
-            if (settings.getShowFileResultsOverview()) {
-                if ((project != null) && (files.size() > 0)) {
-                    if (selectedMetrics.size() > 0)
-                        fetchFilesResults(selectedMetrics);
-                }
-            }
-            // Ask the user to select some metrics, when none are selected
-            if (selectedMetrics.isEmpty()) {
-                html.append(sp(in) + Functions.warning(
-                        "No Metrics have been selected!"
-                        + " Select a metric"
-                        + " <a href=\"metrics.jsp\">here</a>"
-                        + " to view results."));
-            }
-            // Display the browser's navigation bar
-            html.append(sp(in) + "<br/>\n");
-            html.append(sp(in));
-            if (selectedMetrics.isEmpty() == false) {
-                if (settings.getShowFileResultsOverview())
-                    html.append("&nbsp;<a href=\""
-                            + getServletPath()
-                            + "?showResults=false"
-                            + "\""
-                            + " class=\"button\""
-                            + ">Hide results</a>");
-                else
-                    html.append("&nbsp;<a href=\""
-                            + getServletPath()
-                            + "?showResults=true"
-                            + "\""
-                            + " class=\"button\""
-                            + ">Show results</a>");
-            }
-            if ((dirStack.size() > 1)) {
-                html.append("&nbsp;<a href=\""
-                        + getServletPath()
-                        + "?did=top" + "\""
-                        + "\""
-                        + " class=\"button\""
-                        + ">Top</a>");
-                html.append("&nbsp;<a href=\""
-                        + getServletPath()
-                        + "?did=prev" + "\""
-                        + "\""
-                        + " class=\"button\""
-                        + ">Previous</a>\n");
-            }
-            html.append(sp(in) + "<br/>\n");
-            // Display the browser's content
-            if ((project != null) && (files.size() > 0)) {
-                FileListView view = new FileListView(files);
-                view.setVersionId(this.id);
-                view.setSettings(settings);
-                html.append(view.getHtml(in));
-            }
-            else
-                html.append(sp(in) + "<ul>"
-                        + "<li>"
-                        + Functions.icon("vcs_empty", 0, "Empty folder")
-                        + "&nbsp;<i>Empty</i>"
-                        + "</ul>\n");
-            return html.toString();
-        }
+    public boolean isEmptyVersion() {
+        return ((files.isEmpty()) && (dirStack.size() < 2));
+    }
+
+    public boolean isEmptyDir() {
+        return files.isEmpty();
+    }
+
+    public boolean isSubDir() {
+        return (dirStack.size() > 1);
     }
 
     public String listResults(long in) {

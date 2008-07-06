@@ -49,6 +49,8 @@ public class FileListView extends ListView {
 
     // Contains the Id of the selected project's version (if any)
     private Long versionId;
+    
+    private String status = "";
 
     /**
      * Instantiates a new <code>FileListView</code> object and initializes it
@@ -135,6 +137,14 @@ public class FileListView extends ListView {
         this.versionId = versionId;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     // TODO: This method can filter out some of the files from the given list,
     // by using the specified set of filters.
     public List<File> filterFiles (List<File> filesList) {
@@ -174,8 +184,8 @@ public class FileListView extends ListView {
             }
         }
         html.append(sp(--in) + "</ul>\n");
-        // Display the statistics line
-        html.append(sp(in) + "<b>Total:</b> "
+        // Construct the status line's messages
+        setStatus(sp(in) + "Total: "
                 + ((dirCount > 0)
                         ? ((dirCount > 1)
                                 ? dirCount + " folders"
@@ -187,7 +197,7 @@ public class FileListView extends ListView {
                                 ? fileCount + " files"
                                 : "one file")
                         : "")
-                + " found\n");
+                + " found");
         return html.toString();
     }
 

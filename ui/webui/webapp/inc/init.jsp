@@ -81,6 +81,7 @@ String winTitle = null;
 String winContent = null;
 String winVisible = null;
 WinIcon winShowIco = null;
+String winFooter = null;
 
 //============================================================================
 // Check if the user has selected a project (or switched to a new project)

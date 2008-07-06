@@ -36,12 +36,12 @@ if (selectedProject.isValid()) {
     metricsView.setShowSelect(true);
     metricsView.setShowResult(false);
     // Display the metrics
-    out.println(sp(in) + "<h2>Metrics evaluated on project: "
-        + selectedProject.getName() + "</h2>");
-    out.print(metricsView.getHtml(in));
+    out.print(Functions.simpleWindow(in,
+        "Metrics evaluated on project: " + selectedProject.getName(),
+        metricsView.getHtml(in + 2)));
 }
 else {
-    out.print(sp(in) + Functions.warning("No project is selected."
+    out.print(sp(in) + Functions.information("No project is selected."
         + " If you want to see metrics applied to a certain project,"
         + " <a href=\"/projects.jsp\">choose one</a> first."));
 }
@@ -56,37 +56,30 @@ if (request.getParameter("refreshAllMetrics") != null) {
     // TODO: Still not cached
 }
 // Check if the user has requested to show/hide this view
-if (request.getParameter("showAllMetrics") != null) {
+winVisible = "showAllMetrics";
+if (request.getParameter(winVisible) != null) {
     // Check the "Show all installed metrics" flag
-    if (request.getParameter("showAllMetrics").equals("true"))
+    if (request.getParameter(winVisible).equals("true"))
         settings.setShowAllMetrics(true);
-    else if (request.getParameter("showAllMetrics").equals("false"))
+    else if (request.getParameter(winVisible).equals("false"))
         settings.setShowAllMetrics(false);
 }
-// Display the view's title name
-out.println(sp(in)
-    + "<span style=\"float: left; width: 90%; text-align:left;\">"
-    + "<h2>All installed metrics</h2>"
-    + "</span>");
-// Display the view's title bar
-out.println(sp(in)
-    + "<span style=\"float: right; width: 10%; text-align:right;\">"
-    + "<a href=\"/metrics.jsp?showAllMetrics="
-    + !settings.getShowAllMetrics()
-    + "\">"
-    + "<img alt=\""
-    + ((settings.getShowAllMetrics()) ? "Hide" : "Show")
-    + "\" src=\"/img/icons/16x16/"
-    + ((settings.getShowAllMetrics()) ? "list-remove.png" : "list-add.png")
-    + "\">"
-    + "</a>"
-    + "</span>");
-// Display all installed metrics
+// Construct the window's title icons
+if (settings.getShowAllMetrics())
+    winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+else
+    winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+// Construct the window's content
+winContent = null;
 if (settings.getShowAllMetrics()) {
     MetricsTableView allMetrics =
         new MetricsTableView(terrier.getAllMetrics());
     allMetrics.setShowResult(false);
-    out.print(allMetrics.getHtml(in));
+    winContent = allMetrics.getHtml(in);
 }
+// Display the window
+winTitle = "All installed metrics";
+out.print(Functions.interactiveWindow(
+    9, winTitle, winContent, new WinIcon[]{winShowIco}));
 %>            </div>
           </form>

@@ -150,6 +150,11 @@ a img {
     background-color: #CCFFCC;
     margin-right: 2px;
 }
+a.tb img {
+    border: 0px none;
+    background-color: transparent;
+    margin-right: 2px;
+}
 /* ===[ WINDOW CSS ]===================================================== */
 div.win {
     border: 1px solid #000000;
@@ -172,10 +177,30 @@ div.winTitleBar {
     text-align:right;
     vertical-align: middle;
 }
+div.winToolbar {
+    position:relative;
+    margin: 0;
+    border-bottom: 2px ridge blue;
+    border-top: 2px groove blue;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding-left: 0.5em;
+    background-color: #F0F0F0;
+}
 div.winContent {
     padding: 0.5em;
     max-height: 30em;
     overflow: auto;
+}
+div.winFooter {
+    position:relative;
+    bottom: 0;
+    margin: 0;
+    border-top: 1px solid #000000;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding-left: 0.5em;
+    background-color: #F0F0F0;
 }
 /* ===[ TABLES CSS ]===================================================== */
 #table {

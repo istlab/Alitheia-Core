@@ -450,7 +450,7 @@ public class Project extends WebuiItem {
      * 
      * @return the list of selected metric Ids
      */
-    public List<Long> getSelectedMetrics () {
+    public List<Long> getSelectedMetrics() {
         return selectedMetrics;
     }
 
