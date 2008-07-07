@@ -2,7 +2,15 @@
 #
 # This script creates an Alitheia release by tarring up sources,
 # building them, creating a binary distro and calling it a day.
-# Everything is done in /tmp.
+# Everything is done in /tmp. The script takes one optional argument.
+#
+# Usage:
+#
+#	makerelease.sh [<version>]
+#
+# Creates release tarballs, both source and binary, in a temporary
+# directory /tmp/alitheia-$$, with the given version number. If version
+# is not given, defaults to 0.8.1.
 #
 # This script is released under a 2-clause BSD license, just like
 # the rest of Alitheia. See LICENSE for details.
