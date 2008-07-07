@@ -27,7 +27,7 @@ main()
 
 create_workdir()
 {
-	TMPDIR=/tmp/a.d
+	TMPDIR=/tmp/alitheia-$$
 	mkdir $TMPDIR || { echo "! Could not create temporary directory." ; exit 1 ; }
 	chmod 700 $TMPDIR
 	rm -rf $TMPDIR/*
