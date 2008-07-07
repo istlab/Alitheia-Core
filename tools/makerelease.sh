@@ -79,7 +79,7 @@ create_binary_tarball()
 	cd $TMPDIR
 	$TAR czf alitheia-bin-$VERSION.tar.gz \
 		alitheia-$VERSION/equinox \
-		alitheia-$VERSION/webui \
+		alitheia-$VERSION/tomcat \
 		alitheia-$VERSION/LICENSE* \
 		alitheia-$VERSION/README* \
 		alitheia-$VERSION/Makefile.run || \
