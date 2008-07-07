@@ -8,7 +8,7 @@ clean-dir :
 
 assembly :
 	$(MAVEN) assembly:directory package
-	cd data && tar jxf iCopy.tar.bz2
+	cd data && $(TAR) xjf iCopy.tar.bz2
 
 install : assembly
 
