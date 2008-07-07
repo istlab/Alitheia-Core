@@ -81,6 +81,7 @@ String winTitle = null;
 String winContent = null;
 String winVisible = null;
 WinIcon winShowIco = null;
+WinIcon icoCloseWin = null;
 String winFooter = null;
 
 //============================================================================

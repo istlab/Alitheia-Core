@@ -145,14 +145,12 @@ a.button:visited {
     list-style-type: none;
 }
 
-a img {
-    border: 1px solid #000000;
-    background-color: #CCFFCC;
-    margin-right: 2px;
-}
 a.tb img {
     border: 0px none;
     background-color: transparent;
+    margin-right: 2px;
+}
+img.tb {
     margin-right: 2px;
 }
 /* ===[ WINDOW CSS ]===================================================== */
@@ -168,24 +166,27 @@ div.winTitle {
     font-weight: bold;
     padding-left: 0.5em;
     background-color: #CCCCCC;
+    vertical-align: middle;
 }
 div.winTitleBar {
     position: absolute;
     top: 0;
     right: 0;
     width: 10%;
+    height: 100%;
     text-align:right;
     vertical-align: middle;
 }
 div.winToolbar {
     position:relative;
     margin: 0;
-    border-bottom: 2px ridge blue;
-    border-top: 2px groove blue;
+    border-bottom: 2px ridge #000000;
+    border-top: 2px groove #000000;
     font-size: 1.2em;
     font-weight: bold;
     padding-left: 0.5em;
     background-color: #F0F0F0;
+    vertical-align: middle;
 }
 div.winContent {
     padding: 0.5em;
@@ -201,6 +202,7 @@ div.winFooter {
     font-weight: bold;
     padding-left: 0.5em;
     background-color: #F0F0F0;
+    vertical-align: middle;
 }
 /* ===[ TABLES CSS ]===================================================== */
 #table {

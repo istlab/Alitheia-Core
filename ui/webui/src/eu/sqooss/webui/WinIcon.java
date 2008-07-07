@@ -53,7 +53,7 @@ public class WinIcon {
         icon.setPath(path);
         icon.setParameter(parameter);
         icon.setValue(enable);
-        icon.setImage("/img/icons/16x16/list-add.png");
+        icon.setImage("/img/icons/16x16/window-maximize.png");
         icon.setAlt("Show");
         return icon;
     }
@@ -63,7 +63,7 @@ public class WinIcon {
         icon.setPath(path);
         icon.setParameter(parameter);
         icon.setValue(disable);
-        icon.setImage("/img/icons/16x16/list-remove.png");
+        icon.setImage("/img/icons/16x16/window-minimize.png");
         icon.setAlt("Hide");
         return icon;
     }

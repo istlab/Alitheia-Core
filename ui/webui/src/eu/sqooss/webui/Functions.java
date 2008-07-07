@@ -155,9 +155,11 @@ public class Functions {
         if ((icons != null) && (icons.length > 0)) {
             b.append(sp(in++) + "<div class=\"winTitleBar\">\n");
             for (WinIcon icon : icons)
-                b.append(sp(in) + "<a style=\"vertical-align: middle;\""
+                b.append(sp(in) + "<a class=\"tb\""
                         + " href=\"" + icon.getPath()
-                        + "?" + icon.getParameter() + "=" + icon.getValue()
+                        + ((icon.getParameter() != null)
+                                ? "?" + icon.getParameter() + "=" + icon.getValue()
+                                : "")
                         + "\">"
                         + "<img alt=\"" + icon.getAlt() + "\""
                         + " src=\"" + icon.getImage() + "\">"
@@ -169,18 +171,22 @@ public class Functions {
         if ((toolbar != null) && (toolbar.length > 0)) {
             b.append(sp(in++) + "<div class=\"winToolbar\">\n");
             for (WinIcon icon : toolbar)
-                b.append(sp(in) + "<a class=\"tb\""
-                        + " style=\"vertical-align: middle;\""
-                        + " href=\"" + icon.getPath()
-                        + "?" + icon.getParameter() + "=" + icon.getValue()
-                        + "\">"
-                        + "<img alt=\"" + icon.getAlt() + "\""
-                        + "title=\"" + icon.getAlt() + "\""
-                        + ((icon.getStatus())
-                                ? "" 
-                                : " style=\"opacity: .25; filter: alpha(opacity=25);\"")
-                        + " src=\"" + icon.getImage() + "\">"
-                        + "</a>");
+                if (icon.getStatus()) {
+                    b.append(sp(in) + "<a class=\"tb\""
+                            + " href=\"" + icon.getPath()
+                            + "?" + icon.getParameter() + "=" + icon.getValue()
+                            + "\">"
+                            + "<img alt=\"" + icon.getAlt() + "\""
+                            + "title=\"" + icon.getAlt() + "\""
+                            + " src=\"" + icon.getImage() + "\">"
+                            + "</a>");
+                }
+                else {
+                    b.append(sp(in) + "<img class=\"tb\""
+                            + " alt=\"" + icon.getAlt() + "\""
+                            + " style=\"opacity: .25; filter: alpha(opacity=25);\""
+                            + " src=\"" + icon.getImage() + "\">");
+                }
             b.append(sp(--in) + "</div>\n");
         }
         // Display the window content
@@ -206,7 +212,7 @@ public class Functions {
         if ((icons != null) && (icons.length > 0)) {
             b.append(sp(in++) + "<div class=\"winTitleBar\">\n");
             for (WinIcon icon : icons)
-                b.append(sp(in) + "<a style=\"vertical-align: middle;\""
+                b.append(sp(in) + "<a  class=\"tb\""
                         + " href=\"" + icon.getPath()
                         + "?" + icon.getParameter() + "=" + icon.getValue()
                         + "\">"

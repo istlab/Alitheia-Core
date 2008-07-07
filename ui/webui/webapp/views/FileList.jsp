@@ -28,7 +28,9 @@ if (selectedProject.isValid()) {
             else if (request.getParameter("showResults").equals("false"))
                 settings.setShowFileResultsOverview(false);
         }
-        // Check, if the user has selected a file
+        //====================================================================
+        // Display the selected file verbosely
+        //====================================================================
         if (request.getParameter("fid") != null) {
             // Display a verbose information about the selected file
             Long fileId = strToLong(request.getParameter("fid"));
@@ -42,14 +44,20 @@ if (selectedProject.isValid()) {
                 verboseView.compareAgainst(
                     strToLong(request.getParameter("cvnum")));
             }
-            out.print(verboseView.getHtml(in));
-%>            <br/>
-            <form method="GET" action="<%= request.getServletPath() %>">
-              <input type=submit class="submit" value="Back">
-            </form>
-<%
+            icoCloseWin = new WinIcon();
+            icoCloseWin.setPath(request.getServletPath());
+            icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
+            icoCloseWin.setAlt("Close");
+            winContent = null;
+            winContent = verboseView.getHtml(in);
+            out.print(Functions.interactiveWindow(in,
+                "Source file results",
+                winContent, null,
+                new WinIcon[]{icoCloseWin}, null));
         }
-        // Display the list of files in the selected project version
+        //====================================================================
+        // Display a file browser for the selected project version
+        //====================================================================
         else {
             // Construct the window's content
             winContent = "";
