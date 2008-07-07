@@ -57,7 +57,7 @@ import eu.sqooss.service.updater.UpdaterService;
 
 public abstract class AbstractView {
     // Core components
-    private static AlitheiaCore sobjCore = null;
+    protected static AlitheiaCore sobjCore = null;
     protected static ServiceReference srefCore = null;
 
     // Critical logging components

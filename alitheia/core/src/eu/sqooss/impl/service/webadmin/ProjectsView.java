@@ -45,6 +45,7 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 
 public class ProjectsView extends AbstractView {
@@ -244,30 +245,19 @@ public class ProjectsView extends AbstractView {
             // ---------------------------------------------------------------
             else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {
                 if (selProject != null) {
-                    // Delete any associated invocation rules first
-                    HashMap<String,Object> properties =
-                        new HashMap<String, Object>();
-                    properties.put("project", selProject);
-                    List<?> assosRules = sobjDB.findObjectsByProperties(
-                            InvocationRule.class, properties);
-                    if ((assosRules != null) && (assosRules.size() > 0)) {
-                        for (Object nextDAO: assosRules) {
-                            InvocationRule.deleteInvocationRule(
-                                    sobjDB, compMA, (InvocationRule) nextDAO);
-                        }
-                    }
-                    // Delete the selected project
-                    if (sobjDB.deleteRecord(selProject)) {
-                        selProject = null;
-                    }
-                    else {
-                        e.append(sp(in) + getErr("e0033")
-                                + " " + getMsg("m0001")
-                                + "<br/>\n");
-                    }
+                	//Deleting large projects in the foreground is
+                	//very slow
+                    ProjectDeleteJob pdj = new ProjectDeleteJob(sobjCore, selProject);
+                    try {
+						sobjSched.enqueue(pdj);
+					} catch (SchedulerException e1) {
+						e.append(sp(in) + getErr("e0034")
+	                            + "<br/>\n");
+					}
+                    selProject = null;
                 }
                 else {
-                    e.append(sp(in) + getErr("e0034")
+                	e.append(sp(in) + getErr("e0034")
                             + "<br/>\n");
                 }
             }
