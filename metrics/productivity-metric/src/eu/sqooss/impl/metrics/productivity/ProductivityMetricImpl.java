@@ -82,7 +82,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
                  PluginInfo.ConfigurationType.INTEGER);
          addConfigEntry(CONFIG_WEIGHT_UPDATE_VERSIONS, 
                  "150" , 
-                 "Number of new versions before recalculating the productivity weights", 
+                 "Number of seconds between weight updates", 
                  PluginInfo.ConfigurationType.INTEGER);
          return result;
     }

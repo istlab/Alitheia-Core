@@ -208,12 +208,13 @@ public class ProductivityMetricJob {
         }
         
         synchronized(getClass()){
-            long distinctVersions = calcDistinctVersions();
-            long previousVersions = ProductivityWeights.getLastUpdateVersionsCount();
+            //long distinctVersions = calcDistinctVersions();
+            long ts = (System.currentTimeMillis()/1000);
+        	long previousVersions = ProductivityWeights.getLastUpdateVersionsCount();
             //Should the weights be updated?
-            if (distinctVersions - previousVersions 
+            if (ts - previousVersions 
                     >= Integer.parseInt(pluginConf.getValue())){
-                updateWeights(distinctVersions);
+                updateWeights(ts);
             }
         }
     }
@@ -255,7 +256,7 @@ public class ProductivityMetricJob {
         }
     }
     
-    private void updateWeights(long distinctVersions) {
+    private void updateWeights(long secLastUpdate) {
         ActionCategory[] actionCategories = ActionCategory.values();
 
         long totalActions = ProductivityActions.getTotalActions();
@@ -276,7 +277,7 @@ public class ProductivityMetricJob {
             }
             
             updateActionCategoryWeight(actionCategories[i],
-                    totalActionsPerCategory, totalActions, distinctVersions);
+                    totalActionsPerCategory, totalActions, secLastUpdate);
 
             // update action types weights
             ArrayList<ActionType> actionTypes = 
@@ -286,7 +287,7 @@ public class ProductivityMetricJob {
                 totalActionsPerType = 
                     ProductivityActions.getTotalActionsPerType(actionTypes.get(j));
                 updateActionTypeWeight(actionTypes.get(j),totalActionsPerType, 
-                        totalActionsPerCategory, distinctVersions);
+                        totalActionsPerCategory, secLastUpdate);
             }
         }
     }
