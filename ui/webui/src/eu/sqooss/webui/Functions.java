@@ -151,7 +151,10 @@ public class Functions {
         StringBuilder b = new StringBuilder("");
         b.append(sp(in++) + "<div class=\"win\">\n");
         // Display the window title
-        b.append(sp(in++) + "<div class=\"winTitle\">" + title + "\n");
+        b.append(sp(in++) + "<div class=\"winTitle\""
+                + (((toolbar != null) && (toolbar.length > 0))
+                        ? " style=\"border-bottom: 0 none;\"" : "")
+                + ">" + title + "\n");
         if ((icons != null) && (icons.length > 0)) {
             b.append(sp(in++) + "<div class=\"winTitleBar\">\n");
             for (WinIcon icon : icons)

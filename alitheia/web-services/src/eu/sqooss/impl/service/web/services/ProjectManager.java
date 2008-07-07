@@ -55,18 +55,21 @@ import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
 public class ProjectManager extends AbstractManager {
 
     private Logger logger;
+    private FDSService fds;
     private ProjectManagerDatabase dbWrapper;
     private ProjectSecurityWrapper securityWrapper;
 
-    public ProjectManager(Logger logger, DBService db, SecurityManager security) {
+    public ProjectManager(Logger logger, DBService db, SecurityManager security, FDSService fds) {
         super(db);
         this.logger = logger;
+        this.fds = fds;
         this.dbWrapper = new ProjectManagerDatabase(db);
         this.securityWrapper = new ProjectSecurityWrapper(security, db, logger);
     }
@@ -628,17 +631,62 @@ public class ProjectManager extends AbstractManager {
             db.findObjectById(ProjectVersion.class, projectVersionId);
         Directory directory =
             db.findObjectById(Directory.class, directoryId);
-        try {
-            List<ProjectFile> files =
-                ProjectFile.getFilesForVersion(version, directory);
-            if (files.size() > 0) {
-                result = new WSProjectFile[files.size()];
-                int index = 0;
-                for (ProjectFile nextFile : files)
-                    result[index++] = WSProjectFile.getInstance(nextFile);
+        List<ProjectFile> files = new ArrayList<ProjectFile>();
+        HashMap<String, Long> dirEntries = fds.scmDirList(version, directory);
+        for (String nextEntry : dirEntries.keySet()) {
+            // Retrieve the project version's DAO of this file
+            HashMap<String, Object> props = new HashMap<String, Object>();
+            props.put("project", version.getProject());
+            props.put("version", new Long(dirEntries.get(nextEntry)));
+            List<ProjectVersion> versions = db.findObjectsByProperties(
+                    ProjectVersion.class, props);
+            if ((versions == null) || (versions.isEmpty())) continue;
+            // Retrieve the file's DAO
+            props.clear();
+            props.put("name", nextEntry);
+            props.put("projectVersion", versions.get(0));
+            props.put("dir", directory);
+            List<ProjectFile> pfiles = db.findObjectsByProperties(
+                    ProjectFile.class, props);
+            // TODO: SVNKit returns a "wrong" revision for directories, if an
+            // entity inside this directory were changed (i.e. returns the
+            // revision of that entity).
+            if ((pfiles == null) || (pfiles.isEmpty())) {
+                props.clear();
+                props.put("name", nextEntry);
+                props.put("isDirectory", true);
+                props.put("dir", directory);
+                pfiles = db.findObjectsByProperties(ProjectFile.class, props);
+                if ((pfiles == null) || (pfiles.isEmpty())) continue;
+                ProjectFile realDir = pfiles.get(0);
+                for (ProjectFile nextDir : pfiles) {
+                    if ((nextDir.getProjectVersion().getVersion()
+                                    > realDir.getProjectVersion().getVersion())
+                            && (nextDir.getProjectVersion().getVersion()
+                                    <= version.getVersion()))
+                        realDir = nextDir;
+                }
+                pfiles.add(0, realDir);
             }
+            files.add(pfiles.get(0));
         }
-        catch (IllegalArgumentException ex) {}
+        if (files.size() > 0) {
+            result = new WSProjectFile[files.size()];
+            int index = 0;
+            for (ProjectFile nextFile : files)
+                result[index++] = WSProjectFile.getInstance(nextFile);
+        }
+//        try {
+//            List<ProjectFile> files =
+//                ProjectFile.getFilesForVersion(version, directory);
+//            if (files.size() > 0) {
+//                result = new WSProjectFile[files.size()];
+//                int index = 0;
+//                for (ProjectFile nextFile : files)
+//                    result[index++] = WSProjectFile.getInstance(nextFile);
+//            }
+//        }
+//        catch (IllegalArgumentException ex) {}
         db.commitDBSession();
         return result;
     }

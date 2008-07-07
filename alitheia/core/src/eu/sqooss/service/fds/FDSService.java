@@ -35,9 +35,12 @@ package eu.sqooss.service.fds;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -146,6 +149,17 @@ public interface FDSService {
      * @return the file contents or null if none.
      */
     InputStream getFileContents(ProjectFile pf);
+
+    /**
+     * Retrieves the list of files located in the given project directory,
+     * which exist for the specified project version.
+     * 
+     * @param v the project version's DAO
+     * @param d the directory DAO
+     * 
+     * @return The list of files, or an empty list if none are found.
+     */
+    public HashMap<String, Long> scmDirList (ProjectVersion v, Directory d);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

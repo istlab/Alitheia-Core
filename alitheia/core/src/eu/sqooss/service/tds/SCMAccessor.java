@@ -35,6 +35,7 @@ package eu.sqooss.service.tds;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 
 public interface SCMAccessor extends NamedAccessor {
     /**
@@ -189,6 +190,9 @@ public interface SCMAccessor extends NamedAccessor {
      * @throws InvalidRepositoryException
      */
     String getSubProjectPath() throws InvalidRepositoryException;
+
+    public HashMap<String, Long> getDir(String dirPath, long revision)
+        throws InvalidRepositoryException;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

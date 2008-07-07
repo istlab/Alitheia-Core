@@ -39,8 +39,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
+import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
@@ -513,6 +515,24 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             throw new InvalidRepositoryException(getName(),url,e.getMessage());
 		}
 	}
+
+    public HashMap<String, Long> getDir(String dirPath, long revision)
+        throws InvalidRepositoryException {
+        HashMap<String, Long> results = new HashMap<String,Long>();
+        ArrayList<SVNDirEntry> entries = new ArrayList<SVNDirEntry>();
+        if (svnRepository == null) connectToRepository();
+        try {
+            svnRepository.getDir(dirPath, revision, false, entries);
+            for (SVNDirEntry nextEntry : entries) {
+                results.put(nextEntry.getName(), nextEntry.getRevision());
+            }
+        }
+        catch (SVNException e) {
+            logger.warn(e.getMessage());
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
+        }
+        return results;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

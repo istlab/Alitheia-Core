@@ -84,7 +84,8 @@ public class WebServicesActivator implements BundleActivator {
         
         //registers the web service
         Object serviceObject = new WebServices(bc, securityManager, db,
-                pluginAdmin, logger, core.getWebadminService());
+                pluginAdmin, logger, core.getWebadminService(),
+                core.getFDSService());
         Properties props = initProperties(bc);
         String serviceClass = props.getProperty(Constants.PROPERTY_KEY_WEB_SERVICES_INTERFACE); 
         webServicesReg = bc.registerService(serviceClass, serviceObject, props);

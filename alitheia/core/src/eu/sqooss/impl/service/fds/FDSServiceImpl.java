@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -642,6 +644,20 @@ public class FDSServiceImpl implements FDSService {
     		logger.info("Checkout of " + c.getName() + " (" +
     				c.getRevision() + ") is free.");
     	}
+    }
+
+    public HashMap<String, Long> scmDirList (ProjectVersion v, Directory d) {
+        SCMAccessor accessor = tds.getAccessor(
+                v.getProject().getId()).getSCMAccessor();
+        HashMap<String, Long> result = new HashMap<String, Long>();
+        try {
+            result = accessor.getDir(d.getPath(), v.getVersion());
+        }
+        catch (InvalidRepositoryException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /**
