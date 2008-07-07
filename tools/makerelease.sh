@@ -50,7 +50,7 @@ cleanup_cruft()
 {
 	echo "# Cleaning up source tree ..."
 	rm -rf `svn st --no-ignore | awk '/^[?I]/{print $2}`
-	svn revert --recusive `svn st --no-ignore | awk '/^[!CM]/{print $2}'`
+	svn revert --recursive `svn st --no-ignore | awk '/^[!CM]/{print $2}'`
 }
 
 create_source_tarball()
@@ -70,7 +70,7 @@ build_tarball()
 	$TAR xzf alitheia-$VERSION.tar.gz || { echo "! Could not unpack source tarball." ; exit 1 ; }
 	cd alitheia-$VERSION || { echo "! Could not enter sources." ; exit 1 ; }
 	check_required_files
-	make clean build install > ../build.log 2>&1 || { echo "! Build failed. See $TMPDIR/build.log." ; exit 1 ; }
+	$MAKE clean build install > ../build.log 2>&1 || { echo "! Build failed. See $TMPDIR/build.log." ; exit 1 ; }
 }
 
 create_binary_tarball()
@@ -90,6 +90,8 @@ test -n "$1" && VERSION="$1"
 
 TAR=tar
 test SunOS = `uname` && TAR=/usr/sfw/bin/gtar
+MAKE=make
+test SunOS = `uname` && MAKE=/usr/bin/gmake
 
 main
 
