@@ -187,7 +187,7 @@ class SourceUpdater extends Job {
                     if(t == SCMNodeType.DIR && isTag(entry, chPath)) {
 
                         Tag tag = new Tag(curVersion);
-                        tag.setName(chPath.substring(5));
+                        tag.setName(chPath.split("tags/")[1]);
                         logger.debug("Creating tag <" + tag.getName() + ">");
 
                         dbs.addRecord(tag);
@@ -255,8 +255,9 @@ class SourceUpdater extends Job {
 
                 /*Cleanup for huge projects*/
                 if (numRevisions % 200 == 0) {
-                    logger.info("Commited 2000 revisions");
-                    dbs.flushDBSession();
+                    logger.info("Commited 200 revisions");
+                    dbs.commitDBSession();
+                    dbs.startDBSession();
                 }
             }
             logger.info("Processed " + numRevisions + " revisions");
