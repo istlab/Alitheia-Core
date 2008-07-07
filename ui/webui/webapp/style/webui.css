@@ -101,42 +101,9 @@ span.forget {
 span.forget a {
     color: #666;
 }
-
-a.button {
-    text-align: center;
-    text-decoration: none;
-    color: black;
-    background-color: #cccccc;
-    padding: 0px 2px 0px 2px;
-    margin-left: 2px;
-    border: 2px outset #cccccc;
-}
-
 input.submit {
     width: 80px;
 }
-
-a.button:hover {
-    text-align: center;
-    text-decoration: none;
-    color: black;
-    background-color: #cccccc;
-    background-color: #FFFF99;
-    padding: 2px 2px 2px 2px;
-    margin-left: 2px;
-    border: 2px outset #cccccc;
-}
-
-a.button:visited {
-    text-align: center;
-    text-decoration: none;
-    color: black;
-    background-color: #cccccc;
-    padding: 2px 2px 2px 2px;
-    margin-left: 2px;
-    border: 2px outset #cccccc;
-}
-
 #error ul li {
     list-style-type: square;
     color: #CE2323;
@@ -144,16 +111,18 @@ a.button:visited {
 #fileslist li {
     list-style-type: none;
 }
-
+/* ===[ ICONS CSS ]======================================================= */
 a.tb img {
     border: 0px none;
-    background-color: transparent;
     margin-right: 2px;
+    background-color: transparent;
 }
 img.tb {
+    border: 0px none;
     margin-right: 2px;
+    background-color: transparent;
 }
-/* ===[ WINDOW CSS ]===================================================== */
+/* ===[ WINDOW CSS ]====================================================== */
 div.win {
     border: 1px solid #000000;
     margin-bottom: 0.5em;
@@ -166,16 +135,14 @@ div.winTitle {
     font-weight: bold;
     padding-left: 0.5em;
     background-color: #CCCCCC;
-    vertical-align: middle;
 }
 div.winTitleBar {
     position: absolute;
     top: 0;
+    bottom: 0;
     right: 0;
     width: 10%;
-    height: 100%;
     text-align:right;
-    vertical-align: middle;
 }
 div.winToolbar {
     position:relative;
@@ -186,7 +153,6 @@ div.winToolbar {
     font-weight: bold;
     padding-left: 0.5em;
     background-color: #F0F0F0;
-    vertical-align: middle;
 }
 div.winContent {
     padding: 0.5em;
@@ -202,9 +168,8 @@ div.winFooter {
     font-weight: bold;
     padding-left: 0.5em;
     background-color: #F0F0F0;
-    vertical-align: middle;
 }
-/* ===[ TABLES CSS ]===================================================== */
+/* ===[ TABLES CSS ]====================================================== */
 #table {
     font-size: 10pt;
     clear:both;

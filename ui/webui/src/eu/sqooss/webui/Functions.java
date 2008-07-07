@@ -151,7 +151,7 @@ public class Functions {
         StringBuilder b = new StringBuilder("");
         b.append(sp(in++) + "<div class=\"win\">\n");
         // Display the window title
-        b.append(sp(in) + "<div class=\"winTitle\">" + title + "\n");
+        b.append(sp(in++) + "<div class=\"winTitle\">" + title + "\n");
         if ((icons != null) && (icons.length > 0)) {
             b.append(sp(in++) + "<div class=\"winTitleBar\">\n");
             for (WinIcon icon : icons)
@@ -163,10 +163,10 @@ public class Functions {
                         + "\">"
                         + "<img alt=\"" + icon.getAlt() + "\""
                         + " src=\"" + icon.getImage() + "\">"
-                        + "</a>");
+                        + "</a>\n");
             b.append(sp(--in) + "</div>\n");
         }
-        b.append(sp(in) + "</div>\n");
+        b.append(sp(--in) + "</div>\n");
         // Display the window tool-bar
         if ((toolbar != null) && (toolbar.length > 0)) {
             b.append(sp(in++) + "<div class=\"winToolbar\">\n");
@@ -179,13 +179,13 @@ public class Functions {
                             + "<img alt=\"" + icon.getAlt() + "\""
                             + "title=\"" + icon.getAlt() + "\""
                             + " src=\"" + icon.getImage() + "\">"
-                            + "</a>");
+                            + "</a>\n");
                 }
                 else {
                     b.append(sp(in) + "<img class=\"tb\""
                             + " alt=\"" + icon.getAlt() + "\""
                             + " style=\"opacity: .25; filter: alpha(opacity=25);\""
-                            + " src=\"" + icon.getImage() + "\">");
+                            + " src=\"" + icon.getImage() + "\">\n");
                 }
             b.append(sp(--in) + "</div>\n");
         }
@@ -208,20 +208,20 @@ public class Functions {
         StringBuilder b = new StringBuilder("");
         b.append(sp(in++) + "<div class=\"win\">\n");
         // Display the window title
-        b.append(sp(in) + "<div class=\"winTitle\">" + title + "\n");
+        b.append(sp(in++) + "<div class=\"winTitle\">" + title + "\n");
         if ((icons != null) && (icons.length > 0)) {
             b.append(sp(in++) + "<div class=\"winTitleBar\">\n");
             for (WinIcon icon : icons)
-                b.append(sp(in) + "<a  class=\"tb\""
+                b.append(sp(in) + "<a class=\"tb\""
                         + " href=\"" + icon.getPath()
                         + "?" + icon.getParameter() + "=" + icon.getValue()
                         + "\">"
                         + "<img alt=\"" + icon.getAlt() + "\""
                         + " src=\"" + icon.getImage() + "\">"
-                        + "</a>");
+                        + "</a>\n");
             b.append(sp(--in) + "</div>\n");
         }
-        b.append(sp(in) + "</div>\n");
+        b.append(sp(--in) + "</div>\n");
         if (content != null)
             b.append(sp(in) + "<div class=\"winContent\">\n"
                     + content
