@@ -82,7 +82,8 @@ create_binary_tarball()
 		alitheia-$VERSION/tomcat \
 		alitheia-$VERSION/LICENSE* \
 		alitheia-$VERSION/README* \
-		alitheia-$VERSION/Makefile.run || \
+		alitheia-$VERSION/Makefile.run \
+		alitheia-$VERSION/Makefile.config || \
 		{ echo "! Failed to create binary distribution." ; exit 1 ; }
 }
 

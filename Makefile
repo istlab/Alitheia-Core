@@ -7,7 +7,7 @@
 # the Alitheia Core Platform, a collection of metrics and the 
 # Corba / C++ bindings for the platform.
 #
-# The file README-BUILD explains how the build system works.
+# The file README-BUILD.txt explains how the build system works.
 # The comments in this Makefile explain individual targets.
 #
 # Most useful targets are:
@@ -91,71 +91,16 @@ distclean : clean-all
 .PHONY : clean-osgi clean-log clean-dir clean-all distclean
 
 ###
-# 
-# Run targets.
 #
-# Launching the Alitheia Core Platform is more than a matter of executing
-# a single command. There are a bunch of Java options that are needed.
-# These targets provide various ways of starting the system.
+# Run targets are in a separate file so they can be more
+# conveniently distributed with the binaries.
+
+include Makefile.run
+
+###
 #
-# start-core         - run with console
-# start-core-bg      - run in background
-# start-core-debug   - run with console and debug mode
-# start-core-monitor - run with console and remote monitoring
+# Testing targets
 #
-
-# Log4J configuration -- all we need is the right URL for the config file.
-CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
-LOG4J_PREFIX=$(PREFIX)
-ifeq ($(OS),Windows_NT)
-LOG4J_PREFIX:=$(subst /cygdrive/c,,$(LOG4J_PREFIX))
-endif
-LOG4J_CONFIG=-Dlog4j.configuration=file:///$(LOG4J_PREFIX)/configuration/log4j.properties
-
-# Jetty configuration.
-JETTY_CONFIG=-DDEBUG_VERBOSE=1 \
-	-DDEBUG_PATTERNS=main,org.mortbay.http \
-	-Dorg.mortbay.log.LogFactory.noDiscovery=false
-
-
-# Additional arguments for Java. We have special arguments for
-# debug and monitor mode, as well as the regular configuraiton
-# settings to get OSGi up.
-JAVA_DEBUG_ARGS=-Xdebug \
-	-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y
-JAVA_MONITOR_ARGS=-Dcom.sun.management.jmxremote
-JAVA_CORE_ARGS= -DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
-		$(HIBERNATE_CONFIG) \
-		-jar org.eclipse.equinox.osgi-3.3.0.jar
-
-# Start the core system with a console. Use 'close' in the console to quit.
-start-core : clean-osgi
-	cd $(PREFIX) && \
-	$(JAVA_CMD) $(JAVA_CORE_ARGS) -console
-
-# Start the core without a console. Use 'make stop-core' to stop it.
-start-core-bg : clean-osgi
-	cd $(PREFIX) && \
-	$(JAVA_CMD) $(JAVA_CORE_ARGS) -no-exit &
-
-# Start the core in debug mode with console.
-start-core-debug : clean-osgi
-	cd $(PREFIX) && \
-	$(JAVA_CMD) $(JAVA_DEBUG_ARGS) $(JAVA_CORE_ARGS) -console
-
-# Start the core with remote monitoring and console.
-start-core-monitor : clean-osgi
-	cd $(PREFIX) && \
-	$(JAVA_CMD) $(JAVA_MONITOR_ARGS) $(JAVA_CORE_ARGS) -console
-
-# Stop the core system. This works only if the system is running
-# on the default port (8088) as configured in config.ini.
-stop-core :
-	curl -qF "submit=stop" http://localhost:8088/stop > /dev/null
-
-# Display the system log (if it is in its default location).
-show-log :
-	@cat $(PREFIX)/logs/alitheia.log
 
 specs : clean-osgi
 	cd $(PREFIX) && \
@@ -170,8 +115,7 @@ specs-debug : clean-osgi
 	-Dosgi.configuration.area=$(PREFIX)/configuration-specs \
 	$(JAVA_CORE_ARGS) -no-exit -console
 
-.PHONY : start-core start-core-bg start-core-debug start-core-monitor 
-.PHONY : stop-core show-log test
+.PHONY : specs specs-debug
 
 
 ###
