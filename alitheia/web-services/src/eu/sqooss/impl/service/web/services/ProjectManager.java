@@ -632,50 +632,90 @@ public class ProjectManager extends AbstractManager {
         Directory directory =
             db.findObjectById(Directory.class, directoryId);
         List<ProjectFile> files = new ArrayList<ProjectFile>();
+
+        /*********************************************************************
+         * Retrieve the list of file by using the "svn list" approach, which
+         * is provided from the SVNKit library via the FDS service 
+         ********************************************************************/
         HashMap<String, Long> dirEntries = fds.scmDirList(version, directory);
-        for (String nextEntry : dirEntries.keySet()) {
-            // Retrieve the project version's DAO of this file
-            HashMap<String, Object> props = new HashMap<String, Object>();
-            props.put("project", version.getProject());
-            props.put("version", new Long(dirEntries.get(nextEntry)));
-            List<ProjectVersion> versions = db.findObjectsByProperties(
-                    ProjectVersion.class, props);
-            if ((versions == null) || (versions.isEmpty())) continue;
-            // Retrieve the file's DAO
-            props.clear();
-            props.put("name", nextEntry);
-            props.put("projectVersion", versions.get(0));
-            props.put("dir", directory);
-            List<ProjectFile> pfiles = db.findObjectsByProperties(
-                    ProjectFile.class, props);
-            // TODO: SVNKit returns a "wrong" revision for directories, if an
-            // entity inside this directory were changed (i.e. returns the
-            // revision of that entity).
-            if ((pfiles == null) || (pfiles.isEmpty())) {
-                props.clear();
-                props.put("name", nextEntry);
-                props.put("isDirectory", true);
-                props.put("dir", directory);
-                pfiles = db.findObjectsByProperties(ProjectFile.class, props);
-                if ((pfiles == null) || (pfiles.isEmpty())) continue;
-                ProjectFile realDir = pfiles.get(0);
-                for (ProjectFile nextDir : pfiles) {
-                    if ((nextDir.getProjectVersion().getVersion()
-                                    > realDir.getProjectVersion().getVersion())
-                            && (nextDir.getProjectVersion().getVersion()
-                                    <= version.getVersion()))
-                        realDir = nextDir;
-                }
-                pfiles.add(0, realDir);
+
+        // Construct a query for retrieving the corresponding ProjectFile DAOs
+        String query = null;
+        for (String fileName : dirEntries.keySet()) {
+            if (query != null) {
+                query += " or ("
+                    + " pf.projectVersion = pv.id"
+                    + " and pv.version = " + dirEntries.get(fileName)
+                    + " and pf.name = '" + fileName + "'"
+                    + " )";
             }
-            files.add(pfiles.get(0));
+            else {
+                query = "select pf"
+                    + " from ProjectVersion pv, ProjectFile pf"
+                    + " where"
+                    + " pf.dir = " + directoryId
+                    + " and (";
+                query += " ("
+                    + " pf.projectVersion = pv.id"
+                    + " and pv.version = " + dirEntries.get(fileName)
+                    + " and pf.name = '" + fileName + "'"
+                    + ")";
+            }
         }
+
+        // Execute the query and store all DAOs in the dedicated buffer
+        if (query != null) {
+            query += ")";
+            List<?> daoList = db.doHQL(query);
+            if (daoList != null)
+                for (Object nextDAO : daoList) {
+                    ProjectFile fileDAO = (ProjectFile) nextDAO;
+                    dirEntries.remove(fileDAO.getName());
+                    files.add(fileDAO);
+                }
+        }
+
+        /*
+         * Any files left, fall in the special case (see the note bellow) and
+         * must be retrieved in another way.
+         * 
+         * NOTE: SVNKit sometimes returns a "wrong" revision number for
+         * directories, in case some entities inside the target directory
+         * were changed. In such case, it will return the revision number,
+         * that corresponds to the most recent entity change.
+         */
+        for (String fileName : dirEntries.keySet()) {
+            HashMap<String, Object> props = new HashMap<String, Object>();
+            props.put("name", fileName);
+            props.put("isDirectory", true);
+            props.put("dir", directory);
+            List<ProjectFile> daoList =
+                db.findObjectsByProperties(ProjectFile.class, props);
+            if ((daoList == null) || (daoList.isEmpty())) continue;
+            ProjectFile bestMatch = daoList.get(0);
+            for (ProjectFile nextDir : daoList) {
+                if ((nextDir.getProjectVersion().getVersion()
+                        > bestMatch.getProjectVersion().getVersion())
+                        && (nextDir.getProjectVersion().getVersion()
+                                <= version.getVersion()))
+                    bestMatch = nextDir;
+            }
+            files.add(bestMatch);
+        }
+
+        // Wrap the retrieved file DAOs and construct the results array
         if (files.size() > 0) {
             result = new WSProjectFile[files.size()];
             int index = 0;
             for (ProjectFile nextFile : files)
                 result[index++] = WSProjectFile.getInstance(nextFile);
         }
+
+        /*********************************************************************
+         * Alternative way of retrieving the list of files, which is based on
+         * the ProjectFile.getFilesForVersion(ProjectVersion, Directory)
+         * method. 
+         ********************************************************************/
 //        try {
 //            List<ProjectFile> files =
 //                ProjectFile.getFilesForVersion(version, directory);
@@ -687,6 +727,7 @@ public class ProjectManager extends AbstractManager {
 //            }
 //        }
 //        catch (IllegalArgumentException ex) {}
+
         db.commitDBSession();
         return result;
     }
