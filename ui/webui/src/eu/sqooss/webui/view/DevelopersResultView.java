@@ -33,9 +33,17 @@
 
 package eu.sqooss.webui.view;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.general.DefaultPieDataset;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
@@ -63,6 +71,8 @@ public class DevelopersResultView extends ListView {
      * performed.
      */
     private ArrayList<Project> compProjects = new ArrayList<Project>();
+    
+    public File tempFolder; 
 
     /**
      * Instantiates a new <code>DevelopersResultView</code> object, and
@@ -147,6 +157,7 @@ public class DevelopersResultView extends ListView {
                 //------------------------------------------------------------
                 // Display the metric's result for each developer
                 //------------------------------------------------------------
+                Map<String, Double> chartValues = new HashMap<String, Double>();
                 for (Developer nextDeveloper : developers.values()) {
                     b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td class=\"name\">"
@@ -158,15 +169,40 @@ public class DevelopersResultView extends ListView {
                     if (result != null) {
                         result.setSettings(this.settings);
                         resultValue = result.getHtml(in);
+                        chartValues.put(nextDeveloper.getUsername(), new Double(result.getString()));
                     }
                     b.append(sp(in) + "<td>" + resultValue + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                 }
                 b.append(sp(--in) + "</table>\n");
+                if (chartValues.isEmpty() == false) {
+                    String chartFile = pieChart(chartValues);
+                    if (chartFile != null) {
+                        b.append(sp(in)
+                                + "<img src=\"/tmp/" + chartFile + "\">");
+                    }
+                }
             }
             b.append(sp(--in) + "</div>\n");
         }
         return b.toString();
     }
 
+    public String pieChart (Map<String, Double> values) {
+        DefaultPieDataset data = new DefaultPieDataset();
+        JFreeChart chart;
+        for (String nextValue : values.keySet())
+        data.setValue(nextValue, values.get(nextValue));
+        chart = ChartFactory.createPieChart(
+                null, data, true, true, settings.getUserLocale());
+        try {
+            File tmpFile = File.createTempFile("img", "png", tempFolder);
+            ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
+            return tmpFile.getName();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

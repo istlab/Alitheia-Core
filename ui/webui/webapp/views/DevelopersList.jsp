@@ -75,6 +75,7 @@ if (selectedProject.isValid()) {
             new DevelopersResultView(selectedProject);
         devResultsView.setSettings(settings);
         devResultsView.setTerrier(terrier);
+        devResultsView.tempFolder = tempFolder;
         // Display the window
         out.println(Functions.simpleWindow(in, "Evaluation results",
             devResultsView.getHtml(in)));

@@ -5,6 +5,7 @@
   be included at the top of every JSP page.
 ==============================================================================
 --%><%@ page import="java.util.*"
+%><%@ page import="java.io.File"
 %><%@ page import="eu.sqooss.webui.*"
 %><%@ page session="true"
 %><%!
@@ -83,6 +84,16 @@ String winVisible = null;
 WinIcon winShowIco = null;
 WinIcon icoCloseWin = null;
 String winFooter = null;
+
+// Folder relative to this web application's root (deployment) folder, where
+// the application will store all generated temporary files.
+String tempFolderName = "tmp";
+File tempFolder = new File(
+    config.getServletContext().getRealPath("/")
+    + File.separatorChar
+    + tempFolderName);
+if (tempFolder.exists() == false)
+    tempFolder.mkdir();
 
 //============================================================================
 // Check if the user has selected a project (or switched to a new project)
