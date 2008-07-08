@@ -222,9 +222,6 @@ public class UsersView extends AbstractView {
                         reqValServiceId = selPriv.getUrl().getId();
                         reqValPrivType =
                             selPriv.getPv().getPrivilege().getDescription();
-                        if (reqValPrivType.equals(
-                                SecurityConstants.ALL_PRIVILEGES))
-                            reqValPrivType = ALL;
                         reqValPrivValue = selPriv.getPv().getValue();
                         if (reqValPrivValue.equals(
                                 SecurityConstants.ALL_PRIVILEGE_VALUES))
@@ -550,12 +547,8 @@ public class UsersView extends AbstractView {
                         else {
                             // Get the privilege's type DAO
                             Privilege privType = null;
-                            if (reqValPrivType.equals(ALL))
-                                privType = secPM.getPrivilege(
-                                        SecurityConstants.ALL_PRIVILEGES);
-                            else 
-                                privType = secPM.getPrivilege(
-                                        reqValPrivType);
+                            privType = secPM.getPrivilege(
+                                    reqValPrivType);
                             // Create a new privilege's value DAO if necessary
                             PrivilegeValue privValue = null;
                             if (privType != null) {
@@ -930,11 +923,7 @@ public class UsersView extends AbstractView {
                             if (suppTypes.contains(nextType)) {
                                 continue;
                             }
-                            if (nextType.equals(
-                                    SecurityConstants.ALL_PRIVILEGES))
-                                suppTypes.add(ALL);
-                            else
-                                suppTypes.add(nextType);
+                            suppTypes.add(nextType);
                         }
                         if (suppUrls.contains(nextURL)) {
                             continue;
@@ -1448,8 +1437,6 @@ public class UsersView extends AbstractView {
                             //------------------------------------------------
                             Privilege privType = grPriv.getPv().getPrivilege();
                             val = privType.getDescription();
-                            if (val.equals(SecurityConstants.ALL_PRIVILEGES))
-                                val = ALL;
                             b.append(sp(in) + "<td class=\"trans\">"
                                     + val + "</td>\n");
                             //------------------------------------------------

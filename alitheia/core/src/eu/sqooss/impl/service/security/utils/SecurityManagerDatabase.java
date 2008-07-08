@@ -37,7 +37,7 @@ import java.util.Map;
 
 import eu.sqooss.service.db.DBService;
 
-public class SecurityManagerDatabase implements SecurityManagerDBQueries {
+public class SecurityManagerDatabase extends SecurityManagerDBQueries {
     
     private DBService db;
     
@@ -50,25 +50,21 @@ public class SecurityManagerDatabase implements SecurityManagerDBQueries {
         queryParameters.put(IS_EXISTENT_RESOURCE_PARAM_URL, resourceUrl);
         queryParameters.put(IS_EXISTENT_RESOURCE_PARAM_USER, userName);
         queryParameters.put(IS_EXISTENT_RESOURCE_PARAM_PASS, password);
-        if (db.doHQL(IS_EXISTENT_RESOURCE_URL, queryParameters).size() != 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (!db.doHQL(IS_EXISTENT_RESOURCE_URL, queryParameters).isEmpty());
     }
 
     public boolean checkAuthorizationRule(String resourceUrl, String privilegeName,
-            String privilegeValue, String userName, String password) {
+            String privilegeValue, String userName, String password, boolean privilegeValueEqual) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(5);
         queryParameters.put(CHECK_AUTHORIZATION_RULE_PARAM_URL, resourceUrl);
         queryParameters.put(CHECK_AUTHORIZATION_RULE_PARAM_PR_NAME, privilegeName);
         queryParameters.put(CHECK_AUTHORIZATION_RULE_PARAM_PR_VALUE, privilegeValue);
         queryParameters.put(CHECK_AUTHORIZATION_RULE_PARAM_USER, userName);
         queryParameters.put(CHECK_AUTHORIZATION_RULE_PARAM_PASS, password);
-        if (db.doHQL(CHECK_AUTHORIZATION_RULE, queryParameters).size() != 0) {
-            return true;
+        if (privilegeValueEqual) {
+            return !db.doHQL(CHECK_AUTHORIZATION_RULE_EQUALITY, queryParameters).isEmpty();
         } else {
-            return false;
+            return !db.doHQL(CHECK_AUTHORIZATION_RULE_INEQUALITY, queryParameters).isEmpty();
         }
     }
 

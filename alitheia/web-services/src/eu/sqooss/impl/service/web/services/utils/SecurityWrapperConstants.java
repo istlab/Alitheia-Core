@@ -63,8 +63,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         ADMIN_NOTIFY,
         ADMIN_GET_MESSAGE_OF_THE_DAY,
         METRIC_READ,
-        METRICTYPE_READ,
-        ALL;
+        METRICTYPE_READ;
         
         static {
             init(null);
@@ -114,7 +113,6 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         public String toString() {
             String stringRepresentation;
             switch (this) {
-            case ALL          : stringRepresentation = ALL_PRIVILEGES; break;
             case PROJECT_READ : stringRepresentation = STRING_VALUE_PROJECT_READ; break;
             case PROJECTVERSION_READ :
                 stringRepresentation = STRING_VALUE_PROJECTVERSION_READ; break;
@@ -196,14 +194,14 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         private static String URL_SQOOSS_PLUGINADMIN = URL_SQOOSS + ".pluginadmin";
         
         private static final Privilege[] PRIVILEEGS_SECURITY =
-        {Privilege.ALL, Privilege.USER_READ, Privilege.USER_WRITE, Privilege.GROUP_READ};
+        {Privilege.USER_READ, Privilege.USER_WRITE, Privilege.GROUP_READ};
         private static final Privilege[] PRIVILEEGS_DATABASE =
-        {Privilege.ALL, Privilege.PROJECT_READ, Privilege.DIRECTORY_READ,
+        {Privilege.PROJECT_READ, Privilege.DIRECTORY_READ,
             Privilege.DEVELOPER_READ, Privilege.PROJECTVERSION_READ, Privilege.METRICTYPE_READ};
         private static final Privilege[] PRIVILEGES_PLUGINADMIN =
-        {Privilege.ALL, Privilege.METRIC_READ};
+        {Privilege.METRIC_READ};
         private static final Privilege[] PRIVILEGES_WEBADMIN =
-        {Privilege.ALL, Privilege.ADMIN_GET_MESSAGE_OF_THE_DAY, Privilege.ADMIN_NOTIFY};
+        {Privilege.ADMIN_GET_MESSAGE_OF_THE_DAY, Privilege.ADMIN_NOTIFY};
         
         /**
          * @see java.lang.Enum#toString()

@@ -32,7 +32,7 @@
 
 package eu.sqooss.impl.service.security.utils;
 
-public interface SecurityManagerDBQueries {
+public abstract class SecurityManagerDBQueries {
     
     public static final String IS_EXISTENT_RESOURCE_PARAM_URL  = "resource_url";
     
@@ -43,10 +43,10 @@ public interface SecurityManagerDBQueries {
     public static final String IS_EXISTENT_RESOURCE_URL = "select serviceUrl " +
                                                           "from User user, GroupUser groupUser, Group group, " +
                                                           "     GroupPrivilege groupPrivilege, ServiceUrl serviceUrl " +
-                                                          "where user=groupUser.user " +
-                                                          " and group=groupUser.group " +
-                                                          " and group=groupPrivilege.group " +
-                                                          " and serviceUrl=groupPrivilege.url " +
+                                                          "where user.id=groupUser.user.id " +
+                                                          " and group.id=groupUser.group.id " +
+                                                          " and group.id=groupPrivilege.group.id " +
+                                                          " and serviceUrl.id=groupPrivilege.url.id " +
                                                           " and user.name=:" + IS_EXISTENT_RESOURCE_PARAM_USER +
                                                           " and user.password=:" + IS_EXISTENT_RESOURCE_PARAM_PASS +
                                                           " and serviceUrl.url=:" + IS_EXISTENT_RESOURCE_PARAM_URL;
@@ -60,22 +60,27 @@ public interface SecurityManagerDBQueries {
     public static final String CHECK_AUTHORIZATION_RULE_PARAM_USER = "user_name";
     
     public static final String CHECK_AUTHORIZATION_RULE_PARAM_PASS = "password_hash";
-        
-    public static final String CHECK_AUTHORIZATION_RULE = "select groupPrivilege " +
-                                                          "from User user, GroupUser groupUser, Group group, " +
-                                                          "     Privilege privilege, PrivilegeValue privilegeValue, " +
-                                                          "     GroupPrivilege groupPrivilege, ServiceUrl serviceUrl " +
-                                                          "where user=groupUser.user " +
-                                                          " and group=groupUser.group " +
-                                                          " and privilege=privilegeValue.privilege " +
-                                                          " and privilegeValue=groupPrivilege.pv " +
-                                                          " and group=groupPrivilege.group " +
-                                                          " and serviceUrl=groupPrivilege.url " +
-                                                          " and user.name=:" + CHECK_AUTHORIZATION_RULE_PARAM_USER +
-                                                          " and user.password=:" + CHECK_AUTHORIZATION_RULE_PARAM_PASS +
-                                                          " and privilege.description=:" + CHECK_AUTHORIZATION_RULE_PARAM_PR_NAME +
-                                                          " and privilegeValue.value=:" + CHECK_AUTHORIZATION_RULE_PARAM_PR_VALUE +
-                                                          " and serviceUrl.url=:" + CHECK_AUTHORIZATION_RULE_PARAM_URL; 
+    
+    private static final String CHECK_AUTHORIZATION_RULE_BASE = "select groupPrivilege " +
+                                                            "from User user, GroupUser groupUser, Group group, " +
+                                                            "     Privilege privilege, PrivilegeValue privilegeValue, " +
+                                                            "     GroupPrivilege groupPrivilege, ServiceUrl serviceUrl " +
+                                                            "where user=groupUser.user " +
+                                                            " and group=groupUser.group " +
+                                                            " and privilege=privilegeValue.privilege " +
+                                                            " and privilegeValue=groupPrivilege.pv " +
+                                                            " and group=groupPrivilege.group " +
+                                                            " and serviceUrl=groupPrivilege.url " +
+                                                            " and user.name=:" + CHECK_AUTHORIZATION_RULE_PARAM_USER +
+                                                            " and user.password=:" + CHECK_AUTHORIZATION_RULE_PARAM_PASS +
+                                                            " and privilege.description=:" + CHECK_AUTHORIZATION_RULE_PARAM_PR_NAME +
+                                                            " and serviceUrl.url=:" + CHECK_AUTHORIZATION_RULE_PARAM_URL ;
+    
+    public static final String CHECK_AUTHORIZATION_RULE_EQUALITY   = CHECK_AUTHORIZATION_RULE_BASE +
+                                                          " and privilegeValue.value=:" + CHECK_AUTHORIZATION_RULE_PARAM_PR_VALUE;
+    
+    public static final String CHECK_AUTHORIZATION_RULE_INEQUALITY = CHECK_AUTHORIZATION_RULE_BASE +
+                                                          " and privilegeValue.value!=:" + CHECK_AUTHORIZATION_RULE_PARAM_PR_VALUE;
     
 }
 

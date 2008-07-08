@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.security;
 
+import java.util.Hashtable;
+
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupType;
@@ -41,8 +43,8 @@ import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.PrivilegeManager;
-import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.security.SecurityConstants;
+import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.security.ServiceUrlManager;
 import eu.sqooss.service.security.UserManager;
 
@@ -60,6 +62,13 @@ public class SelfTester {
     private static final String TEST_GROUP = "alitheia test";
     private static final String TEST_GROUP_WRONG = "alitheia_test";
     private static final String TEST_SERVICE_URL = "alitheia_test_url";
+    private static final String TEST_PRIVILEGE_READ = "testprivilege" +
+        SecurityConstants.PrivilegeAction.DELIMITER + 
+        SecurityConstants.PrivilegeAction.READ.toString();
+    private static final String TEST_PRIVILEGE_DENY = "testprivilege" +
+        SecurityConstants.PrivilegeAction.DELIMITER + 
+        SecurityConstants.PrivilegeAction.DENY.toString();
+    private static final String TEST_PRIVILEGE_VALUE = "testprivilege_value";
     
     private DBService db;
     private SecurityManager securityManager;
@@ -123,7 +132,7 @@ public class SelfTester {
                 return testResult;
             }
         } catch (Throwable t) {
-            return "Unexpected exception: " + t.getMessage();
+            return "Unexpected exception: " + t.toString();
         } finally {
             if (db.isDBSessionActive()) {
                 db.commitDBSession();
@@ -262,7 +271,7 @@ public class SelfTester {
     }
     
     private String testPrivilegeManagerFail() {
-        String privilege = SecurityConstants.ALL_PRIVILEGES +
+        String privilege = TEST_PRIVILEGE_READ +
         SecurityConstants.PrivilegeAction.DELIMITER;
         try {
             privilegeManager.createPrivilege(privilege);
@@ -271,16 +280,16 @@ public class SelfTester {
             //expected exception
         }
         privilege = SecurityConstants.PrivilegeAction.DELIMITER +
-        SecurityConstants.ALL_PRIVILEGES;
+        TEST_PRIVILEGE_READ;
         try {
             privilegeManager.createPrivilege(privilege);
             return "Can create a privilege with incorrect name: " + privilege;
         } catch (IllegalArgumentException iae) {
             //expected exception
         }
-        privilege = SecurityConstants.ALL_PRIVILEGES +
+        privilege = TEST_PRIVILEGE_READ +
         SecurityConstants.PrivilegeAction.DELIMITER + SecurityConstants.PrivilegeAction.DELIMITER +
-        SecurityConstants.ALL_PRIVILEGES;
+        TEST_PRIVILEGE_READ;
         try {
             privilegeManager.createPrivilege(privilege);
             return "Can create a privilege with incorrect name: " + privilege;
@@ -296,8 +305,8 @@ public class SelfTester {
         PrivilegeValue newPrivilegeValue = null;
         
         try {
-            newPrivilege = privilegeManager.getPrivilege(
-                    SecurityConstants.ALL_PRIVILEGES);
+            newPrivilege = privilegeManager.createPrivilege(
+                    TEST_PRIVILEGE_READ);
             if (newPrivilege == null) {
                 return "Could not create a test privilege!";
             }
@@ -307,7 +316,7 @@ public class SelfTester {
             }
             
             newPrivilegeValue = privilegeManager.createPrivilegeValue(newPrivilege.getId(),
-                    SecurityConstants.ALL_PRIVILEGES);
+                    TEST_PRIVILEGE_VALUE);
             if (newPrivilegeValue == null) {
                 return "Could not create a test privilege value!";
             }
@@ -316,7 +325,7 @@ public class SelfTester {
                 return "The test privilege value isn't created correct!";
             }
         } finally {
-            testClear(null, null, null, null, newPrivilegeValue);
+            testClear(null, null, null, newPrivilege, newPrivilegeValue);
         }
         
         return null;
@@ -333,8 +342,12 @@ public class SelfTester {
             return "Permission granted to the null user!";
         }
         
-        if (!testSecurityManagerCustomRule()) {
-            return "Custom test failed!";
+        if (!testRuleCustomPrivilegeDeny()) {
+            return "Rule with custom privilege deny - failed!";
+        }
+        
+        if (!testRuleCustomPrivilegeRead()) {
+            return "Rule with custom privilege read - failed!";
         }
         
         return null;
@@ -355,74 +368,120 @@ public class SelfTester {
     	
     }
     
-    private boolean testSecurityManagerCustomRule() {
+    private boolean testRuleCustomPrivilegeDeny() {
         User user = null;
         Group group = null;
         ServiceUrl serviceUrl = null;
-        Privilege privilege = null;
-        PrivilegeValue privilegeValue = null;
+        Privilege privilegeRead = null;
+        Privilege privilegeDeny = null;
+        PrivilegeValue privilegeValueDeny = null;
+        PrivilegeValue privilegeValueRead = null;
         try {
+            
+            //create the test objects
             user = userManager.createUser(TEST_USER, TEST_PASS, TEST_MAIL);
             group = groupManager.createGroup(TEST_GROUP, GroupType.Type.USER);
-            serviceUrl = serviceUrlManager.getServiceUrl(
-                    SecurityConstants.URL_SQOOSS);
-            privilege = privilegeManager.getPrivilege(
-                    SecurityConstants.ALL_PRIVILEGES);
-            privilegeValue = privilegeManager.getPrivilegeValue(
-                    privilege.getId(), SecurityConstants.ALL_PRIVILEGE_VALUES);
-
-            if (!groupManager.addUserToGroup(group.getId(), user.getId())) {
-                return false;
-            }
-
-            if (!groupManager.addPrivilegeToGroup(group.getId(), serviceUrl.getId(),
-                    privilegeValue.getId())) {
-                return false;
-            }
-
-            if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS,
-                    null, TEST_USER, TEST_PASS)) {
-                return false;
-            }
+            serviceUrl = serviceUrlManager.createServiceUrl(TEST_SERVICE_URL);
+            privilegeRead = privilegeManager.createPrivilege(TEST_PRIVILEGE_READ);
+            privilegeDeny = privilegeManager.createPrivilege(TEST_PRIVILEGE_DENY);
+            privilegeValueRead = privilegeManager.createPrivilegeValue(privilegeRead.getId(),
+                    Long.toString(user.getId()));
+            privilegeValueDeny = privilegeManager.createPrivilegeValue(privilegeDeny.getId(),
+                    SecurityConstants.ALL_PRIVILEGE_VALUES);
             
+            //create the test relationship
+            groupManager.addUserToGroup(group.getId(), user.getId());
+            securityManager.createSecurityConfiguration(group.getDescription(),
+                    GroupType.Type.USER, privilegeDeny.getDescription(),
+                    privilegeValueDeny.getValue(), serviceUrl.getUrl());
+            securityManager.createSecurityConfiguration(group.getDescription(),
+                    GroupType.Type.USER, privilegeRead.getDescription(),
+                    privilegeValueRead.getValue(), serviceUrl.getUrl());
+            
+            //check the rules
+            Hashtable<String, String> privileges = new Hashtable<String, String>(2);
+            privileges.put(privilegeRead.getDescription(), privilegeValueRead.getValue());
             if (!securityManager.checkPermission(TEST_SERVICE_URL,
-                    null, TEST_USER, TEST_PASS)) {
+                    privileges, TEST_USER, TEST_PASS)) {
+                return false;
+            }
+            //prepare the next rule
+            privileges.clear();
+            privileges.put(privilegeRead.getDescription(), privilegeValueRead.getValue() + '1');
+            if (securityManager.checkPermission(TEST_SERVICE_URL,
+                    privileges, TEST_USER, TEST_PASS)) {
                 return false;
             }
             
-            if (!securityManager.deleteSecurityConfiguration(group.getDescription(),
-                    privilege.getDescription(), privilegeValue.getValue(), serviceUrl.getUrl())) {
-                return false;
-            }
-            
-            if (!securityManager.createSecurityConfiguration(group.getDescription(), GroupType.Type.USER,
-                    privilege.getDescription(), privilegeValue.getValue(), serviceUrl.getUrl())) {
-                return false;
-            }
-            
-            if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS,
-                    null, TEST_USER, TEST_PASS)) {
-                return false;
-            }
-            
-            if (!securityManager.checkPermission(TEST_SERVICE_URL,
-                    null, TEST_USER, TEST_PASS)) {
-                return false;
-            }
-            
-            if (!securityManager.deleteSecurityConfiguration(group.getDescription(),
-                    privilege.getDescription(), privilegeValue.getValue(), serviceUrl.getUrl())) {
-                return false;
-            }
-            
+            //clear
+            securityManager.deleteSecurityConfiguration(group.getDescription(),
+                    privilegeDeny.getDescription(), privilegeValueDeny.getValue(),
+                    serviceUrl.getUrl());
+            privilegeManager.deletePrivilegeValue(privilegeValueDeny.getId());
+            privilegeManager.deletePrivilege(privilegeDeny.getId());
         } finally {
-            testClear(user, group, null, null, null);
+            testClear(user, group, serviceUrl, privilegeRead, privilegeValueRead);
+        }
+        return true;
+    }
+    
+    private boolean testRuleCustomPrivilegeRead() {
+        User user = null;
+        Group group = null;
+        ServiceUrl serviceUrl = null;
+        Privilege privilegeRead = null;
+        Privilege privilegeDeny = null;
+        PrivilegeValue privilegeValueDeny = null;
+        PrivilegeValue privilegeValueRead = null;
+        try {
+            //create the test objects
+            user = userManager.createUser(TEST_USER, TEST_PASS, TEST_MAIL);
+            group = groupManager.createGroup(TEST_GROUP, GroupType.Type.USER);
+            serviceUrl = serviceUrlManager.createServiceUrl(TEST_SERVICE_URL);
+            privilegeRead = privilegeManager.createPrivilege(TEST_PRIVILEGE_READ);
+            privilegeDeny = privilegeManager.createPrivilege(TEST_PRIVILEGE_DENY);
+            privilegeValueRead = privilegeManager.createPrivilegeValue(privilegeRead.getId(),
+                    SecurityConstants.ALL_PRIVILEGE_VALUES);
+            privilegeValueDeny = privilegeManager.createPrivilegeValue(privilegeDeny.getId(),
+                    Long.toString(user.getId()));
+            //create the test relationship
+            groupManager.addUserToGroup(group.getId(), user.getId());
+            securityManager.createSecurityConfiguration(group.getDescription(),
+                    GroupType.Type.USER, privilegeDeny.getDescription(),
+                    privilegeValueDeny.getValue(), serviceUrl.getUrl());
+            securityManager.createSecurityConfiguration(group.getDescription(),
+                    GroupType.Type.USER, privilegeRead.getDescription(),
+                    privilegeValueRead.getValue(), serviceUrl.getUrl());
+            //check the rules
+            Hashtable<String, String> privileges = new Hashtable<String, String>(2);
+            privileges.put(privilegeRead.getDescription(), privilegeValueRead.getValue());
+            if (securityManager.checkPermission(TEST_SERVICE_URL,
+                    privileges, TEST_USER, TEST_PASS)) {
+                return false;
+            }
+            //prepare the next rule
+            privileges.clear();
+            privileges.put(privilegeRead.getDescription(), privilegeValueDeny.getValue() + '1');
+            if (!securityManager.checkPermission(TEST_SERVICE_URL,
+                    privileges, TEST_USER, TEST_PASS)) {
+                return false;
+            }
+            //clear
+            securityManager.deleteSecurityConfiguration(group.getDescription(),
+                    privilegeDeny.getDescription(), privilegeValueDeny.getValue(),
+                    serviceUrl.getUrl());
+            privilegeManager.deletePrivilegeValue(privilegeValueDeny.getId());
+            privilegeManager.deletePrivilege(privilegeDeny.getId());
+        } finally {
+            testClear(user, group, serviceUrl, privilegeRead, privilegeValueRead);
         }
         return true;
     }
     
     private void testClear(User user, Group group, ServiceUrl serviceUrl,
             Privilege privilege, PrivilegeValue privilegeValue) {
+        db.commitDBSession();
+        db.startDBSession();
         if ((serviceUrl != null) && (group != null) && (privilegeValue != null)) {
             groupManager.deletePrivilegeFromGroup(group.getId(),
                     serviceUrl.getId(), privilegeValue.getId());

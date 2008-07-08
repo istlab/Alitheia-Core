@@ -56,6 +56,7 @@ import eu.sqooss.impl.service.security.utils.SecurityManagerDatabase;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.GroupType;
+import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
@@ -330,12 +331,6 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
     }
 
     private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
-        
-        if (dbWrapper.checkAuthorizationRule(resourceUrl, ALL_PRIVILEGES,
-                ALL_PRIVILEGE_VALUES, userName, password)) {
-            return true;
-        }
-
         boolean result = false;
         if ((privileges != null) && (privileges.size() != 0)) {
             String currentPrivilegeName;
@@ -344,19 +339,81 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
             for (Enumeration<String> keys = privileges.keys(); (keys.hasMoreElements() && result); ) {
                 currentPrivilegeName = keys.nextElement();
                 currentPrivilegeValue = privileges.get(currentPrivilegeName);
-                result = result &&
-                       (dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName, 
-                            currentPrivilegeValue, userName, password) ||
-                        dbWrapper.checkAuthorizationRule(resourceUrl, ALL_PRIVILEGES, 
-                            currentPrivilegeValue, userName, password) ||
-                        dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilegeName,
-                            ALL_PRIVILEGE_VALUES, userName, password));
+                result &= checkPrivilege(resourceUrl, currentPrivilegeName,
+                        currentPrivilegeValue, userName, password);
             }
         }
         
         return result;
     }
 
+    private boolean checkPrivilege(String resourceUrl, String privilegeDesc,
+            String privilegeValue, String userName, String password) {
+        if (privilegeValue == null) {
+            return false;
+        }
+        
+        Privilege privilege = privilegeManager.getPrivilege(privilegeDesc);
+        if (privilege == null) {
+            return false;
+        }
+        
+        User user = userManager.getUser(userName);
+        if (user == null) {
+            return false;
+        }
+        
+        int delimiterIndex = privilegeDesc.indexOf(
+                SecurityConstants.PrivilegeAction.DELIMITER);
+        String privilegeObjectWithDelim = privilegeDesc.substring(0, delimiterIndex + 1);
+        String privilegeAction = privilegeDesc.substring(delimiterIndex + 1);
+        String privilegeDeny = privilegeObjectWithDelim +
+            SecurityConstants.PrivilegeAction.DENY.toString();
+        //in case of all privilege values
+        if (SecurityConstants.ALL_PRIVILEGE_VALUES.equals(privilegeValue)) {
+            //something different from deny
+            if (!SecurityConstants.PrivilegeAction.DENY.toString().equals(privilegeAction)) {
+                //check deny specific rule
+                if (dbWrapper.checkAuthorizationRule(resourceUrl, privilegeDeny,
+                        privilegeValue, userName, password, false)) {
+                    return false;
+                } else {
+                    //if not deny then check the privilege rule
+                    return dbWrapper.checkAuthorizationRule(resourceUrl, privilegeDesc,
+                            privilegeValue, userName, password, true);
+                }
+            } else {
+                //in case of deny - check others
+                PrivilegeAction[] privActions = SecurityConstants.PrivilegeAction.values();
+                String currentPrivilege;
+                for (int i = 0; i < privActions.length; i++) {
+                    if (privActions[i] != SecurityConstants.PrivilegeAction.DENY) {
+                        currentPrivilege = privilegeObjectWithDelim +
+                                           privActions[i].toString();
+                        if (dbWrapper.checkAuthorizationRule(resourceUrl, currentPrivilege,
+                                privilegeValue, userName, password, false)) {
+                            return false;
+                        }
+                    }
+                }
+                return dbWrapper.checkAuthorizationRule(resourceUrl, privilegeDesc,
+                        privilegeValue, userName, password, true);
+            }
+        } else {
+            //check the specific value
+            if (dbWrapper.checkAuthorizationRule(resourceUrl, privilegeDesc,
+                            privilegeValue, userName, password, true)) {
+                return true;
+            } else {
+                //check all and not denied
+                return (dbWrapper.checkAuthorizationRule(resourceUrl, privilegeDesc,
+                        SecurityConstants.ALL_PRIVILEGE_VALUES, userName, password, true) &&
+                        !dbWrapper.checkAuthorizationRule(resourceUrl, privilegeDeny,
+                                privilegeValue, userName, password, true));
+            }
+        }
+    }
+    
     private static String parseFullUrl(String fullUrl, Dictionary<String, String> privileges) {
         int resourceDelimiterIndex = fullUrl.indexOf(
                 SecurityConstants.URL_DELIMITER_RESOURCE);
