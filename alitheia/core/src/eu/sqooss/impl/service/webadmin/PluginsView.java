@@ -181,21 +181,6 @@ public class PluginsView extends AbstractView{
                                     + " Check log for details.");
                         }
                     } 
-                    // =======================================================
-                    // 
-                    // =======================================================
-                    else if (reqValAction.equals(actValSync)) {
-                    	 if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
-                             e.append("Plug-in info cannot be retrieved."
-                                     + " Check log for details.");
-                         }
-                    	 
-                    	 if (sobjPA.getPlugin(sobjPA.getPluginInfo(reqValHashcode)) == null) {
-                    		 e.append("Plug-in service cannot be retrieved."
-                                     + " Check log for details.");
-                    	 }
-                    	compMA.syncMetrics(sobjPA.getPlugin(sobjPA.getPluginInfo(reqValHashcode)));
-                    }
                 }
                 // Retrieve the selected plug-in's info object
                 if (reqValHashcode != null) {
@@ -204,9 +189,15 @@ public class PluginsView extends AbstractView{
                 // Plug-in info based actions
                 if ((selPI != null) && (selPI.installed)) {
                     // =======================================================
+                    // Plug-in synchronize (on all projects) request
+                    // =======================================================
+                    if (reqValAction.equals(actValSync)) {
+                        compMA.syncMetrics(sobjPA.getPlugin(selPI));
+                    }
+                    // =======================================================
                     // Plug-in's configuration property removal
                     // =======================================================
-                    if (reqValAction.equals(actValConRemProp)) {
+                    else if (reqValAction.equals(actValConRemProp)) {
                         if (selPI.hasConfProp(
                                 reqValPropName, reqValPropType)) {
                             try {
@@ -529,6 +520,19 @@ public class PluginsView extends AbstractView{
                             + "document.getElementById('"
                             + reqParAction + "').value='"
                             + actValUninstall + "';"
+                            + "document.getElementById('"
+                            + reqParHashcode +"').value='"
+                            + selPI.getHashcode() + "';"
+                            + "document.metrics.submit();\""
+                            + ">\n");
+                    b.append(sp(in) + "<input type=\"button\""
+                            + " class=\"install\""
+                            + " style=\"width: 100px;\""
+                            + " value=\"Synchronise\""
+                            + " onclick=\"javascript:"
+                            + "document.getElementById('"
+                            + reqParAction + "').value='"
+                            + actValSync + "';"
                             + "document.getElementById('"
                             + reqParHashcode +"').value='"
                             + selPI.getHashcode() + "';"
