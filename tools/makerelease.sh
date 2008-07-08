@@ -57,7 +57,7 @@ check_required_files()
 cleanup_cruft()
 {
 	echo "# Cleaning up source tree ..."
-	rm -rf `svn st --no-ignore | awk '/^[?I]/{print $2}`
+	rm -rf `svn st --no-ignore | awk '/^[?I]/{print $2}'`
 	svn revert --recursive `svn st --no-ignore | awk '/^[!CM]/{print $2}'`
 }
 
