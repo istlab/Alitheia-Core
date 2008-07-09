@@ -156,7 +156,7 @@ div.winToolbar {
 }
 div.winContent {
     padding: 0.5em;
-    max-height: 30em;
+    max-height: 680px;
     overflow: auto;
 }
 div.winFooter {

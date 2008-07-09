@@ -33,6 +33,8 @@
 
 package eu.sqooss.webui.view;
 
+import java.awt.Color;
+import java.awt.Paint;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,7 +74,9 @@ public class DevelopersResultView extends ListView {
      */
     private ArrayList<Project> compProjects = new ArrayList<Project>();
     
-    public File tempFolder; 
+    public File tempFolder;
+    
+    private int chartType = 2;
 
     /**
      * Instantiates a new <code>DevelopersResultView</code> object, and
@@ -88,6 +92,10 @@ public class DevelopersResultView extends ListView {
     public void addProject(Project compProject) {
         if ((compProject != null) && (compProject.isValid()))
             this.compProjects.add(compProject);
+    }
+
+    public void setChartType(int chartType) {
+        this.chartType = chartType;
     }
 
     /* (non-Javadoc)
@@ -142,46 +150,24 @@ public class DevelopersResultView extends ListView {
                         + "</td>\n");
                 b.append(sp(--in) + "</thead>\n");
                 b.append(sp(--in) + "</table>\n");
-                //------------------------------------------------------------
-                // Table header
-                //------------------------------------------------------------
-                b.append(sp(in++) + "<table"
-                        + " style=\"margin-top: 0;\">\n");
-                b.append(sp(in++) + "<thead>\n");
-                b.append(sp(in++) + "<tr class=\"head\">\n");
-                b.append(sp(in) + "<td class=\"head\" style=\"width: 50%;\">"
-                        + "Username</td>\n");
-                b.append(sp(in) + "<td class=\"head\" style=\"width: 50%;\">"
-                        + "Result</td>\n");
-                b.append(sp(--in) + "</tr>\n");
-                b.append(sp(--in) + "</thead>\n");
-                //------------------------------------------------------------
-                // Display the metric's result for each developer
-                //------------------------------------------------------------
-                Map<String, Double> chartValues = new HashMap<String, Double>();
-                for (Developer nextDeveloper : developers.values()) {
-                    b.append(sp(in++) + "<tr>\n");
-                    b.append(sp(in) + "<td class=\"name\">"
-                            + nextDeveloper.getUsername()
-                            + "</td>\n");
-                    Result result =
-                        nextDeveloper.getResults().get(nextMnemonic);
-                    String resultValue = "N/A";
-                    if (result != null) {
-                        result.setSettings(this.settings);
-                        resultValue = result.getHtml(in);
-                        chartValues.put(nextDeveloper.getUsername(), new Double(result.getString()));
-                    }
-                    b.append(sp(in) + "<td>" + resultValue + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
-                b.append(sp(--in) + "</table>\n");
-                if (chartValues.isEmpty() == false) {
-                    String chartFile = pieChart(chartValues);
+
+                switch (chartType) {
+                case 4:
+                    String chartFile = pieChart(in, nextMnemonic, developers);
                     if (chartFile != null) {
-                        b.append(sp(in)
-                                + "<img src=\"/tmp/" + chartFile + "\">");
+                        b.append(sp(in++) + "<table"
+                                + " style=\"margin-top: 0;\">\n");
+                        b.append(sp(in++) + "</tr>\n");
+                        b.append(sp(in) + "<td style=\"text-align: center; padding: 0.5 em; background-color: 99FF66;\">" 
+                                + "<img src=\"/tmp/" + chartFile + "\">" 
+                                + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                        b.append(sp(--in) + "</table>\n");
                     }
+                    break;
+                default:
+                    b.append(tableChart(in, nextMnemonic, developers));
+                    break;
                 }
             }
             b.append(sp(--in) + "</div>\n");
@@ -189,20 +175,75 @@ public class DevelopersResultView extends ListView {
         return b.toString();
     }
 
-    public String pieChart (Map<String, Double> values) {
+    public String tableChart(
+            long in, String mnemonic, Map<Long, Developer> developers) {
+        // Holds the accumulated HTML content
+        StringBuilder b = new StringBuilder("");
+        //------------------------------------------------------------
+        // Table header
+        //------------------------------------------------------------
+        b.append(sp(in++) + "<table"
+                + " style=\"margin-top: 0;\">\n");
+        b.append(sp(in++) + "<thead>\n");
+        b.append(sp(in++) + "<tr class=\"head\">\n");
+        b.append(sp(in) + "<td class=\"head\" style=\"width: 50%;\">"
+                + "Username</td>\n");
+        b.append(sp(in) + "<td class=\"head\" style=\"width: 50%;\">"
+                + "Result</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+        b.append(sp(--in) + "</thead>\n");
+        //------------------------------------------------------------
+        // Display the metric's result for each developer
+        //------------------------------------------------------------
+        for (Developer nextDeveloper : developers.values()) {
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in) + "<td class=\"name\">"
+                    + nextDeveloper.getUsername()
+                    + "</td>\n");
+            Result result =
+                nextDeveloper.getResults().get(mnemonic);
+            String resultValue = "N/A";
+            if (result != null) {
+                result.setSettings(this.settings);
+                resultValue = result.getHtml(in);
+            }
+            b.append(sp(in) + "<td>" + resultValue + "</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+        }
+        b.append(sp(--in) + "</table>\n");
+        return b.toString();
+    }
+
+    public String pieChart(
+            long in, String mnemonic, Map<Long, Developer> developers) {
         DefaultPieDataset data = new DefaultPieDataset();
         JFreeChart chart;
-        for (String nextValue : values.keySet())
-        data.setValue(nextValue, values.get(nextValue));
-        chart = ChartFactory.createPieChart(
-                null, data, true, true, settings.getUserLocale());
-        try {
-            File tmpFile = File.createTempFile("img", "png", tempFolder);
-            ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
-            return tmpFile.getName();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        // Retrieve the chart values
+        Map<String, Double> values = new HashMap<String, Double>();
+        for (Developer nextDeveloper : developers.values()) {
+            Result result =
+                nextDeveloper.getResults().get(mnemonic);
+            if (result != null) {
+                values.put(
+                        nextDeveloper.getUsername(),
+                        new Double(result.getString()));
+            }
+        }
+        // Generate the chart and save it into a file
+        if (values.size() > 0) {
+            for (String nextValue : values.keySet())
+                data.setValue(nextValue, values.get(nextValue));
+            chart = ChartFactory.createPieChart(
+                    null, data, true, true, settings.getUserLocale());
+            chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+            try {
+                File tmpFile = File.createTempFile("img", "png", tempFolder);
+                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
+                return tmpFile.getName();
+            }
+            catch (IOException e) {
+                // Do nothing
+            }
         }
         return null;
     }

@@ -70,15 +70,40 @@ if (selectedProject.isValid()) {
               <tr>
                 <td valign="top" style="width: 100%; padding-top: 0;">
 <%
+        List<WinIcon> toolbar = new ArrayList<WinIcon>();
+        // Table chart icon
+        WinIcon icoChart = new WinIcon();
+        icoChart.setPath(request.getServletPath());
+        icoChart.setParameter("chart");
+        icoChart.setValue("2");
+        icoChart.setImage("/img/icons/16x16/table-chart.png");
+        icoChart.setAlt("Tabular");
+        toolbar.add(icoChart);
+        // Pie chart icon
+        icoChart = new WinIcon();
+        icoChart.setPath(request.getServletPath());
+        icoChart.setParameter("chart");
+        icoChart.setValue("4");
+        icoChart.setImage("/img/icons/16x16/pie-chart.png");
+        icoChart.setAlt("Pie chart");
+        toolbar.add(icoChart);
         // Prepare the developers results view
         DevelopersResultView devResultsView =
             new DevelopersResultView(selectedProject);
         devResultsView.setSettings(settings);
         devResultsView.setTerrier(terrier);
         devResultsView.tempFolder = tempFolder;
+        if (request.getParameter("chart") != null) {
+            Long chartType = strToLong(request.getParameter("chart"));
+            if (chartType != null)
+                devResultsView.setChartType(chartType.intValue());
+        }
+        winContent = devResultsView.getHtml(in + 2);
         // Display the window
-        out.println(Functions.simpleWindow(in, "Evaluation results",
-            devResultsView.getHtml(in)));
+        winTitle = "Evaluation results";
+        out.println(Functions.interactiveWindow(in,
+            winTitle, winContent, null,
+            null, toolbar.toArray(new WinIcon[toolbar.size()])));
     }
 %>                </td>
               </tr>
