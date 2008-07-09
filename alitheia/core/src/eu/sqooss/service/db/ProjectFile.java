@@ -342,7 +342,7 @@ public class ProjectFile extends DAObject{
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramTimestamp, version.getTimestamp());
-        parameters.put(paramProjectId, version.getProject());
+        parameters.put(paramProjectId, version.getProject().getId());
 
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles==null) {
@@ -422,21 +422,27 @@ public class ProjectFile extends DAObject{
         String paramVersion = "version_id";
         String paramProjectId = "project_id";
         String paramFilter = "filter";
-        
-        String query = "select pf " +
-                       "from ProjectFile pf " +
-                       "where pf.dir.path||'/'||pf.name like :" + paramFilter +
-                       " and ( pf.projectVersion.version, pf.name ) " +
-                       "in ( " +
-                       "    select max( pf2.projectVersion.version ), pf2.name from ProjectFile pf2 " +
-                       "    where pf2.projectVersion.project.id=:" + paramProjectId +
-                       "    and pf2.projectVersion.version <=:" + paramVersion +
-                       "    group by pf2.name " +
-                       ") " +
-                       "and pf.status <> 'DELETED'";
+        String paramTimestamp = "timestamp";
+     
+        String query = "select pf1 " +
+            "from ProjectFile pf1, ProjectVersion pv1 " +
+            "where  pf1.projectVersion = pv1 " +
+            " and pf1.status<>'DELETED' " +
+            " and pv1.project.id = :" + paramProjectId +
+            " and pf1.dir.path||'/'||pf1.name like :" + paramFilter +
+            " and pv1.timestamp = ( " +
+            "    select max(pv.timestamp) " + 
+            "    from ProjectFile pf, ProjectVersion pv " +
+            "    where pf.projectVersion=pv " + 
+            "    and pv.timestamp <= :" +  paramTimestamp +
+            "    and pf.dir = pf1.dir " + 
+            "    and pf.name = pf1.name " +
+            "    and pv.project = pv1.project )";
 
+        
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramVersion, version.getVersion());
+        parameters.put(paramTimestamp, version.getTimestamp());
         parameters.put(paramProjectId, version.getProject().getId());
         parameters.put(paramFilter, "%" + filter + "%");
         
