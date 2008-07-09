@@ -45,7 +45,12 @@ import java.util.Map;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.ui.RectangleInsets;
+
+
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
@@ -151,19 +156,37 @@ public class DevelopersResultView extends ListView {
                 b.append(sp(--in) + "</thead>\n");
                 b.append(sp(--in) + "</table>\n");
 
+                String chartFile = null;
                 switch (chartType) {
                 case 4:
-                    String chartFile = pieChart(in, nextMnemonic, developers);
-                    if (chartFile != null) {
-                        b.append(sp(in++) + "<table"
-                                + " style=\"margin-top: 0;\">\n");
-                        b.append(sp(in++) + "</tr>\n");
-                        b.append(sp(in) + "<td style=\"text-align: center; padding: 0.5 em; background-color: #DDFFFF;\">" 
-                                + "<img src=\"/tmp/" + chartFile + "\">" 
-                                + "</td>\n");
-                        b.append(sp(--in) + "</tr>\n");
-                        b.append(sp(--in) + "</table>\n");
-                    }
+                    chartFile = pieChart(in, nextMnemonic, developers);
+                    b.append(sp(in++) + "<table"
+                            + " style=\"margin-top: 0;\">\n");
+                    b.append(sp(in++) + "</tr>\n");
+                    b.append(sp(in) + "<td class=\"chart\">");
+                    if (chartFile != null)
+                        b.append("<img src=\"/tmp/" + chartFile + "\">");
+                    else
+                        b.append(Functions.information(
+                                "Inapplicable result type."));
+                    b.append("</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</table>\n");
+                    break;
+                case 8:
+                    chartFile = barChart(in, nextMnemonic, developers);
+                    b.append(sp(in++) + "<table"
+                            + " style=\"margin-top: 0;\">\n");
+                    b.append(sp(in++) + "</tr>\n");
+                    b.append(sp(in) + "<td class=\"chart\">");
+                    if (chartFile != null)
+                        b.append("<img src=\"/tmp/" + chartFile + "\">");
+                    else
+                        b.append(Functions.information(
+                                "Inapplicable result type."));
+                    b.append("</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</table>\n");
                     break;
                 default:
                     b.append(tableChart(in, nextMnemonic, developers));
@@ -224,9 +247,14 @@ public class DevelopersResultView extends ListView {
             Result result =
                 nextDeveloper.getResults().get(mnemonic);
             if (result != null) {
-                values.put(
-                        nextDeveloper.getUsername(),
-                        new Double(result.getString()));
+                try {
+                    values.put(
+                            nextDeveloper.getUsername(),
+                            new Double(result.getString()));
+                }
+                catch (NumberFormatException ex) {
+                    return null;
+                }
             }
         }
         // Generate the chart and save it into a file
@@ -236,6 +264,50 @@ public class DevelopersResultView extends ListView {
             chart = ChartFactory.createPieChart(
                     null, data, true, true, settings.getUserLocale());
             chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+            chart.setPadding(RectangleInsets.ZERO_INSETS);
+            try {
+                File tmpFile = File.createTempFile("img", "png", tempFolder);
+                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
+                return tmpFile.getName();
+            }
+            catch (IOException e) {
+                // Do nothing
+            }
+        }
+        return null;
+    }
+
+    public String barChart(
+            long in, String mnemonic, Map<Long, Developer> developers) {
+        DefaultCategoryDataset data = new DefaultCategoryDataset();
+        JFreeChart chart;
+        // Retrieve the chart values
+        Map<String, Double> values = new HashMap<String, Double>();
+        for (Developer nextDeveloper : developers.values()) {
+            Result result =
+                nextDeveloper.getResults().get(mnemonic);
+            if (result != null) {
+                try {
+                    values.put(
+                            nextDeveloper.getUsername(),
+                            new Double(result.getString()));
+                }
+                catch (NumberFormatException ex) {
+                    return null;
+                }
+            }
+        }
+        // Generate the chart and save it into a file
+        if (values.size() > 0) {
+            for (String nextValue : values.keySet())
+                data.addValue(values.get(nextValue), nextValue, nextValue);
+            chart = ChartFactory.createBarChart3D(
+                    null,
+                    "Developer", mnemonic,
+                    data, PlotOrientation.VERTICAL,
+                    true, true, false);
+            chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+            chart.setPadding(RectangleInsets.ZERO_INSETS);
             try {
                 File tmpFile = File.createTempFile("img", "png", tempFolder);
                 ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);

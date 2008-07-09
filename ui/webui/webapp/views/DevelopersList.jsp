@@ -87,6 +87,14 @@ if (selectedProject.isValid()) {
         icoChart.setImage("/img/icons/16x16/pie-chart.png");
         icoChart.setAlt("Pie chart");
         toolbar.add(icoChart);
+        // Bar chart icon
+        icoChart = new WinIcon();
+        icoChart.setPath(request.getServletPath());
+        icoChart.setParameter("chart");
+        icoChart.setValue("8");
+        icoChart.setImage("/img/icons/16x16/bar-chart.png");
+        icoChart.setAlt("Bar chart");
+        toolbar.add(icoChart);
         // Prepare the developers results view
         DevelopersResultView devResultsView =
             new DevelopersResultView(selectedProject);
