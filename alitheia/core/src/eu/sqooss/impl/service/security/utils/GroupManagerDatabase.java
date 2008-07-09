@@ -103,10 +103,10 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
     
     public boolean addPrivilegeToGroup(long groupId, long urlId, long privilegeValueId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(3);
-        queryParameters.put(ADD_PRIVILEGE_TO_GROUP_PARAM_GROUP_ID, groupId);
-        queryParameters.put(ADD_PRIVILEGE_TO_GROUP_PARAM_PRIV_VALUE_ID, privilegeValueId);
-        queryParameters.put(ADD_PRIVILEGE_TO_GROUP_PARAM_URL_ID, urlId);
-        if (!db.doHQL(ADD_PRIVILEGE_TO_GROUP, queryParameters).isEmpty()) {
+        queryParameters.put(GET_GROUP_PRIVILEGE_PARAM_GROUP_ID, groupId);
+        queryParameters.put(GET_GROUP_PRIVILEGE_PARAM_PRIV_VALUE_ID, privilegeValueId);
+        queryParameters.put(GET_GROUP_PRIVILEGE_PARAM_URL_ID, urlId);
+        if (!db.doHQL(GET_GROUP_PRIVILEGE, queryParameters).isEmpty()) {
             return true;
         }
         Group group = db.findObjectById(Group.class, groupId);
@@ -129,11 +129,18 @@ public class GroupManagerDatabase implements GroupManagerDBQueries {
                 privilegeValueId);
         ServiceUrl serviceUrl = db.findObjectById(ServiceUrl.class, urlId);
         if ((group != null) && (privilegeValue != null) && (serviceUrl != null)) {
-            GroupPrivilege groupPrivilege = new GroupPrivilege();
-            groupPrivilege.setGroup(group);
-            groupPrivilege.setPv(privilegeValue);
-            groupPrivilege.setUrl(serviceUrl);
-            return db.deleteAssociation(groupPrivilege);
+            Map<String, Object> queryParameters = new Hashtable<String, Object>(3);
+            queryParameters.put(GET_GROUP_PRIVILEGE_PARAM_GROUP_ID, groupId);
+            queryParameters.put(GET_GROUP_PRIVILEGE_PARAM_PRIV_VALUE_ID, privilegeValueId);
+            queryParameters.put(GET_GROUP_PRIVILEGE_PARAM_URL_ID, urlId);
+            List<?> groupPrivileges = db.doHQL(GET_GROUP_PRIVILEGE, queryParameters);
+            if (!groupPrivileges.isEmpty()) {
+                GroupPrivilege groupPrivilege = (GroupPrivilege) groupPrivileges.get(0);
+                return (db.deleteAssociation(groupPrivilege) &&
+                        group.getGroupPrivileges().remove(groupPrivilege) &&
+                        privilegeValue.getGroupPrivileges().remove(groupPrivilege) &&
+                        serviceUrl.getGroupPrivileges().remove(groupPrivilege));
+            }
         }
         return false;
     }
