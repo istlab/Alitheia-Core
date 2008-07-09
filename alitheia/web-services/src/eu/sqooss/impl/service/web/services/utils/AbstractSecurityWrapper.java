@@ -71,7 +71,7 @@ public class AbstractSecurityWrapper implements SecurityWrapperConstants {
                 }
             }
             return security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     

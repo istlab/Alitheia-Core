@@ -37,6 +37,9 @@ import java.io.PrintWriter;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
@@ -193,33 +196,36 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
     /**
      * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean checkPermission(String fullUrl, String userName, String password) {
-        Dictionary<String, String> privileges = new Hashtable<String, String>();
+    public Map<String, String> checkPermission(String fullUrl, String userName, String password) {
+        Map<String, String> privileges = new Hashtable<String, String>();
         String resourceUrl;
         try {
             resourceUrl = parseFullUrl(fullUrl, privileges);
         } catch (RuntimeException re) {
             logger.warn("The url isn't correct! url: " + fullUrl);
-            return false;
+            privileges.clear();
+            return privileges;
         }
         return checkPermission(resourceUrl, privileges, userName, password);
     }
 
     /**
-     * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.util.Dictionary, java.lang.String, java.lang.String)
+     * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.util.Map, java.lang.String, java.lang.String)
      */
-    public boolean checkPermission(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
+    public Map<String, String> checkPermission(String resourceUrl, Map<String, String> privileges, String userName, String password) {
         
         logger.debug("Check Permission! resourceUrl: " + resourceUrl + "; user name: " + userName);
 
         if (!isEnable) {
-        	return true;
+        	return privileges;
         }
         
         String passwordHash = userManager.getHash(password);
         
+        Map<String, String> result = new Hashtable<String, String>();
+        
         if ((resourceUrl == null) || (userName == null) || (passwordHash == null)) {
-            return false;
+            return result;
         }
         
         boolean isDBSessionActive = db.isDBSessionActive();
@@ -229,20 +235,21 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
         
         try {
             if (dbWrapper.isExistentResourceUrl(resourceUrl, userName, passwordHash)) {
-                return checkPermissionPrivileges(resourceUrl, privileges, userName, passwordHash);
+                result = checkPermissionPrivileges(resourceUrl, privileges, userName, passwordHash);
             } else if (dbWrapper.isExistentResourceUrl(URL_SQOOSS, userName, passwordHash)) {
-                return checkPermissionPrivileges(URL_SQOOSS, privileges, userName, passwordHash);
+                result = checkPermissionPrivileges(URL_SQOOSS, privileges, userName, passwordHash);
             } else {
-                return false; //there aren't privileges
+                //return empty result
             }
         } catch (RuntimeException re) {
             logger.warn(re.getMessage());
-            return false;
+            //return empty result
         } finally {
             if ((!isDBSessionActive) && db.isDBSessionActive()) {
                 db.commitDBSession();
             }
         }
+        return result;
     }
 
     /**
@@ -330,17 +337,20 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
                 userServiceUrl.getId(), userPrivilegeValue.getId());
     }
 
-    private boolean checkPermissionPrivileges(String resourceUrl, Dictionary<String, String> privileges, String userName, String password) {
-        boolean result = false;
+    private Map<String, String> checkPermissionPrivileges(String resourceUrl, Map<String, String> privileges, String userName, String password) {
+        Map<String, String> result = new Hashtable<String, String>(); 
         if ((privileges != null) && (privileges.size() != 0)) {
             String currentPrivilegeName;
             String currentPrivilegeValue;
-            result = true;
-            for (Enumeration<String> keys = privileges.keys(); (keys.hasMoreElements() && result); ) {
-                currentPrivilegeName = keys.nextElement();
+            Set<String> keySet = privileges.keySet();
+            Iterator<String> keyIterator = keySet.iterator();
+            while (keyIterator.hasNext()) {
+                currentPrivilegeName = keyIterator.next();
                 currentPrivilegeValue = privileges.get(currentPrivilegeName);
-                result &= checkPrivilege(resourceUrl, currentPrivilegeName,
-                        currentPrivilegeValue, userName, password);
+                if (checkPrivilege(resourceUrl, currentPrivilegeName,
+                        currentPrivilegeValue, userName, password)) {
+                    result.put(currentPrivilegeName, currentPrivilegeValue);
+                }
             }
         }
         
@@ -414,7 +424,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
         }
     }
     
-    private static String parseFullUrl(String fullUrl, Dictionary<String, String> privileges) {
+    private static String parseFullUrl(String fullUrl, Map<String, String> privileges) {
         int resourceDelimiterIndex = fullUrl.indexOf(
                 SecurityConstants.URL_DELIMITER_RESOURCE);
         if (resourceDelimiterIndex == -1) {

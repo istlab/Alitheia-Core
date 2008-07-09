@@ -32,7 +32,7 @@
 
 package eu.sqooss.service.security;
 
-import java.util.Dictionary;
+import java.util.Map;
 
 import eu.sqooss.service.db.GroupType;
 
@@ -58,7 +58,7 @@ public interface SecurityManager {
      *   granted for that resource with the specified user account,
      *   or <code>false</code> otherwise.
      */
-    public boolean checkPermission(
+    public Map<String, String> checkPermission(
             String fullURL,
             String userName,
             String password);
@@ -80,9 +80,9 @@ public interface SecurityManager {
      *   granted for that resource with the specified user account,
      *   or <code>false</code> otherwise.
      */
-    public boolean checkPermission(
+    public Map<String, String> checkPermission(
             String resourceUrl,
-            Dictionary<String, String> privileges,
+            Map<String, String> privileges,
             String userName,
             String password);
 

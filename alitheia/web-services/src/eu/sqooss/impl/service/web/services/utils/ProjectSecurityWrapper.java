@@ -51,7 +51,7 @@ public class ProjectSecurityWrapper extends AbstractSecurityWrapper{
                         Long.toString(directoryId));
             }
             return security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     
@@ -64,7 +64,7 @@ public class ProjectSecurityWrapper extends AbstractSecurityWrapper{
                         Long.toString(developerId));
             }
             return security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     
@@ -82,7 +82,7 @@ public class ProjectSecurityWrapper extends AbstractSecurityWrapper{
                 }
             }
             return security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     

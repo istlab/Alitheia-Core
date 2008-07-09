@@ -83,7 +83,7 @@ public class UserSecurityWrapper extends AbstractSecurityWrapper{
                 }
             }
             return security.checkPermission(ServiceUrl.SECURITY.toString(),
-                    privileges, userNameForAccess, passwordForAccess);
+                    privileges, userNameForAccess, passwordForAccess).equals(privileges);
         }
     }
     
@@ -102,7 +102,7 @@ public class UserSecurityWrapper extends AbstractSecurityWrapper{
                         Long.toString(userId));
             }
             return security.checkPermission(ServiceUrl.SECURITY.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     
@@ -111,7 +111,7 @@ public class UserSecurityWrapper extends AbstractSecurityWrapper{
             privileges.clear();
             privileges.put(Privilege.GROUP_READ.toString(), PrivilegeValue.ALL.toString());
             return security.checkPermission(ServiceUrl.SECURITY.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     
@@ -123,7 +123,7 @@ public class UserSecurityWrapper extends AbstractSecurityWrapper{
             privileges.put(Privilege.ADMIN_GET_MESSAGE_OF_THE_DAY.toString(),
                     Long.toString(user.getId()));
             return security.checkPermission(ServiceUrl.WEBADMIN.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     
@@ -135,7 +135,7 @@ public class UserSecurityWrapper extends AbstractSecurityWrapper{
             privileges.put(Privilege.ADMIN_NOTIFY.toString(),
                     Long.toString(user.getId()));
             return security.checkPermission(ServiceUrl.WEBADMIN.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     

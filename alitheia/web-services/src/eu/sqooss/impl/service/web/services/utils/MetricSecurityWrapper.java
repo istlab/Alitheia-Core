@@ -51,7 +51,7 @@ public class MetricSecurityWrapper extends AbstractSecurityWrapper{
                         Long.toString(metricTypeId));
             }
             return security.checkPermission(ServiceUrl.DATABASE.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     
@@ -61,7 +61,7 @@ public class MetricSecurityWrapper extends AbstractSecurityWrapper{
             privileges.put(Privilege.METRIC_READ.toString(),
                     PrivilegeValue.ALL.toString());
             return security.checkPermission(ServiceUrl.PLUGINADMIN.toString(),
-                    privileges, userName, password);
+                    privileges, userName, password).equals(privileges);
         }
     }
     

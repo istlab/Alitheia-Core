@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.security;
 
 import java.util.Hashtable;
+import java.util.Map;
 
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Group;
@@ -334,11 +335,11 @@ public class SelfTester {
     
     private String testSecurityManager() {
         
-        if (securityManager.checkPermission("lfkdsjflksj", "user-fdkhfkj", "pass-hfjksdhf")) {
+        if (!securityManager.checkPermission("lfkdsjflksj", "user-fdkhfkj", "pass-hfjksdhf").isEmpty()) {
             return "Permission granted to the faked user!";
         }
         
-        if (securityManager.checkPermission(SecurityConstants.URL_SQOOSS, null, null)) {
+        if (!securityManager.checkPermission(SecurityConstants.URL_SQOOSS, null, null).isEmpty()) {
             return "Permission granted to the null user!";
         }
         
@@ -399,17 +400,23 @@ public class SelfTester {
                     privilegeValueRead.getValue(), serviceUrl.getUrl());
             
             //check the rules
-            Hashtable<String, String> privileges = new Hashtable<String, String>(2);
+            Map<String, String> privileges = new Hashtable<String, String>(2);
+            Map<String, String> filteredPrivileges = new Hashtable<String, String>(2);
+            
             privileges.put(privilegeRead.getDescription(), privilegeValueRead.getValue());
-            if (!securityManager.checkPermission(TEST_SERVICE_URL,
-                    privileges, TEST_USER, TEST_PASS)) {
+            
+            filteredPrivileges = securityManager.checkPermission(TEST_SERVICE_URL,
+                    privileges, TEST_USER, TEST_PASS);
+            if (!filteredPrivileges.equals(privileges)) {
                 return false;
             }
             //prepare the next rule
             privileges.clear();
             privileges.put(privilegeRead.getDescription(), privilegeValueRead.getValue() + '1');
-            if (securityManager.checkPermission(TEST_SERVICE_URL,
-                    privileges, TEST_USER, TEST_PASS)) {
+            
+            filteredPrivileges = securityManager.checkPermission(TEST_SERVICE_URL,
+                    privileges, TEST_USER, TEST_PASS); 
+            if (filteredPrivileges.equals(privileges)) {
                 return false;
             }
             
@@ -453,17 +460,22 @@ public class SelfTester {
                     GroupType.Type.USER, privilegeRead.getDescription(),
                     privilegeValueRead.getValue(), serviceUrl.getUrl());
             //check the rules
-            Hashtable<String, String> privileges = new Hashtable<String, String>(2);
+            Map<String, String> privileges = new Hashtable<String, String>(2);
+            Map<String, String> filteredPrivileges = new Hashtable<String, String>(2);
             privileges.put(privilegeRead.getDescription(), privilegeValueRead.getValue());
-            if (securityManager.checkPermission(TEST_SERVICE_URL,
-                    privileges, TEST_USER, TEST_PASS)) {
+            
+            filteredPrivileges = securityManager.checkPermission(TEST_SERVICE_URL,
+                    privileges, TEST_USER, TEST_PASS);
+            if (filteredPrivileges.equals(privileges)) {
                 return false;
             }
             //prepare the next rule
             privileges.clear();
             privileges.put(privilegeRead.getDescription(), privilegeValueDeny.getValue() + '1');
-            if (!securityManager.checkPermission(TEST_SERVICE_URL,
-                    privileges, TEST_USER, TEST_PASS)) {
+            
+            filteredPrivileges = securityManager.checkPermission(TEST_SERVICE_URL,
+                    privileges, TEST_USER, TEST_PASS);
+            if (!filteredPrivileges.equals(privileges)) {
                 return false;
             }
             //clear
