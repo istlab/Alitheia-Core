@@ -36,6 +36,7 @@ package eu.sqooss.service.db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
@@ -239,18 +240,7 @@ public class ProjectFile extends DAObject{
         String paramTimestamp = "paramTimestamp";
         String paramDir = "paramDir";
         String paramProject = "paramProject";
-/*
-        String query = "select pf from ProjectVersion pv, ProjectFile pf " +
-        		"where pv.timestamp = (" +
-        		"select max(pv2.timestamp) " +
-        		"from ProjectVersion pv2, ProjectFile pf2 " +
-        		"where pv2.timestamp < :" + paramVersion +
-        		" and pf2.projectVersion = pv2.id" +
-                        " and pf2.dir = :" + paramDir +
-        		" and pf2.name = :" + paramFile +
-        		" and pv2.project = pv.project )" +
-        		"and pf.projectVersion = pv.id and pf.name = :" + paramFile;
-*/
+
         String query ="select pf" +
         		" from ProjectVersion pv, ProjectFile pf" +
         		" where pf.projectVersion = pv.id " +
@@ -336,16 +326,6 @@ public class ProjectFile extends DAObject{
         String paramTimestamp = "timestamp";
         String paramProjectId = "project_id";
 
-        /*String query = "select pf " +
-                       "from ProjectFile pf " +
-                       "where ( pf.projectVersion.version, pf.name, pf.dir ) " +
-                       "in ( " +
-                       "    select max( pf2.projectVersion.version ), pf2.name, pf2.dir from ProjectFile pf2 " +
-                       "    where pf2.projectVersion.project.id=:" + paramProjectId + " " +
-                       "    and pf2.projectVersion.version <=:" + paramVersion + " " +
-                       "    group by pf2.dir, pf2.name " +
-                       ") " +
-                       "and pf.status <> 'DELETED'";*/
         String query = "select pf1 " +
     	"from ProjectFile pf1, ProjectVersion pv1 " +
     	"where  pf1.projectVersion = pv1 " +
@@ -627,17 +607,39 @@ public class ProjectFile extends DAObject{
      * @return the modifications hash map
      */
     public static HashMap<Long, Long> getFileModifications(ProjectFile pf) {
+    	DBService dbs = CoreActivator.getDBService();
         HashMap<Long, Long> result = new HashMap<Long, Long>();
-        if (pf != null) {
-            ProjectFile latest = getLatestVersion(
-                    pf.getProjectVersion(), pf.getFileName());
-            while (latest != null) {
-                result.put(
-                        latest.getProjectVersion().getVersion(),
-                        latest.getId());
-                latest = getPreviousFileVersion(latest);
-            }
+        
+        if (pf == null) {
+        	return result;
         }
+            
+        String paramFile = "paramFile";
+		String paramDir = "paramDir";
+		String paramProject = "paramProject";
+
+		String query = "select pf" 
+			    + " from ProjectVersion pv, ProjectFile pf"
+				+ " where pf.projectVersion = pv.id "  
+				+ " and pf.name = :" + paramFile 
+				+ " and pf.dir = :" + paramDir
+				+ " and pv.project = :" + paramProject
+				+ " order by pv.timestamp desc";
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(paramFile, pf.getName());
+		parameters.put(paramDir, pf.getDir());
+		parameters.put(paramProject, pf.getProjectVersion().getProject());
+
+		List<ProjectFile> projectFiles = 
+			(List<ProjectFile>) dbs.doHQL(query, parameters);
+
+		Iterator<ProjectFile> i = projectFiles.iterator();
+		
+		while (i.hasNext()){
+			ProjectFile pf1 = i.next();
+			result.put(pf1.getProjectVersion().getId(), pf.getId());
+		}
+          
         return result;
     }
 }
