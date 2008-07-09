@@ -1,4 +1,5 @@
 <%@ page import="eu.sqooss.webui.*"
+%><%@ page import="eu.sqooss.webui.util.*"
 %>          <form id="metrics" name="metrics" method="GET">
             <div id="metricslist" class="group">
 <%
@@ -30,7 +31,7 @@ if (selectedProject.isValid()) {
     }
     // Prepare the metrics view
     MetricsTableView metricsView =
-        new MetricsTableView(selectedProject.retrieveMetrics());
+        new MetricsTableView(selectedProject.getEvaluatedMetrics());
     metricsView.setProjectId(selectedProject.getId());
     metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
     metricsView.setShowSelect(true);
@@ -72,10 +73,11 @@ else
 // Construct the window's content
 winContent = null;
 if (settings.getShowAllMetrics()) {
-    MetricsTableView allMetrics =
-        new MetricsTableView(terrier.getAllMetrics());
-    allMetrics.setShowResult(false);
-    winContent = allMetrics.getHtml(in);
+    MetricsList allMetrics = new MetricsList();
+    allMetrics.addAll(terrier.getAllMetrics());
+    MetricsTableView allMetricsView = new MetricsTableView(allMetrics);
+    allMetricsView.setShowResult(false);
+    winContent = allMetricsView.getHtml(in);
 }
 // Display the window
 winTitle = "All installed metrics";

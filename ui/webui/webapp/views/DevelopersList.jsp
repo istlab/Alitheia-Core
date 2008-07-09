@@ -64,7 +64,7 @@ if (selectedProject.isValid()) {
     // Display the available evaluation result for the selected developers
     //========================================================================
     if ((selectedProject.getSelectedDevelopers().size() > 0)
-        && (selectedProject.getSelectedMetricMnemonics().size() > 0)) {
+        && (selectedProject.getSelectedMetrics().size() > 0)) {
 %>                </td>
               </tr>
               <tr>

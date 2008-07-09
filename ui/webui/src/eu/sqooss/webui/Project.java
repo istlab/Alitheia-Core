@@ -37,6 +37,7 @@ import java.util.*;
 
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.datatype.Developer;
+import eu.sqooss.webui.util.MetricsList;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
@@ -72,11 +73,16 @@ public class Project extends WebuiItem {
     private Version lastVersion = null;
     private Version currentVersion = null;
 
-    // A cache for all metrics that have been evaluated on this project
-    private List<Metric> metrics = new ArrayList<Metric>();
+    /**
+     * A cache for all metrics that have been evaluated on this project.
+     */
+    private MetricsList metrics = new MetricsList();
 
-    // Stores the list of Ids of all selected metrics
-    private List<Long> selectedMetrics = new ArrayList<Long>();
+    /**
+     * A cache for all metrics that have been selected for this project.
+     */
+    // A cache for all metrics that are selected for this project
+    private MetricsList selectedMetrics = new MetricsList();
 
     /** Developers cache. */
     HashMap<Long, Developer> developers = new HashMap<Long, Developer>();
@@ -222,7 +228,7 @@ public class Project extends WebuiItem {
                 return;
         if (isValid()) {
             setTerrier(terrier);
-            retrieveMetrics();
+            getEvaluatedMetrics();
         }
         else
             terrier.addError("Invalid project!");
@@ -240,7 +246,7 @@ public class Project extends WebuiItem {
         versions.clear();
         metrics.clear();
         developers.clear();
-        selectedMetrics = new ArrayList<Long>();
+        selectedMetrics = new MetricsList();
     }
 
     /**
@@ -252,39 +258,22 @@ public class Project extends WebuiItem {
 
     /**
      * Retrieves the list of all metrics that have been evaluated on this
-     * project from the SQO-OSS framework, unless the cache contains some
-     * data already.
+     * project from the SQO-OSS framework, unless the local cache contains
+     * some data already.
      * 
-     * @return the list of metrics evaluated on this project, or empty list
-     *   when none are found or this project is not yet initialized.
+     * @return the list of metrics evaluated on this project, or an empty
+     *   list when none are found or the project not yet initialized.
      */
-    public List<Metric> retrieveMetrics() {
+    public MetricsList getEvaluatedMetrics() {
         if (terrier == null)
             return metrics;
         if (isValid()) {
             if (metrics.isEmpty())
-                metrics = terrier.getMetricsForProject(id);
+                    metrics.addAll(terrier.getMetricsForProject(id));
         }
         else
             terrier.addError("Invalid project!");
         return metrics;
-    }
-
-
-    /**
-     * Gets the metric with the given mnemonic name from the local cache.
-     * 
-     * @param mnemonic the metric's mnemonic name
-     * 
-     * @return The metric object, or <code>null</code> if there is no metric
-     * with this mnemonic name in the local cache.
-     */
-    public Metric getMetric(String mnemonic) {
-        if (mnemonic != null)
-            for (Metric nextMetric : metrics)
-                if (nextMetric.getMnemonic().equals(mnemonic))
-                    return nextMetric;
-        return null;
     }
 
     /**
@@ -423,74 +412,38 @@ public class Project extends WebuiItem {
     //========================================================================
 
     /**
-     * Adds the metric with the given Id to the list of metrics which results
-     * will be displayed for this project in the various WebUI views.
+     * Adds the metric with the given Id to the list of metrics that are
+     * selected for this project.
      * 
      * @param id the metric Id
      */
     public void selectMetric (Long id) {
-        if (id != null)
-            selectedMetrics.add(id);
+        if (id != null) {
+            Metric metric = metrics.getMetricById(id);
+            if (metric != null) selectedMetrics.add(metric);
+        }
     }
 
     /**
-     * Removes the metric with the given Id from the list of metrics which
-     * results will be displayed for this project in the various WebUI views.
+     * Removes the metric with the given Id from the list of metrics that were
+     * selected for this project.
      * 
      * @param id the metric Id
      */
     public void deselectMetric (Long id) {
-        if (id != null)
-            selectedMetrics.remove(id);
+        if (id != null) {
+            Metric metric = metrics.getMetricById(id);
+            if (metric != null) selectedMetrics.remove(metric);
+        }
     }
 
     /**
-     * Retrieve the list of Ids of all metrics that were selected for this
-     * project.
+     * Returns the list of metrics that were selected for this project.
      * 
      * @return the list of selected metric Ids
      */
-    public List<Long> getSelectedMetrics() {
+    public MetricsList getSelectedMetrics() {
         return selectedMetrics;
-    }
-
-    /**
-     * Gets the mnemonic names of the currently selected metrics, indexed by
-     * metric Id.
-     * 
-     * @return The list of mnemonic names, or an empty list when none are
-     *   selected.
-     */
-    public Map<Long, String> getSelectedMetricMnemonics() {
-        Map<Long, String> result = new HashMap<Long, String>();
-        for (Long nextId : selectedMetrics) {
-            for (Metric nextMetric : metrics)
-                if (nextMetric.getId().longValue() == nextId)
-                    result.put(nextId, nextMetric.getMnemonic());
-        }
-        return result;
-    }
-
-    /**
-     * Gets the mnemonic names of the currently selected metrics, indexed by
-     * metric Id. The mnemonics list will be constructed only of these metrics
-     * which match the specified metric activator.
-     * 
-     * @param filter the metric activator filter
-     * 
-     * @return The list of mnemonic names, or an empty list when none are
-     * selected.
-     */
-    public Map<Long, String> getSelectedMetricMnemonics(
-            MetricActivator filter) {
-        Map<Long, String> result = new HashMap<Long, String>();
-        for (Long nextId : selectedMetrics) {
-            for (Metric nextMetric : metrics)
-                if ((nextMetric.getId().longValue() == nextId)
-                        && (nextMetric.getActivator().equals(filter)))
-                    result.put(nextId, nextMetric.getMnemonic());
-        }
-        return result;
     }
 
     //========================================================================

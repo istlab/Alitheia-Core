@@ -35,6 +35,8 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
+import eu.sqooss.webui.util.MetricsList;
+
 /**
  * The class <code>MetricsTableView</code> renders an HTML sequence that
  * present the specified metrics in a tabular format.
@@ -42,11 +44,11 @@ import java.util.*;
  */
 public class MetricsTableView extends ListView {
 
-    /** Holds the list of metric indexed by their Ids. */
-    private Map<Long,Metric> metrics = new HashMap<Long,Metric>();
+    /** Holds the list of evaluated metrics. */
+    private MetricsList metrics = new MetricsList();
 
-    /** Holds the list of metrics which will be displayed as selected. */
-    private List<Long> selectedMetrics = new ArrayList<Long>();
+    /** Holds the list of selected metrics. */
+    private MetricsList selectedMetrics = new MetricsList();
 
     /** Holds the Id of the project to which this view belongs. */
     private Long projectId = null;
@@ -96,10 +98,9 @@ public class MetricsTableView extends ListView {
      * 
      * @param metricsList the metrics list
      */
-    public MetricsTableView (List<Metric> metricsList) {
-        if (metricsList != null)
-            for (Metric nextMetric : metricsList)
-                metrics.put(nextMetric.getId(), nextMetric);
+    public MetricsTableView (MetricsList metrics) {
+        if (metrics != null)
+            this.metrics = metrics;
     }
 
     /**
@@ -109,7 +110,7 @@ public class MetricsTableView extends ListView {
      */
     public void addMetric (Metric metric) {
         if (metric != null)
-            metrics.put(metric.getId().longValue(), metric);
+            metrics.add(metric);
     }
 
     /**
@@ -319,45 +320,45 @@ public class MetricsTableView extends ListView {
 
         // Table rows
         html.append(sp(in++) + "<tbody>\n");
-        for (Long key: metrics.keySet()) {
-            if ((showSelect) && (selectedMetrics.contains(key)))
+        for (Metric nextMetric : metrics) {
+            if ((showSelect) && (selectedMetrics.contains(nextMetric)))
                 html.append(sp(in++) + "<tr class=\"selected\">\n");
             else
                 html.append(sp(in++) + "<tr>\n");
             if (showId) {
                 html.append(sp(in) + "<td " + cell_class + ">"
-                        + key + "</td>\n");
+                        + nextMetric.getId() + "</td>\n");
             }
             if (showSelect) {
                 html.append(sp(in) + "<td " + cell_class + ">"
-                        + ((selectedMetrics.contains(key))
-                                ? metrics.get(key).getDeselectMetricLink()
-                                : metrics.get(key).getSelectMetricLink())
+                        + ((selectedMetrics.contains(nextMetric))
+                                ? nextMetric.getDeselectMetricLink()
+                                : nextMetric.getSelectMetricLink())
                         + "</td>\n");
             }
             if (showMnemonic) {
                 html.append(sp(in) + "<td " + cell_class + "><b>"
-                        + metrics.get(key).getMnemonic() + "</b></td>\n");
+                        + nextMetric.getMnemonic() + "</b></td>\n");
             }
             if (showDescription) {
                 html.append(sp(in) + "<td " + cell_class + ">"
-                        + metrics.get(key).getDescription() + "</td>\n");
+                        + nextMetric.getDescription() + "</td>\n");
             }
             if (showType) {
                 html.append(sp(in) + "<td " + cell_class + ">"
-                        + metrics.get(key).getType() + "</td>\n");
+                        + nextMetric.getType() + "</td>\n");
             }
             if (showActivator) {
                 html.append(sp(in) + "<td " + cell_class + ">"
-                        + metrics.get(key).getActivator() + "</td>\n");
+                        + nextMetric.getActivator() + "</td>\n");
             }
             if (showScope) {
                 html.append(sp(in) + "<td " + cell_class + ">"
-                        + metrics.get(key).getScope() + "</td>\n");
+                        + nextMetric.getScope() + "</td>\n");
             }
             if (showResult) {
                 html.append(sp(in) + "<td " + cell_class + ">"
-                        + metrics.get(key).getLink() + "</td>\n");
+                        + nextMetric.getLink() + "</td>\n");
             }
             html.append(sp(--in) + "</tr>\n");
         }
@@ -383,12 +384,12 @@ public class MetricsTableView extends ListView {
         }
         StringBuilder html = new StringBuilder("<!-- MetricsList -->\n");
         html.append("\n<ul>");
-        for (Long key: metrics.keySet()) {
+        for (Metric nextMetric : metrics) {
             html.append("\n\t<li>");
-            html.append(metrics.get(key).getMnemonic());
+            html.append(nextMetric.getMnemonic());
             if (showDescription) {
                 html.append(" <i>"
-                        + metrics.get(key).getDescription()
+                        + nextMetric.getDescription()
                         + "</i>");
             }
             html.append("</li>");
@@ -442,8 +443,8 @@ public class MetricsTableView extends ListView {
         tableId = table_id;
     }
 
-     public void setSelectedMetrics (List<Long> selected) {
-         if (selected != null)
-             this.selectedMetrics = selected;
+     public void setSelectedMetrics (MetricsList metrics) {
+         if (metrics != null)
+             this.selectedMetrics = metrics;
      }
 }

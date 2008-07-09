@@ -78,11 +78,11 @@ if (selectedProject.isValid()) {
                 if (selectedVersion.isEmptyDir() == false) {
                     if (settings.getShowFileResultsOverview()) {
                         selectedVersion.fetchFilesResults(
-                            selectedProject.getSelectedMetricMnemonics());
+                            selectedProject.getSelectedMetrics());
                     }
                 }
                 // Ask the user to select some metrics, if none
-                if (selectedProject.getSelectedMetricMnemonics().isEmpty()) {
+                if (selectedProject.getSelectedMetrics().isEmpty()) {
                     winContent += sp(in) + Functions.information(
                         "Please, select one or more source file"
                         + " related metrics.");

@@ -36,6 +36,7 @@ package eu.sqooss.webui;
 import java.util.*;
 
 import eu.sqooss.webui.datatype.File;
+import eu.sqooss.webui.util.MetricsList;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
@@ -268,29 +269,25 @@ public class Version extends WebuiItem {
     // RESULT RETRIEVAL METHODS
     //========================================================================
 
-    public void fetchVersionResults (Map<Long, String> selectedMetrics) {
+    public void fetchVersionResults (MetricsList metrics) {
         if (isValid() == false) return;
-        if ((selectedMetrics == null) || (selectedMetrics.isEmpty())) return;
+        if ((metrics == null) || (metrics.isEmpty())) return;
         // Create an results request object
         WSMetricsResultRequest request = new WSMetricsResultRequest();
         request.setProjectVersion(true);
         // Set the selected DAO Ids
         request.setDaObjectId(new long[]{getId()});
         // Set the mnemonics of the selected metrics
-        String[] mnemonics = new String[selectedMetrics.size()];
-        int index = 0;
-        for (String nextMnem : selectedMetrics.values()) {
-            mnemonics[index++] = nextMnem;
-        }
-        request.setMnemonics(mnemonics);
+        request.setMnemonics(metrics.getMetricMnemonics().values().toArray(
+                new String[metrics.size()]));
         // Retrieve the evaluation result from the SQO-OSS framework
         for (Result nextResult : terrier.getResults(request))
             results.put(nextResult.getMnemonic(), nextResult);
     }
 
-    public void fetchFilesResults (Map<Long, String> selectedMetrics) {
+    public void fetchFilesResults (MetricsList metrics) {
         if (isValid() == false) return;
-        if ((selectedMetrics == null) || (selectedMetrics.isEmpty())) return;
+        if ((metrics == null) || (metrics.isEmpty())) return;
         if (files.isEmpty()) return;
         // Create an results request object
         WSMetricsResultRequest request =
@@ -304,12 +301,8 @@ public class Version extends WebuiItem {
         }
         request.setDaObjectId(fileIds);
         // Set the mnemonics of the selected metrics
-        String[] mnemonics = new String[selectedMetrics.size()];
-        index = 0;
-        for (String nextMnem : selectedMetrics.values()) {
-            mnemonics[index++] = nextMnem;
-        }
-        request.setMnemonics(mnemonics);
+        request.setMnemonics(metrics.getMetricMnemonics().values().toArray(
+                new String[metrics.size()]));
         // Retrieve the evaluation result from the SQO-OSS framework
         for (Result nextResult : terrier.getResults(request)) {
             if (files.containsKey(nextResult.getId()))

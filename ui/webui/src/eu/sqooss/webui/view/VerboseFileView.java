@@ -103,7 +103,7 @@ public class VerboseFileView extends ListView {
         StringBuilder b = new StringBuilder("");
         // Holds the list of currently selected metrics
         Collection<String> mnemonics =
-            project.getSelectedMetricMnemonics().values();
+            project.getSelectedMetrics().getMetricMnemonics().values();
         // Holds the currently selected file's object
         File selFile = null;
         // Holds the evaluation results for the currently selected file
@@ -275,7 +275,7 @@ public class VerboseFileView extends ListView {
                     metric = mnemToMetric.get(mnemonic);
                 }
                 else {
-                    for (Metric nextMetric : project.retrieveMetrics())
+                    for (Metric nextMetric : project.getEvaluatedMetrics())
                         if (nextMetric.getMnemonic().equals(mnemonic)) {
                             mnemToMetric.put(mnemonic, nextMetric);
                             metric = nextMetric;

@@ -100,7 +100,7 @@ public class DevelopersResultView extends ListView {
         StringBuilder b = new StringBuilder("");
         // Holds the list of currently selected metrics in the main project
         Collection<String> mnemonics =
-            project.getSelectedMetricMnemonics(
+            project.getSelectedMetrics().getMetricMnemonics(
                     MetricActivator.DEVELOPER).values();
         // Holds the list of currently selected developers in the main project
         Map<Long, Developer> developers = project.getSelectedDevelopers();
@@ -129,7 +129,8 @@ public class DevelopersResultView extends ListView {
                         + " style=\"margin-bottom: 0;\">\n");
                 b.append(sp(in++) + "<thead>\n");
                 b.append(sp(in++) + "<tr class=\"borderless\">\n");
-                Metric metric = project.getMetric(nextMnemonic);
+                Metric metric = project.getEvaluatedMetrics()
+                    .getMetricByMnemonic(nextMnemonic);
                 String metricLbl = nextMnemonic
                     + ((metric != null)
                             ? " : " + metric.getDescription()

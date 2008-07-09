@@ -243,7 +243,7 @@ if (selectedProject.isValid()) {
     if (settings.getShowPVMetrics()) {
         // Prepare the metrics view
         MetricsTableView metricsView =
-            new MetricsTableView(selectedProject.retrieveMetrics());
+            new MetricsTableView(selectedProject.getEvaluatedMetrics());
         metricsView.setProjectId(selectedProject.getId());
         metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
         metricsView.setShowResult(false);
