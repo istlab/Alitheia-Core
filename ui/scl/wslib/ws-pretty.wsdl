@@ -785,16 +785,16 @@
   <wsdl:message name="getRootDirectoryResponse">
     <wsdl:part name="part1" element="ns2:getRootDirectoryResponse"/>
   </wsdl:message>
+  <wsdl:message name="handleEventMessage">
+    <wsdl:part name="part1" element="ns2:handleEvent"/>
+  </wsdl:message>
+  <wsdl:message name=""/>
   <wsdl:message name="getMessageOfTheDayMessage">
     <wsdl:part name="part1" element="ns2:getMessageOfTheDay"/>
   </wsdl:message>
   <wsdl:message name="getMessageOfTheDayResponse">
     <wsdl:part name="part1" element="ns2:getMessageOfTheDayResponse"/>
   </wsdl:message>
-  <wsdl:message name="handleEventMessage">
-    <wsdl:part name="part1" element="ns2:handleEvent"/>
-  </wsdl:message>
-  <wsdl:message name=""/>
   <wsdl:message name="getFilesByProjectVersionIdMessage">
     <wsdl:part name="part1" element="ns2:getFilesByProjectVersionId"/>
   </wsdl:message>
@@ -950,13 +950,13 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getRootDirectoryMessage" wsaw:Action="urn:getRootDirectory"/>
       <wsdl:output message="axis2:getRootDirectoryResponse"/>
     </wsdl:operation>
-    <wsdl:operation name="getMessageOfTheDay">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMessageOfTheDayMessage" wsaw:Action="urn:getMessageOfTheDay"/>
-      <wsdl:output message="axis2:getMessageOfTheDayResponse"/>
-    </wsdl:operation>
     <wsdl:operation name="handleEvent">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:handleEventMessage" wsaw:Action="urn:handleEvent"/>
       <wsdl:output message="axis2:null"/>
+    </wsdl:operation>
+    <wsdl:operation name="getMessageOfTheDay">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMessageOfTheDayMessage" wsaw:Action="urn:getMessageOfTheDay"/>
+      <wsdl:output message="axis2:getMessageOfTheDayResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getFilesByProjectVersionId">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesByProjectVersionIdMessage" wsaw:Action="urn:getFilesByProjectVersionId"/>
@@ -1169,8 +1169,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getMessageOfTheDay">
-      <soap:operation soapAction="urn:getMessageOfTheDay" style="document"/>
+    <wsdl:operation name="handleEvent">
+      <soap:operation soapAction="urn:handleEvent" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1178,8 +1178,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="handleEvent">
-      <soap:operation soapAction="urn:handleEvent" style="document"/>
+    <wsdl:operation name="getMessageOfTheDay">
+      <soap:operation soapAction="urn:getMessageOfTheDay" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1478,8 +1478,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getMessageOfTheDay">
-      <soap12:operation soapAction="urn:getMessageOfTheDay" style="document"/>
+    <wsdl:operation name="handleEvent">
+      <soap12:operation soapAction="urn:handleEvent" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1487,8 +1487,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="handleEvent">
-      <soap12:operation soapAction="urn:handleEvent" style="document"/>
+    <wsdl:operation name="getMessageOfTheDay">
+      <soap12:operation soapAction="urn:getMessageOfTheDay" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
