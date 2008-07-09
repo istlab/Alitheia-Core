@@ -158,7 +158,7 @@ public class DevelopersResultView extends ListView {
                         b.append(sp(in++) + "<table"
                                 + " style=\"margin-top: 0;\">\n");
                         b.append(sp(in++) + "</tr>\n");
-                        b.append(sp(in) + "<td style=\"text-align: center; padding: 0.5 em; background-color: 99FF66;\">" 
+                        b.append(sp(in) + "<td style=\"text-align: center; padding: 0.5 em; background-color: #DDFFFF;\">" 
                                 + "<img src=\"/tmp/" + chartFile + "\">" 
                                 + "</td>\n");
                         b.append(sp(--in) + "</tr>\n");
