@@ -9,6 +9,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
@@ -110,6 +111,23 @@ public class SpProject implements SpEntity {
         }
 
         tds.releaseAccessor(tds.getAccessor(id));
+        return result;
+    }
+
+    public ArrayList<SpMailingList> mailingLists() {
+        ArrayList<SpMailingList> result = new ArrayList<SpMailingList>();
+        
+        TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
+        tds.addAccessor(id, name, bugs, mail, repository);
+        MailAccessor mail = tds.getAccessor(id).getMailAccessor();
+
+        List<String> names = mail.getMailingLists();
+        for (String name : names) {
+            result.add(new SpMailingList(this, name));
+        }
+        
+        tds.releaseAccessor(tds.getAccessor(id));
+        
         return result;
     }
 }

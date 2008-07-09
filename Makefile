@@ -103,12 +103,14 @@ include Makefile.run
 #
 
 specs : clean-osgi
+	cd specs && make prepare-data
 	cd $(PREFIX) && \
 	$(JAVA_CMD) \
 	-Dosgi.configuration.area=$(PREFIX)/configuration-specs \
 	$(JAVA_CORE_ARGS) -no-exit
 
 specs-debug : clean-osgi
+	cd specs && make prepare-data
 	cd $(PREFIX) && \
 	$(JAVA_CMD) \
 	$(JAVA_DEBUG_ARGS) \
