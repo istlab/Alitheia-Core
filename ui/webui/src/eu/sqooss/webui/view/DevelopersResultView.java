@@ -51,7 +51,7 @@ import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
-import eu.sqooss.webui.datatypes.Developer;
+import eu.sqooss.webui.datatype.Developer;
 
 /**
  * The class <code>DevelopersResultView</code> renders an HTML sequence that

@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.webui.datatypes;
+package eu.sqooss.webui.datatype;
 
 import java.util.ArrayList;
 import java.util.Collection;

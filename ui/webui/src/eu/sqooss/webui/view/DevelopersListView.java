@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.List;
 
 import eu.sqooss.webui.ListView;
-import eu.sqooss.webui.datatypes.Developer;
+import eu.sqooss.webui.datatype.Developer;
 
 // TODO: Add JavaDoc
 public class DevelopersListView extends ListView {

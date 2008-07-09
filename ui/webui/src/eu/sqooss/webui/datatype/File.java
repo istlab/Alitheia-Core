@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.webui.datatypes;
+package eu.sqooss.webui.datatype;
 
 import java.util.Collection;
 import java.util.HashMap;

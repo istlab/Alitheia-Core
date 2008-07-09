@@ -43,8 +43,8 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import eu.sqooss.scl.WSException;
-import eu.sqooss.webui.datatypes.Developer;
-import eu.sqooss.webui.datatypes.File;
+import eu.sqooss.webui.datatype.Developer;
+import eu.sqooss.webui.datatype.File;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileModification;

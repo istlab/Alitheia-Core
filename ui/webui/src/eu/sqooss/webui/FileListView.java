@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 
-import eu.sqooss.webui.datatypes.File;
+import eu.sqooss.webui.datatype.File;
 
 public class FileListView extends ListView {
 

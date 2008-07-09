@@ -42,7 +42,7 @@ import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
-import eu.sqooss.webui.datatypes.File;
+import eu.sqooss.webui.datatype.File;
 
 /**
  * The class <code>VerboseFileView</code> renders an HTML sequence that

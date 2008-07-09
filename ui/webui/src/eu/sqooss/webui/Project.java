@@ -36,7 +36,7 @@ package eu.sqooss.webui;
 import java.util.*;
 
 import eu.sqooss.webui.Metric.MetricActivator;
-import eu.sqooss.webui.datatypes.Developer;
+import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
