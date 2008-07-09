@@ -7,7 +7,7 @@
   <dependencySets>
     <dependencySet>
       <outputDirectory>/</outputDirectory>
-      <outputFileNameMapping>${groupId}.${artifactId}-${version}.${extension}</outputFileNameMapping>
+      <outputFileNameMapping>${groupId}.${artifactId}.${extension}</outputFileNameMapping>
       <unpack>false</unpack>
       <scope>compile</scope>
       <excludes>
