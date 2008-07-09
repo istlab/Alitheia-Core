@@ -255,7 +255,7 @@ public class Version extends WebuiItem {
     public void previousDir() {
         // Shift one level higher in the directory tree
         files.clear();
-        dirStack.pop();
+        if (dirStack.size() > 0) dirStack.pop();
     }
 
     public void topDir() {
