@@ -62,7 +62,6 @@ if (selectedProject.isValid()) {
             // Construct the window's content
             winContent = "";
             winFooter = null;
-            List<WinIcon> toolbar = new ArrayList<WinIcon>();
             selectedVersion.setTerrier(terrier);
             selectedVersion.setSettings(settings);
             // Retrieve the list of files, if not yet done
@@ -87,6 +86,7 @@ if (selectedProject.isValid()) {
                         "Please, select one or more source file"
                         + " related metrics.");
                 }
+                toolbar.clear();
                 // Show result icons
                 WinIcon icoResults = new WinIcon();
                 icoResults.setPath(request.getServletPath());

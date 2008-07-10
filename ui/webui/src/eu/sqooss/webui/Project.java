@@ -473,7 +473,21 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Retrieve the list of Ids of all develoepers that were selected for this
+     * Adds all developers to the list of selected developers.
+     */
+    public void selectAllDevelopers () {
+        selectedDevelopers = new ArrayList<Long>(developers.keySet());
+    }
+
+    /**
+     * Cleans up the list of selected developers.
+     */
+    public void deselectAllDevelopers () {
+        selectedDevelopers.clear();
+    }
+
+    /**
+     * Retrieve the list of Ids of all developers that were selected for this
      * project.
      * 
      * @return the list of selected developers Ids

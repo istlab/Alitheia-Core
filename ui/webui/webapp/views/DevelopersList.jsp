@@ -15,6 +15,13 @@ if (selectedProject.isValid()) {
     //========================================================================
     // Indentation depth
     in = 9;
+    // Check for a multiple developer selection
+    if (request.getParameter("select") != null) {
+        if (request.getParameter("select").equals("all"))
+            selectedProject.selectAllDevelopers();
+        else if (request.getParameter("select").equals("none"))
+            selectedProject.deselectAllDevelopers();
+    }
     // Check for a developer selection
     if (request.getParameter("selectDeveloper") != null) {
         try {
@@ -43,6 +50,24 @@ if (selectedProject.isValid()) {
         winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
     else
         winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+    // Construct the toobar
+    toolbar.clear();
+    // "Select all developers" icon
+    WinIcon icoSelect = new WinIcon();
+    icoSelect.setPath(request.getServletPath());
+    icoSelect.setParameter("select");
+    icoSelect.setValue("all");
+    icoSelect.setImage("/img/icons/16x16/select-all.png");
+    icoSelect.setAlt("Select all");
+    toolbar.add(icoSelect);
+    // "Deselect all developers" icon
+    WinIcon icoDeselect = new WinIcon();
+    icoDeselect.setPath(request.getServletPath());
+    icoDeselect.setParameter("select");
+    icoDeselect.setValue("none");
+    icoDeselect.setImage("/img/icons/16x16/deselect-all.png");
+    icoDeselect.setAlt("Deselect all");
+    toolbar.add(icoDeselect);
     // Construct the window's content
     winContent = null;
     if (settings.getShowDevelopers()) {
@@ -57,8 +82,9 @@ if (selectedProject.isValid()) {
     }
     // Display the window
     winTitle = "Developers in project " + selectedProject.getName();
-    out.print(Functions.interactiveWindow(
-        9, winTitle, winContent, new WinIcon[]{winShowIco}));
+    out.print(Functions.interactiveWindow(in,
+        winTitle, winContent, null,
+        new WinIcon[]{winShowIco}, toolbar.toArray(new WinIcon[toolbar.size()])));
 
     //========================================================================
     // Display the available evaluation result for the selected developers
@@ -70,7 +96,7 @@ if (selectedProject.isValid()) {
               <tr>
                 <td valign="top" style="width: 100%; padding-top: 0;">
 <%
-        List<WinIcon> toolbar = new ArrayList<WinIcon>();
+        toolbar.clear();
         // Table chart icon
         WinIcon icoChart = new WinIcon();
         icoChart.setPath(request.getServletPath());

@@ -83,6 +83,7 @@ String winContent = null;
 String winVisible = null;
 WinIcon winShowIco = null;
 WinIcon icoCloseWin = null;
+List<WinIcon> toolbar = new ArrayList<WinIcon>();
 String winFooter = null;
 
 // Folder relative to this web application's root (deployment) folder, where
