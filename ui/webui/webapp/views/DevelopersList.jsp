@@ -50,27 +50,27 @@ if (selectedProject.isValid()) {
         winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
     else
         winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
-    // Construct the toobar
+    // Initlialize the toobar
     toolbar.clear();
-    // "Select all developers" icon
-    WinIcon icoSelect = new WinIcon();
-    icoSelect.setPath(request.getServletPath());
-    icoSelect.setParameter("select");
-    icoSelect.setValue("all");
-    icoSelect.setImage("/img/icons/16x16/select-all.png");
-    icoSelect.setAlt("Select all");
-    toolbar.add(icoSelect);
-    // "Deselect all developers" icon
-    WinIcon icoDeselect = new WinIcon();
-    icoDeselect.setPath(request.getServletPath());
-    icoDeselect.setParameter("select");
-    icoDeselect.setValue("none");
-    icoDeselect.setImage("/img/icons/16x16/deselect-all.png");
-    icoDeselect.setAlt("Deselect all");
-    toolbar.add(icoDeselect);
     // Construct the window's content
     winContent = null;
     if (settings.getShowDevelopers()) {
+        // "Select all developers" icon
+        WinIcon icoSelect = new WinIcon();
+        icoSelect.setPath(request.getServletPath());
+        icoSelect.setParameter("select");
+        icoSelect.setValue("all");
+        icoSelect.setImage("/img/icons/16x16/select-all.png");
+        icoSelect.setAlt("Select all");
+        toolbar.add(icoSelect);
+        // "Deselect all developers" icon
+        WinIcon icoDeselect = new WinIcon();
+        icoDeselect.setPath(request.getServletPath());
+        icoDeselect.setParameter("select");
+        icoDeselect.setValue("none");
+        icoDeselect.setImage("/img/icons/16x16/deselect-all.png");
+        icoDeselect.setAlt("Deselect all");
+        toolbar.add(icoDeselect);
         // Prepare the developers view
         selectedProject.setTerrier(terrier);
         DevelopersListView developersView =
