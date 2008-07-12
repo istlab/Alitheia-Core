@@ -35,6 +35,8 @@ package eu.sqooss.impl.metrics.clmt;
 
 import java.io.ByteArrayInputStream;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -46,7 +48,6 @@ import org.clmt.configuration.Task;
 import org.clmt.configuration.TaskException;
 import org.clmt.configuration.properties.CLMTProperties;
 import org.clmt.configuration.properties.Config;
-import org.clmt.languages.LanguageFactory;
 import org.clmt.metrics.MetricInstantiationException;
 import org.clmt.metrics.MetricList;
 import org.clmt.metrics.MetricNameCategory;
@@ -63,13 +64,11 @@ import eu.sqooss.metrics.clmt.db.CodeConstructType;
 import eu.sqooss.metrics.clmt.db.CodeUnitMeasurement;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
-import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -101,7 +100,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         this.addMetricActivationType("NOCL", ProjectVersion.class);
         this.addMetricActivationType("NOPA", ProjectFile.class);
         this.addMetricActivationType("NOC",  ProjectFile.class);
-        this.addMetricActivationType("NOPM", ProjectFile.class);
+        this.addMetricActivationType("NPM", ProjectFile.class);
         this.addMetricActivationType("NOPRM",ProjectFile.class);
         this.addMetricActivationType("WMC",  ProjectFile.class);
         
@@ -129,7 +128,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     "NPM",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "Number of Projected Methods",
+                    "Number of Protected Methods",
                     "NOPRM",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
@@ -141,21 +140,16 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     }
     
     public void run(ProjectVersion pv) {
-        LanguageFactory.getLanguageFactory().getLanguage("Java");
+        
         FDSService fds = core.getFDSService();
         List<Metric> lm = getSupportedMetrics();
         StringBuilder metricCalc = new StringBuilder();
         InMemoryCheckout imc = null;
-        
-        Developer d = pv.getCommitter();
-        StoredProject sp = pv.getProject();
-        Long id = sp.getId();
-        id = d.getId();
-        
+               
         /*Get a checkout for this revision*/
         try {
             Pattern p = Pattern.compile(".*java$");
-            imc = fds.getInMemoryCheckout(sp.getId(), 
+            imc = fds.getInMemoryCheckout(pv.getProject().getId(), 
                     new ProjectRevision(pv.getVersion()), p);
         } catch (InvalidRepositoryException e) {
             log.error("Cannot get in memory checkout for project " + 
@@ -282,17 +276,53 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     }
     
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
-        
-        return null;
-    }
+        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        // Search for a matching project file measurement
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("projectVersion", a);
+        filter.put("metric", m);
+        List<ProjectVersionMeasurement> measurements =
+            db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
 
-    public void run(ProjectFile a) {
-        //Nothing to do, the metric is activated by project versions only
+        if (! measurements.isEmpty()) {
+            for (ProjectVersionMeasurement meas : measurements) {
+                Integer value = Integer.parseInt(meas.getResult());
+                ResultEntry entry = new ResultEntry(value, 
+                        ResultEntry.MIME_TYPE_TYPE_INTEGER, 
+                        m.getMnemonic());
+                results.add(entry);
+            }
+            return results;
+        }
+        return null;
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
+        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        // Search for a matching project file measurement
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("projectFile", a);
+        filter.put("metric", m);
+        List<CodeUnitMeasurement> measurements =
+            db.findObjectsByProperties(CodeUnitMeasurement.class, filter);
+
+        if (! measurements.isEmpty()) {
+            for (CodeUnitMeasurement meas : measurements) {
+                Integer value = Integer.parseInt(meas.getResult());
+                ResultEntry entry = new ResultEntry(value, 
+                        ResultEntry.MIME_TYPE_TYPE_INTEGER, 
+                        m.getMnemonic());
+
+                results.add(entry);
+            }
+            return results;
+        }
         return null;
-    }    
+    }
+    
+    public void run(ProjectFile a) {
+        //Nothing to do, the metric is activated by project versions only
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
