@@ -223,13 +223,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                                 + ") for type " + this.getClass().getName());
                     } catch (IllegalArgumentException e) {
                         log.error("Unable to invoke getResult method:"
-                                + e.getMessage());
+                                + e.getMessage() + "Reason:" 
+                                + e.getCause().getMessage());
                     } catch (IllegalAccessException e) {
                         log.error("Unable to invoke getResult method:"
-                                + e.getMessage());
+                                + e.getMessage() + "Reason:" 
+                                + e.getCause().getMessage());
                     } catch (InvocationTargetException e) {
                         log.error("Unable to invoke getResult method:"
-                                + e.getMessage());
+                                + e.getMessage() + "Reason:" 
+                                + e.getCause().getMessage());
                     }
                 }
             }
@@ -339,11 +342,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     log.error("No method run(" + c.getName() +") for type "
                             + this.getClass().getName());
                 } catch (IllegalArgumentException e) {
-                    log.error("Unable to invoke run method:" + e.getMessage());
+                    log.error("Unable to invoke run method:" + e.getMessage()
+                            + "Reason:" + e.getCause().getMessage());
                 } catch (IllegalAccessException e) {
-                    log.error("Unable to invoke run method:" + e.getMessage());
+                    log.error("Unable to invoke run method:" + e.getMessage()
+                            + "Reason:" + e.getCause().getMessage());
                 } catch (InvocationTargetException e) {
-                    log.error("Unable to invoke run method:" + e.getMessage());
+                    log.error("Unable to invoke run method:" + e.getMessage()
+                            + "Reason:" + e.getCause().getMessage());
                 }
             }
         }
