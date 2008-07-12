@@ -46,6 +46,7 @@ import org.clmt.configuration.Task;
 import org.clmt.configuration.TaskException;
 import org.clmt.configuration.properties.CLMTProperties;
 import org.clmt.configuration.properties.Config;
+import org.clmt.languages.LanguageFactory;
 import org.clmt.metrics.MetricInstantiationException;
 import org.clmt.metrics.MetricList;
 import org.clmt.metrics.MetricNameCategory;
@@ -62,11 +63,13 @@ import eu.sqooss.metrics.clmt.db.CodeConstructType;
 import eu.sqooss.metrics.clmt.db.CodeUnitMeasurement;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -138,15 +141,21 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     }
     
     public void run(ProjectVersion pv) {
+        LanguageFactory.getLanguageFactory().getLanguage("Java");
         FDSService fds = core.getFDSService();
         List<Metric> lm = getSupportedMetrics();
         StringBuilder metricCalc = new StringBuilder();
         InMemoryCheckout imc = null;
         
+        Developer d = pv.getCommitter();
+        StoredProject sp = pv.getProject();
+        Long id = sp.getId();
+        id = d.getId();
+        
         /*Get a checkout for this revision*/
         try {
             Pattern p = Pattern.compile(".*java$");
-            imc = fds.getInMemoryCheckout(pv.getProject().getId(), 
+            imc = fds.getInMemoryCheckout(sp.getId(), 
                     new ProjectRevision(pv.getVersion()), p);
         } catch (InvalidRepositoryException e) {
             log.error("Cannot get in memory checkout for project " + 
@@ -207,8 +216,8 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         MetricResultList mrlist = new MetricResultList();
         for (Calculation calc : t.getCalculations()) {
             try {
-                Source[] sources = t.getSourceByIds(calc.getIDs());
-                org.clmt.metrics.Metric metric = mlist.getMetric(calc.getName(),sources);
+                Source source = t.getSourceById(calc.getID());
+                org.clmt.metrics.Metric metric = mlist.getMetric(calc.getName(),source);
                 mrlist.merge(metric.calculate());
             } catch (MetricInstantiationException mie) {
                 log.warn("Could not load plugin - " + mie.getMessage());

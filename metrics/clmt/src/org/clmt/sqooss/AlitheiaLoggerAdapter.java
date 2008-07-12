@@ -33,7 +33,7 @@
 
 package org.clmt.sqooss;
 
-import org.clmt.configuration.log.CLMTLogger;
+import org.clmt.configuration.logging.CLMTLogger;
 
 import eu.sqooss.service.logging.Logger;
 

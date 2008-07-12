@@ -69,11 +69,7 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public InputStream getInputStream() {
-        if (contents == null) {
-            contents = FileOps.instance().getFileContents(path);
-        }
-        
-        return contents;
+        return contents = FileOps.instance().getFileContents(path);
     }
 
     @Override
