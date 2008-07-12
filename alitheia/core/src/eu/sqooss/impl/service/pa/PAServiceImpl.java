@@ -673,7 +673,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
                 // TODO: Not sure, if this is the correct plug-in method
                 //       to call upon configuration update, but it is the
                 //       only one which performs something in that scope.
-                getPlugin(pi).update();
+                //getPlugin(pi).update();
             }
         }
         // The given metric plug-in is not installed
