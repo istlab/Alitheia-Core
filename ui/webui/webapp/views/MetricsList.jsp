@@ -1,5 +1,6 @@
 <%@ page import="eu.sqooss.webui.*"
 %><%@ page import="eu.sqooss.webui.util.*"
+%><%@ page import="eu.sqooss.webui.widgets.*"
 %>          <form id="metrics" name="metrics" method="GET">
             <div id="metricslist" class="group">
 <%
@@ -36,10 +37,12 @@ if (selectedProject.isValid()) {
     metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
     metricsView.setShowSelect(true);
     metricsView.setShowResult(false);
-    // Display the metrics
-    out.print(Functions.simpleWindow(in,
-        "Metrics evaluated on project: " + selectedProject.getName(),
-        metricsView.getHtml(in + 2)));
+    // Construct the project metrics window
+    Window winPrjMetrics = new Window();
+    winPrjMetrics.setTitle("Metrics evaluated on project: "
+        + selectedProject.getName());
+    winPrjMetrics.setContent(metricsView.getHtml(in + 2));
+    out.print(winPrjMetrics.render(in));
 }
 else {
     out.print(sp(in) + Functions.information("No project is selected."
@@ -60,28 +63,29 @@ if (request.getParameter("refreshAllMetrics") != null) {
 winVisible = "showAllMetrics";
 if (request.getParameter(winVisible) != null) {
     // Check the "Show all installed metrics" flag
-    if (request.getParameter(winVisible).equals("true"))
+    if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
         settings.setShowAllMetrics(true);
-    else if (request.getParameter(winVisible).equals("false"))
+    else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
         settings.setShowAllMetrics(false);
 }
+Window winAllMetrics = new Window();
 // Construct the window's title icons
 if (settings.getShowAllMetrics())
-    winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+    winAllMetrics.addTitleIcon(WinIcon.minimize(
+        request.getServletPath(), winVisible));
 else
-    winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+    winAllMetrics.addTitleIcon(WinIcon.maximize(
+        request.getServletPath(), winVisible));
 // Construct the window's content
-winContent = null;
 if (settings.getShowAllMetrics()) {
     MetricsList allMetrics = new MetricsList();
     allMetrics.addAll(terrier.getAllMetrics());
     MetricsTableView allMetricsView = new MetricsTableView(allMetrics);
     allMetricsView.setShowResult(false);
-    winContent = allMetricsView.getHtml(in);
+    winAllMetrics.setContent(allMetricsView.getHtml(in));
 }
 // Display the window
-winTitle = "All installed metrics";
-out.print(Functions.interactiveWindow(
-    9, winTitle, winContent, new WinIcon[]{winShowIco}));
+winAllMetrics.setTitle("All installed metrics");
+out.print(winAllMetrics.render(in));
 %>            </div>
           </form>

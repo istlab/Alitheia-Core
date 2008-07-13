@@ -1,5 +1,6 @@
 <%@ page import="eu.sqooss.webui.*"
 %><%@ page import="eu.sqooss.webui.view.*"
+%><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
 //============================================================================
 // List all files in the selected project version
@@ -48,28 +49,27 @@ if (selectedProject.isValid()) {
             icoCloseWin.setPath(request.getServletPath());
             icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
             icoCloseWin.setAlt("Close");
-            winContent = null;
-            winContent = verboseView.getHtml(in);
-            out.print(Functions.interactiveWindow(in,
-                "Source file results",
-                winContent, null,
-                new WinIcon[]{icoCloseWin}, null));
+            Window winFileVerbose = new Window();
+            winFileVerbose.setTitle("Source file results");
+            winFileVerbose.addTitleIcon(icoCloseWin);
+            winFileVerbose.setContent(verboseView.getHtml(in));
+            out.print(winFileVerbose.render(in));
         }
         //====================================================================
         // Display a file browser for the selected project version
         //====================================================================
         else {
+            Window winFileBrowser = new Window();
             // Construct the window's content
-            winContent = "";
-            winFooter = null;
+            StringBuilder b = new StringBuilder("");
             selectedVersion.setTerrier(terrier);
             selectedVersion.setSettings(settings);
             // Retrieve the list of files, if not yet done
             selectedVersion.getFilesInCurrentDirectory();
             // Check if this version is empty
             if (selectedVersion.isEmptyVersion()) {
-                winContent += sp(in) + Functions.information(
-                    "No files found in this project version!");
+                b.append(sp(in) + Functions.information(
+                    "No files found in this project version!"));
             }
             // Construct a file browser for the selected project version
             else {
@@ -82,11 +82,10 @@ if (selectedProject.isValid()) {
                 }
                 // Ask the user to select some metrics, if none
                 if (selectedProject.getSelectedMetrics().isEmpty()) {
-                    winContent += sp(in) + Functions.information(
+                    b.append(sp(in) + Functions.information(
                         "Please, select one or more source file"
-                        + " related metrics.");
+                        + " related metrics."));
                 }
-                toolbar.clear();
                 // Show result icons
                 WinIcon icoResults = new WinIcon();
                 icoResults.setPath(request.getServletPath());
@@ -95,14 +94,14 @@ if (selectedProject.isValid()) {
                 icoResults.setStatus(
                     selectedProject.getSelectedMetrics().isEmpty() == false);
                 if (settings.getShowFileResultsOverview()) {
-                    icoResults.setValue(WinIcon.disable);
+                    icoResults.setValue("false");
                     icoResults.setAlt("Hide results");
                 }
                 else {
-                    icoResults.setValue(WinIcon.enable);
+                    icoResults.setValue("true");
                     icoResults.setAlt("Show results");
                 }
-                toolbar.add(icoResults);
+                winFileBrowser.addToolIcon(icoResults);
                 // Top folder icon
                 WinIcon icoTopDir = new WinIcon();
                 icoTopDir.setPath(request.getServletPath());
@@ -111,7 +110,7 @@ if (selectedProject.isValid()) {
                 icoTopDir.setImage("/img/icons/16x16/go-first.png");
                 icoTopDir.setAlt("Top folder");
                 icoTopDir.setStatus(selectedVersion.isSubDir());
-                toolbar.add(icoTopDir);
+                winFileBrowser.addToolIcon(icoTopDir);
                 // Previous folder icon
                 WinIcon icoPrevDir = new WinIcon();
                 icoPrevDir.setPath(request.getServletPath());
@@ -120,28 +119,28 @@ if (selectedProject.isValid()) {
                 icoPrevDir.setImage("/img/icons/16x16/go-previous.png");
                 icoPrevDir.setAlt("Previous folder");
                 icoPrevDir.setStatus(selectedVersion.isSubDir());
-                toolbar.add(icoPrevDir);
+                winFileBrowser.addToolIcon(icoPrevDir);
 
                 if (selectedVersion.isEmptyDir()) {
-                    winContent += sp(in + 2) + "<ul>"
+                    b.append(sp(in + 2) + "<ul>"
                         + "<li>"
                         + Functions.icon("vcs_empty", 0, "Empty folder")
                         + "&nbsp;<i>Empty</i>"
-                        + "</ul>\n";
+                        + "</ul>\n");
                 }
                 else {
                     FileListView browser = new FileListView(
                         selectedVersion.files);
                     browser.setVersionId(selectedVersion.getId());
                     browser.setSettings(settings);
-                    winContent += browser.getHtml(in + 2);
-                    winFooter = browser.getStatus();
+                    b.append(browser.getHtml(in + 2));
+                    winFileBrowser.setFooter(browser.getStatus());
                 }
             }
-            out.print(Functions.interactiveWindow(in,
-                "Files in version " + selectedVersion.getNumber(),
-                winContent, winFooter,
-                null, toolbar.toArray(new WinIcon[toolbar.size()])));
+            winFileBrowser.setContent(b.toString());
+            winFileBrowser.setTitle("Files in version "
+                + selectedVersion.getNumber());
+            out.print(winFileBrowser.render(in));
         }
     }
     else
@@ -162,8 +161,10 @@ else {
     ProjectsListView.retrieveData(terrier);
     if (ProjectsListView.hasProjects()) {
         ProjectsListView.setServletPath(request.getServletPath());
-        out.print(Functions.simpleWindow(in, "Select a project",
-            ProjectsListView.getHtml(in + 2)));
+        Window winPrjList = new Window();
+        winPrjList.setTitle("Evaluated projects");
+        winPrjList.setContent(ProjectsListView.getHtml(in + 2));
+        out.print(winPrjList.render(in));
     }
     // No evaluated projects found
     else {

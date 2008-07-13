@@ -32,7 +32,6 @@
  */
 package eu.sqooss.webui;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -145,107 +144,6 @@ public class Functions {
         return name;
     }
 
-    public static String interactiveWindow (
-            long in, String title, String content, String footer,
-            WinIcon[] icons, WinIcon[] toolbar) {
-        StringBuilder b = new StringBuilder("");
-        b.append(sp(in++) + "<div class=\"win\">\n");
-        // Display the window title
-        b.append(sp(in++) + "<div class=\"winTitle\""
-                + (((toolbar != null) && (toolbar.length > 0))
-                        ? " style=\"border-bottom: 0 none;\"" : "")
-                + ">" + title + "\n");
-        if ((icons != null) && (icons.length > 0)) {
-            b.append(sp(in++) + "<div class=\"winTitleBar\">\n");
-            for (WinIcon icon : icons)
-                b.append(sp(in) + "<a class=\"tb\""
-                        + " href=\"" + icon.getPath()
-                        + ((icon.getParameter() != null)
-                                ? "?" + icon.getParameter() + "=" + icon.getValue()
-                                : "")
-                        + "\">"
-                        + "<img alt=\"" + icon.getAlt() + "\""
-                        + " src=\"" + icon.getImage() + "\">"
-                        + "</a>\n");
-            b.append(sp(--in) + "</div>\n");
-        }
-        b.append(sp(--in) + "</div>\n");
-        // Display the window tool-bar
-        if ((toolbar != null) && (toolbar.length > 0)) {
-            b.append(sp(in++) + "<div class=\"winToolbar\">\n");
-            for (WinIcon icon : toolbar)
-                if (icon.getStatus()) {
-                    b.append(sp(in) + "<a class=\"tb\""
-                            + " href=\"" + icon.getPath()
-                            + "?" + icon.getParameter() + "=" + icon.getValue()
-                            + "\">"
-                            + "<img alt=\"" + icon.getAlt() + "\""
-                            + "title=\"" + icon.getAlt() + "\""
-                            + " src=\"" + icon.getImage() + "\">"
-                            + "</a>\n");
-                }
-                else {
-                    b.append(sp(in) + "<img class=\"tb\""
-                            + " alt=\"" + icon.getAlt() + "\""
-                            + " style=\"opacity: .25; filter: alpha(opacity=25);\""
-                            + " src=\"" + icon.getImage() + "\">\n");
-                }
-            b.append(sp(--in) + "</div>\n");
-        }
-        // Display the window content
-        if (content != null)
-            b.append(sp(in) + "<div class=\"winContent\">\n"
-                    + content
-                    + sp(in) + "</div>\n");
-        // Display the window footer
-        if (footer != null)
-            b.append(sp(in++) + "<div class=\"winFooter\">\n"
-                    + sp(in) + footer
-                    + sp(--in) + "</div>\n");
-        b.append(sp(--in) + "</div>\n");
-        return b.toString();
-    }
-
-    public static String interactiveWindow (
-            long in, String title, String content, WinIcon[] icons) {
-        StringBuilder b = new StringBuilder("");
-        b.append(sp(in++) + "<div class=\"win\">\n");
-        // Display the window title
-        b.append(sp(in++) + "<div class=\"winTitle\">" + title + "\n");
-        if ((icons != null) && (icons.length > 0)) {
-            b.append(sp(in++) + "<div class=\"winTitleBar\">\n");
-            for (WinIcon icon : icons)
-                b.append(sp(in) + "<a class=\"tb\""
-                        + " href=\"" + icon.getPath()
-                        + "?" + icon.getParameter() + "=" + icon.getValue()
-                        + "\">"
-                        + "<img alt=\"" + icon.getAlt() + "\""
-                        + " src=\"" + icon.getImage() + "\">"
-                        + "</a>\n");
-            b.append(sp(--in) + "</div>\n");
-        }
-        b.append(sp(--in) + "</div>\n");
-        if (content != null)
-            b.append(sp(in) + "<div class=\"winContent\">\n"
-                    + content
-                    + sp(in) + "</div>\n");
-        b.append(sp(--in) + "</div>\n");
-        return b.toString();
-    }
-
-    public static String simpleWindow (
-            long in, String title, String content) {
-        StringBuilder b = new StringBuilder("");
-        b.append(sp(in++) + "<div class=\"win\">\n");
-        // Display the window title
-        b.append(sp(in) + "<div class=\"winTitle\">" + title + "</div>\n");
-        b.append(sp(in) + "<div class=\"winContent\">\n"
-                + content
-                + sp(in) + "</div>\n");
-        b.append(sp(--in) + "</div>\n");
-        return b.toString();
-    }
-
     public static String error(String content) {
         StringBuilder b = new StringBuilder("");
         b.append("<div class=\"win\" style=\"margin-bottom:0;\">");
@@ -304,7 +202,7 @@ public class Functions {
      * 
      * @return The indentation string.
      */
-    protected static String sp (long num) {
+    public static String sp (long num) {
         StringBuilder b = new StringBuilder();
         for (long i = 0; i < num; i++)
             b.append("  ");

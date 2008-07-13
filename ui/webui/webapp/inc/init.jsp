@@ -7,6 +7,7 @@
 --%><%@ page import="java.util.*"
 %><%@ page import="java.io.File"
 %><%@ page import="eu.sqooss.webui.*"
+%><%@ page import="eu.sqooss.webui.widgets.*"
 %><%@ page session="true"
 %><%!
 // Holds the bundle with the WebUI's configuration properties
@@ -78,13 +79,8 @@ String msg      = "";
 long in = 0;
 // Holds the Id of the project that the user has selected (if any)
 Long projectId = null;
-String winTitle = null;
-String winContent = null;
 String winVisible = null;
-WinIcon winShowIco = null;
 WinIcon icoCloseWin = null;
-List<WinIcon> toolbar = new ArrayList<WinIcon>();
-String winFooter = null;
 
 // Folder relative to this web application's root (deployment) folder, where
 // the application will store all generated temporary files.

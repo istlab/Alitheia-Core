@@ -34,7 +34,6 @@
 package eu.sqooss.webui.view;
 
 import java.awt.Color;
-import java.awt.Paint;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,8 +48,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.ui.RectangleInsets;
-
-
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;

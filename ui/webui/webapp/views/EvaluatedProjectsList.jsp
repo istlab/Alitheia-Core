@@ -7,16 +7,17 @@
 in = 9;
 // Retrieve the list of evaluated project from the SQO-OSS framework
 ProjectsListView.retrieveData(terrier);
+Window winEvalProjects = new Window();
+winEvalProjects.setTitle("Evaluated Projects");
 if (ProjectsListView.hasProjects()) {
     ProjectsListView.setServletPath(request.getServletPath());
-    out.print(Functions.simpleWindow(in, "Evaluated Projects",
-        ProjectsListView.getHtml(in + 2)));
+    winEvalProjects.setContent(ProjectsListView.getHtml(in + 2));
 }
 // No evaluated project available
 else {
-    out.print(Functions.simpleWindow(in, "Evaluated Projects",
-        Functions.warning("Unable to find any evaluated projects.")));
+    winEvalProjects.setContent("Unable to find any evaluated projects.");
 }
+out.print(winEvalProjects.render(in));
 %>                </td>
               </tr>
             </table>

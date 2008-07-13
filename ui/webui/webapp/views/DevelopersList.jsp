@@ -1,5 +1,6 @@
 <%@ page import="eu.sqooss.webui.*"
 %><%@ page import="eu.sqooss.webui.view.*"
+%><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
 //============================================================================
 // List all developers in the selected project
@@ -22,7 +23,7 @@ if (selectedProject.isValid()) {
         else if (request.getParameter("select").equals("none"))
             selectedProject.deselectAllDevelopers();
     }
-    // Check for a developer selection
+    // Check for a single developer selection
     if (request.getParameter("selectDeveloper") != null) {
         try {
             Long selId = new Long(request.getParameter("selectDeveloper"));
@@ -40,20 +41,20 @@ if (selectedProject.isValid()) {
     // Check if the user has requested to show/hide this view
     winVisible = "showDevelopers";
     if (request.getParameter(winVisible) != null) {
-        if (request.getParameter(winVisible).equals("true"))
+        if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
             settings.setShowPVDevelopers(true);
-        else if (request.getParameter(winVisible).equals("false"))
+        else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
             settings.setShowPVDevelopers(false);
     }
+    Window winDevList = new Window();
     // Construct the window's title icons
     if (settings.getShowDevelopers())
-        winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+        winDevList.addTitleIcon(WinIcon.minimize(
+            request.getServletPath(), winVisible));
     else
-        winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
-    // Initlialize the toobar
-    toolbar.clear();
+        winDevList.addTitleIcon(WinIcon.maximize(
+            request.getServletPath(), winVisible));
     // Construct the window's content
-    winContent = null;
     if (settings.getShowDevelopers()) {
         // "Select all developers" icon
         WinIcon icoSelect = new WinIcon();
@@ -62,7 +63,7 @@ if (selectedProject.isValid()) {
         icoSelect.setValue("all");
         icoSelect.setImage("/img/icons/16x16/select-all.png");
         icoSelect.setAlt("Select all");
-        toolbar.add(icoSelect);
+        winDevList.addToolIcon(icoSelect);
         // "Deselect all developers" icon
         WinIcon icoDeselect = new WinIcon();
         icoDeselect.setPath(request.getServletPath());
@@ -70,7 +71,7 @@ if (selectedProject.isValid()) {
         icoDeselect.setValue("none");
         icoDeselect.setImage("/img/icons/16x16/deselect-all.png");
         icoDeselect.setAlt("Deselect all");
-        toolbar.add(icoDeselect);
+        winDevList.addToolIcon(icoDeselect);
         // Prepare the developers view
         selectedProject.setTerrier(terrier);
         DevelopersListView developersView =
@@ -78,13 +79,11 @@ if (selectedProject.isValid()) {
         developersView.setSelectedDevelopers(
             selectedProject.getSelectedDevelopersIds());
         // Display the developers view
-        winContent = developersView.getHtml(in);
+        winDevList.setContent(developersView.getHtml(in));
     }
     // Display the window
-    winTitle = "Developers in project " + selectedProject.getName();
-    out.print(Functions.interactiveWindow(in,
-        winTitle, winContent, null,
-        new WinIcon[]{winShowIco}, toolbar.toArray(new WinIcon[toolbar.size()])));
+    winDevList.setTitle("Developers in project " + selectedProject.getName());
+    out.print(winDevList.render(in));
 
     //========================================================================
     // Display the available evaluation result for the selected developers
@@ -96,7 +95,7 @@ if (selectedProject.isValid()) {
               <tr>
                 <td valign="top" style="width: 100%; padding-top: 0;">
 <%
-        toolbar.clear();
+        Window winDevResults = new Window();
         // Table chart icon
         WinIcon icoChart = new WinIcon();
         icoChart.setPath(request.getServletPath());
@@ -104,7 +103,7 @@ if (selectedProject.isValid()) {
         icoChart.setValue("2");
         icoChart.setImage("/img/icons/16x16/table-chart.png");
         icoChart.setAlt("Tabular");
-        toolbar.add(icoChart);
+        winDevResults.addToolIcon(icoChart);
         // Pie chart icon
         icoChart = new WinIcon();
         icoChart.setPath(request.getServletPath());
@@ -112,7 +111,7 @@ if (selectedProject.isValid()) {
         icoChart.setValue("4");
         icoChart.setImage("/img/icons/16x16/pie-chart.png");
         icoChart.setAlt("Pie chart");
-        toolbar.add(icoChart);
+        winDevResults.addToolIcon(icoChart);
         // Bar chart icon
         icoChart = new WinIcon();
         icoChart.setPath(request.getServletPath());
@@ -120,7 +119,7 @@ if (selectedProject.isValid()) {
         icoChart.setValue("8");
         icoChart.setImage("/img/icons/16x16/bar-chart.png");
         icoChart.setAlt("Bar chart");
-        toolbar.add(icoChart);
+        winDevResults.addToolIcon(icoChart);
         // Prepare the developers results view
         DevelopersResultView devResultsView =
             new DevelopersResultView(selectedProject);
@@ -132,12 +131,10 @@ if (selectedProject.isValid()) {
             if (chartType != null)
                 devResultsView.setChartType(chartType.intValue());
         }
-        winContent = devResultsView.getHtml(in + 2);
+        winDevResults.setContent(devResultsView.getHtml(in + 2));
         // Display the window
-        winTitle = "Evaluation results";
-        out.println(Functions.interactiveWindow(in,
-            winTitle, winContent, null,
-            null, toolbar.toArray(new WinIcon[toolbar.size()])));
+        winDevResults.setTitle("Evaluation results");
+        out.println(winDevResults.render(in));
     }
 %>                </td>
               </tr>
@@ -156,11 +153,12 @@ else {
             strToLong(request.getParameter("pid")));
     // Retrieve the list of projects from the connected SQO-OSS framework
     ProjectsListView.retrieveData(terrier);
-    // Display the list of evaluated projects (if any)
     if (ProjectsListView.hasProjects()) {
-        out.println(sp(in) + "<h2>Please select a project first</h2>");
         ProjectsListView.setServletPath(request.getServletPath());
-        out.println(ProjectsListView.getHtml(in));
+        Window winPrjList = new Window();
+        winPrjList.setTitle("Evaluated projects");
+        winPrjList.setContent(ProjectsListView.getHtml(in + 2));
+        out.print(winPrjList.render(in));
     }
     // No evaluated projects found
     else {

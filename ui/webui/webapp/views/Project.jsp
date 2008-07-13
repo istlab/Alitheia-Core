@@ -1,5 +1,6 @@
 <%@ page import="eu.sqooss.webui.*"
 %><%@ page import="eu.sqooss.webui.view.*"
+%><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
 String inputError = null;
 if (selectedProject.isValid()) {
@@ -25,63 +26,65 @@ if (selectedProject.isValid()) {
     // Display the selected project's metadata
     //========================================================================
     // Indentation depth
-    in = 11;
+    in = 9;
     // Check if the user has requested to show/hide this view
     winVisible = "showPVMetadata";
     if (request.getParameter(winVisible) != null) {
-        if (request.getParameter(winVisible).equals(WinIcon.enable))
+        if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
             settings.setShowPVMetadata(true);
-        else if (request.getParameter(winVisible).equals(WinIcon.disable))
+        else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
             settings.setShowPVMetadata(false);
     }
+    Window winPrjMetadata = new Window();
     // Construct the window's title icons
     if (settings.getShowPVMetadata())
-        winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+        winPrjMetadata.addTitleIcon(WinIcon.minimize(
+            request.getServletPath(), winVisible));
     else
-        winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+        winPrjMetadata.addTitleIcon(WinIcon.maximize(
+            request.getServletPath(), winVisible));
     // Construct the window's content
-    winContent = null;
     if (settings.getShowPVMetadata()) {
         ProjectInfoView infoView = new ProjectInfoView(selectedProject);
-        winContent = infoView.getHtml(in);
+        winPrjMetadata.setContent(infoView.getHtml(in + 2));
     }
     // Display the window
-    winTitle = selectedProject.getName() + " overview";
-    out.print(Functions.interactiveWindow(
-        9, winTitle, winContent, new WinIcon[]{winShowIco}));
+    winPrjMetadata.setTitle(selectedProject.getName() + " overview");
+    out.print(winPrjMetadata.render(in));
 
     //========================================================================
     // Display the list of developers that are working on this project
     //========================================================================
     // Indentation depth
-    in = 11;
+    in = 9;
     // Check if the user has requested to show/hide this view
     winVisible = "showPVDevelopers";
     if (request.getParameter(winVisible) != null) {
-        if (request.getParameter(winVisible).equals(WinIcon.enable))
+        if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
             settings.setShowPVDevelopers(true);
-        else if (request.getParameter(winVisible).equals(WinIcon.disable))
+        else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
             settings.setShowPVDevelopers(false);
     }
+    Window winPrjDevelopers = new Window();
     // Construct the window's title icons
     if (settings.getShowPVDevelopers())
-        winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+        winPrjDevelopers.addTitleIcon(WinIcon.minimize(
+            request.getServletPath(), winVisible));
     else
-        winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+        winPrjDevelopers.addTitleIcon(WinIcon.maximize(
+            request.getServletPath(), winVisible));
     // Construct the window's content
-    winContent = null;
     if (settings.getShowPVDevelopers()) {
         // Prepare the developers view
         selectedProject.setTerrier(terrier);
         DevelopersListView developersView =
         new DevelopersListView(selectedProject.getDevelopers());
         // Display the developers
-        winContent = developersView.getHtml(in);
+        winPrjDevelopers.setContent(developersView.getHtml(in + 2));
     }
     // Display the window
-    winTitle = "Developers";
-    out.print(Functions.interactiveWindow(
-        9, winTitle, winContent, new WinIcon[]{winShowIco}));
+    winPrjDevelopers.setTitle("Developers");
+    out.print(winPrjDevelopers.render(in));
 %>                </td>
                 <td valign="top"style="width: 40%; padding-bottom: 0;">
 <%
@@ -120,18 +123,20 @@ if (selectedProject.isValid()) {
     // Check if the user has requested to show/hide this view
     winVisible = "showPVVersions";
     if (request.getParameter(winVisible) != null) {
-        if (request.getParameter(winVisible).equals(WinIcon.enable))
+        if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
             settings.setShowPVVersions(true);
-        else if (request.getParameter(winVisible).equals(WinIcon.disable))
+        else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
             settings.setShowPVVersions(false);
     }
+    Window winPrjVersions = new Window();
     // Construct the window's title icons
     if (settings.getShowPVVersions())
-        winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+        winPrjVersions.addTitleIcon(WinIcon.minimize(
+            request.getServletPath(), winVisible));
     else
-        winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+        winPrjVersions.addTitleIcon(WinIcon.maximize(
+            request.getServletPath(), winVisible));
     // Construct the window content
-    winContent = null;
     if (settings.getShowPVVersions()) {
         if (selectedProject.getCurrentVersion() != null) {
             StringBuilder b = new StringBuilder("");
@@ -168,15 +173,15 @@ if (selectedProject.isValid()) {
                 + "</strong>\n");
             b.append(sp(in) + "<br/>\n");
             b.append(versionSelector(selectedProject, in));
-            winContent = b.toString();
+            winPrjVersions.setContent(b.toString());
         }
         else
-            winContent = sp(in) + Functions.warning("No versions found.");
+            winPrjVersions.setContent(sp(in) + Functions.warning(
+                "No versions found."));
     }
     // Display the window
-    winTitle = "Versions";
-    out.print(Functions.interactiveWindow(
-        9, winTitle, winContent, new WinIcon[]{winShowIco}));
+    winPrjVersions.setTitle("Versions");
+    out.print(winPrjVersions.render(in - 2));
 
     //========================================================================
     // Display the source file statistic of the selected project
@@ -186,31 +191,34 @@ if (selectedProject.isValid()) {
     // Check if the user has requested to show/hide this view
     winVisible = "showPVFileStat";
     if (request.getParameter(winVisible) != null) {
-        if (request.getParameter(winVisible).equals(WinIcon.enable))
+        if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
             settings.setShowPVFileStat(true);
-        else if (request.getParameter(winVisible).equals(WinIcon.disable))
+        else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
             settings.setShowPVFileStat(false);
     }
+    Window winPrjFiles = new Window();
     // Construct the window's title icons
     if (settings.getShowPVFileStat())
-        winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+        winPrjFiles.addTitleIcon(WinIcon.minimize(
+            request.getServletPath(), winVisible));
     else
-        winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+        winPrjFiles.addTitleIcon(WinIcon.maximize(
+            request.getServletPath(), winVisible));
     // Construct the window's content
-    winContent = null;
     if (settings.getShowPVFileStat()) {
         if (selectedProject.getCurrentVersion() != null)
-            winContent = selectedProject.getCurrentVersion().fileStats(in);
+            winPrjFiles.setContent(
+                selectedProject.getCurrentVersion().fileStats(in));
         else
-            winContent = sp(in) + Functions.warning("No versions found.");
+            winPrjFiles.setContent(
+                sp(in) + Functions.warning("No versions found."));
     }
     // Display the window
-    winTitle = "Files"
+    winPrjFiles.setTitle("Files"
         + ((selectedProject.getCurrentVersion() != null)
             ? " in version " + selectedProject.getCurrentVersion().getNumber()
-            : "");
-    out.print(Functions.interactiveWindow(
-        9, winTitle, winContent, new WinIcon[]{winShowIco}));
+            : ""));
+    out.print(winPrjFiles.render(in - 2));
 %>                </td>
               </tr>
               <tr>
@@ -228,18 +236,20 @@ if (selectedProject.isValid()) {
     // Check if the user has requested to show/hide this view
     winVisible = "showPVMetrics";
     if (request.getParameter(winVisible) != null) {
-        if (request.getParameter(winVisible).equals(WinIcon.enable))
+        if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
             settings.setShowPVMetrics(true);
-        else if (request.getParameter(winVisible).equals(WinIcon.disable))
+        else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
             settings.setShowPVMetrics(false);
     }
+    Window winPrjMetrics = new Window();
     // Construct the window's title icons
     if (settings.getShowPVMetrics())
-        winShowIco = WinIcon.minimize(request.getServletPath(), winVisible);
+        winPrjMetrics.addTitleIcon(
+            WinIcon.minimize(request.getServletPath(), winVisible));
     else
-        winShowIco = WinIcon.maximize(request.getServletPath(), winVisible);
+        winPrjMetrics.addTitleIcon(
+            WinIcon.maximize(request.getServletPath(), winVisible));
     // Construct the window's content
-    winContent = null;
     if (settings.getShowPVMetrics()) {
         // Prepare the metrics view
         MetricsTableView metricsView =
@@ -248,12 +258,11 @@ if (selectedProject.isValid()) {
         metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
         metricsView.setShowResult(false);
         // Display the metrics
-        winContent = metricsView.getHtml(in);
+        winPrjMetrics.setContent(metricsView.getHtml(in));
     }
     // Display the window
-    winTitle = "Evaluated metrics";
-    out.print(Functions.interactiveWindow(
-        9, winTitle, winContent, new WinIcon[]{winShowIco}));
+    winPrjMetrics.setTitle("Evaluated metrics");
+    out.print(winPrjMetrics.render(in - 2));
 %>                </td>
               </tr>
             </table>
