@@ -51,10 +51,26 @@ import eu.sqooss.impl.service.CoreActivator;
  */
 public class ProjectFile extends DAObject{
     // File status constants
-    public static String STATE_ADDED    = "ADDED";
-    public static String STATE_MODIFIED = "MODIFIED";
-    public static String STATE_DELETED  = "DELETED";
-
+    public static final String STATE_ADDED    = "ADDED";
+    public static final String STATE_MODIFIED = "MODIFIED";
+    public static final String STATE_DELETED  = "DELETED";
+    
+    //Select files, directories or both while querying
+    /**
+     * Mask used to select files
+     */
+    public static final int MASK_FILES = 0x1;
+    
+    /**
+     * Mask used to select directories
+     */
+    public static final int MASK_DIRECTORIES = 0x2;
+    
+    /**
+     * Mask used to select both files and directories
+     */
+    public static final int MASK_ALL = MASK_FILES | MASK_DIRECTORIES;
+    
     /**
      * The filename
      */
@@ -354,7 +370,7 @@ public class ProjectFile extends DAObject{
             return projectFiles;
         }
     }
-
+    
     /**
      * Returns all of the files visible in a given project version
      * and in a given directory. Does not list recursively.
@@ -364,11 +380,28 @@ public class ProjectFile extends DAObject{
      * @param d Directory to list
      * @return List of files visible in that version (may be empty, not null)
      */
-    @SuppressWarnings("unchecked")
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version,
             Directory d) {
+        return getFilesForVersion(version, d, MASK_ALL);
+    }
+    
+    /**
+     * Returns either all the files or the directories or both 
+     * that are visible in a given project version and in a given directory. 
+     * Does not list recursively. Does not return null, but the list may be empty.
+     *
+     * @param version Project and version to look at
+     * @param d Directory to list
+     * @param mask Used to restrict the returned values to either files or
+     * directories
+     * @return List of files visible in that version (may be empty, not null)
+     */
+    @SuppressWarnings("unchecked")
+    public static List<ProjectFile> getFilesForVersion(ProjectVersion version,
+            Directory d, int mask) {
         if (version==null || d==null) {
-            throw new IllegalArgumentException("Project version or directory is null in getFilesForVersion.");
+            throw new IllegalArgumentException("Project version or directory" +
+            		" is null in getFilesForVersion.");
 	}
 
         DBService dbs = CoreActivator.getDBService();
@@ -376,6 +409,7 @@ public class ProjectFile extends DAObject{
         String paramProjectId = "project_id";
         String paramDirectoryId = "directory_id";
         String paramTimestamp = "timestamp";
+        String paramIsDirectory = "is_directory";
 
         String query = "select pf1 " +
         	"from ProjectFile pf1, ProjectVersion pv1 " +
@@ -391,11 +425,20 @@ public class ProjectFile extends DAObject{
             "    and pf.dir.id = pf1.dir.id " + 
             "    and pf.name = pf1.name " +
             "    and pv.project.id = pv1.project.id )"; 
+            
+        if (mask != MASK_ALL) {
+            query += " and pf1.isDirectory = :" + paramIsDirectory;
+        }
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramTimestamp, version.getTimestamp());
         parameters.put(paramProjectId, version.getProject().getId());
         parameters.put(paramDirectoryId, d.getId() );
+        
+        if (mask != MASK_ALL) {
+            Boolean isDirectory = ((mask == MASK_DIRECTORIES)?true:false);
+            parameters.put(paramIsDirectory, isDirectory);
+        }
         
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles == null || projectFiles.size() == 0) {

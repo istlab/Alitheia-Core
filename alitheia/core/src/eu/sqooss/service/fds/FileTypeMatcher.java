@@ -53,7 +53,9 @@ public class FileTypeMatcher {
     private static String[] srcMimes = { ".c", ".java", ".h", ".py", ".cpp",
             ".C", ".sh", ".rb", ".el", ".m4", ".cs", ".xsl", ".vb", ".patch", 
             "Makefile", ".hpp", ".pl", ".js", ".sql", ".css", ".jsp", ".bat", 
-            ".php" };
+            ".php", ".asp", ".aspx", ".bat", ".vbs", ".y", ".l", ".asm", ".s",
+            ".bas", ".cc", ".d", ".e", ".for", ".pm", ".hxx", ".hs", ".m", 
+            ".pas", ".cgi"};
 
     private static String[] docMimes = { ".txt", ".sgml", ".html", ".tex",
             ".htm", ".bib" };
