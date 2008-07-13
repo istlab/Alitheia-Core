@@ -74,7 +74,7 @@ public class FileOps {
     }
     
     public boolean exists(String path) {
-        System.err.println("CLMT.FileOps.exists:" + path);
+        //System.err.println("CLMT.FileOps.exists:" + path);
         if (getFileForPath(path) != null)
                 return true;
         
@@ -117,7 +117,7 @@ public class FileOps {
     }
     
     public synchronized InputStream getFileContents(String path) {
-        System.err.println("CLMT.FileOps.getFileContents" + ":" + path);
+        //System.err.println("CLMT.FileOps.getFileContents" + ":" + path);
         ProjectFile pf = getFileForPath(path);
         
         return fds.get().getFileContents(pf);
