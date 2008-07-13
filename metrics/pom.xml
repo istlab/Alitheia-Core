@@ -110,6 +110,7 @@
     <module>clmt</module>
     <module>quality-model</module>
     <module>simulation</module>
+    <module>modulemetrics</module>
   </modules>
 </project>
 
