@@ -33,7 +33,6 @@
 
 package eu.sqooss.impl.metrics.clmt;
 
-import java.io.ByteArrayInputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +42,7 @@ import java.util.regex.Pattern;
 import org.clmt.cache.Cache;
 import org.clmt.cache.CacheException;
 import org.clmt.configuration.Calculation;
+import org.clmt.configuration.Filename;
 import org.clmt.configuration.Source;
 import org.clmt.configuration.Task;
 import org.clmt.configuration.TaskException;
@@ -70,26 +70,9 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FDSService;
-import eu.sqooss.service.fds.InMemoryCheckout;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
-import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
 
 public class CLMTImplementation extends AbstractMetric implements CLMT {
-    
-    private final String XMLTaskProto = "<task>\n"     +
-    "  <description>%s </description>\n"               +
-    "   <source id=\"%s\" language=\"%s\">\n"          +
-    "    <directory path=\"%s\" recursive=\"true\">\n" +
-    "      <include mask=\"%s\" />\n"                  +
-    "    </directory>\n"                               +
-    "   </source>\n"                                   + 
-    "%s\n" +
-    "</task>";
-    
-    private final String XMLCalcProto = 
-        "<calculation name=\"%s\" ids=\"%s\" />"; 
-    
+  
     private AlitheiaCore core;
     
     public CLMTImplementation(BundleContext bc) {
@@ -142,26 +125,16 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     public void run(ProjectVersion pv) {
         
         FDSService fds = core.getFDSService();
-        List<Metric> lm = getSupportedMetrics();
-        StringBuilder metricCalc = new StringBuilder();
-        InMemoryCheckout imc = null;
-               
-        /*Get a checkout for this revision*/
-        try {
-            Pattern p = Pattern.compile(".*java$");
-            imc = fds.getInMemoryCheckout(pv.getProject().getId(), 
-                    new ProjectRevision(pv.getVersion()), p);
-        } catch (InvalidRepositoryException e) {
-            log.error("Cannot get in memory checkout for project " + 
-                    pv.getProject().getName() + " revision " + pv.getVersion() 
-                    + ":" + e.getMessage());
-        } catch (InvalidProjectRevisionException e) {
-            log.error("Cannot get in memory checkout for project " + 
-                    pv.getProject().getName() + " revision " + pv.getVersion() 
-                    + ":" + e.getMessage());   
+        Pattern p = Pattern.compile(".*java$");
+        
+        List<ProjectFile> pfs = ProjectFile.getFilesForVersion(pv, p);
+        
+        if (pfs.isEmpty()) {
+            /*No supported files found*/
+            return;
         }
-       
-        FileOps.instance().setInMemoryCheckout(imc);
+        
+        FileOps.instance().setProjectFiles(pfs);
         FileOps.instance().setFDS(fds);
         
         /*CMLT Init*/
@@ -172,45 +145,43 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         Cache cache = Cache.getInstance();
         cache.setCacheSize(Integer.valueOf(clmtProp.get(Config.CACHE_SIZE)));
         
-        /*Construct task for parsing Java files*/
-        for(Metric m : lm) {
-            metricCalc.append(String.format(XMLCalcProto, 
-                    m.getMnemonic(),
-                    pv.getProject().getName()+"-Java"));
-            metricCalc.append("\n");
-        }
+        /*Construct a calculation task*/
+        Task task = new Task("JavaCalcTask");
+        Source s = null;
         
-        /*Yes, string based XML construction and stuff*/
-        String javaTask = String.format(XMLTaskProto, 
-                pv.getProject().getName(), 
-                pv.getProject().getName()+"-Java", 
-                "Java",
-                "",
-                ".*java",
-                metricCalc);
-        Task t = null;
         try {
-            t = new Task(pv.getProject().getName(), 
-                    new ByteArrayInputStream(javaTask.getBytes()));
+            s = new Source("JavaSource", "Java");
         } catch (TaskException e) {
-            log.error(this.getClass().getName() + ": Invalid task file:" 
-                    + e.getMessage());
-            return;
+            log.warn(e.getMessage());
         }
         
-        for (Source s : t.getSource()) {
+        /*Add source files to the calculation task*/
+        for(ProjectFile pf : pfs) {
+            s.addFile(new Filename(pf.getFileName()));
+        }
+        
+        task.addSources(s);
+        
+        /*Add metrics to the calculation task*/
+        for (Metric m : this.getSupportedMetrics()) {
+            task.addCalculation(new Calculation(m.getMnemonic(), "JavaSource"));
+        }
+        
+        /*Parse files and store them to the parsed file cache*/
+        for (Source source : task.getSource()) {
             try {
-                cache.add(s);
+                cache.add(source);
             } catch (CacheException ce) {
                 log.warn(ce.getMessage());
             }
         }
         
+        /*Run metrics against the source files*/
         MetricList mlist = MetricList.getInstance();
         MetricResultList mrlist = new MetricResultList();
-        for (Calculation calc : t.getCalculations()) {
+        for (Calculation calc : task.getCalculations()) {
             try {
-                Source source = t.getSourceById(calc.getID());
+                Source source = task.getSourceById(calc.getID());
                 org.clmt.metrics.Metric metric = mlist.getMetric(calc.getName(),source);
                 mrlist.merge(metric.calculate());
             } catch (MetricInstantiationException mie) {
@@ -218,12 +189,18 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             }
         }
         
-        System.out.println(mrlist.toString());
-        
         String[] keys = mrlist.getFilenames();
         MetricResult[] lmr = null;
         for(String file: keys) {
             lmr = mrlist.getResultsByFilename(file);
+            
+            /*Find project file in this version's project files*/
+            ProjectFile pf = null;
+            for (ProjectFile pf1 : pfs) {
+                if (pf1.getFileName().equals(file)) {
+                    pf = pf1;
+                }
+            }
             
             for(MetricResult mr : lmr) {
                 Metric m =  Metric.getMetricByMnemonic(mr.getName());
@@ -234,8 +211,6 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     if (m == null) {
                         return;
                     }
-                    
-                    ProjectFile pf = ProjectFile.getLatestVersion(pv, file);
                     
                     if (pf == null) {
                         log.warn("Cannot find path: " + file + " for project:" +
@@ -251,7 +226,10 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     meas.setProjectFile(pf);
                     meas.setResult(mr.getValue());
                     meas.setCodeConstructName(mr.getFilename());
-                    meas.setCodeConstructType(CodeConstructType.getConstructType(CodeConstructType.ConstructType.fromString(mnc.toString())));
+                    meas.setCodeConstructType(
+                            CodeConstructType.getConstructType(
+                                    CodeConstructType.ConstructType.fromString(
+                                            mnc.toString())));
                     meas.setWhenRun(new Timestamp(System.currentTimeMillis()));
                     
                     db.addRecord(meas);
@@ -322,6 +300,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     
     public void run(ProjectFile a) {
         //Nothing to do, the metric is activated by project versions only
+        return;
     }
 }
 

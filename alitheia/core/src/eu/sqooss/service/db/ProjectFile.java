@@ -38,8 +38,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import eu.sqooss.impl.service.CoreActivator;
 
@@ -406,53 +408,42 @@ public class ProjectFile extends DAObject{
     
     /**
      * Returns all of the files visible in a given project version
-     * that match the provided filter.
+     * that match the provided Pattern. The Pattern is evaluated
+     * against the file path.
      * Does not return null, but the list may be empty.
      *
      * @param version Project and version to look at
      * @param filter SQL-like expression to filter out unwanted paths
-     * @return List of files visible in that version (may be empty, not null)
+     * @return List of files visible in that version, whose path matches the 
+     * specifed pattern (may be empty, not null)
      * 
-     * TODO: Check if this is supported on databases other than postgres
      */
-    public static List<ProjectFile> getFilesForVersion(ProjectVersion version, String filter) {
+    public static List<ProjectFile> getFilesForVersion(ProjectVersion version, Pattern p) {
       
-        DBService dbs = CoreActivator.getDBService();
-
-        String paramVersion = "version_id";
-        String paramProjectId = "project_id";
-        String paramFilter = "filter";
-        String paramTimestamp = "timestamp";
-     
-        String query = "select pf1 " +
-            "from ProjectFile pf1, ProjectVersion pv1 " +
-            "where  pf1.projectVersion = pv1 " +
-            " and pf1.status<>'DELETED' " +
-            " and pv1.project.id = :" + paramProjectId +
-            " and pf1.dir.path||'/'||pf1.name like :" + paramFilter +
-            " and pv1.timestamp = ( " +
-            "    select max(pv.timestamp) " + 
-            "    from ProjectFile pf, ProjectVersion pv " +
-            "    where pf.projectVersion=pv " + 
-            "    and pv.timestamp <= :" +  paramTimestamp +
-            "    and pf.dir = pf1.dir " + 
-            "    and pf.name = pf1.name " +
-            "    and pv.project = pv1.project )";
-
+        List<ProjectFile> files = getFilesForVersion(version);
+        List<ProjectFile> matchedFiles = new ArrayList<ProjectFile>();
         
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, version.getVersion());
-        parameters.put(paramTimestamp, version.getTimestamp());
-        parameters.put(paramProjectId, version.getProject().getId());
-        parameters.put(paramFilter, "%" + filter + "%");
-        
-        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
-        if (projectFiles==null) {
+        if (files == null) {
             // Empty array list with a capacity of 1
             return new ArrayList<ProjectFile>();
-        } else {
-            return projectFiles;
         }
+        
+        Iterator<ProjectFile> i = files.iterator();
+        
+        while (i.hasNext()) {
+            ProjectFile pf = i.next();
+            Matcher m = p.matcher(pf.getFileName());
+            if (m.matches() && !matchedFiles.contains(pf)) {
+                for(ProjectFile tmpPF : matchedFiles) {
+                    if (tmpPF.getFileName().equals(pf.getFileName())) {
+                        System.err.println("Duplicate filename in file list:" + tmpPF.getFileName());
+                    }
+                }
+                matchedFiles.add(pf);
+            }
+        }
+        
+        return matchedFiles;
     }
 
     /**

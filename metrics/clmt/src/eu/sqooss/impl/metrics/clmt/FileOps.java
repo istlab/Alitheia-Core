@@ -46,9 +46,8 @@ public class FileOps {
     
     private static final FileOps instance;
     
-    private ThreadLocal<InMemoryCheckout> imc = new ThreadLocal<InMemoryCheckout>();
     private ThreadLocal<FDSService> fds = new ThreadLocal<FDSService>();
-    
+    private ThreadLocal<List<ProjectFile>> pfl = new ThreadLocal<List<ProjectFile>>();
     static {
         instance = new FileOps();
     }
@@ -57,25 +56,40 @@ public class FileOps {
         return instance;
     }
     
-    public synchronized void setInMemoryCheckout(InMemoryCheckout imc) {
-        this.imc.set(imc);
+    public synchronized void setProjectFiles(List<ProjectFile> pfl) {
+        this.pfl.set(pfl);
     }
     
     public synchronized void setFDS(FDSService fds) {
         this.fds.set(fds);
     }
 
+    private ProjectFile getFileForPath(String path) {
+        for (ProjectFile pf : pfl.get()) {
+            if (pf.getFileName().equals(path)) {
+                return pf;
+            }
+        }
+        return null;
+    }
+    
     public boolean exists(String path) {
-        return imc.get().getRoot().pathExists(path);
+        System.err.println("CLMT.FileOps.exists:" + path);
+        if (getFileForPath(path) != null)
+                return true;
+        
+        return false;
     }
     
     public boolean isDirectory(String path) {
-
-        InMemoryDirectory imd = imc.get().getRoot().getSubdirectoryByName(path);
+        System.err.println("CLMT.FileOps.isDirectory:" + path);
         
-        if (imd == null)
-            return false;
-        return true;
+        ProjectFile pf = getFileForPath(path);
+        
+        if ((pf != null) && pf.getIsDirectory() )
+            return true;
+        
+        return false;
     }
     
     /**
@@ -86,16 +100,9 @@ public class FileOps {
      * in the directory. The path is not appended. 
      */
     public List<String> getDirectories(String path) {
+        System.err.println("CLMT.FileOps.getDirectories:" + path);
         
-        List<String> files = new ArrayList<String>();
-        List<InMemoryDirectory> imdList = 
-            imc.get().getRoot().getSubdirectoryByName(path).getSubDirectories();
-        
-        for(InMemoryDirectory imd : imdList) {
-            files.add(imd.getName());
-        }
-        
-        return files;
+        return null;
     }
     
     /**
@@ -105,12 +112,14 @@ public class FileOps {
      * in the directory. The path is not appended.
      */
     public List<String> listFiles(String path) {
-        
-        return imc.get().getRoot().getSubdirectoryByName(path).getFileNames();
+        System.err.println("CLMT.FileOps.listFiles:" + path);
+        return null;
     }
     
     public synchronized InputStream getFileContents(String path) {
-        ProjectFile f = imc.get().getRoot().getFile(path);
-        return fds.get().getFileContents(f);
+        System.err.println("CLMT.FileOps.getFileContents" + ":" + path);
+        ProjectFile pf = getFileForPath(path);
+        
+        return fds.get().getFileContents(pf);
     }
 }
