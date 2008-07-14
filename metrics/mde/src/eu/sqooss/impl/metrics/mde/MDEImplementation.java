@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.metrics.skeleton;
+package eu.sqooss.impl.metrics.mde;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +41,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.metrics.skeleton.Skeleton;
+import eu.sqooss.metrics.mde.MDE;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.Result;
@@ -52,8 +52,8 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
 
 
-public class SkeletonImplementation extends AbstractMetric implements Skeleton {
-    public SkeletonImplementation(BundleContext bc) {
+public class MDEImplementation extends AbstractMetric implements MDE {
+    public MDEImplementation(BundleContext bc) {
         super(bc);        
     }
 
@@ -87,9 +87,9 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
     }
 
     public void run(ProjectFile a) {
-        SkeletonJob w = null;
+        MDEJob w = null;
         try {
-            w = new SkeletonJob(this);
+            w = new MDEJob(this);
 
             ServiceReference serviceRef = null;
             serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());

@@ -1,5 +1,5 @@
 TOP_SRCDIR=..
-SUBDIRS=clmt skeleton wc productivity-metric quality-model simulation modulemetrics
+SUBDIRS=clmt skeleton wc productivity-metric quality-model simulation modulemetrics mde
 
 include $(TOP_SRCDIR)/Makefile.metrics
 

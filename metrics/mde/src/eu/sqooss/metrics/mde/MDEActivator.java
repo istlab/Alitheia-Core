@@ -13,8 +13,8 @@ public class MDEActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
 
-        registration = bc.registerService(SkeletonImplementation.class.getName(),
-                new SkeletonImplementation(bc), null);
+        registration = bc.registerService(MDEImplementation.class.getName(),
+                new MDEImplementation(bc), null);
     }
 
     public void stop(BundleContext context) throws Exception {

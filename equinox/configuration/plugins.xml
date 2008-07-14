@@ -31,6 +31,17 @@
       <par1>true</par1>
     </extensions>
   </metric>
+ 
+  <metric name="eu.sqooss.impl.metrics.mde.MDEImpl">
+    <autoinstall>false</autoinstall>
+    
+    <extensions>
+      <par8>1</par8>
+      <par2>true</par2>
+      <par4>test</par4>
+      <par1>true</par1>
+    </extensions>
+  </metric>
 
   <metric name="another.metric.class.name">
     <autoinstall>false</autoinstall>

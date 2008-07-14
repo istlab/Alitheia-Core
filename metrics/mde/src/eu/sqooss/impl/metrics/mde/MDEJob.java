@@ -40,7 +40,7 @@ public class MDEJob extends AbstractMetricJob {
     // Reference to the metric that created this job
     AbstractMetric parent = null;
 
-    public SkeletonJob(AbstractMetric owner) {
+    public MDEJob(AbstractMetric owner) {
         super(owner);
         parent = owner;
     }
