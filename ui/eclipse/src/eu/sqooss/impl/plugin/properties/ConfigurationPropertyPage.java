@@ -59,11 +59,11 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     @Override
     protected Control createContents(Composite parent) {
         Control control = super.createContents(parent);
+        mainControl = compositeProject;
         enableIfPossible();
-        textFieldServerUrl.setText(connectionUtils.getServerUrl());
-        textFieldUserName.setText(connectionUtils.getUserName());
-        textFieldPassword.setText(connectionUtils.getPassword());
-        textFieldProjectName.setText(connectionUtils.getProjectName());
+        synchronizeConnectionUtils(true);
+        tabFolder.addSelectionListener(this);
+        comboProjectVersion.addSelectionListener(this);
         return control;
     }
 
@@ -82,14 +82,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     @Override
     protected void performDefaults() {
         super.performDefaults();
-        textFieldServerUrl.setText(PropertyPagesMessages.
-                ConfigurationPropertyPage_Text_Server_Url_Default_Value);
-        textFieldUserName.setText(PropertyPagesMessages.
-                ConfigurationPropertyPage_Text_User_Name_Default_Value);
-        textFieldPassword.setText(PropertyPagesMessages.
-                ConfigurationPropertyPage_Text_Password_Default_Value);
-        textFieldProjectName.setText(PropertyPagesMessages.
-                ConfigurationPropertyPage_Text_Project_Name_Default_Value);
+        connectionUtils.setDefaultValues();
+        synchronizeConnectionUtils(true);
     }
 
     /**
@@ -98,7 +92,7 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     @Override
     public boolean performOk() {
         if (super.performOk()) {
-            updateConnectionUtilsFields();
+            synchronizeConnectionUtils(false);
             connectionUtils.save();
             notifyPropertyPages(connectionUtils.validate());
             return true;
@@ -112,7 +106,7 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
      */
     @Override
     protected void performApply() {
-        updateConnectionUtilsFields();
+        synchronizeConnectionUtils(false);
         connectionUtils.save();
         notifyPropertyPages(connectionUtils.validate());
     }
@@ -123,19 +117,50 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     }
 
     public void widgetSelected(SelectionEvent e) {
-        if (e.getSource() == buttonValidate) {
+        Object eventSource = e.getSource();
+        if (eventSource == buttonValidate) {
             validateConfiguration();
+        } else if (eventSource == tabFolder) {
+            int selectedItemIndex = tabFolder.getSelectionIndex();
+            if ((selectedItemIndex != -1) &&
+                    (tabItemProject == tabFolder.getItem(selectedItemIndex))) {
+                synchronizeConnectionUtils(false);
+                connectionUtils.save();
+                notifyPropertyPages(connectionUtils.validate());
+                if (connectionUtils.isValidAccount() &&
+                        (controlEnableState != null)) {
+                    controlEnableState.restore();
+                    controlEnableState = null;
+                }
+            }
+        } else if (eventSource == comboProjectVersion) {
+            if (PropertyPagesMessages.ConfigurationPropertyPage_Combo_Other_Project_Version.
+                    equals(comboProjectVersion.getText())) {
+                comboProjectVersion.setText("");
+            }
         }
     }
 	
     @Override
     public void setEnabled(boolean isEnabled) {
-        notifyPropertyPages(isEnabled);
+        if (!connectionUtils.isValidAccount()) {
+            super.setEnabled(isEnabled);
+        }
     }
 
+    @Override
+    public boolean okToLeave() {
+        synchronizeConnectionUtils(false);
+        connectionUtils.save();
+        notifyPropertyPages(connectionUtils.validate());
+        return super.okToLeave();
+    }
+
+
     private void validateConfiguration() {
-        updateConnectionUtilsFields();
-        if (connectionUtils.validate()) {
+        synchronizeConnectionUtils(false);
+        boolean isValid = connectionUtils.validate();
+        if (isValid) {
             boolean isForSave;
             isForSave = MessageDialog.openQuestion(getShell(),
                     PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
@@ -151,14 +176,23 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
                     PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Fail + 
                     "\n\nReason: " + connectionUtils.getErrorMessage());
         }
-        notifyPropertyPages(connectionUtils.isValid());
+        notifyPropertyPages(isValid);
     }
     
-    private void updateConnectionUtilsFields() {
-        connectionUtils.setServerUrl(textFieldServerUrl.getText());
-        connectionUtils.setProjectName(textFieldProjectName.getText());
-        connectionUtils.setUserName(textFieldUserName.getText());
-        connectionUtils.setPassword(textFieldPassword.getText());
+    private void synchronizeConnectionUtils(boolean synchronizeGUI) {
+        if (synchronizeGUI) {
+            textFieldServerUrl.setText(connectionUtils.getServerUrl());
+            textFieldUserName.setText(connectionUtils.getUserName());
+            textFieldPassword.setText(connectionUtils.getPassword());
+            textFieldProjectName.setText(connectionUtils.getProjectName());
+            comboProjectVersion.setText(connectionUtils.getProjectVersion());
+        } else {
+            connectionUtils.setServerUrl(textFieldServerUrl.getText());
+            connectionUtils.setProjectName(textFieldProjectName.getText());
+            connectionUtils.setProjectVersion(comboProjectVersion.getText());
+            connectionUtils.setUserName(textFieldUserName.getText());
+            connectionUtils.setPassword(textFieldPassword.getText());
+        }
     }
     
     private void notifyPropertyPages(boolean isEnabled) {
@@ -167,13 +201,12 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         IPreferencePage currentPage;
         for (Object node : nodes) {
             currentPage = ((IPreferenceNode) node).getPage();
-            if ((currentPage instanceof EnabledState) &&
-                    (currentPage != this)){
+            if (currentPage instanceof EnabledState) {
                 ((EnabledState) currentPage).setEnabled(isEnabled);
             }
         }
     }
-    
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

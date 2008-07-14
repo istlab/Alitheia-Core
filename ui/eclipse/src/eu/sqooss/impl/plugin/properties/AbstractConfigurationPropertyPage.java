@@ -36,9 +36,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
 abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
@@ -49,6 +52,10 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
     protected Text textFieldUserName;
     protected Text textFieldPassword;
     protected Text textFieldProjectName;
+    protected Combo comboProjectVersion;
+    protected TabFolder tabFolder;
+    protected TabItem tabItemProject;
+    protected Composite compositeProject;
     
     protected Button buttonValidate;
     
@@ -63,7 +70,9 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         Composite composite = createComposite(parent);
         GridData compositeGridData = new GridData(GridData.FILL, GridData.FILL, true, true);
         composite.setLayoutData(compositeGridData);
-        addComponents(composite);
+        tabFolder = addTabFolder(composite);
+        addAccountTabItem(tabFolder);
+        addProjectTabItem(tabFolder);
         return composite;
     }
 
@@ -77,31 +86,66 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         buttonValidate.setText(PropertyPagesMessages.ConfigurationPropertyPage_Button_Validate);
     }
 
-    private void addComponents(Composite composite) {
+    private TabFolder addTabFolder(Composite composite) {
+        //create the tab folder
+        TabFolder tabFolder = new TabFolder(composite, SWT.TOP);
+        setLayoutData(tabFolder);
+        return tabFolder;
+    }
+    
+    
+    private void addAccountTabItem(TabFolder tabFolder) {
+        Composite compositeAccount = createComposite(tabFolder);
+        setLayoutData(compositeAccount);
         
         // add server url's components
-        Label labelServerUrl = new Label(composite, SWT.NONE);
+        Label labelServerUrl = new Label(compositeAccount, SWT.NONE);
         labelServerUrl.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_Server_Url);
-        textFieldServerUrl = new Text(composite, TEXT_FIELDS_SWT_STYLE);
+        textFieldServerUrl = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE);
         setLayoutData(textFieldServerUrl);
         
         // add user name's components
-        Label labelUserName = new Label(composite, SWT.NONE);
+        Label labelUserName = new Label(compositeAccount, SWT.NONE);
         labelUserName.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_User_Name);
-        textFieldUserName = new Text(composite, TEXT_FIELDS_SWT_STYLE);
+        textFieldUserName = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE);
         setLayoutData(textFieldUserName);
 
         // add password's components
-        Label labelPassword = new Label(composite, SWT.NONE);
+        Label labelPassword = new Label(compositeAccount, SWT.NONE);
         labelPassword.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_Password);
-        textFieldPassword = new Text(composite, TEXT_FIELDS_SWT_STYLE | SWT.PASSWORD);
+        textFieldPassword = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE | SWT.PASSWORD);
         setLayoutData(textFieldPassword);
         
-        // add project's components
-        Label labelProjectName = new Label(composite, SWT.NONE);
+        TabItem tabItemAccount = new TabItem(tabFolder, SWT.NONE);
+        tabItemAccount.setText(PropertyPagesMessages.ConfigurationPropertyPage_TabItem_Account);
+        tabItemAccount.setControl(compositeAccount);
+    }
+    
+    private void addProjectTabItem(TabFolder tabFolder) {
+        compositeProject = createComposite(tabFolder);
+        setLayoutData(compositeProject);
+        
+        // add project's components - name
+        Label labelProjectName = new Label(compositeProject, SWT.NONE);
         labelProjectName.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_Project_Name);
-        textFieldProjectName = new Text(composite, TEXT_FIELDS_SWT_STYLE);
+        textFieldProjectName = new Text(compositeProject, TEXT_FIELDS_SWT_STYLE);
         setLayoutData(textFieldProjectName);
+        
+        // add project's components - version
+        Label labelProjectVersion = new Label(compositeProject, SWT.NONE);
+        labelProjectVersion.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_Project_Version);
+        comboProjectVersion = new Combo(compositeProject, SWT.DROP_DOWN);
+        setLayoutData(comboProjectVersion);
+        String[] items = new String[] {
+                PropertyPagesMessages.ConfigurationPropertyPage_Combo_First_Project_Version,
+                PropertyPagesMessages.ConfigurationPropertyPage_Combo_Other_Project_Version,
+                PropertyPagesMessages.ConfigurationPropertyPage_Combo_Last_Project_Version
+        };
+        comboProjectVersion.setItems(items);
+        
+        tabItemProject = new TabItem(tabFolder, SWT.NONE);
+        tabItemProject.setText(PropertyPagesMessages.ConfigurationPropertyPage_TabItem_Project);
+        tabItemProject.setControl(compositeProject);
     }
     
     private Composite createComposite(Composite parent) {

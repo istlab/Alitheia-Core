@@ -41,6 +41,7 @@ import eu.sqooss.scl.WSException;
 import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.accessor.WSAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
+import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
@@ -59,17 +60,22 @@ public class ConnectionUtils {
         new QualifiedName("", "SQO-OSS_USER_NAME");
     public static final QualifiedName PROPERTY_PASSWORD     =
         new QualifiedName("", "SQO-OSS_PASSWORD");
-    public static final QualifiedName PROPERTY_PROJECT_NAME =
+    public static final QualifiedName PROPERTY_PROJECT_NAME    =
         new QualifiedName("", "SQO-OSS_PROJECT_NAME");
+    public static final QualifiedName PROPERTY_PROJECT_VERSION =
+        new QualifiedName("", "SQO-OSS_PROJECT_VERSION");
     
     private String errorMessage;
-    private boolean isValid;
+    private boolean isValidAccount;
+    private boolean isValidProjectVersion;
     private IProject project;
     private String serverUrl;
     private String userName;
     private String password;
     private String projectName;
+    private String projectVersion;
     private WSStoredProject storedProject;
+    private WSProjectVersion storedProjectVersion;
     private WSSession wsSession;
     
     /**
@@ -115,13 +121,21 @@ public class ConnectionUtils {
         return projectName;
     }
 
+    public String getProjectVersion() {
+        return projectVersion;
+    }
+    
     /**
      * @return - indicates the session state
      */
-    public boolean isValid() {
-        return isValid;
+    public boolean isValidAccount() {
+        return isValidAccount;
     }
 
+    public boolean isValidProjectVersion() {
+        return isValidProjectVersion;
+    }
+    
     /**
      * If the session is not valid then the error message contains the reason.
      * The message can't be null.
@@ -139,7 +153,7 @@ public class ConnectionUtils {
      * @param serverUrl - the URL of the framework web service
      */
     public void setServerUrl(String serverUrl) {
-        this.isValid = false;
+        this.isValidAccount = false;
         this.serverUrl = serverUrl;
     }
 
@@ -149,7 +163,7 @@ public class ConnectionUtils {
      * @param userName - the user's name used for authentication
      */
     public void setUserName(String userName) {
-        this.isValid = false;
+        this.isValidAccount = false;
         this.userName = userName;
     }
 
@@ -159,7 +173,7 @@ public class ConnectionUtils {
      * @param password - the user's password used for authentication
      */
     public void setPassword(String password) {
-        this.isValid = false;
+        this.isValidAccount = false;
         this.password = password;
     }
 
@@ -169,10 +183,15 @@ public class ConnectionUtils {
      * @param projectName - the name of the project as stored in the framework
      */
     public void setProjectName(String projectName) {
-        this.isValid = false;
+        this.isValidProjectVersion = false;
         this.projectName = projectName;
     }
 
+    public void setProjectVersion(String newVersion) {
+        this.isValidProjectVersion = false;
+        this.projectVersion = newVersion;
+    }
+    
     /**
      * The method stores the session settings in the <code>project</code>.
      * The default settings aren't stored.
@@ -210,6 +229,13 @@ public class ConnectionUtils {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME, null);
             }
             
+            if ((projectVersion != null) &&
+                    (projectVersion.trim().length() != 0)) {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_VERSION, projectVersion);
+            } else {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_VERSION, null);
+            }
+            
             project.setSessionProperty(ConnectionUtils.PROPERTY_CONNECTION_UTILS, this);
             return true;
         } catch (CoreException ce) {
@@ -226,22 +252,89 @@ public class ConnectionUtils {
      */
     public boolean validate() {
         try {
-            wsSession = new WSSession(userName, password, serverUrl);
+            if (!isValidAccount) {
+                wsSession = new WSSession(userName, password, serverUrl);
+            }
             WSProjectAccessor projectAccessor =
                 ((WSProjectAccessor) wsSession.getAccessor(WSAccessor.Type.PROJECT));
-            storedProject = projectAccessor.getProjectByName(projectName);
-            if (storedProject == null) {
-                isValid = false;
-                errorMessage = "The project doesn't exist!";
+            try {
+                storedProject = projectAccessor.getProjectByName(projectName);
+            } catch (WSException wse) {
+                storedProject = null;
+            }
+            if(!validateProjectVersion(projectAccessor)) {
+                isValidAccount = true;
+                isValidProjectVersion = false;
             } else {
-                isValid = true;
-                errorMessage = "";
+                isValidAccount = true;
+                isValidProjectVersion = true;
             }
         } catch (WSException wse) {
-            isValid = false;
+            isValidAccount = false;
+            isValidProjectVersion = false;
             errorMessage = getExceptionDump(wse); 
         }
-        return isValid;
+        return (isValidAccount && isValidProjectVersion);
+    }
+    
+    /**
+     * Sets the default values of all settings.
+     */
+    public void setDefaultValues() {
+        serverUrl = PropertyPagesMessages.
+        ConfigurationPropertyPage_Text_Server_Url_Default_Value;
+        userName = PropertyPagesMessages.
+        ConfigurationPropertyPage_Text_User_Name_Default_Value;
+        password = PropertyPagesMessages.
+        ConfigurationPropertyPage_Text_Password_Default_Value;
+        projectName = PropertyPagesMessages.
+        ConfigurationPropertyPage_Text_Project_Name_Default_Value;
+        projectVersion = PropertyPagesMessages.
+        ConfigurationPropertyPage_Combo_Last_Project_Version;
+    }
+    
+    private boolean validateProjectVersion(WSProjectAccessor accessor) throws WSException {
+        if (storedProject == null) {
+            errorMessage = "The project doesn't exist!";
+            return false;
+        }
+        WSProjectVersion[] versions = null;
+        long[] projectId = new long[] {storedProject.getId()};
+        if (PropertyPagesMessages.
+                ConfigurationPropertyPage_Combo_Last_Project_Version.equals(projectVersion)) {
+            versions = accessor.getLastProjectVersions(projectId);
+            if (versions.length == 0) {
+                errorMessage = "The last version is inaccessible!";
+                return false;
+            }
+        } else if (PropertyPagesMessages.
+                ConfigurationPropertyPage_Combo_First_Project_Version.equals(projectVersion)) {
+            versions = accessor.getFirstProjectVersions(projectId);
+            if (versions.length == 0) {
+                errorMessage = "The first version is inaccessible!";
+                return false;
+            }
+        } else {
+            try {
+                long[] versionNumber = new long[] {Long.valueOf(projectVersion)};
+                versions = accessor.getProjectVersionsByVersionNumbers(projectId[0], versionNumber);
+            } catch (NumberFormatException nfe) { /*do nothing here*/}
+            if ((versions == null) || (versions.length == 0)) {
+                WSProjectVersion[] firstVersion = accessor.getFirstProjectVersions(projectId);
+                WSProjectVersion[] lastVersion = accessor.getLastProjectVersions(projectId);
+                errorMessage = "The project version is not correct! Please select one between first and last!";
+                if (firstVersion.length != 0) {
+                    errorMessage += "\nThe first version is: " + firstVersion[0].getVersion();
+                }
+                if (lastVersion.length != 0) {
+                    errorMessage += "\nThe last version is: " + lastVersion[0].getVersion();
+                }
+                return false;
+            }
+        }
+        storedProjectVersion = versions[0];
+        errorMessage = "";
+        return true;
     }
     
     /*
@@ -280,23 +373,16 @@ public class ConnectionUtils {
                 ConfigurationPropertyPage_Text_Project_Name_Default_Value;
             }
             setProjectName(propertyValue);
+            
+            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_VERSION);
+            if (propertyValue == null) {
+                propertyValue = PropertyPagesMessages.
+                ConfigurationPropertyPage_Combo_Last_Project_Version;
+            }
+            setProjectVersion(propertyValue);
         } catch (CoreException ce) {
             setDefaultValues();
         }
-    }
-    
-    /*
-     * Sets the default values of all settings.
-     */
-    private void setDefaultValues() {
-        serverUrl = PropertyPagesMessages.
-        ConfigurationPropertyPage_Text_Server_Url_Default_Value;
-        userName = PropertyPagesMessages.
-        ConfigurationPropertyPage_Text_User_Name_Default_Value;
-        password = PropertyPagesMessages.
-        ConfigurationPropertyPage_Text_Password_Default_Value;
-        projectName = PropertyPagesMessages.
-        ConfigurationPropertyPage_Text_Project_Name_Default_Value;
     }
     
     /*

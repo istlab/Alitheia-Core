@@ -83,11 +83,7 @@ abstract class EnabledPropertyPage extends PropertyPage implements EnabledState,
             }
         }
         connectionUtils.save();
-        if (connectionUtils.isValid()) {
-            setEnabled(true);
-        } else {
-            setEnabled(false);
-        }
+        setEnabled(connectionUtils.validate());
     }
     
     /**

@@ -66,6 +66,7 @@ public class ProfilePropertyPage extends AbstractProfilePropertyPage implements 
      */
     @Override
     public void setEnabled(boolean isEnabled) {
+        if (mainControl == null) return; //the method createContents isn't called yet
         super.setEnabled(isEnabled);
         if (isEnabled) {
             configurationLink.setVisible(false);

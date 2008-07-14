@@ -99,6 +99,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
      * @see eu.sqooss.plugin.properties.EnabledState#setEnabled(boolean)
      */
     public void setEnabled(boolean isEnabled) {
+        if (mainControl == null) return; //the method createContents isn't called yet
         if (isEnabled) {
             if (controlEnableState != null) {
                 //remove the configuration link
