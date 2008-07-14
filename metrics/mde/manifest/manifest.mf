@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: 
+Bundle-Name: MDE Metric Plug-in
 Bundle-SymbolicName: eu.sqooss.metric.mde
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.metrics.mde.MDEActivator
