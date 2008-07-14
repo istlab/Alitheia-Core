@@ -30,9 +30,9 @@
  *
  */
 
-package eu.sqooss.metrics.skeleton;
+package eu.sqooss.metrics.mde;
 
-public interface Skeleton 
+public interface MDE
 //extends  
 {
     
