@@ -677,7 +677,7 @@ public class ProjectFile extends DAObject{
 		
 		while (i.hasNext()){
 			ProjectFile pf1 = i.next();
-			result.put(pf1.getProjectVersion().getId(), pf.getId());
+			result.put(pf1.getProjectVersion().getVersion(), pf.getId());
 		}
           
         return result;
