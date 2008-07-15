@@ -41,6 +41,8 @@ import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.datatype.File;
 
 public class FileListView extends ListView {
+    public static int FILES     = 2;
+    public static int FOLDERS   = 4;
 
     // Contains the list of files that can be presented by this view
     private List<File> files = new ArrayList<File>();
@@ -50,14 +52,17 @@ public class FileListView extends ListView {
 
     // Contains the Id of the selected project's version (if any)
     private Long versionId;
-    
+
+    private int type = 0;
+
     private String status = "";
 
     /**
      * Instantiates a new <code>FileListView</code> object and initializes it
      * with the given list of project files.
      */
-    public FileListView (List<File> filesList) {
+    public FileListView (List<File> filesList, int type) {
+        this.type = type;
         for (File nextFile : filesList)
             addFile(nextFile);
     }
@@ -66,7 +71,8 @@ public class FileListView extends ListView {
      * Instantiates a new <code>FileListView</code> object and initializes it
      * with the given list of project files.
      */
-    public FileListView (SortedMap<Long, File> filesList) {
+    public FileListView (SortedMap<Long, File> filesList, int type) {
+        this.type = type;
         for (File nextFile : filesList.values())
             addFile(nextFile);
     }
@@ -82,13 +88,22 @@ public class FileListView extends ListView {
 
     /**
      * Adds a single file to the stored files list. If the file object is
-     * <code>null</code> or a folder, then it won't be added.
+     * <code>null</code> or doesn't match the selected type, then it won't be
+     * added.
      *
      * @param file the file object
      */
     public void addFile(File file) {
-        if ((file != null) && (file.getIsDirectory() == false))
-            files.add(file);
+        if (file != null) {
+            if (file.getIsDirectory()) {
+                if (type == FOLDERS)
+                    files.add(file);
+            }
+            else {
+                if (type == FILES)
+                    files.add(file);
+            }
+        }
     }
 
     /**
@@ -161,28 +176,77 @@ public class FileListView extends ListView {
      */
     public String getHtml(long in) {
         StringBuffer html = new StringBuffer();
+        int numFiles = 0;
+        int numFolders = 0;
         if (size() > 0) {
             html.append(sp(in++) + "<ul>\n");
-            // Display all files
-            for (File nextFile : this.files) {
-                nextFile.setSettings(settings);
-                html.append((nextFile != null)
-                        ? sp(in) + "<li>" + nextFile.getHtml(this.versionId)
-                                + sp(in) + "</li>\n"
+            // Display all folders
+            if (type == FOLDERS)
+                for (File nextFile : this.files) {
+                    if (nextFile.getIsDirectory()) {
+                        numFolders++;
+                        nextFile.setSettings(settings);
+                        html.append((nextFile != null)
+                                ? sp(in) + "<li>" 
+                                        + nextFile.getHtml(this.versionId)
+                                        + sp(in) + "</li>\n"
                                 : "");
-            }
+                    }
+                }
+            // Display all files
+            if (type == FILES)
+                for (File nextFile : this.files) {
+                    if (nextFile.getIsDirectory() == false) {
+                        numFiles++;
+                        nextFile.setSettings(settings);
+                        html.append((nextFile != null)
+                                ? sp(in) + "<li>" 
+                                        + nextFile.getHtml(this.versionId)
+                                        + sp(in) + "</li>\n"
+                                : "");
+                    }
+                }
             html.append(sp(--in) + "</ul>\n");
         }
-        else
-            html.append("<i>This folder contains no files.</i>");
+        else {
+            if (type == (FOLDERS | FILES))
+                html.append("<i>This folder contains no sub-folders nor files.</i>");
+            else if (type == FOLDERS)
+                html.append("<i>This folder contains no sub-folder.</i>");
+            else if (type == FILES)
+                html.append("<i>This folder contains no files.</i>");
+        }
         // Construct the status line's messages
-        setStatus(sp(in) + "Total: "
-                + ((size() > 0)
-                        ? ((size() > 1)
-                                ? size() + " files"
-                                : "one file")
-                        : "zero files")
-                + " found");
+        if (type == (FOLDERS | FILES))
+            setStatus(sp(in) + "Total: "
+                    + ((numFolders > 0)
+                            ? ((numFolders > 1)
+                                    ? numFolders + " folders"
+                                    : "one folder")
+                            : "")
+                    + (((numFolders > 0) && (numFiles > 0)) ? " and " : "")
+                    + ((numFiles > 0)
+                            ? ((numFiles > 1)
+                                    ? numFiles + " files"
+                                    : "one file")
+                            : "")
+                    + " found");
+        else if (type == FOLDERS)
+            setStatus(sp(in) + "Total: "
+                    + ((numFolders > 0)
+                            ? ((numFolders > 1)
+                                    ? numFolders + " folders"
+                                    : "one folder")
+                            : "zero folders")
+                    + " found");
+        else if (type == FILES)
+            setStatus(sp(in) + "Total: "
+                    + ((numFiles > 0)
+                            ? ((numFiles > 1)
+                                    ? numFiles + " files"
+                                    : "one file")
+                            : "zero files")
+                    + " found");
         return html.toString();
     }
 

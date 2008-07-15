@@ -86,6 +86,7 @@ if (selectedProject.isValid()) {
                             selectedProject.getSelectedMetrics());
                     }
                 }
+
                 // Show result icons
                 WinIcon icoResults = new WinIcon();
                 icoResults.setPath(request.getServletPath());
@@ -102,7 +103,8 @@ if (selectedProject.isValid()) {
                     icoResults.setAlt("Show results");
                 }
                 winFileBrowser.addToolIcon(icoResults);
-                                // Top folder icon
+
+                // Top folder icon
                 WinIcon icoTopDir = new WinIcon();
                 icoTopDir.setPath(request.getServletPath());
                 icoTopDir.setParameter("did");
@@ -111,6 +113,7 @@ if (selectedProject.isValid()) {
                 icoTopDir.setAlt("Top folder");
                 icoTopDir.setStatus(selectedVersion.isSubDir());
                 winFileBrowser.addToolIcon(icoTopDir);
+
                 // Previous folder icon
                 WinIcon icoPrevDir = new WinIcon();
                 icoPrevDir.setPath(request.getServletPath());
@@ -120,6 +123,7 @@ if (selectedProject.isValid()) {
                 icoPrevDir.setAlt("Previous folder");
                 icoPrevDir.setStatus(selectedVersion.isSubDir());
                 winFileBrowser.addToolIcon(icoPrevDir);
+
                 // Directory browser icon
                 WinIcon icoDirBrowser = new WinIcon();
                 icoDirBrowser.setPath(request.getServletPath());
@@ -137,6 +141,50 @@ if (selectedProject.isValid()) {
                 icoDirBrowser.setValue("" + !settings.getShowFVDirBrowser());
                 icoDirBrowser.setStatus(!settings.getShowFVDirBrowser());
                 winFileBrowser.addToolIcon(icoDirBrowser);
+
+                // Folders list icon
+                WinIcon icoFoldersList = new WinIcon();
+                icoFoldersList.setPath(request.getServletPath());
+                icoFoldersList.setImage("/img/icons/16x16/folder.png");
+                icoFoldersList.setAlt("Show sub-folders");
+                winVisible = "showFVFolderList";
+                icoFoldersList.setParameter(winVisible);
+                icoFoldersList.setValue(WinIcon.MAXIMIZE);
+                if (request.getParameter(winVisible) != null) {
+                    if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
+                        settings.setShowFVFolderList(true);
+                    else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
+                        settings.setShowFVFolderList(false);
+                }
+                icoFoldersList.setValue("" + !settings.getShowFVFolderList());
+                icoFoldersList.setStatus(!settings.getShowFVFolderList());
+                winFileBrowser.addToolIcon(icoFoldersList);
+
+                // Folders list icon
+                WinIcon icoFilesList = new WinIcon();
+                icoFilesList.setPath(request.getServletPath());
+                icoFilesList.setImage("/img/icons/16x16/text-plain.png");
+                icoFilesList.setAlt("Show files");
+                winVisible = "showFVFileList";
+                icoFilesList.setParameter(winVisible);
+                icoFilesList.setValue(WinIcon.MAXIMIZE);
+                if (request.getParameter(winVisible) != null) {
+                    if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
+                        settings.setShowFVFileList(true);
+                    else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
+                        settings.setShowFVFileList(false);
+                }
+                icoFilesList.setValue("" + !settings.getShowFVFileList());
+                icoFilesList.setStatus(!settings.getShowFVFileList());
+                winFileBrowser.addToolIcon(icoFilesList);
+
+                // Prepare the shared close icon
+                icoCloseWin = new WinIcon();
+                icoCloseWin.setPath(request.getServletPath());
+                icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
+                icoCloseWin.setAlt("Close");
+                icoCloseWin.setValue(WinIcon.MINIMIZE);
+
                 // Sub-views table
                 b.append(sp(in++) + "<table>\n");
                 b.append(sp(in++) + "<tr>\n");
@@ -144,18 +192,18 @@ if (selectedProject.isValid()) {
                 // Display the directory browser
                 //============================================================
                 if (settings.getShowFVDirBrowser()) {
-                    b.append(sp(in++) + "<td"
-                        + " style=\"width: 30%; vertical-align: top;\">\n");
+                    if ((settings.getShowFVFolderList() == false)
+                        && (settings.getShowFVFileList() == false))
+                        b.append(sp(in++) + "<td"
+                            + " style=\"width: 100%; vertical-align: top;\">\n");
+                    else
+                        b.append(sp(in++) + "<td"
+                            + " style=\"width: 30%; vertical-align: top;\">\n");
                     Window winDirBrowser = new Window();
                     // Construct the window's title icons
-                    icoCloseWin = new WinIcon();
-                    icoCloseWin.setPath(request.getServletPath());
-                    icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
-                    icoCloseWin.setAlt("Close");
+                    Window winFileVerbose = new Window();
                     winVisible = "showFVDirBrowser";
                     icoCloseWin.setParameter(winVisible);
-                    icoCloseWin.setValue(WinIcon.MINIMIZE);
-                    Window winFileVerbose = new Window();
                     winDirBrowser.addTitleIcon(icoCloseWin);
                     // Construct the window's content
                     if (settings.getShowFVDirBrowser()) {
@@ -174,7 +222,7 @@ if (selectedProject.isValid()) {
                     b.append(sp(--in) + "</td>\n");
                 }
                 //============================================================
-                // Display the files in the selected directory
+                // Display the folders and/or files in the selected directory
                 //============================================================
                 if (settings.getShowFVDirBrowser())
                     b.append(sp(in++) + "<td"
@@ -182,22 +230,36 @@ if (selectedProject.isValid()) {
                 else
                     b.append(sp(in++) + "<td"
                         + " style=\"width: 100%; vertical-align: top;\">\n");
-                // Ask the user to select some metrics, if none
-                if (selectedProject.getSelectedMetrics().isEmpty()) {
-                    b.append(sp(in) + Functions.information(
-                        "Please, select one or more source file"
-                        + " related metrics."));
-                    b.append(sp(in) + "<div style=\"height: 0.5em;\"></div>");
+                // Display the sub-folders of the current folder
+                if (settings.getShowFVFolderList()) {
+                    Window winFoldersList = new Window();
+                    FileListView foldersView = new FileListView(
+                        selectedVersion.files, FileListView.FOLDERS);
+                    foldersView.setVersionId(selectedVersion.getId());
+                    foldersView.setSettings(settings);
+                    winVisible = "showFVFolderList";
+                    icoCloseWin.setParameter(winVisible);
+                    winFoldersList.addTitleIcon(icoCloseWin);
+                    winFoldersList.setContent(foldersView.getHtml(in + 2));
+                    winFoldersList.setTitle("Sub-folders in "
+                        + selectedVersion.getCurrentDirName());
+                    b.append(winFoldersList.render(in));
                 }
-                Window winFileList = new Window();
-                FileListView browser = new FileListView(
-                    selectedVersion.files);
-                browser.setVersionId(selectedVersion.getId());
-                browser.setSettings(settings);
-                winFileList.setContent(browser.getHtml(in + 2));
-                winFileList.setTitle("Files in "
-                    + selectedVersion.getCurrentDirName());
-                b.append(winFileList.render(in));
+                // Display the files in the current folder
+                if (settings.getShowFVFileList()) {
+                    Window winFilesList = new Window();
+                    FileListView filesView = new FileListView(
+                        selectedVersion.files, FileListView.FILES);
+                    filesView.setVersionId(selectedVersion.getId());
+                    filesView.setSettings(settings);
+                    winVisible = "showFVFileList";
+                    icoCloseWin.setParameter(winVisible);
+                    winFilesList.addTitleIcon(icoCloseWin);
+                    winFilesList.setContent(filesView.getHtml(in + 2));
+                    winFilesList.setTitle("Files in "
+                        + selectedVersion.getCurrentDirName());
+                    b.append(winFilesList.render(in));
+                }
             }
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");

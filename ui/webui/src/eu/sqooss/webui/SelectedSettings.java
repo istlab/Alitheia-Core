@@ -47,6 +47,8 @@ public class SelectedSettings {
     private boolean showPVMetrics = true;
     private boolean showDevelopers = true;
     private boolean showFVDirBrowser = true;
+    private boolean showFVFolderList = true;
+    private boolean showFVFileList = true;
 
     public Locale getUserLocale() {
         return userLocale;
@@ -126,6 +128,22 @@ public class SelectedSettings {
 
     public boolean getShowFVDirBrowser() {
         return showFVDirBrowser;
+    }
+
+    public void setShowFVFolderList(boolean showFVFolderList) {
+        this.showFVFolderList = showFVFolderList;
+    }
+
+    public boolean getShowFVFolderList() {
+        return showFVFolderList;
+    }
+
+    public void setShowFVFileList(boolean showFVFileList) {
+        this.showFVFileList = showFVFileList;
+    }
+
+    public boolean getShowFVFileList() {
+        return showFVFileList;
     }
 
 }
