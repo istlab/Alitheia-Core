@@ -36,6 +36,7 @@ package eu.sqooss.webui.view;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.datatype.File;
@@ -45,7 +46,7 @@ public class FileListView extends ListView {
     public static int FOLDERS   = 4;
 
     // Contains the list of files that can be presented by this view
-    private List<File> files = new ArrayList<File>();
+    private SortedMap<String, File> files = new TreeMap<String, File>();
 
     // Contains the Id of the selected project (if any)
     private Long projectId;
@@ -97,11 +98,11 @@ public class FileListView extends ListView {
         if (file != null) {
             if (file.getIsDirectory()) {
                 if (type == FOLDERS)
-                    files.add(file);
+                    files.put(file.getShortName(), file);
             }
             else {
                 if (type == FILES)
-                    files.add(file);
+                    files.put(file.getShortName(), file);
             }
         }
     }
@@ -182,7 +183,7 @@ public class FileListView extends ListView {
             html.append(sp(in++) + "<ul>\n");
             // Display all folders
             if (type == FOLDERS)
-                for (File nextFile : this.files) {
+                for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory()) {
                         numFolders++;
                         nextFile.setSettings(settings);
@@ -195,7 +196,7 @@ public class FileListView extends ListView {
                 }
             // Display all files
             if (type == FILES)
-                for (File nextFile : this.files) {
+                for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory() == false) {
                         numFiles++;
                         nextFile.setSettings(settings);

@@ -34,6 +34,8 @@
 package eu.sqooss.webui.view;
 
 import java.util.HashMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
@@ -96,7 +98,11 @@ public class DirBrowserView extends ListView {
                     + icoStatus.render() + "&nbsp;"
                     + icoLabel.render()
                     + "</div>\n");
+            SortedMap<String, Long> sortedChilds =
+                new TreeMap<String, Long>();
             for (Long child : dir.getChilds())
+                sortedChilds.put(dirTree.get(child).getName(), child);
+            for (Long child : sortedChilds.values())
                 b.append(getTree(in + 2, depth + 1, dirTree.get(child)));
         }
         return b.toString();
