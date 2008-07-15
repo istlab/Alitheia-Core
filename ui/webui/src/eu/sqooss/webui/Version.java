@@ -36,6 +36,7 @@ package eu.sqooss.webui;
 import java.util.*;
 
 import eu.sqooss.webui.datatype.File;
+import eu.sqooss.webui.util.Directory;
 import eu.sqooss.webui.util.MetricsList;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
@@ -74,10 +75,13 @@ public class Version extends WebuiItem {
      */
     private WSVersionStats stats = null;
 
+    public HashMap<Long, Directory> directories =
+        new HashMap<Long, Directory>();
+
     /*
      * 
      */
-    private Stack<Long> dirStack = new Stack<Long>();
+    private Stack<Long> dirHistory = new Stack<Long>();
 
     /**
      * A cache for all files that exist in this project version indexed by
@@ -212,20 +216,39 @@ public class Version extends WebuiItem {
             // Fill the files cache if empty
             if (files.isEmpty()) {
                 // Initialize the version's directory tree if empty
-                if (dirStack.isEmpty()) {
+                if (dirHistory.isEmpty()) {
                     WSDirectory rootDir = terrier.getRootDirectory(projectId);
-                    if (rootDir != null)
-                        dirStack.push(rootDir.getId());
+                    if (rootDir != null) {
+                        dirHistory.push(rootDir.getId());
+                        if (directories.containsKey(rootDir.getId()) == false) {
+                            Directory dir =
+                                new Directory(rootDir.getId(), "ROOT");
+                            dir.setCollapsed(false);
+                            directories.put(rootDir.getId(), dir);
+                        }
+                    }
                 }
                 // Fetch all files in the current directory for this version
-                if (dirStack.size() > 0) {
-                    Long currentDirId = dirStack.peek();
+                if (dirHistory.size() > 0) {
+                    Long curDirId = dirHistory.peek();
                     List<File> filesList = terrier.getFilesInDirectory(
-                            getId(), currentDirId);
+                            getId(), curDirId);
                     if (filesList.size() > 0) {
                         files = new TreeMap<Long, File>();
-                        for (File nextFile : filesList)
+                        for (File nextFile : filesList) {
                             files.put(nextFile.getId(), nextFile);
+                            if (nextFile.getIsDirectory()) {
+                                Directory parent = directories.get(curDirId);
+                                Directory child = new Directory(
+                                        nextFile.getToDirectoryId(),
+                                        nextFile.getShortName());
+                                if (directories.containsKey(child.getId()) == false) {
+                                    child.setParent(parent.getId());
+                                    directories.put(child.getId(), child);
+                                    parent.addChild(child.getId());
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -239,30 +262,74 @@ public class Version extends WebuiItem {
     //========================================================================
 
     public void switchDir(Long directoryId) {
-        // Skip, if the user tries to switch to the same directory
-        if (dirStack.peek().equals(directoryId)) return;
-        // Flush the currently cached files
+        // Switch to the selected directory
         files.clear();
-        // Check if the user tries to switch to a higher level directory
-        if (dirStack.contains(directoryId))
-            while ((dirStack.isEmpty() == false)
-                    || (dirStack.peek().equals(directoryId) == false))
-                dirStack.pop();
-        // Add the sub-directory to the stack
-        else
-            dirStack.push(directoryId);
+        dirHistory.push(directoryId);
+        Directory dir = directories.get(getCurrentDir());
+            if (dir != null) dir.setCollapsed(false);
+    }
+
+    public void stateDir(Long directoryId) {
+        Directory dir = directories.get(directoryId);
+        if (dir != null) {
+            dir.setCollapsed(!dir.isCollapsed());
+            if (dir.isCollapsed() == false)
+                switchDir(dir.getId());
+            else if (dir.isRoot() == false)
+                switchDir(dir.getParent());
+        }
+    }
+
+    private void collapseChilds(Directory dir) {
+        if (dir == null) return;
+        for (Long childId : dir.getChilds()) {
+            Directory child = directories.get(childId);
+            if (child != null) {
+                child.setCollapsed(true);
+                collapseChilds(child);
+            }
+        }
     }
 
     public void previousDir() {
-        // Shift one level higher in the directory tree
+        // Shift one level higher in the directory history
         files.clear();
-        if (dirStack.size() > 0) dirStack.pop();
+        if (dirHistory.size() > 0) {
+            dirHistory.pop();
+            Directory dir = directories.get(getCurrentDir());
+            if (dir != null) {
+                dir.setCollapsed(false);
+                collapseChilds(dir);
+                while (dir.isRoot() == false) {
+                    dir = directories.get(dir.getParent());
+                    if (dir == null) break;
+                    dir.setCollapsed(false);
+                }
+            }
+        }
     }
 
     public void topDir() {
         // Switch to the root directory
         files.clear();
-        dirStack.clear();
+        dirHistory.clear();
+        directories.clear();
+    }
+
+    public Long getCurrentDir() {
+        if (dirHistory.isEmpty())
+            return null;
+        else
+            return dirHistory.peek();
+    }
+    
+    public String getCurrentDirName() {
+        if (dirHistory.size() > 0) {
+            Directory currentDir = directories.get(dirHistory.peek());
+            if (currentDir != null)
+                return currentDir.getName();
+        }
+        return null;
     }
 
     //========================================================================
@@ -373,7 +440,7 @@ public class Version extends WebuiItem {
      *   or <code>false</code> otherwise.
      */
     public boolean isEmptyVersion() {
-        return ((files.isEmpty()) && (dirStack.size() < 2));
+        return ((files.isEmpty()) && (dirHistory.size() < 2));
     }
 
     public boolean isEmptyDir() {
@@ -381,7 +448,7 @@ public class Version extends WebuiItem {
     }
 
     public boolean isSubDir() {
-        return (dirStack.size() > 1);
+        return (dirHistory.size() > 1);
     }
 
     public String listResults(long in) {

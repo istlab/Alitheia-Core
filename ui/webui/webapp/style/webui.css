@@ -114,20 +114,42 @@ input.submit {
 /* ===[ ICONS CSS ]======================================================= */
 a.icon img {
     border: 0px none;
-    margin-right: 2px;
+    margin-right: 0.2em;
     opacity: .70; filter: alpha(opacity=70);
     background-color: transparent;
 }
 a:hover.icon img {
     border: 0px none;
-    margin-right: 2px;
+    margin-right: 0.2em;
     opacity: 1; filter: alpha(opacity=100);
     background-color: transparent;
 }
 img.icon {
     border: 0px none;
-    margin-right: 2px;
+    margin-right: 0.2em;
     background-color: transparent;
+}
+a.texticon {
+    border: 0px none;
+    margin-right: 0.2em;
+    background-color: transparent;
+    color: #000000;
+    text-decoration: none;
+}
+a:visited.texticon {
+    border: 0px none;
+    margin-right: 0.2em;
+    background-color: transparent;
+    color: #000000;
+    text-decoration: none;
+}
+a:hover.texticon {
+    border: 0px none;
+    border-bottom: 2px solid #0099FF;
+    margin-right: 0.2em;
+    background-color: transparent;
+    color: #000000;
+    text-decoration: none;
 }
 /* ===[ WINDOW CSS ]====================================================== */
 div.win {

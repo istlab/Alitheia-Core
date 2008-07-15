@@ -147,6 +147,8 @@ public class Metric extends WebuiItem {
             if (this.type.equals(MetricType.SOURCE_CODE)) {
                 if (this.activator.equals(MetricActivator.PROJECTFILE))
                     return "Single source file";
+                if (this.activator.equals(MetricActivator.PROJECTVERSION))
+                    return "Code statistics per version";
             }
             else if (this.type.equals(MetricType.PROJECT_WIDE)) {
                 if (this.activator.equals(MetricActivator.DEVELOPER))

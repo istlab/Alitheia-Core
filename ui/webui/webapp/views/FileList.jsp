@@ -22,6 +22,12 @@ if (selectedProject.isValid()) {
                     selectedVersion.switchDir(directoryId);
             }
         }
+        // Check, if the user has expanded/collapsed a directory
+        if (request.getParameter("dst") != null) {
+            Long directoryId = getId(request.getParameter("dst"));
+            if (directoryId != null)
+                selectedVersion.stateDir(directoryId);
+        }
         // Check, if the user has enabled/disabled the results overview flag
         if (request.getParameter("showResults") != null) {
             if (request.getParameter("showResults").equals("true"))
@@ -59,13 +65,13 @@ if (selectedProject.isValid()) {
         // Display a file browser for the selected project version
         //====================================================================
         else {
-            Window winFileBrowser = new Window();
-            // Construct the window's content
-            StringBuilder b = new StringBuilder("");
+            // Retrieve the list of files, if not yet done
             selectedVersion.setTerrier(terrier);
             selectedVersion.setSettings(settings);
-            // Retrieve the list of files, if not yet done
             selectedVersion.getFilesInCurrentDirectory();
+            // Construct the window's content
+            Window winFileBrowser = new Window();
+            StringBuilder b = new StringBuilder("");
             // Check if this version is empty
             if (selectedVersion.isEmptyVersion()) {
                 b.append(sp(in) + Functions.information(
@@ -79,12 +85,6 @@ if (selectedProject.isValid()) {
                         selectedVersion.fetchFilesResults(
                             selectedProject.getSelectedMetrics());
                     }
-                }
-                // Ask the user to select some metrics, if none
-                if (selectedProject.getSelectedMetrics().isEmpty()) {
-                    b.append(sp(in) + Functions.information(
-                        "Please, select one or more source file"
-                        + " related metrics."));
                 }
                 // Show result icons
                 WinIcon icoResults = new WinIcon();
@@ -102,7 +102,7 @@ if (selectedProject.isValid()) {
                     icoResults.setAlt("Show results");
                 }
                 winFileBrowser.addToolIcon(icoResults);
-                // Top folder icon
+                                // Top folder icon
                 WinIcon icoTopDir = new WinIcon();
                 icoTopDir.setPath(request.getServletPath());
                 icoTopDir.setParameter("did");
@@ -120,23 +120,90 @@ if (selectedProject.isValid()) {
                 icoPrevDir.setAlt("Previous folder");
                 icoPrevDir.setStatus(selectedVersion.isSubDir());
                 winFileBrowser.addToolIcon(icoPrevDir);
-
-                if (selectedVersion.isEmptyDir()) {
-                    b.append(sp(in + 2) + "<ul>"
-                        + "<li>"
-                        + Functions.icon("vcs_empty", 0, "Empty folder")
-                        + "&nbsp;<i>Empty</i>"
-                        + "</ul>\n");
+                // Directory browser icon
+                WinIcon icoDirBrowser = new WinIcon();
+                icoDirBrowser.setPath(request.getServletPath());
+                icoDirBrowser.setImage("/img/icons/16x16/browser.png");
+                icoDirBrowser.setAlt("Directory browser");
+                winVisible = "showFVDirBrowser";
+                icoDirBrowser.setParameter(winVisible);
+                icoDirBrowser.setValue(WinIcon.MAXIMIZE);
+                if (request.getParameter(winVisible) != null) {
+                    if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
+                        settings.setShowFVDirBrowser(true);
+                    else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
+                        settings.setShowFVDirBrowser(false);
                 }
-                else {
-                    FileListView browser = new FileListView(
-                        selectedVersion.files);
-                    browser.setVersionId(selectedVersion.getId());
-                    browser.setSettings(settings);
-                    b.append(browser.getHtml(in + 2));
-                    winFileBrowser.setFooter(browser.getStatus());
+                icoDirBrowser.setValue("" + !settings.getShowFVDirBrowser());
+                icoDirBrowser.setStatus(!settings.getShowFVDirBrowser());
+                winFileBrowser.addToolIcon(icoDirBrowser);
+                // Sub-views table
+                b.append(sp(in++) + "<table>\n");
+                b.append(sp(in++) + "<tr>\n");
+                //============================================================
+                // Display the directory browser
+                //============================================================
+                if (settings.getShowFVDirBrowser()) {
+                    b.append(sp(in++) + "<td"
+                        + " style=\"width: 30%; vertical-align: top;\">\n");
+                    Window winDirBrowser = new Window();
+                    // Construct the window's title icons
+                    icoCloseWin = new WinIcon();
+                    icoCloseWin.setPath(request.getServletPath());
+                    icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
+                    icoCloseWin.setAlt("Close");
+                    winVisible = "showFVDirBrowser";
+                    icoCloseWin.setParameter(winVisible);
+                    icoCloseWin.setValue(WinIcon.MINIMIZE);
+                    Window winFileVerbose = new Window();
+                    winDirBrowser.addTitleIcon(icoCloseWin);
+                    // Construct the window's content
+                    if (settings.getShowFVDirBrowser()) {
+                        DirBrowserView dirBrowserView =
+                            new DirBrowserView(selectedVersion.directories);
+                        dirBrowserView.setServletPath(
+                            request.getServletPath());
+                        dirBrowserView.setSelectedDir(
+                            selectedVersion.getCurrentDir());
+                        winDirBrowser.setContent(
+                            dirBrowserView.getHtml(in + 2));
+                    }
+                    // Display the window
+                    winDirBrowser.setTitle("Source folders");
+                    b.append(winDirBrowser.render(in));
+                    b.append(sp(--in) + "</td>\n");
                 }
+                //============================================================
+                // Display the files in the selected directory
+                //============================================================
+                if (settings.getShowFVDirBrowser())
+                    b.append(sp(in++) + "<td"
+                        + " style=\"width: 70%; vertical-align: top;\">\n");
+                else
+                    b.append(sp(in++) + "<td"
+                        + " style=\"width: 100%; vertical-align: top;\">\n");
+                // Ask the user to select some metrics, if none
+                if (selectedProject.getSelectedMetrics().isEmpty()) {
+                    b.append(sp(in) + Functions.information(
+                        "Please, select one or more source file"
+                        + " related metrics."));
+                    b.append(sp(in) + "<div style=\"height: 0.5em;\"></div>");
+                }
+                Window winFileList = new Window();
+                FileListView browser = new FileListView(
+                    selectedVersion.files);
+                browser.setVersionId(selectedVersion.getId());
+                browser.setSettings(settings);
+                winFileList.setContent(browser.getHtml(in + 2));
+                winFileList.setTitle("Files in "
+                    + selectedVersion.getCurrentDirName());
+                b.append(winFileList.render(in));
             }
+            b.append(sp(--in) + "</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            // Close the sub-views table
+            b.append(sp(--in) + "</table>\n");
+            // Display the window
             winFileBrowser.setContent(b.toString());
             winFileBrowser.setTitle("Files in version "
                 + selectedVersion.getNumber());

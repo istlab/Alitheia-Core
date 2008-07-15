@@ -31,12 +31,13 @@
  *
  */
 
-package eu.sqooss.webui;
+package eu.sqooss.webui.view;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 
+import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.datatype.File;
 
 public class FileListView extends ListView {
@@ -57,7 +58,8 @@ public class FileListView extends ListView {
      * with the given list of project files.
      */
     public FileListView (List<File> filesList) {
-        setFiles(filesList);
+        for (File nextFile : filesList)
+            addFile(nextFile);
     }
 
     /**
@@ -80,12 +82,12 @@ public class FileListView extends ListView {
 
     /**
      * Adds a single file to the stored files list. If the file object is
-     * <code>null</code>, then it won't be added.
+     * <code>null</code> or a folder, then it won't be added.
      *
      * @param file the file object
      */
     public void addFile(File file) {
-        if (file != null)
+        if ((file != null) && (file.getIsDirectory() == false))
             files.add(file);
     }
 
@@ -159,44 +161,27 @@ public class FileListView extends ListView {
      */
     public String getHtml(long in) {
         StringBuffer html = new StringBuffer();
-        html.append(sp(in++) + "<ul>\n");
-        // Display all folders first
-        long dirCount = 0;
-        for (File nextFile : this.files) {
-            if (nextFile.getIsDirectory()) {
-                dirCount++;
-                html.append((nextFile != null)
-                        ? sp(in) + "<li>" + nextFile.getHtml(this.versionId)
-                                + sp(in) + "</li>\n"
-                        : "");
-            }
-        }
-        // Display all files
-        long fileCount = 0;
-        for (File nextFile : this.files) {
-            if (nextFile.getIsDirectory() == false) {
-                fileCount++;
+        if (size() > 0) {
+            html.append(sp(in++) + "<ul>\n");
+            // Display all files
+            for (File nextFile : this.files) {
                 nextFile.setSettings(settings);
                 html.append((nextFile != null)
                         ? sp(in) + "<li>" + nextFile.getHtml(this.versionId)
                                 + sp(in) + "</li>\n"
-                        : "");
+                                : "");
             }
+            html.append(sp(--in) + "</ul>\n");
         }
-        html.append(sp(--in) + "</ul>\n");
+        else
+            html.append("<i>This folder contains no files.</i>");
         // Construct the status line's messages
         setStatus(sp(in) + "Total: "
-                + ((dirCount > 0)
-                        ? ((dirCount > 1)
-                                ? dirCount + " folders"
-                                : "one folder")
-                        : "")
-                + (((fileCount > 0) && (dirCount > 0)) ? " and " : "")
-                + ((fileCount > 0)
-                        ? ((fileCount > 1)
-                                ? fileCount + " files"
+                + ((size() > 0)
+                        ? ((size() > 1)
+                                ? size() + " files"
                                 : "one file")
-                        : "")
+                        : "zero files")
                 + " found");
         return html.toString();
     }

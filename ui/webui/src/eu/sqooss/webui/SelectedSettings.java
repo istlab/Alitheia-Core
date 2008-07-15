@@ -46,6 +46,7 @@ public class SelectedSettings {
     private boolean showPVFileStat = true;
     private boolean showPVMetrics = true;
     private boolean showDevelopers = true;
+    private boolean showFVDirBrowser = true;
 
     public Locale getUserLocale() {
         return userLocale;
@@ -117,6 +118,14 @@ public class SelectedSettings {
 
     public boolean getShowPVVersions() {
         return showPVVersions;
+    }
+
+    public void setShowFVDirBrowser(boolean showFVDirBrowser) {
+        this.showFVDirBrowser = showFVDirBrowser;
+    }
+
+    public boolean getShowFVDirBrowser() {
+        return showFVDirBrowser;
     }
 
 }
