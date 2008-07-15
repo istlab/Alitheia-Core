@@ -39,6 +39,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import eu.sqooss.webui.ListView;
+import eu.sqooss.webui.Project;
+import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.datatype.File;
 
 public class FileListView extends ListView {
@@ -48,8 +50,8 @@ public class FileListView extends ListView {
     // Contains the list of files that can be presented by this view
     private SortedMap<String, File> files = new TreeMap<String, File>();
 
-    // Contains the Id of the selected project (if any)
-    private Long projectId;
+    // Holds the selected project's object
+    private Project project;
 
     // Contains the Id of the selected project's version (if any)
     private Long versionId;
@@ -120,21 +122,22 @@ public class FileListView extends ListView {
     }
 
     /**
-     * Gets the Id of the project that is associated with this view.
+     * Gets the project that is associated with this view.
      *
-     * @return The project Id, or <code>null</code> when none is associated.
+     * @return The project's object, or <code>null</code> when none is
+     *   associated.
      */
-    public Long getProjectId() {
-        return projectId;
+    public Project getProject() {
+        return project;
     }
 
     /**
-     * Sets the Id of the project that is associated with this view.
+     * Sets the project that is associated with this view.
      *
-     * @param projectId the project Id
+     * @param projectId the project's object
      */
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     /**
@@ -180,34 +183,84 @@ public class FileListView extends ListView {
         int numFiles = 0;
         int numFolders = 0;
         if (size() > 0) {
-            html.append(sp(in++) + "<ul>\n");
             // Display all folders
-            if (type == FOLDERS)
+            if (type == FOLDERS) {
                 for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory()) {
+                        if ((settings.getShowFileResultsOverview())
+                                && (numFolders == 0)) {
+                            html.append(sp(in++) + "<table>\n");
+                        }
                         numFolders++;
                         nextFile.setSettings(settings);
-                        html.append((nextFile != null)
-                                ? sp(in) + "<li>" 
-                                        + nextFile.getHtml(this.versionId)
-                                        + sp(in) + "</li>\n"
-                                : "");
+                        if (settings.getShowFileResultsOverview())
+//                            html.append((nextFile != null)
+//                                    ? sp(in) + nextFile.getHtml(versionId)
+//                                    : "");
+                            html.append((nextFile != null)
+                                    ? sp(in) + "<div>" 
+                                            + nextFile.getHtml(versionId)
+                                            + "</div>\n"
+                                    : "");
+                        else
+                            html.append((nextFile != null)
+                                    ? sp(in) + "<div>" 
+                                            + nextFile.getHtml(versionId)
+                                            + "</div>\n"
+                                    : "");
                     }
                 }
+                if ((settings.getShowFileResultsOverview())
+                        && (numFolders > 0)) {
+                    html.append(sp(--in) + "</table>\n");
+                }
+            }
             // Display all files
-            if (type == FILES)
+            if (type == FILES) {
                 for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory() == false) {
+                        List<String> mnemonics = new ArrayList<String>(
+                            project.getSelectedMetrics().getMetricMnemonics(
+                                    MetricActivator.PROJECTFILE).values());
+                        if ((settings.getShowFileResultsOverview())
+                                && (numFiles == 0)) {
+                            html.append(sp(in++) + "<div id=\"table\">\n"
+                                    + sp(in++) + "<table"
+                                    + " style=\"width: "
+                                    + (30 + mnemonics.size() * 5)
+                                    + "em;\">\n");
+                            html.append(sp(in++) + "<thead>\n");
+                            html.append(sp(in++) + "<tr class=\"head\">\n");
+                            html.append(sp(in) + "<td class=\"head\""
+                                    + " style=\"width: 10em;\">"
+                                    + "File name" + "</td>\n");
+                            for (String nextMnemonic : mnemonics)
+                                html.append(sp(in) + "<td class=\"head\""
+                                    + " style=\"width: 5em;\">"
+                                        + nextMnemonic + "</td>\n");
+                            html.append(sp(in++) + "</tr>\n");
+                            html.append(sp(--in) + "</thead>\n");
+                        }
                         numFiles++;
                         nextFile.setSettings(settings);
-                        html.append((nextFile != null)
-                                ? sp(in) + "<li>" 
-                                        + nextFile.getHtml(this.versionId)
-                                        + sp(in) + "</li>\n"
-                                : "");
+                        if (settings.getShowFileResultsOverview())
+                            html.append((nextFile != null)
+                                    ? sp(in) + nextFile.getHtml(versionId, mnemonics)
+                                    : "");
+                        else
+                            html.append((nextFile != null)
+                                    ? sp(in) + "<div>" 
+                                            + nextFile.getHtml(versionId)
+                                            + "</div>\n"
+                                    : "");
                     }
                 }
-            html.append(sp(--in) + "</ul>\n");
+                if ((settings.getShowFileResultsOverview())
+                        && (numFiles > 0)) {
+                    html.append(sp(--in) + "</table>\n"
+                            + sp(--in) + "</div>\n");
+                }
+            }
         }
         else {
             if (type == (FOLDERS | FILES))

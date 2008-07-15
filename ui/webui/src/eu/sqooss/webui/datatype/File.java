@@ -35,7 +35,9 @@ package eu.sqooss.webui.datatype;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
+import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Result;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
@@ -202,8 +204,8 @@ public class File extends AbstractDatatype {
     }
 
     /**
-     * Return a HTML representation of the file state and results in the given
-     * project version.
+     * Return a HTML representation of the file state in the given project
+     * version.
      * 
      * @param versionId the project version's Id
      * 
@@ -211,17 +213,35 @@ public class File extends AbstractDatatype {
      */
     public String getHtml(Long versionId) {
         StringBuilder html = new StringBuilder("");
-        html.append(getStatusIcon(versionId)
-                + "&nbsp;" + getLink() + "\n");
-        if (getIsDirectory() == false) {
-            if (settings.getShowFileResultsOverview()) {
-                html.append("<ul>\n");
-                for (String nextMnemonic : results.keySet())
-                    html.append("<li>" + nextMnemonic
-                            + " : " + results.get(nextMnemonic).getHtml(0));
-                html.append("</ul>\n");
-            }
+        html.append(getStatusIcon(versionId) + "&nbsp;" + getLink());
+        return html.toString();
+    }
+
+    /**
+     * Return a HTML representation of the file state and results in the given
+     * project version.
+     * 
+     * @param versionId the project version's Id
+     * 
+     * @return The rendered HTML content.
+     */
+    public String getHtml(Long versionId, List<String> mnemonics) {
+        if (settings.getShowFileResultsOverview() == false)
+            return getHtml(versionId);
+        StringBuilder html = new StringBuilder("");
+        html.append("<tr>");
+        // File name
+        html.append("<td>");
+        html.append(getStatusIcon(versionId) + "&nbsp;" + getLink());
+        html.append("</td>");
+        // File results
+        for (String nextMnemonic : mnemonics) {
+            Result nextResult = results.get(nextMnemonic);
+            html.append("<td style=\"text-align: right;\">"
+                    + ((nextResult != null) ? nextResult.getHtml(0) : "N/A")
+                    + "</td>");
         }
+        html.append("</tr>\n");
         return html.toString();
     }
 

@@ -8,6 +8,7 @@
 if (selectedProject.isValid()) {
 %>          <div id="fileslist" class="group">
 <%
+    selectedProject.retrieveData(terrier);
     Version selectedVersion = selectedProject.getCurrentVersion();
     if (selectedVersion != null) {
         // Check, if the user has switched to another directory
@@ -91,16 +92,17 @@ if (selectedProject.isValid()) {
                 WinIcon icoResults = new WinIcon();
                 icoResults.setPath(request.getServletPath());
                 icoResults.setParameter("showResults");
-                icoResults.setImage("/img/icons/16x16/view-statistics.png");
                 icoResults.setStatus(
                     selectedProject.getSelectedMetrics().isEmpty() == false);
                 if (settings.getShowFileResultsOverview()) {
                     icoResults.setValue("false");
                     icoResults.setAlt("Hide results");
+                    icoResults.setImage("/img/icons/16x16/hide-statistics.png");
                 }
                 else {
                     icoResults.setValue("true");
                     icoResults.setAlt("Show results");
+                    icoResults.setImage("/img/icons/16x16/view-statistics.png");
                 }
                 winFileBrowser.addToolIcon(icoResults);
 
@@ -186,6 +188,7 @@ if (selectedProject.isValid()) {
                 icoCloseWin.setValue(WinIcon.MINIMIZE);
 
                 // Sub-views table
+                in += 2;
                 b.append(sp(in++) + "<table>\n");
                 b.append(sp(in++) + "<tr>\n");
                 //============================================================
@@ -250,6 +253,7 @@ if (selectedProject.isValid()) {
                     Window winFilesList = new Window();
                     FileListView filesView = new FileListView(
                         selectedVersion.files, FileListView.FILES);
+                    filesView.setProject(selectedProject);
                     filesView.setVersionId(selectedVersion.getId());
                     filesView.setSettings(settings);
                     winVisible = "showFVFileList";
@@ -269,7 +273,7 @@ if (selectedProject.isValid()) {
             winFileBrowser.setContent(b.toString());
             winFileBrowser.setTitle("Files in version "
                 + selectedVersion.getNumber());
-            out.print(winFileBrowser.render(in));
+            out.print(winFileBrowser.render(6));
         }
     }
     else
