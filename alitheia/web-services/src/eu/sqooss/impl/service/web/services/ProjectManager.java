@@ -405,6 +405,37 @@ public class ProjectManager extends AbstractManager {
     }
 
     /**
+     * @see eu.sqooss.service.web.services.WebServices#getFilesByRegularExpression(String, String, long, String)
+     */
+    public WSProjectFile[] getFilesByRegularExpression(
+            String userName,
+            String password,
+            long projectVersionId,
+            String regExpr) {
+        logger.info("Get files by prefix. project version id: "
+                + projectVersionId + "; prefix: " + regExpr);
+        
+        db.startDBSession();
+        
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[] {projectVersionId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the get files by prefix operation!");
+        }
+        
+        super.updateUserActivity(userName);
+        
+        WSProjectFile[] result = dbWrapper.getFilesByRegularExpression(
+                projectVersionId, regExpr);
+        
+        db.commitDBSession();
+        
+        return (WSProjectFile[]) normalizeWSArrayResult(result);
+    }
+    
+    /**
      * @see eu.sqooss.service.web.services.WebServices#getFileGroupsByProjectId(String, String, long)
      */
     public WSFileGroup[] getFileGroupsByProjectId(String userName,

@@ -239,6 +239,28 @@ public class WebServices implements EventHandler{
     }
 
     /**
+     * The method returns an array of all files that exists in the specified
+     * project version. The files' names conform to the regular expression.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectVersionId - the project's version identifier
+     * @param regExpr - the regular expression
+     * 
+     * @return The array of project's files in that project version, or a
+     *   <code>null</code> array when none are found.
+     * The files' names conform to the regular expression.
+     */
+    public WSProjectFile[] getFilesByRegularExpression(
+            String userName,
+            String password,
+            long projectVersionId,
+            String regExpr) {
+        return projectManager.getFilesByRegularExpression(userName, password,
+                projectVersionId, regExpr);
+    }
+    
+    /**
      * This method returns an array of all file groups that belongs to the project
      * with the given Id.
      *

@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
@@ -144,6 +145,17 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return result;
     }
 
+    public WSProjectFile[] getFilesByRegularExpression(
+            long projectVersionId, String regExpr) {
+        Pattern pattern = Pattern.compile(regExpr);
+        ProjectVersion projectVersion = db.findObjectById(
+                ProjectVersion.class, projectVersionId);
+        if (projectVersion == null) return null;
+        List<ProjectFile> files = ProjectFile.getFilesForVersion(
+                projectVersion, pattern);
+        return WSProjectFile.asArray(files);
+    }
+    
     public WSFileGroup[] getFileGroupsByProjectId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILE_GROUPS_BY_PROJECT_ID_PARAM, projectVersionId);

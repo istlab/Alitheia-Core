@@ -95,6 +95,24 @@ public abstract class WSProjectAccessor extends WSAccessor {
     public abstract WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) throws WSException;
     
     /**
+     * The method returns an array of all files that exists in the specified
+     * project version. The files' names conform to the regular expression.
+     * 
+     * @param projectVersionId - the project's version identifier
+     * @param regExpr - the regular expression
+     * 
+     * @return The array of project's files in that project version
+     * or a empty array when none are found.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSProjectFile[] getFilesByRegularExpression(long projectVersionId, String regExpr) throws WSException;
+    
+    /**
      * This method returns an array of all file groups that belongs to the project
      * with the given Id.
      * 

@@ -35,6 +35,8 @@ package eu.sqooss.scl;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.axis2.AxisFault;
 
@@ -58,6 +60,8 @@ import eu.sqooss.ws.client.ws.GetFileGroupsByProjectId;
 import eu.sqooss.ws.client.ws.GetFileGroupsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesByProjectVersionIdResponse;
+import eu.sqooss.ws.client.ws.GetFilesByRegularExpression;
+import eu.sqooss.ws.client.ws.GetFilesByRegularExpressionResponse;
 import eu.sqooss.ws.client.ws.GetFilesInDirectory;
 import eu.sqooss.ws.client.ws.GetFilesInDirectoryResponse;
 import eu.sqooss.ws.client.ws.GetFilesNumberByProjectVersionId;
@@ -111,6 +115,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getFilesNumberByProjectVersionId";
     private static final String METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID =
         "getFilesByProjectVersionId";
+    private static final String METHOD_NAME_GET_FILES_BY_REGULAR_EXPRESSION =
+        "getFilesByRegularExpression";
     private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID =
         "getFileGroupsByProjectId";
     private static final String METHOD_NAME_GET_DIRECTORIES_BY_IDS =
@@ -366,6 +372,40 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectVersionId(projectVersionId);
             try {
                 response = wsStub.getFilesByProjectVersionId(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesByRegularExpression(long, java.lang.String)
+     */
+    @Override
+    public WSProjectFile[] getFilesByRegularExpression(long projectVersionId,
+            String regExpr) throws WSException {
+        try {
+            Pattern.compile(regExpr);
+        } catch (PatternSyntaxException pse) {
+            throw new WSException(pse);
+        }
+        GetFilesByRegularExpressionResponse response;
+        GetFilesByRegularExpression params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILES_BY_REGULAR_EXPRESSION)) {
+            params = new GetFilesByRegularExpression();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_FILES_BY_REGULAR_EXPRESSION, params);
+        } else {
+            params = (GetFilesByRegularExpression) parameters.get(
+                    METHOD_NAME_GET_FILES_BY_REGULAR_EXPRESSION);
+        }
+        synchronized (params) {
+            params.setProjectVersionId(projectVersionId);
+            params.setRegExpr(regExpr);
+            try {
+                response = wsStub.getFilesByRegularExpression(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }

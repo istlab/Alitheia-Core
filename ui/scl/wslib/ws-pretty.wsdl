@@ -394,6 +394,23 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getFilesByRegularExpression">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectVersionId" nillable="true" type="xs:long"/>
+            <xs:element name="regExpr" nillable="true" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getFilesByRegularExpressionResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSProjectFile"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getFilesInDirectory">
         <xs:complexType>
           <xs:sequence>
@@ -849,6 +866,12 @@
   <wsdl:message name="getDevelopersByIdsResponse">
     <wsdl:part name="part1" element="ns2:getDevelopersByIdsResponse"/>
   </wsdl:message>
+  <wsdl:message name="getFilesByRegularExpressionMessage">
+    <wsdl:part name="part1" element="ns2:getFilesByRegularExpression"/>
+  </wsdl:message>
+  <wsdl:message name="getFilesByRegularExpressionResponse">
+    <wsdl:part name="part1" element="ns2:getFilesByRegularExpressionResponse"/>
+  </wsdl:message>
   <wsdl:message name="getLastProjectVersionsMessage">
     <wsdl:part name="part1" element="ns2:getLastProjectVersions"/>
   </wsdl:message>
@@ -993,6 +1016,10 @@
     <wsdl:operation name="getDevelopersByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getDevelopersByIdsMessage" wsaw:Action="urn:getDevelopersByIds"/>
       <wsdl:output message="axis2:getDevelopersByIdsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getFilesByRegularExpression">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesByRegularExpressionMessage" wsaw:Action="urn:getFilesByRegularExpression"/>
+      <wsdl:output message="axis2:getFilesByRegularExpressionResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getLastProjectVersions">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getLastProjectVersionsMessage" wsaw:Action="urn:getLastProjectVersions"/>
@@ -1261,6 +1288,15 @@
     </wsdl:operation>
     <wsdl:operation name="getDevelopersByIds">
       <soap:operation soapAction="urn:getDevelopersByIds" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFilesByRegularExpression">
+      <soap:operation soapAction="urn:getFilesByRegularExpression" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1570,6 +1606,15 @@
     </wsdl:operation>
     <wsdl:operation name="getDevelopersByIds">
       <soap12:operation soapAction="urn:getDevelopersByIds" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFilesByRegularExpression">
+      <soap12:operation soapAction="urn:getFilesByRegularExpression" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
