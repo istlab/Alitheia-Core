@@ -268,8 +268,10 @@ public class Project extends WebuiItem {
         if (terrier == null)
             return metrics;
         if (isValid()) {
-            if (metrics.isEmpty())
-                    metrics.addAll(terrier.getMetricsForProject(id));
+            if (metrics.isEmpty()) {
+                metrics.addAll(terrier.getMetricsForProject(id));
+                selectAllMetrics();
+            }
         }
         else
             terrier.addError("Invalid project!");
@@ -435,6 +437,16 @@ public class Project extends WebuiItem {
             Metric metric = metrics.getMetricById(id);
             if (metric != null) selectedMetrics.remove(metric);
         }
+    }
+
+    public void selectAllMetrics () {
+        for (Metric metric : metrics)
+            if (selectedMetrics.contains(metric) == false)
+                selectedMetrics.add(metric);
+    }
+
+    public void deselectAllMetrics () {
+        selectedMetrics.clear();
     }
 
     /**
