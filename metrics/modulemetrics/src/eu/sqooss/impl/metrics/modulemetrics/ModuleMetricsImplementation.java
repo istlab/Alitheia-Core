@@ -80,11 +80,11 @@ implements ModuleMetrics {
             result &= super.addSupportedMetrics(
                     "Number of Files in Module",
                     "MNOF",
-                    MetricType.Type.SOURCE_CODE);
+                    MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics(
                     "Number of Lines in Module",
                     "MNOL",
-                    MetricType.Type.SOURCE_CODE);
+                    MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics(
                     "Average Module Size", 
                     "AMS",
