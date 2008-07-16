@@ -248,7 +248,11 @@ public class FileListView extends ListView {
                                         .getMetricByMnemonic(nextMnemonic);
                                 icoClose.setValue(nextMetric.getId().toString());
                                 html.append(sp(in) + "<td class=\"head\""
-                                    + " style=\"width: 5em;\">"
+                                    + " style=\"width: 5em;\""
+                                    + " title=\"" 
+                                    + nextMetric.getDescription()
+                                    + "\""
+                                    + ">"
                                     + icoClose.render()
                                     + nextMnemonic + "</td>\n");
                             }
