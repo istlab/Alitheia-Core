@@ -42,6 +42,8 @@ import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
+import eu.sqooss.webui.Metric.MetricActivator;
+import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.datatype.File;
 
 /**
@@ -102,8 +104,7 @@ public class VerboseFileView extends ListView {
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
         // Holds the list of currently selected metrics
-        Collection<String> mnemonics =
-            project.getSelectedMetrics().getMetricMnemonics().values();
+        Collection<String> mnemonics = null;
         // Holds the currently selected file's object
         File selFile = null;
         // Holds the evaluation results for the currently selected file
@@ -115,11 +116,19 @@ public class VerboseFileView extends ListView {
         // Retrieve the selected file's results
         if (selFile != null) {
             selFile.setTerrier(this.terrier);
+            if (selFile.getIsDirectory())
+                mnemonics = project.getSelectedMetrics().getMetricMnemonics(
+                        MetricActivator.PROJECTFILE,
+                        MetricType.SOURCE_FOLDER).values();
+            else
+                mnemonics = project.getSelectedMetrics().getMetricMnemonics(
+                        MetricActivator.PROJECTFILE,
+                        MetricType.SOURCE_CODE).values();
             selFileResults = selFile.getResults(mnemonics);
         }
 
         if (selFile == null) {
-            b.append(sp(in) + Functions.error("File not found!"));
+            b.append(sp(in) + Functions.error("File/folder not found!"));
         }
         else if (selFileResults.isEmpty()) {
             b.append(sp(in) + Functions.warning("No evaluation result."));

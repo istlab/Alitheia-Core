@@ -141,17 +141,11 @@ public class File extends AbstractDatatype {
     }
 
     /**
-     * Constructs a HTML link for selecting this file. The generates HTML
-     * link tags will differ depending on the file type i.e. data file or
-     * a directory.
+     * Constructs a HTML link for selecting this file.
      *
      * @return The HTML link for selecting this file.
      */
     public String getLink() {
-        if (isDirectory)
-            return "<a href=\"files.jsp?"
-                + "did=" + toDirectoryId
-                + "\">" + shortName + "/</a>";
         return "<a href=\"files.jsp"
             + "?fid=" + id
             + "\">" + shortName + "</a>";

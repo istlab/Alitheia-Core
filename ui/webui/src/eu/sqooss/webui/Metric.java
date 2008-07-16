@@ -59,6 +59,7 @@ public class Metric extends WebuiItem {
      */
     public enum MetricType {
         SOURCE_CODE,
+        SOURCE_FOLDER,
         MAILING_LIST,
         BUG_DATABASE,
         PROJECT_WIDE;
@@ -66,6 +67,8 @@ public class Metric extends WebuiItem {
         public static MetricType fromString(String type) {
             if (type.equals(SOURCE_CODE.toString()))
                 return SOURCE_CODE;
+            if (type.equals(SOURCE_FOLDER.toString()))
+                return SOURCE_FOLDER;
             else if (type.equals(MAILING_LIST.toString()))
                 return MAILING_LIST;
             else if (type.equals(BUG_DATABASE.toString()))
@@ -146,13 +149,21 @@ public class Metric extends WebuiItem {
         if ((type != null) && (activator != null)) {
             if (this.type.equals(MetricType.SOURCE_CODE)) {
                 if (this.activator.equals(MetricActivator.PROJECTFILE))
-                    return "Single source file";
+                    return "Source code statistics";
                 if (this.activator.equals(MetricActivator.PROJECTVERSION))
-                    return "Code statistics per version";
+                    return "Source code per version";
+            }
+            else if (this.type.equals(MetricType.SOURCE_FOLDER)) {
+                if (this.activator.equals(MetricActivator.PROJECTFILE))
+                    return "Source module statistics";
             }
             else if (this.type.equals(MetricType.PROJECT_WIDE)) {
                 if (this.activator.equals(MetricActivator.DEVELOPER))
-                    return "Developer statistics";
+                    return "Project developer";
+                if (this.activator.equals(MetricActivator.PROJECTFILE))
+                    return "Project source code";
+                if (this.activator.equals(MetricActivator.PROJECTVERSION))
+                    return "Project version";
             }
         }
         return "N/A";

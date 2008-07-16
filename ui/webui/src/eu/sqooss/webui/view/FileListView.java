@@ -42,6 +42,7 @@ import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Metric.MetricActivator;
+import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.datatype.File;
 import eu.sqooss.webui.widgets.WinIcon;
 
@@ -189,20 +190,51 @@ public class FileListView extends ListView {
             if (type == FOLDERS) {
                 for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory()) {
-                        if ((settings.getShowFileResultsOverview())
+                        List<String> mnemonics = new ArrayList<String>(
+                                project.getSelectedMetrics().getMetricMnemonics(
+                                        MetricActivator.PROJECTFILE,
+                                        MetricType.SOURCE_FOLDER).values());
+                        if ((settings.getShowFileResultsOverview()
+                                && (mnemonics.size() > 0))
                                 && (numFolders == 0)) {
-                            html.append(sp(in++) + "<table>\n");
+                            html.append(sp(in++) + "<div id=\"table\">\n"
+                                    + sp(in++) + "<table"
+                                    + " style=\"width: "
+                                    + (30 + mnemonics.size() * 5)
+                                    + "em;\">\n");
+                            html.append(sp(in++) + "<thead>\n");
+                            html.append(sp(in++) + "<tr class=\"head\">\n");
+                            html.append(sp(in) + "<td class=\"head\""
+                                    + " style=\"width: 10em;\">"
+                                    + "Folder name" + "</td>\n");
+                            WinIcon icoClose = new WinIcon();
+                            icoClose.setPath(getServletPath());
+                            icoClose.setParameter("fvdm");
+                            icoClose.setImage("/img/icons/16x16/application-exit.png");
+                            icoClose.setAlt("Deselect metric");
+                            for (String nextMnemonic : mnemonics) {
+                                Metric nextMetric =
+                                    project.getEvaluatedMetrics()
+                                        .getMetricByMnemonic(nextMnemonic);
+                                icoClose.setValue(nextMetric.getId().toString());
+                                html.append(sp(in) + "<td class=\"head\""
+                                    + " style=\"width: 5em; padding-left: 0.2em;\""
+                                    + " title=\"" 
+                                    + nextMetric.getDescription()
+                                    + "\""
+                                    + ">"
+                                    + icoClose.render()
+                                    + nextMnemonic + "</td>\n");
+                            }
+                            html.append(sp(--in) + "</tr>\n");
+                            html.append(sp(--in) + "</thead>\n");
                         }
                         numFolders++;
                         nextFile.setSettings(settings);
-                        if (settings.getShowFileResultsOverview())
-//                            html.append((nextFile != null)
-//                                    ? sp(in) + nextFile.getHtml(versionId)
-//                                    : "");
+                        if ((settings.getShowFileResultsOverview())
+                                && (mnemonics.size() > 0))
                             html.append((nextFile != null)
-                                    ? sp(in) + "<div>" 
-                                            + nextFile.getHtml(versionId)
-                                            + "</div>\n"
+                                    ? sp(in) + nextFile.getHtml(versionId, mnemonics)
                                     : "");
                         else
                             html.append((nextFile != null)
@@ -214,7 +246,8 @@ public class FileListView extends ListView {
                 }
                 if ((settings.getShowFileResultsOverview())
                         && (numFolders > 0)) {
-                    html.append(sp(--in) + "</table>\n");
+                    html.append(sp(--in) + "</table>\n"
+                            + sp(--in) + "</div>\n");
                 }
             }
             // Display all files
@@ -223,7 +256,8 @@ public class FileListView extends ListView {
                     if (nextFile.getIsDirectory() == false) {
                         List<String> mnemonics = new ArrayList<String>(
                             project.getSelectedMetrics().getMetricMnemonics(
-                                    MetricActivator.PROJECTFILE).values());
+                                    MetricActivator.PROJECTFILE,
+                                    MetricType.SOURCE_CODE).values());
                         if ((settings.getShowFileResultsOverview()
                                 && (mnemonics.size() > 0))
                                 && (numFiles == 0)) {
@@ -248,7 +282,7 @@ public class FileListView extends ListView {
                                         .getMetricByMnemonic(nextMnemonic);
                                 icoClose.setValue(nextMetric.getId().toString());
                                 html.append(sp(in) + "<td class=\"head\""
-                                    + " style=\"width: 5em;\""
+                                    + " style=\"width: 5em; padding-left: 0.2em;\""
                                     + " title=\"" 
                                     + nextMetric.getDescription()
                                     + "\""

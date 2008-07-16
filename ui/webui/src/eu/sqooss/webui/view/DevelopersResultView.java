@@ -53,6 +53,7 @@ import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Metric.MetricActivator;
+import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
 import eu.sqooss.webui.datatype.Developer;
@@ -111,7 +112,8 @@ public class DevelopersResultView extends ListView {
         // Holds the list of currently selected metrics in the main project
         Collection<String> mnemonics =
             project.getSelectedMetrics().getMetricMnemonics(
-                    MetricActivator.DEVELOPER).values();
+                    MetricActivator.DEVELOPER,
+                    MetricType.PROJECT_WIDE).values();
         // Holds the list of currently selected developers in the main project
         Map<Long, Developer> developers = project.getSelectedDevelopers();
 

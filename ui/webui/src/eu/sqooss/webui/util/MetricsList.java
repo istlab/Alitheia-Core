@@ -41,6 +41,7 @@ import java.util.TreeMap;
 
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Metric.MetricActivator;
+import eu.sqooss.webui.Metric.MetricType;
 
 public class MetricsList extends ArrayList<Metric> {
 
@@ -114,18 +115,21 @@ public class MetricsList extends ArrayList<Metric> {
 
     /**
      * Gets a filtered list of the mnemonic names of all metrics in this list,
-     * that match the given <code>MetricActivator</code>filter, indexed by
-     * metric Id.
+     * that match the given <code>MetricActivator</code> and 
+     * <code>MetricType</code> filters, indexed by metric Id.
      * 
-     * @param filter the metric activator filter
+     * @param activator the metric activator filter
+     * @param type the metric type filter
      * 
      * @return The list of mnemonic names, or an empty list when none are
      * selected.
      */
-    public Map<Long, String> getMetricMnemonics(MetricActivator filter) {
+    public Map<Long, String> getMetricMnemonics(
+            MetricActivator activator, MetricType type) {
         Map<Long, String> result = new HashMap<Long, String>();
         for (Metric nextMetric : this) {
-            if (nextMetric.getActivator().equals(filter))
+            if ((nextMetric.getActivator().equals(activator))
+                    && (nextMetric.getType().equals(type)))
                 result.put(nextMetric.getId(), nextMetric.getMnemonic());
         }
         return result;

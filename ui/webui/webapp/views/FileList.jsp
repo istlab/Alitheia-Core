@@ -244,6 +244,7 @@ if (selectedProject.isValid()) {
                     Window winFoldersList = new Window();
                     FileListView foldersView = new FileListView(
                         selectedVersion.files, FileListView.FOLDERS);
+                    foldersView.setProject(selectedProject);
                     foldersView.setVersionId(selectedVersion.getId());
                     foldersView.setSettings(settings);
                     foldersView.setServletPath(request.getServletPath());
