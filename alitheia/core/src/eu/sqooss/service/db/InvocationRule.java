@@ -360,8 +360,9 @@ public class InvocationRule extends DAObject {
      * <br/>
      * The given metric's type determines the value content like:
      * <ul>
-     *  <li><code>PROJECT_WIDE</code> and <code>SOURCE_CODE</code> expect a
-     *  a single numeric project versions as a rule's value.
+     *  <li><code>PROJECT_WIDE</code>, <code>SOURCE_CODE</code> and
+     *  <code>SOURCE_FOLDER</code> expect a single numeric project versions
+     *  as a rule's value.
      * </ul>
      * 
      * @param value the rule's value
@@ -375,6 +376,7 @@ public class InvocationRule extends DAObject {
             switch (type) {
             case PROJECT_WIDE:
             case SOURCE_CODE:
+            case SOURCE_FOLDER:
                 try {
                     new Long(value); return true;
                 }
@@ -392,9 +394,9 @@ public class InvocationRule extends DAObject {
      * <br/>
      * The given metric's type determines the value content like:
      * <ul>
-     *  <li><code>PROJECT_WIDE</code> and <code>SOURCE_CODE</code> expect a
-     *  hyphen ('-') separated range of numeric project versions
-     *  (<i>exactly two</i>) as a rule's value.
+     *  <li><code>PROJECT_WIDE</code>, <code>SOURCE_CODE</code> and
+     *  <code>SOURCE_FOLDER</code> expect a hyphen ('-') separated range of
+     *  numeric project versions (<i>exactly two</i>) as a rule's value.
      * </ul>
      * 
      * @param value the rule's value
@@ -408,6 +410,7 @@ public class InvocationRule extends DAObject {
             switch (type) {
             case PROJECT_WIDE:
             case SOURCE_CODE:
+            case SOURCE_FOLDER:
                 String[] values = value.split("-");
                 if (values.length == 2) {
                     for (String nextVal : values) {
@@ -432,9 +435,9 @@ public class InvocationRule extends DAObject {
      * <br/>
      * The given metric's type determines the value content like:
      * <ul>
-     *  <li><code>PROJECT_WIDE</code> and <code>SOURCE_CODE</code> expect a
-     *  comma (',') separated list of numeric project versions
-     *  (<i>at least two</i>) as a rule's value.
+     *  <li><code>PROJECT_WIDE</code>, <code>SOURCE_CODE</code> and
+     *  <code>SOURCE_FOLDER</code> expect a comma (',') separated list of
+     *  numeric project versions (<i>at least two</i>) as a rule's value.
      * </ul>
      * 
      * @param value the rule's value
@@ -448,6 +451,7 @@ public class InvocationRule extends DAObject {
             switch (type) {
             case PROJECT_WIDE:
             case SOURCE_CODE:
+            case SOURCE_FOLDER:
                 String[] values = value.split(",");
                 if (values.length > 1) {
                     for (String nextVal : values) {

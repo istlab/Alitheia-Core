@@ -192,6 +192,7 @@ public class MetricActivatorImpl implements MetricActivator {
                 // Skip on a metric type which can not evaluate that resource
                 if ((metricType != null)
                         && (metricType != Type.SOURCE_CODE)
+                        && (metricType != Type.SOURCE_FOLDER)
                         && (metricType != Type.PROJECT_WIDE)){
                     rule = rules.get(rule.getNextRule());
                     continue;

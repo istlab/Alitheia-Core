@@ -54,7 +54,8 @@ public class Metric extends DAObject{
 
     /**
      * A representation of the type of metric:
-     * SOURCE_CODE - Relating to SVN
+     * SOURCE_CODE - Relating to SVN source files
+     * SOURCE_FOLDER - Relating to SVN source folders
      * MAILING_LIST - Relating to email data
      * BUG_DATABASE - Relating to BTS data
      * PROJECT_WIDE - Relating to all available project data

@@ -58,7 +58,8 @@ public class MetricType extends DAObject {
 /**
  * An enumeration of the metric types:
  * <ul>
- * <li>SOURCE CODE - Relates to SVN data</li>
+ * <li>SOURCE_CODE - Relates to SVN source files</li>
+ * <li>SOURCE_FOLDER - Relates to SVN source folders</li>
  * <li>MAILING_LIST - Relates to email data</li>
  * <li>BUG_DATABASE - Relates to BTS data</li>
  * <li>PROJECT_WIDE - Relates to all available data</li>
@@ -66,11 +67,13 @@ public class MetricType extends DAObject {
  */
     public enum Type {
 
-        SOURCE_CODE, MAILING_LIST, BUG_DATABASE, PROJECT_WIDE;
+        SOURCE_CODE, SOURCE_FOLDER, MAILING_LIST, BUG_DATABASE, PROJECT_WIDE;
 
         public static Type fromString(String s) {
             if ("SOURCE_CODE".equals(s))
                 return Type.SOURCE_CODE;
+            if ("SOURCE_FOLDER".equals(s))
+                return Type.SOURCE_FOLDER;
             else if ("MAILING_LIST".equals(s))
                 return Type.MAILING_LIST;
             else if ("BUG_DATABASE".equals(s))
