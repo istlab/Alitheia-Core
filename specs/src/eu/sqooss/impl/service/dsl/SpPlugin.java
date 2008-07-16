@@ -20,6 +20,7 @@ public class SpPlugin implements SpEntity {
     
     public String name;
     public boolean installed = false;
+    public String hash;
     
     public static ArrayList<SpPlugin> allPlugins() {
       PluginAdmin pa = SpecsActivator.alitheiaCore.getPluginAdmin();
@@ -28,22 +29,60 @@ public class SpPlugin implements SpEntity {
         Collection<PluginInfo> plugins = pa.listPlugins();
         
           for (PluginInfo plugin : plugins) {
-            result.add(new SpPlugin(plugin.getPluginName(), plugin.installed));
+            result.add(new SpPlugin(plugin.getPluginName(), plugin.installed, plugin.getHashcode()));
         }
         
         return result;
     }
     
     
-    private SpPlugin(String n, boolean i) {
+    private SpPlugin(String n, boolean i, String h) {
         name = n;
         installed = i;
+        hash = h;
         persistent = true;
     }
     
+    public SpPlugin(String n) {
+      name = n;
+      persistent = true;
+      load();
+    }
+    
     public void load() {
+      System.out.printf("search plugin: |%s|\n",name);
+      ArrayList<SpPlugin> plugins = allPlugins();
+      for (SpPlugin plugin: plugins)
+      {
+        System.out.printf("found plugin: |%s|\n",plugin.name);
+        if (plugin.name.equals(name))
+        {
+          installed = plugin.installed;
+          hash = plugin.hash;
+          System.out.printf("found plugin hash: %s %s\n",name,hash);
+          return;
+        }
+      }      
+    }
+    
+    public void install()
+    {
+      DBService db = SpecsActivator.alitheiaCore.getDBService();
+      db.startDBSession();
+      PluginAdmin pa = SpecsActivator.alitheiaCore.getPluginAdmin();
+      pa.installPlugin(hash);
+      db.commitDBSession();
     }
 
+    public void uninstall()
+    {
+      DBService db = SpecsActivator.alitheiaCore.getDBService();
+      db.startDBSession();
+      PluginAdmin pa = SpecsActivator.alitheiaCore.getPluginAdmin();
+      pa.uninstallPlugin(hash);
+      db.commitDBSession();
+    }
+    
     public void create() {
     }
 
