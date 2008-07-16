@@ -39,9 +39,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import eu.sqooss.webui.ListView;
+import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.datatype.File;
+import eu.sqooss.webui.widgets.WinIcon;
 
 public class FileListView extends ListView {
     public static int FILES     = 2;
@@ -234,10 +236,21 @@ public class FileListView extends ListView {
                             html.append(sp(in) + "<td class=\"head\""
                                     + " style=\"width: 10em;\">"
                                     + "File name" + "</td>\n");
-                            for (String nextMnemonic : mnemonics)
+                            WinIcon icoClose = new WinIcon();
+                            icoClose.setPath(getServletPath());
+                            icoClose.setParameter("fvdm");
+                            icoClose.setImage("/img/icons/16x16/application-exit.png");
+                            icoClose.setAlt("Deselect metric");
+                            for (String nextMnemonic : mnemonics) {
+                                Metric nextMetric =
+                                    project.getEvaluatedMetrics()
+                                        .getMetricByMnemonic(nextMnemonic);
+                                icoClose.setValue(nextMetric.getId().toString());
                                 html.append(sp(in) + "<td class=\"head\""
                                     + " style=\"width: 5em;\">"
-                                        + nextMnemonic + "</td>\n");
+                                    + icoClose.render()
+                                    + nextMnemonic + "</td>\n");
+                            }
                             html.append(sp(in++) + "</tr>\n");
                             html.append(sp(--in) + "</thead>\n");
                         }

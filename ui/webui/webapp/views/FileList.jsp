@@ -36,6 +36,12 @@ if (selectedProject.isValid()) {
             else if (request.getParameter("showResults").equals("false"))
                 settings.setShowFileResultsOverview(false);
         }
+        // Check, if the user has deselected a metric
+        if (request.getParameter("fvdm") != null) {
+            Long metricId = getId(request.getParameter("fvdm"));
+            if (metricId != null)
+                selectedProject.deselectMetric(metricId);
+        }
         //====================================================================
         // Display the selected file verbosely
         //====================================================================
@@ -240,6 +246,7 @@ if (selectedProject.isValid()) {
                         selectedVersion.files, FileListView.FOLDERS);
                     foldersView.setVersionId(selectedVersion.getId());
                     foldersView.setSettings(settings);
+                    foldersView.setServletPath(request.getServletPath());
                     winVisible = "showFVFolderList";
                     icoCloseWin.setParameter(winVisible);
                     winFoldersList.addTitleIcon(icoCloseWin);
@@ -256,6 +263,7 @@ if (selectedProject.isValid()) {
                     filesView.setProject(selectedProject);
                     filesView.setVersionId(selectedVersion.getId());
                     filesView.setSettings(settings);
+                    filesView.setServletPath(request.getServletPath());
                     winVisible = "showFVFileList";
                     icoCloseWin.setParameter(winVisible);
                     winFilesList.addTitleIcon(icoCloseWin);
