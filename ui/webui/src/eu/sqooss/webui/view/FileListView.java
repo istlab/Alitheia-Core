@@ -224,7 +224,8 @@ public class FileListView extends ListView {
                         List<String> mnemonics = new ArrayList<String>(
                             project.getSelectedMetrics().getMetricMnemonics(
                                     MetricActivator.PROJECTFILE).values());
-                        if ((settings.getShowFileResultsOverview())
+                        if ((settings.getShowFileResultsOverview()
+                                && (mnemonics.size() > 0))
                                 && (numFiles == 0)) {
                             html.append(sp(in++) + "<div id=\"table\">\n"
                                     + sp(in++) + "<table"
@@ -256,7 +257,8 @@ public class FileListView extends ListView {
                         }
                         numFiles++;
                         nextFile.setSettings(settings);
-                        if (settings.getShowFileResultsOverview())
+                        if ((settings.getShowFileResultsOverview())
+                                && (mnemonics.size() > 0))
                             html.append((nextFile != null)
                                     ? sp(in) + nextFile.getHtml(versionId, mnemonics)
                                     : "");
