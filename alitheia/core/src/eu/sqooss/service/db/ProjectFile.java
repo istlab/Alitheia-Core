@@ -646,40 +646,41 @@ public class ProjectFile extends DAObject{
      * 
      * @return the modifications hash map
      */
+    @SuppressWarnings("unchecked")
     public static HashMap<Long, Long> getFileModifications(ProjectFile pf) {
-    	DBService dbs = CoreActivator.getDBService();
+        DBService dbs = CoreActivator.getDBService();
         HashMap<Long, Long> result = new HashMap<Long, Long>();
-        
+
         if (pf == null) {
-        	return result;
+            return result;
         }
-            
+
         String paramFile = "paramFile";
-		String paramDir = "paramDir";
-		String paramProject = "paramProject";
+        String paramDir = "paramDir";
+        String paramProject = "paramProject";
 
-		String query = "select pf" 
-			    + " from ProjectVersion pv, ProjectFile pf"
-				+ " where pf.projectVersion = pv.id "  
-				+ " and pf.name = :" + paramFile 
-				+ " and pf.dir = :" + paramDir
-				+ " and pv.project = :" + paramProject
-				+ " order by pv.timestamp desc";
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put(paramFile, pf.getName());
-		parameters.put(paramDir, pf.getDir());
-		parameters.put(paramProject, pf.getProjectVersion().getProject());
+        String query = "select pf" 
+            + " from ProjectVersion pv, ProjectFile pf"
+            + " where pf.projectVersion = pv.id "  
+            + " and pf.name = :" + paramFile 
+            + " and pf.dir = :" + paramDir
+            + " and pv.project = :" + paramProject
+            + " order by pv.timestamp desc";
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(paramFile, pf.getName());
+        parameters.put(paramDir, pf.getDir());
+        parameters.put(paramProject, pf.getProjectVersion().getProject());
 
-		List<ProjectFile> projectFiles = 
-			(List<ProjectFile>) dbs.doHQL(query, parameters);
+        List<ProjectFile> projectFiles = 
+            (List<ProjectFile>) dbs.doHQL(query, parameters);
 
-		Iterator<ProjectFile> i = projectFiles.iterator();
-		
-		while (i.hasNext()){
-			ProjectFile pf1 = i.next();
-			result.put(pf1.getProjectVersion().getVersion(), pf.getId());
-		}
-          
+        Iterator<ProjectFile> i = projectFiles.iterator();
+
+        while (i.hasNext()){
+            ProjectFile pf1 = i.next();
+            result.put(pf1.getProjectVersion().getVersion(), pf1.getId());
+        }
+
         return result;
     }
 }
