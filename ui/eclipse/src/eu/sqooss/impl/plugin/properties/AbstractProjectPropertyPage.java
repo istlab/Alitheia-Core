@@ -66,10 +66,12 @@ abstract class AbstractProjectPropertyPage extends PropertyPage {
         linkConfigurationPropertyPage.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
         setLayoutData(linkConfigurationPropertyPage);
         
+        /*
         //add profile link
         linkProfilePropertyPage = new Link(composite, SWT.NONE);
         linkProfilePropertyPage.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Profile);
         setLayoutData(linkProfilePropertyPage);
+        */
         
         //add quality link
         linkQualityPropertyPage = new Link(composite, SWT.NONE);

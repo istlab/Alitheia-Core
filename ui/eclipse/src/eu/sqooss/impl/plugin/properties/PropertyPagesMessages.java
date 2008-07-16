@@ -54,6 +54,8 @@ public class PropertyPagesMessages extends NLS {
     
     //EnabledPropertyPage
     public static String EnabledPropertyPage_Connection_Init_Dialog_Message;
+    public static String EnabledPropertyPage_Message_Error_Invalid_Connection;
+    public static String EnabledPropertyPage_Message_Error_Invalid_Project;
     
     //ConfigurationPropertyPage's messages
     public static String ConfigurationPropertyPage_Label_Server_Url;
@@ -81,6 +83,8 @@ public class PropertyPagesMessages extends NLS {
     public static String QualityPropertyPage_Label_Entity_Path;
     public static String QualityPropertyPage_Label_Metric;
     public static String QualityPropertyPage_Button_Compare;
+    public static String QualityPropertyPage_Message_Error_Missing_Entity;
+    public static String QualityPropertyPage_Message_Error_Missing_Metrics;
     
     //ProfilePropertyPage's messages
     public static String ProfilePropertyPage_Label_Profile_Name;

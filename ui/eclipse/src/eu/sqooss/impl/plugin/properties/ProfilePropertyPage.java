@@ -32,7 +32,6 @@
 
 package eu.sqooss.impl.plugin.properties;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
@@ -62,12 +61,12 @@ public class ProfilePropertyPage extends AbstractProfilePropertyPage implements 
     }
     
     /**
-     * @see eu.sqooss.impl.plugin.properties.EnabledPropertyPage#setEnabled(boolean)
+     * @see eu.sqooss.impl.plugin.properties.EnabledPropertyPage#setEnabled(boolean, String)
      */
     @Override
-    public void setEnabled(boolean isEnabled) {
+    public void setEnabled(boolean isEnabled, String errorMessage) {
         if (mainControl == null) return; //the method createContents isn't called yet
-        super.setEnabled(isEnabled);
+        super.setEnabled(isEnabled, errorMessage);
         if (isEnabled) {
             configurationLink.setVisible(false);
         } else {
@@ -94,8 +93,9 @@ public class ProfilePropertyPage extends AbstractProfilePropertyPage implements 
     }
     
     private String getEntityPath() {
-        IResource resource = (IResource) (getElement().getAdapter(IResource.class));
-        return ProjectConverterUtility.getEntityPath(resource);
+//        IResource resource = (IResource) (getElement().getAdapter(IResource.class));
+//        return ProjectConverterUtility.getEntityPath(resource);
+        return "";
     }
 
 }

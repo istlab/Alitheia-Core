@@ -33,6 +33,7 @@
 package eu.sqooss.impl.plugin.properties;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -42,11 +43,15 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import eu.sqooss.plugin.util.ConnectionUtils;
 import eu.sqooss.plugin.util.Constants;
+import eu.sqooss.plugin.util.Entity;
+import eu.sqooss.ws.client.datatypes.WSMetric;
 
 public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener {
 
     private Composite parent;
+    private Entity entity;
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractQualityPropertyPage#createContents(org.eclipse.swt.widgets.Composite)
@@ -56,7 +61,6 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
         this.parent = parent;
         mainControl = (Composite) super.createContents(parent);
         buttonCompareVersion.addSelectionListener(this);
-        textFieldEntityPath.setText(getEntityPath());
         parent.forceFocus();
         enableIfPossible();
         return mainControl;
@@ -96,19 +100,24 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     }
     
     /**
-     * @see eu.sqooss.plugin.properties.EnabledState#setEnabled(boolean)
+     * @see eu.sqooss.impl.plugin.properties.EnabledPropertyPage#setEnabled(boolean, java.lang.String)
      */
-    public void setEnabled(boolean isEnabled) {
+    public void setEnabled(boolean isEnabled, String errorMessage) {
         if (mainControl == null) return; //the method createContents isn't called yet
         if (isEnabled) {
-            if (controlEnableState != null) {
+            String internalErrorMessage = fill(); 
+            if (internalErrorMessage != null) {
+                setEnabled(false, internalErrorMessage);
+                return;
+            }
+            if (configurationLink != null) {
                 //remove the configuration link
                 configurationLink.dispose();
                 configurationLink = null;
                 parent.layout();
             }
         }else {
-            if (controlEnableState == null) {
+            if (configurationLink == null) {
                 //add configuration link
                 configurationLink = new Link(parent, SWT.NONE);
                 configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
@@ -117,15 +126,76 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 parent.layout();
             }
         }
-        super.setEnabled(isEnabled);
+        super.setEnabled(isEnabled, errorMessage);
     }
     
+    /*
+     * The method fills the GUI with the information of the entity.
+     */
+    private String fill() {
+        if (!initEntity()) {
+            return PropertyPagesMessages.
+            QualityPropertyPage_Message_Error_Missing_Entity;
+        }
+        textFieldEntityPath.setText(this.entity.getName());
+        WSMetric[] metrics = this.entity.getMetrics();
+        if ((metrics == null) || (metrics.length == 0)) {
+            return PropertyPagesMessages
+            .QualityPropertyPage_Message_Error_Missing_Metrics;
+        }
+        comboMetric.removeAll();
+        comboCompareVersion.removeAll();
+        WSMetric currentMetric;
+        String currentItem;
+        for (int i = 0; i < metrics.length; i++) {
+            currentMetric = metrics[i];
+            currentItem = currentMetric.getMnemonic() + " (" +
+            currentMetric.getDescription() + ")";
+            comboMetric.add(currentItem, i);
+            comboMetric.setData(Integer.toString(i), currentMetric);
+        }
+        Long[] versions = this.entity.getVersions();
+        if (versions != null) {
+            Long currentVersion;
+            for (int i = 0; i < versions.length; i++) {
+                currentVersion = versions[i];
+                currentItem  = "ver. " + currentVersion;
+                comboCompareVersion.add(currentItem, i);
+                comboCompareVersion.setData(Integer.toString(i), currentVersion);
+            }
+        }
+        comboMetric.select(0);
+        comboCompareVersion.select(0);
+        return null;
+    }
     
-    private String getEntityPath() {
+    /*
+     * The method sets the resource entity.
+     */
+    private boolean initEntity() {
+        if (entity != null) return true;
         IResource resource = (IResource) (getElement().getAdapter(IResource.class));
-        return ProjectConverterUtility.getEntityPath(resource);
+        ConnectionUtils connectionUtils;
+        try {
+            connectionUtils = (ConnectionUtils) resource.getProject().
+            getSessionProperty(ConnectionUtils.PROPERTY_CONNECTION_UTILS);
+        } catch (CoreException e) {
+            connectionUtils = null;
+        }
+        if ((connectionUtils == null) ||
+                (!connectionUtils.isValidProjectVersion())) {
+            return false;
+        } else {
+            this.entity = connectionUtils.getEntity(
+                    resource.getFullPath().toString());
+            if (this.entity == null) {
+                return false;
+            } else {
+                return true;
+            }
+        }
     }
-
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

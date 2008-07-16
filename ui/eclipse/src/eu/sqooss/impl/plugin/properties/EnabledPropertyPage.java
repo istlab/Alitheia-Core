@@ -71,7 +71,7 @@ abstract class EnabledPropertyPage extends PropertyPage implements EnabledState,
             connectionUtils = (ConnectionUtils) resourceProject.
             getSessionProperty(ConnectionUtils.PROPERTY_CONNECTION_UTILS);
         } catch (CoreException e) {
-            setEnabled(false);
+            setEnabled(false, e.getMessage());
         }
         if (connectionUtils == null) {
             ProgressMonitorDialog progressMonitorDialog =
@@ -83,13 +83,18 @@ abstract class EnabledPropertyPage extends PropertyPage implements EnabledState,
             }
         }
         connectionUtils.save();
-        setEnabled(connectionUtils.validate());
+        if (connectionUtils.validate()) {
+            setEnabled(true, null);
+        } else {
+            setEnabled(false, connectionUtils.getErrorMessage());
+        }
     }
     
     /**
-     * @see eu.sqooss.plugin.util.EnabledState#setEnabled(boolean)
+     * @see eu.sqooss.plugin.util.EnabledState#setEnabled(boolean, String)
      */
-    public void setEnabled(boolean isEnabled) {
+    public void setEnabled(boolean isEnabled, String errorMessage) {
+        this.setErrorMessage(errorMessage);
         if (isEnabled) {
             //it is disabled before, enable now
             if (controlEnableState != null) {

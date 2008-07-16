@@ -30,24 +30,49 @@
  *
  */
 
-package eu.sqooss.plugin.util;
+package eu.sqooss.impl.plugin.util;
+
+import eu.sqooss.plugin.util.Entity;
+import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
- * The property pages can implement this interface.
- * They are notified for the state of the configuration.
- * In case of invalid configuration the <code>isEnabled</code>
- * parameter is <code>false</code>.  
+ * The class represents the project.
  */
-public interface EnabledState {
+public class ProjectVersionEntity implements Entity {
+
+    private WSStoredProject storedProject;
+    private WSProjectVersion projectVersion;
+    
+    public ProjectVersionEntity(WSStoredProject storedProject,
+            WSProjectVersion projectVersion) {
+        this.storedProject = storedProject;
+        this.projectVersion = projectVersion;
+    }
     
     /**
-     * This method is called from the <code>ConfigurationPropertyPage</code>.
-     * 
-     * @param isEnabled - if the user configuration settings are valid then
-     * <code>isEnabled</code> is <code>true</code>, <code>false</code> otherwise
-     * @param errorMessage - represents the error message
+     * @see eu.sqooss.plugin.util.Entity#getMetrics()
      */
-    public void setEnabled(boolean isEnabled, String errorMessage);
+    public WSMetric[] getMetrics() {
+        // TODO: implement
+        return null;
+    }
+
+    /**
+     * @see eu.sqooss.plugin.util.Entity#getName()
+     */
+    public String getName() {
+        return this.storedProject.getName();
+    }
+
+    /**
+     * @see eu.sqooss.plugin.util.Entity#getVersions()
+     */
+    public Long[] getVersions() {
+        // TODO: Implement
+        return null;
+    }
     
 }
 

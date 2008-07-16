@@ -37,10 +37,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
 import eu.sqooss.impl.plugin.properties.PropertyPagesMessages;
+import eu.sqooss.impl.plugin.util.ProjectFileEntity;
+import eu.sqooss.impl.plugin.util.ProjectVersionEntity;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.accessor.WSAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
@@ -64,6 +67,8 @@ public class ConnectionUtils {
         new QualifiedName("", "SQO-OSS_PROJECT_NAME");
     public static final QualifiedName PROPERTY_PROJECT_VERSION =
         new QualifiedName("", "SQO-OSS_PROJECT_VERSION");
+    
+    private static final String REG_EXPR_ANY_CHARACTER = ".*";
     
     private String errorMessage;
     private boolean isValidAccount;
@@ -268,6 +273,7 @@ public class ConnectionUtils {
             } else {
                 isValidAccount = true;
                 isValidProjectVersion = true;
+                errorMessage = null;
             }
         } catch (WSException wse) {
             isValidAccount = false;
@@ -291,6 +297,39 @@ public class ConnectionUtils {
         ConfigurationPropertyPage_Text_Project_Name_Default_Value;
         projectVersion = PropertyPagesMessages.
         ConfigurationPropertyPage_Combo_Last_Project_Version;
+    }
+    
+    public Entity getEntity(String resourceFullPath) {
+        int firstIndex = 0;
+        char rootPathSymbol = resourceFullPath.charAt(firstIndex);
+        int secondIndex = resourceFullPath.indexOf(rootPathSymbol, firstIndex + 1);
+        if (secondIndex == -1) {
+            //project version entity
+            return new ProjectVersionEntity(storedProject,
+                    storedProjectVersion);
+        } else {
+            //project file entity
+            String filePathname = resourceFullPath.substring(secondIndex);
+            WSProjectAccessor projectAccessor =
+                ((WSProjectAccessor) wsSession.getAccessor(WSAccessor.Type.PROJECT));
+            WSProjectFile[] files;
+            try {
+                files = projectAccessor.getFilesByRegularExpression(
+                        storedProjectVersion.getId(),
+                        REG_EXPR_ANY_CHARACTER + filePathname);
+            } catch (WSException e) {
+                errorMessage = e.getMessage();
+                return null;
+            }
+            if (files.length == 0) {
+                errorMessage = "The file does not exist!";
+                return null;
+            } else {
+                //TODO: in case of more files, choose the first - improve
+                return new ProjectFileEntity(
+                        storedProjectVersion, files[0], wsSession);
+            }
+        }
     }
     
     private boolean validateProjectVersion(WSProjectAccessor accessor) throws WSException {
@@ -322,12 +361,12 @@ public class ConnectionUtils {
             if ((versions == null) || (versions.length == 0)) {
                 WSProjectVersion[] firstVersion = accessor.getFirstProjectVersions(projectId);
                 WSProjectVersion[] lastVersion = accessor.getLastProjectVersions(projectId);
-                errorMessage = "The project version is not correct! Please select one between first and last!";
+                errorMessage = "Incorect version! ";
                 if (firstVersion.length != 0) {
-                    errorMessage += "\nThe first version is: " + firstVersion[0].getVersion();
+                    errorMessage += "first-" + firstVersion[0].getVersion() + "; ";
                 }
                 if (lastVersion.length != 0) {
-                    errorMessage += "\nThe last version is: " + lastVersion[0].getVersion();
+                    errorMessage += "last-" + lastVersion[0].getVersion() + "; ";
                 }
                 return false;
             }

@@ -59,7 +59,7 @@ public class ProjectPropertyPage extends AbstractProjectPropertyPage implements 
         Control control = super.createContents(parent);
         
         linkConfigurationPropertyPage.addSelectionListener(this);
-        linkProfilePropertyPage.addSelectionListener(this);
+        //linkProfilePropertyPage.addSelectionListener(this);
         linkQualityPropertyPage.addSelectionListener(this);
         
         return control;
@@ -74,8 +74,8 @@ public class ProjectPropertyPage extends AbstractProjectPropertyPage implements 
         IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer)getContainer();
         if (eventSource == linkConfigurationPropertyPage) {
             container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
-        } else if (eventSource == linkProfilePropertyPage) {
-            container.openPage(Constants.PROFILE_PROPERTY_PAGE_ID, null);
+//        } else if (eventSource == linkProfilePropertyPage) {
+//            container.openPage(Constants.PROFILE_PROPERTY_PAGE_ID, null);
         } else if (eventSource == linkQualityPropertyPage) {
             container.openPage(Constants.QUALITY_PROPERTY_PAGE_ID, null);
         }

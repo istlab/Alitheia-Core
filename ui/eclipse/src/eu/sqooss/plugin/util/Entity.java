@@ -30,37 +30,31 @@
  *
  */
 
-package eu.sqooss.impl.plugin.properties;
+package eu.sqooss.plugin.util;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
+import eu.sqooss.ws.client.datatypes.WSMetric;
 
-import eu.sqooss.plugin.util.ConnectionUtils;
-
-public class ProjectConverterUtility {
+/**
+ * The classes that implement an <code>Entity</code>
+ * interface wrap the eclipse project entities.
+ * The <code>ConnectionUtils</code> class is used as a entity factory. 
+ */
+public interface Entity {
     
-    public static String getEntityPath(IResource resource) {
-        StringBuffer eclipsePath = new StringBuffer(resource.getFullPath().toString());
-        char rootPathSymbol = eclipsePath.charAt(0);
-        eclipsePath.deleteCharAt(0); //remove the root
-        int secondPathSymbol = eclipsePath.indexOf(Character.toString(rootPathSymbol));
-        if (secondPathSymbol != -1) {
-            eclipsePath.delete(0, secondPathSymbol);
-            return eclipsePath.toString();
-        } else {
-            //it is a project
-            IProject project = resource.getProject();
-            String sqoossProjectName;
-            try {
-                sqoossProjectName = project.getPersistentProperty(
-                        ConnectionUtils.PROPERTY_PROJECT_NAME);
-            } catch (CoreException e) {
-                sqoossProjectName = null;
-            }
-            return (sqoossProjectName == null)? "" : sqoossProjectName;
-        }
-    }
+    /**
+     * @return the entity name
+     */
+    public String getName();
+    
+    /**
+     * @return the metrics that have a quality result for the entity
+     */
+    public WSMetric[] getMetrics();
+    
+    /**
+     * @return the entity's versions
+     */
+    public Long[] getVersions();
     
 }
 

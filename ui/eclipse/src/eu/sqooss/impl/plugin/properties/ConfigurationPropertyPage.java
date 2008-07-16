@@ -94,7 +94,7 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         if (super.performOk()) {
             synchronizeConnectionUtils(false);
             connectionUtils.save();
-            notifyPropertyPages(connectionUtils.validate());
+            connectionUtils.validate();
             return true;
         } else {
             return false;
@@ -126,7 +126,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
                     (tabItemProject == tabFolder.getItem(selectedItemIndex))) {
                 synchronizeConnectionUtils(false);
                 connectionUtils.save();
-                notifyPropertyPages(connectionUtils.validate());
+                this.setEnabled(connectionUtils.validate(),
+                        connectionUtils.getErrorMessage());
                 if (connectionUtils.isValidAccount() &&
                         (controlEnableState != null)) {
                     controlEnableState.restore();
@@ -142,9 +143,13 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     }
 	
     @Override
-    public void setEnabled(boolean isEnabled) {
+    public void setEnabled(boolean isEnabled, String errorMessage) {
         if (!connectionUtils.isValidAccount()) {
-            super.setEnabled(isEnabled);
+            super.setEnabled(isEnabled, errorMessage);
+        } else if (!connectionUtils.isValidProjectVersion()) {
+            super.setEnabled(true, connectionUtils.getErrorMessage());
+        } else {
+            super.setEnabled(true, null);
         }
     }
 
@@ -202,7 +207,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         for (Object node : nodes) {
             currentPage = ((IPreferenceNode) node).getPage();
             if (currentPage instanceof EnabledState) {
-                ((EnabledState) currentPage).setEnabled(isEnabled);
+                ((EnabledState) currentPage).setEnabled(isEnabled,
+                        connectionUtils.getErrorMessage());
             }
         }
     }
