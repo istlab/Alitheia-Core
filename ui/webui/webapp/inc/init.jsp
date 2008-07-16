@@ -81,6 +81,7 @@ long in = 0;
 Long projectId = null;
 String winVisible = null;
 WinIcon icoCloseWin = null;
+String inputError = null;
 
 // Folder relative to this web application's root (deployment) folder, where
 // the application will store all generated temporary files.
@@ -126,30 +127,28 @@ if (selectedProject.isValid()) {
     String vparam = "version" + selectedProject.getId();
     // Check if the user has selected a project version
     if (request.getParameter(vparam) != null) {
-        String req = request.getParameter(vparam);
-        // Shortcut request for selecting the last project version
-        if (req.equals("last")) {
-            selectedProject.setCurrentVersionId(
-                selectedProject.getLastVersion().getId());
+        Long versionNumber = null;
+        Version selVersion = null;
+        try {
+            // Retrieve the selected version from the SQO-OSS framework
+            versionNumber = new Long(request.getParameter(vparam));
+            List<Version> versions = terrier.getVersionsByNumber(
+                selectedProject.getId(), new long[]{versionNumber});
+            if (versions.size() > 0)
+                selVersion = versions.get(0);
+            else
+                inputError = new String("Version with number"
+                    + " " + versionNumber
+                    + " does not exist!");
         }
-        // Shortcut request for selecting the first project version
-        else if (req.equals("first")) {
-            selectedProject.setCurrentVersionId(
-                selectedProject.getFirstVersion().getId());
+        catch (NumberFormatException e) {
+            inputError = new String("Wrong version number format!");
         }
-        // Shortcut request for de-selecting the previously selected version
-        else if (req.equals("none")) {
-            selectedProject.setCurrentVersionId(null);
-        }
-        // Select a new project version 
-        else {
-            Long versionId = strToLong(req);
-            if (versionId != null) {
-                selectedProject.setCurrentVersionId(versionId);
-                // Reread the project's last version
-                selectedProject.setLastVersion(null);
-                selectedProject.getLastVersion();
-            }
+        // Switch to the selected version
+        if ((selVersion != null)
+            && (selVersion.getId().equals(
+                selectedProject.getCurrentVersionId()) == false)) {
+            selectedProject.setCurrentVersion(selVersion);
         }
     }
 }

@@ -151,6 +151,18 @@ a:hover.texticon {
     color: #000000;
     text-decoration: none;
 }
+
+form.icoTextInput {
+    position: absolute;
+    top: auto;
+    display: inline;
+    font-size: 0.8em;
+    margin-left: 0.2em;
+}
+input.icoTextInput {
+    margin-left: 0.2em;
+    width: 5em;
+}
 /* ===[ WINDOW CSS ]====================================================== */
 div.win {
     border: 1px solid #000000;

@@ -2,7 +2,6 @@
 %><%@ page import="eu.sqooss.webui.view.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
-String inputError = null;
 if (selectedProject.isValid()) {
     // Indentation depth
     in = 5;
@@ -93,33 +92,6 @@ if (selectedProject.isValid()) {
     //========================================================================
     // Indentation depth
     in = 11;
-    // Check if the user has selected an another project version
-    String paramName = "version" + selectedProject.getId();
-    if (request.getParameter(paramName) != null) {
-        Long versionNumber = null;
-        Version selVersion = null;
-        try {
-            // Retrieve the selected version from the SQO-OSS framework
-            versionNumber = new Long(request.getParameter(paramName));
-            List<Version> versions = terrier.getVersionsByNumber(
-                selectedProject.getId(), new long[]{versionNumber});
-            if (versions.size() > 0)
-                selVersion = versions.get(0);
-            else
-                inputError = new String("Version with number"
-                    + " " + versionNumber
-                    + " does not exist!");
-        }
-        catch (NumberFormatException e) {
-            inputError = new String("Wrong version number format!");
-        }
-        // Switch to the selected version
-        if ((selVersion != null)
-            && (selVersion.getId().equals(
-                selectedProject.getCurrentVersionId()) == false)) {
-            selectedProject.setCurrentVersion(selVersion);
-        }
-    }
     // Check if the user has requested to show/hide this view
     winVisible = "showPVVersions";
     if (request.getParameter(winVisible) != null) {

@@ -186,6 +186,12 @@ if (selectedProject.isValid()) {
                 icoFilesList.setStatus(!settings.getShowFVFileList());
                 winFileBrowser.addToolIcon(icoFilesList);
 
+                // Version select widget
+                TextInput icoVerSelect = new TextInput();
+                icoVerSelect.setPath(request.getServletPath());
+                icoVerSelect.setParameter("version" + selectedProject.getId());
+                icoVerSelect.setText("Version:");
+                winFileBrowser.addToolIcon(icoVerSelect);
                 // Prepare the shared close icon
                 icoCloseWin = new WinIcon();
                 icoCloseWin.setPath(request.getServletPath());
