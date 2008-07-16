@@ -1,7 +1,7 @@
 <html xmlns:concordion="http://www.concordion.org/2007/concordion">
   <body>
     
-    <h1>Metric Install</h1>
+    <h1>Metric Uninstall</h1>
     
     <p>Quality is meassured with different metric plugins. In order to use a plug-in, it needs to be installed.</p>
     
@@ -47,8 +47,28 @@
           <td>Wc metric plug-in</td>
           <td>false</td>
         </tr>
-      </table>   
-   </div>
+      </table>
+    
+      <p concordion:execute="unInstallPlugin(#installed_plugin)">Uninstalling the "<span concordion:set="#installed_plugin">Productivity metric plug-in</span>" gives back the original list: </p>
+      <table concordion:verifyRows="#plugin : getPlugins()">
+        <tr>
+          <th concordion:assertEquals="#plugin.name">Plugin Name</th>
+          <th concordion:assertEquals="#plugin.installed">Installed</th> 
+        </tr>
+        <tr>
+          <td>Productivity metric plug-in</td>
+          <td>false</td>
+        </tr>
+        <tr>
+          <td>CLMT plug-in</td>
+          <td>false</td>
+        </tr>
+        <tr>
+          <td>Wc metric plug-in</td>
+          <td>false</td>
+        </tr>
+      </table>
+</div>
     
     <h2>Further Details</h2>
     
@@ -56,7 +76,7 @@
         Questions raised by this specification. Each one links to another finer grained active specification.
         -->
     <ul>
-      <li><a href="MetricUninstall.html">Can we uninstall a metric plugin?</a></li>
+      <li><a href="MetricInstall.html">Can we install a metric plugin?</a></li>
     </ul>
     
     

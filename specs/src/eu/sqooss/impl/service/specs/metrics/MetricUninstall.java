@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import eu.sqooss.impl.service.dsl.SpPlugin;
 
 @RunWith(ConcordionRunner.class)
-public class MetricInstall
+public class MetricUninstall
 {
 
   public ArrayList<SpPlugin> getPlugins()
@@ -22,4 +22,9 @@ public class MetricInstall
     sp.install();
   }
   
+  public void unInstallPlugin(String pluginName)
+  {
+    SpPlugin sp = new SpPlugin(pluginName);
+    sp.uninstall();
+  }
 }
