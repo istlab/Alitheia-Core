@@ -112,6 +112,9 @@ if (selectedProject.isValid()) {
                 }
                 winFileBrowser.addToolIcon(icoResults);
 
+                // Put a separator
+                winFileBrowser.addToolIcon(icoSeparator);
+
                 // Top folder icon
                 WinIcon icoTopDir = new WinIcon();
                 icoTopDir.setPath(request.getServletPath());
@@ -131,6 +134,9 @@ if (selectedProject.isValid()) {
                 icoPrevDir.setAlt("Previous folder");
                 icoPrevDir.setStatus(selectedVersion.isSubDir());
                 winFileBrowser.addToolIcon(icoPrevDir);
+
+                // Put a separator
+                winFileBrowser.addToolIcon(icoSeparator);
 
                 // Directory browser icon
                 WinIcon icoDirBrowser = new WinIcon();
@@ -185,6 +191,9 @@ if (selectedProject.isValid()) {
                 icoFilesList.setValue("" + !settings.getShowFVFileList());
                 icoFilesList.setStatus(!settings.getShowFVFileList());
                 winFileBrowser.addToolIcon(icoFilesList);
+
+                // Put a separator
+                winFileBrowser.addToolIcon(icoSeparator);
 
                 // Version select widget
                 TextInput icoVerSelect = new TextInput();

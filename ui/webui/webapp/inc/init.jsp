@@ -83,6 +83,13 @@ String winVisible = null;
 WinIcon icoCloseWin = null;
 String inputError = null;
 
+//============================================================================
+// Shared icons
+//============================================================================
+// Separator icon
+WinIcon icoSeparator = new WinIcon();
+icoSeparator.setImage("/img/icons/16x16/separator.png");
+
 // Folder relative to this web application's root (deployment) folder, where
 // the application will store all generated temporary files.
 String tempFolderName = "tmp";

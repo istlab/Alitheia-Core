@@ -79,6 +79,8 @@ public class WinIcon extends AbstractIcon {
     @Override
     public String render() {
         StringBuilder b = new StringBuilder("");
+        String strAlt = (alt != null) ? " alt=\"" + alt + "\"" : "";
+        String strTitle = (alt != null) ? " title=\"" + alt + "\"" : "";
         if (getStatus()) {
             String action = "";
             if ((getParameter() != null) && (getParameter().length() > 0)) {
@@ -86,18 +88,22 @@ public class WinIcon extends AbstractIcon {
                 if ((getValue() != null) && (getValue().length() > 0))
                     action += "=" + getValue();
             }
-            b.append("<a class=\"icon\""
-                    + " href=\"" + getPath() + action + "\">"
-                    + "<img"
-                    + " alt=\"" + getAlt() + "\""
-                    + " title=\"" + getAlt() + "\""
-                    + " src=\"" + getImage() + "\">"
-                    + "</a>\n");
+            if (action.length() > 0)
+                b.append("<a class=\"icon\""
+                        + " href=\"" + getPath() + action + "\">"
+                        + "<img"
+                        + strAlt
+                        + strTitle
+                        + " src=\"" + getImage() + "\">"
+                        + "</a>\n");
+            else
+                b.append("<img class=\"icon\""
+                        + strAlt
+                        + " src=\"" + getImage() + "\">\n");
         }
         else {
-            b.append("<img class=\"icon\""
-                    + " style=\"opacity: .25; filter: alpha(opacity=25);\""
-                    + " alt=\"" + getAlt() + "\""
+            b.append("<img class=\"icon_disabled\""
+                    + strAlt
                     + " src=\"" + getImage() + "\">\n");
         }
         return b.toString();
