@@ -154,19 +154,19 @@ public class SpPlugin implements SpEntity {
             {
               DBService db = SpecsActivator.alitheiaCore.getDBService();
               db.startDBSession();
-              config.setValue(propertyValue); 
+              //config.setValue(propertyValue); 
                 //Fails, but I don't know why... Now the new value is not stored in the database./
-              /*
+              
                try 
                {
                  plugin.updateConfigEntry(db, propertyName, propertyValue);
                }
                catch (Exception e)
                {
-                 System.out.printf("Error in mmodifying a property! %s\n", e.getMessage());
-               }*/
-              //pa.pluginUpdated(pa.getPlugin(plugin));
-               db.commitDBSession();
+                 System.out.printf("Error in modifying a property! %s\n", e.getMessage());
+               }
+              pa.pluginUpdated(pa.getPlugin(plugin));
+              db.commitDBSession();
              return;
             }
           }
