@@ -195,12 +195,73 @@ if (selectedProject.isValid()) {
                 // Put a separator
                 winFileBrowser.addToolIcon(icoSeparator);
 
+                Version vFirst = selectedProject.getFirstVersion();
+                Version vLast = selectedProject.getLastVersion();
+                Version vCurrent = selectedProject.getCurrentVersion();
+                // First version icon
+                WinIcon icoFirstVersion = new WinIcon();
+                icoFirstVersion.setImage("/img/icons/16x16/first-revision.png");
+                icoFirstVersion.setAlt("First version");
+                if (vFirst != null) {
+                    icoFirstVersion.setPath(request.getServletPath());
+                    icoFirstVersion.setParameter("version" + selectedProject.getId());
+                    icoFirstVersion.setValue(vFirst.getNumber().toString());
+                }
+                else {
+                    icoFirstVersion.setStatus(false);
+                }
+                winFileBrowser.addToolIcon(icoFirstVersion);
+                // Previous version icon
+                WinIcon icoPrevVersion = new WinIcon();
+                icoPrevVersion.setImage("/img/icons/16x16/prev-revision.png");
+                icoPrevVersion.setAlt("Previous version");
+                if ((vFirst != null) && (vCurrent != null)
+                        && (vFirst.getNumber().equals(vCurrent.getNumber()) == false)) {
+                    icoPrevVersion.setPath(request.getServletPath());
+                    icoPrevVersion.setParameter("version" + selectedProject.getId());
+                    icoPrevVersion.setValue("" + (vCurrent.getNumber() - 1));
+                }
+                else {
+                    icoPrevVersion.setStatus(false);
+                }
+                winFileBrowser.addToolIcon(icoPrevVersion);
+                // Next version icon
+                WinIcon icoNextVersion = new WinIcon();
+                icoNextVersion.setImage("/img/icons/16x16/next-revision.png");
+                icoNextVersion.setAlt("Next version");
+                if ((vLast != null) && (vCurrent != null)
+                        && (vLast.getNumber().equals(vCurrent.getNumber()) == false)) {
+                    icoNextVersion.setPath(request.getServletPath());
+                    icoNextVersion.setParameter("version" + selectedProject.getId());
+                    icoNextVersion.setValue("" + (vCurrent.getNumber() + 1));
+                }
+                else {
+                    icoNextVersion.setStatus(false);
+                }
+                winFileBrowser.addToolIcon(icoNextVersion);
+                // Last version icon
+                WinIcon icoLastVersion = new WinIcon();
+                icoLastVersion.setImage("/img/icons/16x16/last-revision.png");
+                icoLastVersion.setAlt("Last version");
+                if (vLast != null) {
+                    icoLastVersion.setPath(request.getServletPath());
+                    icoLastVersion.setParameter("version" + selectedProject.getId());
+                    icoLastVersion.setValue(vLast.getNumber().toString());
+                }
+                else {
+                    icoLastVersion.setStatus(false);
+                }
+                winFileBrowser.addToolIcon(icoLastVersion);
                 // Version select widget
-                TextInput icoVerSelect = new TextInput();
-                icoVerSelect.setPath(request.getServletPath());
-                icoVerSelect.setParameter("version" + selectedProject.getId());
-                icoVerSelect.setText("Version:");
-                winFileBrowser.addToolIcon(icoVerSelect);
+                if (selectedProject.countVersions() > 1) {
+                    TextInput icoVerSelect = new TextInput();
+                    icoVerSelect.setPath(request.getServletPath());
+                    icoVerSelect.setParameter("version" + selectedProject.getId());
+                    icoVerSelect.setValue(vCurrent.getNumber().toString());
+                    icoVerSelect.setText("Version:");
+                    winFileBrowser.addToolIcon(icoVerSelect);
+                }
+
                 // Prepare the shared close icon
                 icoCloseWin = new WinIcon();
                 icoCloseWin.setPath(request.getServletPath());
