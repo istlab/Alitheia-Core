@@ -34,9 +34,17 @@ public class SpPlugin implements SpEntity {
         ArrayList<SpPlugin> result = new ArrayList<SpPlugin>();
         
         Collection<PluginInfo> plugins = pa.listPlugins();
+        TreeSet<String> names = new TreeSet<String>();
         
+        for (PluginInfo plugin : plugins) {
+            names.add(plugin.getPluginName());
+        }
+        for (String n: names)
+        {
           for (PluginInfo plugin : plugins) {
-            result.add(new SpPlugin(plugin.getPluginName(), plugin.installed, plugin.getHashcode(), plugin));
+            if (plugin.getPluginName().equals(n))
+              result.add(new SpPlugin(plugin.getPluginName(), plugin.installed, plugin.getHashcode(), plugin));
+          }
         }
         
         return result;
@@ -147,7 +155,7 @@ public class SpPlugin implements SpEntity {
               DBService db = SpecsActivator.alitheiaCore.getDBService();
               db.startDBSession();
               config.setValue(propertyValue); 
-                //Fails, but I don't know why... Now the new value is not stored in the database.
+                //Fails, but I don't know why... Now the new value is not stored in the database./
               /*
                try 
                {
