@@ -183,14 +183,16 @@ public class FileListView extends ListView {
      */
     public String getHtml(long in) {
         StringBuffer html = new StringBuffer();
+        List<String> mnemonics = new ArrayList<String>();
         int numFiles = 0;
         int numFolders = 0;
         if (size() > 0) {
             // Display all folders
             if (type == FOLDERS) {
+                mnemonics.clear();
                 for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory()) {
-                        List<String> mnemonics = new ArrayList<String>(
+                        mnemonics = new ArrayList<String>(
                                 project.getSelectedMetrics().getMetricMnemonics(
                                         MetricActivator.PROJECTFILE,
                                         MetricType.SOURCE_FOLDER).values());
@@ -245,6 +247,7 @@ public class FileListView extends ListView {
                     }
                 }
                 if ((settings.getShowFileResultsOverview())
+                        && (mnemonics.size() > 0)
                         && (numFolders > 0)) {
                     html.append(sp(--in) + "</table>\n"
                             + sp(--in) + "</div>\n");
@@ -252,9 +255,10 @@ public class FileListView extends ListView {
             }
             // Display all files
             if (type == FILES) {
+                mnemonics.clear();
                 for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory() == false) {
-                        List<String> mnemonics = new ArrayList<String>(
+                        mnemonics = new ArrayList<String>(
                             project.getSelectedMetrics().getMetricMnemonics(
                                     MetricActivator.PROJECTFILE,
                                     MetricType.SOURCE_CODE).values());
@@ -309,6 +313,7 @@ public class FileListView extends ListView {
                     }
                 }
                 if ((settings.getShowFileResultsOverview())
+                        && (mnemonics.size() > 0)
                         && (numFiles > 0)) {
                     html.append(sp(--in) + "</table>\n"
                             + sp(--in) + "</div>\n");
