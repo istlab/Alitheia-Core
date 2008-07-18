@@ -402,6 +402,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             errorMessage = "Bad updater request for target <" + t + ">";
             logger.warn(errorMessage);
             response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errorMessage);
+            return;
         }
 
         logger.info("Updating project " + p + " target " + t);
