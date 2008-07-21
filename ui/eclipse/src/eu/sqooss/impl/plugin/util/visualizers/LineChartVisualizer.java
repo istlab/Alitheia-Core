@@ -42,10 +42,11 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
-import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.UnknownKeyException;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
@@ -63,7 +64,7 @@ class LineChartVisualizer extends AbstractVisualizer {
 
     private ChartComposite chartComposite;
     private JFreeChart chart;
-    private DefaultCategoryDataset dataset;
+    private XYSeriesCollection seriesCollection;
     
     /**
      * @see eu.sqooss.impl.plugin.util.visualizers.Visualizer#open()
@@ -91,7 +92,7 @@ class LineChartVisualizer extends AbstractVisualizer {
      */
     @Override
     protected void loadData(Long version) {
-        if (dataset == null) return;
+        if (seriesCollection == null) return;
         Map<Long, List<WSResultEntry>> data = new Hashtable<Long, List<WSResultEntry>>();
         if (version != null) {
             data.put(version, this.values.get(version));
@@ -101,25 +102,33 @@ class LineChartVisualizer extends AbstractVisualizer {
         Iterator<Long> keysIterator = data.keySet().iterator();
         Long currentKey;
         List<WSResultEntry> currentData;
+        XYSeries currentXYSeries;
+        String currentMetricMnemonic;
         while (keysIterator.hasNext()) {
             currentKey = keysIterator.next();
             currentData = data.get(currentKey);
             for (WSResultEntry currentEntry : currentData) {
-                dataset.setValue(Double.valueOf(currentEntry.getResult()),
-                        currentEntry.getMnemonic(), currentKey.toString());
+                currentMetricMnemonic = currentEntry.getMnemonic();
+                try {
+                    currentXYSeries = seriesCollection.getSeries(currentMetricMnemonic);
+                } catch (UnknownKeyException e) {
+                    currentXYSeries = new XYSeries(currentMetricMnemonic);
+                    seriesCollection.addSeries(currentXYSeries);
+                }
+                currentXYSeries.add(currentKey.doubleValue(),
+                        Double.parseDouble(currentEntry.getResult()));
             }
         }
     }
 
     private void init() {
         //create a dataset
-        dataset = new DefaultCategoryDataset();
+        seriesCollection = new XYSeriesCollection();
         //create a cahrt
-        chart = ChartFactory.createLineChart(null, titleVersion, titleResult,
-                dataset, PlotOrientation.VERTICAL, true, true, false);
+        chart = ChartFactory.createXYLineChart(null, titleVersion, titleResult,
+                seriesCollection, PlotOrientation.VERTICAL, true, true, false);
         //add the shape render
-        CategoryPlot plotter = (CategoryPlot) chart.getPlot();
-        plotter.setRenderer(new LineAndShapeRenderer());
+        chart.getXYPlot().setRenderer(new XYLineAndShapeRenderer());
         chartComposite = new ChartComposite(
                 parent,   //parent composite
                 SWT.NONE, //set style
