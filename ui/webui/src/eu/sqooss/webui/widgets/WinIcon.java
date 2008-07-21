@@ -97,9 +97,13 @@ public class WinIcon extends AbstractIcon {
                         + " src=\"" + getImage() + "\">"
                         + "</a>\n");
             else
-                b.append("<img class=\"icon\""
+                b.append("<a class=\"icon\""
+                        + " href=\"" + getPath() + "\">"
+                        + "<img"
                         + strAlt
-                        + " src=\"" + getImage() + "\">\n");
+                        + strTitle
+                        + " src=\"" + getImage() + "\">"
+                        + "</a>\n");
         }
         else {
             b.append("<img class=\"icon_disabled\""

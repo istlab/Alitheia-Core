@@ -60,7 +60,8 @@ public class Window extends AbstractWindow {
                 + ((toolbar.size() > 0)
                         ? " style=\"border-bottom: 0 none;\""
                         : "")
-                + ">" + title + "\n");
+                + ">\n"
+                + Functions.sp(in) + title + "\n");
         if (titlebar.size() > 0) {
             b.append(Functions.sp(in++) + "<div class=\"winTitleBar\">\n");
             for (AbstractIcon icon : titlebar)

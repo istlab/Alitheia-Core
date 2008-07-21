@@ -1,14 +1,14 @@
 <%@ page import="eu.sqooss.webui.*"
-%>          <div id="tagcloud" class="group">
+%>                <div id="tagcloud">
 <%
 // Set the current identation depth
-in = 6;
+in = 9;
 // Retrieve the list of evaluated project from the attached SQO-OSS framework
 ProjectsListView.retrieveData(terrier);
 if (ProjectsListView.hasProjects()) {
     java.util.Vector<Project> v = ProjectsListView.getCloudProjects(13);
 
-    //This wants to print the vector v (max. 13 elements) in a 5x5 matrix.
+    //Format the project's vector (max. 13 elements) in a 5x5 matrix
     String m[][] = new String[5][5];
     for (int i=0; i<5; ++i)
         for (int j=0; j<5; ++j)
@@ -56,5 +56,5 @@ if (ProjectsListView.hasProjects()) {
     out.print(sp(in) + Functions.warning(
         "The project tag cloud is not available right now."));
 }
-%>          </div>
+%>                </div>
 <!-- ProjectCloud.jsp -->

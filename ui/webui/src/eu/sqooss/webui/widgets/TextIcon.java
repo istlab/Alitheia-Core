@@ -55,11 +55,11 @@ public class TextIcon extends AbstractIcon {
             }
             b.append("<a class=\"texticon\""
                     + " href=\"" + getPath() + action + "\">"
-                    + getText()
+                    + "<p class=\"texticon\">" + text + "</p>"
                     + "</a>\n");
         }
         else {
-            b.append("<b>" + text + "</b>\n");
+            b.append("<p class=\"texticon_disabled\">" + text + "</p>\n");
         }
         return b.toString();
     }

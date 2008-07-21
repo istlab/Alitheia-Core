@@ -2,7 +2,7 @@
 %><%@ page import="eu.sqooss.webui.util.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %>          <form id="metrics" name="metrics" method="GET">
-            <div id="metricslist" class="group">
+            <div id="metricslist">
 <%
 // Indentation depth
 in = 7;
@@ -50,7 +50,7 @@ else {
         + " <a href=\"/projects.jsp\">choose one</a> first."));
 }
 %>            </div>
-            <div id="metricslist" class="group">
+            <div id="metricslist">
 <%
 //============================================================================
 // Show all metrics installed in the SQO-OSS framework

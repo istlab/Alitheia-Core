@@ -7,7 +7,7 @@ title = "Login";
 %>
 
 <%@ include file="/inc/header.jsp" %>
-<div id="loginpage" class="group">
+<div id="loginpage">
 <%
 // Display login page's title and accumulated errors (if any)
 //errorMsg += "<tr />" + terrier.getErrors();

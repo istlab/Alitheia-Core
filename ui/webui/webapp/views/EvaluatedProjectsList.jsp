@@ -1,8 +1,5 @@
 <%@ page import="eu.sqooss.webui.*"
-%>            <table>
-              <tr>
-                <td valign="top" style="width: 100%; padding-bottom: 0;">
-<%
+%><%
 // Indentation depth
 in = 9;
 // Retrieve the list of evaluated project from the SQO-OSS framework
@@ -18,7 +15,4 @@ else {
     winEvalProjects.setContent("Unable to find any evaluated projects.");
 }
 out.print(winEvalProjects.render(in));
-%>                </td>
-              </tr>
-            </table>
-<!-- EvaluatedProjectsList.jsp -->
+%><!-- EvaluatedProjectsList.jsp -->

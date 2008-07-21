@@ -6,8 +6,15 @@
 // List all files in the selected project version
 //============================================================================
 if (selectedProject.isValid()) {
-%>          <div id="fileslist" class="group">
+%>          <div id="fileslist">
 <%
+    // Prepare the shared close icon
+    icoCloseWin = new WinIcon();
+    icoCloseWin.setPath(request.getServletPath());
+    icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
+    icoCloseWin.setAlt("Close");
+    icoCloseWin.setValue(WinIcon.MINIMIZE);
+
     selectedProject.retrieveData(terrier);
     Version selectedVersion = selectedProject.getCurrentVersion();
     if (selectedVersion != null) {
@@ -58,10 +65,6 @@ if (selectedProject.isValid()) {
                 verboseView.compareAgainst(
                     strToLong(request.getParameter("cvnum")));
             }
-            icoCloseWin = new WinIcon();
-            icoCloseWin.setPath(request.getServletPath());
-            icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
-            icoCloseWin.setAlt("Close");
             Window winFileVerbose = new Window();
             winFileVerbose.setTitle("Source file results");
             winFileVerbose.addTitleIcon(icoCloseWin);
@@ -262,13 +265,6 @@ if (selectedProject.isValid()) {
                     winFileBrowser.addToolIcon(icoVerSelect);
                 }
 
-                // Prepare the shared close icon
-                icoCloseWin = new WinIcon();
-                icoCloseWin.setPath(request.getServletPath());
-                icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
-                icoCloseWin.setAlt("Close");
-                icoCloseWin.setValue(WinIcon.MINIMIZE);
-
                 // Sub-views table
                 in += 2;
                 b.append(sp(in++) + "<table>\n");
@@ -311,7 +307,7 @@ if (selectedProject.isValid()) {
                 //============================================================
                 if (settings.getShowFVDirBrowser())
                     b.append(sp(in++) + "<td"
-                        + " style=\"width: 70%; vertical-align: top;\">\n");
+                        + " style=\"width: 70%; vertical-align: top; padding-left: 5px;\">\n");
                 else
                     b.append(sp(in++) + "<td"
                         + " style=\"width: 100%; vertical-align: top;\">\n");
@@ -369,7 +365,7 @@ if (selectedProject.isValid()) {
 // Let the user choose a project, if none was selected
 //============================================================================
 else {
-%>          <div id="projectslist" class="group">
+%>          <div id="projectslist">
 <%
     // Check if the user has selected a project
     if (request.getParameter("pid") != null)

@@ -2,7 +2,7 @@
 %><%@ page session="true"
 %><%
 // Indentation depth
-in = 6;
+in = 9;
 // Check is there is a connection with the SQO-OSS framework
 if (terrier.isConnected()) {
     if (selectedProject.isValid())
@@ -18,9 +18,9 @@ if (terrier.isConnected()) {
 }
 // Display the list of evaluate project
     else {
-%>          <div id="projectslist" class="group">
+%>                <div id="projectslist">
 <%@ include file="/views/EvaluatedProjectsList.jsp"
-%>          </div>
+%>                </div>
 <%
     }
 }

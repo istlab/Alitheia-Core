@@ -271,7 +271,7 @@ public class MetricsTableView extends ListView {
         // Table header
         if (showHeader) {
             html.append(sp(in++) + "<thead>\n");
-            html.append(sp(in++) + "<tr" + head_class + ">\n");
+            html.append(sp(in++) + "<tr>\n");
             if (showId)
                 html.append(sp(in) + "<td" + head_class + ">ID</td>\n");
             if (showSelect)
@@ -295,14 +295,14 @@ public class MetricsTableView extends ListView {
         // Table footer
         if (showFooter) {
             html.append(sp(in++) + "<tfoot>\n");
-            html.append(sp(in++) + "<tr" + foot_class + ">\n");
+            html.append(sp(in++) + "<tr>\n");
             html.append(sp(in) + "<td" + foot_class
                     + " colspan=\"" + (columns - 1) + "\">"
                     + "TOTAL: " + metrics.size() + " metrics"
                     + "</td>\n");
             html.append(sp(in) + "<td" + foot_class
                     + " style=\"text-align: right;\""
-                    + " colspan=\"" + (columns - 1) + "\">"
+                    + ">"
                     + "<form>"
                     + "<input type=\"hidden\" name=\""
                     + ((projectId == null)

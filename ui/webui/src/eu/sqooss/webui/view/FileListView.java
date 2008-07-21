@@ -199,7 +199,7 @@ public class FileListView extends ListView {
                         if ((settings.getShowFileResultsOverview()
                                 && (mnemonics.size() > 0))
                                 && (numFolders == 0)) {
-                            html.append(sp(in++) + "<div id=\"table\">\n"
+                            html.append(sp(in++) + "<div id=\"table\" style=\"height: 1%;\">\n"
                                     + sp(in++) + "<table"
                                     + " style=\"width: "
                                     + (30 + mnemonics.size() * 5)

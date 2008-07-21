@@ -117,7 +117,7 @@ public class ProjectInfoView extends ListView {
                         : "<i>undefined</i>")
                 + "</td>\n");
         html.append(sp(--in) + "</tr>\n");
-        html.append(sp(--in) + "</table>");
+        html.append(sp(--in) + "</table>\n");
         return html.toString();
     }
 

@@ -86,18 +86,18 @@ public class DirBrowserView extends ListView {
         if (dir.isCollapsed()) {
             icoStatus.setImage("/img/icons/16x16/expand.png");
             icoStatus.setAlt("Expand folder");
-            b.append(sp(in) + "<div style=\"vertical-align: middle; margin-left: " + depth + "em\">"
-                    + icoStatus.render() + "&nbsp;"
-                    + icoLabel.render()
-                    + "</div>\n");
+            b.append(sp(in) + "<div class=\"browserLine\""
+                    + " style=\"padding-left: " + depth + "em;\">"
+                    + sp(in) + icoStatus.render() + icoLabel.render()
+                    + sp(--in) + "</div>\n");
         }
         else {
             icoStatus.setImage("/img/icons/16x16/collapse.png");
             icoStatus.setAlt("Collapse folder");
-            b.append(sp(in) + "<div style=\"vertical-align: middle; margin-left: " + depth + "em\">"
-                    + icoStatus.render() + "&nbsp;"
-                    + icoLabel.render()
-                    + "</div>\n");
+            b.append(sp(in++) + "<div class=\"browserLine\""
+                    + " style=\"padding-left: " + depth + "em;\">"
+                    + sp(in) + icoStatus.render() + icoLabel.render()
+                    + sp(--in) + "</div>\n");
             SortedMap<String, Long> sortedChilds =
                 new TreeMap<String, Long>();
             for (Long child : dir.getChilds())
@@ -117,7 +117,7 @@ public class DirBrowserView extends ListView {
                     "This project has no source repository!"));
         }
         else
-            b.append(sp(in) + getTree(in + 2, 1, rootDir));
+            b.append(sp(in) + getTree(in + 2, 0, rootDir));
 
         return b.toString();
     }

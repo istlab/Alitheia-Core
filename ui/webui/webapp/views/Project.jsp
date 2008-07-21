@@ -3,9 +3,8 @@
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
 if (selectedProject.isValid()) {
-    // Indentation depth
-    in = 5;
-    out.println(sp(in) + "<div id=\"selectedproject\" class=\"group\">");
+%>                <div id="selectedproject">
+<%
     // Update the Message Box
     if (msg.length() > 0) msg += "<br/>";
     msg += "<strong>Project:</strong> " + selectedProject.getName();
@@ -17,15 +16,15 @@ if (selectedProject.isValid()) {
     else {
         msg += "<br />No versions recorded.";
     }
-%>            <table>
-              <tr>
-                <td valign="top" style="width: 60%; padding-bottom: 0;">
+%>                  <table>
+                    <tr>
+                      <td valign="top" style="width: 60%; padding-bottom: 0;">
 <%
     //========================================================================
     // Display the selected project's metadata
     //========================================================================
     // Indentation depth
-    in = 9;
+    in = 14;
     // Check if the user has requested to show/hide this view
     winVisible = "showPVMetadata";
     if (request.getParameter(winVisible) != null) {
@@ -45,17 +44,17 @@ if (selectedProject.isValid()) {
     // Construct the window's content
     if (settings.getShowPVMetadata()) {
         ProjectInfoView infoView = new ProjectInfoView(selectedProject);
-        winPrjMetadata.setContent(infoView.getHtml(in + 2));
+        winPrjMetadata.setContent(infoView.getHtml(in));
     }
     // Display the window
     winPrjMetadata.setTitle(selectedProject.getName() + " overview");
-    out.print(winPrjMetadata.render(in));
+    out.print(winPrjMetadata.render(in - 2));
 
     //========================================================================
     // Display the list of developers that are working on this project
     //========================================================================
     // Indentation depth
-    in = 9;
+    in = 14;
     // Check if the user has requested to show/hide this view
     winVisible = "showPVDevelopers";
     if (request.getParameter(winVisible) != null) {
@@ -79,19 +78,19 @@ if (selectedProject.isValid()) {
         DevelopersListView developersView =
         new DevelopersListView(selectedProject.getDevelopers());
         // Display the developers
-        winPrjDevelopers.setContent(developersView.getHtml(in + 2));
+        winPrjDevelopers.setContent(developersView.getHtml(in));
     }
     // Display the window
     winPrjDevelopers.setTitle("Developers");
-    out.print(winPrjDevelopers.render(in));
-%>                </td>
-                <td valign="top"style="width: 40%; padding-bottom: 0;">
+    out.print(winPrjDevelopers.render(in - 2));
+%>                      </td>
+                      <td valign="top"style="width: 40%; padding-bottom: 0; padding-left: 5px;">
 <%
     //========================================================================
     // Display the selected project's version statistic and selector
     //========================================================================
     // Indentation depth
-    in = 11;
+    in = 14;
     // Check if the user has requested to show/hide this view
     winVisible = "showPVVersions";
     if (request.getParameter(winVisible) != null) {
@@ -159,7 +158,7 @@ if (selectedProject.isValid()) {
     // Display the source file statistic of the selected project
     //========================================================================
     // Indentation depth
-    in = 11;
+    in = 14;
     // Check if the user has requested to show/hide this view
     winVisible = "showPVFileStat";
     if (request.getParameter(winVisible) != null) {
@@ -191,16 +190,16 @@ if (selectedProject.isValid()) {
             ? " in version " + selectedProject.getCurrentVersion().getNumber()
             : ""));
     out.print(winPrjFiles.render(in - 2));
-%>                </td>
-              </tr>
-              <tr>
-                <td valign="top" colspan="2" style="width: 100%; padding-top: 0;">
+%>                      </td>
+                    </tr>
+                    <tr>
+                      <td valign="top" colspan="2" style="padding-top: 0;">
 <%
     //========================================================================
     // Display the list of metrics that were evaluated on this project
     //========================================================================
     // Indentation depth
-    in = 11;
+    in = 14;
     // Check if the user has requested a metrics refresh
     if (request.getParameter("refreshPrjMetrics") != null) {
         selectedProject.flushMetrics();
@@ -235,10 +234,10 @@ if (selectedProject.isValid()) {
     // Display the window
     winPrjMetrics.setTitle("Evaluated metrics");
     out.print(winPrjMetrics.render(in - 2));
-%>                </td>
-              </tr>
-            </table>
-          </div>
+%>                      </td>
+                    </tr>
+                  </table>
+                </div>
 <%
 }
 else {

@@ -6,7 +6,7 @@
 // List all developers in the selected project
 //============================================================================
 if (selectedProject.isValid()) {
-%>          <div id="developerslist" class="group">
+%>          <div id="developerslist">
             <table width="100%" border="0" background="none">
               <tr>
                 <td valign="top" style="width: 100%; padding-bottom: 0;">
@@ -145,7 +145,7 @@ if (selectedProject.isValid()) {
 // Let the user choose a project, if none was selected
 //============================================================================
 else {
-%>          <div id="projectslist" class="group">
+%>          <div id="projectslist">
 <%
     // Check if the user has selected a project
     if (request.getParameter("pid") != null)

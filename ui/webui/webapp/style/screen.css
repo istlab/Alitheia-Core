@@ -1,168 +1,112 @@
-/* CSS for Alitheia's web interfaces. This is the shared portion
-   of the CSS, which defines general layout principles such as
-   body, #sidebar, #header and #footer. There shouldn't be much
-   layout specific to a particular application in here at all.
+/*****************************************************************************
+    CSS for Alitheia's web interfaces. This is the shared portion
+    of the CSS, which defines general layout principles such as
+    body, #sidebar, #header and #footer. There shouldn't be much
+    layout specific to a particular application in here at all.
 
-   This file should be kept in-sync between the following places:
-	ui/webui/webapp/style/screen.css
-	alitheia/core/src/main/resources/screen.css
-*/
+    This file should NO MORE be kept in-sync between the following places:
+        ui/webui/webapp/style/screen.css
+        alitheia/core/src/main/resources/screen.css
+*****************************************************************************/
 
 body,
 html {
-	margin:0;
-	padding:0;
-	width: 100%;
-	font-family: Verdana, Helvetica, Arial;
-	color:#000;
-	background:#f6f6f6;
+    color: #000000;
+    background: #F6F6F6;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
 }
-
-input {
-	font-size: 8pt;
+table {
+    border-collapse: collapse;
+    font-size: 12px;
+    width: 100%;
 }
-
+td {
+    padding: 0;
+    vertical-align: top;
+}
+a {
+    color: #0099FF;
+    text-decoration: none;
+}
+a:visited {
+    color: #0099FF;
+    text-decoration: none;
+}
+a:hover {
+    color: #0033CC;
+    text-decoration: none;
+}
 #wrap {
-	background:#fff;
-	width: 100%;
+    background: #FFFFFF;
+    width: 100%;
 }
-
 #header {
-	background: #fff url(/header-repeat.png) repeat-x;
-	height: 75px;
+    background: #FFFFFF url(/header-repeat.png) repeat-x;
+    height: 75px;
 }
-
 #header h1 {
-	float: right;
-	padding: 10px 15px 0 0;
-	font-size: 18px;
-	font-weight: bold;
+    float: right;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 8px;
+    margin-top: 34px;
+    vertical-align: top;
 }
-
 #header img {
-	padding: 10px 0 0 10px;
+    height: 45px;
+    margin-left: 8px;
+    margin-top: 8px;
+    vertical-align: top;
 }
-
 #main {
-	background:#fff;
-	float:left;
-	width: 75%;
-	padding: 15px;
+    margin: 5px 5px 0px 5px;
+    padding: 0;
+    /* IE hack serie */
+    height: 1%;
 }
-
+#content {
+    font-size: 12px;
+    margin: 0.7em 0px 0px 0px;
+    padding: 0;
+}
 #sidebar {
-	background:#fff;
-	float:right;
-	width:22%;
+    font-size: 12px;
+    margin: 0px 0px 0px 5px;
+    padding: 0;
 }
-
-#footer {
-	background:#f6f6f6;
-	border-top: 1px solid #ccc;
-	text-align: center;
-	font-size: 0.8em;
-	clear:both;
-}
-
-#footer p {
-	padding:5px;
-	margin:0;
-}
-
-#contents {
-	background : #fff;
-	border : 1px solid #ccc;
-	border-top : none;
-	clear : both;
-	margin : 0px;
-	padding : 15px;
-	font-size: 12px;
-}
-
-#contents h2 {
-	width: 100%;
-	padding: 0;
-	margin: 0;
-	margin-bottom: 10px;
-	margin-top: 20px;
-	border-bottom: 1px dotted #000;
-}
-
-#contents h1 {
-	width: 100%;
-	padding: 0;
-	margin: 0;
-	margin-bottom: 20px;
-	margin-top: 25px;
-	border-bottom: 1px dotted #000;
-}
-
-#contents h3 {
-	width: 100%;
-	padding: 0;
-	margin: 0;
-	margin-bottom: 5px;
-	margin-top: 15px;
-	border-bottom: 1px dotted #000;
-}
-
-#contents table {
-	border-color: #c6c6c5;
-	border-width: 0 0 1px 1px;
-	border-style: solid;
-	border-collapse: collapse;
-	font-size: 12px;
-}
-
-#contents thead {
-	text-align: center;
-	font-weight: bold;
-}
-
-#contents td {
-	border-color: #c6c6c5;
-	border-width: 1px 1px 0 0;
-	border-style: solid;
-	margin: 0;
-	padding: 4px;
-	background-color: #fcfbf2;
-}
-
-/* Sidebar Content */
-
-form p {
-	display: inline;
-}
-
 #sidebar fieldset {
-	display: inline;
-	background-color: #f6f6f6;
-	width: 89%;
-	float: left;
-	clear: left;
-	border: 1px solid #ccc;
-	margin: 15px 0 10px 0;
-	font-size: 10pt;
+    background-color: #F6F6F6;
+    border: 1px solid #CCCCCC;
+    margin: 0px 0px 5px 0px;
+    padding: 0px 5px 5px 5px;
 }
-
-#sidebar ul   {
-	margin : 0;
-	padding : 0;
-	text-align : left;
-	border : 0;
+#sidebar legend {
+    background-color: #FFF6AF;
+    border-bottom: 1px solid #777777;
+    border-left: 1px solid #CCCCCC;
+    border-right: 1px solid #777777;
+    border-top: 1px solid #CCCCCC;
+    color: #000000;
+    font-family: "Courier New" "Monaco" "DejaVu Sans Mono" monospace;
+    font-weight: bold;
+    margin: 0;
+    padding: 0px 2px 0px 2px;
 }
-
-legend {
-	font-weight: bold;
+#sidebar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
-
-tr.newgroup td {
-	margin-top: 3px;
-	padding-top: 3px;
-	border-top: 1px dotted #ccc;
+#footer {
+    background: #F6F6F6;
+    border-top: 1px solid #CCCCCC;
+    font-size: 12px;
+    text-align: center;
 }
-
-td.number {
-	text-align: right;
+#footer p {
+    padding: 5px;
+    margin: 0;
 }
-

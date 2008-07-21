@@ -7,7 +7,7 @@
 
 <%@ include file="/inc/header.jsp" %>
 
-<div id="loginpage" class="group">
+<div id="loginpage">
 <%
     // Display page's title and accumulated errors (if any)
     out.println("<h1>Logout from the Alitheia System</h1>");
