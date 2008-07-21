@@ -97,6 +97,7 @@ class LineChartVisualizer extends AbstractVisualizer {
         if (version != null) {
             data.put(version, this.values.get(version));
         } else {
+            seriesCollection.removeAllSeries();
             data = this.values;
         }
         Iterator<Long> keysIterator = data.keySet().iterator();

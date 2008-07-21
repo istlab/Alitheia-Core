@@ -40,7 +40,10 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import eu.sqooss.impl.plugin.util.visualizers.Visualizer;
@@ -52,11 +55,12 @@ import eu.sqooss.plugin.util.Entity;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
-public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener {
+public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener, Listener {
 
     private Composite parent;
     private Entity entity;
     private Visualizer visualizer;
+    private int lastSelectedMetricIndex;
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractQualityPropertyPage#createContents(org.eclipse.swt.widgets.Composite)
@@ -68,9 +72,11 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
         buttonCompareVersion.addSelectionListener(this);
         comboCompareVersion.addSelectionListener(this);
         comboMetric.addSelectionListener(this);
+        comboMetric.addListener(SWT.MouseDown, this);
+        comboMetric.addListener(SWT.MouseUp, this);
         parent.forceFocus();
         enableIfPossible();
-        visualizeResult();
+        processResult(false);
         return mainControl;
     }
 
@@ -101,15 +107,15 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
             comboCompareVersion.deselectAll();
             this.visualizer.close();
             this.visualizer = null;
-            visualizeResult();
+            processResult(false);
         } else if (eventSource == configurationLink) {
             IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer)getContainer();
             container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
         } else if (eventSource == comboMetric) {
             comboCompareVersion.deselectAll();
-            visualizeResult();
+            processResult(comboMetric.getSelectionIndex() == lastSelectedMetricIndex);
         } else if (eventSource == comboCompareVersion) {
-            visualizeResult();
+            processResult(false);
         }
     }
     
@@ -131,7 +137,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 configurationLink = null;
                 parent.layout();
             }
-            visualizeResult();
+            processResult(false);
         }else {
             if (configurationLink == null) {
                 //add configuration link
@@ -208,7 +214,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     /*
      * The method is used by the result visualization.
      */
-    private void visualizeResult() {
+    private void processResult(boolean clearResult) {
         if (controlEnableState != null) return; //the control is disabled
         setVisualizer();
         int selectedIndex = comboCompareVersion.getSelectionIndex();
@@ -217,10 +223,14 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                     (Long) comboCompareVersion.getData(Integer.toString(selectedIndex));
         String metricKey = Integer.toString(comboMetric.getSelectionIndex());
         WSMetric metric = (WSMetric) comboMetric.getData(metricKey);
-        WSResultEntry[] result = this.entity.getMetricsResults(new WSMetric[] {metric},
-                selectedVersion);
-        this.visualizer.setValue(selectedVersion, result);
-        this.visualizer.open();
+        if (clearResult) {
+            this.visualizer.removeMetricValues(metric.getMnemonic());
+        } else {
+            WSResultEntry[] result = this.entity.getMetricsResults(new WSMetric[] {metric},
+                    selectedVersion);
+            this.visualizer.setValue(selectedVersion, result);
+            this.visualizer.open();
+        }
     }
     
     private void setVisualizer() {
@@ -229,6 +239,14 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                     Type.CHART_LINE_SERIES : Type.TABLE;
             this.visualizer = VisualizerFactory.createVisualizer(
                     type, resultComposite, null, null);
+        }
+    }
+
+    public void handleEvent(Event event) {
+        Widget eventSource = event.widget;
+        if (eventSource == comboMetric) {
+            lastSelectedMetricIndex = comboMetric.getSelectionIndex();
+            comboMetric.deselect(lastSelectedMetricIndex);
         }
     }
     

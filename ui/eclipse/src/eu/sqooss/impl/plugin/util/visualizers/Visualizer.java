@@ -58,6 +58,13 @@ public interface Visualizer {
      */
     public void setValue(Long version, WSResultEntry[] data);
     
+    /**
+     * Removes the result entries from the metric.
+     * 
+     * @param metricMnemonic - the metric mnemonic
+     */
+    public void removeMetricValues(String metricMnemonic);
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

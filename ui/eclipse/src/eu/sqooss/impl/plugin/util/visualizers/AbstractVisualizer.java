@@ -34,6 +34,7 @@ package eu.sqooss.impl.plugin.util.visualizers;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -91,6 +92,28 @@ abstract class AbstractVisualizer implements Visualizer {
         loadData(version);
     }
     
+    /**
+     * @see eu.sqooss.impl.plugin.util.visualizers.Visualizer#removeMetricValues(java.lang.String)
+     */
+    public void removeMetricValues(String metricMnemonic) {
+        Iterator<Long> keyIterator = values.keySet().iterator();
+        List<WSResultEntry> currentEntries;
+        Long currentVersion;
+        while (keyIterator.hasNext()) {
+            currentVersion = keyIterator.next();
+            currentEntries = values.get(currentVersion);
+            int i = 0;
+            while (i < currentEntries.size()) {
+                if (currentEntries.get(i).getMnemonic().equals(metricMnemonic)) {
+                    currentEntries.remove(i);
+                } else {
+                    ++i;
+                }
+            }
+        }
+        loadData(null);
+    }
+
     /*
      * Loads the <code>WSResultEntry</code>s for a specified version.
      * When the version is null then loads all <code>WSResultEntry</code>s.
