@@ -78,6 +78,7 @@ public class PropertyPagesMessages extends NLS {
     public static String ConfigurationPropertyPage_MessageBox_Save_Fail;
     public static String ConfigurationPropertyPage_TabItem_Account;
     public static String ConfigurationPropertyPage_TabItem_Project;
+    public static String ConfigurationPropertyPage_Message_Error_IOException;
     
     //QualityPropertyPage's messages
     public static String QualityPropertyPage_Label_Entity_Path;
@@ -95,6 +96,13 @@ public class PropertyPagesMessages extends NLS {
     public static String ProfilePropertyPage_Button_Remove_Profile;
     public static String ProfilePropertyPage_Button_Update_Profile;
     public static String ProfilePropertyPage_Button_Path_Browse;
+    
+    //VisualizerFactory's messages
+    public static String VisualizerFactory_Title_Version;
+    public static String VisualizerFactory_Title_Result;
+    
+    //TableVisualizer's messages
+    public static String TableVisualizer_Title_Metric;
     
 }
 

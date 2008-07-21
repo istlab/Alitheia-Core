@@ -32,6 +32,8 @@
 
 package eu.sqooss.plugin.util;
 
+import java.io.IOException;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
@@ -428,9 +430,15 @@ public class ConnectionUtils {
      * Return the exception message. If the message id null
      * then return the string representation of the exception.
      */
-    private static String getExceptionDump(Throwable exception) {
-        String message = exception.getMessage();
-        return message == null ? exception.toString() : message;
+    private static String getExceptionDump(WSException exception) {
+        Throwable cause = exception.getCause();
+        if ((cause != null) && ((cause.getCause() instanceof IOException))) {
+            return PropertyPagesMessages.
+            ConfigurationPropertyPage_Message_Error_IOException;
+        } else {
+            String message = exception.getMessage();
+            return message == null ? exception.toString() : message;
+        }
     }
     
 }

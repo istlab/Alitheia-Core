@@ -33,6 +33,7 @@
 package eu.sqooss.impl.plugin.properties;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -50,6 +51,7 @@ class AbstractQualityPropertyPage extends EnabledPropertyPage {
     protected Combo comboCompareVersion;
     protected Button buttonCompareVersion;
     protected Link configurationLink;
+    protected Composite resultComposite;
     
     protected Control createContents(Composite parent) {
         GridData gridData;
@@ -97,7 +99,8 @@ class AbstractQualityPropertyPage extends EnabledPropertyPage {
         comboCompareVersion.setEnabled(false);
         
         //add result's area
-        Composite resultComposite = createComposite(secondSectionComposite, SWT.BORDER, 1);
+        resultComposite = createComposite(secondSectionComposite, SWT.BORDER, 1);
+        resultComposite.setLayout(new FillLayout());
         setLayoutData(resultComposite, 3, true, true);
     }
     

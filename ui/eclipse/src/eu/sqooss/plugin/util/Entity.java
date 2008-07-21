@@ -33,6 +33,7 @@
 package eu.sqooss.plugin.util;
 
 import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
 /**
  * The classes that implement an <code>Entity</code>
@@ -55,6 +56,14 @@ public interface Entity {
      * @return the entity's versions
      */
     public Long[] getVersions();
+    
+    public Long getCurrentVersion();
+    
+    /**
+     * @param metrics - specifies the Alitheia metrics
+     * @return - the quality result for the entity 
+     */
+    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long version);
     
 }
 

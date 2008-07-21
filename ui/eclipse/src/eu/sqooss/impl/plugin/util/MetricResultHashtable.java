@@ -32,57 +32,48 @@
 
 package eu.sqooss.impl.plugin.util;
 
-import eu.sqooss.plugin.util.Entity;
-import eu.sqooss.ws.client.datatypes.WSMetric;
-import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import java.util.Hashtable;
+import java.util.Map;
+
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
-import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
- * The class represents the project.
+ * A simple wrapper around the hash table.
  */
-public class ProjectVersionEntity implements Entity {
-
-    private WSStoredProject storedProject;
-    private WSProjectVersion projectVersion;
+class MetricResultHashtable {
     
-    public ProjectVersionEntity(WSStoredProject storedProject,
-            WSProjectVersion projectVersion) {
-        this.storedProject = storedProject;
-        this.projectVersion = projectVersion;
+    private Map<String, WSResultEntry> store;
+    
+    public MetricResultHashtable() {
+        store = new Hashtable<String, WSResultEntry>();
     }
     
     /**
-     * @see eu.sqooss.plugin.util.Entity#getMetrics()
+     * Stores the given version and the result entry.
+     * 
+     * @param version - represent the version of the result entry
+     * @param resultEntry - represent the quality result from the Alitheia system.
      */
-    public WSMetric[] getMetrics() {
-        // TODO: implement
-        return null;
+    public void put(Long version, WSResultEntry resultEntry) {
+        String key = getKey(version, resultEntry.getMnemonic());
+        store.put(key, resultEntry);
     }
-
+    
     /**
-     * @see eu.sqooss.plugin.util.Entity#getName()
+     * Returns the result entry.
+     * 
+     * @param version - the version of the result entry
+     * @param metricMnemonic - the metric mnemonic
+     * 
+     * @return - the stored result entry
      */
-    public String getName() {
-        return this.storedProject.getName();
+    public WSResultEntry get(Long version, String metricMnemonic) {
+        String key = getKey(version, metricMnemonic);
+        return store.get(key);
     }
-
-    /**
-     * @see eu.sqooss.plugin.util.Entity#getVersions(boolean))
-     */
-    public Long[] getVersions() {
-        // TODO: Implement
-        return null;
-    }
-
-    public Long getCurrentVersion() {
-        // TODO: Implement
-        return null;
-    }
-
-    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long version) {
-        // TODO: Implement
-        return null;
+    
+    private String getKey(Long version, String metricMnemonic) {
+        return version.toString() + metricMnemonic;
     }
     
 }

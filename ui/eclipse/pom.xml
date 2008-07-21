@@ -333,6 +333,24 @@
       <scope>system</scope>
       <systemPath>${basedir}/lib/runtime_registry_compatibility.jar</systemPath>
     </dependency>
+    <dependency>
+      <groupId>org.jfree</groupId>
+      <artifactId>jcommon</artifactId>
+      <version>1.0.13</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jfree</groupId>
+      <artifactId>chart</artifactId>
+      <version>1.0.10</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jfree.chart</groupId>
+      <artifactId>swt</artifactId>
+      <version>1.0.10</version>
+      <type>jar</type>
+    </dependency>
 
   </dependencies>
 

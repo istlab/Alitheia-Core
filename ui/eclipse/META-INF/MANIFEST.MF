@@ -25,7 +25,10 @@ Bundle-Classpath: .,
  /lib/javax.activation.jar,
  /lib/javax.mail.jar,
  /lib/javax.stax.api.jar,
- /lib/org.codehaus.stax2.jar
+ /lib/org.codehaus.stax2.jar,
+ /lib/org.jfree.chart.jar,
+ /lib/org.jfree.chart.swt.jar,
+ /lib/org.jfree.jcommon.jar
 Export-Package: eu.sqooss.plugin.util
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

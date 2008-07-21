@@ -32,7 +32,9 @@
 
 package eu.sqooss.impl.plugin.util;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,8 +47,10 @@ import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
 /**
  * The class represents the project file or directory of the eclipse project.
@@ -57,13 +61,16 @@ public class ProjectFileEntity implements Entity {
     private WSProjectFile projectFile;
     private WSSession session;
     private WSMetric[] metrics;
-    Map<Long, WSFileModification> fileModifications;
+    private MetricResultHashtable resultEntries;
+    private Map<Long, WSFileModification> fileModifications;
+    private WSFileModification currentFileModification;
     
     public ProjectFileEntity(WSProjectVersion projectVersion,
             WSProjectFile projectFile, WSSession session) {
         this.projectVersion = projectVersion;
         this.projectFile = projectFile;
         this.session = session;
+        resultEntries = new MetricResultHashtable();
     }
 
     /**
@@ -71,7 +78,7 @@ public class ProjectFileEntity implements Entity {
      */
     public WSMetric[] getMetrics() {
         if (metrics == null) {
-            init((WSMetricAccessor) session.getAccessor(
+            initMetrics((WSMetricAccessor) session.getAccessor(
                     WSAccessor.Type.METRIC));
         }
         return metrics;
@@ -85,21 +92,77 @@ public class ProjectFileEntity implements Entity {
     }
     
     /**
-     * @see eu.sqooss.plugin.util.Entity#getVersions()
+     * @see eu.sqooss.plugin.util.Entity#getVersions(boolean))
      */
     public Long[] getVersions() {
         if (this.fileModifications == null) {
-            init((WSProjectAccessor) session.getAccessor(
+            initVersions((WSProjectAccessor) session.getAccessor(
                     WSAccessor.Type.PROJECT));
         }
         if (this.fileModifications == null) return null;
         Set<Long> keySet = fileModifications.keySet();
-        Long[] result = new Long[keySet.size()];
-        fileModifications.keySet().toArray(result);
-        return result;
+        return fileModifications.keySet().toArray(new Long[keySet.size()]);
     }
     
-    private void init(WSMetricAccessor metricAccessor) {
+    public Long getCurrentVersion() {
+        return Long.valueOf(currentFileModification.
+                getProjectVersionNum());
+    }
+    
+    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long version) {
+        List<WSResultEntry> result = new ArrayList<WSResultEntry>();
+        List<WSMetric> missingMetrics = new ArrayList<WSMetric>();
+        WSResultEntry currentResultEntry;
+        for (WSMetric metric : metrics) {
+            currentResultEntry = this.resultEntries.get(version, metric.getMnemonic());
+            if (currentResultEntry == null) {
+                missingMetrics.add(metric);
+            } else {
+                result.add(currentResultEntry);
+            }
+        }
+        if (!missingMetrics.isEmpty()) {
+            initResultEntries((WSMetricAccessor) session.getAccessor(
+                    WSAccessor.Type.METRIC), metrics, version);
+            for (WSMetric metric : missingMetrics) {
+                currentResultEntry = this.resultEntries.get(version, metric.getMnemonic());
+                if (currentResultEntry != null) {
+                    result.add(currentResultEntry);
+                }
+            }
+        }
+        WSResultEntry[] arrayResult = new WSResultEntry[result.size()];
+        return result.toArray(arrayResult);
+    }
+    
+    private void initResultEntries(WSMetricAccessor metricAccessor,
+            WSMetric[] metrics, Long version) {
+        WSMetricsResultRequest resultRequest = new WSMetricsResultRequest();
+        if (currentFileModification.getProjectVersionNum() == version.longValue()) {
+            resultRequest.setDaObjectId(
+                    new long[] {currentFileModification.getProjectFileId()});
+        } else {
+            WSFileModification fileModif = fileModifications.get(version);
+            resultRequest.setDaObjectId(
+                    new long[] {fileModif.getProjectFileId()});
+        }
+        resultRequest.setProjectFile(true);
+        String[] metricsMnemonics = new String[metrics.length];
+        for (int i = 0; i < metricsMnemonics.length; i++) {
+            metricsMnemonics[i] = metrics[i].getMnemonic();
+        }
+        resultRequest.setMnemonics(metricsMnemonics);
+        try {
+            WSResultEntry[] resultEntries = metricAccessor.getMetricsResult(resultRequest);
+            for (WSResultEntry entry : resultEntries) {
+                this.resultEntries.put(version, entry);
+            }
+        } catch (WSException wse) {
+            //nothing to do here
+        }
+    }
+    
+    private void initMetrics(WSMetricAccessor metricAccessor) {
         WSMetricsRequest request = new WSMetricsRequest();
         request.setIsProjectFile(true);
         request.setResourcesIds(new long[] {projectFile.getId()});
@@ -110,7 +173,7 @@ public class ProjectFileEntity implements Entity {
         }
     }
     
-    private void init(WSProjectAccessor projectAccessor) {
+    private void initVersions(WSProjectAccessor projectAccessor) {
         WSFileModification[] modifications;
         WSProjectVersion[] fileProjectVersions;
         try {
@@ -133,6 +196,8 @@ public class ProjectFileEntity implements Entity {
                 if (currentModification.getProjectVersionNum() != fileProjectVersion.getVersion()) {
                     fileModifications.put(Long.valueOf(currentModification.getProjectVersionNum()),
                             currentModification);
+                } else {
+                    this.currentFileModification = currentModification;
                 }
             }
         }

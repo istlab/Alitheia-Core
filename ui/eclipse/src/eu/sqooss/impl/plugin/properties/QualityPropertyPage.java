@@ -43,15 +43,20 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import eu.sqooss.impl.plugin.util.visualizers.Visualizer;
+import eu.sqooss.impl.plugin.util.visualizers.VisualizerFactory;
+import eu.sqooss.impl.plugin.util.visualizers.VisualizerFactory.Type;
 import eu.sqooss.plugin.util.ConnectionUtils;
 import eu.sqooss.plugin.util.Constants;
 import eu.sqooss.plugin.util.Entity;
 import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
 public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener {
 
     private Composite parent;
     private Entity entity;
+    private Visualizer visualizer;
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractQualityPropertyPage#createContents(org.eclipse.swt.widgets.Composite)
@@ -61,8 +66,11 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
         this.parent = parent;
         mainControl = (Composite) super.createContents(parent);
         buttonCompareVersion.addSelectionListener(this);
+        comboCompareVersion.addSelectionListener(this);
+        comboMetric.addSelectionListener(this);
         parent.forceFocus();
         enableIfPossible();
+        visualizeResult();
         return mainControl;
     }
 
@@ -88,14 +96,20 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     public void widgetSelected(SelectionEvent e) {
         Object eventSource = e.getSource(); 
         if (eventSource == buttonCompareVersion) {
-            if (comboCompareVersion.isEnabled()) {
-                comboCompareVersion.setEnabled(false);
-            } else {
-                comboCompareVersion.setEnabled(true);
-            }
+            boolean isEnabledComboCompare = comboCompareVersion.isEnabled();
+            comboCompareVersion.setEnabled(!isEnabledComboCompare);
+            comboCompareVersion.deselectAll();
+            this.visualizer.close();
+            this.visualizer = null;
+            visualizeResult();
         } else if (eventSource == configurationLink) {
             IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer)getContainer();
             container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
+        } else if (eventSource == comboMetric) {
+            comboCompareVersion.deselectAll();
+            visualizeResult();
+        } else if (eventSource == comboCompareVersion) {
+            visualizeResult();
         }
     }
     
@@ -104,6 +118,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
      */
     public void setEnabled(boolean isEnabled, String errorMessage) {
         if (mainControl == null) return; //the method createContents isn't called yet
+        super.setEnabled(isEnabled, errorMessage);
         if (isEnabled) {
             String internalErrorMessage = fill(); 
             if (internalErrorMessage != null) {
@@ -116,6 +131,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 configurationLink = null;
                 parent.layout();
             }
+            visualizeResult();
         }else {
             if (configurationLink == null) {
                 //add configuration link
@@ -126,7 +142,6 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 parent.layout();
             }
         }
-        super.setEnabled(isEnabled, errorMessage);
     }
     
     /*
@@ -165,7 +180,6 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
             }
         }
         comboMetric.select(0);
-        comboCompareVersion.select(0);
         return null;
     }
     
@@ -173,7 +187,6 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
      * The method sets the resource entity.
      */
     private boolean initEntity() {
-        if (entity != null) return true;
         IResource resource = (IResource) (getElement().getAdapter(IResource.class));
         ConnectionUtils connectionUtils;
         try {
@@ -188,11 +201,34 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
         } else {
             this.entity = connectionUtils.getEntity(
                     resource.getFullPath().toString());
-            if (this.entity == null) {
-                return false;
-            } else {
-                return true;
-            }
+            return (this.entity == null) ? false : true;
+        }
+    }
+    
+    /*
+     * The method is used by the result visualization.
+     */
+    private void visualizeResult() {
+        if (controlEnableState != null) return; //the control is disabled
+        setVisualizer();
+        int selectedIndex = comboCompareVersion.getSelectionIndex();
+        Long selectedVersion = (selectedIndex == -1) ?
+                this.entity.getCurrentVersion() :
+                    (Long) comboCompareVersion.getData(Integer.toString(selectedIndex));
+        String metricKey = Integer.toString(comboMetric.getSelectionIndex());
+        WSMetric metric = (WSMetric) comboMetric.getData(metricKey);
+        WSResultEntry[] result = this.entity.getMetricsResults(new WSMetric[] {metric},
+                selectedVersion);
+        this.visualizer.setValue(selectedVersion, result);
+        this.visualizer.open();
+    }
+    
+    private void setVisualizer() {
+        if (this.visualizer == null) {
+            Type type = (comboCompareVersion.isEnabled()) ?
+                    Type.CHART_LINE_SERIES : Type.TABLE;
+            this.visualizer = VisualizerFactory.createVisualizer(
+                    type, resultComposite, null, null);
         }
     }
     

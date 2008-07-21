@@ -30,60 +30,33 @@
  *
  */
 
-package eu.sqooss.impl.plugin.util;
+package eu.sqooss.impl.plugin.util.visualizers;
 
-import eu.sqooss.plugin.util.Entity;
-import eu.sqooss.ws.client.datatypes.WSMetric;
-import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
-import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
- * The class represents the project.
+ * The common interface for all visualizers.
+ * The visualizers are used to represents the quality results from the Alitheia system. 
  */
-public class ProjectVersionEntity implements Entity {
-
-    private WSStoredProject storedProject;
-    private WSProjectVersion projectVersion;
-    
-    public ProjectVersionEntity(WSStoredProject storedProject,
-            WSProjectVersion projectVersion) {
-        this.storedProject = storedProject;
-        this.projectVersion = projectVersion;
-    }
+public interface Visualizer {
     
     /**
-     * @see eu.sqooss.plugin.util.Entity#getMetrics()
+     * The method prepares and shows the quality results.
      */
-    public WSMetric[] getMetrics() {
-        // TODO: implement
-        return null;
-    }
-
+    public void open();
+    
     /**
-     * @see eu.sqooss.plugin.util.Entity#getName()
+     * The method hides the result and releases the used resources.
      */
-    public String getName() {
-        return this.storedProject.getName();
-    }
-
+    public void close();
+    
     /**
-     * @see eu.sqooss.plugin.util.Entity#getVersions(boolean))
+     * Sets a new value to the visualizer.
+     * 
+     * @param version - version value
+     * @param data - data value
      */
-    public Long[] getVersions() {
-        // TODO: Implement
-        return null;
-    }
-
-    public Long getCurrentVersion() {
-        // TODO: Implement
-        return null;
-    }
-
-    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long version) {
-        // TODO: Implement
-        return null;
-    }
+    public void setValue(Long version, WSResultEntry[] data);
     
 }
 
