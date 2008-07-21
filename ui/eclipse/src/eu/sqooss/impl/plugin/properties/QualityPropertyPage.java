@@ -176,7 +176,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
             comboMetric.setData(Integer.toString(i), currentMetric);
         }
         Long[] versions = this.entity.getVersions();
-        if (versions != null) {
+        if ((versions != null) && (versions.length != 0)) {
             Long currentVersion;
             for (int i = 0; i < versions.length; i++) {
                 currentVersion = versions[i];
@@ -184,6 +184,8 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 comboCompareVersion.add(currentItem, i);
                 comboCompareVersion.setData(Integer.toString(i), currentVersion);
             }
+        } else {
+            buttonCompareVersion.setEnabled(false);
         }
         comboMetric.select(0);
         return null;
