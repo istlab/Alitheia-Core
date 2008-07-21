@@ -51,6 +51,8 @@ import eu.sqooss.service.scheduler.WorkerThread;
 
 public class SchedulerServiceImpl implements Scheduler {
 
+    private static final String START_THREADS_PROPERTY = "eu.sqooss.scheduler.numthreads";
+    
     private Logger logger = null;
 
     private SchedulerStats stats = new SchedulerStats();
@@ -68,34 +70,45 @@ public class SchedulerServiceImpl implements Scheduler {
     public SchedulerServiceImpl(BundleContext bc, Logger l) {
         logger = l;
         logger.info("Got scheduling!");
-
-        startExecute(3 * Runtime.getRuntime().availableProcessors());
+        
+        int numThreads = 2 * Runtime.getRuntime().availableProcessors(); 
+        String threadsProperty = System.getProperty(START_THREADS_PROPERTY);
+        
+        if (threadsProperty != null && !threadsProperty.equals("0")) {
+            try {
+                numThreads = Integer.parseInt(threadsProperty);
+            } catch (NumberFormatException nfe) {
+                logger.warn("Invalid number of threads to start:" + threadsProperty);
+            }
+        }
+        
+        startExecute(numThreads);
     }
 
     public void enqueue(Job job) throws SchedulerException {
-    	synchronized(this) {
-    		logger.info("SchedulerServiceImpl: queuing job " + job.toString());
-        	job.callAboutToBeEnqueued(this);
-        	blockedQueue.add(job);
-        	stats.incWaitingJobs();
-        	stats.incTotalJobs();
-    	}
+        synchronized (this) {
+            logger.info("SchedulerServiceImpl: queuing job " + job.toString());
+            job.callAboutToBeEnqueued(this);
+            blockedQueue.add(job);
+            stats.addWaitingJob(job.getClass().toString());
+            stats.incTotalJobs();
+        }
         jobDependenciesChanged(job);
     }
 
     public void dequeue(Job job) {
-    	synchronized(this) {
-    		if (!blockedQueue.contains(job) && !workQueue.contains(job)) {
-    			if (logger != null) {
-    				logger.info("SchedulerServiceImpl: job " + job.toString()
-    						+ " not found in the queue.");
-            	}
-            	return;
-        	}
-        	job.callAboutToBeDequeued(this);
-        	blockedQueue.remove(job);
-        	workQueue.remove(job);
-    	}
+        synchronized (this) {
+            if (!blockedQueue.contains(job) && !workQueue.contains(job)) {
+                if (logger != null) {
+                    logger.info("SchedulerServiceImpl: job " + job.toString()
+                            + " not found in the queue.");
+                }
+                return;
+            }
+            job.callAboutToBeDequeued(this);
+            blockedQueue.remove(job);
+            workQueue.remove(job);
+        }
         if (logger != null) {
             logger.info("SchedulerServiceImpl: job " + job.toString()
                     + " not found in the queue.");
@@ -111,16 +124,16 @@ public class SchedulerServiceImpl implements Scheduler {
         return workQueue.take();
     }
 
-	public Job takeJob(Job job) throws SchedulerException {
-		synchronized(workQueue) {
-			if (!workQueue.contains(job)) {
-				throw new SchedulerException("Can't take job " + job
-						                   + ": It is not in the scheduler's queue right now.");
-			}
-			workQueue.remove(job);
-			return job;
-		}
-	}
+    public Job takeJob(Job job) throws SchedulerException {
+        synchronized (workQueue) {
+            if (!workQueue.contains(job)) {
+                throw new SchedulerException("Can't take job " + job
+                        + ": It is not in the scheduler's queue right now.");
+            }
+            workQueue.remove(job);
+            return job;
+        }
+    }
     
     public void jobStateChanged(Job job, Job.State state) {
         if (logger != null) {
@@ -128,72 +141,73 @@ public class SchedulerServiceImpl implements Scheduler {
         }
 
         if (state == Job.State.Finished) {
-            stats.decRunningJobs();
+            stats.removeRunJob(job.getClass().toString());
             stats.incFinishedJobs();
         } else if (state == Job.State.Running) {
-            stats.decWaitingJobs();
-            stats.incRunningJobs();
+            stats.removeWaitingJob(job.getClass().toString());
+            stats.addRunJob(job.getClass().toString());
         } else if (state == Job.State.Error) {
-            
+
             if (failedQueue.remainingCapacity() == 1)
                 failedQueue.remove();
             failedQueue.add(job);
             
-            stats.decRunningJobs();
+            stats.removeRunJob(job.getClass().toString());
             stats.addFailedJob(job.getClass().toString());
         }
     }
 
     public void jobDependenciesChanged(Job job) {
-    	synchronized(this) {
-    		if (workQueue.contains(job) && !job.canExecute()) {
-            	workQueue.remove(job);
-            	blockedQueue.add(job);
-        	} else if (job.canExecute()) {
-            	blockedQueue.remove(job);
-            	workQueue.add(job);
-        	}
-    	}
+        synchronized (this) {
+            if (workQueue.contains(job) && !job.canExecute()) {
+                workQueue.remove(job);
+                blockedQueue.add(job);
+            } else if (job.canExecute()) {
+                blockedQueue.remove(job);
+                workQueue.add(job);
+            }
+        }
     }
 
     public void startExecute(int n) {
-    	synchronized(this) {
-    		if (myWorkerThreads == null) {
-    			myWorkerThreads = new LinkedList<WorkerThread>();
-    		}
-        
-    		for (int i = 0; i < n; ++i) {
-    			WorkerThread t = new WorkerThreadImpl(this);
-    			t.start();
-    			myWorkerThreads.add(t);
-    			stats.incWorkerThreads();
-    		}
-    	}
+        logger.info("Starting " + n + " worker threads");
+        synchronized (this) {
+            if (myWorkerThreads == null) {
+                myWorkerThreads = new LinkedList<WorkerThread>();
+            }
+
+            for (int i = 0; i < n; ++i) {
+                WorkerThread t = new WorkerThreadImpl(this);
+                t.start();
+                myWorkerThreads.add(t);
+                stats.incWorkerThreads();
+            }
+        }
     }
 
     public void stopExecute() {
-    	synchronized(this) {
-    		if (myWorkerThreads == null) {
-            	return;
-        	}
-        
-        	for (WorkerThread t : myWorkerThreads) {
-        		t.stopProcessing();
-            	stats.decWorkerThreads();
-        	}
-        
-        	myWorkerThreads.clear();
-    	}
+        synchronized (this) {
+            if (myWorkerThreads == null) {
+                return;
+            }
+
+            for (WorkerThread t : myWorkerThreads) {
+                t.stopProcessing();
+                stats.decWorkerThreads();
+            }
+
+            myWorkerThreads.clear();
+        }
     }
 
     synchronized public boolean isExecuting() {
-    	synchronized(this) {
-    		if (myWorkerThreads == null) {
-            	return false;
-        	} else {
-            	return !myWorkerThreads.isEmpty();
-        	}
-    	}
+        synchronized (this) {
+            if (myWorkerThreads == null) {
+                return false;
+            } else {
+                return !myWorkerThreads.isEmpty();
+            }
+        }
     }
 
     public Object selfTest() {
@@ -358,14 +372,14 @@ public class SchedulerServiceImpl implements Scheduler {
         return blockedQueue.toArray(blockedJobs);
     }
 
-	public WorkerThread[] getWorkerThreads() {
-		return (WorkerThread[]) this.myWorkerThreads.toArray();
-	}
+    public WorkerThread[] getWorkerThreads() {
+        return (WorkerThread[]) this.myWorkerThreads.toArray();
+    }
 
-	public void startOneShotWorkerThread() {
+    public void startOneShotWorkerThread() {
         WorkerThread t = new WorkerThreadImpl(this, true);
         t.start();
-	}
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

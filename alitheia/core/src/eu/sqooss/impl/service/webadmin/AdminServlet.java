@@ -338,6 +338,8 @@ public class AdminServlet extends HttpServlet {
         vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs());
         vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs());
         vc.put("JOBFAILSTATS", WebAdminRenderer.renderJobFailStats());
+        vc.put("JOBRUNSTATS", WebAdminRenderer.renderJobRunStats());
+        vc.put("JOBWAITSTATS", WebAdminRenderer.renderJobWaitStats());
         // Plug-ins content
         vc.put("METRICS", PluginsView.render(request));
         // Users content

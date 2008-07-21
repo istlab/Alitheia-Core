@@ -34,6 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package eu.sqooss.service.scheduler;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Vector;
 
 public class SchedulerStats {
     // the number of jobs currently in the scheduler
@@ -52,6 +54,10 @@ public class SchedulerStats {
     private long failedJobs = 0;
     //Classname->Failed Jobs 
     private HashMap<String, Integer> failedJobTypes = new HashMap<String, Integer>();
+    //Classname->Num jobs waiting
+    private HashMap<String, Integer> waitingJobTypes = new HashMap<String, Integer>();
+    //Running jobs
+    private List<String> runJobs = new Vector<String>();
     
     public synchronized void incTotalJobs() {
         totalJobs++;
@@ -60,25 +66,9 @@ public class SchedulerStats {
     public synchronized void decTotalJobs() {
         totalJobs--;
     }
-    
-    public synchronized void incWaitingJobs() {
-        waitingJobs++;
-    }
-
-    public synchronized void decWaitingJobs() {
-        waitingJobs--;
-    }
-    
+   
     public synchronized void incFinishedJobs() {
         finishedJobs++;
-    }
-    
-    public synchronized void incRunningJobs() {
-        runningJobs++;
-    }
-
-    public synchronized void decRunningJobs() {
-        runningJobs--;
     }
     
     public synchronized void incWorkerThreads() {
@@ -105,6 +95,36 @@ public class SchedulerStats {
             failedJobTypes.put(classname, 1);
     }
 
+    public synchronized void addWaitingJob(String classname) {
+        this.waitingJobs++;
+        if (waitingJobTypes.containsKey(classname))
+            waitingJobTypes.put(classname, (waitingJobTypes.get(classname) + 1));
+        else
+            waitingJobTypes.put(classname, 1);
+    }
+    
+    public synchronized void removeWaitingJob(String classname) {
+        this.waitingJobs --;
+        if (waitingJobTypes.containsKey(classname)) {
+            int jobs = waitingJobTypes.get(classname) - 1;
+            if (jobs == 0) {
+                waitingJobTypes.remove(classname);
+            }
+            
+            waitingJobTypes.put(classname, jobs);
+        }
+    }
+ 
+    public void addRunJob(String classname) {
+        this.runningJobs++;
+        this.runJobs.add(classname);
+    }
+    
+    public void removeRunJob(String classname) {
+        this.runningJobs--;
+        this.runJobs.remove(classname);
+    }
+    
     public long getTotalJobs() {
         return totalJobs;
     }
@@ -137,4 +157,11 @@ public class SchedulerStats {
         return failedJobTypes;
     }
     
+    public HashMap<String, Integer> getWaitingJobTypes() {
+        return waitingJobTypes;
+    }
+    
+    public List<String> getRunJobs() {
+        return runJobs;
+    }
 }
