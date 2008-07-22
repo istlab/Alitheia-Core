@@ -62,6 +62,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         USER_WRITE,
         ADMIN_NOTIFY,
         ADMIN_GET_MESSAGE_OF_THE_DAY,
+        CONSTANTS_READ,
         METRIC_READ,
         METRICTYPE_READ;
         
@@ -78,6 +79,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         private static final String PROPERTY_OBJECT_ADMIN          = "security.privilege.object.admin";
         private static final String PROPERTY_OBJECT_METRIC         = "security.privilege.object.metric";
         private static final String PROPERTY_OBJECT_METRICTYPE     = "security.privilege.object.metrictype";
+        private static final String PROPERTY_OBJECT_CONSTANTS      = "security.privilege.object.constants";
         private static final String PROPERTY_ADMIN_ACTION_NOTIFY   = "security.privilege.admin.action.notify";
         private static final String PROPERTY_ADMIN_ACTION_GET_MESSAGE = "security.privilege.admin.action.get.message";
         
@@ -90,6 +92,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         private static String OBJECT_ADMIN         = "admin";
         private static String OBJECT_METRIC        = "metric";
         private static String OBJECT_METRICTYPE    = "metrictype";
+        private static String OBJECT_CONSTANTS     = "constants";
         
         private static String ADMIN_ACTION_NOTIFY = "notify";
         private static String ADMIN_ACTION_GET_MESSAGE = "getMessageOfTheDay";
@@ -105,6 +108,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         private static String STRING_VALUE_ADMIN_GET_MESSAGE_OF_THE_DAY;
         private static String STRING_VALUE_METRIC;
         private static String STRING_VALUE_METRICTYPE;
+        private static String STRING_VALUE_CONSTANTS_READ;
         
         /**
          * @see java.lang.Enum#toString()
@@ -126,6 +130,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
                 stringRepresentation = STRING_VALUE_ADMIN_GET_MESSAGE_OF_THE_DAY; break;
             case METRIC_READ    : stringRepresentation = STRING_VALUE_METRIC; break;
             case METRICTYPE_READ: stringRepresentation = STRING_VALUE_METRICTYPE; break;
+            case CONSTANTS_READ : stringRepresentation = STRING_VALUE_CONSTANTS_READ; break;
             default           : stringRepresentation = super.toString(); break;
             }
             return stringRepresentation;
@@ -146,6 +151,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
                 OBJECT_ADMIN          = props.getProperty(PROPERTY_OBJECT_ADMIN, OBJECT_ADMIN);
                 OBJECT_METRIC         = props.getProperty(PROPERTY_OBJECT_METRIC, OBJECT_METRIC);
                 OBJECT_METRICTYPE     = props.getProperty(PROPERTY_OBJECT_METRICTYPE, OBJECT_METRICTYPE);
+                OBJECT_CONSTANTS      = props.getProperty(PROPERTY_OBJECT_CONSTANTS, OBJECT_CONSTANTS);
                 ADMIN_ACTION_NOTIFY   = props.getProperty(PROPERTY_ADMIN_ACTION_NOTIFY, ADMIN_ACTION_NOTIFY);
                 ADMIN_ACTION_GET_MESSAGE = props.getProperty(PROPERTY_ADMIN_ACTION_GET_MESSAGE, ADMIN_ACTION_GET_MESSAGE);
             }
@@ -172,12 +178,15 @@ public interface SecurityWrapperConstants extends SecurityConstants {
                 OBJECT_METRIC + PrivilegeAction.DELIMITER + PrivilegeAction.READ;
             STRING_VALUE_METRICTYPE =
                 OBJECT_METRICTYPE + PrivilegeAction.DELIMITER + PrivilegeAction.READ;
+            STRING_VALUE_CONSTANTS_READ =
+                OBJECT_CONSTANTS + PrivilegeAction.DELIMITER + PrivilegeAction.READ;
         }
         
     };
     
     public static enum ServiceUrl {
         
+        SQOOSS,
         SECURITY,
         DATABASE,
         WEBADMIN,
@@ -193,9 +202,10 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         private static String URL_SQOOSS_WEBADMIN = URL_SQOOSS + ".webadmin";
         private static String URL_SQOOSS_PLUGINADMIN = URL_SQOOSS + ".pluginadmin";
         
-        private static final Privilege[] PRIVILEEGS_SECURITY =
+        private static final Privilege[] PRIVILEGES_SQOOSS = {Privilege.CONSTANTS_READ};
+        private static final Privilege[] PRIVILEGES_SECURITY =
         {Privilege.USER_READ, Privilege.USER_WRITE, Privilege.GROUP_READ};
-        private static final Privilege[] PRIVILEEGS_DATABASE =
+        private static final Privilege[] PRIVILEGES_DATABASE =
         {Privilege.PROJECT_READ, Privilege.DIRECTORY_READ,
             Privilege.DEVELOPER_READ, Privilege.PROJECTVERSION_READ, Privilege.METRICTYPE_READ};
         private static final Privilege[] PRIVILEGES_PLUGINADMIN =
@@ -209,6 +219,7 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         @Override
         public String toString() {
             switch (this) {
+            case SQOOSS      : return URL_SQOOSS;
             case SECURITY    : return URL_SQOOSS_SECURITY;
             case WEBADMIN    : return URL_SQOOSS_WEBADMIN;
             case PLUGINADMIN : return URL_SQOOSS_PLUGINADMIN;
@@ -219,8 +230,9 @@ public interface SecurityWrapperConstants extends SecurityConstants {
         
         public Privilege[] getPrivileges() {
             switch (this) {
-            case SECURITY    : return PRIVILEEGS_SECURITY;
-            case DATABASE    : return PRIVILEEGS_DATABASE;
+            case SQOOSS      : return PRIVILEGES_SQOOSS;
+            case SECURITY    : return PRIVILEGES_SECURITY;
+            case DATABASE    : return PRIVILEGES_DATABASE;
             case PLUGINADMIN : return PRIVILEGES_PLUGINADMIN;
             case WEBADMIN    : return PRIVILEGES_WEBADMIN;
             }

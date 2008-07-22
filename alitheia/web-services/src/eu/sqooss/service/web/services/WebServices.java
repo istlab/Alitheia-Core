@@ -43,6 +43,7 @@ import org.osgi.service.event.EventHandler;
 import eu.sqooss.impl.service.web.services.MetricManager;
 import eu.sqooss.impl.service.web.services.ProjectManager;
 import eu.sqooss.impl.service.web.services.UserManager;
+import eu.sqooss.impl.service.web.services.datatypes.WSConstants;
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
@@ -783,6 +784,18 @@ public class WebServices implements EventHandler{
         return userManager.notifyAdmin(userName, password, title, messageBody);
     }
 
+    /**
+     * The method returns all shared constants from the Alitheia system.
+     * 
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * 
+     * @return the shared constants
+     */
+    public WSConstants getConstants(String userName, String password) {
+        return userManager.getConstants(userName, password);
+    }
+    
     // ===[EventHandler method]===============================================
     public void handleEvent(Event e) {
         logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());

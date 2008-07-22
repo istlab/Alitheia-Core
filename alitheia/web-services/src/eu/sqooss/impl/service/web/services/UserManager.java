@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
+import eu.sqooss.impl.service.web.services.datatypes.WSConstants;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
 import eu.sqooss.impl.service.web.services.utils.UserSecurityWrapper;
@@ -319,6 +320,29 @@ public class UserManager extends AbstractManager {
         db.commitDBSession();
         return result;
     }
+    
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getConstants(String, String)
+     */
+    public WSConstants getConstants(String userName, String password) {
+        logger.info("Get constants! user: " + userName);
+        
+        db.startDBSession();
+        
+        if (!security.checkConstantsReadAccess(userName, password)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException("Security violation in the get constants operation!");
+        }
+        
+        super.updateUserActivity(userName);
+        
+        db.commitDBSession();
+        
+        return WSConstants.instance();
+    }
+    
     
     private boolean isSameUser(String userNameForAccess,
             String passwordForAccess, User otherUser) {

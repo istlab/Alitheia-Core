@@ -139,6 +139,18 @@ public class UserSecurityWrapper extends AbstractSecurityWrapper{
         }
     }
     
+    public boolean checkConstantsReadAccess(String userName, String password) {
+        User user = securityUserManager.getUser(userName);
+        if (user == null) return false;
+        synchronized (privilegesLockObject) {
+            privileges.clear();
+            privileges.put(Privilege.CONSTANTS_READ.toString(),
+                    Long.toString(user.getId()));
+            return security.checkPermission(ServiceUrl.SQOOSS.toString(),
+                    privileges, userName, password).equals(privileges);
+        }
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
