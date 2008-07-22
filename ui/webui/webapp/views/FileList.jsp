@@ -1,4 +1,5 @@
 <%@ page import="eu.sqooss.webui.*"
+%><%@ page import="eu.sqooss.webui.datatype.*"
 %><%@ page import="eu.sqooss.webui.view.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
@@ -48,23 +49,121 @@ if (selectedProject.isValid()) {
         // Display the selected file verbosely
         //====================================================================
         if (request.getParameter("fid") != null) {
-            // Display a verbose information about the selected file
+            // Retrieve the Id of the selected file/folder
             Long fileId = strToLong(request.getParameter("fid"));
-            VerboseFileView verboseView =
-                new VerboseFileView(selectedProject, fileId);
-            verboseView.setTerrier(terrier);
-            verboseView.setServletPath(request.getServletPath());
-            verboseView.setSettings(settings);
+
+            //VerboseFileView verboseView =
+            //    new VerboseFileView(selectedProject, fileId);
+            //verboseView.setTerrier(terrier);
+            //verboseView.setServletPath(request.getServletPath());
+            //verboseView.setSettings(settings);
+
             // Check if the user asks for a comparison with another version
-            if (request.getParameter("cvnum") != null) {
-                verboseView.compareAgainst(
-                    strToLong(request.getParameter("cvnum")));
-            }
+            //if (request.getParameter("cvnum") != null) {
+            //    verboseView.compareAgainst(
+            //        strToLong(request.getParameter("cvnum")));
+            //}
+
+            // Construct the window's content
+            StringBuilder b = new StringBuilder("");
+            eu.sqooss.webui.datatype.File selFile = null;
+            if (fileId != null)
+                selFile = selectedProject.getCurrentVersion().getFile(fileId);
             Window winFileVerbose = new Window();
-            winFileVerbose.setTitle("Source file results");
+            if (selFile != null) {
+                if (selFile.getIsDirectory())
+                    winFileVerbose.setTitle("Results in folder "
+                        + selFile.getShortName());
+                else
+                    winFileVerbose.setTitle("Results in file "
+                        + selFile.getShortName());
+
+                // Sub-views table
+                b.append(sp(in++) + "<table>\n");
+                b.append(sp(in++) + "<tr>\n");
+                //============================================================
+                // Display the file info screen
+                //============================================================
+                if (settings.getShowVFVInfoScreen()) {
+                    if ((settings.getShowVFVChartScreen() == false)
+                            && (settings.getShowVFVCommandScreen() == false))
+                        b.append(sp(in++) + "<td"
+                            + " style=\"width: 100%; vertical-align: top;\">\n");
+                    else
+                        b.append(sp(in++) + "<td"
+                            + " style=\"width: 30%; vertical-align: top;\">\n");
+                                        Window winDirBrowser = new Window();
+
+                    // =======================================================
+                    // Display the file's info screen
+                    // =======================================================
+                    // Construct the window's title icons
+                    Window winInfoScreen = new Window();
+                    winVisible = "showVFVInfoScreen";
+                    icoCloseWin.setParameter(winVisible);
+                    winInfoScreen.addTitleIcon(icoCloseWin);
+                    // Construct the window's content
+                    winInfoScreen.setContent("Metadata comes here.");
+                    // Display the window
+                    winInfoScreen.setTitle("Metadata");
+                    b.append(winInfoScreen.render(in));
+
+                    b.append(sp(--in) + "</td>\n");
+                }
+                //============================================================
+                // Display the folders and/or files in the selected directory
+                //============================================================
+                if ((settings.getShowVFVChartScreen())
+                            || (settings.getShowVFVCommandScreen())) {
+                    if (settings.getShowVFVInfoScreen())
+                        b.append(sp(in++) + "<td"
+                            + " style=\"width: 70%; vertical-align: top; padding-left: 5px;\">\n");
+                    else
+                        b.append(sp(in++) + "<td"
+                            + " style=\"width: 100%; vertical-align: top;\">\n");
+
+                    // =======================================================
+                    // Display the file's charts
+                    // =======================================================
+                    if (settings.getShowVFVChartScreen()) {
+                        // Construct the window's title icons
+                        Window winChartsScreen = new Window();
+                        winVisible = "showVFVChartScreen";
+                        icoCloseWin.setParameter(winVisible);
+                        winChartsScreen.addTitleIcon(icoCloseWin);
+                        // Construct the window's content
+                        winChartsScreen.setContent("Charts come here.");
+                        // Display the window
+                        winChartsScreen.setTitle("Charts");
+                        b.append(winChartsScreen.render(in));
+                    }
+                    // =======================================================
+                    // Display the file's command screen
+                    // =======================================================
+                    if (settings.getShowVFVCommandScreen()) {
+                        // Construct the window's title icons
+                        Window winCommandScreen = new Window();
+                        winVisible = "showVFVCommandScreen";
+                        icoCloseWin.setParameter(winVisible);
+                        winCommandScreen.addTitleIcon(icoCloseWin);
+                        // Construct the window's content
+                        winCommandScreen.setContent("Controls come here.");
+                        // Display the window
+                        winCommandScreen.setTitle("Control center");
+                        b.append(winCommandScreen.render(in));
+                    }
+
+                    b.append(sp(--in) + "</td>\n");
+                }
+                // Close the sub-views table
+                b.append(sp(--in) + "</tr>\n");
+                b.append(sp(--in) + "</table>\n");
+            }
+            else
+                winFileVerbose.setTitle("Invalid file/folder");
             winFileVerbose.addTitleIcon(icoCloseWin);
-            winFileVerbose.setContent(verboseView.getHtml(in));
-            out.print(winFileVerbose.render(in));
+            winFileVerbose.setContent(b.toString());
+            out.print(winFileVerbose.render(in - 2));
         }
         //====================================================================
         // Display a file browser for the selected project version
@@ -268,7 +367,7 @@ if (selectedProject.isValid()) {
                 //============================================================
                 if (settings.getShowFVDirBrowser()) {
                     if ((settings.getShowFVFolderList() == false)
-                        && (settings.getShowFVFileList() == false))
+                            && (settings.getShowFVFileList() == false))
                         b.append(sp(in++) + "<td"
                             + " style=\"width: 100%; vertical-align: top;\">\n");
                     else
@@ -299,49 +398,52 @@ if (selectedProject.isValid()) {
                 //============================================================
                 // Display the folders and/or files in the selected directory
                 //============================================================
-                if (settings.getShowFVDirBrowser())
-                    b.append(sp(in++) + "<td"
-                        + " style=\"width: 70%; vertical-align: top; padding-left: 5px;\">\n");
-                else
-                    b.append(sp(in++) + "<td"
-                        + " style=\"width: 100%; vertical-align: top;\">\n");
-                // Display the sub-folders of the current folder
-                if (settings.getShowFVFolderList()) {
-                    Window winFoldersList = new Window();
-                    FileListView foldersView = new FileListView(
-                        selectedVersion.files, FileListView.FOLDERS);
-                    foldersView.setProject(selectedProject);
-                    foldersView.setVersionId(selectedVersion.getId());
-                    foldersView.setSettings(settings);
-                    foldersView.setServletPath(request.getServletPath());
-                    winVisible = "showFVFolderList";
-                    icoCloseWin.setParameter(winVisible);
-                    winFoldersList.addTitleIcon(icoCloseWin);
-                    winFoldersList.setContent(foldersView.getHtml(in + 2));
-                    winFoldersList.setTitle("Sub-folders in "
-                        + selectedVersion.getCurrentDirName());
-                    b.append(winFoldersList.render(in));
+                if ((settings.getShowFVFolderList())
+                        || (settings.getShowFVFileList())) {
+                    if (settings.getShowFVDirBrowser())
+                        b.append(sp(in++) + "<td"
+                            + " style=\"width: 70%; vertical-align: top; padding-left: 5px;\">\n");
+                    else
+                        b.append(sp(in++) + "<td"
+                            + " style=\"width: 100%; vertical-align: top;\">\n");
+                    // Display the sub-folders of the current folder
+                    if (settings.getShowFVFolderList()) {
+                        Window winFoldersList = new Window();
+                        FileListView foldersView = new FileListView(
+                            selectedVersion.files, FileListView.FOLDERS);
+                        foldersView.setProject(selectedProject);
+                        foldersView.setVersionId(selectedVersion.getId());
+                        foldersView.setSettings(settings);
+                        foldersView.setServletPath(request.getServletPath());
+                        winVisible = "showFVFolderList";
+                        icoCloseWin.setParameter(winVisible);
+                        winFoldersList.addTitleIcon(icoCloseWin);
+                        winFoldersList.setContent(foldersView.getHtml(in + 2));
+                        winFoldersList.setTitle("Sub-folders in "
+                            + selectedVersion.getCurrentDirName());
+                        b.append(winFoldersList.render(in));
+                    }
+                    // Display the files in the current folder
+                    if (settings.getShowFVFileList()) {
+                        Window winFilesList = new Window();
+                        FileListView filesView = new FileListView(
+                            selectedVersion.files, FileListView.FILES);
+                        filesView.setProject(selectedProject);
+                        filesView.setVersionId(selectedVersion.getId());
+                        filesView.setSettings(settings);
+                        filesView.setServletPath(request.getServletPath());
+                        winVisible = "showFVFileList";
+                        icoCloseWin.setParameter(winVisible);
+                        winFilesList.addTitleIcon(icoCloseWin);
+                        winFilesList.setContent(filesView.getHtml(in + 2));
+                        winFilesList.setTitle("Files in "
+                            + selectedVersion.getCurrentDirName());
+                        b.append(winFilesList.render(in));
+                    }
+                    b.append(sp(--in) + "</td>\n");
                 }
-                // Display the files in the current folder
-                if (settings.getShowFVFileList()) {
-                    Window winFilesList = new Window();
-                    FileListView filesView = new FileListView(
-                        selectedVersion.files, FileListView.FILES);
-                    filesView.setProject(selectedProject);
-                    filesView.setVersionId(selectedVersion.getId());
-                    filesView.setSettings(settings);
-                    filesView.setServletPath(request.getServletPath());
-                    winVisible = "showFVFileList";
-                    icoCloseWin.setParameter(winVisible);
-                    winFilesList.addTitleIcon(icoCloseWin);
-                    winFilesList.setContent(filesView.getHtml(in + 2));
-                    winFilesList.setTitle("Files in "
-                        + selectedVersion.getCurrentDirName());
-                    b.append(winFilesList.render(in));
-                }
-                b.append(sp(--in) + "</td>\n");
-                b.append(sp(--in) + "</tr>\n");
                 // Close the sub-views table
+                b.append(sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</table>\n");
             }
             // Display the window

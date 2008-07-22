@@ -39,16 +39,22 @@ public class SelectedSettings {
     private Locale userLocale = Locale.US;
 
     private boolean showAllMetrics = false;
-    private boolean showFileResultsOverview = false;
+    private boolean showDevelopers = true;
+    // ProjectView related
     private boolean showPVMetadata = true;
     private boolean showPVVersions = true;
     private boolean showPVDevelopers = true;
     private boolean showPVFileStat = true;
     private boolean showPVMetrics = true;
-    private boolean showDevelopers = true;
+    private boolean showFileResultsOverview = false;
+    // FileView related
     private boolean showFVDirBrowser = true;
     private boolean showFVFolderList = true;
     private boolean showFVFileList = true;
+    // VerboseFileView related
+    private boolean showVFVInfoScreen = true;
+    private boolean showVFVChartScreen = true;
+    private boolean showVFVCommandScreen = true;
 
     public Locale getUserLocale() {
         return userLocale;
@@ -146,4 +152,27 @@ public class SelectedSettings {
         return showFVFileList;
     }
 
+    public void setShowVFVInfoScreen(boolean showVFVInfoScreen) {
+        this.showVFVInfoScreen = showVFVInfoScreen;
+    }
+
+    public boolean getShowVFVInfoScreen() {
+        return showVFVInfoScreen;
+    }
+
+    public void setShowVFVChartScreen(boolean showVFVChartScreen) {
+        this.showVFVChartScreen = showVFVChartScreen;
+    }
+
+    public boolean getShowVFVChartScreen() {
+        return showVFVChartScreen;
+    }
+
+    public void setShowVFVCommandScreen(boolean showVFVCommandScreen) {
+        this.showVFVCommandScreen = showVFVCommandScreen;
+    }
+
+    public boolean getShowVFVCommandScreen() {
+        return showVFVCommandScreen;
+    }
 }
