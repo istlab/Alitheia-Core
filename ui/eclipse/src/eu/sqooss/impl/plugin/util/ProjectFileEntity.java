@@ -44,8 +44,11 @@ import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.accessor.WSAccessor;
 import eu.sqooss.scl.accessor.WSMetricAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
+import eu.sqooss.scl.accessor.WSUserAccessor;
+import eu.sqooss.ws.client.datatypes.WSConstants;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSMetric;
+import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSMetricsRequest;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
@@ -56,6 +59,8 @@ import eu.sqooss.ws.client.datatypes.WSResultEntry;
  * The class represents the project file or directory of the eclipse project.
  */
 public class ProjectFileEntity implements Entity {
+    
+    private static WSConstants wsConstants;
     
     private WSProjectVersion projectVersion;
     private WSProjectFile projectFile;
@@ -78,8 +83,7 @@ public class ProjectFileEntity implements Entity {
      */
     public WSMetric[] getMetrics() {
         if (metrics == null) {
-            initMetrics((WSMetricAccessor) session.getAccessor(
-                    WSAccessor.Type.METRIC));
+            initMetrics();
         }
         return metrics;
     }
@@ -162,15 +166,63 @@ public class ProjectFileEntity implements Entity {
         }
     }
     
-    private void initMetrics(WSMetricAccessor metricAccessor) {
+    private void initMetrics() {
         WSMetricsRequest request = new WSMetricsRequest();
         request.setIsProjectFile(true);
         request.setResourcesIds(new long[] {projectFile.getId()});
         try {
-            this.metrics = metricAccessor.getMetricsByResourcesIds(request);
+            if (ProjectFileEntity.wsConstants == null) {
+                ProjectFileEntity.wsConstants =
+                    ((WSUserAccessor) session.getAccessor(WSAccessor.Type.USER)).getConstants();
+            }
+            WSMetric[] metrics = ((WSMetricAccessor) session.getAccessor(WSAccessor.Type.METRIC)).
+            getMetricsByResourcesIds(request);
+            this.metrics = filterMetrics(metrics);
         } catch (WSException wse) {
             this.metrics = null;
         }
+    }
+    
+    private WSMetric[] filterMetrics(WSMetric[] metrics) {
+        if ((ProjectFileEntity.wsConstants == null) ||
+                (metrics == null) || (metrics.length == 0)) return null;
+        long[] metricTypesIds = new long[metrics.length];
+        for (int i = 0; i < metricTypesIds.length; i++) {
+            metricTypesIds[i] = metrics[i].getMetricTypeId();
+        }
+        WSMetricType[] metricTypes;
+        try {
+            metricTypes = 
+                ((WSMetricAccessor) session.getAccessor(WSAccessor.Type.METRIC)).
+                getMetricTypesByIds(metricTypesIds);
+        } catch (WSException wse) {
+            metricTypes = null;
+        }
+        if ((metricTypes == null) ||
+                (metricTypes.length == 0)) return null;
+        Hashtable<Long, WSMetricType> metricTypesHash = new Hashtable<Long, WSMetricType>();
+        for (WSMetricType metricType : metricTypes) {
+            metricTypesHash.put(Long.valueOf(metricType.getId()), metricType);
+        }
+        List<WSMetric> result = new ArrayList<WSMetric>();
+        WSMetricType currentMetricType = null;
+        Long currentKey;
+        for (WSMetric currentMetric : metrics) {
+            currentKey = Long.valueOf(currentMetric.getMetricTypeId());
+            if (metricTypesHash.containsKey(currentKey)) {
+                currentMetricType = metricTypesHash.get(currentKey);
+            } else {
+                continue;
+            }
+            if ((projectFile.getDirectory() &&
+                    (currentMetricType.getType().equals(ProjectFileEntity.wsConstants.getMetricTypeSourceFolder()))) ||
+                (!projectFile.getDirectory() &&
+                    (currentMetricType.getType().equals(ProjectFileEntity.wsConstants.getMetricTypeSourceCode())))){
+                result.add(currentMetric);
+            }
+        }
+        WSMetric[] arrayResult = new WSMetric[result.size()];
+        return result.toArray(arrayResult);
     }
     
     private void initVersions(WSProjectAccessor projectAccessor) {

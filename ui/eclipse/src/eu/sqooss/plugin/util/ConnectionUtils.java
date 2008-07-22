@@ -35,6 +35,7 @@ package eu.sqooss.plugin.util;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
@@ -301,17 +302,15 @@ public class ConnectionUtils {
         ConfigurationPropertyPage_Combo_Last_Project_Version;
     }
     
-    public Entity getEntity(String resourceFullPath) {
-        int firstIndex = 0;
-        char rootPathSymbol = resourceFullPath.charAt(firstIndex);
-        int secondIndex = resourceFullPath.indexOf(rootPathSymbol, firstIndex + 1);
-        if (secondIndex == -1) {
-            //project version entity
+    public Entity getEntity(IResource resource) {
+        switch (resource.getType()) {
+        case IResource.PROJECT : {
             return new ProjectVersionEntity(storedProject,
                     storedProjectVersion);
-        } else {
-            //project file entity
-            String filePathname = resourceFullPath.substring(secondIndex);
+        }
+        case IResource.FILE    : //next
+        case IResource.FOLDER  : {
+            String filePathname = resource.getProjectRelativePath().toString();
             WSProjectAccessor projectAccessor =
                 ((WSProjectAccessor) wsSession.getAccessor(WSAccessor.Type.PROJECT));
             WSProjectFile[] files;
@@ -331,6 +330,8 @@ public class ConnectionUtils {
                 return new ProjectFileEntity(
                         storedProjectVersion, files[0], wsSession);
             }
+        }
+        default : return null;
         }
     }
     

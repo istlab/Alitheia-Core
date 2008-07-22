@@ -60,7 +60,8 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     private Composite parent;
     private Entity entity;
     private Visualizer visualizer;
-    private int lastSelectedMetricIndex;
+    private int selectedMetricIndex;
+    private boolean isClearedMetricResult;
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractQualityPropertyPage#createContents(org.eclipse.swt.widgets.Composite)
@@ -113,7 +114,8 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
             container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
         } else if (eventSource == comboMetric) {
             comboCompareVersion.deselectAll();
-            processResult(comboMetric.getSelectionIndex() == lastSelectedMetricIndex);
+            boolean isSame = comboMetric.getSelectionIndex() == selectedMetricIndex;
+            processResult(isSame && !isClearedMetricResult);
         } else if (eventSource == comboCompareVersion) {
             processResult(false);
         }
@@ -207,8 +209,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 (!connectionUtils.isValidProjectVersion())) {
             return false;
         } else {
-            this.entity = connectionUtils.getEntity(
-                    resource.getFullPath().toString());
+            this.entity = connectionUtils.getEntity(resource);
             return (this.entity == null) ? false : true;
         }
     }
@@ -233,6 +234,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
             this.visualizer.setValue(selectedVersion, result);
             this.visualizer.open();
         }
+        this.isClearedMetricResult = clearResult;
     }
     
     private void setVisualizer() {
@@ -247,8 +249,8 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     public void handleEvent(Event event) {
         Widget eventSource = event.widget;
         if (eventSource == comboMetric) {
-            lastSelectedMetricIndex = comboMetric.getSelectionIndex();
-            comboMetric.deselect(lastSelectedMetricIndex);
+            selectedMetricIndex = comboMetric.getSelectionIndex();
+            comboMetric.deselect(selectedMetricIndex);
         }
     }
     
