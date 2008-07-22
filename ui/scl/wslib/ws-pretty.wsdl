@@ -11,6 +11,16 @@
       </xs:complexType>
     </xs:schema>
     <xs:schema xmlns:ax21="http://datatypes.services.web.service.impl.sqooss.eu/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://datatypes.services.web.service.impl.sqooss.eu/xsd">
+      <xs:element name="WSConstants" type="ax21:WSConstants"/>
+      <xs:complexType name="WSConstants">
+        <xs:sequence>
+          <xs:element name="metricTypeBugDatabase" nillable="true" type="xs:string"/>
+          <xs:element name="metricTypeMailingList" nillable="true" type="xs:string"/>
+          <xs:element name="metricTypeProjectWide" nillable="true" type="xs:string"/>
+          <xs:element name="metricTypeSourceCode" nillable="true" type="xs:string"/>
+          <xs:element name="metricTypeSourceFolder" nillable="true" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
       <xs:element name="WSDeveloper" type="ax21:WSDeveloper"/>
       <xs:complexType name="WSDeveloper">
         <xs:sequence>
@@ -231,6 +241,21 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element name="return" nillable="true" type="xs:boolean"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getConstants">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getConstantsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="ns1:WSConstants"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -784,6 +809,12 @@
   <wsdl:message name="getProjectVersionsByIdsResponse">
     <wsdl:part name="part1" element="ns2:getProjectVersionsByIdsResponse"/>
   </wsdl:message>
+  <wsdl:message name="getConstantsMessage">
+    <wsdl:part name="part1" element="ns2:getConstants"/>
+  </wsdl:message>
+  <wsdl:message name="getConstantsResponse">
+    <wsdl:part name="part1" element="ns2:getConstantsResponse"/>
+  </wsdl:message>
   <wsdl:message name="deleteUserByIdMessage">
     <wsdl:part name="part1" element="ns2:deleteUserById"/>
   </wsdl:message>
@@ -960,6 +991,10 @@
     <wsdl:operation name="getProjectVersionsByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectVersionsByIdsMessage" wsaw:Action="urn:getProjectVersionsByIds"/>
       <wsdl:output message="axis2:getProjectVersionsByIdsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getConstants">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getConstantsMessage" wsaw:Action="urn:getConstants"/>
+      <wsdl:output message="axis2:getConstantsResponse"/>
     </wsdl:operation>
     <wsdl:operation name="deleteUserById">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:deleteUserByIdMessage" wsaw:Action="urn:deleteUserById"/>
@@ -1162,6 +1197,15 @@
     </wsdl:operation>
     <wsdl:operation name="getProjectVersionsByIds">
       <soap:operation soapAction="urn:getProjectVersionsByIds" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getConstants">
+      <soap:operation soapAction="urn:getConstants" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1480,6 +1524,15 @@
     </wsdl:operation>
     <wsdl:operation name="getProjectVersionsByIds">
       <soap12:operation soapAction="urn:getProjectVersionsByIds" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getConstants">
+      <soap12:operation soapAction="urn:getConstants" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>

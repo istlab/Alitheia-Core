@@ -40,12 +40,15 @@ import org.apache.axis2.AxisFault;
 
 import eu.sqooss.scl.accessor.WSUserAccessor;
 import eu.sqooss.ws.client.WsStub;
+import eu.sqooss.ws.client.datatypes.WSConstants;
 import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.datatypes.WSUserGroup;
 import eu.sqooss.ws.client.ws.CreatePendingUser;
 import eu.sqooss.ws.client.ws.CreatePendingUserResponse;
 import eu.sqooss.ws.client.ws.DeleteUserById;
 import eu.sqooss.ws.client.ws.DeleteUserByIdResponse;
+import eu.sqooss.ws.client.ws.GetConstants;
+import eu.sqooss.ws.client.ws.GetConstantsResponse;
 import eu.sqooss.ws.client.ws.GetMessageOfTheDay;
 import eu.sqooss.ws.client.ws.GetMessageOfTheDayResponse;
 import eu.sqooss.ws.client.ws.GetUserByName;
@@ -75,7 +78,9 @@ class WSUserAccessorImpl extends WSUserAccessor {
 
     private static final String METHOD_NAME_GET_MESSAGE_OF_THE_DAY = "getMessageOfTheDay";
     
-    private static final String METHOD_NAME_NOTIFY_ADMIN = "notifyAdmin";
+    private static final String METHOD_NAME_NOTIFY_ADMIN  = "notifyAdmin";
+    
+    private static final String METHOD_NAME_GET_CONSTANTS = "getConstants";
 
     private static final WSUser[] EMPTY_ARRAY_USERS = new WSUser[0];
     
@@ -314,6 +319,31 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setTitle(title);
             try {
                 response = wsStub.notifyAdmin(params);
+            } catch (RemoteException re) {
+                throw new WSException(re);
+            }
+        }
+        return response.get_return();
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSUserAccessor#getConstants()
+     */
+    @Override
+    public WSConstants getConstants() throws WSException {
+        GetConstantsResponse response;
+        GetConstants params;
+        if (!parameters.containsKey(METHOD_NAME_GET_CONSTANTS)) {
+            params = new GetConstants();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_CONSTANTS, params);
+        } else {
+            params = (GetConstants) parameters.get(METHOD_NAME_GET_CONSTANTS);
+        }
+        synchronized (params) {
+            try {
+                response = wsStub.getConstants(params);
             } catch (RemoteException re) {
                 throw new WSException(re);
             }

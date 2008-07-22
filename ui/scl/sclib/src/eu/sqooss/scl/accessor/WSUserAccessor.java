@@ -33,6 +33,7 @@
 package eu.sqooss.scl.accessor;
 
 import eu.sqooss.scl.WSException;
+import eu.sqooss.ws.client.datatypes.WSConstants;
 import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.datatypes.WSUserGroup;
 
@@ -194,6 +195,20 @@ public abstract class WSUserAccessor extends WSAccessor {
      * </ul>
      */
     public abstract boolean notifyAdmin(String messageBody, String title) throws WSException;
+    
+    /**
+     * The method returns all shared constants from the Alitheia system.
+     * 
+     * @return the shared constants
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if web services service throws an exception</li>
+     * </ul>
+     */
+    public abstract WSConstants getConstants() throws WSException;
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
