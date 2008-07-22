@@ -45,22 +45,22 @@ interface MetricManagerDBQueries {
     
     public static final String GET_METRICS_BY_RESOURCES_IDS_PARAM = "list_of_ids";
     
-    public static final String GET_METRICS_BY_RESOURCES_IDS_STORED_PROJECTS = "select spm.metric " +
+    public static final String GET_METRICS_BY_RESOURCES_IDS_STORED_PROJECTS = "select distinct spm.metric " +
                                                                               "from StoredProjectMeasurement spm " +
     		                                                                  "where spm.storedProject.id in (:" +
     		                                                                  GET_METRICS_BY_RESOURCES_IDS_PARAM + ") ";
     
-    public static final String GET_METRICS_BY_RESOURCES_IDS_PROJECT_VERSIONS = "select pvm.metric " +
+    public static final String GET_METRICS_BY_RESOURCES_IDS_PROJECT_VERSIONS = "select distinct pvm.metric " +
     		                                                                   "from ProjectVersionMeasurement pvm " +
     		                                                                   "where pvm.projectVersion.id in (:" +
     		                                                                   GET_METRICS_BY_RESOURCES_IDS_PARAM + ") ";
     
-    public static final String GET_METRICS_BY_RESOURCES_IDS_PROJECT_FILES = "select pfm.metric " +
+    public static final String GET_METRICS_BY_RESOURCES_IDS_PROJECT_FILES = "select distinct pfm.metric " +
       		                                                                "from ProjectFileMeasurement pfm " +
     		                                                                "where pfm.projectFile.id in (:" +
     		                                                                GET_METRICS_BY_RESOURCES_IDS_PARAM + ") ";
     
-    public static final String GET_METRICS_BY_RESOURCES_IDS_FILE_GROUPS = "select fgm.metric " +
+    public static final String GET_METRICS_BY_RESOURCES_IDS_FILE_GROUPS = "select distinct fgm.metric " +
     		                                                              "from FileGroupMeasurement fgm " +
     		                                                              "where fgm.fileGroup.id in (:" +
     		                                                              GET_METRICS_BY_RESOURCES_IDS_PARAM + ") ";
