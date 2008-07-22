@@ -80,16 +80,25 @@ long in = 0;
 // Holds the Id of the project that the user has selected (if any)
 Long projectId = null;
 String winVisible = null;
-WinIcon icoCloseWin = null;
 String inputError = null;
 
 //============================================================================
 // Shared icons
 //============================================================================
-// Separator icon
+// Prepare the shared separator icon
 WinIcon icoSeparator = new WinIcon();
 icoSeparator.setImage("/img/icons/16x16/separator.png");
 
+// Prepare the shared close icon
+WinIcon icoCloseWin = new WinIcon();
+icoCloseWin.setPath(request.getServletPath());
+icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
+icoCloseWin.setAlt("Close");
+icoCloseWin.setValue(WinIcon.MINIMIZE);
+
+//============================================================================
+// Local file storage
+//============================================================================
 // Folder relative to this web application's root (deployment) folder, where
 // the application will store all generated temporary files.
 String tempFolderName = "tmp";

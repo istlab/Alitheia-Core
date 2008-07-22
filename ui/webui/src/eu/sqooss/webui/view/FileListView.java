@@ -199,15 +199,14 @@ public class FileListView extends ListView {
                         if ((settings.getShowFileResultsOverview()
                                 && (mnemonics.size() > 0))
                                 && (numFolders == 0)) {
-                            html.append(sp(in++) + "<div id=\"table\" style=\"height: 1%;\">\n"
-                                    + sp(in++) + "<table"
+                            html.append(sp(in++) + "<table class=\"def\""
                                     + " style=\"width: "
-                                    + (30 + mnemonics.size() * 5)
+                                    + (20 + mnemonics.size() * 10)
                                     + "em;\">\n");
                             html.append(sp(in++) + "<thead>\n");
-                            html.append(sp(in++) + "<tr class=\"head\">\n");
-                            html.append(sp(in) + "<td class=\"head\""
-                                    + " style=\"width: 10em;\">"
+                            html.append(sp(in++) + "<tr>\n");
+                            html.append(sp(in) + "<td class=\"def_head\""
+                                    + " style=\"width: 20em;\">"
                                     + "Folder name" + "</td>\n");
                             WinIcon icoClose = new WinIcon();
                             icoClose.setPath(getServletPath());
@@ -219,14 +218,19 @@ public class FileListView extends ListView {
                                     project.getEvaluatedMetrics()
                                         .getMetricByMnemonic(nextMnemonic);
                                 icoClose.setValue(nextMetric.getId().toString());
-                                html.append(sp(in) + "<td class=\"head\""
-                                    + " style=\"width: 5em; padding-left: 0.2em;\""
+                                html.append(sp(in) + "<td class=\"def_head\""
+                                    + " style=\"width: 10em;\""
                                     + " title=\"" 
                                     + nextMetric.getDescription()
                                     + "\""
                                     + ">"
+                                    + "<div class=\"def_head\">"
+                                    + nextMnemonic
+                                    + "<div class=\"def_head_bar\">"
                                     + icoClose.render()
-                                    + nextMnemonic + "</td>\n");
+                                    + "</div>"
+                                    + "</div>"
+                                    + "</td>\n");
                             }
                             html.append(sp(--in) + "</tr>\n");
                             html.append(sp(--in) + "</thead>\n");
@@ -249,8 +253,7 @@ public class FileListView extends ListView {
                 if ((settings.getShowFileResultsOverview())
                         && (mnemonics.size() > 0)
                         && (numFolders > 0)) {
-                    html.append(sp(--in) + "</table>\n"
-                            + sp(--in) + "</div>\n");
+                    html.append(sp(--in) + "</table>\n");
                 }
             }
             // Display all files
@@ -265,16 +268,15 @@ public class FileListView extends ListView {
                         if ((settings.getShowFileResultsOverview()
                                 && (mnemonics.size() > 0))
                                 && (numFiles == 0)) {
-                            html.append(sp(in++) + "<div id=\"table\">\n"
-                                    + sp(in++) + "<table"
+                            html.append(sp(in++) + "<table class=\"def\""
                                     + " style=\"width: "
-                                    + (30 + mnemonics.size() * 5)
+                                    + (20 + mnemonics.size() * 10)
                                     + "em;\">\n");
                             html.append(sp(in++) + "<thead>\n");
-                            html.append(sp(in++) + "<tr class=\"head\">\n");
-                            html.append(sp(in) + "<td class=\"head\""
-                                    + " style=\"width: 10em;\">"
-                                    + "File name" + "</td>\n");
+                            html.append(sp(in++) + "<tr>\n");
+                            html.append(sp(in) + "<td class=\"def_head\""
+                                    + " style=\"width: 20em;\">"
+                                    + "Folder name" + "</td>\n");
                             WinIcon icoClose = new WinIcon();
                             icoClose.setPath(getServletPath());
                             icoClose.setParameter("fvdm");
@@ -285,16 +287,21 @@ public class FileListView extends ListView {
                                     project.getEvaluatedMetrics()
                                         .getMetricByMnemonic(nextMnemonic);
                                 icoClose.setValue(nextMetric.getId().toString());
-                                html.append(sp(in) + "<td class=\"head\""
-                                    + " style=\"width: 5em; padding-left: 0.2em;\""
+                                html.append(sp(in) + "<td class=\"def_head\""
+                                    + " style=\"width: 10em;\""
                                     + " title=\"" 
                                     + nextMetric.getDescription()
                                     + "\""
                                     + ">"
+                                    + "<div class=\"def_head\">"
+                                    + nextMnemonic
+                                    + "<div class=\"def_head_bar\">"
                                     + icoClose.render()
-                                    + nextMnemonic + "</td>\n");
+                                    + "</div>"
+                                    + "</div>"
+                                    + "</td>\n");
                             }
-                            html.append(sp(in++) + "</tr>\n");
+                            html.append(sp(--in) + "</tr>\n");
                             html.append(sp(--in) + "</thead>\n");
                         }
                         numFiles++;
@@ -315,8 +322,7 @@ public class FileListView extends ListView {
                 if ((settings.getShowFileResultsOverview())
                         && (mnemonics.size() > 0)
                         && (numFiles > 0)) {
-                    html.append(sp(--in) + "</table>\n"
-                            + sp(--in) + "</div>\n");
+                    html.append(sp(--in) + "</table>\n");
                 }
             }
         }

@@ -6,15 +6,10 @@
 // List all files in the selected project version
 //============================================================================
 if (selectedProject.isValid()) {
-%>          <div id="fileslist">
+%>                <div id="fileslist">
 <%
-    // Prepare the shared close icon
-    icoCloseWin = new WinIcon();
-    icoCloseWin.setPath(request.getServletPath());
-    icoCloseWin.setImage("/img/icons/16x16/application-exit.png");
-    icoCloseWin.setAlt("Close");
-    icoCloseWin.setValue(WinIcon.MINIMIZE);
-
+    in = 11;
+    // Retrieve information for the selected project, if necessary
     selectedProject.retrieveData(terrier);
     Version selectedVersion = selectedProject.getCurrentVersion();
     if (selectedVersion != null) {
@@ -266,7 +261,6 @@ if (selectedProject.isValid()) {
                 }
 
                 // Sub-views table
-                in += 2;
                 b.append(sp(in++) + "<table>\n");
                 b.append(sp(in++) + "<tr>\n");
                 //============================================================
@@ -345,16 +339,16 @@ if (selectedProject.isValid()) {
                         + selectedVersion.getCurrentDirName());
                     b.append(winFilesList.render(in));
                 }
+                b.append(sp(--in) + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                // Close the sub-views table
+                b.append(sp(--in) + "</table>\n");
             }
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            // Close the sub-views table
-            b.append(sp(--in) + "</table>\n");
             // Display the window
             winFileBrowser.setContent(b.toString());
             winFileBrowser.setTitle("Files in version "
                 + selectedVersion.getNumber());
-            out.print(winFileBrowser.render(6));
+            out.print(winFileBrowser.render(9));
         }
     }
     else
@@ -365,8 +359,9 @@ if (selectedProject.isValid()) {
 // Let the user choose a project, if none was selected
 //============================================================================
 else {
-%>          <div id="projectslist">
+%>                <div id="projectslist">
 <%
+    in = 9;
     // Check if the user has selected a project
     if (request.getParameter("pid") != null)
         ProjectsListView.setCurrentProject(
@@ -386,4 +381,4 @@ else {
                 "Unable to find any evaluated projects."));
     }
 }
-%>          </div>
+%>                </div>

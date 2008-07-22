@@ -64,8 +64,6 @@ a:hover {
 #main {
     margin: 5px 5px 0px 5px;
     padding: 0;
-    /* IE hack serie */
-    height: 1%;
 }
 #content {
     font-size: 12px;

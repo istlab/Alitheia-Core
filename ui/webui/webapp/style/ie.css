@@ -1,0 +1,18 @@
+#main {
+    height: 1%;
+}
+#news,
+#tagcloud,
+#projectslist,
+#metricslist,
+#fileslist,
+#developerslist,
+#loginpage {
+    height: 1%;
+}
+#selectedproject {
+    height: 1%;
+}
+div.winContent {
+    height: 1%;
+}

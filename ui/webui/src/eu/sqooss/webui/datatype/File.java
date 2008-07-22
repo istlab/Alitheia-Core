@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Result;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
@@ -225,13 +224,13 @@ public class File extends AbstractDatatype {
         StringBuilder html = new StringBuilder("");
         html.append("<tr>");
         // File name
-        html.append("<td>");
+        html.append("<td class=\"def\">");
         html.append(getStatusIcon(versionId) + "&nbsp;" + getLink());
         html.append("</td>");
         // File results
         for (String nextMnemonic : mnemonics) {
             Result nextResult = results.get(nextMnemonic);
-            html.append("<td style=\"text-align: right;\">"
+            html.append("<td class=\"def\" style=\"text-align: right;\">"
                     + ((nextResult != null) ? nextResult.getHtml(0) : "N/A")
                     + "</td>");
         }

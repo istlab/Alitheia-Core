@@ -6,6 +6,7 @@
     <title><%= appName + " : " + title %></title>
     <link rel="stylesheet" type="text/css" href="/style/screen.css" />
     <link rel="stylesheet" type="text/css" href="/style/webui.css" />
+    <!--[if IE]><link rel="stylesheet" type="text/css" href="/style/ie.css" /><![endif]-->
   </head>
 
   <body>
