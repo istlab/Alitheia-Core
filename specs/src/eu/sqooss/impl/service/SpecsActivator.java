@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +40,6 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -156,6 +156,12 @@ public class SpecsActivator implements BundleActivator, EventHandler, Runnable {
             return;
         }
 
+        Process selenium = null;
+        try {
+            selenium = new ProcessBuilder("java", "-jar", "../specs/data/selenium-server.jar").start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         try {
             startAlitheia(bundleContext);
         } catch (BundleException e) {
@@ -167,6 +173,7 @@ public class SpecsActivator implements BundleActivator, EventHandler, Runnable {
         } catch (BundleException e) {
             e.printStackTrace();
         }
+        selenium.destroy();
 
         stats.runsCount++;
         if (r.getFailureCount()>0) {

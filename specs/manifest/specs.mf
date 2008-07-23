@@ -12,7 +12,8 @@ Bundle-Classpath: .,
     org.junit-4.4.jar,
     org.concordion-1.2.0.jar,
     org.ognl-2.6.9.jar,
-    nu.xom-1.1.jar
+    nu.xom-1.1.jar,
+    org.openqa.selenium-0.9.81.jar
 Import-Package: org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.db,
