@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.clmt.cache.Cache;
-import org.clmt.cache.CacheException;
 import org.clmt.configuration.Calculation;
 import org.clmt.configuration.Filename;
 import org.clmt.configuration.Source;
@@ -156,7 +155,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         }
         
         /*Add source files to the calculation task*/
-        for(ProjectFile pf : pfs) {
+        for (ProjectFile pf : pfs) {
             s.addFile(new Filename(pf.getFileName()));
         }
         
@@ -168,14 +167,11 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         }
         
         /*Parse files and store them to the parsed file cache*/
-        for (Source source : task.getSource()) {
-            try {
-                cache.add(source);
-            } catch (CacheException ce) {
-                log.warn(ce.getMessage());
-            }
+        if (!task.toIXR()) {
+            log.error("Failed to parse source files");
+            return;
         }
-        
+            
         /*Run metrics against the source files*/
         MetricList mlist = MetricList.getInstance();
         MetricResultList mrlist = new MetricResultList();
