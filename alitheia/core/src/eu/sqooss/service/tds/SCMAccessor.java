@@ -36,6 +36,9 @@ package eu.sqooss.service.tds;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.List;
+
+import eu.sqooss.service.fds.InMemoryDirectory;
 
 public interface SCMAccessor extends NamedAccessor {
     /**
@@ -69,9 +72,9 @@ public interface SCMAccessor extends NamedAccessor {
      * Retrieve a checkout of the complete source tree underneath
      * the given path, relative to the root URL of the project
      * to which this accessor is attached. The checkout is written
-     * to the local path @p localPath .
+     * to the local path localPath .
      *
-     * @p localPath @em must be a directory, or IllegalArgumentException
+     * @p localPath  <em>must</em> be a directory, or IllegalArgumentException
      * will be thrown. It must also exist already.
      *
      * If @p repoPath refers to a file, it is written as a single
@@ -83,6 +86,30 @@ public interface SCMAccessor extends NamedAccessor {
      */
     void getCheckout(String repoPath, ProjectRevision revision, File localPath)
         throws InvalidProjectRevisionException,
+               InvalidRepositoryException,
+               FileNotFoundException;
+    
+    
+    /**
+     * Retrieve an in-memory checkout of the complete source tree underneath the
+     * given path, relative to the root URL of the project to which this
+     * accessor is attached. This type of checkout does not write anything on
+     * disk; instead it creates an in memory representation of the directory
+     * tree that the checkout would have created if the operation used the disk.
+     * 
+     * @param repoPath refers to a file, the whole path up to the file will be
+     *    created in memory. If repoPath refers to a directory, 
+     *    the contents of the directory and its subdirectories are represented in
+     *    memory
+     * 
+     * @param revision The project revision to checkout
+     * 
+     * @return The top level directory representation of the in-memory checkout
+     * structure
+     * 
+     */
+    SCMNode getInMemoryCheckout(String repoPath, ProjectRevision revision) 
+        throws InvalidProjectRevisionException, 
                InvalidRepositoryException,
                FileNotFoundException;
 

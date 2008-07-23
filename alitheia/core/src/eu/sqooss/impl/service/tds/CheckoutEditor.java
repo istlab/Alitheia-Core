@@ -42,8 +42,6 @@ import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.diff.SVNDeltaProcessor;
 import org.tmatesoft.svn.core.io.diff.SVNDiffWindow;
 
-import eu.sqooss.service.fds.InMemoryDirectory;
-
 import eu.sqooss.service.logging.Logger;
 
 public class CheckoutEditor implements ISVNEditor {
@@ -51,7 +49,7 @@ public class CheckoutEditor implements ISVNEditor {
     private File localPath;
     private String repoDir; // Directory path within the repo
     private String repoFilePathName; // Filename below that dir
-    private InMemoryDirectory rootDirectory;
+    
     private SVNDeltaProcessor deltaProcessor;
     public static Logger logger;
 
@@ -60,13 +58,6 @@ public class CheckoutEditor implements ISVNEditor {
         localPath = p;
         deltaProcessor = new SVNDeltaProcessor();
         logger.info("Checkout editor created for r." + r + " in " + p);
-    }
-
-    public CheckoutEditor(long r, InMemoryDirectory dir) {
-        targetRevision = r;
-        rootDirectory = dir;
-        deltaProcessor = new SVNDeltaProcessor();
-        logger.info("Checkout editor created for r." + r + " in " + dir.getPath());
     }
 
     public void targetRevision(long revision) {
@@ -131,8 +122,6 @@ public class CheckoutEditor implements ISVNEditor {
         if (localPath != null ) {
             repoFilePathName = normalisePath(path);
             deltaProcessor.applyTextDelta(null,new File(localPath,repoFilePathName), false);
-        } else if (rootDirectory != null ) {
-            rootDirectory.addFile(path);
         } else {
             logger.error("Tried to checkout to nowhere...");
         }
@@ -140,22 +129,23 @@ public class CheckoutEditor implements ISVNEditor {
     }
 
     public OutputStream textDeltaChunk(String path, SVNDiffWindow w)
-        throws SVNException {
-    	try {
-    		return deltaProcessor.textDeltaChunk(w);
-    	} catch(NullPointerException e) {
-    		return null;
-    	}
+            throws SVNException {
+        try {
+            return deltaProcessor.textDeltaChunk(w);
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
     public void textDeltaEnd(String path) {
-    	try {
-    		deltaProcessor.textDeltaEnd();
-    	} catch(NullPointerException e) {
-    	}
+        try {
+            deltaProcessor.textDeltaEnd();
+        } catch (NullPointerException e) {
+        }
     }
 
     public void closeFile(String path, String checksum) {
+        logger.info("Server closes dir " + path);
     }
 
     public void closeDir() {
@@ -164,13 +154,11 @@ public class CheckoutEditor implements ISVNEditor {
 
     public void deleteEntry(String path, long revision) {
         logger.info("Server deletes " + path);
-        if( localPath != null ) {
+        if (localPath != null) {
             File file = new File(localPath, normalisePath(path));
             file.delete();
-        } else if (rootDirectory != null ) {
-            rootDirectory.deleteFile(path);
         } else {
-            logger.error("Tried to checkout to nowhere...");
+            logger.error("Tried to delete file from nowhere...");
         }
     }
 

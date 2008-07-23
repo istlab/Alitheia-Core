@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.FileForVersion" table="FILE_VERSION_JOIN">
+    <id name="id" column="ID">
+      <generator class="native" />
+    </id>
+    <many-to-one name="version" column="PROJECT_VERSION_ID" not-null="true" cascade="merge"/>
+    <many-to-one name="file" column="PROJECT_FILE_ID" not-null="true" cascade="merge" />
+  </class>
+</hibernate-mapping>

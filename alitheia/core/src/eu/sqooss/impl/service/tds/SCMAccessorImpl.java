@@ -61,6 +61,7 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 
 public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
@@ -503,18 +504,18 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
         }
     }
 
-	public String getSubProjectPath() throws InvalidRepositoryException {
+    public String getSubProjectPath() throws InvalidRepositoryException {
         if (svnRepository == null) {
             connectToRepository();
         }
-        
+
         try {
-			return svnRepository.getRepositoryPath("");
-		} catch (SVNException e) {
+            return svnRepository.getRepositoryPath("");
+        } catch (SVNException e) {
             logger.warn(e.getMessage());
-            throw new InvalidRepositoryException(getName(),url,e.getMessage());
-		}
-	}
+            throw new InvalidRepositoryException(getName(), url, e.getMessage());
+        }
+    }
 
     public HashMap<String, Long> getDir(String dirPath, long revision)
         throws InvalidRepositoryException {
@@ -532,6 +533,57 @@ public class SCMAccessorImpl extends NamedAccessorImpl implements SCMAccessor {
             throw new InvalidRepositoryException(getName(),url,e.getMessage());
         }
         return results;
+    }
+
+    public SCMNode getInMemoryCheckout(String repoPath, ProjectRevision revision)
+            throws InvalidProjectRevisionException, 
+                   InvalidRepositoryException,
+                   FileNotFoundException {
+        if (svnRepository == null) {
+            connectToRepository();
+        }
+        InMemCheckoutEditor.logger = logger;
+        CheckoutBaton.logger = logger;
+
+        logger.info("Checking out project " + getName() + " path <" +
+            repoPath + "> in " + revision + " in memory" );
+
+        long revno = resolveProjectRevision(revision);
+        SVNNodeKind nodeKind;
+        try {
+            nodeKind = svnRepository.checkPath(repoPath, revno);
+        } catch (SVNException e) {
+            throw new FileNotFoundException(repoPath);
+        }
+
+        // Handle the various kinds of nodes that repoPath may refer to
+        if ( (SVNNodeKind.NONE == nodeKind) ||
+                (SVNNodeKind.UNKNOWN == nodeKind) ) {
+            logger.info("Requested path " + repoPath + " does not exist.");
+            throw new FileNotFoundException(repoPath);
+        }
+        if (SVNNodeKind.FILE == nodeKind) {
+            SCMNode node = new SCMNode("/", SCMNodeType.DIR, revno);
+            SCMNode file = new SCMNode(repoPath, SCMNodeType.FILE, revno);
+            node.appendChild(file);
+            return node;
+        }
+        // It must be a directory now.
+        if (SVNNodeKind.DIR != nodeKind) {
+            logger.warn("Node " + repoPath + " has weird type.");
+            throw new FileNotFoundException(repoPath);
+        }
+
+        SCMNode root = new SCMNode("/", SCMNodeType.DIR, revno);
+        ISVNReporterBaton baton = new CheckoutBaton(revno);
+        ISVNEditor editor = new InMemCheckoutEditor(root, revno);
+
+        try {
+            svnRepository.update(revno, "", true, baton, editor);
+        } catch (SVNException e) {
+            throw new InvalidRepositoryException(getName(),url,e.getMessage());
+        }
+        return root;
     }
 }
 

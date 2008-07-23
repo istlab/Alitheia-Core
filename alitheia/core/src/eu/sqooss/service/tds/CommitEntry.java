@@ -4,9 +4,6 @@
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
- *   [[ Individual consortium members may list themselves here;
- *      third parties are to be listed here as well. You must
- *      include a real name and an email address. ]]
  *
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,14 +38,47 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A representation of an entry in the commit log of an SCM system
+ *
+ */
 public interface CommitEntry {
+    
+    /**
+     * Get the project revision / commit hash for the commit entry 
+     */
     ProjectRevision getRevision();
+    
+    /**
+     * Get the username of the person that performed the commit 
+     * 
+     */
     String getAuthor();
+    
+    /**
+     * Get the message attached to the commit
+     */
     String getMessage();
+    
+    /**
+     * Get the date of the commit
+     */
     Date getDate();
+    
+    /**
+     * Get a set of paths that changed by the commit
+     */
     Set<String> getChangedPaths();
+    
+    /**
+     * Get the modification types that were performed on each changed path
+     * by the commit
+     */
     Map<String, PathChangeType> getChangedPathsStatus();
 
+    /**
+     * Get a string representation of the commit
+     */
     String toString();
 }
 

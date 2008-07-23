@@ -124,38 +124,38 @@ public abstract class AbstractView {
 
             // Get the database component's instance
             sobjDB = sobjCore.getDBService();
-            if ((sobjDB != null) && (sobjLogger != null))
-                sobjLogger.debug("Got the database component's instance.");
+            if ((sobjDB == null) && (sobjLogger != null))
+                sobjLogger.debug("Could not get the database component's instance.");
 
             // Get the plug-in admin's instance
             sobjPA = sobjCore.getPluginAdmin();
-            if ((sobjPA != null) && (sobjLogger != null))
-                sobjLogger.debug("Got the plug-in admin's instance.");
+            if ((sobjPA == null) && (sobjLogger != null))
+                sobjLogger.debug("Could not get the plug-in admin's instance.");
 
             // Get the scheduler's instance
             sobjSched = sobjCore.getScheduler();
-            if ((sobjSched != null) && (sobjLogger != null))
-                sobjLogger.debug("Got the scheduler's instance.");
+            if ((sobjSched == null) && (sobjLogger != null))
+                sobjLogger.debug("Could not get the scheduler's instance.");
 
             // Get the metric activator's instance
             compMA = sobjCore.getMetricActivator();
-            if ((compMA != null) && (sobjLogger != null))
-                sobjLogger.debug("Got the metric activator's instance.");
+            if ((compMA == null) && (sobjLogger != null))
+                sobjLogger.debug("Could not get the metric activator's instance.");
 
             // Get the TDS component's instance
             sobjTDS = sobjCore.getTDSService();
-            if ((sobjTDS != null) && (sobjLogger != null))
-                sobjLogger.debug("Got the TDS component's instance.");
+            if ((sobjTDS == null) && (sobjLogger != null))
+                sobjLogger.debug("Could not get the TDS component's instance.");
 
             // Get the updater component's instance
             sobjUpdater = sobjCore.getUpdater();
-            if ((sobjUpdater != null) && (sobjLogger != null))
-                sobjLogger.debug("Got the updater component's instance.");
+            if ((sobjUpdater == null) && (sobjLogger != null))
+                sobjLogger.debug("Could not get the updater component's instance.");
 
             // Get the security manager's instance
             sobjSecurity = sobjCore.getSecurityManager();
-            if ((sobjSecurity != null) && (sobjLogger != null))
-                sobjLogger.debug("Got the security manager's instance.");
+            if ((sobjSecurity == null) && (sobjLogger != null))
+                sobjLogger.debug("Could not get the security manager's instance.");
         }
     }
 

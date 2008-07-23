@@ -33,9 +33,12 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import org.apache.commons.collections.LRUMap;
 
@@ -47,9 +50,12 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.Tag;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -57,7 +63,9 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
+import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
@@ -69,7 +77,14 @@ class SourceUpdater extends Job {
     private DBService dbs;
     private Logger logger;
     private MetricActivator ma;
-
+    private Scheduler sched;
+    private AlitheiaCore core;
+    
+    /**
+     * Store jobs started by this Job 
+     */
+    private Vector<Job> dependedJobs;
+    
     public SourceUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
         if ((project == null) || (core == null) || (logger == null)) {
@@ -83,7 +98,10 @@ class SourceUpdater extends Job {
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
         this.ma = core.getMetricActivator();
+        this.sched = core.getScheduler();
+        this.core = core;
 
+        this.dependedJobs = new Vector<Job>();
     }
 
     public int priority() {
@@ -110,9 +128,13 @@ class SourceUpdater extends Job {
         Set<Long> updFiles = new TreeSet<Long>();
 
         // Avoid Hibernate thrashing by caching frequently accessed objects
-        LRUMap devCache = new LRUMap(500);
-        LRUMap dirCache = new LRUMap(1000);
+        LRUMap devCache = new LRUMap(100);
+        LRUMap dirCache = new LRUMap(100);
 
+        /* Store version ids to be processed by fillFileForVersion */
+        List<Long> latestVersionIDs = new ArrayList<Long>();
+        
+        
         logger.info("Running source update for project " + project.getName() + " ID " + project.getId());
         long ts = System.currentTimeMillis();
         try {
@@ -173,6 +195,8 @@ class SourceUpdater extends Job {
                 // (especially as we used getLastProjectVersion above)
                 dbs.addRecord(curVersion);
                 updProjectVersions.add(curVersion.getId());
+                latestVersionIDs.add(curVersion.getId());
+                
                 logger.debug("Got version " + curVersion.getVersion() + " ID " + curVersion.getId());
 
                 for(String chPath: entry.getChangedPaths()) {
@@ -253,11 +277,15 @@ class SourceUpdater extends Job {
 
                 numRevisions ++;
 
-                /*Cleanup for huge projects*/
+                /*Clean up*/
                 if (numRevisions % 200 == 0) {
                     logger.info("Commited 200 revisions");
+                    devCache.clear();
+                    dirCache.clear();
                     dbs.commitDBSession();
                     dbs.startDBSession();
+                    //fillFilesForVersion(latestVersionIDs);
+                    latestVersionIDs.clear();
                 }
             }
             logger.info("Processed " + numRevisions + " revisions");
@@ -269,13 +297,27 @@ class SourceUpdater extends Job {
             throw e;
         } finally {
             if (newVersion) {
+                dbs.commitDBSession();
+                
+                /* fillFilesForVersion(latestVersionIDs);
+                
+                 Run over all jobs and wait for all to finish 
+                 * FIXME: this might cause deadlocks when 
+                 * num_update_jobs == num_worker_threads
+                 * 
+                for(Job j : dependedJobs) {
+                    if (j.state() == State.Queued || j.state() == State.Running) {
+                        j.waitForFinished();
+                    }
+                } */
+                
                 logger.info(project.getName() + ": Time to process entries: "
                         + (int) ((System.currentTimeMillis() - ts) / 1000));
-                dbs.commitDBSession();
 
                 ma.runMetrics(updProjectVersions, ProjectVersion.class);
                 ma.runMetrics(updFiles, ProjectFile.class);
             }
+            
             updater.removeUpdater(
                     project.getName(),
                     UpdaterService.UpdateTarget.CODE);
@@ -361,6 +403,55 @@ class SourceUpdater extends Job {
                 return false;
 
         return true;
+    }
+    
+    /**
+     * 
+     */
+    private void fillFilesForVersion(List<Long> toProcess) {
+        Iterator<Long> i = toProcess.iterator();
+        
+        while(i.hasNext()) {
+            Long projectVersion = i.next();
+            FilesForVersionJob ffv = new FilesForVersionJob(projectVersion, core);
+            dependedJobs.add(ffv);
+            try {
+                sched.enqueue(ffv);
+            } catch (SchedulerException e) {
+                logger.error("Error scheduling FilesForVersion table update job" 
+                        + e.getMessage());
+            }
+        }
+    }
+    
+    private class FilesForVersionJob extends Job {
+
+        private long versionID;
+        private AlitheiaCore core; 
+        
+        public FilesForVersionJob(long versionID, AlitheiaCore core) {
+            this.versionID = versionID;
+            this.core = core;
+        }
+        
+        @Override
+        public int priority() {
+            return 0xfda;
+        }
+
+        @Override
+        protected void run() throws Exception {
+            DBService dbs = core.getDBService();
+            TDSService tds = core.getTDSService();
+            
+            dbs.startDBSession();
+            ProjectVersion pv = dbs.findObjectById(ProjectVersion.class, versionID);
+            SCMAccessor scm = tds.getAccessor(pv.getProject().getId()).getSCMAccessor();
+            SCMNode root = scm.getInMemoryCheckout("/", new ProjectRevision(pv.getVersion()));
+            
+            System.err.println("FilesForVersionJob: Processing revision:" + pv.getVersion());
+            dbs.commitDBSession();
+        }
     }
 }
 

@@ -68,6 +68,7 @@
         <mapping resource="eu/sqooss/service/db/Directory.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/EvaluationMark.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/FileForVersion.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>
