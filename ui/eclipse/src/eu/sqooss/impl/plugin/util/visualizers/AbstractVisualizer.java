@@ -61,33 +61,26 @@ abstract class AbstractVisualizer implements Visualizer {
     }
     
     /**
-     * @see eu.sqooss.impl.plugin.util.visualizers.Visualizer#setValue(java.lang.Long, eu.sqooss.ws.client.datatypes.WSResultEntry[])
+     * @see eu.sqooss.impl.plugin.util.visualizers.Visualizer#setValue(java.lang.Long, eu.sqooss.ws.client.datatypes.WSResultEntry)
      */
-    public void setValue(Long version, WSResultEntry[] data) {
+    public void setValue(Long version, WSResultEntry data) {
         List<WSResultEntry> storedData = values.get(version);
         if (storedData == null) {
             storedData = new ArrayList<WSResultEntry>();
-            for (WSResultEntry entry : data) {
-                storedData.add(entry);
-            }
+            storedData.add(data);
             values.put(version, storedData);
         } else {
             boolean found = false;
-            List<WSResultEntry> missingEntries = new ArrayList<WSResultEntry>();
-            for (WSResultEntry currentEntry : data) {
-                for (WSResultEntry currentStoredEntry : storedData) {
-                    if ((currentEntry.getMnemonic().equals(currentStoredEntry.getMnemonic())) &&
-                            (currentEntry.getDaoId() == currentStoredEntry.getDaoId())) {
-                        found = true;
-                        break;
-                    }
+            for (WSResultEntry currentStoredEntry : storedData) {
+                if ((data.getMnemonic().equals(currentStoredEntry.getMnemonic())) &&
+                        (data.getDaoId() == currentStoredEntry.getDaoId())) {
+                    found = true;
+                    break;
                 }
-                if (!found) {
-                    missingEntries.add(currentEntry);
-                }
-                found = false;
             }
-            storedData.addAll(missingEntries);
+            if (!found) {
+                storedData.add(data);
+            }
         }
         loadData(version);
     }

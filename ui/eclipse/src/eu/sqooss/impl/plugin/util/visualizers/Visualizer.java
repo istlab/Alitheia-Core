@@ -56,7 +56,7 @@ public interface Visualizer {
      * @param version - version value
      * @param data - data value
      */
-    public void setValue(Long version, WSResultEntry[] data);
+    public void setValue(Long version, WSResultEntry data);
     
     /**
      * Removes the result entries from the metric.

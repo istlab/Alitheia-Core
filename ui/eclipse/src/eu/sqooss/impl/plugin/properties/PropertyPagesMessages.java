@@ -86,6 +86,7 @@ public class PropertyPagesMessages extends NLS {
     public static String QualityPropertyPage_Button_Compare;
     public static String QualityPropertyPage_Message_Error_Missing_Entity;
     public static String QualityPropertyPage_Message_Error_Missing_Metrics;
+    public static String QualityPropertyPage_Combo_Compare_Version_Interval;
     
     //ProfilePropertyPage's messages
     public static String ProfilePropertyPage_Label_Profile_Name;

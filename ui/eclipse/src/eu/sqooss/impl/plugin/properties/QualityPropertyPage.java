@@ -32,11 +32,16 @@
 
 package eu.sqooss.impl.plugin.properties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -55,8 +60,15 @@ import eu.sqooss.plugin.util.Entity;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
-public class QualityPropertyPage extends AbstractQualityPropertyPage implements SelectionListener, Listener {
+public class QualityPropertyPage extends AbstractQualityPropertyPage
+                                 implements SelectionListener,
+                                            Listener,
+                                            TraverseListener {
 
+    private static final char INTERVAL_DELIMITER = '-';
+    private static final String VERSION_PREFIX = "ver. ";
+    private static final String VERSION_CURRENT_POSTFIX = " (configured)";
+    
     private Composite parent;
     private Entity entity;
     private Visualizer visualizer;
@@ -72,12 +84,13 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
         mainControl = (Composite) super.createContents(parent);
         buttonCompareVersion.addSelectionListener(this);
         comboCompareVersion.addSelectionListener(this);
+        comboCompareVersion.addTraverseListener(this);
         comboMetric.addSelectionListener(this);
         comboMetric.addListener(SWT.MouseDown, this);
         comboMetric.addListener(SWT.MouseUp, this);
         parent.forceFocus();
         enableIfPossible();
-        processResult(false);
+        processSelectedResult(false);
         return mainControl;
     }
 
@@ -91,10 +104,20 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     }
 
     /**
+     * @see org.eclipse.swt.events.TraverseListener#keyTraversed(org.eclipse.swt.events.TraverseEvent)
+     */
+    public void keyTraversed(TraverseEvent e) {
+        e.doit = e.keyCode != SWT.CR; // vetoes all CR traversals
+    }
+
+    /**
      * @see org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse.swt.events.SelectionEvent)
      */
     public void widgetDefaultSelected(SelectionEvent e) {
-        //do nothing
+        Object eventSource = e.getSource();
+        if (eventSource == comboCompareVersion) {
+            processIntervalResult();
+        }
     }
 
     /**
@@ -108,16 +131,21 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
             comboCompareVersion.deselectAll();
             this.visualizer.close();
             this.visualizer = null;
-            processResult(false);
+            processSelectedResult(false);
         } else if (eventSource == configurationLink) {
             IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer)getContainer();
             container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
         } else if (eventSource == comboMetric) {
             comboCompareVersion.deselectAll();
             boolean isSame = comboMetric.getSelectionIndex() == selectedMetricIndex;
-            processResult(isSame && !isClearedMetricResult);
+            processSelectedResult(isSame && !isClearedMetricResult);
         } else if (eventSource == comboCompareVersion) {
-            processResult(false);
+            if (PropertyPagesMessages.QualityPropertyPage_Combo_Compare_Version_Interval.
+                    equals(comboCompareVersion.getText())) {
+                comboCompareVersion.setText("");
+            } else {
+                processSelectedResult(false);
+            }
         }
     }
     
@@ -139,7 +167,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
                 configurationLink = null;
                 parent.layout();
             }
-            processResult(false);
+            processSelectedResult(false);
         }else {
             if (configurationLink == null) {
                 //add configuration link
@@ -179,13 +207,19 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
         }
         Long[] versions = this.entity.getVersions();
         if ((versions != null) && (versions.length != 0)) {
+            comboCompareVersion.add(
+                    PropertyPagesMessages.QualityPropertyPage_Combo_Compare_Version_Interval);
             Long currentVersion;
             for (int i = 0; i < versions.length; i++) {
                 currentVersion = versions[i];
-                currentItem  = "ver. " + currentVersion;
+                currentItem  = VERSION_PREFIX + currentVersion;
                 comboCompareVersion.add(currentItem, i);
                 comboCompareVersion.setData(Integer.toString(i), currentVersion);
             }
+            comboCompareVersion.add(VERSION_PREFIX +
+                    this.entity.getCurrentVersion() + VERSION_CURRENT_POSTFIX, versions.length);
+            comboCompareVersion.setData(Integer.toString(versions.length),
+                    this.entity.getCurrentVersion());
         } else {
             buttonCompareVersion.setEnabled(false);
         }
@@ -217,24 +251,94 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage implements 
     /*
      * The method is used by the result visualization.
      */
-    private void processResult(boolean clearResult) {
+    private void processSelectedResult(boolean clearResult) {
         if (controlEnableState != null) return; //the control is disabled
         setVisualizer();
         int selectedIndex = comboCompareVersion.getSelectionIndex();
-        Long selectedVersion = (selectedIndex == -1) ?
-                this.entity.getCurrentVersion() :
-                    (Long) comboCompareVersion.getData(Integer.toString(selectedIndex));
+        Long[] selectedVersions;
+        if (selectedIndex == -1) {
+            selectedVersions = new Long[] {this.entity.getCurrentVersion()};
+        } else {
+            selectedVersions = new Long[] {
+                    (Long) comboCompareVersion.getData(Integer.toString(selectedIndex))};
+            if (selectedVersions[0] == null) return;
+        }
+        if (clearResult) {
+            visualizeResult(null, true);
+        } else {
+            visualizeResult(selectedVersions, false);
+        }
+        this.isClearedMetricResult = clearResult;
+    }
+    
+    private void processIntervalResult() {
+        String range = comboCompareVersion.getText().trim();
+        int delimiterFirstIndex = range.indexOf(INTERVAL_DELIMITER);
+        int delimiterLastIndex = range.lastIndexOf(INTERVAL_DELIMITER);
+        if ((delimiterFirstIndex == -1) ||
+                (delimiterFirstIndex != delimiterLastIndex)) return;
+        Long[] selectedVersions;
+        long fromVersion;
+        long toVersion;
+        try {
+            fromVersion = Long.valueOf(range.substring(0, delimiterFirstIndex)).longValue();
+        } catch (Exception e) {
+            fromVersion = -1;
+        }
+        try {
+            toVersion = Long.valueOf(range.substring(delimiterFirstIndex + 1, range.length())).longValue();
+        } catch (Exception e) {
+            toVersion = -1;
+        }
+        
+        boolean isFirstDelimiter = delimiterFirstIndex == 0;
+        boolean isLastDelimiter = delimiterFirstIndex == (range.length() - 1);
+        if (((isLastDelimiter && (fromVersion == -1)) ||   //invalid  "X-"
+                (isFirstDelimiter && (toVersion == -1)) || //invalid "-Y"
+                (((fromVersion == -1) || (toVersion == -1)) && !isFirstDelimiter && !isLastDelimiter))//invalid "X-Y"
+                && (range.length() != 1)) {
+            visualizeResult(null, true);
+            return;
+        }
+        selectedVersions = getVersions(fromVersion, toVersion);
+        visualizeResult(selectedVersions, true);
+    }
+    
+    private void visualizeResult(Long[] versions, boolean clearResult) {
         String metricKey = Integer.toString(comboMetric.getSelectionIndex());
         WSMetric metric = (WSMetric) comboMetric.getData(metricKey);
         if (clearResult) {
             this.visualizer.removeMetricValues(metric.getMnemonic());
-        } else {
-            WSResultEntry[] result = this.entity.getMetricsResults(new WSMetric[] {metric},
-                    selectedVersion);
-            this.visualizer.setValue(selectedVersion, result);
-            this.visualizer.open();
         }
-        this.isClearedMetricResult = clearResult;
+        if ((versions == null) || (versions.length == 0)) return;
+        WSResultEntry[] result = this.entity.getMetricsResults(
+                new WSMetric[] {metric}, versions);
+        for (WSResultEntry currentEntry : result) {
+            this.visualizer.setValue(Long.valueOf(this.entity.getVersionById(currentEntry.getDaoId())),
+                    currentEntry);
+        }
+        this.visualizer.open();
+    }
+    
+    private Long[] getVersions(long fromVersion, long toVersion) {
+        if (toVersion < 0) toVersion = Long.MAX_VALUE;
+        if (fromVersion > toVersion) {
+            long tmp = fromVersion;
+            fromVersion = toVersion;
+            toVersion = tmp;
+        }
+        List<Long> selectedVersions = new ArrayList<Long>();
+        Long[] entityVersions = this.entity.getVersions();
+        for (Long version : entityVersions) {
+            if ((fromVersion <= version) && (version <= toVersion)) {
+                selectedVersions.add(version);
+            }
+        }
+        if ((fromVersion <= this.entity.getCurrentVersion().longValue()) &&
+                (toVersion >= this.entity.getCurrentVersion().longValue())) {
+            selectedVersions.add(this.entity.getCurrentVersion());
+        }
+        return selectedVersions.toArray(new Long[selectedVersions.size()]);
     }
     
     private void setVisualizer() {

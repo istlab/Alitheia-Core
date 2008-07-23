@@ -34,6 +34,7 @@ package eu.sqooss.impl.plugin.util;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,25 +114,29 @@ public class ProjectFileEntity implements Entity {
                 getProjectVersionNum());
     }
     
-    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long version) {
+    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long[] versions) {
         List<WSResultEntry> result = new ArrayList<WSResultEntry>();
         List<WSMetric> missingMetrics = new ArrayList<WSMetric>();
         WSResultEntry currentResultEntry;
         for (WSMetric metric : metrics) {
-            currentResultEntry = this.resultEntries.get(version, metric.getMnemonic());
-            if (currentResultEntry == null) {
-                missingMetrics.add(metric);
-            } else {
-                result.add(currentResultEntry);
+            for (Long version : versions) {
+                currentResultEntry = this.resultEntries.get(version, metric.getMnemonic());
+                if (currentResultEntry == null) {
+                    missingMetrics.add(metric);
+                } else {
+                    result.add(currentResultEntry);
+                }
             }
         }
         if (!missingMetrics.isEmpty()) {
             initResultEntries((WSMetricAccessor) session.getAccessor(
-                    WSAccessor.Type.METRIC), metrics, version);
+                    WSAccessor.Type.METRIC), metrics, versions);
             for (WSMetric metric : missingMetrics) {
-                currentResultEntry = this.resultEntries.get(version, metric.getMnemonic());
-                if (currentResultEntry != null) {
-                    result.add(currentResultEntry);
+                for (Long version : versions) {
+                    currentResultEntry = this.resultEntries.get(version, metric.getMnemonic());
+                    if (currentResultEntry != null) {
+                        result.add(currentResultEntry);
+                    }
                 }
             }
         }
@@ -139,17 +144,40 @@ public class ProjectFileEntity implements Entity {
         return result.toArray(arrayResult);
     }
     
-    private void initResultEntries(WSMetricAccessor metricAccessor,
-            WSMetric[] metrics, Long version) {
-        WSMetricsResultRequest resultRequest = new WSMetricsResultRequest();
-        if (currentFileModification.getProjectVersionNum() == version.longValue()) {
-            resultRequest.setDaObjectId(
-                    new long[] {currentFileModification.getProjectFileId()});
-        } else {
-            WSFileModification fileModif = fileModifications.get(version);
-            resultRequest.setDaObjectId(
-                    new long[] {fileModif.getProjectFileId()});
+    public long getVersionById(long id) {
+        if (id == this.currentFileModification.getProjectFileId()) {
+            return this.currentFileModification.getProjectVersionNum();
         }
+        Iterator<Long> keys = this.fileModifications.keySet().iterator();
+        Long currentKey;
+        while (keys.hasNext()) {
+            currentKey = keys.next();
+            if (id == this.fileModifications.get(currentKey).getProjectFileId()) {
+                return this.fileModifications.get(currentKey).getProjectVersionNum();
+            }
+        }
+        throw new IllegalArgumentException("The version is not valid!");
+    }
+
+    private void initResultEntries(WSMetricAccessor metricAccessor,
+            WSMetric[] metrics, Long[] versions) {
+        WSMetricsResultRequest resultRequest = new WSMetricsResultRequest();
+        Hashtable<Long, Long> daoVersions = new Hashtable<Long, Long>();
+        long[] daoIds = new long[versions.length];
+        for (int i = 0; i < versions.length; i++) {
+            if (currentFileModification.getProjectVersionNum() == versions[i].longValue()) {
+                daoIds[i] = currentFileModification.getProjectFileId();
+                daoVersions.put(Long.valueOf(currentFileModification.getProjectFileId()),
+                        Long.valueOf(currentFileModification.getProjectVersionNum()));
+                        
+            } else {
+                WSFileModification fileModif = fileModifications.get(versions[i]);
+                daoIds[i] = fileModif.getProjectFileId();
+                daoVersions.put(Long.valueOf(fileModif.getProjectFileId()),
+                        Long.valueOf(fileModif.getProjectVersionNum()));
+            }
+        }
+        resultRequest.setDaObjectId(daoIds);
         resultRequest.setProjectFile(true);
         String[] metricsMnemonics = new String[metrics.length];
         for (int i = 0; i < metricsMnemonics.length; i++) {
@@ -159,7 +187,7 @@ public class ProjectFileEntity implements Entity {
         try {
             WSResultEntry[] resultEntries = metricAccessor.getMetricsResult(resultRequest);
             for (WSResultEntry entry : resultEntries) {
-                this.resultEntries.put(version, entry);
+                this.resultEntries.put(daoVersions.get(entry.getDaoId()), entry);
             }
         } catch (WSException wse) {
             //nothing to do here

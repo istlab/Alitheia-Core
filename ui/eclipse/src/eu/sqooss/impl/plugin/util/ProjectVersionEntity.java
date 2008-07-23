@@ -80,9 +80,14 @@ public class ProjectVersionEntity implements Entity {
         return null;
     }
 
-    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long version) {
+    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long[] versions) {
         // TODO: Implement
         return null;
+    }
+
+    public long getVersionById(long id) {
+        // TODO: Implement
+        return 0;
     }
     
 }

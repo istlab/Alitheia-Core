@@ -94,7 +94,7 @@ class AbstractQualityPropertyPage extends EnabledPropertyPage {
         buttonCompareVersion = new Button(secondSectionComposite, SWT.CHECK);
         buttonCompareVersion.setText(PropertyPagesMessages.QualityPropertyPage_Button_Compare);
         setLayoutData(buttonCompareVersion, 2, false, false);
-        comboCompareVersion = new Combo(secondSectionComposite, SWT.READ_ONLY | SWT.DROP_DOWN);
+        comboCompareVersion = new Combo(secondSectionComposite, SWT.DROP_DOWN);
         setLayoutData(comboCompareVersion, 1, true, false);
         comboCompareVersion.setEnabled(false);
         

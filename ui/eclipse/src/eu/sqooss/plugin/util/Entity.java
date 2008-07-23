@@ -53,17 +53,34 @@ public interface Entity {
     public WSMetric[] getMetrics();
     
     /**
+     * The method return the entity's versions without the current.
+     * 
      * @return the entity's versions
      */
     public Long[] getVersions();
     
+    /**
+     * Different versions of the entity have a unique identifier.
+     * 
+     * @param id - the version identifier
+     * 
+     * @return the version number
+     */
+    public long getVersionById(long id);
+    
+    /**
+     * The method returns the entity version.
+     * 
+     * @return the entity version
+     */
     public Long getCurrentVersion();
     
     /**
      * @param metrics - specifies the Alitheia metrics
+     * @param versions - specifies the versions
      * @return - the quality result for the entity 
      */
-    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long version);
+    public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long[] versions);
     
 }
 
