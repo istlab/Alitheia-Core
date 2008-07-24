@@ -303,7 +303,8 @@ public class ConnectionUtils {
     }
     
     public Entity getEntity(IResource resource) {
-        switch (resource.getType()) {
+        int resourceType = resource.getType();
+        switch (resourceType) {
         case IResource.PROJECT : {
             return new ProjectVersionEntity(storedProject,
                     storedProjectVersion);
@@ -324,12 +325,16 @@ public class ConnectionUtils {
             }
             if (files.length == 0) {
                 errorMessage = "The file does not exist!";
-                return null;
             } else {
-                //TODO: in case of more files, choose the first - improve
-                return new ProjectFileEntity(
-                        storedProjectVersion, files[0], wsSession);
+                for (WSProjectFile file : files) {
+                    if ((file.getDirectory() && (resourceType == IResource.FOLDER)) ||
+                            (!file.getDirectory() && (resourceType == IResource.FILE))) {
+                        return new ProjectFileEntity(
+                                storedProjectVersion, file, wsSession);
+                    }
+                }
             }
+            return null;
         }
         default : return null;
         }
