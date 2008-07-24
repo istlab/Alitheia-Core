@@ -57,6 +57,7 @@ import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
 import eu.sqooss.webui.datatype.Developer;
+import eu.sqooss.webui.util.DevelopersList;
 
 /**
  * The class <code>DevelopersResultView</code> renders an HTML sequence that
@@ -115,7 +116,7 @@ public class DevelopersResultView extends ListView {
                     MetricActivator.DEVELOPER,
                     MetricType.PROJECT_WIDE).values();
         // Holds the list of currently selected developers in the main project
-        Map<Long, Developer> developers = project.getSelectedDevelopers();
+        DevelopersList developers = project.getSelectedDevelopers();
 
         if (developers.isEmpty()) {
             b.append(sp(in) + Functions.warning(
@@ -127,7 +128,7 @@ public class DevelopersResultView extends ListView {
         }
         else {
             // Retrieve any missing results per developer, if necessary
-            for (Developer nextDeveloper : developers.values()) {
+            for (Developer nextDeveloper : developers) {
                 nextDeveloper.setTerrier(this.terrier);
                 nextDeveloper.getResults(mnemonics);
             }
@@ -198,7 +199,7 @@ public class DevelopersResultView extends ListView {
     }
 
     public String tableChart(
-            long in, String mnemonic, Map<Long, Developer> developers) {
+            long in, String mnemonic, DevelopersList developers) {
         // Holds the accumulated HTML content
         StringBuilder b = new StringBuilder("");
         //------------------------------------------------------------
@@ -217,7 +218,7 @@ public class DevelopersResultView extends ListView {
         //------------------------------------------------------------
         // Display the metric's result for each developer
         //------------------------------------------------------------
-        for (Developer nextDeveloper : developers.values()) {
+        for (Developer nextDeveloper : developers) {
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in) + "<td class=\"name\">"
                     + nextDeveloper.getUsername()
@@ -237,12 +238,12 @@ public class DevelopersResultView extends ListView {
     }
 
     public String pieChart(
-            long in, String mnemonic, Map<Long, Developer> developers) {
+            long in, String mnemonic, DevelopersList developers) {
         DefaultPieDataset data = new DefaultPieDataset();
         JFreeChart chart;
         // Retrieve the chart values
         Map<String, Double> values = new HashMap<String, Double>();
-        for (Developer nextDeveloper : developers.values()) {
+        for (Developer nextDeveloper : developers) {
             Result result =
                 nextDeveloper.getResults().get(mnemonic);
             if (result != null) {
@@ -277,12 +278,12 @@ public class DevelopersResultView extends ListView {
     }
 
     public String barChart(
-            long in, String mnemonic, Map<Long, Developer> developers) {
+            long in, String mnemonic, DevelopersList developers) {
         DefaultCategoryDataset data = new DefaultCategoryDataset();
         JFreeChart chart;
         // Retrieve the chart values
         Map<String, Double> values = new HashMap<String, Double>();
-        for (Developer nextDeveloper : developers.values()) {
+        for (Developer nextDeveloper : developers) {
             Result result =
                 nextDeveloper.getResults().get(mnemonic);
             if (result != null) {

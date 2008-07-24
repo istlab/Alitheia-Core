@@ -33,8 +33,10 @@
 
 package eu.sqooss.webui.view;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.SortedMap;
 
 import eu.sqooss.webui.Functions;
@@ -44,6 +46,7 @@ import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.Metric.MetricType;
+import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.webui.datatype.File;
 
 /**
@@ -54,14 +57,30 @@ import eu.sqooss.webui.datatype.File;
  * revision.
  */
 public class VerboseFileView extends ListView {
-    /** Holds the project object. */
+    /*
+     * Hold the selected project's object.
+     */
     private Project project;
 
     /*
-     * Holds the Id of the file whose information will be used in the view's
-     * rendering.
+     * Holds the selected file's Id.
      */
     private Long fileId;
+
+    /*
+     * Holds the selected file's object.
+     */
+    private File selFile = null;
+
+    /*
+     * Holds the list of metrics that were evaluated on the selected file.
+     */
+    private Collection<String> mnemonics = null;
+
+    /*
+     * Holds the evaluation results for the selected file.
+     */
+    HashMap<String, Result> results = new HashMap<String, Result>();
 
     /*
      * Holds the file's version number against which the results comparison
@@ -95,6 +114,25 @@ public class VerboseFileView extends ListView {
         this.compareToVersion = versionNumber;
     }
 
+    public void attachSelectedFile () {
+        // Retrieve the selected file's object
+        if (fileId != null)
+            selFile = project.getCurrentVersion().getFile(fileId);
+        // Retrieve the selected file's results
+        if (selFile != null) {
+            selFile.setTerrier(this.terrier);
+            if (selFile.getIsDirectory())
+                mnemonics = project.getEvaluatedMetrics().getMetricMnemonics(
+                        MetricActivator.PROJECTFILE,
+                        MetricType.SOURCE_FOLDER).values();
+            else
+                mnemonics = project.getEvaluatedMetrics().getMetricMnemonics(
+                        MetricActivator.PROJECTFILE,
+                        MetricType.SOURCE_CODE).values();
+            results = selFile.getResults(mnemonics);
+        }
+    }
+
     /* (non-Javadoc)
      * @see eu.sqooss.webui.ListView#getHtml(long)
      */
@@ -103,38 +141,17 @@ public class VerboseFileView extends ListView {
             return(sp(in) + Functions.error("Invalid project!"));
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
-        // Holds the list of currently selected metrics
-        Collection<String> mnemonics = null;
-        // Holds the currently selected file's object
-        File selFile = null;
-        // Holds the evaluation results for the currently selected file
-        HashMap<String, Result> selFileResults = new HashMap<String, Result>();
-
-        // Retrieve the selected file's object
-        if (fileId != null)
-            selFile = project.getCurrentVersion().getFile(fileId);
-        // Retrieve the selected file's results
-        if (selFile != null) {
-            selFile.setTerrier(this.terrier);
-            if (selFile.getIsDirectory())
-                mnemonics = project.getSelectedMetrics().getMetricMnemonics(
-                        MetricActivator.PROJECTFILE,
-                        MetricType.SOURCE_FOLDER).values();
-            else
-                mnemonics = project.getSelectedMetrics().getMetricMnemonics(
-                        MetricActivator.PROJECTFILE,
-                        MetricType.SOURCE_CODE).values();
-            selFileResults = selFile.getResults(mnemonics);
-        }
+        // Load the selected file's data
+        attachSelectedFile();
 
         if (selFile == null) {
             b.append(sp(in) + Functions.error("File/folder not found!"));
         }
-        else if (selFileResults.isEmpty()) {
+        else if (results.isEmpty()) {
             b.append(sp(in) + Functions.warning("No evaluation result."));
         }
         else if (mnemonics.isEmpty()) {
-            b.append(sp(in) + Functions.warning("No selected metrics."));
+            b.append(sp(in) + Functions.warning("No evaluated metrics."));
         }
         else {
             // Retrieve the selected file's version and name
@@ -299,8 +316,8 @@ public class VerboseFileView extends ListView {
                         + metric.getDescription()
                         + "</td>\n");
                 b.append(sp(in) + "<td>"
-                        + ((selFileResults.containsKey(mnemonic))
-                                ? selFileResults.get(mnemonic).getString()
+                        + ((results.containsKey(mnemonic))
+                                ? results.get(mnemonic).getString()
                                 : "N/A")
                         + "</td>\n");
                 // Display the comparison cell (if a comparison was requested)
@@ -319,4 +336,103 @@ public class VerboseFileView extends ListView {
         return b.toString();
     }
 
+    public String getFileInfo (long in) {
+        if ((project == null) || (project.isValid() == false))
+            return(sp(in) + Functions.error("Invalid project!"));
+        // Load the selected file's data
+        attachSelectedFile();
+        // Hold the accumulated HTML content
+        StringBuilder b = new StringBuilder("");
+
+        if (selFile == null) {
+            b.append(sp(in) + Functions.error("File/folder not found!"));
+        }
+        else {
+            b.append(sp(in++) + "<table>\n");
+
+            // File name
+            b.append(sp(in) + "<tr>"
+                    + "<td><b>Name</b></td>"
+                    + "<td>" + selFile.getShortName() + "</td>"
+                    + "</tr>\n");
+
+            // Version number
+            b.append(sp(in) + "<tr>"
+                    + "<td><b>Version</b></td>"
+                    + "<td>" + project.getCurrentVersion().getNumber() + "</td>"
+                    + "</tr>\n");
+
+            // Developer name
+            Developer commiter = project.getDevelopers().getDeveloperById(
+                    project.getCurrentVersion().getCommitterId());
+            b.append(sp(in) + "<tr>"
+                    + "<td><b>Commiter</b></td>"
+                    + "<td>" + commiter.getUsername() + "</td>"
+                    + "</tr>\n");
+
+            b.append(sp(--in) + "</table>\n");
+        }
+
+        return b.toString();
+    }
+
+    public String getFileControls (long in) {
+        if ((project == null) || (project.isValid() == false))
+            return(sp(in) + Functions.error("Invalid project!"));
+        // Load the selected file's data
+        attachSelectedFile();
+        // Hold the accumulated HTML content
+        StringBuilder b = new StringBuilder("");
+
+        if (selFile == null) {
+            b.append(sp(in) + Functions.error("File/folder not found!"));
+        }
+        else {
+            //----------------------------------------------------------------
+            // Display the list of metrics evaluated on this file
+            //----------------------------------------------------------------
+            b.append(sp(in++) + "<div class=\"vfvmid\">\n");
+            b.append(sp(in) + "<div class=\"vfvtitle\">Metrics</div>\n");
+            b.append(sp(in++) + "<select class=\"vfvmid\""
+                    + " name=\"vfvmid\""
+                    + " multiple"
+                    + " size=\"5\""
+                    + ((results.isEmpty()) ? " disabled" : "")
+                    + ">\n");
+            for (String mnemonic : results.keySet()) {
+                Metric metric = project.getEvaluatedMetrics()
+                    .getMetricByMnemonic(mnemonic);
+                if (metric != null)
+                    b.append(sp(in) + "<option class=\"vfvmid\""
+                            + " value=\"" + metric.getId() + "\">"
+                            + "" + mnemonic
+                            + "</option>\n");
+            }
+            b.append(sp(--in) + "</select>\n");
+            b.append(sp(--in) + "</div>\n");
+            //----------------------------------------------------------------
+            // Display the list of file modifications
+            //----------------------------------------------------------------
+            b.append(sp(in++) + "<div class=\"vfvfid\">\n");
+            b.append(sp(in) + "<div class=\"vfvtitle\">Modifications</div>\n");
+            b.append(sp(in++) + "<select class=\"vfvfid\""
+                    + " name=\"vfvfid\""
+                    + " multiple"
+                    + " size=\"5\""
+                    + ((results.isEmpty()) ? " disabled" : "")
+                    + ">\n");
+            SortedMap<Long, Long> mods = terrier.getFileModification(
+                    project.getCurrentVersion().getId(), fileId);
+            for (Long version : mods.keySet()) {
+                b.append(sp(in) + "<option class=\"vfvfid\""
+                        + " value=\"" + version + "\">"
+                        + "v." + version
+                        + "</option>\n");
+            }
+            b.append(sp(--in) + "</select>\n");
+            b.append(sp(--in) + "</div>\n");
+        }
+
+        return b.toString();
+    }
 }

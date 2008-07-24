@@ -77,7 +77,7 @@ if (selectedProject.isValid()) {
         DevelopersListView developersView =
             new DevelopersListView(selectedProject.getDevelopers());
         developersView.setSelectedDevelopers(
-            selectedProject.getSelectedDevelopersIds());
+            selectedProject.getSelectedDevelopers());
         // Display the developers view
         winDevList.setContent(developersView.getHtml(in));
     }

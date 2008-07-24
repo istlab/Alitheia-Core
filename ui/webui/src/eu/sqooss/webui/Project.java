@@ -35,8 +35,8 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
-import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.datatype.Developer;
+import eu.sqooss.webui.util.DevelopersList;
 import eu.sqooss.webui.util.MetricsList;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
@@ -84,11 +84,15 @@ public class Project extends WebuiItem {
     // A cache for all metrics that are selected for this project
     private MetricsList selectedMetrics = new MetricsList();
 
-    /** Developers cache. */
-    HashMap<Long, Developer> developers = new HashMap<Long, Developer>();
+    /**
+     * A cache for all developers that are/were working on this project.
+     */
+    private DevelopersList developers = new DevelopersList();
 
-    /** Stores the list of Ids of all selected developers */
-    private List<Long> selectedDevelopers = new ArrayList<Long>();
+    /**
+     * A cache for all developers that have been selected for this project.
+     */
+    private DevelopersList selectedDevelopers = new DevelopersList();
 
     // Stores all project versions that were retrieved from this object
     private HashMap<Long, Version> versions = new HashMap<Long, Version>();
@@ -206,14 +210,49 @@ public class Project extends WebuiItem {
         return developersIds;
     }
 
-    public Collection<Developer> getDevelopers() {
-        if ((isValid()) && (terrier != null) && (developers.isEmpty())){
-            if (developersIds != null) {
-                for (Developer nextDev : terrier.getDevelopers(developersIds))
-                    this.developers.put(nextDev.getId(), nextDev);
+    //========================================================================
+    // DATA RETRIEVAL METHODS
+    //========================================================================
+
+    /**
+     * Retrieves the list of all metrics that have been evaluated on this
+     * project from the SQO-OSS framework, unless the local cache contains
+     * some data already.
+     * 
+     * @return the list of metrics evaluated on this project, or an empty
+     *   list when none are found or the project not yet initialized.
+     */
+    public MetricsList getEvaluatedMetrics() {
+        if (terrier == null)
+            return metrics;
+        if (isValid()) {
+            if (metrics.isEmpty()) {
+                metrics.addAll(terrier.getMetricsForProject(id));
+                selectAllMetrics();
             }
         }
-        return developers.values();
+        else
+            terrier.addError("Invalid project!");
+        return metrics;
+    }
+
+    /**
+     * Retrieves the list of all developers that are/were working on this
+     * project from the SQO-OSS framework, unless the local cache contains
+     * some data already.
+     * 
+     * @return the list of developers working on this project, or an empty
+     *   list when none are found or the project not yet initialized.
+     */
+    public DevelopersList getDevelopers() {
+        if (terrier == null)
+            return developers;
+        if (isValid()) {
+            if ((developersIds != null) && (developers.isEmpty())) {
+                developers.addAll(terrier.getDevelopers(developersIds));
+            }
+        }
+        return developers;
     }
 
     /**
@@ -229,6 +268,7 @@ public class Project extends WebuiItem {
         if (isValid()) {
             setTerrier(terrier);
             getEvaluatedMetrics();
+            getDevelopers();
         }
         else
             terrier.addError("Invalid project!");
@@ -254,28 +294,6 @@ public class Project extends WebuiItem {
      */
     public void flushMetrics() {
         metrics.clear();
-    }
-
-    /**
-     * Retrieves the list of all metrics that have been evaluated on this
-     * project from the SQO-OSS framework, unless the local cache contains
-     * some data already.
-     * 
-     * @return the list of metrics evaluated on this project, or an empty
-     *   list when none are found or the project not yet initialized.
-     */
-    public MetricsList getEvaluatedMetrics() {
-        if (terrier == null)
-            return metrics;
-        if (isValid()) {
-            if (metrics.isEmpty()) {
-                metrics.addAll(terrier.getMetricsForProject(id));
-                selectAllMetrics();
-            }
-        }
-        else
-            terrier.addError("Invalid project!");
-        return metrics;
     }
 
     /**
@@ -439,20 +457,26 @@ public class Project extends WebuiItem {
         }
     }
 
+    /**
+     * Adds all evaluated metrics to the list of selected metrics.
+     */
     public void selectAllMetrics () {
         for (Metric metric : metrics)
             if (selectedMetrics.contains(metric) == false)
                 selectedMetrics.add(metric);
     }
 
+    /**
+     * Cleans up the list of selected metrics.
+     */
     public void deselectAllMetrics () {
         selectedMetrics.clear();
     }
 
     /**
-     * Returns the list of metrics that were selected for this project.
+     * Returns the list of all metrics that were selected for this project.
      * 
-     * @return the list of selected metric Ids
+     * @return the list of selected metrics.
      */
     public MetricsList getSelectedMetrics() {
         return selectedMetrics;
@@ -463,32 +487,38 @@ public class Project extends WebuiItem {
     //========================================================================
 
     /**
-     * Adds the developer with the given Id to the list of selected
-     * developers.
+     * Adds the developer with the given Id to the list of developers that are
+     * selected for this project.
      * 
      * @param id the developer Id
      */
     public void selectDeveloper (Long id) {
-        if (id != null)
-            selectedDevelopers.add(id);
+        if (id != null) {
+            Developer developer = developers.getDeveloperById(id);
+            if (developer != null) selectedDevelopers.add(developer);
+        }
     }
 
     /**
-     * Removes the developer with the given Id from the list of selected
-     * developers
+     * Removes the developer with the given Id from the list of developers
+     * that were selected for this project.
      * 
      * @param id the developer Id
      */
     public void deselectDeveloper (Long id) {
-        if (id != null)
-            selectedDevelopers.remove(id);
+        if (id != null) {
+            Developer developer = developers.getDeveloperById(id);
+            if (developer != null) selectedDevelopers.remove(developer);
+        }
     }
 
     /**
-     * Adds all developers to the list of selected developers.
+     * Adds all project developers to the list of selected developers.
      */
     public void selectAllDevelopers () {
-        selectedDevelopers = new ArrayList<Long>(developers.keySet());
+        for (Developer developer : developers)
+            if (selectedDevelopers.contains(developer) == false)
+                selectedDevelopers.add(developer);
     }
 
     /**
@@ -499,30 +529,12 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Retrieve the list of Ids of all developers that were selected for this
-     * project.
+     * Returns the list of all developers that were selected for this project.
      * 
-     * @return the list of selected developers Ids
+     * @return the list of selected developers.
      */
-    public List<Long> getSelectedDevelopersIds() {
+    public DevelopersList getSelectedDevelopers() {
         return selectedDevelopers;
-    }
-
-    /**
-     * Gets the list of the currently selected developers, indexed by
-     * developer Id.
-     * 
-     * @return The list of selected developers, or an empty list when none
-     *   are selected.
-     */
-    public Map<Long, Developer> getSelectedDevelopers() {
-        Map<Long, Developer> result = new HashMap<Long, Developer>();
-        for (Long nextId : selectedDevelopers) {
-            for (Developer nextDeveloper : developers.values())
-                if (nextDeveloper.getId().longValue() == nextId)
-                    result.put(nextId, nextDeveloper);
-        }
-        return result;
     }
 
     //========================================================================
@@ -542,6 +554,10 @@ public class Project extends WebuiItem {
         //html.append(getInfo(in++));
         return html.toString();
     }
+
+    //========================================================================
+    // IMPLEMENTATIONS OF REQUIRED java.lang.Objects METHODS
+    //========================================================================
 
     /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)

@@ -101,10 +101,10 @@ public class MetricsList extends ArrayList<Metric> {
 
     /**
      * Gets the list of mnemonic names of all metrics in this list, indexed by
-     * metric Id.
+     * their metric Id.
      * 
      * @return The list of mnemonic names, or an empty list when none are
-     *   selected.
+     *   found.
      */
     public Map<Long, String> getMetricMnemonics() {
         Map<Long, String> result = new HashMap<Long, String>();

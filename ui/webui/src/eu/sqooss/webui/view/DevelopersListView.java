@@ -33,33 +33,39 @@
 
 package eu.sqooss.webui.view;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.datatype.Developer;
+import eu.sqooss.webui.util.DevelopersList;
 
 // TODO: Add JavaDoc
 public class DevelopersListView extends ListView {
-    /** Holds the list of all developers. */
-    Collection<Developer> developers = new ArrayList<Developer>();
+    /**
+     * Holds the list of project developers.
+     */
+    private DevelopersList developers = new DevelopersList();
 
-    /** Holds the list of selected developers Ids. */
-    List<Long> selDevelopers = null; 
+    /**
+     * Holds the list of selected developers.
+     */
+    private DevelopersList selected = new DevelopersList(); 
 
-    public DevelopersListView (Collection<Developer> developers) {
+    /**
+     * Instantiates a new developers list view.
+     * 
+     * @param developers the list of project developers
+     */
+    public DevelopersListView (DevelopersList developers) {
         if (developers != null)
             this.developers = developers;
     }
 
     /**
-     * Sets the list of selected developers Ids.
+     * Sets the list of selected developers.
      * 
-     * @param selection the list of selected developers Ids
+     * @param selection the list of selected developers
      */
-    public void setSelectedDevelopers(List<Long> selection) {
-        selDevelopers = selection;
+    public void setSelectedDevelopers(DevelopersList selection) {
+        selected = selection;
     }
 
     @Override
@@ -73,7 +79,7 @@ public class DevelopersListView extends ListView {
             b.append(sp(in++) + "<table>\n");
             b.append(sp(in++) + "<thead>\n");
             b.append(sp(in++) + "<tr class=\"head\">\n");
-            if (selDevelopers != null) {
+            if (selected != null) {
                 b.append(sp(in) + "<td class=\"head\" style=\"width: 20%;\">"
                         + "Selected" + "</td>\n");
                 b.append(sp(in) + "<td class=\"head\" style=\"width: 50%;\">"
@@ -92,9 +98,9 @@ public class DevelopersListView extends ListView {
             b.append(sp(in++) + "<tbody>\n");
             for (Developer nextDev : developers) {
                 b.append(sp(in++) + "<tr>\n");
-                if (selDevelopers != null) {
+                if (selected != null) {
                     b.append(sp(in) + "<td>"
-                            + ((selDevelopers.contains(nextDev.getId()))
+                            + ((selected.contains(nextDev))
                                     ? nextDev.getDeselectLink()
                                     : nextDev.getSelectLink())
                             + "</td>\n");
@@ -109,5 +115,5 @@ public class DevelopersListView extends ListView {
         }
         return b.toString();
     }
-    
+
 }

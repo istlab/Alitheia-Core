@@ -16,3 +16,9 @@
 div.winContent {
     height: 1%;
 }
+select.vfvmid {
+    width:98px;
+}
+select.vfvfid {
+    width:98px;
+}

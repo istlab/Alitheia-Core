@@ -2,6 +2,8 @@
 %><%@ page import="eu.sqooss.webui.datatype.*"
 %><%@ page import="eu.sqooss.webui.view.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
+%><%@ page import="eu.sqooss.webui.Metric.MetricActivator"
+%><%@ page import="eu.sqooss.webui.Metric.MetricType"
 %><%
 //============================================================================
 // List all files in the selected project version
@@ -52,11 +54,11 @@ if (selectedProject.isValid()) {
             // Retrieve the Id of the selected file/folder
             Long fileId = strToLong(request.getParameter("fid"));
 
-            //VerboseFileView verboseView =
-            //    new VerboseFileView(selectedProject, fileId);
-            //verboseView.setTerrier(terrier);
-            //verboseView.setServletPath(request.getServletPath());
-            //verboseView.setSettings(settings);
+            VerboseFileView verboseView =
+                new VerboseFileView(selectedProject, fileId);
+            verboseView.setTerrier(terrier);
+            verboseView.setServletPath(request.getServletPath());
+            verboseView.setSettings(settings);
 
             // Check if the user asks for a comparison with another version
             //if (request.getParameter("cvnum") != null) {
@@ -78,49 +80,64 @@ if (selectedProject.isValid()) {
                     winFileVerbose.setTitle("Results in file "
                         + selFile.getShortName());
 
-                // Sub-views table
-                b.append(sp(in++) + "<table>\n");
+                // Create a wrapper for the sub-views
+                b.append(sp(in++) + "<table style=\"width: 100%\">\n");
                 b.append(sp(in++) + "<tr>\n");
                 //============================================================
                 // Display the file info screen
                 //============================================================
-                if (settings.getShowVFVInfoScreen()) {
-                    if ((settings.getShowVFVChartScreen() == false)
-                            && (settings.getShowVFVCommandScreen() == false))
-                        b.append(sp(in++) + "<td"
-                            + " style=\"width: 100%; vertical-align: top;\">\n");
+                if (settings.getShowVFVInfoScreen()
+                        || settings.getShowVFVCommandScreen()) {
+                    if (settings.getShowVFVChartScreen() == false)
+                        b.append(sp(in++) + "<td class=\"vfvleft\">\n");
                     else
-                        b.append(sp(in++) + "<td"
-                            + " style=\"width: 30%; vertical-align: top;\">\n");
-                                        Window winDirBrowser = new Window();
+                        b.append(sp(in++) + "<td class=\"vfvleft\">\n");
 
                     // =======================================================
                     // Display the file's info screen
                     // =======================================================
-                    // Construct the window's title icons
-                    Window winInfoScreen = new Window();
-                    winVisible = "showVFVInfoScreen";
-                    icoCloseWin.setParameter(winVisible);
-                    winInfoScreen.addTitleIcon(icoCloseWin);
-                    // Construct the window's content
-                    winInfoScreen.setContent("Metadata comes here.");
-                    // Display the window
-                    winInfoScreen.setTitle("Metadata");
-                    b.append(winInfoScreen.render(in));
+                    if (settings.getShowVFVInfoScreen()) {
+                        // Construct the window's title icons
+                        Window winInfoScreen = new Window();
+                        winVisible = "showVFVInfoScreen";
+                        icoCloseWin.setParameter(winVisible);
+                        winInfoScreen.addTitleIcon(icoCloseWin);
+                        // Construct the window's content
+                        winInfoScreen.setContent(
+                            verboseView.getFileInfo(in + 2));
+                        // Display the window
+                        winInfoScreen.setTitle("Metadata");
+                        b.append(winInfoScreen.render(in));
+                    }
+                    // =======================================================
+                    // Display the file's command screen
+                    // =======================================================
+                    if (settings.getShowVFVCommandScreen()) {
+                        // Construct the window's title icons
+                        Window winCommandScreen = new Window();
+                        winVisible = "showVFVCommandScreen";
+                        icoCloseWin.setParameter(winVisible);
+                        winCommandScreen.addTitleIcon(icoCloseWin);
+                        // Construct the window's content
+                        winCommandScreen.setContent(
+                            verboseView.getFileControls(in + 2));
+                        // Display the window
+                        winCommandScreen.setTitle("Control center");
+                        b.append(winCommandScreen.render(in));
+                    }
 
                     b.append(sp(--in) + "</td>\n");
                 }
                 //============================================================
                 // Display the folders and/or files in the selected directory
                 //============================================================
-                if ((settings.getShowVFVChartScreen())
-                            || (settings.getShowVFVCommandScreen())) {
-                    if (settings.getShowVFVInfoScreen())
-                        b.append(sp(in++) + "<td"
-                            + " style=\"width: 70%; vertical-align: top; padding-left: 5px;\">\n");
+                if (settings.getShowVFVChartScreen()) {
+                    if (settings.getShowVFVInfoScreen()
+                            || settings.getShowVFVCommandScreen())
+                        b.append(sp(in++) + "<td class=\"vfvright\""
+                            + " style=\"padding-left: 5px;\">\n");
                     else
-                        b.append(sp(in++) + "<td"
-                            + " style=\"width: 100%; vertical-align: top;\">\n");
+                        b.append(sp(in++) + "<td class=\"vfvright\">\n");
 
                     // =======================================================
                     // Display the file's charts
@@ -137,30 +154,16 @@ if (selectedProject.isValid()) {
                         winChartsScreen.setTitle("Charts");
                         b.append(winChartsScreen.render(in));
                     }
-                    // =======================================================
-                    // Display the file's command screen
-                    // =======================================================
-                    if (settings.getShowVFVCommandScreen()) {
-                        // Construct the window's title icons
-                        Window winCommandScreen = new Window();
-                        winVisible = "showVFVCommandScreen";
-                        icoCloseWin.setParameter(winVisible);
-                        winCommandScreen.addTitleIcon(icoCloseWin);
-                        // Construct the window's content
-                        winCommandScreen.setContent("Controls come here.");
-                        // Display the window
-                        winCommandScreen.setTitle("Control center");
-                        b.append(winCommandScreen.render(in));
-                    }
 
                     b.append(sp(--in) + "</td>\n");
                 }
-                // Close the sub-views table
+                // Close the sub-views wrapper
                 b.append(sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</table>\n");
             }
             else
                 winFileVerbose.setTitle("Invalid file/folder");
+            icoCloseWin.setParameter(null);
             winFileVerbose.addTitleIcon(icoCloseWin);
             winFileVerbose.setContent(b.toString());
             out.print(winFileVerbose.render(in - 2));

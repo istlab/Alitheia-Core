@@ -57,6 +57,7 @@ public class Version extends WebuiItem {
      * Project version's meta-data
      */
     private Long projectId;
+    private Long committerId;
     private Long number;
 
     /*
@@ -108,6 +109,7 @@ public class Version extends WebuiItem {
             catch (NumberFormatException ex) {}
             this.name = this.number.toString();
             this.projectId = wsVersion.getProjectId();
+            this.committerId = wsVersion.getCommitterId();
         }
         setTerrier(terrier);
     }
@@ -146,6 +148,14 @@ public class Version extends WebuiItem {
      */
     public void setNumber(Long n) {
         number = n;
+    }
+
+    public Long getCommitterId() {
+        return committerId;
+    }
+
+    public void setCommiterId(Long commiterId) {
+        this.committerId = commiterId;
     }
 
     //========================================================================

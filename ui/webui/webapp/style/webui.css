@@ -257,8 +257,39 @@ td.def_foot {
     padding-left: 5px;
     text-align: left;
 }
-
-
+/* ===[ Verbose file view related ]======================================= */
+td.vfvleft {
+    width: 221px;
+}
+td.vfvright {
+    
+}
+div.vfvmid {
+    border: 1px solid black;
+    width: 100px;
+    float: left;
+}
+div.vfvfid {
+    border: 1px solid black;
+    width: 100px;
+    margin-left: 5px;
+    float: left;
+}
+div.vfvtitle {
+    background-color: #FEF0C9;
+    border-bottom: 1px solid black;
+    font-weight: bold;
+    padding-left: 5px;
+}
+select.vfvmid {
+    border: none;
+    width:100px;
+}
+select.vfvfid {
+    border: none;
+    width:100px;
+}
+/* ===[ TO SORT]========================================================== */
 #table td.head {
     background-color: #E6E6FA;
     font-weight: bold;
@@ -269,7 +300,6 @@ td.def_foot {
     font-weight: bold;
     text-align: left;
 }
-/* ===[ TO SORT]========================================================== */
 #table {
     font-size: 10pt;
     clear:both;
