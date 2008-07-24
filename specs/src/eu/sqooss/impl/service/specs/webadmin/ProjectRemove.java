@@ -13,7 +13,7 @@ import com.thoughtworks.selenium.Selenium;
 import com.thoughtworks.selenium.SeleniumException;
 
 @RunWith(ConcordionRunner.class)
-public class ProjectAdd
+public class ProjectRemove
 {
     private Selenium selenium = null;
     
@@ -63,6 +63,29 @@ public class ProjectAdd
         }
         
         selenium.click("//input[@value='Apply']");
+        selenium.waitForPageToLoad("30000");
+    }
+    
+    public void removeProject(String projectName)
+    {
+        selenium.open("http://localhost:8088");
+        selenium.click("link=Projects");
+        selenium.waitForPageToLoad("30000");
+        
+        ArrayList<Project> projects = getProjects();
+        int p_id = -1;
+        for (int i=0; i<projects.size(); ++i) {
+            if (projects.get(i).name.equals(projectName)) {
+                p_id = i+1;
+            }
+        }
+        
+        selenium.click("//form[@id='projects']/fieldset/table/tbody/tr["+p_id+"]/td[2]");
+        selenium.waitForPageToLoad("30000");
+        
+        selenium.click("//input[@value='Delete project']");
+        selenium.waitForPageToLoad("30000");
+        selenium.click("//input[@value='Yes']");
         selenium.waitForPageToLoad("30000");
     }
     

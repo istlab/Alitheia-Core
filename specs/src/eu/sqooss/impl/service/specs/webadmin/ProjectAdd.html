@@ -13,9 +13,9 @@
 
         <h3>Example</h3>
 
-        <p concordion:execute="addProject(#added_project, #scm_path)">Given the system only
+        <p concordion:execute="addProjectSCM(#added_project, #scm_path)">Given the system only
         having the initial empty project list, when we add the new project
-        "<span concordion:set="#added_project">iCopy</span>" which source repository lies in the
+        "<span concordion:set="#added_project">iCopy</span>" which source repository lies in
         "<span concordion:set="#scm_path">../specs/data/iCopy/svn</span>", then
         the project list becomes:</p>
         <table concordion:verifyRows="#project : getProjects()">
@@ -23,6 +23,18 @@
             <th concordion:assertEquals="#project.name">Project Name</th>
           </tr>
           <tr><td>iCopy</td></tr>
+        </table>
+
+        <p concordion:execute="addProjectML(#added_project, #mail_path)">Now, we add another project
+        "<span concordion:set="#added_project">savonet</span>" which mail archive lies in
+        "<span concordion:set="#mail_path">../specs/data/savonet-mail/mail</span>", then
+        the project list becomes:</p>
+        <table concordion:verifyRows="#project : getProjects()">
+          <tr>
+            <th concordion:assertEquals="#project.name">Project Name</th>
+          </tr>
+          <tr><td>iCopy</td></tr>
+          <tr><td>savonet</td></tr>
         </table>
     </div>
 

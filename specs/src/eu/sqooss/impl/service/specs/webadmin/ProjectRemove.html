@@ -1,0 +1,48 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<body>
+
+    <h1>Removing Projects from the System</h1>
+
+    <p>Since the system allows to create projects, it also permits to delete them.</p>
+
+    <div class="example">
+
+        <h3>Example</h3>
+
+        <p>Given the system has the following two projects:</p>
+        
+        <p concordion:execute="addProjectSCM(#added_project, #scm_path)">First the project
+        "<span concordion:set="#added_project">iCopy</span>" which source repository lies in
+        "<span concordion:set="#scm_path">../specs/data/iCopy/svn</span>".</p>
+
+        <p concordion:execute="addProjectML(#added_project, #mail_path)">Second the project
+        "<span concordion:set="#added_project">savonet</span>" which mail archive lies in
+        "<span concordion:set="#mail_path">../specs/data/savonet-mail/mail</span>".</p>
+        
+        <p>In other words, the project list is:</p>
+        <table concordion:verifyRows="#project : getProjects()">
+          <tr>
+            <th concordion:assertEquals="#project.name">Project Name</th>
+          </tr>
+          <tr><td>iCopy</td></tr>
+          <tr><td>savonet</td></tr>
+        </table>
+        
+        <p concordion:execute="removeProject(#removed_project)">When we remove the project
+        "<span concordion:set="#removed_project">iCopy</span>", then the project list
+        becomes:</p>
+        <table concordion:verifyRows="#project : getProjects()">
+          <tr>
+            <th concordion:assertEquals="#project.name">Project Name</th>
+          </tr>
+          <tr><td>savonet</td></tr>
+        </table>
+    </div>
+
+
+    <h2>See Also</h2>
+    <ul>
+        <li><a href="ProjectRemove.html">Can we add projects?</a></li>
+    </ul>
+</body>
+</html>
