@@ -207,19 +207,25 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
         }
         Long[] versions = this.entity.getVersions();
         if ((versions != null) && (versions.length != 0)) {
+            int j = 0;
+            //add interval item
             comboCompareVersion.add(
-                    PropertyPagesMessages.QualityPropertyPage_Combo_Compare_Version_Interval);
+                    PropertyPagesMessages.QualityPropertyPage_Combo_Compare_Version_Interval, j++);
+            //add configured version
+            comboCompareVersion.add(VERSION_PREFIX +
+                    this.entity.getCurrentVersion() + VERSION_CURRENT_POSTFIX, j);
+            comboCompareVersion.setData(Integer.toString(j),
+                    this.entity.getCurrentVersion());
+            j++;
+            //add others
             Long currentVersion;
             for (int i = 0; i < versions.length; i++) {
                 currentVersion = versions[i];
                 currentItem  = VERSION_PREFIX + currentVersion;
-                comboCompareVersion.add(currentItem, i);
-                comboCompareVersion.setData(Integer.toString(i), currentVersion);
+                comboCompareVersion.add(currentItem, j);
+                comboCompareVersion.setData(Integer.toString(j), currentVersion);
+                j++;
             }
-            comboCompareVersion.add(VERSION_PREFIX +
-                    this.entity.getCurrentVersion() + VERSION_CURRENT_POSTFIX, versions.length);
-            comboCompareVersion.setData(Integer.toString(versions.length),
-                    this.entity.getCurrentVersion());
         } else {
             buttonCompareVersion.setEnabled(false);
         }
@@ -253,7 +259,6 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
      */
     private void processSelectedResult(boolean clearResult) {
         if (controlEnableState != null) return; //the control is disabled
-        setVisualizer();
         int selectedIndex = comboCompareVersion.getSelectionIndex();
         Long[] selectedVersions;
         if (selectedIndex == -1) {
@@ -305,6 +310,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
     }
     
     private void visualizeResult(Long[] versions, boolean clearResult) {
+        setVisualizer();
         String metricKey = Integer.toString(comboMetric.getSelectionIndex());
         WSMetric metric = (WSMetric) comboMetric.getData(metricKey);
         if (clearResult) {
@@ -313,9 +319,11 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
         if ((versions == null) || (versions.length == 0)) return;
         WSResultEntry[] result = this.entity.getMetricsResults(
                 new WSMetric[] {metric}, versions);
-        for (WSResultEntry currentEntry : result) {
-            this.visualizer.setValue(Long.valueOf(this.entity.getVersionById(currentEntry.getDaoId())),
-                    currentEntry);
+        if ((result != null) && (result.length != 0)) {
+            for (WSResultEntry currentEntry : result) {
+                this.visualizer.setValue(Long.valueOf(this.entity.getVersionById(currentEntry.getDaoId())),
+                        currentEntry);
+            }
         }
         this.visualizer.open();
     }

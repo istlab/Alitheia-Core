@@ -307,7 +307,7 @@ public class ConnectionUtils {
         switch (resourceType) {
         case IResource.PROJECT : {
             return new ProjectVersionEntity(storedProject,
-                    storedProjectVersion);
+                    storedProjectVersion, wsSession);
         }
         case IResource.FILE    : //next
         case IResource.FOLDER  : {

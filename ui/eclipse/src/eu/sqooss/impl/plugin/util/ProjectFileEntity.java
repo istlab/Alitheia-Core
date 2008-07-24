@@ -33,6 +33,7 @@
 package eu.sqooss.impl.plugin.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -69,6 +70,7 @@ public class ProjectFileEntity implements Entity {
     private WSMetric[] metrics;
     private MetricResultHashtable resultEntries;
     private Map<Long, WSFileModification> fileModifications;
+    private Long[] sortedVersions;
     private WSFileModification currentFileModification;
     
     public ProjectFileEntity(WSProjectVersion projectVersion,
@@ -105,8 +107,7 @@ public class ProjectFileEntity implements Entity {
                     WSAccessor.Type.PROJECT));
         }
         if (this.fileModifications == null) return null;
-        Set<Long> keySet = fileModifications.keySet();
-        return fileModifications.keySet().toArray(new Long[keySet.size()]);
+        else return sortedVersions;
     }
     
     public Long getCurrentVersion() {
@@ -280,6 +281,9 @@ public class ProjectFileEntity implements Entity {
                     this.currentFileModification = currentModification;
                 }
             }
+            Set<Long> keySet = this.fileModifications.keySet();
+            sortedVersions = this.fileModifications.keySet().toArray(new Long[keySet.size()]);
+            Arrays.sort(sortedVersions);
         }
     }
     

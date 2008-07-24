@@ -96,6 +96,8 @@ class AbstractQualityPropertyPage extends EnabledPropertyPage {
         setLayoutData(buttonCompareVersion, 2, false, false);
         comboCompareVersion = new Combo(secondSectionComposite, SWT.DROP_DOWN);
         setLayoutData(comboCompareVersion, 1, true, false);
+        comboCompareVersion.setVisibleItemCount(6);//TODO: move to the properties file
+                                                   //does not work in the GTK
         comboCompareVersion.setEnabled(false);
         
         //add result's area
