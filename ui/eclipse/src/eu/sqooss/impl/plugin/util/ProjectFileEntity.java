@@ -101,7 +101,7 @@ public class ProjectFileEntity implements Entity {
     /**
      * @see eu.sqooss.plugin.util.Entity#getVersions(boolean))
      */
-    public Long[] getVersions() {
+    public Long[] getSortedVersions() {
         if (this.fileModifications == null) {
             initVersions((WSProjectAccessor) session.getAccessor(
                     WSAccessor.Type.PROJECT));

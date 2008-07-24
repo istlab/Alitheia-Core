@@ -89,6 +89,9 @@ public class Messages extends NLS {
     public static String QualityPropertyPage_Combo_Compare_Version_Interval;
     public static String QualityPropertyPage_Combo_Compare_Version_Prefix;
     public static String QualityPropertyPage_Combo_Compare_Version_Postfix;
+    public static String QualityPropertyPage_Combo_Compare_Version_First;
+    public static String QualityPropertyPage_Combo_Compare_Version_Last;
+    public static String QualityPropertyPage_Combo_Compare_Version_Other;
     
     //ProfilePropertyPage's messages
     public static String ProfilePropertyPage_Label_Profile_Name;

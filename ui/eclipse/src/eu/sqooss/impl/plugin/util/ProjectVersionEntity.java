@@ -102,7 +102,7 @@ public class ProjectVersionEntity implements Entity {
     /**
      * @see eu.sqooss.plugin.util.Entity#getVersions(boolean))
      */
-    public Long[] getVersions() {
+    public Long[] getSortedVersions() {
         initVersions(null);
         if (this.versions == null) return null;
         else return sortedVersions;

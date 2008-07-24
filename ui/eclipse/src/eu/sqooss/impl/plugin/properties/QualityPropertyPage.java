@@ -66,6 +66,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
                                             Listener,
                                             TraverseListener {
 
+    private static final int VERSIONS_MAX_NUMBER = 29;
     private static final char INTERVAL_DELIMITER = '-';
     private static final String VERSION_PREFIX   =
         Messages.QualityPropertyPage_Combo_Compare_Version_Prefix;
@@ -119,7 +120,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
     public void widgetDefaultSelected(SelectionEvent e) {
         Object eventSource = e.getSource();
         if (eventSource == comboCompareVersion) {
-            processIntervalResult();
+            processEnteredResult();
         }
     }
 
@@ -143,8 +144,9 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
             boolean isSame = comboMetric.getSelectionIndex() == selectedMetricIndex;
             processSelectedResult(isSame && !isClearedMetricResult);
         } else if (eventSource == comboCompareVersion) {
-            if (Messages.QualityPropertyPage_Combo_Compare_Version_Interval.
-                    equals(comboCompareVersion.getText())) {
+            String comboText = comboCompareVersion.getText();
+            if ((Messages.QualityPropertyPage_Combo_Compare_Version_Interval.equals(comboText)) ||
+                    (Messages.QualityPropertyPage_Combo_Compare_Version_Other.equals(comboText))) {
                 comboCompareVersion.setText("");
             } else {
                 processSelectedResult(false);
@@ -206,26 +208,52 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
             comboMetric.add(currentItem, i);
             comboMetric.setData(Integer.toString(i), currentMetric);
         }
-        Long[] versions = this.entity.getVersions();
+        Long[] versions = this.entity.getSortedVersions();
         if ((versions != null) && (versions.length != 0)) {
             int j = 0;
             //add interval item
             comboCompareVersion.add(
                     Messages.QualityPropertyPage_Combo_Compare_Version_Interval, j++);
             //add configured version
-            comboCompareVersion.add(VERSION_PREFIX +
-                    this.entity.getCurrentVersion() + VERSION_CURRENT_POSTFIX, j);
+            currentItem = VERSION_PREFIX +
+            this.entity.getCurrentVersion() + VERSION_CURRENT_POSTFIX;
+            if (this.entity.getCurrentVersion() >= versions[versions.length-1]) {
+                currentItem += Messages.QualityPropertyPage_Combo_Compare_Version_Last;
+            }
+            comboCompareVersion.add(currentItem, j);
             comboCompareVersion.setData(Integer.toString(j),
                     this.entity.getCurrentVersion());
             j++;
             //add others
             Long currentVersion;
-            for (int i = 0; i < versions.length; i++) {
-                currentVersion = versions[i];
-                currentItem  = VERSION_PREFIX + currentVersion;
+            if (versions.length > VERSIONS_MAX_NUMBER) {
+                //add first version
+                currentVersion = versions[0];
+                currentItem  = VERSION_PREFIX + currentVersion +
+                Messages.QualityPropertyPage_Combo_Compare_Version_First;
                 comboCompareVersion.add(currentItem, j);
                 comboCompareVersion.setData(Integer.toString(j), currentVersion);
-                j++;
+                ++j;
+                //add other item
+                comboCompareVersion.add(Messages.
+                        QualityPropertyPage_Combo_Compare_Version_Other, j++);
+                //add last version
+                currentVersion = versions[versions.length -1];
+                if (this.entity.getCurrentVersion() < currentVersion) {
+                    currentItem  = VERSION_PREFIX + currentVersion +
+                    Messages.QualityPropertyPage_Combo_Compare_Version_Last;
+                    comboCompareVersion.add(currentItem, j);
+                    comboCompareVersion.setData(Integer.toString(j), currentVersion);
+                    ++j;
+                }
+            } else {
+                for (int i = 0; i < versions.length; i++) {
+                    currentVersion = versions[i];
+                    currentItem  = VERSION_PREFIX + currentVersion;
+                    comboCompareVersion.add(currentItem, j);
+                    comboCompareVersion.setData(Integer.toString(j), currentVersion);
+                    j++;
+                }
             }
         } else {
             buttonCompareVersion.setEnabled(false);
@@ -277,32 +305,40 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
         this.isClearedMetricResult = clearResult;
     }
     
-    private void processIntervalResult() {
-        String range = comboCompareVersion.getText().trim();
-        int delimiterFirstIndex = range.indexOf(INTERVAL_DELIMITER);
-        int delimiterLastIndex = range.lastIndexOf(INTERVAL_DELIMITER);
+    private void processEnteredResult() {
+        String comboText = comboCompareVersion.getText().trim();
+        //is number
+        try {
+            Long version = Long.valueOf(comboText);
+            visualizeResult(new Long[] {version}, false);
+        } catch (NumberFormatException nfe) {
+            //go ahead and check the interval
+        }
+        //is interval
+        int delimiterFirstIndex = comboText.indexOf(INTERVAL_DELIMITER);
+        int delimiterLastIndex = comboText.lastIndexOf(INTERVAL_DELIMITER);
         if ((delimiterFirstIndex == -1) ||
                 (delimiterFirstIndex != delimiterLastIndex)) return;
         Long[] selectedVersions;
         long fromVersion;
         long toVersion;
         try {
-            fromVersion = Long.valueOf(range.substring(0, delimiterFirstIndex)).longValue();
+            fromVersion = Long.valueOf(comboText.substring(0, delimiterFirstIndex)).longValue();
         } catch (Exception e) {
             fromVersion = -1;
         }
         try {
-            toVersion = Long.valueOf(range.substring(delimiterFirstIndex + 1, range.length())).longValue();
+            toVersion = Long.valueOf(comboText.substring(delimiterFirstIndex + 1, comboText.length())).longValue();
         } catch (Exception e) {
             toVersion = -1;
         }
         
         boolean isFirstDelimiter = delimiterFirstIndex == 0;
-        boolean isLastDelimiter = delimiterFirstIndex == (range.length() - 1);
+        boolean isLastDelimiter = delimiterFirstIndex == (comboText.length() - 1);
         if (((isLastDelimiter && (fromVersion == -1)) ||   //invalid  "X-"
                 (isFirstDelimiter && (toVersion == -1)) || //invalid "-Y"
                 (((fromVersion == -1) || (toVersion == -1)) && !isFirstDelimiter && !isLastDelimiter))//invalid "X-Y"
-                && (range.length() != 1)) {
+                && (comboText.length() != 1)) {
             visualizeResult(null, true);
             return;
         }
@@ -337,7 +373,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
             toVersion = tmp;
         }
         List<Long> selectedVersions = new ArrayList<Long>();
-        Long[] entityVersions = this.entity.getVersions();
+        Long[] entityVersions = this.entity.getSortedVersions();
         for (Long version : entityVersions) {
             if ((fromVersion <= version) && (version <= toVersion)) {
                 selectedVersions.add(version);

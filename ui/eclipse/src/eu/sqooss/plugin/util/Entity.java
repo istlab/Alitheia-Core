@@ -54,10 +54,11 @@ public interface Entity {
     
     /**
      * The method return the entity's versions without the current.
+     * The versions must be sorted into ascending order. 
      * 
-     * @return the entity's versions
+     * @return the sorted entity's versions
      */
-    public Long[] getVersions();
+    public Long[] getSortedVersions();
     
     /**
      * Different versions of the entity have a unique identifier.
