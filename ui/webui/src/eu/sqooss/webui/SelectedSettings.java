@@ -55,6 +55,9 @@ public class SelectedSettings {
     private boolean showVFVInfoScreen = true;
     private boolean showVFVChartScreen = true;
     private boolean showVFVCommandScreen = true;
+    private String[] vfvSelectedMetrics = null;
+    private String[] vfvSelectedVersions = null;
+    
 
     public Locale getUserLocale() {
         return userLocale;
@@ -174,5 +177,21 @@ public class SelectedSettings {
 
     public boolean getShowVFVCommandScreen() {
         return showVFVCommandScreen;
+    }
+
+    public String[] getVfvSelectedMetrics() {
+        return vfvSelectedMetrics;
+    }
+
+    public void setVfvSelectedMetrics(String[] vfvSelectedMetrics) {
+        this.vfvSelectedMetrics = vfvSelectedMetrics;
+    }
+
+    public String[] getVfvSelectedVersions() {
+        return vfvSelectedVersions;
+    }
+
+    public void setVfvSelectedVersions(String[] vfvSelectedVersions) {
+        this.vfvSelectedVersions = vfvSelectedVersions;
     }
 }

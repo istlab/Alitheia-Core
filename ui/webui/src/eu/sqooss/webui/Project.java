@@ -215,6 +215,29 @@ public class Project extends WebuiItem {
     //========================================================================
 
     /**
+     * Retrieves the version with the given Id from the SQO-OSS framework,
+     * unless the local cache contains that version already.
+     * 
+     * @param versionId the version Id
+     * 
+     * @return the version object, or <code>null</code> if a version with the
+     *   given Id doesnÄt exist for this project.
+     */
+    public Version getVersion (Long versionId) {
+        Version result = null;
+        // Check in the versions cache first
+        if (versions.containsKey(versionId))
+            result = versions.get(versionId);
+        // Otherwise retrieve it from the SQO-OSS framework
+        else if (terrier != null) {
+            result = terrier.getVersion(this.getId(), versionId);
+            if (result != null)
+                versions.put(result.getId(), result);
+        }
+        return result;
+    }
+
+    /**
      * Retrieves the list of all metrics that have been evaluated on this
      * project from the SQO-OSS framework, unless the local cache contains
      * some data already.
@@ -295,6 +318,10 @@ public class Project extends WebuiItem {
     public void flushMetrics() {
         metrics.clear();
     }
+
+    //========================================================================
+    // VERSION RELATED METHODS
+    //========================================================================
 
     /**
      * Sets the first version of this project.
@@ -396,21 +423,6 @@ public class Project extends WebuiItem {
             terrier.addError("Could not retrieve current version.");
             return null;
         }
-    }
-
-    // TODO: Document and integrate in the other memeber methods.
-    public Version getVersionById (Long versionId) {
-        Version result = null;
-        // Check in the versions cache first
-        if (versions.containsKey(versionId))
-            result = versions.get(versionId);
-        // Otherwise retrieve it from the SQO-OSS framework
-        else {
-            result = terrier.getVersion(this.getId(), versionId);
-            if (result != null)
-                versions.put(result.getId(), result);
-        }
-        return result;
     }
 
     /**
@@ -545,18 +557,19 @@ public class Project extends WebuiItem {
      * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */
     public String getHtml(long in) {
-        if (isValid() == false)
-            return(sp(in) + Functions.error("Invalid project!"));
+        // Holds the accumulated HTML content
         StringBuilder html = new StringBuilder("");
-        html.append(sp(in) + "<h2>"
-                + getName() + " (" + getId()+ ")"
-                + "</h2>");
-        //html.append(getInfo(in++));
+
+        if (isValid())
+            html.append(sp(in) + "<h2>" + getName() + "</h2>");
+        else
+            html.append(sp(in) + Functions.error("Invalid project!"));
+
         return html.toString();
     }
 
     //========================================================================
-    // IMPLEMENTATIONS OF REQUIRED java.lang.Objects METHODS
+    // IMPLEMENTATIONS OF REQUIRED java.lang.Object METHODS
     //========================================================================
 
     /* (non-Javadoc)

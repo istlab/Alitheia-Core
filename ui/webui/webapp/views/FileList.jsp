@@ -54,6 +54,18 @@ if (selectedProject.isValid()) {
             // Retrieve the Id of the selected file/folder
             Long fileId = strToLong(request.getParameter("fid"));
 
+            // Retrieve the list of selected file versions (if any) {
+            if (request.getParameter("vfvfid") != null) {
+                settings.setVfvSelectedVersions(
+                    request.getParameterValues("vfvfid"));
+            }
+
+            // Retrieve the list of selected file metrics (if any) {
+            if (request.getParameter("vfvmid") != null) {
+                settings.setVfvSelectedMetrics(
+                    request.getParameterValues("vfvmid"));
+            }
+
             VerboseFileView verboseView =
                 new VerboseFileView(selectedProject, fileId);
             verboseView.setTerrier(terrier);
@@ -149,9 +161,10 @@ if (selectedProject.isValid()) {
                         icoCloseWin.setParameter(winVisible);
                         winChartsScreen.addTitleIcon(icoCloseWin);
                         // Construct the window's content
-                        winChartsScreen.setContent("Charts come here.");
+                        winChartsScreen.setContent(
+                            verboseView.getHtml(in + 2));
                         // Display the window
-                        winChartsScreen.setTitle("Charts");
+                        winChartsScreen.setTitle("Results");
                         b.append(winChartsScreen.render(in));
                     }
 
@@ -172,6 +185,8 @@ if (selectedProject.isValid()) {
         // Display a file browser for the selected project version
         //====================================================================
         else {
+            // Clean up after a verbosely displayed file/folder (if any)
+            settings.setVfvSelectedVersions(null);
             // Retrieve the list of files, if not yet done
             selectedVersion.setTerrier(terrier);
             selectedVersion.setSettings(settings);
