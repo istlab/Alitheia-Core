@@ -87,6 +87,8 @@ public class Messages extends NLS {
     public static String QualityPropertyPage_Message_Error_Missing_Entity;
     public static String QualityPropertyPage_Message_Error_Missing_Metrics;
     public static String QualityPropertyPage_Combo_Compare_Version_Interval;
+    public static String QualityPropertyPage_Combo_Compare_Version_Prefix;
+    public static String QualityPropertyPage_Combo_Compare_Version_Postfix;
     
     //ProfilePropertyPage's messages
     public static String ProfilePropertyPage_Label_Profile_Name;

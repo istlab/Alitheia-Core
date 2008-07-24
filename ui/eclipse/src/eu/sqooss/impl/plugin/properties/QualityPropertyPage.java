@@ -67,8 +67,10 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
                                             TraverseListener {
 
     private static final char INTERVAL_DELIMITER = '-';
-    private static final String VERSION_PREFIX = "ver. ";
-    private static final String VERSION_CURRENT_POSTFIX = " (configured)";
+    private static final String VERSION_PREFIX   =
+        Messages.QualityPropertyPage_Combo_Compare_Version_Prefix;
+    private static final String VERSION_CURRENT_POSTFIX =
+        Messages.QualityPropertyPage_Combo_Compare_Version_Postfix;
     
     private Composite parent;
     private Entity entity;
