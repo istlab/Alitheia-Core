@@ -30,19 +30,19 @@
  *
  */
 
-package eu.sqooss.impl.plugin.properties;
+package eu.sqooss.impl.plugin.util;
 
 import org.eclipse.osgi.util.NLS;
 
-public class PropertyPagesMessages extends NLS {
+public class Messages extends NLS {
     
-    private static final String MESSAGE_BUNDLE_NAME = PropertyPagesMessages.class.getName();
+    private static final String MESSAGE_BUNDLE_NAME = Messages.class.getName();
 
     static {
-        NLS.initializeMessages(MESSAGE_BUNDLE_NAME, PropertyPagesMessages.class);
+        NLS.initializeMessages(MESSAGE_BUNDLE_NAME, Messages.class);
     }
     
-    private PropertyPagesMessages() {
+    private Messages() {
         //do not instantiate
     }
     

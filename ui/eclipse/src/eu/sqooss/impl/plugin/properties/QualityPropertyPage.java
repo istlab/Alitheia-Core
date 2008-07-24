@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.impl.plugin.util.visualizers.Visualizer;
 import eu.sqooss.impl.plugin.util.visualizers.VisualizerFactory;
 import eu.sqooss.impl.plugin.util.visualizers.VisualizerFactory.Type;
@@ -140,7 +141,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
             boolean isSame = comboMetric.getSelectionIndex() == selectedMetricIndex;
             processSelectedResult(isSame && !isClearedMetricResult);
         } else if (eventSource == comboCompareVersion) {
-            if (PropertyPagesMessages.QualityPropertyPage_Combo_Compare_Version_Interval.
+            if (Messages.QualityPropertyPage_Combo_Compare_Version_Interval.
                     equals(comboCompareVersion.getText())) {
                 comboCompareVersion.setText("");
             } else {
@@ -172,7 +173,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
             if (configurationLink == null) {
                 //add configuration link
                 configurationLink = new Link(parent, SWT.NONE);
-                configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+                configurationLink.setText(Messages.ProjectPropertyPage_Link_Configuration);
                 configurationLink.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
                 configurationLink.addSelectionListener(this);
                 parent.layout();
@@ -185,14 +186,12 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
      */
     private String fill() {
         if (!initEntity()) {
-            return PropertyPagesMessages.
-            QualityPropertyPage_Message_Error_Missing_Entity;
+            return Messages.QualityPropertyPage_Message_Error_Missing_Entity;
         }
         textFieldEntityPath.setText(this.entity.getName());
         WSMetric[] metrics = this.entity.getMetrics();
         if ((metrics == null) || (metrics.length == 0)) {
-            return PropertyPagesMessages
-            .QualityPropertyPage_Message_Error_Missing_Metrics;
+            return Messages.QualityPropertyPage_Message_Error_Missing_Metrics;
         }
         comboMetric.removeAll();
         comboCompareVersion.removeAll();
@@ -210,7 +209,7 @@ public class QualityPropertyPage extends AbstractQualityPropertyPage
             int j = 0;
             //add interval item
             comboCompareVersion.add(
-                    PropertyPagesMessages.QualityPropertyPage_Combo_Compare_Version_Interval, j++);
+                    Messages.QualityPropertyPage_Combo_Compare_Version_Interval, j++);
             //add configured version
             comboCompareVersion.add(VERSION_PREFIX +
                     this.entity.getCurrentVersion() + VERSION_CURRENT_POSTFIX, j);

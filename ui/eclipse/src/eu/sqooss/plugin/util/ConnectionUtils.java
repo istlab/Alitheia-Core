@@ -39,7 +39,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
-import eu.sqooss.impl.plugin.properties.PropertyPagesMessages;
+import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.impl.plugin.util.ProjectFileEntity;
 import eu.sqooss.impl.plugin.util.ProjectVersionEntity;
 import eu.sqooss.scl.WSException;
@@ -209,28 +209,28 @@ public class ConnectionUtils {
      */
     public boolean save() {
         try {
-            if (!PropertyPagesMessages.
+            if (!Messages.
                     ConfigurationPropertyPage_Text_Server_Url_Default_Value.equals(serverUrl)) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, serverUrl);
             } else {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, null);
             }
 
-            if (!PropertyPagesMessages.
+            if (!Messages.
                     ConfigurationPropertyPage_Text_User_Name_Default_Value.equals(userName)) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, userName);
             } else {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, null);
             }
             
-            if (!PropertyPagesMessages.
+            if (!Messages.
                     ConfigurationPropertyPage_Text_Password_Default_Value.equals(password)) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD, password);
             } else {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD, null);
             }
 
-            if (!PropertyPagesMessages.
+            if (!Messages.
                     ConfigurationPropertyPage_Text_Project_Name_Default_Value.equals(projectName)) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME, projectName);
             } else {
@@ -290,15 +290,15 @@ public class ConnectionUtils {
      * Sets the default values of all settings.
      */
     public void setDefaultValues() {
-        serverUrl = PropertyPagesMessages.
+        serverUrl = Messages.
         ConfigurationPropertyPage_Text_Server_Url_Default_Value;
-        userName = PropertyPagesMessages.
+        userName = Messages.
         ConfigurationPropertyPage_Text_User_Name_Default_Value;
-        password = PropertyPagesMessages.
+        password = Messages.
         ConfigurationPropertyPage_Text_Password_Default_Value;
-        projectName = PropertyPagesMessages.
+        projectName = Messages.
         ConfigurationPropertyPage_Text_Project_Name_Default_Value;
-        projectVersion = PropertyPagesMessages.
+        projectVersion = Messages.
         ConfigurationPropertyPage_Combo_Last_Project_Version;
     }
     
@@ -347,15 +347,13 @@ public class ConnectionUtils {
         }
         WSProjectVersion[] versions = null;
         long[] projectId = new long[] {storedProject.getId()};
-        if (PropertyPagesMessages.
-                ConfigurationPropertyPage_Combo_Last_Project_Version.equals(projectVersion)) {
+        if (Messages.ConfigurationPropertyPage_Combo_Last_Project_Version.equals(projectVersion)) {
             versions = accessor.getLastProjectVersions(projectId);
             if (versions.length == 0) {
                 errorMessage = "The last version is inaccessible!";
                 return false;
             }
-        } else if (PropertyPagesMessages.
-                ConfigurationPropertyPage_Combo_First_Project_Version.equals(projectVersion)) {
+        } else if (Messages.ConfigurationPropertyPage_Combo_First_Project_Version.equals(projectVersion)) {
             versions = accessor.getFirstProjectVersions(projectId);
             if (versions.length == 0) {
                 errorMessage = "The first version is inaccessible!";
@@ -395,35 +393,35 @@ public class ConnectionUtils {
         try {
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL);
             if (propertyValue == null) {
-                propertyValue = PropertyPagesMessages.
+                propertyValue = Messages.
                 ConfigurationPropertyPage_Text_Server_Url_Default_Value;
             }
             setServerUrl(propertyValue);
 
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME);
             if (propertyValue == null) {
-                propertyValue = PropertyPagesMessages.
+                propertyValue = Messages.
                 ConfigurationPropertyPage_Text_User_Name_Default_Value;
             }
             setUserName(propertyValue);
 
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD);
             if (propertyValue == null) {
-                propertyValue = PropertyPagesMessages.
+                propertyValue = Messages.
                 ConfigurationPropertyPage_Text_Password_Default_Value;
             }
             setPassword(propertyValue);
 
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_NAME);
             if (propertyValue == null) {
-                propertyValue = PropertyPagesMessages.
+                propertyValue = Messages.
                 ConfigurationPropertyPage_Text_Project_Name_Default_Value;
             }
             setProjectName(propertyValue);
             
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PROJECT_VERSION);
             if (propertyValue == null) {
-                propertyValue = PropertyPagesMessages.
+                propertyValue = Messages.
                 ConfigurationPropertyPage_Combo_Last_Project_Version;
             }
             setProjectVersion(propertyValue);
@@ -439,8 +437,7 @@ public class ConnectionUtils {
     private static String getExceptionDump(WSException exception) {
         Throwable cause = exception.getCause();
         if ((cause != null) && ((cause.getCause() instanceof IOException))) {
-            return PropertyPagesMessages.
-            ConfigurationPropertyPage_Message_Error_IOException;
+            return Messages.ConfigurationPropertyPage_Message_Error_IOException;
         } else {
             String message = exception.getMessage();
             return message == null ? exception.toString() : message;

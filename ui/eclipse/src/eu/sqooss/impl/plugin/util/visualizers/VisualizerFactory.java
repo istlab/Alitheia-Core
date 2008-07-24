@@ -34,7 +34,7 @@ package eu.sqooss.impl.plugin.util.visualizers;
 
 import org.eclipse.swt.widgets.Composite;
 
-import eu.sqooss.impl.plugin.properties.PropertyPagesMessages;
+import eu.sqooss.impl.plugin.util.Messages;
 
 /**
  * The class is used as a factory for the visualizers.
@@ -78,10 +78,10 @@ public final class VisualizerFactory {
             ) {
         
         titleVersion = (titleVersion != null) ? titleVersion :
-            PropertyPagesMessages.VisualizerFactory_Title_Version;
+            Messages.VisualizerFactory_Title_Version;
         
         titleResult = (titleResult != null) ? titleResult :
-            PropertyPagesMessages.VisualizerFactory_Title_Result;
+            Messages.VisualizerFactory_Title_Result;
         
         switch (type) {
         case TABLE             : return new TableVisualizer(parent,

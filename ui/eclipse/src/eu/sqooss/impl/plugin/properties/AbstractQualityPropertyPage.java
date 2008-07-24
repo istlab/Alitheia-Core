@@ -44,6 +44,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 
+import eu.sqooss.impl.plugin.util.Messages;
+
 class AbstractQualityPropertyPage extends EnabledPropertyPage {
 
     protected Text textFieldEntityPath;
@@ -69,7 +71,7 @@ class AbstractQualityPropertyPage extends EnabledPropertyPage {
 
     private void addFirstSection(Composite parent) {
         Label labelPath = new Label(parent, SWT.NONE);
-        labelPath.setText(PropertyPagesMessages.QualityPropertyPage_Label_Entity_Path);
+        labelPath.setText(Messages.QualityPropertyPage_Label_Entity_Path);
         
         textFieldEntityPath = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
         setLayoutData(textFieldEntityPath, 1, true, false);
@@ -86,13 +88,13 @@ class AbstractQualityPropertyPage extends EnabledPropertyPage {
         
         //add metric's components
         Label labelMetric = new Label(secondSectionComposite, SWT.NONE);
-        labelMetric.setText(PropertyPagesMessages.QualityPropertyPage_Label_Metric);
+        labelMetric.setText(Messages.QualityPropertyPage_Label_Metric);
         comboMetric = new Combo(secondSectionComposite, SWT.READ_ONLY | SWT.DROP_DOWN);
         setLayoutData(comboMetric, 2, true, false);
         
         //add comparison's components
         buttonCompareVersion = new Button(secondSectionComposite, SWT.CHECK);
-        buttonCompareVersion.setText(PropertyPagesMessages.QualityPropertyPage_Button_Compare);
+        buttonCompareVersion.setText(Messages.QualityPropertyPage_Button_Compare);
         setLayoutData(buttonCompareVersion, 2, false, false);
         comboCompareVersion = new Combo(secondSectionComposite, SWT.DROP_DOWN);
         setLayoutData(comboCompareVersion, 1, true, false);

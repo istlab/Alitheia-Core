@@ -44,6 +44,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.plugin.util.ConnectionUtils;
 import eu.sqooss.plugin.util.EnabledState;
 
@@ -114,8 +115,7 @@ abstract class EnabledPropertyPage extends PropertyPage implements EnabledState,
      */
     public void run(IProgressMonitor monitor) throws InvocationTargetException,
             InterruptedException {
-        monitor.setTaskName(PropertyPagesMessages.
-                EnabledPropertyPage_Connection_Init_Dialog_Message);
+        monitor.setTaskName(Messages.EnabledPropertyPage_Connection_Init_Dialog_Message);
         connectionUtils = new ConnectionUtils(resourceProject);
     }
 }

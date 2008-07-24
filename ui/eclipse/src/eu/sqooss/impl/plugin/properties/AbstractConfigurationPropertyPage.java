@@ -44,6 +44,8 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
+import eu.sqooss.impl.plugin.util.Messages;
+
 abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
 
     private static final int TEXT_FIELDS_SWT_STYLE = SWT.SINGLE | SWT.BORDER;
@@ -83,7 +85,7 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         super.contributeButtons(parent);
         ((GridLayout) parent.getLayout()).numColumns++;
         buttonValidate = new Button(parent, SWT.PUSH);
-        buttonValidate.setText(PropertyPagesMessages.ConfigurationPropertyPage_Button_Validate);
+        buttonValidate.setText(Messages.ConfigurationPropertyPage_Button_Validate);
     }
 
     private TabFolder addTabFolder(Composite composite) {
@@ -100,24 +102,24 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         
         // add server url's components
         Label labelServerUrl = new Label(compositeAccount, SWT.NONE);
-        labelServerUrl.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_Server_Url);
+        labelServerUrl.setText(Messages.ConfigurationPropertyPage_Label_Server_Url);
         textFieldServerUrl = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE);
         setLayoutData(textFieldServerUrl);
         
         // add user name's components
         Label labelUserName = new Label(compositeAccount, SWT.NONE);
-        labelUserName.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_User_Name);
+        labelUserName.setText(Messages.ConfigurationPropertyPage_Label_User_Name);
         textFieldUserName = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE);
         setLayoutData(textFieldUserName);
 
         // add password's components
         Label labelPassword = new Label(compositeAccount, SWT.NONE);
-        labelPassword.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_Password);
+        labelPassword.setText(Messages.ConfigurationPropertyPage_Label_Password);
         textFieldPassword = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE | SWT.PASSWORD);
         setLayoutData(textFieldPassword);
         
         TabItem tabItemAccount = new TabItem(tabFolder, SWT.NONE);
-        tabItemAccount.setText(PropertyPagesMessages.ConfigurationPropertyPage_TabItem_Account);
+        tabItemAccount.setText(Messages.ConfigurationPropertyPage_TabItem_Account);
         tabItemAccount.setControl(compositeAccount);
     }
     
@@ -127,24 +129,24 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         
         // add project's components - name
         Label labelProjectName = new Label(compositeProject, SWT.NONE);
-        labelProjectName.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_Project_Name);
+        labelProjectName.setText(Messages.ConfigurationPropertyPage_Label_Project_Name);
         textFieldProjectName = new Text(compositeProject, TEXT_FIELDS_SWT_STYLE);
         setLayoutData(textFieldProjectName);
         
         // add project's components - version
         Label labelProjectVersion = new Label(compositeProject, SWT.NONE);
-        labelProjectVersion.setText(PropertyPagesMessages.ConfigurationPropertyPage_Label_Project_Version);
+        labelProjectVersion.setText(Messages.ConfigurationPropertyPage_Label_Project_Version);
         comboProjectVersion = new Combo(compositeProject, SWT.DROP_DOWN);
         setLayoutData(comboProjectVersion);
         String[] items = new String[] {
-                PropertyPagesMessages.ConfigurationPropertyPage_Combo_First_Project_Version,
-                PropertyPagesMessages.ConfigurationPropertyPage_Combo_Other_Project_Version,
-                PropertyPagesMessages.ConfigurationPropertyPage_Combo_Last_Project_Version
+                Messages.ConfigurationPropertyPage_Combo_First_Project_Version,
+                Messages.ConfigurationPropertyPage_Combo_Other_Project_Version,
+                Messages.ConfigurationPropertyPage_Combo_Last_Project_Version
         };
         comboProjectVersion.setItems(items);
         
         tabItemProject = new TabItem(tabFolder, SWT.NONE);
-        tabItemProject.setText(PropertyPagesMessages.ConfigurationPropertyPage_TabItem_Project);
+        tabItemProject.setText(Messages.ConfigurationPropertyPage_TabItem_Project);
         tabItemProject.setControl(compositeProject);
     }
     

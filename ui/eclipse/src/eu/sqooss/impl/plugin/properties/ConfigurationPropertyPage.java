@@ -44,6 +44,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.plugin.util.EnabledState;
 
 public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage implements SelectionListener {
@@ -135,7 +136,7 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
                 }
             }
         } else if (eventSource == comboProjectVersion) {
-            if (PropertyPagesMessages.ConfigurationPropertyPage_Combo_Other_Project_Version.
+            if (Messages.ConfigurationPropertyPage_Combo_Other_Project_Version.
                     equals(comboProjectVersion.getText())) {
                 comboProjectVersion.setText("");
             }
@@ -168,17 +169,17 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         if (isValid) {
             boolean isForSave;
             isForSave = MessageDialog.openQuestion(getShell(),
-                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
-                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Pass);
+                    Messages.ConfigurationPropertyPage_MessageBox_Validate_Title,
+                    Messages.ConfigurationPropertyPage_MessageBox_Validate_Pass);
             if ((isForSave) && (!connectionUtils.save())) {
                 MessageDialog.openWarning(getShell(),
-                        PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Save_Title,
-                        PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Save_Fail);
+                        Messages.ConfigurationPropertyPage_MessageBox_Save_Title,
+                        Messages.ConfigurationPropertyPage_MessageBox_Save_Fail);
             }
         } else {
             MessageDialog.openWarning(getShell(),
-                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Title,
-                    PropertyPagesMessages.ConfigurationPropertyPage_MessageBox_Validate_Fail + 
+                    Messages.ConfigurationPropertyPage_MessageBox_Validate_Title,
+                    Messages.ConfigurationPropertyPage_MessageBox_Validate_Fail + 
                     "\n\nReason: " + connectionUtils.getErrorMessage());
         }
         notifyPropertyPages(isValid);

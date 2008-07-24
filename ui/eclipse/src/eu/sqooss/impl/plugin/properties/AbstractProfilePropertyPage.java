@@ -43,6 +43,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 
+import eu.sqooss.impl.plugin.util.Messages;
+
 abstract class AbstractProfilePropertyPage extends EnabledPropertyPage {
 
     private static final int TEXT_FIELDS_SWT_STYLE = SWT.SINGLE | SWT.BORDER;
@@ -84,48 +86,48 @@ abstract class AbstractProfilePropertyPage extends EnabledPropertyPage {
     private void addComponents(Composite composite) {
         //add profile's components
         Label labelProfileName = new Label(composite, SWT.NONE);
-        labelProfileName.setText(PropertyPagesMessages.ProfilePropertyPage_Label_Profile_Name);
+        labelProfileName.setText(Messages.ProfilePropertyPage_Label_Profile_Name);
         addLayoutData(labelProfileName, 4, false);
         
         comboProfileName = new Combo(composite, SWT.DROP_DOWN);
         addLayoutData(comboProfileName, 2, true);
         
         buttonRemoveProfile = new Button(composite, SWT.PUSH);
-        buttonRemoveProfile.setText(PropertyPagesMessages.ProfilePropertyPage_Button_Remove_Profile);
+        buttonRemoveProfile.setText(Messages.ProfilePropertyPage_Button_Remove_Profile);
         addLayoutData(buttonRemoveProfile, 1, false);
         
         buttonUpdateProfile = new Button(composite, SWT.PUSH);
-        buttonUpdateProfile.setText(PropertyPagesMessages.ProfilePropertyPage_Button_Update_Profile);
+        buttonUpdateProfile.setText(Messages.ProfilePropertyPage_Button_Update_Profile);
         addLayoutData(buttonUpdateProfile, 1, false);
         
         //add profile's sub path 
         Label labelProfilePath = new Label(composite, SWT.NONE);
-        labelProfilePath.setText(PropertyPagesMessages.ProfilePropertyPage_Label_Profile_Path);
+        labelProfilePath.setText(Messages.ProfilePropertyPage_Label_Profile_Path);
         
         textFieldPath = new Text(composite, TEXT_FIELDS_SWT_STYLE);
         addLayoutData(textFieldPath, 2, true);
         
         buttonPathBrowse = new Button(composite, SWT.PUSH);
-        buttonPathBrowse.setText(PropertyPagesMessages.ProfilePropertyPage_Button_Path_Browse);
+        buttonPathBrowse.setText(Messages.ProfilePropertyPage_Button_Path_Browse);
         addLayoutData(buttonPathBrowse, 1, false);
         
         //add profile's files filter
         Label labelProfileFilesFilter = new Label(composite, SWT.NONE);
-        labelProfileFilesFilter.setText(PropertyPagesMessages.ProfilePropertyPage_Label_Profile_Files_Filter);
+        labelProfileFilesFilter.setText(Messages.ProfilePropertyPage_Label_Profile_Files_Filter);
         
         textFieldFilesFilter = new Text(composite, TEXT_FIELDS_SWT_STYLE);
         addLayoutData(textFieldFilesFilter, 3, true);
         
         //add profile's recalculation frequency
         Label labelProfileRecalcFreq = new Label(composite, SWT.NONE);
-        labelProfileRecalcFreq.setText(PropertyPagesMessages.ProfilePropertyPage_Label_Recalc_Freq);
+        labelProfileRecalcFreq.setText(Messages.ProfilePropertyPage_Label_Recalc_Freq);
         
         textFieldRecalcFreq = new Text(composite, TEXT_FIELDS_SWT_STYLE);
         addLayoutData(textFieldRecalcFreq, 3, true);
         
         //add profile's project version
         Label labelProfileProjectVersion = new Label(composite, SWT.NONE);
-        labelProfileProjectVersion.setText(PropertyPagesMessages.ProfilePropertyPage_Label_Project_Ver);
+        labelProfileProjectVersion.setText(Messages.ProfilePropertyPage_Label_Project_Ver);
         
         comboProjectVersion = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
         addLayoutData(comboProjectVersion, 3, true);
@@ -151,7 +153,7 @@ abstract class AbstractProfilePropertyPage extends EnabledPropertyPage {
     
     private void addConfigurationLink(Composite parent) {
         configurationLink = new Link(parent, SWT.NONE);
-        configurationLink.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+        configurationLink.setText(Messages.ProjectPropertyPage_Link_Configuration);
         addLayoutData(configurationLink, 1, true);
         configurationLink.setVisible(false);
     }

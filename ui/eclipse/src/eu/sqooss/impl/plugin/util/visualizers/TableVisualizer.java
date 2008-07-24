@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import eu.sqooss.impl.plugin.properties.PropertyPagesMessages;
+import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
 /**
@@ -103,8 +103,7 @@ class TableVisualizer extends AbstractVisualizer {
         
         tableColumnMetricMnemonic = new TableColumn(tableData, SWT.CENTER,
                 TABLE_COLUMN_METRIC_MNEMONIC_INDEX);
-        tableColumnMetricMnemonic.setText(PropertyPagesMessages.
-                TableVisualizer_Title_Metric);
+        tableColumnMetricMnemonic.setText(Messages.TableVisualizer_Title_Metric);
         tableColumnMetricMnemonic.pack();
         
         tableColumnVersion = new TableColumn(tableData, SWT.CENTER,

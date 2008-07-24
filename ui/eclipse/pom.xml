@@ -70,9 +70,9 @@
       </resource>
       <resource>
         <directory>${basedir}/resources</directory>
-        <targetPath>eu/sqooss/impl/plugin/properties</targetPath>
+        <targetPath>eu/sqooss/impl/plugin/util</targetPath>
         <includes>
-          <include>PropertyPagesMessages.properties</include>
+          <include>Messages.properties</include>
         </includes>
       </resource>
       <resource>
@@ -201,6 +201,24 @@
       <groupId>org.codehaus</groupId>
       <artifactId>stax2</artifactId>
       <version>3.0.1</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jfree</groupId>
+      <artifactId>jcommon</artifactId>
+      <version>1.0.13</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jfree</groupId>
+      <artifactId>chart</artifactId>
+      <version>1.0.10</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jfree.chart</groupId>
+      <artifactId>swt</artifactId>
+      <version>1.0.10</version>
       <type>jar</type>
     </dependency>
 
@@ -332,24 +350,6 @@
       <type>jar</type>
       <scope>system</scope>
       <systemPath>${basedir}/lib/runtime_registry_compatibility.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>org.jfree</groupId>
-      <artifactId>jcommon</artifactId>
-      <version>1.0.13</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.jfree</groupId>
-      <artifactId>chart</artifactId>
-      <version>1.0.10</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.jfree.chart</groupId>
-      <artifactId>swt</artifactId>
-      <version>1.0.10</version>
-      <type>jar</type>
     </dependency>
 
   </dependencies>

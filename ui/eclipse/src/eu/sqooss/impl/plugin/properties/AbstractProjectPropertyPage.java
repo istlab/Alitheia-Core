@@ -41,6 +41,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import eu.sqooss.impl.plugin.util.Messages;
+
 abstract class AbstractProjectPropertyPage extends PropertyPage {
 
     protected Link linkConfigurationPropertyPage;
@@ -56,14 +58,14 @@ abstract class AbstractProjectPropertyPage extends PropertyPage {
         
         //add caption
         Label labelCaption = new Label(composite, SWT.NONE);
-        labelCaption.setText(PropertyPagesMessages.ProjectPropertyPage_Label_Caption);
+        labelCaption.setText(Messages.ProjectPropertyPage_Label_Caption);
         setLayoutData(labelCaption);
      
         addSeparator(composite);
         
         //add configuration link
         linkConfigurationPropertyPage = new Link(composite, SWT.NONE);
-        linkConfigurationPropertyPage.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Configuration);
+        linkConfigurationPropertyPage.setText(Messages.ProjectPropertyPage_Link_Configuration);
         setLayoutData(linkConfigurationPropertyPage);
         
         /*
@@ -75,7 +77,7 @@ abstract class AbstractProjectPropertyPage extends PropertyPage {
         
         //add quality link
         linkQualityPropertyPage = new Link(composite, SWT.NONE);
-        linkQualityPropertyPage.setText(PropertyPagesMessages.ProjectPropertyPage_Link_Quality);
+        linkQualityPropertyPage.setText(Messages.ProjectPropertyPage_Link_Quality);
         setLayoutData(linkQualityPropertyPage);
         
         return composite;
