@@ -50,7 +50,6 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.Tag;
-import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
@@ -63,9 +62,7 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
-import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
-import eu.sqooss.service.tds.TDAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
@@ -80,10 +77,23 @@ class SourceUpdater extends Job {
     private Scheduler sched;
     private AlitheiaCore core;
     
-    /**
-     * Store jobs started by this Job 
+    /*
+     * Cache project version and project file IDs for kick-starting
+     * metric update jobs after the metadata update. This is done
+     * to avoid holding references to huge data graphs on large
+     * updates
      */
-    private Vector<Job> dependedJobs;
+    private Set<Long> updProjectVersions = new TreeSet<Long>();
+    private Set<Long> updFiles = new TreeSet<Long>();
+    
+    /*Cache statistics - to be removed*/
+    private double dirCacheHits = 0, dirRequests = 0;
+    private double devCacheHits = 0, devRequests = 0;
+    /**
+     * Store jobs started by this Job (cannot be added as dependencies
+     * after the job has started). 
+     */
+    private Vector<Job> dependedJobs = new Vector<Job>();
     
     public SourceUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
@@ -101,7 +111,6 @@ class SourceUpdater extends Job {
         this.sched = core.getScheduler();
         this.core = core;
 
-        this.dependedJobs = new Vector<Job>();
     }
 
     public int priority() {
@@ -116,17 +125,10 @@ class SourceUpdater extends Job {
     protected void run() throws Exception {
         dbs.startDBSession();
         int numRevisions = 0;
-        boolean newVersion = true;
-
-        /*
-         * Cache project version and project file IDs for kick-starting
-         * metric update jobs after the metadata update. This is done
-         * to avoid holding references to huge data graphs on large
-         * updates
-         */
-        Set<Long> updProjectVersions = new TreeSet<Long>();
-        Set<Long> updFiles = new TreeSet<Long>();
-
+        
+        Set<Long> procPVs = new TreeSet<Long>();
+        Set<Long> procPFs = new TreeSet<Long>();
+    
         // Avoid Hibernate thrashing by caching frequently accessed objects
         LRUMap devCache = new LRUMap(100);
         LRUMap dirCache = new LRUMap(100);
@@ -134,200 +136,220 @@ class SourceUpdater extends Job {
         /* Store version ids to be processed by fillFileForVersion */
         List<Long> latestVersionIDs = new ArrayList<Long>();
         
+        logger.info("Running source update for project " + project.getName() 
+                + " ID " + project.getId());
         
-        logger.info("Running source update for project " + project.getName() + " ID " + project.getId());
-        long ts = System.currentTimeMillis();
+        CommitLog commitLog = null;
+        SCMAccessor scm = null;
+        
         try {
-
             // This is the last version we actually know about
-            ProjectVersion versionDao = StoredProject.getLastProjectVersion(project);
-            final long lastProjectVersion = (versionDao != null) ? versionDao.getVersion() : 0;
-            SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
-            final long lastSCMVersion = scm.getHeadRevision();
+            ProjectVersion versionDao = 
+                StoredProject.getLastProjectVersion(project);
+            long lastProjectVersion = 
+                (versionDao != null) ? versionDao.getVersion() : 0;
+                
+            scm = tds.getAccessor(project.getId()).getSCMAccessor();
+            long lastSCMVersion = scm.getHeadRevision();
 
-            /* Don't choke when called to update an up-to-date project*/
+            /* Don't choke when called to update an up-to-date project */
             if (lastProjectVersion >= lastSCMVersion) {
                 dbs.commitDBSession();
-                newVersion = false;
-                // Return GOES through the final clause
                 return;
             }
 
-            CommitLog commitLog = scm.getCommitLog(
-                    new ProjectRevision(lastProjectVersion + 1),
+            commitLog = scm.getCommitLog(new ProjectRevision(
+                    lastProjectVersion + 1),
                     new ProjectRevision(lastSCMVersion));
 
-            logger.info(project.getName() + ": Log entries: " + commitLog.size());
-            logger.debug(project.getName() + ": Time to get log: " +
-                    (int)((System.currentTimeMillis() - ts)/1000));
-            ts = System.currentTimeMillis();
-
-            for (CommitEntry entry : commitLog) {
-
-                ProjectVersion curVersion = new ProjectVersion(project);
-                // Assertion: this value is the same as lastSCMVersion
-                curVersion.setVersion(entry.getRevision().getSVNRevision());
-                curVersion.setTimestamp((long)(entry.getDate().getTime() / 1000));
-
-                String author = entry.getAuthor();
-                Developer d = null;
-                d = (Developer)devCache.get(author);
-
-                if (d == null) {
-                    d = Developer.getDeveloperByUsername(entry.getAuthor(),
-                            project);
-                    devCache.put(author, d);
-                }
-
-                curVersion.setCommitter(d);
-
-                /* TODO: get column length info from Hibernate */
-                String commitMsg = entry.getMessage();
-                if(commitMsg.length() > 512) {
-                    commitMsg = commitMsg.substring(0, 511);
-                }
-
-                curVersion.setCommitMsg(commitMsg);
-                /*TODO: Fix this when the TDS starts supporting SVN properties*/
-                //curVersion.setProperties(entry.getProperties);
-                // Use addRecord instead of adding to the list of versions in the project
-                // so we don't need to load the complete list of revisions
-                // (especially as we used getLastProjectVersion above)
-                dbs.addRecord(curVersion);
-                updProjectVersions.add(curVersion.getId());
-                latestVersionIDs.add(curVersion.getId());
-                
-                logger.debug("Got version " + curVersion.getVersion() + " ID " + curVersion.getId());
-
-                for(String chPath: entry.getChangedPaths()) {
-
-                    SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
-
-                    /* TODO: We make the assumption that tags entries
-                     * can only be directories, based on info obtained
-                     * from the SVN manual
-                     * See: http://svnbook.red-bean.com/en/1.1/ch04s06.html
-                     */
-                    if(t == SCMNodeType.DIR && isTag(entry, chPath)) {
-
-                        Tag tag = new Tag(curVersion);
-                        tag.setName(chPath.split("tags/")[1]);
-                        logger.debug("Creating tag <" + tag.getName() + ">");
-
-                        dbs.addRecord(tag);
-                        break;
-                    }
-
-                    ProjectFile pf = new ProjectFile(curVersion);
-
-                    String path = chPath.substring(0, chPath.lastIndexOf('/'));
-                    if (path == null || path.equalsIgnoreCase("")) {
-                        path = "/"; //SVN entry does not have a path
-                    }
-                    String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
-
-                    Directory dir = null;
-                    dir = (Directory) dirCache.get(path);
-                    if (dir == null) {
-                        dir = Directory.getDirectory(path, true);
-                        dirCache.put(path, dir);
-                    }
-
-                    pf.setName(fname);
-                    pf.setDir(dir);
-                    pf.setStatus(entry.getChangedPathsStatus().get(chPath).toString());
-
-                    if (t == SCMNodeType.DIR) {
-                        pf.setIsDirectory(true);
-                        dir = Directory.getDirectory(chPath, true);
-                    } else {
-                        pf.setIsDirectory(false);
-                    }
-                    
-                    dbs.addRecord(pf);
-                   
-		    /*
-		     * Before entering the next block, examine whether the
-		     * deleted file was a directory or not. If there is
-		     * no path entry in the Directory table for the processed
-		     * file path, this means that the path is definetely not a
-		     * directory. If there is such an entry, it may be shared
-		     * with another project; this case is examined upon entering
-		     */
-                    if (pf.isDeleted() && 
-		            (Directory.getDirectory(chPath, false) != null)) {
-                        /* Directories, when they are deleted, do not have type
-                         * DIR, but something else. So we need to check on
-                         * deletes whether this name was most recently a directory.
-                         */
-                        ProjectFile lastIncarnation =
-                            ProjectFile.getPreviousFileVersion(pf);
-                        
-                        /*If a dir was deleted, mark all children as deleted*/
-                        if (lastIncarnation!=null && lastIncarnation.getIsDirectory()) {
-                            // In spite of it not being marked as a directory
-                            // in the node tree right now.
-                            pf.setIsDirectory(true);
-                        }
-                        markDeleted(pf,curVersion);
-                    } 
-
-                    updFiles.add(pf.getId());
-                }
-
-                numRevisions ++;
-
-                /*Clean up*/
-                if (numRevisions % 200 == 0) {
-                    logger.info("Commited 200 revisions");
-                    devCache.clear();
-                    dirCache.clear();
-                    dbs.commitDBSession();
-                    dbs.startDBSession();
-                    //fillFilesForVersion(latestVersionIDs);
-                    latestVersionIDs.clear();
-                }
-            }
-            logger.info("Processed " + numRevisions + " revisions");
+            logger.info(project.getName() + ": Log entries: "
+                    + commitLog.size());
+            
         } catch (InvalidRepositoryException e) {
             logger.error("Not such repository:" + e.getMessage());
             throw e;
         } catch (InvalidProjectRevisionException e) {
             logger.error("Not such repository revision:" + e.getMessage());
             throw e;
-        } finally {
-            if (newVersion) {
-                dbs.commitDBSession();
-                
-                /* fillFilesForVersion(latestVersionIDs);
-                
-                 Run over all jobs and wait for all to finish 
-                 * FIXME: this might cause deadlocks when 
-                 * num_update_jobs == num_worker_threads
-                 * 
-                for(Job j : dependedJobs) {
-                    if (j.state() == State.Queued || j.state() == State.Running) {
-                        j.waitForFinished();
-                    }
-                } */
-                
-                logger.info(project.getName() + ": Time to process entries: "
-                        + (int) ((System.currentTimeMillis() - ts) / 1000));
-
-                ma.runMetrics(updProjectVersions, ProjectVersion.class);
-                ma.runMetrics(updFiles, ProjectFile.class);
-            }
-            
-            updater.removeUpdater(
-                    project.getName(),
-                    UpdaterService.UpdateTarget.CODE);
         }
+        
+        for (CommitEntry entry : commitLog) {
+
+            ProjectVersion curVersion = new ProjectVersion(project);
+            // Assertion: this value is the same as lastSCMVersion
+            curVersion.setVersion(entry.getRevision().getSVNRevision());
+            curVersion.setTimestamp((long) (entry.getDate().getTime() / 1000));
+
+            String author = entry.getAuthor();
+            Developer d = null;
+            d = (Developer) devCache.get(author);
+            devRequests++;
+            if (d == null) {
+                d = Developer.getDeveloperByUsername(entry.getAuthor(), project);
+                devCache.put(author, d);
+            } else {
+                devCacheHits++;
+            }
+
+            curVersion.setCommitter(d);
+
+            /* TODO: get column length info from Hibernate */
+            String commitMsg = entry.getMessage();
+            if (commitMsg.length() > 512) {
+                commitMsg = commitMsg.substring(0, 511);
+            }
+
+            curVersion.setCommitMsg(commitMsg);
+            /* TODO: Fix this when the TDS starts supporting SVN properties */
+            // curVersion.setProperties(entry.getProperties);
+            // Use addRecord instead of adding to the list of versions in the
+            // project
+            // so we don't need to load the complete list of revisions
+            // (especially as we used getLastProjectVersion above)
+            dbs.addRecord(curVersion);
+            procPVs.add(curVersion.getId());
+            latestVersionIDs.add(curVersion.getId());
+
+            logger.debug(curVersion.getProject().getName() + ": Got version "
+                    + curVersion.getVersion() + " ID " + curVersion.getId());
+
+            for (String chPath : entry.getChangedPaths()) {
+
+                SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
+
+                /*
+                 * We make the assumption that tags entries can only be
+                 * directories, based on info obtained from the SVN manual See:
+                 * http://svnbook.red-bean.com/en/1.1/ch04s06.html
+                 */
+                if (t == SCMNodeType.DIR && isTag(entry, chPath)) {
+
+                    Tag tag = new Tag(curVersion);
+                    tag.setName(chPath.split("tags/")[1]);
+                    logger.debug("Creating tag <" + tag.getName() + ">");
+
+                    dbs.addRecord(tag);
+                    break;
+                }
+
+                ProjectFile pf = new ProjectFile(curVersion);
+
+                String path = chPath.substring(0, chPath.lastIndexOf('/'));
+                if (path == null || path.equalsIgnoreCase("")) {
+                    path = "/"; // SVN entry does not have a path
+                }
+                String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
+
+                Directory dir = null;
+                dirRequests++;
+                dir = (Directory) dirCache.get(path);
+                if (dir == null) {
+                    dir = Directory.getDirectory(path, true);
+                    dirCache.put(path, dir);
+                } else {
+                    dirCacheHits++;
+                }
+
+                pf.setName(fname);
+                pf.setDir(dir);
+                pf.setStatus(entry.getChangedPathsStatus().get(chPath)
+                        .toString());
+
+                if (t == SCMNodeType.DIR) {
+                    pf.setIsDirectory(true);
+                    dir = Directory.getDirectory(chPath, true);
+                } else {
+                    pf.setIsDirectory(false);
+                }
+
+                dbs.addRecord(pf);
+
+                /*
+                 * Before entering the next block, examine whether the deleted
+                 * file was a directory or not. If there is no path entry in the
+                 * Directory table for the processed file path, this means that
+                 * the path is definetely not a directory. If there is such an
+                 * entry, it may be shared with another project; this case is
+                 * examined upon entering
+                 */
+                if (pf.isDeleted()
+                        && (Directory.getDirectory(chPath, false) != null)) {
+                    /*
+                     * Directories, when they are deleted, do not have type DIR,
+                     * but something else. So we need to check on deletes
+                     * whether this name was most recently a directory.
+                     */
+                    ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(pf);
+
+                    /* If a dir was deleted, mark all children as deleted */
+                    if (lastIncarnation != null
+                            && lastIncarnation.getIsDirectory()) {
+                        // In spite of it not being marked as a directory
+                        // in the node tree right now.
+                        pf.setIsDirectory(true);
+                    }
+                    markDeleted(pf, curVersion);
+                }
+
+                procPFs.add(pf.getId());
+            }
+
+            numRevisions++;
+
+            /* Intermediate clean up */
+            if (numRevisions % 200 == 0) {
+                logger.info("Commited 200 revisions");
+                devCache.clear();
+                dirCache.clear();
+                
+                if (!dbs.commitDBSession()) {
+                    logger.warn("Intermediate commit failed, restarting update");
+                    restart();
+                    return;
+                } else {
+                    fillFilesForVersion(latestVersionIDs);
+                    updProjectVersions.addAll(procPVs);
+                    updFiles.addAll(procPFs);
+                }
+                dbs.startDBSession();
+                procPVs.clear();
+                procPFs.clear();
+                latestVersionIDs.clear();
+            }
+        }
+        logger.info("Processed " + numRevisions + " revisions");
+        
+        if (!dbs.commitDBSession()) {
+            logger.warn("Final commit failed, restarting update");
+            restart();
+            return;
+        } 
+        fillFilesForVersion(latestVersionIDs);
+        updProjectVersions.addAll(procPVs);
+        updFiles.addAll(procPFs);
+        
+        logger.info("Dir cache hit rate:" + ((dirCacheHits/dirRequests)*100));
+        logger.info("Dev cache hit rate:" + ((devCacheHits/devRequests)*100));
+        
+here:   for (Job j : dependedJobs) {
+            if (j.state() == State.Queued || j.state() == State.Running) {
+                j.waitForFinished();
+                break here;
+            }
+        }
+        
+        ma.runMetrics(updProjectVersions, ProjectVersion.class);
+        ma.runMetrics(updFiles, ProjectFile.class);
+        
+        updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
     }
 
     /**
-     * Mark the contents of a directory as DELETED when the directory has
-     * been DELETED
-     * @param pf The project file representing the deleted directory
+     * Mark the contents of a directory as DELETED when the directory has been
+     * DELETED
+     * 
+     * @param pf
+     *                The project file representing the deleted directory
      */
     private void markDeleted(ProjectFile pf, ProjectVersion pv) {
         if (pf==null || pv==null) {
@@ -405,9 +427,7 @@ class SourceUpdater extends Job {
         return true;
     }
     
-    /**
-     * 
-     */
+   
     private void fillFilesForVersion(List<Long> toProcess) {
         Iterator<Long> i = toProcess.iterator();
         
@@ -447,10 +467,12 @@ class SourceUpdater extends Job {
             dbs.startDBSession();
             ProjectVersion pv = dbs.findObjectById(ProjectVersion.class, versionID);
             SCMAccessor scm = tds.getAccessor(pv.getProject().getId()).getSCMAccessor();
-            SCMNode root = scm.getInMemoryCheckout("/", new ProjectRevision(pv.getVersion()));
+       //     SCMNode root = scm.getInMemoryCheckout("/", new ProjectRevision(pv.getVersion()));
             
-            System.err.println("FilesForVersionJob: Processing revision:" + pv.getVersion());
-            dbs.commitDBSession();
+            if(!dbs.commitDBSession()) {
+                logger.warn("commit failed - restarting job");
+                restart();
+            }
         }
     }
 }

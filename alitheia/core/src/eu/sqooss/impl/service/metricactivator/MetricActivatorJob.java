@@ -89,7 +89,10 @@ public class MetricActivatorJob extends Job {
                 logger.warn("Metric " + metric.getName() + " failed");
             }
         }
-        dbs.commitDBSession();
+        if(!dbs.commitDBSession()) {
+            logger.warn("commit failed - restarting metric job");
+            restart();
+        }
     }
 }
 

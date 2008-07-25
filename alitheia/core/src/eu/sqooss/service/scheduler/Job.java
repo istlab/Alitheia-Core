@@ -85,6 +85,8 @@ public abstract class Job implements Comparable<Job> {
     
     private WorkerThread m_worker;
     
+    private int restarts = 0;
+    
     public void setWorkerThread(WorkerThread worker) {
     	m_worker = worker;
     }
@@ -173,7 +175,7 @@ public abstract class Job implements Comparable<Job> {
         
         try {
             setState(State.Running);
-            run();
+            restart();
             
             /*Idiot/bad programmer proofing*/
             assert (!dbs.isDBSessionActive());            
@@ -258,34 +260,34 @@ public abstract class Job implements Comparable<Job> {
      */
     public final void waitForFinished() {
     	try {
-    		synchronized(this) {
-    			// if this method is running inside of a WorkerThread
-    			// we try to pass the job we're waiting for to the thread.
-    			if (Thread.currentThread() instanceof WorkerThread) {
-    				WorkerThread t = (WorkerThread) Thread.currentThread();
-    				t.takeJob(this);
-    			} else {
-    				throw new Exception();
-    			}
-    		}
-    	} catch(Exception e) {
-    		// if something went wrong with taking the job
-    		// ok - we might be stuck... 
-    		if (m_scheduler.getSchedulerStats().getIdleWorkerThreads()==0) {
-    			m_scheduler.startOneShotWorkerThread();
-    		}
-    	}
-    	synchronized(this) {
-    		while (state() != State.Finished) {
-            	if (state() == State.Error) {
-            		return;
-            	}
-            	try {
-                	wait();
-            	} catch (InterruptedException e) {
-            	}
-        	}
-    	}
+            synchronized (this) {
+                // if this method is running inside of a WorkerThread
+                // we try to pass the job we're waiting for to the thread.
+                if (Thread.currentThread() instanceof WorkerThread) {
+                    WorkerThread t = (WorkerThread) Thread.currentThread();
+                    t.takeJob(this);
+                } else {
+                    throw new Exception();
+                }
+            }
+        } catch (Exception e) {
+            // if something went wrong with taking the job
+            // ok - we might be stuck...
+            if (m_scheduler.getSchedulerStats().getIdleWorkerThreads() == 0) {
+                m_scheduler.startOneShotWorkerThread();
+            }
+        }
+        synchronized (this) {
+            while (state() != State.Finished) {
+                if (state() == State.Error) {
+                    return;
+                }
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                }
+            }
+        }
     }
 
     /**
@@ -389,10 +391,24 @@ public abstract class Job implements Comparable<Job> {
         }
     }
 
-
+    /**
+     * Restart a failing job by keeping count of the number of restarts
+     * @throws Exception to signify that the maximum number of restarts
+     * was reached
+     */
+    protected void restart() throws Exception {
+        restarts++;
+        if (restarts >= 5) {
+            throw new Exception("Too many restarts - failing job");
+        }
+        run();
+    }
+    
     /**
      * Run the job.
-     * @throws Exception If thrown, the job ends up in Error state.
+     * 
+     * @throws Exception
+     *                 If thrown, the job ends up in Error state.
      */
     abstract protected void run() throws Exception;
 

@@ -10,44 +10,42 @@ import eu.sqooss.service.scheduler.Job;
 
 public class ProjectDeleteJob extends Job {
 
-	private StoredProject sp;
-	private AlitheiaCore core;
-	
-	ProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
-		this.sp = sp;
-		this.core = core;
-	}
-	
-	@Override
-	public int priority() {
-		return 0xff;
-	}
+    private StoredProject sp;
+    private AlitheiaCore core;
 
-	@Override
-	protected void run() throws Exception {
-		if(!core.getDBService().isDBSessionActive()) {
-			core.getDBService().startDBSession();
-		}
-		
-		sp = core.getDBService().attachObjectToDBSession(sp);
-		 // Delete any associated invocation rules first
-        HashMap<String,Object> properties =
-            new HashMap<String, Object>();
+    ProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
+        this.sp = sp;
+        this.core = core;
+    }
+
+    @Override
+    public int priority() {
+        return 0xff;
+    }
+
+    @Override
+    protected void run() throws Exception {
+        core.getDBService().startDBSession();
+
+        sp = core.getDBService().attachObjectToDBSession(sp);
+        // Delete any associated invocation rules first
+        HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put("project", sp);
         List<?> assosRules = core.getDBService().findObjectsByProperties(
                 InvocationRule.class, properties);
         if ((assosRules != null) && (assosRules.size() > 0)) {
-            for (Object nextDAO: assosRules) {
-                InvocationRule.deleteInvocationRule(
-                        core.getDBService(), core.getMetricActivator(), 
-                        (InvocationRule) nextDAO);
+            for (Object nextDAO : assosRules) {
+                InvocationRule.deleteInvocationRule(core.getDBService(), 
+                        core.getMetricActivator(), (InvocationRule) nextDAO);
             }
         }
-        
+
         // Delete the selected project
-        if (!core.getDBService().deleteRecord(sp)) {
-        	core.getDBService().rollbackDBSession();
-        }
-        core.getDBService().commitDBSession();
-	}
+        core.getDBService().deleteRecord(sp);
+            
+        if (!core.getDBService().commitDBSession()) {
+            restart();
+            return;
+         }
+    }
 }
