@@ -33,11 +33,23 @@
 
 package eu.sqooss.webui.view;
 
+import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
@@ -93,6 +105,8 @@ public class VerboseFileView extends ListView {
      */
     HashMap<String, Result> results = new HashMap<String, Result>();
 
+    private int chartType = 2;
+
     /**
      * Instantiates a new <code>VerboseFileView</code> object, and initializes
      * it with the given project object and file Id.
@@ -128,6 +142,10 @@ public class VerboseFileView extends ListView {
                 }
                 catch (NumberFormatException ex) { /* Do nothing */ }
             }
+    }
+
+    public void setChartType(int chartType) {
+        this.chartType = chartType;
     }
 
     public void attachSelectedFile () {
@@ -172,39 +190,17 @@ public class VerboseFileView extends ListView {
             b.append(sp(in) + "Select one or more metrics and resource versions.");
         }
         else {
-            int validMetrics = 0;
+            //----------------------------------------------------------------
+            // Assemble the results dataset
+            //----------------------------------------------------------------
+            SortedMap<String, SortedMap<Long, String>> data =
+                new TreeMap<String, SortedMap<Long,String>>();
             for (Long metricId : selectedMetrics) {
                 Metric metric =
                     project.getEvaluatedMetrics().getMetricById(metricId);
                 if (metric != null)
-                    validMetrics++;
+                    data.put(metric.getMnemonic(), new TreeMap<Long, String>());
             }
-            b.append(sp(in++) + "<table"
-                    + " style=\"width: " + (80 + 80*(validMetrics))+ "px;\""
-                    + ">\n");
-            //----------------------------------------------------------------
-            // Table header
-            //----------------------------------------------------------------
-            b.append(sp(in++) + "<thead>\n");
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in) + "<td class=\"def_invisible\""
-                    + " style=\"width: 80px;\">"
-                    + "&nbsp;</td>\n");
-            for (Long metricId : selectedMetrics) {
-                Metric metric =
-                    project.getEvaluatedMetrics().getMetricById(metricId);
-                if (metric != null)
-                    b.append(sp(in) + "<td class=\"def_head\""
-                            + " style=\"width: 80px;\""
-                            + " title=\"" + metric.getDescription() + "\">"
-                            + metric.getMnemonic()
-                            + "</td>\n");
-            }
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</thead>\n");
-            //----------------------------------------------------------------
-            // Display all available results per metric and version
-            //----------------------------------------------------------------
             SortedMap<Long, Long> mods = terrier.getFileModification(
                     project.getCurrentVersion().getId(), fileId);
             for (Long versionNum : selectedVersions) {
@@ -212,24 +208,48 @@ public class VerboseFileView extends ListView {
                 if (nextFileId != null) {
                     HashMap<String, Result> verResults =
                         selFile.getResults(mnemonics, nextFileId);
-                    b.append(sp(in++) + "<tr>\n");
-                    b.append(sp(in) + "<td class=\"def_head\">"
-                            + "In v." + versionNum 
-                            + "</td>\n");
                     for (Long metricId : selectedMetrics) {
                         Metric metric = project.getEvaluatedMetrics()
                             .getMetricById(metricId);
-                        Result result = verResults.get(metric.getMnemonic());
-                        if (result != null)
-                            result.setSettings(settings);
-                        b.append(sp(in) + "<td class=\"def_right\">"
-                                + ((result != null) ? result.getHtml(0) : "N/A")
-                                + "</td>\n");
+                        if (metric != null) {
+                            Result result = verResults.get(
+                                    metric.getMnemonic());
+                            if (result != null) {
+                                result.setSettings(settings);
+                                data.get(metric.getMnemonic()).put(
+                                        versionNum,
+                                        result.getHtml(0));
+                            }
+                            else {
+                                data.get(metric.getMnemonic()).put(
+                                        versionNum, null);
+                            }
+                        }
                     }
-                    b.append(sp(--in) + "</tr>\n");
                 }
             }
-            b.append(sp(--in) + "</table>\n");
+            String chartFile = null;
+            switch (chartType) {
+            case 4:
+                chartFile = lineChart(data);
+                b.append(sp(in++) + "<table"
+                        + " style=\"margin-top: 0;\">\n");
+                b.append(sp(in++) + "</tr>\n");
+                b.append(sp(in) + "<td class=\"chart\">");
+                if (chartFile != null)
+                    b.append("<img src=\"/tmp/" + chartFile + "\">");
+                else
+                    b.append(Functions.information(
+                            "Inapplicable results."));
+                b.append("</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                b.append(sp(--in) + "</table>\n");
+                break;
+            default:
+                b.append(tableChart(in, data));
+                break;
+            }
+
         }
         return b.toString();
     }
@@ -370,5 +390,92 @@ public class VerboseFileView extends ListView {
         }
 
         return b.toString();
+    }
+
+    public String tableChart (long in, SortedMap<String, SortedMap<Long, String>> values) {
+        // Hold the accumulated HTML content
+        StringBuilder b = new StringBuilder("");
+
+        b.append(sp(in++) + "<table"
+                + " style=\"width: " + (80 + 80*(values.size()))+ "px;\""
+                + ">\n");
+        //--------------------------------------------------------------------
+        // Table header
+        //--------------------------------------------------------------------
+        b.append(sp(in++) + "<thead>\n");
+        b.append(sp(in++) + "<tr>\n");
+        b.append(sp(in) + "<td class=\"def_invisible\""
+                + " style=\"width: 80px;\">"
+                + "&nbsp;</td>\n");
+        for (String mnemonic : values.keySet()) {
+            Metric metric = project.getEvaluatedMetrics()
+                    .getMetricByMnemonic(mnemonic);
+            b.append(sp(in) + "<td class=\"def_head\""
+                    + " style=\"width: 80px;\""
+                    + " title=\"" + metric.getDescription() + "\">"
+                    + mnemonic
+                    + "</td>\n");
+        }
+        b.append(sp(--in) + "</tr>\n");
+        b.append(sp(--in) + "</thead>\n");
+        //--------------------------------------------------------------------
+        // Display all available results per metric and version
+        //--------------------------------------------------------------------
+        for (Long version : selectedVersions) {
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in) + "<td class=\"def_head\">"
+                    + "In v." + version 
+                    + "</td>\n");
+            for (String mnemonic : values.keySet()) {
+                String result = values.get(mnemonic).get(version).toString();
+                b.append(sp(in) + "<td class=\"def_right\">"
+                        + ((result != null) ? result : "N/A")
+                        + "</td>\n");
+            }
+            b.append(sp(--in) + "</tr>\n");
+        }
+        b.append(sp(--in) + "</table>\n");
+
+        return b.toString();
+    }
+
+    public String lineChart (SortedMap<String, SortedMap<Long, String>> values) {
+        // Construct the chart's dataset
+        XYSeriesCollection data = new XYSeriesCollection();
+        for (String nextLine : values.keySet()) {
+            XYSeries lineData = new XYSeries(nextLine);
+            SortedMap<Long, String> lineValues = values.get(nextLine);
+            for (Long nextX : lineValues.keySet()) {
+                if (lineValues.get(nextX) == null) continue;
+                try {
+                    lineData.add(nextX, new Double(lineValues.get(nextX)));
+                }
+                catch (NumberFormatException ex) { /* Skip */ }
+            }
+            if (lineData.getItemCount() > 0)
+                data.addSeries(lineData);
+        }
+        // Generate the chart
+        if (data.getSeriesCount() > 0) {
+            JFreeChart chart;
+            chart = ChartFactory.createXYLineChart(
+                    null, "X", "Y",
+                    data, PlotOrientation.VERTICAL,
+                    true, true, false);
+            chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+            chart.setPadding(RectangleInsets.ZERO_INSETS);
+            // Save the chart into a temporary file
+            try {
+                java.io.File tmpFile = java.io.File.createTempFile(
+                        "img", "png", settings.getTempFolder());
+                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
+                return tmpFile.getName();
+            }
+            catch (IOException e) {
+                // Do nothing
+            }
+        }
+        return null;
+        
     }
 }

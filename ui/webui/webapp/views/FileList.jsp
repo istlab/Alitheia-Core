@@ -161,6 +161,7 @@ if (selectedProject.isValid()) {
                         icoCloseWin.setParameter(winVisible);
                         winChartsScreen.addTitleIcon(icoCloseWin);
                         // Construct the window's content
+                        verboseView.setChartType(4);
                         winChartsScreen.setContent(
                             verboseView.getHtml(in + 2));
                         // Display the window

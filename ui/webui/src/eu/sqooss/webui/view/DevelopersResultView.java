@@ -77,9 +77,7 @@ public class DevelopersResultView extends ListView {
      * performed.
      */
     private ArrayList<Project> compProjects = new ArrayList<Project>();
-    
-    public File tempFolder;
-    
+
     private int chartType = 2;
 
     /**
@@ -266,7 +264,8 @@ public class DevelopersResultView extends ListView {
             chart.setBackgroundPaint(new Color(0, 0, 0, 0));
             chart.setPadding(RectangleInsets.ZERO_INSETS);
             try {
-                File tmpFile = File.createTempFile("img", "png", tempFolder);
+                File tmpFile = File.createTempFile(
+                        "img", "png", settings.getTempFolder());
                 ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
                 return tmpFile.getName();
             }
@@ -309,7 +308,8 @@ public class DevelopersResultView extends ListView {
             chart.setBackgroundPaint(new Color(0, 0, 0, 0));
             chart.setPadding(RectangleInsets.ZERO_INSETS);
             try {
-                File tmpFile = File.createTempFile("img", "png", tempFolder);
+                File tmpFile = File.createTempFile(
+                        "img", "png", settings.getTempFolder());
                 ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
                 return tmpFile.getName();
             }

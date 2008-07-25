@@ -33,10 +33,12 @@
 
 package eu.sqooss.webui;
 
+import java.io.File;
 import java.util.Locale;
 
 public class SelectedSettings {
     private Locale userLocale = Locale.US;
+    private File tempFolder = null;
 
     private boolean showAllMetrics = false;
     private boolean showDevelopers = true;
@@ -193,5 +195,13 @@ public class SelectedSettings {
 
     public void setVfvSelectedVersions(String[] vfvSelectedVersions) {
         this.vfvSelectedVersions = vfvSelectedVersions;
+    }
+
+    public File getTempFolder() {
+        return tempFolder;
+    }
+
+    public void setTempFolder(File tempFolder) {
+        this.tempFolder = tempFolder;
     }
 }

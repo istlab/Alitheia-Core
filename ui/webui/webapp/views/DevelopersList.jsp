@@ -125,7 +125,6 @@ if (selectedProject.isValid()) {
             new DevelopersResultView(selectedProject);
         devResultsView.setSettings(settings);
         devResultsView.setTerrier(terrier);
-        devResultsView.tempFolder = tempFolder;
         if (request.getParameter("chart") != null) {
             Long chartType = strToLong(request.getParameter("chart"));
             if (chartType != null)

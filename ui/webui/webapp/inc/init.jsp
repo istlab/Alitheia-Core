@@ -108,6 +108,7 @@ File tempFolder = new File(
     + tempFolderName);
 if (tempFolder.exists() == false)
     tempFolder.mkdir();
+settings.setTempFolder(tempFolder);
 
 //============================================================================
 // Check if the user has selected a project (or switched to a new project)
