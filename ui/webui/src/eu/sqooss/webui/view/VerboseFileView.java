@@ -105,7 +105,10 @@ public class VerboseFileView extends ListView {
      */
     HashMap<String, Result> results = new HashMap<String, Result>();
 
-    private int chartType = 2;
+    public static final int TABLE_CHART = 2;
+    public static final int LINE_CHART = 4;
+    // Default chart type
+    private int chartType = TABLE_CHART;
 
     /**
      * Instantiates a new <code>VerboseFileView</code> object, and initializes
@@ -228,16 +231,30 @@ public class VerboseFileView extends ListView {
                     }
                 }
             }
+            //----------------------------------------------------------------
+            // Display the results in the selected form
+            //----------------------------------------------------------------
             String chartFile = null;
             switch (chartType) {
-            case 4:
-                chartFile = lineChart(data);
+            case TABLE_CHART:
+                b.append(tableChart(in, data));
+                break;
+            case LINE_CHART:
+                chartFile = "/tmp/" + lineChart(data);
+                b.append(sp(in++)
+                            + "<a class=\"chart\""
+                            + " href=\"/fullscreen.jsp?"
+                            + "chartfile=" + chartFile + "\">"
+                            + "<img src=\"" + chartFile + "\">"
+                            + "</a>");
                 b.append(sp(in++) + "<table"
                         + " style=\"margin-top: 0;\">\n");
                 b.append(sp(in++) + "</tr>\n");
                 b.append(sp(in) + "<td class=\"chart\">");
                 if (chartFile != null)
-                    b.append("<img src=\"/tmp/" + chartFile + "\">");
+                    b.append("<img style=\"width: 100%;\""
+                            + " src=\"/tmp/" + chartFile + "\""
+                            + ">");
                 else
                     b.append(Functions.information(
                             "Inapplicable results."));
@@ -459,7 +476,7 @@ public class VerboseFileView extends ListView {
         if (data.getSeriesCount() > 0) {
             JFreeChart chart;
             chart = ChartFactory.createXYLineChart(
-                    null, "X", "Y",
+                    null, "Version", "Result",
                     data, PlotOrientation.VERTICAL,
                     true, true, false);
             chart.setBackgroundPaint(new Color(0, 0, 0, 0));
@@ -467,7 +484,7 @@ public class VerboseFileView extends ListView {
             // Save the chart into a temporary file
             try {
                 java.io.File tmpFile = java.io.File.createTempFile(
-                        "img", "png", settings.getTempFolder());
+                        "img", ".png", settings.getTempFolder());
                 ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
                 return tmpFile.getName();
             }

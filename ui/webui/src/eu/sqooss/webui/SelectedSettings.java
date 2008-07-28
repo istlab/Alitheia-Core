@@ -36,6 +36,8 @@ package eu.sqooss.webui;
 import java.io.File;
 import java.util.Locale;
 
+import eu.sqooss.webui.view.VerboseFileView;
+
 public class SelectedSettings {
     private Locale userLocale = Locale.US;
     private File tempFolder = null;
@@ -59,6 +61,7 @@ public class SelectedSettings {
     private boolean showVFVCommandScreen = true;
     private String[] vfvSelectedMetrics = null;
     private String[] vfvSelectedVersions = null;
+    private int vfvChartType = VerboseFileView.TABLE_CHART;
     
 
     public Locale getUserLocale() {
@@ -203,5 +206,13 @@ public class SelectedSettings {
 
     public void setTempFolder(File tempFolder) {
         this.tempFolder = tempFolder;
+    }
+
+    public int getVfvChartType() {
+        return vfvChartType;
+    }
+
+    public void setVfvChartType(int vfvChartType) {
+        this.vfvChartType = vfvChartType;
     }
 }
