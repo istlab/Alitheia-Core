@@ -47,12 +47,20 @@ if (selectedProject.isValid()) {
             if (metricId != null)
                 selectedProject.deselectMetric(metricId);
         }
+
         //====================================================================
         // Display the selected file verbosely
         //====================================================================
         if (request.getParameter("fid") != null) {
             // Retrieve the Id of the selected file/folder
             Long fileId = strToLong(request.getParameter("fid"));
+
+            // Check, if the user selected an another chart type
+            if (request.getParameter("vfvchart") != null) {
+                Long chartType = getId(request.getParameter("vfvchart"));
+                if (chartType != null)
+                    settings.setVfvChartType(chartType.intValue());
+            }
 
             // Retrieve the list of selected file versions (if any) {
             if (request.getParameter("vfvfid") != null) {
@@ -71,12 +79,6 @@ if (selectedProject.isValid()) {
             verboseView.setTerrier(terrier);
             verboseView.setServletPath(request.getServletPath());
             verboseView.setSettings(settings);
-
-            // Check if the user asks for a comparison with another version
-            //if (request.getParameter("cvnum") != null) {
-            //    verboseView.compareAgainst(
-            //        strToLong(request.getParameter("cvnum")));
-            //}
 
             // Construct the window's content
             StringBuilder b = new StringBuilder("");
@@ -161,7 +163,8 @@ if (selectedProject.isValid()) {
                         icoCloseWin.setParameter(winVisible);
                         winChartsScreen.addTitleIcon(icoCloseWin);
                         // Construct the window's content
-                        verboseView.setChartType(4);
+                        verboseView.setChartType(
+                            settings.getVfvChartType());
                         winChartsScreen.setContent(
                             verboseView.getHtml(in + 2));
                         // Display the window
@@ -177,6 +180,30 @@ if (selectedProject.isValid()) {
             }
             else
                 winFileVerbose.setTitle("Invalid file/folder");
+
+            // Results icon - tabular display
+            WinIcon icoTabular = new WinIcon();
+            icoTabular.setPath(request.getServletPath());
+            icoTabular.setParameter("vfvchart");
+            icoTabular.setValue("" + VerboseFileView.TABLE_CHART
+                + "&fid=" + fileId);
+            icoTabular.setAlt("Show results in a table");
+            icoTabular.setImage("/img/icons/16x16/tablechart.png");
+            if (settings.getVfvChartType() == VerboseFileView.TABLE_CHART)
+                icoTabular.setStatus(false);
+            winFileVerbose.addToolIcon(icoTabular);
+            // Results icon - line chart display
+            WinIcon icoLineChart = new WinIcon();
+            icoLineChart.setPath(request.getServletPath());
+            icoLineChart.setParameter("vfvchart");
+            icoLineChart.setValue("" + VerboseFileView.LINE_CHART
+                + "&fid=" + fileId);
+            icoLineChart.setAlt("Show results as a line chart");
+            icoLineChart.setImage("/img/icons/16x16/linechart.png");
+            if (settings.getVfvChartType() == VerboseFileView.LINE_CHART)
+                icoLineChart.setStatus(false);
+            winFileVerbose.addToolIcon(icoLineChart);
+
             icoCloseWin.setParameter(null);
             winFileVerbose.addTitleIcon(icoCloseWin);
             winFileVerbose.setContent(b.toString());

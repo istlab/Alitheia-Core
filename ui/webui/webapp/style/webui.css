@@ -267,6 +267,17 @@ td.def_invisible {
     background-color: transparent;
 }
 /* ===[ Verbose file view related ]======================================= */
+div.fullscreen {
+    text-align: center;
+    vertical-align: middle;
+}
+a.fullscreen img {
+    border: 0px none;
+}
+a.chart img {
+    border: 0px none;
+    width: 100%;
+}
 td.vfvleft {
     width: 221px;
 }
