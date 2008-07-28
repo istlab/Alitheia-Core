@@ -346,12 +346,12 @@ public class VerboseFileView extends ListView {
             b.append(sp(in) + Functions.error("File/folder not found!"));
         }
         else {
+            b.append(sp(in++) + "<form>\n");
             //----------------------------------------------------------------
             // Display the list of metrics evaluated on this file
             //----------------------------------------------------------------
             b.append(sp(in++) + "<div class=\"vfvmid\">\n");
             b.append(sp(in) + "<div class=\"vfvtitle\">Metrics</div>\n");
-            b.append(sp(in++) + "<form>\n");
             b.append(sp(in++) + "<select class=\"vfvmid\""
                     + " name=\"vfvmid\""
                     + " multiple"
@@ -370,17 +370,12 @@ public class VerboseFileView extends ListView {
                             + "</option>\n");
             }
             b.append(sp(--in) + "</select>\n");
-            b.append(sp(in) + "<div style=\"border-top: 1px solid black;\">"
-                    + "<input type=\"hidden\" name=\"fid\" value=\"" + fileId + "\">"
-                    + "<input type=\"submit\" value=\"Apply\">"
-                    + "</div>\n");
             b.append(sp(--in) + "</div>\n");
             //----------------------------------------------------------------
             // Display the list of file modifications
             //----------------------------------------------------------------
             b.append(sp(in++) + "<div class=\"vfvfid\">\n");
             b.append(sp(in) + "<div class=\"vfvtitle\">Modifications</div>\n");
-            b.append(sp(in++) + "<form>\n");
             b.append(sp(in++) + "<select class=\"vfvfid\""
                     + " name=\"vfvfid\""
                     + " multiple"
@@ -398,12 +393,13 @@ public class VerboseFileView extends ListView {
                         + "</option>\n");
             }
             b.append(sp(--in) + "</select>\n");
-            b.append(sp(in) + "<div style=\"border-top: 1px solid black;\">"
-                    + "<input type=\"hidden\" name=\"fid\" value=\"" + fileId + "\">"
-                    + "<input type=\"submit\" value=\"Apply\">"
-                    + "</div>\n");
-            b.append(sp(--in) + "</form>\n");
+
             b.append(sp(--in) + "</div>\n");
+            b.append(sp(in++) + "<div style=\"position: relative; clear: both; padding-top: 5px; border: 0; text-align: center;\">\n");
+            b.append(sp(in)+ "<input type=\"hidden\" name=\"fid\" value=\"" + fileId + "\">\n");
+            b.append(sp(in)+ "<input type=\"submit\" value=\"Apply\">\n");
+            b.append(sp(--in)+ "</div>\n");
+            b.append(sp(--in) + "</form>\n");
         }
 
         return b.toString();

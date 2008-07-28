@@ -100,9 +100,9 @@ if (selectedProject.isValid()) {
                 //============================================================
                 // Display the file info screen
                 //============================================================
-                if (settings.getShowVFVInfoScreen()
-                        || settings.getShowVFVCommandScreen()) {
-                    if (settings.getShowVFVChartScreen() == false)
+                if (settings.getShowVfvInfoPanel()
+                        || settings.getShowVfvControlPanel()) {
+                    if (settings.getShowVfvResultPanel() == false)
                         b.append(sp(in++) + "<td class=\"vfvleft\">\n");
                     else
                         b.append(sp(in++) + "<td class=\"vfvleft\">\n");
@@ -110,11 +110,12 @@ if (selectedProject.isValid()) {
                     // =======================================================
                     // Display the file's info screen
                     // =======================================================
-                    if (settings.getShowVFVInfoScreen()) {
+                    if (settings.getShowVfvInfoPanel()) {
                         // Construct the window's title icons
                         Window winInfoScreen = new Window();
-                        winVisible = "showVFVInfoScreen";
+                        winVisible = "showVfvInfoPanel";
                         icoCloseWin.setParameter(winVisible);
+                        icoCloseWin.setValue("false" + "&fid=" + fileId);
                         winInfoScreen.addTitleIcon(icoCloseWin);
                         // Construct the window's content
                         winInfoScreen.setContent(
@@ -126,11 +127,12 @@ if (selectedProject.isValid()) {
                     // =======================================================
                     // Display the file's command screen
                     // =======================================================
-                    if (settings.getShowVFVCommandScreen()) {
+                    if (settings.getShowVfvControlPanel()) {
                         // Construct the window's title icons
                         Window winCommandScreen = new Window();
-                        winVisible = "showVFVCommandScreen";
+                        winVisible = "showVfvControlPanel";
                         icoCloseWin.setParameter(winVisible);
+                        icoCloseWin.setValue("false" + "&fid=" + fileId);
                         winCommandScreen.addTitleIcon(icoCloseWin);
                         // Construct the window's content
                         winCommandScreen.setContent(
@@ -145,9 +147,9 @@ if (selectedProject.isValid()) {
                 //============================================================
                 // Display the folders and/or files in the selected directory
                 //============================================================
-                if (settings.getShowVFVChartScreen()) {
-                    if (settings.getShowVFVInfoScreen()
-                            || settings.getShowVFVCommandScreen())
+                if (settings.getShowVfvResultPanel()) {
+                    if (settings.getShowVfvInfoPanel()
+                            || settings.getShowVfvControlPanel())
                         b.append(sp(in++) + "<td class=\"vfvright\""
                             + " style=\"padding-left: 5px;\">\n");
                     else
@@ -156,11 +158,12 @@ if (selectedProject.isValid()) {
                     // =======================================================
                     // Display the file's charts
                     // =======================================================
-                    if (settings.getShowVFVChartScreen()) {
+                    if (settings.getShowVfvResultPanel()) {
                         // Construct the window's title icons
                         Window winChartsScreen = new Window();
-                        winVisible = "showVFVChartScreen";
+                        winVisible = "showVfvResultPanel";
                         icoCloseWin.setParameter(winVisible);
+                        icoCloseWin.setValue("false" + "&fid=" + fileId);
                         winChartsScreen.addTitleIcon(icoCloseWin);
                         // Construct the window's content
                         verboseView.setChartType(
@@ -181,6 +184,78 @@ if (selectedProject.isValid()) {
             else
                 winFileVerbose.setTitle("Invalid file/folder");
 
+            // Window icon - info window
+            WinIcon icoInfoWin = new WinIcon();
+            winVisible = "showVfvInfoPanel";
+            if (request.getParameter(winVisible) != null) {
+                if (request.getParameter(winVisible).equals("true"))
+                    settings.setShowVfvInfoPanel(true);
+                else if (request.getParameter(winVisible).equals("false"))
+                    settings.setShowVfvInfoPanel(false);
+            }
+            icoInfoWin.setPath(request.getServletPath());
+            icoInfoWin.setParameter(winVisible);
+            icoInfoWin.setValue("" + !settings.getShowVfvInfoPanel()
+                + "&fid=" + fileId);
+            if (settings.getShowVfvInfoPanel()) {
+                icoInfoWin.setAlt("Hide info panel");
+                icoInfoWin.setStatus(false);
+            }
+            else {
+                icoInfoWin.setAlt("Show info panel");
+            }
+            icoInfoWin.setImage("/img/icons/16x16/infopanel.png");
+            winFileVerbose.addToolIcon(icoInfoWin);
+
+            // Window icon - control window
+            WinIcon icoControlWin = new WinIcon();
+            winVisible = "showVfvControlPanel";
+            if (request.getParameter(winVisible) != null) {
+                if (request.getParameter(winVisible).equals("true"))
+                    settings.setShowVfvControlPanel(true);
+                else if (request.getParameter(winVisible).equals("false"))
+                    settings.setShowVfvControlPanel(false);
+            }
+            icoControlWin.setPath(request.getServletPath());
+            icoControlWin.setParameter(winVisible);
+            icoControlWin.setValue("" + !settings.getShowVfvControlPanel()
+                + "&fid=" + fileId);
+            if (settings.getShowVfvControlPanel()) {
+                icoControlWin.setAlt("Hide control panel");
+                icoControlWin.setStatus(false);
+            }
+            else {
+                icoControlWin.setAlt("Show control panel");
+            }
+            icoControlWin.setImage("/img/icons/16x16/controlpanel.png");
+            winFileVerbose.addToolIcon(icoControlWin);
+
+            // Window icon - results window
+            WinIcon icoResWin = new WinIcon();
+            winVisible = "showVfvResultPanel";
+            if (request.getParameter(winVisible) != null) {
+                if (request.getParameter(winVisible).equals("true"))
+                    settings.setShowVfvResultPanel(true);
+                else if (request.getParameter(winVisible).equals("false"))
+                    settings.setShowVfvResultPanel(false);
+            }
+            icoResWin.setPath(request.getServletPath());
+            icoResWin.setParameter(winVisible);
+            icoResWin.setValue("" + !settings.getShowVfvResultPanel()
+                + "&fid=" + fileId);
+            if (settings.getShowVfvResultPanel()) {
+                icoResWin.setAlt("Hide results panel");
+                icoResWin.setStatus(false);
+            }
+            else {
+                icoResWin.setAlt("Show results panel");
+            }
+            icoResWin.setImage("/img/icons/16x16/resultpanel.png");
+            winFileVerbose.addToolIcon(icoResWin);
+
+            // Put a separator
+            winFileVerbose.addToolIcon(icoSeparator);
+
             // Results icon - tabular display
             WinIcon icoTabular = new WinIcon();
             icoTabular.setPath(request.getServletPath());
@@ -192,6 +267,7 @@ if (selectedProject.isValid()) {
             if (settings.getVfvChartType() == VerboseFileView.TABLE_CHART)
                 icoTabular.setStatus(false);
             winFileVerbose.addToolIcon(icoTabular);
+
             // Results icon - line chart display
             WinIcon icoLineChart = new WinIcon();
             icoLineChart.setPath(request.getServletPath());
@@ -203,6 +279,16 @@ if (selectedProject.isValid()) {
             if (settings.getVfvChartType() == VerboseFileView.LINE_CHART)
                 icoLineChart.setStatus(false);
             winFileVerbose.addToolIcon(icoLineChart);
+
+            /*
+             * Disable the result buttons, unless one or more versions and
+             * metrics are selected.
+             */
+            if ((settings.getVfvSelectedVersions() == null)
+                || (settings.getVfvSelectedMetrics() == null)) {
+                icoTabular.setStatus(false);
+                icoLineChart.setStatus(false);
+            }
 
             icoCloseWin.setParameter(null);
             winFileVerbose.addTitleIcon(icoCloseWin);

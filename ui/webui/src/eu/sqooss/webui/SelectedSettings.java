@@ -55,10 +55,11 @@ public class SelectedSettings {
     private boolean showFVDirBrowser = true;
     private boolean showFVFolderList = true;
     private boolean showFVFileList = true;
+
     // VerboseFileView related
-    private boolean showVFVInfoScreen = true;
-    private boolean showVFVChartScreen = true;
-    private boolean showVFVCommandScreen = true;
+    private boolean showVfvInfoPanel = true;
+    private boolean showVfvControlPanel = true;
+    private boolean showVfvResultPanel = true;
     private String[] vfvSelectedMetrics = null;
     private String[] vfvSelectedVersions = null;
     private int vfvChartType = VerboseFileView.TABLE_CHART;
@@ -160,45 +161,61 @@ public class SelectedSettings {
         return showFVFileList;
     }
 
-    public void setShowVFVInfoScreen(boolean showVFVInfoScreen) {
-        this.showVFVInfoScreen = showVFVInfoScreen;
+    // =======================================================================
+    // VerboseFileView related
+    // =======================================================================
+
+    public boolean getShowVfvInfoPanel() {
+        return showVfvInfoPanel;
     }
 
-    public boolean getShowVFVInfoScreen() {
-        return showVFVInfoScreen;
+    public void setShowVfvInfoPanel(boolean show) {
+        this.showVfvInfoPanel = show;
     }
 
-    public void setShowVFVChartScreen(boolean showVFVChartScreen) {
-        this.showVFVChartScreen = showVFVChartScreen;
+    public boolean getShowVfvControlPanel() {
+        return showVfvControlPanel;
     }
 
-    public boolean getShowVFVChartScreen() {
-        return showVFVChartScreen;
+    public void setShowVfvControlPanel(boolean show) {
+        this.showVfvControlPanel = show;
     }
 
-    public void setShowVFVCommandScreen(boolean showVFVCommandScreen) {
-        this.showVFVCommandScreen = showVFVCommandScreen;
+    public boolean getShowVfvResultPanel() {
+        return showVfvResultPanel;
     }
 
-    public boolean getShowVFVCommandScreen() {
-        return showVFVCommandScreen;
+    public void setShowVfvResultPanel(boolean show) {
+        this.showVfvResultPanel = show;
     }
 
     public String[] getVfvSelectedMetrics() {
         return vfvSelectedMetrics;
     }
 
-    public void setVfvSelectedMetrics(String[] vfvSelectedMetrics) {
-        this.vfvSelectedMetrics = vfvSelectedMetrics;
+    public void setVfvSelectedMetrics(String[] metrics) {
+        this.vfvSelectedMetrics = metrics;
     }
 
     public String[] getVfvSelectedVersions() {
         return vfvSelectedVersions;
     }
 
-    public void setVfvSelectedVersions(String[] vfvSelectedVersions) {
-        this.vfvSelectedVersions = vfvSelectedVersions;
+    public void setVfvSelectedVersions(String[] versions) {
+        this.vfvSelectedVersions = versions;
     }
+
+    public int getVfvChartType() {
+        return vfvChartType;
+    }
+
+    public void setVfvChartType(int type) {
+        this.vfvChartType = type;
+    }
+
+    // =======================================================================
+    // Shared methods
+    // =======================================================================
 
     public File getTempFolder() {
         return tempFolder;
@@ -206,13 +223,5 @@ public class SelectedSettings {
 
     public void setTempFolder(File tempFolder) {
         this.tempFolder = tempFolder;
-    }
-
-    public int getVfvChartType() {
-        return vfvChartType;
-    }
-
-    public void setVfvChartType(int vfvChartType) {
-        this.vfvChartType = vfvChartType;
     }
 }
