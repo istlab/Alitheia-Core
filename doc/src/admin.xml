@@ -16,13 +16,13 @@
     <sect2 id="admin:install:webui">
         <title>Installing WebUI</title>
         <para>
-          The Alithea's WebUI web application has to be deployed into an
+          Alithea's WebUI web application has to be deployed into an
           Apache Tomcat environment. The WebUI WAR file is named and has to be
           installed as a Tomcat ROOT application.
         </para>
         <para>
-          For a manual installation we expect, that you know the location of
-          the WebUI WAR file and the the Tomcat's installation folder:
+          For a manual installation we expect that you know the location of
+          the WebUI WAR file and of course Tomcat's installation path:
         <itemizedlist mark='opencircle'>
           <listitem>
             <para>
@@ -33,7 +33,8 @@
           <listitem>
             <para>
               <command>$TOMCAT</command>
-              must point to the Tomcat's installation folder
+              must point to the Tomcat's installation folder (usually the
+              directory containing the webapps directory.
             </para>
           </listitem>
         </itemizedlist>
