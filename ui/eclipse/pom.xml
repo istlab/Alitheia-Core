@@ -79,6 +79,10 @@
         <directory>${basedir}/sqoosslib</directory>
         <targetPath>lib</targetPath>
       </resource>
+      <resource>
+        <directory>${basedir}/OSGI-INF</directory>
+        <targetPath>OSGI-INF</targetPath>
+      </resource>
     </resources>
   </build>
 

@@ -32,6 +32,10 @@
 
 package eu.sqooss.impl.plugin;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
+
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -40,11 +44,15 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends AbstractUIPlugin {
 
+    public static Properties configurationProperties;
+    
 	// The plug-in ID
 	public static final String PLUGIN_ID = "SQO_OSS";
 
 	// The shared instance
 	private static Activator plugin;
+	
+	private static final String CONFIGURATION_FILE_NAME = "/OSGI-INF/configuration/plugin.properties";
 	
 	/**
 	 * The constructor
@@ -59,6 +67,7 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		initProperties(context);
 	}
 
 	/*
@@ -68,6 +77,7 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+		configurationProperties = null;
 	}
 
 	/**
@@ -79,6 +89,20 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	private static void initProperties(BundleContext bc) {
+	    if (configurationProperties == null) {
+	        URL propsUrl = bc.getBundle().getEntry(CONFIGURATION_FILE_NAME);
+	        if (propsUrl != null) {
+	            configurationProperties = new Properties();
+	            try {
+	                configurationProperties.load(propsUrl.openStream());
+	            } catch (IOException e) {
+	                configurationProperties = null;
+	            }
+	        }
+	    }
+	}
+	
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

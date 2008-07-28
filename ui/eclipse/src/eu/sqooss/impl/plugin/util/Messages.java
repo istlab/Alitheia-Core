@@ -58,8 +58,10 @@ public class Messages extends NLS {
     public static String EnabledPropertyPage_Message_Error_Invalid_Project;
     
     //ConfigurationPropertyPage's messages
-    public static String ConfigurationPropertyPage_Label_Server_Url;
-    public static String ConfigurationPropertyPage_Text_Server_Url_Default_Value;
+    public static String ConfigurationPropertyPage_Label_Server_Address;
+    public static String ConfigurationPropertyPage_Label_Server_Port;
+    public static String ConfigurationPropertyPage_Text_Server_Address_Default_Value;
+    public static String ConfigurationPropertyPage_Text_Server_Port_Default_Value;
     public static String ConfigurationPropertyPage_Text_User_Name_Default_Value;
     public static String ConfigurationPropertyPage_Text_Password_Default_Value;
     public static String ConfigurationPropertyPage_Text_Project_Name_Default_Value;
@@ -109,7 +111,6 @@ public class Messages extends NLS {
     
     //TableVisualizer's messages
     public static String TableVisualizer_Title_Metric;
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

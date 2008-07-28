@@ -39,15 +39,20 @@ import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferencePage;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.preference.PreferenceManager;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.plugin.util.EnabledState;
 
-public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage implements SelectionListener {
+public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
+                                       implements SelectionListener,
+                                                  TraverseListener {
 
 	public ConfigurationPropertyPage() {
 		super();
@@ -65,6 +70,7 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         synchronizeConnectionUtils(true);
         tabFolder.addSelectionListener(this);
         comboProjectVersion.addSelectionListener(this);
+        spinnerServerPort.addTraverseListener(this);
         return control;
     }
 
@@ -112,6 +118,12 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         notifyPropertyPages(connectionUtils.validate());
     }
 
+    public void keyTraversed(TraverseEvent e) {
+        Object eventSource = e.getSource();
+        if (eventSource == spinnerServerPort) {
+            e.doit = e.keyCode != SWT.CR; // vetoes all CR traversals
+        }
+    }
 
     public void widgetDefaultSelected(SelectionEvent e) {
         //do nothing
@@ -187,13 +199,15 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     
     private void synchronizeConnectionUtils(boolean synchronizeGUI) {
         if (synchronizeGUI) {
-            textFieldServerUrl.setText(connectionUtils.getServerUrl());
+            textFieldServerAddress.setText(connectionUtils.getServerAddress());
+            spinnerServerPort.setSelection(connectionUtils.getServerPort());
             textFieldUserName.setText(connectionUtils.getUserName());
             textFieldPassword.setText(connectionUtils.getPassword());
             textFieldProjectName.setText(connectionUtils.getProjectName());
             comboProjectVersion.setText(connectionUtils.getProjectVersion());
         } else {
-            connectionUtils.setServerUrl(textFieldServerUrl.getText());
+            connectionUtils.setServerAddress(textFieldServerAddress.getText());
+            connectionUtils.setServerPort(spinnerServerPort.getSelection());
             connectionUtils.setProjectName(textFieldProjectName.getText());
             connectionUtils.setProjectVersion(comboProjectVersion.getText());
             connectionUtils.setUserName(textFieldUserName.getText());

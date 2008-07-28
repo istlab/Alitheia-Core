@@ -39,6 +39,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 
+import eu.sqooss.impl.plugin.Activator;
 import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.impl.plugin.util.ProjectFileEntity;
 import eu.sqooss.impl.plugin.util.ProjectVersionEntity;
@@ -58,10 +59,15 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
  */
 public class ConnectionUtils {
     
+    public static final int SERVER_PORT_DEFAULT_VALUE = Integer.valueOf(
+            Messages.ConfigurationPropertyPage_Text_Server_Port_Default_Value);
+    
     public static final QualifiedName PROPERTY_CONNECTION_UTILS =
         new QualifiedName("", "SQO-OSS_CONNECTION_UTILS");
-    public static final QualifiedName PROPERTY_SERVER_URL   =
-        new QualifiedName("", "SQO-OSS_SERVER_URL");
+    public static final QualifiedName PROPERTY_SERVER_ADDRESS =
+        new QualifiedName("", "SQO-OSS_SERVER_ADDRESS");
+    public static final QualifiedName PROPERTY_SERVER_PORT  =
+        new QualifiedName("", "SQO-OSS_SERVER_PORT");
     public static final QualifiedName PROPERTY_USER_NAME    =
         new QualifiedName("", "SQO-OSS_USER_NAME");
     public static final QualifiedName PROPERTY_PASSWORD     =
@@ -71,13 +77,19 @@ public class ConnectionUtils {
     public static final QualifiedName PROPERTY_PROJECT_VERSION =
         new QualifiedName("", "SQO-OSS_PROJECT_VERSION");
     
+    private static final String PROPERTY_WEB_SERVICES_ADDRESS =
+        "ConnectionUtils_WebServices_Address"; 
+    private static final String SERVER_PORT_DELIMITER = ":";
     private static final String REG_EXPR_ANY_CHARACTER = ".*";
+    
+    private static String webServicesAddress;
     
     private String errorMessage;
     private boolean isValidAccount;
     private boolean isValidProjectVersion;
     private IProject project;
-    private String serverUrl;
+    private String serverAddress;
+    private int serverPort;
     private String userName;
     private String password;
     private String projectName;
@@ -94,17 +106,25 @@ public class ConnectionUtils {
      */
     public ConnectionUtils(IProject project) {
         this.project = project;
+        initProperties();
         load(project);
         validate();
     }
     
     /**
-     * @return - the URL of the framework web service
+     * @return - the address of the Alitheia server 
      */
-    public String getServerUrl() {
-        return serverUrl;
+    public String getServerAddress() {
+        return serverAddress;
     }
-
+    
+    /**
+     * @return - the port of the Alitheia server 
+     */
+    public int getServerPort() {
+        return serverPort;
+    }
+    
     /**
      * @return - the user's name.
      * The user's name is used for authentication.
@@ -155,16 +175,27 @@ public class ConnectionUtils {
     }
 
     /**
-     * The method sets the URL of the framework web service
+     * The method sets the address of the Alitheia server
      * and invalidates the session.
      * 
-     * @param serverUrl - the URL of the framework web service
+     * @param serverAddress - the server address
      */
-    public void setServerUrl(String serverUrl) {
+    public void setServerAddress(String serverAddress) {
         this.isValidAccount = false;
-        this.serverUrl = serverUrl;
+        this.serverAddress = serverAddress;
     }
-
+    
+    /**
+     * The method sets the port of the Alitheia server
+     * and invalidates the session.
+     * 
+     * @param serverPort - the server port
+     */
+    public void setServerPort(int serverPort) {
+        this.isValidAccount = false;
+        this.serverPort = serverPort;
+    }
+    
     /**
      * The method sets the user's name and invalidates the session.
      * 
@@ -209,13 +240,19 @@ public class ConnectionUtils {
      */
     public boolean save() {
         try {
-            if (!Messages.
-                    ConfigurationPropertyPage_Text_Server_Url_Default_Value.equals(serverUrl)) {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, serverUrl);
+            if (!Messages.ConfigurationPropertyPage_Text_Server_Address_Default_Value.equals(serverAddress)) {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_ADDRESS, serverAddress);
             } else {
-                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL, null);
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_ADDRESS, null);
             }
 
+            if (ConnectionUtils.SERVER_PORT_DEFAULT_VALUE != serverPort) {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_PORT,
+                        Integer.toString(serverPort));
+            } else {
+                project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_PORT, null);
+            }
+            
             if (!Messages.
                     ConfigurationPropertyPage_Text_User_Name_Default_Value.equals(userName)) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, userName);
@@ -261,7 +298,15 @@ public class ConnectionUtils {
     public boolean validate() {
         try {
             if (!isValidAccount) {
-                wsSession = new WSSession(userName, password, serverUrl);
+                if (webServicesAddress != null) {
+                    String serverUrl = serverAddress + SERVER_PORT_DELIMITER +
+                    Integer.toString(serverPort) + webServicesAddress;
+                    wsSession = new WSSession(userName, password, serverUrl);
+                } else {
+                    this.errorMessage =
+                        "The web services address must be configured in the configuration file!";
+                    return false;
+                }
             }
             WSProjectAccessor projectAccessor =
                 ((WSProjectAccessor) wsSession.getAccessor(WSAccessor.Type.PROJECT));
@@ -290,8 +335,8 @@ public class ConnectionUtils {
      * Sets the default values of all settings.
      */
     public void setDefaultValues() {
-        serverUrl = Messages.
-        ConfigurationPropertyPage_Text_Server_Url_Default_Value;
+        serverAddress = Messages.ConfigurationPropertyPage_Text_Server_Address_Default_Value;
+        serverPort = ConnectionUtils.SERVER_PORT_DEFAULT_VALUE;
         userName = Messages.
         ConfigurationPropertyPage_Text_User_Name_Default_Value;
         password = Messages.
@@ -391,13 +436,19 @@ public class ConnectionUtils {
         String propertyValue;
         
         try {
-            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_URL);
+            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_ADDRESS);
             if (propertyValue == null) {
-                propertyValue = Messages.
-                ConfigurationPropertyPage_Text_Server_Url_Default_Value;
+                propertyValue = Messages.ConfigurationPropertyPage_Text_Server_Address_Default_Value;
             }
-            setServerUrl(propertyValue);
+            setServerAddress(propertyValue);
 
+            propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_PORT);
+            try {
+                setServerPort(Integer.valueOf(propertyValue));
+            } catch (NumberFormatException nfe) {
+                setServerPort(ConnectionUtils.SERVER_PORT_DEFAULT_VALUE);
+            }            
+            
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME);
             if (propertyValue == null) {
                 propertyValue = Messages.
@@ -441,6 +492,17 @@ public class ConnectionUtils {
         } else {
             String message = exception.getMessage();
             return message == null ? exception.toString() : message;
+        }
+    }
+    
+    private void initProperties() {
+        if (webServicesAddress == null) {
+            if ((Activator.configurationProperties != null) &&
+                    (Activator.configurationProperties.containsKey(PROPERTY_WEB_SERVICES_ADDRESS))) {
+                webServicesAddress = Activator.configurationProperties.getProperty(PROPERTY_WEB_SERVICES_ADDRESS);
+            } else {
+                webServicesAddress = null;
+            }
         }
     }
     
