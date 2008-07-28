@@ -266,7 +266,7 @@ td.def_invisible {
     border: 0;
     background-color: transparent;
 }
-/* ===[ Verbose file view related ]======================================= */
+/* ===[ Full screen view related ]======================================= */
 div.fullscreen {
     text-align: center;
     vertical-align: middle;
@@ -274,16 +274,7 @@ div.fullscreen {
 a.fullscreen img {
     border: 0px none;
 }
-a.chart img {
-    border: 0px none;
-    width: 100%;
-}
-td.vfvleft {
-    width: 221px;
-}
-td.vfvright {
-    
-}
+/* ===[ Verbose file view related ]======================================= */
 div.vfvmid {
     border: 1px solid black;
     width: 100px;
@@ -308,6 +299,50 @@ select.vfvmid {
 select.vfvfid {
     border: none;
     width:100px;
+}
+table.vfv_chart {
+    border-collapse: separate;
+}
+td.vfv_chart_title_selected {
+    background-color: #E6E437;
+    border: 1px solid black;
+    border-right: 0;
+    font-weight: bold;
+    height: 18px;
+    padding-left: 5px;
+    text-align: left;
+    width: 50px;
+}
+td.vfv_chart_title {
+    background-image: url(/img/icons/16x16/vfvstripe01.png);
+    border: 0;
+    border-right: 1px solid black;
+    height: 18px;
+    padding-left: 5px;
+    text-align: left;
+    width: 50px;
+}
+td.vfv_chart_title_empty {
+    border: 0;
+    border-right: 1px solid black;
+    padding-left: 5px;
+    text-align: left;
+    width: 50px;
+}
+td.vfv_chart_image {
+    background-color: #E6E437;
+    border: 1px solid black;
+    border-left: 0;
+}
+td.vfvleft {
+    width: 221px;
+}
+td.vfvright {
+    
+}
+a.vfvchart img {
+    border: 0px none;
+    width: 100%;
 }
 /* ===[ TO SORT]========================================================== */
 #table td.head {

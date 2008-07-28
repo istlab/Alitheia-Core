@@ -96,6 +96,11 @@ public class VerboseFileView extends ListView {
     private List<Long> selectedMetrics = new ArrayList<Long>();
 
     /*
+     * Holde the mnemonic of the currently highlighted metric
+     */
+    private String selectedMetric = null;
+
+    /*
      * Holds the list of metrics that were evaluated on the selected file.
      */
     private Collection<String> mnemonics = null;
@@ -145,6 +150,10 @@ public class VerboseFileView extends ListView {
                 }
                 catch (NumberFormatException ex) { /* Do nothing */ }
             }
+    }
+
+    public void setSelectedMetric(String selectedMetric) {
+        this.selectedMetric = selectedMetric;
     }
 
     public void setChartType(int chartType) {
@@ -240,27 +249,66 @@ public class VerboseFileView extends ListView {
                 b.append(tableChart(in, data));
                 break;
             case LINE_CHART:
-                chartFile = "/tmp/" + lineChart(data);
-                b.append(sp(in++)
-                            + "<a class=\"chart\""
+                if ((selectedMetric != null)
+                        && (data.containsKey(selectedMetric)))
+                    chartFile = "/tmp/" + lineChart(
+                            data.subMap(selectedMetric, selectedMetric +"\0"));
+                else
+                    chartFile = "/tmp/" + lineChart(data);
+                if (chartFile != null) {
+                    b.append(sp(in++) + "<table"
+                            + " style=\"margin-top: 0;\">\n");
+                    b.append(sp(in++) + "</tr>\n");
+                    if ((selectedMetric != null)
+                            && (data.containsKey(selectedMetric)))
+                        b.append(sp(in) + "<td class=\"vfv_chart_title\">"
+                                + "<a href=\"" 
+                                + getServletPath()
+                                + "?fid=" + fileId
+                                + "\">"
+                                + "ALL" + "</a>"
+                                + "</td>\n");
+                    else
+                        b.append(sp(in) + "<td class=\"vfv_chart_title_selected\">"
+                                + "ALL"
+                                + "</td>\n");
+                    b.append(sp(in) + "<td class=\"vfv_chart_image\""
+                            + " rowspan=\"" + (2 + data.size()) + "\">"
+                            + "<a class=\"vfvchart\""
                             + " href=\"/fullscreen.jsp?"
                             + "chartfile=" + chartFile + "\">"
                             + "<img src=\"" + chartFile + "\">"
-                            + "</a>");
-                b.append(sp(in++) + "<table"
-                        + " style=\"margin-top: 0;\">\n");
-                b.append(sp(in++) + "</tr>\n");
-                b.append(sp(in) + "<td class=\"chart\">");
-                if (chartFile != null)
-                    b.append("<img style=\"width: 100%;\""
-                            + " src=\"/tmp/" + chartFile + "\""
-                            + ">");
+                            + "</a>"
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    for (String mnemonic : data.keySet()) {
+                        b.append(sp(in++) + "<tr>\n");
+                        if ((selectedMetric != null)
+                                && (selectedMetric.equals(mnemonic)))
+                            b.append(sp(in) + "<td class=\"vfv_chart_title_selected\">"
+                                    + mnemonic
+                                    + "</td>\n");
+                        else
+                            b.append(sp(in) + "<td class=\"vfv_chart_title\">"
+                                    + "<a href=\"" 
+                                    + getServletPath()
+                                    + "?vfvsm=" + mnemonic
+                                    + "&fid=" + fileId
+                                    + "\">"
+                                    + mnemonic + "</a>"
+                                    + "</td>\n");
+                        b.append(sp(--in) + "</tr>\n");
+                    }
+                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(in) + "<td class=\"vfv_chart_title_empty\">"
+                            + "&nbsp;"
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</table>\n");
+                }
                 else
                     b.append(Functions.information(
                             "Inapplicable results."));
-                b.append("</td>\n");
-                b.append(sp(--in) + "</tr>\n");
-                b.append(sp(--in) + "</table>\n");
                 break;
             default:
                 b.append(tableChart(in, data));
@@ -491,4 +539,5 @@ public class VerboseFileView extends ListView {
         return null;
         
     }
+
 }

@@ -55,13 +55,6 @@ if (selectedProject.isValid()) {
             // Retrieve the Id of the selected file/folder
             Long fileId = strToLong(request.getParameter("fid"));
 
-            // Check, if the user selected an another chart type
-            if (request.getParameter("vfvchart") != null) {
-                Long chartType = getId(request.getParameter("vfvchart"));
-                if (chartType != null)
-                    settings.setVfvChartType(chartType.intValue());
-            }
-
             // Retrieve the list of selected file versions (if any) {
             if (request.getParameter("vfvfid") != null) {
                 settings.setVfvSelectedVersions(
@@ -74,11 +67,64 @@ if (selectedProject.isValid()) {
                     request.getParameterValues("vfvmid"));
             }
 
+            // Panel show/hide checks
+            if (request.getParameter("showVfvInfoPanel") != null) {
+                if (request.getParameter("showVfvInfoPanel").equals("true"))
+                    settings.setShowVfvInfoPanel(true);
+                else if (request.getParameter("showVfvInfoPanel").equals("false"))
+                    settings.setShowVfvInfoPanel(false);
+            }
+            if (request.getParameter("showVfvControlPanel") != null) {
+                if (request.getParameter("showVfvControlPanel").equals("true"))
+                    settings.setShowVfvControlPanel(true);
+                else if (request.getParameter("showVfvControlPanel").equals("false"))
+                    settings.setShowVfvControlPanel(false);
+            }
+            if (request.getParameter("showVfvResultPanel") != null) {
+                if (request.getParameter("showVfvResultPanel").equals("true"))
+                    settings.setShowVfvResultPanel(true);
+                else if (request.getParameter("showVfvResultPanel").equals("false"))
+                    settings.setShowVfvResultPanel(false);
+            }
+
+            // Check, if the user selected an another chart type
+            if (request.getParameter("vfvchart") != null) {
+                Long chartType = getId(request.getParameter("vfvchart"));
+                if (chartType != null)
+                    settings.setVfvChartType(chartType.intValue());
+                if (chartType == VerboseFileView.TABLE_CHART) {
+                    settings.setShowVfvInfoPanel(true);
+                    settings.setShowVfvControlPanel(true);
+                }
+            }
+            if ((settings.getVfvChartType() == VerboseFileView.LINE_CHART)
+                && (request.getParameter("showVfvControlPanel") == null)
+                && (request.getParameter("showVfvInfoPanel") == null)) {
+                settings.setShowVfvInfoPanel(false);
+                settings.setShowVfvControlPanel(false);
+            }
+
+            /*
+             * Keep showing the info and control panels, untill a metric AND
+             * version has been selected.
+             */
+            if ((settings.getVfvSelectedVersions() == null)
+                || (settings.getVfvSelectedMetrics() == null)) {
+                settings.setShowVfvInfoPanel(true);
+                settings.setShowVfvControlPanel(true);
+            }
+
             VerboseFileView verboseView =
                 new VerboseFileView(selectedProject, fileId);
             verboseView.setTerrier(terrier);
             verboseView.setServletPath(request.getServletPath());
             verboseView.setSettings(settings);
+
+           // Retrieve the highlighted metric (if any) {
+            if (request.getParameter("vfvsm") != null) {
+                verboseView.setSelectedMetric(
+                    request.getParameter("vfvsm"));
+            }
 
             // Construct the window's content
             StringBuilder b = new StringBuilder("");
@@ -186,15 +232,8 @@ if (selectedProject.isValid()) {
 
             // Window icon - info window
             WinIcon icoInfoWin = new WinIcon();
-            winVisible = "showVfvInfoPanel";
-            if (request.getParameter(winVisible) != null) {
-                if (request.getParameter(winVisible).equals("true"))
-                    settings.setShowVfvInfoPanel(true);
-                else if (request.getParameter(winVisible).equals("false"))
-                    settings.setShowVfvInfoPanel(false);
-            }
             icoInfoWin.setPath(request.getServletPath());
-            icoInfoWin.setParameter(winVisible);
+            icoInfoWin.setParameter("showVfvInfoPanel");
             icoInfoWin.setValue("" + !settings.getShowVfvInfoPanel()
                 + "&fid=" + fileId);
             if (settings.getShowVfvInfoPanel()) {
@@ -209,15 +248,8 @@ if (selectedProject.isValid()) {
 
             // Window icon - control window
             WinIcon icoControlWin = new WinIcon();
-            winVisible = "showVfvControlPanel";
-            if (request.getParameter(winVisible) != null) {
-                if (request.getParameter(winVisible).equals("true"))
-                    settings.setShowVfvControlPanel(true);
-                else if (request.getParameter(winVisible).equals("false"))
-                    settings.setShowVfvControlPanel(false);
-            }
             icoControlWin.setPath(request.getServletPath());
-            icoControlWin.setParameter(winVisible);
+            icoControlWin.setParameter("showVfvControlPanel");
             icoControlWin.setValue("" + !settings.getShowVfvControlPanel()
                 + "&fid=" + fileId);
             if (settings.getShowVfvControlPanel()) {
@@ -232,15 +264,8 @@ if (selectedProject.isValid()) {
 
             // Window icon - results window
             WinIcon icoResWin = new WinIcon();
-            winVisible = "showVfvResultPanel";
-            if (request.getParameter(winVisible) != null) {
-                if (request.getParameter(winVisible).equals("true"))
-                    settings.setShowVfvResultPanel(true);
-                else if (request.getParameter(winVisible).equals("false"))
-                    settings.setShowVfvResultPanel(false);
-            }
             icoResWin.setPath(request.getServletPath());
-            icoResWin.setParameter(winVisible);
+            icoResWin.setParameter("showVfvResultPanel");
             icoResWin.setValue("" + !settings.getShowVfvResultPanel()
                 + "&fid=" + fileId);
             if (settings.getShowVfvResultPanel()) {
@@ -287,6 +312,10 @@ if (selectedProject.isValid()) {
             if ((settings.getVfvSelectedVersions() == null)
                 || (settings.getVfvSelectedMetrics() == null)) {
                 icoTabular.setStatus(false);
+                icoLineChart.setStatus(false);
+            }
+            else if ((settings.getVfvSelectedVersions().length < 2)
+                && (settings.getVfvSelectedMetrics().length < 2)) {
                 icoLineChart.setStatus(false);
             }
 
