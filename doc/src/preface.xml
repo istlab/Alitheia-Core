@@ -4,7 +4,15 @@
 <title>Preface</title>
 <sect1 id="pref:whatis">
     <title>What is SQO-OSS?</title>
-    <para></para>
+    <para>
+    SQO-OSS is a project funded by the European Community that aims at implementing a quality-checking system that can be used by Open Source software projects to gather information about the quality of their code and relate this information to other data sources such as issue-tracker data and mailinglist archives.
+    </para>
+</sect1>
+<sect1 id="pref:alitheia">
+    <title>What is Alitheia?</title>
+    <para>
+    Alitheia is the name of the software that is produced by the SQO-OSS project.
+    </para>
 </sect1>
 <sect1 id="pref:hist">
     <title>A bried history of SQO-OSS</title>
