@@ -32,7 +32,6 @@
 
 package eu.sqooss.scl;
 
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -123,8 +122,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setEmail(email);
             try {
                 response = wsStub.createPendingUser(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return response.get_return();
@@ -151,8 +150,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setUsersIds(usersIds);
             try {
                 response = wsStub.getUsersByIds(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSUser[]) normalizeWSArrayResult(response.get_return());
@@ -177,8 +176,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
         synchronized (params) {
             try {
                 response = wsStub.getUserGroups(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSUserGroup[]) normalizeWSArrayResult(response.get_return());
@@ -204,8 +203,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setUserName(name);
             try {
                 response = wsStub.getUserByName(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return response.get_return();
@@ -234,8 +233,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setNewEmail(newEmail);
             try {
                 response = wsStub.modifyUser(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return response.get_return();
@@ -261,8 +260,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setUserId(userId);
             try {
                 response = wsStub.deleteUserById(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return response.get_return();
@@ -286,8 +285,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
         synchronized (params) {
             try {
                 response = wsStub.getMessageOfTheDay(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return response.get_return();
@@ -319,8 +318,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
             params.setTitle(title);
             try {
                 response = wsStub.notifyAdmin(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return response.get_return();
@@ -344,8 +343,8 @@ class WSUserAccessorImpl extends WSUserAccessor {
         synchronized (params) {
             try {
                 response = wsStub.getConstants(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return response.get_return();

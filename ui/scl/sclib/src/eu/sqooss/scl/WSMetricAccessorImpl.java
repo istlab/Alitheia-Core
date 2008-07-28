@@ -32,7 +32,6 @@
 
 package eu.sqooss.scl;
 
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -109,8 +108,8 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
         synchronized (params) {
             try {
                 response = wsStub.getAllMetrics(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSMetric[]) normalizeWSArrayResult(response.get_return());
@@ -136,8 +135,8 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             params.setProjectId(projectId);
             try {
                 response = wsStub.getProjectEvaluatedMetrics(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSMetric[]) normalizeWSArrayResult(response.get_return());
@@ -164,8 +163,8 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             params.setMetricTypesIds(metricTypesIds);
             try {
                 response = wsStub.getMetricTypesByIds(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSMetricType[]) normalizeWSArrayResult(response.get_return());
@@ -195,8 +194,8 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             params.setRequest(request);
             try {
                 response = wsStub.getMetricsByResourcesIds(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSMetric[]) normalizeWSArrayResult(response.get_return());
@@ -222,8 +221,8 @@ class WSMetricAccessorImpl extends WSMetricAccessor {
             params.setResultRequest(resultRequest);
             try {
                 response = wsStub.getMetricsResult(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSResultEntry[]) normalizeWSArrayResult(response.get_return());

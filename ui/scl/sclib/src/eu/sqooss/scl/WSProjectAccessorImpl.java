@@ -32,7 +32,6 @@
 
 package eu.sqooss.scl;
 
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -178,8 +177,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectId(projectId);
             try {
                 response = wsStub.getRootDirectory(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSDirectory) response.get_return();
@@ -208,7 +207,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setDirectoryId(directoryId);
             try {
                 response = wsStub.getFilesInDirectory(params);
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 throw new WSException(e);
             }
         }
@@ -238,7 +237,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectFileId(projectFileId);
             try {
                 response = wsStub.getFileModifications(params);
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 throw new WSException(e);
             }
         }
@@ -265,7 +264,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         synchronized (params) {
             try {
                 response = wsStub.getEvaluatedProjects(params);
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 throw new WSException(e);
             }
         }
@@ -291,7 +290,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         synchronized (params) {
             try {
                 response = wsStub.getStoredProjects(params);
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 throw new WSException(e);
             }
         }
@@ -319,8 +318,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectVersionsIds(projectVersionsIds);
             try {
                 response = wsStub.getVersionsStatistics(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
 
@@ -344,8 +343,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectId(projectId);
             try {
                 response = wsStub.getVersionsCount(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
 
@@ -372,8 +371,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectVersionId(projectVersionId);
             try {
                 response = wsStub.getFilesByProjectVersionId(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
@@ -406,8 +405,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setRegExpr(regExpr);
             try {
                 response = wsStub.getFilesByRegularExpression(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
@@ -433,8 +432,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectId(projectId);
             try {
                 response = wsStub.getFileGroupsByProjectId(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSFileGroup[]) normalizeWSArrayResult(response.get_return());
@@ -460,8 +459,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectVersionId(projectVersionId);
             try {
                 response = wsStub.getFilesNumberByProjectVersionId(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
 
@@ -490,8 +489,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setDirectoriesIds(directoriesIds);
             try {
                 response = wsStub.getDirectoriesByIds(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSDirectory[]) normalizeWSArrayResult(response.get_return());
@@ -519,8 +518,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setDevelopersIds(developersIds);
             try {
                 response = wsStub.getDevelopersByIds(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         return (WSDeveloper[]) normalizeWSArrayResult(response.get_return());
@@ -546,8 +545,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectName(projectName);
             try {
                 response = wsStub.getProjectByName(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
 
@@ -576,8 +575,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectVersionsIds(projectVersionsIds);
             try {
                 response = wsStub.getProjectVersionsByIds(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         
@@ -611,8 +610,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setVersionNumbers(versionNumbers);
             try {
                 response = wsStub.getProjectVersionsByVersionNumbers(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         
@@ -642,8 +641,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectsIds(projectsIds);
             try {
                 response = wsStub.getFirstProjectVersions(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         
@@ -673,8 +672,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectsIds(projectsIds);
             try {
                 response = wsStub.getLastProjectVersions(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
         
@@ -702,8 +701,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectsIds(projectsIds);
             try {
                 response = wsStub.getProjectsByIds(params);
-            } catch (RemoteException re) {
-                throw new WSException(re);
+            } catch (Exception e) {
+                throw new WSException(e);
             }
         }
 
