@@ -45,16 +45,11 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
+import eu.sqooss.impl.plugin.util.Constants;
 import eu.sqooss.impl.plugin.util.Messages;
-import eu.sqooss.plugin.util.ConnectionUtils;
 
 abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
 
-    protected static final int SERVER_PORT_MIN = 0;
-    protected static final int SERVER_PORT_MAX = 65535;
-    
-    private static final int TEXT_FIELDS_SWT_STYLE = SWT.SINGLE | SWT.BORDER;
-    
     protected Text textFieldServerAddress;
     protected Spinner spinnerServerPort;
     protected Text textFieldUserName;
@@ -108,19 +103,20 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         
         // add server url's components
         Label labelServerAddress = new Label(compositeAccount, SWT.NONE);
-        labelServerAddress.setText(Messages.ConfigurationPropertyPage_Label_Server_Address);
-        textFieldServerAddress = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE);
+        labelServerAddress.setText(Messages.Configuration_Label_Server_Address);
+        textFieldServerAddress = new Text(compositeAccount,
+                Constants.TEXT_FIELD_COMMON_STYLE);
         setLayoutData(textFieldServerAddress, 1);
         Label labelServerPort = new Label(compositeAccount, SWT.NONE);
-        labelServerPort.setText(Messages.ConfigurationPropertyPage_Label_Server_Port);
+        labelServerPort.setText(Messages.Configuration_Label_Server_Port);
         spinnerServerPort = new Spinner(compositeAccount, SWT.NONE);
         spinnerServerPort.setValues(
-                ConnectionUtils.SERVER_PORT_DEFAULT_VALUE, //set selection
-                SERVER_PORT_MIN, //set minimum
-                SERVER_PORT_MAX, //set maximum
-                0,               //set digits
-                1,               //set increment
-                1);              //set page increment
+                Constants.SERVER_PORT_DEFAULT_VALUE, //set selection
+                Constants.SERVER_PORT_MIN, //set minimum
+                Constants.SERVER_PORT_MAX, //set maximum
+                0,                         //set digits
+                1,                         //set increment
+                1);                        //set page increment
         /*
          * The behavior of the spinner is not system independent.
          * Here are some related bugs:
@@ -131,14 +127,16 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         
         // add user name's components
         Label labelUserName = new Label(compositeAccount, SWT.NONE);
-        labelUserName.setText(Messages.ConfigurationPropertyPage_Label_User_Name);
-        textFieldUserName = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE);
+        labelUserName.setText(Messages.Configuration_Label_User_Name);
+        textFieldUserName = new Text(compositeAccount,
+                Constants.TEXT_FIELD_COMMON_STYLE);
         setLayoutData(textFieldUserName, 3);
 
         // add password's components
         Label labelPassword = new Label(compositeAccount, SWT.NONE);
-        labelPassword.setText(Messages.ConfigurationPropertyPage_Label_Password);
-        textFieldPassword = new Text(compositeAccount, TEXT_FIELDS_SWT_STYLE | SWT.PASSWORD);
+        labelPassword.setText(Messages.Configuration_Label_Password);
+        textFieldPassword = new Text(compositeAccount,
+                Constants.TEXT_FIELD_COMMON_STYLE | SWT.PASSWORD);
         setLayoutData(textFieldPassword, 3);
         
         TabItem tabItemAccount = new TabItem(tabFolder, SWT.NONE);
@@ -153,7 +151,8 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         // add project's components - name
         Label labelProjectName = new Label(compositeProject, SWT.NONE);
         labelProjectName.setText(Messages.ConfigurationPropertyPage_Label_Project_Name);
-        textFieldProjectName = new Text(compositeProject, TEXT_FIELDS_SWT_STYLE);
+        textFieldProjectName = new Text(compositeProject,
+                Constants.TEXT_FIELD_COMMON_STYLE);
         setLayoutData(textFieldProjectName, 1);
         
         // add project's components - version

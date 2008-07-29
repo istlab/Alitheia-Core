@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+   </requires>
 
 	<extension point="org.eclipse.ui.propertyPages"> 
         <page 
@@ -57,6 +60,14 @@
 				</adapt>
           	</enabledWhen>
         </page> 
+    </extension>
+    <extension
+          point="org.eclipse.ui.preferencePages">
+       <page
+             class="eu.sqooss.impl.plugin.preferences.ConfigurationPreferencePage"
+             id="eu.sqooss.impl.plugin.preferences.configurationPreferencePage"
+             name="SQO-OSS">
+       </page>
     </extension>
 
 </plugin>

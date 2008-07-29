@@ -43,6 +43,7 @@ import eu.sqooss.impl.plugin.Activator;
 import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.impl.plugin.util.ProjectFileEntity;
 import eu.sqooss.impl.plugin.util.ProjectVersionEntity;
+import eu.sqooss.impl.plugin.util.Constants;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.accessor.WSAccessor;
@@ -58,9 +59,6 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
  * The user can update, save and validate all settings of the session.
  */
 public class ConnectionUtils {
-    
-    public static final int SERVER_PORT_DEFAULT_VALUE = Integer.valueOf(
-            Messages.ConfigurationPropertyPage_Text_Server_Port_Default_Value);
     
     public static final QualifiedName PROPERTY_CONNECTION_UTILS =
         new QualifiedName("", "SQO-OSS_CONNECTION_UTILS");
@@ -246,7 +244,7 @@ public class ConnectionUtils {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_ADDRESS, null);
             }
 
-            if (ConnectionUtils.SERVER_PORT_DEFAULT_VALUE != serverPort) {
+            if (Constants.SERVER_PORT_DEFAULT_VALUE != serverPort) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_PORT,
                         Integer.toString(serverPort));
             } else {
@@ -336,7 +334,7 @@ public class ConnectionUtils {
      */
     public void setDefaultValues() {
         serverAddress = Messages.ConfigurationPropertyPage_Text_Server_Address_Default_Value;
-        serverPort = ConnectionUtils.SERVER_PORT_DEFAULT_VALUE;
+        serverPort = Constants.SERVER_PORT_DEFAULT_VALUE;
         userName = Messages.
         ConfigurationPropertyPage_Text_User_Name_Default_Value;
         password = Messages.
@@ -446,7 +444,7 @@ public class ConnectionUtils {
             try {
                 setServerPort(Integer.valueOf(propertyValue));
             } catch (NumberFormatException nfe) {
-                setServerPort(ConnectionUtils.SERVER_PORT_DEFAULT_VALUE);
+                setServerPort(Constants.SERVER_PORT_DEFAULT_VALUE);
             }            
             
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME);
