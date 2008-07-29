@@ -52,22 +52,22 @@ if (selectedProject.isValid()) {
         // Display the selected file verbosely
         //====================================================================
         if (request.getParameter("fid") != null) {
-            // Retrieve the Id of the selected file/folder
+            // Retrieve the Id of the selected file or folder
             Long fileId = strToLong(request.getParameter("fid"));
 
-            // Retrieve the list of selected file versions (if any) {
+            // Retrieve the list of selected file versions (if any)
             if (request.getParameter("vfvfid") != null) {
                 settings.setVfvSelectedVersions(
                     request.getParameterValues("vfvfid"));
             }
 
-            // Retrieve the list of selected file metrics (if any) {
+            // Retrieve the list of selected file metrics (if any)
             if (request.getParameter("vfvmid") != null) {
                 settings.setVfvSelectedMetrics(
                     request.getParameterValues("vfvmid"));
             }
 
-            // Panel show/hide checks
+            // Check, if the user has selected to show or hide a certain panel
             if (request.getParameter("showVfvInfoPanel") != null) {
                 if (request.getParameter("showVfvInfoPanel").equals("true"))
                     settings.setShowVfvInfoPanel(true);
@@ -87,16 +87,45 @@ if (selectedProject.isValid()) {
                     settings.setShowVfvResultPanel(false);
             }
 
-            // Check, if the user selected an another chart type
+            /*
+             * Check, if the user has switched to another type for displaying
+             * the metric evaluation results.
+             */
             if (request.getParameter("vfvchart") != null) {
                 Long chartType = getId(request.getParameter("vfvchart"));
                 if (chartType != null)
                     settings.setVfvChartType(chartType.intValue());
+                /*
+                 * Show the Info and Control panels after the user switched
+                 * (or forced from the code above) to a tabular display of
+                 * evaluation results.
+                 */
                 if (chartType == VerboseFileView.TABLE_CHART) {
                     settings.setShowVfvInfoPanel(true);
                     settings.setShowVfvControlPanel(true);
                 }
             }
+
+            /*
+             * Force the tabular display of evaluation results in case the
+             * versions selection contains only one version.
+             */
+            if ((settings.getVfvSelectedVersions() != null)
+                && (settings.getVfvSelectedVersions().length == 1)
+                && (settings.getVfvChartType() == VerboseFileView.LINE_CHART)) {
+                settings.setVfvChartType(VerboseFileView.TABLE_CHART);
+                if ((settings.getShowVfvInfoPanel() == false)
+                    && (settings.getShowVfvControlPanel() == false)) {
+                    settings.setShowVfvInfoPanel(true);
+                    settings.setShowVfvControlPanel(true);
+                }
+            }
+
+            /*
+             * By default, force the Info and Control panels hide, in case the
+             * chart display is active, unless the user had explicitly
+             * requested their visualisation.
+             */ 
             if ((settings.getVfvChartType() == VerboseFileView.LINE_CHART)
                 && (request.getParameter("showVfvControlPanel") == null)
                 && (request.getParameter("showVfvInfoPanel") == null)) {
@@ -106,7 +135,7 @@ if (selectedProject.isValid()) {
 
             /*
              * Keep showing the info and control panels, untill a metric AND
-             * version has been selected.
+             * version have been selected.
              */
             if ((settings.getVfvSelectedVersions() == null)
                 || (settings.getVfvSelectedMetrics() == null)) {
@@ -120,9 +149,9 @@ if (selectedProject.isValid()) {
             verboseView.setServletPath(request.getServletPath());
             verboseView.setSettings(settings);
 
-           // Retrieve the highlighted metric (if any) {
+            // Retrieve the highlighted metric (if any) {
             if (request.getParameter("vfvsm") != null) {
-                verboseView.setSelectedMetric(
+                verboseView.setHighlightedMetric(
                     request.getParameter("vfvsm"));
             }
 
@@ -306,16 +335,15 @@ if (selectedProject.isValid()) {
             winFileVerbose.addToolIcon(icoLineChart);
 
             /*
-             * Disable the result buttons, unless one or more versions and
-             * metrics are selected.
+             * Disable the results display buttons, depending on the number of
+             * selected versions and metrics.
              */
             if ((settings.getVfvSelectedVersions() == null)
                 || (settings.getVfvSelectedMetrics() == null)) {
                 icoTabular.setStatus(false);
                 icoLineChart.setStatus(false);
             }
-            else if ((settings.getVfvSelectedVersions().length < 2)
-                && (settings.getVfvSelectedMetrics().length < 2)) {
+            else if (settings.getVfvSelectedVersions().length == 1) {
                 icoLineChart.setStatus(false);
             }
 

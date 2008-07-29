@@ -46,7 +46,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
@@ -96,9 +95,9 @@ public class VerboseFileView extends ListView {
     private List<Long> selectedMetrics = new ArrayList<Long>();
 
     /*
-     * Holde the mnemonic of the currently highlighted metric
+     * Holds the mnemonic of the currently highlighted metric
      */
-    private String selectedMetric = null;
+    private String highlightedMetric = null;
 
     /*
      * Holds the list of metrics that were evaluated on the selected file.
@@ -152,8 +151,8 @@ public class VerboseFileView extends ListView {
             }
     }
 
-    public void setSelectedMetric(String selectedMetric) {
-        this.selectedMetric = selectedMetric;
+    public void setHighlightedMetric(String mnemonic) {
+        this.highlightedMetric = mnemonic;
     }
 
     public void setChartType(int chartType) {
@@ -203,6 +202,15 @@ public class VerboseFileView extends ListView {
         }
         else {
             //----------------------------------------------------------------
+            // Cleanup procedures
+            //----------------------------------------------------------------
+            /*
+             * Clear the highlighted metric variable, in case the selected
+             * metrics list is narrowed to a single metric only.
+             */
+            if (selectedMetrics.size() == 1)
+                highlightedMetric = null;
+            //----------------------------------------------------------------
             // Assemble the results dataset
             //----------------------------------------------------------------
             SortedMap<String, SortedMap<Long, String>> data =
@@ -249,18 +257,33 @@ public class VerboseFileView extends ListView {
                 b.append(tableChart(in, data));
                 break;
             case LINE_CHART:
-                if ((selectedMetric != null)
-                        && (data.containsKey(selectedMetric)))
+                /*
+                 * Generate the results chart.
+                 */
+                if ((highlightedMetric != null)
+                        && (data.containsKey(highlightedMetric)))
                     chartFile = "/tmp/" + lineChart(
-                            data.subMap(selectedMetric, selectedMetric +"\0"));
+                            data.subMap(highlightedMetric, highlightedMetric +"\0"));
                 else
                     chartFile = "/tmp/" + lineChart(data);
+                /*
+                 * Display the generated results chart.
+                 */
                 if (chartFile != null) {
                     b.append(sp(in++) + "<table"
                             + " style=\"margin-top: 0;\">\n");
+                    /*
+                     * Display the aggregation chart's option, only if results
+                     * for at least two metrics are available. Otherwise
+                     * display only a single metric's option.
+                     */
+                    String leadOption = "ALL";
+                    if (selectedMetrics.size() == 1) {
+                        leadOption = data.firstKey();
+                    }
                     b.append(sp(in++) + "</tr>\n");
-                    if ((selectedMetric != null)
-                            && (data.containsKey(selectedMetric)))
+                    if ((highlightedMetric != null)
+                            && (data.containsKey(highlightedMetric)))
                         b.append(sp(in) + "<td class=\"vfv_chart_title\">"
                                 + "<a href=\"" 
                                 + getServletPath()
@@ -269,11 +292,19 @@ public class VerboseFileView extends ListView {
                                 + "ALL" + "</a>"
                                 + "</td>\n");
                     else
-                        b.append(sp(in) + "<td class=\"vfv_chart_title_selected\">"
-                                + "ALL"
+                        b.append(sp(in) + "<td"
+                                + " class=\"vfv_chart_title_selected\">"
+                                + leadOption
                                 + "</td>\n");
-                    b.append(sp(in) + "<td class=\"vfv_chart_image\""
-                            + " rowspan=\"" + (2 + data.size()) + "\">"
+                    /*
+                     * Display the chart cell
+                     */
+                    int chartRowSpan = 2;
+                    if (data.size() > 1)
+                        chartRowSpan += data.size();
+                    b.append(sp(in) + "<td"
+                            + " class=\"vfv_chart_image\""
+                            + " rowspan=\"" + chartRowSpan + "\">"
                             + "<a class=\"vfvchart\""
                             + " href=\"/fullscreen.jsp?"
                             + "chartfile=" + chartFile + "\">"
@@ -281,26 +312,39 @@ public class VerboseFileView extends ListView {
                             + "</a>"
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
-                    for (String mnemonic : data.keySet()) {
-                        b.append(sp(in++) + "<tr>\n");
-                        if ((selectedMetric != null)
-                                && (selectedMetric.equals(mnemonic)))
-                            b.append(sp(in) + "<td class=\"vfv_chart_title_selected\">"
-                                    + mnemonic
-                                    + "</td>\n");
-                        else
-                            b.append(sp(in) + "<td class=\"vfv_chart_title\">"
-                                    + "<a href=\"" 
-                                    + getServletPath()
-                                    + "?vfvsm=" + mnemonic
-                                    + "&fid=" + fileId
-                                    + "\">"
-                                    + mnemonic + "</a>"
-                                    + "</td>\n");
-                        b.append(sp(--in) + "</tr>\n");
+                    /*
+                     * Display a chart option for each of the selected metrics,
+                     * unless only one metric is selected.
+                     */
+                    if (selectedMetrics.size() > 1) {
+                        for (String mnemonic : data.keySet()) {
+                            b.append(sp(in++) + "<tr>\n");
+                            if ((highlightedMetric != null)
+                                    && (highlightedMetric.equals(mnemonic)))
+                                b.append(sp(in) + "<td"
+                                        + " class=\"vfv_chart_title_selected\">"
+                                        + mnemonic
+                                        + "</td>\n");
+                            else
+                                b.append(sp(in) + "<td"
+                                        + " class=\"vfv_chart_title\">"
+                                        + "<a href=\"" 
+                                        + getServletPath()
+                                        + "?vfvsm=" + mnemonic
+                                        + "&fid=" + fileId
+                                        + "\">"
+                                        + mnemonic + "</a>"
+                                        + "</td>\n");
+                            b.append(sp(--in) + "</tr>\n");
+                        }
                     }
+                    /*
+                     * Display an empty transparent cell to align the options
+                     * row with the chart row. 
+                     */
                     b.append(sp(in++) + "<tr>\n");
-                    b.append(sp(in) + "<td class=\"vfv_chart_title_empty\">"
+                    b.append(sp(in) + "<td"
+                            + " class=\"vfv_chart_title_empty\">"
                             + "&nbsp;"
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
@@ -536,8 +580,8 @@ public class VerboseFileView extends ListView {
                 // Do nothing
             }
         }
+
         return null;
-        
     }
 
 }

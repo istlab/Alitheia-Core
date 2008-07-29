@@ -193,7 +193,7 @@
       <version>1.0.13</version>
       <type>jar</type>
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>org.jfree</groupId>
       <artifactId>chart</artifactId>
       <version>1.0.10</version>
