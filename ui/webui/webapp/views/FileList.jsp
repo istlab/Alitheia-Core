@@ -259,7 +259,7 @@ if (selectedProject.isValid()) {
             else
                 winFileVerbose.setTitle("Invalid file/folder");
 
-            // Window icon - info window
+            // Toolbar icon - info panel
             WinIcon icoInfoWin = new WinIcon();
             icoInfoWin.setPath(request.getServletPath());
             icoInfoWin.setParameter("showVfvInfoPanel");
@@ -275,7 +275,7 @@ if (selectedProject.isValid()) {
             icoInfoWin.setImage("/img/icons/16x16/infopanel.png");
             winFileVerbose.addToolIcon(icoInfoWin);
 
-            // Window icon - control window
+            // Toolbar icon - control panel
             WinIcon icoControlWin = new WinIcon();
             icoControlWin.setPath(request.getServletPath());
             icoControlWin.setParameter("showVfvControlPanel");
@@ -291,7 +291,7 @@ if (selectedProject.isValid()) {
             icoControlWin.setImage("/img/icons/16x16/controlpanel.png");
             winFileVerbose.addToolIcon(icoControlWin);
 
-            // Window icon - results window
+            // Toolbar icon - result panel
             WinIcon icoResWin = new WinIcon();
             icoResWin.setPath(request.getServletPath());
             icoResWin.setParameter("showVfvResultPanel");
@@ -424,10 +424,10 @@ if (selectedProject.isValid()) {
                 // Put a separator
                 winFileBrowser.addToolIcon(icoSeparator);
 
-                // Directory browser icon
+                // Toolbar icon - browser panel
                 WinIcon icoDirBrowser = new WinIcon();
                 icoDirBrowser.setPath(request.getServletPath());
-                icoDirBrowser.setImage("/img/icons/16x16/browser.png");
+                icoDirBrowser.setImage("/img/icons/16x16/browserpanel.png");
                 icoDirBrowser.setAlt("Directory browser");
                 winVisible = "showFVDirBrowser";
                 icoDirBrowser.setParameter(winVisible);
@@ -442,10 +442,10 @@ if (selectedProject.isValid()) {
                 icoDirBrowser.setStatus(!settings.getShowFVDirBrowser());
                 winFileBrowser.addToolIcon(icoDirBrowser);
 
-                // Folders list icon
+                // Toolbar icon - folder panel
                 WinIcon icoFoldersList = new WinIcon();
                 icoFoldersList.setPath(request.getServletPath());
-                icoFoldersList.setImage("/img/icons/16x16/folder.png");
+                icoFoldersList.setImage("/img/icons/16x16/folderpanel.png");
                 icoFoldersList.setAlt("Show sub-folders");
                 winVisible = "showFVFolderList";
                 icoFoldersList.setParameter(winVisible);
@@ -460,10 +460,10 @@ if (selectedProject.isValid()) {
                 icoFoldersList.setStatus(!settings.getShowFVFolderList());
                 winFileBrowser.addToolIcon(icoFoldersList);
 
-                // Folders list icon
+                //  Toolbar icon - file panel
                 WinIcon icoFilesList = new WinIcon();
                 icoFilesList.setPath(request.getServletPath());
-                icoFilesList.setImage("/img/icons/16x16/text-plain.png");
+                icoFilesList.setImage("/img/icons/16x16/filepanel.png");
                 icoFilesList.setAlt("Show files");
                 winVisible = "showFVFileList";
                 icoFilesList.setParameter(winVisible);

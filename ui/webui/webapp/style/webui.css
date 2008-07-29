@@ -188,9 +188,10 @@ div.winTitleBar {
     top: 0;
 }
 div.winToolbar {
-    background-color: #F0F0F0;
-    border-bottom: 2px ridge #000000;
-    border-top: 2px groove #000000;
+    background: #F0F0F0 url(/img/icons/16x16/toolbarbg01.png) repeat-x;
+    border-bottom: 1px solid #000000;
+    border-top: 1px solid #000000;
+    height: 18px;
     line-height: 16px;
     margin: 0;
     padding-top: 2px;
