@@ -1,17 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <chapter id="pref">
 <title>Preface</title>
 <sect1 id="pref:whatis">
     <title>What is SQO-OSS?</title>
     <para>
-    SQO-OSS is a project funded by the European Community that aims at implementing a quality-checking system that can be used by Open Source software projects to gather information about the quality of their code and relate this information to other data sources such as issue-tracker data and mailinglist archives.
+    SQO-OSS is a project funded by the European Community that aims at
+implementing a quality-checking system that can be used by Open Source software
+projects to gather information about the quality of their code and relate this
+information to other data sources such as issue-tracker data and mailinglist
+archives. SQO-OSS can be utilised for management-level information to assess
+various aspects of a software project, such as developer productivity. The system
+is also useful for developers that want to use static source code analysis
+to improve the code.
     </para>
 </sect1>
 <sect1 id="pref:alitheia">
     <title>What is Alitheia?</title>
     <para>
-    Alitheia is the name of the software that is produced by the SQO-OSS project.
+    Alitheia is the name of the software that is produced by the SQO-OSS
+project. Alitheia core accesses different data source, currently version control
+repositories, mailing list archives and issue tracker databases. This data can
+be analysed using plugins written in Java, Python or C++. Plugins parse the
+various datasources extracting information and storing it in a relational
+database. Those plugins and data sources can be configured using a webinterface,
+called webadmin. Alitheia supports different front-ends for displaying the data.
+Currently, there is a web interface that displays the results of the plugins,
+and an extension for the Eclipse IDE that imports data directly into the context
+of development.
     </para>
 </sect1>
 <sect1 id="pref:hist">
