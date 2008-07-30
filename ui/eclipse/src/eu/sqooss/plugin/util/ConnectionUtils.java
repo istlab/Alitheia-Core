@@ -361,17 +361,19 @@ public class ConnectionUtils {
     /**
      * Sets the default values of all settings.
      */
-    public void setDefaultValues() {
-        serverAddress = Messages.ConfigurationPropertyPage_Text_Server_Address_Default_Value;
-        serverPort = Constants.SERVER_PORT_DEFAULT_VALUE;
-        userName = Messages.
-        ConfigurationPropertyPage_Text_User_Name_Default_Value;
-        password = Messages.
-        ConfigurationPropertyPage_Text_Password_Default_Value;
-        projectName = Messages.
-        ConfigurationPropertyPage_Text_Project_Name_Default_Value;
-        projectVersion = Messages.
-        ConfigurationPropertyPage_Combo_Last_Project_Version;
+    private void loadDefaultValues() {
+        setServerAddress(store.getDefaultString(
+                Constants.PREFERENCE_NAME_SERVER_ADDRESS));
+        setServerPort(store.getDefaultInt(
+                Constants.PREFERENCE_NAME_SERVER_PORT));
+        setUserName(store.getDefaultString(
+                Constants.PREFERENCE_NAME_USER_NAME));
+        setPassword(store.getDefaultString(
+                Constants.PREFERENCE_NAME_USER_PASSWORD));
+        setProjectName(Messages.
+                ConfigurationPropertyPage_Text_Project_Name_Default_Value);
+        setProjectVersion(Messages.
+                ConfigurationPropertyPage_Combo_Last_Project_Version);
     }
     
     public Entity getEntity(IResource resource) {
@@ -523,7 +525,7 @@ public class ConnectionUtils {
             }
             setProjectVersion(propertyValue);
         } catch (CoreException ce) {
-            setDefaultValues();
+            loadDefaultValues();
         }
     }
     

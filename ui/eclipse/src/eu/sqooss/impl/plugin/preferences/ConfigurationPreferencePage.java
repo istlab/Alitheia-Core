@@ -112,7 +112,7 @@ public class ConfigurationPreferencePage
      */
     @Override
     protected void performDefaults() {
-        loadDefaultValue();
+        loadDefaultValues();
     }
 
     /**
@@ -169,7 +169,7 @@ public class ConfigurationPreferencePage
                 textFieldPassword.getText());
     }
     
-    private void loadDefaultValue() {
+    private void loadDefaultValues() {
         textFieldServerAddress.setText(
                 store.getDefaultString(Constants.PREFERENCE_NAME_SERVER_ADDRESS));
         spinnerServerPort.setSelection(

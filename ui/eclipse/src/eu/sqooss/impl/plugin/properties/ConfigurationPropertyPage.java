@@ -102,8 +102,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     @Override
     protected void performDefaults() {
         super.performDefaults();
-        connectionUtils.setDefaultValues();
-        synchronizeConnectionUtils(true);
+        buttonProjectSpecificSettings.setSelection(false);
+        buttonProjectSpecificSettings.notifyListeners(SWT.Selection, null);
     }
 
     /**
