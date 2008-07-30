@@ -109,7 +109,7 @@ public class ConnectionUtils {
         this.project = project;
         this.store = Activator.getDefault().getPreferenceStore();
         initProperties();
-        load(project);
+        load();
         validate();
     }
     
@@ -250,6 +250,7 @@ public class ConnectionUtils {
      * <code>false</code> if an error occurs.
      */
     public boolean save() {
+        if (project == null) return true;
         try {
             if (isProjectSpecificAccount) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_ADDRESS, serverAddress);
@@ -454,7 +455,8 @@ public class ConnectionUtils {
      * If the some of the settings are missing
      * then the default values are read from the property file.
      */
-    private void load(IProject project) {
+    private void load() {
+        if (project == null) return;
         String propertyValue;
         
         try {

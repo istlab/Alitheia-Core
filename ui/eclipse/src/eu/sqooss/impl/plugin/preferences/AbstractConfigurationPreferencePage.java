@@ -36,6 +36,7 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -55,6 +56,7 @@ abstract class AbstractConfigurationPreferencePage
     protected Text textFieldUserName;
     protected Text textFieldPassword;
     protected Spinner spinnerServerPort;
+    protected Button buttonValidate;
     
     @Override
     protected Control createContents(Composite parent) {
@@ -67,6 +69,16 @@ abstract class AbstractConfigurationPreferencePage
         addServerGroup(mainComposite);
         addUserGroup(mainComposite);
         return mainComposite;
+    }
+    
+    /**
+     * @see org.eclipse.jface.preference.PreferencePage#contributeButtons(org.eclipse.swt.widgets.Composite)
+     */
+    protected void contributeButtons(Composite parent) {
+        super.contributeButtons(parent);
+        ((GridLayout) parent.getLayout()).numColumns++;
+        buttonValidate = new Button(parent, SWT.PUSH);
+        buttonValidate.setText(Messages.Configuration_Button_Validate);
     }
     
     private void addServerGroup(Composite container) {

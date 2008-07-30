@@ -89,7 +89,7 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         super.contributeButtons(parent);
         ((GridLayout) parent.getLayout()).numColumns++;
         buttonValidate = new Button(parent, SWT.PUSH);
-        buttonValidate.setText(Messages.ConfigurationPropertyPage_Button_Validate);
+        buttonValidate.setText(Messages.Configuration_Button_Validate);
     }
 
     private TabFolder addTabFolder(Composite composite) {

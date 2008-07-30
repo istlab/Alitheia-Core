@@ -32,8 +32,16 @@
 
 package eu.sqooss.impl.plugin.preferences;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Composite;
@@ -42,12 +50,17 @@ import org.eclipse.ui.IWorkbench;
 
 import eu.sqooss.impl.plugin.Activator;
 import eu.sqooss.impl.plugin.util.Constants;
+import eu.sqooss.impl.plugin.util.Messages;
+import eu.sqooss.plugin.util.ConnectionUtils;
 
 public class ConfigurationPreferencePage
                 extends AbstractConfigurationPreferencePage
-                implements TraverseListener {
+                implements TraverseListener,
+                           SelectionListener,
+                           IRunnableWithProgress {
 
     private IPreferenceStore store;
+    private static ConnectionUtils connectionUtils;
     
     /**
      * @see eu.sqooss.impl.plugin.preferences.AbstractConfigurationPreferencePage#createContents(org.eclipse.swt.widgets.Composite)
@@ -78,6 +91,14 @@ public class ConfigurationPreferencePage
         return Activator.getDefault().getPreferenceStore();
     }
 
+    /**
+     * @see eu.sqooss.impl.plugin.preferences.AbstractConfigurationPreferencePage#contributeButtons(org.eclipse.swt.widgets.Composite)
+     */
+    protected void contributeButtons(Composite parent) {
+        super.contributeButtons(parent);
+        buttonValidate.addSelectionListener(this);
+    }
+    
     /**
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
@@ -114,6 +135,17 @@ public class ConfigurationPreferencePage
         }
     }
 
+    public void widgetSelected(SelectionEvent e) {
+        Object eventSource = e.getSource();
+        if (eventSource == buttonValidate) {
+            validateConfiguration();
+        }
+    }
+    
+    public void widgetDefaultSelected(SelectionEvent e) {
+        //do nothing here
+    }
+
     /* ===[utility methods]=== */
     private void loadValues() {
         textFieldServerAddress.setText(
@@ -146,6 +178,47 @@ public class ConfigurationPreferencePage
                 store.getDefaultString(Constants.PREFERENCE_NAME_USER_NAME));
         textFieldPassword.setText(
                 store.getDefaultString(Constants.PREFERENCE_NAME_USER_PASSWORD));
+    }
+    
+    private void validateConfiguration() {
+        if (connectionUtils == null) {
+            ProgressMonitorDialog progressMonitorDialog =
+                new ProgressMonitorDialog(getShell());
+            try {
+                progressMonitorDialog.run(true, false, this);
+            } catch (Exception e) {
+                connectionUtils = new ConnectionUtils(null);
+            }
+        }
+        connectionUtils.setServerAddress(textFieldServerAddress.getText());
+        connectionUtils.setServerPort(spinnerServerPort.getSelection());
+        connectionUtils.setUserName(textFieldUserName.getText());
+        connectionUtils.setPassword(textFieldPassword.getText());
+        connectionUtils.validate();
+        if (connectionUtils.isValidAccount()) {
+            boolean isForSave;
+            isForSave = MessageDialog.openQuestion(getShell(),
+                    Messages.Configuration_MessageBox_Validate_Title,
+                    Messages.Configuration_MessageBox_Validate_Pass +
+                    "\n" + Messages.Configuration_MessageBox_Save_Question);
+            if (isForSave) {
+                saveValues();
+            }
+        } else {
+            MessageDialog.openWarning(getShell(),
+                    Messages.Configuration_MessageBox_Validate_Title,
+                    Messages.Configuration_MessageBox_Validate_Fail + 
+                    "\n\nReason: " + connectionUtils.getErrorMessage());
+        }
+    }
+    
+    /**
+     * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void run(IProgressMonitor monitor) throws InvocationTargetException,
+            InterruptedException {
+        monitor.setTaskName(Messages.Configuration_Connection_Init_Dialog_Message);
+        connectionUtils = new ConnectionUtils(null);
     }
     
 }

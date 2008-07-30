@@ -53,7 +53,6 @@ public class Messages extends NLS {
     public static String ProjectPropertyPage_Link_Quality;
     
     //EnabledPropertyPage
-    public static String EnabledPropertyPage_Connection_Init_Dialog_Message;
     public static String EnabledPropertyPage_Message_Error_Invalid_Connection;
     public static String EnabledPropertyPage_Message_Error_Invalid_Project;
     
@@ -68,10 +67,6 @@ public class Messages extends NLS {
     public static String ConfigurationPropertyPage_Combo_First_Project_Version;
     public static String ConfigurationPropertyPage_Combo_Last_Project_Version;
     public static String ConfigurationPropertyPage_Combo_Other_Project_Version;
-    public static String ConfigurationPropertyPage_Button_Validate;
-    public static String ConfigurationPropertyPage_MessageBox_Validate_Title;
-    public static String ConfigurationPropertyPage_MessageBox_Validate_Pass;
-    public static String ConfigurationPropertyPage_MessageBox_Validate_Fail;
     public static String ConfigurationPropertyPage_MessageBox_Save_Title;
     public static String ConfigurationPropertyPage_MessageBox_Save_Fail;
     public static String ConfigurationPropertyPage_TabItem_Account;
@@ -118,6 +113,12 @@ public class Messages extends NLS {
     public static String Configuration_Label_Password;
     public static String Configuration_Group_User;
     public static String Configuration_Group_Server;
+    public static String Configuration_Button_Validate;
+    public static String Configuration_MessageBox_Validate_Title;
+    public static String Configuration_MessageBox_Validate_Pass;
+    public static String Configuration_MessageBox_Save_Question;
+    public static String Configuration_MessageBox_Validate_Fail;
+    public static String Configuration_Connection_Init_Dialog_Message;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

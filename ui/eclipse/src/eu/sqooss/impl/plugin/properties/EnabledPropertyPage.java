@@ -115,7 +115,7 @@ abstract class EnabledPropertyPage extends PropertyPage implements EnabledState,
      */
     public void run(IProgressMonitor monitor) throws InvocationTargetException,
             InterruptedException {
-        monitor.setTaskName(Messages.EnabledPropertyPage_Connection_Init_Dialog_Message);
+        monitor.setTaskName(Messages.Configuration_Connection_Init_Dialog_Message);
         connectionUtils = new ConnectionUtils(resourceProject);
     }
 }

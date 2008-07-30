@@ -148,6 +148,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         }
         if (!mainControl.isDisposed()) {
             synchronizeConnectionUtils(true);
+            setEnabled(connectionUtils.validate(),
+                    connectionUtils.getErrorMessage());
         }
     }
     
@@ -239,8 +241,9 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         if (isValid) {
             boolean isForSave;
             isForSave = MessageDialog.openQuestion(getShell(),
-                    Messages.ConfigurationPropertyPage_MessageBox_Validate_Title,
-                    Messages.ConfigurationPropertyPage_MessageBox_Validate_Pass);
+                    Messages.Configuration_MessageBox_Validate_Title,
+                    Messages.Configuration_MessageBox_Validate_Pass +
+                    "\n" + Messages.Configuration_MessageBox_Save_Question);
             if ((isForSave) && (!connectionUtils.save())) {
                 MessageDialog.openWarning(getShell(),
                         Messages.ConfigurationPropertyPage_MessageBox_Save_Title,
@@ -248,8 +251,8 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
             }
         } else {
             MessageDialog.openWarning(getShell(),
-                    Messages.ConfigurationPropertyPage_MessageBox_Validate_Title,
-                    Messages.ConfigurationPropertyPage_MessageBox_Validate_Fail + 
+                    Messages.Configuration_MessageBox_Validate_Title,
+                    Messages.Configuration_MessageBox_Validate_Fail + 
                     "\n\nReason: " + connectionUtils.getErrorMessage());
         }
         notifyPropertyPages(isValid);
