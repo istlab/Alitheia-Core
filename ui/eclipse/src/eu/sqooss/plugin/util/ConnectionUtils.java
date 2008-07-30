@@ -192,8 +192,11 @@ public class ConnectionUtils {
      * @param serverAddress - the server address
      */
     public void setServerAddress(String serverAddress) {
-        this.isValidAccount = false;
-        this.serverAddress = serverAddress;
+        if ((serverAddress != null) &&
+                (!serverAddress.equals(this.serverAddress))) {
+            this.isValidAccount = false;
+            this.serverAddress = serverAddress;
+        }
     }
     
     /**
@@ -203,8 +206,10 @@ public class ConnectionUtils {
      * @param serverPort - the server port
      */
     public void setServerPort(int serverPort) {
-        this.isValidAccount = false;
-        this.serverPort = serverPort;
+        if (serverPort != this.serverPort) {
+            this.isValidAccount = false;
+            this.serverPort = serverPort;
+        }
     }
     
     /**
@@ -213,8 +218,11 @@ public class ConnectionUtils {
      * @param userName - the user's name used for authentication
      */
     public void setUserName(String userName) {
-        this.isValidAccount = false;
-        this.userName = userName;
+        if ((userName != null) &&
+                (!userName.equals(this.userName))) {
+            this.isValidAccount = false;
+            this.userName = userName;
+        }
     }
 
     /**
@@ -223,8 +231,11 @@ public class ConnectionUtils {
      * @param password - the user's password used for authentication
      */
     public void setPassword(String password) {
-        this.isValidAccount = false;
-        this.password = password;
+        if ((password != null) &&
+                (!password.equals(this.password))) {
+            this.isValidAccount = false;
+            this.password = password;
+        }
     }
 
     /**
@@ -233,13 +244,19 @@ public class ConnectionUtils {
      * @param projectName - the name of the project as stored in the framework
      */
     public void setProjectName(String projectName) {
-        this.isValidProjectVersion = false;
-        this.projectName = projectName;
+        if ((projectName != null) &&
+                (!projectName.equals(this.projectName))) {
+            this.isValidProjectVersion = false;
+            this.projectName = projectName;
+        }
     }
 
     public void setProjectVersion(String newVersion) {
-        this.isValidProjectVersion = false;
-        this.projectVersion = newVersion;
+        if ((newVersion != null) &&
+                (!newVersion.equals(this.projectVersion))) {
+            this.isValidProjectVersion = false;
+            this.projectVersion = newVersion;
+        }
     }
     
     /**
