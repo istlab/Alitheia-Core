@@ -109,9 +109,12 @@ public class VerboseFileView extends ListView {
      */
     HashMap<String, Result> results = new HashMap<String, Result>();
 
+    /*
+     * Results display types
+     */
     public static final int TABLE_CHART = 2;
     public static final int LINE_CHART = 4;
-    // Default chart type
+    // Default display type
     private int chartType = TABLE_CHART;
 
     /**
@@ -127,6 +130,12 @@ public class VerboseFileView extends ListView {
         this.fileId = fileId;
     }
 
+    /**
+     * Sets the selected versions of the file or folder that this view will
+     * present.
+     * 
+     * @param versions the array of selected file or folder versions
+     */
     public void setSelectedVersions(String[] versions) {
         if (versions != null)
             for (String versionNum : versions) {
@@ -139,6 +148,12 @@ public class VerboseFileView extends ListView {
             }
     }
 
+    /**
+     * Sets the selected metrics for the file or folder that this view will
+     * present.
+     * 
+     * @param versions the array of selected metrics
+     */
     public void setSelectedMetrics(String[] metrics) {
         if (metrics != null)
             for (String metricId : metrics) {
@@ -151,15 +166,31 @@ public class VerboseFileView extends ListView {
             }
     }
 
+    /**
+     * Sets the mnemonic name of the metric that will be highlighted in the
+     * generated results display.
+     * 
+     * @param mnemonic the metric's mnemonic name
+     */
     public void setHighlightedMetric(String mnemonic) {
         this.highlightedMetric = mnemonic;
     }
 
+    /**
+     * Sets the type of the display that will be used for presenting the
+     * selected metrics evaluation results.
+     * 
+     * @param chartType one of the display types supported by this view
+     */
     public void setChartType(int chartType) {
         this.chartType = chartType;
     }
 
-    public void attachSelectedFile () {
+    /**
+     * Loads all the necessary information, that is related to the file or
+     * folder, which this view will present.
+     */
+    private void attachSelectedFile () {
         // Retrieve the selected file's object
         if (fileId != null)
             selFile = project.getCurrentVersion().getFile(fileId);
@@ -363,6 +394,13 @@ public class VerboseFileView extends ListView {
         return b.toString();
     }
 
+    /**
+     * Renders an info panel related to the selected file or folder.
+     * 
+     * @param in the indentation depth
+     * 
+     * @return The generated HTML content.
+     */
     public String getFileInfo (long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
@@ -426,6 +464,14 @@ public class VerboseFileView extends ListView {
         return b.toString();
     }
 
+    /**
+     * Renders a control panel, that can be used for controlling various
+     * rendering features of this view.
+     * 
+     * @param in the indentation depth
+     * 
+     * @return The generated HTML content.
+     */
     public String getFileControls (long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
@@ -497,7 +543,7 @@ public class VerboseFileView extends ListView {
         return b.toString();
     }
 
-    public String tableChart (long in, SortedMap<String, SortedMap<Long, String>> values) {
+    private String tableChart (long in, SortedMap<String, SortedMap<Long, String>> values) {
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
 
@@ -544,7 +590,7 @@ public class VerboseFileView extends ListView {
         return b.toString();
     }
 
-    public String lineChart (SortedMap<String, SortedMap<Long, String>> values) {
+    private String lineChart (SortedMap<String, SortedMap<Long, String>> values) {
         // Construct the chart's dataset
         XYSeriesCollection data = new XYSeriesCollection();
         for (String nextLine : values.keySet()) {

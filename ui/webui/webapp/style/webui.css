@@ -6,7 +6,6 @@
 #tagcloud,
 #projectslist,
 #metricslist,
-#fileslist,
 #developerslist,
 #loginpage {
     border: 1px dotted #CCCCCC;
@@ -14,6 +13,11 @@
     /* Height: 36px for image and 5px padding. */
     min-height: 46px;
     padding: 5px 5px 0px 46px;
+}
+#fileslist {
+    border: 1px dotted #CCCCCC;
+    margin-bottom: 5px;
+    padding: 5px 5px 0px 5px;
 }
 #news {
     background: #fff url(/img/news_section.png) no-repeat;
