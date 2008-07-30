@@ -59,6 +59,11 @@ import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
 
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.ClusterNodeProject;
+import eu.sqooss.service.cluster.ClusterNodeActionException;
+import eu.sqooss.service.cluster.ClusterNodeService;
+
 public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
     private static final long serialVersionUID = 1L;
@@ -91,11 +96,11 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         } else {
             logger.error("Could not load the HTTP service.");
         }
-
         dbs = core.getDBService();
 
         currentJobs = new HashMap<String,Set<UpdateTarget>>();
         logger.info("Succesfully started updater service");
+
     }
 
     /**
@@ -107,7 +112,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
      * @return true if such an update is running
      */
     private boolean isUpdateRunning(String projectName, UpdateTarget t) {
-        synchronized (currentJobs) {
+
+    	synchronized (currentJobs) {
             Set<UpdateTarget> s = currentJobs.get(projectName);
             if (s==null) {
                 // Nothing in progress
@@ -143,6 +149,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             logger.warn("Adding update target ALL is bogus.");
             return false;
         }
+
         synchronized (currentJobs) {
             //Duplicate some code from isUpdateRunning
             Set<UpdateTarget> s = currentJobs.get(projectName);
@@ -179,6 +186,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             logger.warn("Removing update target ALL is bogus.");
             return;
         }
+
         synchronized (currentJobs) {
             Set<UpdateTarget> s = currentJobs.get(projectName);
             if (s!=null) {
@@ -228,11 +236,46 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     }
 
     public boolean update(StoredProject project, UpdateTarget target, Set<Integer> result) {
-        if (project == null) {
+        ClusterNodeService cns = null;
+        ClusterNodeProject cnp = null;
+        
+    	if (project == null) {
             logger.info("Bad project name for update.");
             return false;
-        }
-        logger.info("Request to update project:" + project.getName() + " for target: "
+        }     
+    	
+    	 /// ClusterNode Checks - Clone to MetricActivatorImpl
+    	cns = core.getClusterNodeService();
+        if (cns==null) {
+            logger.warn("ClusterNodeService reference not found - ClusterNode assignment checks will be ignored");
+        } else {
+            // first check if project is assigned to any ClusterNode
+            boolean dbSessionWasActive = dbs.isDBSessionActive(); 
+            if (!dbSessionWasActive) {dbs.startDBSession();}
+            cnp = ClusterNodeProject.getProjectAssignment(project);
+            if (!dbSessionWasActive) {dbs.rollbackDBSession();}  
+            if (cnp==null) {
+                // project is not assigned yet to any ClusterNode, assign it here by-default
+                try {
+                    cns.assignProject(project);
+                } catch (ClusterNodeActionException ex){
+                    logger.warn("Couldn't assign project " + project.getName() + " to ClusterNode " + cns.getClusterNodeName());
+                    return true;
+                }
+            } else { 
+                // project is somewhere assigned , check if it is assigned to this Cluster Node
+                if (!cns.isProjectAssigned(project)){
+                    logger.warn("Project " + project.getName() + " is not assigned to this ClusterNode - Ignoring update");
+                    // TODO: Clustering - further implementation:
+                    //       If needed, forward Update to the appropriate ClusterNode!
+                    return true; // report success to avoid errors when adding a new project  
+                }                
+                // at this point, we are sure the project is assigned to this ClusterNode - Go On...                
+            }
+        }  
+        // Done with ClusterNode Checks
+       
+    	logger.info("Request to update project:" + project.getName() + " for target: "
                 + target);
         if (result==null) {
             logger.info("Ignoring results return variable.");
@@ -326,7 +369,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 }
             }
         }
-
         return true;
     }
 
@@ -336,7 +378,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
      * kinds of errors returned by update().
      */
     public boolean update(String p, UpdateTarget t, Set<Integer> results) {
-        StoredProject project = StoredProject.getProjectByName(p);
+
+    	StoredProject project = StoredProject.getProjectByName(p);
         if (project == null) {
             //the project was not found, so the job can not continue
             logger.warn("The project <" + p + "> was not found");

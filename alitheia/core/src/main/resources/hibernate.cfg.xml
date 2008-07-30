@@ -69,6 +69,8 @@
         <mapping resource="eu/sqooss/service/db/EvaluationMark.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/FileForVersion.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ClusterNode.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ClusterNodeProject.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>

@@ -1,0 +1,39 @@
+# where scripts reside
+scripts=~/develop/sqo-oss-multiserver/tools/cluster
+
+# where svn repositories are created
+data_home=/home/data
+
+# where project configuration resides
+project_lists=$scripts/projects
+
+#where to create configuration files while importing projects
+project_import_directory=$scripts/imported_projects
+
+# where to find .procmailrc for mailing list subscriptions
+procmail_home=/home/alitheia
+
+# External tools
+xml=/usr/bin/xml ; if [ ! -f $xml ]; then echo "$xml not found!"; exit; fi
+svnsync=/usr/bin/svnsync ; if [ ! -f $svnsync ]; then echo "$svnsync not found!"; exit; fi
+curl=/usr/bin/curl; if [ ! -f $curl ]; then echo "$curl not found!"; exit; fi
+sed=/usr/bin/sed; if [ ! -f $sed ]; then echo "$sedl not found!"; exit; fi
+svnadmin=/usr/bin/svnadmin; if [ ! -f $svnadmin ]; then echo "$svnadmin not found!"; exit; fi
+
+# sed options
+sed_args=
+
+# svnadmin options
+# TODO: check if svnadmin create supports this option
+svnadmin_create_args=--pre-1.5-compatible
+
+
+
+
+
+
+
+
+# final checks
+
+if [ ! -d $scripts ]; then echo "Missing scripts folder [$scripts]"; exit; fi

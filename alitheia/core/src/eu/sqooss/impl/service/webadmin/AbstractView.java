@@ -45,6 +45,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
@@ -71,6 +72,7 @@ public abstract class AbstractView {
     protected static Scheduler sobjSched = null;
     protected static TDSService sobjTDS = null;
     protected static UpdaterService sobjUpdater = null;
+    protected static ClusterNodeService sobjClusterNode = null;
     protected static SecurityManager sobjSecurity = null;
 
     // Velocity stuff
@@ -152,6 +154,12 @@ public abstract class AbstractView {
             if ((sobjUpdater == null) && (sobjLogger != null))
                 sobjLogger.debug("Could not get the updater component's instance.");
 
+            // Get the ClusterNodeService component's instance
+            sobjClusterNode = sobjCore.getClusterNodeService();
+            if ((sobjClusterNode != null) && (sobjLogger != null))
+                sobjLogger.debug("Got the ClusterNodeService component's instance.");
+
+            
             // Get the security manager's instance
             sobjSecurity = sobjCore.getSecurityManager();
             if ((sobjSecurity == null) && (sobjLogger != null))

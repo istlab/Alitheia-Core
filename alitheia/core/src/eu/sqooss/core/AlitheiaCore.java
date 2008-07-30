@@ -65,6 +65,8 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /**
@@ -94,8 +96,11 @@ public class AlitheiaCore {
     /** The TDS component's instance. */
     private TDSService tds;
     
-    /** The Udpater component's instance. */
+    /** The Updater component's instance. */
     private UpdaterService updater;
+    
+    /** The ClusterNode componen't instance. */
+    private ClusterNodeService clusternode;
     
     /** The WebAdmin component's instance. */
     private WebadminService webadmin;
@@ -322,6 +327,31 @@ public class AlitheiaCore {
         return updater;
     }
 
+    /**
+     * Returns the locally stored ClusterNodeService component's instance.
+     * <br/>
+     * <i>The instance is created when this method is called for a first
+     * time.</i>
+     * 
+     * @return The ClusterNodeSerive component's instance.
+     */
+    public ClusterNodeService getClusterNodeService() {
+        if (clusternode == null) {
+            try {
+            	clusternode = new ClusterNodeServiceImpl(bc,
+                        getLogManager().createLogger(
+                                Logger.NAME_SQOOSS_CLUSTERNODE));
+            } catch (ServletException e) {
+                e.printStackTrace();
+            } catch (NamespaceException e) {
+                e.printStackTrace();
+            }
+        }
+        return clusternode;
+    }
+
+    
+    
     /**
      * Returns the locally stored Metric Activator component's instance.
      * <br/>

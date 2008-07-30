@@ -109,6 +109,11 @@ public interface Logger {
     public static final String NAME_SQOOSS_UPDATER      = "sqooss.updater";
 
     /**
+     * Represents clusternode logger name.
+     */
+    public static final String NAME_SQOOSS_CLUSTERNODE   = "sqooss.clusternode";
+
+    /**
      * Represents web UI logger name.
      */
     public static final String NAME_SQOOSS_WEBADMIN     = "sqooss.webadmin";

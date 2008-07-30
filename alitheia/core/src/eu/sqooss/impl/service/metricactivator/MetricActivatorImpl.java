@@ -45,6 +45,10 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.cluster.ClusterNodeActionException;
+import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
@@ -241,6 +245,9 @@ public class MetricActivatorImpl implements MetricActivator {
     }
   
     public void runMetrics(Set<Long> daoIDs, Class<? extends DAObject> actType) {
+        // TODO: Clustering - Check if not performing on a project assigned to this Clusternode 
+        //       Is this called only from SourceUpdater?
+
         List<PluginInfo> plugins = pa.listPluginProviders(actType);
         
         if (plugins == null || plugins.size() == 0) {
@@ -286,6 +293,41 @@ public class MetricActivatorImpl implements MetricActivator {
  
     /**{@inheritDoc}*/
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
+        ClusterNodeService cns = null;
+        ClusterNodeProject cnp = null;
+        
+        /// ClusterNode Checks - Cloned from UpdaterServiceImpl
+        cns = core.getClusterNodeService();
+        if (cns==null) {
+            logger.warn("ClusterNodeService reference not found - ClusterNode assignment checks will be ignored");
+        } else {
+            // first check if project is assigned to any ClusterNode
+            boolean dbSessionWasActive = db.isDBSessionActive(); 
+            if (!dbSessionWasActive) {db.startDBSession();}
+            cnp = ClusterNodeProject.getProjectAssignment(sp);
+            if (!dbSessionWasActive) {db.rollbackDBSession();}  
+            if (cnp==null) {
+                // project is not assigned yet to any ClusterNode, assign it here by-default
+                try {
+                    cns.assignProject(sp);
+                } catch (ClusterNodeActionException ex){
+                    logger.warn("Couldn't assign project " + sp.getName() + " to ClusterNode " + cns.getClusterNodeName());
+                    return;
+                }
+            } else { 
+                // project is somewhere assigned , check if it is assigned to this Cluster Node
+                if (!cns.isProjectAssigned(sp)){
+                    logger.warn("Project " + sp.getName() + " is not assigned to this ClusterNode - Ignoring Metric synchronization");
+                    // TODO: Clustering - further implementation:
+                    //       If needed, forward sync to the appropriate ClusterNode!
+                    return;   
+                }                
+                // at this point, we are sure the project is assigned to this ClusterNode - Go On...                
+            }
+        }  
+        // Done with ClusterNode Checks
+        
+
         PluginInfo mi = pa.getPluginInfo(m);
         List<Class<? extends DAObject>> actTypes = mi.getActivationTypes();
         
@@ -314,7 +356,7 @@ public class MetricActivatorImpl implements MetricActivator {
                 query = "select distinct mm.id " +
                         "from StoredProject sp, MailingList ml, MailMessage mm " +
                         "where mm.list = ml and " +
-                        "ml.storedProject = :" + paramSp;query = "select ";
+                        "ml.storedProject = :" + paramSp;query = "select "; // << Confusing!! - resets the query
             } else if (c.equals(MailingList.class)) { 
                 query = "select distinct ml.id from StoredProject sp, MailingList ml " +
                         "where ml.storedProject = :" + paramSp;

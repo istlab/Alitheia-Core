@@ -316,6 +316,10 @@ public class WebAdminRenderer  extends AbstractView {
         final String tryAgain = "<p><a href=\"/projects\">Try again</a>.</p>";
         final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
 
+        //FIXME: 1. shouldn't we check duplicate before trying to add it?!
+        //FIXME: 2. when trying to add an already added project, we get a huge loop of exceptions
+        
+
         // Avoid missing-entirely kinds of parameters.
         if ( (name == null) ||
              (website == null) ||
@@ -398,9 +402,7 @@ public class WebAdminRenderer  extends AbstractView {
             if (sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null)) {
                 sobjLogger.info("Added a new project <" + name + "> with ID " +
                                 p.getId());
-                vc.put("RESULTS",
-                                         "<p>New project added successfully.</p>" +
-                                         returnToList);
+                vc.put("RESULTS", "<p>New project added successfully.</p>" + returnToList);
             }
             else {
                 sobjLogger.warn("The updater failed to start while adding project");
@@ -445,7 +447,7 @@ public class WebAdminRenderer  extends AbstractView {
         String scm = "file://" + f.getParentFile().getAbsolutePath() + "/svn";
 
         Pattern wsPattern = Pattern.compile("^Website:?\\s*(http.*)$");
-        Pattern ctnPattern = Pattern.compile("^Contact:?\\s*(http.*)$");
+        Pattern ctnPattern = Pattern.compile("^Contact:?\\s*(.*)$");
 
         String website = "", contact = "";
 

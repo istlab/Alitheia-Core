@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<project id="iTALC" active="yes">
+  <svn username="" password="" >https://italc.svn.sourceforge.net/svnroot/italc</svn>
+  <url>http://italc.sourceforge.net/</url>
+  <email>tobydox@users.sf.net</email>
+  <mailinglist name="Developers" email="italc-devel@lists.sourceforge.net"/> <!-- * -->
+  <mailinglist name="Users" email="italc-users@lists.sourceforge.net"/> 
+  <!-- <bugzilla url=""/> --> <!-- ?-->
+</project>
