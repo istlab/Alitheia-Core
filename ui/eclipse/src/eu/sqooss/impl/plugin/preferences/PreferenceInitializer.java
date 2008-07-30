@@ -30,45 +30,30 @@
  *
  */
 
-package eu.sqooss.plugin.util;
+package eu.sqooss.impl.plugin.preferences;
 
-public interface Constants {
-    
-    /**
-     * Represents the identifier of the project property page
-     * as stored in the configuration file.
-     */
-    public static final String PROJECT_PROPERTY_PAGE_ID =
-        "eu.sqooss.impl.plugin.properties.projectPropertyPage";
-    
-    /**
-     * Represents the identifier of the configuration property page
-     * as stored in the configuration file.
-     */
-    public static final String CONFIGURATION_PROPERTY_PAGE_ID = 
-        "eu.sqooss.impl.plugin.properties.configurationPropertyPage";
-    
-    /**
-     * Represents the identifier of the profile property page
-     * as stored in the configuration file.
-     */
-    public static final String PROFILE_PROPERTY_PAGE_ID =
-        "eu.sqooss.impl.plugin.properties.profilePropertyPage";
-    
-    /**
-     * Represents the identifier of the quality property page
-     * as stored in the configuration file.
-     */
-    public static final String QUALITY_PROPERTY_PAGE_ID =
-        "eu.sqooss.impl.plugin.properties.qualityPropertyPage";
-    
-    /**
-     * Represents the identifier of the configuration preference page
-     * as stored in the configuration file.
-     */
-    public static final String CONFIGURATION_PREFERENCE_PAGE_ID =
-        "eu.sqooss.impl.plugin.preferences.configurationPreferencePage";
-    
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.jface.preference.IPreferenceStore;
+
+import eu.sqooss.impl.plugin.Activator;
+import eu.sqooss.impl.plugin.util.Constants;
+import eu.sqooss.impl.plugin.util.Messages;
+
+public class PreferenceInitializer extends AbstractPreferenceInitializer {
+
+    @Override
+    public void initializeDefaultPreferences() {
+        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+        store.setDefault(Constants.PREFERENCE_NAME_SERVER_ADDRESS,
+                Messages.ConfigurationPropertyPage_Text_Server_Address_Default_Value);
+        store.setDefault(Constants.PREFERENCE_NAME_SERVER_PORT,
+                Constants.SERVER_PORT_DEFAULT_VALUE);
+        store.setDefault(Constants.PREFERENCE_NAME_USER_NAME,
+                Messages.ConfigurationPropertyPage_Text_User_Name_Default_Value);
+        store.setDefault(Constants.PREFERENCE_NAME_USER_PASSWORD,
+                Messages.ConfigurationPropertyPage_Text_Password_Default_Value);
+    }
+
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -3,6 +3,7 @@
 <plugin>
    <requires>
       <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
    </requires>
 
 	<extension point="org.eclipse.ui.propertyPages"> 
@@ -68,6 +69,12 @@
              id="eu.sqooss.impl.plugin.preferences.configurationPreferencePage"
              name="SQO-OSS">
        </page>
+    </extension>
+    <extension
+          point="org.eclipse.core.runtime.preferences">
+       <initializer
+             class="eu.sqooss.impl.plugin.preferences.PreferenceInitializer">
+       </initializer>
     </extension>
 
 </plugin>

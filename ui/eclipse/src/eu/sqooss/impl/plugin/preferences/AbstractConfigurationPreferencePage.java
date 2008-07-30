@@ -73,7 +73,7 @@ abstract class AbstractConfigurationPreferencePage
         Group groupServer = new Group(container, SWT.NONE);
         setLayoutData(groupServer);
         groupServer.setLayout(new GridLayout(4, false));
-        groupServer.setText(Messages.ConfigurationPreferencePage_Group_Server);
+        groupServer.setText(Messages.Configuration_Group_Server);
         
         Label labelServerAddress = new Label(groupServer, SWT.NONE);
         labelServerAddress.setText(Messages.Configuration_Label_Server_Address);
@@ -106,7 +106,7 @@ abstract class AbstractConfigurationPreferencePage
         Group groupUser = new Group(container, SWT.NONE);
         setLayoutData(groupUser);
         groupUser.setLayout(new GridLayout(2, false));
-        groupUser.setText(Messages.ConfigurationPreferencePage_Group_User);
+        groupUser.setText(Messages.Configuration_Group_User);
         
         Label labelUserName = new Label(groupUser, SWT.NONE);
         labelUserName.setText(Messages.Configuration_Label_User_Name);

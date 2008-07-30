@@ -38,6 +38,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jface.preference.IPreferenceStore;
 
 import eu.sqooss.impl.plugin.Activator;
 import eu.sqooss.impl.plugin.util.Messages;
@@ -85,6 +86,7 @@ public class ConnectionUtils {
     private String errorMessage;
     private boolean isValidAccount;
     private boolean isValidProjectVersion;
+    private boolean isProjectSpecificAccount;
     private IProject project;
     private String serverAddress;
     private int serverPort;
@@ -95,6 +97,7 @@ public class ConnectionUtils {
     private WSStoredProject storedProject;
     private WSProjectVersion storedProjectVersion;
     private WSSession wsSession;
+    private IPreferenceStore store;
     
     /**
      * The constructor gets the values of the fields from the <code>project</code>.
@@ -104,6 +107,7 @@ public class ConnectionUtils {
      */
     public ConnectionUtils(IProject project) {
         this.project = project;
+        this.store = Activator.getDefault().getPreferenceStore();
         initProperties();
         load(project);
         validate();
@@ -172,6 +176,15 @@ public class ConnectionUtils {
         return errorMessage;
     }
 
+    public boolean isProjectSpecificAccount() {
+        return isProjectSpecificAccount;
+    }
+
+    public void setProjectSpecificAccount(boolean isProjectSpecificAccount) {
+        this.isProjectSpecificAccount = isProjectSpecificAccount;
+        refresh();
+    }
+
     /**
      * The method sets the address of the Alitheia server
      * and invalidates the session.
@@ -238,28 +251,26 @@ public class ConnectionUtils {
      */
     public boolean save() {
         try {
-            if (!Messages.ConfigurationPropertyPage_Text_Server_Address_Default_Value.equals(serverAddress)) {
+            if (isProjectSpecificAccount) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_ADDRESS, serverAddress);
             } else {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_ADDRESS, null);
             }
 
-            if (Constants.SERVER_PORT_DEFAULT_VALUE != serverPort) {
+            if (isProjectSpecificAccount) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_PORT,
                         Integer.toString(serverPort));
             } else {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_SERVER_PORT, null);
             }
             
-            if (!Messages.
-                    ConfigurationPropertyPage_Text_User_Name_Default_Value.equals(userName)) {
+            if (isProjectSpecificAccount) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, userName);
             } else {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME, null);
             }
             
-            if (!Messages.
-                    ConfigurationPropertyPage_Text_Password_Default_Value.equals(password)) {
+            if (isProjectSpecificAccount) {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD, password);
             } else {
                 project.setPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD, null);
@@ -426,6 +437,19 @@ public class ConnectionUtils {
     }
     
     /*
+     * If the isProjectSpecificAccount variable is false
+     * then the method loads the account's settings from the store.  
+     */
+    private void refresh() {
+        if (!isProjectSpecificAccount) {
+            setServerAddress(store.getString(Constants.PREFERENCE_NAME_SERVER_ADDRESS));
+            setServerPort(store.getInt(Constants.PREFERENCE_NAME_SERVER_PORT));
+            setUserName(store.getString(Constants.PREFERENCE_NAME_USER_NAME));
+            setPassword(store.getString(Constants.PREFERENCE_NAME_USER_PASSWORD));
+        }
+    }
+    
+    /*
      * Loads the session settings from the project.
      * If the some of the settings are missing
      * then the default values are read from the property file.
@@ -436,28 +460,33 @@ public class ConnectionUtils {
         try {
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_ADDRESS);
             if (propertyValue == null) {
-                propertyValue = Messages.ConfigurationPropertyPage_Text_Server_Address_Default_Value;
+                propertyValue = store.getString(Constants.PREFERENCE_NAME_SERVER_ADDRESS);
+            } else {
+                isProjectSpecificAccount = true;
             }
             setServerAddress(propertyValue);
 
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_SERVER_PORT);
             try {
                 setServerPort(Integer.valueOf(propertyValue));
+                isProjectSpecificAccount = true;
             } catch (NumberFormatException nfe) {
-                setServerPort(Constants.SERVER_PORT_DEFAULT_VALUE);
+                setServerPort(store.getInt(Constants.PREFERENCE_NAME_SERVER_PORT));
             }            
             
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_USER_NAME);
             if (propertyValue == null) {
-                propertyValue = Messages.
-                ConfigurationPropertyPage_Text_User_Name_Default_Value;
+                propertyValue = store.getString(Constants.PREFERENCE_NAME_USER_NAME);
+            } else {
+                isProjectSpecificAccount = true;
             }
             setUserName(propertyValue);
 
             propertyValue = project.getPersistentProperty(ConnectionUtils.PROPERTY_PASSWORD);
             if (propertyValue == null) {
-                propertyValue = Messages.
-                ConfigurationPropertyPage_Text_Password_Default_Value;
+                propertyValue = store.getString(Constants.PREFERENCE_NAME_USER_PASSWORD);
+            } else {
+                isProjectSpecificAccount = true;
             }
             setPassword(propertyValue);
 

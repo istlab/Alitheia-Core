@@ -77,6 +77,8 @@ public class Messages extends NLS {
     public static String ConfigurationPropertyPage_TabItem_Account;
     public static String ConfigurationPropertyPage_TabItem_Project;
     public static String ConfigurationPropertyPage_Message_Error_IOException;
+    public static String ConfigurationPropertyPage_Button_Project_Specific_Settings;
+    public static String ConfigurationPropertyPage_Link_Configuration_Preference_Page;
     
     //QualityPropertyPage's messages
     public static String QualityPropertyPage_Label_Entity_Path;
@@ -113,10 +115,8 @@ public class Messages extends NLS {
     public static String Configuration_Label_Server_Port;
     public static String Configuration_Label_User_Name;
     public static String Configuration_Label_Password;
-    
-    //ConfigurationPreferencePage's messages
-    public static String ConfigurationPreferencePage_Group_User;
-    public static String ConfigurationPreferencePage_Group_Server;
+    public static String Configuration_Group_User;
+    public static String Configuration_Group_Server;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

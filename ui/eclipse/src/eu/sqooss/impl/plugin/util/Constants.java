@@ -36,6 +36,7 @@ import org.eclipse.swt.SWT;
 
 public interface Constants {
 
+    /* ===[GUI Constants]=== */
     /**
      * Represents the minimum port number of the server configuration.
      */
@@ -56,6 +57,27 @@ public interface Constants {
      * Represents the style of all text fields.
      */
     public static final int TEXT_FIELD_COMMON_STYLE = SWT.SINGLE | SWT.BORDER;
+    
+    /* ===[Preference Constants]=== */
+    /**
+     * Represents the preference name of the server address.
+     */
+    public static final String PREFERENCE_NAME_SERVER_ADDRESS = "SERVER_ADDRESS";
+    
+    /**
+     * Represents the preference name of the server port.
+     */
+    public static final String PREFERENCE_NAME_SERVER_PORT    = "SERVER_PORT";
+    
+    /**
+     * Represents the preference name of the user name.
+     */
+    public static final String PREFERENCE_NAME_USER_NAME      = "USER_NAME";
+    
+    /**
+     * Represents the preference name of the user password.
+     */
+    public static final String PREFERENCE_NAME_USER_PASSWORD  = "USER_PASSWORD";
     
 }
 

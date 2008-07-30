@@ -41,29 +41,72 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 
 import eu.sqooss.impl.plugin.Activator;
+import eu.sqooss.impl.plugin.util.Constants;
 
 public class ConfigurationPreferencePage
                 extends AbstractConfigurationPreferencePage
                 implements TraverseListener {
 
+    private IPreferenceStore store;
+    
+    /**
+     * @see eu.sqooss.impl.plugin.preferences.AbstractConfigurationPreferencePage#createContents(org.eclipse.swt.widgets.Composite)
+     */
     @Override
     protected Control createContents(Composite parent) {
         Control control = super.createContents(parent);
         spinnerServerPort.addTraverseListener(this);
+        this.store = Activator.getDefault().getPreferenceStore();
+        loadValues();
         return control;
     }
 
+    /**
+     * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
+     */
     public void init(IWorkbench workbench) {
-        // TODO: Implement
+        //the preference store is accessed via doGetPreferenceStore
+        setPreferenceStore(null);
     }
 
+    /**
+     * @see org.eclipse.jface.preference.PreferencePage#doGetPreferenceStore()
+     */
     @Override
     protected IPreferenceStore doGetPreferenceStore() {
         //return the plug-in preference store
         return Activator.getDefault().getPreferenceStore();
     }
 
+    /**
+     * @see org.eclipse.jface.preference.PreferencePage#performApply()
+     */
+    @Override
+    protected void performApply() {
+        this.performOk();
+    }
+
+    /**
+     * @see org.eclipse.jface.preference.PreferencePage#performDefaults()
+     */
+    @Override
+    protected void performDefaults() {
+        loadDefaultValue();
+    }
+
+    /**
+     * @see org.eclipse.jface.preference.PreferencePage#performOk()
+     */
+    @Override
+    public boolean performOk() {
+        saveValues();
+        return super.performOk();
+    }
+
     /* ===[Listeners' methods]=== */
+    /**
+     * @see org.eclipse.swt.events.TraverseListener#keyTraversed(org.eclipse.swt.events.TraverseEvent)
+     */
     public void keyTraversed(TraverseEvent e) {
         Object eventSource = e.getSource();
         if (eventSource == spinnerServerPort) {
@@ -71,6 +114,40 @@ public class ConfigurationPreferencePage
         }
     }
 
+    /* ===[utility methods]=== */
+    private void loadValues() {
+        textFieldServerAddress.setText(
+                store.getString(Constants.PREFERENCE_NAME_SERVER_ADDRESS));
+        spinnerServerPort.setSelection(
+                store.getInt(Constants.PREFERENCE_NAME_SERVER_PORT));
+        textFieldUserName.setText(
+                store.getString(Constants.PREFERENCE_NAME_USER_NAME));
+        textFieldPassword.setText(
+                store.getString(Constants.PREFERENCE_NAME_USER_PASSWORD));
+    }
+    
+    private void saveValues() {
+        store.setValue(Constants.PREFERENCE_NAME_SERVER_ADDRESS,
+                textFieldServerAddress.getText());
+        store.setValue(Constants.PREFERENCE_NAME_SERVER_PORT,
+                spinnerServerPort.getSelection());
+        store.setValue(Constants.PREFERENCE_NAME_USER_NAME,
+                textFieldUserName.getText());
+        store.setValue(Constants.PREFERENCE_NAME_USER_PASSWORD,
+                textFieldPassword.getText());
+    }
+    
+    private void loadDefaultValue() {
+        textFieldServerAddress.setText(
+                store.getDefaultString(Constants.PREFERENCE_NAME_SERVER_ADDRESS));
+        spinnerServerPort.setSelection(
+                store.getDefaultInt(Constants.PREFERENCE_NAME_SERVER_PORT));
+        textFieldUserName.setText(
+                store.getDefaultString(Constants.PREFERENCE_NAME_USER_NAME));
+        textFieldPassword.setText(
+                store.getDefaultString(Constants.PREFERENCE_NAME_USER_PASSWORD));
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -59,8 +60,10 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
     protected TabFolder tabFolder;
     protected TabItem tabItemProject;
     protected Composite compositeProject;
-    
+    protected Composite compositeAccount;
+    protected Button buttonProjectSpecificSettings;
     protected Button buttonValidate;
+    protected Link linkConfigurationPreferencePage;
     
     public AbstractConfigurationPropertyPage() {
         super();
@@ -92,21 +95,38 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
     private TabFolder addTabFolder(Composite composite) {
         //create the tab folder
         TabFolder tabFolder = new TabFolder(composite, SWT.TOP);
-        setLayoutData(tabFolder, 1);
+        setLayoutData(tabFolder, 1, true, SWT.FILL);
         return tabFolder;
     }
     
     
     private void addAccountTabItem(TabFolder tabFolder) {
-        Composite compositeAccount = createComposite(tabFolder, 4);
-        setLayoutData(compositeAccount, 1);
+        Composite parentComposite = createComposite(tabFolder, 2);
+        setLayoutData(parentComposite, 1, true, SWT.FILL);
+        
+        //add the project specific option
+        buttonProjectSpecificSettings = new Button(parentComposite, SWT.CHECK);
+        buttonProjectSpecificSettings.setText(
+                Messages.ConfigurationPropertyPage_Button_Project_Specific_Settings);
+        setLayoutData(buttonProjectSpecificSettings, 1, false, SWT.FILL);
+        linkConfigurationPreferencePage = new Link(parentComposite, SWT.NONE);
+        linkConfigurationPreferencePage.setText(
+                Messages.ConfigurationPropertyPage_Link_Configuration_Preference_Page);
+        setLayoutData(linkConfigurationPreferencePage, 1, true, SWT.RIGHT);
+        
+        //add separator
+        Label labelSeparator = new Label(parentComposite,
+                SWT.SEPARATOR | SWT.HORIZONTAL);
+        setLayoutData(labelSeparator, 2, true, SWT.FILL);
         
         // add server url's components
+        compositeAccount = createComposite(parentComposite, 4);
+        setLayoutData(compositeAccount, 2, true, SWT.FILL);
         Label labelServerAddress = new Label(compositeAccount, SWT.NONE);
         labelServerAddress.setText(Messages.Configuration_Label_Server_Address);
         textFieldServerAddress = new Text(compositeAccount,
                 Constants.TEXT_FIELD_COMMON_STYLE);
-        setLayoutData(textFieldServerAddress, 1);
+        setLayoutData(textFieldServerAddress, 1, true, SWT.FILL);
         Label labelServerPort = new Label(compositeAccount, SWT.NONE);
         labelServerPort.setText(Messages.Configuration_Label_Server_Port);
         spinnerServerPort = new Spinner(compositeAccount, SWT.NONE);
@@ -130,36 +150,36 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         labelUserName.setText(Messages.Configuration_Label_User_Name);
         textFieldUserName = new Text(compositeAccount,
                 Constants.TEXT_FIELD_COMMON_STYLE);
-        setLayoutData(textFieldUserName, 3);
+        setLayoutData(textFieldUserName, 3, true, SWT.FILL);
 
         // add password's components
         Label labelPassword = new Label(compositeAccount, SWT.NONE);
         labelPassword.setText(Messages.Configuration_Label_Password);
         textFieldPassword = new Text(compositeAccount,
                 Constants.TEXT_FIELD_COMMON_STYLE | SWT.PASSWORD);
-        setLayoutData(textFieldPassword, 3);
+        setLayoutData(textFieldPassword, 3, true, SWT.FILL);
         
         TabItem tabItemAccount = new TabItem(tabFolder, SWT.NONE);
         tabItemAccount.setText(Messages.ConfigurationPropertyPage_TabItem_Account);
-        tabItemAccount.setControl(compositeAccount);
+        tabItemAccount.setControl(parentComposite);
     }
     
     private void addProjectTabItem(TabFolder tabFolder) {
         compositeProject = createComposite(tabFolder, 2);
-        setLayoutData(compositeProject, 1);
+        setLayoutData(compositeProject, 1, true, SWT.FILL);
         
         // add project's components - name
         Label labelProjectName = new Label(compositeProject, SWT.NONE);
         labelProjectName.setText(Messages.ConfigurationPropertyPage_Label_Project_Name);
         textFieldProjectName = new Text(compositeProject,
                 Constants.TEXT_FIELD_COMMON_STYLE);
-        setLayoutData(textFieldProjectName, 1);
+        setLayoutData(textFieldProjectName, 1, true, SWT.FILL);
         
         // add project's components - version
         Label labelProjectVersion = new Label(compositeProject, SWT.NONE);
         labelProjectVersion.setText(Messages.ConfigurationPropertyPage_Label_Project_Version);
         comboProjectVersion = new Combo(compositeProject, SWT.DROP_DOWN);
-        setLayoutData(comboProjectVersion, 1);
+        setLayoutData(comboProjectVersion, 1, true, SWT.FILL);
         String[] items = new String[] {
                 Messages.ConfigurationPropertyPage_Combo_First_Project_Version,
                 Messages.ConfigurationPropertyPage_Combo_Other_Project_Version,
@@ -181,11 +201,13 @@ abstract class AbstractConfigurationPropertyPage extends EnabledPropertyPage {
         return composite;
     }
     
-    private static void setLayoutData(Control control, int horizontalSpan) {
+    private static void setLayoutData(Control control, int horizontalSpan,
+            boolean grapHorizontalSpace, int horizontalAlignment) {
         GridData gridData = new GridData();
         gridData.horizontalAlignment = GridData.FILL;
-        gridData.grabExcessHorizontalSpace = true;
+        gridData.grabExcessHorizontalSpace = grapHorizontalSpace;
         gridData.horizontalSpan = horizontalSpan;
+        gridData.horizontalAlignment = horizontalAlignment;
         control.setLayoutData(gridData);
     }
     

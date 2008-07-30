@@ -34,11 +34,14 @@ package eu.sqooss.impl.plugin.properties;
 
 import java.util.List;
 
+import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferencePage;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.preference.PreferenceManager;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -46,14 +49,20 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
+import eu.sqooss.impl.plugin.Activator;
+import eu.sqooss.impl.plugin.util.Constants;
 import eu.sqooss.impl.plugin.util.Messages;
 import eu.sqooss.plugin.util.EnabledState;
 
 public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
                                        implements SelectionListener,
-                                                  TraverseListener {
+                                                  TraverseListener,
+                                                  IPropertyChangeListener {
 
+    ControlEnableState enableProjectSpecific;
+    
 	public ConfigurationPropertyPage() {
 		super();
 	}
@@ -66,11 +75,15 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
     protected Control createContents(Composite parent) {
         Control control = super.createContents(parent);
         mainControl = compositeProject;
-        enableIfPossible();
-        synchronizeConnectionUtils(true);
         tabFolder.addSelectionListener(this);
         comboProjectVersion.addSelectionListener(this);
         spinnerServerPort.addTraverseListener(this);
+        linkConfigurationPreferencePage.addSelectionListener(this);
+        buttonProjectSpecificSettings.addSelectionListener(this);
+        Activator.getDefault().getPreferenceStore().
+            addPropertyChangeListener(this);
+        enableIfPossible();
+        synchronizeConnectionUtils(true);
         return control;
     }
 
@@ -118,6 +131,26 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         notifyPropertyPages(connectionUtils.validate());
     }
 
+    /**
+     * @see org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.jface.util.PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent event) {
+        if (connectionUtils.isProjectSpecificAccount()) return;
+        String property = event.getProperty();
+        if (Constants.PREFERENCE_NAME_SERVER_ADDRESS.equals(property)) {
+            connectionUtils.setServerAddress((String) event.getNewValue());
+        } else if (Constants.PREFERENCE_NAME_SERVER_PORT.equals(property)) {
+            connectionUtils.setServerPort(((Integer) event.getNewValue()).intValue());
+        } else if (Constants.PREFERENCE_NAME_USER_NAME.equals(property)) {
+            connectionUtils.setUserName((String) event.getNewValue());
+        } else if (Constants.PREFERENCE_NAME_USER_PASSWORD.equals(property)) {
+            connectionUtils.setPassword((String) event.getNewValue());
+        }
+        if (!mainControl.isDisposed()) {
+            synchronizeConnectionUtils(true);
+        }
+    }
+    
     public void keyTraversed(TraverseEvent e) {
         Object eventSource = e.getSource();
         if (eventSource == spinnerServerPort) {
@@ -152,6 +185,23 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
                     equals(comboProjectVersion.getText())) {
                 comboProjectVersion.setText("");
             }
+        } else if (eventSource == linkConfigurationPreferencePage) {
+            String id = eu.sqooss.plugin.util.Constants.CONFIGURATION_PREFERENCE_PAGE_ID;
+            PreferencesUtil.createPreferenceDialogOn(getShell(), id, new String[] { id }, null).open();
+        } else if (eventSource == buttonProjectSpecificSettings) {
+            if ((buttonProjectSpecificSettings.getSelection() &&
+                    (enableProjectSpecific != null))) {
+                enableProjectSpecific.restore();
+                enableProjectSpecific = null;
+                linkConfigurationPreferencePage.setEnabled(false);
+                connectionUtils.setProjectSpecificAccount(true);
+            } else if ((!buttonProjectSpecificSettings.getSelection() &&
+                    (enableProjectSpecific == null))) {
+                enableProjectSpecific = ControlEnableState.disable(compositeAccount);
+                linkConfigurationPreferencePage.setEnabled(true);
+                connectionUtils.setProjectSpecificAccount(false);
+                synchronizeConnectionUtils(true);
+            }
         }
     }
 	
@@ -164,6 +214,12 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
         } else {
             super.setEnabled(true, null);
         }
+        if (connectionUtils.isProjectSpecificAccount()) {
+            buttonProjectSpecificSettings.setSelection(true);
+        } else {
+            buttonProjectSpecificSettings.setSelection(false);
+        }
+        buttonProjectSpecificSettings.notifyListeners(SWT.Selection, null);
     }
 
     @Override
