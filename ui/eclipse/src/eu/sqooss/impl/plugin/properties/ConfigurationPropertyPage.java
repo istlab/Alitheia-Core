@@ -189,15 +189,17 @@ public class ConfigurationPropertyPage extends AbstractConfigurationPropertyPage
             String id = eu.sqooss.plugin.util.Constants.CONFIGURATION_PREFERENCE_PAGE_ID;
             PreferencesUtil.createPreferenceDialogOn(getShell(), id, new String[] { id }, null).open();
         } else if (eventSource == buttonProjectSpecificSettings) {
-            if ((buttonProjectSpecificSettings.getSelection() &&
-                    (enableProjectSpecific != null))) {
-                enableProjectSpecific.restore();
+            if (buttonProjectSpecificSettings.getSelection()) {
+                if (enableProjectSpecific != null) {
+                    enableProjectSpecific.restore();
+                }
                 enableProjectSpecific = null;
                 linkConfigurationPreferencePage.setEnabled(false);
                 connectionUtils.setProjectSpecificAccount(true);
-            } else if ((!buttonProjectSpecificSettings.getSelection() &&
-                    (enableProjectSpecific == null))) {
-                enableProjectSpecific = ControlEnableState.disable(compositeAccount);
+            } else if (!buttonProjectSpecificSettings.getSelection()) {
+                if (enableProjectSpecific == null) {
+                    enableProjectSpecific = ControlEnableState.disable(compositeAccount);
+                }
                 linkConfigurationPreferencePage.setEnabled(true);
                 connectionUtils.setProjectSpecificAccount(false);
                 synchronizeConnectionUtils(true);
