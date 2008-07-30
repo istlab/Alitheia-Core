@@ -77,6 +77,7 @@ public class Messages extends NLS {
     public static String ConfigurationPropertyPage_TabItem_Account;
     public static String ConfigurationPropertyPage_TabItem_Project;
     public static String ConfigurationPropertyPage_Message_Error_IOException;
+    public static String ConfigurationPropertyPage_Message_Error_Unknown;
     public static String ConfigurationPropertyPage_Button_Project_Specific_Settings;
     public static String ConfigurationPropertyPage_Link_Configuration_Preference_Page;
     

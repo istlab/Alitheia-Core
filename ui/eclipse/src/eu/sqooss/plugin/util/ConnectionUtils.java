@@ -518,7 +518,8 @@ public class ConnectionUtils {
             return Messages.ConfigurationPropertyPage_Message_Error_IOException;
         } else {
             String message = exception.getMessage();
-            return message == null ? exception.toString() : message;
+            return message != null ? message :
+                Messages.ConfigurationPropertyPage_Message_Error_Unknown;
         }
     }
     
