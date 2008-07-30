@@ -434,10 +434,13 @@ public class Version extends WebuiItem {
         html.append(sp(in) + "<tr>"
                 + "<td class=\"borderless\" colspan=\"2\"><hr />" + "</td>"
                 + "</tr>\n");
+        long total = stats.getAddedCount()
+                + stats.getModifiedCount()
+                + stats.getDeletedCount();
         html.append(sp(in) + "<tr>"
                 + "<td class=\"borderless\">" + icon("vcs_status")
                 + "<strong>Total files changed:</strong>" + "</td>"
-                + "<td class=\"borderless\">" + stats.getTotalCount() + "</td>"
+                + "<td class=\"borderless\">" + total + "</td>"
                 + "</tr>\n");
         html.append(sp(--in) + "</table>\n");
         return html.toString();
