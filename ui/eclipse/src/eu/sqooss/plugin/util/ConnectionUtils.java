@@ -78,8 +78,9 @@ public class ConnectionUtils {
     
     private static final String PROPERTY_WEB_SERVICES_ADDRESS =
         "ConnectionUtils_WebServices_Address"; 
-    private static final String SERVER_PORT_DELIMITER = ":";
+    private static final String SERVER_PORT_DELIMITER  = ":";
     private static final String REG_EXPR_ANY_CHARACTER = ".*";
+    private static final String REG_EXPR_END_OF_LINE   = "$";
     
     private static String webServicesAddress;
     
@@ -392,7 +393,7 @@ public class ConnectionUtils {
             try {
                 files = projectAccessor.getFilesByRegularExpression(
                         storedProjectVersion.getId(),
-                        REG_EXPR_ANY_CHARACTER + filePathname);
+                        REG_EXPR_ANY_CHARACTER + filePathname + REG_EXPR_END_OF_LINE);
             } catch (WSException e) {
                 errorMessage = e.getMessage();
                 return null;
@@ -400,12 +401,24 @@ public class ConnectionUtils {
             if (files.length == 0) {
                 errorMessage = "The file does not exist!";
             } else {
+                WSProjectFile bestWSProjectFile = null; //the best is the shortest
                 for (WSProjectFile file : files) {
                     if ((file.getDirectory() && (resourceType == IResource.FOLDER)) ||
                             (!file.getDirectory() && (resourceType == IResource.FILE))) {
-                        return new ProjectFileEntity(
-                                storedProjectVersion, file, wsSession);
+                        if (bestWSProjectFile == null) {
+                            bestWSProjectFile = file;
+                        } else {
+                            if (bestWSProjectFile.getFileName().length() > file.getFileName().length()) {
+                                bestWSProjectFile = file;
+                            }
+                        }
                     }
+                }
+                if (bestWSProjectFile == null) {
+                    errorMessage = "The file does not exist!";
+                } else {
+                    return new ProjectFileEntity(
+                            storedProjectVersion, bestWSProjectFile, wsSession);
                 }
             }
             return null;
