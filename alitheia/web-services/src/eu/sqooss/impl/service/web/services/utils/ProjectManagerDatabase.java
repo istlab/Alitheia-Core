@@ -43,7 +43,6 @@ import java.util.regex.Pattern;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
-import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
@@ -131,20 +130,6 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return WSProjectVersion.asArray(projectVersions);
     }
 
-    public WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) {
-        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(GET_FILES_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);
-
-        WSProjectFile[] result;
-        try {
-            List<?> projectVersionFiles = db.doSQL(GET_FILES_BY_PROJECT_VERSION_ID, queryParameters);
-            result = convertToWSProjectFiles(projectVersionFiles);
-        } catch (SQLException e) {
-            result = null;
-        }
-        return result;
-    }
-
     public WSProjectFile[] getFilesByRegularExpression(
             long projectVersionId, String regExpr) {
         Pattern pattern = Pattern.compile(regExpr);
@@ -156,15 +141,6 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return WSProjectFile.asArray(files);
     }
     
-    public WSFileGroup[] getFileGroupsByProjectId(long projectVersionId) {
-        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(GET_FILE_GROUPS_BY_PROJECT_ID_PARAM, projectVersionId);
-
-        List<?> projectFileGroups = db.doHQL(GET_FILE_GROUPS_BY_PROJECT_ID, queryParameters);
-        WSFileGroup[] result = WSFileGroup.asArray(projectFileGroups);
-        return result;
-    }
-
     public long getFilesNumberByProjectVersionId(long projectVersionId) {
         Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
         queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);
@@ -199,45 +175,6 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         return result;
     }
 
-    private WSProjectFile[] convertToWSProjectFiles(List<?> projectFiles) {
-        WSProjectFile[] result = null;
-        if ((projectFiles != null) && (projectFiles.size() != 0)) {
-            Object currentElem = projectFiles.get(0);
-            if (currentElem instanceof ProjectFile) { //parse HQL
-                result = WSProjectFile.asArray(projectFiles);
-            } else if (currentElem.getClass().isArray()) { //parse SQL
-                result = new WSProjectFile[projectFiles.size()];
-                BigInteger fileId;
-                BigInteger projectVersionId;
-                BigInteger directoryId;
-                String fileName;
-                String status;
-                Boolean isDirectory;
-                Object[] currentFile;
-                WSProjectFile currentWSProjectFile;
-                for (int i = 0; i < result.length; i++) {
-                    currentFile = (Object[])projectFiles.get(i);
-                    fileId = (BigInteger)currentFile[0];
-                    directoryId = (BigInteger)currentFile[1];
-                    fileName = (String)currentFile[2];
-                    projectVersionId = (BigInteger)currentFile[3];
-                    status = (String)currentFile[4];
-                    isDirectory = (Boolean)currentFile[5];
-
-                    currentWSProjectFile = new WSProjectFile();
-                    currentWSProjectFile.setId(fileId.longValue());
-                    currentWSProjectFile.setDirectoryId(directoryId.longValue());
-                    currentWSProjectFile.setDirectory(isDirectory);
-                    currentWSProjectFile.setStatus(status);
-                    currentWSProjectFile.setProjectVersionId(projectVersionId.longValue());
-                    currentWSProjectFile.setFileName(fileName);
-
-                    result[i] = currentWSProjectFile;
-                }
-            }
-        }
-        return result;
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

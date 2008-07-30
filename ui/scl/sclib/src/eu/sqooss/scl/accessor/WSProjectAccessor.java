@@ -35,7 +35,6 @@ package eu.sqooss.scl.accessor;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
-import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
@@ -111,26 +110,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSProjectFile[] getFilesByRegularExpression(long projectVersionId, String regExpr) throws WSException;
-    
-    /**
-     * This method returns an array of all file groups that belongs to the project
-     * with the given Id.
-     * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param projectId - the project's identifier
-     * 
-     * @return The array of project's file groups, or a <code>empty</code> array when
-     *   none are found <i>(for example, when the project is not yet not
-     *   evaluated)</i>.
-     *   
-     * @throws WSException
-     * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
-     *  <li>if web services service throws an exception</li>
-     * <ul>
-     */
-    public abstract WSFileGroup[] getFileGroupsByProjectId(long projectId) throws WSException;
     
     /**
      * The method returns the total number of files, that exists in the given

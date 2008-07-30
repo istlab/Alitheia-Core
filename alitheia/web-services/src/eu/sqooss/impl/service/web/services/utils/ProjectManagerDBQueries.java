@@ -39,49 +39,6 @@ interface ProjectManagerDBQueries {
                                                         "where sp.id=em.storedProject ";
     
     
-    public static final String GET_FILES_BY_PROJECT_ID_PARAM = "project_id";
-    
-    public static final String GET_FILES_BY_PROJECT_ID = "select distinct pf " +
-                                                    "from ProjectVersion pv, ProjectFile pf " +
-                                                    "where pf.projectVersion=pv.id " +
-                                                    " and pv.project.id=:" +
-                                                    GET_FILES_BY_PROJECT_ID_PARAM;
-    
-    
-    public static final String GET_FILES_BY_PROJECT_VERSION_ID_PARAM = "project_ver";
-    
-    public static final String GET_FILES_BY_PROJECT_VERSION_ID = "select pf.project_file_id, d.directory_id, " + 
-                                                                 "       head.fname, head.headrev, pf.file_status, pf.is_directory " +
-    		                                                     "from (select pf.directory_id as dir, " +
-    		                                                     "             pf.file_name as fname, " +
-    		                                                     "             max(pv.project_version_id) as headrev " +
-    		                                                     "      from project_file pf, project_version pv " +
-    		                                                     "      where pf.project_version_id=pv.project_version_id " +
-    		                                                     "            and pv.timestamp<= ( " +
-    		                                                     "                select pv2.timestamp " +
-    		                                                     "                from project_version pv2 " +
-    		                                                     "                where pv2.project_version_id=:" +
-    		                                                     GET_FILES_BY_PROJECT_VERSION_ID_PARAM +
-    		                                                     "                ) " +       
-    		                                                     "      group by pf.directory_id, pf.file_name) head," +
-    		                                                     "      project_file pf, directory d " +
-    		                                                     "where d.directory_id=pf.directory_id " +
-    		                                                     "      and head.dir=pf.directory_id " +
-    		                                                     "      and head.fname=pf.file_name " +
-    		                                                     "      and pf.project_version_id=head.headrev " +
-    		                                                     "      and pf.file_status<>'DELETED' " +
-    		                                                     "order by d.path, head.fname";
-    
-    
-    public static final String GET_FILE_GROUPS_BY_PROJECT_ID_PARAM = "project_id";
-    
-    public static final String GET_FILE_GROUPS_BY_PROJECT_ID = "select fg " +
-                                                               "from ProjectVersion pv, FileGroup fg " +
-                                                               "where fg.projectVersion=pv.id " +
-                                                               " and pv.project.id=:" +
-                                                               GET_FILE_GROUPS_BY_PROJECT_ID_PARAM;
-    
-    
     public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM = "project_ver";
     
     public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID = "select count(*) " +
@@ -94,7 +51,7 @@ interface ProjectManagerDBQueries {
                                                                     "                select pv2.timestamp " +
                                                                     "                from project_version pv2 " +
                                                                     "                where pv2.project_version_id=:" +
-                                                                    GET_FILES_BY_PROJECT_VERSION_ID_PARAM +
+                                                                    GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM +
                                                                     "                ) " +       
                                                                     "      group by pf.directory_id, pf.file_name) head," +
                                                                     "      project_file pf, directory d " +

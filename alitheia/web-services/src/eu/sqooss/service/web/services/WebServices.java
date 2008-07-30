@@ -46,7 +46,6 @@ import eu.sqooss.impl.service.web.services.UserManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSConstants;
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
-import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
@@ -95,7 +94,6 @@ public class WebServices implements EventHandler{
     private ProjectManager projectManager;
     private UserManager userManager;
 
-    private BundleContext bc;
     private Logger logger;
     private PluginAdmin pluginAdmin;
     private SecurityManager securityManager;
@@ -123,7 +121,6 @@ public class WebServices implements EventHandler{
             WebadminService wa,
             FDSService fds) {
 
-        this.bc = bc;
         this.securityManager = securityManager;
         this.db = db;
         this.pluginAdmin = pluginAdmin;
@@ -136,7 +133,7 @@ public class WebServices implements EventHandler{
                 DBService.EVENT_STARTED
         };
 
-        Dictionary d = new Hashtable();
+        Dictionary<String, String[]> d = new Hashtable<String, String[]>();
         d.put(EventConstants.EVENT_TOPIC, topics );
 
         bc.registerService(EventHandler.class.getName(), this, d);
@@ -261,26 +258,6 @@ public class WebServices implements EventHandler{
                 projectVersionId, regExpr);
     }
     
-    /**
-     * This method returns an array of all file groups that belongs to the project
-     * with the given Id.
-     *
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
-     * @param projectId - the project's identifier
-     *
-     * @return The array of project's file groups, or a <code>null</code> array when
-     *   none are found <i>(for example, when the project is not yet not
-     *   evaluated)</i>.
-     */
-    public WSFileGroup[] getFileGroupsByProjectId(
-            String userName,
-            String password,
-            long projectId) {
-        return projectManager.getFileGroupsByProjectId(
-                userName, password, projectId);
-    }
-
     /**
      * This method returns an array of <code>WSFileModication<code> objects
      * that represent all modification that were performed on the project file

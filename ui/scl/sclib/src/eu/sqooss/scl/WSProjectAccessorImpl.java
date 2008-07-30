@@ -43,7 +43,6 @@ import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
-import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
@@ -55,8 +54,6 @@ import eu.sqooss.ws.client.ws.GetDirectoriesByIds;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjectsResponse;
-import eu.sqooss.ws.client.ws.GetFileGroupsByProjectId;
-import eu.sqooss.ws.client.ws.GetFileGroupsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFilesByProjectVersionIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesByRegularExpression;
@@ -116,8 +113,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getFilesByProjectVersionId";
     private static final String METHOD_NAME_GET_FILES_BY_REGULAR_EXPRESSION =
         "getFilesByRegularExpression";
-    private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID =
-        "getFileGroupsByProjectId";
     private static final String METHOD_NAME_GET_DIRECTORIES_BY_IDS =
         "getDirectoriesByIds";
     private static final String METHOD_NAME_GET_DEVELOPERS_BY_IDS =
@@ -412,33 +407,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
     }
 
-    /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFileGroupsByProjectId(long)
-     */
-    @Override
-    public WSFileGroup[] getFileGroupsByProjectId(long projectId) throws WSException {
-        GetFileGroupsByProjectIdResponse response;
-        GetFileGroupsByProjectId params;
-        if (!parameters.containsKey(METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID)) {
-            params = new GetFileGroupsByProjectId();
-            params.setPassword(password);
-            params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID, params);
-        } else {
-            params = (GetFileGroupsByProjectId) parameters.get(
-                    METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_ID);
-        }
-        synchronized (params) {
-            params.setProjectId(projectId);
-            try {
-                response = wsStub.getFileGroupsByProjectId(params);
-            } catch (Exception e) {
-                throw new WSException(e);
-            }
-        }
-        return (WSFileGroup[]) normalizeWSArrayResult(response.get_return());
-    }
-    
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesNumberByProjectVersionId(long)
      */

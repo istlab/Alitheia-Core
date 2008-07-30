@@ -35,7 +35,6 @@ package eu.sqooss.impl.service.web.services;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -211,7 +210,6 @@ public class MetricManager extends AbstractManager {
      * @return The array of metrics results, or <code>null</code> when the
      *   specified metrics were not evaluated on the given resources.
      */
-    @SuppressWarnings("unchecked")
     public WSResultEntry[] getMetricsResult(
             String userName,
             String password,

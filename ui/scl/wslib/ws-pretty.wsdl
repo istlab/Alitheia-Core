@@ -38,18 +38,6 @@
           <xs:element name="path" nillable="true" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
-      <xs:element name="WSFileGroup" type="ax21:WSFileGroup"/>
-      <xs:complexType name="WSFileGroup">
-        <xs:sequence>
-          <xs:element name="id" type="xs:long"/>
-          <xs:element name="lastUsed" type="xs:long"/>
-          <xs:element name="name" nillable="true" type="xs:string"/>
-          <xs:element name="projectVersionId" type="xs:long"/>
-          <xs:element name="recalcFreq" type="xs:int"/>
-          <xs:element name="regularExpression" nillable="true" type="xs:string"/>
-          <xs:element name="subPath" nillable="true" type="xs:string"/>
-        </xs:sequence>
-      </xs:complexType>
       <xs:element name="WSFileModification" type="ax21:WSFileModification"/>
       <xs:complexType name="WSFileModification">
         <xs:sequence>
@@ -169,7 +157,6 @@
           <xs:element name="addedCount" type="xs:long"/>
           <xs:element name="deletedCount" type="xs:long"/>
           <xs:element name="modifiedCount" type="xs:long"/>
-          <xs:element name="totalCount" type="xs:long"/>
           <xs:element name="versionId" type="xs:long"/>
         </xs:sequence>
       </xs:complexType>
@@ -304,22 +291,6 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSDirectory"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="getFileGroupsByProjectId">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="userName" nillable="true" type="xs:string"/>
-            <xs:element name="password" nillable="true" type="xs:string"/>
-            <xs:element name="projectId" nillable="true" type="xs:long"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="getFileGroupsByProjectIdResponse">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSFileGroup"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -933,12 +904,6 @@
   <wsdl:message name="getMetricsResultResponse">
     <wsdl:part name="part1" element="ns2:getMetricsResultResponse"/>
   </wsdl:message>
-  <wsdl:message name="getFileGroupsByProjectIdMessage">
-    <wsdl:part name="part1" element="ns2:getFileGroupsByProjectId"/>
-  </wsdl:message>
-  <wsdl:message name="getFileGroupsByProjectIdResponse">
-    <wsdl:part name="part1" element="ns2:getFileGroupsByProjectIdResponse"/>
-  </wsdl:message>
   <wsdl:portType name="wsPortType">
     <wsdl:operation name="getMetricTypesByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMetricTypesByIdsMessage" wsaw:Action="urn:getMetricTypesByIds"/>
@@ -1079,10 +1044,6 @@
     <wsdl:operation name="getMetricsResult">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMetricsResultMessage" wsaw:Action="urn:getMetricsResult"/>
       <wsdl:output message="axis2:getMetricsResultResponse"/>
-    </wsdl:operation>
-    <wsdl:operation name="getFileGroupsByProjectId">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFileGroupsByProjectIdMessage" wsaw:Action="urn:getFileGroupsByProjectId"/>
-      <wsdl:output message="axis2:getFileGroupsByProjectIdResponse"/>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="wsSOAP11Binding" type="axis2:wsPortType">
@@ -1402,15 +1363,6 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFileGroupsByProjectId">
-      <soap:operation soapAction="urn:getFileGroupsByProjectId" style="document"/>
-      <wsdl:input>
-        <soap:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="wsSOAP12Binding" type="axis2:wsPortType">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
@@ -1722,15 +1674,6 @@
     </wsdl:operation>
     <wsdl:operation name="getMetricsResult">
       <soap12:operation soapAction="urn:getMetricsResult" style="document"/>
-      <wsdl:input>
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="getFileGroupsByProjectId">
-      <soap12:operation soapAction="urn:getFileGroupsByProjectId" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>

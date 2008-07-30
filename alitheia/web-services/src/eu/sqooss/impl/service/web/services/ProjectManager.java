@@ -42,7 +42,6 @@ import java.util.Map;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
-import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
@@ -268,6 +267,7 @@ public class ProjectManager extends AbstractManager {
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFirstProjectVersions(String, String, long[])
      */
+    @SuppressWarnings("unchecked")
     public WSProjectVersion[] getFirstProjectVersions(String userName,
             String password, long[] projectsIds) {
         db.startDBSession();
@@ -435,34 +435,6 @@ public class ProjectManager extends AbstractManager {
         return (WSProjectFile[]) normalizeWSArrayResult(result);
     }
     
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#getFileGroupsByProjectId(String, String, long)
-     */
-    public WSFileGroup[] getFileGroupsByProjectId(String userName,
-            String password, long projectId) {
-        logger.info("Get a file group list for the project! user: " + userName +
-                "; project id: " + projectId);
-
-        db.startDBSession();
-
-        if (!securityWrapper.checkProjectsReadAccess(
-                userName, password, new long[] {projectId})) {
-            if (db.isDBSessionActive()) {
-                db.commitDBSession();
-            }
-            throw new SecurityException(
-                    "Security violation in the get file groups by project id operation!");
-        }
-
-        super.updateUserActivity(userName);
-
-        WSFileGroup[] result = dbWrapper.getFileGroupsByProjectId(projectId);
-
-        db.commitDBSession();
-
-        return (WSFileGroup[]) normalizeWSArrayResult(result);
-    }
-
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFilesNumberByProjectVersionId(String, String, long)
      */

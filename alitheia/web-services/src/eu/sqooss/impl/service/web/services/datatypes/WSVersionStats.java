@@ -32,10 +32,6 @@
 
 package eu.sqooss.impl.service.web.services.datatypes;
 
-import java.util.List;
-
-import eu.sqooss.service.db.ProjectVersion;
-
 /**
  * This class wraps the <code>eu.sqooss.service.db.ProjectVersion</code>.
  */
@@ -45,7 +41,6 @@ public class WSVersionStats {
     private long deletedCount;
     private long modifiedCount;
     private long addedCount;
-    private long totalCount;
 
     /**
      * @return The version Id.
@@ -104,12 +99,6 @@ public class WSVersionStats {
         this.addedCount = number;
     }
 
-    /**
-     * @return The number of files changed in this version.
-     */
-    public long getTotalCount() {
-        return deletedCount + modifiedCount + addedCount;
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
