@@ -634,6 +634,7 @@ public class ProjectManager extends AbstractManager {
             db.findObjectById(ProjectVersion.class, projectVersionId);
         Directory directory =
             db.findObjectById(Directory.class, directoryId);
+        if ((version == null) || (directory == null)) return null;
         List<ProjectFile> files = new ArrayList<ProjectFile>();
 
         /*********************************************************************
