@@ -17,6 +17,10 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
+import eu.sqooss.service.db.MetricType.Type;
 
 public class SpPlugin implements SpEntity {
     private DBService db = SpecsActivator.alitheiaCore.getDBService();
@@ -200,5 +204,14 @@ public class SpPlugin implements SpEntity {
           return;
         }
       }
+    }
+    
+    public void synchPlugin()
+    {
+      PluginAdmin pa = SpecsActivator.alitheiaCore.getPluginAdmin();
+      AlitheiaPlugin p = pa.getPlugin(info);
+      MetricActivator ma = SpecsActivator.alitheiaCore.getMetricActivator();
+      ma.initRules();
+      ma.syncMetrics(p);
     }
 }

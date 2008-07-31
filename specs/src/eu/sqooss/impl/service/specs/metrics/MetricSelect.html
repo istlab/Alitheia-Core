@@ -1,0 +1,76 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+  <body>
+    
+    <h1>Selected Metrics</h1>
+    
+    <p>Each metric plugin contains one or more metric. The metrics can be enabled or disabled for a specific project.</p>
+    
+    <div class="example">
+      
+      <h3>Example</h3>
+      
+      <p>The system comes with registered, but not installed metric plug-ins. 
+      <span concordion:execute="installPlugin(#installed_plugin)">After installing the "<span concordion:set="#installed_plugin">Wc metric plug-in</span>"</span>, <span concordion:execute="addProject(#added_project)">adding a "<span concordion:set="#added_project">test-project</span>"</span> and <span concordion:execute="synchPlugin(#installed_plugin)">synchronizing the metric plugin</span>, we have the following metrics in the project: </p>
+      <table concordion:verifyRows="#metric : getMetrics(#added_project)">
+        <tr>
+          <th concordion:assertEquals="#metric.name">Plugin Name</th>
+          <th concordion:assertEquals="#metric.selected">Selected</th> 
+        </tr>
+        <tr>
+          <td>LOC</td>
+          <td>true</td>
+        </tr>
+        <tr>
+          <td>LOCOM</td>
+          <td>true</td>
+        </tr>
+      </table>
+    
+      <p>Metrics can be selected or deselected. After deselecting the LOC metric, we have the following metrics in the project: </p>
+      <table concordion:verifyRows="#metric : getMetrics(#added_project)">
+        <tr>
+          <th concordion:assertEquals="#metric.name">Plugin Name</th>
+          <th concordion:assertEquals="#metric.selected">Selected</th> 
+        </tr>
+        <tr>
+          <td>LOC</td>
+          <td>false</td>
+        </tr>
+        <tr>
+          <td>LOCOM</td>
+          <td>true</td>
+        </tr>
+      </table>
+
+   
+       <p>Selecting again the LOC metric, we have the following metrics in the project: </p>
+      <table concordion:verifyRows="#metric : getMetrics(#added_project)">
+        <tr>
+          <th concordion:assertEquals="#metric.name">Plugin Name</th>
+          <th concordion:assertEquals="#metric.selected">Selected</th> 
+        </tr>
+        <tr>
+          <td>LOC</td>
+          <td>false</td>
+        </tr>
+        <tr>
+          <td>LOCOM</td>
+          <td>true</td>
+        </tr>
+      </table>
+      
+ </div>
+    
+    <h2>Further Details</h2>
+    
+    <!--
+        Questions raised by this specification. Each one links to another finer grained active specification.
+        -->
+    <ul>
+      <li><a href="MetricInstall.html">Can we install a metric plugin?</a></li>
+      <li><a href="MetricUninstall.html">Can we uninstall a metric plugin?</a></li>
+    </ul>
+    
+    
+  </body>
+</html>
