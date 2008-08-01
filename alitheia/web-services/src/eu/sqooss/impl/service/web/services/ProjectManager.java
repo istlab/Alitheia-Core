@@ -373,38 +373,6 @@ public class ProjectManager extends AbstractManager {
     }
 
     /**
-     * @see eu.sqooss.service.web.services.WebServices#getFilesByProjectVersionId(String, String, long)
-     */
-    public WSProjectFile[] getFilesByProjectVersionId(String userName, String password, long projectVersionId) {
-        logger.info("Get file list for project version ID "
-            + projectVersionId);
-
-        db.startDBSession();
-
-        if (!securityWrapper.checkProjectVersionsReadAccess(
-                userName, password, new long[] {projectVersionId})) {
-            if (db.isDBSessionActive()) {
-                db.commitDBSession();
-            }
-            throw new SecurityException("Security violation in the get files by project version id operation!");
-        }
-        
-        super.updateUserActivity(userName);
-
-        ProjectVersion v = db.findObjectById(ProjectVersion.class, projectVersionId);
-        List<ProjectFile> files = ProjectFile.getFilesForVersion(v);
-        WSProjectFile[] result = new WSProjectFile[files.size()];
-        int i = 0;
-        for (ProjectFile f : files) {
-            result[i++]=WSProjectFile.getInstance(f);
-        }
-
-        db.commitDBSession();
-
-        return (WSProjectFile[]) normalizeWSArrayResult(result);
-    }
-
-    /**
      * @see eu.sqooss.service.web.services.WebServices#getFilesByRegularExpression(String, String, long, String)
      */
     public WSProjectFile[] getFilesByRegularExpression(

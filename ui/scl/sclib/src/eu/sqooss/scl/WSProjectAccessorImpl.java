@@ -54,8 +54,6 @@ import eu.sqooss.ws.client.ws.GetDirectoriesByIds;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjectsResponse;
-import eu.sqooss.ws.client.ws.GetFilesByProjectVersionId;
-import eu.sqooss.ws.client.ws.GetFilesByProjectVersionIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesByRegularExpression;
 import eu.sqooss.ws.client.ws.GetFilesByRegularExpressionResponse;
 import eu.sqooss.ws.client.ws.GetFilesInDirectory;
@@ -109,8 +107,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getProjectsByIds";
     private static final String METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID =
         "getFilesNumberByProjectVersionId";
-    private static final String METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID =
-        "getFilesByProjectVersionId";
     private static final String METHOD_NAME_GET_FILES_BY_REGULAR_EXPRESSION =
         "getFilesByRegularExpression";
     private static final String METHOD_NAME_GET_DIRECTORIES_BY_IDS =
@@ -344,33 +340,6 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         }
 
         return response.get_return();
-    }
-
-    /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFilesByProjectVersionId(long)
-     */
-    @Override
-    public WSProjectFile[] getFilesByProjectVersionId(long projectVersionId) throws WSException {
-        GetFilesByProjectVersionIdResponse response;
-        GetFilesByProjectVersionId params;
-        if (!parameters.containsKey(METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID)) {
-            params = new GetFilesByProjectVersionId();
-            params.setPassword(password);
-            params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID, params);
-        } else {
-            params = (GetFilesByProjectVersionId) parameters.get(
-                    METHOD_NAME_GET_FILES_BY_PROJECT_VERSION_ID);
-        }
-        synchronized (params) {
-            params.setProjectVersionId(projectVersionId);
-            try {
-                response = wsStub.getFilesByProjectVersionId(params);
-            } catch (Exception e) {
-                throw new WSException(e);
-            }
-        }
-        return (WSProjectFile[]) normalizeWSArrayResult(response.get_return());
     }
 
     /**
