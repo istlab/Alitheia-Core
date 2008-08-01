@@ -32,15 +32,24 @@
 
 package eu.sqooss.impl.plugin.properties;
 
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import eu.sqooss.impl.plugin.util.selectors.PathSelectionContentProvider;
+import eu.sqooss.impl.plugin.util.selectors.PathSelectionDialog;
+import eu.sqooss.impl.plugin.util.selectors.PathSelectionLabelProvider;
 import eu.sqooss.plugin.util.Constants;
+import eu.sqooss.ws.client.datatypes.WSProjectFile;
 
-public class ProfilePropertyPage extends AbstractProfilePropertyPage implements SelectionListener {
+public class ProfilePropertyPage
+                extends AbstractProfilePropertyPage
+                implements SelectionListener {
+    
+    PathSelectionDialog selectionDialog;
     
     /**
      * @see eu.sqooss.plugin.properties.AbstractProfilePropertyPage#createContents(org.eclipse.swt.widgets.Composite)
@@ -48,15 +57,10 @@ public class ProfilePropertyPage extends AbstractProfilePropertyPage implements 
     @Override
     protected Control createContents(Composite parent) {
         Composite containerComposite = (Composite) super.createContents(parent);
-        
         mainControl = mainComposite;
-        
         configurationLink.addSelectionListener(this);
-        
-        textFieldPath.setText(getEntityPath());
-        
+        buttonPathBrowse.addSelectionListener(this);
         enableIfPossible();
-        
         return containerComposite;
     }
     
@@ -89,15 +93,23 @@ public class ProfilePropertyPage extends AbstractProfilePropertyPage implements 
         if (eventSource == configurationLink) {
             IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer)getContainer();
             container.openPage(Constants.CONFIGURATION_PROPERTY_PAGE_ID, null);
+        } else if (eventSource == buttonPathBrowse) {
+            if (selectionDialog == null) {
+                selectionDialog = new PathSelectionDialog(getShell(),
+                        new PathSelectionLabelProvider(), new PathSelectionContentProvider(connectionUtils));
+            }
+            Object prevSelection = textFieldPath.getData(); 
+            if (prevSelection != null) {
+                selectionDialog.setInitialSelection(prevSelection);
+            }
+            if (Window.OK == selectionDialog.open()) {
+                WSProjectFile projectFile = (WSProjectFile) selectionDialog.getFirstResult();
+                textFieldPath.setText(projectFile.getFileName());
+                textFieldPath.setData(projectFile);
+            }
         }
     }
     
-    private String getEntityPath() {
-//        IResource resource = (IResource) (getElement().getAdapter(IResource.class));
-//        return ProjectConverterUtility.getEntityPath(resource);
-        return "";
-    }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

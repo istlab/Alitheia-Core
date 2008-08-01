@@ -33,7 +33,6 @@
         </page> 
     </extension>
     
-    <!--
     <extension point="org.eclipse.ui.propertyPages"> 
         <page 
             id="eu.sqooss.impl.plugin.properties.profilePropertyPage" 
@@ -47,7 +46,6 @@
           	</enabledWhen>
         </page> 
     </extension>
-    -->
     
     <extension point="org.eclipse.ui.propertyPages"> 
         <page 

@@ -37,6 +37,12 @@ import org.eclipse.swt.SWT;
 public interface Constants {
 
     /* ===[GUI Constants]=== */
+    
+    /**
+     * Represents the key of the repository image.
+     */
+    public static final String IMG_OBJ_REPOSITORY = "repository.gif";
+    
     /**
      * Represents the minimum port number of the server configuration.
      */

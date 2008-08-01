@@ -34,10 +34,14 @@ package eu.sqooss.impl.plugin;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Hashtable;
 import java.util.Properties;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import eu.sqooss.impl.plugin.util.Constants;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -54,6 +58,11 @@ public class Activator extends AbstractUIPlugin {
 	
 	private static final String CONFIGURATION_FILE_NAME = "/OSGI-INF/configuration/plugin.properties";
 	
+	private static final String ICONS_FOLDER_NAME = "/OSGI-INF/configuration/icons/";
+	
+	private BundleContext bc;
+	private Hashtable<String, ImageDescriptor> imageDescriptors;
+	
 	/**
 	 * The constructor
 	 */
@@ -66,8 +75,10 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		this.bc = context;
 		plugin = this;
-		initProperties(context);
+		initProperties();
+		initializeImages();
 	}
 
 	/*
@@ -89,7 +100,29 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	private static void initProperties(BundleContext bc) {
+	/**
+	 * Returns the image descriptor for the given key.
+	 * 
+	 * @param key - image descriptor's key
+	 * 
+	 * @return - the image descriptor or null if the key is missing
+	 */
+	public ImageDescriptor getImageDescriptor(String key) {
+	    return imageDescriptors.get(key);
+	}
+
+	private void initializeImages() {
+	    imageDescriptors = new Hashtable<String, ImageDescriptor>(1);
+        createImageDescriptor(Constants.IMG_OBJ_REPOSITORY);
+    }
+	
+	private void createImageDescriptor(String key) {
+	    URL url = bc.getBundle().getEntry(ICONS_FOLDER_NAME + key);
+	    ImageDescriptor desc = ImageDescriptor.createFromURL(url);
+	    imageDescriptors.put(key, desc);
+	}
+	
+    private void initProperties() {
 	    if (configurationProperties == null) {
 	        URL propsUrl = bc.getBundle().getEntry(CONFIGURATION_FILE_NAME);
 	        if (propsUrl != null) {

@@ -98,6 +98,7 @@ public class Messages extends NLS {
     public static String ProfilePropertyPage_Button_Remove_Profile;
     public static String ProfilePropertyPage_Button_Update_Profile;
     public static String ProfilePropertyPage_Button_Path_Browse;
+    public static String ProfilePropertyPage_Label_Repository;
     
     //VisualizerFactory's messages
     public static String VisualizerFactory_Title_Version;

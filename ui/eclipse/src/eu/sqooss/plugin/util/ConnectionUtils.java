@@ -49,6 +49,7 @@ import eu.sqooss.scl.WSException;
 import eu.sqooss.scl.WSSession;
 import eu.sqooss.scl.accessor.WSAccessor;
 import eu.sqooss.scl.accessor.WSProjectAccessor;
+import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -427,6 +428,40 @@ public class ConnectionUtils {
         }
     }
     
+    /**
+     * The utility method is used to get all files in the given directory.
+     * If the argument is null then the root directory is returned.
+     * The id, directoryId and toDirectoryId properties of the root are same.
+     *  
+     * @param directory the directory (can be null)
+     * 
+     * @return the files (including directories); the result can be null
+     */
+    public WSProjectFile[] getFilesInDirectory(WSProjectFile directory) {
+        WSProjectAccessor projectAccessor = (WSProjectAccessor) wsSession.getAccessor(
+                WSAccessor.Type.PROJECT);
+        WSProjectFile[] result = null;
+        try {
+            if (directory == null) {
+                WSDirectory root = projectAccessor.getRootDirectory(storedProject.getId());
+                WSProjectFile rootDir = new WSProjectFile();
+                rootDir.setDirectory(true);
+                rootDir.setFileName(root.getPath());
+                rootDir.setShortName(Messages.ProfilePropertyPage_Label_Repository);
+                rootDir.setDirectoryId(root.getId());
+                rootDir.setId(root.getId());
+                rootDir.setToDirectoryId(root.getId());
+                result = new WSProjectFile[] {rootDir};
+            } else {
+                result = projectAccessor.getFilesInDirectory(
+                        storedProjectVersion.getId(), directory.getToDirectoryId());
+            }
+        } catch (WSException wse) {
+            //do nothing here
+        }
+        return result;
+    }
+
     private boolean validateProjectVersion(WSProjectAccessor accessor) throws WSException {
         if (storedProject == null) {
             errorMessage = "The project doesn't exist!";

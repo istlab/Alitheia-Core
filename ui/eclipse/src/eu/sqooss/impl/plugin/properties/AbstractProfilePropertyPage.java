@@ -43,12 +43,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 
+import eu.sqooss.impl.plugin.util.Constants;
 import eu.sqooss.impl.plugin.util.Messages;
 
 abstract class AbstractProfilePropertyPage extends EnabledPropertyPage {
 
-    private static final int TEXT_FIELDS_SWT_STYLE = SWT.SINGLE | SWT.BORDER;
-    
     protected Composite mainComposite;
     protected Composite configurationComposite;
     protected Combo comboProfileName;
@@ -104,7 +103,7 @@ abstract class AbstractProfilePropertyPage extends EnabledPropertyPage {
         Label labelProfilePath = new Label(composite, SWT.NONE);
         labelProfilePath.setText(Messages.ProfilePropertyPage_Label_Profile_Path);
         
-        textFieldPath = new Text(composite, TEXT_FIELDS_SWT_STYLE);
+        textFieldPath = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
         addLayoutData(textFieldPath, 2, true);
         
         buttonPathBrowse = new Button(composite, SWT.PUSH);
@@ -115,14 +114,16 @@ abstract class AbstractProfilePropertyPage extends EnabledPropertyPage {
         Label labelProfileFilesFilter = new Label(composite, SWT.NONE);
         labelProfileFilesFilter.setText(Messages.ProfilePropertyPage_Label_Profile_Files_Filter);
         
-        textFieldFilesFilter = new Text(composite, TEXT_FIELDS_SWT_STYLE);
+        textFieldFilesFilter = new Text(composite,
+                Constants.TEXT_FIELD_COMMON_STYLE);
         addLayoutData(textFieldFilesFilter, 3, true);
         
         //add profile's recalculation frequency
         Label labelProfileRecalcFreq = new Label(composite, SWT.NONE);
         labelProfileRecalcFreq.setText(Messages.ProfilePropertyPage_Label_Recalc_Freq);
         
-        textFieldRecalcFreq = new Text(composite, TEXT_FIELDS_SWT_STYLE);
+        textFieldRecalcFreq = new Text(composite,
+                Constants.TEXT_FIELD_COMMON_STYLE);
         addLayoutData(textFieldRecalcFreq, 3, true);
         
         //add profile's project version
