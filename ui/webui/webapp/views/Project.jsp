@@ -125,7 +125,7 @@ if (selectedProject.isValid()) {
                         + "\n");
                     b.append(sp(in) + "<br/>\n");
                     b.append(sp(in) + "<strong>Total:</strong> "
-                        + selectedProject.countVersions() + "\n");
+                        + selectedProject.getVersionsCount() + "\n");
                 } else {
                     b.append(sp(in) + "<strong>Version:</strong> "
                         + selectedProject.getFirstVersion().getNumber()

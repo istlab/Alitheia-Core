@@ -39,7 +39,7 @@ public static String versionSelector(Project p, long in) {
     html.append(sp(in) + "<li><a href=\"?version" + p.getId()
         + "=" + p.getFirstVersion().getNumber() + "\">"
         + "First version</a>\n");
-    if (p.countVersions() > 1)
+    if (p.getVersionsCount() > 1)
         html.append(sp(in) + "<li><a href=\"?version" + p.getId()
             + "=" + p.getLastVersion().getNumber() + "\">"
             + "Last version</a>\n");

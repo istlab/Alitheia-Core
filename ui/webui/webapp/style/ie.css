@@ -22,3 +22,12 @@ select.vfvmid {
 select.vfvfid {
     width:98px;
 }
+a.icon img {
+    filter: alpha(opacity=70);
+}
+a:hover.icon img {
+    filter: alpha(opacity=100);
+}
+img.icon_disabled {
+    filter: alpha(opacity=25);
+}

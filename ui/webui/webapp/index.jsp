@@ -9,6 +9,7 @@ if (terrier.isConnected()) {
 %><%@ include file="/inc/header.jsp"
 %><%@ include file="/inc/news.jsp"
 %><%@ include file="/views/ProjectCloud.jsp"
+%><%@ include file="/views/ProjectIntro.jsp"
 %><%
 }
 // Can not establish a connection with the SQO-OSS framework

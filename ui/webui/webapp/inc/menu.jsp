@@ -63,7 +63,7 @@ if (terrier.getErrors().size() > 0) {
     // Dump all errors from the communication with the SQO-OSS framework
     Stack<String> errors = terrier.getErrors();
     while (errors.size() > 0) {
-%>                    <li style="font-color: red;"><%= errors.pop() %></li>
+%>                    <li style="color: red;"><%= errors.pop() %></li>
 <%
     }
 %>                  </ul>

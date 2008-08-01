@@ -23,8 +23,8 @@ if (ProjectsListView.hasProjects()) {
     double fontsize = 2.0; /* em */
     for (Project p : v) {
         if (m[i][j] == null) {
-             m[i][j] = new String("<a href="
-                + "\"projects.jsp?pid=" + p.getId() + "\" "
+             m[i][j] = new String("<a href=\""
+                + request.getServletPath() + "?pid=" + p.getId() + "\" "
                 + "style=\"font-size: " + fontsize + "em;\" "
                 + ">" + p.getName() + "</a>");
         }

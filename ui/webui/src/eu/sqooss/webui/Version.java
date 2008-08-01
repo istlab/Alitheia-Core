@@ -163,11 +163,12 @@ public class Version extends WebuiItem {
     //========================================================================
 
     /**
-     * Gets the number of files that exist in this particular project version.
+     * Gets the total number of files that exist in this particular project
+     * version.
      * 
-     * @return The number of files in this version.
+     * @return Total number of files in this version.
      */
-    public Long getFilesNumber() {
+    public Long getFilesCount() {
         if (filesNumber == null)
             filesNumber = terrier.getFilesCount(id);
         return filesNumber;
@@ -195,24 +196,6 @@ public class Version extends WebuiItem {
        if (filesList != null)
            files = filesList;
    }
-
-    /**
-     * Retrieves all files that exist in this project version from the
-     * attached SQO-OSS framework.
-     * <br/> All files that are found will be copied into the local cache i.e.
-     * the <code>files<code> member field.
-     */
-    public void getAllFiles() {
-        if (terrier == null) return;
-        if (isValid()) {
-            // Fill the files cache, if empty
-            if (files.isEmpty())
-                for (File nextFile : terrier.getFilesInVersion(id))
-                    files.put(nextFile.getId(), nextFile);
-        }
-        else
-            terrier.addError("Invalid project version!");
-    }
 
     /**
      * Fetch all files in the current directory that exist in this project

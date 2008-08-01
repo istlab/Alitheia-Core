@@ -516,40 +516,6 @@ public class Terrier {
     }
 
     /**
-     * Retrieves all files that exist in the specified project version.
-     * <br/>
-     * <br/>
-     * <b>Note:</b> This method can take quite long in order to retrieve all
-     * files in a big project's version. Therefore, please try to use
-     * <code>getFilesInDirectory(long, long)</code> if possible.
-     *
-     * @param versionId the project version's Id
-     *
-     * @return The list of files in this project version, or an empty list
-     *   when none are found.
-     */
-    public List<File> getFilesInVersion(long versionId) {
-        List<File> result = new ArrayList<File>();
-        if (isConnected()) {
-            try {
-                WSProjectFile[] wsfiles =
-                    connection.getProjectAccessor().getFilesByProjectVersionId(
-                            versionId);
-                if (wsfiles != null)
-                    for (WSProjectFile file : wsfiles)
-                        result.add(new File(file));
-            }
-            catch (WSException e) {
-                addError("Can not retrieve the list of files"
-                        + " in this version.");
-            }
-        }
-        else
-            addError(connection.getError());
-        return result;
-    }
-
-    /**
      * Retrieves the number of all files that exist in the specified project
      * version.
      *

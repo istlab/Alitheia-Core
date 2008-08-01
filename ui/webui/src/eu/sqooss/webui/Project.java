@@ -279,6 +279,15 @@ public class Project extends WebuiItem {
     }
 
     /**
+     * Returns the total number of developers in this project
+     *
+     * @return Total number of developers in this project.
+     */
+    public long getDevelopersCount() {
+        return getDevelopers().size();
+    }
+
+    /**
      * Retrieves all the data that is required by this object from the
      * SQO-OSS framework, unless the cache contains some data already
      * or this project is not yet initialized.
@@ -428,9 +437,9 @@ public class Project extends WebuiItem {
     /**
      * Returns the total number of versions in this project
      *
-     * @return The number of version in this project.
+     * @return Total number of versions in this project.
      */
-    public long countVersions() {
+    public long getVersionsCount() {
         if (versionsCount == null)
             versionsCount = terrier.getVersionsCount(id);
         if (versionsCount != null)

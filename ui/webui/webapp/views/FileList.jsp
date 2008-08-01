@@ -539,7 +539,7 @@ if (selectedProject.isValid()) {
                 }
                 winFileBrowser.addToolIcon(icoLastVersion);
                 // Version select widget
-                if (selectedProject.countVersions() > 1) {
+                if (selectedProject.getVersionsCount() > 1) {
                     TextInput icoVerSelect = new TextInput();
                     icoVerSelect.setPath(request.getServletPath());
                     icoVerSelect.setParameter("version" + selectedProject.getId());
