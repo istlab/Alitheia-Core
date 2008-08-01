@@ -16,6 +16,7 @@ Bundle-Classpath: .,
     org.openqa.selenium-0.9.81.jar
 Import-Package: org.osgi.framework,
     eu.sqooss.core,
+    eu.sqooss.service.metricactivator,
     eu.sqooss.service.db,
     eu.sqooss.service.security,
     eu.sqooss.service.fds,
