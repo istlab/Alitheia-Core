@@ -42,6 +42,7 @@ import java.util.Map;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
+import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
@@ -537,6 +538,34 @@ public class ProjectManager extends AbstractManager {
         return null;
     }
 
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getFileGroupsByProjectVersionId(String, String, long)
+     */
+    public WSFileGroup[] getFileGroupsByProjectVersionId(
+            String userName,
+            String password,
+            long projectVersionId) {
+        
+        logger.info("Get file groups by project version id! user: " +
+        		userName + "; project version id: " + projectVersionId);
+        
+        db.startDBSession();
+
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[] {projectVersionId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in the get file groups by project version id operation!");
+        }
+        
+        //TODO: waits for the FileGroup support of the FDS
+        
+        db.commitDBSession();
+        return (WSFileGroup[]) normalizeWSArrayResult(null);
+    }
+    
     /**
      * @see eu.sqooss.service.web.services.WebServices#getRootFolder(String, String, long)
      */

@@ -43,6 +43,7 @@ import eu.sqooss.scl.accessor.WSProjectAccessor;
 import eu.sqooss.ws.client.WsStub;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
+import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
@@ -54,6 +55,8 @@ import eu.sqooss.ws.client.ws.GetDirectoriesByIds;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjectsResponse;
+import eu.sqooss.ws.client.ws.GetFileGroupsByProjectVersionId;
+import eu.sqooss.ws.client.ws.GetFileGroupsByProjectVersionIdResponse;
 import eu.sqooss.ws.client.ws.GetFilesByRegularExpression;
 import eu.sqooss.ws.client.ws.GetFilesByRegularExpressionResponse;
 import eu.sqooss.ws.client.ws.GetFilesInDirectory;
@@ -113,6 +116,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getDirectoriesByIds";
     private static final String METHOD_NAME_GET_DEVELOPERS_BY_IDS =
         "getDevelopersByIds";
+    private static final String METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_VERSION_ID =
+        "getFileGroupsByProjectVersionId";
     private static final String METHOD_NAME_GET_ROOT_DIRECTORY =
         "getRootDirectory";
     private static final String METHOD_NAME_GET_FILES_IN_DIRECTORY =
@@ -149,6 +154,33 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFileGroupsByProjectVersionId(long)
+     */
+    @Override
+    public WSFileGroup[] getFileGroupsByProjectVersionId(long projectVersionId) throws WSException {
+        GetFileGroupsByProjectVersionIdResponse response;
+        GetFileGroupsByProjectVersionId params;
+        if (!parameters.containsKey(METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_VERSION_ID)) {
+            params = new GetFileGroupsByProjectVersionId();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_VERSION_ID, params);
+        } else {
+            params = (GetFileGroupsByProjectVersionId) parameters.get(
+                    METHOD_NAME_GET_FILE_GROUPS_BY_PROJECT_VERSION_ID);
+        }
+        synchronized (params) {
+            params.setProjectVersionId(projectVersionId);
+            try {
+                response = wsStub.getFileGroupsByProjectVersionId(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
+    }
+
+    /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#getRootDirectory(long)
      */
     @Override
@@ -172,7 +204,7 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
                 throw new WSException(e);
             }
         }
-        return (WSDirectory) response.get_return();
+        return response.get_return();
     }
 
     /**

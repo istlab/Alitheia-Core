@@ -35,6 +35,7 @@ package eu.sqooss.scl.accessor;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
+import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
@@ -233,8 +234,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * The method returns all information, that the SQO-OSS framework has
      * collected about the specified projects.
      * 
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
      * @param projectsIds - the projects' identifiers
      * 
      * @return The <code>WSStoredProject</code> array that describes the
@@ -252,8 +251,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * Returns the total number of versions for the project with the given Id
      * that are stored in the SQO-OSS framework.
      *
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
      * @param projectId - the project's identifier
      *
      * @return The total number of version for that project.
@@ -270,8 +267,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
     /**
      * This method returns file statistic per given project version.
      *
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
      * @param projectVerionsIds - the list of project versions' identifiers
      *
      * @return The <code>WSVersionStats</code> array of objects which describe
@@ -289,11 +284,28 @@ public abstract class WSProjectAccessor extends WSAccessor {
             long[] projectVersionsIds) throws WSException;
 
     /**
+     * The method returns an array of all file groups that exists in the specified
+     * project version.
+     *
+     * @param projectVersionId - the project's version identifier
+     *
+     * @return The array of project's file groups in that project version, or a
+     *   <code>null</code> array when none are found.
+     *   
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with the SQO-OSS's web services service can
+     *    not be established</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSFileGroup[] getFileGroupsByProjectVersionId(
+            long projectVersionId) throws WSException;
+    
+    /**
      * This method returns the root directory of the specified project's
      * source tree.
      *
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
      * @param projectId - the project's identifier
      *
      * @return The root directory's object, or <code>null</code> if not found.
@@ -312,8 +324,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * This method returns an array of all files located in the selected
      * directory, that exists in the specified project version.
      *
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
      * @param projectVersionId - the project's version identifier
      * @param directoryId - the directory identifier
      *
@@ -336,8 +346,6 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * that represent all modification that were performed on the project file
      * with the given Id.
      *
-     * @param userName - the user's name used for authentication
-     * @param password - the user's password used for authentication
      * @param projectVersionId - the project version identifier
      * @param projectFileId - the project file identifier
      *

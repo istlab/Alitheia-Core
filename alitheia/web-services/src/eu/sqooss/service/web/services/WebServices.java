@@ -46,6 +46,7 @@ import eu.sqooss.impl.service.web.services.UserManager;
 import eu.sqooss.impl.service.web.services.datatypes.WSConstants;
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
+import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
@@ -178,6 +179,25 @@ public class WebServices implements EventHandler{
         return projectManager.getStoredProjects(userName, password);
     }
 
+    /**
+     * The method returns an array of all file groups that exists in the specified
+     * project version.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectVersionId - the project's version identifier
+     *
+     * @return The array of project's file groups in that project version, or a
+     *   <code>null</code> array when none are found.
+     */
+    public WSFileGroup[] getFileGroupsByProjectVersionId(
+            String userName,
+            String password,
+            long projectVersionId) {
+        return projectManager.getFileGroupsByProjectVersionId(
+                userName, password, projectVersionId);
+    }
+    
     /**
      * This method returns the root directory of the specified project's
      * source tree.
