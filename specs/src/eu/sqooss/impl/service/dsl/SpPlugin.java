@@ -24,7 +24,6 @@ import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.db.StoredProject;
 
 public class SpPlugin implements SpEntity {
-    private DBService db = SpecsActivator.alitheiaCore.getDBService();
 
     long id = -1;
     boolean persistent = false;
@@ -209,16 +208,28 @@ public class SpPlugin implements SpEntity {
     
     public void synchPlugin(String projectName)
     {
+      DBService db = SpecsActivator.alitheiaCore.getDBService();
       db.startDBSession();
       HashMap<String,Object> properties = new HashMap<String,Object>();
       properties.put("name", projectName);
       List<StoredProject> projects = db.findObjectsByProperties(StoredProject.class, properties);
       StoredProject project = projects.get(0);
-      
+      System.out.printf("found project %s\n", project.getName());
+     
       PluginAdmin pa = SpecsActivator.alitheiaCore.getPluginAdmin();
-      AlitheiaPlugin p = pa.getPlugin(info);
       MetricActivator ma = SpecsActivator.alitheiaCore.getMetricActivator();
-      ma.syncMetric(p, project);
+      Collection<PluginInfo> plugins = pa.listPlugins();
+        
+      for (PluginInfo plugin : plugins) {
+        if (plugin.getPluginName().equals(name))
+        {          
+          System.out.printf("found plugin %s\n", name);
+          AlitheiaPlugin p = pa.getPlugin(plugin);
+          ma.initRules();
+          ma.syncMetric(p, project);
+          break;
+        }
+      }
       db.commitDBSession();
     }
 }

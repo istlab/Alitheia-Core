@@ -10,7 +10,7 @@
       <h3>Example</h3>
       
       <p>The system comes with registered, but not installed metric plug-ins. 
-      <span concordion:execute="installPlugin(#installed_plugin)">After installing the "<span concordion:set="#installed_plugin">Wc metric plug-in</span>"</span>, <span concordion:execute="addProject(#added_project)">adding a "<span concordion:set="#added_project">test-project</span>"</span> and <span concordion:execute="synchPlugin(#installed_plugin)">synchronizing the metric plugin</span>, we have the following metrics in the project: </p>
+      <span concordion:execute="installPlugin(#installed_plugin)">After installing the "<span concordion:set="#installed_plugin">Wc metric plug-in</span>"</span>, <span concordion:execute="addProject(#added_project)">adding a "<span concordion:set="#added_project">test-project</span>"</span> and <span concordion:execute="synchPlugin(#installed_plugin, #added_project)">synchronizing the metric plugin</span>, we have the following metrics in the project: </p>
       <table concordion:verifyRows="#metric : getMetrics(#added_project)">
         <tr>
           <th concordion:assertEquals="#metric.name">Plugin Name</th>

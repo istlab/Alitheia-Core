@@ -29,10 +29,10 @@ public class MetricSelect
     sp.install();
   }
   
-  public void synchPlugin(String pluginName)
+  public void synchPlugin(String pluginName, String projectName)
   {
      SpPlugin sp = new SpPlugin(pluginName);
-     sp.synchPlugin();
+     sp.synchPlugin(projectName);
   }
   
   public ArrayList<SpMetric> getMetrics(String projectName)
