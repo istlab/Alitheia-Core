@@ -55,11 +55,11 @@ import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
-import eu.sqooss.webui.Version;
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.webui.datatype.File;
+import eu.sqooss.webui.datatype.Version;
 
 /**
  * The class <code>VerboseFileView</code> renders an HTML sequence that

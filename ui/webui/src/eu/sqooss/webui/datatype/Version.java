@@ -31,14 +31,14 @@
  *
  */
 
-package eu.sqooss.webui;
+package eu.sqooss.webui.datatype;
 
 import java.util.*;
 
-import eu.sqooss.webui.datatype.AbstractDatatype;
-import eu.sqooss.webui.datatype.File;
+import eu.sqooss.webui.Functions;
+import eu.sqooss.webui.Result;
+import eu.sqooss.webui.Terrier;
 import eu.sqooss.webui.util.Directory;
-import eu.sqooss.webui.util.MetricsList;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;

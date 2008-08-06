@@ -7,6 +7,7 @@
 --%><%@ page import="java.util.*"
 %><%@ page import="java.io.File"
 %><%@ page import="eu.sqooss.webui.*"
+%><%@ page import="eu.sqooss.webui.datatype.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%@ page session="true"
 %><%!
