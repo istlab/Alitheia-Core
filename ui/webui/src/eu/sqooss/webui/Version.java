@@ -35,6 +35,7 @@ package eu.sqooss.webui;
 
 import java.util.*;
 
+import eu.sqooss.webui.datatype.AbstractDatatype;
 import eu.sqooss.webui.datatype.File;
 import eu.sqooss.webui.util.Directory;
 import eu.sqooss.webui.util.MetricsList;
@@ -51,7 +52,7 @@ import eu.sqooss.ws.client.datatypes.WSVersionStats;
  * this version, and various methods for accessing and presenting version
  * and file based results.
  */
-public class Version extends WebuiItem {
+public class Version extends AbstractDatatype {
 
     /*
      * Project version's meta-data
@@ -326,51 +327,6 @@ public class Version extends WebuiItem {
     }
 
     //========================================================================
-    // RESULT RETRIEVAL METHODS
-    //========================================================================
-
-    public void fetchVersionResults (MetricsList metrics) {
-        if (isValid() == false) return;
-        if ((metrics == null) || (metrics.isEmpty())) return;
-        // Create an results request object
-        WSMetricsResultRequest request = new WSMetricsResultRequest();
-        request.setProjectVersion(true);
-        // Set the selected DAO Ids
-        request.setDaObjectId(new long[]{getId()});
-        // Set the mnemonics of the selected metrics
-        request.setMnemonics(metrics.getMetricMnemonics().values().toArray(
-                new String[metrics.size()]));
-        // Retrieve the evaluation result from the SQO-OSS framework
-        for (Result nextResult : terrier.getResults(request))
-            results.put(nextResult.getMnemonic(), nextResult);
-    }
-
-    public void fetchFilesResults (MetricsList metrics) {
-        if (isValid() == false) return;
-        if ((metrics == null) || (metrics.isEmpty())) return;
-        if (files.isEmpty()) return;
-        // Create an results request object
-        WSMetricsResultRequest request =
-            new WSMetricsResultRequest();
-        request.setProjectFile(true);
-        // Set the selected DAO Ids
-        int index = 0;
-        long[] fileIds = new long[files.size()];
-        for (Long nextId : files.keySet()) {
-            fileIds[index++] = nextId;
-        }
-        request.setDaObjectId(fileIds);
-        // Set the mnemonics of the selected metrics
-        request.setMnemonics(metrics.getMetricMnemonics().values().toArray(
-                new String[metrics.size()]));
-        // Retrieve the evaluation result from the SQO-OSS framework
-        for (Result nextResult : terrier.getResults(request)) {
-            if (files.containsKey(nextResult.getId()))
-                files.get(nextResult.getId()).addResult(nextResult);
-        }
-    }
-
-    //========================================================================
     // RESULTS RENDERING METHODS
     //========================================================================
 
@@ -465,8 +421,36 @@ public class Version extends WebuiItem {
     }
 
     /* (non-Javadoc)
+     * @see eu.sqooss.webui.datatype.AbstractDatatype#getResults(java.util.Collection, java.lang.Long)
+     */
+    @Override
+    public HashMap<String, Result> getResults (
+            Collection<String> mnemonics, Long resourceId) {
+        HashMap<String, Result> result = new HashMap<String, Result>();
+        if ((resourceId == null) 
+                || (mnemonics == null) 
+                || (mnemonics.isEmpty()))
+            return result;
+        /*
+         * Construct the result request's object.
+         */
+        WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
+        reqResults.setDaObjectId(new long[]{resourceId});
+        reqResults.setProjectVersion(true);
+        reqResults.setMnemonics(
+                mnemonics.toArray(new String[mnemonics.size()]));
+        /*
+         * Retrieve the evaluation results from the SQO-OSS framework
+         */
+        for (Result nextResult : terrier.getResults(reqResults))
+            result.put(nextResult.getMnemonic(), nextResult);
+        return result;
+    }
+
+    /* (non-Javadoc)
      * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */
+    @Override
     public String getHtml(long in) {
         StringBuilder html = new StringBuilder("");
         html.append(sp(in) + listResults(in));

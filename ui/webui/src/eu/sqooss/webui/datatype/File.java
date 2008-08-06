@@ -239,7 +239,7 @@ public class File extends AbstractDatatype {
     }
 
     /* (non-Javadoc)
-     * @see eu.sqooss.webui.WebuiItem#getResults(java.util.Collection, java.lang.Long)
+     * @see eu.sqooss.webui.datatype.AbstractDatatype#getResults(java.util.Collection, java.lang.Long)
      */
     @Override
     public HashMap<String, Result> getResults (

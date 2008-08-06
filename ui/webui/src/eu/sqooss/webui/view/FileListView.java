@@ -34,6 +34,8 @@
 package eu.sqooss.webui.view;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -41,16 +43,26 @@ import java.util.TreeMap;
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
+import eu.sqooss.webui.Result;
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.Metric.MetricType;
+import eu.sqooss.webui.datatype.AbstractDatatype;
 import eu.sqooss.webui.datatype.File;
 import eu.sqooss.webui.widgets.WinIcon;
+import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 public class FileListView extends ListView {
+    /**
+     * Static file type definition for files of type regular file.
+     */
     public static int FILES     = 2;
+
+    /**
+     * Static file type definition for files of type folder.
+     */
     public static int FOLDERS   = 4;
 
-    // Contains the list of files that can be presented by this view
+    // Contains the list of files that will be presented by this view
     private SortedMap<String, File> files = new TreeMap<String, File>();
 
     // Holds the selected project's object
@@ -59,27 +71,25 @@ public class FileListView extends ListView {
     // Contains the Id of the selected project's version (if any)
     private Long versionId;
 
+    // Contains the selected file type
     private int type = 0;
 
+    // Contains the view's status line
     private String status = "";
 
     /**
      * Instantiates a new <code>FileListView</code> object and initializes it
-     * with the given list of project files.
+     * with the given collection of project files. The files stored in the
+     * given collection are filtered according to the selected file type
+     * (either <code>FILES</code> or <code>FOLDERS</code>), thus this view
+     * will only show files which are of the same type as the one specified.
+     *
+     * @param filesList the list of project files
+     *
      */
-    public FileListView (List<File> filesList, int type) {
+    public FileListView (Collection<File> filesList, int type) {
         this.type = type;
         for (File nextFile : filesList)
-            addFile(nextFile);
-    }
-
-    /**
-     * Instantiates a new <code>FileListView</code> object and initializes it
-     * with the given list of project files.
-     */
-    public FileListView (SortedMap<Long, File> filesList, int type) {
-        this.type = type;
-        for (File nextFile : filesList.values())
             addFile(nextFile);
     }
 
@@ -94,8 +104,8 @@ public class FileListView extends ListView {
 
     /**
      * Adds a single file to the stored files list. If the file object is
-     * <code>null</code> or doesn't match the selected type, then it won't be
-     * added.
+     * <code>null</code> or doesn't match the selected type, then it will be
+     * skipped.
      *
      * @param file the file object
      */
@@ -113,43 +123,25 @@ public class FileListView extends ListView {
     }
 
     /**
-     * Initializes this object with a new list of files. If the list object
-     * is <code>null</code>, then it will be skipped.
+     * Initializes this object with a new files collection. If the collection
+     * object is <code>null</code>, then it will be skipped, and the current
+     * one kept intact.
      *
-     * @param files the new files list
+     * @param filesList the list of files to substitute the current one
      */
-    public void setFiles(List<File> filesList) {
+    public void setFiles(Collection<File> filesList) {
         if (filesList != null)
             for (File nextFile : filesList)
                 addFile(nextFile);
     }
 
     /**
-     * Gets the project that is associated with this view.
-     *
-     * @return The project's object, or <code>null</code> when none is
-     *   associated.
-     */
-    public Project getProject() {
-        return project;
-    }
-
-    /**
-     * Sets the project that is associated with this view.
+     * Sets the project, that is associated with this view.
      *
      * @param projectId the project's object
      */
     public void setProject(Project project) {
         this.project = project;
-    }
-
-    /**
-     * Gets the Id of the project's version that is associated with this view.
-     *
-     * @return The version Id, or <code>null</code> when none is associated.
-     */
-    public Long getVersionId() {
-        return versionId;
     }
 
     /**
@@ -165,10 +157,6 @@ public class FileListView extends ListView {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     // TODO: This method can filter out some of the files from the given list,
     // by using the specified set of filters.
     public List<File> filterFiles (List<File> filesList) {
@@ -176,6 +164,31 @@ public class FileListView extends ListView {
         if (filesList != null)
             result = filesList;
         return result;
+    }
+
+    public void fetchFilesResults (List<String> mnemonics) {
+        if ((mnemonics == null) || (mnemonics.isEmpty())) return;
+        if (files.isEmpty()) return;
+        HashMap<Long, AbstractDatatype> items =
+            new HashMap<Long, AbstractDatatype>();
+        for (AbstractDatatype nextItem : files.values())
+            items.put(nextItem.getId(), nextItem);
+        // Create an results request object
+        WSMetricsResultRequest request = new WSMetricsResultRequest();
+        request.setProjectFile(true);
+        // Set the Id of the selected items (DAOs)
+        int index = 0;
+        long[] itemIds = new long[items.size()];
+        for (Long nextItemId : items.keySet())
+            itemIds[index++] = nextItemId;
+        request.setDaObjectId(itemIds);
+        // Set the mnemonics of the selected metrics
+        request.setMnemonics(mnemonics.toArray(new String[mnemonics.size()]));
+        // Retrieve the evaluation result from the SQO-OSS framework
+        for (Result nextResult : terrier.getResults(request)) {
+            if (items.containsKey(nextResult.getId()))
+                items.get(nextResult.getId()).addResult(nextResult);
+        }
     }
 
     /* (non-Javadoc)
@@ -189,13 +202,16 @@ public class FileListView extends ListView {
         if (size() > 0) {
             // Display all folders
             if (type == FOLDERS) {
+                // Fetch evaluation results for the selected resources
                 mnemonics.clear();
+                mnemonics = new ArrayList<String>(
+                        project.getSelectedMetrics().getMetricMnemonics(
+                                MetricActivator.PROJECTFILE,
+                                MetricType.SOURCE_FOLDER).values());
+                fetchFilesResults(mnemonics);
+                // Display the list of folders
                 for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory()) {
-                        mnemonics = new ArrayList<String>(
-                                project.getSelectedMetrics().getMetricMnemonics(
-                                        MetricActivator.PROJECTFILE,
-                                        MetricType.SOURCE_FOLDER).values());
                         if ((settings.getShowFileResultsOverview()
                                 && (mnemonics.size() > 0))
                                 && (numFolders == 0)) {
@@ -258,13 +274,16 @@ public class FileListView extends ListView {
             }
             // Display all files
             if (type == FILES) {
+                // Fetch evaluation results for the selected resources
                 mnemonics.clear();
+                mnemonics = new ArrayList<String>(
+                        project.getSelectedMetrics().getMetricMnemonics(
+                                MetricActivator.PROJECTFILE,
+                                MetricType.SOURCE_CODE).values());
+                fetchFilesResults(mnemonics);
+                // Display the list of files
                 for (File nextFile : files.values()) {
                     if (nextFile.getIsDirectory() == false) {
-                        mnemonics = new ArrayList<String>(
-                            project.getSelectedMetrics().getMetricMnemonics(
-                                    MetricActivator.PROJECTFILE,
-                                    MetricType.SOURCE_CODE).values());
                         if ((settings.getShowFileResultsOverview()
                                 && (mnemonics.size() > 0))
                                 && (numFiles == 0)) {
@@ -336,7 +355,7 @@ public class FileListView extends ListView {
         }
         // Construct the status line's messages
         if (type == (FOLDERS | FILES))
-            setStatus(sp(in) + "Total: "
+            status = (sp(in) + "Total: "
                     + ((numFolders > 0)
                             ? ((numFolders > 1)
                                     ? numFolders + " folders"
@@ -350,7 +369,7 @@ public class FileListView extends ListView {
                             : "")
                     + " found");
         else if (type == FOLDERS)
-            setStatus(sp(in) + "Total: "
+            status = (sp(in) + "Total: "
                     + ((numFolders > 0)
                             ? ((numFolders > 1)
                                     ? numFolders + " folders"
@@ -358,7 +377,7 @@ public class FileListView extends ListView {
                             : "zero folders")
                     + " found");
         else if (type == FILES)
-            setStatus(sp(in) + "Total: "
+            status = (sp(in) + "Total: "
                     + ((numFiles > 0)
                             ? ((numFiles > 1)
                                     ? numFiles + " files"

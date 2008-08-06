@@ -43,18 +43,18 @@ import eu.sqooss.webui.WebuiItem;
 
 /**
  * This class represents the base storage class for a single SQO-OSS resource
- * DAO.
+ * item (<i>i.e. DAO</i>).
  */
 public abstract class AbstractDatatype extends WebuiItem {
 
     /**
-     * Holds the list of results from metric that has been evaluated on
+     * Holds the list of results from metrics that have been evaluated on
      * this resource item, indexed by metric mnemonic name.
      */
     protected HashMap<String, Result> results = new HashMap<String, Result>();
 
     /**
-     * Adds a new evaluation result entry into the list of result for this
+     * Adds a new evaluation result entry into the list of results for this
      * resource item.
      *
      * @param resultEntry the result entry
@@ -78,20 +78,12 @@ public abstract class AbstractDatatype extends WebuiItem {
     }
 
     /**
-     * Flushes the list of results that are currently cached in this resource
-     * item.
-     */
-    public void flushResults() {
-        results.clear();
-    }
-
-    /**
      * This method will try to retrieve from the SQO-OSS framework results
      * from all of the selected metrics (<i>specified by their mnemonics</i>)
      * that were evaluated on the project resource with the given Id.
      * <br/>
-     * The list is indexed by the mnemonic name of the metric that calculated
-     * the specific result entry.
+     * The results list is then indexed by the mnemonic name of the metric,
+     * that calculated the specific result entry.
      * 
      * @param mnemonics the mnemonic names of the selected metrics
      * @param resourceId the project resource's Id
@@ -128,5 +120,13 @@ public abstract class AbstractDatatype extends WebuiItem {
         if ((results.isEmpty()) || (missingMnemonics.size() > 0))
             results.putAll(getResults(missingMnemonics, this.getId()));
         return results;
+    }
+
+    /**
+     * Flushes the list of results that are currently cached in this resource
+     * item.
+     */
+    public void flushResults() {
+        results.clear();
     }
 }

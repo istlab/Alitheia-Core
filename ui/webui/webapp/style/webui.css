@@ -309,6 +309,10 @@ div.fullscreen {
 a.fullscreen img {
     border: 0px none;
 }
+/* ===[ Project data view related ]======================================= */
+td.pdv {
+    width: 33%;
+}
 /* ===[ Verbose file view related ]======================================= */
 div.vfvmid {
     border: 1px solid black;

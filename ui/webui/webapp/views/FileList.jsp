@@ -370,16 +370,10 @@ if (selectedProject.isValid()) {
                 b.append(sp(in) + Functions.information(
                     "No files found in this project version!"));
             }
+            //================================================================
             // Construct a file browser for the selected project version
+            //================================================================
             else {
-                // Retrieve results from all selected metrics, if requested
-                if (selectedVersion.isEmptyDir() == false) {
-                    if (settings.getShowFileResultsOverview()) {
-                        selectedVersion.fetchFilesResults(
-                            selectedProject.getSelectedMetrics());
-                    }
-                }
-
                 // Show result icons
                 WinIcon icoResults = new WinIcon();
                 icoResults.setPath(request.getServletPath());
@@ -599,9 +593,11 @@ if (selectedProject.isValid()) {
                     if (settings.getShowFVFolderList()) {
                         Window winFoldersList = new Window();
                         FileListView foldersView = new FileListView(
-                            selectedVersion.files, FileListView.FOLDERS);
+                            selectedVersion.files.values(),
+                            FileListView.FOLDERS);
                         foldersView.setProject(selectedProject);
                         foldersView.setVersionId(selectedVersion.getId());
+                        foldersView.setTerrier(terrier);
                         foldersView.setSettings(settings);
                         foldersView.setServletPath(request.getServletPath());
                         winVisible = "showFVFolderList";
@@ -616,9 +612,11 @@ if (selectedProject.isValid()) {
                     if (settings.getShowFVFileList()) {
                         Window winFilesList = new Window();
                         FileListView filesView = new FileListView(
-                            selectedVersion.files, FileListView.FILES);
+                            selectedVersion.files.values(),
+                            FileListView.FILES);
                         filesView.setProject(selectedProject);
                         filesView.setVersionId(selectedVersion.getId());
+                        filesView.setTerrier(terrier);
                         filesView.setSettings(settings);
                         filesView.setServletPath(request.getServletPath());
                         winVisible = "showFVFileList";
