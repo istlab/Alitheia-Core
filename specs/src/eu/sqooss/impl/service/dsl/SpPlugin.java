@@ -19,7 +19,6 @@ import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
 import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.db.StoredProject;
 
