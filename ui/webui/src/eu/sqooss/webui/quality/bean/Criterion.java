@@ -39,141 +39,237 @@ package eu.sqooss.webui.quality.bean;
  * Criteria in our model and also provides some comparing functionality between
  * values or profiles according to a scale.
  * 
- * @author sskalist
+ * @author <a href="mailto:sskalist@gmail.com">sskalist &lt sskalist@gmail.com
+ *         &gt</a>
  * 
  */
 public abstract class Criterion {
 
-	private String name;
+    /**
+     * The <code>name</code> of the Criterion.
+     */
+    private String name;
 
-	private double relativeImportance;
+    /**
+     * The relative importance of the specific criterion. <br>
+     * The value must be between <code>0.0</code> and <code>1.0</code>.
+     */
+    private double relativeImportance;
 
-	private CriterionScale criterionScale;
+    /**
+     * The scale at which the value of {@link NumericCriterionElement} or
+     * {@link ComposedCriterion} is compared to the profile values.
+     */
+    private CriterionScale criterionScale;
 
-	private SQOOSSProfiles optimisticProfile;
-	
-	private SQOOSSProfiles pessimisticProfile;
-	
-	/**
-	 * @param name
-	 * @param relativeImportance
-	 */
-	Criterion(String name, double relativeImportance, CriterionScale criterionScale) {
-		this.name = name;
-		this.relativeImportance = relativeImportance;
-		this.criterionScale = criterionScale;
-		optimisticProfile = null;
-		pessimisticProfile = null;
-	}
+    /**
+     * The optimistic assignment of the {@link QualityEvaluator} for this
+     * Criterion.
+     * 
+     * @see QualityEvaluator#optimisticAssignment(ComposedCriterion)
+     */
+    private SQOOSSProfiles optimisticProfile;
 
-	public SQOOSSProfiles getOptimisticProfile()
-	{
-		if(optimisticProfile == null){
-		//	optimisticProfile = QualityEvaluator.optimisticAssignment(this);
-		}
-		return optimisticProfile;
-	}
-	
-	public SQOOSSProfiles getPessimisticProfile()
-	{
-		if(pessimisticProfile == null){
-		//	pessimisticProfile = QualityEvaluator.pessimisticAssignment(this);
-		}
-		return pessimisticProfile;
-	}
-	
-	protected static int compare(double metricValue, double profileValue,
-			CriterionScale criterionScale) {
-		// Check the possibility that metricValue belongs to GEqauls set
-		if (!criterionScale.equals(CriterionScale.ValueIsBetter)
-				&& metricValue == profileValue)
-			return 0;
+    /**
+     * The pessimistic assignment of the {@link QualityEvaluator} for this
+     * Criterion.
+     * 
+     * @see QualityEvaluator#optimisticAssignment(ComposedCriterion)
+     */
+    private SQOOSSProfiles pessimisticProfile;
 
-		if (criterionScale.equals(CriterionScale.LessIsBetter))
+    /**
+     * A simple constructor.
+     * 
+     * @param name
+     *            The <code>name</code> of the Criterion.
+     * @param relativeImportance
+     *            The <code>relativeImportance</code> of the Criterion.
+     * @param criterionScale
+     *            The scale at which the criterion is compared against a
+     *            profile.
+     */
+    Criterion(String name, double relativeImportance,
+            CriterionScale criterionScale) {
+        this.name = name;
+        this.relativeImportance = relativeImportance;
+        this.criterionScale = criterionScale;
+        optimisticProfile = null;
+        pessimisticProfile = null;
+    }
 
-			return (int) Math.signum(profileValue - metricValue);
+    /**
+     * Gets the {@link #optimisticProfile}. <br>
+     * If it hasn't been evaluated yet, it is evaluated and then returns the
+     * result.
+     * 
+     * @return The optimistic assignment for the specific criterion
+     */
+    public SQOOSSProfiles getOptimisticProfile() {
+        if (optimisticProfile == null) {
+            // optimisticProfile = QualityEvaluator.optimisticAssignment(this);
+        }
+        return optimisticProfile;
+    }
 
-		else if (criterionScale.equals(CriterionScale.MoreIsBetter))
+    /**
+     * Gets the{@link #pessimisticProfile}. <br>
+     * If it hasn't been evaluated yet, it is evaluated and then returns the
+     * result.
+     * 
+     * @return The pessimistic assignment for the specific criterion
+     */
+    public SQOOSSProfiles getPessimisticProfile() {
+        if (pessimisticProfile == null) {
+            // pessimisticProfile =
+            // QualityEvaluator.pessimisticAssignment(this);
+        }
+        return pessimisticProfile;
+    }
 
-			return (int) Math.signum(metricValue - profileValue);
+    /**
+     * Compares a metric value against a profile value according to the scale
+     * provided.
+     * 
+     * @param metricValue
+     *            The value of the metric.
+     * @param profileValue
+     *            The value of the profile.
+     * @param criterionScale
+     *            The scale according to which the values should be compared.
+     * @return if <code>metricValue</code> is preferred, returns 1;<br>
+     *         if <code>profileValue</code> is preferred, returns -1;<br>
+     *         if there is no preference between them, returns 0.
+     */
+    protected static int compare(double metricValue, double profileValue,
+            CriterionScale criterionScale) {
+        // Check the possibility that metricValue belongs to GEqauls set
+        if (!criterionScale.equals(CriterionScale.ValueIsBetter)
+                && metricValue == profileValue)
+            return 0;
 
-		else if (criterionScale.equals(CriterionScale.ValueIsBetter))
+        if (criterionScale.equals(CriterionScale.LessIsBetter))
 
-			return metricValue == profileValue ? 1 : -1;
+            return (int) Math.signum(profileValue - metricValue);
 
-		// In case something goes wrong..ignore it.
-		return 0;
-	}
+        else if (criterionScale.equals(CriterionScale.MoreIsBetter))
 
-	protected static int compare(SQOOSSProfiles criterionProfile,
-			SQOOSSProfiles profileValue, CriterionScale criterionScale) {
-		// Default case scenario... The plus one is for equallity to be achived
-		if (criterionScale.equals(CriterionScale.MoreIsBetter))
-			return criterionProfile.compareTo(profileValue) + 1;
-		else if (criterionScale.equals(CriterionScale.LessIsBetter))
-			return profileValue.compareTo(criterionProfile) + 1;
-		else if (criterionScale.equals(CriterionScale.ValueIsBetter))
-			return criterionProfile.equals(profileValue) ? 1 : -1;
+            return (int) Math.signum(metricValue - profileValue);
 
-		// In case something goes wrong..ignore it.
-		return 0;
-	}
+        else if (criterionScale.equals(CriterionScale.ValueIsBetter))
 
-	public abstract boolean isComposite();
+            return Double.compare(metricValue,profileValue) == 0 ? 1 : -1;
 
-	protected boolean isRelativeImportanceValid() {
-		if (relativeImportance < 0.0d || relativeImportance > 1.0d)
-			return false;
-		return true;
-	}
+        // In case something goes wrong..ignore it.
+        return 0;
+    }
 
-	/**
-	 * @return the relativeImportance
-	 */
-	public double getRelativeImportance() {
-		return relativeImportance;
-	}
+    /**
+     * Compares a <code>criterionProfile</code>against a
+     * <code>profileValue</code>according to the scale provided.
+     * 
+     * @param criterionProfile
+     *            The profile of the criterion.
+     * @param profileValue
+     *            The profileValue of the profile.
+     * @param criterionScale
+     *            The scale according to which the values should be compared.
+     * @return if <code>criterionProfile</code> is preferred, returns 1;<br>
+     *         if <code>profileValue</code> is preferred, returns -1;<br>
+     *         if there is no preference between them, returns 0.
+     */
+    protected static int compare(SQOOSSProfiles criterionProfile,
+            SQOOSSProfiles profileValue, CriterionScale criterionScale) {
+        // Default case scenario... The plus one is for equallity to be achived
+        if (criterionScale.equals(CriterionScale.MoreIsBetter))
+            return criterionProfile.compareTo(profileValue) + 1;
+        else if (criterionScale.equals(CriterionScale.LessIsBetter))
+            return profileValue.compareTo(criterionProfile) + 1;
+        else if (criterionScale.equals(CriterionScale.ValueIsBetter))
+            return criterionProfile.equals(profileValue) ? 1 : -1;
 
-	/**
-	 * @param relativeImportance
-	 *            the relativeImportance to set
-	 */
-	public void setRelativeImportance(double relativeImportance) {
-		this.relativeImportance = relativeImportance;
-	}
+        // In case something goes wrong..ignore it.
+        return 0;
+    }
 
-	/**
-	 * @return the criterionScale
-	 */
-	public CriterionScale getCriterionScale() {
-		return criterionScale;
-	}
+    /**
+     * Checks if the <code>Criterion</code> is composite or not.
+     * 
+     * @return If the <code>Criterion</code> is composite, returns true; else false.
+     */
+    public abstract boolean isComposite();
 
-	/**
-	 * @param criterionScale
-	 *            the criterionScale to set
-	 */
-	public void setCriterionScale(CriterionScale criterionScale) {
-		this.criterionScale = criterionScale;
-	}
+    /**
+     * Check whether {@link #relativeImportance} is between valid bounds.
+     * 
+     * @return If is valid, returns true; else false.
+     */
+    protected boolean isRelativeImportanceValid() {
+        if (relativeImportance < 0.0d || relativeImportance > 1.0d)
+            return false;
+        return true;
+    }
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * Gets the {@link #relativeImportance} of the Criterion.
+     * 
+     * @return the {@link #relativeImportance}
+     */
+    public double getRelativeImportance() {
+        return relativeImportance;
+    }
 
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	@Override
-	public String toString() {
-		return name.toString();
-	}
+    /**
+     * Sets the {@link #relativeImportance} of the Criterion.
+     * 
+     * @param relativeImportance
+     *            the {@link #relativeImportance} to set.
+     */
+    public void setRelativeImportance(double relativeImportance) {
+        this.relativeImportance = relativeImportance;
+    }
+
+    /**
+     * Gets the {@link #criterionScale} of the Criterion.
+     * 
+     * @return the {@link #criterionScale}
+     */
+    public CriterionScale getCriterionScale() {
+        return criterionScale;
+    }
+
+    /**
+     * Sets the {@link #criterionScale} of the Criterion.
+     * 
+     * @param criterionScale
+     *            the {@link #criterionScale} to set.
+     */
+    public void setCriterionScale(CriterionScale criterionScale) {
+        this.criterionScale = criterionScale;
+    }
+
+    /**
+     * Gets the {@link #name} of the Criterion.
+     * 
+     * @return the {@link #name}
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the {@link #name} of the Criterion.
+     * 
+     * @param name
+     *            the {@link #name} to set.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name.toString();
+    }
 
 }
