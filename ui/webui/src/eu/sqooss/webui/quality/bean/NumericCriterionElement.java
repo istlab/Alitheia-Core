@@ -36,85 +36,195 @@ package eu.sqooss.webui.quality.bean;
 import java.util.List;
 
 /**
- * @author sskalist
+ * This class represents a criterion element of the Quality Model which has a
+ * numeric value.<br>
+ * It consists of a numeric value ({@link #metricValue}) and of a list of
+ * <code>profilesValues</code>, containing a numeric value for each profile.
+ * It also provides a preference method to check a metric value against a
+ * profile value according to its scale.
+ * 
+ * @see Criterion
+ * 
+ * @author <a href="mailto:sskalist@gmail.com">sskalist &lt sskalist@gmail.com
+ *         &gt</a>
  * 
  */
 public class NumericCriterionElement extends Criterion {
 
-	private double metricValue;
+    /**
+     * The value from the metric.
+     */
+    private double metricValue;
 
-	private List<Double> profilesValues;
+    /**
+     * A list of values containing a value for each profile in {@link SQOOSSProfiles#values()}.
+     */
+    private List<Double> profilesValues;
 
-	/**
-	 * @param name
-	 * @param relativeImportance
-	 * @param metricValue
-	 * @param criterionScale
-	 * @param profilesValues
-	 */
-	public NumericCriterionElement(String name, double relativeImportance,
-			double metricValue, CriterionScale criterionScale,
-			List<Double> profilesValues) {
-		super(name, relativeImportance,criterionScale);
-		initialize(metricValue, profilesValues);
-	}
+    /**
+     * A simple Constructor which initializes the NumericCriterionElement's
+     * fields.
+     * 
+     * @param name
+     *            The <code>name</code> of the Criterion.
+     * @param relativeImportance
+     *            The <code>relativeImportance</code> of the Criterion.
+     * @param metricValue
+     *            The numeric value of this Criterion element.
+     * @param criterionScale
+     *            The scale at which the criterion is compared against a
+     *            profile.
+     * @param profilesValues
+     *            A list of values representing the values for each profile in
+     *            {@link SQOOSSProfiles#values()}.
+     * 
+     * 
+     * @see #initialize(double, List)
+     * @see Criterion#Criterion(String, double, CriterionScale)
+     */
+    public NumericCriterionElement(String name, double relativeImportance,
+            double metricValue, CriterionScale criterionScale,
+            List<Double> profilesValues) {
+        super(name, relativeImportance, criterionScale);
+        initialize(metricValue, profilesValues);
+    }
 
-	public NumericCriterionElement(String name, double relativeImportance,
-			CriterionScale criterionScale,
-			List<Double> profilesValues){
-		super(name, relativeImportance,criterionScale);
-		
-		double metricValue;
-		switch (criterionScale) {
-		case MoreIsBetter:
-			metricValue = - Double.MAX_VALUE;
-			break;
-		case LessIsBetter:
-			metricValue = Double.MAX_VALUE;
-			break;
-		case ValueIsBetter:
-			metricValue = Double.NaN;
-			break;
-		default:
-			metricValue = Double.NaN;
-			break;
-		}
-		
-		initialize(metricValue, profilesValues);
-	}
-	private void initialize(double metricValue, List<Double> profilesValues){
-		this.metricValue = metricValue;
-		if (profilesValues.size() != SQOOSSProfiles.getNumberOfProfiles())
-			throw new RuntimeException("Invalid Number of Profile Values");
-		// TODO check scale within profile values!
-		this.profilesValues = profilesValues;
-	}
-	public int preference(SQOOSSProfiles profile) {
-		return compare(metricValue, profilesValues.get(profile.ordinal()),
-				this.getCriterionScale());
-	}
+    /**
+     * A simple Constructor which initializes the NumericCriterionElement's
+     * fields using the default metricValue according to the scale. <br>
+     * Default metricValues:<br>
+     * <br>
+     * <table border="1">
+     * <tr>
+     * <th> CriterionScale </th>
+     * <th> MetricValue </th>
+     * </tr>
+     * <tr>
+     * <td> MoreIsBetter </td>
+     * <td> - Double.MAX_VALUE </td>
+     * </tr>
+     * <tr>
+     * <td> LessIsBetter </td>
+     * <td> Double.MAX_VALUE </td>
+     * </tr>
+     * <tr>
+     * <td> ValueIsBetter </td>
+     * <td> Double.NaN </td>
+     * </tr>
+     * </table>
+     * 
+     * @param name
+     *            The <code>name</code> of the Criterion.
+     * @param relativeImportance
+     *            The <code>relativeImportance</code> of the Criterion.
+     * @param criterionScale
+     *            The scale at which the criterion is compared against a
+     *            profile.
+     * @param profilesValues
+     *            A list of values representing the values for each profile in
+     *            {@link SQOOSSProfiles#values()}.
+     * 
+     * 
+     * @see #initialize(double, List)
+     * @see Criterion#Criterion(String, double, CriterionScale)
+     */
+    public NumericCriterionElement(String name, double relativeImportance,
+            CriterionScale criterionScale, List<Double> profilesValues) {
+        super(name, relativeImportance, criterionScale);
 
-	
-	@Override
-	public boolean isComposite() {
-		return false;
-	}
+        double metricValue;
+        switch (criterionScale) {
+        case MoreIsBetter:
+            metricValue = -Double.MAX_VALUE;
+            break;
+        case LessIsBetter:
+            metricValue = Double.MAX_VALUE;
+            break;
+        case ValueIsBetter:
+            metricValue = Double.NaN;
+            break;
+        default:
+            metricValue = Double.NaN;
+            break;
+        }
 
-	/**
-	 * @return the metricValue
-	 */
-	public double getMetricValue() {
-		return metricValue;
-	}
+        initialize(metricValue, profilesValues);
+    }
+    
+    /**
+     * Initializes the NumericCriterionElement with the parameters given.<br>
+     * It also checks for the validity of these parameters.
+     * 
+     * @param metricValue
+     *           the metricValue.
+     * @param profilesValues
+     *            A list of values representing the values for each profile in
+     *            {@link SQOOSSProfiles#values()}.
+     */
+    private void initialize(double metricValue, List<Double> profilesValues) {
+        this.metricValue = metricValue;
+        if (profilesValues.size() != SQOOSSProfiles.getNumberOfProfiles())
+            throw new RuntimeException("Invalid Number of Profile Values");
+        // TODO check scale within profile values!
+        this.profilesValues = profilesValues;
+        
+        if (!isRelativeImportanceValid())
+            throw new RuntimeException("Invalid Relative Importance Value");
+    }
 
-	/**
-	 * @param metricValue the metricValue to set
-	 */
-	public void setMetricValue(double metricValue) {
-		this.metricValue = metricValue;
-	}
+    /**
+     * Compares the {@link #metricValue} against a
+     * <code>profile</code> according to the object's criterionScale.
+     * 
+     *
+     * @param profile
+     *            The profileValue of the profile.
+     * @return if <code>assigned</code> is preferred, returns 1;<br>
+     *         if <code>versusProfile</code> is preferred, returns -1;<br>
+     *         if there is no preference between them, returns 0.
+     * @see Criterion#compare(SQOOSSProfiles, SQOOSSProfiles, CriterionScale)
+     */
+    public int preference(SQOOSSProfiles profile) {
+        return compare(metricValue, profilesValues.get(profile.ordinal()), this
+                .getCriterionScale());
+    }
 
-	public List<Double>getProfilesValues(){
-		return this.profilesValues;
-	}
+    /**
+     * Always false, since it is an element.
+     * 
+     * @return false.
+     * @see Criterion#isComposite()
+     */
+    @Override
+    public boolean isComposite() {
+        return false;
+    }
+
+    /**
+     * Gets the {@link #metricValue} of this numeric element.
+     * 
+     * @return the {@link #metricValue}.
+     */
+    public double getMetricValue() {
+        return metricValue;
+    }
+
+    /**
+     * Sets the {@link #metricValue} of this numeric element.
+     * 
+     * @param metricValue
+     *            the {@link #metricValue} to set.
+     */
+    public void setMetricValue(double metricValue) {
+        this.metricValue = metricValue;
+    }
+
+    /**
+     * Gets the {@link #profilesValues} list of this numeric element.
+     * 
+     * @return the {@link #profilesValues}.
+     */
+    public List<Double> getProfilesValues() {
+        return this.profilesValues;
+    }
 }
