@@ -60,68 +60,80 @@ public class Project extends WebuiItem {
     private String contact;
     private String website;
     private long[] developersIds;
-
-    /** Holds the version number of the currently selected version. */
-    private Long currentVersionId;
-
-    /** Holds the number of versions in this project. */
-    Long versionsCount = null;
+    private long[] mailingListIds;
 
     /*
-     * Versions cache
+     * Holds the Id of the currently selected project version.
+     */
+    private Long currentVersionId;
+
+    /*
+     * Holds the number of versions existing in this project.
+     */
+    private Long versionsCount = null;
+
+    /*
+     * Key versions cache
      */
     private Version firstVersion = null;
     private Version lastVersion = null;
-    private Version currentVersion = null;
+    
 
-    /**
+    /*
+     * A cache for all versions associated with this project, that were
+     * retrieved from the SQO-OSS framework during this session.
+     */
+    private HashMap<Long, Version> versions = new HashMap<Long, Version>();
+
+    /*
+     * A cache for the version that has been selected for this project.
+     */
+    private Version selectedVersion = null;
+
+    /*
      * A cache for all metrics that have been evaluated on this project.
      */
     private MetricsList metrics = new MetricsList();
 
-    /**
+    /*
      * A cache for all metrics that have been selected for this project.
      */
-    // A cache for all metrics that are selected for this project
     private MetricsList selectedMetrics = new MetricsList();
 
-    /**
+    /*
      * A cache for all developers that are/were working on this project.
      */
     private DevelopersList developers = new DevelopersList();
 
-    /**
+    /*
      * A cache for all developers that have been selected for this project.
      */
     private DevelopersList selectedDevelopers = new DevelopersList();
-
-    // Stores all project versions that were retrieved from this object
-    private HashMap<Long, Version> versions = new HashMap<Long, Version>();
 
     /**
      * Instantiates a new <code>Project</code> object, without initializing
      * its data. The object can be initialized later on by calling its
      * <code>initProject()</code> method.
      */
-    public Project () {
+    public Project() {
         setServletPath("/projects.jsp");
         reqParName = "pid";
     }
 
     /**
      * Instantiates a new <code>Project</code> object, and initializes it with
-     * the data stored in the given <code>WStoredProject</code> object.
+     * the meta-data stored in the given <code>WStoredProject</code> object.
      * 
      * @param p the project object
      */
-    public Project (WSStoredProject p) {
+    public Project(WSStoredProject p) {
         setServletPath("/projects.jsp");
         reqParName = "pid";
         initProject(p);
    }
 
     /**
-     * Initializes or updates this object with the metadata provided from the
+     * Initializes or updates this object with the meta-data stored in the
      * given <code>WStoredProject</code> object.
      * 
      * @param p the project object
@@ -135,12 +147,25 @@ public class Project extends WebuiItem {
             mail = p.getMail();
             contact = p.getContact();
             website = p.getWebsite();
-            developersIds = p.getDevelopers();
+            Long[] devIds = Functions.strToLongArray(p.getDevelopers(), ";");
+            if (devIds != null) {
+                int index = 0;
+                developersIds = new long[devIds.length];
+                for (Long id : devIds)
+                    developersIds[index++] = id;
+            }
+            Long[] mlIds = Functions.strToLongArray(p.getMailingLists(), ";");
+            if (mlIds != null) {
+                int index = 0;
+                mailingListIds = new long[devIds.length];
+                for (Long id : mlIds)
+                    mailingListIds[index++] = id;
+            }
         }
     }
 
     /**
-     * Copies the target object's metadata into this object.
+     * Copies the target object's meta-data into this object.
      * 
      * @param p the target <code>Project</code> instance
      */
@@ -154,43 +179,44 @@ public class Project extends WebuiItem {
             contact = p.getContact();
             website = p.getWebsite();
             developersIds = p.getDevelopersIds();
+            mailingListIds = p.getMailingListIds();
         }
     }
 
     /**
-     * Gets the project's homepage.
+     * Gets the project's home-page location.
      * 
-     * @return the project's homepage, or <code>null</code> when the
-     *   project is not yet initialized.
+     * @return the project's home-page location, or <code>null</code> when
+     *   the project is not yet initialized.
      */
     public String getWebsite () {
         return website;
     }
 
     /**
-     * Gets the project's contact email
+     * Gets the project's contact email address.
      * 
-     * @return the project's contact email, or <code>null</code> when the
-     *   project is not yet initialized.
+     * @return the project's contact email address, or <code>null</code> when
+     *   the project is not yet initialized.
      */
     public String getContact () {
         return contact;
     }
 
     /**
-     * Gets the project's mailing list.
+     * Gets the project's mailing lists location.
      * 
-     * @return the project's mailing list, or <code>null</code> when the
-     *   project is not yet initialized.
+     * @return the project's mailing lists location, or <code>null</code>
+     *   when the project is not yet initialized.
      */
     public String getMail () {
         return mail;
     }
 
     /**
-     * Gets the project's BTS URL.
+     * Gets the project's BTS location.
      * 
-     * @return the project's BTS URL, or <code>null</code> when the
+     * @return the project's BTS location, or <code>null</code> when the
      *   project is not yet initialized.
      */
     public String getBugs() {
@@ -198,17 +224,33 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Gets the project's source repository.
+     * Gets the project's source repository location.
      * 
-     * @return the project's source repository, or <code>null</code> when the
-     *   project is not yet initialized.
+     * @return the project's source repository location, or <code>null</code>
+     *   when the project is not yet initialized.
      */
     public String getRepository() {
         return repository;
     }
 
+    /**
+     * Gets the list of Ids of all developers, which are working on this
+     * project
+     * 
+     * @return the list of developer Ids
+     */
     public long[] getDevelopersIds() {
         return developersIds;
+    }
+
+    /**
+     * Gets the list of Ids of all mailing lists, which are associated with
+     * this project
+     * 
+     * @return the list of mailing list Ids
+     */
+    public long[] getMailingListIds() {
+        return mailingListIds;
     }
 
     //========================================================================
@@ -285,7 +327,22 @@ public class Project extends WebuiItem {
      * @return Total number of developers in this project.
      */
     public long getDevelopersCount() {
-        return getDevelopers().size();
+        if (developersIds != null)
+            return developersIds.length;
+        else
+            return 0;
+    }
+
+    /**
+     * Returns the total number of mailing lists in this project
+     *
+     * @return Total number of mailing lists in this project.
+     */
+    public long getMailingListCount() {
+        if (mailingListIds != null)
+            return mailingListIds.length;
+        else
+            return 0;
     }
 
     /**
@@ -315,7 +372,7 @@ public class Project extends WebuiItem {
         versionsCount = null;
         firstVersion = null;
         lastVersion = null;
-        currentVersion = null;
+        selectedVersion = null;
         versions.clear();
         metrics.clear();
         developers.clear();
@@ -392,7 +449,7 @@ public class Project extends WebuiItem {
      */
     public void setCurrentVersion(Version version) {
         if ((version != null) && (version.isValid())){
-            currentVersion = version;
+            selectedVersion = version;
             currentVersionId = version.getId();
         }
     }
@@ -403,9 +460,9 @@ public class Project extends WebuiItem {
      * @return The version object.
      */
     public Version getCurrentVersion() {
-        if (currentVersion == null)
-            currentVersion = getLastVersion();
-        return currentVersion;
+        if (selectedVersion == null)
+            selectedVersion = getLastVersion();
+        return selectedVersion;
     }
 
     /**

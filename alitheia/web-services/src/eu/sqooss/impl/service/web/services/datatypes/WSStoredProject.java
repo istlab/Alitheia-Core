@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
 
 /**
@@ -50,7 +51,8 @@ public class WSStoredProject {
     private String name;
     private String repository;
     private String website;
-    private long[] developers;
+    private String developers;
+    private String mailingLists;
 
     /**
      * @return the bugs
@@ -152,20 +154,57 @@ public class WSStoredProject {
 
     /**
      * Returns the Ids of the developers that work on this project.
+     * <br/><br/>
+     * <b>Note:</b> Using an array of <code>long</code> as a result, instead
+     * of the <code>String</code> based workaround is currently impossible,
+     * because of a limitation in the used Axis version i.e. it triggers an
+     * exception when passing a <code>null<code> or an empty array field.
      * 
      * @return The list of developer Ids.
      */
-    public long[] getDevelopers() {
+    public String getDevelopers() {
         return developers;
     }
 
     /**
      * Sets the list of Ids of the developers that work on this project.
      * 
-     * @param developers the list of developer Ids
+     * @param ids the list of developer Ids
      */
-    public void setDevelopers(long[] developers) {
-        this.developers = developers;
+    public void setDevelopers(long[] ids) {
+        if (ids != null) {
+            developers = "";
+            for (long id: ids)
+                developers += id + ";";
+        }
+    }
+
+    /**
+     * Returns the Ids of the mailing lists associated with this project.
+     * <br/><br/>
+     * <b>Note:</b> Using an array of <code>long</code> as a result, instead
+     * of the <code>String</code> based workaround is currently impossible,
+     * because of a limitation in the used Axis version i.e. it triggers an
+     * exception when passing a <code>null<code> or an empty array field.
+     * 
+     * @return The list of mailing list Ids.
+     */
+    public String getMailingLists() {
+        return mailingLists;
+    }
+
+    /**
+     * Sets the list of mailing list Ids, which are associated with this
+     * project.
+     * 
+     * @param ids the list of mailing list Ids
+     */
+    public void setMailingLists(long[] ids) {
+        if (ids != null) {
+            mailingLists = "";
+            for (long id: ids)
+                mailingLists += id + ";";
+        }
     }
 
     /**
@@ -195,6 +234,14 @@ public class WSStoredProject {
                 for (Developer developer : developers)
                     developerIds[index++] = developer.getId();
                 wsStoredProject.setDevelopers(developerIds);
+            }
+            Set<MailingList> mailingLists = storedProject.getMailingLists();
+            if ((mailingLists != null) && (mailingLists.size() > 0)) {
+                int index = 0;
+                long[] mailingListIds = new long[mailingLists.size()];
+                for (MailingList mailingList : mailingLists)
+                    mailingListIds[index++] = mailingList.getId();
+                wsStoredProject.setMailingLists(mailingListIds);
             }
             return wsStoredProject;
         } catch (Exception e) {

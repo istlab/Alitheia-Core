@@ -8,6 +8,7 @@ if (selectedProject.isValid()) {
     StringBuilder b = new StringBuilder("");
 
     ProjectDataView pdvRenderer = new ProjectDataView(selectedProject);
+    pdvRenderer.setTerrier(terrier);
 
     b.append(sp(in++) + "<table class=\"pdv\">\n");
     b.append(sp(in++) + "<tr>\n");
@@ -33,7 +34,7 @@ if (selectedProject.isValid()) {
     // Construct the window's title
     winPrjDevs.setTitle("Developers and mailing lists");
     // Construct the window's content
-    winPrjDevs.setContent("Developers\n");
+    winPrjDevs.setContent(pdvRenderer.getDevsInfo(in));
     // Display the window
     b.append(winPrjDevs.render(in));
     b.append(sp(--in) + "</td>\n");
@@ -46,7 +47,7 @@ if (selectedProject.isValid()) {
     // Construct the window's title
     winPrjBugs.setTitle("Bugs overview\n");
     // Construct the window's content
-    winPrjBugs.setContent("Bugs");
+    winPrjBugs.setContent(pdvRenderer.getBugsInfo(in));
     // Display the window
     b.append(winPrjBugs.render(in));
     b.append(sp(--in) + "</td>\n");

@@ -33,10 +33,13 @@
 
 package eu.sqooss.webui.view;
 
+import java.util.HashMap;
+
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
-import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
+import eu.sqooss.webui.Result;
+import eu.sqooss.webui.datatype.Version;
 
 /**
  * The class <code>ProjectDataView</code> renders an HTML sequence that
@@ -69,11 +72,13 @@ public class ProjectDataView extends ListView {
             return(sp(in) + Functions.error("Invalid project!"));
         StringBuilder b = new StringBuilder();
         b.append(sp(in++) + "<table>\n");
+
         // Project versions
         b.append(sp(in++) + "<tr>\n");
         b.append(sp(in) + "<td><b>Versions:</b></td>"
                 + "<td>" + project.getVersionsCount() + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
+
         // Files in the latest version
         b.append(sp(in++) + "<tr>\n");
         Long filesCount = project.getLastVersion().getFilesCount();
@@ -84,16 +89,76 @@ public class ProjectDataView extends ListView {
         b.append(sp(--in) + "</tr>\n");
 
         //====================================================================
-        // Metric specific information
+        // Key metrics information
         //====================================================================
 
-        // Number of classes in the latest version
-        Metric metricNOCL =
-            project.getEvaluatedMetrics().getMetricByMnemonic("NOCL");
-        if (metricNOCL != null) {
+        // Retrieve the evaluation results for the latest project version
+        // TODO: Maybe use the latest tagged version instead?
+        Version lastVersion = project.getLastVersion();
+        if (lastVersion != null) {
+            lastVersion.setTerrier(terrier);
             
+            // Retrieve evaluation results from the key metrics
+            // TODO: Read the key metrics selection from the configuration file!
+            HashMap<String,String> keyMetrics= new HashMap<String, String>();
+            keyMetrics.put("NOCL", "Classes");
+            HashMap<String, Result> results =
+                lastVersion.getResults(keyMetrics.keySet());
+            
+            // Display the key metrics
+            for (String mnemonic : results.keySet()) {
+                b.append(sp(in++) + "<tr>\n");
+                b.append(sp(in)
+                        + "<td><b>" + keyMetrics.get(mnemonic) + ":</b></td>"
+                        + "<td>" + results.get(mnemonic).getString() + "</td>"
+                        + "\n");
+                b.append(sp(--in) + "</tr>\n");
+            }
         }
+
         b.append(sp(--in) + "</table>\n");
+
+        return b.toString();
+    }
+
+    public String getDevsInfo(long in) {
+        if ((project == null) || (project.isValid() == false))
+            return(sp(in) + Functions.error("Invalid project!"));
+        StringBuilder b = new StringBuilder();
+        b.append(sp(in++) + "<table>\n");
+
+        // Project developers
+        b.append(sp(in++) + "<tr>\n");
+        b.append(sp(in) + "<td><b>Developers:</b></td>"
+                + "<td>" + project.getDevelopersCount() + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+
+        // Number of mailing lists
+        b.append(sp(in++) + "<tr>\n");
+        b.append(sp(in) + "<td><b>Mailing lists:</b></td>"
+                + "<td>" + project.getMailingListCount() + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+
+        b.append(sp(--in) + "</table>\n");
+
+        return b.toString();
+    }
+
+    public String getBugsInfo(long in) {
+        if ((project == null) || (project.isValid() == false))
+            return(sp(in) + Functions.error("Invalid project!"));
+        StringBuilder b = new StringBuilder();
+        b.append(sp(in++) + "<table>\n");
+
+        // TODO: Implement
+        b.append(sp(in++) + "<tr>\n");
+        b.append(sp(in) + "<td style=\"color: #999999;\">"
+                + "<i>Pending implementation.</i>"
+                + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+
+        b.append(sp(--in) + "</table>\n");
+
         return b.toString();
     }
 }

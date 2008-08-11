@@ -32,6 +32,7 @@
  */
 package eu.sqooss.webui;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -232,4 +233,19 @@ public class Functions {
         return html.toString();
     }
 
+    public static Long[] strToLongArray (String str, String separator) {
+        if (str == null) return null;
+
+        String[] tokens = str.split(separator);
+        ArrayList<Long> result = new ArrayList<Long>();
+        for (String token: tokens) {
+            try {
+                result.add(new Long(token));
+            }
+            catch (NumberFormatException ex) { /* Do nothing */ }
+        }
+
+        if (result.isEmpty()) return null;
+        return result.toArray(new Long[result.size()]);
+    }
 }
