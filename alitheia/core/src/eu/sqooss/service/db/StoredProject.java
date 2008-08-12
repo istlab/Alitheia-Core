@@ -148,6 +148,13 @@ public class StoredProject extends DAObject {
     public List<ProjectVersion> getProjectVersions() {
         return projectVersions;
     }
+    public List<ProjectVersion> getTaggedVersions() {
+        List<ProjectVersion> versions = getProjectVersions();
+        for (ProjectVersion version : versions)
+            if (version.getTags() == null)
+                versions.remove(version);
+        return versions;
+    }
     
     public void setProjectVersions(List<ProjectVersion> projectVersions) {
         this.projectVersions = projectVersions;

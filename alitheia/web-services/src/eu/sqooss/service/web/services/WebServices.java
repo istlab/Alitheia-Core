@@ -56,6 +56,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
+import eu.sqooss.impl.service.web.services.datatypes.WSTaggedVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSVersionStats;
@@ -297,6 +298,25 @@ public class WebServices implements EventHandler{
             String password,
             long projectId) {
         return projectManager.getProjectVersionsByProjectId(
+                userName, password, projectId);
+    }
+
+    /**
+     * The method returns an array that contains all tagged versions in the
+     * specified project.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectId - the project's identifier
+     *
+     * @return The array with all tagged project versions, or a
+     *   <code>null</code> array when none are found.
+     */
+    public WSTaggedVersion[] getTaggedVersionsByProjectId(
+            String userName,
+            String password,
+            long projectId) {
+        return projectManager.getTaggedVersionsByProjectId(
                 userName, password, projectId);
     }
 

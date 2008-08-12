@@ -47,6 +47,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
+import eu.sqooss.impl.service.web.services.datatypes.WSTaggedVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSVersionStats;
 import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.ProjectSecurityWrapper;
@@ -774,6 +775,44 @@ public class ProjectManager extends AbstractManager {
         return result;
     }
 
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getTaggedVersionsByProjectId(String, String, long)
+     */
+    public WSTaggedVersion[] getTaggedVersionsByProjectId(
+            String userName,
+            String password,
+            long projectId) {
+        //====================================================================
+        // Log this call
+        //====================================================================
+        logger.info("Retrieve stored project versions!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId);
+        //====================================================================
+        // Match against the current security policy
+        //====================================================================
+        db.startDBSession();
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    "Security violation in method:"
+                    + " get tagged versions by project Id!");
+        }
+        super.updateUserActivity(userName);
+        //====================================================================
+        // Retrieve the result(s)
+        //====================================================================
+        WSTaggedVersion[] result = null;
+        StoredProject sp = db.findObjectById(StoredProject.class, projectId);
+        if (sp != null)
+            result = WSTaggedVersion.asArray(sp.getTaggedVersions());
+        db.commitDBSession();
+        return result;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
