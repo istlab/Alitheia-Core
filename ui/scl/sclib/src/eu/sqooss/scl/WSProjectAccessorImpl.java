@@ -48,6 +48,7 @@ import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
 import eu.sqooss.ws.client.ws.GetDevelopersByIds;
 import eu.sqooss.ws.client.ws.GetDevelopersByIdsResponse;
@@ -79,6 +80,8 @@ import eu.sqooss.ws.client.ws.GetRootDirectory;
 import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
 import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
+import eu.sqooss.ws.client.ws.GetTaggedVersionsByProjectId;
+import eu.sqooss.ws.client.ws.GetTaggedVersionsByProjectIdResponse;
 import eu.sqooss.ws.client.ws.GetVersionsCount;
 import eu.sqooss.ws.client.ws.GetVersionsCountResponse;
 import eu.sqooss.ws.client.ws.GetVersionsStatistics;
@@ -124,6 +127,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getFilesInDirectory";
     private static final String METHOD_NAME_GET_FILE_MODIFICATIONS =
         "getFileModifications";
+    private static final String METHOD_NAME_GET_TAGGED_VERSIONS_BY_PROJECT_ID =
+        "getTaggedVersionsByProjectId";
 
     private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS =
         new WSStoredProject[0];
@@ -173,6 +178,34 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectVersionId(projectVersionId);
             try {
                 response = wsStub.getFileGroupsByProjectVersionId(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getFileGroupsByProjectVersionId(long)
+     */
+    @Override
+    public WSTaggedVersion[] getTaggedVersionsByProjectId(
+            long projectId) throws WSException {
+        GetTaggedVersionsByProjectIdResponse response;
+        GetTaggedVersionsByProjectId params;
+        if (!parameters.containsKey(METHOD_NAME_GET_TAGGED_VERSIONS_BY_PROJECT_ID)) {
+            params = new GetTaggedVersionsByProjectId();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_TAGGED_VERSIONS_BY_PROJECT_ID, params);
+        } else {
+            params = (GetTaggedVersionsByProjectId) parameters.get(
+                    METHOD_NAME_GET_TAGGED_VERSIONS_BY_PROJECT_ID);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.getTaggedVersionsByProjectId(params);
             } catch (Exception e) {
                 throw new WSException(e);
             }

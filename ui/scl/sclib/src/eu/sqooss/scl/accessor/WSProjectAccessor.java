@@ -40,6 +40,7 @@ import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
 
 /**
@@ -176,7 +177,25 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSProjectVersion[] getProjectVersionsByIds(long[] projectVersionsIds) throws WSException;
-    
+
+    /**
+     * The method returns an array that contains all tagged versions in the
+     * specified project.
+     *
+     * @param projectId the project's identifier
+     *
+     * @return The <code>WSTaggedVersion</code> array with all tagged project
+     *  versions, or an empty array when none are found.
+     *
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with SQO-OSS's WSS can not be established</li>
+     *  <li>if SQO-OSS's WSS threw an exception</li>
+     * <ul>
+     */
+    public abstract WSTaggedVersion[] getTaggedVersionsByProjectId(
+            long projectId) throws WSException;
+
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the specified project versions.

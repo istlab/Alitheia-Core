@@ -146,6 +146,19 @@
           <xs:element name="website" nillable="true" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
+      <xs:element name="WSTaggedVersion" type="ax21:WSTaggedVersion"/>
+      <xs:complexType name="WSTaggedVersion">
+        <xs:sequence>
+          <xs:element name="commitMsg" nillable="true" type="xs:string"/>
+          <xs:element name="committerId" type="xs:long"/>
+          <xs:element name="id" type="xs:long"/>
+          <xs:element name="projectId" type="xs:long"/>
+          <xs:element name="properties" nillable="true" type="xs:string"/>
+          <xs:element name="timestamp" type="xs:long"/>
+          <xs:element name="version" type="xs:long"/>
+          <xs:element maxOccurs="unbounded" name="tags" nillable="true" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
       <xs:element name="WSUser" type="ax21:WSUser"/>
       <xs:complexType name="WSUser">
         <xs:sequence>
@@ -596,6 +609,22 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getTaggedVersionsByProjectId">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getTaggedVersionsByProjectIdResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSTaggedVersion"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getUserByName">
         <xs:complexType>
           <xs:sequence>
@@ -917,6 +946,12 @@
   <wsdl:message name="getMetricsResultResponse">
     <wsdl:part name="part1" element="ns2:getMetricsResultResponse"/>
   </wsdl:message>
+  <wsdl:message name="getTaggedVersionsByProjectIdMessage">
+    <wsdl:part name="part1" element="ns2:getTaggedVersionsByProjectId"/>
+  </wsdl:message>
+  <wsdl:message name="getTaggedVersionsByProjectIdResponse">
+    <wsdl:part name="part1" element="ns2:getTaggedVersionsByProjectIdResponse"/>
+  </wsdl:message>
   <wsdl:portType name="wsPortType">
     <wsdl:operation name="getMetricTypesByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMetricTypesByIdsMessage" wsaw:Action="urn:getMetricTypesByIds"/>
@@ -1057,6 +1092,10 @@
     <wsdl:operation name="getMetricsResult">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMetricsResultMessage" wsaw:Action="urn:getMetricsResult"/>
       <wsdl:output message="axis2:getMetricsResultResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getTaggedVersionsByProjectId">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getTaggedVersionsByProjectIdMessage" wsaw:Action="urn:getTaggedVersionsByProjectId"/>
+      <wsdl:output message="axis2:getTaggedVersionsByProjectIdResponse"/>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="wsSOAP11Binding" type="axis2:wsPortType">
@@ -1376,6 +1415,15 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="getTaggedVersionsByProjectId">
+      <soap:operation soapAction="urn:getTaggedVersionsByProjectId" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="wsSOAP12Binding" type="axis2:wsPortType">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
@@ -1687,6 +1735,15 @@
     </wsdl:operation>
     <wsdl:operation name="getMetricsResult">
       <soap12:operation soapAction="urn:getMetricsResult" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTaggedVersionsByProjectId">
+      <soap12:operation soapAction="urn:getTaggedVersionsByProjectId" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
