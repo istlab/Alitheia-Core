@@ -54,7 +54,6 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
     public void setProjectVersion(ProjectVersion projectVersion) {
         this.projectVersion = projectVersion;
     }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

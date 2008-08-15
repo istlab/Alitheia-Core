@@ -41,6 +41,7 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +57,7 @@ public class MDEImplementation extends AbstractMetric implements MDE {
         super(bc);
         super.addActivationType(ProjectVersion.class);
         
-        super.addMetricActivationType("MDE", ProjectVersion.class);
+        super.addMetricActivationType("MDE.dt", ProjectVersion.class);
         
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
@@ -68,8 +69,8 @@ public class MDEImplementation extends AbstractMetric implements MDE {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    "Mean Developer Engagement",
-                    "MDE",
+                    "Mean Developer Engagement: Ancilliary dev(total)",
+                    "MDE.dt",
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
@@ -98,6 +99,26 @@ public class MDEImplementation extends AbstractMetric implements MDE {
     }
 
     public void run(ProjectVersion pv) {
-	
+	// Find the latest ProjectVersion for which we have data
+	Metric m = Metric.getMetricByMnemonic("mde.dt");
+	try {
+	    List<?> id = 
+		db.doSQL("select max(project_version_id) from project_version_measurement where metric_id=" +
+			 m.getId());
+	    if(!id.isEmpty()) {
+		ProjectVersionMeasurement latest =
+		    db.findObjectById(ProjectVersionMeasurement.class, (Long) id.get(0));
+	    }
+	}
+	catch(java.sql.SQLException err) {
+	    // Worry about this later
+	}
+    }
+
+    /*
+     * Find the total number of devleopers in the project for every week
+     * for which the data is unknown up until pv
+     */
+    public void runDevTotal(ProjectVersion pv) {
     }
 }
