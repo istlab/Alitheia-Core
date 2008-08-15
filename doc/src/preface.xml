@@ -6,7 +6,7 @@
 <sect1 id="pref:whatis">
     <title>What is SQO-OSS?</title>
     <para>
-    SQO-OSS is a project funded by the European Community that aims at
+    SQO-OSS is a project that aims at
 implementing a quality-checking system that can be used by Open Source software
 projects to gather information about the quality of their code and relate this
 information to other data sources such as issue-tracker data and mailinglist
@@ -15,21 +15,67 @@ various aspects of a software project, such as developer productivity. The syste
 is also useful for developers that want to use static source code analysis
 to improve the code.
     </para>
+
+
+<para>
+SQO-OSS is funded through the European Union
+and will be released under a Free Software license
+in late 2008. The platform will be deployed
+in a central location for processing a number of
+large projects; having quality evaluations
+of many Open Source projects
+in one place enables easier comparison of the
+quality of different projects.
+Individual Open Source projects are encouraged
+to deploy the Alitheia system for their local
+quality control and evaluation processes.
+Because of the architecture of the Alitheia system,
+the system scales up from relatively modest hardware
+checking a single project to distributed hardware
+supporting hundreds of projects and users.
+</para>
+
+
 </sect1>
 <sect1 id="pref:alitheia">
     <title>What is Alitheia?</title>
-    <para>
-    Alitheia is the name of the software that is produced by the SQO-OSS
-project. Alitheia core accesses different data source, currently version control
-repositories, mailing list archives and issue tracker databases. This data can
-be analysed using plugins written in Java, Python or C++. Plugins parse the
-various datasources extracting information and storing it in a relational
-database. Those plugins and data sources can be configured using a webinterface,
-called webadmin. Alitheia supports different front-ends for displaying the data.
-Currently, there is a web interface that displays the results of the plugins,
-and an extension for the Eclipse IDE that imports data directly into the context
-of development.
-    </para>
+
+<para>
+Alitheia is the name of a platform,
+developed by the SQO-OSS project,
+for the automated objective evaluation of the quality
+of Open Source projects.
+By analyzing both the soft and the hard project
+artifacts (the project source code history is "hard"
+while the mailing lists, bug tracker entries
+and other human communications are "soft")
+the Alitheia software will produce a broader
+and more comprehensive picture of the quality
+and viability of each Open Source project than tools that
+examine only the product of the project.
+</para>
+
+
+<para>The name Alitheia was chosen for its Greek roots
+(the majority of the project is executed in Greece).
+In ancient Greek, the term stands for "neat and businesslike
+truth."
+The Alitheia system does indeed intend to deliver the neat
+and businesslike truth
+about Open Source projects.
+By evaluating the quality --- captured in
+measurements of many different aspects of quality
+and aggregated through the SQO-OSS quality model ---
+of Open Source projects
+over time it becomes possible to compare and contrast
+different projects, but most importantly gives the
+contributors to the projects an idea of how their
+own quality is developing.
+</para>
+
+
+
+
 </sect1>
 <sect1 id="pref:hist">
     <title>A bried history of SQO-OSS</title>
