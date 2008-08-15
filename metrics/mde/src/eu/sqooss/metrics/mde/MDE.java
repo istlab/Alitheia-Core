@@ -32,8 +32,8 @@
 
 package eu.sqooss.metrics.mde;
 
-public interface MDE
-//extends  
-{
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+
+public interface MDE extends ProjectVersionMetric {
     
 }
