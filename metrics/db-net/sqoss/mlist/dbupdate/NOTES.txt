@@ -1,6 +1,0 @@
-1/ When changing the name of a table in the SQL source file, make sure you also change the
-(corresponding) name "TABNAME" in the  "new SourceParser().createTableInsert(TABNAME);"
-declarations - for example in the MailInserter class
-
-2/ BE CAREFUL when using the Jangada framework... The signature extraction sometimes 
-method either hangs or something else as soon it gets an attachment as input.
