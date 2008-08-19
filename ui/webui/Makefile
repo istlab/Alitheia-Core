@@ -6,7 +6,7 @@ include $(TOP_SRCDIR)/Makefile.bundle
 # Install builds the WAR a second time and there's really
 # no point in having it in your m2 repo, since you never
 # link against the WAR.
-build :
+build : clean
 	$(MAVEN) package
 
 # How to use the SQO-OSS web ui:
