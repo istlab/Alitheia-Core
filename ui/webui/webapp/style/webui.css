@@ -383,6 +383,15 @@ a.vfvchart img {
     border: 0px none;
     width: 100%;
 }
+/* ===[ Project data view related ]======================================= */
+td.pdv_chart {
+    background-color: #FFFFFF;
+    border: 1px solid black;
+}
+a.pdv_chart img {
+    border: 0px none;
+    width: 100%;
+}
 /* ===[ TO SORT]========================================================== */
 #table td.head {
     background-color: #E6E6FA;

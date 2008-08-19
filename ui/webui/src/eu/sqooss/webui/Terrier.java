@@ -45,6 +45,7 @@ import java.util.Vector;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.webui.datatype.File;
+import eu.sqooss.webui.datatype.TaggedVersion;
 import eu.sqooss.webui.datatype.Version;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
@@ -54,6 +55,7 @@ import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
 import eu.sqooss.ws.client.datatypes.WSUser;
 import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
@@ -369,6 +371,35 @@ public class Terrier {
             }
             catch (WSException wse) {
                 addError("Can not retrieve version(s) by number.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return result;
+    }
+
+    /**
+     * Retrieves from the attached SQO-OSS framework the list of tagged
+     * versions that are available for the project with the given Id.
+     *
+     * @param projectId the project Id
+     *
+     * @return The list of tagged versions in the selected project,
+     *   or an empty list when none are found.
+     */
+    public List<TaggedVersion> getTaggedVersionsByProjectId(long projectId) {
+        List<TaggedVersion> result = new ArrayList<TaggedVersion>();
+        if (isConnected()) {
+            try {
+                // Retrieve the corresponding version objects
+                WSTaggedVersion[] wsversions =
+                    connection.getProjectAccessor()
+                    .getTaggedVersionsByProjectId(projectId);
+                for (WSTaggedVersion nextVersion : wsversions)
+                    result.add(new TaggedVersion(nextVersion, this));
+            }
+            catch (WSException wse) {
+                addError("Can not retrieve tagged versions.");
             }
         }
         else

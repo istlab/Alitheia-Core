@@ -7,9 +7,12 @@ if (selectedProject.isValid()) {
     // Will hold the main window's content
     StringBuilder b = new StringBuilder("");
 
+    // Construct and setup this view
     ProjectDataView pdvRenderer = new ProjectDataView(selectedProject);
+    pdvRenderer.setSettings(settings);
     pdvRenderer.setTerrier(terrier);
 
+    // Assemble the view's content
     b.append(sp(in++) + "<table class=\"pdv\">\n");
     b.append(sp(in++) + "<tr>\n");
 

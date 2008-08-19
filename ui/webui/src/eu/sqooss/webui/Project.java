@@ -36,9 +36,12 @@ package eu.sqooss.webui;
 import java.util.*;
 
 import eu.sqooss.webui.datatype.Developer;
+import eu.sqooss.webui.datatype.TaggedVersion;
 import eu.sqooss.webui.datatype.Version;
 import eu.sqooss.webui.util.DevelopersList;
 import eu.sqooss.webui.util.MetricsList;
+import eu.sqooss.webui.util.TaggedVersionsList;
+import eu.sqooss.webui.util.VersionsList;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
@@ -68,7 +71,7 @@ public class Project extends WebuiItem {
     private Long currentVersionId;
 
     /*
-     * Holds the number of versions existing in this project.
+     * Holds the number of versions that exist in this project.
      */
     private Long versionsCount = null;
 
@@ -83,7 +86,12 @@ public class Project extends WebuiItem {
      * A cache for all versions associated with this project, that were
      * retrieved from the SQO-OSS framework during this session.
      */
-    private HashMap<Long, Version> versions = new HashMap<Long, Version>();
+    private VersionsList versions = new VersionsList();
+
+    /*
+     * A cache for all tagged versions that exist in this project.
+     */
+    private TaggedVersionsList tagged = new TaggedVersionsList();
 
     /*
      * A cache for the version that has been selected for this project.
@@ -264,20 +272,57 @@ public class Project extends WebuiItem {
      * @param versionId the version Id
      * 
      * @return the version object, or <code>null</code> if a version with the
-     *   given Id doesnÄt exist for this project.
+     *   given Id doesn't exist for this project.
      */
     public Version getVersion (Long versionId) {
         Version result = null;
         // Check in the versions cache first
-        if (versions.containsKey(versionId))
-            result = versions.get(versionId);
+        if (versions.getVersionById(versionId) != null)
+            result = versions.getVersionById(versionId);
         // Otherwise retrieve it from the SQO-OSS framework
         else if (terrier != null) {
             result = terrier.getVersion(this.getId(), versionId);
             if (result != null)
-                versions.put(result.getId(), result);
+                versions.add(result);
         }
         return result;
+    }
+
+    /**
+     * Retrieves the version with the given number from the SQO-OSS framework,
+     * unless the local cache contains that version already.
+     * 
+     * @param versionNumber the version number
+     * 
+     * @return the version object, or <code>null</code> if a version with the
+     *   given number doesn't exist for this project.
+     */
+    public Version getVersionByNumber (long versionNumber) {
+        Version result = null;
+        // Check in the versions cache first
+        if (versions.getVersionByNumber(versionNumber) != null)
+            result = versions.getVersionByNumber(versionNumber);
+        // Otherwise retrieve it from the SQO-OSS framework
+        else if (terrier != null) {
+            result = terrier.getVersionsByNumber(
+                    this.getId(), new long[]{versionNumber}).get(0);
+            if (result != null)
+                versions.add(result);
+        }
+        return result;
+    }
+
+    /**
+     * Retrieves the list of tagged versions for this project from the SQO-OSS
+     * framework, unless the local cache contains these versions already.
+     * 
+     * @return the list of tagged project versions, or an empty list when none
+     * are found.
+     */
+    public TaggedVersionsList getTaggedVersions() {
+        if ((tagged.isEmpty()) && (terrier != null))
+            tagged.addAll(terrier.getTaggedVersionsByProjectId(this.getId()));
+        return tagged;
     }
 
     /**

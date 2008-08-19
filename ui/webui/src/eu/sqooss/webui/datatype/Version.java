@@ -57,25 +57,26 @@ public class Version extends AbstractDatatype {
     /*
      * Project version's meta-data
      */
-    private Long projectId;
-    private Long committerId;
-    private Long number;
+    protected Long projectId;
+    protected Long committerId;
+    protected Long number;
+    protected Date timestamp;
 
     /*
      * 
      */
-    private Long filesNumber = null;
+    protected Long filesNumber = null;
 
     /*
      * Holds the list of results from metrics that has been evaluated on this
      * project version, indexed by metric mnemonic name.
      */
-    private HashMap<String, Result> results = new HashMap<String, Result>();
+    protected HashMap<String, Result> results = new HashMap<String, Result>();
 
     /*
      * 
      */
-    private WSVersionStats stats = null;
+    protected WSVersionStats stats = null;
 
     public HashMap<Long, Directory> directories =
         new HashMap<Long, Directory>();
@@ -83,7 +84,7 @@ public class Version extends AbstractDatatype {
     /*
      * 
      */
-    private Stack<Long> dirHistory = new Stack<Long>();
+    protected Stack<Long> dirHistory = new Stack<Long>();
 
     /**
      * A cache for all files that exist in this project version indexed by
@@ -111,6 +112,12 @@ public class Version extends AbstractDatatype {
             this.name = this.number.toString();
             this.projectId = wsVersion.getProjectId();
             this.committerId = wsVersion.getCommitterId();
+            /*
+             * NOTE: The Timestamp has to multiplied with 1000, since
+             * <code>eu.sqooss.impl.service.updater.SourceUpdater</code> does
+             * divide it on 1000 for an unknown reason.
+             */
+            timestamp = new Date(wsVersion.getTimestamp() * 1000);
         }
         setTerrier(terrier);
     }
@@ -157,6 +164,10 @@ public class Version extends AbstractDatatype {
 
     public void setCommiterId(Long commiterId) {
         this.committerId = commiterId;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
     }
 
     //========================================================================

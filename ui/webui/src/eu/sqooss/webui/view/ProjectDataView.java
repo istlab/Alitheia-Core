@@ -33,12 +33,33 @@
 
 package eu.sqooss.webui.view;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.TimePeriodValues;
+import org.jfree.data.time.TimePeriodValuesCollection;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
+import eu.sqooss.webui.datatype.TaggedVersion;
 import eu.sqooss.webui.datatype.Version;
 
 /**
@@ -46,12 +67,14 @@ import eu.sqooss.webui.datatype.Version;
  * presents an overview information for a single project.
  */
 public class ProjectDataView extends ListView {
-    /** Holds the project object. */
+    /*
+     * Holds the project object.
+     */
     private Project project;
 
     /**
-     * Instantiates a new project info view, and initializes it with the
-     * given project object.
+     * Instantiates a new <code>ProjectDataView</code>, and initializes it
+     * with the given project object.
      * 
      * @param project the project
      */
@@ -60,13 +83,13 @@ public class ProjectDataView extends ListView {
         this.project = project;
     }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.webui.ListView#getHtml(long)
+    /**
+     * Renders the content of the source code related sub-view.
+     * 
+     * @param in the indentation depth
+     * 
+     * @return the content of the source code related sub-view.
      */
-    public String getHtml(long in) {
-        return null;
-    }
-
     public String getCodeInfo(long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
@@ -89,19 +112,23 @@ public class ProjectDataView extends ListView {
         b.append(sp(--in) + "</tr>\n");
 
         //====================================================================
-        // Key metrics information
+        // Prepare the list of pre-selected key metrics
         //====================================================================
 
-        // Retrieve the evaluation results for the latest project version
-        // TODO: Maybe use the latest tagged version instead?
+        // TODO: Read the key metrics selection from the configuration file!
+        HashMap<String,String> keyMetrics= new HashMap<String, String>();
+        keyMetrics.put("NOCL", "Classes");
+
+        //====================================================================
+        // Render an overview of the key metrics results
+        //====================================================================
+
+        // Retrieve the evaluation results for the last project version
         Version lastVersion = project.getLastVersion();
-        if (lastVersion != null) {
+        if ((lastVersion != null) && (keyMetrics.isEmpty() == false)) {
             lastVersion.setTerrier(terrier);
             
             // Retrieve evaluation results from the key metrics
-            // TODO: Read the key metrics selection from the configuration file!
-            HashMap<String,String> keyMetrics= new HashMap<String, String>();
-            keyMetrics.put("NOCL", "Classes");
             HashMap<String, Result> results =
                 lastVersion.getResults(keyMetrics.keySet());
             
@@ -116,11 +143,78 @@ public class ProjectDataView extends ListView {
             }
         }
 
+        //====================================================================
+        // Render the key metrics chart
+        //====================================================================
+
+        // Prepare the storage for the chart data
+        SortedMap<String, SortedMap<Date, String>> chartData =
+            new TreeMap<String, SortedMap<Date,String>>();
+        for (String mnemonic : keyMetrics.keySet())
+            chartData.put(mnemonic, new TreeMap<Date, String>());
+
+        // Retrieve all tagged versions for the selected project
+        Collection<TaggedVersion> tagged = project.getTaggedVersions();
+        // Simulate tagged versions on a project without any
+        if (tagged.isEmpty()) {
+            long counter = project.getVersionsCount();
+            long range = counter / ((counter > 5) ? 5 : counter);
+            while (counter > 0) {
+                TaggedVersion nextVersion = new TaggedVersion(
+                        project.getVersionByNumber(counter), terrier);
+                if (nextVersion.isValid())
+                    tagged.add(nextVersion);
+                counter -= range;
+            }
+        }
+
+        // Retrieve the key metrics results on all tagged version
+        if ((tagged.isEmpty() == false) && (keyMetrics.isEmpty() == false)) {
+            
+            for (TaggedVersion tag : tagged) {
+                HashMap<String, Result> verResults =
+                    tag.getResults(keyMetrics.keySet());
+                for (String mnemonic : verResults.keySet()) {
+                    Result result = verResults.get(mnemonic);
+                    result.setSettings(settings);
+                    if (result.getIsPrintable())
+                        chartData.get(mnemonic).put(
+                                tag.getTimestamp(), result.getHtml(0));
+                }
+            }
+        }
+
+        // Generate and include the chart image into the rendered content
+        if (chartData.isEmpty() == false) {
+            String chartFile = null;
+            chartFile = "/tmp/" + lineChart(chartData);
+            if (chartFile != null) {
+                b.append(sp(in++) + "<tr>\n");
+                b.append(sp(in)
+                        + "<td class=\"pdv_chart\" colspan=\"2\">"
+                        + "<a class=\"pdv_chart\""
+                        + " href=\"/fullscreen.jsp?"
+                        + "chartfile=" + chartFile + "\">"
+                        + "<img src=\"" + chartFile + "\">"
+                        + "</a>"
+                        + "</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+            }
+        }
+
         b.append(sp(--in) + "</table>\n");
 
         return b.toString();
     }
 
+    /**
+     * Renders the content of the developers and mailing lists related
+     * sub-view.
+     * 
+     * @param in the indentation depth
+     * 
+     * @return the content of the source code related sub-view.
+     */
     public String getDevsInfo(long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
@@ -144,6 +238,13 @@ public class ProjectDataView extends ListView {
         return b.toString();
     }
 
+    /**
+     * Renders the content of the bugs related sub-view.
+     * 
+     * @param in the indentation depth
+     * 
+     * @return the content of the source code related sub-view.
+     */
     public String getBugsInfo(long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
@@ -160,5 +261,51 @@ public class ProjectDataView extends ListView {
         b.append(sp(--in) + "</table>\n");
 
         return b.toString();
+    }
+
+    @Override
+    public String getHtml(long indentationDepth) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    private String lineChart (SortedMap<String, SortedMap<Date, String>> values) {
+        // Construct the chart's dataset
+        TimePeriodValuesCollection data = new TimePeriodValuesCollection();
+        for (String nextLine : values.keySet()) {
+            TimePeriodValues lineData = new TimePeriodValues(nextLine);
+            SortedMap<Date, String> lineValues = values.get(nextLine);
+            for (Date nextX : lineValues.keySet()) {
+                if (lineValues.get(nextX) == null) continue;
+                try {
+                    lineData.add(
+                            new Day(nextX),
+                            new Double(lineValues.get(nextX)));
+                }
+                catch (NumberFormatException ex) { /* Skip it. */ }
+            }
+            if (lineData.getItemCount() > 0)
+                data.addSeries(lineData);
+        }
+        // Generate the chart
+        if (data.getSeriesCount() > 0) {
+            JFreeChart chart;
+            chart = ChartFactory.createTimeSeriesChart(
+                    null, "Time", "Result",
+                    data,
+                    true, true, false);
+            chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+            chart.setPadding(RectangleInsets.ZERO_INSETS);
+            // Save the chart into a temporary file
+            try {
+                java.io.File tmpFile = java.io.File.createTempFile(
+                        "img", ".png", settings.getTempFolder());
+                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
+                return tmpFile.getName();
+            }
+            catch (IOException e) { /* Do nothing. */ }
+        }
+
+        return null;
     }
 }
