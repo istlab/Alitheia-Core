@@ -177,7 +177,7 @@ if (selectedProject.isValid()) {
 if (selectedProject.isValid()) {
     if (msg.length() > 0) msg += "<br/>";
     msg += "<strong>Project:</strong> " + selectedProject.getName();
-    msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
+    msg += "<span class=\"forget\"><a href=\"/?pid=none\">(forget)</a></span>";
     if (selectedProject.getCurrentVersion() != null) {
         msg += "<br /><strong>Version:</strong> "
             + selectedProject.getCurrentVersion().getNumber();
