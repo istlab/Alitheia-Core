@@ -74,6 +74,7 @@ settings.setUserLocale(request.getLocale());
 String appName  = "Alitheia";
 // Default page title (sub-pages can overwrite it in their scope)
 String title    = "Alitheia";
+
 // Default message content (sub-pages can overwrite it in their scope)
 String msg      = "";
 // Identation depth
@@ -168,6 +169,21 @@ if (selectedProject.isValid()) {
                 selectedProject.getCurrentVersionId()) == false)) {
             selectedProject.setCurrentVersion(selVersion);
         }
+    }
+}
+//============================================================================
+// Update the "Message Box"
+//============================================================================
+if (selectedProject.isValid()) {
+    if (msg.length() > 0) msg += "<br/>";
+    msg += "<strong>Project:</strong> " + selectedProject.getName();
+    msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
+    if (selectedProject.getCurrentVersion() != null) {
+        msg += "<br /><strong>Version:</strong> "
+            + selectedProject.getCurrentVersion().getNumber();
+    }
+    else {
+        msg += "<br />No versions recorded.";
     }
 }
 %><%@ include file="/inc/login.jsp"

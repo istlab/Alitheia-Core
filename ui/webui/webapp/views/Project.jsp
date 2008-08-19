@@ -5,19 +5,7 @@
 %><%
 if (selectedProject.isValid()) {
 %>                <div id="selectedproject">
-<%
-    // Update the Message Box
-    if (msg.length() > 0) msg += "<br/>";
-    msg += "<strong>Project:</strong> " + selectedProject.getName();
-    msg += "<span class=\"forget\"><a href=\"?pid=none\">(forget)</a></span>";
-    if (selectedProject.getCurrentVersion() != null) {
-        msg += "<br /><strong>Version:</strong> "
-            + selectedProject.getCurrentVersion().getNumber();
-    }
-    else {
-        msg += "<br />No versions recorded.";
-    }
-%>                  <table>
+                  <table>
                     <tr>
                       <td valign="top" style="width: 60%; padding-bottom: 0;">
 <%

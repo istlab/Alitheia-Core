@@ -127,11 +127,11 @@ public class ProjectDataView extends ListView {
         Version lastVersion = project.getLastVersion();
         if ((lastVersion != null) && (keyMetrics.isEmpty() == false)) {
             lastVersion.setTerrier(terrier);
-            
+
             // Retrieve evaluation results from the key metrics
             HashMap<String, Result> results =
                 lastVersion.getResults(keyMetrics.keySet());
-            
+
             // Display the key metrics
             for (String mnemonic : results.keySet()) {
                 b.append(sp(in++) + "<tr>\n");
