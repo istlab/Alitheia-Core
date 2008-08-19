@@ -207,6 +207,22 @@ public class ProjectFile extends DAObject{
     public void setMeasurements(Set<ProjectFileMeasurement> measurements) {
         this.measurements = measurements;
     }
+    
+    public boolean equals (ProjectFile other) {
+        if (!this.getName().equals(other.getName()))
+            return false;
+        
+        if (!this.getDir().getPath().equals(other.getDir().getPath()))
+            return false;
+        
+        if (!(this.getProjectVersion().getVersion() == other.getProjectVersion().getVersion()))
+            return false;
+        
+        if (!(this.getProjectVersion().getProject().getId() == other.getProjectVersion().getProject().getId()))
+            return false; 
+        
+        return true;
+    }
 
     /**
      * Returns the full path to the file, relative to the repository root
@@ -718,7 +734,8 @@ public class ProjectFile extends DAObject{
         if (path != null)
             query += ", Directory d ";
 
-        query += " where pf.projectVersion = pv.id "
+        query += " where pf.projectVersion = pv.id " 
+            + " and pf.status <> 'DELETED'"
             + " and pv.project.id = :" + paramProjectId 
             + " and pf.name = :" + paramName;
         
