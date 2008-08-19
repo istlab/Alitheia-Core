@@ -1,4 +1,3 @@
-
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
@@ -682,6 +681,70 @@ public class ProjectFile extends DAObject{
         }
 
         return result;
+    }
+    
+    /**
+     * Return the latest file versions matching the provided arguments
+     * 
+     * TODO: Move to ProjectFile, where it belongs
+     *   
+     * @param projectId The project to search for
+     * @param name The name of the file
+     * @param path The directory path this file resides in
+     * @param version The version number
+     * 
+     * @return A list of ProjectFile objects matching the search arguments
+     *  which can be empty if no matching files where found
+     */
+    @SuppressWarnings("unchecked")
+    public static ProjectFile findFile(Long projectId, String name,
+            String path, Long version) {
+        DBService dbs = CoreActivator.getDBService();
+        List<ProjectFile> pfs = new ArrayList<ProjectFile>();
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        
+        if (projectId == null || name == null) {
+            return null;
+        }
+        
+        String paramProjectId = "paramProjectId";
+        String paramName = "paramName";
+        String paramVersion = "paramVersion";
+        String paramPath = "paramPath";
+        
+        String query = "select pf " 
+            + " from ProjectFile pf, ProjectVersion pv, StoredProject sp ";
+        
+        if (path != null)
+            query += ", Directory d ";
+
+        query += " where pf.projectVersion = pv.id "
+            + " and pv.project.id = :" + paramProjectId 
+            + " and pf.name = :" + paramName;
+        
+        parameters.put(paramProjectId, projectId);
+        parameters.put(paramName, name);
+        
+        query += " and pf.dir.id = d.id " 
+            + " and d.path = :" + paramPath;
+        parameters.put(paramPath, path);
+
+        
+        parameters.put(paramVersion, version);
+        query += " and pv.timestamp <= ( " +
+            "select pv1.timestamp " +
+            "from ProjectVersion pv1 " +
+            "where pv1.version = :" + paramVersion +
+            " and pv1.project.id = :" + paramProjectId +")";
+        
+        query += " order by pv.timestamp desc";
+
+        pfs = (List<ProjectFile>) dbs.doHQL(query, parameters);
+        
+        if (pfs.isEmpty()) 
+            return null;
+        
+        return pfs.get(0);
     }
 }
 

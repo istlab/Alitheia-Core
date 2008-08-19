@@ -3,8 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
- *
+ * Copyright 2008 by Georgios Gousios <gousiosg@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -34,59 +33,52 @@
 
 package eu.sqooss.service.tds;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
- * A representation of an entry in the commit log of an SCM system. 
+ * A commit entry representing a copy operation 
  *
  */
-public interface CommitEntry {
+public class CommitCopyEntry {
+    
+    private String fromPath;
+    private ProjectRevision fromRev;
+    
+    private String toPath;
+    private ProjectRevision toRev;
+    
+    public CommitCopyEntry(String fromP, ProjectRevision fromR, String toP, 
+            ProjectRevision toR) {
+        this.fromPath = fromP;
+        this.fromRev = fromR;
+        
+        this.toPath = toP;
+        this.toRev = toR;
+    }
     
     /**
-     * Get the project revision / commit hash for the commit entry 
+     * Get the path where the copied entity originally existed
      */
-    ProjectRevision getRevision();
-    
-    /**
-     * Get the username of the person that performed the commit 
-     * 
-     */
-    String getAuthor();
-    
-    /**
-     * Get the message attached to the commit
-     */
-    String getMessage();
-    
-    /**
-     * Get the date of the commit
-     */
-    Date getDate();
-    
-    /**
-     * Get a set of paths that changed by the commit
-     */
-    Set<String> getChangedPaths();
-    
-    /**
-     * Get the modification types that were performed on each changed path
-     * by the commit
-     */
-    Map<String, PathChangeType> getChangedPathsStatus();
-    
-    /**
-     * Get a list of copy operations that took place in this revision
-     */
-    List<CommitCopyEntry> getCopyOperations();
+    public String fromPath() {
+        return fromPath;
+    }
 
     /**
-     * Get a string representation of the commit
+     * Get the latest revision of to the original path
      */
-    String toString();
+    public ProjectRevision fromRev() {
+        return fromRev;
+    }
+    
+    /**
+     * Get the path to the new location of the copied entity
+     */
+    public String toPath() {
+        return toPath;
+    }
+    
+    /**
+     * Get the version of the copied entity after the copy operation
+     */
+    public ProjectRevision toRev() {
+        return toRev;
+    }
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

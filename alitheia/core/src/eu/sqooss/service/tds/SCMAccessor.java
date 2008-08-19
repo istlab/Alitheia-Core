@@ -36,9 +36,6 @@ package eu.sqooss.service.tds;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.List;
-
-import eu.sqooss.service.fds.InMemoryDirectory;
 
 public interface SCMAccessor extends NamedAccessor {
     /**

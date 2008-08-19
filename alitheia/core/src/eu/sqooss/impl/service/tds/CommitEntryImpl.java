@@ -37,9 +37,11 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +51,7 @@ import org.tmatesoft.svn.core.SVNLogEntryPath;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.CommitCopyEntry;
 
 public class CommitEntryImpl implements CommitEntry {
     private ProjectRevision revision;
@@ -59,6 +62,8 @@ public class CommitEntryImpl implements CommitEntry {
 
     private Map<String, PathChangeType> changedPaths;
 
+    private List<CommitCopyEntry> copyOps;
+    
     @SuppressWarnings("unchecked")
     public CommitEntryImpl(SVNLogEntry l, String root) {
         revision = new ProjectRevision(l.getRevision());
@@ -66,16 +71,29 @@ public class CommitEntryImpl implements CommitEntry {
         message = l.getMessage();
         revision.setDate(l.getDate());
         changedPaths = new LinkedHashMap<String, PathChangeType>();
+        copyOps = new ArrayList<CommitCopyEntry>();
+        
+        
         Map<String, SVNLogEntryPath> paths = 
-            (Map<String, SVNLogEntryPath>) (l.getChangedPaths());
+            (Map<String, SVNLogEntryPath>) l.getChangedPaths();
         
         for (Iterator i = paths.keySet().iterator(); i.hasNext();) {
             String path = (String) i.next();
             if (path.startsWith(root)) {
-            	changedPaths.put(path, parseSVNLogEntryPath(paths.get(path)
-            			.getType()));
+            	changedPaths.put(
+            	        path, parseSVNLogEntryPath(
+            	                paths.get(path).getType()));
+            }
+            
+            String copyPath = paths.get(path).getCopyPath();
+            Long   copyRev = paths.get(path).getCopyRevision();
+            
+            if ((copyPath != null) && (copyRev != -1)) {
+                copyOps.add(new CommitCopyEntry(copyPath, new ProjectRevision(copyRev), path, revision));
             }
         }
+        
+        
     }
 
     public ProjectRevision getRevision() {
@@ -119,6 +137,10 @@ public class CommitEntryImpl implements CommitEntry {
         } else {
             return PathChangeType.UNKNOWN;
         }
+    }
+
+    public List<CommitCopyEntry> getCopyOperations() {
+        return copyOps;
     }
 }
 

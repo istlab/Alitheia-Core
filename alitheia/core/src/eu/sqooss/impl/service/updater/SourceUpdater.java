@@ -34,8 +34,10 @@
 package eu.sqooss.impl.service.updater;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -43,6 +45,7 @@ import java.util.Vector;
 import org.apache.commons.collections.LRUMap;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.CoreActivator;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
@@ -55,6 +58,7 @@ import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -86,9 +90,14 @@ class SourceUpdater extends Job {
     private Set<Long> updProjectVersions = new TreeSet<Long>();
     private Set<Long> updFiles = new TreeSet<Long>();
     
-    /*Cache statistics - to be removed*/
-    private double dirCacheHits = 0, dirRequests = 0;
-    private double devCacheHits = 0, devRequests = 0;
+    // Avoid Hibernate thrashing by caching frequently accessed objects
+    LRUMap devCache = new LRUMap(100);
+    LRUMap dirCache = new LRUMap(200);
+    
+    //Store processed file and version IDs to inform the updater
+    Set<Long> procPVs = new TreeSet<Long>();
+    Set<Long> procPFs = new TreeSet<Long>();
+    
     /**
      * Store jobs started by this Job (cannot be added as dependencies
      * after the job has started). 
@@ -125,14 +134,8 @@ class SourceUpdater extends Job {
     protected void run() throws Exception {
         dbs.startDBSession();
         int numRevisions = 0;
-        
-        Set<Long> procPVs = new TreeSet<Long>();
-        Set<Long> procPFs = new TreeSet<Long>();
-    
-        // Avoid Hibernate thrashing by caching frequently accessed objects
-        LRUMap devCache = new LRUMap(100);
-        LRUMap dirCache = new LRUMap(100);
 
+    
         /* Store version ids to be processed by fillFileForVersion */
         List<Long> latestVersionIDs = new ArrayList<Long>();
         
@@ -183,13 +186,11 @@ class SourceUpdater extends Job {
             String author = entry.getAuthor();
             Developer d = null;
             d = (Developer) devCache.get(author);
-            devRequests++;
+
             if (d == null) {
                 d = Developer.getDeveloperByUsername(entry.getAuthor(), project);
                 devCache.put(author, d);
-            } else {
-                devCacheHits++;
-            }
+            } 
 
             curVersion.setCommitter(d);
 
@@ -200,21 +201,29 @@ class SourceUpdater extends Job {
             }
 
             curVersion.setCommitMsg(commitMsg);
-            /* TODO: Fix this when the TDS starts supporting SVN properties */
-            // curVersion.setProperties(entry.getProperties);
-            // Use addRecord instead of adding to the list of versions in the
-            // project
-            // so we don't need to load the complete list of revisions
-            // (especially as we used getLastProjectVersion above)
+            
+            /* 
+             * TODO: Fix this when the TDS starts supporting SVN properties 
+             * 
+             * curVersion.setProperties(entry.getProperties);
+             * Use addRecord instead of adding to the list of versions in the
+             * project so we don't need to load the complete list of revisions
+             * (especially as we used getLastProjectVersion above) 
+             */
             dbs.addRecord(curVersion);
             procPVs.add(curVersion.getId());
             latestVersionIDs.add(curVersion.getId());
 
             logger.debug(curVersion.getProject().getName() + ": Got version "
                     + curVersion.getVersion() + " ID " + curVersion.getId());
-
+            
             for (String chPath : entry.getChangedPaths()) {
 
+                //Defer processing of copied paths for after normal paths
+                if (isCopiedPath(chPath, entry)) {
+                    continue;
+                }
+                
                 SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
 
                 /*
@@ -232,72 +241,78 @@ class SourceUpdater extends Job {
                     break;
                 }
 
-                ProjectFile pf = new ProjectFile(curVersion);
-
-                String path = chPath.substring(0, chPath.lastIndexOf('/'));
-                if (path == null || path.equalsIgnoreCase("")) {
-                    path = "/"; // SVN entry does not have a path
-                }
-                String fname = chPath.substring(chPath.lastIndexOf('/') + 1);
-
-                Directory dir = null;
-                dirRequests++;
-                dir = (Directory) dirCache.get(path);
-                if (dir == null) {
-                    dir = Directory.getDirectory(path, true);
-                    dirCache.put(path, dir);
-                } else {
-                    dirCacheHits++;
-                }
-
-                pf.setName(fname);
-                pf.setDir(dir);
-                pf.setStatus(entry.getChangedPathsStatus().get(chPath)
-                        .toString());
-
-                if (t == SCMNodeType.DIR) {
-                    pf.setIsDirectory(true);
-                    dir = Directory.getDirectory(chPath, true);
-                } else {
-                    pf.setIsDirectory(false);
-                }
-
-                dbs.addRecord(pf);
-
+                ProjectFile pf = addFile(curVersion, chPath, 
+                        entry.getChangedPathsStatus().get(chPath).toString(), t);
+                
                 /*
                  * Before entering the next block, examine whether the deleted
                  * file was a directory or not. If there is no path entry in the
                  * Directory table for the processed file path, this means that
-                 * the path is definetely not a directory. If there is such an
+                 * the path is definitely not a directory. If there is such an
                  * entry, it may be shared with another project; this case is
                  * examined upon entering
                  */
-                if (pf.isDeleted()
-                        && (Directory.getDirectory(chPath, false) != null)) {
-                    /*
-                     * Directories, when they are deleted, do not have type DIR,
-                     * but something else. So we need to check on deletes
-                     * whether this name was most recently a directory.
-                     */
-                    ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(pf);
+                if (pf.isDeleted() && (getDirectory(chPath, false) != null)) {
+                        /*
+                         * Directories, when they are deleted, do not have type DIR,
+                         * but something else. So we need to check on deletes
+                         * whether this name was most recently a directory.
+                         */
+                        ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(pf);
 
-                    /* If a dir was deleted, mark all children as deleted */
-                    if (lastIncarnation != null
-                            && lastIncarnation.getIsDirectory()) {
-                        // In spite of it not being marked as a directory
-                        // in the node tree right now.
-                        pf.setIsDirectory(true);
-                    }
-                    markDeleted(pf, curVersion);
+                        /* If a dir was deleted, mark all children as deleted */
+                        if (lastIncarnation != null
+                                && lastIncarnation.getIsDirectory()) {
+                            // In spite of it not being marked as a directory
+                            // in the node tree right now.
+                            pf.setIsDirectory(true);
+                        }
+                        markDeleted(pf, curVersion);
                 }
-
-                procPFs.add(pf.getId());
             }
 
+            /* 
+             * Process copy operations for this commit as follows: 
+             * Files: Create a new entry at the new location and 
+             *          mark the new entry as modified
+             * Directories: Delete the entry at the source location 
+             *              (but leave the contents intact), add a new entry
+             *              for the new location and process all files as
+             *              indicated above
+             */
+            ProjectVersion prev = null;
+            for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
+                
+                if (prev == null) {
+                    prev = ProjectVersion.getPreviousVersion(curVersion);
+                }
+                
+                logger.debug("Moving path " + copyOp.fromPath() + " to " 
+                        + copyOp.toPath());
+                ProjectFile pf = ProjectFile.findFile(project.getId(), 
+                        basename(copyOp.fromPath()), 
+                        dirname(copyOp.fromPath()), prev.getVersion());
+                
+                if (pf == null) {
+                    logger.warn("expecting 1 got " + 0 + " files for path " 
+                            + copyOp.fromPath() + " (r" + prev.getVersion() + 
+                            ") project " + project.getName() + " (" + project.getId() +")");
+                    continue;
+                }
+                
+                if (!pf.getIsDirectory()) { //A file, add a new entry with new path 
+                    addFile(curVersion, copyOp.toPath(), "MODIFIED", SCMNodeType.FILE);
+                } else { //Dirs
+                    Directory from = getDirectory(copyOp.fromPath(), false);
+                    Directory to = getDirectory(copyOp.toPath(), true);
+                    markMoved(curVersion, from, to);
+                } 
+            }
+            
             numRevisions++;
 
             /* Intermediate clean up */
-            if (numRevisions % 200 == 0) {
+            if (numRevisions % 5 == 0) {
                 logger.info("Commited 200 revisions");
                 devCache.clear();
                 dirCache.clear();
@@ -328,10 +343,7 @@ class SourceUpdater extends Job {
         updProjectVersions.addAll(procPVs);
         updFiles.addAll(procPFs);
         
-        logger.info("Dir cache hit rate:" + ((dirCacheHits/dirRequests)*100));
-        logger.info("Dev cache hit rate:" + ((devCacheHits/devRequests)*100));
-        
-here:   for (Job j : dependedJobs) {
+        here: for (Job j : dependedJobs) {
             if (j.state() == State.Queued || j.state() == State.Running) {
                 j.waitForFinished();
                 break here;
@@ -345,11 +357,54 @@ here:   for (Job j : dependedJobs) {
     }
 
     /**
+     * Constructs a project file out of provided elements
+     */
+    private ProjectFile addFile(ProjectVersion curVersion, String fPath, 
+            String status, SCMNodeType t) {
+        ProjectFile pf = new ProjectFile(curVersion);
+
+        String path = dirname(fPath);
+        String fname = basename(fPath);
+
+        Directory dir = getDirectory(path, true);
+        pf.setName(fname);
+        pf.setDir(dir);
+        pf.setStatus(status);
+
+        if (t == SCMNodeType.DIR) {
+            pf.setIsDirectory(true);
+            //Load the dir to the cache
+            dir = getDirectory(fPath, true);
+        } else {
+            pf.setIsDirectory(false);
+        }
+        
+        dbs.addRecord(pf);
+        procPFs.add(pf.getId());
+
+        return pf;
+    }
+    
+    /**
+     * Check whether a path is in the list of copy operations for this revision
+     */
+    private boolean isCopiedPath(String path, CommitEntry entry) {
+        boolean copied = false;
+        for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
+            if (path.equals(copyOp.fromPath()) || path.equals(copyOp.toPath())) {
+                copied = true;
+                break;
+            }
+        }
+
+        return copied;
+    }
+    
+    /**
      * Mark the contents of a directory as DELETED when the directory has been
      * DELETED
      * 
-     * @param pf
-     *                The project file representing the deleted directory
+     * @param pf The project file representing the deleted directory
      */
     private void markDeleted(ProjectFile pf, ProjectVersion pv) {
         if (pf==null || pv==null) {
@@ -367,8 +422,8 @@ here:   for (Job j : dependedJobs) {
                 + pv.getProject().getId() + " mismatch.");
         }
 
-        logger.debug("Deleting directory " + pf.getName() + " ID " + pf.getId());
-        Directory d = Directory.getDirectory(pf.getFileName(),false);
+        logger.debug("Deleting directory " + pf.getFileName() + " ID " + pf.getId());
+        Directory d = getDirectory(pf.getFileName(),false);
         if (d==null) {
             logger.warn("Directory entry " + pf.getFileName() + 
                 " in project " + pf.getProjectVersion().getProject().getName() +
@@ -396,8 +451,57 @@ here:   for (Job j : dependedJobs) {
     }
 
     /**
+     * Handle directory moves 
+     */
+    private void markMoved(ProjectVersion pv, Directory from, Directory to) {
+        logger.debug("Moving directory " + from.getPath() + " to " 
+                + to.getPath());
+        
+        /*Remove the directory*/
+        addFile(pv, ProjectFile.findFile(project.getId(), 
+                        basename(from.getPath()), 
+                        dirname(from.getPath()), 
+                        pv.getVersion()).getFileName(), 
+                "DELETED", SCMNodeType.DIR);
+        
+        /*Add the directory to the new location*/
+        addFile(pv, dirname(to.getPath()) + "/" + basename(from.getPath()), "ADDED", SCMNodeType.DIR);
+        
+        /*Recursively remove all directories*/
+        List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(pv, from, ProjectFile.MASK_DIRECTORIES);
+        
+        for (ProjectFile f : fromPF) {
+            markMoved(pv, getDirectory(f.getFileName(), false), 
+                    getDirectory(to.getPath() + "/" + f.getName(), true));
+        }
+        
+        /*Move the files from the source directory to the new location*/
+        fromPF = ProjectFile.getFilesForVersion(pv, from, ProjectFile.MASK_FILES);
+        
+        for (ProjectFile f : fromPF) {
+            addFile(pv, to.getPath() + "/" + f.getName(),
+                    "MODIFIED", SCMNodeType.FILE);
+        }
+    }
+    
+    /**
+     * Wrapper around 
+     * {@link eu.sqooss.service.db.Directory#getDirectory(String, boolean)} 
+     * that uses the local object cache before hitting the DB. 
+     */
+    private Directory getDirectory(String path, boolean create) {
+        Directory dir = null;
+        dir = (Directory) dirCache.get(path);
+        if (dir == null) {
+            dir = Directory.getDirectory(path, true);
+            dirCache.put(path, dir);
+        } 
+        return dir;
+    }
+    
+    /**
      * Tell tags from regular commits (heuristic based)
-     *
+     *  
      * @param entry
      * @param path
      * @return True if <tt>entry</tt> represents a tag
@@ -442,6 +546,23 @@ here:   for (Job j : dependedJobs) {
                         + e.getMessage());
             }
         }
+    }
+    
+    private String basename(String path) {
+        String filename = path.substring(path.lastIndexOf('/') + 1);
+        
+        if (filename == null || filename.equalsIgnoreCase("")) {
+            filename = "";
+        }
+        return filename;
+    }
+    
+    private String dirname(String path) {
+        String dirPath = path.substring(0, path.lastIndexOf('/'));
+        if (dirPath == null || dirPath.equalsIgnoreCase("")) {
+            dirPath = "/"; // SVN entry does not have a path
+        }
+        return dirPath;
     }
     
     private class FilesForVersionJob extends Job {
