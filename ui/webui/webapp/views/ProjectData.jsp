@@ -65,6 +65,11 @@ if (selectedProject.isValid()) {
     Window winProjectData = new Window();
     // Construct the main window's title
     winProjectData.setTitle("Project: " + selectedProject.getName());
+    // Construct the main window's title buttons
+    icoCloseWin.setPath("/");
+    icoCloseWin.setParameter("pid");
+    icoCloseWin.setValue("none");
+    winProjectData.addTitleIcon(icoCloseWin);
     // Construct the main window's content
     winProjectData.setContent(b.toString());
     // Display the main window

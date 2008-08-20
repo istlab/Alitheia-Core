@@ -13,7 +13,7 @@ if (terrier.isConnected()) {
 %><%
     // Display the selected project's information
     if (selectedProject.isValid()) {
-%><%@ include file="/views/Project.jsp"
+%><%@ include file="/views/ProjectData.jsp"
 %><%
 }
 // Display the list of evaluate project

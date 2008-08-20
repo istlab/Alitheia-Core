@@ -35,6 +35,7 @@ package eu.sqooss.webui.view;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,15 +45,9 @@ import java.util.TreeMap;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimePeriodValues;
 import org.jfree.data.time.TimePeriodValuesCollection;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
@@ -100,6 +95,28 @@ public class ProjectDataView extends ListView {
         b.append(sp(in++) + "<tr>\n");
         b.append(sp(in) + "<td><b>Versions:</b></td>"
                 + "<td>" + project.getVersionsCount() + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+
+        // First and last version timestamps
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "dd MMM yyyy", settings.getUserLocale());
+        b.append(sp(in++) + "<tr>\n");
+        b.append(sp(in) + "<td><b>First:</b></td>"
+                + "<td>"
+                + dateFormat.format(project.getFirstVersion().getTimestamp())
+                + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+        b.append(sp(in++) + "<tr>\n");
+        b.append(sp(in) + "<td><b>Last:</b></td>"
+                + "<td>"
+                + dateFormat.format(project.getLastVersion().getTimestamp())
+                + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+
+        // Tagged versions
+        Collection<TaggedVersion> tagged = project.getTaggedVersions();
+        b.append(sp(in) + "<td><b>Tagged:</b></td>"
+                + "<td>" + tagged.size() + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
 
         // Files in the latest version
@@ -153,8 +170,6 @@ public class ProjectDataView extends ListView {
         for (String mnemonic : keyMetrics.keySet())
             chartData.put(mnemonic, new TreeMap<Date, String>());
 
-        // Retrieve all tagged versions for the selected project
-        Collection<TaggedVersion> tagged = project.getTaggedVersions();
         // Simulate tagged versions on a project without any
         if (tagged.isEmpty()) {
             long counter = project.getVersionsCount();
