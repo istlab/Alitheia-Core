@@ -35,7 +35,7 @@
 # The top of the source tree. That's here.
 TOP_SRCDIR=.
 # Subdirectories that need special building.
-SUBDIRS=sqoossrepo alitheia metrics ui specs
+SUBDIRS=sqoossrepo alitheia metrics #ui specs
 
 ###
 #
