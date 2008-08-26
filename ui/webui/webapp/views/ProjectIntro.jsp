@@ -25,7 +25,7 @@ if (selectedProject.isValid()) {
     // Project versions
     // =======================================================================
     long versionsCount = selectedProject.getVersionsCount();
-    out.print("<a class=\"piv\" href=\"projects.jsp\">");
+    out.print("<a class=\"piv\" href=\"versions.jsp\">");
     out.print(versionsCount);
     if (versionsCount == 1)
         out.print(" version");

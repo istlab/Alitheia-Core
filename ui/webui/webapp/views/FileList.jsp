@@ -134,8 +134,8 @@ if (selectedProject.isValid()) {
             }
 
             /*
-             * Keep showing the info and control panels, untill a metric AND
-             * version have been selected.
+             * Keep showing the Info and Control panels, untill both metric
+             * AND version have been selected.
              */
             if ((settings.getVfvSelectedVersions() == null)
                 || (settings.getVfvSelectedMetrics() == null)) {

@@ -63,7 +63,15 @@ public class SelectedSettings {
     private String[] vfvSelectedMetrics = null;
     private String[] vfvSelectedVersions = null;
     private int vfvChartType = VerboseFileView.TABLE_CHART;
-    
+
+    // VersionVerboseView related
+    private boolean showVvvInfoPanel = true;
+    private boolean showVvvControlPanel = true;
+    private boolean showVvvResultPanel = true;
+    private String[] vvvSelectedMetrics = null;
+    private String[] vvvSelectedVersions = null;
+    private int vvvChartType = VerboseFileView.TABLE_CHART;
+
 
     public Locale getUserLocale() {
         return userLocale;
@@ -211,6 +219,58 @@ public class SelectedSettings {
 
     public void setVfvChartType(int type) {
         this.vfvChartType = type;
+    }
+
+    // =======================================================================
+    // VersionVerboseView related
+    // =======================================================================
+
+    public boolean getShowVvvInfoPanel() {
+        return showVvvInfoPanel;
+    }
+
+    public void setShowVvvInfoPanel(boolean show) {
+        this.showVvvInfoPanel = show;
+    }
+
+    public boolean getShowVvvControlPanel() {
+        return showVvvControlPanel;
+    }
+
+    public void setShowVvvControlPanel(boolean show) {
+        this.showVvvControlPanel = show;
+    }
+
+    public boolean getShowVvvResultPanel() {
+        return showVvvResultPanel;
+    }
+
+    public void setShowVvvResultPanel(boolean show) {
+        this.showVvvResultPanel = show;
+    }
+
+    public String[] getVvvSelectedMetrics() {
+        return vvvSelectedMetrics;
+    }
+
+    public void setVvvSelectedMetrics(String[] metrics) {
+        this.vvvSelectedMetrics = metrics;
+    }
+
+    public String[] getVvvSelectedVersions() {
+        return vvvSelectedVersions;
+    }
+
+    public void setVvvSelectedVersions(String[] versions) {
+        this.vvvSelectedVersions = versions;
+    }
+
+    public int getVvvChartType() {
+        return vvvChartType;
+    }
+
+    public void setVvvChartType(int type) {
+        this.vvvChartType = type;
     }
 
     // =======================================================================
