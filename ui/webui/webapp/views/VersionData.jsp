@@ -24,6 +24,23 @@ if (selectedProject.isValid()) {
                 request.getParameterValues("vvvvid"));
         }
 
+        // Check, if the user has just added a new version to the selection
+        if (request.getParameter("vvvnum") != null) {
+            List<String> selVersions = new ArrayList<String>();
+            if (settings.getVvvSelectedVersions() != null)
+                selVersions = new ArrayList(
+                    Arrays.asList(settings.getVvvSelectedVersions()));
+
+            // Retrieve the added version (if any)
+            String addVersion = request.getParameter("vvvnum");
+            if ((addVersion != null)
+                && (selVersions.contains(addVersion) == false))
+                selVersions.add(addVersion);
+
+            settings.setVvvSelectedVersions(
+                selVersions.toArray(new String[selVersions.size()]));
+        }
+
         // Retrieve the list of selected version metrics (if any)
         if (request.getParameter("vvvmid") != null) {
             settings.setVvvSelectedMetrics(
@@ -167,6 +184,12 @@ if (selectedProject.isValid()) {
                 icoCloseWin.setParameter(winVisible);
                 icoCloseWin.setValue("false");
                 winCommandScreen.addTitleIcon(icoCloseWin);
+                // Construct the windows's toolbar
+                TextInput icoVersionSelector = new TextInput();
+                icoVersionSelector.setParameter("vvvnum");
+                icoVersionSelector.setText("Add version:");
+                icoVersionSelector.setPath(request.getServletPath());
+                winCommandScreen.addToolIcon(icoVersionSelector);
                 // Construct the window's content
                 winCommandScreen.setContent(verboseView.getControls(in + 2));
                 // Display the window

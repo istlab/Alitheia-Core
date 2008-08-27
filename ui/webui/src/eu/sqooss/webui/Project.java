@@ -304,8 +304,10 @@ public class Project extends WebuiItem {
             result = versions.getVersionByNumber(versionNumber);
         // Otherwise retrieve it from the SQO-OSS framework
         else if (terrier != null) {
-            result = terrier.getVersionsByNumber(
-                    this.getId(), new long[]{versionNumber}).get(0);
+            List<Version> version = terrier.getVersionsByNumber(
+                    this.getId(), new long[]{versionNumber});
+            if (version.isEmpty() == false)
+                result = version.get(0);
             if (result != null)
                 versions.add(result);
         }

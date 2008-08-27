@@ -48,7 +48,7 @@ public class TextInput extends AbstractIcon {
         StringBuilder b = new StringBuilder("");
         if (getStatus()) {
             b.append("<form class=\"icoTextInput\">");
-            b.append("<b>" + text + "</b>");
+            b.append(text != null ? "<b>" + text + "</b>" : "");
             b.append("<input type=\"text\" class=\"icoTextInput\""
                     + " name=\""
                     + ((getParameter() != null) ? getParameter() : "" )

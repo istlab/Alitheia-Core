@@ -61,6 +61,7 @@ import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.webui.datatype.TaggedVersion;
 import eu.sqooss.webui.datatype.Version;
+import eu.sqooss.webui.widgets.TextInput;
 
 /**
  * The class <code>VerboseFileView</code> renders an HTML sequence that
@@ -122,16 +123,22 @@ public class VersionVerboseView extends ListView {
      *   version numbers</i>).
      */
     public void setSelectedVersions(String[] versions) {
-        
         if (versions != null)
             for (String versionNum : versions) {
                 try {
                     Long value = new Long(versionNum);
-                    if (selectedVersions.contains(value) == false)
+                    if ((selectedVersions.contains(value) == false)
+                            && (project.getVersionsCount() >= value)
+                            && (value > 0))
                         selectedVersions.add(value);
                 }
                 catch (NumberFormatException ex) { /* Do nothing */ }
             }
+        String[] validVersions = new String[selectedVersions.size()];
+        int index = 0;
+        for (Long nextVersion : selectedVersions)
+            validVersions[index++] = nextVersion.toString();
+        settings.setVvvSelectedVersions(validVersions);
     }
 
     /**
@@ -246,7 +253,7 @@ public class VersionVerboseView extends ListView {
             }
             // Fill the data set
             for (Long versionNum : selectedVersions) {
-                Version nextVersion = project.getVersion(versionNum);
+                Version nextVersion = project.getVersionByNumber(versionNum);
                 if (nextVersion != null) {
                     nextVersion.setTerrier(terrier);
                     HashMap<String, Result> verResults =
@@ -557,19 +564,16 @@ public class VersionVerboseView extends ListView {
             // Display the list of tagged versions
             //----------------------------------------------------------------
             b.append(sp(in++) + "<div class=\"vvvvid\">\n");
-            b.append(sp(in) + "<div class=\"vvvtitle\">Taggs</div>\n");
+            b.append(sp(in) + "<div class=\"vvvtitle\">Versions</div>\n");
             b.append(sp(in++) + "<select class=\"vvvvid\""
                     + " name=\"vvvvid\""
                     + " multiple"
                     + " size=\"5\""
-                    + ((project.getVersionsCount() < 1) ? " disabled" : "")
+                    + ((selectedVersions.size() < 1) ? " disabled" : "")
                     + ">\n");
-            Map<Long, Long> tags =
-                project.getTaggedVersions().getTaggedVersionNumber();
-            for (Long version : tags.values()) {
+            for (Long version : selectedVersions) {
                 b.append(sp(in) + "<option class=\"vvvvid\""
-                        + ((selectedVersions.contains(version))
-                                ? " selected" : "")
+                        + " selected"
                         + " value=\"" + version + "\">"
                         + "v." + version
                         + "</option>\n");
@@ -621,7 +625,9 @@ public class VersionVerboseView extends ListView {
                     + "In v." + version 
                     + "</td>\n");
             for (String mnemonic : values.keySet()) {
-                String result = values.get(mnemonic).get(version).toString();
+                String result = null;
+                if (values.get(mnemonic).get(version) != null)
+                    result = values.get(mnemonic).get(version).toString();
                 b.append(sp(in) + "<td class=\"def_right\">"
                         + ((result != null) ? result : "N/A")
                         + "</td>\n");
