@@ -36,10 +36,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.sqooss.webui.Functions;
+import eu.sqooss.webui.util.Dimension;
 
 public class Window extends AbstractWindow {
-    List<AbstractIcon> titlebar = new ArrayList<AbstractIcon>();
-    List<AbstractIcon> toolbar  = new ArrayList<AbstractIcon>();
+    private List<AbstractIcon> titlebar = new ArrayList<AbstractIcon>();
+    private List<AbstractIcon> toolbar  = new ArrayList<AbstractIcon>();
+    private Dimension dimension = null;
+
+    public Window() {
+        super();
+    }
+
+    public Window(Dimension dimension) {
+        super();
+        this.dimension = dimension;
+    }
 
     public void addTitleIcon (AbstractIcon icon) {
         titlebar.add(icon);
@@ -52,7 +63,19 @@ public class Window extends AbstractWindow {
     @Override
     public String render(long in) {
         StringBuilder b = new StringBuilder("");
-        b.append(Functions.sp(in++) + "<div class=\"win\">\n");
+        String height = "";
+        String width = "";
+        if (dimension != null) {
+            if (dimension.getHeight() != null)
+                height = "height: "
+                    + dimension.getHeight() + dimension.getCssUnit() + ";";
+            if (dimension.getWidth() != null)
+                width = "width: "
+                    + dimension.getWidth() + dimension.getCssUnit() + ";";
+        }
+        b.append(Functions.sp(in++) + "<div class=\"win\""
+                + " style=\"" + height + width + "\""
+                + ">\n");
         // ===================================================================
         // Display the window's title bar
         // ===================================================================

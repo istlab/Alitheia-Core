@@ -115,6 +115,7 @@ public class ProjectDataView extends ListView {
 
         // Tagged versions
         Collection<TaggedVersion> tagged = project.getTaggedVersions();
+        b.append(sp(in++) + "<tr>\n");
         b.append(sp(in) + "<td><b>Tagged:</b></td>"
                 + "<td>" + tagged.size() + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
@@ -159,6 +160,7 @@ public class ProjectDataView extends ListView {
                 b.append(sp(--in) + "</tr>\n");
             }
         }
+        b.append(sp(--in) + "</table>\n");
 
         //====================================================================
         // Render the key metrics chart
@@ -204,6 +206,7 @@ public class ProjectDataView extends ListView {
             String chartFile = null;
             chartFile = "/tmp/" + lineChart(chartData);
             if (chartFile != null) {
+                b.append(sp(in++) + "<table>\n");
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in)
                         + "<td class=\"pdv_chart\" colspan=\"2\">"
@@ -214,10 +217,9 @@ public class ProjectDataView extends ListView {
                         + "</a>"
                         + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
+                b.append(sp(--in) + "</table>\n");
             }
         }
-
-        b.append(sp(--in) + "</table>\n");
 
         return b.toString();
     }

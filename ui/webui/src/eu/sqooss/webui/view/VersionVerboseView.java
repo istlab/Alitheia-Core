@@ -35,6 +35,7 @@ package eu.sqooss.webui.view;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -176,7 +177,7 @@ public class VersionVerboseView extends ListView {
      * selected project versions.
      */
     private void attachSelectedVersions () {
-        if ((project != null) && (project.isValid() == false)) {
+        if ((project != null) && (project.isValid())) {
             // Pre-load the selected project versions
             for (Long version : selectedVersions) {
                 project.getVersionByNumber(version);
@@ -185,7 +186,15 @@ public class VersionVerboseView extends ListView {
             // Load the list of evaluated version metrics for this project
             evaluated = project.getEvaluatedMetrics().getMetricMnemonics(
                     MetricActivator.PROJECTVERSION,
-                    MetricType.PROJECT_WIDE);
+                    MetricType.SOURCE_CODE);
+
+            if (settings != null) {
+                // Load the list of selected metrics
+                setSelectedMetrics(settings.getVvvSelectedMetrics());
+
+                // Load the list of selected versions
+                setSelectedVersions(settings.getVvvSelectedVersions());
+            }
         }
     }
 
@@ -431,9 +440,13 @@ public class VersionVerboseView extends ListView {
                         + "<td>" + version.getNumber() + "</td>"
                         + "</tr>\n");
 
+                SimpleDateFormat dateFormat = new SimpleDateFormat(
+                        "dd MMM yyyy", settings.getUserLocale());
                 b.append(sp(in) + "<tr>"
                         + "<td><b>Date</b></td>"
-                        + "<td>" + version.getTimestamp() + "</td>"
+                        + "<td>"
+                        + dateFormat.format(version.getTimestamp())
+                        + "</td>"
                         + "</tr>\n");
 
                 Developer commiter = project.getDevelopers()

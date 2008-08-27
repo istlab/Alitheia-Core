@@ -108,11 +108,14 @@ if (selectedProject.isValid()) {
             settings.setShowVvvControlPanel(true);
         }
 
+        /*
+         * Initialise the verbose view's object
+         */
         VersionVerboseView verboseView =
             new VersionVerboseView(selectedProject);
-        verboseView.setTerrier(terrier);
         verboseView.setServletPath(request.getServletPath());
         verboseView.setSettings(settings);
+        verboseView.setTerrier(terrier);
 
         // Retrieve the highlighted metric (if any)
         if (request.getParameter("vvvsm") != null) {

@@ -1,4 +1,5 @@
 <%@ page import="eu.sqooss.webui.*"
+%><%@ page import="eu.sqooss.webui.util.*"
 %><%@ page import="eu.sqooss.webui.view.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
@@ -16,15 +17,16 @@ if (selectedProject.isValid()) {
     b.append(sp(in++) + "<table class=\"pdv\">\n");
     b.append(sp(in++) + "<tr>\n");
 
+    Dimension dimension = new Dimension (new Long(350), null);
     // =======================================================================
     // Source code - overview window
     // =======================================================================
     b.append(sp(in++) + "<td class=\"pdv\">\n");
-    Window winPrjCode = new Window();
+    Window winPrjCode = new Window(dimension);
     // Construct the window's title
     winPrjCode.setTitle("Source code overview");
     // Construct the window's content
-    winPrjCode.setContent(pdvRenderer.getCodeInfo(in));
+    winPrjCode.setContent(pdvRenderer.getCodeInfo(in + 2));
     // Display the window
     b.append(winPrjCode.render(in));
     b.append(sp(--in) + "</td>\n");
@@ -33,11 +35,11 @@ if (selectedProject.isValid()) {
     // Developers and mailing lists - overview window
     // =======================================================================
     b.append(sp(in++) + "<td class=\"pdv\" style=\"padding-left: 5px;\">\n");
-    Window winPrjDevs = new Window();
+    Window winPrjDevs = new Window(dimension);
     // Construct the window's title
     winPrjDevs.setTitle("Developers and mailing lists");
     // Construct the window's content
-    winPrjDevs.setContent(pdvRenderer.getDevsInfo(in));
+    winPrjDevs.setContent(pdvRenderer.getDevsInfo(in + 2));
     // Display the window
     b.append(winPrjDevs.render(in));
     b.append(sp(--in) + "</td>\n");
@@ -46,11 +48,11 @@ if (selectedProject.isValid()) {
     // Bugs - overview window
     // =======================================================================
     b.append(sp(in++) + "<td class=\"pdv\" style=\"padding-left: 5px;\">\n");
-    Window winPrjBugs = new Window();
+    Window winPrjBugs = new Window(dimension);
     // Construct the window's title
-    winPrjBugs.setTitle("Bugs overview\n");
+    winPrjBugs.setTitle("Bugs overview");
     // Construct the window's content
-    winPrjBugs.setContent(pdvRenderer.getBugsInfo(in));
+    winPrjBugs.setContent(pdvRenderer.getBugsInfo(in + 2));
     // Display the window
     b.append(winPrjBugs.render(in));
     b.append(sp(--in) + "</td>\n");
