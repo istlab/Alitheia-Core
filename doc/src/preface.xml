@@ -142,7 +142,10 @@ especially the Gettting involved section tends to be useful (http://www.sqo-oss.
 <sect1 id="pref:bugrep">
     <title>Bug Reporting</title>
     <para>
-SQO-OSS use
+SQO-OSS uses Bugzilla to track issues with the software. Developers,
+testers and users alike are encouraged to report issues with the
+system to https://bugs.sqo-oss.org so they can be tracked, triaged and
+fixed.
     </para>
 </sect1>
 </chapter>
