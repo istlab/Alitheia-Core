@@ -113,7 +113,13 @@ them to developers and other interested parties in a meaningful way.
     - Coding conventions?
     - Startrek conventions?
 
-The SQO-OSS project makes good use of Javadoc in order to document our system. Good documentation standards are particularly important given the complex relationship between our components and the underlying OSGi-based Equinox framework. In general the Javadoc style guidelines described at http://java.sun.com/j2se/javadoc/writingdoccomments/index.html  should be followed.
+The SQO-OSS project makes good use of Javadoc in order to document
+our system. Good documentation standards are particularly important
+given the complex relationship between our components and the
+underlying OSGi-based Equinox framework. In general the Javadoc
+style guidelines described at
+http://java.sun.com/j2se/javadoc/writingdoccomments/index.html
+should be followed.
 
     </para>
 </sect1>
