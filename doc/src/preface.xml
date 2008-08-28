@@ -112,6 +112,9 @@ them to developers and other interested parties in a meaningful way.
     What conventions are mean here?
     - Coding conventions?
     - Startrek conventions?
+
+The SQO-OSS project makes good use of Javadoc in order to document our system. Good documentation standards are particularly important given the complex relationship between our components and the underlying OSGi-based Equinox framework. In general the Javadoc style guidelines described at http://java.sun.com/j2se/javadoc/writingdoccomments/index.html  should be followed.
+
     </para>
 </sect1>
 <sect1 id="pref:info">
@@ -138,6 +141,8 @@ especially the Gettting involved section tends to be useful (http://www.sqo-oss.
 </sect1>
 <sect1 id="pref:bugrep">
     <title>Bug Reporting</title>
-    <para></para>
+    <para>
+SQO-OSS use
+    </para>
 </sect1>
 </chapter>
