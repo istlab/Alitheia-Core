@@ -119,7 +119,11 @@ The SQO-OSS project makes good use of Javadoc in order to document our system. G
 </sect1>
 <sect1 id="pref:info">
     <title>Further Information</title>
-    <para></para>
+    <para>
+Further information about the SQO-OSS project can be found via the
+website http://www.sqo-oss.org. There you also find links to mailinglist
+which is the preferred way of getting in contact with the developers.
+    </para>
 </sect1>
 <sect1 id="pref:involve">
     <title>Getting involved</title>
