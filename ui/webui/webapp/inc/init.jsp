@@ -90,6 +90,7 @@ String inputError = null;
 // Prepare the shared separator icon
 WinIcon icoSeparator = new WinIcon();
 icoSeparator.setImage("/img/icons/16x16/separator.png");
+icoSeparator.setClickable(false);
 
 // Prepare the shared close icon
 WinIcon icoCloseWin = new WinIcon();

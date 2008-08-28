@@ -32,11 +32,27 @@
  */
 package eu.sqooss.webui.widgets;
 
-public class TextInput extends AbstractIcon {
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+public class SelectInput extends AbstractIcon {
+    private SortedMap<String, String> options = new TreeMap<String, String>();
+    private String selected;
     private String text;
+
+    public void setSelected(String name) {
+        this.selected = name;
+    }
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public void addOption(String value, String name) {
+        if ((value != null)
+                && (name != null)
+                && (options.containsKey(name) == false))
+            options.put(name, value);
     }
 
     @Override
@@ -45,14 +61,24 @@ public class TextInput extends AbstractIcon {
         if (getStatus()) {
             b.append("<form class=\"icoTextInput\">");
             b.append(text != null ? "<b>" + text + "</b>" : "");
-            b.append("<input type=\"text\" class=\"icoTextInput\""
+            b.append("<select class=\"icoTextInput\""
                     + " name=\""
                     + ((getParameter() != null) ? getParameter() : "" )
                     + "\""
-                    + " value=\""
-                    + ((getValue() != null) ? getValue() : "" )
-                    +"\""
+                    + ((selected != null)
+                            ? " value=\"" + options.get(selected) +"\"" 
+                            : "" )
                     + "/>");
+            for (String name : options.keySet()) {
+                b.append("<option"
+                        + ((name.equals(selected)) ? " selected" : "")
+                        + " value=\"" + options.get(name) + "\">"
+                        + "" + name
+                        + "</option>");
+            }
+            b.append("</select>");
+            b.append("<input type=\"submit\" class=\"icoTextInput\""
+                    + " value=\"Add\">\n");
             b.append("</form>\n");
         }
         else {

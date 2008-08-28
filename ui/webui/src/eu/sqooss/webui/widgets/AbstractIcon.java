@@ -37,6 +37,7 @@ public abstract class AbstractIcon {
     private String parameter    = null;
     private String value        = null;
     private boolean status      = true;
+    private boolean clickable   = true;
 
     public String getPath() {
         return path;
@@ -70,5 +71,14 @@ public abstract class AbstractIcon {
         this.status = status;
     }
 
+    public boolean getClickable() {
+        return clickable;
+    }
+
+    public void setClickable(boolean clickable) {
+        this.clickable = clickable;
+    }
+
     public abstract String render();
+
 }

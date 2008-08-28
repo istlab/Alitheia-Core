@@ -78,7 +78,7 @@ public class TaggedVersion extends Version {
             /*
              * NOTE: The Timestamp has to multiplied with 1000, since
              * <code>eu.sqooss.impl.service.updater.SourceUpdater</code> does
-             * divide it on 1000 for an unknown reason.
+             * divide it on 1000 for some reason.
              */
             timestamp = new Date(wsVersion.getTimestamp() * 1000);
             tagNames = Arrays.asList(wsVersion.getTags());
@@ -94,6 +94,9 @@ public class TaggedVersion extends Version {
             projectId = version.getProjectId();
             committerId = version.getCommitterId();
             timestamp = version.getTimestamp();
+            // Forged tag name
+            tagNames = new ArrayList<String>();
+            tagNames.add(number.toString());
         }
         setTerrier(terrier);
     }
@@ -105,6 +108,16 @@ public class TaggedVersion extends Version {
      */
     public List<String> getTags() {
         return tagNames;
+    }
+
+    /**
+     * Returns the first tag in the list of tags that were created on this
+     * project version.
+     * 
+     * @return the first tag
+     */
+    public String getTag() {
+        return tagNames.get(0);
     }
 
 }

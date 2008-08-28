@@ -24,7 +24,10 @@ if (selectedProject.isValid()) {
                 request.getParameterValues("vvvvid"));
         }
 
-        // Check, if the user has just added a new version to the selection
+        /*
+         * Check, if the user has just added a new version number to the
+         * current version selection.
+         */
         if (request.getParameter("vvvnum") != null) {
             List<String> selVersions = new ArrayList<String>();
             if (settings.getVvvSelectedVersions() != null)
@@ -34,7 +37,7 @@ if (selectedProject.isValid()) {
             // Retrieve the added version (if any)
             String addVersion = request.getParameter("vvvnum");
             if ((addVersion != null)
-                && (selVersions.contains(addVersion) == false))
+                    && (selVersions.contains(addVersion) == false))
                 selVersions.add(addVersion);
 
             settings.setVvvSelectedVersions(
@@ -70,6 +73,19 @@ if (selectedProject.isValid()) {
         }
 
         /*
+         * Check if the user switched to tagged versions input only
+         */
+        if (request.getParameter("vvvito") != null) {
+            if (request.getParameter("vvvito").equals("true"))
+                settings.setVvvInputTaggedOnly(true);
+            else if (request.getParameter("vvvito").equals("false"))
+                settings.setVvvInputTaggedOnly(false);
+            // Force the numeric version input in case of "untagged" project
+            if (selectedProject.getTaggedVersions().size() < 1)
+                settings.setVvvInputTaggedOnly(false);
+        }
+
+        /*
          * Check, if the user has switched to another type for displaying
          * the metric evaluation results.
          */
@@ -93,11 +109,11 @@ if (selectedProject.isValid()) {
          * versions selection contains only one version.
          */
         if ((settings.getVvvSelectedVersions() != null)
-            && (settings.getVvvSelectedVersions().length == 1)
-            && (settings.getVvvChartType() == VersionVerboseView.LINE_CHART)) {
+                && (settings.getVvvSelectedVersions().length == 1)
+                && (settings.getVvvChartType() == VersionVerboseView.LINE_CHART)) {
             settings.setVvvChartType(VersionVerboseView.TABLE_CHART);
             if ((settings.getShowVvvInfoPanel() == false)
-                && (settings.getShowVvvControlPanel() == false)) {
+                    && (settings.getShowVvvControlPanel() == false)) {
                 settings.setShowVvvInfoPanel(true);
                 settings.setShowVvvControlPanel(true);
             }
@@ -109,8 +125,8 @@ if (selectedProject.isValid()) {
          * requested their visualisation.
          */ 
         if ((settings.getVvvChartType() == VersionVerboseView.LINE_CHART)
-            && (request.getParameter("showVvvControlPanel") == null)
-            && (request.getParameter("showVvvInfoPanel") == null)) {
+                && (request.getParameter("showVvvControlPanel") == null)
+                && (request.getParameter("showVvvInfoPanel") == null)) {
             settings.setShowVvvInfoPanel(false);
             settings.setShowVvvControlPanel(false);
         }
@@ -120,7 +136,7 @@ if (selectedProject.isValid()) {
          * version have been selected.
          */
         if ((settings.getVvvSelectedVersions() == null)
-            || (settings.getVvvSelectedMetrics() == null)) {
+                || (settings.getVvvSelectedMetrics() == null)) {
             settings.setShowVvvInfoPanel(true);
             settings.setShowVvvControlPanel(true);
         }
@@ -184,14 +200,55 @@ if (selectedProject.isValid()) {
                 icoCloseWin.setParameter(winVisible);
                 icoCloseWin.setValue("false");
                 winCommandScreen.addTitleIcon(icoCloseWin);
+
                 // Construct the windows's toolbar
-                TextInput icoVersionSelector = new TextInput();
-                icoVersionSelector.setParameter("vvvnum");
-                icoVersionSelector.setText("Add version:");
-                icoVersionSelector.setPath(request.getServletPath());
-                winCommandScreen.addToolIcon(icoVersionSelector);
+                WinIcon icoVersionRange = new WinIcon();
+                icoVersionRange.setPath(request.getServletPath());
+                icoVersionRange.setParameter("vvvito");
+                if (settings.getVvvInputTaggedOnly()) {
+                    icoVersionRange.setAlt(
+                            "Switch to a manual version number input.");
+                    icoVersionRange.setValue("false");
+                    icoVersionRange.setImage(
+                            "/img/icons/16x16/add_version.png");
+                }
+                else {
+                    icoVersionRange.setAlt(
+                            "Select from a list of tagged project versions.");
+                    icoVersionRange.setValue("true");
+                    icoVersionRange.setImage(
+                            "/img/icons/16x16/add_tagged.png");
+                    // Check, if this project has any tagged version
+                    if (selectedProject.getTaggedVersions().size() < 1) {
+                        icoVersionRange.setStatus(false);
+                    }
+                }
+                winCommandScreen.addToolIcon(icoVersionRange);
+
+                winCommandScreen.addToolIcon(icoSeparator);
+
+                if (settings.getVvvInputTaggedOnly()) {
+                    SelectInput icoVersionSelector = new SelectInput();
+                    icoVersionSelector.setPath(request.getServletPath());
+                    icoVersionSelector.setParameter("vvvnum");
+                    icoVersionSelector.setText("Tagged:");
+                    for (TaggedVersion tag : selectedProject.getTaggedVersions())
+                        icoVersionSelector.addOption(
+                                tag.getNumber().toString(),
+                                tag.getNumber().toString());
+                    winCommandScreen.addToolIcon(icoVersionSelector);
+                }
+                else {
+                    TextInput icoVersionSelector = new TextInput();
+                    icoVersionSelector.setPath(request.getServletPath());
+                    icoVersionSelector.setParameter("vvvnum");
+                    icoVersionSelector.setText("Add version:");
+                    winCommandScreen.addToolIcon(icoVersionSelector);
+                }
+
                 // Construct the window's content
                 winCommandScreen.setContent(verboseView.getControls(in + 2));
+
                 // Display the window
                 winCommandScreen.setTitle("Control center");
                 b.append(winCommandScreen.render(in));
@@ -309,7 +366,7 @@ if (selectedProject.isValid()) {
          * selected versions and metrics.
          */
         if ((settings.getVvvSelectedVersions() == null)
-            || (settings.getVvvSelectedMetrics() == null)) {
+                || (settings.getVvvSelectedMetrics() == null)) {
             icoTabular.setStatus(false);
             icoLineChart.setStatus(false);
         }

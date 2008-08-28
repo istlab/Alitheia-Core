@@ -71,6 +71,7 @@ public class SelectedSettings {
     private String[] vvvSelectedMetrics = null;
     private String[] vvvSelectedVersions = null;
     private int vvvChartType = VerboseFileView.TABLE_CHART;
+    private boolean vvvInputTaggedOnly = false;
 
 
     public Locale getUserLocale() {
@@ -273,6 +274,14 @@ public class SelectedSettings {
         this.vvvChartType = type;
     }
 
+    public boolean getVvvInputTaggedOnly() {
+        return vvvInputTaggedOnly;
+    }
+
+    public void setVvvInputTaggedOnly(boolean vvvInputTaggedOnly) {
+        this.vvvInputTaggedOnly = vvvInputTaggedOnly;
+    }
+
     // =======================================================================
     // Shared methods
     // =======================================================================
@@ -284,4 +293,5 @@ public class SelectedSettings {
     public void setTempFolder(File tempFolder) {
         this.tempFolder = tempFolder;
     }
+
 }

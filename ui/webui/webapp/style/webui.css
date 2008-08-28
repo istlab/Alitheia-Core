@@ -156,6 +156,15 @@ input.icoTextInput {
     vertical-align: top;
     width: 5em;
 }
+select.icoTextInput {
+    border: 1px inset black;
+    display: inline;
+    font-size: 11px;
+    margin-left: 5px;
+    padding: 0;
+    vertical-align: top;
+    width: 5em;
+}
 /* ===[ WINDOW CSS ]====================================================== */
 div.win {
     border: 1px solid #000000;

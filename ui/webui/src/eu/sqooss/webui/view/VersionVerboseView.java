@@ -478,10 +478,12 @@ public class VersionVerboseView extends ListView {
                     + "</tr>\n");
 
             // Version timestamp
+            SimpleDateFormat dateFormat = new SimpleDateFormat(
+                    "dd MMM yyyy", settings.getUserLocale());
             b.append(sp(in) + "<tr>"
                     + "<td><b>Commited</b></td>"
                     + "<td>"
-                    + selVersion.getTimestamp()
+                    + dateFormat.format(selVersion.getTimestamp())
                     + "</td>"
                     + "</tr>\n");
 
@@ -561,7 +563,7 @@ public class VersionVerboseView extends ListView {
             b.append(sp(--in) + "</select>\n");
             b.append(sp(--in) + "</div>\n");
             //----------------------------------------------------------------
-            // Display the list of tagged versions
+            // Display the list of selected versions
             //----------------------------------------------------------------
             b.append(sp(in++) + "<div class=\"vvvvid\">\n");
             b.append(sp(in) + "<div class=\"vvvtitle\">Versions</div>\n");
@@ -575,6 +577,7 @@ public class VersionVerboseView extends ListView {
                 b.append(sp(in) + "<option class=\"vvvvid\""
                         + " selected"
                         + " value=\"" + version + "\">"
+                        + (project.getTaggedVersions().getTaggedVersionByNumber(version) != null ? "* " : "") 
                         + "v." + version
                         + "</option>\n");
             }
