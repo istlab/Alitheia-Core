@@ -74,16 +74,45 @@ own quality is developing.
 </para>
 
 
-
-
 </sect1>
 <sect1 id="pref:hist">
     <title>A bried history of SQO-OSS</title>
-    <para></para>
+    <para>
+Quality Assessment in the Open Source world has traditionally
+been relying on peer to peer review techniques. Only slowly
+are more structured, machine-like approaches entering this field.
+KDE has, for quite some time run a simple static quality checker
+for some aspects of their code. The Englishbreakfastnetwork (EBN)
+, initially set up as checking mechanism for the completeness of
+API documentation in KDE has been extended with "Krazy" and later "Krazy2"
+in KDE now also checks for some commonly made mistakes, licensing and so on.
+
+The EBN prove to be a good way to get developers to fix these issues
+in the code as it makes it a manageable task that can be done
+relatively independent from creativity. It basically follows the "Don't
+want to deeply think about code? Here's something trivial to do in
+the meantime" approach. One issue of the EBN is scalability.
+
+The underlying assumption that developers who get served issues in their
+code will eventually fix those issues also prove true when Coverity
+started regular checking of KDE's code base with their proprietary
+checking mechanism. Most issues were found were fixed shortly after
+they have been reported.
+
+SQO-OSS attempts to poke into this same whole. Making issues visible
+and easy to digest to the developer to improve code quality. KDE in
+this contex is just one example. The SQO-OSS platform is built to
+support checking multiple projects over time, record the data and report
+them to developers and other interested parties in a meaningful way.
+    </para>
 </sect1>
 <sect1 id="pref:conventions">
     <title>Conventions</title>
-    <para></para>
+    <para>
+    What conventions are mean here?
+    - Coding conventions?
+    - Startrek conventions?
+    </para>
 </sect1>
 <sect1 id="pref:info">
     <title>Further Information</title>
@@ -91,7 +120,21 @@ own quality is developing.
 </sect1>
 <sect1 id="pref:involve">
     <title>Getting involved</title>
-    <para></para>
+    <para>
+The SQO-OSS project welcomes contributions. The easiest way for
+new contributors to SQO-OSS is probably to start writing plugins
+for the system. This way of scratching your own itch will allow
+contributors to extract what ever data they want to get out of
+their code. Writing plugins is easy and well documented. Those
+plugins can be written in Java or Python.
+To get started, best subscribe to the SQO-OSS plugins mailinglist
+(plugins@sqo-oss.org), to be found via
+http://www.sqo-oss.org/xwiki/bin/view/Community/Mailing+Lists.
+
+The SQO-OSS website (http://www.sqo-oss.org) has more information
+on how you can join the SQO-OSS project in a meaningful way,
+especially the Gettting involved section tends to be useful (http://www.sqo-oss.org/xwiki/bin/view/Development/Get+Involved).
+    </para>
 </sect1>
 <sect1 id="pref:bugrep">
     <title>Bug Reporting</title>
