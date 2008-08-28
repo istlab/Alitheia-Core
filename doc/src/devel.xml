@@ -17,27 +17,27 @@
       <title>Database Service</title>
       <para>
 
-          First, why a new DBService API? Because we realised that the 
+          First, why a new DBService API? Because we realised that the
           previous API had shortcomings regarding lazy-loading of collections
           with DAOs (e.g project.getVersions()), and there were scenarios that
           were not taken into account which made it impossible to work reliably
           with DAOs.
 
-          Also, we realised that the API was too complicated to use and 
-          required a deep understanding of Hibernate from users, which was 
-          sort of defeating the purpose of the DBService in the first place. 
-          (as an example, almost all the code using the DBService in Alitheia 
+          Also, we realised that the API was too complicated to use and
+          required a deep understanding of Hibernate from users, which was
+          sort of defeating the purpose of the DBService in the first place.
+          (as an example, almost all the code using the DBService in Alitheia
           was more or less wrong or incomplete)
 
           So the aim for the new API was to make work with the DAOs as intuitive
-          and simple as possible, and hiding all the Hibernate specifics. 
+          and simple as possible, and hiding all the Hibernate specifics.
           Basically, all the complicated Session and Transaction
           stuff is gone, as well as all the exception handling.
 
-          The good news is, most of the methods from the previous API are 
-          still there, such as findObjectById, findObjectByProperties, 
+          The good news is, most of the methods from the previous API are
+          still there, such as findObjectById, findObjectByProperties,
           addRecord/deleteRecord, and doHQL.
-          However, you will notice that all the overloads taking a Session 
+          However, you will notice that all the overloads taking a Session
           argument are gone, as you don't need to manipulate those anymore.
 
           On the other hand, four new methods have appeared :
@@ -47,17 +47,44 @@
 - rollbackDBSession()
 - isDBSessionActive()
 
-These methods are used to control the connection to the database and the DAOs. Basically, all the queries, DAO manipulation, and insertions/deletions have to happen within a database session, which you can see as a connection to the database with a transaction open.
-startDBSession() is the method which starts a new session, and commitDBSession() and rollbackDBSession() end it, either by committing the modifications in the database or just discarding them.
+These methods are used to control the connection to the database and the DAOs.
+Basically, all the queries, DAO manipulation, and insertions/deletions have to
+happen within a database session, which you can see as a connection to the
+database with a transaction open.
+startDBSession() is the method which starts a new session, and commitDBSession()
+and rollbackDBSession() end it, either by committing the modifications in the
+database or just discarding them.
 Finally, isDBSessionActive() tells you if a session is currently opened or not.
 
-Regarding the DAOs, they remain "connected" as long as the session is open, meaning they will load collections and properties and automatically persist changes you make to them (provided you commit the changes at the end of the session). This means no more need for updateRecord(), as modifying the DAO directly is now enough.
-Note that you can still access loaded DAOs even after the database session was closed, but lazy-loading won't work and modifications won't be saved, EVEN IF YOU OPEN A NEW DATABASE SESSION. In other words, DAOs belong to the session that created them only. (I might add a possibility to "reattach" them to another session later on).
+Regarding the DAOs, they remain "connected" as long as the session is open,
+meaning they will load collections and properties and automatically persist
+changes you make to them (provided you commit the changes at the end of the
+session). This means no more need for updateRecord(), as modifying the DAO
+directly is now enough.
+Note that you can still access loaded DAOs even after the database session was
+closed, but lazy-loading won't work and modifications won't be saved, EVEN IF
+YOU OPEN A NEW DATABASE SESSION. In other words, DAOs belong to the session that
+created them only. (I might add a possibility to "reattach" them to another
+session later on).
 
-Another important thing: the DBService is thread-safe. this means you can safely call all of its methods simultaneously from multiple threads without risks of race conditions or weird behaviour.
-In particular, each thread has its own session, so the modifications you make in your session aren't affecting sessions in other threads, especially as opening a session automatically starts a database transaction, meaning the database is locked for your thread only. (note: this means you should be VERY careful about always properly closing a session and keeping them as short as possible).
+Another important thing: the DBService is thread-safe. this means you can safely
+call all of its methods simultaneously from multiple threads without risks of
+race conditions or weird behaviour.
+In particular, each thread has its own session, so the modifications you make in
+your session aren't affecting sessions in other threads, especially as opening a
+session automatically starts a database transaction, meaning the database is
+locked for your thread only. (note: this means you should be VERY careful about
+always properly closing a session and keeping them as short as possible).
 
-Finally, exception handling has been completely removed for simplicity's sake. Instead, methods like addRecord or deleteRecord return a boolean value indicating success or not. For queries and the find methods, null/emptyCollection will be returned in case of an error. The important thing to know is that Hibernate requires a session to be closed as soon as an exception is thrown from its code, which means in some cases your session might be automatically closed during a method call. (if you need to make the difference between no result returned or an error that occured, you can use isDBSessionActive() )
+Finally, exception handling has been completely removed for simplicity's sake.
+Instead, methods like addRecord or deleteRecord return a boolean value
+indicating success or not. For queries and the find methods,
+null/emptyCollection will be returned in case of an error. The important thing
+to know is that Hibernate requires a session to be closed as soon as an
+exception is thrown from its code, which means in some cases your session might
+be automatically closed during a method call. (if you need to make the
+difference between no result returned or an error that occured, you can use
+isDBSessionActive() )
 
       </para>
     </sect2>
@@ -142,7 +169,8 @@ Finally, exception handling has been completely removed for simplicity's sake. I
                     </classname>
                     to
                     <classname>
-                      eu.sqooss.impl.metrics.$YOURMETRIC.$YOURMETRICImplementation
+
+eu.sqooss.impl.metrics.$YOURMETRIC.$YOURMETRICImplementation
                     </classname>
                   </para>
                 </listitem>
@@ -240,7 +268,7 @@ Finally, exception handling has been completely removed for simplicity's sake. I
       retrieve results from the database. All you need to do now is to
       implement the <methodname>run()</methodname> method in each
       metric job.
-      </para> 
+      </para>
     </sect2>
     <sect2>
     <title>Developing plugins</title>
@@ -296,8 +324,8 @@ Finally, exception handling has been completely removed for simplicity's sake. I
           <itemizedlist mark='opencircle'>
           <listitem>
             <para>
-                Plugins define one or more metrics. A metric operates on 
-                a project asset and produces results. 
+                Plugins define one or more metrics. A metric operates on
+                a project asset and produces results.
             </para>
           </listitem>
           <listitem>
@@ -311,14 +339,14 @@ Finally, exception handling has been completely removed for simplicity's sake. I
             <para>
                 The result of a metric calculation is stored in the database.
                 The Alitheia system provides a default storage facility for
-                metrics for each one of the evaluated project assets. The 
+                metrics for each one of the evaluated project assets. The
                 default storage facility can only store a single value for
                 each metric per evaluated resource type. However, plug-ins are
-                free to implement custom DB tables for intermediate or final 
+                free to implement custom DB tables for intermediate or final
                 results, provided that the final results are associated with
                 the project asset on which the metric operated.
             </para>
-          </listitem> 
+          </listitem>
         </itemizedlist>
       </para>
     </sect3>
@@ -352,8 +380,8 @@ Finally, exception handling has been completely removed for simplicity's sake. I
           <term><classname>ProjectVersion</classname></term>
           <listitem>
               <para>
-                  Per-version activations. Metrics are activated when the 
-                  a new project version is commited to the source code 
+                  Per-version activations. Metrics are activated when the
+                  a new project version is commited to the source code
                   repository.
               </para>
           </listitem>
@@ -364,7 +392,7 @@ Finally, exception handling has been completely removed for simplicity's sake. I
               <para>
                   Per-file activations. Metrics are activated when a project
                   file has been added, changed or removed from the source code
-                  repository. 
+                  repository.
               </para>
           </listitem>
       </varlistentry>
@@ -406,7 +434,7 @@ public interface AlitheiaPlugin {
     boolean install();
     boolean remove();
     String getUniqueKey();
-    List &lt;Class&lt;? extends DAObject&gt;&gt; getActivationTypes();    
+    List &lt;Class&lt;? extends DAObject&gt;&gt; getActivationTypes();
     List&lt;PluginConfiguration&gt; getConfigurationSchema();
 }
       </programlisting>
