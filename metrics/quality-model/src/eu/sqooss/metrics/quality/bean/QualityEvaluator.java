@@ -31,7 +31,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.webui.quality.bean;
+package eu.sqooss.metrics.quality.bean;
 
 import java.util.ArrayList;
 import java.util.List;

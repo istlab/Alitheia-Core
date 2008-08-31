@@ -31,14 +31,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.webui.quality.bean;
+package eu.sqooss.metrics.quality.bean;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import eu.sqooss.webui.quality.bean.Criterion;
-import eu.sqooss.webui.quality.bean.NumericCriterionElement;
+import eu.sqooss.metrics.quality.bean.Criterion;
+import eu.sqooss.metrics.quality.bean.NumericCriterionElement;
 
 /**
  * This is a Java Bean implementing a Profile-based Quality Model.<br>

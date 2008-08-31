@@ -31,75 +31,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-package eu.sqooss.webui.quality.bean;
-
-import java.util.Comparator;
+package eu.sqooss.metrics.quality.bean;
 
 /**
- * This enumeration type defines the four profiles as according to deliverable
- * (D7) of the SQO-OSS Documentation. <br/> It also provides comparing methods
- * in order to compare a profile against another.<br/> The profiles are ordered
- * from worst to best (and they should always remain in that order for the
- * comparing methods to work properly).
+ * This enumeration type defines the ways criteria are compared to profiles in
+ * order to find the preference between them.
  * 
  * @author <a href="mailto:sskalist@gmail.com">sskalist &lt sskalist@gmail.com
  *         &gt</a>
  * 
  */
-public enum SQOOSSProfiles implements Comparable<SQOOSSProfiles>,
-		Comparator<SQOOSSProfiles> {
-	/**
-     * The <code>Poor</code> profile.
-     */
-    Poor,
+public enum CriterionScale {
     /**
-     * The <code>Fair</code> profile.
+     * This scale is used when we want to declare that the less the value of the
+     * metric (or profile) is, the better.
      */
-    Fair,
+    LessIsBetter,
     /**
-     * The <code>Good</code> profile.
+     * This scale is used when we want to declare that the more the value of the
+     * metric (or profile) is, the better.
      */
-    Good,
+    MoreIsBetter,
     /**
-     * The <code>Excellent</code> profile.
+     * This scale is used when we want to declare that only a specific value of
+     * the metric (or profile) is better.
      */
-    Excellent;
-
-	/**
-	 * The number of profiles currently offered.
-	 */
-	private static int numberOfProfiles;
-
-	static {
-		numberOfProfiles = SQOOSSProfiles.values().length;
-	}
-
-	/**
-	 * Gets the number of profiles.
-	 * 
-	 * @return The number of profiles.
-	 */
-	public static int getNumberOfProfiles() {
-		return numberOfProfiles;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-	 */
-	/**
-	 * Compares two profiles. Returns a negative, zero or positive integer if
-	 * <code>first</code> is less, equal or greater than the
-	 * <code>second</code> respectively.
-	 * 
-	 * @return The ordinal difference of the <code>first</code> from the
-	 *         <code>second</code>.
-	 */
-	// @Override
-	public int compare(SQOOSSProfiles first, SQOOSSProfiles second) {
-		return first.compareTo(second);
-	}
-
+    ValueIsBetter;
 }
