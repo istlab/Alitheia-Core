@@ -48,7 +48,7 @@ import eu.sqooss.metrics.quality.bean.NumericCriterionElement;
  *         &gt</a>
  * 
  */
-public class QualityModel implements Serializable {
+public class QualityModelBean implements Serializable {
 
     /**
      * The (auto-generated) <code>serialVersionUID</code> for the
@@ -88,7 +88,7 @@ public class QualityModel implements Serializable {
      * 
      * @see #initialize(boolean)
      */
-    public QualityModel() {
+    public QualityModelBean() {
         initialize(false);
     }
 
