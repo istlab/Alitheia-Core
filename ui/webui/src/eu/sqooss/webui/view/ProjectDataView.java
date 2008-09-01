@@ -94,7 +94,11 @@ public class ProjectDataView extends ListView {
         // Project versions
         b.append(sp(in++) + "<tr>\n");
         b.append(sp(in) + "<td><b>Versions:</b></td>"
-                + "<td>" + project.getVersionsCount() + "</td>\n");
+                + "<td>"
+                + "<a href=\"/versions.jsp\">"
+                + project.getVersionsCount()
+                + "</a>"
+                + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
 
         // First and last version timestamps
@@ -117,7 +121,11 @@ public class ProjectDataView extends ListView {
         Collection<TaggedVersion> tagged = project.getTaggedVersions();
         b.append(sp(in++) + "<tr>\n");
         b.append(sp(in) + "<td><b>Tagged:</b></td>"
-                + "<td>" + tagged.size() + "</td>\n");
+                + "<td>"
+                + "<a href=\"/versions.jsp?vvvito=true\">"
+                + tagged.size()
+                + "</a>"
+                + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
 
         // Files in the latest version
@@ -126,7 +134,11 @@ public class ProjectDataView extends ListView {
         if (filesCount == null)
             filesCount = new Long(0);
         b.append(sp(in) + "<td><b>Files:</b></td>"
-                + "<td>" + filesCount + "</td>\n");
+                + "<td>"
+                + "<a href=\"/files.jsp\">"
+                + filesCount
+                + "</a>"
+                + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
 
         //====================================================================
