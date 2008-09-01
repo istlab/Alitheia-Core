@@ -61,7 +61,6 @@ import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.webui.datatype.TaggedVersion;
 import eu.sqooss.webui.datatype.Version;
-import eu.sqooss.webui.widgets.TextInput;
 
 /**
  * The class <code>VerboseFileView</code> renders an HTML sequence that
@@ -161,7 +160,7 @@ public class VersionVerboseView extends ListView {
 
     /**
      * Sets the mnemonic name of the metric that will be highlighted in the
-     * generated results display.
+     * generated Results panel.
      * 
      * @param mnemonic the metric's mnemonic name
      */
@@ -409,10 +408,11 @@ public class VersionVerboseView extends ListView {
 
         // Load the selected versions' data
         attachSelectedVersions();
-        // TODO: let the user switch between the selected versions
+
         Version selVersion = null;
-        if (selectedVersions.isEmpty() == false)
-            selVersion = project.getVersionByNumber(selectedVersions.get(0));
+        if (settings.getVvvHighlightedVersion() != null)
+            selVersion = project.getVersionByNumber(
+                    settings.getVvvHighlightedVersion());
 
         if (project.getVersionsCount() < 1) {
             b.append(sp(in)
@@ -456,8 +456,9 @@ public class VersionVerboseView extends ListView {
                         + "</td>"
                         + "</tr>\n");
 
-                Developer commiter = project.getDevelopers()
-                .getDeveloperById(version.getCommitterId());
+                Developer commiter =
+                    project.getDevelopers().getDeveloperById(
+                            version.getCommitterId());
                 b.append(sp(in) + "<tr>"
                         + "<td><b>Commiter</b></td>"
                         + "<td>"
@@ -473,7 +474,7 @@ public class VersionVerboseView extends ListView {
 
             // Version number
             b.append(sp(in) + "<tr>"
-                    + "<td><b>Name</b></td>"
+                    + "<td><b>Version</b></td>"
                     + "<td>" + selVersion.getNumber() + "</td>"
                     + "</tr>\n");
 
@@ -488,18 +489,20 @@ public class VersionVerboseView extends ListView {
                     + "</tr>\n");
 
             // Version commiter
-            Developer commiter = project.getDevelopers()
-            .getDeveloperById(selVersion.getCommitterId());
+            Developer commiter =
+                project.getDevelopers().getDeveloperById(
+                        selVersion.getCommitterId());
             b.append(sp(in) + "<tr>"
                     + "<td><b>Commiter</b></td>"
                     + "<td>"
                     + ((commiter != null) ? commiter.getUsername() : "N/A")
                     + "</td>"
                     + "</tr>\n");
-            
+
             // Version tag
-            TaggedVersion tag = project.getTaggedVersions()
-            .getTaggedVersionById(selVersion.getId());
+            TaggedVersion tag =
+                project.getTaggedVersions().getTaggedVersionById(
+                        selVersion.getId());
             if (tag != null) {
                 b.append(sp(in) + "<tr>"
                         + "<td><b>Tag name</b></td>"
@@ -585,7 +588,7 @@ public class VersionVerboseView extends ListView {
 
             b.append(sp(--in) + "</div>\n");
             b.append(sp(in++) + "<div style=\"position: relative; clear: both; padding-top: 5px; border: 0; text-align: center;\">\n");
-            b.append(sp(in)+ "<input type=\"submit\" value=\"Apply\">\n");
+            b.append(sp(in) + "<input type=\"submit\" value=\"Apply\">\n");
             b.append(sp(--in)+ "</div>\n");
             b.append(sp(--in) + "</form>\n");
         }

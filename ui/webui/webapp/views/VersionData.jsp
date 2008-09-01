@@ -42,9 +42,28 @@ if (selectedProject.isValid()) {
 
             settings.setVvvSelectedVersions(
                 selVersions.toArray(new String[selVersions.size()]));
+            settings.setVvvHighlightedVersion(strToLong(addVersion));
         }
 
-        // Retrieve the list of selected version metrics (if any)
+        /*
+         * Check, if the user has requested to see information about a
+         * specific project version.
+         */
+        if (request.getParameter("vvvshow") != null) {
+            // Retrieve the requested version's number
+            Long showVersion = strToLong(request.getParameter("vvvshow"));
+            Long maxVersion = selectedProject.getVersionsCount();
+            if ((showVersion != null)
+                    && (0 < showVersion)
+                    && (showVersion <= maxVersion))
+                settings.setVvvHighlightedVersion(showVersion);
+            else
+                settings.setVvvHighlightedVersion(null);
+        }
+
+        /*
+         * Retrieve the list of selected version metrics (if any).
+         */
         if (request.getParameter("vvvmid") != null) {
             settings.setVvvSelectedMetrics(
                 request.getParameterValues("vvvmid"));
@@ -184,10 +203,19 @@ if (selectedProject.isValid()) {
                 icoCloseWin.setParameter(winVisible);
                 icoCloseWin.setValue("false");
                 winInfoScreen.addTitleIcon(icoCloseWin);
+
+                // Construct the windows's toolbar
+                TextInput icoShowVersion = new TextInput();
+                icoShowVersion.setPath(request.getServletPath());
+                icoShowVersion.setParameter("vvvshow");
+                icoShowVersion.setText("Show version:");
+                winInfoScreen.addToolIcon(icoShowVersion);
+
                 // Construct the window's content
                 winInfoScreen.setContent(verboseView.getInfo(in + 2));
+
                 // Display the window
-                winInfoScreen.setTitle("Metadata");
+                winInfoScreen.setTitle("Information");
                 b.append(winInfoScreen.render(in));
             }
             // =======================================================

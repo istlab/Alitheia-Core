@@ -39,11 +39,13 @@ import java.util.Locale;
 import eu.sqooss.webui.view.VerboseFileView;
 
 public class SelectedSettings {
+    // Common settings
     private Locale userLocale = Locale.US;
     private File tempFolder = null;
 
     private boolean showAllMetrics = false;
     private boolean showDevelopers = true;
+
     // ProjectView related
     private boolean showPVMetadata = true;
     private boolean showPVVersions = true;
@@ -51,6 +53,7 @@ public class SelectedSettings {
     private boolean showPVFileStat = true;
     private boolean showPVMetrics = true;
     private boolean showFileResultsOverview = false;
+
     // FileView related
     private boolean showFVDirBrowser = true;
     private boolean showFVFolderList = true;
@@ -70,6 +73,7 @@ public class SelectedSettings {
     private boolean showVvvResultPanel = true;
     private String[] vvvSelectedMetrics = null;
     private String[] vvvSelectedVersions = null;
+    private Long vvvHighlightedVersion = null;
     private int vvvChartType = VerboseFileView.TABLE_CHART;
     private boolean vvvInputTaggedOnly = false;
 
@@ -264,6 +268,14 @@ public class SelectedSettings {
 
     public void setVvvSelectedVersions(String[] versions) {
         this.vvvSelectedVersions = versions;
+    }
+
+    public Long getVvvHighlightedVersion() {
+        return vvvHighlightedVersion;
+    }
+
+    public void setVvvHighlightedVersion(Long vvvHighlightedVersion) {
+        this.vvvHighlightedVersion = vvvHighlightedVersion;
     }
 
     public int getVvvChartType() {
