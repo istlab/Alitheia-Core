@@ -3,7 +3,7 @@
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
 //============================================================================
-// List all developers in the selected project
+// Lets the user select and display developer based evaluation results
 //============================================================================
 if (selectedProject.isValid()) {
 %>          <div id="developerslist">
@@ -144,25 +144,7 @@ if (selectedProject.isValid()) {
 // Let the user choose a project, if none was selected
 //============================================================================
 else {
-%>          <div id="projectslist">
-<%
-    // Check if the user has selected a project
-    if (request.getParameter("pid") != null)
-        ProjectsListView.setCurrentProject(
-            strToLong(request.getParameter("pid")));
-    // Retrieve the list of projects from the connected SQO-OSS framework
-    ProjectsListView.retrieveData(terrier);
-    if (ProjectsListView.hasProjects()) {
-        ProjectsListView.setServletPath(request.getServletPath());
-        Window winPrjList = new Window();
-        winPrjList.setTitle("Evaluated projects");
-        winPrjList.setContent(ProjectsListView.getHtml(in + 2));
-        out.print(winPrjList.render(in));
-    }
-    // No evaluated projects found
-    else {
-        out.print(sp(in) + Functions.error(
-                "Unable to find any evaluated projects!"));
-    }
+%><%@ include file="/inc/SelectProject.jsp"
+%><%
 }
-%>          </div>
+%>                </div>

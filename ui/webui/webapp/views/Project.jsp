@@ -3,6 +3,12 @@
 %><%@ page import="eu.sqooss.webui.view.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
+//============================================================================
+//
+// NOTE: THIS FILE IS DETACHED AND ABANDONED, BUT WILL BE KEPT FOR A WHILE AS
+// A REFERENCE, PRIOR BEING REMOVED COMPLETELY.
+//
+//============================================================================
 if (selectedProject.isValid()) {
 %>                <div id="selectedproject">
                   <table>
