@@ -7,7 +7,7 @@ in = 6;
 if (terrier.isConnected()) {
     title = "Project developers";
 %><%@ include file="/inc/header.jsp"
-%><%@ include file="/views/DevelopersList.jsp"
+%><%@ include file="/views/DevelopersData.jsp"
 %><%
 }
 // Can not establish a connection with the SQO-OSS framework
