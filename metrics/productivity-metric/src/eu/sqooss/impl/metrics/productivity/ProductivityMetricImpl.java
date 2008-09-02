@@ -53,6 +53,7 @@ import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
 
 public class ProductivityMetricImpl extends AbstractMetric implements
@@ -99,6 +100,32 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         }
         
         result &= super.remove();
+        return result;
+    }
+    
+    public boolean cleanup(DAObject sp) {
+        boolean result = true;
+        
+        if (!(sp instanceof StoredProject)) {
+            log.warn("We only support cleaning up per stored project for now");
+            return false;
+        }
+        
+        Map<String,Object> params = new HashMap<String,Object>();
+        List<ProjectVersion> pvs = ((StoredProject)sp).getProjectVersions();
+        
+        for(ProjectVersion pv : pvs) {
+            params.put("projectVersion", pv);
+            List<ProductivityActions> pas = 
+                db.findObjectsByProperties(ProductivityActions.class, params);
+            if (!pas.isEmpty()) {
+                for (ProductivityActions pa : pas) {
+                    result &= db.deleteRecord(pa);
+                }
+            }
+            params.clear();
+        }
+        
         return result;
     }
 

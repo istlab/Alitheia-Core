@@ -37,6 +37,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.clmt.cache.Cache;
@@ -63,11 +65,13 @@ import eu.sqooss.metrics.clmt.db.CodeConstructType;
 import eu.sqooss.metrics.clmt.db.CodeUnitMeasurement;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.FDSService;
 
 public class CLMTImplementation extends AbstractMetric implements CLMT {
@@ -118,6 +122,35 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     "WMC",
                     MetricType.Type.SOURCE_CODE);
         }
+        return result;
+    }
+    
+    public boolean cleanup(DAObject o) {
+        boolean result = true;
+        
+        if (!(o instanceof StoredProject)) {
+            log.warn("We only support cleaning up per stored project for now");
+            return false;
+        }
+        
+        Map<String,Object> params = new HashMap<String,Object>();
+        List<ProjectVersion> pvs = ((StoredProject)o).getProjectVersions();
+        
+        for (ProjectVersion pv : pvs) {
+            Set<ProjectFile> pfs = pv.getVersionFiles();
+            for (ProjectFile pf : pfs) {
+                params.put("projectFile", pf);
+                List<CodeUnitMeasurement> cms = db.findObjectsByProperties(
+                        CodeUnitMeasurement.class, params);
+                if (!cms.isEmpty()) {
+                    for (CodeUnitMeasurement cm : cms) {
+                        result &= db.deleteRecord(cm);
+                    }
+                }
+                params.clear();
+            }
+        }
+
         return result;
     }
     

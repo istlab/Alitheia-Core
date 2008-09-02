@@ -40,6 +40,7 @@ import java.util.Set;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.StoredProject;
 
 /**
  * This interface defines the common metric plug-in related functionality.
@@ -222,6 +223,14 @@ public interface AlitheiaPlugin {
      */
     boolean remove();
 
+    /**
+     * Clean results on project removal
+     * 
+     * @param sp The DAO to be used as reference when cleaning up results.
+     * @return True, if the cleanup succeeded, false otherwise
+     */
+    boolean cleanup(DAObject sp);
+    
     /**
      * Return a string that is unique for this plugin, used for indexing this
      * plugin to the system database

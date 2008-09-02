@@ -480,6 +480,17 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
         return db.deleteRecord(p);
     }
+    
+    /**
+     * Default (empty) implementation of the clean up method. What to 
+     * do with the provided DAO is left to sub-classes to decide.
+     * {@inheritDoc}
+     */
+    public boolean cleanup(DAObject sp) {
+        log.warn("Empty cleanup method for plug-in " 
+                + this.getClass().getName());
+        return true; 
+    }
 
     /**{@inheritDoc}}*/
     public boolean update() {
