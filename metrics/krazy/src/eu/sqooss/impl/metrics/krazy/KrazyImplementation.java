@@ -106,8 +106,6 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
     } ;
     
     public void run(ProjectFile pf) {
-        log.info("Going Krazy on file <" + pf.getName() + ">");
-
         // Don't support directories
         if (pf.getIsDirectory()) {
             return;
