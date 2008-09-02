@@ -148,13 +148,9 @@ public class FileTypeMatcher {
      * (see getFileExtension() above).
      * 
      * @param path Path to get file type from.
-     * @return FileType or null if none could be determined.
+     * @return FileType or TXT if none could be determined.
      */
     public static FileType getFileType(String path) {
-        if (null == path) {
-            return null;
-        }
-        
         String ext = getFileExtension(path);
         FileType ft = getFileTypeFromExt(ext);
         if (null != ft) {
@@ -166,7 +162,7 @@ public class FileTypeMatcher {
             return FileType.TRANS;
         }
 
-        return null;
+        return FileType.TXT;
     }
 
     /**
