@@ -3,6 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2008 by Adriaan de Groot <groot@kde.org>
  *
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +32,7 @@
  *
  */
 
-package eu.sqooss.impl.metrics.mde;
+package eu.sqooss.impl.metrics.krazy;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,9 +42,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.metrics.mde.MDE;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
@@ -55,8 +56,8 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
 
 
-public class MDEImplementation extends AbstractMetric implements MDE {
-    public MDEImplementation(BundleContext bc) {
+public class KrazyImplementation extends AbstractMetric implements ProjectFileMetric  {
+    public KrazyImplementation(BundleContext bc) {
         super(bc);        
     }
 
@@ -66,7 +67,7 @@ public class MDEImplementation extends AbstractMetric implements MDE {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    "SKEL",
+                    "Krazy.qsn",
                     this.getDescription(),
                     MetricType.Type.SOURCE_CODE);
         }
@@ -90,22 +91,10 @@ public class MDEImplementation extends AbstractMetric implements MDE {
     }
 
     public void run(ProjectFile a) {
-        MDEJob w = null;
-        try {
-            w = new MDEJob(this);
-
-            ServiceReference serviceRef = null;
-            serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-            Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
-            s.enqueue(w);
-            w.waitForFinished();
-        } catch (Exception e) {
-            log.error("Could not schedule "+ w.getClass().getName() + 
-                    " for project file: " + ((ProjectFile)a).getFileName());
-        }
+        // TODO Auto-generated method stub
     }
 
-    public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
+    public List<ResultEntry> getResult(ProjectFile a, Metric m) {
         // TODO Auto-generated method stub
         return null;
     }
