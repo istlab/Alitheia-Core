@@ -1,0 +1,45 @@
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+<body>
+
+    <h1>FileType Handling</h1>
+
+    <p>The FileType class is a static utility class that maps file names
+    and path names to (faux) MIME types, mostly by filename extension checking.</p>
+
+    <div class="example">
+
+        <h3>Example</h3>
+
+        <p>When the system startups, it should be <span concordion:assertEquals="status()">connected</span>
+        to the database.</p>
+
+
+        <table concordion:verifyRows="#file : getFiles()">
+          <tr>
+            <th concordion:assertEquals="#file.name">File Name</th>
+            <th concordion:assertEquals="#file.extension">Extension</th>
+            <th concordion:assertEquals="#file.type">Type</th>
+          </tr>
+          <tr><td>foo.c</td><td>.c</td><td>SRC</td></tr>
+          <tr><td>foo.h</td><td>.h</td><td>SRC</td></tr>
+          <tr><td>foo.moose</td><td>.moose</td><td>(null)</td></tr>
+          <tr><td>foo.tar.gz</td><td>.gz</td><td>(null)</td></tr>
+          <tr><td>booger</td><td>(null)</td><td>(null)</td></tr>
+        </table>
+    </div>
+
+
+    <h2>Further Details</h2>
+
+    <!--
+    Questions raised by this specification. Each one links to another finer grained active specification.
+    -->
+    <ul>
+        <li><a href="FileType.html">Another active specification?</a></li>
+        <li><a href="FileType.html">What about this specific case?</a></li>
+        <li><a href="FileType.html">What if it throws an exception?</a></li>
+    </ul>
+
+
+</body>
+</html>
