@@ -358,11 +358,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
 
     /**
-     * Add a supported metric description to the database.
+     * Add a supported metric description to the database. The mnemonic of
+     * the metric must be unique -- this is enforced by the code. It is 
+     * therefore a good idea to namespace your metric mnemonics in some way.
      *
      * @param desc String description of the metric
+     * @param mnemonic Mnemonic string name of the metric
      * @param type The metric type of the supported metric
-     * @return True if the operation succeeds, false otherwise (i.e. duplicates etc)
+     * @return True if the operation succeeds, false otherwise (e.g. duplicate
+     *         mnemonic or bad metric type)
      */
     protected final boolean addSupportedMetrics(String desc, String mnemonic,
             MetricType.Type type) {
