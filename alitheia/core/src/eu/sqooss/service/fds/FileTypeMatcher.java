@@ -46,10 +46,22 @@ public class FileTypeMatcher {
         return instance;
     }
     
+    /**
+     * File types enumeration. These are the distinguished
+     * types of files that Alitheia works with. The list
+     * is clearly not exhaustive nor complete; some file types
+     * could easily be put in one or the other category (e.g.
+     * XML docbook) and some obvious file types are missing.
+     */
     public enum FileType {
-        SRC, BIN, DOC, XML, TXT, TRANS
+        SRC, ///< Source files 
+        BIN, ///< Binary formats
+        DOC, ///< Documentation files
+        XML, ///< XML files
+        TXT, ///< Generic text files
+        TRANS ///< Translation files
     }
-
+    
     private static String[] srcMimes = { ".c", ".java", ".h", ".py", ".cpp",
             ".C", ".sh", ".rb", ".el", ".m4", ".cs", ".xsl", ".vb", ".patch", 
             "Makefile", ".hpp", ".pl", ".js", ".sql", ".css", ".jsp", ".bat", 
@@ -58,7 +70,7 @@ public class FileTypeMatcher {
             ".pas", ".cgi"};
 
     private static String[] docMimes = { ".txt", ".sgml", ".html", ".tex",
-            ".htm", ".bib" };
+            ".htm", ".bib", ".docbook" };
 
     private static String[] xmlFormats = { ".xml", ".svn", ".argo", ".graffle",
             ".vcproj", ".csproj", ".rdf", ".wsdl", ".pom" };
@@ -81,39 +93,102 @@ public class FileTypeMatcher {
     		"es_AR|es_BO|es_CL|es_CO|es_CR|es_DO|es_EC|es_SV|es_GT|es_HN|" +
     		"es_MX|es_NI|es_PA|es_PY|es_PE|es_PR|es_UY|es_VE|tr_TR|uk_UA";
 
+    /**
+     * Return the file extension of path, or null if no file extension can
+     * be found. This works on whole paths, not just filenames. The
+     * last component of path is assumed to be a filename component
+     * (e.g. /foo/bar/baz.cpp shouldn't be a directory, and will 
+     * return "cpp" as extension).
+     * 
+     * @param path File path to extract the extension for
+     * @return Extension (without the trailing .) or null if none
+     */
+    public static String getFileExtension(String path) {
+        if (null == path) {
+            return null;
+        }
+        // We use \Q and \E to quote the separator char, as it might
+        // be a character that is interpreted by the RE engine. And
+        // we can't just use \ to escape it, since it might be a
+        // character where \x is interpreted as well.
+        String pathSeparatorRE = "\\Q" + java.io.File.separatorChar + "\\E";
+        String extensionSeparatorRE = "\\.";
+        // Keep trailing components
+        String[] components = path.split(pathSeparatorRE,-1);
+        if (components[components.length].length() > 0) {
+            components = components[components.length]
+                    .split(extensionSeparatorRE,-1);
+            if (components[components.length].length() > 0) {
+                String extension = "." + components[components.length];
+                if (path.endsWith(extension)) {
+                    return extension;
+                } else {
+                    // This shouldn't be possible
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Get the (presumed) filetype of the path, based on file
+     * extensions and some heuristics. Operates on full pathnames
+     * (see getFileExtension() above).
+     * 
+     * @param path Path to get file type from.
+     * @return FileType or null if none could be determined.
+     */
     public static FileType getFileType(String path) {
-        for (String s : srcMimes)
-            if (path.endsWith(s))
-                return FileType.SRC;
-
-        for (String s : docMimes)
-            if (path.endsWith(s))
-                return FileType.DOC;
-
-        for (String s : xmlFormats)
-            if (path.endsWith(s))
-                return FileType.XML;
-
-        for (String s : binMimes)
-            if (path.endsWith(s))
-                return FileType.BIN;
-
-        for (String s : transMimes)
-            if (path.endsWith(s))
-                return FileType.TRANS;
-
+        if (null == path) {
+            return null;
+        }
+        
+        String ext = getFileExtension(path);
+        FileType ft = getFileTypeFromExt(ext);
+        if (null != ft) {
+            return ft;
+        }
+        
         if (java.util.regex.Pattern.matches("(?i)^.*(" 
                 + locales + ")\\.properties.*$", path)) {
             return FileType.TRANS;
         }
 
-        return FileType.TXT;
+        return null;
     }
 
+    /**
+     * Given a filename extension ext, check the known lists
+     * of file extensions for an exact match.
+     * 
+     * @param ext File extension to check for
+     * @return A FileType or null if no match is found
+     */
     public static FileType getFileTypeFromExt(String ext) {
+        for (String s : srcMimes)
+            if (s.equals(ext))
+                return FileType.SRC;
 
+        for (String s : docMimes)
+            if (s.equals(ext))
+                return FileType.DOC;
+
+        for (String s : xmlFormats)
+            if (s.equals(ext))
+                return FileType.XML;
+
+        for (String s : binMimes)
+            if (s.equals(ext))
+                return FileType.BIN;
+
+        for (String s : transMimes)
+            if (s.equals(ext))
+                return FileType.TRANS;
         return null;
-
     }
 }
 
