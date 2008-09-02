@@ -101,18 +101,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
         filter.put("metric", m);
         List<ProjectFileMeasurement> measurement =
             db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
-
-        // Convert the measurement into a result object
-        if (! measurement.isEmpty()) {
-            // There is only one measurement per metric and project file
-            Integer value = Integer.parseInt(measurement.get(0).getResult());
-            // ... and therefore only one result entry
-            ResultEntry entry = 
-                new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
-            results.add(entry);
-            return results;
-        }
-        return null;
+    	return convertMeasurements(measurement,m.getMnemonic());
     }
 
     public void run(ProjectFile pf) {

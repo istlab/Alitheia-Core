@@ -58,6 +58,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
@@ -247,6 +248,37 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
         return r;
     }
+
+     /**
+      * Convert a list of ProjectFileMeasurements to the (less-well-typed) list
+      * of ResultEntries; this just extracts the single integer value stored as the
+      * result in each ProjectFileMeasurement. The metric mnemonic may be provided
+      * as a label for the measurement.
+      * 
+      * @param l List of measurements to convert
+      * @param label Metric mnemonic label
+      * @return null if there are no measurements; otherwise a list of ResultEntries
+      */
+     static public List<ResultEntry> convertMeasurements(List<ProjectFileMeasurement> l,String label) {
+    	 // "No result" is null, not an empty list of results
+    	 if (null == l) {
+    		 return null;
+    	 }
+    	 if (l.isEmpty()) {
+    		 return null;
+    	 }
+
+    	 List<ResultEntry> results = new ArrayList<ResultEntry>();
+    	 for(ProjectFileMeasurement r : l) {
+    		 // There is only one measurement per metric and project file
+    		 Integer value = Integer.parseInt(r.getResult());
+    		 // ... and therefore only one result entry
+    		 ResultEntry entry = 
+    			 new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, label);
+    		 results.add(entry);
+    	 }
+    	 return results;
+     }
 
     /**
      * Call the appropriate getResult() method according to

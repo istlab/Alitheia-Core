@@ -172,18 +172,7 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
     	properties.put("projectFile",a);
     	List<ProjectFileMeasurement> l = 
     		db.findObjectsByProperties(ProjectFileMeasurement.class,properties);
-    	List<ResultEntry> results = new ArrayList<ResultEntry>();
-        if (! l.isEmpty()) {
-            // There is only one measurement per metric and project file
-            Integer value = Integer.parseInt(l.get(0).getResult());
-            // ... and therefore only one result entry
-            ResultEntry entry = 
-                new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
-            results.add(entry);
-            return results;
-        }
-        return null;
-   	
+    	return convertMeasurements(l,m.getMnemonic());
     }
 }
 
