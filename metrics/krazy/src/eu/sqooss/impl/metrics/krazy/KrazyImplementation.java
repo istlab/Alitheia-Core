@@ -60,27 +60,23 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
     public KrazyImplementation(BundleContext bc) {
         super(bc);        
     }
-
-    private List<Class<? extends DAObject>> activationTypes;  
     
     public boolean install() {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
+                    "QString::null detection",
                     "Krazy.qsn",
-                    this.getDescription(),
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
     }
 
     public boolean remove() {
-
-        return false;
+        return super.remove();
     }
 
     public boolean update() {
-
         return remove() && install(); 
     }
 
