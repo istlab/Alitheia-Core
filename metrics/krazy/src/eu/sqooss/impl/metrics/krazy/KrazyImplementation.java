@@ -34,9 +34,16 @@
 
 package eu.sqooss.impl.metrics.krazy;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -51,15 +58,27 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
 
 
 public class KrazyImplementation extends AbstractMetric implements ProjectFileMetric  {
+    private FDSService fds;
+
+    private static final String KrazyQString_null = "Krazy.qsn";
+    
     public KrazyImplementation(BundleContext bc) {
         super(bc);        
+        super.addActivationType(ProjectFile.class);
+        super.addMetricActivationType("Krazy.qsn", ProjectFile.class);
+
+        ServiceReference serviceRef = null;
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();    
     }
     
     public boolean install() {
@@ -67,7 +86,7 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         if (result) {
             result &= super.addSupportedMetrics(
                     "QString::null detection",
-                    "Krazy.qsn",
+                    KrazyQString_null,
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
@@ -86,6 +105,12 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
     } ;
     
     public void run(ProjectFile pf) {
+    	// Don't support directories
+        if (pf.getIsDirectory()) {
+            return;
+        }
+
+        // Check for a usable filetype
         boolean found = false;
         if (FileTypeMatcher.getFileType(pf.getName())
                 .equals(FileTypeMatcher.FileType.SRC)) {
@@ -103,6 +128,36 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         // So here we know we are dealing with a C++ source file
         // (for limited values of "know", and .h files may still be
         // C files in reality).
+        log.debug("Going Krazy on file <" + pf.getName() + ">");
+        
+        InputStream in = fds.getFileContents(pf);
+        if (in == null) {
+            return;
+        }
+        // Measure the number of lines in the project file
+        LineNumberReader lnr = 
+            new LineNumberReader(new InputStreamReader(in));
+        int CountQString_null = 0;
+        Pattern MatchQString_null = Pattern.compile("QString *:: *null"); 
+        String line = null;
+        try {
+	        while ((line = lnr.readLine()) != null) {
+	        	Matcher m = MatchQString_null.matcher(line);
+	        	if (m.find()) {
+	        		CountQString_null++;
+	        	}
+	        }
+        } catch (IOException e) {
+        	log.warn("Could not run Krazy on <"+pf.getName()+">",e);
+        }
+        // Store the results
+        Metric metric = Metric.getMetricByMnemonic(KrazyQString_null);
+        ProjectFileMeasurement r = new ProjectFileMeasurement();
+        r.setMetric(metric);
+        r.setProjectFile(pf);
+        r.setWhenRun(new Timestamp(System.currentTimeMillis()));
+        r.setResult(String.valueOf(CountQString_null));
+        markEvaluation(metric, pf.getProjectVersion().getProject());
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
