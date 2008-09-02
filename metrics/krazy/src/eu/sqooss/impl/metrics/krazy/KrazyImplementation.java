@@ -52,6 +52,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.fds.FileTypeMatcher;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
 
@@ -80,24 +81,33 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         return remove() && install(); 
     }
 
-    public Result getResult(ProjectFile a) {
-        Result result = null;
-        
-        return result;
-    }
-
-    public void run(ProjectFile a) {
-        // TODO Auto-generated method stub
+    private static String CPPExtensions[] = {
+        ".h",".cc",".cpp",".C"
+    } ;
+    
+    public void run(ProjectFile pf) {
+        boolean found = false;
+        if (FileTypeMatcher.getFileType(pf.getName())
+                .equals(FileTypeMatcher.FileType.SRC)) {
+            String extension = FileTypeMatcher.getFileExtension(pf.getFileName());
+            for(String s : CPPExtensions) {
+                if (s.equals(extension)) {
+                    found=true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            return;
+        }
+        // So here we know we are dealing with a C++ source file
+        // (for limited values of "know", and .h files may still be
+        // C files in reality).
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    public void run(ProjectVersion v) {
-        // TODO Auto-generated method stub
-        
     }
 }
 
