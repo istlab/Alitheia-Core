@@ -70,6 +70,13 @@ import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
 
 final class SourceUpdater extends Job {
+    
+    private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.handlecopies";
+    
+    private enum HandleCopies {
+        TRUNK, BRANCHES, TAGS
+    }
+    
     private UpdaterServiceImpl updater;
     private StoredProject project;
     private TDSService tds;
@@ -78,6 +85,8 @@ final class SourceUpdater extends Job {
     private MetricActivator ma;
     private Scheduler sched;
     private AlitheiaCore core;
+    
+    private HandleCopies hc = HandleCopies.BRANCHES;
     
     /*
      * Cache project version and project file IDs for kick-starting
@@ -119,7 +128,22 @@ final class SourceUpdater extends Job {
         this.ma = core.getMetricActivator();
         this.sched = core.getScheduler();
         this.core = core;
-
+        
+        String hcp = System.getProperty(HANDLE_COPIES_PROPERTY);
+        
+        if (hcp != null) {
+            if (hcp.equalsIgnoreCase("trunk")) {
+                hc = HandleCopies.TRUNK;
+            } else if (hcp.equalsIgnoreCase("branches")) {
+                hc = HandleCopies.BRANCHES;
+            } else if (hcp.equalsIgnoreCase("tags")) {
+                hc = HandleCopies.TAGS;
+            } else {
+                logger.warn("Not correct value for property " + HANDLE_COPIES_PROPERTY);
+            }
+        } else {
+            logger.info("No value for " + HANDLE_COPIES_PROPERTY + " property.");
+        }
     }
 
     public int priority() {
@@ -516,6 +540,9 @@ final class SourceUpdater extends Job {
      */
     private void handleDirMove(ProjectVersion pv, Directory from, Directory to) {
        
+        if (!canCopy(from, to)) 
+            return;
+        
         /*Remove the directory*/
         addFile(pv, ProjectFile.findFile(project.getId(), 
                         basename(from.getPath()), 
@@ -549,6 +576,9 @@ final class SourceUpdater extends Job {
     private void handleDirCopy(ProjectVersion pv, ProjectVersion fromVersion,
             Directory from, Directory to) {
         
+        if (!canCopy(from, to)) 
+            return;
+        
         ProjectFile copy = addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR);
         
         /*Recursively copy directories*/
@@ -565,6 +595,32 @@ final class SourceUpdater extends Job {
             addFileIfNotExists(pv, to.getPath() + "/" + f.getName(),
                     "MODIFIED", SCMNodeType.FILE);
         }
+    }
+    
+    /**
+     * Decide whether a path can be copied depending on the value of 
+     * the eu.sqooss.updater.handlecopies property.
+     */
+    private boolean canCopy(Directory from, Directory to) {
+        
+        if (hc.equals(HandleCopies.TAGS)) {
+            return true;
+        }
+        
+        if (hc.equals(HandleCopies.TRUNK) && 
+                from.getPath().contains("trunk") &&
+                from.getPath().contains("trunk")) {
+                return true;
+        }
+        
+        if (hc.equals(HandleCopies.BRANCHES)) {
+            if (to.getPath().contains("tags")) {
+                return false;
+            }
+            return true;
+        }
+        
+        return false;
     }
     
     /**
