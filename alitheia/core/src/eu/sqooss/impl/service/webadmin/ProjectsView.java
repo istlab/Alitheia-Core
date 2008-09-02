@@ -598,10 +598,16 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     
                     //Cluster node
-                    b.append(sp(in) + "<td class=\"trans\">" + 
-                            ClusterNodeProject.getProjectAssignment(nextPrj).getNode().getName() + 
-                            "</td>\n");
-                    
+                	String nodename = null;
+                	if (null != ClusterNodeProject.getProjectAssignment(nextPrj)) {
+                		if (null != ClusterNodeProject.getProjectAssignment(nextPrj).getNode()) {
+                			nodename = ClusterNodeProject.getProjectAssignment(nextPrj).getNode().getName();
+                		}
+                	}
+                	if (null == nodename) {
+                		nodename = "(local)";
+                	}
+                    b.append(sp(in) + "<td class=\"trans\">" + nodename + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                     if ((selected) && (metrics.isEmpty() == false)) {
                         showLastAppliedVersion(nextPrj, metrics, b);
