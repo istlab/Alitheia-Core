@@ -42,6 +42,7 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
@@ -595,6 +596,12 @@ public class ProjectsView extends AbstractView {
                     b.append(sp(in) + "<td class=\"trans\">"
                             + evalState
                             + "</td>\n");
+                    
+                    //Cluster node
+                    b.append(sp(in) + "<td class=\"trans\">" + 
+                            ClusterNodeProject.getProjectAssignment(nextPrj).getNode().getName() + 
+                            "</td>\n");
+                    
                     b.append(sp(--in) + "</tr>\n");
                     if ((selected) && (metrics.isEmpty() == false)) {
                         showLastAppliedVersion(nextPrj, metrics, b);
@@ -605,7 +612,7 @@ public class ProjectsView extends AbstractView {
             // Tool-bar
             //----------------------------------------------------------------
             b.append(sp(in++) + "<tr class=\"subhead\">\n");
-            b.append(sp(in++) + "<td colspan=\"6\">\n");
+            b.append(sp(in++) + "<td colspan=\"7\">\n");
             // Refresh button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
@@ -797,6 +804,10 @@ public class ProjectsView extends AbstractView {
         b.append(sp(in) + "<td class=\"head\""
                 + " style=\"width: 10%;\">"
                 + getLbl("l0071")
+                + "</td>\n");
+        b.append(sp(in) + "<td class=\"head\""
+                + " style=\"width: 10%;\">"
+                + getLbl("l0073")
                 + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
         b.append(sp(--in) + "</thead>\n");

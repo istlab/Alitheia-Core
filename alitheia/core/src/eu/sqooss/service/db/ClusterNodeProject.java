@@ -46,97 +46,116 @@ public class ClusterNodeProject extends DAObject {
     private boolean locked;
 
 
-	public ClusterNodeProject(){
-		setLocked(false); // mimic SQL default value
-	}
+	public ClusterNodeProject() {
+        setLocked(false); // mimic SQL default value
+    }
 
+    public boolean equals(Object obj) {
+        if (obj instanceof ClusterNodeProject) {
+            ClusterNodeProject clusternodeproject = (ClusterNodeProject) obj;
+            return clusternodeproject.getNode().getId() == this.node.getId()
+                    && clusternodeproject.getProject().getId() == this.project
+                            .getId();
+        }
+        return false;
+    }
 
-	public boolean equals(Object obj) {
-		if (obj instanceof ClusterNodeProject) {
-			ClusterNodeProject clusternodeproject = (ClusterNodeProject) obj;
-			return clusternodeproject.getNode().getId() == this.node.getId()
-			    && clusternodeproject.getProject().getId() == this.project.getId();
-		}
-		return false;
-	}
+    public ClusterNode getNode() {
+        return node;
+    }
 
-    
+    public void setNode(ClusterNode node) {
+        this.node = node;
+    }
 
-	public ClusterNode getNode() {
-		return node;
-	}
+    public StoredProject getProject() {
+        return project;
+    }
 
-	public void setNode(ClusterNode node) {
-		this.node = node;
-	}
+    public void setProject(StoredProject project) {
+        this.project = project;
+    }
 
-	public StoredProject getProject() {
-		return project;
-	}
+    public boolean isLocked() {
+        return locked;
+    }
 
-	public void setProject(StoredProject project) {
-		this.project = project;
-	}
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
 
-	public boolean isLocked() {
-		return locked;
-	}
-
-	public void setLocked(boolean locked) {
-		this.locked = locked;
-	}
-	
-	
-	
     /**
      * Get the ClusterNodeProject assignment record for a specific Project
-     * @param StoredProject to check 
-     * @return the ClusterNodeProject record for the requested StoredProject  
+     * 
+     * @param StoredProject
+     *                to check
+     * @return the ClusterNodeProject record for the requested StoredProject
      */
-	public static ClusterNodeProject getProjectAssignment(StoredProject project) {
-		if (project==null) { return null; } 
-		DBService dbs = CoreActivator.getDBService();
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("project",project);
-        List<ClusterNodeProject> rList = dbs.findObjectsByProperties(ClusterNodeProject.class, parameterMap);
-        if ((rList == null) || (rList.isEmpty())) {	return null; }
-        return rList.get(0);		
-	}
-	
+    public static ClusterNodeProject getProjectAssignment(StoredProject project) {
+        if (project == null) {
+            return null;
+        }
+        DBService dbs = CoreActivator.getDBService();
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("project", project);
+        List<ClusterNodeProject> rList = dbs.findObjectsByProperties(
+                ClusterNodeProject.class, parameterMap);
+        if ((rList == null) || (rList.isEmpty())) {
+            return null;
+        }
+        return rList.get(0);
+    }
+
     // this should return only ONE record if project exists in assignments
     /**
      * Get a list of projects assigned to a specific ClusterNode
-     * @param node cluster node to check against
-     * @return a ClusterNodeProject list for the assigned projects  
+     * 
+     * @param node
+     *                cluster node to check against
+     * @return a ClusterNodeProject list for the assigned projects
      */
     public static List<ClusterNodeProject> getNodeAssignments(ClusterNode node) {
-        if (node==null) { return null; } 
+        if (node == null) {
+            return null;
+        }
         DBService dbs = CoreActivator.getDBService();
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("node",node);
-        List<ClusterNodeProject> nList = dbs.findObjectsByProperties(ClusterNodeProject.class, parameterMap);
-        if ((nList == null) || (nList.isEmpty())) { return null; }
-        return nList;        
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("node", node);
+        List<ClusterNodeProject> nList = dbs.findObjectsByProperties(
+                ClusterNodeProject.class, parameterMap);
+        if ((nList == null) || (nList.isEmpty())) {
+            return null;
+        }
+        return nList;
     }
 
-    
     /**
      * Check if a StoredProject is assigned to a specific ClusterNode
-     * @param node cluster node to check against
-     * @param project project to check
-     * @return  
+     * 
+     * @param node
+     *                cluster node to check against
+     * @param project
+     *                project to check
+     * @return
      */
-    public static boolean isProjectAssigned(ClusterNode node, StoredProject project){
+    public static boolean isProjectAssigned(ClusterNode node,
+            StoredProject project) {
         ClusterNodeProject cnp = null;
-        ClusterNode cn = null;        
-        if ((node==null) || (project==null)) { return false;}
+        ClusterNode cn = null;
+        if ((node == null) || (project == null)) {
+            return false;
+        }
         cnp = ClusterNodeProject.getProjectAssignment(project);
-        if (cnp==null) { return false; }
+        if (cnp == null) {
+            return false;
+        }
         cn = cnp.getNode();
-        if (cn==null) { return false; }
-        
-        return (cn.getId()==node.getId());
-        
+        if (cn == null) {
+            return false;
+        }
+
+        return (cn.getId() == node.getId());
+
     }    
 
 }

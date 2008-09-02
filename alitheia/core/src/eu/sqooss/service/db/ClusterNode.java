@@ -36,7 +36,6 @@ package eu.sqooss.service.db;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import eu.sqooss.impl.service.CoreActivator;
 
 
@@ -44,7 +43,7 @@ import eu.sqooss.service.db.DAObject;
 
 public class ClusterNode extends DAObject {
 
-	private String name;
+    private String name;
 
     // Nothing to do here
     public ClusterNode(){}
