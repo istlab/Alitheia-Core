@@ -48,6 +48,7 @@ import eu.sqooss.metrics.productivity.db.ProductivityActions;
 import eu.sqooss.metrics.productivity.db.ProductivityWeights;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
@@ -85,6 +86,20 @@ public class ProductivityMetricImpl extends AbstractMetric implements
                  "Number of seconds between weight updates", 
                  PluginInfo.ConfigurationType.INTEGER);
          return result;
+    }
+    
+    public boolean remove() {
+        boolean result = true;
+        
+        String[] tables = {"ProductivityWeights", "ProductivityActions",
+                "ProductivityActionType"};
+        
+        for (String tablename : tables) {
+            result &= db.deleteRecords((List<DAObject>) db.doHQL("from " + tablename));
+        }
+        
+        result &= super.remove();
+        return result;
     }
 
     /**
@@ -186,6 +201,7 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         }
         return value;
     }
+    
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
