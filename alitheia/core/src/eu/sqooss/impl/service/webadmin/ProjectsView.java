@@ -760,7 +760,7 @@ public class ProjectsView extends AbstractView {
         for(PluginInfo m : metrics) {
             if (m.installed) {
                 b.append("<tr>\n");
-                b.append(sp(1) + "<td colspan=\"6\""
+                b.append(sp(1) + "<td colspan=\"7\""
                         + " class=\"noattr\">\n"
                         + "<input type=\"button\""
                         + " class=\"install\""
