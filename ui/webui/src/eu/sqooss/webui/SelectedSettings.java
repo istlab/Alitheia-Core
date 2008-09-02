@@ -36,6 +36,7 @@ package eu.sqooss.webui;
 import java.io.File;
 import java.util.Locale;
 
+import eu.sqooss.webui.settings.BaseDataSettings;
 import eu.sqooss.webui.view.VerboseFileView;
 
 public class SelectedSettings {
@@ -77,6 +78,23 @@ public class SelectedSettings {
     private int vvvChartType = VerboseFileView.TABLE_CHART;
     private boolean vvvInputTaggedOnly = false;
 
+    public static final int DEVELOPERS_DATA_SETTINGS = 13;
+
+    public BaseDataSettings developersDataView = null;
+
+    public SelectedSettings() {
+        super();
+        developersDataView = new BaseDataSettings();
+    }
+
+    public BaseDataSettings getDataSettings(int target) {
+        switch (target) {
+        case DEVELOPERS_DATA_SETTINGS:
+            return developersDataView;
+        default:
+            return null;
+        }
+    }
 
     public Locale getUserLocale() {
         return userLocale;

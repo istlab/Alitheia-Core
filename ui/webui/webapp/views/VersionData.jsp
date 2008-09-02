@@ -113,7 +113,7 @@ if (selectedProject.isValid()) {
             if (chartType != null)
                 settings.setVvvChartType(chartType.intValue());
             /*
-             * Show the Info and Control panels after the user switched
+             * Show the Info and Control panels after the user has switched
              * (or forced from the code above) to a tabular display of
              * evaluation results.
              */

@@ -39,7 +39,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -52,7 +51,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
-import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
@@ -69,39 +67,11 @@ import eu.sqooss.webui.datatype.Version;
  * results against the results calculated on this file in another project
  * revision.
  */
-public class VersionVerboseView extends ListView {
-    /*
-     * Hold the selected project's object.
-     */
-    private Project project;
-
+public class VersionVerboseView extends AbstractDataView {
     /*
      * Holds the list of selected versions (a list of version numbers)
      */
     private List<Long> selectedVersions = new ArrayList<Long>();
-
-    /*
-     * Holds the version's metric selection (a list of metric Ids)
-     */
-    private List<Long> selectedMetrics = new ArrayList<Long>();
-
-    /*
-     * Holds the mnemonic of the currently highlighted metric
-     */
-    private String highlightedMetric = null;
-
-    /*
-     * Holds the list of metrics that were evaluated on the selected file.
-     */
-    private Map<Long, String> evaluated = new HashMap<Long, String>();
-
-    /*
-     * Results display types
-     */
-    public static final int TABLE_CHART = 2;
-    public static final int LINE_CHART = 4;
-    // Default display type
-    private int chartType = TABLE_CHART;
 
     /**
      * Instantiates a new <code>VerboseFileView</code> object, and initializes
@@ -138,44 +108,6 @@ public class VersionVerboseView extends ListView {
         for (Long nextVersion : selectedVersions)
             validVersions[index++] = nextVersion.toString();
         settings.setVvvSelectedVersions(validVersions);
-    }
-
-    /**
-     * Sets the selected project version metrics which will be presented by
-     * this view.
-     * 
-     * @param metrics the array of selected metrics (<i>their metric Ids</i>).
-     */
-    public void setSelectedMetrics(String[] metrics) {
-        if (metrics != null)
-            for (String metricId : metrics) {
-                try {
-                    Long value = new Long(metricId);
-                    if (selectedMetrics.contains(value) == false)
-                        selectedMetrics.add(value);
-                }
-                catch (NumberFormatException ex) { /* Do nothing */ }
-            }
-    }
-
-    /**
-     * Sets the mnemonic name of the metric that will be highlighted in the
-     * generated Results panel.
-     * 
-     * @param mnemonic the metric's mnemonic name
-     */
-    public void setHighlightedMetric(String mnemonic) {
-        this.highlightedMetric = mnemonic;
-    }
-
-    /**
-     * Sets the type of the display, which will be presenting the evaluation
-     * results.
-     * 
-     * @param chartType one of the display types supported by this view
-     */
-    public void setChartType(int chartType) {
-        this.chartType = chartType;
     }
 
     /**

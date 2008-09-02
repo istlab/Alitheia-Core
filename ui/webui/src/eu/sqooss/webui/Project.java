@@ -36,7 +36,6 @@ package eu.sqooss.webui;
 import java.util.*;
 
 import eu.sqooss.webui.datatype.Developer;
-import eu.sqooss.webui.datatype.TaggedVersion;
 import eu.sqooss.webui.datatype.Version;
 import eu.sqooss.webui.util.DevelopersList;
 import eu.sqooss.webui.util.MetricsList;

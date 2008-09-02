@@ -185,7 +185,9 @@ public class ProjectDataView extends ListView {
             chartData.put(mnemonic, new TreeMap<Date, String>());
 
         // Simulate tagged versions on a project without any
+        boolean simulatedTags = false;
         if (tagged.isEmpty()) {
+            simulatedTags = true;
             long counter = project.getVersionsCount();
             long range = counter / ((counter > 5) ? 5 : counter);
             while (counter > 0) {
@@ -212,6 +214,10 @@ public class ProjectDataView extends ListView {
                 }
             }
         }
+
+        // Clean up the list of tagged version, if they were simulated
+        if (simulatedTags)
+            tagged.clear();
 
         // Generate and include the chart image into the rendered content
         if (chartData.isEmpty() == false) {
