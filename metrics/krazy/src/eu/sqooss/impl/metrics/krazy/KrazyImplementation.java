@@ -39,9 +39,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,7 +106,9 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
     } ;
     
     public void run(ProjectFile pf) {
-    	// Don't support directories
+        log.info("Going Krazy on file <" + pf.getName() + ">");
+
+        // Don't support directories
         if (pf.getIsDirectory()) {
             return;
         }
@@ -128,7 +131,7 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         // So here we know we are dealing with a C++ source file
         // (for limited values of "know", and .h files may still be
         // C files in reality).
-        log.debug("Going Krazy on file <" + pf.getName() + ">");
+        log.info("Reading file <" + pf.getName() + ">");
         
         InputStream in = fds.getFileContents(pf);
         if (in == null) {
@@ -157,12 +160,30 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         r.setProjectFile(pf);
         r.setWhenRun(new Timestamp(System.currentTimeMillis()));
         r.setResult(String.valueOf(CountQString_null));
+        db.addRecord(r);
         markEvaluation(metric, pf.getProjectVersion().getProject());
+        
+        log.info("Stored result " + CountQString_null + " for <" + pf.getName() + ">");
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
-        // TODO Auto-generated method stub
+    	HashMap<String,Object> properties = new HashMap<String,Object>();
+    	properties.put("metric",m);
+    	properties.put("projectFile",a);
+    	List<ProjectFileMeasurement> l = 
+    		db.findObjectsByProperties(ProjectFileMeasurement.class,properties);
+    	List<ResultEntry> results = new ArrayList<ResultEntry>();
+        if (! l.isEmpty()) {
+            // There is only one measurement per metric and project file
+            Integer value = Integer.parseInt(l.get(0).getResult());
+            // ... and therefore only one result entry
+            ResultEntry entry = 
+                new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
+            results.add(entry);
+            return results;
+        }
         return null;
+   	
     }
 }
 
