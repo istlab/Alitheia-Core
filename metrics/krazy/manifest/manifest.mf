@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Krazy Metric Plug-in
 Bundle-SymbolicName: eu.sqooss.metric.krazy
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.metrics.krazy.MDEActivator
+Bundle-Activator: eu.sqooss.metrics.krazy.KrazyActivator
 Bundle-Vendor: KDE
 Bundle-Description: Krazy meta-metric
 Import-Package:  org.osgi.framework,
