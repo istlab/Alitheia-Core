@@ -115,11 +115,11 @@ public class FileTypeMatcher {
         String extensionSeparatorRE = "\\.";
         // Keep trailing components
         String[] components = path.split(pathSeparatorRE,-1);
-        if (components[components.length].length() > 0) {
-            components = components[components.length]
+        if (components[components.length - 1].length() > 0) {
+            components = components[components.length - 1]
                     .split(extensionSeparatorRE,-1);
-            if (components[components.length].length() > 0) {
-                String extension = "." + components[components.length];
+            if (components[components.length - 1].length() > 0) {
+                String extension = "." + components[components.length - 1];
                 if (path.endsWith(extension)) {
                     return extension;
                 } else {
