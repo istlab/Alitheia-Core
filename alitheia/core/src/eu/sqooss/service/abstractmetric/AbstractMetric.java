@@ -35,6 +35,7 @@ package eu.sqooss.service.abstractmetric;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -445,27 +446,28 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param sp Evaluated project
      */
     public void markEvaluation (Metric me, StoredProject sp) {
-        if((evaluationMarked.containsKey(sp.getId()) == false) ||
-                (evaluationMarked.get(sp.getId()) != me.getId())) {
-            // Store the evaluation mark locally
-            evaluationMarked.put(sp.getId(), me.getId());
+    	// Store the evaluation mark locally
+    	evaluationMarked.put(sp.getId(), me.getId());
 
-            // Search for a previous evaluation of this metric on this project
-            HashMap<String, Object> filter = new HashMap<String, Object>();
-            filter.put("metric", me);
-            filter.put("storedProject", sp);
-            List<EvaluationMark> wasEvaluated = db.findObjectsByProperties(
-                    EvaluationMark.class, filter);
+    	// Search for a previous evaluation of this metric on this project
+    	HashMap<String, Object> filter = new HashMap<String, Object>();
+    	filter.put("metric", me);
+    	filter.put("storedProject", sp);
+    	List<EvaluationMark> wasEvaluated = db.findObjectsByProperties(
+    			EvaluationMark.class, filter);
 
-            // If this is a first time evaluation, then remember this in the DB
-            if (wasEvaluated.isEmpty()) {
-                EvaluationMark evaluationMark = new EvaluationMark();
-                evaluationMark.setMetric(me);
-                evaluationMark.setStoredProject(sp);
+    	// If this is a first time evaluation, then remember this in the DB
+    	if (wasEvaluated.isEmpty()) {
+    		EvaluationMark evaluationMark = new EvaluationMark();
+    		evaluationMark.setMetric(me);
+    		evaluationMark.setStoredProject(sp);
+    		evaluationMark.setWhenRun(new Timestamp(System.currentTimeMillis()));
 
-                db.addRecord(evaluationMark);
-            }
-        }
+    		db.addRecord(evaluationMark);
+    	} else {
+    		EvaluationMark m = wasEvaluated.get(0);
+    		m.setWhenRun(new Timestamp(System.currentTimeMillis()));
+    	}
     }
 
     /**

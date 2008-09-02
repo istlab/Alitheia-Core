@@ -34,10 +34,12 @@
 package eu.sqooss.service.db;
 
 import eu.sqooss.service.db.DAObject;
+import java.sql.Timestamp;
 
 public class EvaluationMark extends DAObject {
     private Metric metric;
     private StoredProject storedProject;
+    private Timestamp whenRun;
 
     public EvaluationMark() {
         // Nothing to do
@@ -58,6 +60,18 @@ public class EvaluationMark extends DAObject {
     }
 
     /**
+     * An evaluation mark is set at some specific time; this is
+     * informational for the users and does not affect the mark
+     * itself. It can be used to display to the user when a particular
+     * project/metric combination was last updated.
+     * 
+     * @return the date this metric/project combo was last evaluated.
+     */
+    public Timestamp getWhenRun() {
+    	return whenRun;
+    }
+    
+    /**
      * @param metric the metric to set
      */
     public void setMetric(Metric metric) {
@@ -71,6 +85,9 @@ public class EvaluationMark extends DAObject {
         this.storedProject = storedProject;
     }
 
+    public void setWhenRun(Timestamp w) {
+    	whenRun = w;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
