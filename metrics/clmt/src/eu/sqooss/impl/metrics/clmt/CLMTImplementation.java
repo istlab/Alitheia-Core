@@ -259,8 +259,6 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                             CodeConstructType.getConstructType(
                                     CodeConstructType.ConstructType.fromString(
                                             mnc.toString())));
-                    meas.setWhenRun(new Timestamp(System.currentTimeMillis()));
-                    
                     db.addRecord(meas);
                 } else {
   
@@ -272,7 +270,6 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     ProjectVersionMeasurement meas = new ProjectVersionMeasurement();
                     meas.setProjectVersion(pv);
                     meas.setResult(mr.getValue());
-                    meas.setWhenRun(new Timestamp(System.currentTimeMillis()));
                     meas.setMetric(m);
                     
                     db.addRecord(meas);

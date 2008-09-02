@@ -10,7 +10,6 @@
     </id>
     <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge" />
     <many-to-one name="fileGroup" column="FILE_GROUP_ID" not-null="true" cascade="merge" />
-    <property name="whenRun" column="WHEN_RUN" type="java.util.Date" />
     <property name="result" column="RESULT" type="string" />
   </class>
 </hibernate-mapping>

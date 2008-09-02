@@ -10,7 +10,6 @@
     </id>
     <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge" />
     <many-to-one name="projectFile" column="PROJECT_FILE_ID" not-null="true" cascade="merge" />
-    <property name="whenRun" column="WHEN_RUN" type="java.util.Date" />
     <property name="result" column="RESULT" type="string" />
     <many-to-one name="codeConstructType" column="CODE_CONSTRUCT_TYPE_ID" not-null="true" cascade="merge" />
     <property name="codeConstructName" column="CODE_CONSTRUCT_NAME" type="string" />

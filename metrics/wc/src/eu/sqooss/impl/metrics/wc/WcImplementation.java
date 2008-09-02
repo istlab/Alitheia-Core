@@ -174,7 +174,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
             ProjectFileMeasurement locm = new ProjectFileMeasurement();
             locm.setMetric(metric);
             locm.setProjectFile(pf);
-            locm.setWhenRun(new Timestamp(System.currentTimeMillis()));
             locm.setResult(String.valueOf(lnr.getLineNumber()));
 
             db.addRecord(locm);
@@ -184,7 +183,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
             ProjectFileMeasurement locc = new ProjectFileMeasurement();
             locc.setMetric(metric);
             locc.setProjectFile(pf);
-            locc.setWhenRun(new Timestamp(System.currentTimeMillis()));
             locc.setResult(String.valueOf(comments));
             
             db.addRecord(locc);

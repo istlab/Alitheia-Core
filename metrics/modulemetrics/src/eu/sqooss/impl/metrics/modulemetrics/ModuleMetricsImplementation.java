@@ -183,7 +183,6 @@ implements ModuleMetrics {
         ProjectFileMeasurement mnof = new ProjectFileMeasurement();
         mnof.setMetric(metric);
         mnof.setProjectFile(pf);
-        mnof.setWhenRun(new Timestamp(System.currentTimeMillis()));
         mnof.setResult(String.valueOf(pfs.size()));
 
         db.addRecord(mnof);
@@ -194,7 +193,6 @@ implements ModuleMetrics {
             ProjectFileMeasurement mnol = new ProjectFileMeasurement();
             mnol.setMetric(metric);
             mnol.setProjectFile(pf);
-            mnol.setWhenRun(new Timestamp(System.currentTimeMillis()));
             mnol.setResult(String.valueOf(pfs.size()));
 
             db.addRecord(mnol);

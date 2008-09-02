@@ -50,11 +50,6 @@ public class MetricMeasurement extends DAObject {
     private Metric metric;
 
     /**
-     * The date/time at which this result was generated
-     */
-    private Timestamp whenRun;
-
-    /**
      * A representation of the calculation result
      */
     private String result;
@@ -71,20 +66,6 @@ public class MetricMeasurement extends DAObject {
      */
     public void setMetric(Metric metric) {
         this.metric = metric;
-    }
-    
-    /**
-     * @return the whenRun
-     */
-    public Timestamp getWhenRun() {
-        return whenRun;
-    }
-    
-    /**
-     * @param whenRun the whenRun to set
-     */
-    public void setWhenRun(Timestamp whenRun) {
-        this.whenRun = whenRun;
     }
     
     /**
