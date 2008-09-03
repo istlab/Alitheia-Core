@@ -52,7 +52,7 @@ public interface PluginAdmin {
      * be used during OSGi-based service search, and matches all
      * registered metric plug-in services.
      */
-    public final static String PLUGIN_CLASS = "eu.sqooss.impl.metrics.*";
+    public final static String PLUGIN_CLASS = "*.metrics.*";
 
     /**
      * Returns a collection containing information about all metrics plug-ins
