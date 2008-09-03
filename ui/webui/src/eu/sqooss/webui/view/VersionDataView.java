@@ -35,6 +35,7 @@ package eu.sqooss.webui.view;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,51 +62,50 @@ import eu.sqooss.webui.datatype.TaggedVersion;
 import eu.sqooss.webui.datatype.Version;
 
 /**
- * The class <code>VerboseFileView</code> renders an HTML sequence that
- * verbosely presents the metric evaluation result of a single file in a
- * specific project version. In addition it provides mean for comparing the
- * results against the results calculated on this file in another project
- * revision.
+ * The class <code>VersionDataView</code> renders an HTML sequence that
+ * verbosely presents metric result that were evaluated on the project
+ * versions of a single project.
  */
-public class VersionVerboseView extends AbstractDataView {
+public class VersionDataView extends AbstractDataView {
     /*
-     * Holds the list of selected versions (a list of version numbers)
+     * Holds the list of selected resources (<i>a list of version numbers</i>).
      */
-    private List<Long> selectedVersions = new ArrayList<Long>();
+    private List<Long> selectedResources = new ArrayList<Long>();
 
     /**
-     * Instantiates a new <code>VerboseFileView</code> object, and initializes
-     * it with the given project object.
+     * Instantiates a new <code>VerboseDataView</code> object,
+     * and initializes it with the given project object.
      * 
      * @param project the project object
      */
-    public VersionVerboseView(Project project) {
+    public VersionDataView(Project project) {
         super();
         this.project = project;
     }
 
     /**
-     * Sets the selected project versions which will be presented by this
-     * view.
+     * Sets the resources which this view will present as selected.
      * 
-     * @param versions the array of selected project versions (<i>their
-     *   version numbers</i>).
+     * @param selected the array of selected resources
+     *   (<i>a list of version numbers</i>).
      */
-    public void setSelectedVersions(String[] versions) {
-        if (versions != null)
-            for (String versionNum : versions) {
+    private void setSelectedVersions(String[] selected) {
+        if (selected != null)
+            for (String resource : selected) {
                 try {
-                    Long value = new Long(versionNum);
-                    if ((selectedVersions.contains(value) == false)
-                            && (project.getVersionsCount() >= value)
-                            && (value > 0))
-                        selectedVersions.add(value);
+                    Long value = new Long(resource);
+                    if ((selectedResources.contains(value) == false)
+                            && (project.getLastVersion().getNumber() >= value)
+                            && (project.getFirstVersion().getNumber() <= value))
+                        selectedResources.add(value);
                 }
                 catch (NumberFormatException ex) { /* Do nothing */ }
             }
-        String[] validVersions = new String[selectedVersions.size()];
+
+        // Cleanup the corresponding session variable from invalid entries
+        String[] validVersions = new String[selectedResources.size()];
         int index = 0;
-        for (Long nextVersion : selectedVersions)
+        for (Long nextVersion : selectedResources)
             validVersions[index++] = nextVersion.toString();
         settings.setVvvSelectedVersions(validVersions);
     }
@@ -117,7 +117,7 @@ public class VersionVerboseView extends AbstractDataView {
     private void attachSelectedVersions () {
         if ((project != null) && (project.isValid())) {
             // Pre-load the selected project versions
-            for (Long version : selectedVersions) {
+            for (Long version : selectedResources) {
                 project.getVersionByNumber(version);
             }
 
@@ -152,7 +152,7 @@ public class VersionVerboseView extends AbstractDataView {
             b.append(sp(in)
                     + Functions.error("This project has no versions!"));
         }
-        else if ((selectedMetrics.isEmpty()) || (selectedVersions.isEmpty())) {
+        else if ((selectedMetrics.isEmpty()) || (selectedResources.isEmpty())) {
             b.append(sp(in)
                     + "Select one or more metrics and project versions.");
         }
@@ -183,7 +183,7 @@ public class VersionVerboseView extends AbstractDataView {
                     data.put(metric.getMnemonic(), new TreeMap<Long, String>());
             }
             // Fill the data set
-            for (Long versionNum : selectedVersions) {
+            for (Long versionNum : selectedResources) {
                 Version nextVersion = project.getVersionByNumber(versionNum);
                 if (nextVersion != null) {
                     nextVersion.setTerrier(terrier);
@@ -506,9 +506,9 @@ public class VersionVerboseView extends AbstractDataView {
                     + " name=\"vvvvid\""
                     + " multiple"
                     + " size=\"5\""
-                    + ((selectedVersions.size() < 1) ? " disabled" : "")
+                    + ((selectedResources.size() < 1) ? " disabled" : "")
                     + ">\n");
-            for (Long version : selectedVersions) {
+            for (Long version : selectedResources) {
                 b.append(sp(in) + "<option class=\"vvvvid\""
                         + " selected"
                         + " value=\"" + version + "\">"
@@ -528,13 +528,16 @@ public class VersionVerboseView extends AbstractDataView {
         return b.toString();
     }
 
-    private String tableChart (long in, SortedMap<String, SortedMap<Long, String>> values) {
+    private String tableChart (
+            long in,
+            SortedMap<String, SortedMap<Long, String>> values) {
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
 
         b.append(sp(in++) + "<table"
                 + " style=\"width: " + (80 + 80*(values.size()))+ "px;\""
                 + ">\n");
+
         //--------------------------------------------------------------------
         // Table header
         //--------------------------------------------------------------------
@@ -554,18 +557,28 @@ public class VersionVerboseView extends AbstractDataView {
         }
         b.append(sp(--in) + "</tr>\n");
         b.append(sp(--in) + "</thead>\n");
+
         //--------------------------------------------------------------------
         // Display all available results per metric and version
         //--------------------------------------------------------------------
-        for (Long version : selectedVersions) {
+        for (Long resource : selectedResources) {
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in) + "<td class=\"def_head\">"
-                    + "In v." + version 
+                    + resource 
                     + "</td>\n");
             for (String mnemonic : values.keySet()) {
                 String result = null;
-                if (values.get(mnemonic).get(version) != null)
-                    result = values.get(mnemonic).get(version).toString();
+                if (values.get(mnemonic).get(resource) != null) {
+                    result = values.get(mnemonic).get(resource).toString();
+                    try {
+                        NumberFormat localise = 
+                            NumberFormat.getNumberInstance(
+                                    settings.getUserLocale());
+                        result = localise.format(new Double(result));
+                    }
+                    catch (NumberFormatException ex) { /* Do nothing */ }
+                    catch (IllegalArgumentException ex) { /* Do nothing */ }
+                }
                 b.append(sp(in) + "<td class=\"def_right\">"
                         + ((result != null) ? result : "N/A")
                         + "</td>\n");

@@ -1,9 +1,7 @@
 <%@ page import="eu.sqooss.webui.*"
-%><%@ page import="eu.sqooss.webui.datatype.*"
+%><%@ page import="eu.sqooss.webui.settings.*"
 %><%@ page import="eu.sqooss.webui.view.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
-%><%@ page import="eu.sqooss.webui.Metric.MetricActivator"
-%><%@ page import="eu.sqooss.webui.Metric.MetricType"
 %><%
 //============================================================================
 // Lets the user select and display version based evaluation results
@@ -117,7 +115,7 @@ if (selectedProject.isValid()) {
              * (or forced from the code above) to a tabular display of
              * evaluation results.
              */
-            if (chartType == VersionVerboseView.TABLE_CHART) {
+            if (chartType == VersionDataView.TABLE_CHART) {
                 settings.setShowVvvInfoPanel(true);
                 settings.setShowVvvControlPanel(true);
             }
@@ -129,8 +127,8 @@ if (selectedProject.isValid()) {
          */
         if ((settings.getVvvSelectedVersions() != null)
                 && (settings.getVvvSelectedVersions().length == 1)
-                && (settings.getVvvChartType() == VersionVerboseView.LINE_CHART)) {
-            settings.setVvvChartType(VersionVerboseView.TABLE_CHART);
+                && (settings.getVvvChartType() == VersionDataView.LINE_CHART)) {
+            settings.setVvvChartType(VersionDataView.TABLE_CHART);
             if ((settings.getShowVvvInfoPanel() == false)
                     && (settings.getShowVvvControlPanel() == false)) {
                 settings.setShowVvvInfoPanel(true);
@@ -143,7 +141,7 @@ if (selectedProject.isValid()) {
          * chart display is active, unless the user had explicitly
          * requested their visualisation.
          */ 
-        if ((settings.getVvvChartType() == VersionVerboseView.LINE_CHART)
+        if ((settings.getVvvChartType() == VersionDataView.LINE_CHART)
                 && (request.getParameter("showVvvControlPanel") == null)
                 && (request.getParameter("showVvvInfoPanel") == null)) {
             settings.setShowVvvInfoPanel(false);
@@ -163,8 +161,8 @@ if (selectedProject.isValid()) {
         /*
          * Initialise the verbose view's object
          */
-        VersionVerboseView verboseView =
-            new VersionVerboseView(selectedProject);
+        VersionDataView verboseView =
+            new VersionDataView(selectedProject);
         verboseView.setServletPath(request.getServletPath());
         verboseView.setSettings(settings);
         verboseView.setTerrier(terrier);
@@ -372,10 +370,10 @@ if (selectedProject.isValid()) {
         WinIcon icoTabular = new WinIcon();
         icoTabular.setPath(request.getServletPath());
         icoTabular.setParameter("vvvchart");
-        icoTabular.setValue("" + VersionVerboseView.TABLE_CHART);
+        icoTabular.setValue("" + VersionDataView.TABLE_CHART);
         icoTabular.setAlt("Show results in a table");
         icoTabular.setImage("/img/icons/16x16/tablechart.png");
-        if (settings.getVvvChartType() == VersionVerboseView.TABLE_CHART)
+        if (settings.getVvvChartType() == VersionDataView.TABLE_CHART)
             icoTabular.setStatus(false);
         winVersionVerbose.addToolIcon(icoTabular);
 
@@ -383,10 +381,10 @@ if (selectedProject.isValid()) {
         WinIcon icoLineChart = new WinIcon();
         icoLineChart.setPath(request.getServletPath());
         icoLineChart.setParameter("vvvchart");
-        icoLineChart.setValue("" + VersionVerboseView.LINE_CHART);
+        icoLineChart.setValue("" + VersionDataView.LINE_CHART);
         icoLineChart.setAlt("Show results as a line chart");
         icoLineChart.setImage("/img/icons/16x16/linechart.png");
-        if (settings.getVvvChartType() == VersionVerboseView.LINE_CHART)
+        if (settings.getVvvChartType() == VersionDataView.LINE_CHART)
             icoLineChart.setStatus(false);
         winVersionVerbose.addToolIcon(icoLineChart);
 

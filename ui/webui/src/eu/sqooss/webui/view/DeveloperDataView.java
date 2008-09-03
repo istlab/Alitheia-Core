@@ -26,6 +26,11 @@ import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.webui.settings.BaseDataSettings;
 
+/**
+ * The class <code>VersionDataView</code> renders an HTML sequence that
+ * verbosely presents metric result that were evaluated on the project
+ * developers in a single project.
+ */
 public class DeveloperDataView extends AbstractDataView {
     /*
      * Holds the list of selected resources (<i>a list of developer names</i>).
@@ -46,10 +51,10 @@ public class DeveloperDataView extends AbstractDataView {
     /**
      * Sets the resources which this view will present as selected.
      * 
-     * @param selected the array of selected resources (<i>their
-     *   unique identifier</i>).
+     * @param selected the array of selected resources
+     *   (<i>a list of developer usernames</i>).
      */
-    public void setSelectedResources(String[] selected) {
+    private void setSelectedResources(String[] selected) {
         if (selected != null)
             for (String resource : selected) {
                 if ((selectedResources.contains(resource) == false)
@@ -57,7 +62,7 @@ public class DeveloperDataView extends AbstractDataView {
                     selectedResources.add(resource);
             }
 
-        // Cleanup the session variable from invalid entries
+        // Cleanup the corresponding session variable from invalid entries
         String[] validResources = selectedResources.toArray(
                 new String[selectedResources.size()]);
         viewConf.setSelectedResources(validResources);
@@ -485,8 +490,9 @@ public class DeveloperDataView extends AbstractDataView {
                     + resource 
                     + "</td>\n");
             for (String mnemonic : values.keySet()) {
-                String result = values.get(mnemonic).get(resource).toString();
+                String result = null;
                 if (values.get(mnemonic).get(resource) != null) {
+                    result = values.get(mnemonic).get(resource).toString();
                     try {
                         NumberFormat localise = 
                             NumberFormat.getNumberInstance(
