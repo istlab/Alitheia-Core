@@ -89,7 +89,7 @@ public class VersionDataView extends AbstractDataView {
      * @param selected the array of selected resources
      *   (<i>a list of version numbers</i>).
      */
-    private void setSelectedVersions(String[] selected) {
+    private void setSelectedResources(String[] selected) {
         if (selected != null)
             for (String resource : selected) {
                 try {
@@ -103,35 +103,38 @@ public class VersionDataView extends AbstractDataView {
             }
 
         // Cleanup the corresponding session variable from invalid entries
-        String[] validVersions = new String[selectedResources.size()];
+        String[] validResources = new String[selectedResources.size()];
         int index = 0;
         for (Long nextVersion : selectedResources)
-            validVersions[index++] = nextVersion.toString();
-        settings.setVvvSelectedVersions(validVersions);
+            validResources[index++] = nextVersion.toString();
+        viewConf.setSelectedResources(validResources);
     }
 
     /**
      * Loads all the necessary information, that is associated with the
      * selected project versions.
      */
-    private void attachSelectedVersions () {
+    private void loadData() {
         if ((project != null) && (project.isValid())) {
             // Pre-load the selected project versions
             for (Long version : selectedResources) {
                 project.getVersionByNumber(version);
             }
 
-            // Load the list of evaluated version metrics for this project
+            /*
+             * Load the list of metrics that were evaluated on this project
+             * and are related to the presented resource type
+             */
             evaluated = project.getEvaluatedMetrics().getMetricMnemonics(
                     MetricActivator.PROJECTVERSION,
                     MetricType.SOURCE_CODE);
 
-            if (settings != null) {
+            if (viewConf != null) {
                 // Load the list of selected metrics
-                setSelectedMetrics(settings.getVvvSelectedMetrics());
+                setSelectedMetrics(viewConf.getSelectedMetrics());
 
                 // Load the list of selected versions
-                setSelectedVersions(settings.getVvvSelectedVersions());
+                setSelectedResources(viewConf.getSelectedResources());
             }
         }
     }
@@ -147,7 +150,7 @@ public class VersionDataView extends AbstractDataView {
         StringBuilder b = new StringBuilder("");
 
         // Load the selected versions' data
-        attachSelectedVersions();
+        loadData();
         if (project.getVersionsCount() < 1) {
             b.append(sp(in)
                     + Functions.error("This project has no versions!"));
@@ -339,12 +342,16 @@ public class VersionDataView extends AbstractDataView {
         StringBuilder b = new StringBuilder("");
 
         // Load the selected versions' data
-        attachSelectedVersions();
+        loadData();
 
         Version selVersion = null;
-        if (settings.getVvvHighlightedVersion() != null)
-            selVersion = project.getVersionByNumber(
-                    settings.getVvvHighlightedVersion());
+        if (viewConf.getHighlightedResource() != null) {
+            try {
+                selVersion = project.getVersionByNumber(
+                        new Long(viewConf.getHighlightedResource()));
+            }
+            catch (NumberFormatException ex) { /* Do nothing */ }
+        }
 
         if (project.getVersionsCount() < 1) {
             b.append(sp(in)
@@ -466,7 +473,7 @@ public class VersionDataView extends AbstractDataView {
         StringBuilder b = new StringBuilder("");
 
         // Load the selected versions' data
-        attachSelectedVersions();
+        loadData();
         if (project.getVersionsCount() < 1) {
             b.append(sp(in)
                     + Functions.error("This project has no versions!"));
@@ -479,7 +486,7 @@ public class VersionDataView extends AbstractDataView {
             b.append(sp(in++) + "<div class=\"vvvmid\">\n");
             b.append(sp(in) + "<div class=\"vvvtitle\">Metrics</div>\n");
             b.append(sp(in++) + "<select class=\"vvvmid\""
-                    + " name=\"vvvmid\""
+                    + " name=\"selMetrics\""
                     + " multiple"
                     + " size=\"5\""
                     + ((evaluated.isEmpty()) ? " disabled" : "")
@@ -503,7 +510,7 @@ public class VersionDataView extends AbstractDataView {
             b.append(sp(in++) + "<div class=\"vvvvid\">\n");
             b.append(sp(in) + "<div class=\"vvvtitle\">Versions</div>\n");
             b.append(sp(in++) + "<select class=\"vvvvid\""
-                    + " name=\"vvvvid\""
+                    + " name=\"selResources\""
                     + " multiple"
                     + " size=\"5\""
                     + ((selectedResources.size() < 1) ? " disabled" : "")

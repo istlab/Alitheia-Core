@@ -68,29 +68,27 @@ public class SelectedSettings {
     private String[] vfvSelectedVersions = null;
     private int vfvChartType = VerboseFileView.TABLE_CHART;
 
-    // VersionVerboseView related
-    private boolean showVvvInfoPanel = true;
-    private boolean showVvvControlPanel = true;
-    private boolean showVvvResultPanel = true;
-    private String[] vvvSelectedMetrics = null;
-    private String[] vvvSelectedVersions = null;
-    private Long vvvHighlightedVersion = null;
-    private int vvvChartType = VerboseFileView.TABLE_CHART;
-    private boolean vvvInputTaggedOnly = false;
+    // VersionDataView specific
+    private boolean vdvInputTaggedOnly = false;
 
-    public static final int DEVELOPERS_DATA_SETTINGS = 13;
+    public static final int VERSION_DATA_SETTINGS = 12;
+    public static final int DEVELOPER_DATA_SETTINGS = 13;
 
-    public BaseDataSettings developersDataView = null;
+    public BaseDataSettings versionDataView     = null;
+    public BaseDataSettings developerDataView   = null;
 
     public SelectedSettings() {
         super();
-        developersDataView = new BaseDataSettings();
+        developerDataView = new BaseDataSettings();
+        versionDataView = new BaseDataSettings();
     }
 
     public BaseDataSettings getDataSettings(int target) {
         switch (target) {
-        case DEVELOPERS_DATA_SETTINGS:
-            return developersDataView;
+        case DEVELOPER_DATA_SETTINGS:
+            return developerDataView;
+        case VERSION_DATA_SETTINGS:
+            return versionDataView;
         default:
             return null;
         }
@@ -245,71 +243,15 @@ public class SelectedSettings {
     }
 
     // =======================================================================
-    // VersionVerboseView related
+    // VersionDataView related
     // =======================================================================
 
-    public boolean getShowVvvInfoPanel() {
-        return showVvvInfoPanel;
+    public boolean getVdvInputTaggedOnly() {
+        return vdvInputTaggedOnly;
     }
 
-    public void setShowVvvInfoPanel(boolean show) {
-        this.showVvvInfoPanel = show;
-    }
-
-    public boolean getShowVvvControlPanel() {
-        return showVvvControlPanel;
-    }
-
-    public void setShowVvvControlPanel(boolean show) {
-        this.showVvvControlPanel = show;
-    }
-
-    public boolean getShowVvvResultPanel() {
-        return showVvvResultPanel;
-    }
-
-    public void setShowVvvResultPanel(boolean show) {
-        this.showVvvResultPanel = show;
-    }
-
-    public String[] getVvvSelectedMetrics() {
-        return vvvSelectedMetrics;
-    }
-
-    public void setVvvSelectedMetrics(String[] metrics) {
-        this.vvvSelectedMetrics = metrics;
-    }
-
-    public String[] getVvvSelectedVersions() {
-        return vvvSelectedVersions;
-    }
-
-    public void setVvvSelectedVersions(String[] versions) {
-        this.vvvSelectedVersions = versions;
-    }
-
-    public Long getVvvHighlightedVersion() {
-        return vvvHighlightedVersion;
-    }
-
-    public void setVvvHighlightedVersion(Long vvvHighlightedVersion) {
-        this.vvvHighlightedVersion = vvvHighlightedVersion;
-    }
-
-    public int getVvvChartType() {
-        return vvvChartType;
-    }
-
-    public void setVvvChartType(int type) {
-        this.vvvChartType = type;
-    }
-
-    public boolean getVvvInputTaggedOnly() {
-        return vvvInputTaggedOnly;
-    }
-
-    public void setVvvInputTaggedOnly(boolean vvvInputTaggedOnly) {
-        this.vvvInputTaggedOnly = vvvInputTaggedOnly;
+    public void setVdvInputTaggedOnly(boolean enable) {
+        vdvInputTaggedOnly = enable;
     }
 
     // =======================================================================
@@ -320,8 +262,8 @@ public class SelectedSettings {
         return tempFolder;
     }
 
-    public void setTempFolder(File tempFolder) {
-        this.tempFolder = tempFolder;
+    public void setTempFolder(File path) {
+        tempFolder = path;
     }
 
 }

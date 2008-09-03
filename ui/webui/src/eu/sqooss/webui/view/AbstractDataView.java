@@ -54,10 +54,9 @@ public abstract class AbstractDataView extends ListView {
      * 
      * @param settings the new settings
      */
-    public void setSettings(SelectedSettings settings) {
+    public void setSettings(SelectedSettings settings, int subset) {
         this.settings = settings;
-        this.viewConf = settings.getDataSettings(
-                SelectedSettings.DEVELOPERS_DATA_SETTINGS);
+        this.viewConf = settings.getDataSettings(subset);
     }
 
     /**

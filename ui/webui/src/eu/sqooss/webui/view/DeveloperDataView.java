@@ -72,7 +72,7 @@ public class DeveloperDataView extends AbstractDataView {
      * Loads all the necessary information, that is associated with the
      * resources presented in this view.
      */
-    private void loadData () {
+    private void loadData() {
         if ((project != null) && (project.isValid())) {
             // Pre-load the selected project developers
             project.getDevelopers();
@@ -85,8 +85,6 @@ public class DeveloperDataView extends AbstractDataView {
                     MetricActivator.DEVELOPER,
                     MetricType.PROJECT_WIDE);
 
-            BaseDataSettings viewConf = settings.getDataSettings(
-                    SelectedSettings.DEVELOPERS_DATA_SETTINGS);
             if (viewConf != null) {
                 // Load the list of selected metrics
                 setSelectedMetrics(viewConf.getSelectedMetrics());
