@@ -15,6 +15,7 @@ build : clean
 # - unpack that tarball somewhere. Call that directory D.
 # - check that $D/apache-tomcat-6.0.16 exists.
 # - add a line 'WITH_TOMCAT=YES' to your Makefile.config.local.
+#   this might not be necessary - installing the WAR is the default now.
 # - add a line 'TOMCAT_BASE=$D/apache-tomcat-6.0.16' (with D equal to 
 #   the directory where you unpacked tomcat to Makefile.config.local.
 # - clean up tomcat
@@ -46,3 +47,4 @@ restart :
 update :
 	cd ../scl/wslib \
 	make update-wsdl
+
