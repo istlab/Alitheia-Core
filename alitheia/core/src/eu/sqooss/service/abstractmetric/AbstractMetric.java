@@ -218,23 +218,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                         Method method = this.getClass().getMethod("getResult", c, Metric.class);
                         re =  (List<ResultEntry>) method.invoke(this, o, m);
                     } catch (SecurityException e) {
-                        log.error("Unable to invoke getResult method:"
-                                + e.getMessage());
+                        logErr("getResult", o.getId(), e);
                     } catch (NoSuchMethodException e) {
                         log.error("No method getResult(" + c.getName()
                                 + ") for type " + this.getClass().getName());
                     } catch (IllegalArgumentException e) {
-                        log.error("Unable to invoke getResult method:"
-                                + e.getMessage() + "Reason:" 
-                                + e.getCause().getMessage());
+                        logErr("getResult", o.getId(), e);
                     } catch (IllegalAccessException e) {
-                        log.error("Unable to invoke getResult method:"
-                                + e.getMessage() + "Reason:" 
-                                + e.getCause().getMessage());
+                        logErr("getResult", o.getId(), e);
                     } catch (InvocationTargetException e) {
-                        log.error("Unable to invoke getResult method:"
-                                + e.getMessage() + "Reason:" 
-                                + e.getCause().getMessage());
+                        logErr("getResult", o.getId(), e);
                     }
                 }
             }
@@ -370,24 +363,28 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     Method m = this.getClass().getMethod("run", c);
                     m.invoke(this, o);
                 } catch (SecurityException e) {
-                    log.error("Unable to invoke run method:" + e.getMessage());
+                    logErr("run", o.getId(), e);
                 } catch (NoSuchMethodException e) {
-                    log.error("No method run(" + c.getName() +") for type "
-                            + this.getClass().getName());
+                    logErr("run", o.getId(), e);
                 } catch (IllegalArgumentException e) {
-                    log.error("Unable to invoke run method:" + e.getMessage()
-                            + "Reason:" + e.getCause().getMessage());
+                    logErr("run", o.getId(), e);
                 } catch (IllegalAccessException e) {
-                    log.error("Unable to invoke run method:" + e.getMessage()
-                            + "Reason:" + e.getCause().getMessage());
+                    logErr("run", o.getId(), e);
                 } catch (InvocationTargetException e) {
-                    log.error("Unable to invoke run method:" + e.getMessage()
-                            + "Reason:" + e.getCause().getMessage());
+                    logErr("run", o.getId(), e);
                 }
             }
         }
         if(!found)
             throw new MetricMismatchException(o);
+    }
+    
+    private void logErr(String method, long id, Exception e) {
+        log.error("Plugin :" + this.getClass().toString() + " DAO id:" + id + 
+                " Unable to invoke " + method + " method." +
+                " Exception:" + e.getClass().getName() +
+                " Error:" + e.getMessage() + 
+                " Reason:" + e.getCause().getMessage());
     }
 
     /**
