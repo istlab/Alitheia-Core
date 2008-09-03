@@ -54,6 +54,7 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
 public class ModuleMetricsImplementation extends AbstractMetric 
@@ -64,6 +65,7 @@ implements ModuleMetrics {
     public ModuleMetricsImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectFile.class);
+        super.addActivationType(ProjectVersion.class);
         
         super.addMetricActivationType("MNOF", ProjectFile.class);
         super.addMetricActivationType("MNOL", ProjectFile.class);
@@ -104,7 +106,7 @@ implements ModuleMetrics {
             db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
 
         // Convert the measurement into a result object
-        if (! measurement.isEmpty()) {
+        if (!measurement.isEmpty()) {
             // There is only one measurement per metric and project file
             Integer value = Integer.parseInt(measurement.get(0).getResult());
             // ... and therefore only one result entry
@@ -202,23 +204,73 @@ implements ModuleMetrics {
     }
     
     public void run(ProjectVersion pv) {
+       
+        AlitheiaPlugin plugin = 
+            core.getPluginAdmin().getImplementingPlugin("MNOL");
         
-        /*List<ProjectFile> pfs = ProjectFile.getFilesForVersion(pv, 
+        if (plugin == null) {
+            log.error("Could not find the ModuleMetrics plugin");
+            return;
+        }
+        
+        int locs = 0;
+
+        List<Metric> MNOL = new ArrayList<Metric>();
+        MNOL.add(Metric.getMetricByMnemonic("MNOL"));
+        
+        List<ProjectFile> dirs = ProjectFile.getFilesForVersion(pv, 
                 Directory.getDirectory("/", false), 
                 ProjectFile.MASK_DIRECTORIES);
+        int sourceModules = 0;
         
+        for (ProjectFile dir : dirs) {
+            boolean isSourceModule = false;
+            
+            /*Check whether the current dir contains source code files*/
+            List<ProjectFile> files = ProjectFile.getFilesForVersion(pv, 
+                    Directory.getDirectory(dir.getFileName(), false), 
+                    ProjectFile.MASK_FILES);
+            
+            for (ProjectFile file : files) {
+                if (FileTypeMatcher.getFileType(file.getFileName()).equals(
+                        FileTypeMatcher.FileType.SRC)) {
+                    isSourceModule = true;
+                    sourceModules ++;
+                    break;
+                }
+            }
+            
+            if (!isSourceModule) {
+                continue;
+            }
+            
+            //Get the MNOL measurement for this dir from the DB
+            try {
+                locs += plugin.getResult(dir, MNOL).getRow(0).get(0).getInteger();
+            } catch (MetricMismatchException e) {
+                log.error("Results of MNOL metric for project: "
+                        + dir.getProjectVersion().getProject().getName() + " file: "
+                        + dir.getFileName() + ", Version: "
+                        + dir.getProjectVersion().getVersion() + " could not be retrieved: "
+                        + e.getMessage());
+            }
+        } 
+       
+        Metric metric = Metric.getMetricByMnemonic("AMS");
+        ProjectVersionMeasurement ams = new ProjectVersionMeasurement();
+        ams.setMetric(metric);
+        ams.setProjectVersion(pv);
         
-        metric = Metric.getMetricByMnemonic("AMS");
-        ProjectFileMeasurement locc = new ProjectVersionMeasurement();
-        locc.setMetric(metric);
-        locc.setProjectFile(pf);
-        locc.setWhenRun(new Timestamp(System.currentTimeMillis()));
-        locc.setResult(String.valueOf(comments));
-
-        db.addRecord(locc);
-        markEvaluation(metric, pf.getProjectVersion().getProject());
-         */
+        if (sourceModules > 0) {
+            ams.setResult(String.valueOf(((double) (locs / sourceModules))));
+        } else {
+            ams.setResult(String.valueOf(0));
+        }
+        
+        db.addRecord(ams);
+        markEvaluation(metric, pv.getProject());
+        
     }
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab
