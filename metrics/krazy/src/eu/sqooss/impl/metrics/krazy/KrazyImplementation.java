@@ -156,7 +156,6 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         ProjectFileMeasurement r = new ProjectFileMeasurement();
         r.setMetric(metric);
         r.setProjectFile(pf);
-        r.setWhenRun(new Timestamp(System.currentTimeMillis()));
         r.setResult(String.valueOf(CountQString_null));
         db.addRecord(r);
         markEvaluation(metric, pf.getProjectVersion().getProject());
