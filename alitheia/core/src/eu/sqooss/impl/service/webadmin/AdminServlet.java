@@ -329,25 +329,6 @@ public class AdminServlet extends HttpServlet {
                 + "<li id=\"nav-7\"><a href=\"/rules\">"
                 + AbstractView.getLbl("rules") + "</a></li>"
                 + "</ul>");
-        vc.put("OPTIONS",
-                "<fieldset id=\"options\">"
-                + "<legend>" + AbstractView.getLbl("options") + "</legend>"
-                + "<form id=\"motd\" method=\"post\" action=\"motd\">"
-                + "<p>" + AbstractView.getLbl("motd") + ":</p><br/>"
-                + "<input id=\"motdinput\" type=\"text\" name=\"motdtext\""
-                + " class=\"form\"/>"
-                + "<br/>"
-                + "<input type=\"submit\" value=\""
-                + AbstractView.getLbl("l0005") + "\" id=\"motdbutton\" />"
-                + "</form>"
-                + "<form id=\"start\" method=\"post\" action=\"restart\">"
-                + "<input type=\"submit\" value=\""
-                + AbstractView.getLbl("restart") + "\" />\n"
-                + "</form>"
-                + "<form id=\"stop\" method=\"post\" action=\"stop\">"
-                + "<input type=\"submit\" value=\""
-                + AbstractView.getLbl("stop") + "\" />"
-                + "</form></fieldset>");
 
         vc.put("GETLOGS", WebAdminRenderer.renderLogs());
         vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs());

@@ -31,7 +31,21 @@
             </tr>
           </table>
         </fieldset>
-        $OPTIONS
+        <fieldset id="options">
+          <legend>$tr.label("options")</legend>
+          <form id="motd" method="post" action="motd">
+            <p>$tr.label("motd") :</p><br/>
+            <input id="motdinput" type="text" name="motdtext" class="form"/>
+            <br/>
+            <input type="submit" value="$tr.label("set_save")" id="motdbutton" />
+          </form>
+          <form id="start" method="post" action="restart">
+            <input type="submit" value="$tr.label("restart")" />
+          </form>
+          <form id="stop" method="post" action="stop">
+            <input type="submit" value="$tr.label("stop")" />
+          </form>
+        </fieldset>
       </div>
       <div id="footer">
         <p>
