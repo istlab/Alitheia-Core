@@ -33,9 +33,7 @@
 
 package eu.sqooss.impl.metrics.mde;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -43,7 +41,6 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.mde.MDE;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
@@ -52,7 +49,6 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.util.Pair;
 
 
 public class MDEImplementation extends AbstractMetric implements MDE {

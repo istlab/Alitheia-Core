@@ -33,31 +33,30 @@
 
 package eu.sqooss.impl.metrics.skeleton;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.skeleton.Skeleton;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.util.Pair;
 
 
-public class SkeletonImplementation extends AbstractMetric implements Skeleton {
+public class SkeletonImplementation extends AbstractMetric implements Skeleton, ProjectFileMetric {
+    
     public SkeletonImplementation(BundleContext bc) {
         super(bc);        
+ 
+        /*Tells the metric activator when to call this metric*/
+        super.addActivationType(ProjectFile.class);
+        
+        /*Tells the UI what it metric is calculated against*/
+        super.addMetricActivationType("SKEL", ProjectFile.class);
     }
-
-    private List<Class<? extends DAObject>> activationTypes;  
     
     public boolean install() {
         boolean result = super.install();
@@ -70,37 +69,20 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton {
         return result;
     }
 
-    public boolean remove() {
-
-        return false;
+    public List<ResultEntry> getResult(ProjectFile a, Metric m) {
+        //Return a list of ResultEntries by querying the DB for the measurements
+        //implement by the supported metric and calculated for the specific 
+        //project file
+        return null;
     }
-
-    public boolean update() {
-
-        return remove() && install(); 
-    }
-
-    public Result getResult(ProjectFile a) {
-        Result result = null;
-        
-        return result;
-    }
-
+    
     public void run(ProjectFile a) {
-        SkeletonJob w = null;
-        try {
-            w = new SkeletonJob(this);
-
-            ServiceReference serviceRef = null;
-            serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-            Scheduler s = ((AlitheiaCore) bc.getService(serviceRef)).getScheduler();
-            s.enqueue(w);
-            w.waitForFinished();
-        } catch (Exception e) {
-            log.error("Could not schedule "+ w.getClass().getName() + 
-                    " for project file: " + ((ProjectFile)a).getFileName());
-        }
+        //1. Get stuff related to the provided project file
+        //2. Calculate one or more numbers
+        //3. Store a result to the database
     }
+
+    
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
