@@ -1,11 +1,25 @@
 package eu.sqooss.webui.view;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
+import eu.sqooss.webui.Result;
 import eu.sqooss.webui.SelectedSettings;
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.Metric.MetricType;
@@ -79,9 +93,196 @@ public class DeveloperDataView extends AbstractDataView {
     }
 
     @Override
-    public String getHtml(long indentationDepth) {
-        // TODO Auto-generated method stub
-        return null;
+    public String getHtml(long in) {
+        if ((project == null) || (project.isValid() == false))
+            return(sp(in) + Functions.error("Invalid project!"));
+
+        // Hold the accumulated HTML content
+        StringBuilder b = new StringBuilder("");
+
+        // Load the various resource data
+        loadData();
+
+        if (project.getDevelopersCount() < 1) {
+            b.append(sp(in)
+                    + Functions.error("This project has no developers!"));
+        }
+        else if ((selectedMetrics.isEmpty()) || (selectedResources.isEmpty())) {
+            b.append(sp(in)
+                    + "Select one or more metrics and developers.");
+        }
+        else {
+            //----------------------------------------------------------------
+            // Cleanup procedures
+            //----------------------------------------------------------------
+            /*
+             * Clear the highlighted metric variable, in case the selected
+             * metrics list is narrowed to a single metric only.
+             */
+            if (selectedMetrics.size() == 1)
+                highlightedMetric = null;
+
+            //----------------------------------------------------------------
+            // Assemble the results dataset
+            //----------------------------------------------------------------
+            /*
+             * Data set format:
+             * < metric_mnemonic < username, evaluation_value > >
+             */
+            SortedMap<String, SortedMap<String, String>> data =
+                new TreeMap<String, SortedMap<String,String>>();
+            // Prepare the data set
+            for (Long metricId : selectedMetrics) {
+                Metric metric =
+                    project.getEvaluatedMetrics().getMetricById(metricId);
+                if (metric != null)
+                    data.put(
+                            metric.getMnemonic(),
+                            new TreeMap<String, String>());
+            }
+            // Fill the data set
+            for (String resource : selectedResources) {
+                Developer resourceObj =
+                    project.getDevelopers().getDeveloperByUsername(resource);
+                if (resourceObj != null) {
+                    resourceObj.setTerrier(terrier);
+                    HashMap<String, Result> verResults =
+                        resourceObj.getResults(
+                                evaluated.values(),
+                                resourceObj.getId());
+                    for (Long metricId : selectedMetrics) {
+                        Metric metric = project.getEvaluatedMetrics()
+                            .getMetricById(metricId);
+                        if (metric != null) {
+                            Result result = verResults.get(
+                                    metric.getMnemonic());
+                            if (result != null) {
+                                result.setSettings(settings);
+                                data.get(metric.getMnemonic()).put(
+                                        resource,
+                                        result.getHtml(0));
+                            }
+                            else {
+                                data.get(metric.getMnemonic()).put(
+                                        resource, null);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //----------------------------------------------------------------
+            // Display the results in the selected form
+            //----------------------------------------------------------------
+            String chartFile = null;
+            switch (chartType) {
+            case TABLE_CHART:
+                b.append(tableChart(in, data));
+                break;
+            case BAR_CHART:
+                /*
+                 * Generate the results chart.
+                 */
+                if ((highlightedMetric != null)
+                        && (data.containsKey(highlightedMetric)))
+                    chartFile = barChart(
+                            data.subMap(highlightedMetric, highlightedMetric +"\0"));
+                else
+                    chartFile = barChart(data);
+                /*
+                 * Display the generated results chart.
+                 */
+                if (chartFile != null) {
+                    chartFile = "/tmp/" + chartFile;
+                    b.append(sp(in++) + "<table"
+                            + " style=\"margin-top: 0;\">\n");
+                    /*
+                     * Display the aggregation chart's option, only if results
+                     * for at least two metrics are available. Otherwise
+                     * display only a single metric's option.
+                     */
+                    String leadOption = "ALL";
+                    if (selectedMetrics.size() == 1) {
+                        leadOption = data.firstKey();
+                    }
+                    b.append(sp(in++) + "</tr>\n");
+                    if ((highlightedMetric != null)
+                            && (data.containsKey(highlightedMetric)))
+                        b.append(sp(in) + "<td class=\"vfv_chart_title\">"
+                                + "<a href=\"" 
+                                + getServletPath()
+                                + "\">"
+                                + "ALL" + "</a>"
+                                + "</td>\n");
+                    else
+                        b.append(sp(in) + "<td"
+                                + " class=\"vfv_chart_title_selected\">"
+                                + leadOption
+                                + "</td>\n");
+                    /*
+                     * Display the chart cell
+                     */
+                    int chartRowSpan = 2;
+                    if (data.size() > 1)
+                        chartRowSpan += data.size();
+                    b.append(sp(in) + "<td"
+                            + " class=\"vfv_chart_image\""
+                            + " rowspan=\"" + chartRowSpan + "\">"
+                            + "<a class=\"vfvchart\""
+                            + " href=\"/fullscreen.jsp?"
+                            + "chartfile=" + chartFile + "\">"
+                            + "<img src=\"" + chartFile + "\">"
+                            + "</a>"
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    /*
+                     * Display a chart option for each of the selected metrics,
+                     * unless only one metric is selected.
+                     */
+                    if (selectedMetrics.size() > 1) {
+                        for (String mnemonic : data.keySet()) {
+                            b.append(sp(in++) + "<tr>\n");
+                            if ((highlightedMetric != null)
+                                    && (highlightedMetric.equals(mnemonic)))
+                                b.append(sp(in) + "<td"
+                                        + " class=\"vfv_chart_title_selected\">"
+                                        + mnemonic
+                                        + "</td>\n");
+                            else
+                                b.append(sp(in) + "<td"
+                                        + " class=\"vfv_chart_title\">"
+                                        + "<a href=\"" 
+                                        + getServletPath()
+                                        + "?vfvsm=" + mnemonic
+                                        + "\">"
+                                        + mnemonic + "</a>"
+                                        + "</td>\n");
+                            b.append(sp(--in) + "</tr>\n");
+                        }
+                    }
+                    /*
+                     * Display an empty transparent cell to align the options
+                     * row with the chart row. 
+                     */
+                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(in) + "<td"
+                            + " class=\"vfv_chart_title_empty\">"
+                            + "&nbsp;"
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</table>\n");
+                }
+                else
+                    b.append(Functions.information(
+                            "Inapplicable results."));
+                break;
+            default:
+                b.append(tableChart(in, data));
+                break;
+            }
+
+        }
+        return b.toString();
     }
 
     /**
@@ -243,5 +444,105 @@ public class DeveloperDataView extends AbstractDataView {
         }
 
         return b.toString();
+    }
+
+    private String tableChart (
+            long in,
+            SortedMap<String, SortedMap<String, String>> values) {
+        // Hold the accumulated HTML content
+        StringBuilder b = new StringBuilder("");
+
+        b.append(sp(in++) + "<table"
+                + " style=\"width: " + (80 + 80*(values.size()))+ "px;\""
+                + ">\n");
+
+        //--------------------------------------------------------------------
+        // Table header
+        //--------------------------------------------------------------------
+        b.append(sp(in++) + "<thead>\n");
+        b.append(sp(in++) + "<tr>\n");
+        b.append(sp(in) + "<td class=\"def_invisible\""
+                + " style=\"width: 80px;\">"
+                + "&nbsp;</td>\n");
+        for (String mnemonic : values.keySet()) {
+            Metric metric = project.getEvaluatedMetrics()
+                    .getMetricByMnemonic(mnemonic);
+            b.append(sp(in) + "<td class=\"def_head\""
+                    + " style=\"width: 80px;\""
+                    + " title=\"" + metric.getDescription() + "\">"
+                    + mnemonic
+                    + "</td>\n");
+        }
+        b.append(sp(--in) + "</tr>\n");
+        b.append(sp(--in) + "</thead>\n");
+
+        //--------------------------------------------------------------------
+        // Display all available results per selected metric and resource
+        //--------------------------------------------------------------------
+        for (String resource : selectedResources) {
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in) + "<td class=\"def_head\">"
+                    + resource 
+                    + "</td>\n");
+            for (String mnemonic : values.keySet()) {
+                String result = values.get(mnemonic).get(resource).toString();
+                if (values.get(mnemonic).get(resource) != null) {
+                    try {
+                        NumberFormat localise = 
+                            NumberFormat.getNumberInstance(
+                                    settings.getUserLocale());
+                        result = localise.format(new Double(result));
+                    }
+                    catch (NumberFormatException ex) { /* Do nothing */ }
+                    catch (IllegalArgumentException ex) { /* Do nothing */ }
+                }
+                b.append(sp(in) + "<td class=\"def_right\">"
+                        + ((result != null) ? result : "N/A")
+                        + "</td>\n");
+            }
+            b.append(sp(--in) + "</tr>\n");
+        }
+        b.append(sp(--in) + "</table>\n");
+
+        return b.toString();
+    }
+
+    private String barChart (SortedMap<String, SortedMap<String, String>> values) {
+        // Construct the chart's dataset
+        DefaultCategoryDataset data = new DefaultCategoryDataset();
+        for (String nextMnemonic : values.keySet()) {
+            SortedMap<String, String> subValues = values.get(nextMnemonic);
+            for (String nextResource : subValues.keySet()) {
+                try {
+                    Double result = new Double(subValues.get(nextResource));
+                    data.addValue(result, nextMnemonic, nextResource);
+                }
+                catch (NumberFormatException ex) {
+                    return null;
+                }
+            }
+        }
+
+        // Generate the chart
+        if (data.getColumnCount() > 0) {
+            JFreeChart chart;
+            chart = ChartFactory.createBarChart3D(
+                    null, null, "Evaluation Results",
+                    data, PlotOrientation.VERTICAL,
+                    true, true, false);
+            chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+            chart.setPadding(RectangleInsets.ZERO_INSETS);
+
+            // Save the chart into a temporary file
+            try {
+                java.io.File tmpFile = java.io.File.createTempFile(
+                        "img", ".png", settings.getTempFolder());
+                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
+                return tmpFile.getName();
+            }
+            catch (IOException e) { /* Do nothing */ }
+        }
+
+        return null;
     }
 }

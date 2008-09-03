@@ -33,10 +33,6 @@
 
 package eu.sqooss.webui;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
-import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSResultEntry;
 
 
@@ -185,15 +181,6 @@ public class Result extends WebuiItem {
      */
     public String getHtml (long in) {
         if (getIsPrintable()) {
-            try {
-                if (this.mimetype.equals(MIME_TYPE_TYPE_DOUBLE)) {
-                    NumberFormat formated = NumberFormat.getNumberInstance(
-                            settings.getUserLocale());
-                    return formated.format(new Double(this.data));
-                }
-            }
-            catch (NumberFormatException ex) { /* Fall back to String */ }
-            catch (IllegalArgumentException ex) { /* Fall back to String */ }
             return getString();
         }
         else

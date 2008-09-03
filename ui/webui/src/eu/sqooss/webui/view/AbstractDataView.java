@@ -47,6 +47,7 @@ public abstract class AbstractDataView extends ListView {
     public static final int TABLE_CHART = 2;
     public static final int LINE_CHART = 4;
     public static final int PIE_CHART = 8;
+    public static final int BAR_CHART = 16;
 
     /**
      * Sets the user settings for this session.

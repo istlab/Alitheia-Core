@@ -265,7 +265,7 @@ if (selectedProject.isValid()) {
 
                 // Construct the window's content
                 dataView.setChartType(viewConf.getChartType());
-                //winResultPanel.setContent(verboseView.getHtml(in + 2));
+                winResultPanel.setContent(dataView.getHtml(in + 2));
 
                 // Display the window
                 winResultPanel.setTitle("Evaluation results");
@@ -349,6 +349,17 @@ if (selectedProject.isValid()) {
             icoLineChart.setStatus(false);
         winDataView.addToolIcon(icoLineChart);
 
+        // Results icon - bar chart display
+        WinIcon icoBarChart = new WinIcon();
+        icoBarChart.setPath(request.getServletPath());
+        icoBarChart.setParameter("chartType");
+        icoBarChart.setValue("" + AbstractDataView.BAR_CHART);
+        icoBarChart.setAlt("Show results as a bar chart");
+        icoBarChart.setImage("/img/icons/16x16/bar-chart.png");
+        if (viewConf.getChartType() == AbstractDataView.BAR_CHART)
+            icoBarChart.setStatus(false);
+        winDataView.addToolIcon(icoBarChart);
+
         /*
          * Disable the results display buttons, depending on the number of
          * selected resources and metrics.
@@ -357,6 +368,7 @@ if (selectedProject.isValid()) {
                 || (viewConf.getSelectedMetrics() == null)) {
             icoTabular.setStatus(false);
             icoLineChart.setStatus(false);
+            icoBarChart.setStatus(false);
         }
         else if (viewConf.getSelectedResources().length == 1) {
             icoLineChart.setStatus(false);
