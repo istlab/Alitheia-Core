@@ -100,9 +100,6 @@ public class ProjectsView extends AbstractView {
         // Indentation spacer
         long in = 6;
 
-        // Create a DB session
-        sobjDB.startDBSession();
-
         // Initialize the resource bundles with the request's locale
         initResources(req.getLocale());
 
@@ -246,20 +243,18 @@ public class ProjectsView extends AbstractView {
             // ---------------------------------------------------------------
             else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {
                 if (selProject != null) {
-                	//Deleting large projects in the foreground is
-                	//very slow
-                    ProjectDeleteJob pdj = new ProjectDeleteJob(sobjCore, selProject);
+                    // Deleting large projects in the foreground is
+                    // very slow
+                    ProjectDeleteJob pdj = 
+                        new ProjectDeleteJob(sobjCore,selProject);
                     try {
-						sobjSched.enqueue(pdj);
-					} catch (SchedulerException e1) {
-						e.append(sp(in) + getErr("e0034")
-	                            + "<br/>\n");
-					}
+                        sobjSched.enqueue(pdj);
+                    } catch (SchedulerException e1) {
+                        e.append(sp(in) + getErr("e0034") + "<br/>\n");
+                    }
                     selProject = null;
-                }
-                else {
-                	e.append(sp(in) + getErr("e0034")
-                            + "<br/>\n");
+                } else {
+                    e.append(sp(in) + getErr("e0034") + "<br/>\n");
                 }
             }
             // ---------------------------------------------------------------
@@ -745,10 +740,6 @@ public class ProjectsView extends AbstractView {
         // Close the form
         // ===============================================================
         b.append(sp(--in) + "</form>\n");
-
-        // Close the DB session
-        sobjDB.commitDBSession();
-
         return b.toString();
     }
 

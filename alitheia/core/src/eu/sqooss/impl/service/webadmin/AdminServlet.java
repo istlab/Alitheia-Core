@@ -34,7 +34,9 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.webadmin.WebadminService;
@@ -58,6 +60,7 @@ import org.apache.velocity.VelocityContext;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceReference;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -66,6 +69,8 @@ public class AdminServlet extends HttpServlet {
 
     /// Logger given by our owner to write log messages to.
     private Logger logger = null;
+    
+    private DBService db = null;
 
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
@@ -98,7 +103,11 @@ public class AdminServlet extends HttpServlet {
         AdminServlet.bc = bc;
         this.ve = ve;
         this.logger = logger;
-
+        
+        ServiceReference ref = bc.getServiceReference(AlitheiaCore.class.getName());
+        AlitheiaCore core = (AlitheiaCore) bc.getService(ref);
+        db = core.getDBService();
+        
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
         addStaticContent("/screen.css", "text/css");
@@ -150,6 +159,7 @@ public class AdminServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
+        db.startDBSession();
         try {
             String query = request.getPathInfo();
 
@@ -184,16 +194,19 @@ public class AdminServlet extends HttpServlet {
             else if ((query != null) && (dynamicContentMap.containsKey(query))) {
                 sendPage(response, request, dynamicContentMap.get(query));
             }
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             logger.warn("Got a NPE while rendering a page.",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } finally {
+            if (!db.commitDBSession())
+                db.rollbackDBSession();
         }
     }
 
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
+        db.startDBSession();
         try {
             String query = request.getPathInfo();
 
@@ -217,6 +230,9 @@ public class AdminServlet extends HttpServlet {
         } catch (NullPointerException e) {
             logger.warn("Got a NPE while handling POST data.");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } finally {
+            if (!db.commitDBSession())
+                db.rollbackDBSession();
         }
     }
 
@@ -233,6 +249,7 @@ public class AdminServlet extends HttpServlet {
      */
     protected void sendResource(HttpServletResponse response, Pair<String,String> source)
         throws ServletException, IOException {
+        
         InputStream istream = getClass().getResourceAsStream(source.first);
         if ( istream == null ) {
             throw new IOException("Path not found: " + source.first);

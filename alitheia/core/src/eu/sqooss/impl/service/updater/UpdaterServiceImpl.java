@@ -248,12 +248,10 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     	cns = core.getClusterNodeService();
         if (cns==null) {
             logger.warn("ClusterNodeService reference not found - ClusterNode assignment checks will be ignored");
-        } else {
-            // first check if project is assigned to any ClusterNode
-            boolean dbSessionWasActive = dbs.isDBSessionActive(); 
-            if (!dbSessionWasActive) {dbs.startDBSession();}
+        } else {            
+           
             cnp = ClusterNodeProject.getProjectAssignment(project);
-            if (!dbSessionWasActive) {dbs.rollbackDBSession();}  
+            
             if (cnp==null) {
                 // project is not assigned yet to any ClusterNode, assign it here by-default
                 try {
@@ -263,14 +261,14 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                     return true;
                 }
             } else { 
-                // project is somewhere assigned , check if it is assigned to this Cluster Node
+                // project is assigned , check if it is assigned to this Node
                 if (!cns.isProjectAssigned(project)){
                     logger.warn("Project " + project.getName() + " is not assigned to this ClusterNode - Ignoring update");
                     // TODO: Clustering - further implementation:
                     //       If needed, forward Update to the appropriate ClusterNode!
                     return true; // report success to avoid errors when adding a new project  
                 }                
-                // at this point, we are sure the project is assigned to this ClusterNode - Go On...                
+                // at this point, we are confident the project is assigned to this ClusterNode - Go On...                
             }
         }  
         // Done with ClusterNode Checks

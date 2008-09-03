@@ -58,7 +58,7 @@ import eu.sqooss.service.util.StringUtils;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /**
- * The WebAdminRender class provdies functions for rendering content
+ * The WebAdminRender class provides functions for rendering content
  * to be displayed within the WebAdmin interface.
  *
  * @author, Paul J. Adams <paul.adams@siriusit.co.uk>
@@ -316,10 +316,6 @@ public class WebAdminRenderer  extends AbstractView {
         final String tryAgain = "<p><a href=\"/projects\">Try again</a>.</p>";
         final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
 
-        //FIXME: 1. shouldn't we check duplicate before trying to add it?!
-        //FIXME: 2. when trying to add an already added project, we get a huge loop of exceptions
-        
-
         // Avoid missing-entirely kinds of parameters.
         if ( (name == null) ||
              (website == null) ||
@@ -340,79 +336,65 @@ public class WebAdminRenderer  extends AbstractView {
             return;
         }
 
-        if (sobjDB != null && sobjDB.startDBSession()) {
-            StoredProject p = new StoredProject();
-            p.setName(name);
-            p.setWebsite(website);
-            p.setContact(contact);
-            p.setBugs(bts);
-            p.setRepository(scm);
-            p.setMail(mail);
+        StoredProject p = new StoredProject();
+        p.setName(name);
+        p.setWebsite(website);
+        p.setContact(contact);
+        p.setBugs(bts);
+        p.setRepository(scm);
+        p.setMail(mail);
 
-            sobjDB.addRecord(p);
-            sobjDB.commitDBSession();
-
-            /* Run a few checks before actually storing the project */
-            //1. Duplicate project
-            sobjDB.startDBSession();
-            HashMap<String, Object> pname = new HashMap<String, Object>();
-            pname.put("name", (Object)p.getName());
-            if(sobjDB.findObjectsByProperties(StoredProject.class, pname).size() > 1) {
-                //Duplicate project, remove
-                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
-                sobjDB.commitDBSession();
-                sobjLogger.warn("A project with the same name already exists");
-                vc.put("RESULTS","<p>ERROR: A project" +
-                       " with the same name (" + p.getName() + ") already exists. " +
-                       "Project not added.</p>" + tryAgain);
-                return;
-            }
-
-            //2. Add accessor and try to access project resources
-            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(),
-                                p.getMail(), p.getRepository());
-            TDAccessor a = sobjTDS.getAccessor(p.getId());
-
-            try {
-                a.getSCMAccessor().getHeadRevision();
-                //FIXME: fix this when we have a proper bug accessor
-                if(bts != null) {
-                    //Bug b = a.getBTSAccessor().getBug(1);
-                }
-                if(mail != null) {
-                    //FIXME: fix this when the TDS supports returning
-                    // list information
-                    //a.getMailAccessor().getNewMessages(0);
-                }
-            } catch (InvalidRepositoryException e) {
-                sobjLogger.warn("Error accessing repository. Project not added");
-                vc.put("RESULTS","<p>ERROR: Can not access " +
-                                         "repository: &lt;" + p.getRepository() + "&gt;," +
-                                         " project not added.</p>" + tryAgain);
-                //Invalid repository, remove and remove accessor
-                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
-                sobjDB.commitDBSession();
-                sobjTDS.releaseAccessor(a);
-                return;
-            }
-
-            sobjTDS.releaseAccessor(a);
-
-            // 3. Call the updater and check if it starts
-            if (sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null)) {
-                sobjLogger.info("Added a new project <" + name + "> with ID " +
-                                p.getId());
-                vc.put("RESULTS", "<p>New project added successfully.</p>" + returnToList);
-            }
-            else {
-                sobjLogger.warn("The updater failed to start while adding project");
-                sobjDB.deleteRecord(sobjDB.findObjectById(StoredProject.class, p.getId()));
-                vc.put("RESULTS","<p>ERROR: The updater failed " +
-                                         "to start while adding project. Project was not added.</p>" +
-                                         tryAgain);
-            }
-            sobjDB.commitDBSession();
+        /* Run a few checks before actually storing the project */
+        // 1. Duplicate project
+        
+        HashMap<String, Object> pname = new HashMap<String, Object>();
+        pname.put("name", (Object) p.getName());
+        if (!sobjDB.findObjectsByProperties(StoredProject.class, pname).isEmpty()) {
+            sobjLogger.warn("A project with the same name already exists");
+            vc.put("RESULTS", "<p>ERROR: A project" + " with the same name ("
+                    + p.getName() + ") already exists. "
+                    + "Project not added.</p>" + tryAgain);
+            return;
         }
+
+        // 2. Add accessor and try to access project resources
+        sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), 
+                p.getRepository());
+        TDAccessor a = sobjTDS.getAccessor(p.getId());
+
+        try {
+            a.getSCMAccessor().getHeadRevision();
+            // FIXME: fix this when we have a proper bug accessor
+            if (bts != null) {
+                // Bug b = a.getBTSAccessor().getBug(1);
+            }
+            if (mail != null) {
+                // FIXME: fix this when the TDS supports returning
+                // list information
+                // a.getMailAccessor().getNewMessages(0);
+            }
+        } catch (InvalidRepositoryException e) {
+            sobjLogger.warn("Error accessing repository. Project not added");
+            vc.put("RESULTS", "<p>ERROR: Can not access " + "repository: &lt;"
+                    + p.getRepository() + "&gt;," + " project not added.</p>"
+                    + tryAgain);
+            // Invalid repository, remove and remove accessor
+            sobjTDS.releaseAccessor(a);
+        } 
+        
+        //The project is now ready to be added 
+        sobjDB.addRecord(p);
+        //Remove accessor for unregistered project
+        sobjTDS.releaseAccessor(a);
+        sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), 
+                p.getRepository());
+        
+        sobjLogger.info("Added a new project <" + name + "> with ID "
+                + p.getId());
+        vc.put("RESULTS", "<p>New project added successfully.</p>"
+                + returnToList);
+        
+        sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null);
     }
 
     public void addProjectDir(HttpServletRequest request) {

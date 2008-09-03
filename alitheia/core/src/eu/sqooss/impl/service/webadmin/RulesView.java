@@ -70,9 +70,6 @@ public class RulesView extends AbstractView{
         // Indentation spacer
         long in = 6;
 
-        // Create a DB session
-        sobjDB.startDBSession();
-
         // Request parameters
         String reqParAction        = "action";
         String reqParSelRuleId     = "selectedRuleId";
@@ -1015,9 +1012,6 @@ public class RulesView extends AbstractView{
         // Close the form
         // ===============================================================
         b.append(sp(--in) + "</form>\n");
-
-        // Close the DB session
-        sobjDB.commitDBSession();
 
         return b.toString();
     }

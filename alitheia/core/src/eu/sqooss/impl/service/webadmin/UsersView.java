@@ -87,9 +87,6 @@ public class UsersView extends AbstractView {
         // Indentation spacer
         long in = 6;
 
-        // Create a DB session
-        sobjDB.startDBSession();
-
         // Get the required security managers
         UserManager secUM = sobjSecurity.getUserManager();
         GroupManager secGM = sobjSecurity.getGroupManager();
@@ -596,8 +593,6 @@ public class UsersView extends AbstractView {
                                                 selGroup.getId(),
                                                 reqValServiceId,
                                                 privValue.getId());
-                                            sobjDB.commitDBSession();
-                                            sobjDB.startDBSession();
                                             selGroup =
                                                 secGM.getGroup(reqValGroupId);
                                     }
@@ -612,8 +607,6 @@ public class UsersView extends AbstractView {
                                         selGroup.getId(),
                                         reqValServiceId,
                                         privValue.getId())) {
-                                    sobjDB.commitDBSession();
-                                    sobjDB.startDBSession();
                                     selGroup =
                                         secGM.getGroup(reqValGroupId);
                                 }
@@ -669,8 +662,6 @@ public class UsersView extends AbstractView {
                                     selGroup.getId(),
                                     selPriv.getUrl().getId(),
                                     selPriv.getPv().getId())) {
-                                sobjDB.commitDBSession();
-                                sobjDB.startDBSession();
                                 selGroup =
                                     secGM.getGroup(reqValGroupId);
                             }
@@ -1783,9 +1774,6 @@ public class UsersView extends AbstractView {
                     new StringBuilder(resMsg.getString("no_users")),
                     in));
         }
-
-        // Close the DB session
-        sobjDB.commitDBSession();
 
         return b.toString();
     }
