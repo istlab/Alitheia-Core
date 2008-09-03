@@ -39,12 +39,14 @@
             <br/>
             <input type="submit" value="$tr.label("set_save")" id="motdbutton" />
           </form>
-          <form id="start" method="post" action="restart">
+          <table><tr>
+          <td><form id="start" method="post" action="restart">
             <input type="submit" value="$tr.label("restart")" />
-          </form>
-          <form id="stop" method="post" action="stop">
+          </form></td>
+          <td><form id="stop" method="post" action="stop">
             <input type="submit" value="$tr.label("stop")" />
-          </form>
+          </form></td>
+          </tr></table>
         </fieldset>
       </div>
       <div id="footer">

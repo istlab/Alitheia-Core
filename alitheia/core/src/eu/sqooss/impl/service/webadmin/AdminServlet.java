@@ -146,7 +146,7 @@ public class AdminServlet extends HttpServlet {
         // Create the various view objects
         rulesView = new RulesView(bc, vc);
         usersView = new UsersView(bc, vc);
-        rulesView = new RulesView(bc, vc);
+        pluginsView = new PluginsView(bc, vc);
         projectsView = new ProjectsView(bc, vc);
     }
 
@@ -309,22 +309,15 @@ public class AdminServlet extends HttpServlet {
         vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
         vc.put("UPTIME", WebAdminRenderer.getUptime());
 
-        // Deprecated string replacements, use objects instead
-        // TODO: put these renderers into objects in the context
-        // Plug-ins content
-        //vc.put("METRICS", PluginsView.render(request));
-        // Users content
-        //vc.put("USERS", UsersView.render(request));
-        // Rules content
-        //vc.put("RULES", RulesView.render(request));
-        // Projects content
-        //vc.put("PROJECTS", ProjectsView.render(request));
-
         // Object-based substitutions
         vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
         vc.put("tr",tr); // translations proxy
         vc.put("admin",adminView);
         vc.put("projects",projectsView);
+        vc.put("metrics",pluginsView);
+        vc.put("users",usersView);
+        vc.put("rules",rulesView);
+        vc.put("request", request); // The request can be used by the render() methods
     }  
     
     public class TranslationProxy {

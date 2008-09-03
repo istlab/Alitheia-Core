@@ -10,7 +10,7 @@
         <div id="contents">
           <h2>$tr.label("projects_mngm")</h2>
           <div id="table">
-            $PROJECTS
+            $projects.render($request)
           </div>
           <h2>Install new project</h2>
           <form id="addprojectdir" method="post" action="diraddproject">
