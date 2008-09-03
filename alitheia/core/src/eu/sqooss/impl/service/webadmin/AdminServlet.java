@@ -301,16 +301,19 @@ public class AdminServlet extends HttpServlet {
 
         // Simple string substitutions
         vc.put("APP_NAME", AbstractView.getLbl("app_name"));
-        vc.put("PLUGINS_HEADER", AbstractView.getLbl("plugins_mngm"));
-        vc.put("PROJECTS_HEADER", AbstractView.getLbl("projects_mngm"));
-        vc.put("USERS_HEADER", AbstractView.getLbl("users_mngm"));
-        vc.put("RULES_HEADER", AbstractView.getLbl("rules_mngm"));
         vc.put("COPYRIGHT",
                 "Copyright 2007-2008"
                 + "<a href=\"http://www.sqo-oss.eu/about/\">"
                 + "&nbsp;SQO-OSS Consortium Members"
                 + "</a>");
         vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
+        vc.put("UPTIME", WebAdminRenderer.getUptime());
+
+        // Deprecated crap
+        vc.put("PLUGINS_HEADER", AbstractView.getLbl("plugins_mngm"));
+        vc.put("PROJECTS_HEADER", AbstractView.getLbl("projects_mngm"));
+        vc.put("USERS_HEADER", AbstractView.getLbl("users_mngm"));
+        vc.put("RULES_HEADER", AbstractView.getLbl("rules_mngm"));
         vc.put("MENU",
                 "<ul id=\"menu\">"
                 + "<li id=\"nav-1\"><a href=\"/index\">"
@@ -346,17 +349,7 @@ public class AdminServlet extends HttpServlet {
                 + AbstractView.getLbl("stop") + "\" />"
                 + "</form></fieldset>");
 
-        // Function-based substitutions
-        vc.put("scheduler", render.sobjSched.getSchedulerStats());
-        vc.put("tr",tr);
         vc.put("GETLOGS", WebAdminRenderer.renderLogs());
-        vc.put("UPTIME", WebAdminRenderer.getUptime());
-        vc.put("QUEUE_LENGTH", WebAdminRenderer.getSchedulerDetails("WAITING"));
-        vc.put("JOB_EXEC", WebAdminRenderer.getSchedulerDetails("RUNNING"));
-        vc.put("JOB_WAIT", WebAdminRenderer.getSchedulerDetails("WAITING"));
-        vc.put("JOB_WORKTHR", WebAdminRenderer.getSchedulerDetails("WORKER"));
-        vc.put("JOB_FAILED", WebAdminRenderer.getSchedulerDetails("FAILED"));
-        vc.put("JOB_TOTAL", WebAdminRenderer.getSchedulerDetails("TOTAL"));
         vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs());
         vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs());
         vc.put("JOBFAILSTATS", WebAdminRenderer.renderJobFailStats());
@@ -371,33 +364,9 @@ public class AdminServlet extends HttpServlet {
         // Projects content
         vc.put("PROJECTS", ProjectsView.render(request));
 
-        // Composite substitutions
-        vc.put("STATUS_JOBS",
-                "<fieldset id=\"jobs\">"
-                + "<legend>" + AbstractView.getLbl("job_info") + "</legend>"
-                + "<table width='100%' cellspacing=0 cellpadding=3>"
-                + "<tr>"
-                + "<td>" + AbstractView.getLbl("executing") + ":</td>"
-                + "<td class=\"number\">" + vc.get("JOB_EXEC") + "</td>"
-                + "</tr>"
-                + "<tr>"
-                + "<td>" + AbstractView.getLbl("waiting") + ":</td>"
-                + "<td class=\"number\">" + vc.get("JOB_WAIT") + "</td>"
-                + "</tr>"
-                + "<tr>"
-                + "<td>" + AbstractView.getLbl("failed") + ":</td>"
-                + "<td class=\"number\">" + vc.get("JOB_FAILED") + "</td>"
-                + "</tr>"
-                + "<tr>"
-                + "<td>" + AbstractView.getLbl("total") + ":</td>"
-                + "<td class=\"number\">" + vc.get("JOB_TOTAL") + "</td>"
-                + "</tr>"
-                + "<tr class=\"newgroup\">"
-                + "<td>" + AbstractView.getLbl("workers") + ":</td>"
-                + "<td class=\"number\">" + vc.get("JOB_WORKTHR") + "</td>"
-                + "</tr>"
-                + "</table>"
-                + "</fieldset>");
+        // Object-based substitutions
+        vc.put("scheduler", render.sobjSched.getSchedulerStats());
+        vc.put("tr",tr); // translations proxy
     }  
     
     public class TranslationProxy {
