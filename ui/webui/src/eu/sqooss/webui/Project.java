@@ -164,7 +164,7 @@ public class Project extends WebuiItem {
             Long[] mlIds = Functions.strToLongArray(p.getMailingLists(), ";");
             if ((mlIds != null) && (mlIds.length > 0)) {
                 int index = 0;
-                mailingListIds = new long[devIds.length];
+                mailingListIds = new long[mlIds.length];
                 for (Long id : mlIds)
                     mailingListIds[index++] = id;
             }
