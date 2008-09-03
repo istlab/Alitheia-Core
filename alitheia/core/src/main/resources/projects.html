@@ -6,9 +6,9 @@
         <img src="/sqo-oss.png" alt="SQO-OSS Logo" />
       </div>
       <div id="main">
-        $MENU
+#parse("menu.inc")
         <div id="contents">
-          <h2>$PROJECTS_HEADER</h2>
+          <h2>$tr.label("projects_mngm")</h2>
           <div id="table">
             $PROJECTS
           </div>
@@ -26,6 +26,6 @@
           </fieldset>
         </div>
       </div>
-    #parse("sidebar.inc")
+#parse("sidebar.inc")
   </body>
 </html>

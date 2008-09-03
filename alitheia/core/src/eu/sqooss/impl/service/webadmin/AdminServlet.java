@@ -309,27 +309,8 @@ public class AdminServlet extends HttpServlet {
         vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
         vc.put("UPTIME", WebAdminRenderer.getUptime());
 
-        // Deprecated crap
-        vc.put("PLUGINS_HEADER", AbstractView.getLbl("plugins_mngm"));
-        vc.put("PROJECTS_HEADER", AbstractView.getLbl("projects_mngm"));
-        vc.put("USERS_HEADER", AbstractView.getLbl("users_mngm"));
-        vc.put("RULES_HEADER", AbstractView.getLbl("rules_mngm"));
-        vc.put("MENU",
-                "<ul id=\"menu\">"
-                + "<li id=\"nav-1\"><a href=\"/index\">"
-                + AbstractView.getLbl("plugins") + "</a></li>"
-                + "<li id=\"nav-3\"><a href=\"/projects\">"
-                + AbstractView.getLbl("projects") + "</a></li>"
-                + "<li id=\"nav-6\"><a href=\"/users\">"
-                + AbstractView.getLbl("users") + "</a></li>"
-                + "<li id=\"nav-2\"><a href=\"/logs\">"
-                + AbstractView.getLbl("logs") + "</a></li>"
-                + "<li id=\"nav-4\"><a href=\"/jobs\">"
-                + AbstractView.getLbl("jobs") + "</a></li>"
-                + "<li id=\"nav-7\"><a href=\"/rules\">"
-                + AbstractView.getLbl("rules") + "</a></li>"
-                + "</ul>");
-
+        // Deprecated string replacements, use objects instead
+        // TODO: put these renderers into objects in the context
         vc.put("GETLOGS", WebAdminRenderer.renderLogs());
         vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs());
         vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs());

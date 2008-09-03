@@ -6,44 +6,32 @@
         <img src="sqo-oss.png" alt="SQO-OSS Logo"/>
       </div>
       <div id="main">
-        $MENU
-	<div id="contents">
-	<h2>Job statistics</h2>
-		<ul>
-          <li>Jobs Executing:
-          	$JOB_EXEC
-          </li>
-          <li>
-          Jobs Waiting:
-          	$JOB_WAIT
-          </li>
-          <li>
-          Failed Jobs:
-          	$JOB_FAILED
-          </li>
-          <li>
-          Worker Threads:
-          	$JOB_WORKTHR
-          </li>
-          <li>
-          Total Jobs:
-          	$JOB_TOTAL
-          </li>
-        </ul>
+#parse("menu.inc")
+        <div id="contents">
+          <h2>Job statistics</h2>
+          <ul>
+            <li>Jobs Executing: $scheduler.RunningJobs</li>
+            <li>Jobs Waiting: $scheduler.WaitingJobs</li>
+            <li>Failed Jobs: $scheduler.FailedJobs</li>
+            <li>Worker Threads: $scheduler.WorkerThreads</li>
+            <li>Total Jobs: $scheduler.TotalJobs</li>
+          </ul>
         
-      <h2>Running Jobs</h2>
-        <div id="bundles">
-        $JOBRUNSTATS
-        </div>
-      <h2>Waiting Jobs statistics</h2>
-        <div id="bundles">
-        $JOBWAITSTATS
-        </div>
-	  <h2>Job failure statistics</h2> 
-	  	<a href="alljobs">Details ...</a>
-		<div id="bundles">
-    	$JOBFAILSTATS
-    	</div>
+          <h2>Running Jobs</h2>
+          <div id="bundles">
+            $JOBRUNSTATS
+          </div>
+
+          <h2>Waiting Jobs statistics</h2>
+          <div id="bundles">
+            $JOBWAITSTATS
+          </div>
+
+          <h2>Job failure statistics</h2> 
+          <a href="alljobs">Details ...</a>
+          <div id="bundles">
+    	    $JOBFAILSTATS
+    	  </div>
 	</div>
       </div>
 #parse("sidebar.inc")
