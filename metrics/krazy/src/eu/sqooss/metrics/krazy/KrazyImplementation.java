@@ -32,7 +32,7 @@
  *
  */
 
-package eu.sqooss.impl.metrics.krazy;
+package eu.sqooss.metrics.krazy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,12 +70,47 @@ import eu.sqooss.service.util.Pair;
 public class KrazyImplementation extends AbstractMetric implements ProjectFileMetric  {
     private FDSService fds;
 
-    private static final String KrazyQString_null = "Krazy.qsn";
+    /**
+     * This is an array of things to grep for; each one creates a 
+     * separate metric in this plug-in. The structure of each 
+     * string is a (short) mnemonic, an = sign, then a metric description,
+     * then a regexp.
+     */
+    private static final String[] grep_initializer = {
+        "qsn=QString::null detector=QString *:: *null",
+        "pfn=Profanity detector=fuck|shit|donkey rap(ing|e)"
+    } ;
+    
+    /**
+     * This is a (hash)map of names of greps to a pair of
+     * (description,pattern) and is extracted from the
+     * initializer array, above. 
+     */
+    private HashMap<String,Pair<String,Pattern>> greps = null;
+ 
+    private String makeMetricName(String mnemonic) {
+        return "Krazy." + mnemonic;
+    }
     
     public KrazyImplementation(BundleContext bc) {
         super(bc);        
         super.addActivationType(ProjectFile.class);
-        super.addMetricActivationType("Krazy.qsn", ProjectFile.class);
+        
+        // Munge the array into a list of patterns, storing the
+        // compiled regexp each time. We ignore the description
+        // field here, because that is only needed in the 
+        greps = new HashMap<String,Pair<String,Pattern>>(grep_initializer.length);
+        for (String s : grep_initializer) {
+            String[] grep = s.split("=", 3);
+            if (grep.length!=3) {
+                log.warn("Bad Krazy grep initializer <" + s + ">");
+            } else {
+                Pair<String,Pattern> p = new Pair<String,Pattern>(
+                        grep[1],Pattern.compile(grep[2]));
+                greps.put(grep[0],p);
+                super.addMetricActivationType(makeMetricName(grep[0]), ProjectFile.class);
+            }
+        }
 
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
@@ -84,11 +119,15 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
     
     public boolean install() {
         boolean result = super.install();
-        if (result) {
+        for (String s : greps.keySet()) {
+            // Bail out if adding one fails
+            if (!result) {
+                break;
+            }
             result &= super.addSupportedMetrics(
-                    "QString::null detection",
-                    KrazyQString_null,
-                    MetricType.Type.SOURCE_CODE);
+                greps.get(s).first,
+                makeMetricName(s),
+                MetricType.Type.SOURCE_CODE);
         }
         return result;
     }

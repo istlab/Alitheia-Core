@@ -38,9 +38,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.metrics.krazy.KrazyImplementation;
-
-
 public class KrazyActivator implements BundleActivator {
 
     private ServiceRegistration registration;
