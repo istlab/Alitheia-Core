@@ -311,20 +311,20 @@ public class AdminServlet extends HttpServlet {
 
         // Deprecated string replacements, use objects instead
         // TODO: put these renderers into objects in the context
-        vc.put("GETLOGS", WebAdminRenderer.renderLogs());
-        vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs());
-        vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs());
-        vc.put("JOBFAILSTATS", WebAdminRenderer.renderJobFailStats());
-        vc.put("JOBRUNSTATS", WebAdminRenderer.renderJobRunStats());
-        vc.put("JOBWAITSTATS", WebAdminRenderer.renderJobWaitStats());
+        //vc.put("GETLOGS", WebAdminRenderer.renderLogs());
+        //vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs());
+        //vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs());
+        //vc.put("JOBFAILSTATS", WebAdminRenderer.renderJobFailStats());
+        //vc.put("JOBRUNSTATS", WebAdminRenderer.renderJobRunStats());
+        //vc.put("JOBWAITSTATS", WebAdminRenderer.renderJobWaitStats());
         // Plug-ins content
-        vc.put("METRICS", PluginsView.render(request));
+        //vc.put("METRICS", PluginsView.render(request));
         // Users content
-        vc.put("USERS", UsersView.render(request));
+        //vc.put("USERS", UsersView.render(request));
         // Rules content
-        vc.put("RULES", RulesView.render(request));
+        //vc.put("RULES", RulesView.render(request));
         // Projects content
-        vc.put("PROJECTS", ProjectsView.render(request));
+        //vc.put("PROJECTS", ProjectsView.render(request));
 
         // Object-based substitutions
         vc.put("scheduler", render.sobjSched.getSchedulerStats());
