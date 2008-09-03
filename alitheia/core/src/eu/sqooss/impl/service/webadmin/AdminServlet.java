@@ -95,6 +95,8 @@ public class AdminServlet extends HttpServlet {
     // Projects view
     ProjectsView projectsView = null;
 
+    TranslationProxy tr = new TranslationProxy();
+    
     public AdminServlet(BundleContext bc,
             WebadminService webadmin,
             Logger logger,
@@ -345,7 +347,8 @@ public class AdminServlet extends HttpServlet {
                 + "</form></fieldset>");
 
         // Function-based substitutions
-        //vc.put("STATUS", someFunction); FIXME
+        vc.put("scheduler", render.sobjSched.getSchedulerStats());
+        vc.put("tr",tr);
         vc.put("GETLOGS", WebAdminRenderer.renderLogs());
         vc.put("UPTIME", WebAdminRenderer.getUptime());
         vc.put("QUEUE_LENGTH", WebAdminRenderer.getSchedulerDetails("WAITING"));
@@ -369,16 +372,6 @@ public class AdminServlet extends HttpServlet {
         vc.put("PROJECTS", ProjectsView.render(request));
 
         // Composite substitutions
-        vc.put("STATUS_CORE",
-                "<fieldset id=\"status\">"
-                + "<legend>" + AbstractView.getLbl("status") + "</legend>"
-                + "<ul>"
-                + "<li class=\"uptime\">" + AbstractView.getLbl("uptime")
-                + ": " + vc.get("UPTIME") + "</li>"
-                + "<li class=\"queue\">" + AbstractView.getLbl("queue_length")
-                + ": " + vc.get("QUEUE_LENGTH") + "</li>"
-                + "</ul>"
-                + "</fieldset>");
         vc.put("STATUS_JOBS",
                 "<fieldset id=\"jobs\">"
                 + "<legend>" + AbstractView.getLbl("job_info") + "</legend>"
@@ -405,6 +398,15 @@ public class AdminServlet extends HttpServlet {
                 + "</tr>"
                 + "</table>"
                 + "</fieldset>");
+    }  
+    
+    public class TranslationProxy {
+        public TranslationProxy() { 
+        }
+        
+        public String label(String s) {
+            return AbstractView.getLbl(s);
+        }
     }
 }
 
