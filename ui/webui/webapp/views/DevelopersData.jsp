@@ -190,14 +190,19 @@ if (selectedProject.isValid()) {
                 winInfoPanel.addTitleIcon(icoCloseWin);
 
                 // Construct the windows's toolbar
-                TextInput icoShowResource = new TextInput();
+                SelectInput icoShowResource = new SelectInput();
                 icoShowResource.setPath(request.getServletPath());
                 icoShowResource.setParameter("showResource");
-                icoShowResource.setText("Show developer:");
+                icoShowResource.setLabelText("Username: ");
+                icoShowResource.setButtonText("Show");
+                for (Developer developer : selectedProject.getDevelopers())
+                icoShowResource.addOption(
+                        developer.getUsername(),
+                        developer.getUsername());
                 winInfoPanel.addToolIcon(icoShowResource);
 
                 // Construct the window's content
-                //winInfoPanel.setContent(dataView.getInfo(in + 2));
+                winInfoPanel.setContent(dataView.getInfo(in + 2));
 
                 // Display the window
                 winInfoPanel.setTitle("Information");
@@ -215,9 +220,19 @@ if (selectedProject.isValid()) {
                 winControlPanel.addTitleIcon(icoCloseWin);
 
                 // Construct the windows's toolbar
+                SelectInput icoAddResource = new SelectInput();
+                icoAddResource.setPath(request.getServletPath());
+                icoAddResource.setParameter("addResource");
+                icoAddResource.setLabelText("Username: ");
+                icoAddResource.setButtonText("Add");
+                for (Developer developer : selectedProject.getDevelopers())
+                icoAddResource.addOption(
+                        developer.getUsername(),
+                        developer.getUsername());
+                winControlPanel.addToolIcon(icoAddResource);
 
                 // Construct the window's content
-                //winControlPanel.setContent(verboseView.getControls(in + 2));
+                winControlPanel.setContent(dataView.getControls(in + 2));
 
                 // Display the window
                 winControlPanel.setTitle("Control center");

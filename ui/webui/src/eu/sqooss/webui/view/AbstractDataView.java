@@ -7,12 +7,19 @@ import java.util.Map;
 
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Project;
+import eu.sqooss.webui.SelectedSettings;
+import eu.sqooss.webui.settings.BaseDataSettings;
 
 public abstract class AbstractDataView extends ListView {
     /*
      * Holds the selected project's object.
      */
     protected Project project;
+
+    /*
+     * Holds the view specific session settings.
+     */
+    BaseDataSettings viewConf;
 
     /*
      * Holds the current metric selection (as a list of metric Ids).
@@ -40,6 +47,17 @@ public abstract class AbstractDataView extends ListView {
     public static final int TABLE_CHART = 2;
     public static final int LINE_CHART = 4;
     public static final int PIE_CHART = 8;
+
+    /**
+     * Sets the user settings for this session.
+     * 
+     * @param settings the new settings
+     */
+    public void setSettings(SelectedSettings settings) {
+        this.settings = settings;
+        this.viewConf = settings.getDataSettings(
+                SelectedSettings.DEVELOPERS_DATA_SETTINGS);
+    }
 
     /**
      * Sets the current selection of metrics evaluated on the displayed

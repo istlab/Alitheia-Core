@@ -38,14 +38,19 @@ import java.util.TreeMap;
 public class SelectInput extends AbstractIcon {
     private SortedMap<String, String> options = new TreeMap<String, String>();
     private String selected;
-    private String text;
+    private String labelText;
+    private String buttonText = "Apply";
 
     public void setSelected(String name) {
         this.selected = name;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setLabelText(String text) {
+        this.labelText = text;
+    }
+
+    public void setButtonText(String text) {
+        this.buttonText = text;
     }
 
     public void addOption(String value, String name) {
@@ -60,7 +65,7 @@ public class SelectInput extends AbstractIcon {
         StringBuilder b = new StringBuilder("");
         if (getStatus()) {
             b.append("<form class=\"icoTextInput\">");
-            b.append(text != null ? "<b>" + text + "</b>" : "");
+            b.append(labelText != null ? "<b>" + labelText + "</b>" : "");
             b.append("<select class=\"icoTextInput\""
                     + " name=\""
                     + ((getParameter() != null) ? getParameter() : "" )
@@ -78,11 +83,11 @@ public class SelectInput extends AbstractIcon {
             }
             b.append("</select>");
             b.append("<input type=\"submit\" class=\"icoTextInput\""
-                    + " value=\"Add\">\n");
+                    + " value=\"" + buttonText + "\">\n");
             b.append("</form>\n");
         }
         else {
-            b.append(text != null ? "<b>" + text + "</b>" : "");
+            b.append(labelText != null ? "<b>" + labelText + "</b>" : "");
         }
         return b.toString();
     }

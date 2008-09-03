@@ -259,7 +259,8 @@ if (selectedProject.isValid()) {
                     SelectInput icoVersionSelector = new SelectInput();
                     icoVersionSelector.setPath(request.getServletPath());
                     icoVersionSelector.setParameter("vvvnum");
-                    icoVersionSelector.setText("Tagged:");
+                    icoVersionSelector.setLabelText("Tagged:");
+                    icoVersionSelector.setButtonText("Add");
                     for (TaggedVersion tag : selectedProject.getTaggedVersions())
                         icoVersionSelector.addOption(
                                 tag.getNumber().toString(),

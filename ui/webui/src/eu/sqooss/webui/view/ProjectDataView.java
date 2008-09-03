@@ -184,7 +184,7 @@ public class ProjectDataView extends ListView {
         for (String mnemonic : keyMetrics.keySet())
             chartData.put(mnemonic, new TreeMap<Date, String>());
 
-        // Simulate tagged versions on a project without any
+        // Forge some tagged versions on a project without any
         boolean simulatedTags = false;
         if (tagged.isEmpty()) {
             simulatedTags = true;
@@ -215,7 +215,7 @@ public class ProjectDataView extends ListView {
             }
         }
 
-        // Clean up the list of tagged version, if they were simulated
+        // Clean up the list of tagged version, if they were forged
         if (simulatedTags)
             tagged.clear();
 
