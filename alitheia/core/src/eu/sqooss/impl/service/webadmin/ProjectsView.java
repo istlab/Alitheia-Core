@@ -506,12 +506,6 @@ public class ProjectsView extends AbstractView {
         // Projects list view
         // ===================================================================
         else {
-            // Create the field-set
-            b.append(sp(in++) + "<fieldset>\n");
-            b.append(sp(in) + "<legend>"
-                    + getLbl("l0072")
-                    + "</legend>\n");
-
             addHeaderRow(b,in);
 
             if (projects.isEmpty()) {
@@ -613,7 +607,7 @@ public class ProjectsView extends AbstractView {
             // Tool-bar
             //----------------------------------------------------------------
             b.append(sp(in++) + "<tr class=\"subhead\">\n");
-            b.append(sp(in++) + "<td colspan=\"7\">\n");
+            b.append(sp(in++) + "<td>View</td><td colspan=\"6\">\n");
             // Refresh button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
@@ -626,7 +620,7 @@ public class ProjectsView extends AbstractView {
                                     + selProject.getId()
                             : "")
                     +"';\""
-                    + ">\n");
+                    + "></td></tr><tr class=\"subhead\"><td>Manage</td><td colspan='6'>\n");
             // Add project button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
@@ -648,7 +642,7 @@ public class ProjectsView extends AbstractView {
                     + ACT_REQ_REM_PROJECT + "';"
                     + SUBMIT + "\""
                     + ((selProject != null) ? "" : " disabled")
-                    + ">\n");
+                    + "></td></tr><tr class='subhead'><td>Update</td><td colspan='6'>\n");
             // Trigger source update
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
