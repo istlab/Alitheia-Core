@@ -51,6 +51,9 @@ build-extlibs :
 build-core : build-extlibs
 	cd alitheia && $(MAKE) && $(MAKE) install
 	
+build-metrics : 
+	cd metrics && $(MAKE) && $(MAKE) install
+
 # The standard clean target calls clean-dir to clean up things *here*,
 # so we remove the installed bundles from the prefix. That's like
 # uninstall, so we might want to reconsider that long-term.
