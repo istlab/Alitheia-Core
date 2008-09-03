@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.List;
-import java.util.Set;
 
 
 import javax.servlet.Servlet;
@@ -60,7 +59,6 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
-import eu.sqooss.service.cluster.ClusterNodeService.ClusterNodeAction;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ClusterNodeProject;
 
@@ -70,7 +68,6 @@ import org.osgi.service.event.EventHandler;
 
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
-
 
 /**
  * @author George M. Zouganelis
@@ -192,41 +189,43 @@ public class ClusterNodeServiceImpl extends HttpServlet implements EventHandler,
     		throw new ClusterNodeActionException("Request to assign a null project to a clusternode");
     	}
 
-        dbs.startDBSession();
         try {          
         	// check if project is allready assigned to any ClusterNode
-        	ClusterNodeProject assignment = ClusterNodeProject.getProjectAssignment(project);
-        	if (assignment==null) {
-        	    // new project assignment
-        	    logger.info("Assigning project " + project.getName()+" to " + node.getName());
-        		assignment = new ClusterNodeProject();
-        		assignment.setProject(project);
-        		assignment.setNode(node);
-        		assignment.setLocked(false);
-        		dbs.addRecord(assignment);
-        		dbs.commitDBSession();
-        		return true;
-        	} else { 
-        	    logger.info("Moving project " + project.getName() + " from " + assignment.getNode().getName() + " to "+ node.getName());
-        	    if (assignment.getNode().getId() == node.getId()) {
-        	        logger.info("No need to move " + project.getName() + " - Already assigned!");
-        	        dbs.rollbackDBSession();
-        	        return true;
-        	    }
-        	    // TODO: Clustering - Find a way to implement a robust Locking mechanism
-        	    //       A project shouldn't be moved when there is an Update or a Metric job in process
-                //       For now, no locking is performed
-        		if (assignment.isLocked()) {
-        			dbs.rollbackDBSession();
-        			throw new ClusterNodeActionException("Project [" + project.getName()+"] is locked! - aborting");
-        		}     
-        		assignment.setNode(node);
-        		dbs.commitDBSession();
-        	}   
-		} catch (Exception e) {
-			dbs.rollbackDBSession();
-			throw new ClusterNodeActionException("Failed to assign project [" + project.getName() +"] to clusternode [" + node.getName() +"]");
-		}
+            ClusterNodeProject assignment = ClusterNodeProject.getProjectAssignment(project);
+            if (assignment == null) {
+                // new project assignment
+                logger.info("Assigning project " + project.getName() + " to "
+                        + node.getName());
+                assignment = new ClusterNodeProject();
+                assignment.setProject(project);
+                assignment.setNode(node);
+                assignment.setLocked(false);
+                return dbs.addRecord(assignment);
+            } else {
+                logger.info("Moving project " + project.getName() + " from "
+                        + assignment.getNode().getName() + " to "
+                        + node.getName());
+                if (assignment.getNode().getId() == node.getId()) {
+                    logger.info("No need to move " + project.getName()
+                            + " - Already assigned!");
+                    return true;
+                }
+                // TODO: Clustering - Find a way to implement a robust Locking
+                // mechanism
+                // A project shouldn't be moved when there is an Update or a
+                // Metric job in process
+                // For now, no locking is performed
+                if (assignment.isLocked()) {
+                    throw new ClusterNodeActionException("Project ["
+                            + project.getName() + "] is locked! - aborting");
+                }
+                assignment.setNode(node);
+            }
+        } catch (Exception e) {
+            throw new ClusterNodeActionException("Failed to assign project ["
+                    + project.getName() + "] to clusternode [" + node.getName()
+                    + "]");
+        }
     	return true;
     }
 
