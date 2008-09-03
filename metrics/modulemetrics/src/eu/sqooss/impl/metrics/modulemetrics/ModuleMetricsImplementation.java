@@ -34,7 +34,6 @@
 
 package eu.sqooss.impl.metrics.modulemetrics;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,6 +48,7 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
@@ -159,14 +159,15 @@ implements ModuleMetrics {
         
         while (i.hasNext()) {
             ProjectFile f = i.next();
-            if (FileTypeMatcher.getFileType(f.getName()) == 
-                FileTypeMatcher.FileType.SRC) {
+            if (FileTypeMatcher.getFileType(f.getName()) == FileTypeMatcher.FileType.SRC) {
                 /*Found one source file, treat the dir as source module*/
                 foundSource = true;
             }
             /*Get measurement from the wc plugin*/
             try {
-                loc += plugin.getResult(f, locMetric).getRow(0).get(0).getInteger();
+                if (FileTypeMatcher.isTextType(f.getName())) {
+                    loc += plugin.getResult(f, locMetric).getRow(0).get(0).getInteger();
+                }
             } catch (MetricMismatchException e) {
                 log.error("Results of LOC metric for project: "
                         + f.getProjectVersion().getProject().getName() + " file: "
@@ -201,7 +202,12 @@ implements ModuleMetrics {
     }
     
     public void run(ProjectVersion pv) {
-        /*
+        
+        /*List<ProjectFile> pfs = ProjectFile.getFilesForVersion(pv, 
+                Directory.getDirectory("/", false), 
+                ProjectFile.MASK_DIRECTORIES);
+        
+        
         metric = Metric.getMetricByMnemonic("AMS");
         ProjectFileMeasurement locc = new ProjectVersionMeasurement();
         locc.setMetric(metric);

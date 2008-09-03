@@ -166,6 +166,27 @@ public class FileTypeMatcher {
     }
 
     /**
+     * Checks whether a file is of text type
+     * @param path The path to check
+     * @return True is the file is a text file as identified by the extention
+     */
+    public static boolean isTextType(String path) {
+        return !isBinaryType(path);
+    }
+    
+    /**
+     * Checks whether a file is of binary type
+     * @param path The path to check
+     * @return True is the file is a binary file as identified by the extention
+     */
+    public static boolean isBinaryType(String path) {
+        if (getFileType(path).equals(FileType.BIN)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Given a filename extension ext, check the known lists
      * of file extensions for an exact match.
      * 
