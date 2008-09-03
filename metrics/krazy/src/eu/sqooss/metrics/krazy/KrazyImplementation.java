@@ -38,9 +38,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -51,19 +48,16 @@ import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
-import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
-import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.util.Pair;
 
 
@@ -77,8 +71,10 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
      * then a regexp.
      */
     private static final String[] grep_initializer = {
-        "qsn=QString::null detector=QString *:: *null",
-        "pfn=Profanity detector=fuck|shit|donkey rap(ing|e)"
+        "qsn=QString::null detector=QString *:: *null"
+        // One more grepper is inserted programmatically
+        // so it doesn't need to be here:
+        //   pfn=Profanity detector=<profanity RE>
     } ;
     
     /**
@@ -88,6 +84,30 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
      */
     private HashMap<String,Pair<String,Pattern>> greps = null;
  
+    /**
+     * Default profanity level.
+     */
+    private static final String DEFAULT_PROFANITY = 
+            "fuck|shit|donkey rap(e|ing)";
+    
+    /**
+     * Mnemonic for profanity grepper.
+     */
+    private static final String MNEMONIC_PROFANITY = "pfn";
+    
+    /**
+     * Description of the profanity detector.
+     */
+    private static final String DESCRIPTION_PROFANITY = "Profanity detector";
+    
+    /**
+     * Convenience and consistency method to map grep mnemonics
+     * (e.g. qsn) to the full metric name -- the names need to be
+     * namespaced in some way because otherwise we would quickly
+     * reach clashes.
+     * @param mnemonic metric mnemonic
+     * @return Krazy.mnemonic
+     */
     private String makeMetricName(String mnemonic) {
         return "Krazy." + mnemonic;
     }
@@ -97,9 +117,10 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         super.addActivationType(ProjectFile.class);
         
         // Munge the array into a list of patterns, storing the
-        // compiled regexp each time. We ignore the description
-        // field here, because that is only needed in the 
-        greps = new HashMap<String,Pair<String,Pattern>>(grep_initializer.length);
+        // compiled regexp each time.  We allocate one more than
+        // the number of initializers in the string array
+        // because we need to add the profanity detector, too.
+        greps = new HashMap<String,Pair<String,Pattern>>(grep_initializer.length+1);
         for (String s : grep_initializer) {
             String[] grep = s.split("=", 3);
             if (grep.length!=3) {
@@ -112,6 +133,8 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
                 log.info("Krazy grepper <" + grep[0] + "> added for <" + grep[1] + ">");
             }
         }
+        greps.put(MNEMONIC_PROFANITY, new Pair<String,Pattern>(
+                DESCRIPTION_PROFANITY,Pattern.compile(DEFAULT_PROFANITY)));
 
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
@@ -133,6 +156,11 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
                 log.warn("Failed to add supported metric <" + makeMetricName(s) + ">");
             }
         }
+        addConfigEntry(MNEMONIC_PROFANITY,
+                DEFAULT_PROFANITY,
+                "Expressions considered profane",
+                PluginInfo.ConfigurationType.STRING);
+
         return result;
     }
 
@@ -147,7 +175,38 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
     private static String CPPExtensions[] = {
         ".h",".cc",".cpp",".C"
     } ;
-    
+
+    private void updateProfanitySettings() {
+        // This is the profanity grepper, call it a reserved name
+        Pair<String,Pattern> pfn = greps.get(MNEMONIC_PROFANITY);
+        if (null == pfn) {
+            // Profanity has been removed from this multi-grep
+            return;
+        }
+
+        // Profanity is configurable, so we need to get that
+        // string from the config manager instead of keeping 
+        // around the 
+        PluginConfiguration profanityConfig = 
+                getConfigurationOption(MNEMONIC_PROFANITY);
+        
+        if (profanityConfig == null) {
+            log.warn("Plug-in configuration option " + 
+                    MNEMONIC_PROFANITY + " not found");
+            // Leave the setting alone
+        } else {
+            String profanity = profanityConfig.getValue().trim();
+            Pattern p = null;
+            if (profanity.length()>0) {
+                p = Pattern.compile(profanity);
+            }
+            greps.put(MNEMONIC_PROFANITY, new Pair<String, Pattern>(
+                    pfn.first, p));
+        }
+        
+    }
+
+
     public void run(ProjectFile pf) {
         // Don't support directories
         if (pf.getIsDirectory()) {
@@ -182,6 +241,8 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         LineNumberReader lnr = 
             new LineNumberReader(new InputStreamReader(in));
 
+        updateProfanitySettings();
+
         // Keep a count for each pattern
         HashMap<String,Integer> counts = new HashMap<String,Integer>(greps.size());
         for (String s : greps.keySet()) {
@@ -191,10 +252,12 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         try {
 	        while ((line = lnr.readLine()) != null) {
                     for (String s : greps.keySet()) {
-	        	Matcher m = greps.get(s).second.matcher(line);
-	        	if (m.find()) {
-                            counts.put(s,counts.get(s)+1);
-	        	}
+                        if (null != greps.get(s).second) {
+                            Matcher m = greps.get(s).second.matcher(line);
+                            if (m.find()) {
+                                counts.put(s, counts.get(s) + 1);
+                            }
+                        }
                     }
 	        }
         } catch (IOException e) {
