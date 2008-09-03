@@ -109,7 +109,7 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
                         grep[1],Pattern.compile(grep[2]));
                 greps.put(grep[0],p);
                 super.addMetricActivationType(makeMetricName(grep[0]), ProjectFile.class);
-log.warn("Added activation type for <" + grep[0] + "> which is <" + grep[1] + ">");
+                log.info("Krazy grepper <" + grep[0] + "> added for <" + grep[1] + ">");
             }
         }
 
@@ -125,13 +125,12 @@ log.warn("Added activation type for <" + grep[0] + "> which is <" + grep[1] + ">
             if (!result) {
                 break;
             }
-            log.warn("Adding metric <" + makeMetricName(s) + ">");
             result &= super.addSupportedMetrics(
                 greps.get(s).first,
                 makeMetricName(s),
                 MetricType.Type.SOURCE_CODE);
             if(!result) {
-                log.warn("Failed.");
+                log.warn("Failed to add supported metric <" + makeMetricName(s) + ">");
             }
         }
         return result;
