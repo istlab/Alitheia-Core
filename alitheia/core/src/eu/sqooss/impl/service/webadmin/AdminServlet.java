@@ -324,6 +324,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
         vc.put("tr",tr); // translations proxy
         vc.put("admin",adminView);
+        vc.put("projects",projectsView);
     }  
     
     public class TranslationProxy {
