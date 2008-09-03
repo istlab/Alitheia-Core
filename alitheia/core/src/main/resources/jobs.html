@@ -19,18 +19,18 @@
         
           <h2>Running Jobs</h2>
           <div id="bundles">
-            $JOBRUNSTATS
+            $admin.renderJobRunStats()
           </div>
 
           <h2>Waiting Jobs statistics</h2>
           <div id="bundles">
-            $JOBWAITSTATS
+            $admin.renderJobWaitStats()
           </div>
 
           <h2>Job failure statistics</h2> 
           <a href="alljobs">Details ...</a>
           <div id="bundles">
-    	    $JOBFAILSTATS
+    	    $admin.renderJobFailStats()
     	  </div>
 	</div>
       </div>

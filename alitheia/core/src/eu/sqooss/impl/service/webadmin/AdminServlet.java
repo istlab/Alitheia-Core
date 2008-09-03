@@ -81,7 +81,7 @@ public class AdminServlet extends HttpServlet {
     VelocityEngine ve = null;
 
     // Renderer of content
-    WebAdminRenderer render = null;
+    WebAdminRenderer adminView = null;
 
     // Plug-ins view
     PluginsView pluginsView = null;
@@ -141,7 +141,7 @@ public class AdminServlet extends HttpServlet {
 
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
-        render = new WebAdminRenderer(bc, vc);
+        adminView = new WebAdminRenderer(bc, vc);
 
         // Create the various view objects
         rulesView = new RulesView(bc, vc);
@@ -217,14 +217,14 @@ public class AdminServlet extends HttpServlet {
             logger.debug("POST:" + query);
 
             if (query.startsWith("/addproject")) {
-                render.addProject(request);
+                adminView.addProject(request);
                 sendPage(response, request, "/results.html");
             } else if (query.startsWith("/diraddproject")) {
-                render.addProjectDir(request);
+                adminView.addProjectDir(request);
                 sendPage(response, request, "/results.html");
             }
             else if (query.startsWith("/motd")) {
-                render.setMOTD(webadmin, request);
+                adminView.setMOTD(webadmin, request);
                 sendPage(response, request, "/results.html");
             }
             else {
@@ -311,12 +311,6 @@ public class AdminServlet extends HttpServlet {
 
         // Deprecated string replacements, use objects instead
         // TODO: put these renderers into objects in the context
-        //vc.put("GETLOGS", WebAdminRenderer.renderLogs());
-        //vc.put("WAITJOBS", WebAdminRenderer.renderWaitJobs());
-        //vc.put("FAILJOBS", WebAdminRenderer.renderFailedJobs());
-        //vc.put("JOBFAILSTATS", WebAdminRenderer.renderJobFailStats());
-        //vc.put("JOBRUNSTATS", WebAdminRenderer.renderJobRunStats());
-        //vc.put("JOBWAITSTATS", WebAdminRenderer.renderJobWaitStats());
         // Plug-ins content
         //vc.put("METRICS", PluginsView.render(request));
         // Users content
@@ -327,8 +321,9 @@ public class AdminServlet extends HttpServlet {
         //vc.put("PROJECTS", ProjectsView.render(request));
 
         // Object-based substitutions
-        vc.put("scheduler", render.sobjSched.getSchedulerStats());
+        vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
         vc.put("tr",tr); // translations proxy
+        vc.put("admin",adminView);
     }  
     
     public class TranslationProxy {
