@@ -12,18 +12,12 @@
           <div id="table">
             $PROJECTS
           </div>
-          <fieldset id="newproject">
-            <legend>Install new project</legend>
-            <form id="addprojectdir" method="post" action="diraddproject">
-            <table width="100%">
-                <tr>
-                    <td width="20%">Project info.txt file</td>
-                    <td width="60%"><input name="info" type="text" alt="Enter the path to the info.txt file of the project you want to install" class="form"/></td>
-                    <td width="20%"><input type="submit" value="Install Project"/></td> 
-                </tr>
-            </table>
-            </form>
-          </fieldset>
+          <h2>Install new project</h2>
+          <form id="addprojectdir" method="post" action="diraddproject">
+            Project info.txt file
+            <input name="info" type="text" alt="Enter the path to the info.txt file of the project you want to install" class="form" size="40"/>
+            <input type="submit" value="Install Project"/>
+          </form>
         </div>
       </div>
 #parse("sidebar.inc")
