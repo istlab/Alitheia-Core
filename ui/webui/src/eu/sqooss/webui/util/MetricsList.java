@@ -128,8 +128,11 @@ public class MetricsList extends ArrayList<Metric> {
             MetricActivator activator, MetricType type) {
         Map<Long, String> result = new HashMap<Long, String>();
         for (Metric nextMetric : this) {
-            if ((nextMetric.getActivator().equals(activator))
-                    && (nextMetric.getType().equals(type)))
+            MetricActivator nextActivator = nextMetric.getActivator();
+            MetricType nextType = nextMetric.getType();
+            if ((nextActivator != null) && (nextType != null)
+                    && (nextActivator.equals(activator))
+                    && (nextType.equals(type)))
                 result.put(nextMetric.getId(), nextMetric.getMnemonic());
         }
         return result;
