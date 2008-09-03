@@ -217,9 +217,6 @@ public class AlitheiaCore {
      * @return The DB component's instance.
      */
     public DBService getDBService() {
-        //TODO: Naive busy wait
-     //   while(dbInited.get() != true) {
-       // }
         return db;
     }
 

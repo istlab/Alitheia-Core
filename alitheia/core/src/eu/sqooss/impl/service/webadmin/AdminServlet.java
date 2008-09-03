@@ -198,8 +198,9 @@ public class AdminServlet extends HttpServlet {
             logger.warn("Got a NPE while rendering a page.",e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
-            if (!db.commitDBSession())
-                db.rollbackDBSession();
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
         }
     }
 
@@ -231,8 +232,9 @@ public class AdminServlet extends HttpServlet {
             logger.warn("Got a NPE while handling POST data.");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
-            if (!db.commitDBSession())
-                db.rollbackDBSession();
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
         }
     }
 
