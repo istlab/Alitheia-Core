@@ -258,26 +258,6 @@ public class WebAdminRenderer  extends AbstractView {
         }
     }
 
-    public static String getSchedulerDetails(String attribute) {
-        if (attribute.equals("WAITING")) {
-            return String.valueOf(sobjSched.getSchedulerStats().getWaitingJobs());
-        }
-        else if (attribute.equals("RUNNING")) {
-            return String.valueOf(sobjSched.getSchedulerStats().getRunningJobs());
-        }
-        else if (attribute.equals("WORKER")) {
-            return String.valueOf(sobjSched.getSchedulerStats().getWorkerThreads());
-        }
-        else if (attribute.equals("FAILED")) {
-            return String.valueOf(sobjSched.getSchedulerStats().getFailedJobs());
-        }
-        else if (attribute.equals("TOTAL")) {
-            return String.valueOf(sobjSched.getSchedulerStats().getTotalJobs());
-        }
-
-        return "";
-    }
-
     /**
      * Returns a string representing the uptime of the Alitheia core
      * in dd:hh:mm:ss format
@@ -471,7 +451,7 @@ public class WebAdminRenderer  extends AbstractView {
                request.getParameter("motdtext") + "</i></p>");
     }
 
-    public static Object renderJobWaitStats() {
+    public static String renderJobWaitStats() {
         StringBuilder result = new StringBuilder();
         HashMap<String,Integer> wjobs = sobjSched.getSchedulerStats().getWaitingJobTypes();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -496,7 +476,7 @@ public class WebAdminRenderer  extends AbstractView {
         return result.toString();
     }
 
-    public static Object renderJobRunStats() {
+    public static String renderJobRunStats() {
         StringBuilder result = new StringBuilder();
         List<String> rjobs = sobjSched.getSchedulerStats().getRunJobs();
         if (rjobs.size() == 0) {
