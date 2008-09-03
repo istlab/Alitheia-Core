@@ -109,6 +109,7 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
                         grep[1],Pattern.compile(grep[2]));
                 greps.put(grep[0],p);
                 super.addMetricActivationType(makeMetricName(grep[0]), ProjectFile.class);
+log.warn("Added activation type for <" + grep[0] + "> which is <" + grep[1] + ">");
             }
         }
 
@@ -124,10 +125,14 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
             if (!result) {
                 break;
             }
+            log.warn("Adding metric <" + makeMetricName(s) + ">");
             result &= super.addSupportedMetrics(
                 greps.get(s).first,
                 makeMetricName(s),
                 MetricType.Type.SOURCE_CODE);
+            if(!result) {
+                log.warn("Failed.");
+            }
         }
         return result;
     }
@@ -177,29 +182,37 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         // Measure the number of lines in the project file
         LineNumberReader lnr = 
             new LineNumberReader(new InputStreamReader(in));
-        int CountQString_null = 0;
-        Pattern MatchQString_null = Pattern.compile("QString *:: *null"); 
+
+        // Keep a count for each pattern
+        HashMap<String,Integer> counts = new HashMap<String,Integer>(greps.size());
+        for (String s : greps.keySet()) {
+            counts.put(s,new Integer(0));
+        }
         String line = null;
         try {
 	        while ((line = lnr.readLine()) != null) {
-	        	Matcher m = MatchQString_null.matcher(line);
+                    for (String s : greps.keySet()) {
+	        	Matcher m = greps.get(s).second.matcher(line);
 	        	if (m.find()) {
-	        		CountQString_null++;
+                            counts.put(s,counts.get(s)+1);
 	        	}
+                    }
 	        }
         } catch (IOException e) {
         	log.warn("Could not run Krazy on <"+pf.getName()+">",e);
         }
         // Store the results
-        Metric metric = Metric.getMetricByMnemonic(KrazyQString_null);
-        ProjectFileMeasurement r = new ProjectFileMeasurement();
-        r.setMetric(metric);
-        r.setProjectFile(pf);
-        r.setResult(String.valueOf(CountQString_null));
-        db.addRecord(r);
-        markEvaluation(metric, pf.getProjectVersion().getProject());
+        for (String s : greps.keySet()) {
+            Metric metric = Metric.getMetricByMnemonic(makeMetricName(s));
+            ProjectFileMeasurement r = new ProjectFileMeasurement();
+            r.setMetric(metric);
+            r.setProjectFile(pf);
+            r.setResult(counts.get(s).toString());
+            db.addRecord(r);
+            markEvaluation(metric, pf.getProjectVersion().getProject());
         
-        log.info("Stored result " + CountQString_null + " for <" + pf.getName() + ">");
+            log.info("Stored result " + counts.get(s) + " for <" + pf.getName() + ">");
+        }
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
