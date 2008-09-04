@@ -478,7 +478,8 @@ public class Terrier {
                     connection.getProjectAccessor().getDevelopersByIds(
                             developersIds);
                 for (WSDeveloper nextDeveloper : wsdevelopers)
-                    result.add(new Developer(nextDeveloper));
+                    if (nextDeveloper.getUsername() != null)
+                        result.add(new Developer(nextDeveloper));
             }
             catch (WSException e) {
                 addError("Can not retrieve the list of project developers.");
