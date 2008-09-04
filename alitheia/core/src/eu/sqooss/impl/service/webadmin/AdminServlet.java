@@ -133,6 +133,7 @@ public class AdminServlet extends HttpServlet {
         dynamicContentMap.put("/", "index.html");
         dynamicContentMap.put("/index", "index.html");
         dynamicContentMap.put("/projects", "projects.html");
+        dynamicContentMap.put("/projectlist", "projectslist.html");
         dynamicContentMap.put("/logs", "logs.html");
         dynamicContentMap.put("/jobs", "jobs.html");
         dynamicContentMap.put("/alljobs", "alljobs.html");
@@ -292,6 +293,8 @@ public class AdminServlet extends HttpServlet {
         response.setContentType("text/html");
         t.merge(vc, writer);
 
+        // This is some required cleanup of DB objects
+        projectsView.ungetProjects();
         print.print(writer.toString());
     }
 
