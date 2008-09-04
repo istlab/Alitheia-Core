@@ -35,11 +35,9 @@ package eu.sqooss.impl.service.updater;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import org.apache.commons.collections.LRUMap;
 
@@ -54,8 +52,6 @@ import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
@@ -71,7 +67,8 @@ import eu.sqooss.service.updater.UpdaterService;
 
 final class SourceUpdater extends Job {
     
-    private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.handlecopies";
+    private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.svn.handlecopies";
+    private static final String CLEANUP_PROPERTY = "eu.sqooss.updater.svn.cleanup";
     
     private enum HandleCopies {
         TRUNK, BRANCHES, TAGS
@@ -83,10 +80,9 @@ final class SourceUpdater extends Job {
     private DBService dbs;
     private Logger logger;
     private MetricActivator ma;
-    private Scheduler sched;
-    private AlitheiaCore core;
     
     private HandleCopies hc = HandleCopies.BRANCHES;
+    private int cleanup = 5;
     
     /*
      * Cache project version and project file IDs for kick-starting
@@ -107,12 +103,6 @@ final class SourceUpdater extends Job {
     /* Currently processed commit log entry*/
     private CommitEntry comLogEntry;
     
-    /**
-     * Store jobs started by this Job (cannot be added as dependencies
-     * after the job has started). 
-     */
-    private Vector<Job> dependedJobs = new Vector<Job>();
-    
     public SourceUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
         if ((project == null) || (core == null) || (logger == null)) {
@@ -126,8 +116,6 @@ final class SourceUpdater extends Job {
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
         this.ma = core.getMetricActivator();
-        this.sched = core.getScheduler();
-        this.core = core;
         
         String hcp = System.getProperty(HANDLE_COPIES_PROPERTY);
         
@@ -142,7 +130,22 @@ final class SourceUpdater extends Job {
                 logger.warn("Not correct value for property " + HANDLE_COPIES_PROPERTY);
             }
         } else {
-            logger.info("No value for " + HANDLE_COPIES_PROPERTY + " property.");
+            logger.info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
+            		" using default:" + this.hc);
+        }
+        
+        String cleanup = System.getProperty(CLEANUP_PROPERTY);
+        
+        if (cleanup != null) {
+            try {
+                this.cleanup = Integer.parseInt(cleanup);
+            } catch (NumberFormatException nfe) {
+                logger.warn("Value " + cleanup + " not valid for property " 
+                        + CLEANUP_PROPERTY);
+            }
+        } else {
+            logger.info("No value for " + CLEANUP_PROPERTY + " property," +
+            		" using default:" + this.cleanup);
         }
     }
 
@@ -207,7 +210,6 @@ final class SourceUpdater extends Job {
             curVersion.setVersion(entry.getRevision().getSVNRevision());
             curVersion.setTimestamp((long) (entry.getDate().getTime() / 1000));
 
-            String author = entry.getAuthor();
             Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
             curVersion.setCommitter(d);
 
@@ -359,7 +361,7 @@ final class SourceUpdater extends Job {
             numRevisions++;
 
             /* Intermediate clean up */
-            if (numRevisions % 5 == 0) {
+            if (numRevisions % this.cleanup == 0) {
 
                 dirCache.clear();
                 
@@ -368,7 +370,6 @@ final class SourceUpdater extends Job {
                     restart();
                     return;
                 } else {
-                 //   fillFilesForVersion(latestVersionIDs);
                     updProjectVersions.addAll(procPVs);
                     updFiles.addAll(procPFs);
                 }
@@ -385,16 +386,9 @@ final class SourceUpdater extends Job {
             restart();
             return;
         } 
-        //fillFilesForVersion(latestVersionIDs);
         updProjectVersions.addAll(procPVs);
         updFiles.addAll(procPFs);
         
-        here: for (Job j : dependedJobs) {
-            if (j.state() == State.Queued || j.state() == State.Running) {
-                j.waitForFinished();
-                break here;
-            }
-        }
         
         ma.runMetrics(updProjectVersions, ProjectVersion.class);
         ma.runMetrics(updFiles, ProjectFile.class);
@@ -673,23 +667,6 @@ final class SourceUpdater extends Job {
         return true;
     }
     
-   
-    private void fillFilesForVersion(List<Long> toProcess) {
-        Iterator<Long> i = toProcess.iterator();
-        
-        while(i.hasNext()) {
-            Long projectVersion = i.next();
-            FilesForVersionJob ffv = new FilesForVersionJob(projectVersion, core);
-            dependedJobs.add(ffv);
-            try {
-                sched.enqueue(ffv);
-            } catch (SchedulerException e) {
-                logger.error("Error scheduling FilesForVersion table update job" 
-                        + e.getMessage());
-            }
-        }
-    }
-    
     private String basename(String path) {
         String filename = path.substring(path.lastIndexOf('/') + 1);
         
@@ -705,38 +682,6 @@ final class SourceUpdater extends Job {
             dirPath = "/"; // SVN entry does not have a path
         }
         return dirPath;
-    }
-    
-    private class FilesForVersionJob extends Job {
-
-        private long versionID;
-        private AlitheiaCore core; 
-        
-        public FilesForVersionJob(long versionID, AlitheiaCore core) {
-            this.versionID = versionID;
-            this.core = core;
-        }
-        
-        @Override
-        public int priority() {
-            return 0xfda;
-        }
-
-        @Override
-        protected void run() throws Exception {
-            DBService dbs = core.getDBService();
-            TDSService tds = core.getTDSService();
-            
-            dbs.startDBSession();
-            ProjectVersion pv = dbs.findObjectById(ProjectVersion.class, versionID);
-            SCMAccessor scm = tds.getAccessor(pv.getProject().getId()).getSCMAccessor();
-       //     SCMNode root = scm.getInMemoryCheckout("/", new ProjectRevision(pv.getVersion()));
-            
-            if(!dbs.commitDBSession()) {
-                logger.warn("commit failed - restarting job");
-                restart();
-            }
-        }
     }
 }
 
