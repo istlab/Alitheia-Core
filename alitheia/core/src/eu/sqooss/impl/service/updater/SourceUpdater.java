@@ -175,7 +175,7 @@ final class SourceUpdater extends Job {
         try {
             // This is the last version we actually know about
             ProjectVersion versionDao = 
-                StoredProject.getLastProjectVersion(project);
+                project.getLastProjectVersion();
             long lastProjectVersion = 
                 (versionDao != null) ? versionDao.getVersion() : 0;
                 

@@ -97,6 +97,26 @@ public class StoredProject extends DAObject {
         setName(name);
     }
 
+    /**
+     * Convenience method to retrieve a stored project from the
+     * database by name; this is different from the constructor
+     * that takes a name parameter. This method actually searches
+     * the database, whereas the constructor makes a new project
+     * with the given name.
+     * 
+     * @param name Name of the project to search for
+     * @return StoredProject object or null if not found
+     */
+    public static StoredProject getProjectByName(String name) {
+        DBService dbs = CoreActivator.getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("name",name);
+        List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
+        return (prList == null || prList.isEmpty()) ? null : prList.get(0);
+    }
+
+
     public String getName() {
         return name;
     }
@@ -184,6 +204,13 @@ public class StoredProject extends DAObject {
         this.measurements = measurements;
     }
 
+    /**
+     * Get the evaluation marks for this project; this includes
+     * all of the plugins that have ectually stored any results
+     * related to the project.
+     * 
+     * @return set of evaluation marks
+     */
     public Set<EvaluationMark> getEvaluationMarks() {
         return evaluationMarks;
     }
@@ -192,6 +219,49 @@ public class StoredProject extends DAObject {
         this.evaluationMarks = evaluationMarks;
     }
 
+    /**
+     * Is the project evaluated? A project is considered evaluated if
+     * at least one metric has stored at least one measurement; metric
+     * plug-ins are expected to explicitly flag that they have stored a 
+     * result by storing an evaluation mark as well.
+     * 
+     * @return is the project evaluated?
+     */
+    public boolean isEvaluated() {
+        Set s = getEvaluationMarks();
+        return ((null!=s) && (s.size()>0));
+    }
+
+    /**
+     * Convenience method to find the latest project version for
+     * a given project.
+     * 
+     * @return ProjectVersion for the latest version or null if not found
+     */
+    public ProjectVersion getLastProjectVersion() {
+        DBService dbs = CoreActivator.getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("sp", this);
+        List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
+                + " and pv.version = (select max(pv2.version) from "
+                + " ProjectVersion pv2 where pv2.project=:sp)",
+                parameterMap);
+
+        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
+    }
+
+    
+    //================================================================
+    // Static table information accessors
+    //================================================================
+    
+
+    /**
+     * Count the total number of projects in the database.
+     * 
+     * @return number of stored projects in the database
+     */
     public static int getProjectCount() {
         DBService dbs = CoreActivator.getDBService();
         List<?> l = dbs.doHQL("SELECT COUNT(*) FROM StoredProject");
@@ -208,28 +278,6 @@ public class StoredProject extends DAObject {
         }
         Long i = (Long) o;
         return i.intValue();
-    }
-
-    public static StoredProject getProjectByName(String name) {
-        DBService dbs = CoreActivator.getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("name",name);
-        List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
-        return (prList == null || prList.isEmpty()) ? null : prList.get(0);
-    }
-
-    public static ProjectVersion getLastProjectVersion(StoredProject project) {
-        DBService dbs = CoreActivator.getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("sp", project);
-        List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.version = (select max(pv2.version) from "
-                + " ProjectVersion pv2 where pv2.project=:sp)",
-                parameterMap);
-
-        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
     }
 
     /**

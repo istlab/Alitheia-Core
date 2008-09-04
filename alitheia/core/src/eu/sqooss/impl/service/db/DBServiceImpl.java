@@ -994,7 +994,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         commitDBSession();
         startDBSession();
         testProject = findObjectById(StoredProject.class, 1);
-        if ( !deleteRecord(StoredProject.getLastProjectVersion(testProject)) ) {
+        if ( !deleteRecord(testProject.getLastProjectVersion()) ) {
             return "error while removing test project version #2";
         }
         if ( testProject.getProjectVersions().size() != originalVersionCount ) {

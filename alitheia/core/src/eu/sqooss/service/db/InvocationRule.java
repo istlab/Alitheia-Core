@@ -720,8 +720,8 @@ public class InvocationRule extends DAObject {
             return (fileVersion <= exact);
         case EACH:
             // Retrieve the latest project version
-            ProjectVersion lastPrjVer = StoredProject.getLastProjectVersion(
-                    res.getProjectVersion().getProject());
+            ProjectVersion lastPrjVer = 
+                    res.getProjectVersion().getProject().getLastProjectVersion();
             long eachBase = parseIntValue(val);
             long eachNext = eachBase;
             List<Long> eachList = new ArrayList<Long>();

@@ -44,6 +44,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.InvocationRule;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.SchedulerException;
@@ -561,10 +562,9 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Last project version
                     String lastVersion = getLbl("l0051");
-                    if (StoredProject.getLastProjectVersion(nextPrj) != null) {
-                        lastVersion = new Long(
-                                StoredProject.getLastProjectVersion(
-                                        nextPrj).getVersion()).toString();
+                    ProjectVersion v = nextPrj.getLastProjectVersion();
+                    if (v != null) {
+                        lastVersion = String.valueOf(v.getVersion());
                     }
                     b.append(sp(in) + "<td class=\"trans\">"
                             + lastVersion
