@@ -606,101 +606,8 @@ public class ProjectsView extends AbstractView {
             //----------------------------------------------------------------
             // Tool-bar
             //----------------------------------------------------------------
-            b.append(sp(in++) + "<tr class=\"subhead\">\n");
-            b.append(sp(in++) + "<td>View</td><td colspan=\"6\">\n");
-            // Refresh button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0008") + "\""
-                    + " onclick=\"javascript:"
-                    + "window.location='/projects"
-                    + ((selProject != null)
-                            ? "?" + REQ_PAR_PROJECT_ID + "="
-                                    + selProject.getId()
-                            : "")
-                    +"';\""
-                    + "></td></tr><tr class=\"subhead\"><td>Manage</td><td colspan='6'>\n");
-            // Add project button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("add_project") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_REQ_ADD_PROJECT + "';"
-                    + SUBMIT + "\">\n");
-            // Remove project button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0059") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_REQ_REM_PROJECT + "';"
-                    + SUBMIT + "\""
-                    + ((selProject != null) ? "" : " disabled")
-                    + "></td></tr><tr class='subhead'><td>Update</td><td colspan='6'>\n");
-            // Trigger source update
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0061") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_CON_UPD_CODE + "';"
-                    + SUBMIT + "\""
-                    + (((selProject != null) && (sobjUpdater.isUpdateRunning(
-                            selProject, UpdateTarget.CODE) == false))
-                            ? "" : " disabled")
-                    + ">\n");
-            // Trigger mailing list update
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0062") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_CON_UPD_MAIL + "';"
-                    + SUBMIT + "\""
-                    + (((selProject != null) && (sobjUpdater.isUpdateRunning(
-                            selProject, UpdateTarget.MAIL) == false))
-                            ? "" : " disabled")
-                    + ">\n");
-            // Trigger bugs list update
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0063") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_CON_UPD_BUGS + "';"
-                    + SUBMIT + "\""
-                    + (((selProject != null) && (sobjUpdater.isUpdateRunning(
-                            selProject, UpdateTarget.BUGS) == false))
-                            ? "" : " disabled")
-                    + ">\n");
-            // Trigger all updates
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0064") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_CON_UPD_ALL + "';"
-                    + SUBMIT + "\""
-                    + (((selProject != null) && (sobjUpdater.isUpdateRunning(
-                            selProject, UpdateTarget.ALL) == false))
-                            ? "" : " disabled")
-                    + ">\n");
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
+            addToolBar(selProject,b,in);
+
             //----------------------------------------------------------------
             // Close the table
             //----------------------------------------------------------------
@@ -712,23 +619,7 @@ public class ProjectsView extends AbstractView {
         // ===============================================================
         // INPUT FIELDS
         // ===============================================================
-        // "Action type" input field
-        b.append(sp(in) + "<input type=\"hidden\""
-                + " id=\"" + REQ_PAR_ACTION + "\""
-                + " name=\"" + REQ_PAR_ACTION + "\""
-                + " value=\"\">\n");
-        // "Project Id" input field
-        b.append(sp(in) + "<input type=\"hidden\""
-                + " id=\"" + REQ_PAR_PROJECT_ID + "\""
-                + " name=\"" + REQ_PAR_PROJECT_ID + "\""
-                + " value=\""
-                + ((selProject != null) ? selProject.getId() : "")
-                + "\">\n");
-        // "Plug-in hashcode" input field
-        b.append(sp(in) + "<input type=\"hidden\""
-                + " id=\"" + REQ_PAR_SYNC_PLUGIN + "\""
-                + " name=\"" + REQ_PAR_SYNC_PLUGIN + "\""
-                + " value=\"\">\n");
+        addHiddenFields(selProject,b,in);
 
         // ===============================================================
         // Close the form
@@ -738,6 +629,58 @@ public class ProjectsView extends AbstractView {
     }
 
 
+    private static void addHiddenFields(StoredProject selProject,
+            StringBuilder b,
+            long in) {
+        // "Action type" input field
+        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_ACTION + 
+                "' name='" + REQ_PAR_ACTION + "' value=''>\n");
+        // "Project Id" input field
+        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_PROJECT_ID +
+                "' name='" + REQ_PAR_PROJECT_ID +
+                "' value='" + ((selProject != null) ? selProject.getId() : "") +
+                "'>\n");
+        // "Plug-in hashcode" input field
+        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_SYNC_PLUGIN +
+                "' name='" + REQ_PAR_SYNC_PLUGIN + 
+                "' value=''>\n");
+    }
+    
+    private static void addToolBar(StoredProject selProject,
+            StringBuilder b,
+            long in) {
+        b.append(sp(in++) + "<tr class=\"subhead\">\n");
+        b.append(sp(in++) + "<td>View</td><td colspan=\"6\">\n");
+        // Refresh button
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0008") + "\"" + " onclick=\"javascript:" + "window.location='/projects" + ((selProject != null)
+                ? "?" + REQ_PAR_PROJECT_ID + "=" + selProject.getId()
+                : "") + "';\"" + ">");
+        b.append("</td></tr><tr class=\"subhead\"><td>Manage</td><td colspan='6'>\n");
+        // Add project button
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("add_project") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_ADD_PROJECT + "';" + SUBMIT + "\">\n");
+        // Remove project button
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0059") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_REM_PROJECT + "';" + SUBMIT + "\"" + ((selProject != null) ? "" : " disabled") + ">");
+        b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='6'>\n");
+        // Trigger source update
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0061") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_CODE + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
+                selProject, UpdateTarget.CODE) == false))
+                ? "" : " disabled") + ">\n");
+        // Trigger mailing list update
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0062") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_MAIL + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
+                selProject, UpdateTarget.MAIL) == false))
+                ? "" : " disabled") + ">\n");
+        // Trigger bugs list update
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0063") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_BUGS + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
+                selProject, UpdateTarget.BUGS) == false))
+                ? "" : " disabled") + ">\n");
+        // Trigger all updates
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0064") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
+                selProject, UpdateTarget.ALL) == false))
+                ? "" : " disabled") + ">\n");
+        b.append(sp(--in) + "</td>\n");
+        b.append(sp(--in) + "</tr>\n");
+    }
+    
     private static void showLastAppliedVersion(
             StoredProject project,
             Collection<PluginInfo> metrics,
@@ -772,32 +715,25 @@ public class ProjectsView extends AbstractView {
         b.append(sp(in++) + "<table>\n");
         b.append(sp(in++) + "<thead>\n");
         b.append(sp(in++) + "<tr class=\"head\">\n");
-        b.append(sp(in) + "<td class=\"head\""
-                + " style=\"width: 10%;\">"
+        b.append(sp(in) + "<td class='head'  style='width: 10%;'>"
                 + getLbl("l0066")
                 + "</td>\n");
-        b.append(sp(in) + "<td class=\"head\""
-                + " style=\"width: 35%;\">"
+        b.append(sp(in) + "<td class='head' style='width: 35%;'>"
                 + getLbl("l0067")
                 + "</td>\n");
-        b.append(sp(in) + "<td class=\"head\""
-                + " style=\"width: 15%;\">"
+        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
                 + getLbl("l0068")
                 + "</td>\n");
-        b.append(sp(in) + "<td class=\"head\""
-                + " style=\"width: 15%;\">"
+        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
                 + getLbl("l0069")
                 + "</td>\n");
-        b.append(sp(in) + "<td class=\"head\""
-                + " style=\"width: 15%;\">"
+        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
                 + getLbl("l0070")
                 + "</td>\n");
-        b.append(sp(in) + "<td class=\"head\""
-                + " style=\"width: 10%;\">"
+        b.append(sp(in) + "<td class='head' style='width: 10%;'>"
                 + getLbl("l0071")
                 + "</td>\n");
-        b.append(sp(in) + "<td class=\"head\""
-                + " style=\"width: 10%;\">"
+        b.append(sp(in) + "<td class='head' style='width: 10%;'>"
                 + getLbl("l0073")
                 + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
