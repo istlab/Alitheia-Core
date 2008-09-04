@@ -20,11 +20,9 @@ import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
-import eu.sqooss.webui.SelectedSettings;
 import eu.sqooss.webui.Metric.MetricActivator;
 import eu.sqooss.webui.Metric.MetricType;
 import eu.sqooss.webui.datatype.Developer;
-import eu.sqooss.webui.settings.BaseDataSettings;
 
 /**
  * The class <code>VersionDataView</code> renders an HTML sequence that
@@ -51,10 +49,10 @@ public class DeveloperDataView extends AbstractDataView {
     /**
      * Sets the resources which this view will present as selected.
      * 
-     * @param selected the array of selected resources
+     * @param selected the list of selected resources
      *   (<i>a list of developer usernames</i>).
      */
-    private void setSelectedResources(String[] selected) {
+    private void setSelectedResources(List<String> selected) {
         if (selected != null)
             for (String resource : selected) {
                 if ((selectedResources.contains(resource) == false)

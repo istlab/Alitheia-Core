@@ -105,9 +105,11 @@ if (selectedProject.isValid()) {
                 icoAddResource.setLabelText("Username: ");
                 icoAddResource.setButtonText("Add");
                 for (Developer developer : selectedProject.getDevelopers())
-                icoAddResource.addOption(
-                        developer.getUsername(),
-                        developer.getUsername());
+                    if (viewConf.isSelectedResource(
+                            developer.getUsername()) == false)
+                        icoAddResource.addOption(
+                                developer.getUsername(),
+                                developer.getUsername());
                 winControlPanel.addToolIcon(icoAddResource);
 
                 // Construct the window's content

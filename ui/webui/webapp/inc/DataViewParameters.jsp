@@ -12,18 +12,8 @@
          * current resource selection.
          */
         if (request.getParameter("addResource") != null) {
-            List<String> selResources = new ArrayList<String>();
-            if (viewConf.getSelectedResources() != null)
-                selResources = new ArrayList(
-                    Arrays.asList(viewConf.getSelectedResources()));
-
-            // Retrieve the added resource (if any)
             String addResource = request.getParameter("addResource");
-            if (selResources.contains(addResource) == false)
-                selResources.add(addResource);
-
-            viewConf.setSelectedResources(
-                selResources.toArray(new String[selResources.size()]));
+            viewConf.addSelectedResource(addResource);
             viewConf.setHighlightedResource(addResource);
         }
 
@@ -90,8 +80,8 @@
          * Force the tabular display of evaluation results in case the
          * resource selection is limited to a single resource.
          */
-        if ((viewConf.getSelectedResources() != null)
-                && (viewConf.getSelectedResources().length == 1)
+        if ((viewConf.getSelectedResources().isEmpty() == false)
+                && (viewConf.getSelectedResources().size() == 1)
                 && (viewConf.getChartType() == AbstractDataView.LINE_CHART)) {
             viewConf.setChartType(AbstractDataView.TABLE_CHART);
             if ((viewConf.getInfoPanelState() == false)
@@ -117,7 +107,7 @@
          * Keep showing the Info and Control panels, untill both metric AND
          * resource have been selected.
          */
-        if ((viewConf.getSelectedResources() == null)
+        if ((viewConf.getSelectedResources().isEmpty())
                 || (viewConf.getSelectedMetrics() == null)) {
             viewConf.setInfoPanelState(true);
             viewConf.setControlPanelState(true);

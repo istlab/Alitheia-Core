@@ -1,5 +1,9 @@
 package eu.sqooss.webui.settings;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import eu.sqooss.webui.view.AbstractDataView;
 
 public class BaseDataSettings {
@@ -9,7 +13,7 @@ public class BaseDataSettings {
     protected boolean displayResultPanel    = true;
 
     protected String[] selectedMetrics      = null;
-    protected String[] selectedResources    = null;
+    protected ArrayList<String> selectedResources = new ArrayList<String>();
 
     private String highlightedMetric        = null;
     private String highlightedResource      = null;
@@ -52,12 +56,21 @@ public class BaseDataSettings {
         this.selectedMetrics = selected;
     }
 
-    public String[] getSelectedResources() {
+    public List<String> getSelectedResources() {
         return selectedResources;
     }
 
     public void setSelectedResources(String[] selected) {
-        this.selectedResources = selected;
+        selectedResources = new ArrayList<String>(Arrays.asList(selected));
+    }
+
+    public void addSelectedResource(String resource) {
+        if (isSelectedResource(resource) == false)
+            selectedResources.add(resource);
+    }
+
+    public boolean isSelectedResource(String resource) {
+        return selectedResources.contains(resource);
     }
 
     public String getHighlightedMetric() {

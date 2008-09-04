@@ -86,10 +86,10 @@ public class VersionDataView extends AbstractDataView {
     /**
      * Sets the resources which this view will present as selected.
      * 
-     * @param selected the array of selected resources
+     * @param selected the list of selected resources
      *   (<i>a list of version numbers</i>).
      */
-    private void setSelectedResources(String[] selected) {
+    private void setSelectedResources(List<String> selected) {
         if (selected != null)
             for (String resource : selected) {
                 try {

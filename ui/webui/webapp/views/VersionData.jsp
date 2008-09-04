@@ -139,9 +139,11 @@ if (selectedProject.isValid()) {
                     icoVersionSelector.setLabelText("Tagged:");
                     icoVersionSelector.setButtonText("Add");
                     for (TaggedVersion tag : selectedProject.getTaggedVersions())
-                        icoVersionSelector.addOption(
-                                tag.getNumber().toString(),
-                                tag.getNumber().toString());
+                        if (viewConf.isSelectedResource(
+                                tag.getNumber().toString()) == false)
+                            icoVersionSelector.addOption(
+                                    tag.getNumber().toString(),
+                                    tag.getNumber().toString());
                     winControlPanel.addToolIcon(icoVersionSelector);
                 }
                 else {

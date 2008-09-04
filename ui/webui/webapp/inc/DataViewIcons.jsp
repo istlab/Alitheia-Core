@@ -84,13 +84,13 @@
          * Disable the results display buttons, depending on the number of
          * selected resources and metrics.
          */
-        if ((viewConf.getSelectedResources() == null)
+        if ((viewConf.getSelectedResources().isEmpty())
                 || (viewConf.getSelectedMetrics() == null)) {
             icoTabular.setStatus(false);
             icoLineChart.setStatus(false);
             icoBarChart.setStatus(false);
         }
-        else if (viewConf.getSelectedResources().length == 1) {
+        else if (viewConf.getSelectedResources().size() == 1) {
             icoLineChart.setStatus(false);
         }
 
