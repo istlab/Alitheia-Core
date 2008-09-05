@@ -8,7 +8,7 @@
     <id name="id" column="ID">
       <generator class="native" />
     </id>
-    <many-to-one name="version" column="PROJECT_VERSION_ID" not-null="true" cascade="merge"/>
-    <many-to-one name="file" column="PROJECT_FILE_ID" not-null="true" cascade="merge" />
+    <many-to-one name="version" column="PROJECT_VERSION_ID" cascade="merge"/>
+    <many-to-one name="file" column="PROJECT_FILE_ID" cascade="merge" />
   </class>
 </hibernate-mapping>

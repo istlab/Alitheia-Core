@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.updater;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -45,6 +46,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
+import eu.sqooss.service.db.FileForVersion;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -96,12 +98,11 @@ final class SourceUpdater extends Job {
     // Avoid Hibernate thrashing by caching frequently accessed objects
     private LRUMap dirCache = new LRUMap(200);
     
-    //Store processed file and version IDs to inform the updater
-    private Set<Long> procPVs = new TreeSet<Long>();
-    private Set<Long> procPFs = new TreeSet<Long>();
+    /* Cache all file records for a processed version*/
+    private List<ProjectFile> versionFiles = new ArrayList<ProjectFile>();
     
     /* Currently processed commit log entry*/
-    private CommitEntry comLogEntry;
+    private CommitEntry commitLogEntry;
     
     public SourceUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
@@ -150,7 +151,7 @@ final class SourceUpdater extends Job {
     }
 
     public int priority() {
-        return 1;
+        return 0x1;
     }
 
     /**
@@ -159,12 +160,9 @@ final class SourceUpdater extends Job {
      * @throws Exception as per the general contract of Job.run()
      */
     protected void run() throws Exception {
+        
         dbs.startDBSession();
         int numRevisions = 0;
-
-    
-        /* Store version ids to be processed by fillFileForVersion */
-        List<Long> latestVersionIDs = new ArrayList<Long>();
         
         logger.info("Running source update for project " + project.getName() 
                 + " ID " + project.getId());
@@ -204,7 +202,8 @@ final class SourceUpdater extends Job {
         }
         
         for (CommitEntry entry : commitLog) {
-            this.comLogEntry = entry;
+            versionFiles.clear();
+            commitLogEntry = entry;
             ProjectVersion curVersion = new ProjectVersion(project);
             // Assertion: this value is the same as lastSCMVersion
             curVersion.setVersion(entry.getRevision().getSVNRevision());
@@ -230,8 +229,6 @@ final class SourceUpdater extends Job {
              * (especially as we used getLastProjectVersion above) 
              */
             dbs.addRecord(curVersion);
-            procPVs.add(curVersion.getId());
-            latestVersionIDs.add(curVersion.getId());
 
             logger.debug(curVersion.getProject().getName() + ": Got version "
                     + curVersion.getVersion() + " ID " + curVersion.getId());
@@ -359,24 +356,18 @@ final class SourceUpdater extends Job {
             }
             
             numRevisions++;
+            //updateFilesForVersion(curVersion, versionFiles);
 
             /* Intermediate clean up */
             if (numRevisions % this.cleanup == 0) {
-
                 dirCache.clear();
-                
                 if (!dbs.commitDBSession()) {
                     logger.warn("Intermediate commit failed, restarting update");
                     restart();
                     return;
-                } else {
-                    updProjectVersions.addAll(procPVs);
-                    updFiles.addAll(procPFs);
-                }
+                } 
+                logger.debug("Committed" + this.cleanup + " revisions");
                 dbs.startDBSession();
-                procPVs.clear();
-                procPFs.clear();
-                latestVersionIDs.clear();
             }
         }
         logger.info("Processed " + numRevisions + " revisions");
@@ -386,8 +377,6 @@ final class SourceUpdater extends Job {
             restart();
             return;
         } 
-        updProjectVersions.addAll(procPVs);
-        updFiles.addAll(procPFs);
         
         
         ma.runMetrics(updProjectVersions, ProjectVersion.class);
@@ -440,8 +429,7 @@ final class SourceUpdater extends Job {
         }
 
         dbs.addRecord(pf);
-        procPFs.add(pf.getId());
-        
+        versionFiles.add(pf);
         return pf;
     }
     
@@ -450,7 +438,7 @@ final class SourceUpdater extends Job {
      */
     private boolean isCopiedPath(String path) {
         boolean copied = false;
-        for (CommitCopyEntry copyOp : comLogEntry.getCopyOperations()) {
+        for (CommitCopyEntry copyOp : commitLogEntry.getCopyOperations()) {
             if (path.equals(copyOp.fromPath()) || path.equals(copyOp.toPath())) {
                 copied = true;
                 break;
@@ -573,7 +561,7 @@ final class SourceUpdater extends Job {
         if (!canCopy(from, to)) 
             return;
         
-        ProjectFile copy = addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR);
+        addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR);
         
         /*Recursively copy directories*/
         List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(fromVersion, from, ProjectFile.MASK_DIRECTORIES);
@@ -615,6 +603,48 @@ final class SourceUpdater extends Job {
         }
         
         return false;
+    }
+    
+    /**
+     * Update the FilesForVersion table incrementally 
+     */
+    private void updateFilesForVersion(ProjectVersion pv, List<ProjectFile> updFiles) {
+        // Copy old records
+        ProjectVersion previous = ProjectVersion.getPreviousVersion(pv);
+        
+        String query1 = "insert into FileForVersion (file) " +
+            "select file from FileForVersion " +
+            "where version = :version";
+
+        String query2 = "update FileForVersion " +
+            "set version = :newversion " +
+            "where version is null";
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("version", previous);
+        dbs.executeUpdate(query1, params);
+        params.clear();
+        params.put("newversion", pv);
+        dbs.executeUpdate(query2, params);
+        
+        // Update with new records
+        for (ProjectFile pf : updFiles) {
+            if (pf.getStatus() == "ADDED") {
+                dbs.addRecord(new FileForVersion(pf, pv));
+            } else if (pf.getStatus() == "DELETED") {
+                ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
+                FileForVersion ffv = FileForVersion.getFileForVersion(old, pv);
+                dbs.deleteRecord(ffv);
+            } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
+                ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
+                FileForVersion ffv = FileForVersion.getFileForVersion(old, pv);
+                dbs.deleteRecord(ffv);
+                dbs.addRecord(new FileForVersion(pf, pv));
+            } else {
+                logger.warn("Don't know what to do with file status:"
+                        + pf.getStatus() + " file_id:" + pf.getId());
+            }
+        }
     }
     
     /**
