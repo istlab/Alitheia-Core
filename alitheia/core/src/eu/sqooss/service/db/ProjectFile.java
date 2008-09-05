@@ -34,6 +34,7 @@
 package eu.sqooss.service.db;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -100,8 +101,17 @@ public class ProjectFile extends DAObject{
      */
     private Directory dir;
 
+    /**
+     * The directory this file was moved from. Only gets a value on 
+     * moved files.
+     */
+    private Directory moveFrom;
+    
+    /**
+     * File measurements for this file
+     */
     private Set<ProjectFileMeasurement> measurements;
-
+    
     public ProjectFile() {
         // Nothing to see here
         isDirectory = false; //By default, all entries are files
@@ -199,6 +209,14 @@ public class ProjectFile extends DAObject{
     public void setDir(Directory dir) {
         this.dir = dir;
     }
+    
+    public Directory getMoveFrom() {
+        return moveFrom;
+    }
+
+    public void setMoveFrom(Directory copyFrom) {
+        this.moveFrom = copyFrom;
+    }
 
     public Set<ProjectFileMeasurement> getMeasurements() {
         return measurements;
@@ -272,69 +290,25 @@ public class ProjectFile extends DAObject{
         String paramFile = "paramFile";
         String paramTimestamp = "paramTimestamp";
         String paramDir = "paramDir";
+        String paramMoveFrom = "paramMoveFrom";
         String paramProject = "paramProject";
 
         String query ="select pf" +
-        		" from ProjectVersion pv, ProjectFile pf" +
-        		" where pf.projectVersion = pv.id " +
-        		" and pf.name = :" + paramFile +
-        		" and pf.dir = :" + paramDir +        		
-        		" and pv.project = :" + paramProject +
-        		" and pv.timestamp < :" + paramTimestamp +
-        		" order by pv.timestamp desc";
+            " from ProjectVersion pv, ProjectFile pf" +
+            " where pf.projectVersion = pv.id " +
+            " and pf.name = :" + paramFile +
+            " and pv.project = :" + paramProject +
+            " and pv.timestamp < :" + paramTimestamp +
+            " and (pf.dir = :" + paramDir +
+            "       or pf.dir = :" + paramMoveFrom +
+            "     )" +
+            " order by pv.timestamp desc";
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());
         parameters.put(paramProject, pf.getProjectVersion().getProject());
         parameters.put(paramTimestamp, pf.getProjectVersion().getTimestamp());
-
-        List<?> projectFiles = dbs.doHQL(query, parameters);
-
-        if(projectFiles == null || projectFiles.size() == 0) {
-            return null;
-        }else {
-            return (ProjectFile) projectFiles.get(0);
-        }
-    }
-
-    /**
-     * Get the file revision that is current to the provided project version.
-     * @param pv The project version against which we want the current version
-     * @param path The absolute file path (starting with /)
-     * @return The ProjectFile instance or null if the project file was deleted before,
-     * has not been added till or not found in the provided project version
-     */
-    public static ProjectFile getLatestVersion(ProjectVersion pv, String path) {
-        DBService dbs = CoreActivator.getDBService();
-
-        String dir = path.substring(0, path.lastIndexOf('/'));
-        String fname = path.substring(path.lastIndexOf('/') + 1);
-
-        if (path == null || path.equalsIgnoreCase("")) {
-            path = "/";
-        }
-
-        Directory d = Directory.getDirectory(dir, false);
-
-        String paramFile = "paramFile";
-        String paramTS = "paramTS";
-        String paramDir = "paramDir";
-
-        String query = "select pf from ProjectVersion pv, ProjectFile pf " +
-                        "where pv.timestamp in (" +
-                        "select max(pv2.timestamp) " +
-                        "from ProjectVersion pv2, ProjectFile pf2 " +
-                        "where pv2.timestamp <= :" + paramTS +
-                        " and pf2.projectVersion = pv2.id" +
-                        " and pf2.dir = :" + paramDir +
-                        " and pf2.name = :" + paramFile +
-                        " and pv2.project = pv.project )" +
-                        "and pf.projectVersion = pv.id and pf.name = :" + paramFile;
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramFile, fname);
-        parameters.put(paramDir, d);
-        parameters.put(paramTS, pv.getTimestamp());
+        parameters.put(paramMoveFrom, pf.getMoveFrom());
 
         List<?> projectFiles = dbs.doHQL(query, parameters);
 
@@ -458,7 +432,7 @@ public class ProjectFile extends DAObject{
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles == null || projectFiles.size() == 0) {
             // Empty array list with a capacity of 1
-            return new ArrayList<ProjectFile>(1);
+            return Collections.emptyList();
         } else {
             return projectFiles;
         }
@@ -763,6 +737,11 @@ public class ProjectFile extends DAObject{
         
         return pfs.get(0);
     }
+    
+    public String toString() {
+        return "(r" + projectVersion.getVersion() + ")" + getFileName();
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

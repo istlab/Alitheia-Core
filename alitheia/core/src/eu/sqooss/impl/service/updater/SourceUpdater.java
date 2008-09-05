@@ -258,7 +258,7 @@ final class SourceUpdater extends Job {
                 }
 
                 ProjectFile pf = addFile(curVersion, chPath, 
-                        entry.getChangedPathsStatus().get(chPath).toString(), t);
+                        entry.getChangedPathsStatus().get(chPath).toString(), t, null);
                 
                 /*
                  * Before entering the next block, examine whether the deleted
@@ -348,9 +348,11 @@ final class SourceUpdater extends Job {
                      * Create a new entry at the new location and mark the new 
                      * entry as modified
                      */
-                    addFileIfNotExists(curVersion, copyOp.toPath(), "MODIFIED", SCMNodeType.FILE);
                     if (isMove) {
-                        addFileIfNotExists(curVersion, copyOp.fromPath(), "DELETED", SCMNodeType.FILE);
+                        addFileIfNotExists(curVersion, copyOp.toPath(), "MODIFIED", SCMNodeType.FILE, dirname(copyOp.fromPath()));
+                        //addFileIfNotExists(curVersion, copyOp.fromPath(), "DELETED", SCMNodeType.FILE, null);
+                    } else {
+                        addFileIfNotExists(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, null);
                     }
                 }
             }
@@ -378,7 +380,6 @@ final class SourceUpdater extends Job {
             return;
         } 
         
-        
         ma.runMetrics(updProjectVersions, ProjectVersion.class);
         ma.runMetrics(updFiles, ProjectFile.class);
         
@@ -387,10 +388,11 @@ final class SourceUpdater extends Job {
 
     /**
      * Checks whether the file to be added already exists, then calls 
-     * {@link #addFile(ProjectVersion, String, String, SCMNodeType)}
+     * {@link #addFile(ProjectVersion, String, String, SCMNodeType, String)}
+     * @param moveFrom TODO
      */
     private ProjectFile addFileIfNotExists(ProjectVersion version, String fPath, 
-            String status, SCMNodeType t) {
+            String status, SCMNodeType t, String moveFrom) {
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put("projectVersion", version);
         properties.put("name", basename(fPath));
@@ -399,7 +401,15 @@ final class SourceUpdater extends Job {
         List<ProjectFile> pfs = dbs.findObjectsByProperties(ProjectFile.class, properties);
         
         if (pfs.isEmpty()) {
-            return addFile(version, fPath, status, t);
+            return addFile(version, fPath, status, t, moveFrom);
+        } else {
+            /*
+             * If file was modified at the same version that is was moved, then 
+             * just update its moveFrom field 
+             */
+            if (moveFrom != null) {
+                pfs.get(0).setMoveFrom(getDirectory(moveFrom, false));
+            }
         }
         logger.debug("File " + basename(fPath) + " exists in " + dirname(fPath) + " for r" + 
                 pfs.get(0).getProjectVersion().getVersion());
@@ -410,7 +420,7 @@ final class SourceUpdater extends Job {
      * Constructs a project file out of provided elements
      */
     private ProjectFile addFile(ProjectVersion version, String fPath, 
-            String status, SCMNodeType t) {
+            String status, SCMNodeType t, String movePath) {
         ProjectFile pf = new ProjectFile(version);
 
         String path = dirname(fPath);
@@ -420,6 +430,10 @@ final class SourceUpdater extends Job {
         pf.setName(fname);
         pf.setDir(dir);
         pf.setStatus(status);
+        
+        if (movePath != null) {
+            pf.setMoveFrom(getDirectory(movePath, true));
+        }
 
         if (t == SCMNodeType.DIR) {
             pf.setIsDirectory(true);
@@ -427,9 +441,9 @@ final class SourceUpdater extends Job {
         } else {
             pf.setIsDirectory(false);
         }
-
         dbs.addRecord(pf);
-        versionFiles.add(pf);
+        versionFiles.add(pf);     
+        
         return pf;
     }
     
@@ -526,14 +540,15 @@ final class SourceUpdater extends Job {
             return;
         
         /*Remove the directory*/
-        addFile(pv, ProjectFile.findFile(project.getId(), 
+        ProjectFile toMove = ProjectFile.findFile(project.getId(), 
                         basename(from.getPath()), 
                         dirname(from.getPath()), 
-                        pv.getVersion()).getFileName(), 
-                "DELETED", SCMNodeType.DIR);
+                        pv.getVersion());
+        
+        addFile(pv, toMove.getFileName(), "DELETED", SCMNodeType.DIR, null);
         
         /*Add the directory to the new location*/
-        addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR);
+        addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, null);
         
         /*Recursively remove all directories*/
         List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(pv, from, ProjectFile.MASK_DIRECTORIES);
@@ -547,8 +562,8 @@ final class SourceUpdater extends Job {
         fromPF = ProjectFile.getFilesForVersion(pv, from, ProjectFile.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
-            addFile(pv, to.getPath() + "/" + f.getName(),
-                    "MODIFIED", SCMNodeType.FILE);
+            addFileIfNotExists(pv, to.getPath() + "/" + f.getName(),
+                    "MODIFIED", SCMNodeType.FILE, from.getPath());
         }
     }
     
@@ -561,7 +576,7 @@ final class SourceUpdater extends Job {
         if (!canCopy(from, to)) 
             return;
         
-        addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR);
+        addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, null);
         
         /*Recursively copy directories*/
         List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(fromVersion, from, ProjectFile.MASK_DIRECTORIES);
@@ -574,8 +589,8 @@ final class SourceUpdater extends Job {
         fromPF = ProjectFile.getFilesForVersion(pv, from, ProjectFile.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
-            addFileIfNotExists(pv, to.getPath() + "/" + f.getName(),
-                    "MODIFIED", SCMNodeType.FILE);
+            addFile(pv, to.getPath() + "/" + f.getName(),
+                    "ADDED", SCMNodeType.FILE, null);
         }
     }
     

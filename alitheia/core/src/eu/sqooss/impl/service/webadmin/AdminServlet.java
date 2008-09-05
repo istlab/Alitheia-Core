@@ -167,7 +167,7 @@ public class AdminServlet extends HttpServlet {
             String query = request.getPathInfo();
 
             // Add the request to the log
-            logger.debug("GET:" + query);
+            //logger.debug("GET:" + query);
 
             // This is static content
             if (query.startsWith("/stop")) {
@@ -215,7 +215,7 @@ public class AdminServlet extends HttpServlet {
             String query = request.getPathInfo();
 
             // Add the request to the log
-            logger.debug("POST:" + query);
+            //logger.debug("POST:" + query);
 
             if (query.startsWith("/addproject")) {
                 adminView.addProject(request);
