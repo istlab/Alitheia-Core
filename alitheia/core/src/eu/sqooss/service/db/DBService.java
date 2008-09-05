@@ -340,6 +340,21 @@ public interface DBService {
     public List<?> doHQL(String hql, Map<String, Object> params,
                           Map<String, Collection> collectionParams)
         throws QueryException;
+    
+    /**
+     * Executes a DML-type query. The query forms that HQL supports 
+     * are the following:
+     * <ul>
+     *  <li>INSERT INTO ... SELECT ... </li>
+     *  <li>UPDATE ... SET ... WHERE....</li>
+     *  <li>DELETE ... WHERE</li>
+     * </ul> 
+     * 
+     * @param hql The HQL statement to execute 
+     * @param params the map of parameters to be substituted in the HQL query
+     * @return The number of rows updated or deleted or -1 in case of error
+     */
+    public int executeUpdate(String hql, Map<String, Object> params);
         
 }
 
