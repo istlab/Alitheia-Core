@@ -350,7 +350,6 @@ final class SourceUpdater extends Job {
                      */
                     if (isMove) {
                         addFileIfNotExists(curVersion, copyOp.toPath(), "MODIFIED", SCMNodeType.FILE, dirname(copyOp.fromPath()));
-                        //addFileIfNotExists(curVersion, copyOp.fromPath(), "DELETED", SCMNodeType.FILE, null);
                     } else {
                         addFileIfNotExists(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, null);
                     }
@@ -358,7 +357,7 @@ final class SourceUpdater extends Job {
             }
             
             numRevisions++;
-            //updateFilesForVersion(curVersion, versionFiles);
+            updateFilesForVersion(curVersion, versionFiles);
 
             /* Intermediate clean up */
             if (numRevisions % this.cleanup == 0) {
@@ -368,7 +367,7 @@ final class SourceUpdater extends Job {
                     restart();
                     return;
                 } 
-                logger.debug("Committed" + this.cleanup + " revisions");
+                logger.debug("Committed " + this.cleanup + " revisions");
                 dbs.startDBSession();
             }
         }
@@ -651,7 +650,13 @@ final class SourceUpdater extends Job {
                 FileForVersion ffv = FileForVersion.getFileForVersion(old, pv);
                 dbs.deleteRecord(ffv);
             } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
-                ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
+                ProjectFile old = ProjectFile.getPreviousFileVersion(pf); 
+                
+                if (old == null) {
+                    logger.error("Cannot get previous file version for file " + pf.toString());
+                    continue;
+                }
+                
                 FileForVersion ffv = FileForVersion.getFileForVersion(old, pv);
                 dbs.deleteRecord(ffv);
                 dbs.addRecord(new FileForVersion(pf, pv));

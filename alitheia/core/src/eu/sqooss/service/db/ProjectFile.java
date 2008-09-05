@@ -330,31 +330,19 @@ public class ProjectFile extends DAObject{
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version) {
         DBService dbs = CoreActivator.getDBService();
 
-        String paramTimestamp = "timestamp";
-        String paramProjectId = "project_id";
+        String paramVersion = "paramVersion";
 
-        String query = "select pf1 " +
-    	"from ProjectFile pf1, ProjectVersion pv1 " +
-    	"where  pf1.projectVersion = pv1 " +
-        " and pf1.status<>'DELETED' " +
-        " and pv1.project.id = :" + paramProjectId +
-        " and pv1.timestamp = ( " +
-        "    select max(pv.timestamp) " + 
-        "    from ProjectFile pf, ProjectVersion pv " +
-        "    where pf.projectVersion=pv " + 
-        "    and pv.timestamp <= :" +  paramTimestamp +
-        "    and pf.dir = pf1.dir " + 
-        "    and pf.name = pf1.name " +
-        "    and pv.project = pv1.project )";
+        String query = "select pf " +
+        " from ProjectFile pf, FileForVersion ffv " +
+        " where ffv.file = pf " +
+        " and ffv.version = :" + paramVersion;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramTimestamp, version.getTimestamp());
-        parameters.put(paramProjectId, version.getProject().getId());
+        parameters.put(paramVersion, version);
 
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles==null) {
-            // Empty array list with a capacity of 1
-            return new ArrayList<ProjectFile>(1);
+            return Collections.emptyList();
         } else {
             return projectFiles;
         }
@@ -395,34 +383,23 @@ public class ProjectFile extends DAObject{
 
         DBService dbs = CoreActivator.getDBService();
 
-        String paramProjectId = "project_id";
-        String paramDirectoryId = "directory_id";
-        String paramTimestamp = "timestamp";
+        String paramVersion = "paramVersion";
+        String paramDirectory = "paramDirectory";
         String paramIsDirectory = "is_directory";
 
-        String query = "select pf1 " +
-        	"from ProjectFile pf1, ProjectVersion pv1 " +
-        	"where  pf1.projectVersion.id = pv1.id " +
-            " and pf1.status<>'DELETED' " +
-            " and pv1.project.id = :" + paramProjectId +
-            " and pf1.dir.id = :" + paramDirectoryId +
-            " and pv1.timestamp = ( " +
-            "    select max(pv.timestamp) " + 
-            "    from ProjectFile pf, ProjectVersion pv " +
-            "    where pf.projectVersion.id = pv.id " + 
-            "    and pv.timestamp <= :" +  paramTimestamp +
-            "    and pf.dir.id = pf1.dir.id " + 
-            "    and pf.name = pf1.name " +
-            "    and pv.project.id = pv1.project.id )"; 
+        String query = "select pf " +
+        	" from ProjectFile pf, FileForVersion ffv " +
+        	" where ffv.file = pf " +
+        	" and ffv.version = :" + paramVersion +
+        	" and pf.dir = :" + paramDirectory;
             
         if (mask != MASK_ALL) {
-            query += " and pf1.isDirectory = :" + paramIsDirectory;
+            query += " and pf.isDirectory = :" + paramIsDirectory;
         }
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramTimestamp, version.getTimestamp());
-        parameters.put(paramProjectId, version.getProject().getId());
-        parameters.put(paramDirectoryId, d.getId() );
+        parameters.put(paramDirectory, d );
+        parameters.put(paramVersion, version);
         
         if (mask != MASK_ALL) {
             Boolean isDirectory = ((mask == MASK_DIRECTORIES)?true:false);
@@ -431,7 +408,6 @@ public class ProjectFile extends DAObject{
         
         List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
         if (projectFiles == null || projectFiles.size() == 0) {
-            // Empty array list with a capacity of 1
             return Collections.emptyList();
         } else {
             return projectFiles;
@@ -739,7 +715,7 @@ public class ProjectFile extends DAObject{
     }
     
     public String toString() {
-        return "(r" + projectVersion.getVersion() + ")" + getFileName();
+        return "r" + projectVersion.getVersion() + ":" + getFileName();
     }
     
 }

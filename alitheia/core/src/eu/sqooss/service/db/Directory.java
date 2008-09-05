@@ -108,6 +108,10 @@ public class Directory extends DAObject {
         //Dir not found and not created
         return null;
     }
+    
+    public String toString() {
+        return this.path;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
