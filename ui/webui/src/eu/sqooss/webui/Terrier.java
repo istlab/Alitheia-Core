@@ -118,6 +118,35 @@ public class Terrier {
     }
 
     /**
+     * TODO: A helper method which allows attaching the WebUI to another
+     * SQO-OSS framework during runtime. This method was added for testing
+     * purposes only and should be removed from the release sources.
+     * 
+     * @param frameworkUrl an URL to the WSDL exports of a single SQO-OSS
+     *   framework.
+     */
+    public void connectTo (String frameworkUrl) {
+        if (connection != null)
+            connection.disconnect();
+
+        String userName = Constants.conUserName;
+        String userPass = Constants.conUserPass;
+        String connUrl  = frameworkUrl;
+
+        if (confParams != null) {
+            if (confParams.getString(Constants.cfgUnprivUser) != null) {
+                userName = confParams.getString(Constants.cfgUnprivUser);
+            }
+            if (confParams.getString(Constants.cfgUnprivPass) != null) {
+                userPass = confParams.getString(Constants.cfgUnprivPass);
+            }
+        }
+
+        // Instantiate an object for connecting to SQO-OSS
+        connection = new TerrierConnection(connUrl, userName, userPass);
+    }
+
+    /**
      * Returns the current connection object.
      * 
      * @return The current <code>TerrierConnection</code> instance,

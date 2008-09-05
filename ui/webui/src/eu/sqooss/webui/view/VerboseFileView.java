@@ -578,7 +578,9 @@ public class VerboseFileView extends ListView {
                     + "In v." + version 
                     + "</td>\n");
             for (String mnemonic : values.keySet()) {
-                String result = values.get(mnemonic).get(version).toString();
+                String result = null;
+                if (values.get(mnemonic).get(version) != null)
+                    result = values.get(mnemonic).get(version).toString();
                 b.append(sp(in) + "<td class=\"def_right\">"
                         + ((result != null) ? result : "N/A")
                         + "</td>\n");

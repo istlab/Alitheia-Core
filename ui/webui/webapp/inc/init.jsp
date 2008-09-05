@@ -113,6 +113,12 @@ if (tempFolder.exists() == false)
     tempFolder.mkdir();
 settings.setTempFolder(tempFolder);
 
+// Connect to another SQO-OSS framework if requested.
+if (request.getParameter("frameworkUrl") != null) {
+    selectedProject.invalidate();
+    terrier.connectTo(request.getParameter("frameworkUrl"));
+}
+
 //============================================================================
 // Check if the user has selected a project (or switched to a new project)
 //============================================================================
