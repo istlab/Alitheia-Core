@@ -221,8 +221,7 @@ public class ProjectDataView extends ListView {
 
         // Generate and include the chart image into the rendered content
         if (chartData.isEmpty() == false) {
-            String chartFile = null;
-            chartFile = lineChart(chartData);
+            String chartFile = lineChart(chartData);
             if (chartFile != null) {
                 chartFile = "/tmp/" + chartFile;
                 b.append(sp(in++) + "<table>\n");
