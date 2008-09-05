@@ -122,7 +122,7 @@ public class ProjectDataView extends ListView {
         b.append(sp(in++) + "<tr>\n");
         b.append(sp(in) + "<td><b>Tagged:</b></td>"
                 + "<td>"
-                + "<a href=\"/versions.jsp?vvvito=true\">"
+                + "<a href=\"/versions.jsp?onlyTagged=true\">"
                 + tagged.size()
                 + "</a>"
                 + "</td>\n");
