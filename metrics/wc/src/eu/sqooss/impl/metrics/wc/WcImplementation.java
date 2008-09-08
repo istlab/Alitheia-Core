@@ -34,6 +34,8 @@
 
 package eu.sqooss.impl.metrics.wc;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -294,7 +296,35 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
     
     public Object selfTest() {
-        log.warn("Self-testing in progress.");
+        log.info("Self-test in progress");
+        File dir = new File("/tmp/wc");
+        File[] files = dir.listFiles();
+        if (null == files) {
+            log.warn("No files to use in /tmp/wc for self-test");
+        } else {
+            for (File f : files) {
+                InputStream foo = null;
+                try {
+                    foo = new FileInputStream(f);
+                    int[] result = processStream(
+                            FileTypeMatcher.getFileExtension(f.getName()),foo);
+                    log.info("Read file <" + f.getName() + ">," +
+                            " loc=" + result[0] + 
+                            " locom=" + result[1] + 
+                            " lonb=" + result[2] +
+                            " words=" + result[3]);
+                    System.out.println("Read file <" + f.getName() + ">");
+                    System.out.println("\tloc=" + result[0] + 
+                            " locom=" + result[1] + 
+                            " lonb=" + result[2] +
+                            " words=" + result[3]);
+                } catch(IOException e) {
+                    // Failed to create reader, skip
+                    log.warn("Could not read self-test file",e);
+                }
+            }
+        }
+        
         return null;
     }
 
