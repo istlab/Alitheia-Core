@@ -25,8 +25,8 @@
         /*
          * Initialise the data view's object
          */
-        VerboseFileView dataView =
-                new VerboseFileView(selectedProject, selFile.getId());
+        FileDataView dataView =
+                new FileDataView(selectedProject, selFile.getId());
         dataView.setServletPath(request.getServletPath());
         dataView.setSettings(settings, SelectedSettings.FILE_DATA_SETTINGS);
         dataView.setTerrier(terrier);

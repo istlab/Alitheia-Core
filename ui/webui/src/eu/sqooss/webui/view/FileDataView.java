@@ -64,7 +64,7 @@ import eu.sqooss.webui.datatype.Version;
  * verbosely presents metric result which were evaluated on a single file
  * in a single project.
  */
-public class VerboseFileView extends AbstractDataView {
+public class FileDataView extends AbstractDataView {
 
     /*
      * Holds the target file's Id.
@@ -87,13 +87,13 @@ public class VerboseFileView extends AbstractDataView {
     HashMap<String, Result> results = new HashMap<String, Result>();
 
     /**
-     * Instantiates a new <code>VerboseFileView</code> object,
+     * Instantiates a new <code>FileDataView</code> object,
      * and initializes it with the given project object and target file Id.
      * 
      * @param project the project object
      * @param fileId the file Id
      */
-    public VerboseFileView(Project project, Long fileId) {
+    public FileDataView(Project project, Long fileId) {
         super();
         this.project = project;
         this.fileId = fileId;
@@ -320,7 +320,7 @@ public class VerboseFileView extends AbstractDataView {
                                         + " class=\"vfv_chart_title\">"
                                         + "<a href=\"" 
                                         + getServletPath()
-                                        + "?vfvsm=" + mnemonic
+                                        + "?highMetric=" + mnemonic
                                         + "&fid=" + fileId
                                         + "\">"
                                         + mnemonic + "</a>"
