@@ -68,6 +68,8 @@ public class WcImplementation extends AbstractMetric implements Wc {
     private static final String MNEMONIC_WC_LONB  = "Wc.lonb";
     private static final String MNEMONIC_WC_WORDS = "Wc.words";
     
+    private HashMap<String,String[]> commentDelimiters;
+    
     public WcImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectFile.class);
@@ -81,7 +83,15 @@ public class WcImplementation extends AbstractMetric implements Wc {
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
        
         
-        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();    
+        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
+        
+        commentDelimiters = new HashMap<String,String[]>(10);
+        // Fill up the comment delimiters hash with a collection
+        // of delimiters for various languages.
+        addCommentDelimiters("cpp|C|cc|java",new String[]{"//","/\\*","\\*/"});
+        addCommentDelimiters("c",new String[]{null,"/\\*","\\*/"});
+        addCommentDelimiters("py|sh",new String[]{"#",null,null});
+        addCommentDelimiters("html",new String[]{null,"<!--","-->"});
     }
 
     public boolean install() {
@@ -214,6 +224,28 @@ public class WcImplementation extends AbstractMetric implements Wc {
         }
     }
 
+    /**
+     * For a list of file extensions, register the three delimiters
+     * as the single-line and multi-line comment delimiters. For the
+     * comment matching, this will be used to power the multi-line
+     * matcher and the single-line comment matchers.
+     * 
+     * @param extensions String listing file extensions separated by |
+     * @param delimiters Three-element array of delimiter regexps; any
+     *          one or more of these may be null.
+     */
+    private void addCommentDelimiters(String extensions, String[] delimiters) {
+        if (delimiters.length != 3) {
+            log.error("The number of delimiters for languages <" + extensions + "> is wrong (must be 3)");
+            return;
+        }
+        
+        String[] l = extensions.split("|");
+        for (String e : l) {
+            commentDelimiters.put(e,delimiters);
+        }
+    }
+    
 
     private class MultiLineMatcher {
         private Pattern startRE;
@@ -221,6 +253,8 @@ public class WcImplementation extends AbstractMetric implements Wc {
         private boolean inside;
         
         MultiLineMatcher(String start, String end) {
+            // It doesn't make sense to have null patterns
+            // either for start or end, so don't check for null.
             this.startRE = Pattern.compile(start);
             this.endRE = Pattern.compile(end);
             this.inside = false;
