@@ -46,16 +46,16 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 
 
-public class SkeletonImplementation extends AbstractMetric implements Skeleton, ProjectFileMetric {
+public class TestabilityImplementation extends AbstractMetric implements Testability, ProjectFileMetric {
     
-    public SkeletonImplementation(BundleContext bc) {
+    public TestabilityImplementation(BundleContext bc) {
         super(bc);        
  
         /*Tells the metric activator when to call this metric*/
         super.addActivationType(ProjectFile.class);
         
         /*Tells the UI what it metric is calculated against*/
-        super.addMetricActivationType("SKEL", ProjectFile.class);
+        super.addMetricActivationType("TESTABILITY", ProjectFile.class);
     }
     
     public boolean install() {
