@@ -218,8 +218,22 @@ public class PACommandProvider implements CommandProvider {
             dbs.rollbackDBSession();
     }
     
+    /**
+     * Call the selfTest() method via the PluginAdmin service,
+     * so that we can invoke self-tests at runtime anytime we want.
+     * Generally useful for skirting the self-test configuration
+     * parameters of the system (even if self-tests are disabled,
+     * they will be called from the command-line).
+     * 
+     * @param ci Interpreter which will provide parameters
+     */
     public void _test_plugin(CommandInterpreter ci) {
-        sobjPA.testPlugin(new Long(ci.nextArgument()));
+        try {
+            sobjPA.testPlugin(new Long(ci.nextArgument()));
+        } catch (NumberFormatException e) {
+            ci.println(
+                    "[ERROR] The specified service ID is not a number");
+        }
     }
 }
 

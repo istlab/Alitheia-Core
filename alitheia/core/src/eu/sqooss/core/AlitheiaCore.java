@@ -366,7 +366,22 @@ public class AlitheiaCore {
         return ma;
     }
 
-    public final Object selfTest(Logger l, Object o, boolean allowSkip) {
+    
+    /**
+     * Call the selfTest method for a given object, while logging
+     * to a particular logger. The selfTest configuration options
+     * of the system as a whole (in config.ini) may be enabled
+     * through the obeyConfig parameter; if you really want to
+     * call selfTest() regardless, use false.
+     * 
+     * @param l Logger to write results to
+     * @param o Object to test
+     * @param obeyConfig If false, disregard the global configuration
+     *      options which might disable self-tests
+     * @return Object describing failures of the self-test, from
+     *      the self-test method of the object
+     */
+    public final Object selfTest(Logger l, Object o, boolean obeyConfig) {
         String className = o.getClass().getName();
         try {
             Method m = o.getClass().getMethod("selfTest");
@@ -381,7 +396,7 @@ public class AlitheiaCore {
 
                 String enabled = bc.getProperty("eu.sqooss.tester.enable."
                         + className);
-                if (allowSkip && (enabled != null) && !Boolean.valueOf(enabled)) {
+                if (obeyConfig && (enabled != null) && !Boolean.valueOf(enabled)) {
                     l.info("SKIP  Test (disabled in configuration)");
                     return null;
                 }

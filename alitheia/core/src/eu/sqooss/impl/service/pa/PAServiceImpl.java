@@ -705,6 +705,12 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         return null;
     }
 
+    /**
+     * Test a particular plug-in, given the hash code for it.
+     * 
+     * @param hash Hash code of the plug-in to test
+     * @return True if the test succeeded
+     */
     public boolean testPlugin(String hash) {
         Long sid = getServiceId(hash);
         if (sid != null) {
@@ -713,6 +719,16 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         return false;
     }
 
+    /**
+     * Call the selfTest() method on a given plug-in (identified
+     * by its ID). This is expected to run whatever self-tests
+     * make sense to the particular plug-in. The global configuration
+     * for self-tests is ignored, so the selfTest() method is always
+     * run (if it exists).
+     * 
+     * @param id Service ID (not bundle ID!) to test
+     * @return True if the test succeeded
+     */
     public boolean testPlugin(Long id) {
         // Get the metric plug-in's service
         ServiceReference srefPlugin = getPluginService(id);
@@ -723,7 +739,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         if ((null != srefPlugin) && (null != sobjPlugin)) {
             Object s = bc.getService(srefPlugin);
             if (null != s) {
-                sobjCore.selfTest(logger,s,false);
+                return null == sobjCore.selfTest(logger,s,false);
             }
         }
         return false;
