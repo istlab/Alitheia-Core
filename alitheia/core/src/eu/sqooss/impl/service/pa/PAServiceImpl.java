@@ -747,7 +747,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     
     public void handleEvent(Event e) {
         logger.info("Caught EVENT type=" + e.getPropertyNames().toString());
-        if (e.getTopic() == DBService.EVENT_STARTED) {
+        if (DBService.EVENT_STARTED.equals(e.getTopic())) {
             //Fire up queued service events after the DB service is inited
             while (initEventQueue.size() > 0) {
                 serviceChanged(initEventQueue.remove());
