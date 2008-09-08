@@ -36,7 +36,6 @@ package eu.sqooss.webui.view;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.SortedMap;
@@ -51,7 +50,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
-import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Metric;
 import eu.sqooss.webui.Project;
 import eu.sqooss.webui.Result;
@@ -62,64 +60,35 @@ import eu.sqooss.webui.datatype.File;
 import eu.sqooss.webui.datatype.Version;
 
 /**
- * The class <code>VerboseFileView</code> renders an HTML sequence that
- * verbosely presents the metric evaluation result of a single file in a
- * specific project version. In addition it provides mean for comparing the
- * results against the results calculated on this file in another project
- * revision.
+ * The class <code>FileDataView</code> renders an HTML sequence that
+ * verbosely presents metric result which were evaluated on a single file
+ * in a single project.
  */
-public class VerboseFileView extends ListView {
-    /*
-     * Hold the selected project's object.
-     */
-    private Project project;
+public class VerboseFileView extends AbstractDataView {
 
     /*
-     * Holds the selected file's Id.
+     * Holds the target file's Id.
      */
     private Long fileId;
 
     /*
-     * Holds the selected file's object.
+     * Holds the target file's object.
      */
     private File selFile = null;
 
     /*
-     * Holds the file's version selection (a list of version numbers)
+     * Holds the list of selected resources (<i>a list of file versions</i>).
      */
-    private List<Long> selectedVersions = new ArrayList<Long>();
-
-    /*
-     * Holds the file's metric selection (a list of metric Ids)
-     */
-    private List<Long> selectedMetrics = new ArrayList<Long>();
-
-    /*
-     * Holds the mnemonic of the currently highlighted metric
-     */
-    private String highlightedMetric = null;
-
-    /*
-     * Holds the list of metrics that were evaluated on the selected file.
-     */
-    private Collection<String> mnemonics = null;
+    private List<Long> selectedResources = new ArrayList<Long>();
 
     /*
      * Holds the evaluation results for the selected file.
      */
     HashMap<String, Result> results = new HashMap<String, Result>();
 
-    /*
-     * Results display types
-     */
-    public static final int TABLE_CHART = 2;
-    public static final int LINE_CHART = 4;
-    // Default display type
-    private int chartType = TABLE_CHART;
-
     /**
-     * Instantiates a new <code>VerboseFileView</code> object, and initializes
-     * it with the given project object and file Id.
+     * Instantiates a new <code>VerboseFileView</code> object,
+     * and initializes it with the given project object and target file Id.
      * 
      * @param project the project object
      * @param fileId the file Id
@@ -128,88 +97,69 @@ public class VerboseFileView extends ListView {
         super();
         this.project = project;
         this.fileId = fileId;
+        supportedCharts = TABLE_CHART + LINE_CHART;
     }
 
     /**
-     * Sets the selected versions of the file or folder that this view will
-     * present.
+     * Sets the resources which this view will present as selected.
      * 
-     * @param versions the array of selected file or folder versions
+     * @param selected the list of selected resources
+     *   (<i>a list of file versions</i>).
      */
-    public void setSelectedVersions(String[] versions) {
-        if (versions != null)
-            for (String versionNum : versions) {
+    private void setSelectedResources(List<String> selected) {
+        if (selected != null)
+            for (String resource : selected) {
                 try {
-                Long value = new Long(versionNum);
-                if (selectedVersions.contains(value) == false)
-                    selectedVersions.add(value);
+                    Long value = new Long(resource);
+                    if (selectedResources.contains(value) == false)
+                        selectedResources.add(value);
                 }
                 catch (NumberFormatException ex) { /* Do nothing */ }
             }
+
+        // Cleanup the corresponding session variable from invalid entries
+        String[] validResources = new String[selectedResources.size()];
+        int index = 0;
+        for (Long nextVersion : selectedResources)
+            validResources[index++] = nextVersion.toString();
+        viewConf.setSelectedResources(validResources);
     }
 
     /**
-     * Sets the selected metrics for the file or folder that this view will
-     * present.
-     * 
-     * @param versions the array of selected metrics
+     * Loads all the necessary information, that is associated with the
+     * resources presented in this view.
      */
-    public void setSelectedMetrics(String[] metrics) {
-        if (metrics != null)
-            for (String metricId : metrics) {
-                try {
-                    Long value = new Long(metricId);
-                    if (selectedMetrics.contains(value) == false)
-                        selectedMetrics.add(value);
+    private void loadData () {
+        if ((project != null) && (project.isValid())) {
+            // Pre-load the target file's object
+            if (fileId != null)
+                selFile = project.getCurrentVersion().getFile(fileId);
+
+            if (selFile != null) {
+                selFile.setTerrier(this.terrier);
+                /*
+                 * Load the list of metrics that were evaluated on this resource
+                 * type and are related to the presented resource type
+                 */
+                if (selFile.getIsDirectory())
+                    evaluated = project.getEvaluatedMetrics().getMetricMnemonics(
+                            MetricActivator.PROJECTFILE,
+                            MetricType.SOURCE_FOLDER);
+                else
+                    evaluated = project.getEvaluatedMetrics().getMetricMnemonics(
+                            MetricActivator.PROJECTFILE,
+                            MetricType.SOURCE_CODE);
+
+                // Retrieve the selected file's results
+                results = selFile.getResults(evaluated.values());
+
+                if (viewConf != null) {
+                    // Load the list of selected metrics
+                    setSelectedMetrics(viewConf.getSelectedMetrics());
+
+                    // Load the list of selected versions
+                    setSelectedResources(viewConf.getSelectedResources());
                 }
-                catch (NumberFormatException ex) { /* Do nothing */ }
-            }
-    }
-
-    /**
-     * Sets the mnemonic name of the metric that will be highlighted in the
-     * generated results display.
-     * 
-     * @param mnemonic the metric's mnemonic name
-     */
-    public void setHighlightedMetric(String mnemonic) {
-        this.highlightedMetric = mnemonic;
-    }
-
-    /**
-     * Sets the type of the display that will be used for presenting the
-     * selected metrics evaluation results.
-     * 
-     * @param chartType one of the display types supported by this view
-     */
-    public void setChartType(int chartType) {
-        this.chartType = chartType;
-    }
-
-    /**
-     * Loads all the necessary information, that is related to the file or
-     * folder, which this view will present.
-     */
-    private void attachSelectedFile () {
-        // Retrieve the selected file's object
-        if (fileId != null)
-            selFile = project.getCurrentVersion().getFile(fileId);
-        // Retrieve the selected file's results
-        if (selFile != null) {
-            selFile.setTerrier(this.terrier);
-            if (selFile.getIsDirectory())
-                mnemonics = project.getEvaluatedMetrics().getMetricMnemonics(
-                        MetricActivator.PROJECTFILE,
-                        MetricType.SOURCE_FOLDER).values();
-            else
-                mnemonics = project.getEvaluatedMetrics().getMetricMnemonics(
-                        MetricActivator.PROJECTFILE,
-                        MetricType.SOURCE_CODE).values();
-            results = selFile.getResults(mnemonics);
-
-            if (settings != null) {
-                setSelectedVersions(settings.getVfvSelectedVersions());
-                setSelectedMetrics(settings.getVfvSelectedMetrics());
             }
         }
     }
@@ -220,16 +170,19 @@ public class VerboseFileView extends ListView {
     public String getHtml(long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
+
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
-        // Load the selected file's data
-        attachSelectedFile();
+
+        // Load the selected versions' data
+        loadData();
 
         if (selFile == null) {
             b.append(sp(in) + Functions.error("File/folder not found!"));
         }
-        else if ((selectedMetrics.isEmpty()) || (selectedVersions.isEmpty())) {
-            b.append(sp(in) + "Select one or more metrics and resource versions.");
+        else if ((selectedMetrics.isEmpty()) || (selectedResources.isEmpty())) {
+            b.append(sp(in)
+                    + "Select one or more metrics and file/folder versions.");
         }
         else {
             //----------------------------------------------------------------
@@ -244,21 +197,27 @@ public class VerboseFileView extends ListView {
             //----------------------------------------------------------------
             // Assemble the results dataset
             //----------------------------------------------------------------
+            /*
+             * Data set format:
+             * < metric_mnemonic < file_version, evaluation_value > >
+             */
             SortedMap<String, SortedMap<Long, String>> data =
                 new TreeMap<String, SortedMap<Long,String>>();
+            // Prepare the data set
             for (Long metricId : selectedMetrics) {
                 Metric metric =
                     project.getEvaluatedMetrics().getMetricById(metricId);
                 if (metric != null)
                     data.put(metric.getMnemonic(), new TreeMap<Long, String>());
             }
+            // Fill the data set
             SortedMap<Long, Long> mods = terrier.getFileModification(
                     project.getCurrentVersion().getId(), fileId);
-            for (Long versionNum : selectedVersions) {
+            for (Long versionNum : selectedResources) {
                 Long nextFileId = mods.get(versionNum);
                 if (nextFileId != null) {
                     HashMap<String, Result> verResults =
-                        selFile.getResults(mnemonics, nextFileId);
+                        selFile.getResults(evaluated.values(), nextFileId);
                     for (Long metricId : selectedMetrics) {
                         Metric metric = project.getEvaluatedMetrics()
                             .getMetricById(metricId);
@@ -395,17 +354,17 @@ public class VerboseFileView extends ListView {
     }
 
     /**
-     * Renders an info panel related to the selected file or folder.
+     * Renders an info panel related to the selected project versions
      * 
      * @param in the indentation depth
      * 
      * @return The generated HTML content.
      */
-    public String getFileInfo (long in) {
+    public String getInfo (long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
         // Load the selected file's data
-        attachSelectedFile();
+        loadData();
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
 
@@ -472,11 +431,11 @@ public class VerboseFileView extends ListView {
      * 
      * @return The generated HTML content.
      */
-    public String getFileControls (long in) {
+    public String getControls (long in) {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
         // Load the selected file's data
-        attachSelectedFile();
+        loadData();
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
 
@@ -491,7 +450,7 @@ public class VerboseFileView extends ListView {
             b.append(sp(in++) + "<div class=\"vfvmid\">\n");
             b.append(sp(in) + "<div class=\"vfvtitle\">Metrics</div>\n");
             b.append(sp(in++) + "<select class=\"vfvmid\""
-                    + " name=\"vfvmid\""
+                    + " name=\"selMetrics\""
                     + " multiple"
                     + " size=\"5\""
                     + ((results.isEmpty()) ? " disabled" : "")
@@ -515,7 +474,7 @@ public class VerboseFileView extends ListView {
             b.append(sp(in++) + "<div class=\"vfvfid\">\n");
             b.append(sp(in) + "<div class=\"vfvtitle\">Modifications</div>\n");
             b.append(sp(in++) + "<select class=\"vfvfid\""
-                    + " name=\"vfvfid\""
+                    + " name=\"selResources\""
                     + " multiple"
                     + " size=\"5\""
                     + ((results.isEmpty()) ? " disabled" : "")
@@ -524,7 +483,7 @@ public class VerboseFileView extends ListView {
                     project.getCurrentVersion().getId(), fileId);
             for (Long version : mods.keySet()) {
                 b.append(sp(in) + "<option class=\"vfvfid\""
-                        + ((selectedVersions.contains(version))
+                        + ((selectedResources.contains(version))
                                 ? " selected" : "")
                         + " value=\"" + version + "\">"
                         + "v." + version
@@ -572,7 +531,7 @@ public class VerboseFileView extends ListView {
         //--------------------------------------------------------------------
         // Display all available results per metric and version
         //--------------------------------------------------------------------
-        for (Long version : selectedVersions) {
+        for (Long version : selectedResources) {
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in) + "<td class=\"def_head\">"
                     + "In v." + version 

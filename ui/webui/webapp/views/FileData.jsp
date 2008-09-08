@@ -4,44 +4,31 @@
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
 //============================================================================
-// Lets the user select and display version based evaluation results
+//Lets the user select and display file based evaluation results
 //============================================================================
-if (selectedProject.isValid()) {
-%>                <div id="fileslist">
-<%
+
     // Indentation depth
     in = 11;
 
-    // Retrieve information for the selected project, if necessary
-    selectedProject.retrieveData(terrier);
+    eu.sqooss.webui.datatype.File selFile = null;
+    if (settings.getFdvSelectedFileId() != null)
+        selFile = selectedProject.getCurrentVersion().getFile(
+                settings.getFdvSelectedFileId());
 
-    if (selectedProject.getVersionsCount() > 0) {
+    if (selFile != null) {
         BaseDataSettings viewConf = settings.getDataSettings(
-                SelectedSettings.VERSION_DATA_SETTINGS);
+                SelectedSettings.FILE_DATA_SETTINGS);
 
 %><%@ include file="/inc/DataViewParameters.jsp"
 %><%
 
         /*
-         * Check if the user switched to tagged versions input only
-         */
-        if (request.getParameter("onlyTagged") != null) {
-            if (request.getParameter("onlyTagged").equals("true"))
-                settings.setVdvInputTaggedOnly(true);
-            else if (request.getParameter("onlyTagged").equals("false"))
-                settings.setVdvInputTaggedOnly(false);
-            // Force the numeric version input in case of "untagged" project
-            if (selectedProject.getTaggedVersions().size() < 1)
-                settings.setVdvInputTaggedOnly(false);
-        }
-
-        /*
          * Initialise the data view's object
          */
-        VersionDataView dataView =
-            new VersionDataView(selectedProject);
+        VerboseFileView dataView =
+                new VerboseFileView(selectedProject, selFile.getId());
         dataView.setServletPath(request.getServletPath());
-        dataView.setSettings(settings, SelectedSettings.VERSION_DATA_SETTINGS);
+        dataView.setSettings(settings, SelectedSettings.FILE_DATA_SETTINGS);
         dataView.setTerrier(terrier);
 
         // Retrieve the highlighted metric (if any)
@@ -53,8 +40,12 @@ if (selectedProject.isValid()) {
         // Construct the window's content
         StringBuilder b = new StringBuilder("");
         Window winDataView = new Window();
-        winDataView.setTitle("Versions in project "
-                + selectedProject.getName());
+        if (selFile.getIsDirectory())
+            winDataView.setTitle("Results in folder "
+                + selFile.getShortName());
+        else
+            winDataView.setTitle("Results in file "
+                + selFile.getShortName());
 
         // Create a wrapper for the sub-views
         b.append(sp(in++) + "<table style=\"width: 100%\">\n");
@@ -82,11 +73,6 @@ if (selectedProject.isValid()) {
                 winInfoPanel.addTitleIcon(icoCloseWin);
 
                 // Construct the windows's toolbar
-                TextInput icoShowVersion = new TextInput();
-                icoShowVersion.setPath(request.getServletPath());
-                icoShowVersion.setParameter("showResource");
-                icoShowVersion.setText("Show version:");
-                winInfoPanel.addToolIcon(icoShowVersion);
 
                 // Construct the window's content
                 winInfoPanel.setContent(dataView.getInfo(in + 2));
@@ -107,52 +93,6 @@ if (selectedProject.isValid()) {
                 winControlPanel.addTitleIcon(icoCloseWin);
 
                 // Construct the windows's toolbar
-                WinIcon icoVersionRange = new WinIcon();
-                icoVersionRange.setPath(request.getServletPath());
-                icoVersionRange.setParameter("onlyTagged");
-                if (settings.getVdvInputTaggedOnly()) {
-                    icoVersionRange.setAlt(
-                            "Switch to a manual version number input.");
-                    icoVersionRange.setValue("false");
-                    icoVersionRange.setImage(
-                            "/img/icons/16x16/add_version.png");
-                }
-                else {
-                    icoVersionRange.setAlt(
-                            "Select from a list of tagged project versions.");
-                    icoVersionRange.setValue("true");
-                    icoVersionRange.setImage(
-                            "/img/icons/16x16/add_tagged.png");
-                    // Check, if this project has any tagged version
-                    if (selectedProject.getTaggedVersions().size() < 1) {
-                        icoVersionRange.setStatus(false);
-                    }
-                }
-                winControlPanel.addToolIcon(icoVersionRange);
-
-                winControlPanel.addToolIcon(icoSeparator);
-
-                if (settings.getVdvInputTaggedOnly()) {
-                    SelectInput icoVersionSelector = new SelectInput();
-                    icoVersionSelector.setPath(request.getServletPath());
-                    icoVersionSelector.setParameter("addResource");
-                    icoVersionSelector.setLabelText("Tagged:");
-                    icoVersionSelector.setButtonText("Add");
-                    for (TaggedVersion tag : selectedProject.getTaggedVersions())
-                        if (viewConf.isSelectedResource(
-                                tag.getNumber().toString()) == false)
-                            icoVersionSelector.addOption(
-                                    tag.getNumber().toString(),
-                                    tag.getNumber().toString());
-                    winControlPanel.addToolIcon(icoVersionSelector);
-                }
-                else {
-                    TextInput icoVersionSelector = new TextInput();
-                    icoVersionSelector.setPath(request.getServletPath());
-                    icoVersionSelector.setParameter("addResource");
-                    icoVersionSelector.setText("Add version:");
-                    winControlPanel.addToolIcon(icoVersionSelector);
-                }
 
                 // Construct the window's content
                 winControlPanel.setContent(dataView.getControls(in + 2));
@@ -204,19 +144,13 @@ if (selectedProject.isValid()) {
 
 %><%@ include file="/inc/DataViewIcons.jsp"
 %><%
+        icoCloseWin.setParameter("fid");
+        icoCloseWin.setValue("none");
 
         winDataView.setContent(b.toString());
         out.print(winDataView.render(in - 2));
     }
     else
         out.print(sp(in) + Functions.information(
-                "This project has no versions."));
-}
-//============================================================================
-// Let the user choose a project, if none was selected
-//============================================================================
-else {
-%><%@ include file="/inc/SelectProject.jsp"
-%><%
-}
-%>                </div>
+                "Invalid file or folder."));
+%>

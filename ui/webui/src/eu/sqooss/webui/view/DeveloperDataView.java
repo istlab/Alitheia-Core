@@ -27,7 +27,7 @@ import eu.sqooss.webui.datatype.Developer;
 
 /**
  * The class <code>VersionDataView</code> renders an HTML sequence that
- * verbosely presents metric result that were evaluated on the project
+ * verbosely presents metric result which were evaluated on the project
  * developers in a single project.
  */
 public class DeveloperDataView extends AbstractDataView {
@@ -78,8 +78,8 @@ public class DeveloperDataView extends AbstractDataView {
             project.getDevelopers();
 
             /*
-             * Load the list of metrics that were evaluated on this project
-             * and are related to the presented resource type
+             * Load the list of metrics that were evaluated on this resource
+             * type and are related to the presented resource type
              */
             evaluated = project.getEvaluatedMetrics().getMetricMnemonics(
                     MetricActivator.DEVELOPER,

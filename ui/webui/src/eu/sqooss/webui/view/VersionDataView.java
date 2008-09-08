@@ -63,7 +63,7 @@ import eu.sqooss.webui.datatype.Version;
 
 /**
  * The class <code>VersionDataView</code> renders an HTML sequence that
- * verbosely presents metric result that were evaluated on the project
+ * verbosely presents metric result which were evaluated on the project
  * versions of a single project.
  */
 public class VersionDataView extends AbstractDataView {
@@ -113,7 +113,7 @@ public class VersionDataView extends AbstractDataView {
 
     /**
      * Loads all the necessary information, that is associated with the
-     * selected project versions.
+     * resources presented in this view.
      */
     private void loadData() {
         if ((project != null) && (project.isValid())) {
@@ -123,8 +123,8 @@ public class VersionDataView extends AbstractDataView {
             }
 
             /*
-             * Load the list of metrics that were evaluated on this project
-             * and are related to the presented resource type
+             * Load the list of metrics that were evaluated on this resource
+             * type and are related to the presented resource type
              */
             evaluated = project.getEvaluatedMetrics().getMetricMnemonics(
                     MetricActivator.PROJECTVERSION,
@@ -152,6 +152,7 @@ public class VersionDataView extends AbstractDataView {
 
         // Load the selected versions' data
         loadData();
+
         if (project.getVersionsCount() < 1) {
             b.append(sp(in)
                     + Functions.error("This project has no versions!"));

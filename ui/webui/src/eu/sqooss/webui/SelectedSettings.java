@@ -37,10 +37,9 @@ import java.io.File;
 import java.util.Locale;
 
 import eu.sqooss.webui.settings.BaseDataSettings;
-import eu.sqooss.webui.view.VerboseFileView;
 
 public class SelectedSettings {
-    // Common settings
+    // Shared settings
     private Locale userLocale = Locale.US;
     private File tempFolder = null;
 
@@ -60,20 +59,17 @@ public class SelectedSettings {
     private boolean showFVFolderList = true;
     private boolean showFVFileList = true;
 
-    // VerboseFileView related
-    private boolean showVfvInfoPanel = true;
-    private boolean showVfvControlPanel = true;
-    private boolean showVfvResultPanel = true;
-    private String[] vfvSelectedMetrics = null;
-    private String[] vfvSelectedVersions = null;
-    private int vfvChartType = VerboseFileView.TABLE_CHART;
+    // FileDataView specific
+    private Long fdvSelectedFileId = null;
 
     // VersionDataView specific
     private boolean vdvInputTaggedOnly = false;
 
-    public static final int VERSION_DATA_SETTINGS = 12;
+    public static final int FILE_DATA_SETTINGS      = 11;
+    public static final int VERSION_DATA_SETTINGS   = 12;
     public static final int DEVELOPER_DATA_SETTINGS = 13;
 
+    public BaseDataSettings fileDataView        = null;
     public BaseDataSettings versionDataView     = null;
     public BaseDataSettings developerDataView   = null;
 
@@ -81,6 +77,7 @@ public class SelectedSettings {
         super();
         developerDataView = new BaseDataSettings();
         versionDataView = new BaseDataSettings();
+        fileDataView = new BaseDataSettings();
     }
 
     public BaseDataSettings getDataSettings(int target) {
@@ -89,17 +86,22 @@ public class SelectedSettings {
             return developerDataView;
         case VERSION_DATA_SETTINGS:
             return versionDataView;
+        case FILE_DATA_SETTINGS:
+            return fileDataView;
         default:
             return null;
         }
     }
 
-    public Locale getUserLocale() {
-        return userLocale;
-    }
-
-    public void setUserLocale(Locale userLocale) {
-        this.userLocale = userLocale;
+    public void flushDataSettings(int target) {
+        switch (target) {
+        case DEVELOPER_DATA_SETTINGS:
+            developerDataView = new BaseDataSettings(); break;
+        case VERSION_DATA_SETTINGS:
+            versionDataView = new BaseDataSettings(); break;
+        case FILE_DATA_SETTINGS:
+            fileDataView = new BaseDataSettings(); break;
+        }
     }
 
     public void setShowAllMetrics(boolean flag) {
@@ -191,55 +193,15 @@ public class SelectedSettings {
     }
 
     // =======================================================================
-    // VerboseFileView related
+    // FileDataView related
     // =======================================================================
 
-    public boolean getShowVfvInfoPanel() {
-        return showVfvInfoPanel;
+    public Long getFdvSelectedFileId() {
+        return fdvSelectedFileId;
     }
 
-    public void setShowVfvInfoPanel(boolean show) {
-        this.showVfvInfoPanel = show;
-    }
-
-    public boolean getShowVfvControlPanel() {
-        return showVfvControlPanel;
-    }
-
-    public void setShowVfvControlPanel(boolean show) {
-        this.showVfvControlPanel = show;
-    }
-
-    public boolean getShowVfvResultPanel() {
-        return showVfvResultPanel;
-    }
-
-    public void setShowVfvResultPanel(boolean show) {
-        this.showVfvResultPanel = show;
-    }
-
-    public String[] getVfvSelectedMetrics() {
-        return vfvSelectedMetrics;
-    }
-
-    public void setVfvSelectedMetrics(String[] metrics) {
-        this.vfvSelectedMetrics = metrics;
-    }
-
-    public String[] getVfvSelectedVersions() {
-        return vfvSelectedVersions;
-    }
-
-    public void setVfvSelectedVersions(String[] versions) {
-        this.vfvSelectedVersions = versions;
-    }
-
-    public int getVfvChartType() {
-        return vfvChartType;
-    }
-
-    public void setVfvChartType(int type) {
-        this.vfvChartType = type;
+    public void setFdvSelectedFileId(Long fdvSelectedFileId) {
+        this.fdvSelectedFileId = fdvSelectedFileId;
     }
 
     // =======================================================================
@@ -257,6 +219,14 @@ public class SelectedSettings {
     // =======================================================================
     // Shared methods
     // =======================================================================
+
+    public Locale getUserLocale() {
+        return userLocale;
+    }
+
+    public void setUserLocale(Locale userLocale) {
+        this.userLocale = userLocale;
+    }
 
     public File getTempFolder() {
         return tempFolder;

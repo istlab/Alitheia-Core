@@ -33,6 +33,7 @@
 
 package eu.sqooss.webui.datatype;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -244,25 +245,62 @@ public class File extends AbstractDatatype {
     @Override
     public HashMap<String, Result> getResults (
             Collection<String> mnemonics, Long resourceId) {
-        HashMap<String, Result> result = new HashMap<String, Result>();
-        if ((resourceId == null) 
-                || (mnemonics == null) 
-                || (mnemonics.isEmpty()))
-            return result;
+        /*
+         * Return an empty list upon invalid parameters
+         */
+        if ((resourceId == null) || (mnemonics == null))
+            return new HashMap<String, Result>();
+
+        /*
+         * Process a request for retrieving evaluation result for another
+         * resource of the same type
+         */
+        if (getId().compareTo(resourceId) != 0) {
+            HashMap<String, Result> neighbourResults =
+                new HashMap<String, Result>();
+            /*
+             * Construct the result request's object.
+             */
+            if (mnemonics.size() > 0) {
+            WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
+            reqResults.setDaObjectId(new long[]{resourceId});
+            reqResults.setProjectFile(true);
+            reqResults.setMnemonics(
+                    mnemonics.toArray(new String[mnemonics.size()]));
+            /*
+             * Retrieve the evaluation results from the SQO-OSS framework
+             */
+            for (Result nextResult : terrier.getResults(reqResults))
+                neighbourResults.put(nextResult.getMnemonic(), nextResult);
+            }
+            return neighbourResults;
+        }
+
+        /*
+         * Skip already retrieved metric results.
+         */
+        ArrayList<String> missingMnemonics = new ArrayList<String>();
+        missingMnemonics.addAll(mnemonics);
+        for (String mnemonic : results.keySet()) {
+            if (missingMnemonics.contains(mnemonic))
+                missingMnemonics.remove(mnemonic);
+        }
         /*
          * Construct the result request's object.
          */
+        if (missingMnemonics.size() > 0) {
         WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
         reqResults.setDaObjectId(new long[]{resourceId});
         reqResults.setProjectFile(true);
         reqResults.setMnemonics(
-                mnemonics.toArray(new String[mnemonics.size()]));
+                missingMnemonics.toArray(new String[missingMnemonics.size()]));
         /*
          * Retrieve the evaluation results from the SQO-OSS framework
          */
         for (Result nextResult : terrier.getResults(reqResults))
-            result.put(nextResult.getMnemonic(), nextResult);
-        return result;
+            results.put(nextResult.getMnemonic(), nextResult);
+        }
+        return results;
     }
 
     /* (non-Javadoc)
