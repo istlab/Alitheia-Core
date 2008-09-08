@@ -62,8 +62,8 @@ public class SkeletonImplementation extends AbstractMetric implements Skeleton, 
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    "SKEL",
                     this.getDescription(),
+                    "SKEL",
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
