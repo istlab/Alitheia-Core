@@ -4,7 +4,16 @@
 <title>User Manual</title>
 <sect1 id="user:interfaces">
     <title>Interfaces</title>
-    <para></para>
+    <para>
+    The Alitheia system is built with independence from user interfaces in mind, so it
+    can in theory have any kind of user interface on top of it. Currently, two user
+    interfaces, each with a different purpose are existing for Alitheia -- the WebUI, a
+    user interface running in a webbrowser and therefore being very easily accessible,
+    and the Eclipse plugin, an add-on for the Eclipse IDE that integrates quality
+    measurements seamlessly into a development environment. The user interfaces
+    exchange data with the Alitheia core through a well-defined web service interface.
+
+    </para>
     <sect2  id="user:interfaces:web" >
         <title>Web</title>
         <para></para>
