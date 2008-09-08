@@ -34,11 +34,12 @@
 package eu.sqooss.impl.metrics.testability;
 
 import java.io.LineNumberReader;
+import java.io.IOException;
 
 /** Measure and obtain testability metrics. */
 interface TestabilityScanner {
     /** Scan the specified file. */
-    public void scan(LineNumberReader r);
+    public void scan(LineNumberReader r) throws IOException;
     /** Number of test cases of the previous scan. */
     public int getTestCases();
 }

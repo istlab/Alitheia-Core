@@ -36,6 +36,7 @@ package eu.sqooss.impl.metrics.testability;
 import java.io.LineNumberReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.IOException;
 
 /** Measure and obtain JUnit testability metrics. */
 class JUnitMetrics implements TestabilityScanner {
@@ -69,7 +70,7 @@ class JUnitMetrics implements TestabilityScanner {
             Pattern.compile("TestCase\\." + testCaseMethods);
 
     /** Scan the specified file. */
-    public void scan(LineNumberReader r) {
+    public void scan(LineNumberReader r) throws IOException {
         numTestCases = 0;
         String line = null;
         boolean isTestCase = false;
@@ -79,12 +80,12 @@ class JUnitMetrics implements TestabilityScanner {
             if (m.find())
                 isTestCase = true;
             if (isTestCase) {
-                Matcher m = testCaseMethod.matcher(line);
+                m = testCaseMethod.matcher(line);
                 if (m.find())
                     numTestCases++;
             }
             // Case 2 testCaseClassMethod
-            Matcher m = testCaseClassMethod.matcher(line);
+            m = testCaseClassMethod.matcher(line);
             if (m.find())
                 numTestCases++;
         }

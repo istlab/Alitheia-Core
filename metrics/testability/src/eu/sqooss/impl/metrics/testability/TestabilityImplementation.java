@@ -39,12 +39,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.testability.Testability;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
@@ -52,6 +56,9 @@ import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.FileTypeMatcher;
 
 public class TestabilityImplementation extends AbstractMetric implements Testability {
 
@@ -98,22 +105,22 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
         filter.put("metric", m);
         List<ProjectFileMeasurement> measurement =
             db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
-    	return convertMeasurements(measurement,m.getMnemonic());
+    	return convertFileMeasurements(measurement,m.getMnemonic());
     }
 
     /** Concrete testability scanners that we support. */
-    private HashMap <String, LinkedList<TestabilityScanner> > allScanners =
+    private static HashMap <String, LinkedList<TestabilityScanner> > allScanners =
             new HashMap<String, LinkedList<TestabilityScanner> >();
     static {
         LinkedList<TestabilityScanner> javaMetrics =
                 new LinkedList<TestabilityScanner>();
         // Add more Java scanners here
         javaMetrics.add(new JUnitMetrics());
-        scanners.put(".java", javaMetrics);
-        scanners.put(".JAVA", javaMetrics);
+        allScanners.put(".java", javaMetrics);
+        allScanners.put(".JAVA", javaMetrics);
     }
 
-    public void run(ProjectFile a) {
+    public void run(ProjectFile pf) {
         //1. Get stuff related to the provided project file
         //2. Calculate one or more numbers
         //3. Store a result to the database
@@ -129,8 +136,6 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
         // Metric doesn't support this type of file
         if (extension == null)
             return;
-        for (TestabilityScanner s : scanners)
-            s.start();
 
         // Create an input stream from the project file's content
         InputStream in = fds.getFileContents(pf);
@@ -157,7 +162,7 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
             Metric metric = Metric.getMetricByMnemonic(MNEMONIC_NCASES);
             ProjectFileMeasurement ncases = new ProjectFileMeasurement(
                     metric,pf,String.valueOf(numTestCases));
-            db.addRecord(locm);
+            db.addRecord(ncases);
             markEvaluation(metric, pf);
         } catch (IOException e) {
             log.error(this.getClass().getName() + " IO Error <" + e
