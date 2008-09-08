@@ -44,6 +44,7 @@ public class DeveloperDataView extends AbstractDataView {
     public DeveloperDataView(Project project) {
         super();
         this.project = project;
+        supportedCharts = TABLE_CHART + BAR_CHART;
     }
 
     /**

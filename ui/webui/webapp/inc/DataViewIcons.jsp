@@ -60,25 +60,29 @@
 
         // Results icon - line chart display
         WinIcon icoLineChart = new WinIcon();
-        icoLineChart.setPath(request.getServletPath());
-        icoLineChart.setParameter("chartType");
-        icoLineChart.setValue("" + AbstractDataView.LINE_CHART);
-        icoLineChart.setAlt("Show results as a line chart");
-        icoLineChart.setImage("/img/icons/16x16/linechart.png");
-        if (viewConf.getChartType() == AbstractDataView.LINE_CHART)
-            icoLineChart.setStatus(false);
-        winDataView.addToolIcon(icoLineChart);
+        if ((dataView.supportedCharts & AbstractDataView.LINE_CHART) > 0) {
+            icoLineChart.setPath(request.getServletPath());
+            icoLineChart.setParameter("chartType");
+            icoLineChart.setValue("" + AbstractDataView.LINE_CHART);
+            icoLineChart.setAlt("Show results as a line chart");
+            icoLineChart.setImage("/img/icons/16x16/linechart.png");
+            if (viewConf.getChartType() == AbstractDataView.LINE_CHART)
+                icoLineChart.setStatus(false);
+            winDataView.addToolIcon(icoLineChart);
+        }
 
         // Results icon - bar chart display
         WinIcon icoBarChart = new WinIcon();
-        icoBarChart.setPath(request.getServletPath());
-        icoBarChart.setParameter("chartType");
-        icoBarChart.setValue("" + AbstractDataView.BAR_CHART);
-        icoBarChart.setAlt("Show results as a bar chart");
-        icoBarChart.setImage("/img/icons/16x16/bar-chart.png");
-        if (viewConf.getChartType() == AbstractDataView.BAR_CHART)
-            icoBarChart.setStatus(false);
-        winDataView.addToolIcon(icoBarChart);
+        if ((dataView.supportedCharts & AbstractDataView.BAR_CHART) > 0) {
+            icoBarChart.setPath(request.getServletPath());
+            icoBarChart.setParameter("chartType");
+            icoBarChart.setValue("" + AbstractDataView.BAR_CHART);
+            icoBarChart.setAlt("Show results as a bar chart");
+            icoBarChart.setImage("/img/icons/16x16/bar-chart.png");
+            if (viewConf.getChartType() == AbstractDataView.BAR_CHART)
+                icoBarChart.setStatus(false);
+            winDataView.addToolIcon(icoBarChart);
+        }
 
         /*
          * Disable the results display buttons, depending on the number of

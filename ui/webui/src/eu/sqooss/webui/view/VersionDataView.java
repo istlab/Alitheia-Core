@@ -81,6 +81,7 @@ public class VersionDataView extends AbstractDataView {
     public VersionDataView(Project project) {
         super();
         this.project = project;
+        supportedCharts = TABLE_CHART + LINE_CHART;
     }
 
     /**

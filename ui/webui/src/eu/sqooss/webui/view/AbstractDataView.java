@@ -42,12 +42,16 @@ public abstract class AbstractDataView extends ListView {
      */
     protected int chartType = TABLE_CHART;
     /*
-     * Supported result display types
+     * Definitions of the various result display types
      */
     public static final int TABLE_CHART = 2;
     public static final int LINE_CHART = 4;
     public static final int PIE_CHART = 8;
     public static final int BAR_CHART = 16;
+    /*
+     * Defines all charts which are supported by this view.
+     */
+    public int supportedCharts = TABLE_CHART;
 
     /**
      * Sets the user settings for this session.
