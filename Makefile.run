@@ -48,12 +48,14 @@ JETTY_CONFIG=-DDEBUG_VERBOSE=1 \
 # Additional arguments for Java. We have special arguments for
 # debug and monitor mode, as well as the regular configuraiton
 # settings to get OSGi up.
+# Configure additional arguments (such as -Xmx512M) in Makefile.config.local
+# through the variable JAVA_ADD_ARGS
 JAVA_DEBUG_ARGS=-Xdebug \
 	-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y
 JAVA_MONITOR_ARGS=-Dcom.sun.management.jmxremote
-JAVA_CORE_ARGS= -DDEBUG $(CL_CONFIG) $(LOG4J_CONFIG) $(JETTY_CONFIG) \
-		$(HIBERNATE_CONFIG) \
-		-jar org.eclipse.equinox.osgi-3.3.0.jar
+JAVA_CORE_ARGS= -DDEBUG $(JAVA_ADD_ARGS) $(CL_CONFIG) $(LOG4J_CONFIG) \
+	$(JETTY_CONFIG) $(HIBERNATE_CONFIG) \
+	-jar org.eclipse.equinox.osgi-3.3.0.jar
 
 # Start the core system with a console. Use 'close' in the console to quit.
 start-core : clean-osgi
