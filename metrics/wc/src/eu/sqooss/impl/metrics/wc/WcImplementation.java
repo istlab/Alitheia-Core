@@ -214,24 +214,29 @@ public class WcImplementation extends AbstractMetric implements Wc {
             lnr.close();
 
             // Store the results
-            Metric metric = Metric.getMetricByMnemonic("LOC");
-            ProjectFileMeasurement locm = new ProjectFileMeasurement();
-            locm.setMetric(metric);
-            locm.setProjectFile(pf);
-            locm.setResult(String.valueOf(lnr.getLineNumber()));
-
+            Metric metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOC);
+            ProjectFileMeasurement locm = new ProjectFileMeasurement(
+                    metric,pf,String.valueOf(lnr.getLineNumber()));
             db.addRecord(locm);
             markEvaluation(metric, pf.getProjectVersion().getProject());
             
-            metric = Metric.getMetricByMnemonic("LOCOM");
-            ProjectFileMeasurement locc = new ProjectFileMeasurement();
-            locc.setMetric(metric);
-            locc.setProjectFile(pf);
-            locc.setResult(String.valueOf(comments));
-            
+            metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
+            ProjectFileMeasurement locc = new ProjectFileMeasurement(
+                    metric,pf,String.valueOf(comments));
             db.addRecord(locc);
             markEvaluation(metric, pf.getProjectVersion().getProject());
-
+            
+            metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LONB);
+            ProjectFileMeasurement lonb = new ProjectFileMeasurement(
+                    metric,pf,String.valueOf(non_blank));
+            db.addRecord(lonb);
+            markEvaluation(metric, pf.getProjectVersion().getProject());
+            
+            metric = Metric.getMetricByMnemonic(MNEMONIC_WC_WORDS);
+            ProjectFileMeasurement words_measure = new ProjectFileMeasurement(
+                    metric,pf,String.valueOf(words));
+            db.addRecord(words_measure);
+            markEvaluation(metric, pf.getProjectVersion().getProject());
         } catch (IOException e) {
             log.error(this.getClass().getName() + " IO Error <" + e
                     + "> while measuring: " + pf.getFileName());
