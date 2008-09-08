@@ -40,10 +40,10 @@ import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.fds.FDSService;
-import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.tds.ProjectRevision;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,13 +95,23 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
 	// Find the latest ProjectVersion for which we have data
 	Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
 	try {
+            HashMap<String, Object> params = new HashMap<String, Object>(4);
+            params.put("m",m.getId());
+            params.put("p",pv.getProject().getId());
+            
 	    List<?> id = 
-		db.doSQL("select max(project_version_id) from project_version_measurement where metric_id=" +
-			 m.getId());
+		db.doSQL("select project_version_id from project_version_measurement natural join project_version where metric_id=:m and stored_project_id=:p order by timestamp desc limit 1",
+                    params);
 	    if(!id.isEmpty()) {
 		ProjectVersionMeasurement latest =
 		    db.findObjectById(ProjectVersionMeasurement.class, (Long) id.get(0));
-	    }
+                ProjectVersion previous = latest.getProjectVersion();
+                runDevTotal(previous,pv);
+	    } else {
+                runDevTotal(
+                        ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1)),
+                        pv);
+            }
 	}
 	catch(java.sql.SQLException err) {
 	    // Worry about this later
@@ -112,6 +122,11 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      * Find the total number of devleopers in the project for every week
      * for which the data is unknown up until pv
      */
-    public void runDevTotal(ProjectVersion pv) {
+    public void runDevTotal(ProjectVersion start, ProjectVersion end) {
+        log.info("Updating from " + start.toString() + "-" + end.toString());
     }
 }
+
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
