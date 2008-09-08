@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.StringTokenizer;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -62,12 +63,19 @@ public class WcImplementation extends AbstractMetric implements Wc {
     
     private FDSService fds;
 	
+    private static final String MNEMONIC_WC_LOC   = "Wc.loc";
+    private static final String MNEMONIC_WC_LOCOM = "Wc.locom";
+    private static final String MNEMONIC_WC_LONB  = "Wc.lonb";
+    private static final String MNEMONIC_WC_WORDS = "Wc.words";
+    
     public WcImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectFile.class);
         
-        super.addMetricActivationType("LOC", ProjectFile.class);
-        super.addMetricActivationType("LOCOM", ProjectFile.class);
+        super.addMetricActivationType(MNEMONIC_WC_LOC, ProjectFile.class);
+        super.addMetricActivationType(MNEMONIC_WC_LOCOM, ProjectFile.class);
+        super.addMetricActivationType(MNEMONIC_WC_LONB, ProjectFile.class);
+        super.addMetricActivationType(MNEMONIC_WC_WORDS, ProjectFile.class);
         
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
@@ -81,11 +89,19 @@ public class WcImplementation extends AbstractMetric implements Wc {
         if (result) {
             result &= super.addSupportedMetrics(
                     "Lines of Code",
-                    "LOC",
+                    MNEMONIC_WC_LOC,
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
                     "Lines of Comments", 
-                    "LOCOM",
+                    MNEMONIC_WC_LOCOM,
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Non-blank lines", 
+                    MNEMONIC_WC_LONB,
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Total words", 
+                    MNEMONIC_WC_WORDS,
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
@@ -141,28 +157,26 @@ public class WcImplementation extends AbstractMetric implements Wc {
             LineNumberReader lnr = 
                 new LineNumberReader(new InputStreamReader(in));
             int comments = 0;
+            int non_blank = 0;
+            int words = 0;
+            // The count of the number of lines is stored in the
+            // line number reader itself.
             
             String line = null;
             while ((line = lnr.readLine()) != null) {
+                // Count non-blank lines
+                if (line.trim().length()>0) {
+                    non_blank++;
+                }
                 
+                // Count words -- the tokenizer is not the best approach
+                words += new StringTokenizer(line).countTokens();
+                
+                // Find single-line comments
                 Matcher m = singleLinePattern.matcher(line);
                 /* Single line comments */
                 if (m.find()) {
                     comments++;
-                    continue;
-                }
-                
-                m = startMultiLinePattern.matcher(line);
-                Matcher m2 = endMultiLinePattern.matcher(line);
-                
-                /* Multiline comments */
-                if (m.find()) {
-                    comments++;
-
-                    while((line = lnr.readLine()) != null && !m2.find()) {
-                            m2 = endMultiLinePattern.matcher(line);
-                            comments++;
-                    }
                 }
             }
             
