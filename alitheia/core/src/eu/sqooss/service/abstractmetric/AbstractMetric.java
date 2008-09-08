@@ -59,6 +59,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -467,6 +468,17 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     	}
     }
 
+    /**
+     * Convenience method for marking a project as evaluated; use
+     * the project stored in the project file to do so.
+     * 
+     * @param me Metric that is done the evaluation
+     * @param pf Project File that was evaluated
+     */
+    public void markEvaluation (Metric me, ProjectFile pf) {
+        markEvaluation(me,pf.getProjectVersion().getProject());
+    }
+    
     /**
      * Register the metric to the DB. Subclasses can run their custom
      * initialization routines (i.e. registering DAOs or tables) after calling

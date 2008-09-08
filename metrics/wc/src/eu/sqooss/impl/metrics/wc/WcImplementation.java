@@ -218,25 +218,25 @@ public class WcImplementation extends AbstractMetric implements Wc {
             ProjectFileMeasurement locm = new ProjectFileMeasurement(
                     metric,pf,String.valueOf(lnr.getLineNumber()));
             db.addRecord(locm);
-            markEvaluation(metric, pf.getProjectVersion().getProject());
+            markEvaluation(metric, pf);
             
             metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
             ProjectFileMeasurement locc = new ProjectFileMeasurement(
                     metric,pf,String.valueOf(comments));
             db.addRecord(locc);
-            markEvaluation(metric, pf.getProjectVersion().getProject());
+            markEvaluation(metric, pf);
             
             metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LONB);
             ProjectFileMeasurement lonb = new ProjectFileMeasurement(
                     metric,pf,String.valueOf(non_blank));
             db.addRecord(lonb);
-            markEvaluation(metric, pf.getProjectVersion().getProject());
+            markEvaluation(metric, pf);
             
             metric = Metric.getMetricByMnemonic(MNEMONIC_WC_WORDS);
             ProjectFileMeasurement words_measure = new ProjectFileMeasurement(
                     metric,pf,String.valueOf(words));
             db.addRecord(words_measure);
-            markEvaluation(metric, pf.getProjectVersion().getProject());
+            markEvaluation(metric, pf);
         } catch (IOException e) {
             log.error(this.getClass().getName() + " IO Error <" + e
                     + "> while measuring: " + pf.getFileName());
