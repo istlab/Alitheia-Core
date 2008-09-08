@@ -144,13 +144,11 @@ public class WcImplementation extends AbstractMetric implements Wc {
             String startMultiLine = "/\\*+|<!--";
            
             /* End multiline comment */
-            String endMultiline = ".*\\*/|-->";
+            String endMultiLine = ".*\\*/|-->";
             
             /* Match single line comments, C/Java/C++ style*/
             String singleLine = "//.*$|#.*$|/\\*.*\\*/";
             
-            Pattern startMultiLinePattern = Pattern.compile(startMultiLine);
-            Pattern endMultiLinePattern = Pattern.compile(endMultiline);
             Pattern singleLinePattern = Pattern.compile(singleLine);
             
             // Measure the number of lines in the project file
@@ -161,7 +159,8 @@ public class WcImplementation extends AbstractMetric implements Wc {
             int words = 0;
             // The count of the number of lines is stored in the
             // line number reader itself.
-            
+
+            MultiLineMatcher mlm = new MultiLineMatcher(startMultiLine,endMultiLine);
             String line = null;
             while ((line = lnr.readLine()) != null) {
                 // Count non-blank lines
@@ -171,12 +170,19 @@ public class WcImplementation extends AbstractMetric implements Wc {
                 
                 // Count words -- the tokenizer is not the best approach
                 words += new StringTokenizer(line).countTokens();
-                
-                // Find single-line comments
-                Matcher m = singleLinePattern.matcher(line);
-                /* Single line comments */
-                if (m.find()) {
+
+                // First we check for multi-line comments, then
+                // for single liners if we have not already counted
+                // the line as a comment.
+                if (mlm.checkLineForComment(line)) {
                     comments++;
+                } else {
+                    // Find single-line comments
+                    Matcher m = singleLinePattern.matcher(line);
+                    /* Single line comments */
+                    if (m.find()) {
+                        comments++;
+                    }
                 }
             }
             
@@ -205,6 +211,61 @@ public class WcImplementation extends AbstractMetric implements Wc {
             log.error(this.getClass().getName() + " IO Error <" + e
                     + "> while measuring: " + pf.getFileName());
         
+        }
+    }
+
+
+    private class MultiLineMatcher {
+        private Pattern startRE;
+        private Pattern endRE;
+        private boolean inside;
+        
+        MultiLineMatcher(String start, String end) {
+            this.startRE = Pattern.compile(start);
+            this.endRE = Pattern.compile(end);
+            this.inside = false;
+        }
+        
+        public boolean checkLineForComment(String line) {
+            // If we are inside at the start of the line, then
+            // this is a comment line, regardless. Otherwise,
+            // this will be counted as a comment only if a comment
+            // starts on this line.
+            boolean r = inside;
+            
+            Matcher m_start = startRE.matcher(line);
+            Matcher m_end = endRE.matcher(line);
+            
+            // Set up a two-element array where toggle[0]
+            // is the next relevant token to be looking for.
+            // This is start if we're outside, and end if
+            // we're inside a comment right now.
+            Matcher toggle[] = { m_start, m_end } ;
+            if (inside) {
+                toggle[0] = m_end;
+                toggle[1] = m_start;
+            }
+            
+            // Looking from point forward in the line,
+            // we keep looking for the next (toggle[0])
+            // relevant token.
+            int point = 0;
+            while (toggle[0].find(point)) {
+                // If we found it, advance point,
+                // note that this line was a comment 
+                // (if we were inside, then it already was;
+                // and if we were outside, then we've just moved
+                // inside. Change states from in to out or vice-versa.
+                point=toggle[0].start()+1;
+                r = true;
+                inside = !inside;
+                // Swap around the two relevant matchers
+                Matcher temp = toggle[0];
+                toggle[0]=toggle[1];
+                toggle[1]=temp;
+            }
+            
+            return r;
         }
     }
 }
