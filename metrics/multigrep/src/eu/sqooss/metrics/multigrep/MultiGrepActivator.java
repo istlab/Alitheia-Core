@@ -44,7 +44,7 @@ public class MultiGrepActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
 
-        registration = bc.registerService(KrazyImplementation.class.getName(),
+        registration = bc.registerService(MultiGrep.class.getName(),
                 new MultiGrep(bc), null);
     }
 
