@@ -102,10 +102,10 @@ public class ProjectFile extends DAObject{
     private Directory dir;
 
     /**
-     * The directory this file was moved from. Only gets a value on 
-     * moved files.
+     * The ProjectFile this file was copied from. Only gets a value 
+     * for file copy operations
      */
-    private Directory moveFrom;
+    private ProjectFile copyFrom;
     
     /**
      * File measurements for this file
@@ -210,12 +210,12 @@ public class ProjectFile extends DAObject{
         this.dir = dir;
     }
     
-    public Directory getMoveFrom() {
-        return moveFrom;
+    public ProjectFile getCopyFrom() {
+        return copyFrom;
     }
 
-    public void setMoveFrom(Directory copyFrom) {
-        this.moveFrom = copyFrom;
+    public void setCopyFrom(ProjectFile copyFrom) {
+        this.copyFrom = copyFrom;
     }
 
     public Set<ProjectFileMeasurement> getMeasurements() {
@@ -308,7 +308,7 @@ public class ProjectFile extends DAObject{
         parameters.put(paramDir, pf.getDir());
         parameters.put(paramProject, pf.getProjectVersion().getProject());
         parameters.put(paramTimestamp, pf.getProjectVersion().getTimestamp());
-        parameters.put(paramMoveFrom, pf.getMoveFrom());
+        parameters.put(paramMoveFrom, pf.getCopyFrom());
 
         List<?> projectFiles = dbs.doHQL(query, parameters);
 

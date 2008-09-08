@@ -13,7 +13,7 @@
     <property name="status" column="FILE_STATUS" />
     <property name="isDirectory" column="IS_DIRECTORY" />
     <many-to-one name="dir" column="DIRECTORY_ID" not-null="true" cascade="merge"/>
-    <many-to-one name="moveFrom" column="MOVE_DIRECTORY_ID" cascade="merge"/>
+    <many-to-one name="copyFrom" column="COPY_FROM_ID" cascade="merge"/>
     <set name="measurements" inverse="true" cascade="all-delete-orphan">
         <key column="PROJECT_FILE_ID"/>
         <one-to-many class="eu.sqooss.service.db.ProjectFileMeasurement"/>

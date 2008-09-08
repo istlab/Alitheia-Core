@@ -104,6 +104,9 @@ final class SourceUpdater extends Job {
     /* Currently processed commit log entry*/
     private CommitEntry commitLogEntry;
     
+    /* List of copy operations */
+    private List<CommitCopyEntry> copyOps; 
+    
     /**
      * Update SVN metadata by synchronizing the latest version available to
      * the metadata database with the latest version available to the 
@@ -260,19 +263,15 @@ final class SourceUpdater extends Job {
                 }
             }
             
+            copyOps = entry.getCopyOperations();
+            
             logger.debug(curVersion.getProject().getName() + ": Got version "
                     + curVersion.getVersion() + " ID " + curVersion.getId());
             
             for (String chPath : entry.getChangedPaths()) {
-
-                //Defer processing of copied paths for after normal paths
-                if (isCopiedPath(chPath)) {
-                    continue;
-                }
                 
                 SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
-
-                /*
+                                /*
                  * We make the assumption that tags entries can only be
                  * directories, based on info obtained from the SVN manual See:
                  * http://svnbook.red-bean.com/en/1.1/ch04s06.html
@@ -287,8 +286,51 @@ final class SourceUpdater extends Job {
                     break;
                 }
 
-                ProjectFile pf = addFile(curVersion, chPath, 
-                        entry.getChangedPathsStatus().get(chPath).toString(), t, null);
+                ProjectFile copyFrom = null;
+                ProjectFile toAdd = null;
+                
+                if (!copyOps.isEmpty() && isCopiedPath(chPath)) {
+                    
+                    CommitCopyEntry copyOp = getCopyOp(chPath);
+                    
+                    copyFrom = ProjectFile.findFile(project.getId(), 
+                            basename(copyOp.fromPath()), 
+                            dirname(copyOp.fromPath()), prev.getVersion());
+                    
+                    if (copyFrom == null) {
+                        logger.warn("expecting 1 got " + 0 + " files for path " 
+                                + copyOp.fromPath() + " " + prev.toString());
+                    }
+                    
+                    if (copyFrom.getIsDirectory()) {
+                        
+                        Directory from = getDirectory(copyOp.fromPath(), false);
+                        Directory to = getDirectory(copyOp.toPath(), true);
+
+                        /*
+                         * Recursively copy contents and mark files as modified
+                         * and directories as added
+                         */
+                        logger.debug("Copying directory " + from.getPath()
+                                + " (from r" + copyOp.fromRev().getSVNRevision()
+                                + ") to " + to.getPath());
+                        handleDirCopy(curVersion, ProjectVersion.getVersionByRevision(curVersion.getProject(),
+                                        copyOp.fromRev()), from, to, copyFrom);  
+                    } else {
+                        /*
+                         * Create a new entry at the new location and mark the new 
+                         * entry as modified
+                         */
+                        toAdd = addFileIfNotExists(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
+                    }
+                    
+                    copyOps.remove(copyOp);
+                    
+                } else {
+                
+                    toAdd = addFile(curVersion, chPath, 
+                        entry.getChangedPathsStatus().get(chPath).toString(), t, copyFrom);
+                }
                 
                 /*
                  * Before entering the next block, examine whether the deleted
@@ -298,90 +340,22 @@ final class SourceUpdater extends Job {
                  * entry, it may be shared with another project; this case is
                  * examined upon entering
                  */
-                if (pf.isDeleted() && (getDirectory(chPath, false) != null)) {
+                if (toAdd.isDeleted() && (getDirectory(chPath, false) != null)) {
                         /*
                          * Directories, when they are deleted, do not have type DIR,
                          * but something else. So we need to check on deletes
                          * whether this name was most recently a directory.
                          */
-                        ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(pf);
+                        ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(toAdd);
 
                         /* If a dir was deleted, mark all children as deleted */
                         if (lastIncarnation != null
                                 && lastIncarnation.getIsDirectory()) {
                             // In spite of it not being marked as a directory
                             // in the node tree right now.
-                            pf.setIsDirectory(true);
+                            toAdd.setIsDirectory(true);
                         }
-                        handleDirDeletion(pf, curVersion);
-                }
-            }
-
-            /*Process copy/move operations*/
-            for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
-                /*if (prev == null) {
-                    prev = ProjectVersion.getVersionByRevision(curVersion.getProject(), 
-                            new ProjectRevision(curVersion.getVersion() - 1));
-                }*/
-                
-                //Find the originating project file entry
-                ProjectFile pf = ProjectFile.findFile(project.getId(), 
-                        basename(copyOp.fromPath()), 
-                        dirname(copyOp.fromPath()), prev.getVersion());
-                
-                if (pf == null) {
-                    logger.warn("expecting 1 got " + 0 + " files for path " 
-                            + copyOp.fromPath() + " (r" + prev.getVersion() + 
-                            ") project " + project.getName() + " (" + project.getId() +")");
-                    continue;
-                }
-                
-                boolean isMove = false;
-                
-                /*
-                 * An operation is marked as move when the copied path
-                 * is deleted in the same commit
-                 */
-                for (String chPath : entry.getChangedPaths()) {
-                    if (copyOp.fromPath().equals(chPath)
-                            && entry.getChangedPathsStatus().get(chPath) == PathChangeType.DELETED) {
-                        isMove = true;
-                        break;
-                    }
-                }
-                
-                if (pf.getIsDirectory()) {
-                    
-                    Directory from = getDirectory(copyOp.fromPath(), false);
-                    Directory to = getDirectory(copyOp.toPath(), true);
-                    if (isMove) {
-                        /*
-                         * Delete the entry at the source location (but leave
-                         * the contents intact), add a new entry for the new
-                         * location and process all files as indicated above
-                         */
-                        logger.debug("Moving directory " + from.getPath() + " to " 
-                                + to.getPath());
-                        handleDirMove(curVersion, from, to);
-                    } else {
-                        /* 
-                         * Recursively copy contents and mark files as modified
-                         * and directories as added
-                         */
-                        logger.debug("Copying directory " + from.getPath() + " (from r" 
-                                + copyOp.fromRev().getSVNRevision() + ") to " + to.getPath());
-                        handleDirCopy(curVersion, ProjectVersion.getVersionByRevision(curVersion.getProject(), copyOp.fromRev()), from, to);
-                    }   
-                } else {
-                    /*
-                     * Create a new entry at the new location and mark the new 
-                     * entry as modified
-                     */
-                    if (isMove) {
-                        addFileIfNotExists(curVersion, copyOp.toPath(), "MODIFIED", SCMNodeType.FILE, dirname(copyOp.fromPath()));
-                    } else {
-                        addFileIfNotExists(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, null);
-                    }
+                        handleDirDeletion(toAdd, curVersion);
                 }
             }
             
@@ -420,7 +394,7 @@ final class SourceUpdater extends Job {
      * @param moveFrom TODO
      */
     private ProjectFile addFileIfNotExists(ProjectVersion version, String fPath, 
-            String status, SCMNodeType t, String moveFrom) {
+            String status, SCMNodeType t, ProjectFile copyFrom) {
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put("projectVersion", version);
         properties.put("name", basename(fPath));
@@ -429,16 +403,9 @@ final class SourceUpdater extends Job {
         List<ProjectFile> pfs = dbs.findObjectsByProperties(ProjectFile.class, properties);
         
         if (pfs.isEmpty()) {
-            return addFile(version, fPath, status, t, moveFrom);
-        } else {
-            /*
-             * If file was modified at the same version that is was moved, then 
-             * just update its moveFrom field 
-             */
-            if (moveFrom != null) {
-                pfs.get(0).setMoveFrom(getDirectory(moveFrom, false));
-            }
-        }
+            return addFile(version, fPath, status, t, copyFrom);
+        } 
+        
         logger.debug("File " + basename(fPath) + " exists in " + dirname(fPath) + " for r" + 
                 pfs.get(0).getProjectVersion().getVersion());
         return pfs.get(0);
@@ -448,7 +415,7 @@ final class SourceUpdater extends Job {
      * Constructs a project file out of provided elements
      */
     private ProjectFile addFile(ProjectVersion version, String fPath, 
-            String status, SCMNodeType t, String movePath) {
+            String status, SCMNodeType t, ProjectFile copyFrom) {
         ProjectFile pf = new ProjectFile(version);
 
         String path = dirname(fPath);
@@ -458,11 +425,8 @@ final class SourceUpdater extends Job {
         pf.setName(fname);
         pf.setDir(dir);
         pf.setStatus(status);
+        pf.setCopyFrom(copyFrom);
         
-        if (movePath != null) {
-            pf.setMoveFrom(getDirectory(movePath, true));
-        }
-
         if (t == SCMNodeType.DIR) {
             pf.setIsDirectory(true);
             getDirectory(pf.getFileName(), true);
@@ -488,6 +452,20 @@ final class SourceUpdater extends Job {
         }
 
         return copied;
+    }
+    
+    /**
+     * Get a copy operation entry from the list of copy operations
+     * 
+     */
+    private CommitCopyEntry getCopyOp(String to) {
+        for (CommitCopyEntry copyOp : commitLogEntry.getCopyOperations()) {
+            if (to.equals(copyOp.toPath())) {
+                return copyOp;
+            }
+        }
+
+        return null;
     }
     
     /**
@@ -560,60 +538,24 @@ final class SourceUpdater extends Job {
             }
         }
     }
-
-    /**
-     * Handle directory moves 
-     */
-    private void handleDirMove(ProjectVersion pv, Directory from, Directory to) {
-       
-        if (!canCopy(from, to)) 
-            return;
-        
-        /*Remove the directory*/
-        ProjectFile toMove = ProjectFile.findFile(project.getId(), 
-                        basename(from.getPath()), 
-                        dirname(from.getPath()), 
-                        pv.getVersion());
-        
-        addFile(pv, toMove.getFileName(), "DELETED", SCMNodeType.DIR, null);
-        
-        /*Add the directory to the new location*/
-        addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, null);
-        
-        /*Recursively remove all directories*/
-        List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(ProjectVersion.getPreviousVersion(pv), from, ProjectFile.MASK_DIRECTORIES);
-        
-        for (ProjectFile f : fromPF) {
-            handleDirMove(pv, getDirectory(f.getFileName(), false), 
-                    getDirectory(to.getPath() + "/" + f.getName(), true));
-        }
-        
-        /*Move the files from the source directory to the new location*/
-        fromPF = ProjectFile.getFilesForVersion(ProjectVersion.getPreviousVersion(pv), from, ProjectFile.MASK_FILES);
-        
-        for (ProjectFile f : fromPF) {
-            addFileIfNotExists(pv, to.getPath() + "/" + f.getName(),
-                    "MODIFIED", SCMNodeType.FILE, from.getPath());
-        }
-    }
     
     /**
      * Handle directory copies
      */
     private void handleDirCopy(ProjectVersion pv, ProjectVersion fromVersion,
-            Directory from, Directory to) {
+            Directory from, Directory to, ProjectFile copyFrom) {
         
         if (!canCopy(from, to)) 
             return;
         
-        addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, null);
+        addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, copyFrom);
         
         /*Recursively copy directories*/
         List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(fromVersion, from, ProjectFile.MASK_DIRECTORIES);
         
         for (ProjectFile f : fromPF) {
             handleDirCopy(pv, fromVersion, getDirectory(f.getFileName(), false), 
-                    getDirectory(to.getPath() + "/" + f.getName(), true));
+                    getDirectory(to.getPath() + "/" + f.getName(), true), f);
         }
         
         fromPF = ProjectFile.getFilesForVersion(ProjectVersion.getPreviousVersion(pv), from, ProjectFile.MASK_FILES);
@@ -700,10 +642,14 @@ final class SourceUpdater extends Job {
                 
                 if (old == null) {
                     logger.error("Cannot get previous file version for file " + pf.toString());
-                    continue;
                 }
                 
                 FileForVersion ffv = FileForVersion.getFileForVersion(old, pv);
+                
+                if (ffv == null) {
+                    logger.warn("File " + old + " does not exist in FileForVersion"); 
+                }
+                
                 dbs.deleteRecord(ffv);
                 dbs.addRecord(new FileForVersion(pf, pv));
             } else {
