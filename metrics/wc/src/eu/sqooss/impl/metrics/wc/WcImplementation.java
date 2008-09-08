@@ -294,9 +294,19 @@ public class WcImplementation extends AbstractMetric implements Wc {
             commentDelimiters.put(e,delimiters);
         }
     }
-    
+
+    /**
+     * Self-test the wc plug-in by processing several files; these
+     * files live in /tmp/wc, which must be populated. There isn't
+     * really any self-*testing* in this method, but the code-paths
+     * are exercised as well as possible. By putting a suitable
+     * selection of files into /tmp/wc, you can read the output
+     * and validate the wc plug-in and its results.
+     * 
+     * @return null -- this selfTest() cannot fail
+     */
     public Object selfTest() {
-        log.info("Self-test in progress");
+        log.info("Self-test for Wc plug-in in progress");
         File dir = new File("/tmp/wc");
         File[] files = dir.listFiles();
         if (null == files) {
@@ -328,11 +338,31 @@ public class WcImplementation extends AbstractMetric implements Wc {
         return null;
     }
 
+    /**
+     * This is a very simple finite state machine that tracks
+     * multi-line comments; the machine is either inside or
+     * outside a multi-line comment, and it processes input line-by-line
+     * to maintain its state. For each line, call checkLineForComment()
+     * which returns true if the line may be considered a comment.
+     * 
+     * The FSM is parameterized by two regular expressions which should 
+     * match the beginning and end of a multi-line comment.
+     * 
+     * No effort is made to handle quoting, strings, or the effects
+     * of single-line comments, so the FSM may be confused by
+     * commented comment symbols.
+     */
     public static class MultiLineMatcher {
         private Pattern startRE;
         private Pattern endRE;
         private boolean inside;
         
+        /**
+         * Create a FSM with the given start and end regexps
+         * for detecting the multi-line comment.
+         * @param start Start-of-comment regexp; may not be null
+         * @param end End-of-comment regexp; may not be null
+         */
         MultiLineMatcher(String start, String end) {
             // It doesn't make sense to have null patterns
             // either for start or end, so don't check for null.
@@ -341,6 +371,15 @@ public class WcImplementation extends AbstractMetric implements Wc {
             this.inside = false;
         }
         
+        /**
+         * Given a line of input, move over it and maintain the
+         * state of the machine (inside or out). Returns true if
+         * the line is commented -- that means that a comment begins,
+         * is in progress, or ends on the line.
+         * 
+         * @param line Line of text
+         * @return true if the line may be considered a comment
+         */
         public boolean checkLineForComment(String line) {
             // If we are inside at the start of the line, then
             // this is a comment line, regardless. Otherwise,
