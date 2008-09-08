@@ -48,12 +48,6 @@ public class Developer extends AbstractDatatype {
     private String email;
     private String username;
 
-    /*
-     * Holds all evaluation results which were retrieved for this resource
-     * until now.
-     */
-    private HashMap<String, Result> result = new HashMap<String, Result>();
-
     /**
      * Instantiates a new <code>Developer</code> object, and initializes it
      * with the data stored in the given <code>WSDeveloper</code> object.
@@ -104,6 +98,10 @@ public class Developer extends AbstractDatatype {
         + "deselectDeveloper=" + getId() + "\">Deselect</a>";
     }
 
+    /* (non-Javadoc)
+     * @see eu.sqooss.webui.datatype.AbstractDatatype#getResults(java.util.Collection, java.lang.Long)
+     */
+    @Override
     public HashMap<String, Result> getResults (
             Collection<String> mnemonics, Long resourceId) {
         /*
@@ -114,7 +112,7 @@ public class Developer extends AbstractDatatype {
         /*
          * Skip already retrieved metric results.
          */
-        for (String mnemonic : result.keySet()) {
+        for (String mnemonic : results.keySet()) {
             if (mnemonics.contains(mnemonic))
                 mnemonics.remove(mnemonic);
         }
@@ -131,9 +129,9 @@ public class Developer extends AbstractDatatype {
              * Retrieve the evaluation results from the SQO-OSS framework
              */
             for (Result nextResult : terrier.getResults(reqResults))
-                result.put(nextResult.getMnemonic(), nextResult);
+                results.put(nextResult.getMnemonic(), nextResult);
         }
-        return result;
+        return results;
     }
 
     /* (non-Javadoc)

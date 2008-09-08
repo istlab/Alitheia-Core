@@ -49,7 +49,8 @@ public abstract class AbstractDatatype extends WebuiItem {
 
     /**
      * Holds the list of results from metrics that have been evaluated on
-     * this resource item, indexed by metric mnemonic name.
+     * this resource item, which were retrieved untill now. The results list
+     * is indexed by metric mnemonic name.
      */
     protected HashMap<String, Result> results = new HashMap<String, Result>();
 

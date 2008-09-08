@@ -93,6 +93,11 @@ public class Project extends WebuiItem {
     private TaggedVersionsList tagged = new TaggedVersionsList();
 
     /*
+     * Defines, if the selected project contains tagged versions at all.
+     */
+    private boolean hasTagged = true;
+
+    /*
      * A cache for the version that has been selected for this project.
      */
     private Version selectedVersion = null;
@@ -321,8 +326,11 @@ public class Project extends WebuiItem {
      * are found.
      */
     public TaggedVersionsList getTaggedVersions() {
-        if ((tagged.isEmpty()) && (terrier != null))
+        if ((tagged.isEmpty()) && (terrier != null) && (hasTagged)) {
             tagged.addAll(terrier.getTaggedVersionsByProjectId(this.getId()));
+            if (tagged.isEmpty())
+                hasTagged = false;
+        }
         return tagged;
     }
 

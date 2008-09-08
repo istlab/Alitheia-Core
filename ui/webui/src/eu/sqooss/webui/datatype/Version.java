@@ -55,7 +55,7 @@ import eu.sqooss.ws.client.datatypes.WSVersionStats;
 public class Version extends AbstractDatatype {
 
     /*
-     * Project version's meta-data
+     * Project version's specific meta-data
      */
     protected Long projectId;
     protected Long committerId;
@@ -66,12 +66,6 @@ public class Version extends AbstractDatatype {
      * 
      */
     protected Long filesNumber = null;
-
-    /*
-     * Holds the list of results from metrics that has been evaluated on this
-     * project version, indexed by metric mnemonic name.
-     */
-    protected HashMap<String, Result> results = new HashMap<String, Result>();
 
     /*
      * 
@@ -437,25 +431,34 @@ public class Version extends AbstractDatatype {
     @Override
     public HashMap<String, Result> getResults (
             Collection<String> mnemonics, Long resourceId) {
-        HashMap<String, Result> result = new HashMap<String, Result>();
-        if ((resourceId == null) 
-                || (mnemonics == null) 
-                || (mnemonics.isEmpty()))
-            return result;
+        /*
+         * Return an empty list upon invalid parameters
+         */
+        if ((resourceId == null) || (mnemonics == null))
+            return new HashMap<String, Result>();
+        /*
+         * Skip already retrieved metric results.
+         */
+        for (String mnemonic : results.keySet()) {
+            if (mnemonics.contains(mnemonic))
+                mnemonics.remove(mnemonic);
+        }
         /*
          * Construct the result request's object.
          */
-        WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
-        reqResults.setDaObjectId(new long[]{resourceId});
-        reqResults.setProjectVersion(true);
-        reqResults.setMnemonics(
-                mnemonics.toArray(new String[mnemonics.size()]));
-        /*
-         * Retrieve the evaluation results from the SQO-OSS framework
-         */
-        for (Result nextResult : terrier.getResults(reqResults))
-            result.put(nextResult.getMnemonic(), nextResult);
-        return result;
+        if (mnemonics.size() > 0) {
+            WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
+            reqResults.setDaObjectId(new long[]{resourceId});
+            reqResults.setProjectVersion(true);
+            reqResults.setMnemonics(
+                    mnemonics.toArray(new String[mnemonics.size()]));
+            /*
+             * Retrieve the evaluation results from the SQO-OSS framework
+             */
+            for (Result nextResult : terrier.getResults(reqResults))
+                results.put(nextResult.getMnemonic(), nextResult);
+        }
+        return results;
     }
 
     /* (non-Javadoc)
