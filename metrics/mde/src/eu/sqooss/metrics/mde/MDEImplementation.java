@@ -35,6 +35,7 @@ package eu.sqooss.metrics.mde;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
@@ -50,7 +51,7 @@ import java.util.List;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class MDEImplementation extends AbstractMetric implements MDE {
+public class MDEImplementation extends AbstractMetric implements ProjectVersionMetric {
     private FDSService fds;
 
     public MDEImplementation(BundleContext bc) {
