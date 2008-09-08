@@ -4,7 +4,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.metrics.mde.MDEImplementation;
+import eu.sqooss.metrics.mde.MDEImplementation;
 
 
 public class MDEActivator implements BundleActivator {
