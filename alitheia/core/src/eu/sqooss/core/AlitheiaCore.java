@@ -366,6 +366,55 @@ public class AlitheiaCore {
         return ma;
     }
 
+    public final Object selfTest(Logger l, Object o, boolean allowSkip) {
+        String className = o.getClass().getName();
+        try {
+            Method m = o.getClass().getMethod("selfTest");
+            if (m != null) {
+                l.info("BEGIN SubTest " + className);
+
+                // Now trim down to only the class name
+                int lastDot = className.lastIndexOf('.');
+                if (lastDot > 0) {
+                    className = className.substring(lastDot + 1);
+                }
+
+                String enabled = bc.getProperty("eu.sqooss.tester.enable."
+                        + className);
+                if (allowSkip && (enabled != null) && !Boolean.valueOf(enabled)) {
+                    l.info("SKIP  Test (disabled in configuration)");
+                    return null;
+                }
+
+                try {
+                    Object r = m.invoke(o);
+                    if (r != null) {
+                        l.info(className + "'s test failed: "
+                                + r.toString());
+                        return r;
+                    }
+                } catch (SecurityException e) {
+                    l.info("Can't access selfTest() method.");
+                } catch (IllegalAccessException e) {
+                    l.info("Failed to invoke selfTest() method: "
+                            + e.getMessage());
+                } catch (InvocationTargetException e) {
+                    l.info("Failed to invoke selfTest() on service: "
+                            + e.getMessage());
+                } catch (Exception e) {
+                    l.warn("selfTest() method failed: " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+                l.info("END   SubTest " + o.getClass().getName());
+                m = null;
+            }
+        } catch (NoSuchMethodException e) {
+            l.warn("Core component " + className + " has no selfTest()");
+        }
+        return null;
+    }
+    
     /**
      * This is the <code>selfTest()</code> method, which is called by the
      * system tester at startup. The method itself serves only as a dispatcher
@@ -403,50 +452,9 @@ public class AlitheiaCore {
         Logger l = getLogManager().createLogger(Logger.NAME_SQOOSS_TESTER);
         
         for (Object o : testObjects) {
-            String className = o.getClass().getName();
-            try {
-                Method m = o.getClass().getMethod("selfTest");
-                if (m != null) {
-                    l.info("BEGIN SubTest " + className);
-
-                    // Now trim down to only the class name
-                    int lastDot = className.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        className = className.substring(lastDot + 1);
-                    }
-
-                    String enabled = bc.getProperty("eu.sqooss.tester.enable."
-                            + className);
-                    if ((enabled != null) && !Boolean.valueOf(enabled)) {
-                        l.info("SKIP  Test (disabled in configuration)");
-                        continue;
-                    }
-
-                    try {
-                        Object r = m.invoke(o);
-                        if (r != null) {
-                            l.info(className + "'s test failed: "
-                                    + r.toString());
-                            result.add(r);
-                        }
-                    } catch (SecurityException e) {
-                        l.info("Can't access selfTest() method.");
-                    } catch (IllegalAccessException e) {
-                        l.info("Failed to invoke selfTest() method: "
-                                + e.getMessage());
-                    } catch (InvocationTargetException e) {
-                        l.info("Failed to invoke selfTest() on service: "
-                                + e.getMessage());
-                    } catch (Exception e) {
-                        l.warn("selfTest() method failed: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-
-                    l.info("END   SubTest " + o.getClass().getName());
-                    m = null;
-                }
-            } catch (NoSuchMethodException e) {
-                l.warn("Core component " + className + " has no selfTest()");
+            Object r = selfTest(l,o,true);
+            if (null != r) {
+                result.add(r);
             }
         }
         return result;
