@@ -11,26 +11,23 @@
   </parent>
 
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>krazy</artifactId>
+  <artifactId>multigrep</artifactId>
   <version>0.8.0</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Plug-in 'Krazy (KDE EBN)'</name>
-  <url>http://ikaria.dmst.aueb.gr/metrics/mde</url>
+  <name>Alitheia Plug-in 'Multigrep'</name>
+  <url>http://ikaria.dmst.aueb.gr/metrics/multigrep</url>
   <inceptionYear>2008</inceptionYear>
   <description> 
-    This metric begins implementing the checks that the
-    "Krazy" checker performs on the KDE codebase. It is 
-    a parallel development; a true Krazy implementation would
-    wrapper the Perl implementation and use the CORBA bindings.
+      This plugin includes multiple 'grep'-based metrics.
   </description>
 
   <scm>
     <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/krazy
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/multigrep
     </connection>
     <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/krazy
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/multigrep
     </developerConnection>
   </scm>
 
@@ -38,15 +35,6 @@
     <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/eu/sqooss/metrics/krazy/db</directory>
-        <targetPath>eu/sqooss/metrics/krazy/db</targetPath>
-        <includes>
-           <include>**/*.hbm.xml</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
