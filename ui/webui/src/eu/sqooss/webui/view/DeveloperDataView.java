@@ -14,6 +14,7 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
@@ -44,7 +45,7 @@ public class DeveloperDataView extends AbstractDataView {
     public DeveloperDataView(Project project) {
         super();
         this.project = project;
-        supportedCharts = TABLE_CHART + BAR_CHART;
+        supportedCharts = TABLE_CHART + BAR_CHART + PIE_CHART;
     }
 
     /**
@@ -236,6 +237,117 @@ public class DeveloperDataView extends AbstractDataView {
                             + "<img src=\"" + chartFile + "\">"
                             + "</a>"
                             + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    /*
+                     * Display a chart option for each of the selected metrics,
+                     * unless only one metric is selected.
+                     */
+                    if (selectedMetrics.size() > 1) {
+                        for (String mnemonic : data.keySet()) {
+                            b.append(sp(in++) + "<tr>\n");
+                            if ((highlightedMetric != null)
+                                    && (highlightedMetric.equals(mnemonic)))
+                                b.append(sp(in) + "<td"
+                                        + " class=\"vfv_chart_title_selected\">"
+                                        + mnemonic
+                                        + "</td>\n");
+                            else
+                                b.append(sp(in) + "<td"
+                                        + " class=\"vfv_chart_title\">"
+                                        + "<a href=\"" 
+                                        + getServletPath()
+                                        + "?vfvsm=" + mnemonic
+                                        + "\">"
+                                        + mnemonic + "</a>"
+                                        + "</td>\n");
+                            b.append(sp(--in) + "</tr>\n");
+                        }
+                    }
+                    /*
+                     * Display an empty transparent cell to align the options
+                     * row with the chart row. 
+                     */
+                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(in) + "<td"
+                            + " class=\"vfv_chart_title_empty\">"
+                            + "&nbsp;"
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</table>\n");
+                }
+                else
+                    b.append(Functions.information(
+                            "Inapplicable results."));
+                break;
+            case PIE_CHART:
+                /*
+                 * Generate the results chart.
+                 */
+                if ((highlightedMetric != null)
+                        && (data.containsKey(highlightedMetric)))
+                    chartFile = pieChart(
+                            highlightedMetric,
+                            data.get(highlightedMetric));
+                else if (data.size() == 1)
+                    chartFile = pieChart(
+                            data.firstKey(),
+                            data.get(data.firstKey()));
+                else
+                    chartFile = "";
+                /*
+                 * Display the generated results chart.
+                 */
+                if (chartFile != null) {
+                    chartFile = "/tmp/" + chartFile;
+                    b.append(sp(in++) + "<table"
+                            + " style=\"margin-top: 0;\">\n");
+                    /*
+                     * Display the aggregation chart's option, only if results
+                     * for at least two metrics are available. Otherwise
+                     * display only a single metric's option.
+                     */
+                    String leadOption = "ALL";
+                    if (selectedMetrics.size() == 1) {
+                        leadOption = data.firstKey();
+                    }
+                    b.append(sp(in++) + "</tr>\n");
+                    if ((highlightedMetric != null)
+                            && (data.containsKey(highlightedMetric)))
+                        b.append(sp(in) + "<td class=\"vfv_chart_title\">"
+                                + "<a href=\"" 
+                                + getServletPath()
+                                + "\">"
+                                + "ALL" + "</a>"
+                                + "</td>\n");
+                    else
+                        b.append(sp(in) + "<td"
+                                + " class=\"vfv_chart_title_selected\">"
+                                + leadOption
+                                + "</td>\n");
+                    /*
+                     * Display the chart cell
+                     */
+                    int chartRowSpan = 2;
+                    if (data.size() > 1)
+                        chartRowSpan += data.size();
+                    if (chartFile.equals("/tmp/"))
+                        b.append(sp(in) + "<td"
+                                + " class=\"vfv_chart_image\""
+                                + " rowspan=\"" + chartRowSpan + "\">"
+                                + "<i>"
+                                + "Inapplicable for multiple metrics selection!"
+                                + "</i>"
+                                + "</td>\n");
+                    else
+                        b.append(sp(in) + "<td"
+                                + " class=\"vfv_chart_image\""
+                                + " rowspan=\"" + chartRowSpan + "\">"
+                                + "<a class=\"vfvchart\""
+                                + " href=\"/fullscreen.jsp?"
+                                + "chartfile=" + chartFile + "\">"
+                                + "<img src=\"" + chartFile + "\">"
+                                + "</a>"
+                                + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                     /*
                      * Display a chart option for each of the selected metrics,
@@ -546,6 +658,35 @@ public class DeveloperDataView extends AbstractDataView {
             catch (IOException e) { /* Do nothing */ }
         }
 
+        return null;
+    }
+
+    public String pieChart(
+            String mnemonic, SortedMap<String, String> values) {
+        DefaultPieDataset data = new DefaultPieDataset();
+        for (String nextValue : values.keySet()) {
+            try {
+                data.setValue(nextValue, new Double(values.get(nextValue)));
+            }
+            catch (NumberFormatException ex) { /* Skip this entry */ }
+        }
+        // Generate the chart and save it into a file
+        if (values.size() > 0) {
+            JFreeChart chart;
+            chart = ChartFactory.createPieChart(
+                    null, data, true, true, settings.getUserLocale());
+            chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+            chart.setPadding(RectangleInsets.ZERO_INSETS);
+            try {
+                java.io.File tmpFile = java.io.File.createTempFile(
+                        "img", "png", settings.getTempFolder());
+                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
+                return tmpFile.getName();
+            }
+            catch (IOException e) {
+                // Do nothing
+            }
+        }
         return null;
     }
 }

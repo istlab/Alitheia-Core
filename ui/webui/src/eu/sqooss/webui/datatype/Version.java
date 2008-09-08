@@ -439,19 +439,22 @@ public class Version extends AbstractDatatype {
         /*
          * Skip already retrieved metric results.
          */
+        ArrayList<String> missingMnemonics = new ArrayList<String>();
+        missingMnemonics.addAll(mnemonics);
         for (String mnemonic : results.keySet()) {
-            if (mnemonics.contains(mnemonic))
-                mnemonics.remove(mnemonic);
+            if (missingMnemonics.contains(mnemonic))
+                missingMnemonics.remove(mnemonic);
         }
         /*
          * Construct the result request's object.
          */
-        if (mnemonics.size() > 0) {
+        if (missingMnemonics.size() > 0) {
             WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
             reqResults.setDaObjectId(new long[]{resourceId});
             reqResults.setProjectVersion(true);
             reqResults.setMnemonics(
-                    mnemonics.toArray(new String[mnemonics.size()]));
+                    missingMnemonics.toArray(
+                            new String[missingMnemonics.size()]));
             /*
              * Retrieve the evaluation results from the SQO-OSS framework
              */

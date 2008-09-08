@@ -84,6 +84,19 @@
             winDataView.addToolIcon(icoBarChart);
         }
 
+        // Results icon - pie chart display
+        WinIcon icoPieChart = new WinIcon();
+        if ((dataView.supportedCharts & AbstractDataView.PIE_CHART) > 0) {
+            icoPieChart.setPath(request.getServletPath());
+            icoPieChart.setParameter("chartType");
+            icoPieChart.setValue("" + AbstractDataView.PIE_CHART);
+            icoPieChart.setAlt("Show results as a pie chart");
+            icoPieChart.setImage("/img/icons/16x16/pie-chart.png");
+            if (viewConf.getChartType() == AbstractDataView.PIE_CHART)
+                icoPieChart.setStatus(false);
+            winDataView.addToolIcon(icoPieChart);
+        }
+
         /*
          * Disable the results display buttons, depending on the number of
          * selected resources and metrics.
@@ -93,9 +106,12 @@
             icoTabular.setStatus(false);
             icoLineChart.setStatus(false);
             icoBarChart.setStatus(false);
+            icoPieChart.setStatus(false);
         }
         else if (viewConf.getSelectedResources().size() == 1) {
             icoLineChart.setStatus(false);
+            icoBarChart.setStatus(false);
+            icoPieChart.setStatus(false);
         }
 
         icoCloseWin.setParameter(null);
