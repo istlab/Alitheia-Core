@@ -140,6 +140,12 @@ public class WcImplementation extends AbstractMetric implements Wc {
                 FileTypeMatcher.FileType.BIN)) {
             return;
         }
+
+        String extension = FileTypeMatcher.getFileExtension(pf.getName());
+        String delimiters[] = commentDelimiters.get(extension);
+        if (null == delimiters) {
+            delimiters = commentDelimiters.get("c");
+        }
         
         InputStream in = fds.getFileContents(pf);
         if (in == null) {
@@ -151,15 +157,18 @@ public class WcImplementation extends AbstractMetric implements Wc {
                     + pf.getFileName());
             
             /* Match start of multiline comment */
-            String startMultiLine = "/\\*+|<!--";
+            String startMultiLine = delimiters[1];
            
             /* End multiline comment */
-            String endMultiLine = ".*\\*/|-->";
+            String endMultiLine = delimiters[2];
             
             /* Match single line comments, C/Java/C++ style*/
-            String singleLine = "//.*$|#.*$|/\\*.*\\*/";
+            String singleLine = delimiters[0];
             
-            Pattern singleLinePattern = Pattern.compile(singleLine);
+            Pattern singleLinePattern = null;
+            if (null != singleLine) {
+                singleLinePattern = Pattern.compile(singleLine);
+            }
             
             // Measure the number of lines in the project file
             LineNumberReader lnr = 
@@ -170,7 +179,10 @@ public class WcImplementation extends AbstractMetric implements Wc {
             // The count of the number of lines is stored in the
             // line number reader itself.
 
-            MultiLineMatcher mlm = new MultiLineMatcher(startMultiLine,endMultiLine);
+            MultiLineMatcher mlm = null;
+            if (null != startMultiLine) {
+                mlm = new MultiLineMatcher(startMultiLine,endMultiLine);
+            }
             String line = null;
             while ((line = lnr.readLine()) != null) {
                 // Count non-blank lines
@@ -184,14 +196,17 @@ public class WcImplementation extends AbstractMetric implements Wc {
                 // First we check for multi-line comments, then
                 // for single liners if we have not already counted
                 // the line as a comment.
-                if (mlm.checkLineForComment(line)) {
+                if ((null != mlm) && mlm.checkLineForComment(line)) {
                     comments++;
                 } else {
-                    // Find single-line comments
-                    Matcher m = singleLinePattern.matcher(line);
-                    /* Single line comments */
-                    if (m.find()) {
-                        comments++;
+                    if (null != singleLinePattern) {
+                        
+                        // Find single-line comments
+                        Matcher m = singleLinePattern.matcher(line);
+                        /* Single line comments */
+                        if (m.find()) {
+                            comments++;
+                        }
                     }
                 }
             }
