@@ -47,6 +47,20 @@ public class ProjectFileMeasurement extends MetricMeasurement {
         // Nothing to do here
     }
 
+    /**
+     * Convenience constructor to avoid having to call three methods
+     * to set up sensible values in a measurement.
+     * 
+     * @param m Metric this measurement is from
+     * @param f File this measurement is for
+     * @param value (String) value representation of the measurement
+     */
+    public ProjectFileMeasurement(Metric m, ProjectFile f, String value) {
+        setMetric(m);
+        setProjectFile(f);
+        setResult(value);
+    }
+    
     public ProjectFile getProjectFile() {
         return projectFile;
     }
