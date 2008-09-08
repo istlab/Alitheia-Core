@@ -398,8 +398,8 @@ public class ProjectFile extends DAObject{
         }
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramDirectory, d );
-        parameters.put(paramVersion, ProjectVersion.getPreviousVersion(version));
+        parameters.put(paramDirectory, d);
+        parameters.put(paramVersion, version);
         
         if (mask != MASK_ALL) {
             Boolean isDirectory = ((mask == MASK_DIRECTORIES)?true:false);

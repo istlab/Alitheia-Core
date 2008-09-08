@@ -89,6 +89,8 @@ public class ProjectVersion extends DAObject {
      * The set of known bugs in this version of the projecy
      */
     private Set<Bug> bugs;
+    
+    //private Set<FileForVersion> 
 
     /**
      * The set of measurements available for the given version of the project
@@ -267,6 +269,10 @@ public class ProjectVersion extends DAObject {
             return (Long) queryResult.get(0);
         // Default result
         return 0;
+    }
+    
+    public String toString() {
+        return this.project.getName() + "-" + "r" + this.getVersion();
     }
 }
 

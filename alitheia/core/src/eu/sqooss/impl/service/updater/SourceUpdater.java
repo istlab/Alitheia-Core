@@ -104,6 +104,23 @@ final class SourceUpdater extends Job {
     /* Currently processed commit log entry*/
     private CommitEntry commitLogEntry;
     
+    /**
+     * Update SVN metadata by synchronizing the latest version available to
+     * the metadata database with the latest version available to the 
+     * repository.
+     *  
+     * @param project The project to perform an update on
+     * @param updater The updater instance that runs the update
+     * @param core A reference to the core service
+     * @param logger A preconfigured logger, common to all updaters
+     * @throws UpdaterException When things go wrong
+     */
+    /*
+     * Notes:
+     * -When we use ProjectFile.getFilesForVersion we always feed it with
+     * the previous version. This is only necessary in the updater context
+     * as the FilesForVersion table that getFilesForVersion depends on
+     */
     public SourceUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
         if ((project == null) || (core == null) || (logger == null)) {
@@ -207,7 +224,7 @@ final class SourceUpdater extends Job {
             ProjectVersion curVersion = new ProjectVersion(project);
             // Assertion: this value is the same as lastSCMVersion
             curVersion.setVersion(entry.getRevision().getSVNRevision());
-            curVersion.setTimestamp((long) (entry.getDate().getTime() / 1000));
+            curVersion.setTimestamp(entry.getDate().getTime());
 
             Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
             curVersion.setCommitter(d);
@@ -230,6 +247,19 @@ final class SourceUpdater extends Job {
              */
             dbs.addRecord(curVersion);
 
+            /*
+             * Timestamp fix for cases where the new version has a timestamp older
+             * than the previous one
+             */
+            ProjectVersion prev = getPreviousVersion(curVersion);
+            if (prev != null) {
+                if (prev.getTimestamp() > curVersion.getTimestamp()) {
+                    curVersion.setTimestamp(prev.getTimestamp() + 1000);
+                    logger.debug("Applying timestamp fix to version " 
+                            + curVersion.getVersion());
+                }
+            }
+            
             logger.debug(curVersion.getProject().getName() + ": Got version "
                     + curVersion.getVersion() + " ID " + curVersion.getId());
             
@@ -288,12 +318,11 @@ final class SourceUpdater extends Job {
             }
 
             /*Process copy/move operations*/
-            ProjectVersion prev = null;
             for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
-                if (prev == null) {
+                /*if (prev == null) {
                     prev = ProjectVersion.getVersionByRevision(curVersion.getProject(), 
                             new ProjectRevision(curVersion.getVersion() - 1));
-                }
+                }*/
                 
                 //Find the originating project file entry
                 ProjectFile pf = ProjectFile.findFile(project.getId(), 
@@ -504,7 +533,9 @@ final class SourceUpdater extends Job {
             return;
         }
 
-        List<ProjectFile> files = ProjectFile.getFilesForVersion(pv, d);
+        ProjectVersion prev = ProjectVersion.getPreviousVersion(pv);
+        
+        List<ProjectFile> files = ProjectFile.getFilesForVersion(prev, d);
         
         for (ProjectFile f : files) {
             if (f.getIsDirectory()) {
@@ -550,7 +581,7 @@ final class SourceUpdater extends Job {
         addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, null);
         
         /*Recursively remove all directories*/
-        List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(pv, from, ProjectFile.MASK_DIRECTORIES);
+        List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(ProjectVersion.getPreviousVersion(pv), from, ProjectFile.MASK_DIRECTORIES);
         
         for (ProjectFile f : fromPF) {
             handleDirMove(pv, getDirectory(f.getFileName(), false), 
@@ -558,7 +589,7 @@ final class SourceUpdater extends Job {
         }
         
         /*Move the files from the source directory to the new location*/
-        fromPF = ProjectFile.getFilesForVersion(pv, from, ProjectFile.MASK_FILES);
+        fromPF = ProjectFile.getFilesForVersion(ProjectVersion.getPreviousVersion(pv), from, ProjectFile.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
             addFileIfNotExists(pv, to.getPath() + "/" + f.getName(),
@@ -585,7 +616,7 @@ final class SourceUpdater extends Job {
                     getDirectory(to.getPath() + "/" + f.getName(), true));
         }
         
-        fromPF = ProjectFile.getFilesForVersion(pv, from, ProjectFile.MASK_FILES);
+        fromPF = ProjectFile.getFilesForVersion(ProjectVersion.getPreviousVersion(pv), from, ProjectFile.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
             addFile(pv, to.getPath() + "/" + f.getName(),
@@ -617,6 +648,21 @@ final class SourceUpdater extends Job {
         }
         
         return false;
+    }
+    
+    /**
+     * Get the previous version in presence of timestamp problems. 
+     * Assumes that 
+     */
+    private ProjectVersion getPreviousVersion(ProjectVersion pv) {
+        
+        ProjectVersion prev = ProjectVersion.getVersionByRevision(pv.getProject(), 
+                new ProjectRevision(pv.getVersion() - 1));
+        if (prev == null) {
+            logger.error("Could not get previous revision for project " +
+                    "version " + pv);
+        }
+        return prev;
     }
     
     /**

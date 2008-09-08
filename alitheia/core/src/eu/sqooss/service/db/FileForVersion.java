@@ -70,4 +70,8 @@ public class FileForVersion extends DAObject {
         return (List<ProjectFile>) dbs.doHQL(query, parameters);
 
     }
+    
+    public String toString() {
+        return file.toString();
+    }
 }
