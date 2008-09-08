@@ -61,7 +61,7 @@ import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.util.Pair;
 
 
-public class KrazyImplementation extends AbstractMetric implements ProjectFileMetric  {
+public class MultiGrep extends AbstractMetric implements ProjectFileMetric  {
     private FDSService fds;
 
     /**
@@ -106,13 +106,13 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
      * namespaced in some way because otherwise we would quickly
      * reach clashes.
      * @param mnemonic metric mnemonic
-     * @return Krazy.mnemonic
+     * @return MG.mnemonic
      */
     private String makeMetricName(String mnemonic) {
-        return "Krazy." + mnemonic;
+        return "MG." + mnemonic;
     }
     
-    public KrazyImplementation(BundleContext bc) {
+    public MultiGrep(BundleContext bc) {
         super(bc);        
         super.addActivationType(ProjectFile.class);
         
@@ -124,13 +124,13 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
         for (String s : grep_initializer) {
             String[] grep = s.split("=", 3);
             if (grep.length!=3) {
-                log.warn("Bad Krazy grep initializer <" + s + ">");
+                log.warn("Bad multigrep initializer <" + s + ">");
             } else {
                 Pair<String,Pattern> p = new Pair<String,Pattern>(
                         grep[1],Pattern.compile(grep[2]));
                 greps.put(grep[0],p);
                 super.addMetricActivationType(makeMetricName(grep[0]), ProjectFile.class);
-                log.info("Krazy grepper <" + grep[0] + "> added for <" + grep[1] + ">");
+                log.info("Multigrep <" + grep[0] + "> added for <" + grep[1] + ">");
             }
         }
         greps.put(MNEMONIC_PROFANITY, new Pair<String,Pattern>(
@@ -261,7 +261,7 @@ public class KrazyImplementation extends AbstractMetric implements ProjectFileMe
                     }
 	        }
         } catch (IOException e) {
-        	log.warn("Could not run Krazy on <"+pf.getName()+">",e);
+        	log.warn("Could not run multigrep on <"+pf.getName()+">",e);
         }
         // Store the results
         for (String s : greps.keySet()) {
