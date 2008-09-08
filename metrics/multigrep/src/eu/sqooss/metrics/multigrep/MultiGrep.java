@@ -283,7 +283,7 @@ public class MultiGrep extends AbstractMetric implements ProjectFileMetric  {
     	properties.put("projectFile",a);
     	List<ProjectFileMeasurement> l = 
     		db.findObjectsByProperties(ProjectFileMeasurement.class,properties);
-    	return convertMeasurements(l,m.getMnemonic());
+    	return convertFileMeasurements(l,m.getMnemonic());
     }
 }
 
