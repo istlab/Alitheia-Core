@@ -68,7 +68,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
     private static final String MNEMONIC_WC_LONB  = "Wc.lonb";
     private static final String MNEMONIC_WC_WORDS = "Wc.words";
     
-    private HashMap<String,String[]> commentDelimiters;
+    private static HashMap<String,String[]> commentDelimiters;
     
     public WcImplementation(BundleContext bc) {
         super(bc);
@@ -129,6 +129,92 @@ public class WcImplementation extends AbstractMetric implements Wc {
     	return convertMeasurements(measurement,m.getMnemonic());
     }
 
+    /**
+     * Process an input stream, which is associated with a file
+     * (or data source) with the given extension, and return a
+     * array with 4 elements, one for each count of a metric
+     * on the stream. The four elements are, in order,
+     * loc, locom, lonb and words. 
+     * 
+     * @param extension Filename extension for this stream; may be null
+     * @param in Input stream to read; may not ne null
+     * @return Array of four metric results
+     * @throws java.io.IOException On input error, means no useful 
+     *      results are available.
+     */
+    public static int[] processStream(String extension, InputStream in) 
+        throws IOException {
+        int results[] = {0,0,0,0}; // loc, locom, lonb, words
+        String delimiters[] = commentDelimiters.get(extension);
+        if (null == delimiters) {
+            delimiters = commentDelimiters.get("c");
+        }
+        
+        /* Match start of multiline comment */
+        String startMultiLine = delimiters[1];
+
+        /* End multiline comment */
+        String endMultiLine = delimiters[2];
+
+        /* Match single line comments, C/Java/C++ style*/
+        String singleLine = delimiters[0];
+
+        Pattern singleLinePattern = null;
+        if (null != singleLine) {
+            singleLinePattern = Pattern.compile(singleLine);
+        }
+
+        // Measure the number of lines in the project file
+        LineNumberReader lnr = 
+            new LineNumberReader(new InputStreamReader(in));
+        int comments = 0;
+        int non_blank = 0;
+        int words = 0;
+        // The count of the number of lines is stored in the
+        // line number reader itself.
+
+        MultiLineMatcher mlm = null;
+        if (null != startMultiLine) {
+            mlm = new MultiLineMatcher(startMultiLine,endMultiLine);
+        }
+        String line = null;
+        while ((line = lnr.readLine()) != null) {
+            // Count non-blank lines
+            if (line.trim().length()>0) {
+                non_blank++;
+            }
+
+            // Count words -- the tokenizer is not the best approach
+            words += new StringTokenizer(line).countTokens();
+
+            // First we check for multi-line comments, then
+            // for single liners if we have not already counted
+            // the line as a comment.
+            if ((null != mlm) && mlm.checkLineForComment(line)) {
+                comments++;
+            } else {
+                if (null != singleLinePattern) {
+
+                    // Find single-line comments
+                    Matcher m = singleLinePattern.matcher(line);
+                    /* Single line comments */
+                    if (m.find()) {
+                        comments++;
+                    }
+                }
+            }
+        }
+
+        lnr.close();
+
+        results[0]=lnr.getLineNumber();
+        results[1]=comments;
+        results[2]=non_blank;
+        results[3]=words;
+        
+        return results;
+    }
+    
     public void run(ProjectFile pf) {
         // We do not support directories
         if (pf.getIsDirectory()) {
@@ -141,107 +227,46 @@ public class WcImplementation extends AbstractMetric implements Wc {
             return;
         }
 
-        String extension = FileTypeMatcher.getFileExtension(pf.getName());
-        String delimiters[] = commentDelimiters.get(extension);
-        if (null == delimiters) {
-            delimiters = commentDelimiters.get("c");
-        }
-        
         InputStream in = fds.getFileContents(pf);
         if (in == null) {
             return;
         }
-        // Create an input stream from the project file's content
-        try {
-            log.info(this.getClass().getName() + " Measuring: "
-                    + pf.getFileName());
-            
-            /* Match start of multiline comment */
-            String startMultiLine = delimiters[1];
-           
-            /* End multiline comment */
-            String endMultiLine = delimiters[2];
-            
-            /* Match single line comments, C/Java/C++ style*/
-            String singleLine = delimiters[0];
-            
-            Pattern singleLinePattern = null;
-            if (null != singleLine) {
-                singleLinePattern = Pattern.compile(singleLine);
-            }
-            
-            // Measure the number of lines in the project file
-            LineNumberReader lnr = 
-                new LineNumberReader(new InputStreamReader(in));
-            int comments = 0;
-            int non_blank = 0;
-            int words = 0;
-            // The count of the number of lines is stored in the
-            // line number reader itself.
 
-            MultiLineMatcher mlm = null;
-            if (null != startMultiLine) {
-                mlm = new MultiLineMatcher(startMultiLine,endMultiLine);
-            }
-            String line = null;
-            while ((line = lnr.readLine()) != null) {
-                // Count non-blank lines
-                if (line.trim().length()>0) {
-                    non_blank++;
-                }
-                
-                // Count words -- the tokenizer is not the best approach
-                words += new StringTokenizer(line).countTokens();
-
-                // First we check for multi-line comments, then
-                // for single liners if we have not already counted
-                // the line as a comment.
-                if ((null != mlm) && mlm.checkLineForComment(line)) {
-                    comments++;
-                } else {
-                    if (null != singleLinePattern) {
-                        
-                        // Find single-line comments
-                        Matcher m = singleLinePattern.matcher(line);
-                        /* Single line comments */
-                        if (m.find()) {
-                            comments++;
-                        }
-                    }
-                }
-            }
-            
-            lnr.close();
-
-            // Store the results
-            Metric metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOC);
-            ProjectFileMeasurement locm = new ProjectFileMeasurement(
-                    metric,pf,String.valueOf(lnr.getLineNumber()));
-            db.addRecord(locm);
-            markEvaluation(metric, pf);
-            
-            metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
-            ProjectFileMeasurement locc = new ProjectFileMeasurement(
-                    metric,pf,String.valueOf(comments));
-            db.addRecord(locc);
-            markEvaluation(metric, pf);
-            
-            metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LONB);
-            ProjectFileMeasurement lonb = new ProjectFileMeasurement(
-                    metric,pf,String.valueOf(non_blank));
-            db.addRecord(lonb);
-            markEvaluation(metric, pf);
-            
-            metric = Metric.getMetricByMnemonic(MNEMONIC_WC_WORDS);
-            ProjectFileMeasurement words_measure = new ProjectFileMeasurement(
-                    metric,pf,String.valueOf(words));
-            db.addRecord(words_measure);
-            markEvaluation(metric, pf);
-        } catch (IOException e) {
-            log.error(this.getClass().getName() + " IO Error <" + e
-                    + "> while measuring: " + pf.getFileName());
+        String extension = FileTypeMatcher.getFileExtension(pf.getName());
         
+        int results[] = null;
+        try {
+            log.info("Reading file <" + pf.getName() +">");
+            results = processStream(extension, in);
+        } catch (IOException e) {
+            log.warn("Failed to read file <" + pf.getFileName() +">",e);
         }
+        
+
+        // Store the results
+        Metric metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOC);
+        ProjectFileMeasurement locm = new ProjectFileMeasurement(
+                metric,pf,String.valueOf(results[0]));
+        db.addRecord(locm);
+        markEvaluation(metric, pf);
+
+        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
+        ProjectFileMeasurement locc = new ProjectFileMeasurement(
+                metric,pf,String.valueOf(results[1]));
+        db.addRecord(locc);
+        markEvaluation(metric, pf);
+
+        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LONB);
+        ProjectFileMeasurement lonb = new ProjectFileMeasurement(
+                metric,pf,String.valueOf(results[2]));
+        db.addRecord(lonb);
+        markEvaluation(metric, pf);
+
+        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_WORDS);
+        ProjectFileMeasurement words_measure = new ProjectFileMeasurement(
+                metric,pf,String.valueOf(results[3]));
+        db.addRecord(words_measure);
+        markEvaluation(metric, pf);
     }
 
     /**
@@ -249,6 +274,8 @@ public class WcImplementation extends AbstractMetric implements Wc {
      * as the single-line and multi-line comment delimiters. For the
      * comment matching, this will be used to power the multi-line
      * matcher and the single-line comment matchers.
+     * 
+     * (Not static because we want to be able to log errors)
      * 
      * @param extensions String listing file extensions separated by |
      * @param delimiters Three-element array of delimiter regexps; any
@@ -266,8 +293,12 @@ public class WcImplementation extends AbstractMetric implements Wc {
         }
     }
     
+    public Object selfTest() {
+        log.warn("Self-testing in progress.");
+        return null;
+    }
 
-    private class MultiLineMatcher {
+    public static class MultiLineMatcher {
         private Pattern startRE;
         private Pattern endRE;
         private boolean inside;
