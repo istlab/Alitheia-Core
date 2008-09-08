@@ -65,43 +65,14 @@
             Long chartType = strToLong(request.getParameter("chartType"));
             if (chartType != null)
                 viewConf.setChartType(chartType.intValue());
-            /*
-             * Show the Info and Control panels after the user has switched
-             * (or forced from the code above) to a tabular display of
-             * evaluation results.
-             */
-            if (chartType == AbstractDataView.TABLE_CHART) {
-                viewConf.setInfoPanelState(true);
-                viewConf.setControlPanelState(true);
-            }
         }
 
         /*
          * Force the tabular display of evaluation results in case the
          * resource selection is limited to a single resource.
          */
-        if ((viewConf.getSelectedResources().isEmpty() == false)
-                && (viewConf.getSelectedResources().size() == 1)
-                && (viewConf.getChartType() == AbstractDataView.LINE_CHART)) {
+        if (viewConf.getSelectedResources().size() == 1)
             viewConf.setChartType(AbstractDataView.TABLE_CHART);
-            if ((viewConf.getInfoPanelState() == false)
-                    && (viewConf.getControlPanelState() == false)) {
-                viewConf.setInfoPanelState(true);
-                viewConf.setControlPanelState(true);
-            }
-        }
-
-        /*
-         * By default, force the Info and Control panels hide, when the
-         * chart display type is selected, unless the user had explicitly
-         * requested their visualisation.
-         */ 
-        if ((viewConf.getChartType() == AbstractDataView.LINE_CHART)
-                && (request.getParameter("showControlPanel") == null)
-                && (request.getParameter("showInfoPanel") == null)) {
-            viewConf.setInfoPanelState(false);
-            viewConf.setControlPanelState(false);
-        }
 
         /*
          * Keep showing the Info and Control panels, untill both metric AND

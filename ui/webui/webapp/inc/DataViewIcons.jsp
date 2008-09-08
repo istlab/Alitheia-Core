@@ -1,4 +1,5 @@
-<%
+
+<%@page import="eu.sqooss.webui.view.AbstractDataView"%><%
         // Toolbar icon - Info panel
         WinIcon icoInfoPanel = new WinIcon();
         icoInfoPanel.setPath(request.getServletPath());
