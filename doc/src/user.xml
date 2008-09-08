@@ -16,7 +16,12 @@
     </para>
     <sect2  id="user:interfaces:web" >
         <title>Web</title>
-        <para></para>
+        <para>
+        The WebUI runs on top of Tomcat. It's implemented as a set of Java beans and JSP
+        (Java Server Pages) that display projects that have been evaluated by the Alitheia
+        system and their results.
+
+        </para>
     </sect2>
     <sect2  id="user:interfaces:eclipse">
         <title>Eclipse</title>
