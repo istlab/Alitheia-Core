@@ -113,6 +113,7 @@
     <module>modulemetrics</module>
     <module>mde</module>
     <module>multigrep</module>
+    <module>testability</module>
   </modules>
 </project>
 

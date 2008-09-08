@@ -1,20 +1,20 @@
-package eu.sqooss.metrics.skeleton;
+package eu.sqooss.metrics.testability;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.metrics.skeleton.SkeletonImplementation;
+import eu.sqooss.impl.metrics.testability.TestabilityImplementation;
 
 
-public class SkeletonActivator implements BundleActivator {
+public class TestabilityActivator implements BundleActivator {
 
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
 
-        registration = bc.registerService(SkeletonImplementation.class.getName(),
-                new SkeletonImplementation(bc), null);
+        registration = bc.registerService(TestabilityImplementation.class.getName(),
+                new TestabilityImplementation(bc), null);
     }
 
     public void stop(BundleContext context) throws Exception {

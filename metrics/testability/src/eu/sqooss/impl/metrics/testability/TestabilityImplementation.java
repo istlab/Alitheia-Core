@@ -3,7 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- *
+ * Copyright 2008 Diomidis Spinellis <dds@aueb.gr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,13 +31,21 @@
  *
  */
 
-package eu.sqooss.impl.metrics.skeleton;
+package eu.sqooss.impl.metrics.testability;
 
-import java.util.List;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
 
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.metrics.skeleton.Skeleton;
+import eu.sqooss.metrics.testability.Testability;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
@@ -45,25 +53,35 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 
+public class TestabilityImplementation extends AbstractMetric implements Testability {
 
-public class TestabilityImplementation extends AbstractMetric implements Testability, ProjectFileMetric {
-    
+    private FDSService fds;
+
+    private static final String MNEMONIC_NCASES   = "Testability.ncases";
+
     public TestabilityImplementation(BundleContext bc) {
-        super(bc);        
- 
-        /*Tells the metric activator when to call this metric*/
+        super(bc);
+
+        // Tells the metric activator when to call this metric
         super.addActivationType(ProjectFile.class);
-        
-        /*Tells the UI what it metric is calculated against*/
-        super.addMetricActivationType("TESTABILITY", ProjectFile.class);
+
+        // Tells the UI what metric this is calculated against
+        super.addMetricActivationType(MNEMONIC_NCASES, ProjectFile.class);
+
+        // Obtain file descriptors
+        ServiceReference serviceRef = null;
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+
+
+        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
     }
-    
+
     public boolean install() {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    "SKEL",
                     this.getDescription(),
+                    "TESTABILITY",
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
@@ -71,19 +89,84 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
         //Return a list of ResultEntries by querying the DB for the measurements
-        //implement by the supported metric and calculated for the specific 
+        //implement by the supported metric and calculated for the specific
         //project file
-        return null;
+        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        // Search for a matching project file measurement
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("projectFile", a);
+        filter.put("metric", m);
+        List<ProjectFileMeasurement> measurement =
+            db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
+    	return convertMeasurements(measurement,m.getMnemonic());
     }
-    
+
+    /** Concrete testability scanners that we support. */
+    private HashMap <String, LinkedList<TestabilityScanner> > allScanners =
+            new HashMap<String, LinkedList<TestabilityScanner> >();
+    static {
+        LinkedList<TestabilityScanner> javaMetrics =
+                new LinkedList<TestabilityScanner>();
+        // Add more Java scanners here
+        javaMetrics.add(new JUnitMetrics());
+        scanners.put(".java", javaMetrics);
+        scanners.put(".JAVA", javaMetrics);
+    }
+
     public void run(ProjectFile a) {
         //1. Get stuff related to the provided project file
         //2. Calculate one or more numbers
         //3. Store a result to the database
+
+        // We do not support directories and binary files
+        if (pf.getIsDirectory() ||
+                FileTypeMatcher.getFileType(pf.getName()).equals(
+                FileTypeMatcher.FileType.BIN))
+            return;
+
+        String extension = FileTypeMatcher.getFileExtension(pf.getName());
+        LinkedList<TestabilityScanner> scanners = allScanners.get(extension);
+        // Metric doesn't support this type of file
+        if (extension == null)
+            return;
+        for (TestabilityScanner s : scanners)
+            s.start();
+
+        // Create an input stream from the project file's content
+        InputStream in = fds.getFileContents(pf);
+        if (in == null)
+            return;
+        int numTestCases = 0;
+        log.info(this.getClass().getName() + " Measuring: "
+                + pf.getFileName());
+        try {
+            LineNumberReader lnr =
+                new LineNumberReader(new InputStreamReader(in));
+
+            // Measure test cases, using each scanner
+            for (TestabilityScanner s : scanners) {
+                lnr.mark(1024 * 1024);
+                s.scan(lnr);
+                numTestCases += s.getTestCases();
+                lnr.reset();
+            }
+
+            lnr.close();
+
+            // Store the results
+            Metric metric = Metric.getMetricByMnemonic(MNEMONIC_NCASES);
+            ProjectFileMeasurement ncases = new ProjectFileMeasurement(
+                    metric,pf,String.valueOf(numTestCases));
+            db.addRecord(locm);
+            markEvaluation(metric, pf);
+        } catch (IOException e) {
+            log.error(this.getClass().getName() + " IO Error <" + e
+                    + "> while measuring: " + pf.getFileName());
+
+        }
     }
 
-    
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

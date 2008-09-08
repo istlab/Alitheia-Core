@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: 
-Bundle-SymbolicName: eu.sqooss.metric.skeleton
+Bundle-Name: Testability plug-in
+Bundle-SymbolicName: eu.sqooss.metric.testability
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.metrics.skeleton.SkeletonActivator
-Bundle-Vendor: AUEB
-Bundle-Description: Skeleton metric
+Bundle-Activator: eu.sqooss.metrics.testability.TestabilityActivator
+Bundle-Vendor: Diomidis Spinellis
+Bundle-Description: Report on source code testability
 Import-Package:  org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.abstractmetric,

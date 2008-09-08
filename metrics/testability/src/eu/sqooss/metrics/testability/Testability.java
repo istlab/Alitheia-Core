@@ -30,10 +30,10 @@
  *
  */
 
-package eu.sqooss.metrics.skeleton;
+package eu.sqooss.metrics.testablity;
 
-public interface Skeleton 
-//extends  
-{
-    
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+
+public interface Testability extends ProjectFileMetric {
+
 }
