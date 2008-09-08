@@ -106,10 +106,9 @@ support checking multiple projects over time, record the data and report
 them to developers and other interested parties in a meaningful way.
     </para>
 </sect1>
-<sect1 id="pref:conventions">
     <title>Conventions</title>
     <para>
-    What conventions are mean here?
+    What conventions are meant here?
     - Coding conventions?
     - Startrek conventions?
 

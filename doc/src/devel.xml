@@ -7,85 +7,156 @@
     <para></para>
     <sect2 id="devel:arch:tds">
       <title>Thin Data Access - TDS</title>
-      <para></para>
+      <para>
+        The TDA component processes data access requests that originate from either the
+        FDA component or the Updater. The requests are ab-
+        stracted versions of the requests that can be issued by programs used for accessing
+        the data sources. All requests may only refer to a single project. Some examples
+        are:
+        <itemizedlist spacing='compact'>
+            <listitem><para>"Checkout a specific Subversion (SVN) version."</para></listitem>
+            <listitem><para>"Get a diff between two SVN files"</para></listitem>
+            <listitem><para>"Get emails in mailing list X for the period starting on A and ending on B"</para></listitem>
+            <listitem><para>"Get all bugs after date X"</para></listitem>
+        </itemizedlist>
+        The TDA component implements three interfaces that group together operations
+        based on the type of the target data source (Figure 3). There are different interfaces
+        for accessing SVN repositories (SCMAccessor1 ), mailing lists (MailingListAccessor),
+        and bug management databases (BugDatabaseAccessor), which will be the primary
+        sources of data for the SQO-OSS system. The TDA component groups together the
+        implementations of these interfaces, in order to provide a single point of access for
+        all of them.
+      </para>
     </sect2>
     <sect2 id="devel:arch:fds">
       <title>Fat Data Access - FDS</title>
-      <para></para>
+      <para>
+        The FDA is the component that all plug-ins use in order to retrieve data from the
+        file repository. The FDA is an intelligent component; it knows about filegroups,
+        project states and other conceptual organisations of the
+        data that might arise. The FDA also combines data and metadata from the various
+        data sources. All metric plug-ins talk to the FDA in order to get the required data for
+        processing. Some example functions that this component will be able to carry out
+        are the following:
+        <itemizedlist spacing='compact'>
+            <listitem><para>Get all artefacts affected by commit X</para></listitem>
+            <listitem><para>Get the filegroup X for project state Y</para></listitem>
+            <listitem><para>Get all emails sent by user X for mailing list Z</para></listitem>
+            <listitem><para>Get all changes performed by user U between project states M and L</para></listitem>
+        </itemizedlist>
+        The FDA offers rich functionality and therefore should be able to represent var-
+        ious data formats. Data originating from only one data source will be represented
+        using the datatypes exported by the TDA. Compound data will need special treat-
+        ment: container objects are required to hold them. As the core functionality of
+        the FDA mainly revolves around project states and file groups, we introduce the
+        ProjectState and FileGroup containers, which contain placeholders for all basic
+        data types. Additionally, the FDA will need read-only connections to the project
+        metadata database in order to offer its functionality. Since the FDA is essentially a
+        software library, each plug-in that uses it will initialise a connection to the metadata
+        database, using the Alitheia Database Service.
+      </para>
     </sect2>
     <sect2 id="devel:arch:db">
       <title>Database Service</title>
       <para>
-
-          First, why a new DBService API? Because we realised that the
-          previous API had shortcomings regarding lazy-loading of collections
-          with DAOs (e.g project.getVersions()), and there were scenarios that
-          were not taken into account which made it impossible to work reliably
-          with DAOs.
-
-          Also, we realised that the API was too complicated to use and
-          required a deep understanding of Hibernate from users, which was
-          sort of defeating the purpose of the DBService in the first place.
-          (as an example, almost all the code using the DBService in Alitheia
-          was more or less wrong or incomplete)
-
-          So the aim for the new API was to make work with the DAOs as intuitive
-          and simple as possible, and hiding all the Hibernate specifics.
-          Basically, all the complicated Session and Transaction
-          stuff is gone, as well as all the exception handling.
-
-          The good news is, most of the methods from the previous API are
-          still there, such as findObjectById, findObjectByProperties,
-          addRecord/deleteRecord, and doHQL.
-          However, you will notice that all the overloads taking a Session
-          argument are gone, as you don't need to manipulate those anymore.
-
-          On the other hand, four new methods have appeared :
-
-- startDBSession()
-- commitDBSession()
-- rollbackDBSession()
-- isDBSessionActive()
-
-These methods are used to control the connection to the database and the DAOs.
-Basically, all the queries, DAO manipulation, and insertions/deletions have to
-happen within a database session, which you can see as a connection to the
-database with a transaction open.
-startDBSession() is the method which starts a new session, and commitDBSession()
-and rollbackDBSession() end it, either by committing the modifications in the
-database or just discarding them.
-Finally, isDBSessionActive() tells you if a session is currently opened or not.
-
-Regarding the DAOs, they remain "connected" as long as the session is open,
-meaning they will load collections and properties and automatically persist
-changes you make to them (provided you commit the changes at the end of the
-session). This means no more need for updateRecord(), as modifying the DAO
-directly is now enough.
-Note that you can still access loaded DAOs even after the database session was
-closed, but lazy-loading won't work and modifications won't be saved, EVEN IF
-YOU OPEN A NEW DATABASE SESSION. In other words, DAOs belong to the session that
-created them only. (I might add a possibility to "reattach" them to another
-session later on).
-
-Another important thing: the DBService is thread-safe. this means you can safely
-call all of its methods simultaneously from multiple threads without risks of
-race conditions or weird behaviour.
-In particular, each thread has its own session, so the modifications you make in
-your session aren't affecting sessions in other threads, especially as opening a
-session automatically starts a database transaction, meaning the database is
-locked for your thread only. (note: this means you should be VERY careful about
-always properly closing a session and keeping them as short as possible).
-
-Finally, exception handling has been completely removed for simplicity's sake.
-Instead, methods like addRecord or deleteRecord return a boolean value
-indicating success or not. For queries and the find methods,
-null/emptyCollection will be returned in case of an error. The important thing
-to know is that Hibernate requires a session to be closed as soon as an
-exception is thrown from its code, which means in some cases your session might
-be automatically closed during a method call. (if you need to make the
-difference between no result returned or an error that occured, you can use
-isDBSessionActive() )
-
+        Creating and handling connections to a database needs careful consideration. Typi-
+        cally, creating a connection to a database may take up more time than executing the
+        actual data manipulation statements; moreover, databases set limits on the number
+        of concurrent connections permissible. The database service should provide an ef-
+        ficient mechanism for creating, maintaining, and sharing connections among users.
+        The mechanism should be thread-safe, as users will be asking for connections and
+        using them through the same environment.
+        The database service will therefore function as a connection pool. The connection
+        pool will contain a configurable number of connections. A soft limit and a hard limit
+        will also be configurable: upon reaching the soft limit, the number of connections
+        to the database will be gradually increased, up to reaching the hard limit, after
+        which new connections will be refused, until used connections are returned to the
+        pool. Every service that needs access to the database will ask for a connection
+        from the database service; the connection will be returned to the database service's
+        connection pool when the service client does not use it any more.
+        Since Alitheia assumes a concurrent usage model, the database service must pro-
+        vide adequate transaction support. The database service will assume that the un-
+        derlying database uses the serialisable isolation level. It will then provide calls by
+        which other services can demarcate transactions; in particular, these will provide fa-
+        cilities for starting a transaction, for committing a transaction, and for rolling back
+        a transaction.
+      </para><para>
+        The database service will require the type of the originator of each connection
+        request as an input parameter. This will be useful for logging purposes and will
+        also allow us to use different database servers for different uses.
+        In addition to connectivity, the database service will offer programmatic access
+        to the SQO-OSS metadata. Accessing a database from an application typically re-
+        quires using Structured Query Language (SQL) statements. Different programming
+        languages tackle the issue in different ways: for instance, in most C/C++ programs
+        some form of embedded SQL is used; in Perl, and other scripting languages, one
+        uses libraries that pass strings containing SQL statements to the database; in Java,
+        one uses the Java Database Connectivity (JDBC) Application Programming Interface
+        (API) to the same end.
+      </para><para>
+        That means that while the bulk of the application may be written in one language
+        (Java, in SQO-OSS), non-trivial parts of it have to be written in SQL. Mixing the two
+        languages can be ugly and messy. Moreover, Java developers may not be particularly
+        proficient in SQL, and vice versa. Most importantly, the particular SQL statements
+        and syntax may vary depending on the chosen database, which entails decrease in
+        portability. Alitheia gets around this problem by encapsulating all system database
+        related functionality inside the database service.
+      </para><para>
+        For these reasons all access to the system database from the rest of the SQO-
+        OSS system will be from special Java classes. These classes will broadly follow the
+        Data Access Object (DAO) design pattern. In our case, we will take DAOs as
+        classes that encapsulate the interaction with the data source. Hence, for each table
+        we will have one class. An instance of such a class
+        will contain the data of a particular row of the table. Static methods of the class
+        will allow queries to the table. Queries that return data from joined tables will be
+        implemented in one of the related classes and will return the queried data detached
+        from the result sets originally returned by the query mechanism.
+        Note that Alitheia comprises a system database
+        which is independent from the actual measurements carried out and database
+        schemata that correspond to such measurements. To anticipate that discussion, a plug-in
+        that is responsible for carrying out a specific measurement is responsible for storage
+        and retrieval operations of the measurements. As we cannot know in advance the
+        individual database schema it would require, it is responsible for defining manipulat-
+        ing its own database schema. Still, every plug-in will use the database connectivity
+        service for handling access to the database, and will allow access to its measurement
+        data through a DAO level of abstraction, as is the case for the system database per
+        se.
+      </para><para>
+        The methods startDBSession(), commitDBSession(), rollbackDBSession(), isDBSessionActive()
+        are used to control the connection to the database and the DAOs.
+        Basically, all the queries, DAO manipulation, and insertions/deletions have to
+        happen within a database session, which you can see as a connection to the
+        database with a transaction open.
+        startDBSession() is the method that starts a new session, and commitDBSession()
+        and rollbackDBSession() end it, either by committing the modifications in the
+        database or just discarding them.
+        Finally, isDBSessionActive() tells you if a session is currently opened or not.
+        The DAOs remain "connected" as long as the session is open,
+        meaning they will load collections and properties and automatically persist
+        changes you make to them (provided you commit the changes at the end of the
+        session).
+        Note that you can still access loaded DAOs even after the database session was
+        closed, but lazy-loading won't work and modifications won't be saved, even if
+        you open a new database session. In other words, DAOs belong to the session that
+        created them only.
+      </para><para>
+        Another important thing is that the DBService is thread-safe. this means you can safely
+        call all of its methods simultaneously from multiple threads without risks of
+        race conditions or weird behaviour.
+        In particular, each thread has its own session, so the modifications you make in
+        your session aren't affecting sessions in other threads, especially as opening a
+        session automatically starts a database transaction, meaning the database is
+        locked for your thread only. (note: this means you should be VERY careful about
+        always properly closing a session and keeping them as short as possible).
+      </para><para>
+        Finally, exceptions are not used for simplicity's sake.
+        Instead, methods like addRecord or deleteRecord return a boolean value
+        indicating success or not. For queries and the find methods,
+        null/emptyCollection will be returned in case of an error. The important thing
+        to know is that Hibernate requires a session to be closed as soon as an
+        exception is thrown from its code, which means in some cases your session might
+        be automatically closed during a method call. If you need to make the
+        difference between no result returned or an error that occured, you can use
+        isDBSessionActive()).
       </para>
     </sect2>
     <sect2 id="devel:arch:pa">
