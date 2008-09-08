@@ -33,7 +33,6 @@ package eu.sqooss.impl.service.pa;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.osgi.framework.console.CommandInterpreter;
@@ -72,6 +71,8 @@ public class PACommandProvider implements CommandProvider {
         help.append("\t remove_plugin <id> -" +
                 " removes the metric plugin with this service ID\n\r");
         help.append("\t rp <id> - shortcut for \"remove_plugin\"\n\r");
+        help.append("\t test_plugin <id> - runs self-test on the plugin\n\r");
+        help.append("\t tp <id> - shortcut for \"test_plugin\"");
         return help.toString();
     }
 
@@ -89,6 +90,9 @@ public class PACommandProvider implements CommandProvider {
         _remove_plugin(ci);
     }
     
+    public void _tp (CommandInterpreter ci) {
+        _test_plugin(ci);
+    }
     /* ===[ Command methods ]============================================= */
 
     public void _install_plugin (CommandInterpreter ci) {
@@ -212,6 +216,10 @@ public class PACommandProvider implements CommandProvider {
         }
         if(!dbs.commitDBSession())
             dbs.rollbackDBSession();
+    }
+    
+    public void _test_plugin(CommandInterpreter ci) {
+        sobjPA.testPlugin(new Long(ci.nextArgument()));
     }
 }
 

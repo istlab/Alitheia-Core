@@ -184,6 +184,20 @@ public interface PluginAdmin {
      */
     public void pluginUpdated(AlitheiaPlugin p);
 
+    /**
+     * Call the self-test method of a plugin.
+     * @param serviceID Plugin service ID to call selfTest() on.
+     * @return true if test succeeded.
+     */
+    public boolean testPlugin(Long serviceID);
+    
+    /**
+     * Call the self-test method of a plugin.
+     * 
+     * @param hash Hash code of the plugin to call.
+     * @return true if test succeeded.
+     */
+    public boolean testPlugin(String hash);
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -83,7 +83,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     // Required SQO-OSS components
     private Logger logger;
     private DBService sobjDB = null;
-
+    private AlitheiaCore sobjCore = null;
+    
     private Queue<ServiceEvent> initEventQueue = new LinkedList<ServiceEvent>();
 
     /**
@@ -109,7 +110,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         // Get the AlitheaCore's object
         ServiceReference srefCore = null;
         srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
-        AlitheiaCore sobjCore = (AlitheiaCore) bc.getService(srefCore);
+        sobjCore = (AlitheiaCore) bc.getService(srefCore);
 
         if (sobjCore != null) {
             // Obtain the required core components
@@ -704,6 +705,30 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         return null;
     }
 
+    public boolean testPlugin(String hash) {
+        Long sid = getServiceId(hash);
+        if (sid != null) {
+            return testPlugin(sid);
+        }
+        return false;
+    }
+
+    public boolean testPlugin(Long id) {
+        // Get the metric plug-in's service
+        ServiceReference srefPlugin = getPluginService(id);
+
+        // Get the metric plug-in's object
+        AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
+        
+        if ((null != srefPlugin) && (null != sobjPlugin)) {
+            Object s = bc.getService(srefPlugin);
+            if (null != s) {
+                sobjCore.selfTest(logger,s,false);
+            }
+        }
+        return false;
+    }
+    
     public void handleEvent(Event e) {
         logger.info("Caught EVENT type=" + e.getPropertyNames().toString());
         if (e.getTopic() == DBService.EVENT_STARTED) {
