@@ -42,9 +42,17 @@ import eu.sqooss.ws.client.datatypes.WSMetricsResultRequest;
 
 // TODO: Add JavaDoc
 public class Developer extends AbstractDatatype {
-    /** Developer's meta-data */
+    /*
+     * Developer's specific meta-data. 
+     */
     private String email;
     private String username;
+
+    /*
+     * Holds all evaluation results which were retrieved for this resource
+     * until now.
+     */
+    private HashMap<String, Result> result = new HashMap<String, Result>();
 
     /**
      * Instantiates a new <code>Developer</code> object, and initializes it
@@ -96,30 +104,35 @@ public class Developer extends AbstractDatatype {
         + "deselectDeveloper=" + getId() + "\">Deselect</a>";
     }
 
-    /* (non-Javadoc)
-     * @see eu.sqooss.webui.WebuiItem#getResults(java.util.Collection, java.lang.Long)
-     */
-    @Override
     public HashMap<String, Result> getResults (
             Collection<String> mnemonics, Long resourceId) {
-        HashMap<String, Result> result = new HashMap<String, Result>();
-        if ((resourceId == null) 
-                || (mnemonics == null) 
-                || (mnemonics.isEmpty()))
-            return result;
+        /*
+         * Return an empty list upon invalid parameters
+         */
+        if ((resourceId == null) || (mnemonics == null))
+            return new HashMap<String, Result>();
+        /*
+         * Skip already retrieved metric results.
+         */
+        for (String mnemonic : result.keySet()) {
+            if (mnemonics.contains(mnemonic))
+                mnemonics.remove(mnemonic);
+        }
         /*
          * Construct the result request's object.
          */
-        WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
-        reqResults.setDaObjectId(new long[]{resourceId});
-        reqResults.setDeveloper(true);
-        reqResults.setMnemonics(
-                mnemonics.toArray(new String[mnemonics.size()]));
-        /*
-         * Retrieve the evaluation results from the SQO-OSS framework
-         */
-        for (Result nextResult : terrier.getResults(reqResults))
-            result.put(nextResult.getMnemonic(), nextResult);
+        if (mnemonics.size() > 0) {
+            WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
+            reqResults.setDaObjectId(new long[]{resourceId});
+            reqResults.setDeveloper(true);
+            reqResults.setMnemonics(
+                    mnemonics.toArray(new String[mnemonics.size()]));
+            /*
+             * Retrieve the evaluation results from the SQO-OSS framework
+             */
+            for (Result nextResult : terrier.getResults(reqResults))
+                result.put(nextResult.getMnemonic(), nextResult);
+        }
         return result;
     }
 
