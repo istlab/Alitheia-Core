@@ -25,7 +25,60 @@
     </sect2>
     <sect2  id="user:interfaces:eclipse">
         <title>Eclipse</title>
-        <para></para>
+        <para>
+        The main goal of the Eclipse IDE plug-in is to help developers keep track of the
+        quality of projects, that they develop in an Eclipse programming environment. The
+        plug-in provides easy access to quality evaluation results, calculated on the fly from
+        the underlying SQO-OSS framework.
+        </para>
+        <para>
+        The Eclipse IDE plug-in is distributed in form of standard application plug-in. For
+        activating it, the user has to copy the plug-in into the Eclipse plug-ins tree and
+        restart Eclipse, if it is already running. In the recent version of the Eclipse IDE (since
+        v.3.4M6) the user can also install the plug-in from the Software Updates menu.
+        </para>
+        <para>
+        The plug-in functionality is available per project scope and accessible via exten-
+        sion to the Properties context menu (Alt+Enter). The above mentioned menu
+        extension is enabled for any component of the project, but the plug-in itself is active
+        only for a limited set of project resources. The list of resources allows only entities
+        that can be potentially evaluated by a SQO-OSS framework and includes:
+        <itemizedlist>
+            <listitem><para>source file -- as data entity, capable for quality evaluation</para></listitem>
+            <listitem><para>source folder -- as a resource group</para></listitem>
+            <listitem><para>the project -- as a global entity</para></listitem>
+        </itemizedlist>
+        The user accessible functionality of the Eclipse IDE plugin is split into three
+        different views available in the menu extension's tree:
+        <itemizedlist>
+            <listitem><para>configuration view node</para></listitem>
+            <listitem><para>profile view node</para></listitem>
+            <listitem><para>quality view node.</para></listitem>
+        </itemizedlist>
+        </para>
+        <para>
+        The configuration view node is shared between all project's resources. Its main
+        purpose is to let the user enter, validate and save the settings required for estab-
+        lishing a connection with the selected SQO-OSS framework. This view also handles
+        invalid connection settings and can notify the user in case of unavailable framework.
+        In the last case, the specified connection settings can be stored and validated later
+        on, when a connection can be established. Both other views will be disabled until a
+        successful connection to a SQO-OSS framework is established.
+        </para>
+        <para>
+        The profile view node allows the user to create, modify or remove evaluation
+        profiles. An evaluation profile encapsulates a group of projects resources (mostly
+        source files in a selected source tree or subtree), allows resource filtering (e.g. per
+        implementation language) and where applicable can trigger evaluation event from
+        the SQO-OSS framework.
+        </para>
+        <para>
+        The quality view node contains the actual metric evaluation results. Its main
+        purpose is to retrieve evaluation information from the attached SQO-OSS framework
+        depending on the selected resource and metric, and then display the evaluation
+        results in a proper way. In addition this view allows comparison with a previous
+        version of the selected resource.
+        </para>
     </sect2>
 </sect1>
 <sect1 id="user:plugins">
