@@ -4,6 +4,7 @@
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2008 by Paul J. Adams <paul.adams@siriusit.co.uk>
+ * Copyright 2008 by Adriaan de Groot <groot@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -54,11 +55,13 @@ import org.osgi.framework.ServiceReference;
 public class MDEImplementation extends AbstractMetric implements ProjectVersionMetric {
     private FDSService fds;
 
+    private static final String MNEMONIC_MDE_DEVTOTAL = "MDE.dt";
+    
     public MDEImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectVersion.class);
         
-        super.addMetricActivationType("MDE.dt", ProjectVersion.class);
+        super.addMetricActivationType(MNEMONIC_MDE_DEVTOTAL, ProjectVersion.class);
         
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
@@ -71,7 +74,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         if (result) {
             result &= super.addSupportedMetrics(
                     "Mean Developer Engagement: Ancilliary dev(total)",
-                    "MDE.dt",
+                    MNEMONIC_MDE_DEVTOTAL,
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
@@ -83,25 +86,14 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectVersion", a);
         filter.put("metric", m);
-        List<ProjectFileMeasurement> measurement =
-            db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
-
-        // Convert the measurement into a result object
-        if (! measurement.isEmpty()) {
-            // There is only one measurement per metric and project file
-            Integer value = Integer.parseInt(measurement.get(0).getResult());
-            // ... and therefore only one result entry
-            ResultEntry entry = 
-                new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
-            results.add(entry);
-            return results;
-        }
-        return null;
+        List<ProjectVersionMeasurement> measurement =
+            db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
+	return convertVersionMeasurements(measurement,m.getMnemonic());
     }
 
     public void run(ProjectVersion pv) {
 	// Find the latest ProjectVersion for which we have data
-	Metric m = Metric.getMetricByMnemonic("mde.dt");
+	Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
 	try {
 	    List<?> id = 
 		db.doSQL("select max(project_version_id) from project_version_measurement where metric_id=" +
