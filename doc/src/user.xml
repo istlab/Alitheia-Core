@@ -12,15 +12,13 @@
     and the Eclipse plugin, an add-on for the Eclipse IDE that integrates quality
     measurements seamlessly into a development environment. The user interfaces
     exchange data with the Alitheia core through a well-defined web service interface.
-
     </para>
     <sect2  id="user:interfaces:web" >
         <title>Web</title>
         <para>
-        The WebUI runs on top of Tomcat. It's implemented as a set of Java beans and JSP
-        (Java Server Pages) that display projects that have been evaluated by the Alitheia
-        system and their results.
-
+        The WebUI runs on top of the Tomcat application server. It is implemented
+        as a set of Java beans and JSP (Java Server Pages) that display projects
+        that have been evaluated by the Alitheia system and their results.
         </para>
     </sect2>
     <sect2  id="user:interfaces:eclipse">
@@ -69,14 +67,14 @@
         The profile view node allows the user to create, modify or remove evaluation
         profiles. An evaluation profile encapsulates a group of projects resources (mostly
         source files in a selected source tree or subtree), allows resource filtering (e.g. per
-        implementation language) and where applicable can trigger evaluation event from
+        implementation language) and where applicable can trigger an evaluation event from
         the SQO-OSS framework.
         </para>
         <para>
         The quality view node contains the actual metric evaluation results. Its main
         purpose is to retrieve evaluation information from the attached SQO-OSS framework
         depending on the selected resource and metric, and then display the evaluation
-        results in a proper way. In addition this view allows comparison with a previous
+        results in a proper way. In addition, this view allows comparison with a previous
         version of the selected resource.
         </para>
     </sect2>
