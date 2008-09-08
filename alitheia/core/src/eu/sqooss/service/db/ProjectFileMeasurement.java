@@ -45,6 +45,7 @@ public class ProjectFileMeasurement extends MetricMeasurement {
 
     public ProjectFileMeasurement() {
         // Nothing to do here
+        super();
     }
 
     /**
@@ -56,6 +57,7 @@ public class ProjectFileMeasurement extends MetricMeasurement {
      * @param value (String) value representation of the measurement
      */
     public ProjectFileMeasurement(Metric m, ProjectFile f, String value) {
+        super();
         setMetric(m);
         setProjectFile(f);
         setResult(value);
