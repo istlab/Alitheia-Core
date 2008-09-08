@@ -30,7 +30,7 @@
  *
  */
 
-package eu.sqooss.metrics.testablity;
+package eu.sqooss.metrics.testability;
 
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 
