@@ -43,14 +43,14 @@
         extension is enabled for any component of the project, but the plug-in itself is active
         only for a limited set of project resources. The list of resources allows only entities
         that can be potentially evaluated by a SQO-OSS framework and includes:
-        <itemizedlist>
+        <itemizedlist spacing='compact'>
             <listitem><para>source file -- as data entity, capable for quality evaluation</para></listitem>
             <listitem><para>source folder -- as a resource group</para></listitem>
             <listitem><para>the project -- as a global entity</para></listitem>
         </itemizedlist>
         The user accessible functionality of the Eclipse IDE plugin is split into three
         different views available in the menu extension's tree:
-        <itemizedlist>
+        <itemizedlist spacing='compact'>
             <listitem><para>configuration view node</para></listitem>
             <listitem><para>profile view node</para></listitem>
             <listitem><para>quality view node.</para></listitem>
