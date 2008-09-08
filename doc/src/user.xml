@@ -9,7 +9,7 @@
     can in theory have any kind of user interface on top of it. Currently, two user
     interfaces, each with a different purpose are existing for Alitheia -- the WebUI, a
     user interface running in a webbrowser and therefore being very easily accessible,
-    and the Eclipse plugin, an add-on for the Eclipse IDE that integrates quality
+    and the Eclipse plug-in, an add-on for the Eclipse IDE that integrates quality
     measurements seamlessly into a development environment. The user interfaces
     exchange data with the Alitheia core through a well-defined web service interface.
     </para>
@@ -46,7 +46,7 @@
             <listitem><para>source folder -- as a resource group</para></listitem>
             <listitem><para>the project -- as a global entity</para></listitem>
         </itemizedlist>
-        The user accessible functionality of the Eclipse IDE plugin is split into three
+        The user accessible functionality of the Eclipse IDE plug-in is split into three
         different views available in the menu extension's tree:
         <itemizedlist spacing='compact'>
             <listitem><para>configuration view node</para></listitem>
@@ -81,13 +81,23 @@
 </sect1>
 <sect1 id="user:plugins">
     <title>Plug-ins and Measurements</title>
-    <para></para>
+    <para>
+
+
+ _____ ___  ____   ___
+|_   _/ _ \|  _ \ / _ \
+  | || | | | | | | | | |
+  | || |_| | |_| | |_| |
+  |_| \___/|____/ \___/
+
+
+    </para>
     <sect2 id="user:plugins:wc">
-        <title>WC plugin</title>
+        <title>WC plug-in</title>
         <para></para>
     </sect2>
     <sect2 id="user:plugins:contrib">
-        <title>Contributing plugin</title>
+        <title>Contributing plug-in</title>
         <para></para>
     </sect2>
 </sect1>

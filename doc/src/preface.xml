@@ -135,12 +135,12 @@ which is the preferred way of getting in contact with the developers.
     <title>Getting involved</title>
     <para>
 The SQO-OSS project welcomes contributions. The easiest way for
-new contributors to SQO-OSS is probably to start writing plugins
+new contributors to SQO-OSS is probably to start writing plug-ins
 for the system. This way of scratching your own itch will allow
 contributors to extract what ever data they want to get out of
-their code. Writing plugins is easy and well documented. Those
-plugins can be written in Java or Python.
-To get started, best subscribe to the SQO-OSS plugins mailinglist
+their code. Writing plug-ins is easy and well documented. Those
+plug-ins can be written in Java or Python.
+To get started, best subscribe to the SQO-OSS plug-ins mailinglist
 (plugins@sqo-oss.org), to be found via
 http://www.sqo-oss.org/xwiki/bin/view/Community/Mailing+Lists.
 

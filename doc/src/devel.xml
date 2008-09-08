@@ -271,7 +271,7 @@ eu.sqooss.impl.metrics.$YOURMETRIC.$YOURMETRICImplementation
       </para>
     </sect2>
     <sect2>
-    <title>Developing plugins</title>
+    <title>Developing plug-ins</title>
     <sect3 id="devel:plugins:defs">
       <title>Definitions</title>
       <para>Following is a list of definitions of common terms in the
@@ -353,7 +353,7 @@ eu.sqooss.impl.metrics.$YOURMETRIC.$YOURMETRICImplementation
     <sect3 id="devel:plugins:activation">
       <title>Plugin Activation</title>
       <para>
-          Each plugin is associated with a set of activation types. An
+          Each plug-in is associated with a set of activation types. An
           activation type indicates that a plug-in should be activated to
           evaluate new project data when the corresponding project assets have
           been updated. Also, the plug-in can only return metric results
@@ -411,7 +411,7 @@ eu.sqooss.impl.metrics.$YOURMETRIC.$YOURMETRICImplementation
       continue to develop.
       </para>
       <para>
-          To denote their support for an activation type, plugins must implement
+          To denote their support for an activation type, plug-ins must implement
           one or more of the interfaces residing under <classname>
           eu.sqooss.service.abstractmetric</classname>.
       </para>
