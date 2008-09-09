@@ -64,7 +64,6 @@ class CppUnitMetrics implements TestabilityScanner {
     public void scan(LineNumberReader r) throws IOException {
         numTestCases = 0;
         String line = null;
-        boolean isTestCase = false;
         while ((line = r.readLine()) != null) {
             Matcher m = testCaseMethods.matcher(line);
             if (m.find())
