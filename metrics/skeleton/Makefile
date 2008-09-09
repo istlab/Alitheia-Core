@@ -28,7 +28,7 @@ create-tree :
 copy-files :
 	@target=`perl -e 'print lcfirst("$(TARGET)");'` ;  \
 	TARGET=`perl -e 'print ucfirst("$(TARGET)");'` ;  \
-	for i in manifest/manifest.mf \
+	for i in \
 		src/eu/sqooss/metrics/skeleton/Skeleton.java \
 		src/eu/sqooss/metrics/skeleton/SkeletonActivator.java ; \
 	do \
@@ -37,6 +37,7 @@ copy-files :
 		echo `basename "$$i"` "->" `basename "$$T"` ; \
 		sed -e "s/skeleton/$$target/g" -e "s/Skeleton/$$TARGET/g" < "$$i" > "../$(TARGET)/$$T" ; \
 	done
+	@echo "manifest.mf -> manifest.mf" ; sed -e "s/skeleton/$$target/g" -e "s/Skeleton/$$TARGET/g" < manifest/manifest.mf.example > ../$(TARGET)/manifest/manifest.mf
 	@echo "Makefile -> Makefile" ; head Makefile | grep -v '^#' > ../$(TARGET)/Makefile
 
 
