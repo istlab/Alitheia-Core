@@ -100,11 +100,11 @@ public class WcImplementation extends AbstractMetric implements Wc {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    this.getDescription(),
+                    "Total lines",
                     MNEMONIC_WC_LOC,
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    this.getDescription(),
+                    "Comment lines",
                     MNEMONIC_WC_LOCOM,
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
