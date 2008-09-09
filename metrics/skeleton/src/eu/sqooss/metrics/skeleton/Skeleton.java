@@ -64,16 +64,35 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 
 
+/*
+** The Squeleton class is the bit that actually implements the metrics
+** in this plug-in. It must extend AbstractMetric (so that it can be
+** called by the various metrics drivers) and implement at least one of
+** the four *Metric interfaces; by doing so it registers itself as 
+** willing to respond to changes of the type corresponding to the
+** *Metric interfaces it implements.
+**
+** The Squeleton example class implements ProjectFileMetric, which 
+** means it will respond to changes in files in project revisions
+** (i.e. it will do a computation for each file changed in each
+** SVN revision).
+*/ 
 public class Skeleton extends AbstractMetric implements ProjectFileMetric {
+    private static String MNEMONIC_METRIC = "SKEL";
     
     public Skeleton(BundleContext bc) {
         super(bc);        
  
-        /*Tells the metric activator when to call this metric*/
+        // Tells the metric activator when to call this plug-in; this
+        // should be called for each activation type we support, so
+        // for each *Metric interface we implement.
         super.addActivationType(ProjectFile.class);
         
-        /*Tells the UI what it metric is calculated against*/
-        super.addMetricActivationType("SKEL", ProjectFile.class);
+        // Tells the UI what it metric is calculated against. This
+        // should be called for each (sub)metric in the plug-in.
+        // Squeleton has only one metric. The class should be the
+        // DAO that activates the specific metric.
+        super.addMetricActivationType(MNEMONIC_METRIC, ProjectFile.class);
     }
     
     public boolean install() {
@@ -81,23 +100,23 @@ public class Skeleton extends AbstractMetric implements ProjectFileMetric {
         if (result) {
             result &= super.addSupportedMetrics(
                     this.getDescription(),
-                    "SKEL",
+                    MNEMONIC_METRIC,
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
-        //Return a list of ResultEntries by querying the DB for the measurements
-        //implement by the supported metric and calculated for the specific 
-        //project file
+        // Return a list of ResultEntries by querying the DB for the 
+        // measurements implement by the supported metric and calculated 
+        // for the specific project file.
         return null;
     }
     
     public void run(ProjectFile a) {
-        //1. Get stuff related to the provided project file
-        //2. Calculate one or more numbers
-        //3. Store a result to the database
+        // 1. Get stuff related to the provided project file
+        // 2. Calculate one or more numbers
+        // 3. Store a result to the database
     }
 
     
