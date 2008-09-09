@@ -7,10 +7,10 @@
     </authorblurb>
   </author>
   <author>
-    <firstname>Other</firstname>
-    <surname>Author</surname>
+    <firstname>Sebastian</firstname>
+    <surname>Kügler</surname>
     <authorblurb>
-      <para></para>
+      <para>KDE e.V.</para>
     </authorblurb>
   </author>
   <copyright>
@@ -21,7 +21,7 @@
   </copyright>
   <legalnotice role="trademarks">
     <para>
-        This document is licenced under the 
+        This document is licenced under the
         <ulink url="http://creativecommons.org/licenses/by-sa/3.0/">
             <citetitle>Creative Commons Attribution Share Alike license.
             </citetitle>
