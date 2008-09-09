@@ -324,7 +324,10 @@ final class SourceUpdater extends Job {
                          */
                         toAdd = addFileIfNotExists(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
                     }
-                    
+                    toAdd = ProjectFile.findFile(project.getId(), 
+                            basename(copyOp.toPath()), 
+                            dirname(copyOp.toPath()), 
+                            curVersion.getVersion());
                     copyOps.remove(copyOp);
                     
                 } else {
@@ -549,7 +552,7 @@ final class SourceUpdater extends Job {
         if (!canCopy(from, to)) 
             return;
         
-        
+        logger.debug("Copying dir from " + from.getPath() + " to " + to.getPath());
         
         addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, copyFrom);
         
@@ -561,7 +564,7 @@ final class SourceUpdater extends Job {
                     getDirectory(to.getPath() + "/" + f.getName(), true), f);
         }
         
-        fromPF = ProjectFile.getFilesForVersion(ProjectVersion.getPreviousVersion(pv), from, ProjectFile.MASK_FILES);
+        fromPF = ProjectFile.getFilesForVersion(fromVersion, from, ProjectFile.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
             addFile(pv, to.getPath() + "/" + f.getName(),
