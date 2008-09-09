@@ -57,9 +57,9 @@
         if (viewConf.getInfoPanelState()
                 || viewConf.getControlPanelState()) {
             if (viewConf.getResultPanelState() == false)
-                b.append(sp(in++) + "<td class=\"vvvleft\">\n");
+                b.append(sp(in++) + "<td class=\"dvPanelLeft\">\n");
             else
-                b.append(sp(in++) + "<td class=\"vvvleft\">\n");
+                b.append(sp(in++) + "<td class=\"dvPanelLeft\">\n");
 
             // =======================================================
             // Construct and render the Info panel
@@ -110,10 +110,10 @@
         if (viewConf.getResultPanelState()) {
             if (viewConf.getInfoPanelState()
                     || viewConf.getControlPanelState())
-                b.append(sp(in++) + "<td class=\"vvvright\""
-                    + " style=\"padding-left: 5px;\">\n");
+                b.append(sp(in++) + "<td class=\"dvPanelRight\""
+                        + " style=\"padding-left: 5px;\">\n");
             else
-                b.append(sp(in++) + "<td class=\"vvvright\">\n");
+                b.append(sp(in++) + "<td class=\"dvPanelRight\">\n");
 
             // =======================================================
             // Construct and render the Result panel

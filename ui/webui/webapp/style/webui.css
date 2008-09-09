@@ -6,7 +6,6 @@
 #tagcloud,
 #projectslist,
 #metricslist,
-#developerslist,
 #loginpage {
     border: 1px dotted #CCCCCC;
     margin-bottom: 5px;
@@ -15,7 +14,9 @@
     padding: 5px 5px 0px 46px;
 }
 #selectedproject,
-#fileslist {
+#fileslist,
+#developerslist,
+#versionslist {
     border: 1px dotted #CCCCCC;
     margin-bottom: 5px;
     padding: 5px 5px 0px 5px;
@@ -314,6 +315,73 @@ a.piv:hover {
     font-weight: bold;
     text-decoration: none;
 }
+/* ===[ Data view related ]=============================================== */
+td.dvPanelLeft {
+    width: 221px;
+}
+td.dvPanelPight {
+    
+}
+div.dvSubpanelLeft {
+    border: 1px solid black;
+    width: 100px;
+    float: left;
+}
+div.dvSubpanelRight {
+    border: 1px solid black;
+    width: 100px;
+    margin-left: 5px;
+    float: left;
+}
+div.dvSubtitle {
+    background-color: #FEF0C9;
+    border-bottom: 1px solid black;
+    font-weight: bold;
+    padding-left: 5px;
+}
+select.dvSubselect {
+    border: none;
+    width:100px;
+}
+table.dvChart {
+    border-collapse: separate;
+}
+td.dvChartTitle {
+    background: url(/img/icons/16x16/vfvstripe01.png) no-repeat right;
+    border: 0;
+    height: 18px;
+    padding-left: 5px;
+    text-align: left;
+    width: 5em;
+}
+td.dvChartTitleSelected {
+    background-color: #E6E437;
+    border: 1px solid black;
+    border-right: 0;
+    font-weight: bold;
+    height: 18px;
+    padding-left: 5px;
+    text-align: left;
+    width: 5em;
+}
+td.dvChartTitleEmpty {
+    border: 0;
+    border-right: 1px solid black;
+    padding-left: 5px;
+    text-align: left;
+    width: 5em;
+}
+td.dvChartImage {
+    background-color: #E6E437;
+    border: 1px solid black;
+    border-left: 0;
+    padding: 5px;
+    text-align: center;
+}
+a.dvChartImage img {
+    border: 0px none;
+    /* width: 100%; */
+}
 /* ===[ Full screen view related ]======================================== */
 div.fullscreen {
     text-align: center;
@@ -326,147 +394,6 @@ a.fullscreen img {
 td.pdv {
     width: 33%;
 }
-/* ===[ Verbose file view related ]======================================= */
-div.vfvmid {
-    border: 1px solid black;
-    width: 100px;
-    float: left;
-}
-div.vfvfid {
-    border: 1px solid black;
-    width: 100px;
-    margin-left: 5px;
-    float: left;
-}
-div.vfvtitle {
-    background-color: #FEF0C9;
-    border-bottom: 1px solid black;
-    font-weight: bold;
-    padding-left: 5px;
-}
-select.vfvmid {
-    border: none;
-    width:100px;
-}
-select.vfvfid {
-    border: none;
-    width:100px;
-}
-table.vfv_chart {
-    border-collapse: separate;
-}
-td.vfv_chart_title_selected {
-    background-color: #E6E437;
-    border: 1px solid black;
-    border-right: 0;
-    font-weight: bold;
-    height: 18px;
-    padding-left: 5px;
-    text-align: left;
-    width: 50px;
-}
-td.vfv_chart_title {
-    background-image: url(/img/icons/16x16/vfvstripe01.png);
-    border: 0;
-    border-right: 1px solid black;
-    height: 18px;
-    padding-left: 5px;
-    text-align: left;
-    width: 50px;
-}
-td.vfv_chart_title_empty {
-    border: 0;
-    border-right: 1px solid black;
-    padding-left: 5px;
-    text-align: left;
-    width: 50px;
-}
-td.vfv_chart_image {
-    background-color: #E6E437;
-    border: 1px solid black;
-    border-left: 0;
-}
-td.vfvleft {
-    width: 221px;
-}
-td.vfvright {
-    
-}
-a.vfvchart img {
-    border: 0px none;
-    width: 100%;
-}
-/* ===[ Version verbose view related ]======================================= */
-div.vvvmid {
-    border: 1px solid black;
-    width: 100px;
-    float: left;
-}
-div.vvvvid {
-    border: 1px solid black;
-    width: 100px;
-    margin-left: 5px;
-    float: left;
-}
-div.vvvtitle {
-    background-color: #FEF0C9;
-    border-bottom: 1px solid black;
-    font-weight: bold;
-    padding-left: 5px;
-}
-select.vvvmid {
-    border: none;
-    width:100px;
-}
-select.vvvvid {
-    border: none;
-    width:100px;
-}
-table.vvv_chart {
-    border-collapse: separate;
-}
-td.vvv_chart_title_selected {
-    background-color: #E6E437;
-    border: 1px solid black;
-    border-right: 0;
-    font-weight: bold;
-    height: 18px;
-    padding-left: 5px;
-    text-align: left;
-    width: 50px;
-}
-td.vvv_chart_title {
-    background-image: url(/img/icons/16x16/vfvstripe01.png);
-    border: 0;
-    border-right: 1px solid black;
-    height: 18px;
-    padding-left: 5px;
-    text-align: left;
-    width: 50px;
-}
-td.vvv_chart_title_empty {
-    border: 0;
-    border-right: 1px solid black;
-    padding-left: 5px;
-    text-align: left;
-    width: 50px;
-}
-td.vvv_chart_image {
-    background-color: #E6E437;
-    border: 1px solid black;
-    border-left: 0;
-}
-td.vvvleft {
-    width: 221px;
-}
-td.vvvright {
-    
-}
-a.vvvchart img {
-    border: 0px none;
-    width: 100%;
-}
-/* ===[ Project data view related ]======================================= */
 td.pdv_chart {
     background-color: #FFFF99;
     border: 1px solid black;

@@ -211,7 +211,7 @@ public class DeveloperDataView extends AbstractDataView {
                     b.append(sp(in++) + "</tr>\n");
                     if ((highlightedMetric != null)
                             && (data.containsKey(highlightedMetric)))
-                        b.append(sp(in) + "<td class=\"vfv_chart_title\">"
+                        b.append(sp(in) + "<td class=\"dvChartTitle\">"
                                 + "<a href=\"" 
                                 + getServletPath()
                                 + "\">"
@@ -219,7 +219,7 @@ public class DeveloperDataView extends AbstractDataView {
                                 + "</td>\n");
                     else
                         b.append(sp(in) + "<td"
-                                + " class=\"vfv_chart_title_selected\">"
+                                + " class=\"dvChartTitleSelected\">"
                                 + leadOption
                                 + "</td>\n");
                     /*
@@ -229,11 +229,11 @@ public class DeveloperDataView extends AbstractDataView {
                     if (data.size() > 1)
                         chartRowSpan += data.size();
                     b.append(sp(in) + "<td"
-                            + " class=\"vfv_chart_image\""
+                            + " class=\"dvChartImage\""
                             + " rowspan=\"" + chartRowSpan + "\">"
-                            + "<a class=\"vfvchart\""
+                            + "<a class=\"dvChartImage\""
                             + " href=\"/fullscreen.jsp?"
-                            + "chartfile=" + chartFile + "\">"
+                            + "chartfile=" + chartFile.replace("thb", "img") + "\">"
                             + "<img src=\"" + chartFile + "\">"
                             + "</a>"
                             + "</td>\n");
@@ -248,15 +248,15 @@ public class DeveloperDataView extends AbstractDataView {
                             if ((highlightedMetric != null)
                                     && (highlightedMetric.equals(mnemonic)))
                                 b.append(sp(in) + "<td"
-                                        + " class=\"vfv_chart_title_selected\">"
+                                        + " class=\"dvChartTitleSelected\">"
                                         + mnemonic
                                         + "</td>\n");
                             else
                                 b.append(sp(in) + "<td"
-                                        + " class=\"vfv_chart_title\">"
+                                        + " class=\"dvChartTitle\">"
                                         + "<a href=\"" 
                                         + getServletPath()
-                                        + "?vfvsm=" + mnemonic
+                                        + "?highMetric=" + mnemonic
                                         + "\">"
                                         + mnemonic + "</a>"
                                         + "</td>\n");
@@ -269,7 +269,7 @@ public class DeveloperDataView extends AbstractDataView {
                      */
                     b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td"
-                            + " class=\"vfv_chart_title_empty\">"
+                            + " class=\"dvChartTitleEmpty\">"
                             + "&nbsp;"
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
@@ -313,7 +313,7 @@ public class DeveloperDataView extends AbstractDataView {
                     b.append(sp(in++) + "</tr>\n");
                     if ((highlightedMetric != null)
                             && (data.containsKey(highlightedMetric)))
-                        b.append(sp(in) + "<td class=\"vfv_chart_title\">"
+                        b.append(sp(in) + "<td class=\"dvChartTitle\">"
                                 + "<a href=\"" 
                                 + getServletPath()
                                 + "\">"
@@ -321,7 +321,7 @@ public class DeveloperDataView extends AbstractDataView {
                                 + "</td>\n");
                     else
                         b.append(sp(in) + "<td"
-                                + " class=\"vfv_chart_title_selected\">"
+                                + " class=\"dvChartTitleSelected\">"
                                 + leadOption
                                 + "</td>\n");
                     /*
@@ -332,7 +332,7 @@ public class DeveloperDataView extends AbstractDataView {
                         chartRowSpan += data.size();
                     if (chartFile.equals("/tmp/"))
                         b.append(sp(in) + "<td"
-                                + " class=\"vfv_chart_image\""
+                                + " class=\"dvChartImage\""
                                 + " rowspan=\"" + chartRowSpan + "\">"
                                 + "<i>"
                                 + "Inapplicable for multiple metrics selection!"
@@ -340,11 +340,11 @@ public class DeveloperDataView extends AbstractDataView {
                                 + "</td>\n");
                     else
                         b.append(sp(in) + "<td"
-                                + " class=\"vfv_chart_image\""
+                                + " class=\"dvChartImage\""
                                 + " rowspan=\"" + chartRowSpan + "\">"
-                                + "<a class=\"vfvchart\""
+                                + "<a class=\"dvChartImage\""
                                 + " href=\"/fullscreen.jsp?"
-                                + "chartfile=" + chartFile + "\">"
+                                + "chartfile=" + chartFile.replace("thb", "img") + "\">"
                                 + "<img src=\"" + chartFile + "\">"
                                 + "</a>"
                                 + "</td>\n");
@@ -359,15 +359,15 @@ public class DeveloperDataView extends AbstractDataView {
                             if ((highlightedMetric != null)
                                     && (highlightedMetric.equals(mnemonic)))
                                 b.append(sp(in) + "<td"
-                                        + " class=\"vfv_chart_title_selected\">"
+                                        + " class=\"dvChartTitleSelected\">"
                                         + mnemonic
                                         + "</td>\n");
                             else
                                 b.append(sp(in) + "<td"
-                                        + " class=\"vfv_chart_title\">"
+                                        + " class=\"dvChartTitle\">"
                                         + "<a href=\"" 
                                         + getServletPath()
-                                        + "?vfvsm=" + mnemonic
+                                        + "?highMetric=" + mnemonic
                                         + "\">"
                                         + mnemonic + "</a>"
                                         + "</td>\n");
@@ -380,7 +380,7 @@ public class DeveloperDataView extends AbstractDataView {
                      */
                     b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td"
-                            + " class=\"vfv_chart_title_empty\">"
+                            + " class=\"dvChartTitleEmpty\">"
                             + "&nbsp;"
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
@@ -508,9 +508,9 @@ public class DeveloperDataView extends AbstractDataView {
              * Render the list of metrics that were evaluated on this project
              * and are related to the presented resource type
              */
-            b.append(sp(in++) + "<div class=\"vvvmid\">\n");
-            b.append(sp(in) + "<div class=\"vvvtitle\">Metrics</div>\n");
-            b.append(sp(in++) + "<select class=\"vvvmid\""
+            b.append(sp(in++) + "<div class=\"dvSubpanelLeft\">\n");
+            b.append(sp(in) + "<div class=\"dvSubtitle\">Metrics</div>\n");
+            b.append(sp(in++) + "<select class=\"dvSubselect\""
                     + " name=\"selMetrics\""
                     + " multiple"
                     + " size=\"5\""
@@ -520,7 +520,7 @@ public class DeveloperDataView extends AbstractDataView {
                 Metric metric = project.getEvaluatedMetrics()
                     .getMetricByMnemonic(mnemonic);
                 if (metric != null)
-                    b.append(sp(in) + "<option class=\"vvvmid\""
+                    b.append(sp(in) + "<option class=\"dvSubselect\""
                             + ((selectedMetrics.contains(metric.getId()))
                                     ? " selected" : "")
                             + " value=\"" + metric.getId() + "\">"
@@ -533,16 +533,16 @@ public class DeveloperDataView extends AbstractDataView {
             /*
              * Render the list of resources that were selected by the user.
              */
-            b.append(sp(in++) + "<div class=\"vvvvid\">\n");
-            b.append(sp(in) + "<div class=\"vvvtitle\">Developers</div>\n");
-            b.append(sp(in++) + "<select class=\"vvvvid\""
+            b.append(sp(in++) + "<div class=\"dvSubpanelRight\">\n");
+            b.append(sp(in) + "<div class=\"dvSubtitle\">Developers</div>\n");
+            b.append(sp(in++) + "<select class=\"dvSubselect\""
                     + " name=\"selResources\""
                     + " multiple"
                     + " size=\"5\""
                     + ((selectedResources.size() < 1) ? " disabled" : "")
                     + ">\n");
             for (String resource : selectedResources) {
-                b.append(sp(in) + "<option class=\"vvvvid\""
+                b.append(sp(in) + "<option class=\"dvSubselect\""
                         + " selected"
                         + " value=\"" + resource + "\">"
                         + resource
@@ -650,10 +650,15 @@ public class DeveloperDataView extends AbstractDataView {
 
             // Save the chart into a temporary file
             try {
-                java.io.File tmpFile = java.io.File.createTempFile(
+                java.io.File image = java.io.File.createTempFile(
                         "img", ".png", settings.getTempFolder());
-                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
-                return tmpFile.getName();
+                java.io.File thumbnail = new java.io.File(
+                        settings.getTempFolder()
+                        + java.io.File.separator
+                        + image.getName().replace("img", "thb"));
+                ChartUtilities.saveChartAsPNG(image, chart, 960, 720);
+                ChartUtilities.saveChartAsPNG(thumbnail, chart, 320, 240);
+                return thumbnail.getName();
             }
             catch (IOException e) { /* Do nothing */ }
         }
@@ -678,10 +683,15 @@ public class DeveloperDataView extends AbstractDataView {
             chart.setBackgroundPaint(new Color(0, 0, 0, 0));
             chart.setPadding(RectangleInsets.ZERO_INSETS);
             try {
-                java.io.File tmpFile = java.io.File.createTempFile(
-                        "img", "png", settings.getTempFolder());
-                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
-                return tmpFile.getName();
+                java.io.File image = java.io.File.createTempFile(
+                        "img", ".png", settings.getTempFolder());
+                java.io.File thumbnail = new java.io.File(
+                        settings.getTempFolder()
+                        + java.io.File.separator
+                        + image.getName().replace("img", "thb"));
+                ChartUtilities.saveChartAsPNG(image, chart, 960, 720);
+                ChartUtilities.saveChartAsPNG(thumbnail, chart, 320, 240);
+                return thumbnail.getName();
             }
             catch (IOException e) {
                 // Do nothing

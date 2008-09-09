@@ -274,16 +274,15 @@ public class FileDataView extends AbstractDataView {
                     b.append(sp(in++) + "</tr>\n");
                     if ((highlightedMetric != null)
                             && (data.containsKey(highlightedMetric)))
-                        b.append(sp(in) + "<td class=\"vfv_chart_title\">"
-                                + "<a href=\"" 
+                        b.append(sp(in) + "<td class=\"dvChartTitle\">"
+                                + "<a href=\""
                                 + getServletPath()
-                                + "?fid=" + fileId
                                 + "\">"
                                 + "ALL" + "</a>"
                                 + "</td>\n");
                     else
                         b.append(sp(in) + "<td"
-                                + " class=\"vfv_chart_title_selected\">"
+                                + " class=\"dvChartTitleSelected\">"
                                 + leadOption
                                 + "</td>\n");
                     /*
@@ -293,11 +292,11 @@ public class FileDataView extends AbstractDataView {
                     if (data.size() > 1)
                         chartRowSpan += data.size();
                     b.append(sp(in) + "<td"
-                            + " class=\"vfv_chart_image\""
+                            + " class=\"dvChartImage\""
                             + " rowspan=\"" + chartRowSpan + "\">"
-                            + "<a class=\"vfvchart\""
+                            + "<a class=\"dvChartImage\""
                             + " href=\"/fullscreen.jsp?"
-                            + "chartfile=" + chartFile + "\">"
+                            + "chartfile=" + chartFile.replace("thb", "img") + "\">"
                             + "<img src=\"" + chartFile + "\">"
                             + "</a>"
                             + "</td>\n");
@@ -312,16 +311,15 @@ public class FileDataView extends AbstractDataView {
                             if ((highlightedMetric != null)
                                     && (highlightedMetric.equals(mnemonic)))
                                 b.append(sp(in) + "<td"
-                                        + " class=\"vfv_chart_title_selected\">"
+                                        + " class=\"dvChartTitleSelected\">"
                                         + mnemonic
                                         + "</td>\n");
                             else
                                 b.append(sp(in) + "<td"
-                                        + " class=\"vfv_chart_title\">"
+                                        + " class=\"dvChartTitle\">"
                                         + "<a href=\"" 
                                         + getServletPath()
                                         + "?highMetric=" + mnemonic
-                                        + "&fid=" + fileId
                                         + "\">"
                                         + mnemonic + "</a>"
                                         + "</td>\n");
@@ -334,7 +332,7 @@ public class FileDataView extends AbstractDataView {
                      */
                     b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td"
-                            + " class=\"vfv_chart_title_empty\">"
+                            + " class=\"dvChartTitleEmpty\">"
                             + "&nbsp;"
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
@@ -447,9 +445,9 @@ public class FileDataView extends AbstractDataView {
             //----------------------------------------------------------------
             // Display the list of metrics evaluated on this file
             //----------------------------------------------------------------
-            b.append(sp(in++) + "<div class=\"vfvmid\">\n");
-            b.append(sp(in) + "<div class=\"vfvtitle\">Metrics</div>\n");
-            b.append(sp(in++) + "<select class=\"vfvmid\""
+            b.append(sp(in++) + "<div class=\"dvSubpanelLeft\">\n");
+            b.append(sp(in) + "<div class=\"dvSubtitle\">Metrics</div>\n");
+            b.append(sp(in++) + "<select class=\"dvSubselect\""
                     + " name=\"selMetrics\""
                     + " multiple"
                     + " size=\"5\""
@@ -459,7 +457,7 @@ public class FileDataView extends AbstractDataView {
                 Metric metric = project.getEvaluatedMetrics()
                     .getMetricByMnemonic(mnemonic);
                 if (metric != null)
-                    b.append(sp(in) + "<option class=\"vfvmid\""
+                    b.append(sp(in) + "<option class=\"dvSubselect\""
                             + ((selectedMetrics.contains(metric.getId()))
                                     ? " selected" : "")
                             + " value=\"" + metric.getId() + "\">"
@@ -471,9 +469,9 @@ public class FileDataView extends AbstractDataView {
             //----------------------------------------------------------------
             // Display the list of file modifications
             //----------------------------------------------------------------
-            b.append(sp(in++) + "<div class=\"vfvfid\">\n");
-            b.append(sp(in) + "<div class=\"vfvtitle\">Modifications</div>\n");
-            b.append(sp(in++) + "<select class=\"vfvfid\""
+            b.append(sp(in++) + "<div class=\"dvSubpanelRight\">\n");
+            b.append(sp(in) + "<div class=\"dvSubtitle\">Modifications</div>\n");
+            b.append(sp(in++) + "<select class=\"dvSubselect\""
                     + " name=\"selResources\""
                     + " multiple"
                     + " size=\"5\""
@@ -482,7 +480,7 @@ public class FileDataView extends AbstractDataView {
             SortedMap<Long, Long> mods = terrier.getFileModification(
                     project.getCurrentVersion().getId(), fileId);
             for (Long version : mods.keySet()) {
-                b.append(sp(in) + "<option class=\"vfvfid\""
+                b.append(sp(in) + "<option class=\"dvSubselect\""
                         + ((selectedResources.contains(version))
                                 ? " selected" : "")
                         + " value=\"" + version + "\">"
@@ -493,7 +491,6 @@ public class FileDataView extends AbstractDataView {
 
             b.append(sp(--in) + "</div>\n");
             b.append(sp(in++) + "<div style=\"position: relative; clear: both; padding-top: 5px; border: 0; text-align: center;\">\n");
-            b.append(sp(in)+ "<input type=\"hidden\" name=\"fid\" value=\"" + fileId + "\">\n");
             b.append(sp(in)+ "<input type=\"submit\" value=\"Apply\">\n");
             b.append(sp(--in)+ "</div>\n");
             b.append(sp(--in) + "</form>\n");
@@ -578,10 +575,15 @@ public class FileDataView extends AbstractDataView {
             chart.setPadding(RectangleInsets.ZERO_INSETS);
             // Save the chart into a temporary file
             try {
-                java.io.File tmpFile = java.io.File.createTempFile(
+                java.io.File image = java.io.File.createTempFile(
                         "img", ".png", settings.getTempFolder());
-                ChartUtilities.saveChartAsPNG(tmpFile, chart, 640, 480);
-                return tmpFile.getName();
+                java.io.File thumbnail = new java.io.File(
+                        settings.getTempFolder()
+                        + java.io.File.separator
+                        + image.getName().replace("img", "thb"));
+                ChartUtilities.saveChartAsPNG(image, chart, 960, 720);
+                ChartUtilities.saveChartAsPNG(thumbnail, chart, 320, 240);
+                return thumbnail.getName();
             }
             catch (IOException e) {
                 // Do nothing
