@@ -65,19 +65,6 @@ public class ProjectDeleteJob extends Job {
             success &= dbs.deleteRecord(cnp);
         }
         
-        // Delete the project's cached checkouts from the DB
-        String query = "select ffv " +
-            " from FileForVersion ffv, ProjectVersion pv" +
-            " where ffv.version = pv" +
-            " and  pv.project = :project" ;
-        
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("project", sp);
-        List<FileForVersion> ffvs = (List<FileForVersion>) dbs.doHQL(query, params);
-        dbs.deleteRecords(ffvs);
-        
-        //TODO: Delete the projects cached checkouts from disk
-        
         // Delete the selected project
         success &= dbs.deleteRecord(sp);
 

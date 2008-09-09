@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.updater;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -620,49 +621,39 @@ final class SourceUpdater extends Job {
         // Copy old records
         ProjectVersion previous = pv.getPreviousVersion();
         
-        String query1 = "insert into FileForVersion (file) " +
-            "select file from FileForVersion " +
-            "where version = :version";
-
-        String query2 = "update FileForVersion " +
-            "set version = :newversion " +
-            "where version is null";
-        
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("version", previous);
-        dbs.executeUpdate(query1, params);
-        params.clear();
-        params.put("newversion", pv);
-        dbs.executeUpdate(query2, params);
+        Set<ProjectFile> filesForVersion = new HashSet<ProjectFile>();
+        if ( previous != null && previous.getFilesForVersion() != null ) {
+            filesForVersion.addAll( previous.getFilesForVersion() );
+        }
         
         // Update with new records
         for (ProjectFile pf : updFiles) {
             if (pf.getStatus() == "ADDED") {
-                dbs.addRecord(new FileForVersion(pf, pv));
+                filesForVersion.add(pf);
             } else if (pf.getStatus() == "DELETED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
-                FileForVersion ffv = FileForVersion.getFileForVersion(old, pv);
-                dbs.deleteRecord(ffv);
+                boolean deleted = filesForVersion.remove(old);
+                if (!deleted) {
+                    logger.error("Couldn't remove association of deleted file " + pf.toString() +
+                                 " in version " + pv.getVersion());
+                }
             } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf); 
-                
                 if (old == null) {
                     logger.error("Cannot get previous file version for file " + pf.toString());
                 }
-                
-                FileForVersion ffv = FileForVersion.getFileForVersion(old, pv);
-                
-                if (ffv == null) {
-                    logger.warn("File " + old + " does not exist in FileForVersion"); 
+                boolean deleted = filesForVersion.remove(old);
+                if (!deleted) {
+                    logger.error("Couldn't remove old association of modified file " + pf.toString() +
+                                 " in version " + pv.getVersion());
                 }
-                
-                dbs.deleteRecord(ffv);
-                dbs.addRecord(new FileForVersion(pf, pv));
+                filesForVersion.add(pf);
             } else {
                 logger.warn("Don't know what to do with file status:"
                         + pf.getStatus() + " file_id:" + pf.getId());
             }
-        }
+        }        
+        pv.setFilesForVersion(filesForVersion);
     }
     
     /**

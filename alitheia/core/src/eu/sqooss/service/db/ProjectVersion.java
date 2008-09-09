@@ -75,11 +75,19 @@ public class ProjectVersion extends DAObject {
     private String properties;
     
     /**
-     * The set of file within the project in this version
+     * The added/modified/deleted files for that version
      */
     private Set<ProjectFile> versionFiles;
+    /**
+     * The complete set of files for that version (ie. the state of the project at that version).
+     * Note that the files contained in this set may come from a previous version, if they haven't
+     * been modified since.
+     */
+    private Set<ProjectFile> filesForVersion;
+    /**
+     * The file groups contained in that version
+     */
     private Set<FileGroup> fileGroups;
-
     /**
      * The set of known tags in this version of the project
      */
@@ -160,6 +168,12 @@ public class ProjectVersion extends DAObject {
         this.versionFiles = versionFiles;
     }
 
+    public Set<ProjectFile> getFilesForVersion() {
+        return filesForVersion;
+    }
+    public void setFilesForVersion(Set<ProjectFile> filesForVersion) {
+        this.filesForVersion = filesForVersion;
+    }
     public Set<FileGroup> getFileGroups() {
         return fileGroups;
     }

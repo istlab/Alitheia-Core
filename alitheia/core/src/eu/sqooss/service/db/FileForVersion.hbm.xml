@@ -5,10 +5,9 @@
         
 <hibernate-mapping>
   <class name="eu.sqooss.service.db.FileForVersion" table="FILE_VERSION_JOIN">
-    <id name="id" column="ID">
-      <generator class="native" />
-    </id>
-    <many-to-one name="version" column="PROJECT_VERSION_ID" cascade="merge"/>
-    <many-to-one name="file" column="PROJECT_FILE_ID" cascade="merge" />
+    <composite-id>
+      <key-many-to-one name="version" column="PROJECT_VERSION_ID" class="eu.sqooss.service.db.ProjectVersion"/>
+      <key-many-to-one name="file" column="PROJECT_FILE_ID" class="eu.sqooss.service.db.ProjectFile"/>
+    </composite-id>
   </class>
 </hibernate-mapping>

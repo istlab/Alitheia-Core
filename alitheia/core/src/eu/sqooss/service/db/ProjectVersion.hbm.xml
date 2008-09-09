@@ -34,5 +34,9 @@
         <key column="PROJECT_VERSION_ID"/>
         <one-to-many class="eu.sqooss.service.db.ProjectVersionMeasurement"/>
     </set>
+    <set name="filesForVersion" table="FILE_VERSION_JOIN">
+      <key column="PROJECT_VERSION_ID"/>
+      <many-to-many class="eu.sqooss.service.db.ProjectFile" column="PROJECT_FILE_ID"/>
+    </set>
   </class>
 </hibernate-mapping>
