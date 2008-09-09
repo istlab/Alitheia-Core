@@ -191,8 +191,98 @@ public class ProjectVersion extends DAObject {
     public void setMeasurements(Set<ProjectVersionMeasurement> measurements) {
         this.measurements = measurements;
     }
+
+    /**
+     * Allow moving backward in version history by finding the most-recent
+     * version of this project before the current one, or null if there
+     * is no such version.
+     * 
+     * @return Previous version, or null
+     */
+    public ProjectVersion getPreviousVersion() {
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramTS = "version_timestamp"; 
+        String paramProject = "project_id";
+        
+        String query = "from ProjectVersion pv where " +
+                        "pv.project.id=:" + paramProject + 
+                        " and pv.timestamp in (" +
+        		"select max(pv2.timestamp) " +
+        		"from ProjectVersion pv2 " +
+        		"where pv2.timestamp < :" + paramTS +
+        		" and pv2.project = pv.project)";
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramTS, this.getTimestamp());
+        parameters.put(paramProject, this.getProject().getId());
+
+        List<?> projectVersions = dbs.doHQL(query, parameters);
+        
+        if(projectVersions == null || projectVersions.size() == 0) {
+            return null;
+        } else {
+            return (ProjectVersion) projectVersions.get(0);
+        }
+    }
     
+    /**
+     * Allow moving forward in version history by finding the earliest
+     * version of this project later than the current one, or null if there
+     * is no such version.
+     * 
+     * @return Next version, or null
+     */
+    public ProjectVersion getNextVersion() {
+        DBService dbs = CoreActivator.getDBService();
+        
+        String paramTS = "version_timestamp"; 
+        String paramProject = "project_id";
+        
+        String query = "from ProjectVersion pv where " +
+                        "pv.project.id=:" + paramProject + 
+                        " and pv.timestamp in (" +
+        		"select min(pv2.timestamp) " +
+        		"from ProjectVersion pv2 " +
+        		"where pv2.timestamp > :" + paramTS +
+        		" and pv2.project = pv.project)";
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramTS, this.getTimestamp());
+        parameters.put(paramProject, this.getProject().getId());
+
+        List<?> projectVersions = dbs.doHQL(query, parameters);
+        
+        if(projectVersions == null || projectVersions.size() == 0) {
+            return null;
+        } else {
+            return (ProjectVersion) projectVersions.get(0);
+        }
+    }
+    
+    public boolean lte(ProjectVersion p) {
+        return this.timestamp <= p.getTimestamp();
+    }
+    
+    /**
+     * Pseudo-constructor to look up a stored ProjectVersion by project
+     * and revision -- this is different from creating a new object
+     * through the constructor because it will return null if the combination
+     * of project and SVN revision does not exist in the database.
+     * 
+     * @param project Project to look up
+     * @param revision SVN revision (must have a revision number associated)
+     * @return ProjectVersion, or null if none found
+     */
     public static ProjectVersion getVersionByRevision( StoredProject project, ProjectRevision revision ) {
+        if (!revision.hasSVNRevision()) {
+            // Can't do the lookup if we don't have a SVN revision number;
+            // caller should have resolved other revision specifications 
+            // to a number already.
+            return null;
+            // TODO: possibly log this
+        }
+        
         DBService dbs = CoreActivator.getDBService();
    
         String paramProjectId = "stored_project_id";
@@ -208,33 +298,6 @@ public class ProjectVersion extends DAObject {
 
         List<?> projectVersions = dbs.doHQL(query, parameters);
         if (projectVersions == null || projectVersions.size() == 0) {
-            return null;
-        } else {
-            return (ProjectVersion) projectVersions.get(0);
-        }
-    }
-    
-    public static ProjectVersion getPreviousVersion(ProjectVersion pv) {
-        DBService dbs = CoreActivator.getDBService();
-        
-        String paramTS = "version_timestamp"; 
-        String paramProject = "project_id";
-        
-        String query = "from ProjectVersion pv where " +
-                        "pv.project.id=:" + paramProject + 
-                        " and pv.timestamp in (" +
-        		"select max(pv2.timestamp) " +
-        		"from ProjectVersion pv2 " +
-        		"where pv2.timestamp < :" + paramTS +
-        		" and pv2.project = pv.project)";
-        
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramTS, pv.getTimestamp());
-        parameters.put(paramProject, pv.getProject().getId());
-
-        List<?> projectVersions = dbs.doHQL(query, parameters);
-        
-        if(projectVersions == null || projectVersions.size() == 0) {
             return null;
         } else {
             return (ProjectVersion) projectVersions.get(0);

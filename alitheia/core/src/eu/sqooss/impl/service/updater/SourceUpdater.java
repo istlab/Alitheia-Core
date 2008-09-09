@@ -515,7 +515,7 @@ final class SourceUpdater extends Job {
             return;
         }
 
-        ProjectVersion prev = ProjectVersion.getPreviousVersion(pv);
+        ProjectVersion prev = pv.getPreviousVersion();
         
         List<ProjectFile> files = ProjectFile.getFilesForVersion(prev, d);
         
@@ -618,7 +618,7 @@ final class SourceUpdater extends Job {
      */
     private void updateFilesForVersion(ProjectVersion pv, List<ProjectFile> updFiles) {
         // Copy old records
-        ProjectVersion previous = ProjectVersion.getPreviousVersion(pv);
+        ProjectVersion previous = pv.getPreviousVersion();
         
         String query1 = "insert into FileForVersion (file) " +
             "select file from FileForVersion " +
