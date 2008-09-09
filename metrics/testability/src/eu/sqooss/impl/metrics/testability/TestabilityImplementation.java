@@ -112,12 +112,20 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
     private static HashMap <String, LinkedList<TestabilityScanner> > allScanners =
             new HashMap<String, LinkedList<TestabilityScanner> >();
     static {
-        LinkedList<TestabilityScanner> javaMetrics =
+        LinkedList<TestabilityScanner> langScanners =
                 new LinkedList<TestabilityScanner>();
         // Add more Java scanners here
-        javaMetrics.add(new JUnitMetrics());
-        allScanners.put(".java", javaMetrics);
-        allScanners.put(".JAVA", javaMetrics);
+        langScanners.add(new JUnitMetrics());
+        allScanners.put(".java", langScanners);
+        allScanners.put(".JAVA", langScanners);
+
+        langScanners.clear();
+        // Add more C++ scanners here
+        langScanners.add(new CppUnitMetrics());
+        allScanners.put(".cpp", langScanners);
+        allScanners.put(".CPP", langScanners);
+        allScanners.put(".cc", langScanners);
+        allScanners.put(".CC", langScanners);
     }
 
     public void run(ProjectFile pf) {
