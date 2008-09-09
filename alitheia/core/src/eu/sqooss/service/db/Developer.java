@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -153,7 +153,7 @@ public class Developer extends DAObject{
      *         <ul>
      */
     public static synchronized Developer getDeveloperByEmail(String email, StoredProject sp){
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("email", email);
@@ -213,7 +213,7 @@ public class Developer extends DAObject{
     @SuppressWarnings("unchecked")
         public static synchronized Developer getDeveloperByUsername(String username, StoredProject sp) {
 		
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("username", username);

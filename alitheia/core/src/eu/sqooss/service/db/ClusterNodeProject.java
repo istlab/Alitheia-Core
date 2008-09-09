@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 public class ClusterNodeProject extends DAObject {
 
@@ -95,7 +95,7 @@ public class ClusterNodeProject extends DAObject {
         if (project == null) {
             return null;
         }
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("project", project);
         List<ClusterNodeProject> rList = dbs.findObjectsByProperties(
@@ -118,7 +118,7 @@ public class ClusterNodeProject extends DAObject {
         if (node == null) {
             return null;
         }
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("node", node);
         List<ClusterNodeProject> nList = dbs.findObjectsByProperties(

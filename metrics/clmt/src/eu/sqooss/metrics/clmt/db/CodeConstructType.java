@@ -36,7 +36,7 @@ package eu.sqooss.metrics.clmt.db;
 import java.util.HashMap;
 import java.util.List;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 
@@ -82,7 +82,7 @@ public class CodeConstructType extends DAObject {
     }
     
     public static CodeConstructType getConstructType(ConstructType t) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("type", t.toString());
         List<CodeConstructType> result = 

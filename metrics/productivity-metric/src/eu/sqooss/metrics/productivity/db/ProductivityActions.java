@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions;
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
@@ -85,7 +85,7 @@ public class ProductivityActions extends DAObject {
     public static ProductivityActions getProductivityAction(Developer dev, 
             ProjectVersion pv, ProductivityActionType actionType) {
         
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramDeveloper = "paramDeveloper"; 
         String paramVersion = "paramVersion";
@@ -111,7 +111,7 @@ public class ProductivityActions extends DAObject {
     }
   
     public static long getTotalActions(){
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String query = "select sum(total) from ProductivityActions" ;
         
@@ -127,7 +127,7 @@ public class ProductivityActions extends DAObject {
     
     public static long getTotalActionsPerCategory(
             ProductivityMetricActions.ActionCategory actionCategory) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramCategory = "paramCategory"; 
         
@@ -151,7 +151,7 @@ public class ProductivityActions extends DAObject {
     
     public static long getTotalActionsPerType(
             ProductivityMetricActions.ActionType actionType) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramType = "paramType"; 
         
@@ -175,7 +175,7 @@ public class ProductivityActions extends DAObject {
     
     public static long getTotalActionsPerTypePerDeveloper(
             ProductivityMetricActions.ActionType actionType, Developer dev) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramType = "paramType"; 
         String paramDeveloper = "paramDeveloper"; 

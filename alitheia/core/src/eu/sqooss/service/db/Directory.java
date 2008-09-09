@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * This class represents the data relating to a directory within an
@@ -88,7 +88,7 @@ public class Directory extends DAObject {
      */
     public static synchronized Directory getDirectory(String path, boolean create) {
         
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("path", path);
         

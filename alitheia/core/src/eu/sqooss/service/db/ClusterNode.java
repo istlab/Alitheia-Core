@@ -36,7 +36,7 @@ package eu.sqooss.service.db;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 
 import eu.sqooss.service.db.DAObject;
@@ -63,7 +63,7 @@ public class ClusterNode extends DAObject {
     
 
     public static ClusterNode getClusteNodeByName(String name) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("name",name);

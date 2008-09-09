@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -205,7 +205,7 @@ public class Metric extends DAObject{
      * provided mnemonic
      */
     public static Metric getMetricByMnemonic(String mnem) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("mnemonic", mnem);

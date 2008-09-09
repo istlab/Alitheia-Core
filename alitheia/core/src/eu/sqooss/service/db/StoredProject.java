@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -108,7 +108,7 @@ public class StoredProject extends DAObject {
      * @return StoredProject object or null if not found
      */
     public static StoredProject getProjectByName(String name) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("name",name);
@@ -239,7 +239,7 @@ public class StoredProject extends DAObject {
      * @return ProjectVersion for the latest version or null if not found
      */
     public ProjectVersion getLastProjectVersion() {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", this);
@@ -263,7 +263,7 @@ public class StoredProject extends DAObject {
      * @return number of stored projects in the database
      */
     public static int getProjectCount() {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         List<?> l = dbs.doHQL("SELECT COUNT(*) FROM StoredProject");
         if (l == null) {
             return 0;
@@ -288,7 +288,7 @@ public class StoredProject extends DAObject {
      * @return The total number of version for that project.
      */
     public static long getVersionsCount(Long projectId) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("pid", projectId);

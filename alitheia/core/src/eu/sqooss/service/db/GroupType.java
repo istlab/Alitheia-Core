@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
 public class GroupType extends DAObject {
@@ -93,7 +93,7 @@ public class GroupType extends DAObject {
      * @return A GroupType DAO representing the group type
      */
     public static GroupType getGroupType(Type type) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
         if (db == null) return null;
         HashMap<String, Object> queryParameters = new HashMap<String, Object>(1);
         queryParameters.put("type", type.toString());

@@ -15,9 +15,6 @@ public class CoreActivator implements BundleActivator {
     /** Keeps the <code>AlitheaCore</code>'s service registration instance. */
     private ServiceRegistration sregCore;
 
-    // TODO: See the next TODO
-    private static DBService dbService = null;
-
     /* (non-Javadoc)
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
@@ -27,13 +24,6 @@ public class CoreActivator implements BundleActivator {
         bc.registerService(AlitheiaCore.class.getName(), core, null);
         // Initialize the AlitheiaCore instance
         core.init();
-
-        /**
-         * TODO: Is there a specific reason, why some of the core components
-         * obtain a DB component instance from here, and not from the
-         * AlitheaCore service.
-         */
-        dbService = core.getDBService();
     }
 
     /* (non-Javadoc)
@@ -43,16 +33,6 @@ public class CoreActivator implements BundleActivator {
        if (sregCore != null) {
            sregCore.unregister();
        }
-    }
-    
-
-    /**
-     * TODO: Is there a specific reason, why some of the core components
-     * obtain a DB component instance from here, and not from the
-     * AlitheaCore service.
-     */
-    public static DBService getDBService() {
-        return dbService;
     }
 }
 

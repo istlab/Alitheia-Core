@@ -41,7 +41,7 @@ import java.util.LinkedList;
 import java.lang.Comparable;
 import java.lang.InterruptedException;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.Pair;
 
 import eu.sqooss.service.db.DBService;
@@ -171,7 +171,7 @@ public abstract class Job implements Comparable<Job> {
      * @throws Exception
      */
     final public void execute() throws Exception {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         try {
             setState(State.Running);

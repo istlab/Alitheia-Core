@@ -39,7 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Instances of this class represent data related to Alitheia Core
@@ -153,7 +153,7 @@ public class Plugin extends DAObject{
     }
 
     public static List<Plugin> getPluginByName(String name) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("name", name);
         return db.findObjectsByProperties(Plugin.class, s);
@@ -171,7 +171,7 @@ public class Plugin extends DAObject{
      *         otherwise
      */
     public static Plugin getPluginByHashcode(String hashcode) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("hashcode", hashcode);
         List<Plugin> l = db.findObjectsByProperties(Plugin.class, s); 

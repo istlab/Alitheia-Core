@@ -53,7 +53,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
@@ -767,7 +767,7 @@ public class FDSServiceImpl implements FDSService {
         
         // now we try the same stuff with in-memory
         // InMemoryCheckout needs a db session, so start one before
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         dbs.startDBSession();        
         InMemoryCheckoutImpl inMemoryProjectCheckout = null;
         try {

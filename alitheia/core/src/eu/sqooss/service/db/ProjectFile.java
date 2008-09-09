@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Instances of this class represent a file relating to a project as
@@ -262,7 +262,7 @@ public class ProjectFile extends DAObject{
      */
     public Directory toDirectory() {
         if ((isDirectory) && (getFileName() != null)) {
-            DBService dbs = CoreActivator.getDBService();
+            DBService dbs = AlitheiaCore.getInstance().getDBService();
             Map<String, Object> props = new HashMap<String, Object>();
             props.put("path", getFileName());
             List<Directory> matches =
@@ -280,7 +280,7 @@ public class ProjectFile extends DAObject{
      * or if the file was added in the provided revision
      */
     public static ProjectFile getPreviousFileVersion(ProjectFile pf) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         //No need to query if a file was just added
         if (pf.isAdded()) {
@@ -319,7 +319,6 @@ public class ProjectFile extends DAObject{
         }
     }
 
-    
     /**
      * Returns all of the files visible in a given project version
      * and in a given directory. Does not list recursively.
@@ -353,7 +352,7 @@ public class ProjectFile extends DAObject{
             		" is null in getFilesForVersion.");
 	}
 
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramVersion = "paramVersion";
         String paramDirectory = "paramDirectory";
@@ -442,7 +441,7 @@ public class ProjectFile extends DAObject{
      *   or <code>null</code> if this file still exist.
      */
     public static Long getDeletionVersion(ProjectFile pf) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
 
         // Skip files which are in a "DELETED" state
         if (pf.isDeleted()) {
@@ -513,7 +512,7 @@ public class ProjectFile extends DAObject{
      *   root folder (<i>or the given file is the root folder</i> ).
      */
     public static ProjectFile getParentFolder(ProjectFile pf) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
 
         // Get the file's folder
         String filePath = pf.getDir().getPath();
@@ -585,7 +584,7 @@ public class ProjectFile extends DAObject{
      */
     @SuppressWarnings("unchecked")
     public static HashMap<Long, Long> getFileModifications(ProjectFile pf) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         HashMap<Long, Long> result = new HashMap<Long, Long>();
 
         if (pf == null) {
@@ -637,7 +636,7 @@ public class ProjectFile extends DAObject{
     @SuppressWarnings("unchecked")
     public static ProjectFile findFile(Long projectId, String name,
             String path, Long version) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         List<ProjectFile> pfs = new ArrayList<ProjectFile>();
         Map<String, Object> parameters = new HashMap<String, Object>();
         

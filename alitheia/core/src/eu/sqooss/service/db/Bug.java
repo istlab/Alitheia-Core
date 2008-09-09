@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * This class represents the data relating to bugs, stored in the database
@@ -307,7 +307,7 @@ public class Bug extends DAObject {
      */
     @SuppressWarnings("unchecked")
     public static List<Bug> getProjectBugs(StoredProject project) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", project);

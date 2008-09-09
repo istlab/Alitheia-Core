@@ -38,7 +38,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
@@ -145,7 +145,7 @@ public class MDEDeveloper extends DAObject {
     }
     
     public static MDEDeveloper find(Developer d) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         HashMap<String,Object> parameters = new HashMap<String,Object>();
         parameters.put("developer", d);

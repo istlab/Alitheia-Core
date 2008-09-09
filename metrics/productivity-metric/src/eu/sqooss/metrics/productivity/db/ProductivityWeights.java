@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions;
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 
@@ -97,7 +97,7 @@ public class ProductivityWeights extends DAObject{
     }
     
     public static ProductivityWeights getWeight(ProductivityMetricActions.ActionType actionType){
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramActionType = "paramActionType"; 
         
@@ -118,7 +118,7 @@ public class ProductivityWeights extends DAObject{
     }
     
     public static ProductivityWeights getWeight(ProductivityMetricActions.ActionCategory actionCategory){
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramActionCategory = "paramActionCategory"; 
         
@@ -140,7 +140,7 @@ public class ProductivityWeights extends DAObject{
     }
     
     public static long getLastUpdateVersionsCount(){
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String query = "select max(lastUpdateVersions) from ProductivityWeights" ;
         

@@ -36,7 +36,7 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 public class PluginConfiguration extends DAObject {
     private String name;
@@ -89,7 +89,7 @@ public class PluginConfiguration extends DAObject {
      * Get a PluginConfiguration entry DAO or null in 
      */
     public static PluginConfiguration getConfigurationEntry(Plugin p, HashMap<String, Object> names) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
         
         names.put("plugin", p);
                 
@@ -108,7 +108,7 @@ public class PluginConfiguration extends DAObject {
      * fails, false will be returned.
      */
     public static boolean updConfigurationEntry(Plugin p, HashMap<String, Object> names) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
         PluginConfiguration pc = getConfigurationEntry(p, names);
         
         if (pc == null) {

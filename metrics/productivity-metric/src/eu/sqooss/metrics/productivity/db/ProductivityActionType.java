@@ -38,7 +38,7 @@ import java.util.Map;
 
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions;
 import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCategory;
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 
@@ -92,7 +92,7 @@ public class ProductivityActionType extends DAObject {
             ProductivityMetricActions.ActionType actionType,
             Boolean isPositive) {
         
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("actionType", actionType.toString());

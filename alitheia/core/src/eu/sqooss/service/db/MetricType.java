@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -123,7 +123,7 @@ public class MetricType extends DAObject {
      * @return A MetricType DAO representing the metric type
      */
     public static MetricType getMetricType(Type t) {
-        DBService db = CoreActivator.getDBService();
+        DBService db = AlitheiaCore.getInstance().getDBService();
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("type", t.toString());
         List<MetricType> result = db.findObjectsByProperties(MetricType.class, s);

@@ -36,7 +36,7 @@ package eu.sqooss.service.db;
 
 import java.util.*;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * DAO Object for the MailMessage database table
@@ -124,7 +124,7 @@ public class MailMessage extends DAObject {
     }
     
     public static MailMessage getMessageById(String messageId) throws DAOException {
-    	DBService dbs = CoreActivator.getDBService();
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
     	Map<String,Object> properties = new HashMap<String, Object>(1);
     	properties.put("messageId", messageId);
     	List<MailMessage> msgList = dbs.findObjectsByProperties(MailMessage.class, properties);

@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.tds.ProjectRevision;
 
@@ -214,7 +214,7 @@ public class ProjectVersion extends DAObject {
      * @return Previous version, or null
      */
     public ProjectVersion getPreviousVersion() {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramTS = "version_timestamp"; 
         String paramProject = "project_id";
@@ -248,7 +248,7 @@ public class ProjectVersion extends DAObject {
      * @return Next version, or null
      */
     public ProjectVersion getNextVersion() {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramTS = "version_timestamp"; 
         String paramProject = "project_id";
@@ -297,7 +297,7 @@ public class ProjectVersion extends DAObject {
             // TODO: possibly log this
         }
         
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
    
         String paramProjectId = "stored_project_id";
         String paramRevision = "revision_nr";
@@ -328,7 +328,7 @@ public class ProjectVersion extends DAObject {
      * @return The number of files in that version and that state.
      */
     public static long getFilesCount(ProjectVersion pv, String state) {
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         // Construct the field names
         String parVersionId     = "project_version_id"; 
         String parFileStatus    = "file_status";

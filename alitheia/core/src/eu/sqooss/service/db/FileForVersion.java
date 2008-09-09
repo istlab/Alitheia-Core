@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 public class FileForVersion implements Serializable {
     private static final long serialVersionUID = 1;
@@ -93,7 +93,7 @@ public class FileForVersion implements Serializable {
         
     public static List<ProjectFile> getFilesForVersion(ProjectVersion pv) {
         
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         String paramVersion = "paramVersion";
         
         String query = "select pf " +

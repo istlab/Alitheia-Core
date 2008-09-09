@@ -45,9 +45,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
-// The presence of imports of impl in an interface
-// signals some kind of entanglement problem.
-import eu.sqooss.impl.service.CoreActivator;
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * An InMemoryDirectory object represents part of an in-memory
@@ -147,7 +145,7 @@ public class InMemoryDirectory {
             return dir == null ? null : dir.getFile(fileName);
         }
 
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         StoredProject project = getCheckout().getProject();
         ProjectVersion version = ProjectVersion.getVersionByRevision(project, getCheckout().getRevision() );
@@ -185,7 +183,7 @@ public class InMemoryDirectory {
     public List<ProjectFile> getFiles() {
         ArrayList<ProjectFile> result = new ArrayList<ProjectFile>(files.size());
 
-        DBService dbs = CoreActivator.getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
       
         StoredProject project = getCheckout().getProject();
         ProjectVersion version = ProjectVersion.getVersionByRevision(project, getCheckout().getRevision() );
