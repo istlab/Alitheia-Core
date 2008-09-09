@@ -122,10 +122,17 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
         langScanners.clear();
         // Add more C++ scanners here
         langScanners.add(new CppUnitMetrics());
+        langScanners.add(new NUnitMetrics());
         allScanners.put(".cpp", langScanners);
         allScanners.put(".CPP", langScanners);
         allScanners.put(".cc", langScanners);
         allScanners.put(".CC", langScanners);
+
+        langScanners.clear();
+        // Add more C# scanners here
+        langScanners.add(new NUnitMetrics());
+        allScanners.put(".cs", langScanners);
+        allScanners.put(".CS", langScanners);
     }
 
     public void run(ProjectFile pf) {
