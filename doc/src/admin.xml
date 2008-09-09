@@ -125,7 +125,7 @@
         D5 mentions two more features of WebAdmin, namely database management and
         inspection of measurement data. To avoid duplication of existing functionality, we
         have decided to leave database management to the tools provided by the database
-        system. The inspection of measurement data is a major responsibility of the αληθ ια
+        system. The inspection of measurement data is a major responsibility of the Alitheia
         WebUi, and will thus be only referenced, but not implemented, in WebAdmin.
     </para>
 
