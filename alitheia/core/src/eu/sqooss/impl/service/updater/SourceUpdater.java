@@ -289,13 +289,14 @@ final class SourceUpdater extends Job {
                 ProjectFile copyFrom = null;
                 ProjectFile toAdd = null;
                 
-                if (!copyOps.isEmpty() && isCopiedPath(chPath)) {
+                if (!copyOps.isEmpty() && getCopyOp(chPath) != null) {
                     
                     CommitCopyEntry copyOp = getCopyOp(chPath);
                     
                     copyFrom = ProjectFile.findFile(project.getId(), 
                             basename(copyOp.fromPath()), 
-                            dirname(copyOp.fromPath()), prev.getVersion());
+                            dirname(copyOp.fromPath()), 
+                            copyOp.fromRev().getSVNRevision());
                     
                     if (copyFrom == null) {
                         logger.warn("expecting 1 got " + 0 + " files for path " 
@@ -547,6 +548,8 @@ final class SourceUpdater extends Job {
         
         if (!canCopy(from, to)) 
             return;
+        
+        
         
         addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, copyFrom);
         
