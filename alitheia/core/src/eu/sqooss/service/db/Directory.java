@@ -46,6 +46,11 @@ import eu.sqooss.impl.service.CoreActivator;
  */
 public class Directory extends DAObject {
     /**
+     * Semi-fake representation of a SVN root
+     */
+    public static String SCM_ROOT = "/";
+
+    /**
      * The path within the SVN repo
      */
     private String path;

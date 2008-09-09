@@ -146,7 +146,14 @@ implements ModuleMetrics {
         }
         
         if (parent == null) {
-            log.error("Could not get encosing directory for pf.id=" + pf.getId());
+            Directory parentDir = pf.getDir();
+            Directory rootDir = Directory.getDirectory(
+                    Directory.SCM_ROOT, false);
+            if ((parentDir == null) 
+                    || (rootDir == null) 
+                    || (parentDir.getId() != rootDir.getId()))
+                log.error("Could not get enclosing directory for pf.id="
+                        + pf.getId());
             return;
         }
         
