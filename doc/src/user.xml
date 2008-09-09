@@ -6,7 +6,7 @@
     <title>Interfaces</title>
     <para>
     The Alitheia system is built with independence from user interfaces in mind, so it
-    can in theory have any kind of user interface on top of it. Currently, two user
+    can have any kind of user interface on top of it. Currently, two user
     interfaces, each with a different purpose are existing for Alitheia -- the WebUI, a
     user interface running in a webbrowser and therefore being very easily accessible,
     and the Eclipse plug-in, an add-on for the Eclipse IDE that integrates quality
@@ -19,6 +19,52 @@
         The WebUI runs on top of the Tomcat application server. It is implemented
         as a set of Java beans and JSP (Java Server Pages) that display projects
         that have been evaluated by the Alitheia system and their results.
+        </para>
+        <para>
+        The SQO-OSS HTML-based user interface's (WebUI) main purpose is to serve as a
+        portal for accessing the publicly available quality evaluation information provided
+        from an attached SQO-OSS framework. It is expected to be the most often used user
+        interface for SQO-OSS, with project developers as a primary audience. Although, the
+        WebUI is designed in such a way, so it can be equally usefull to other users, which
+        are interested in observing the quality of their favourite Open Source projects.
+        </para>
+        <para>
+        The WebUI interface for SQO-OSS is distributed in a web-application form and is
+        packaged as a WAR file deployable in Apache Tomcat environment. This component
+        follows the trend in the web-application development and is therefore implemented
+        as a JSP application.
+        The end-user functionality provided from the WebUI is split between several major views:
+        <itemizedlist spacing='compact'>
+            <listitem><para>Main view</para></listitem>
+            <listitem><para>Projects view</para></listitem>
+            <listitem><para>Metrics view</para></listitem>
+            <listitem><para>Files view</para></listitem>
+            <listitem><para>Account view</para></listitem>
+        </itemizedlist>
+        The Main view serves as an entry point for accessing all other views. In addition
+        it displays common information distributed from the attached SQO-OSS framework
+        like news events, recently evaluated projects and new metrics. Prior user login, the
+        WebUI communicates with the SQO-OSS framework using a pre-defined account
+        with limited rights, thus allowing login and user registration, but no access to project
+        or evaluation information.
+        The Projects view provides information about project that has been evaluated
+        from the SQO-OSS framework. In addition it lets the user select projects and project
+        versions for closer examination of their quality-related aspects.
+        </para>
+        <para>
+        Information about all metrics available in the underlying SQO-OSS framework
+        can be received from the Metrics view. After a project selection is performed, this
+        view will let the user to select a set of metrics for each of the selected projects from
+        a list of metrics that has been evaluated on this project (and project's revision).
+        The Files displays the file resources contained in each of the selected projects
+        up to the selected project revision. In addition, using this view, the user can narrow
+        the set of files, for which he wants to receive quality evaluation results.
+        The Account view provides the usual login and logout interfaces, as well as inter-
+        face for user registration and simple account modification.
+        Each of the views is served in a separate Java Server Page (JSP) page and the
+        logic handled from a corresponding Java class. Interaction with the SCL library is
+        isolated into a separate Java class, for simplifying the classes that implement the
+        logic of the user accessible views.
         </para>
     </sect2>
     <sect2  id="user:interfaces:eclipse">
