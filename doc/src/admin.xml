@@ -111,6 +111,24 @@
     <para>
             The runtime logs of Alitheia can be inspected from within WebAdmin.
     </para>
+
+    <title>Job Scheduling</title>
+    <para>
+        WebAdmin allows the administrators to inspect the length of the
+        current jobs queue, the statistics of the processed jobs, and the reasons for possible
+        processing failures.(Figure 4)
+    </para>
+
+    <title>Security</title>
+    <para>
+        Security: User and permission management is performed through WebAdmin.
+        D5 mentions two more features of WebAdmin, namely database management and
+        inspection of measurement data. To avoid duplication of existing functionality, we
+        have decided to leave database management to the tools provided by the database
+        system. The inspection of measurement data is a major responsibility of the αληθ ια
+        WebUi, and will thus be only referenced, but not implemented, in WebAdmin.
+    </para>
+
     <sect2 id="admin:task:cons">
         <title>The admin console</title>
         <para></para>
