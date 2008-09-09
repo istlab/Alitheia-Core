@@ -1,11 +1,45 @@
+# These are comment lines starting with #. You can leave them in,
+# but it is generally better to remove them because they may
+# confuse some tools.
+#
+# The next two lines are boilerplate
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+# You should have a real name for your metric, and a symbolic name.
+# While the symbolic name *looks* like a class name, it isn't (which
+# you can tell from the typo in the name here -- there's a missing "s").
+# The version, vendor and description fields are pretty much free-form.
 Bundle-Name: 
 Bundle-SymbolicName: eu.sqooss.metric.skeleton
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.metrics.skeleton.SkeletonActivator
 Bundle-Vendor: AUEB
 Bundle-Description: Skeleton metric
+# This is the activator class, which is called by OSGi to start up
+# the bundle (and do other lifecycle management things). You must have
+# one, and make sure the class name is spelled correctly.
+Bundle-Activator: eu.sqooss.metrics.skeleton.SkeletonActivator
+# Your bundle may export classes or packages for use by other 
+# bundles. For metrics this is unusual, though. If you need to
+# do it, add a line like the following (note typos, though):
+#
+#    Export-Package: eu.sqooss.metric.mde, eu.sqooss.metric.mde.db
+#
+#
+#
+# This is the list of packages that the bundle uses. Most of these
+# are obvious, but there are a few tricky ones as well. If your
+# bundle uses private database tables, then you should add
+#     org.hibernate,
+#     org.hibernate.proxy,
+#     net.sf.cglib,
+#     net.sf.cglib.proxy
+# because otherwise Hibernate will fail with class not found failures
+# on startup; typical error message looks like this:
+#
+#     Caused by: org.hibernate.MappingException: class
+#         eu.sqooss.metrics.mde.db.MDEDeveloper not found while looking
+#         for property: id
+#
 Import-Package:  org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.abstractmetric,
@@ -16,3 +50,9 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.tds,
     eu.sqooss.service.util,
     org.apache.commons.codec.digest
+# Finally, if you use private database tables, you seem to need the
+# following line as well, which exploits something in the Equinox 
+# implementation:
+#
+#     Eclipse-RegisterBuddy: org.hibernate
+#

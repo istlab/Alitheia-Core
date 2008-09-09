@@ -4,27 +4,51 @@
                       http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <!-- All metric plug-ins inherit from the eu.sqooss.metrics POM,
+       which handles some of the basic setup for bundles. Keep
+       the version number in sync (also with groupId below). 
+   -->
   <parent>
     <groupId>eu.sqooss</groupId>
     <artifactId>metrics</artifactId>
     <version>0.8.0</version>
   </parent>
 
+  <!-- All metric plug-ins shipped by the SQO-OSS project should live 
+       in the eu.sqooss.metrics namespace;  third party plug-ins
+       might belong somewhere else. Keep the version number in sync.
+   -->
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>skeleton</artifactId>
-  <version>0.8.0</version>
+    <artifactId>skeleton</artifactId>
+    <version>0.8.0</version>
   <packaging>jar</packaging>
 
+  <!-- General description of the plug-in. By convention the names
+       given to SQO-OSS plug-ins are "Alitheia Plug-in '<foo>'",
+       although this one does not follow the convention. The description
+       is visible to developers (for instance using NetBeans) but not
+       to users of the system.
+
+       The URL is meaningful in some automated testing context
+       which we no longer use. 
+   -->
   <name>Alitheia Plug-in Example</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/skeleton</url>
   <inceptionYear>2008</inceptionYear>
   <description>
     This metric is a 'no-op' type of metric, intended to function 
     as the basis for plug-in development. Potential developers
-    are encouraged to svn cp this metric code to their custom 
-    namespace.
+    are encouraged to copy this metric code to their custom 
+    namespace. Do NOT use "svn cp" on the whole directory tree
+    because that will take another three or four commits to untangle
+    and rename the files. There is a Makefile target 'clone' to
+    copy the Skeleton plug-in elsewhere.
   </description>
 
+  <!-- These settings again are related to the Continuum testing
+       system, which we no longer use. The paths are supposed to
+       reflect where in the system the plug-in lives.
+   -->
   <scm>
     <connection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/skeleton
@@ -34,11 +58,25 @@
     </developerConnection>
   </scm>
 
+  <!-- Build targets. These are pretty straightforward but the
+       resources and manifestFile elements should be checked for
+       accuracy before you build your own bundle.
+   -->
   <build>
     <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
     <resources>
+      <!-- Hibernate mapping files are called *.hbm.xml and by
+           convention live next to the Java files they belong to;
+           we have the additional convention that the private database
+           table sources (Java and Hibernate) live in a subdirector
+           and sub-package db, so we get
+
+               src/eu/sqooss/metrics/<foo>/db
+
+           You might want to lay things out differently.
+       -->
       <resource>
         <directory>${basedir}/src/eu/sqooss/metrics/skeleton/db</directory>
         <targetPath>eu/sqooss/metrics/skeleton/db</targetPath>
@@ -53,6 +91,10 @@
         <configuration>
           <finalName>${groupId}.${artifactId}-${version}</finalName>
           <archive>
+            <!-- The manifest is just the manifest, but some people
+                 insist on renaming it (as is done in most of the 
+                 bundles of the Alitheia core, but not in the plug-ins).
+             -->
             <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
