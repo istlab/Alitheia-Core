@@ -132,7 +132,11 @@ if (request.getParameter("pid") != null) {
         selectedProject.invalidate();
     else
         projectId = strToLong(request.getParameter("pid"));
+
+    // Clean-up some view specific variables
+    settings.setFdvSelectedFileId(null);
 }
+
 if ((projectId != null)
     && ((selectedProject.isValid() == false)
         || (selectedProject.getId().equals(projectId)) == false)) {
