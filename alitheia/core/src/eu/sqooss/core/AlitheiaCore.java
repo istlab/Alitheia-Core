@@ -117,6 +117,8 @@ public class AlitheiaCore {
     /** Is the database inited yet? */
     private AtomicBoolean dbInited;
 
+    private static AlitheiaCore instance = null;
+    
     /**
      * Initializes an instance of the Logger component.
      */
@@ -156,8 +158,18 @@ public class AlitheiaCore {
     public AlitheiaCore(BundleContext bc) {
         this.bc = bc;
         dbInited = new AtomicBoolean(false);
+        if (null == instance) {
+            instance = this;
+            System.out.println("Alitheia Core Instance #1 Created");
+        } else {
+            System.out.println("Alitheia Core Clone Created");
+        }
     }
 
+    public static AlitheiaCore getInstance() {
+        return instance;
+    }
+    
     /**
      * This method performs initialization of the <code>AlitheiaCore</code>
      * object by instantiating some of the core components, that are
