@@ -141,6 +141,12 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             c = c.getNextVersion();
         }
     }
+    
+    public Object selfTest() {
+        MDEDeveloper d = new MDEDeveloper();
+        System.out.println(d);
+        return null;
+    }
 }
 
 
