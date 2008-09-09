@@ -9,7 +9,7 @@
     SQO-OSS is a project that aims at
 implementing a quality-checking system that can be used by Open Source software
 projects to gather information about the quality of their code and relate this
-information to other data sources such as issue-tracker data and mailinglist
+information to other data sources such as issue-tracker, data and mailinglist
 archives. SQO-OSS can be utilised for management-level information to assess
 various aspects of a software project, such as developer productivity. The system
 is also useful for developers that want to use static source code analysis
