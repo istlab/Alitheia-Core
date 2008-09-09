@@ -319,34 +319,6 @@ public class ProjectFile extends DAObject{
         }
     }
 
-    /**
-     * Returns all of the files visible in a given project version.
-     * Does not return null, but the list may be empty.
-     *
-     * @param version Project and version to look at
-     * @return List of files visible in that version (may be empty, not null)
-     */
-    @SuppressWarnings("unchecked")
-    public static List<ProjectFile> getFilesForVersion(ProjectVersion version) {
-        DBService dbs = CoreActivator.getDBService();
-
-        String paramVersion = "paramVersion";
-
-        String query = "select pf " +
-        " from ProjectFile pf, FileForVersion ffv " +
-        " where ffv.file = pf " +
-        " and ffv.version = :" + paramVersion;
-        
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, version);
-
-        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
-        if (projectFiles==null) {
-            return Collections.emptyList();
-        } else {
-            return projectFiles;
-        }
-    }
     
     /**
      * Returns all of the files visible in a given project version
@@ -428,7 +400,7 @@ public class ProjectFile extends DAObject{
      */
     public static List<ProjectFile> getFilesForVersion(ProjectVersion version, Pattern p) {
       
-        List<ProjectFile> files = getFilesForVersion(version);
+        Set<ProjectFile> files = version.getFilesForVersion();
         List<ProjectFile> matchedFiles = new ArrayList<ProjectFile>();
         
         if (files == null) {

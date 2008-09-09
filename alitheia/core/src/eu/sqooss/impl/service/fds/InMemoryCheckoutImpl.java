@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.fds;
 
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import eu.sqooss.service.db.ProjectFile;
@@ -116,7 +117,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
         if ( version == null ) {
             throw new InvalidProjectRevisionException(projectName, null);
         }
-        List<ProjectFile> projectFiles = ProjectFile.getFilesForVersion(version);
+        Set<ProjectFile> projectFiles = version.getFilesForVersion();
         if (projectFiles != null && projectFiles.size() != 0) {
             for (ProjectFile f : projectFiles) {
                 if (pattern.matcher(f.getFileName()).matches()) {
