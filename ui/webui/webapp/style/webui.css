@@ -238,6 +238,10 @@ td.def_right {
     padding-right: 5px;
     text-align: right;
 }
+td.def_empty {
+    background-color: #E0E0E0;
+    border: 1px solid #C6C6C5;
+}
 td.def_head {
     background-color: #E6E6FA;
     border: 1px solid #C6C6C5;

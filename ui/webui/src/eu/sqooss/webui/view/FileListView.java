@@ -226,7 +226,7 @@ public class FileListView extends ListView {
                                     + "Folder name" + "</td>\n");
                             WinIcon icoClose = new WinIcon();
                             icoClose.setPath(getServletPath());
-                            icoClose.setParameter("fvdm");
+                            icoClose.setParameter("deselectMetric");
                             icoClose.setImage("/img/icons/16x16/application-exit.png");
                             icoClose.setAlt("Deselect metric");
                             for (String nextMnemonic : mnemonics) {
@@ -295,10 +295,10 @@ public class FileListView extends ListView {
                             html.append(sp(in++) + "<tr>\n");
                             html.append(sp(in) + "<td class=\"def_head\""
                                     + " style=\"width: 20em;\">"
-                                    + "Folder name" + "</td>\n");
+                                    + "File name" + "</td>\n");
                             WinIcon icoClose = new WinIcon();
                             icoClose.setPath(getServletPath());
-                            icoClose.setParameter("fvdm");
+                            icoClose.setParameter("deselectMetric");
                             icoClose.setImage("/img/icons/16x16/application-exit.png");
                             icoClose.setAlt("Deselect metric");
                             for (String nextMnemonic : mnemonics) {

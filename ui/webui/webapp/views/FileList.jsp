@@ -2,48 +2,60 @@
 %><%@ page import="eu.sqooss.webui.datatype.*"
 %><%@ page import="eu.sqooss.webui.view.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
-%><%@ page import="eu.sqooss.webui.Metric.MetricActivator"
-%><%@ page import="eu.sqooss.webui.Metric.MetricType"
 %><%
 //============================================================================
-// List all files in the selected project version
+// Lets the user browse through a project's source tree
 //============================================================================
 if (selectedProject.isValid()) {
 %>                <div id="fileslist">
 <%
+    // Indentation depth
     in = 11;
+
     // Retrieve information for the selected project, if necessary
     selectedProject.retrieveData(terrier);
+
     Version selectedVersion = selectedProject.getCurrentVersion();
     if (selectedVersion != null) {
-        // Check, if the user has switched to another directory
+        /*
+         * Check, if the user has switched to another directory
+         */
         if (request.getParameter("did") != null) {
             if (request.getParameter("did").equals("top"))
                 selectedVersion.topDir();
             else if (request.getParameter("did").equals("prev"))
                 selectedVersion.previousDir();
             else {
-                Long directoryId = getId(request.getParameter("did"));
+                Long directoryId = strToLong(request.getParameter("did"));
                 if (directoryId != null)
                     selectedVersion.switchDir(directoryId);
             }
         }
-        // Check, if the user has expanded/collapsed a directory
+
+        /*
+         * Check, if the user has expanded/collapsed a directory
+         */
         if (request.getParameter("dst") != null) {
-            Long directoryId = getId(request.getParameter("dst"));
+            Long directoryId = strToLong(request.getParameter("dst"));
             if (directoryId != null)
                 selectedVersion.stateDir(directoryId);
         }
-        // Check, if the user has enabled/disabled the results overview flag
+
+        /*
+         * Check, if the user has enabled/disabled the results overview flag
+         */
         if (request.getParameter("showResults") != null) {
             if (request.getParameter("showResults").equals("true"))
                 settings.setShowFileResultsOverview(true);
             else if (request.getParameter("showResults").equals("false"))
                 settings.setShowFileResultsOverview(false);
         }
-        // Check, if the user has deselected a metric
-        if (request.getParameter("fvdm") != null) {
-            Long metricId = getId(request.getParameter("fvdm"));
+
+        /*
+         * Check, if the user has deselected a metric
+         */
+        if (request.getParameter("deselectMetric") != null) {
+            Long metricId = strToLong(request.getParameter("deselectMetric"));
             if (metricId != null)
                 selectedProject.deselectMetric(metricId);
         }

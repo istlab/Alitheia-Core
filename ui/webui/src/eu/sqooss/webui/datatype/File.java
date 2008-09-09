@@ -222,21 +222,28 @@ public class File extends AbstractDatatype {
     public String getHtml(Long versionId, List<String> mnemonics) {
         if (settings.getShowFileResultsOverview() == false)
             return getHtml(versionId);
-        StringBuilder html = new StringBuilder("");
-        html.append("<tr>");
+
+        // Holds the accumulated HTML content
+        StringBuilder b = new StringBuilder("");
+
+        b.append("<tr>");
         // File name
-        html.append("<td class=\"def\">");
-        html.append(getStatusIcon(versionId) + "&nbsp;" + getLink());
-        html.append("</td>");
+        b.append("<td class=\"def\">");
+        b.append(getStatusIcon(versionId) + "&nbsp;" + getLink());
+        b.append("</td>");
         // File results
         for (String nextMnemonic : mnemonics) {
             Result nextResult = results.get(nextMnemonic);
-            html.append("<td class=\"def\" style=\"text-align: right;\">"
-                    + ((nextResult != null) ? nextResult.getHtml(0) : "N/A")
-                    + "</td>");
+            if (nextResult != null)
+                b.append("<td class=\"def_right\">"
+                        + nextResult.getHtml(0)
+                        + "</td>");
+            else
+                b.append("<td class=\"def_empty\">&nbsp;</td>");
         }
-        html.append("</tr>\n");
-        return html.toString();
+        b.append("</tr>\n");
+
+        return b.toString();
     }
 
     /* (non-Javadoc)

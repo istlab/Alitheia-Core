@@ -171,7 +171,7 @@ public class FileDataView extends AbstractDataView {
         if ((project == null) || (project.isValid() == false))
             return(sp(in) + Functions.error("Invalid project!"));
 
-        // Hold the accumulated HTML content
+        // Holds the accumulated HTML content
         StringBuilder b = new StringBuilder("");
 
         // Load the selected versions' data
