@@ -147,21 +147,6 @@
 
         </para>
     </sect2>
-</sect1>
-<sect1 id="admin:config">
-    <title>Configuration</title>
-    <para>
-
-
-    </para>
-    <sect2 id="admin:config:console">
-        <title>The admin console</title>
-        <para>
-
-
-        </para>
-    </sect2>
-</sect1>
 <sect1 id="admin:plug">
     <title>Plug-in specific documentation</title>
     <para></para>

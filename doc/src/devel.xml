@@ -9,8 +9,8 @@
       <title>Thin Data Access - TDS</title>
       <para>
         The TDA component processes data access requests that originate from either the
-        FDA component or the Updater. The requests are ab-
-        stracted versions of the requests that can be issued by programs used for accessing
+        FDA component or the Updater. The requests are abstracted versions of the
+        requests that can be issued by programs used for accessing
         the data sources. All requests may only refer to a single project. Some examples
         are:
         <itemizedlist spacing='compact'>
@@ -20,8 +20,8 @@
             <listitem><para>"Get all bugs after date X"</para></listitem>
         </itemizedlist>
         The TDA component implements three interfaces that group together operations
-        based on the type of the target data source (Figure 3). There are different interfaces
-        for accessing SVN repositories (SCMAccessor1 ), mailing lists (MailingListAccessor),
+        based on the type of the target data source. There are different interfaces
+        for accessing SVN repositories (SCMAccessor), mailing lists (MailingListAccessor),
         and bug management databases (BugDatabaseAccessor), which will be the primary
         sources of data for the SQO-OSS system. The TDA component groups together the
         implementations of these interfaces, in order to provide a single point of access for
@@ -44,8 +44,8 @@
             <listitem><para>Get all emails sent by user X for mailing list Z</para></listitem>
             <listitem><para>Get all changes performed by user U between project states M and L</para></listitem>
         </itemizedlist>
-        The FDA offers rich functionality and therefore should be able to represent var-
-        ious data formats. Data originating from only one data source will be represented
+        The FDA offers rich functionality and therefore should be able to represent
+        various data formats. Data originating from only one data source will be represented
         using the datatypes exported by the TDA. Compound data will need special treat-
         ment: container objects are required to hold them. As the core functionality of
         the FDA mainly revolves around project states and file groups, we introduce the
@@ -59,11 +59,11 @@
     <sect2 id="devel:arch:db">
       <title>Database Service</title>
       <para>
-        Creating and handling connections to a database needs careful consideration. Typi-
-        cally, creating a connection to a database may take up more time than executing the
+        Creating and handling connections to a database needs careful consideration.
+        Typically, creating a connection to a database may take up more time than executing the
         actual data manipulation statements; moreover, databases set limits on the number
-        of concurrent connections permissible. The database service should provide an ef-
-        ficient mechanism for creating, maintaining, and sharing connections among users.
+        of concurrent connections permissible. The database service should provide an
+        efficient mechanism for creating, maintaining, and sharing connections among users.
         The mechanism should be thread-safe, as users will be asking for connections and
         using them through the same environment.
         The database service will therefore function as a connection pool. The connection
@@ -77,8 +77,8 @@
         Since Alitheia assumes a concurrent usage model, the database service must pro-
         vide adequate transaction support. The database service will assume that the un-
         derlying database uses the serialisable isolation level. It will then provide calls by
-        which other services can demarcate transactions; in particular, these will provide fa-
-        cilities for starting a transaction, for committing a transaction, and for rolling back
+        which other services can demarcate transactions; in particular, these will provide
+        facilities for starting a transaction, for committing a transaction, and for rolling back
         a transaction.
       </para><para>
         The database service will require the type of the originator of each connection
@@ -115,8 +115,8 @@
         schemata that correspond to such measurements. To anticipate that discussion, a plug-in
         that is responsible for carrying out a specific measurement is responsible for storage
         and retrieval operations of the measurements. As we cannot know in advance the
-        individual database schema it would require, it is responsible for defining manipulat-
-        ing its own database schema. Still, every plug-in will use the database connectivity
+        individual database schema it would require, it is responsible for defining
+        manipulating its own database schema. Still, every plug-in will use the database connectivity
         service for handling access to the database, and will allow access to its measurement
         data through a DAO level of abstraction, as is the case for the system database per
         se.
