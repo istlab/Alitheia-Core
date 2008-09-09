@@ -34,6 +34,14 @@
 
 package eu.sqooss.metrics.mde;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
@@ -45,12 +53,7 @@ import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.tds.ProjectRevision;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import eu.sqooss.metrics.mde.db.MDEDeveloper;
 
 public class MDEImplementation extends AbstractMetric implements ProjectVersionMetric {
     private FDSService fds;
@@ -124,6 +127,19 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      */
     public void runDevTotal(ProjectVersion start, ProjectVersion end) {
         log.info("Updating from " + start.toString() + "-" + end.toString());
+
+        ProjectVersion c = start;
+        while (c.lte(end)) {
+            MDEDeveloper d = MDEDeveloper.find(c.getCommitter());
+            if (null != d) {
+                // Know this developer, so leave him alone
+            } else {
+                d = new MDEDeveloper(c.getCommitter());
+                d.setStart(new Date(c.getTimestamp()));
+            }
+            
+            c = c.getNextVersion();
+        }
     }
 }
 

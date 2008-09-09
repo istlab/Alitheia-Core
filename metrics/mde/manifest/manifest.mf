@@ -6,6 +6,7 @@ Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.metrics.mde.MDEActivator
 Bundle-Vendor: SIRIUS
 Bundle-Description: MDE metric
+Export-Package: eu.sqooss.metrics.mde, eu.sqooss.metrics.mde.db
 Import-Package:  org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.abstractmetric,
@@ -16,3 +17,5 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.tds,
     eu.sqooss.service.util,
     org.apache.commons.codec.digest
+Eclipse-RegisterBuddy: org.hibernate
+
