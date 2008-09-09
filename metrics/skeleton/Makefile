@@ -7,6 +7,10 @@ TOP_SRCDIR=../..
 
 include $(TOP_SRCDIR)/Makefile.bundle
 
+#
+# The remainder is special for skeleton and is used as a clone-
+# wizard to create new plug-ins.
+#
 clone : check-arguments create-tree copy-files
 
 check-arguments :
@@ -33,6 +37,7 @@ copy-files :
 		echo `basename "$$i"` "->" `basename "$$T"` ; \
 		sed -e "s/skeleton/$$target/g" -e "s/Skeleton/$$TARGET/g" < "$$i" > "../$(TARGET)/$$T" ; \
 	done
+	@echo "Makefile -> Makefile" ; head Makefile | grep -v '^#' > ../$(TARGET)/Makefile
 
 
 
