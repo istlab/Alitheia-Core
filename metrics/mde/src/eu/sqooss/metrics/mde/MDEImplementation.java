@@ -97,6 +97,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     public void run(ProjectVersion pv) {
 	// Find the latest ProjectVersion for which we have data
 	Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
+        log.warn("Running devTotal first on " + pv.getProject().getName());
 	try {
             HashMap<String, Object> params = new HashMap<String, Object>(4);
             params.put("m",m.getId());
@@ -126,16 +127,18 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      * for which the data is unknown up until pv
      */
     public void runDevTotal(ProjectVersion start, ProjectVersion end) {
-        log.info("Updating from " + start.toString() + "-" + end.toString());
+        log.warn("Updating from " + start.toString() + "-" + end.toString());
 
         ProjectVersion c = start;
         while (c.lte(end)) {
             MDEDeveloper d = MDEDeveloper.find(c.getCommitter());
             if (null != d) {
                 // Know this developer, so leave him alone
+                // TODO: update developer stats
             } else {
                 d = new MDEDeveloper(c.getCommitter());
                 d.setStart(new Date(c.getTimestamp()));
+                // TODO: sensible initial values for service and active
             }
             
             c = c.getNextVersion();
