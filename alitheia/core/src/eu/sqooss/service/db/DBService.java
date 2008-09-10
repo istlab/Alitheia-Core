@@ -362,6 +362,25 @@ public interface DBService {
      *
      * @param hql the HQL query string
      * @param params the map of parameters to be substituted in the HQL query
+     * @param limit only retrieve the first n rows
+     * @return a list of {@link DAObject}, fetched with a read access lock in the database.
+     *         If the query contains multiple columns,
+     *         the results are returned in an instance of Object[]
+     *         If the query is invalid or a database access error occurs,
+     *         an empty list will be returned.
+     *           
+     * @throws QueryException if the query is invalid or if params contains invalid entries
+     * 
+     * @see doHQL(String, Map<String, Object>, Map<String,Collection>)
+     */
+    public List<?> doHQL(String hql, Map<String, Object> params, int limit)
+        throws QueryException;
+
+    /**
+     * Execute a parameterized HQL query to the database.
+     *
+     * @param hql the HQL query string
+     * @param params the map of parameters to be substituted in the HQL query
      * @param lockForUpdate if true, the generated SQL query will use a "SELECT ... FOR UPDATE"
      *        statement. Otherwise, a normal "SELECT" will be used
      * @return a list of {@link DAObject}, with a corresponding lock in the database.
@@ -415,6 +434,8 @@ public interface DBService {
      * @param params the map of parameters to be substituted in the HQL query
      * @param lockForUpdate if true, the generated SQL query will use a "SELECT ... FOR UPDATE"
      *        statement. Otherwise, a normal "SELECT" will be used
+     * @param start fetch results starting at the specified row
+     * @param limit only retrieve the specified number of rows
      * @return a list of {@link DAObject}, with a corresponding lock in the database.
      *         If the query contains multiple columns,
      *         the results are returned in an instance of Object[]
@@ -424,8 +445,12 @@ public interface DBService {
      * @throws QueryException if the query is invalid or if params or collectionParams
      *                          contain invalid entries
      */
-    public List<?> doHQL(String hql, Map<String, Object> params,
-                          Map<String, Collection> collectionParams, boolean lockForUpdate)
+    public List<?> doHQL(String hql,
+                         Map<String, Object> params,
+                         Map<String, Collection> collectionParams,
+                         boolean lockForUpdate,
+                         int start, int limit
+                         )
         throws QueryException;
     
     /**

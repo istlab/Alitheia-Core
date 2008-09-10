@@ -457,7 +457,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
      */
     public List<?> doHQL(String hql)
         throws QueryException {
-        return doHQL(hql, null, null, false);
+        return doHQL(hql, null, null, false, -1, -1);
     }
 
     /* (non-Javadoc)
@@ -465,7 +465,15 @@ public class DBServiceImpl implements DBService, FrameworkListener {
      */
     public List<?> doHQL(String hql, Map<String, Object> params) 
         throws QueryException {
-        return doHQL(hql, params, null, false);
+        return doHQL(hql, params, null, false, -1, -1);
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, int)
+     */
+    public List<?> doHQL(String hql, Map<String, Object> params, int limit) 
+        throws QueryException {
+        return doHQL(hql, params, null, false, 0, limit);
     }
 
     /* (non-Javadoc)
@@ -473,7 +481,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
      */
     public List<?> doHQL(String hql, Map<String, Object> params, boolean lockForUpdate) 
         throws QueryException {
-        return doHQL(hql, params, null, lockForUpdate);
+        return doHQL(hql, params, null, lockForUpdate, -1, -1);
     }
 
     /* (non-Javadoc)
@@ -482,13 +490,13 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     public List<?> doHQL(String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) 
         throws QueryException {
-        return doHQL(hql, params, collectionParams, false);
+        return doHQL(hql, params, collectionParams, false, -1, -1);
     }
     /* (non-Javadoc)
-     * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, java.util.Map, boolean)
+     * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, java.util.Map, boolean, int, int)
      */
     public List<?> doHQL(String hql, Map<String, Object> params,
-            Map<String, Collection> collectionParams, boolean lockForUpdate) 
+            Map<String, Collection> collectionParams, boolean lockForUpdate, int start, int limit) 
         throws QueryException {
         if ( !checkSession() ) {
             return Collections.emptyList();
@@ -508,6 +516,10 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             }
             if (lockForUpdate) {
                 query.setLockMode("foo", LockMode.UPGRADE);
+            }
+            if ( start >= 0 && limit >= 0 ) {
+                query.setFirstResult(start);
+                query.setMaxResults(limit);
             }
             return query.list();
         } catch ( QueryException e ) {
