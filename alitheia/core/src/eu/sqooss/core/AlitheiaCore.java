@@ -117,6 +117,7 @@ public class AlitheiaCore {
     /** Is the database inited yet? */
     private AtomicBoolean dbInited;
 
+    /** The Core is singleton-line because it has a special instance */
     private static AlitheiaCore instance = null;
     
     /**
@@ -166,6 +167,15 @@ public class AlitheiaCore {
         }
     }
 
+    /**
+     * The core has a blessed instance which you can get from here;
+     * that instance in turn will give you the DB service and others
+     * that it holds on to. So code that needs a particular service
+     * can use AlitheiaCore.getInstance().get*Service() to get
+     * a reference to specific services.
+     * 
+     * @return Instance, or null if it's not initialized yet
+     */
     public static AlitheiaCore getInstance() {
         return instance;
     }
