@@ -13,6 +13,9 @@ include $(TOP_SRCDIR)/Makefile.bundle
 #
 clone : check-arguments create-tree copy-files
 
+ucTARGET=$(shell perl -e 'print ucfirst("$(TARGET)");')
+lcTARGET=$(shell perl -e 'print lcfirst("$(TARGET)");')
+
 check-arguments :
 	@test -n "$(TARGET)" || { echo "! You must set TARGET to the name of the new plug-in." ; echo "!     For example, 'make clone TARGET=mycounter'." ; exit 1 ; }
 	@echo "$(TARGET)" | grep -v '[^a-zA-Z0-9_]' > /dev/null 2>&1 || { echo "! Your TARGET setting ($(TARGET)) includes bad characters." ; echo "!     Please use only a-zA-Z0-9_." ; exit 1 ; }
@@ -21,24 +24,22 @@ check-arguments :
 	@touch ../$(TARGET)/Makefile || { echo "! The target directory ($(TARGET)) can not be written." ; exit 1 ; }
 
 create-tree :
-	mkdir -p ../$(TARGET)/src/eu/sqooss/metrics/$(TARGET)
-	mkdir -p ../$(TARGET)/src/eu/sqooss/impl/metrics/$(TARGET)
+	mkdir -p ../$(TARGET)/src/eu/sqooss/metrics/$(lcTARGET)
+	mkdir -p ../$(TARGET)/src/eu/sqooss/impl/metrics/$(lcTARGET)
 	mkdir -p ../$(TARGET)/manifest
 
 copy-files :
-	@target=`perl -e 'print lcfirst("$(TARGET)");'` ;  \
-	TARGET=`perl -e 'print ucfirst("$(TARGET)");'` ;  \
-	for i in \
+	@for i in \
 		pom.xml \
 		src/eu/sqooss/metrics/skeleton/Skeleton.java \
 		src/eu/sqooss/metrics/skeleton/SkeletonActivator.java ; \
 	do \
-		T=`echo "$$i" | sed -e "s/skeleton/$$target/g" -e "s/Skeleton/$$TARGET/g"` ; \
+		T=`echo "$$i" | sed -e "s/skeleton/$(lcTARGET)/g" -e "s/Skeleton/$(ucTARGET)/g"` ; \
 		mkdir -p "../$(TARGET)/"`dirname "$$T"` ; \
 		echo `basename "$$i"` "->" `basename "$$T"` ; \
-		sed -e "s/skeleton/$$target/g" -e "s/Skeleton/$$TARGET/g" < "$$i" > "../$(TARGET)/$$T" ; \
+		sed -e "s/skeleton/$(lcTARGET)/g" -e "s/Skeleton/$(ucTARGET)/g" < "$$i" > "../$(TARGET)/$$T" ; \
 	done
-	@echo "manifest.mf -> manifest.mf" ; sed -e "s/skeleton/$$target/g" -e "s/Skeleton/$$TARGET/g" < manifest/manifest.mf.example > ../$(TARGET)/manifest/manifest.mf
+	@echo "manifest.mf -> manifest.mf" ; sed -e "s/skeleton/$(lcTARGET)/g" -e "s/Skeleton/$(ucTARGET)/g" < manifest/manifest.mf.example | grep -v '^#' > ../$(TARGET)/manifest/manifest.mf
 	@echo "Makefile -> Makefile" ; head Makefile | grep -v '^#' > ../$(TARGET)/Makefile
 
 
