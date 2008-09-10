@@ -83,4 +83,14 @@
             viewConf.setInfoPanelState(true);
             viewConf.setControlPanelState(true);
         }
+
+        /*
+         * Check if the user has triggered the chart to PDF generation flag
+         */
+        if (request.getParameter("makePDF") != null) {
+            if (request.getParameter("makePDF").equals("true"))
+                viewConf.enablePdfCreation();
+            else if (request.getParameter("makePDF").equals("false"))
+                viewConf.disablePdfCreation();
+        }
 %>

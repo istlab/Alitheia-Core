@@ -583,6 +583,11 @@ public class FileDataView extends AbstractDataView {
                         + image.getName().replace("img", "thb"));
                 ChartUtilities.saveChartAsPNG(image, chart, 960, 720);
                 ChartUtilities.saveChartAsPNG(thumbnail, chart, 320, 240);
+                if (viewConf.createPDF()) {
+                    String pdfFile = 
+                        thumbnail.getName().replace("thb", "pdf").replace("png", "pdf");
+                    chartToPdf(chart, pdfFile, 960, 720);
+                }
                 return thumbnail.getName();
             }
             catch (IOException e) {

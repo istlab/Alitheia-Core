@@ -1,9 +1,21 @@
 package eu.sqooss.webui.view;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Image;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfWriter;
 
 import eu.sqooss.webui.ListView;
 import eu.sqooss.webui.Project;
@@ -99,5 +111,35 @@ public abstract class AbstractDataView extends ListView {
      */
     public void setChartType(int chartType) {
         this.chartType = chartType;
+    }
+
+    // TODO: Work in progress ...
+    public void chartToPdf(
+            JFreeChart chart,
+            String fileName,
+            int width,
+            int height ) {
+        // Create an empty PDF document
+        Document pdf = new Document(new Rectangle(width, height));
+        try {
+            PdfWriter.getInstance(
+                    pdf,
+                    new FileOutputStream(
+                            settings.getTempFolder()
+                            + java.io.File.separator
+                            + fileName));
+            pdf.open();
+            // TODO: Needs a way for generating an image that fits between 
+            // the document's page borders.
+            Image png = Image.getInstance(
+                    ChartUtilities.encodeAsPNG(
+                            chart.createBufferedImage(
+                                    width - 100,
+                                    height - 100)));
+            pdf.add(png);
+            pdf.close();
+        }
+        catch (DocumentException ex) { /* Do nothing */ }
+        catch (IOException ex) { /* Do nothing */ }
     }
 }

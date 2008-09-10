@@ -20,6 +20,8 @@ public class BaseDataSettings {
 
     private int chartType            = AbstractDataView.TABLE_CHART;
 
+    private boolean generatePDF             = false;
+
     public BaseDataSettings() {
         super();
     }
@@ -97,4 +99,15 @@ public class BaseDataSettings {
         this.chartType = type;
     }
 
+    public void enablePdfCreation() {
+        generatePDF = true;
+    }
+
+    public void disablePdfCreation() {
+        generatePDF = false;
+    }
+
+    public boolean createPDF() {
+        return generatePDF;
+    }
 }
