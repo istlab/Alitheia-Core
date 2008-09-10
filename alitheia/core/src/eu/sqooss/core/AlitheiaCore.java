@@ -36,7 +36,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletException;
 
@@ -72,6 +71,9 @@ import eu.sqooss.service.webadmin.WebadminService;
 /**
  * Startup class of the SQO-OSS framework's core. Its main goal is to
  * initialize all core components and be able to provide them upon request.
+ * There is one AlitheiaCore instance which may be retrieved statically
+ * through getInstance(); after that you can use the get*Service() methods
+ * to get each of the other core components as needed.
  */
 public class AlitheiaCore {
 
@@ -114,9 +116,6 @@ public class AlitheiaCore {
     /** The parent bundle's context object. */
     private BundleContext bc;
     
-    /** Is the database inited yet? */
-    private AtomicBoolean dbInited;
-
     /** The Core is singleton-line because it has a special instance */
     private static AlitheiaCore instance = null;
     
@@ -158,7 +157,6 @@ public class AlitheiaCore {
      */
     public AlitheiaCore(BundleContext bc) {
         this.bc = bc;
-        dbInited = new AtomicBoolean(false);
         if (null == instance) {
             instance = this;
             System.out.println("Alitheia Core Instance #1 Created");
