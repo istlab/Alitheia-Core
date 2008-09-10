@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hibernate.HibernateException;
+import org.hibernate.LockMode;
 import org.hibernate.QueryException;
 import org.hibernate.JDBCException;
 import org.hibernate.Query;
@@ -352,22 +353,38 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
+        return doFindObjectById(daoClass, id, false);
+    }
+    
+    public <T extends DAObject> T findObjectByIdForUpdate(Class<T> daoClass, long id) {
+        return doFindObjectById(daoClass, id, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends DAObject> T doFindObjectById(Class<T> daoClass, long id, boolean useLock) {
         if ( !checkSession() )
             return null;
         
         try {
             Session s = sessionFactory.getCurrentSession();
-            return (T) s.get(daoClass, id);
+            return (T) (useLock ? s.get(daoClass, id, LockMode.UPGRADE) : s.get(daoClass, id));
         } catch (HibernateException e) {
             logExceptionAndTerminateSession(e);
             return null;
         }
     }
 
+    public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass, Map<String,Object> properties) {
+        return doFindObjectsByProperties(daoClass, properties, false);
+    }
+
+    public <T extends DAObject> List<T> findObjectsByPropertiesForUpdate(Class<T> daoClass, Map<String,Object> properties) {
+        return doFindObjectsByProperties(daoClass, properties, true);
+    }
+
     @SuppressWarnings("unchecked")
-    public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass, Map<String,Object> properties ) {
+    private <T extends DAObject> List<T> doFindObjectsByProperties(Class<T> daoClass, Map<String,Object> properties, boolean useLock) {
         if( !checkSession() )
             return Collections.emptyList();
 
@@ -383,7 +400,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         }
         try {
             // We use "foo" as the name of the object
-            return (List<T>) doHQL( "from " + daoClass.getName() + " as foo " + whereClause, parameterMap );
+            return (List<T>) doHQL( "from " + daoClass.getName() + " as foo " + whereClause, parameterMap, useLock );
         } catch (QueryException e) {
             logger.warn("findObjectsByProperties(): invalid properties map. Restarting session...");
             // Automatically restart a session
@@ -440,7 +457,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
      */
     public List<?> doHQL(String hql)
         throws QueryException {
-        return doHQL(hql, null, null);
+        return doHQL(hql, null, null, false);
     }
 
     /* (non-Javadoc)
@@ -448,7 +465,15 @@ public class DBServiceImpl implements DBService, FrameworkListener {
      */
     public List<?> doHQL(String hql, Map<String, Object> params) 
         throws QueryException {
-        return doHQL(hql, params, null);
+        return doHQL(hql, params, null, false);
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, boolean)
+     */
+    public List<?> doHQL(String hql, Map<String, Object> params, boolean lockForUpdate) 
+        throws QueryException {
+        return doHQL(hql, params, null, lockForUpdate);
     }
 
     /* (non-Javadoc)
@@ -456,6 +481,14 @@ public class DBServiceImpl implements DBService, FrameworkListener {
      */
     public List<?> doHQL(String hql, Map<String, Object> params,
             Map<String, Collection> collectionParams) 
+        throws QueryException {
+        return doHQL(hql, params, collectionParams, false);
+    }
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String, java.util.Map, java.util.Map, boolean)
+     */
+    public List<?> doHQL(String hql, Map<String, Object> params,
+            Map<String, Collection> collectionParams, boolean lockForUpdate) 
         throws QueryException {
         if ( !checkSession() ) {
             return Collections.emptyList();
@@ -472,6 +505,9 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 for ( String param : collectionParams.keySet() ) {
                     query.setParameterList(param, collectionParams.get(param));
                 }
+            }
+            if (lockForUpdate) {
+                query.setLockMode("foo", LockMode.UPGRADE);
             }
             return query.list();
         } catch ( QueryException e ) {

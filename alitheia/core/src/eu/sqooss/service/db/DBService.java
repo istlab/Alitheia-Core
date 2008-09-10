@@ -158,7 +158,23 @@ public interface DBService {
      *          or null otherwise or if a database access error occured
      */
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id);
-    
+
+    /**
+     * A generic query method to retrieve a single DAObject subclass using its identifier and
+     * acquire a pessimistic row-level database lock on it.
+     * This results in an SQL query with the form "SELECT ... FOR UPDATE".
+     * You may use this method to ensure that no other session can modify the returned object
+     * while the current session is active. This can help avoiding database-level deadlocks
+     * when multiple sessions access and modify the same table in parallel.
+     * The return value is parameterized to the actual type of DAObject queried
+     * so no downcast is needed.
+     * @param daoClass the actual class of the DAObject. 
+     * @param id the DAObject's identifier
+     * @return the DAOObject if a match for the class and the identifier was found in the database,
+     *          or null otherwise or if a database access error occured
+     */
+    public <T extends DAObject> T findObjectByIdForUpdate(Class<T> daoClass, long id);
+
     /**
      * A generic query method to retrieve a list of DAObjects of a same subclass
      * matching a set of properties.
@@ -181,6 +197,35 @@ public interface DBService {
      */
     public <T extends DAObject> List<T> findObjectsByProperties(Class<T> daoClass,
                                                                 Map<String,Object> properties );
+
+    /**
+     * A generic query method to retrieve a list of DAObjects of a same subclass
+     * matching a set of properties and acquire a pessimistic row-level database lock
+     * on each returned object in the list.
+     * This results in an SQL query with the form "SELECT ... FOR UPDATE".
+     * You may use this method to ensure that no other session can modify the returned objects
+     * while the current session is active. This can help avoiding database-level deadlocks
+     * when multiple sessions access and modify the same table in parallel.
+     * The returned list contains the objects matching <b>all</b> of the properties specified.
+     * It is parameterized to the actual type of DAObject queried so no downcast is needed.
+     * The map key should be the property name as a string, and the value should be a value
+     * with a matching type for the property. For example, if a class has a String property
+     * called name (ie. a getName()/setName() accessor pair), then you would use "name" as
+     * the map key and a String object as the map value.
+     * If any property in the map isn't valid (either an unknown name or a value of the wrong type)
+     * the call will fail and an empty list will be returned.
+     * It uses its own session.
+     * 
+     * @param daoClass the actual class of the DAObjects
+     * @param properties a map of property name/value pairs corresponding to properties
+     *          of the DAObject subclass
+     * @return a list of DAObjects matching the class and the set of properties,
+     *          possibly empty if no match was found in the database or if the properties map
+     *          contains invalid entries or if a database access error occured
+     */
+    public <T extends DAObject> List<T> findObjectsByPropertiesForUpdate(Class<T> daoClass,
+                                                                Map<String,Object> properties );
+
     /**
      * Add a new record to the database, including all the associations the record may contain.
      * 
@@ -281,10 +326,11 @@ public interface DBService {
      * If you need dynamic HQL queries, please use the overload with the params argument.
      * 
      * @param hql the HQL query string
-     * @return a list of {@link DAObject}. If the query contains multiple columns,
-     *          the results are returned in an instance of Object[]
-     *           If the query is invalid or a database access error occurs,
-     *           an empty list will be returned.
+     * @return a list of {@link DAObject}, fetched with a read access lock in the database.
+     *         If the query contains multiple columns,
+     *         the results are returned in an instance of Object[].
+     *         If the query is invalid or a database access error occurs,
+     *         an empty list will be returned.
      *           
      * @throws QueryException if the query is invalid
      * 
@@ -298,16 +344,55 @@ public interface DBService {
      *
      * @param hql the HQL query string
      * @param params the map of parameters to be substituted in the HQL query
-     * @return a list of {@link DAObject}. If the query contains multiple columns,
-     *          the results are returned in an instance of Object[]
-     *           If the query is invalid or a database access error occurs,
-     *           an empty list will be returned.
+     * @return a list of {@link DAObject}, fetched with a read access lock in the database.
+     *         If the query contains multiple columns,
+     *         the results are returned in an instance of Object[].
+     *         If the query is invalid or a database access error occurs,
+     *         an empty list will be returned.
      *           
      * @throws QueryException if the query is invalid or if params contains invalid entries
      * 
      * @see doHQL(String, Map<String, Object>, Map<String,Collection>)
      */
     public List<?> doHQL(String hql, Map<String, Object> params)
+        throws QueryException;
+
+    /**
+     * Execute a parameterized HQL query to the database.
+     *
+     * @param hql the HQL query string
+     * @param params the map of parameters to be substituted in the HQL query
+     * @param lockForUpdate if true, the generated SQL query will use a "SELECT ... FOR UPDATE"
+     *        statement. Otherwise, a normal "SELECT" will be used
+     * @return a list of {@link DAObject}, with a corresponding lock in the database.
+     *         If the query contains multiple columns,
+     *         the results are returned in an instance of Object[]
+     *         If the query is invalid or a database access error occurs,
+     *         an empty list will be returned.
+     *           
+     * @throws QueryException if the query is invalid or if params contains invalid entries
+     * 
+     * @see doHQL(String, Map<String, Object>, Map<String,Collection>)
+     */
+    public List<?> doHQL(String hql, Map<String, Object> params, boolean lockForUpdate)
+        throws QueryException;
+
+    /**
+     * Execute a parameterized HQL query to the database.
+     *
+     * @param hql HQL query string
+     * @param params the map of parameters to be substituted in the HQL query
+     * @return a list of {@link DAObject}, fetched with a read access lock in the database.
+     *         If the query contains multiple columns,
+     *         the results are returned in an instance of Object[]
+     *         If the query is invalid or a database access error occurs,
+     *         an empty list will be returned.
+     *           
+     * @throws QueryException if the query is invalid or if params or collectionParams
+     *                          contain invalid entries
+     */
+    public List<?> doHQL(String hql, Map<String, Object> params,
+                          Map<String, Collection> collectionParams)
         throws QueryException;
 
     /**
@@ -328,17 +413,19 @@ public interface DBService {
      *
      * @param hql HQL query string
      * @param params the map of parameters to be substituted in the HQL query
-     * @param collectionParams the map of collection parameters to be substituted in the HQL query
-     * @return a list of {@link DAObject}. If the query contains multiple columns,
-     *          the results are returned in an instance of Object[]
-     *           If the query is invalid or a database access error occurs,
-     *           an empty list will be returned.
+     * @param lockForUpdate if true, the generated SQL query will use a "SELECT ... FOR UPDATE"
+     *        statement. Otherwise, a normal "SELECT" will be used
+     * @return a list of {@link DAObject}, with a corresponding lock in the database.
+     *         If the query contains multiple columns,
+     *         the results are returned in an instance of Object[]
+     *         If the query is invalid or a database access error occurs,
+     *         an empty list will be returned.
      *           
      * @throws QueryException if the query is invalid or if params or collectionParams
      *                          contain invalid entries
      */
     public List<?> doHQL(String hql, Map<String, Object> params,
-                          Map<String, Collection> collectionParams)
+                          Map<String, Collection> collectionParams, boolean lockForUpdate)
         throws QueryException;
     
     /**
