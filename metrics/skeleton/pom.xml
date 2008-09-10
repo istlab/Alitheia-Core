@@ -24,15 +24,14 @@
   <packaging>jar</packaging>
 
   <!-- General description of the plug-in. By convention the names
-       given to SQO-OSS plug-ins are "Alitheia Plug-in '<foo>'",
-       although this one does not follow the convention. The description
-       is visible to developers (for instance using NetBeans) but not
-       to users of the system.
+       given to SQO-OSS plug-ins are "Alitheia Plug-in '<foo>'".
+       The description is visible to developers (for instance using 
+       NetBeans) but not to users of the system.
 
        The URL is meaningful in some automated testing context
        which we no longer use. 
    -->
-  <name>Alitheia Plug-in Example</name>
+  <name>Alitheia Plug-in 'Skeleton'</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/skeleton</url>
   <inceptionYear>2008</inceptionYear>
   <description>

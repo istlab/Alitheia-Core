@@ -29,6 +29,7 @@ copy-files :
 	@target=`perl -e 'print lcfirst("$(TARGET)");'` ;  \
 	TARGET=`perl -e 'print ucfirst("$(TARGET)");'` ;  \
 	for i in \
+		pom.xml \
 		src/eu/sqooss/metrics/skeleton/Skeleton.java \
 		src/eu/sqooss/metrics/skeleton/SkeletonActivator.java ; \
 	do \
