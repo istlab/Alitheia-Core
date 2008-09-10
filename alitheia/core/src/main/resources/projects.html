@@ -12,12 +12,14 @@
           <div id="table">
             $projects.render($request)
           </div>
-          <h2>Install new project</h2>
+          <h2>$tr.label("install_new_project")</h2>
           <form id="addprojectdir" method="post" action="diraddproject">
             Project info.txt file
             <input name="info" type="text" alt="Enter the path to the info.txt file of the project you want to install" class="form" size="40"/>
             <input type="submit" value="Install Project"/>
           </form>
+          <h2>$tr.label("help")</h2>
+          $tr.message("project_help")
         </div>
       </div>
 #parse("sidebar.inc")

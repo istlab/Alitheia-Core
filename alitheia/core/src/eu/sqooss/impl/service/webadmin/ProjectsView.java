@@ -66,7 +66,7 @@ public class ProjectsView extends AbstractView {
     private static String ACT_CON_UPD_BUGS      = "conUpdateBugs";
 
     // Servlet parameters
-    private static String REQ_PAR_ACTION        = "action";
+    private static String REQ_PAR_ACTION        = "reqAction";
     private static String REQ_PAR_PROJECT_ID    = "projectId";
     private static String REQ_PAR_PRJ_NAME      = "projectName";
     private static String REQ_PAR_PRJ_WEB       = "projectHomepage";
@@ -388,13 +388,7 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         else if (reqValAction.equals(ACT_REQ_ADD_PROJECT)) {
             // Create the field-set
-            b.append(sp(in++) + "<fieldset>\n");
-            b.append(sp(in) + "<legend>"
-                    + getLbl("add_project")
-                    + "</legend>\n");
-            b.append(sp(in++) + "<span style=\"width: 100%;\">\n");
-            b.append(sp(in++) + "<span style=\"width: 40%; float: left;\">\n");
-            b.append(sp(in++) + "<table class=\"borderless\">\n");
+            b.append(sp(in++) + "<table class=\"borderless\" width='100%'>\n");
             // Create the input fields
             b.append(normalInputRow(
                     "Project name", REQ_PAR_PRJ_NAME, reqValPrjName, in));
@@ -419,7 +413,7 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0003") + "\""
+                    + " value=\"" + getLbl("project_add") + "\""
                     + " onclick=\"javascript:"
                     + "document.getElementById('"
                     + REQ_PAR_ACTION + "').value='"
@@ -429,25 +423,12 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0004") + "\""
+                    + " value=\"" + getLbl("cancel") + "\""
                     + " onclick=\"javascript:"
                     + SUBMIT + "\">\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</table>\n");
-            // Context help
-            b.append(sp(--in) + "</span>\n");
-            b.append(sp(in++) + "<span"
-                    + " style=\"width: 60%; float: right;;\">\n");
-            b.append(sp(in++) + "<fieldset"
-                    + " style=\"margin-top: -5px; background-color: white;\""
-                    + ">\n");
-            b.append(sp(in) + "<legend>" + "Help" + "</legend>\n");
-            b.append(sp(in) + getMsg("project_help") + "\n");
-            b.append(sp(--in) + "</fieldset>\n");
-            b.append(sp(--in) + "</span>\n");
-            b.append(sp(--in) + "</span>\n");
-            b.append(sp(--in) + "</fieldset>\n");
         }
         // ===================================================================
         // "Delete project" confirmation view
