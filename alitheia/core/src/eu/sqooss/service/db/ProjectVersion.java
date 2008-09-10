@@ -72,16 +72,20 @@ public class ProjectVersion extends DAObject {
      */
     private String commitMsg;
 
+    /**
+     * SCM properties associated with this version. For future use.
+     */
     private String properties;
     
     /**
-     * The added/modified/deleted files for that version
+     * The files changed in this version
      */
     private Set<ProjectFile> versionFiles;
+    
     /**
-     * The complete set of files for that version (ie. the state of the project at that version).
-     * Note that the files contained in this set may come from a previous version, if they haven't
-     * been modified since.
+     * The complete set of files for that version (ie. the state of the 
+     * project at that version). Note that the files contained in this set may 
+     * come from a previous version, if they haven't been modified since.
      */
     private Set<ProjectFile> filesForVersion;
     /**
@@ -94,12 +98,10 @@ public class ProjectVersion extends DAObject {
     private Set<Tag> tags;
     
     /**
-     * The set of known bugs in this version of the projecy
+     * The set of known bugs in this version of the project
      */
     private Set<Bug> bugs;
     
-    //private Set<FileForVersion> 
-
     /**
      * The set of measurements available for the given version of the project
      */
@@ -160,6 +162,9 @@ public class ProjectVersion extends DAObject {
         this.commitMsg = commitMsg;
     }
     
+    /**
+     * Returns the files that were changed in this revision
+     */
     public Set<ProjectFile> getVersionFiles() {
         return versionFiles;
     }
@@ -168,12 +173,19 @@ public class ProjectVersion extends DAObject {
         this.versionFiles = versionFiles;
     }
 
+    /**
+     * Returns all files that are live 
+     */
     public Set<ProjectFile> getFilesForVersion() {
         return filesForVersion;
     }
     public void setFilesForVersion(Set<ProjectFile> filesForVersion) {
         this.filesForVersion = filesForVersion;
     }
+    
+    /**
+     * Return the file groups that were changed in this version
+     */
     public Set<FileGroup> getFileGroups() {
         return fileGroups;
     }
@@ -182,6 +194,9 @@ public class ProjectVersion extends DAObject {
         this.fileGroups = fileGroups;
     }
     
+    /**
+     * If this version has an associated tag, return it. 
+     */
     public Set<Tag> getTags() {
         return tags;
     }
@@ -198,6 +213,9 @@ public class ProjectVersion extends DAObject {
         this.bugs = bugs;
     }
     
+    /**
+     * Get all measurements associated with this version
+     */
     public Set<ProjectVersionMeasurement> getMeasurements() {
         return measurements;
     }
