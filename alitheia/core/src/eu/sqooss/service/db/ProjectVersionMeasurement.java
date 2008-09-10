@@ -44,9 +44,23 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
     private ProjectVersion projectVersion;
 
     public ProjectVersionMeasurement() {
-        // Nothing to do here
+        super();
     }
 
+    /**
+     * Convenience constructor that sets all of the fields in the
+     * measurement at once, saving a few (explicit) method calls. 
+     * @param m Metric the measurement is for
+     * @param p Project version the metric was applied to
+     * @param v Resulting value
+     */
+    public ProjectVersionMeasurement(Metric m, ProjectVersion p, long v) {
+        this();
+        setMetric(m);
+        setProjectVersion(p);
+        setResult(String.valueOf(v));
+    }
+    
     public ProjectVersion getProjectVersion() {
         return projectVersion;
     }
