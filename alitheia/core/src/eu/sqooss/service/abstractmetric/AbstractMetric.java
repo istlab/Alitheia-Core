@@ -307,6 +307,19 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     	 return results;
      }
 
+     /**
+      * Convenience method to convert a single measurement to a list of
+      * result entries; like calling convertVersionMeasurements() with
+      * a singleton list.
+      * @param v Single measurement to convert
+      * @param label Metric mnemonic label
+      * @return Singleton list of results for the measurement
+      */
+     static public List<ResultEntry> convertVersionMeasurement(ProjectVersionMeasurement v, String label) {
+         List<ResultEntry> results = new ArrayList<ResultEntry>(1);
+         results.add(new ResultEntry(Integer.parseInt(v.getResult()), ResultEntry.MIME_TYPE_TYPE_INTEGER, label));
+         return results;
+     }
 
     /**
      * Call the appropriate getResult() method according to
@@ -393,6 +406,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             Class<? extends DAObject> c = i.next();
             if (c.isInstance(o)) {
                 found = true;
+                log.warn("Trying to run for " + c.getName());
                 try {
                     Method m = this.getClass().getMethod("run", c);
                     m.invoke(this, o);
@@ -409,8 +423,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 }
             }
         }
-        if(!found)
+        if(!found) {
             throw new MetricMismatchException(o);
+        }
     }
     
     private void logErr(String method, long id, Exception e) {
@@ -419,6 +434,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 " Exception:" + e.getClass().getName() +
                 " Error:" + e.getMessage() + 
                 " Reason:" + e.getCause().getMessage());
+        e.printStackTrace();
     }
 
     /**
