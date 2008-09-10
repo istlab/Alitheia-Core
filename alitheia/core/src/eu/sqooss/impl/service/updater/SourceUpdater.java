@@ -376,10 +376,6 @@ final class SourceUpdater extends Job {
             
             numRevisions++;
             
-            if (curVersion.getVersion() == 456) {
-                System.err.println("Hello");
-            }
-            
             replayLog(curVersion);
             dbs.addRecords(versionFiles);
             updateFilesForVersion(curVersion, versionFiles);
@@ -427,6 +423,9 @@ final class SourceUpdater extends Job {
             }
         }
         
+        List<ProjectFile> tmpFiles = new ArrayList<ProjectFile>();
+        tmpFiles.addAll(versionFiles);
+        
         for (String fpath : numOccurs.keySet()) {
             if (numOccurs.get(fpath) <= 1) { 
                 continue;
@@ -435,7 +434,9 @@ final class SourceUpdater extends Job {
             int points = 0;
             
             ProjectFile copyFrom = null;
-            for (ProjectFile f: versionFiles) {
+            ProjectFile winner = null; 
+            
+            for (ProjectFile f: tmpFiles) {
                 
                 if (!f.getFileName().equals(fpath)) { 
                     continue;
@@ -443,6 +444,7 @@ final class SourceUpdater extends Job {
                 
                 if (stateWeights.get(f.getStatus()) > points) {
                     points = stateWeights.get(f.getStatus());
+                    winner = f;
                 } else {
                     if (f.getCopyFrom() != null) {
                         copyFrom = f.getCopyFrom();
@@ -450,6 +452,12 @@ final class SourceUpdater extends Job {
                     versionFiles.remove(f);
                 }
             }
+            if (copyFrom != null) {
+                versionFiles.remove(winner);
+                winner.setCopyFrom(copyFrom);
+                versionFiles.add(winner);
+            }
+            logger.debug("Keeping file " + winner);
         }
     }
     
@@ -475,7 +483,8 @@ final class SourceUpdater extends Job {
         } else {
             pf.setIsDirectory(false);
         }
-        versionFiles.add(pf);     
+        versionFiles.add(pf); 
+        logger.info("Adding file " + pf);
         return pf;
     }
     
