@@ -7,3 +7,9 @@
     <link rel="stylesheet" type="text/css" media="screen" href="screen.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="webadmin.css" />
   </head>
+  <body class="section-$section">
+    <div id="wrap">
+      <div id="header">
+        <h1>$APP_NAME</h1>
+        <img src="/sqo-oss.png" alt="SQO-OSS Logo" />
+      </div>
