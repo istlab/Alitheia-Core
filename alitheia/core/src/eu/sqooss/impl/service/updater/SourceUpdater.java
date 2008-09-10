@@ -414,6 +414,7 @@ final class SourceUpdater extends Job {
      */
     private void replayLog(ProjectVersion curVersion) {
         
+        /*Find duplicate projectfile entries*/
         HashMap<String, Integer> numOccurs = new HashMap<String, Integer>();
         for (ProjectFile pf : versionFiles) {
             if (numOccurs.get(pf.getFileName()) != null) {
@@ -423,6 +424,9 @@ final class SourceUpdater extends Job {
             }
         }
         
+        /* Copy list of files to be added to the DB in a tmp array,
+         * to use for iterating
+         */
         List<ProjectFile> tmpFiles = new ArrayList<ProjectFile>();
         tmpFiles.addAll(versionFiles);
         
@@ -446,12 +450,15 @@ final class SourceUpdater extends Job {
                     points = stateWeights.get(f.getStatus());
                     winner = f;
                 } else {
-                    if (f.getCopyFrom() != null) {
-                        copyFrom = f.getCopyFrom();
-                    }
                     versionFiles.remove(f);
                 }
+                
+                if (f.getCopyFrom() != null) {
+                    copyFrom = f.getCopyFrom();
+                }
             }
+            
+            /*Update file to be added to the DB with copy-from info*/
             if (copyFrom != null) {
                 versionFiles.remove(winner);
                 winner.setCopyFrom(copyFrom);
