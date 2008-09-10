@@ -54,6 +54,7 @@ public class ProjectFile extends DAObject{
     public static final String STATE_ADDED    = "ADDED";
     public static final String STATE_MODIFIED = "MODIFIED";
     public static final String STATE_DELETED  = "DELETED";
+    public static final String STATE_REPLACED  = "REPLACED";
     
     //Select files, directories or both while querying
     /**
@@ -290,26 +291,39 @@ public class ProjectFile extends DAObject{
         String paramFile = "paramFile";
         String paramTimestamp = "paramTimestamp";
         String paramDir = "paramDir";
-        String paramMoveFrom = "paramMoveFrom";
         String paramProject = "paramProject";
+        String paramCopyFromName = "paramCopyFromName";
+        String paramCopyFromDir = "paramCopyFromDir";
 
-        String query ="select pf" +
+        String query = "select pf" +
             " from ProjectVersion pv, ProjectFile pf" +
             " where pf.projectVersion = pv.id " +
-            " and pf.name = :" + paramFile +
             " and pv.project = :" + paramProject +
             " and pv.timestamp < :" + paramTimestamp +
-            " and (pf.dir = :" + paramDir +
-            "       or pf.dir = :" + paramMoveFrom +
-            "     )" +
-            " order by pv.timestamp desc";
+            " and "; 
+            if (pf.copyFrom != null) {
+                query += "(("; 
+            }
+            
+            query += " pf.name = :" + paramFile +
+            " and pf.dir = :" + paramDir;
+            
+            if (pf.copyFrom != null) {
+                query += " ) or ( pf.name = :" + paramCopyFromName +
+                " and pf.dir = :" + paramCopyFromDir +
+                "     ))" ;
+            }
+            query += " order by pv.timestamp desc";
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());
         parameters.put(paramProject, pf.getProjectVersion().getProject());
         parameters.put(paramTimestamp, pf.getProjectVersion().getTimestamp());
-        parameters.put(paramMoveFrom, pf.getCopyFrom());
-
+        
+        if (pf.copyFrom != null) {
+            parameters.put(paramCopyFromName, pf.getCopyFrom().getName());
+            parameters.put(paramCopyFromDir, pf.getCopyFrom().getDir());
+        }
         List<?> projectFiles = dbs.doHQL(query, parameters);
 
         if(projectFiles == null || projectFiles.size() == 0) {
@@ -686,7 +700,7 @@ public class ProjectFile extends DAObject{
     }
     
     public String toString() {
-        return "r" + projectVersion.getVersion() + ":" + getFileName();
+        return "r" + projectVersion.getVersion() + ":" + getFileName() + " (" + getStatus() + ")";
     }
     
 }

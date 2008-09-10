@@ -47,7 +47,6 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
-import eu.sqooss.service.db.FileForVersion;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -318,6 +317,8 @@ final class SourceUpdater extends Job {
                                 + ") to " + to.getPath());
                         handleDirCopy(curVersion, ProjectVersion.getVersionByRevision(curVersion.getProject(),
                                         copyOp.fromRev()), from, to, copyFrom);  
+                        //Ungly hack
+                        toAdd = versionFiles.get(versionFiles.size() - 1);
                     } else {
                         /*
                          * Create a new entry at the new location and mark the new 
@@ -325,10 +326,7 @@ final class SourceUpdater extends Job {
                          */
                         toAdd = addFileIfNotExists(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
                     }
-                    toAdd = ProjectFile.findFile(project.getId(), 
-                            basename(copyOp.toPath()), 
-                            dirname(copyOp.toPath()), 
-                            curVersion.getVersion());
+                    
                     copyOps.remove(copyOp);
                     
                 } else {
@@ -365,6 +363,9 @@ final class SourceUpdater extends Job {
             }
             
             numRevisions++;
+            
+            replayLog(curVersion);
+            dbs.addRecords(versionFiles);
             updateFilesForVersion(curVersion, versionFiles);
 
             /* Intermediate clean up */
@@ -375,7 +376,6 @@ final class SourceUpdater extends Job {
                     restart();
                     return;
                 } 
-                logger.debug("Committed " + this.cleanup + " revisions");
                 dbs.startDBSession();
             }
         }
@@ -394,6 +394,60 @@ final class SourceUpdater extends Job {
     }
 
     /**
+     * SVN supports doing weird things on a single file in a single revision.
+     * For example, you can copy a file and then delete it or delete it and
+     * then copy a new version of the file on it.
+     * This method replays the SVN log by merging together various file 
+     * modifications recorded in the course of a revision.
+     */
+    private void replayLog(ProjectVersion curVersion) {
+        HashMap<String, Integer> statePoints = new HashMap<String, Integer>();
+        statePoints.put(ProjectFile.STATE_ADDED, 2);
+        statePoints.put(ProjectFile.STATE_MODIFIED, 4);
+        statePoints.put(ProjectFile.STATE_REPLACED, 8);
+        statePoints.put(ProjectFile.STATE_DELETED, 16);
+        
+        
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("projectVersion", curVersion);
+        List<ProjectFile> versionFiles= dbs.findObjectsByProperties(ProjectFile.class, properties);
+        
+        HashMap<String, Integer> numOccurs = new HashMap<String, Integer>();
+        for (ProjectFile pf : versionFiles) {
+            if (numOccurs.get(pf.getFileName()) != null) {
+                numOccurs.put(pf.getFileName(), numOccurs.get(pf.getFileName()).intValue() + 1);
+            } else {
+                numOccurs.put(pf.getFileName(), 1);
+            }
+        }
+        
+        for (String fpath : numOccurs.keySet()) {
+            if (numOccurs.get(fpath) <= 1) { 
+                continue;
+            }
+            logger.debug("Duplicate entry in single version for file " + fpath);
+            int points = 0;
+            
+            ProjectFile copyFrom = null;
+            for (ProjectFile f: versionFiles) {
+                
+                if (!f.getFileName().equals(fpath)) { 
+                    continue;
+                }
+                
+                if (statePoints.get(f.getStatus()) > points) {
+                    points = statePoints.get(f.getStatus());
+                } else {
+                    if (f.getCopyFrom() != null) {
+                        copyFrom = f.getCopyFrom();
+                    }
+                    versionFiles.remove(f);
+                }
+            }
+        }
+    }
+
+    /**
      * Checks whether the file to be added already exists, then calls 
      * {@link #addFile(ProjectVersion, String, String, SCMNodeType, String)}
      * @param moveFrom TODO
@@ -406,14 +460,13 @@ final class SourceUpdater extends Job {
         properties.put("dir", getDirectory(dirname(fPath), false));
         properties.put("isDirectory", (t.equals(SCMNodeType.DIR)?true:false));
         List<ProjectFile> pfs = dbs.findObjectsByProperties(ProjectFile.class, properties);
+       
+        if (!pfs.isEmpty()) {
+            logger.debug("File " + basename(fPath) + " exists in " + dirname(fPath) + " for r" + 
+                    pfs.get(0).getProjectVersion().getVersion());
+        }
         
-        if (pfs.isEmpty()) {
-            return addFile(version, fPath, status, t, copyFrom);
-        } 
-        
-        logger.debug("File " + basename(fPath) + " exists in " + dirname(fPath) + " for r" + 
-                pfs.get(0).getProjectVersion().getVersion());
-        return pfs.get(0);
+        return addFile(version, fPath, status, t, copyFrom);
     }
     
     /**
@@ -438,9 +491,7 @@ final class SourceUpdater extends Job {
         } else {
             pf.setIsDirectory(false);
         }
-        dbs.addRecord(pf);
         versionFiles.add(pf);     
-        
         return pf;
     }
     
@@ -525,7 +576,7 @@ final class SourceUpdater extends Job {
                 handleDirDeletion(f, pv);
                 ProjectFile mark = new ProjectFile(f, pv);
                 mark.makeDeleted();
-                dbs.addRecord(mark);
+                versionFiles.add(mark);
             }
         }
         for (ProjectFile f : files) {
@@ -539,7 +590,7 @@ final class SourceUpdater extends Job {
                 if (isCopiedPath(mark.getFileName())){
                     continue;
                 }
-                dbs.addRecord(mark);
+                versionFiles.add(mark);
             }
         }
     }
@@ -552,9 +603,7 @@ final class SourceUpdater extends Job {
         
         if (!canCopy(from, to)) 
             return;
-        
-        logger.debug("Copying dir from " + from.getPath() + " to " + to.getPath());
-        
+       
         addFileIfNotExists(pv, to.getPath(), "ADDED", SCMNodeType.DIR, copyFrom);
         
         /*Recursively copy directories*/
@@ -568,8 +617,8 @@ final class SourceUpdater extends Job {
         fromPF = ProjectFile.getFilesForVersion(fromVersion, from, ProjectFile.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
-            addFile(pv, to.getPath() + "/" + f.getName(),
-                    "ADDED", SCMNodeType.FILE, null);
+            addFileIfNotExists(pv, to.getPath() + "/" + f.getName(),
+                    "ADDED", SCMNodeType.FILE, f);
         }
     }
     
@@ -618,6 +667,7 @@ final class SourceUpdater extends Job {
      * Update the FilesForVersion table incrementally 
      */
     private void updateFilesForVersion(ProjectVersion pv, List<ProjectFile> updFiles) {
+
         // Copy old records
         ProjectVersion previous = pv.getPreviousVersion();
         
@@ -634,13 +684,14 @@ final class SourceUpdater extends Job {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
-                    logger.error("Couldn't remove association of deleted file " + pf.toString() +
-                                 " in version " + pv.getVersion());
+                    logger.error("Couldn't remove association of deleted file "
+                            + pf + " in version " + pv.getVersion());
                 }
             } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf); 
                 if (old == null) {
                     logger.error("Cannot get previous file version for file " + pf.toString());
+                    continue;
                 }
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
