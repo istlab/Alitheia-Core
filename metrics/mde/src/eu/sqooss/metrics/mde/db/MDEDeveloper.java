@@ -64,7 +64,7 @@ public class MDEDeveloper extends DAObject {
      * that timestamp (date) the developer is considered part
      * of the total developer count for the project.
      */
-    private Date start;
+    private long start;
     /**
      * Starting week relative to the start of a project for the developer.
      */
@@ -102,11 +102,11 @@ public class MDEDeveloper extends DAObject {
         this.developer = developer;
     }
     
-    public Date getStart() {
+    public long getStart() {
         return start;
     }
     
-    public void setStart(Date t){
+    public void setStart(long t){
         this.start = t;
     }
 

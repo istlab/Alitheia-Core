@@ -91,13 +91,32 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         filter.put("metric", m);
         List<ProjectVersionMeasurement> measurement =
             db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
-	return convertVersionMeasurements(measurement,m.getMnemonic());
+        if ((null != measurement) && (measurement.size()>0)) {
+            return convertVersionMeasurements(measurement,m.getMnemonic());
+        } else {
+            run(a);
+            HashMap<String,Object> parameterMap = new HashMap<String,Object>(2);
+            parameterMap.put("timestamp", a.getTimestamp());
+            parameterMap.put("project", a.getProject());
+            List<?> pvList = db.doHQL("select count(*) from MDEDeveloper m " +
+                "where m.start <= :timestamp " +
+                "and m.developer.storedProject = :project",
+                parameterMap);
+            if ((null == pvList) || (pvList.size() == 0)) {
+                // The caller will print a warning that getResult isn't 
+                // returning a value.
+                return null;
+            }
+            Long count = Long.getLong(pvList.get(0).toString());
+            ProjectVersionMeasurement result = new ProjectVersionMeasurement(m,a,count);
+            db.addRecord(result);
+            return convertVersionMeasurement(result,m.getMnemonic());
+        }
     }
 
     public void run(ProjectVersion pv) {
 	// Find the latest ProjectVersion for which we have data
 	Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
-        log.warn("Running devTotal first on " + pv.getProject().getName());
 	try {
             HashMap<String, Object> params = new HashMap<String, Object>(4);
             params.put("m",m.getId());
@@ -106,9 +125,15 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
 	    List<?> id = 
 		db.doSQL("select project_version_id from project_version_measurement natural join project_version where metric_id=:m and stored_project_id=:p order by timestamp desc limit 1",
                     params);
-	    if(!id.isEmpty()) {
-		ProjectVersionMeasurement latest =
-		    db.findObjectById(ProjectVersionMeasurement.class, (Long) id.get(0));
+	    if((null != id) && !id.isEmpty()) {
+                // The object returned by the SQL statement might be
+                // Long or might be BigInt (an SQL type) so we need to
+                // be circumspect. It's just easiest from a code perspective
+                // to go via string parsing.
+                Object o = id.get(0);
+                Long v = Long.getLong(o.toString());
+        	ProjectVersionMeasurement latest =
+		    db.findObjectById(ProjectVersionMeasurement.class, v);
                 ProjectVersion previous = latest.getProjectVersion();
                 runDevTotal(previous,pv);
 	    } else {
@@ -119,6 +144,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
 	}
 	catch(java.sql.SQLException err) {
 	    // Worry about this later
+            log.error("SQL Failure",err);
 	}
     }
 
@@ -127,18 +153,26 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      * for which the data is unknown up until pv
      */
     public void runDevTotal(ProjectVersion start, ProjectVersion end) {
-        log.warn("Updating from " + start.toString() + "-" + end.toString());
+        log.info("Updating from " + 
+                ((null == start) ? "null" : start.toString()) + "-" +
+                ((null == end) ? "null" : end.toString()));
 
+        if ((null == start) || (null == end)) {
+            log.warn("Range of versions for runDevTotal is broken.");
+            return;
+        }
+        
         ProjectVersion c = start;
-        while (c.lte(end)) {
+        while ((null != c ) && c.lte(end)) {
             MDEDeveloper d = MDEDeveloper.find(c.getCommitter());
             if (null != d) {
                 // Know this developer, so leave him alone
                 // TODO: update developer stats
             } else {
                 d = new MDEDeveloper(c.getCommitter());
-                d.setStart(new Date(c.getTimestamp()));
+                d.setStart(c.getTimestamp());
                 // TODO: sensible initial values for service and active
+                db.addRecord(d);
             }
             
             c = c.getNextVersion();

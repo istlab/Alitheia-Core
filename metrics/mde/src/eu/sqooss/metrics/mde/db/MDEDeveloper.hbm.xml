@@ -9,7 +9,7 @@
       <generator class="native" />
     </id>
     <many-to-one name="developer" column="DEVELOPER_ID" not-null="true" cascade="merge" />
-    <property name="start" column="START_TIME" not-null="true" type="java.util.Date" />
+    <property name="start" column="START_TIME" not-null="true" />
     <property name="startWeek" column="START_WEEK" not-null="true" />
     <property name="activeWeek" column="ACTIVE_WEEK" not-null="true" />
     <property name="serviceTime" column="SERVICE_TIME" not-null="true" />
