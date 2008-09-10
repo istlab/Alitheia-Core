@@ -291,7 +291,14 @@ public class ProjectVersion extends DAObject {
             return (ProjectVersion) projectVersions.get(0);
         }
     }
-    
+
+    /**
+     * Less-than-or-equal (operator <=) for project versions, based
+     * on timestamps. The compared version must not be null.
+     * 
+     * @param p comparison version
+     * @return true if this <= p, in terms of timestamps
+     */
     public boolean lte(ProjectVersion p) {
         return this.timestamp <= p.getTimestamp();
     }
