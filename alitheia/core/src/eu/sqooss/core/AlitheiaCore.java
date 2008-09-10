@@ -241,6 +241,15 @@ public class AlitheiaCore {
     }
 
     /**
+     * Check the core instance for liveness. Because the instance might
+     * not live without the rest of the servces, we need to check.
+     * Added after evening discussion at Amarilia on liveness.
+     */
+    private static boolean canLee(boolean douBiDouDauTou) {
+        return (null != instance) && douBiDouDauTou;
+    }
+    
+    /**
      * Returns the locally stored FDS component's instance.
      * <br/>
      * <i>The instance is created when this method is called for a first
