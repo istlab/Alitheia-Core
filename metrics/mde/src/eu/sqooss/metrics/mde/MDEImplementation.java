@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
@@ -49,7 +48,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
-import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.ProjectRevision;
 
 import eu.sqooss.metrics.mde.db.MDEDeveloper;
@@ -162,21 +161,64 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             return;
         }
         
+        StoredProject p = start.getProject();
+        ProjectVersion projectStartVersion = ProjectVersion.getVersionByRevision(p, new ProjectRevision(1));
+        if (null == projectStartVersion) {
+            log.warn("Project <" + p.getName() + "> has no revision 1.");
+            return;
+        }
+        long projectStartTime = projectStartVersion.getTimestamp();
+        
         ProjectVersion c = start;
         while ((null != c ) && c.lte(end)) {
             MDEDeveloper d = MDEDeveloper.find(c.getCommitter());
             if (null != d) {
-                // Know this developer, so leave him alone
-                // TODO: update developer stats
+                // Know this developer, so update the stats
+                int thisWeek = convertToWeekOffset(projectStartTime, c.getTimestamp());
+                if (thisWeek < d.getActiveWeek()) {
+                    // This happens if we happen to hit runDevTotal()
+                    // in a separate thread after another thread has already
+                    // filled in the future; there's no real problem as we'll
+                    // just skip over until we get to a new week.
+                } else if (thisWeek == d.getActiveWeek()) {
+                    // Still in the same week, so no need to worry about the developer.
+                    // The active week and service time are unchanged.
+                } else if (thisWeek == d.getActiveWeek()+1) {
+                    // Advance by one week
+                    d.setActiveWeek(thisWeek);
+                    d.setServiceTime(d.getServiceTime()+1);
+                } else {
+                    // Active again, but the service time is re-set
+                    d.setActiveWeek(thisWeek);
+                    d.setServiceTime(1);
+                }
             } else {
                 d = new MDEDeveloper(c.getCommitter());
                 d.setStart(c.getTimestamp());
-                // TODO: sensible initial values for service and active
+                d.setStartWeek(convertToWeekOffset(projectStartTime, c.getTimestamp()));
+                d.setServiceTime(1);
+                d.setActiveWeek(d.getStartWeek());
                 db.addRecord(d);
             }
             
             c = c.getNextVersion();
         }
+    }
+    
+    private static final long MILLISECONDS_PER_WEEK =
+        1000 * 60 * 60 * 24 * 7;
+    
+    public static int convertToWeekOffset(StoredProject p, long timestamp) {
+        ProjectVersion start = ProjectVersion.getVersionByRevision(p, new ProjectRevision(1));
+        if (null == start) {
+            // There was no project revision 1, so it must not have started yet.
+            return 0;
+        }
+        return convertToWeekOffset(start.getTimestamp(),timestamp);
+    }
+    
+    public static int convertToWeekOffset(long start, long timestamp) {
+        return (int) ((timestamp - start) / MILLISECONDS_PER_WEEK);
     }
     
     public Object selfTest() {
