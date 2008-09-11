@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.db;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,8 @@ public class ProjectVersion extends DAObject {
     private long version;
 
     /**
-     * The date/time at which this version occurs
+     * The date/time at which this version occurs, in milliseconds
+     * since the epoch. @see getTimestamp(), getDate()
      */
     private long timestamp;
 
@@ -136,6 +138,27 @@ public class ProjectVersion extends DAObject {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+    
+    /**
+     * Convenience method that returns the timestamp of this
+     * version as a Java Date (which also has a resolution of
+     * milliseconds since the epoch).
+     * 
+     * @return Date for this version
+     */
+    public Date getDate() {
+        return new Date(timestamp);
+    }
+
+    /**
+     * Convenience method that sets the timestamp on this version
+     * from a Java Date.
+     * 
+     * @param d New date to use as a timestamp
+     */
+    public void setDate(Date d) {
+        setTimestamp(d.getTime());
     }
     
     public Developer getCommitter() {
