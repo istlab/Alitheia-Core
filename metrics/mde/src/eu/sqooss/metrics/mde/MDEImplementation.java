@@ -55,20 +55,16 @@ import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.metrics.mde.db.MDEDeveloper;
 
 public class MDEImplementation extends AbstractMetric implements ProjectVersionMetric {
-    private FDSService fds;
-
+    /** This is the name of the non-adjusted dev(total) ancilliary metric. */
     private static final String MNEMONIC_MDE_DEVTOTAL = "MDE.dt";
+    
+    HashMap<Long,Object> projectLocks;
     
     public MDEImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectVersion.class);
-        
         super.addMetricActivationType(MNEMONIC_MDE_DEVTOTAL, ProjectVersion.class);
-        
-        ServiceReference serviceRef = null;
-        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-       
-        fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();    
+        projectLocks = new HashMap<Long,Object>();
     }
 
     public boolean install() {
@@ -114,17 +110,31 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     }
 
     public void run(ProjectVersion pv) {
-    	// Find the latest ProjectVersion for which we have data
-        
-        Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
-        ProjectVersion previous = 
-                ProjectVersionMeasurement.getLastMeasuredVersion(m, pv.getProject());
-        if (null == previous) {
-            // We've got no measurements at all, so start at revision 1
-            previous = ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1));
+        Object o = null;
+        synchronized (projectLocks) {
+            o = projectLocks.get(pv.getId());
+            if (null == o) {
+                o = new Object();
+                projectLocks.put(pv.getId(),o);
+            }
         }
-        // It's safe to run this on a revision twice
-        runDevTotal(previous, pv);
+        if (null == o) {
+            log.error("Failed to get lock object for project " + pv.getProject().getName());
+            return;
+        }
+        
+        synchronized(o) {
+            // Find the latest ProjectVersion for which we have data
+            Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
+            ProjectVersion previous = 
+                    ProjectVersionMeasurement.getLastMeasuredVersion(m, pv.getProject());
+            if (null == previous) {
+                // We've got no measurements at all, so start at revision 1
+                previous = ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1));
+            }
+            // It's safe to run this on a revision twice
+            runDevTotal(previous, pv);
+        }
     }
 
     /*
@@ -137,7 +147,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      * @param start Starting revision
      * @param end Ending revision
      */
-    public void runDevTotal(ProjectVersion start, ProjectVersion end) {
+    private void runDevTotal(ProjectVersion start, ProjectVersion end) {
         log.info("Updating from " + 
                 ((null == start) ? "null" : start.toString()) + "-" +
                 ((null == end) ? "null" : end.toString()));
