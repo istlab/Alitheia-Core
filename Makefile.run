@@ -35,7 +35,7 @@ endif
 CL_CONFIG=-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
 LOG4J_PREFIX=$(PREFIX)
 ifeq ($(OS),Windows_NT)
-LOG4J_PREFIX:=$(subst /cygdrive/c,,$(LOG4J_PREFIX))
+LOG4J_PREFIX:=/$(subst /cygdrive/c/,,$(LOG4J_PREFIX))
 endif
 LOG4J_CONFIG=-Dlog4j.configuration=file://$(LOG4J_PREFIX)/configuration/log4j.properties
 
