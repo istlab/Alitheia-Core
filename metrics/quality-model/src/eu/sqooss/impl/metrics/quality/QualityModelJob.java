@@ -34,16 +34,15 @@
 package eu.sqooss.impl.metrics.quality;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 import eu.sqooss.service.db.ProjectFile;
 
-public class QualityModelJob extends AbstractMetricJob {
+public class QualityModelJob {
 
     // Reference to the metric that created this job
     AbstractMetric parent = null;
 
     public QualityModelJob(AbstractMetric owner) {
-        super(owner);
+        //super(owner);
         parent = owner;
     }
 
@@ -52,13 +51,13 @@ public class QualityModelJob extends AbstractMetricJob {
     }
 
     public void run() {  
-      try{
+    /*  try{
     	  super.run();
       }
       catch(Exception e){
     	  log.error("The super class \"" + super.getClass().getCanonicalName() + "\" has thrown the following exception while invoking super.run(): " + e.getMessage());
     	  e.printStackTrace();
-      }
+      }*/
     }
 }
 
