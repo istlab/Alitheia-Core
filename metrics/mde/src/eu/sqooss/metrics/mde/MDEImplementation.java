@@ -51,7 +51,6 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FDSService;
-import eu.sqooss.service.tds.ProjectRevision;
 
 import eu.sqooss.metrics.mde.db.MDEDeveloper;
 
@@ -117,21 +116,9 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     public void run(ProjectVersion pv) {
     	// Find the latest ProjectVersion for which we have data
         
-        String query = "select pvm from ProjectVersionMeasurement pvm, ProjectVersion pv" +
-                       " where pvm.projectVersion = pv" +
-                       " and pvm.metric = :metric and pv.project = :project" +
-                       " order by pv.timestamp desc";
-
         Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
-        HashMap<String, Object> params = new HashMap<String, Object>(4);
-        params.put("metric", m);
-        params.put("project", pv.getProject());
-        List<?> pvmList = db.doHQL( query, params, 1);
-	    
-        ProjectVersion previous = pvmList.isEmpty() ? 
-                ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1)) :
-                ((ProjectVersionMeasurement) pvmList.get(0)).getProjectVersion();
-
+        ProjectVersion previous = 
+                ProjectVersionMeasurement.getLastMeasuredVersion(m, pv.getProject());
         runDevTotal(previous, pv);
     }
 
