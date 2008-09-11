@@ -36,7 +36,6 @@ package eu.sqooss.service.db;
 import java.util.List;
 import java.util.HashMap;
 
-import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -60,11 +59,11 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
      * @param p Project version the metric was applied to
      * @param v Resulting value
      */
-    public ProjectVersionMeasurement(Metric m, ProjectVersion p, long v) {
+    public ProjectVersionMeasurement(Metric m, ProjectVersion p, String v) {
         this();
         setMetric(m);
         setProjectVersion(p);
-        setResult(String.valueOf(v));
+        setResult(v);
     }
     
     public ProjectVersion getProjectVersion() {
@@ -78,8 +77,8 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
     /**
      * For a given metric and project, return the latest version of that
      * project that was actually measured.  If no measurements have been made, 
-     * it returns revision 0. It will not return null. For the returned revision
-     * greater than 0, there is a measurement in the database.
+     * it returns null. For the returned revision which is not null, the
+     * revision is greater than 0, there is a measurement in the database.
      * 
      * @param m Metric to look for
      * @param p Project to look for
@@ -97,7 +96,7 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
         List<?> pvmList = AlitheiaCore.getInstance().getDBService().doHQL( query, params, 1);
 	    
         ProjectVersion previous = pvmList.isEmpty() ? 
-                ProjectVersion.getVersionByRevision(p, new ProjectRevision(0)) :
+                null :
                 ((ProjectVersionMeasurement) pvmList.get(0)).getProjectVersion();
         return previous;
     }
