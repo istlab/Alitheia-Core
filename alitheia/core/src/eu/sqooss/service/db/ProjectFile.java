@@ -635,10 +635,8 @@ public class ProjectFile extends DAObject{
     }
     
     /**
-     * Return the latest file versions matching the provided arguments
+     * Return the latest file version matching the provided arguments
      * 
-     * TODO: Move to ProjectFile, where it belongs
-     *   
      * @param projectId The project to search for
      * @param name The name of the file
      * @param path The directory path this file resides in
@@ -691,7 +689,7 @@ public class ProjectFile extends DAObject{
         
         query += " order by pv.timestamp desc";
 
-        pfs = (List<ProjectFile>) dbs.doHQL(query, parameters);
+        pfs = (List<ProjectFile>) dbs.doHQL(query, parameters, 1);
         
         if (pfs.isEmpty()) 
             return null;
