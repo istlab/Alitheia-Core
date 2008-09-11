@@ -578,10 +578,13 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Evaluation state
                     String evalState = getLbl("project_not_evaluated");
-                    if ((nextPrj.getEvaluationMarks() != null)
-                            && (nextPrj.getEvaluationMarks().isEmpty()
-                                    == false)) {
-                        evalState = getLbl("project_is_evaluated");
+                    if (nextPrj.getEvaluationMarks() != null) {
+                        for( EvaluationMark mark : nextPrj.getEvaluationMarks()) {
+                            if ( mark.getWhenRun() != null ) {
+                                evalState = getLbl("project_is_evaluated");
+                                break;
+                            }
+                        }
                     }
                     b.append(sp(in) + "<td class=\"trans\">"
                             + evalState
