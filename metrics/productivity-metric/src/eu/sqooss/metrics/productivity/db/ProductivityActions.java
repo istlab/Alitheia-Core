@@ -87,27 +87,15 @@ public class ProductivityActions extends DAObject {
         
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        String paramDeveloper = "paramDeveloper"; 
-        String paramVersion = "paramVersion";
-        String paramType = "paramType"; 
-        
-        String query = "select a from ProductivityActions a " +
-                " where a.developer = :" + paramDeveloper +
-                " and a.projectVersion = :" + paramVersion +
-                " and a.productivityActionType = :" + paramType ;
-        
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramDeveloper, dev);
-        parameters.put(paramVersion, pv);
-        parameters.put(paramType, actionType);
+        Map<String,Object> properties = new HashMap<String,Object>();
+        properties.put("developer", dev);
+        properties.put("projectVersion", pv);
+        properties.put("productivityActionType", actionType);
 
-        List<?> productivityActions = dbs.doHQL(query, parameters);
+        List<ProductivityActions> pa = dbs.findObjectsByPropertiesForUpdate(
+                ProductivityActions.class, properties);
         
-        if (productivityActions == null || productivityActions.size() == 0) {
-            return null;
-        } else {
-            return (ProductivityActions) productivityActions.get(0);
-        }
+        return pa.isEmpty() ? null : pa.get(0);
     }
   
     public static long getTotalActions(){

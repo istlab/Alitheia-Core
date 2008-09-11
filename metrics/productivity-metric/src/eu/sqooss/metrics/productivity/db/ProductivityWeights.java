@@ -99,44 +99,29 @@ public class ProductivityWeights extends DAObject{
     public static ProductivityWeights getWeight(ProductivityMetricActions.ActionType actionType){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        String paramActionType = "paramActionType"; 
+        Map<String,Object> properties = new HashMap<String,Object>();
+        properties.put("actionType", actionType.toString());
         
-        String query = "select a from ProductivityWeights a " +
-        " where a.actionType = :" + paramActionType ;
+        List<ProductivityWeights> w = dbs.findObjectsByPropertiesForUpdate(
+                ProductivityWeights.class, properties);
         
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramActionType, actionType.toString());
-        
-        List<?> weights = dbs.doHQL(query, parameters);
-        
-        if(weights == null || weights.size() == 0) {
-            return null;
-        }else {
-            return (ProductivityWeights)weights.get(0);
-        }
-        
+        // NOTE (romain) : This is going to lock many unrelated rows !
+        // Review the query, it seems to return multiple rows but we only use the first one.
+        return w.isEmpty() ? null : w.get(0);
     }
     
     public static ProductivityWeights getWeight(ProductivityMetricActions.ActionCategory actionCategory){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        String paramActionCategory = "paramActionCategory"; 
+        Map<String,Object> properties = new HashMap<String,Object>();
+        properties.put("actionCategory", actionCategory.toString());
         
-        String query = "select a from ProductivityWeights a " +
-        " where a.actionCategory = :" + paramActionCategory ;
+        List<ProductivityWeights> w = dbs.findObjectsByPropertiesForUpdate(
+                ProductivityWeights.class, properties);
         
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramActionCategory, actionCategory.toString());
-        
-        List<?> weights = dbs.doHQL(query, parameters);
-        //List<ProductivityWeights> w = dbs.findObjectsByProperties(ProductivityWeights.class, parameters);
-        
-        if(weights == null || weights.size() == 0) {
-            return null;
-        }else {
-            return (ProductivityWeights)weights.get(0);
-        }
-        
+        // NOTE (romain) : This is going to lock many unrelated rows !
+        // Review the query, it seems to return multiple rows but we only use the first one.
+        return w.isEmpty() ? null : w.get(0);        
     }
     
     public static long getLastUpdateVersionsCount(){
