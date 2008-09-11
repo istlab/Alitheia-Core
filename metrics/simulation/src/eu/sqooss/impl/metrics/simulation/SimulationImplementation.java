@@ -87,8 +87,8 @@ public class SimulationImplementation extends AbstractMetric implements
 			serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
 			Scheduler s = ((AlitheiaCore) bc.getService(serviceRef))
 					.getScheduler();
-			s.enqueue(w);
-			w.waitForFinished();
+			//s.enqueue(w);
+			//w.waitForFinished();
 		} catch (Exception e) {
 			log.error("Could not schedule " + w.getClass().getName()
 					+ " for project file: " + ((ProjectFile) a).getFileName());

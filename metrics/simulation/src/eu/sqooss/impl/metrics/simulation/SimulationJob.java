@@ -34,15 +34,14 @@
 package eu.sqooss.impl.metrics.simulation;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.AbstractMetricJob;
 
-public class SimulationJob extends AbstractMetricJob {
+public class SimulationJob {
 
     // Reference to the metric that created this job
     AbstractMetric parent = null;
 
     public SimulationJob(AbstractMetric owner) {
-        super(owner);
+       // super(owner);
         parent = owner;
     }
 
