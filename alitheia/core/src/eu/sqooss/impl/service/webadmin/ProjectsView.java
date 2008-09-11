@@ -33,8 +33,12 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,7 +47,11 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.ClusterNodeProject;
+import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.InvocationRule;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
@@ -221,6 +229,16 @@ public class ProjectsView extends AbstractView {
                         p.setBugs(reqValPrjBug);
                         p.setMail(reqValPrjMail);
                         p.setRepository(reqValPrjCode);
+                        // Setup the evaluation marks for all installed metrics
+                        Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
+                        Map<String,Object> noProps = Collections.emptyMap();
+                        for( Metric m : sobjDB.findObjectsByProperties(Metric.class, noProps) ) {
+                            EvaluationMark em = new EvaluationMark();
+                            em.setMetric(m);
+                            em.setStoredProject(p);
+                            marks.add(em);
+                        }
+                        p.setEvaluationMarks(marks);
 
                         // Try to add the DAO to the DB
                         if (sobjDB.addRecord(p) == true) {

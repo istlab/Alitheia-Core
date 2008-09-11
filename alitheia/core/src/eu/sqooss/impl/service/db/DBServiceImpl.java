@@ -113,6 +113,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         }
         logger.warn("Exception caught during database session: " + e.getMessage() 
                 + ". Rolling back current transaction and terminating session...");
+        e.printStackTrace();
         Session s = null;
         try {
             s = sessionFactory.getCurrentSession();

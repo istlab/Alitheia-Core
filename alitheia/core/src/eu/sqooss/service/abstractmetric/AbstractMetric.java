@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -474,8 +475,18 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         m.setMnemonic(mnemonic);
         m.setMetricType(MetricType.getMetricType(type));
         m.setPlugin(p);
+        // Setup the evaluation marks for all existing projects
+        Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
+        Map<String,Object> noProps = Collections.emptyMap();
+        for( StoredProject sp : db.findObjectsByProperties(StoredProject.class, noProps) ) {
+            EvaluationMark em = new EvaluationMark();
+            em.setMetric(m);
+            em.setStoredProject(sp);
+            marks.add(em);
+        }
+        m.setEvaluationMarks(marks);
+        
         return p.getSupportedMetrics().add(m);
-
     }
 
     /**
