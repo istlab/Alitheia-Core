@@ -112,8 +112,8 @@ public interface PluginAdmin {
      *  
      * @param mnemonic - the metric's mnemonic name
      * 
-     * @return The metric plug-in object that implements this metric, or nulll
-     * if no such plugin found.
+     * @return The metric plug-in object that implements this metric, or null
+     * if no such plug-in found.
      */
     public AlitheiaPlugin getImplementingPlugin(String mnemonic);
 
@@ -185,16 +185,16 @@ public interface PluginAdmin {
     public void pluginUpdated(AlitheiaPlugin p);
 
     /**
-     * Call the self-test method of a plugin.
-     * @param serviceID Plugin service ID to call selfTest() on.
+     * Call the self-test method of a plug-in.
+     * @param serviceID Plug-in service ID to call selfTest() on.
      * @return true if test succeeded.
      */
     public boolean testPlugin(Long serviceID);
     
     /**
-     * Call the self-test method of a plugin.
+     * Call the self-test method of a plug-in.
      * 
-     * @param hash Hash code of the plugin to call.
+     * @param hash Hash code of the plug-in to call.
      * @return true if test succeeded.
      */
     public boolean testPlugin(String hash);

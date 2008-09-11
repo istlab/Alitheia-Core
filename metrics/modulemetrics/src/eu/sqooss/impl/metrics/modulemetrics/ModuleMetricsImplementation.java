@@ -71,6 +71,8 @@ implements ModuleMetrics {
         super.addMetricActivationType("MNOL", ProjectFile.class);
         super.addMetricActivationType("AMS", ProjectVersion.class);
         
+        super.addDependency("Wc.loc");
+        
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
@@ -178,7 +180,7 @@ implements ModuleMetrics {
                     loc += plugin.getResult(f, locMetric).getRow(0).get(0).getInteger();
                 }
             } catch (MetricMismatchException e) {
-                log.error("Results of LOC metric for project: "
+                log.error("Results of wc.loc metric for project: "
                         + f.getProjectVersion().getProject().getName() + " file: "
                         + f.getFileName() + ", Version: "
                         + f.getProjectVersion().getVersion() + " could not be retrieved: "

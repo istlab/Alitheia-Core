@@ -68,6 +68,8 @@ public class ProductivityMetricImpl extends AbstractMetric implements
         super.addActivationType(Developer.class);
         
         super.addMetricActivationType("PROD", Developer.class);
+        
+        super.addDependency("Wc.loc");
     }
     
     public boolean install() {
@@ -77,15 +79,16 @@ public class ProductivityMetricImpl extends AbstractMetric implements
                      "Developer Productivity Metric",
                      "PROD",
                      MetricType.Type.PROJECT_WIDE);
-         }
-         addConfigEntry(CONFIG_CMF_THRES, 
+         
+             addConfigEntry(CONFIG_CMF_THRES, 
                  "5" , 
                  "Number of committed files above which the developer is penalized", 
                  PluginInfo.ConfigurationType.INTEGER);
-         addConfigEntry(CONFIG_WEIGHT_UPDATE_VERSIONS, 
+             addConfigEntry(CONFIG_WEIGHT_UPDATE_VERSIONS, 
                  "150" , 
                  "Number of seconds between weight updates", 
                  PluginInfo.ConfigurationType.INTEGER);
+         }
          return result;
     }
     

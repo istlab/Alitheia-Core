@@ -79,6 +79,7 @@ import eu.sqooss.service.db.ProjectFile;
 */ 
 public class Skeleton extends AbstractMetric implements ProjectFileMetric {
     private static String MNEMONIC_METRIC = "SKEL";
+    private static String METRIC_DEPENDENCY_MNEMONIC = "Wc.loc";
     
     public Skeleton(BundleContext bc) {
         super(bc);        
@@ -93,10 +94,18 @@ public class Skeleton extends AbstractMetric implements ProjectFileMetric {
         // Squeleton has only one metric. The class should be the
         // DAO that activates the specific metric.
         super.addMetricActivationType(MNEMONIC_METRIC, ProjectFile.class);
+        
+        // Add a dependency to another plug-in. If this depencency is not
+        // satisfied (i.e. there is no installed plug-in that exports
+        // the provided mnemonic), then the metric will fail to 
+        // install and run.
+        super.addDependency(METRIC_DEPENDENCY_MNEMONIC);
     }
     
     public boolean install() {
+        //This should always be called to run various init tasks
         boolean result = super.install();
+        
         if (result) {
             result &= super.addSupportedMetrics(
                     this.getDescription(),

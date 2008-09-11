@@ -97,7 +97,7 @@ public class ProductivityMetricJob {
         
         List<Metric> locMetric = new ArrayList<Metric>();
         AlitheiaPlugin plugin = 
-            core.getPluginAdmin().getImplementingPlugin("LOC");
+            core.getPluginAdmin().getImplementingPlugin("Wc.loc");
         
         if (plugin != null) {
             locMetric = plugin.getSupportedMetrics();

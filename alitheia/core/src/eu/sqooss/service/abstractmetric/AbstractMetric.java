@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.osgi.framework.Bundle;
@@ -107,6 +108,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     protected HashMap<String, Class<? extends DAObject>> metricActTypes = 
         new HashMap<String, Class<? extends DAObject>>();
     
+    /** 
+     * Metric mnemonics for the metrics required to be present for this 
+     * metric to operate 
+     */
+    protected List<String> dependencies = new ArrayList<String>();
+
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -399,6 +406,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     public void run(DAObject o) throws MetricMismatchException {
 
+        if (!checkDependencies()) {
+            log.error("Plug-in dependency check failed");
+            return;
+        }
+        
         boolean found = false;
         Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
 
@@ -532,6 +544,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * super()
      */
     public boolean install() {
+        
+        if (!checkDependencies()) {
+            log.error("Plug-in installation failed");
+            return false;
+        }
+        
         HashMap<String, Object> h = new HashMap<String, Object>();
         h.put("name", this.getName());
 
@@ -777,5 +795,29 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if (!metricActTypes.containsKey(mnemonic)) {
             metricActTypes.put(mnemonic, c);
         }
-    }  
+    }
+    
+    /**
+     * Add a dependency to another plug-in
+     * @param mnemonic The mnemonic of the metric this metric depends on
+     */
+    protected final void addDependency(String mnemonic) {
+        if (!dependencies.contains(mnemonic)) {
+            dependencies.add(mnemonic);
+        }
+    }
+    
+    /**
+     * Check if the plug-in dependencies are satisfied
+     */
+    private boolean checkDependencies() {
+        for (String mnemonic : dependencies) {
+            if (pa.getImplementingPlugin(mnemonic) == null) {
+                log.error("No plug-in implements metric "  + mnemonic + 
+                        " which is required by " + getName());
+                return false;
+            }
+        }
+        return true;
+    }
 }
