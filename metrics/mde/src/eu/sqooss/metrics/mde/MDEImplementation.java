@@ -128,8 +128,14 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     }
 
     /*
-     * Find the total number of devleopers in the project for every week
-     * for which the data is unknown up until pv
+     * Find the total number of devleopers in the project for every revision
+     * for which the data is unknown from start to end; store a measurement
+     * for each one. If a revision already has a measurement stored, it
+     * is ignored. This method fills in the MDEDeveloper table, from which
+     * other results are calculated.
+     * 
+     * @param start Starting revision
+     * @param end Ending revision
      */
     public void runDevTotal(ProjectVersion start, ProjectVersion end) {
         log.info("Updating from " + 
