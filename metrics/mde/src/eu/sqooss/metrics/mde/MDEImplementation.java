@@ -115,37 +115,24 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     }
 
     public void run(ProjectVersion pv) {
-	// Find the latest ProjectVersion for which we have data
-	Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
-	try {
-            HashMap<String, Object> params = new HashMap<String, Object>(4);
-            params.put("m",m.getId());
-            params.put("p",pv.getProject().getId());
-            
-	    List<?> id = 
-		db.doSQL("select project_version_id from project_version_measurement natural join project_version where metric_id=:m and stored_project_id=:p order by timestamp desc limit 1",
-                    params);
-	    if((null != id) && !id.isEmpty()) {
-                // The object returned by the SQL statement might be
-                // Long or might be BigInt (an SQL type) so we need to
-                // be circumspect. It's just easiest from a code perspective
-                // to go via string parsing.
-                Object o = id.get(0);
-                Long v = Long.getLong(o.toString());
-        	ProjectVersionMeasurement latest =
-		    db.findObjectById(ProjectVersionMeasurement.class, v);
-                ProjectVersion previous = latest.getProjectVersion();
-                runDevTotal(previous,pv);
-	    } else {
-                runDevTotal(
-                        ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1)),
-                        pv);
-            }
-	}
-	catch(java.sql.SQLException err) {
-	    // Worry about this later
-            log.error("SQL Failure",err);
-	}
+    	// Find the latest ProjectVersion for which we have data
+        
+        String query = "select pvm from ProjectVersionMeasurement pvm, ProjectVersion pv" +
+                       " where pvm.projectVersion = pv" +
+                       " and pvm.metric = :metric and pv.project = :project" +
+                       " order by pv.timestamp desc";
+
+        Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
+        HashMap<String, Object> params = new HashMap<String, Object>(4);
+        params.put("metric", m);
+        params.put("project", pv.getProject());
+        List<?> pvmList = db.doHQL( query, params, 1);
+	    
+        ProjectVersion previous = pvmList.isEmpty() ? 
+                ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1)) :
+                ((ProjectVersionMeasurement) pvmList.get(0)).getProjectVersion();
+
+        runDevTotal(previous, pv);
     }
 
     /*

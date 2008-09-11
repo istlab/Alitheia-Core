@@ -324,7 +324,7 @@ public class ProjectFile extends DAObject{
             parameters.put(paramCopyFromName, pf.getCopyFrom().getName());
             parameters.put(paramCopyFromDir, pf.getCopyFrom().getDir());
         }
-        List<?> projectFiles = dbs.doHQL(query, parameters);
+        List<?> projectFiles = dbs.doHQL(query, parameters, 1);
 
         if(projectFiles == null || projectFiles.size() == 0) {
             return null;
