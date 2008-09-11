@@ -15,7 +15,7 @@
   <version>0.1.0</version>
   <packaging>jar</packaging>
 
-  <name>Testability plug-in</name>
+  <name>Alitheia Plug-n 'Testability'</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/testability</url>
   <inceptionYear>2008</inceptionYear>
   <description>

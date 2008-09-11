@@ -15,7 +15,7 @@
   <version>0.8.0</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Metric 'productivity'</name>
+  <name>Alitheia Plug-in 'productivity'</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/productivity-metric</url>
   <inceptionYear>2006</inceptionYear>
   <description>

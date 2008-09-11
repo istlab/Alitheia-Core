@@ -15,7 +15,7 @@
   <version>0.8.0</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Metric 'wc'</name>
+  <name>Alitheia Plug-in 'wc'</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/wc</url>
   <inceptionYear>2006</inceptionYear>
   <description>
