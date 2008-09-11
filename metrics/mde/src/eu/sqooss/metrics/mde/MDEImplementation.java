@@ -110,20 +110,20 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     }
 
     public void run(ProjectVersion pv) {
-        Object o = null;
+        Object projectLockObject = null;
         synchronized (projectLocks) {
-            o = projectLocks.get(pv.getId());
-            if (null == o) {
-                o = new Object();
-                projectLocks.put(pv.getId(),o);
+            projectLockObject = projectLocks.get(pv.getProject().getId());
+            if (null == projectLockObject) {
+                projectLockObject = new Object();
+                projectLocks.put(pv.getProject().getId(),projectLockObject);
             }
         }
-        if (null == o) {
+        if (null == projectLockObject) {
             log.error("Failed to get lock object for project " + pv.getProject().getName());
             return;
         }
         
-        synchronized(o) {
+        synchronized (projectLockObject) {
             // Find the latest ProjectVersion for which we have data
             Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
             ProjectVersion previous = 
@@ -134,6 +134,8 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             }
             // It's safe to run this on a revision twice
             runDevTotal(previous, pv);
+            db.commitDBSession();
+            db.startDBSession();
         }
     }
 
@@ -148,12 +150,15 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      * @param end Ending revision
      */
     private void runDevTotal(ProjectVersion start, ProjectVersion end) {
-        log.info("Updating from " + 
+        log.debug("Updating from " + 
                 ((null == start) ? "null" : start.toString()) + "-" +
                 ((null == end) ? "null" : end.toString()));
-
         if ((null == start) || (null == end)) {
             log.warn("Range of versions for runDevTotal is broken.");
+            return;
+        }
+        if (!start.lte(end)) {
+            log.info("Range " + start.toString() + "-" + end.toString() + " is backwards.");
             return;
         }
         
