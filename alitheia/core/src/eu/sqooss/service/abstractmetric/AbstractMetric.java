@@ -406,7 +406,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             Class<? extends DAObject> c = i.next();
             if (c.isInstance(o)) {
                 found = true;
-                log.warn("Trying to run for " + c.getName());
                 try {
                     Method m = this.getClass().getMethod("run", c);
                     m.invoke(this, o);
@@ -433,8 +432,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 " Unable to invoke " + method + " method." +
                 " Exception:" + e.getClass().getName() +
                 " Error:" + e.getMessage() + 
-                " Reason:" + e.getCause().getMessage());
-        e.printStackTrace();
+                " Reason:" + e.getCause().getMessage(),e);
     }
 
     /**
