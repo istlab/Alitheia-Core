@@ -6,9 +6,15 @@
 <hibernate-mapping>
   <class name="eu.sqooss.metrics.mde.db.MDEDeveloper" table="MDE_DEVELOPER">
     <id name="id" column="MDE_DEVELOPER_ID">
-      <generator class="native" />
+      <generator class="foreign">
+          <param name="property">developer</param>
+      </generator>
     </id>
-    <many-to-one name="developer" column="DEVELOPER_ID" not-null="true" cascade="merge" />
+    <many-to-one name="developer" 
+        column="DEVELOPER_ID" 
+        not-null="true" 
+        cascade="all" 
+        unique="true" />
     <property name="start" column="START_TIME" not-null="true" />
     <property name="startWeek" column="START_WEEK" not-null="true" />
     <property name="activeWeek" column="ACTIVE_WEEK" not-null="true" />

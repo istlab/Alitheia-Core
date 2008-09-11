@@ -35,7 +35,6 @@
 package eu.sqooss.metrics.mde;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,6 +50,7 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.tds.ProjectRevision;
 
 import eu.sqooss.metrics.mde.db.MDEDeveloper;
 
@@ -106,8 +106,8 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
                 // returning a value.
                 return null;
             }
-            Long count = Long.getLong(pvList.get(0).toString());
-            ProjectVersionMeasurement result = new ProjectVersionMeasurement(m,a,count);
+            String s = pvList.get(0).toString();
+            ProjectVersionMeasurement result = new ProjectVersionMeasurement(m,a,s);
             db.addRecord(result);
             return convertVersionMeasurement(result,m.getMnemonic());
         }
@@ -119,6 +119,11 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
         ProjectVersion previous = 
                 ProjectVersionMeasurement.getLastMeasuredVersion(m, pv.getProject());
+        if (null == previous) {
+            // We've got no measurements at all, so start at revision 1
+            previous = ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1));
+        }
+        // It's safe to run this on a revision twice
         runDevTotal(previous, pv);
     }
 
