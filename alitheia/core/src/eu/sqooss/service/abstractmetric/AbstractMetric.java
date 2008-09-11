@@ -521,21 +521,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     	HashMap<String, Object> filter = new HashMap<String, Object>();
     	filter.put("metric", me);
     	filter.put("storedProject", sp);
-    	List<EvaluationMark> wasEvaluated = db.findObjectsByProperties(
-    			EvaluationMark.class, filter);
+    	List<EvaluationMark> em = db.findObjectsByPropertiesForUpdate(EvaluationMark.class, filter);
 
-    	// If this is a first time evaluation, then remember this in the DB
-    	if (wasEvaluated.isEmpty()) {
-    		EvaluationMark evaluationMark = new EvaluationMark();
-    		evaluationMark.setMetric(me);
-    		evaluationMark.setStoredProject(sp);
-    		evaluationMark.setWhenRun(new Timestamp(System.currentTimeMillis()));
-
-    		db.addRecord(evaluationMark);
-    	} else {
-    		EvaluationMark m = wasEvaluated.get(0);
-    		m.setWhenRun(new Timestamp(System.currentTimeMillis()));
+    	if ( em.isEmpty() ) {
+    	    log.error("Couldn't retrieve the evaluation mark record for metric " + me.getMnemonic()
+    	              + ". Try reinstalling the plugin");
+    	    return;
     	}
+		em.get(0).setWhenRun(new Timestamp(System.currentTimeMillis()));
     }
 
     /**
