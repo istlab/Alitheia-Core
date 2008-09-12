@@ -12,7 +12,7 @@
 
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>testability</artifactId>
-  <version>0.1.0</version>
+  <version>0.8.0</version>
   <packaging>jar</packaging>
 
   <name>Alitheia Plug-n 'Testability'</name>
@@ -20,7 +20,7 @@
   <inceptionYear>2008</inceptionYear>
   <description>
     This metric measures the testability of the source code,
-    by looking for JUnit test cases.
+    by looking for various unit test cases.
   </description>
 
   <scm>
