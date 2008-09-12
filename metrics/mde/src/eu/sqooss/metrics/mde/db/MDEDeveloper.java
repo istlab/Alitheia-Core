@@ -47,9 +47,7 @@ import eu.sqooss.service.db.StoredProject;
 
 /**
  * This is an auxialiary class for the MDE metric that stores
- * a starting timestamp for each developer as well as information
- * about the weeks (relative to a project) in which the developer
- * worked. 
+ * a starting timestamp for each developer.
  * 
  * @author adridg
  */
@@ -59,28 +57,24 @@ public class MDEDeveloper extends DAObject {
      * primary key of the table as well.
      */
     private Developer developer;
+
     /**
      * Timestamp of the first commit by this developer; after
      * that timestamp (date) the developer is considered part
      * of the total developer count for the project.
+     *
+     * The start time is set only once.
      */
     private long start;
+
     /**
-     * Starting week relative to the start of a project for the developer.
+     * Starting week relative to the start of the project for the developer.
+     * This is measured in weeks from the beginning of the project,
+     * as calculated by MDEImplementation.convertToWeekOffset.
      */
     private int start_week;
-    /**
-     * Which week was the developer most recently active? This is relative
-     * to the starting week of the project.
-     */
-    private int active_week;
-    /**
-     * What is the length of service leading up to active_week? This
-     * is the number of consecutive weeks (ending in active_week) that
-     * the developer was active in the project.
-     */
-    private int service;
 
+    
     public MDEDeveloper() {
         super();
     }
@@ -116,22 +110,6 @@ public class MDEDeveloper extends DAObject {
     
     public void setStartWeek(int i) {
         start_week = i;
-    }
-    
-    public int getActiveWeek() {
-        return active_week;
-    }
-    
-    public void setActiveWeek(int i) {
-        active_week = i;
-    }
-    
-    public int getServiceTime() {
-        return service;
-    }
-    
-    public void setServiceTime(int i) {
-        service = i;
     }
     
     /**

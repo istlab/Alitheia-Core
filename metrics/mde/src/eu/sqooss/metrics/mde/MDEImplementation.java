@@ -52,13 +52,14 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.ProjectRevision;
 
 import eu.sqooss.metrics.mde.db.MDEDeveloper;
+import eu.sqooss.metrics.mde.db.MDEWeek;
 
 public class MDEImplementation extends AbstractMetric implements ProjectVersionMetric {
     /** This is the name of the non-adjusted dev(total) ancilliary metric. */
     private static final String MNEMONIC_MDE_DEVTOTAL = "MDE.dt";
-    
+
     HashMap<Long,Object> projectLocks;
-    
+
     public MDEImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectVersion.class);
@@ -97,7 +98,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
                 "and m.developer.storedProject = :project",
                 parameterMap);
             if ((null == pvList) || (pvList.size() == 0)) {
-                // The caller will print a warning that getResult isn't 
+                // The caller will print a warning that getResult isn't
                 // returning a value.
                 return null;
             }
@@ -121,11 +122,11 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             log.error("Failed to get lock object for project " + pv.getProject().getName());
             return;
         }
-        
+
         synchronized (projectLockObject) {
             // Find the latest ProjectVersion for which we have data
             Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
-            ProjectVersion previous = 
+            ProjectVersion previous =
                     ProjectVersionMeasurement.getLastMeasuredVersion(m, pv.getProject());
             if (null == previous) {
                 // We've got no measurements at all, so start at revision 1
@@ -144,12 +145,12 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      * for each one. If a revision already has a measurement stored, it
      * is ignored. This method fills in the MDEDeveloper table, from which
      * other results are calculated.
-     * 
+     *
      * @param start Starting revision
      * @param end Ending revision
      */
     private void runDevTotal(ProjectVersion start, ProjectVersion end) {
-        log.debug("Updating from " + 
+        log.debug("Updating from " +
                 ((null == start) ? "null" : start.toString()) + "-" +
                 ((null == end) ? "null" : end.toString()));
         if ((null == start) || (null == end)) {
@@ -160,7 +161,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             log.info("Range " + start.toString() + "-" + end.toString() + " is backwards.");
             return;
         }
-        
+
         StoredProject p = start.getProject();
         ProjectVersion projectStartVersion = ProjectVersion.getVersionByRevision(p, new ProjectRevision(1));
         if (null == projectStartVersion) {
@@ -168,46 +169,43 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             return;
         }
         long projectStartTime = projectStartVersion.getTimestamp();
-        
+
         ProjectVersion c = start;
         while ((null != c ) && c.lte(end)) {
-            MDEDeveloper d = MDEDeveloper.find(c.getCommitter());
-            if (null != d) {
-                // Know this developer, so update the stats
-                int thisWeek = convertToWeekOffset(projectStartTime, c.getTimestamp());
-                if (thisWeek < d.getActiveWeek()) {
-                    // This happens if we happen to hit runDevTotal()
-                    // in a separate thread after another thread has already
-                    // filled in the future; there's no real problem as we'll
-                    // just skip over until we get to a new week.
-                } else if (thisWeek == d.getActiveWeek()) {
-                    // Still in the same week, so no need to worry about the developer.
-                    // The active week and service time are unchanged.
-                } else if (thisWeek == d.getActiveWeek()+1) {
-                    // Advance by one week
-                    d.setActiveWeek(thisWeek);
-                    d.setServiceTime(d.getServiceTime()+1);
-                } else {
-                    // Active again, but the service time is re-set
-                    d.setActiveWeek(thisWeek);
-                    d.setServiceTime(1);
-                }
-            } else {
-                d = new MDEDeveloper(c.getCommitter());
-                d.setStart(c.getTimestamp());
-                d.setStartWeek(convertToWeekOffset(projectStartTime, c.getTimestamp()));
-                d.setServiceTime(1);
-                d.setActiveWeek(d.getStartWeek());
-                db.addRecord(d);
-            }
-            
+            memoDeveloper(projectStartTime, c);
+            memoWeek(projectStartTime, c);
             c = c.getNextVersion();
         }
     }
-    
+
+    private void memoDeveloper(long projectStartTime, ProjectVersion c) {
+        MDEDeveloper d = MDEDeveloper.find(c.getCommitter());
+        if (null != d) {
+            // Know this developer, so just leave them.
+        } else {
+            d = new MDEDeveloper(c.getCommitter());
+            d.setStart(c.getTimestamp());
+            d.setStartWeek(convertToWeekOffset(projectStartTime, c.getTimestamp()));
+            db.addRecord(d);
+        }
+    }
+
+    private void memoWeek(long projectStartTime, ProjectVersion c) {
+        int thisweek = convertToWeekOffset(projectStartTime, c.getTimestamp());
+
+        MDEWeek d = MDEWeek.find(c.getCommitter(), thisweek);
+        if (null != d) {
+            // Know this developer, so just leave them.
+        } else {
+            d = new MDEWeek(c.getCommitter(), thisweek, true);
+            db.addRecord(d);
+        }
+    }
+
+
     private static final long MILLISECONDS_PER_WEEK =
         1000 * 60 * 60 * 24 * 7;
-    
+
     public static int convertToWeekOffset(StoredProject p, long timestamp) {
         ProjectVersion start = ProjectVersion.getVersionByRevision(p, new ProjectRevision(1));
         if (null == start) {
@@ -216,11 +214,11 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         }
         return convertToWeekOffset(start.getTimestamp(),timestamp);
     }
-    
+
     public static int convertToWeekOffset(long start, long timestamp) {
         return (int) ((timestamp - start) / MILLISECONDS_PER_WEEK);
     }
-    
+
     public Object selfTest() {
         MDEDeveloper d = new MDEDeveloper();
         System.out.println(d);
