@@ -11,8 +11,7 @@
     <many-to-one name="developer"
         column="DEVELOPER_ID"
         not-null="true"
-        cascade="all"
-        unique="true" />
+        cascade="all" />
     <property name="week" column="WEEK" not-null="true" />
     <property name="active" column="ACTIVE" not-null="true" />
   </class>
