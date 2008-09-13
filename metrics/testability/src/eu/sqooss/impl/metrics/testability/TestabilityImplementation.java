@@ -88,7 +88,7 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
         if (result) {
             result &= super.addSupportedMetrics(
                     this.getDescription(),
-                    "TESTABILITY",
+                    "TESTCOV",
                     MetricType.Type.SOURCE_CODE);
         }
         return result;

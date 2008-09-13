@@ -204,7 +204,7 @@ public class PACommandProvider implements CommandProvider {
                 ci.println("[ERROR] Uninstall of metric with service id" +
                         serviceId + " failed.");
             } else {
-                ci.println("[ERROR] Uninstall of metric with service id" +
+                ci.println("Uninstall of metric with service id" +
                         serviceId + " was successful.");
             }
            } catch (NumberFormatException e) {
