@@ -64,7 +64,7 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
 
     private FDSService fds;
 
-    private static final String MNEMONIC_NCASES   = "Testability.ncases";
+    private static final String MNEMONIC_NCASES   = "Tst.n";
 
     public TestabilityImplementation(BundleContext bc) {
         super(bc);
