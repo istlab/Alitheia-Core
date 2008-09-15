@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.hibernate.QueryException;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -57,7 +58,8 @@ import eu.sqooss.metrics.mde.db.MDEWeek;
 public class MDEImplementation extends AbstractMetric implements ProjectVersionMetric {
     /** This is the name of the non-adjusted dev(total) ancilliary metric. */
     private static final String MNEMONIC_MDE_DEVTOTAL = "MDE.dt";
-
+    private static final String MNEMONIC_MDE_DEVACTIVE = "MDE.da";
+    
     HashMap<Long,Object> projectLocks;
 
     public MDEImplementation(BundleContext bc) {
@@ -74,12 +76,15 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
                     "Mean Developer Engagement: Ancilliary dev(total)",
                     MNEMONIC_MDE_DEVTOTAL,
                     MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Mean Developer Engagement: Ancilliary dev(active)",
+                    MNEMONIC_MDE_DEVACTIVE,
+                    MetricType.Type.SOURCE_CODE);
         }
         return result;
     }
 
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectVersion", a);
@@ -87,25 +92,29 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         List<ProjectVersionMeasurement> measurement =
             db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
         if ((null != measurement) && (measurement.size()>0)) {
-            return convertVersionMeasurements(measurement,m.getMnemonic());
+            return convertVersionMeasurements(measurement, m.getMnemonic());
         } else {
+            // Fill up the DB
             run(a);
-            HashMap<String,Object> parameterMap = new HashMap<String,Object>(2);
-            parameterMap.put("timestamp", a.getTimestamp());
-            parameterMap.put("project", a.getProject());
-            List<?> pvList = db.doHQL("select count(*) from MDEDeveloper m " +
-                "where m.start <= :timestamp " +
-                "and m.developer.storedProject = :project",
-                parameterMap);
-            if ((null == pvList) || (pvList.size() == 0)) {
-                // The caller will print a warning that getResult isn't
-                // returning a value.
+            ProjectVersionMeasurement result = null;
+            ProjectVersionMeasurement r = null;
+                    
+            r = recordDevTotal(a);
+            if (MNEMONIC_MDE_DEVTOTAL.equals(m.getMnemonic())) {
+                result = r;
+            }
+            
+            r = recordDevActive(a);
+            if (MNEMONIC_MDE_DEVACTIVE.equals(m.getMnemonic())) {
+                result = r;
+            }
+            
+            if (null != result) {
+                return convertVersionMeasurement(result, m.getMnemonic());
+            } else {
+                log.warn("The requested metric " + m.getMnemonic() + " did not match any recording function.");
                 return null;
             }
-            String s = pvList.get(0).toString();
-            ProjectVersionMeasurement result = new ProjectVersionMeasurement(m,a,s);
-            db.addRecord(result);
-            return convertVersionMeasurement(result,m.getMnemonic());
         }
     }
 
@@ -137,6 +146,41 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             db.commitDBSession();
             db.startDBSession();
         }
+    }
+
+    private ProjectVersionMeasurement recordDevTotal(ProjectVersion a) throws QueryException {
+        Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
+        HashMap<String, Object> parameterMap = new HashMap<String, Object>(2);
+        parameterMap.put("timestamp", a.getTimestamp());
+        parameterMap.put("project", a.getProject());
+        List<?> pvList = db.doHQL("select count(*) from MDEDeveloper m where m.start <= :timestamp and m.developer.storedProject = :project", parameterMap);
+        if ((null == pvList) || (pvList.size() == 0)) {
+            // The caller will print a warning that getResult isn't
+            // returning a value.
+            return null;
+        }
+        String s = pvList.get(0).toString();
+        ProjectVersionMeasurement result = new ProjectVersionMeasurement(m, a, s);
+        db.addRecord(result);
+        return result;
+    }
+
+    private ProjectVersionMeasurement recordDevActive(ProjectVersion a) throws QueryException {
+        Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVACTIVE);
+        Integer weeknumber = new Integer(convertToWeekOffset(a));
+        HashMap<String, Object> parameterMap = new HashMap<String, Object>(2);
+        parameterMap.put("week", weeknumber);
+        parameterMap.put("project", a.getProject());
+        List<?> pvList = db.doHQL("select count(*) from MDEWeek m where m.week = :week and m.developer.storedProject = :project", parameterMap);
+        if ((null == pvList) || (pvList.size() == 0)) {
+            // The caller will print a warning that getResult isn't
+            // returning a value.
+            return null;
+        }
+        String s = pvList.get(0).toString();
+        ProjectVersionMeasurement result = new ProjectVersionMeasurement(m, a, s);
+        db.addRecord(result);
+        return result;
     }
 
     /*
@@ -206,6 +250,10 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     private static final long MILLISECONDS_PER_WEEK =
         1000 * 60 * 60 * 24 * 7;
 
+    public static int convertToWeekOffset(ProjectVersion v) {
+        return convertToWeekOffset(v.getProject(), v.getTimestamp());
+    }
+    
     public static int convertToWeekOffset(StoredProject p, long timestamp) {
         ProjectVersion start = ProjectVersion.getVersionByRevision(p, new ProjectRevision(1));
         if (null == start) {
