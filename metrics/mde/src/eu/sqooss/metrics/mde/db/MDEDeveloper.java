@@ -46,9 +46,9 @@ import eu.sqooss.service.db.StoredProject;
 
 
 /**
- * This is an auxialiary class for the MDE metric that stores
+ * This is an auxiliary class for the MDE metric that stores
  * a starting timestamp for each developer.
- * 
+ *
  * @author adridg
  */
 public class MDEDeveloper extends DAObject {
@@ -74,7 +74,7 @@ public class MDEDeveloper extends DAObject {
      */
     private int start_week;
 
-    
+
     public MDEDeveloper() {
         super();
     }
@@ -87,7 +87,7 @@ public class MDEDeveloper extends DAObject {
         this();
         setDeveloper(d);
     }
-    
+
     public Developer getDeveloper() {
         return developer;
     }
@@ -95,11 +95,11 @@ public class MDEDeveloper extends DAObject {
     public void setDeveloper(Developer developer) {
         this.developer = developer;
     }
-    
+
     public long getStart() {
         return start;
     }
-    
+
     public void setStart(long t){
         this.start = t;
     }
@@ -107,28 +107,28 @@ public class MDEDeveloper extends DAObject {
     public int getStartWeek() {
         return start_week;
     }
-    
+
     public void setStartWeek(int i) {
         start_week = i;
     }
-    
+
     /**
      * Convenience method to get the project that the developer
      * is working on.
-     * 
+     *
      * @return StoredProject for this MDEDeveloper
      */
     public StoredProject getProject() {
         return developer.getStoredProject();
     }
-    
+
     public static MDEDeveloper find(Developer d) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         HashMap<String,Object> parameters = new HashMap<String,Object>();
         parameters.put("developer", d);
-        
-        List<MDEDeveloper> l = dbs.findObjectsByProperties(MDEDeveloper.class, 
+
+        List<MDEDeveloper> l = dbs.findObjectsByProperties(MDEDeveloper.class,
                 parameters);
         if ((null != l) && !l.isEmpty()) {
             return l.get(0);
