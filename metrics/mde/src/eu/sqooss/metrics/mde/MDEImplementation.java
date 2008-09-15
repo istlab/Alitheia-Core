@@ -98,15 +98,25 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             run(a);
             ProjectVersionMeasurement result = null;
             ProjectVersionMeasurement r = null;
-                    
-            r = recordDevTotal(a);
-            if (MNEMONIC_MDE_DEVTOTAL.equals(m.getMnemonic())) {
-                result = r;
+
+            Metric stm = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
+            if (null == stm) {
+                log.warn("Metric dev(total) was not registered");
+            } else {
+                r = recordDevTotal(a,stm);
+                if (MNEMONIC_MDE_DEVTOTAL.equals(m.getMnemonic())) {
+                    result = r;
+                }
             }
             
-            r = recordDevActive(a);
-            if (MNEMONIC_MDE_DEVACTIVE.equals(m.getMnemonic())) {
-                result = r;
+            stm = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVACTIVE);
+            if (null == stm) {
+                log.warn("Metric dev(active) was not registered");
+            } else {
+                r = recordDevActive(a, stm);
+                if (MNEMONIC_MDE_DEVACTIVE.equals(m.getMnemonic())) {
+                    result = r;
+                }
             }
             
             if (null != result) {
@@ -148,8 +158,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         }
     }
 
-    private ProjectVersionMeasurement recordDevTotal(ProjectVersion a) throws QueryException {
-        Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
+    private ProjectVersionMeasurement recordDevTotal(ProjectVersion a, Metric m) throws QueryException {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>(2);
         parameterMap.put("timestamp", a.getTimestamp());
         parameterMap.put("project", a.getProject());
@@ -165,8 +174,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         return result;
     }
 
-    private ProjectVersionMeasurement recordDevActive(ProjectVersion a) throws QueryException {
-        Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVACTIVE);
+    private ProjectVersionMeasurement recordDevActive(ProjectVersion a, Metric m) throws QueryException {
         Integer weeknumber = new Integer(convertToWeekOffset(a));
         HashMap<String, Object> parameterMap = new HashMap<String, Object>(2);
         parameterMap.put("week", weeknumber);
