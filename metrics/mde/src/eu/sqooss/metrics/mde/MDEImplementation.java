@@ -2,9 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2008 by Paul J. Adams <paul.adams@siriusit.co.uk>
- * Copyright 2008 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2008 by AUEB, Adriaan de Groot <groot@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -34,14 +33,12 @@
 
 package eu.sqooss.metrics.mde;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.hibernate.QueryException;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
@@ -276,8 +273,6 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     }
 
     public Object selfTest() {
-        MDEDeveloper d = new MDEDeveloper();
-        System.out.println(d);
         return null;
     }
 }
