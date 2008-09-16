@@ -34,6 +34,10 @@
 package eu.sqooss.service.db;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * An evaluation mark records that a given metric (from a plug-in)
@@ -134,6 +138,38 @@ public class EvaluationMark extends DAObject {
     
     public void setVersion(ProjectVersion v) {
         version = v;
+    }
+
+    /**
+     * Convenience method to look up an evaluation mark for a given
+     * (metric,project) pair; there should be (but this is not enforced)
+     * only one mark per par. If there are more than one pair, returns
+     * the first one in some arbitrary ordering; if there are none, 
+     * return null.
+     * 
+     * @param m Metric to look up
+     * @param p Project to look up
+     * @return First mark for this particular (metric,project) pair, or
+     *         null if there is none.
+     */
+    public EvaluationMark find(Metric m, StoredProject p) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        HashMap<String,Object> parameters = new HashMap<String,Object>(2);
+        parameters.put("metric", m);
+        parameters.put("storedProject", p);
+
+        List<EvaluationMark> l = dbs.findObjectsByProperties(EvaluationMark.class,
+                parameters);
+        if ((null != l) && !l.isEmpty()) {
+            if (l.size()>1) {
+                // TODO: We would want to warn about this, but then
+                //       we need to get a suitable logger from somewhere.
+            }
+            return l.get(0);
+        } else {
+            return null;
+        }
     }
 }
 
