@@ -98,14 +98,27 @@ public class EvaluationMark extends DAObject {
      * 
      * @param m Metric the evaluation is for
      * @param p Project the evaluation is for
+     */
+    public EvaluationMark(Metric m, StoredProject p) {
+        super();
+        this.metric = m;
+        this.storedProject = p;
+        this.version = null;
+        this.whenRun = new Timestamp(System.currentTimeMillis());
+    }
+    
+    /**
+     * Convenience constructor for setting some of the fields of
+     * an evaluation mark in one go. The timestamp is set to now;
+     * the version may be null to accomodate evaluation marks that
+     * do not refer to a specific version.
+     * 
+     * @param m Metric the evaluation is for
      * @param v Project version that the evaluation is for (may be null)
      */
     public EvaluationMark(Metric m, ProjectVersion v) {
-        super();
-        this.metric = m;
-        this.storedProject = v.getProject();
+        this(m, v.getProject());
         this.version = v;
-        this.whenRun = new Timestamp(System.currentTimeMillis());
     }
     
     public Metric getMetric() {
@@ -121,6 +134,10 @@ public class EvaluationMark extends DAObject {
     }
 
     public void setStoredProject(StoredProject storedProject) {
+        if ((null != version) && !version.getProject().equals(storedProject)) {
+            // Mismatch between project and associated version.
+            // TODO: complain loudly.
+        }
         this.storedProject = storedProject;
     }
 
@@ -144,7 +161,12 @@ public class EvaluationMark extends DAObject {
     }
     
     public void setVersion(ProjectVersion v) {
+        if ((null != storedProject) && !storedProject.equals(v.getProject())) {
+            // Mismatch between version and projet
+            // TODO: complain loudly.
+        }
         version = v;
+        // TODO: maybe set project from the version as well?
     }
 
     /**
@@ -177,6 +199,43 @@ public class EvaluationMark extends DAObject {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Updates (or adds) an evaluation mark for the given metric and
+     * stored project (with no version associated unless the mark exists
+     * already with an associated version). This is a convenience method
+     * to handle the update-or-add-new pattern.
+     * 
+     * @param m Metric the mark is for
+     * @param p Project the mark is for
+     * @return Newly-added or updated mark
+     */
+    public static EvaluationMark update(Metric m, StoredProject p) {
+        DBService db = AlitheiaCore.getInstance().getDBService();
+        EvaluationMark mark = EvaluationMark.find(m, p);
+        if (null != mark) {
+            mark.updateWhenRun();
+        } else {
+            mark = new EvaluationMark(m, p);
+            db.addRecord(mark);
+        }
+        return mark;
+    }
+
+    /**
+     * Updates (or adds) an evaluation mark for the given metric
+     * and project version. This is a convenience method to handle
+     * the update-or-add-new pattern.
+     * 
+     * @param m Metric the mark is for
+     * @param pv Associated project version
+     * @return Newly-added or updated mark
+     */
+    public static EvaluationMark update(Metric m, ProjectVersion pv) {
+        EvaluationMark mark = update(m,pv.getProject());
+        mark.setVersion(pv);
+        return mark;
     }
 }
 
