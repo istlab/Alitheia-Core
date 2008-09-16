@@ -100,10 +100,10 @@ public class EvaluationMark extends DAObject {
      * @param p Project the evaluation is for
      * @param v Project version that the evaluation is for (may be null)
      */
-    public EvaluationMark(Metric m, StoredProject p, ProjectVersion v) {
+    public EvaluationMark(Metric m, ProjectVersion v) {
         super();
         this.metric = m;
-        this.storedProject = p;
+        this.storedProject = v.getProject();
         this.version = v;
         this.whenRun = new Timestamp(System.currentTimeMillis());
     }
