@@ -130,6 +130,14 @@ public class MDEWeek extends DAObject {
         return developer.getStoredProject();
     }
 
+    /**
+     * Convenience method to look up a (developer,week ) pair
+     * in the database and return the MDEWeek object for it,
+     * or null if it is not in the database.
+     * @param d Developer to look for
+     * @param w Week number relative to the beginning of the project
+     * @return MDEWeek object from the database or null if none
+     */
     public static MDEWeek find(Developer d, int w) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
