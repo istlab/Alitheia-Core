@@ -41,10 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
-
-import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.DBService;
-
+import eu.sqooss.service.tds.ProjectRevision;
 
 /**
  * This class represents a project that Alitheia "knows about".
@@ -91,31 +88,13 @@ public class StoredProject extends DAObject {
     private Set<EvaluationMark> evaluationMarks;
 
     public StoredProject() {
+        super();
     }
 
     public StoredProject(String name) {
-        setName(name);
+        this();
+        this.name = name;
     }
-
-    /**
-     * Convenience method to retrieve a stored project from the
-     * database by name; this is different from the constructor
-     * that takes a name parameter. This method actually searches
-     * the database, whereas the constructor makes a new project
-     * with the given name.
-     * 
-     * @param name Name of the project to search for
-     * @return StoredProject object or null if not found
-     */
-    public static StoredProject getProjectByName(String name) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("name",name);
-        List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
-        return (prList == null || prList.isEmpty()) ? null : prList.get(0);
-    }
-
 
     public String getName() {
         return name;
@@ -168,6 +147,8 @@ public class StoredProject extends DAObject {
     public List<ProjectVersion> getProjectVersions() {
         return projectVersions;
     }
+
+    // TODO: this seems kind of inefficient
     public List<ProjectVersion> getTaggedVersions() {
         List<ProjectVersion> versions = getProjectVersions();
         for (ProjectVersion version : versions)
@@ -233,6 +214,25 @@ public class StoredProject extends DAObject {
     }
 
     /**
+     * Convenience method to retrieve a stored project from the
+     * database by name; this is different from the constructor
+     * that takes a name parameter. This method actually searches
+     * the database, whereas the constructor makes a new project
+     * with the given name.
+     * 
+     * @param name Name of the project to search for
+     * @return StoredProject object or null if not found
+     */
+    public static StoredProject getProjectByName(String name) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("name",name);
+        List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
+        return (prList == null || prList.isEmpty()) ? null : prList.get(0);
+    }
+
+    /**
      * Convenience method to find the latest project version for
      * a given project.
      * 
@@ -251,6 +251,70 @@ public class StoredProject extends DAObject {
         return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
     }
 
+    /**
+     * Convenience method to find the number of versions for this project.
+     * Similar to the static getVersionsCount().
+     * 
+     * @return number of versions of the project stored in the database.
+     * @see getVersionsCount
+     */
+    public long getVersionCount() {
+        // TODO: possibly use getProjectVersions().size()?
+        // TODO: possibly use the HQL directly?
+        return getVersionsCount(getId());
+    }
+
+    /**
+     * Look up a project version for this project based on the SVN
+     * revision number (e.g. 1). This does a database lookup and 
+     * returns the ProjectVersion recorded for that SVN revision,
+     * or null if there is no such revision (for instance because
+     * the updater has not added it yet or the revision number is
+     * invalid in some way). This is a lookup, not a creation, of
+     * revisions.
+     * 
+     * @param revision SVN revision number to look up for this project
+     * @return ProjectVersion object corresponding to the revision,
+     *         or null if there is none.
+     */
+    public ProjectVersion getVersionByRevision(long revision) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+   
+        String paramProjectId = "stored_project_id";
+        String paramRevision = "revision_nr";
+        String query = "select pv " +
+                       "from ProjectVersion pv " +
+                       "where pv.project.id=:" + paramProjectId + " and " +
+                       "pv.version=:" + paramRevision;
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramProjectId, getId());
+        parameters.put(paramRevision, revision);
+
+        List<?> versions = dbs.doHQL(query, parameters);
+        if (versions == null || versions.size() == 0) {
+            return null;
+        } else {
+            return (ProjectVersion) versions.get(0);
+        }
+    }
+    
+    /**
+     * Convenience method, essentially like the above.
+     * @param revision ProjectRevision to use for the lookup.
+     * @return ProjectVersion corresponding to the SVN revision, or
+     *          null if there is none.
+     */
+    public ProjectVersion getVersionByRevision(ProjectRevision revision) {
+        if (!revision.hasSVNRevision()) {
+            // Can't do the lookup if we don't have a SVN revision number;
+            // caller should have resolved other revision specifications 
+            // to a number already.
+            return null;
+            // TODO: possibly log this
+        }
+        return getVersionByRevision(revision.getSVNRevision());
+    }
     
     //================================================================
     // Static table information accessors
