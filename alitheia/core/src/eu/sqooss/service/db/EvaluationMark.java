@@ -36,30 +36,34 @@ package eu.sqooss.service.db;
 import eu.sqooss.service.db.DAObject;
 import java.sql.Timestamp;
 
+/**
+ * An evaluation mark records that a given metric (from a plug-in)
+ * has evaluated and stored *something* about a given project,
+ * as well as information on when that evaluation was run.
+ * Only projects with evaluation marks will be displayed to
+ * the user in the public interface. Metrics should record
+ * evaluation marks for themselves.
+ * 
+ * TODO: add convenience info like 'last version' 
+ */
 public class EvaluationMark extends DAObject {
+    /**
+     * An evaluation mark is specific to one metric.
+     * Each matric in a plug-in should write its own
+     * evaluation mark, but the plugin is considered to
+     * be evaluated against a project if any of its
+     * metrics is evaluated.
+     */
     private Metric metric;
+    /**
+     * Project the mark is for.
+     */
     private StoredProject storedProject;
-    private Timestamp whenRun;
-
-    public EvaluationMark() {
-        // Nothing to do
-    }
-
     /**
-     * @return the metric
-     */
-    public Metric getMetric() {
-        return metric;
-    }
-
-    /**
-     * @return the storedProject
-     */
-    public StoredProject getStoredProject() {
-        return storedProject;
-    }
-
-    /**
+     * Timestamp (in SQL notation) of when the mark was
+     * placed -- this is independent of what it was set
+     * against, though.
+     *
      * An evaluation mark is set at some specific time; this is
      * informational for the users and does not affect the mark
      * itself. It can be used to display to the user when a particular
@@ -67,24 +71,39 @@ public class EvaluationMark extends DAObject {
      * 
      * @return the date this metric/project combo was last evaluated.
      */
-    public Timestamp getWhenRun() {
-    	return whenRun;
+    private Timestamp whenRun;
+
+    public EvaluationMark() {
+        super();
+    }
+
+    public EvaluationMark(Metric m, StoredProject p, Timestamp t) {
+        super();
+        this.metric = m;
+        this.storedProject = p;
+        this.whenRun = t;
     }
     
-    /**
-     * @param metric the metric to set
-     */
+    public Metric getMetric() {
+        return metric;
+    }
+
     public void setMetric(Metric metric) {
         this.metric = metric;
     }
 
-    /**
-     * @param storedProject the storedProject to set
-     */
+    public StoredProject getStoredProject() {
+        return storedProject;
+    }
+
     public void setStoredProject(StoredProject storedProject) {
         this.storedProject = storedProject;
     }
 
+    public Timestamp getWhenRun() {
+    	return whenRun;
+    }
+    
     public void setWhenRun(Timestamp w) {
     	whenRun = w;
     }
