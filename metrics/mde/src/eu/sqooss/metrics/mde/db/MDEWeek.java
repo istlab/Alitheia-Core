@@ -34,7 +34,6 @@
 
 package eu.sqooss.metrics.mde.db;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
