@@ -337,33 +337,7 @@ public class ProjectVersion extends DAObject {
      * @return ProjectVersion, or null if none found
      */
     public static ProjectVersion getVersionByRevision( StoredProject project, ProjectRevision revision ) {
-        if (!revision.hasSVNRevision()) {
-            // Can't do the lookup if we don't have a SVN revision number;
-            // caller should have resolved other revision specifications 
-            // to a number already.
-            return null;
-            // TODO: possibly log this
-        }
-        
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-   
-        String paramProjectId = "stored_project_id";
-        String paramRevision = "revision_nr";
-        String query = "select pv " +
-                       "from ProjectVersion pv " +
-                       "where pv.project.id=:" + paramProjectId + " and " +
-                       "pv.version=:" + paramRevision;
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramProjectId, project.getId());
-        parameters.put(paramRevision, revision.getSVNRevision());
-
-        List<?> projectVersions = dbs.doHQL(query, parameters);
-        if (projectVersions == null || projectVersions.size() == 0) {
-            return null;
-        } else {
-            return (ProjectVersion) projectVersions.get(0);
-        }
+        return project.getVersionByRevision(revision);
     }
     
     /**
