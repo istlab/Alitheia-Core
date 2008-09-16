@@ -42,6 +42,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectVersion;
@@ -81,11 +82,33 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         return result;
     }
 
+    /**
+     * This plug-in stores evaluation marks to record that
+     * it has done calculations (per metric) right through to project version V;
+     * use this to calculate whether the given project version
+     * has been evaluated (i.e. <= V) or not.
+     * 
+     * @param m Metric to check against
+     * @param v Version to check for
+     * @return true if that version has been evaluated already
+     */
+    private boolean isKnown(Metric m, ProjectVersion v) {
+        EvaluationMark mark = EvaluationMark.find(m,v.getProject());
+        if (null == mark) {
+            return false;
+        }
+        if (null == mark.getVersion()) {
+            return false;
+        }
+        return v.lte(mark.getVersion());
+    }
+    
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectVersion", a);
         filter.put("metric", m);
+        
         List<ProjectVersionMeasurement> measurement =
             db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
         if ((null != measurement) && (measurement.size()>0)) {
