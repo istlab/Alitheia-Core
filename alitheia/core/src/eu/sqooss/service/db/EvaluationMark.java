@@ -131,6 +131,13 @@ public class EvaluationMark extends DAObject {
     public void setWhenRun(Timestamp w) {
     	whenRun = w;
     }
+
+    /**
+     * Convenience method to set the whenRun property to "now".
+     */
+    public void updateWhenRun() {
+        this.whenRun = new Timestamp(System.currentTimeMillis());
+    }
     
     public ProjectVersion getVersion() {
         return version;
