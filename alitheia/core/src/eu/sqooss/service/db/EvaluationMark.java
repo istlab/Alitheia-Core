@@ -161,9 +161,14 @@ public class EvaluationMark extends DAObject {
     }
     
     public void setVersion(ProjectVersion v) {
-        if ((null != storedProject) && !storedProject.equals(v.getProject())) {
-            // Mismatch between version and projet
-            // TODO: complain loudly.
+        if (null != storedProject) {
+            if ((null != v) && !storedProject.equals(v.getProject())) {
+                // Mismatch between version and projet
+                // TODO: complain loudly.
+            } else {
+                // Either v is null (no problem) or the projects
+                // are equal (no problem either).
+            }
         }
         version = v;
         // TODO: maybe set project from the version as well?
