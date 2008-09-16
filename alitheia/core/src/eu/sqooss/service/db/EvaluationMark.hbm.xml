@@ -10,6 +10,7 @@
     </id>
     <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge" />
     <many-to-one name="storedProject" column="STORED_PROJECT_ID" not-null="true" cascade="merge"/>
+    <many-to-one name="version" column="PROJECT_VERSION_ID" not-null="false" cascade="merge" />
     <property name="whenRun" column="WHEN_RUN" type="java.util.Date" />
   </class>
 </hibernate-mapping>

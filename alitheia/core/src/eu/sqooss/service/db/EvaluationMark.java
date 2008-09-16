@@ -33,7 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.service.db.DAObject;
 import java.sql.Timestamp;
 
 /**
@@ -44,7 +43,10 @@ import java.sql.Timestamp;
  * the user in the public interface. Metrics should record
  * evaluation marks for themselves.
  * 
- * TODO: add convenience info like 'last version' 
+ * An evaluation mark may be associated with a project version;
+ * this may be used by a plug-in to describe things like "the
+ * latest version to be evaluated was V", at its discretion.
+ * The associated version may be null.
  */
 public class EvaluationMark extends DAObject {
     /**
@@ -72,16 +74,34 @@ public class EvaluationMark extends DAObject {
      * @return the date this metric/project combo was last evaluated.
      */
     private Timestamp whenRun;
-
+    /**
+     * An evaluation mark *may* be connected to a project version.
+     * It does not have to be, though. If it is, the mark says something
+     * like "this project is evaluated all the way through to version V."
+     * The exact meaning is up to the metric, of course.
+     */
+    private ProjectVersion version;
+    
     public EvaluationMark() {
         super();
     }
 
-    public EvaluationMark(Metric m, StoredProject p, Timestamp t) {
+    /**
+     * Convenience constructor for setting some of the fields of
+     * an evaluation mark in one go. The timestamp is set to now;
+     * the version may be null to accomodate evaluation marks that
+     * do not refer to a specific version.
+     * 
+     * @param m Metric the evaluation is for
+     * @param p Project the evaluation is for
+     * @param v Project version that the evaluation is for (may be null)
+     */
+    public EvaluationMark(Metric m, StoredProject p, ProjectVersion v) {
         super();
         this.metric = m;
         this.storedProject = p;
-        this.whenRun = t;
+        this.version = v;
+        this.whenRun = new Timestamp(System.currentTimeMillis());
     }
     
     public Metric getMetric() {
@@ -106,6 +126,14 @@ public class EvaluationMark extends DAObject {
     
     public void setWhenRun(Timestamp w) {
     	whenRun = w;
+    }
+    
+    public ProjectVersion getVersion() {
+        return version;
+    }
+    
+    public void setVersion(ProjectVersion v) {
+        version = v;
     }
 }
 
