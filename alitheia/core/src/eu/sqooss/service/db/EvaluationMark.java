@@ -152,7 +152,7 @@ public class EvaluationMark extends DAObject {
      * @return First mark for this particular (metric,project) pair, or
      *         null if there is none.
      */
-    public EvaluationMark find(Metric m, StoredProject p) {
+    public static EvaluationMark find(Metric m, StoredProject p) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         HashMap<String,Object> parameters = new HashMap<String,Object>(2);
