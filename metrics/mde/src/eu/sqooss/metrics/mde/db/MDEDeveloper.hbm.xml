@@ -10,10 +10,10 @@
           <param name="property">developer</param>
       </generator>
     </id>
-    <many-to-one name="developer" 
-        column="DEVELOPER_ID" 
-        not-null="true" 
-        cascade="all" 
+    <many-to-one name="developer"
+        column="DEVELOPER_ID"
+        not-null="true"
+        cascade="all"
         unique="true" />
     <property name="start" column="START_TIME" not-null="true" />
     <property name="startWeek" column="START_WEEK" not-null="true" />

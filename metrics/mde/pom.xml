@@ -17,7 +17,8 @@
 
   <name>Alitheia Plug-in 'Mean Developer Engagement'</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/mde</url>
-  <inceptionYear>2008</inceptionYear> <description> 
+  <inceptionYear>2008</inceptionYear>
+  <description>
     This plugin implements the "Mean Develop Engagement" metric as
     introduced by Adams, Capiluppi and de Groot at OSS2008. The metric
     is a representation of how affective a project is at utilising its
@@ -31,7 +32,7 @@
     <connection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/mde
     </connection>
-    <developerConnection>
+  sq  <developerConnection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/mde
     </developerConnection>
   </scm>
@@ -58,7 +59,7 @@
             <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
-        </configuration> 
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-deploy-plugin</artifactId>
