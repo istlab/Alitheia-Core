@@ -2,8 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Georgios Gousios <gousiosg@gmail.com>
+ * Copyright 2008 Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -34,13 +33,10 @@
 package eu.sqooss.impl.metrics.clmt;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.fds.FDSService;
-import eu.sqooss.service.fds.InMemoryCheckout;
-import eu.sqooss.service.fds.InMemoryDirectory;
 
 public class FileOps {
     

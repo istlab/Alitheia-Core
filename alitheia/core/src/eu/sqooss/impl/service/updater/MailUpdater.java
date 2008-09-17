@@ -2,9 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 Georgios Gousios <gousiosg@gmail.com>
- * Copyright 2007-2008 Vassilios Karakoidas <vassilios.karakoidas@gmail.com>
+ * Copyright 2008 Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -46,7 +44,6 @@ import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
 
-import eu.sqooss.service.db.DAOException;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
@@ -198,8 +195,6 @@ class MailUpdater extends Job {
                 logger.warn(msg + "not found: " + e.getMessage());
             } catch (MessagingException me) {
                 logger.warn(msg + " could not be parsed! - " + me.toString());
-            } catch (DAOException daoe) {
-                logger.warn(msg + " error - " + daoe.toString());
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.warn(msg + " error - " + e.getMessage());

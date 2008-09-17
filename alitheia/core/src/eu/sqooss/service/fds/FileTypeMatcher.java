@@ -2,7 +2,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  * 
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 Georgios Gousios <gousiosg@gmail.com>
+ * Copyright 2007-2008 Athens University of Economics and Business
  * 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,10 @@
 
 package eu.sqooss.service.fds;
 
+/**
+ * A simple, file extension based, file type matcher class. It uses a set of
+ * statically loaded look-up tables and string comparisons to do its job.
+ */
 public class FileTypeMatcher {
 
     private FileTypeMatcher instance;
@@ -54,12 +58,30 @@ public class FileTypeMatcher {
      * XML docbook) and some obvious file types are missing.
      */
     public enum FileType {
-        SRC, ///< Source files 
-        BIN, ///< Binary formats
-        DOC, ///< Documentation files
-        XML, ///< XML files
-        TXT, ///< Generic text files
-        TRANS ///< Translation files
+        /**
+         * Source code files
+         */
+        SRC,
+        /**
+         * Binary files
+         */
+        BIN,
+        /**
+         * Documentation files
+         */
+        DOC, 
+        /**
+         * XML file formats
+         */
+        XML, 
+        /**
+         * Raw text files. Includes all non-binary files.
+         */
+        TXT, 
+        /**
+         * Translation files
+         */
+        TRANS 
     }
     
     private static String[] srcMimes = { ".c", ".java", ".h", ".py", ".cpp",

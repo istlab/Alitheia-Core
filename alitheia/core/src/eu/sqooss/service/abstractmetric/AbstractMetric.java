@@ -2,9 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Georgios Gousios <gousiosg@gmail.com>
- *
+ * Copyright 2007-2008 Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -46,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.osgi.framework.Bundle;
@@ -89,11 +86,17 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** Reference to the DB service, not to be passed to metric jobs */
     protected DBService db;
 
-    /** Reference to the DB service, not to be passed to metric jobs */
+    /** 
+     * Reference to the plugin administrator service, not to be passed to 
+     * metric jobs 
+     */
     protected PluginAdmin pa;
 
+    /** Cache the result of the mark evaluation function*/
+    private HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
+    
     /** Metric dependencies */
-    protected List<String> metricDependencies = new ArrayList<String>();
+    private List<String> metricDependencies = new ArrayList<String>();
 
     /**Types used to activate this metric*/
     private List<Class<? extends DAObject>> activationTypes = 
@@ -102,18 +105,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** Mnemonic names of all metrics registered by this plug-in */
     private List<String> mnemonics = new ArrayList<String>();
 
-    /** Cache the result of the mark evaluation function*/
-    protected HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
-
     /** Metric activation types */
-    protected HashMap<String, Class<? extends DAObject>> metricActTypes = 
+    private HashMap<String, Class<? extends DAObject>> metricActTypes = 
         new HashMap<String, Class<? extends DAObject>>();
     
     /** 
      * Metric mnemonics for the metrics required to be present for this 
      * metric to operate 
      */
-    protected List<String> dependencies = new ArrayList<String>();
+    private List<String> dependencies = new ArrayList<String>();
 
     /**
      * Init basic services common to all implementing classes
@@ -794,7 +794,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param mnemonic The metric mnemonic to update
      * @param c The activation type for the provided mnemonic
      */
-    protected final void addMetricActivationType(String mnemonic, 
+    public final void addMetricActivationType(String mnemonic, 
             Class<? extends DAObject> c) {
         if (!metricActTypes.containsKey(mnemonic)) {
             metricActTypes.put(mnemonic, c);
@@ -805,7 +805,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Add a dependency to another plug-in
      * @param mnemonic The mnemonic of the metric this metric depends on
      */
-    protected final void addDependency(String mnemonic) {
+    public final void addDependency(String mnemonic) {
         if (!dependencies.contains(mnemonic)) {
             dependencies.add(mnemonic);
         }

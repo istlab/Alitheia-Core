@@ -2,8 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 Georgios Gousios <gousiosg@gmail.com>
+ * Copyright 2007-2008 Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -40,7 +39,6 @@ import java.util.Set;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.PluginConfiguration;
-import eu.sqooss.service.db.StoredProject;
 
 /**
  * This interface defines the common metric plug-in related functionality.

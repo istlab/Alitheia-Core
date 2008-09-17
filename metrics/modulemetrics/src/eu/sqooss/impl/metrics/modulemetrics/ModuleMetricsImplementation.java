@@ -2,9 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2008 Georgios Gousios <gousiosg@gmail.com>
- *
+ * Copyright 2008 Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -121,6 +119,24 @@ implements ModuleMetrics {
     }
 
     public List<ResultEntry> getResult(ProjectVersion v, Metric m) {
+        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        // Search for a matching project version measurement
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("projectVersion", v);
+        filter.put("metric", m);
+        List<ProjectVersionMeasurement> measurement =
+            db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
+
+        // Convert the measurement into a result object
+        if (!measurement.isEmpty()) {
+            // There is only one measurement per metric and project file
+            Integer value = Integer.parseInt(measurement.get(0).getResult());
+            // ... and therefore only one result entry
+            ResultEntry entry = 
+                new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_FLOAT, m.getMnemonic());
+            results.add(entry);
+            return results;
+        }
         return null;
     }
     
@@ -237,8 +253,7 @@ implements ModuleMetrics {
             
             /*Check whether the current dir contains source code files*/
             List<ProjectFile> files = ProjectFile.getFilesForVersion(pv, 
-                    Directory.getDirectory(dir.getFileName(), false), 
-                    ProjectFile.MASK_FILES);
+                    dir.getDir(), ProjectFile.MASK_FILES);
             
             for (ProjectFile file : files) {
                 if (FileTypeMatcher.getFileType(file.getFileName()).equals(
@@ -271,7 +286,7 @@ implements ModuleMetrics {
         ams.setProjectVersion(pv);
         
         if (sourceModules > 0) {
-            ams.setResult(String.valueOf(((double) (locs / sourceModules))));
+            ams.setResult(String.valueOf(((float) (locs / sourceModules))));
         } else {
             ams.setResult(String.valueOf(0));
         }

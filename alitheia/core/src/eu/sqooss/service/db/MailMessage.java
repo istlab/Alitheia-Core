@@ -2,8 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2008 by Vassilios Karakoidas <bkarak@aueb.gr>
+ * Copyright 2008 Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
+
 
 package eu.sqooss.service.db;
 
@@ -123,7 +122,7 @@ public class MailMessage extends DAObject {
         subject = value;
     }
     
-    public static MailMessage getMessageById(String messageId) throws DAOException {
+    public static MailMessage getMessageById(String messageId) {
     	DBService dbs = AlitheiaCore.getInstance().getDBService();
     	Map<String,Object> properties = new HashMap<String, Object>(1);
     	properties.put("messageId", messageId);
@@ -131,9 +130,6 @@ public class MailMessage extends DAObject {
     	
     	if ((msgList == null) || (msgList.isEmpty())) {
     	    return null;
-    	}
-    	if(msgList.size() > 1) {
-    	    throw new DAOException("MailMessage", "More than one message of MailMessage retrieved for message id " + messageId);
     	}
     	
     	return msgList.get(0);
