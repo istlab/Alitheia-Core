@@ -198,8 +198,8 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             }
             
             // TODO: Overload this for setting the version, too.
-            markEvaluation(mDevTotal,pv.getProject());
-            markEvaluation(mDevActive,pv.getProject());
+            markEvaluation(mDevTotal,pv);
+            markEvaluation(mDevActive,pv);
             db.commitDBSession();
             db.startDBSession();
         }
@@ -217,7 +217,6 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      */
     private boolean isKnown(ProjectVersion v, Metric m) {
         EvaluationMark mark = EvaluationMark.getEvaluationMarkByMetricAndProject(m,v.getProject());
-        log.warn("Looking for " + v + " for " + m + " and comparing with " + mark);
         if (null == mark) {
             return false;
         }
