@@ -60,6 +60,7 @@ import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -509,26 +510,41 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /**
      * Creates a record in the database, when the specified metric has been
      * evaluated for a first time in the scope of the selected project.
+     * This is a private method, and should be called with consistent
+     * parameters for project and project versions; the project may be
+     * null if the version is not, because project can be derived from version.
      *
      * @param me Evaluated metric
-     * @param sp Evaluated project
+     * @param p  Evaluated project
+     * @param pv Evaluated project version
      */
-    public void markEvaluation (Metric me, StoredProject sp) {
+    private void markEvaluation (Metric me, StoredProject p, ProjectVersion pv) {
+        // Possibly we should check and log if p and pv are both set
+        // and inconsistent, but for now let us assume that the methods
+        // in Abstract metric calling this do the right thing.
+        StoredProject theProject = p;
+        if (null == theProject) {
+            theProject = pv.getProject();
+        }
     	// Store the evaluation mark locally
-    	evaluationMarked.put(sp.getId(), me.getId());
+    	evaluationMarked.put(theProject.getId(), me.getId());
 
     	// Search for a previous evaluation of this metric on this project
     	HashMap<String, Object> filter = new HashMap<String, Object>();
     	filter.put("metric", me);
-    	filter.put("storedProject", sp);
+    	filter.put("storedProject", theProject);
     	List<EvaluationMark> em = db.findObjectsByPropertiesForUpdate(EvaluationMark.class, filter);
 
     	if ( em.isEmpty() ) {
-    	    log.error("Couldn't retrieve the evaluation mark record for metric " + me.getMnemonic()
-    	              + ". Try reinstalling the plugin");
+    	    log.error("Couldn't retrieve the evaluation mark record for metric " + me
+    	              + ". Try reinstalling the plugin.");
     	    return;
     	}
-		em.get(0).setWhenRun(new Timestamp(System.currentTimeMillis()));
+        EvaluationMark m = em.get(0);
+        m.updateWhenRunToNow();
+        if (null != pv) {
+            m.setVersion(pv);
+        }
     }
 
     /**
@@ -539,7 +555,29 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param pf Project File that was evaluated
      */
     public void markEvaluation (Metric me, ProjectFile pf) {
-        markEvaluation(me,pf.getProjectVersion().getProject());
+        markEvaluation(me,pf.getProjectVersion().getProject(),null);
+    }
+    
+    /**
+     * Convenience method for marking a project as evaluated.
+     * Uses a specific version of the project, which is assumed
+     * to be evaluated as well.
+     * 
+     * @param me Metric that is done the evaluation
+     * @param pv Project version that was evaluated
+     */
+    public void markEvaluation (Metric me, ProjectVersion pv) {
+        markEvaluation(me,null,pv);
+    }
+    
+    /**
+     * Convenience method for marking a project as evaluated.
+     * 
+     * @param me Metric that is done the evaluation
+     * @param pf Project that was evaluated
+     */
+    public void markEvaluation (Metric me, StoredProject pf) {
+        markEvaluation(me,pf,null);
     }
     
     /**
