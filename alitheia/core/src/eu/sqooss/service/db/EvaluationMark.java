@@ -152,7 +152,7 @@ public class EvaluationMark extends DAObject {
     /**
      * Convenience method to set the whenRun property to "now".
      */
-    public void updateWhenRun() {
+    public void updateWhenRunToNow() {
         this.whenRun = new Timestamp(System.currentTimeMillis());
     }
     
@@ -186,7 +186,7 @@ public class EvaluationMark extends DAObject {
      * @return First mark for this particular (metric,project) pair, or
      *         null if there is none.
      */
-    public static EvaluationMark find(Metric m, StoredProject p) {
+    public static EvaluationMark getEvaluationMarkByMetricAndProject(Metric m, StoredProject p) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         HashMap<String,Object> parameters = new HashMap<String,Object>(2);
@@ -204,43 +204,6 @@ public class EvaluationMark extends DAObject {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Updates (or adds) an evaluation mark for the given metric and
-     * stored project (with no version associated unless the mark exists
-     * already with an associated version). This is a convenience method
-     * to handle the update-or-add-new pattern.
-     * 
-     * @param m Metric the mark is for
-     * @param p Project the mark is for
-     * @return Newly-added or updated mark
-     */
-    public static EvaluationMark update(Metric m, StoredProject p) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        EvaluationMark mark = EvaluationMark.find(m, p);
-        if (null != mark) {
-            mark.updateWhenRun();
-        } else {
-            mark = new EvaluationMark(m, p);
-            db.addRecord(mark);
-        }
-        return mark;
-    }
-
-    /**
-     * Updates (or adds) an evaluation mark for the given metric
-     * and project version. This is a convenience method to handle
-     * the update-or-add-new pattern.
-     * 
-     * @param m Metric the mark is for
-     * @param pv Associated project version
-     * @return Newly-added or updated mark
-     */
-    public static EvaluationMark update(Metric m, ProjectVersion pv) {
-        EvaluationMark mark = update(m,pv.getProject());
-        mark.setVersion(pv);
-        return mark;
     }
 }
 
