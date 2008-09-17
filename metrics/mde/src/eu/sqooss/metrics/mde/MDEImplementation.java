@@ -82,73 +82,74 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         return result;
     }
 
-    /**
-     * This plug-in stores evaluation marks to record that
-     * it has done calculations (per metric) right through to project version V;
-     * use this to calculate whether the given project version
-     * has been evaluated (i.e. <= V) or not.
-     * 
-     * @param m Metric to check against
-     * @param v Version to check for
-     * @return true if that version has been evaluated already
-     */
-    private boolean isKnown(Metric m, ProjectVersion v) {
-        EvaluationMark mark = EvaluationMark.find(m,v.getProject());
-        if (null == mark) {
-            return false;
-        }
-        if (null == mark.getVersion()) {
-            return false;
-        }
-        return v.lte(mark.getVersion());
-    }
-    
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
-        // Search for a matching project file measurement
-        HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("projectVersion", a);
-        filter.put("metric", m);
-        
-        List<ProjectVersionMeasurement> measurement =
-            db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
-        if ((null != measurement) && (measurement.size()>0)) {
-            return convertVersionMeasurements(measurement, m.getMnemonic());
-        } else {
-            // Fill up the DB
-            run(a);
-            ProjectVersionMeasurement result = null;
+        if (isKnown(a,m)) {
+            // This means we *should* know about the result. But it is
+            // possible to have gaps in the record, or also
+            // to request a new metric for which we haven't recorded
+            // results.
             ProjectVersionMeasurement r = null;
-
-            Metric stm = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
-            if (null == stm) {
-                log.warn("Metric dev(total) was not registered");
-            } else {
-                r = recordDevTotal(a,stm);
-                if (MNEMONIC_MDE_DEVTOTAL.equals(m.getMnemonic())) {
-                    result = r;
-                }
+            boolean metricFound = false;
+            
+            if (MNEMONIC_MDE_DEVTOTAL.equals(m.getMnemonic())) {
+                r = recordDevTotal(a,m);
+                metricFound = true;
+            } else if (MNEMONIC_MDE_DEVACTIVE.equals(m.getMnemonic())) {
+                r = recordDevActive(a,m);
+                metricFound = true;
             }
             
-            stm = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVACTIVE);
-            if (null == stm) {
-                log.warn("Metric dev(active) was not registered");
-            } else {
-                r = recordDevActive(a, stm);
-                if (MNEMONIC_MDE_DEVACTIVE.equals(m.getMnemonic())) {
-                    result = r;
-                }
-            }
+            if (null != r) {
+                return convertVersionMeasurement(r, m.getMnemonic());
+            } 
             
-            if (null != result) {
-                return convertVersionMeasurement(result, m.getMnemonic());
-            } else {
-                log.warn("The requested metric " + m.getMnemonic() + " did not match any recording function.");
+            // So either we didn't recognize the metric, or didn't find
+            // a result. Warn appropriately:
+            if (!metricFound) {
+                // This takes priority: we didn't match any of the metric
+                // names, so we can't possibly return a meaningful value.
+                log.error("Request for unknown metric " + m.getMnemonic());
                 return null;
+            } else {
+                log.warn("Result " + a + " should be known, but is not. Recalculating.");
             }
+            
         }
+        
+        // At this point, we realise we do not know this version yet.
+        // So we need to run the measurements, record this as a known version
+        // and then return the new results.
+        run(a);
+        if (!isKnown(a,m)) {
+            log.error("After run, the result for " + a.toString() + 
+                    " was still not known.");
+            return null;
+        }
+        // This looks recursive, but it's going to terminate immediately
+        // due to isKnown().
+        return getResult(a,m);
     }
 
     public void run(ProjectVersion pv) {
+        if (null == pv) {
+            log.warn("Null revision passed to run.");
+            return;
+        }
+        if (null == pv.getProject()) {
+            log.warn("Project is null in " + pv);
+            return;
+        }
+        // Find the starting timestamp of the project. This goes via 
+        // revision 1 of the project.
+        ProjectVersion projectFirstVersion = pv.getProject().getVersionByRevision(1);
+        if (null == projectFirstVersion) {
+            log.warn("Project <" + pv.getProject().getName() + "> has no revision 1.");
+            return;
+        }
+        long projectStartTime = projectFirstVersion.getTimestamp();
+        
+        // See documentation on projectLocks; we're going to get access
+        // to the hash table to look up the lock object for the given project.
         Object projectLockObject = null;
         synchronized (projectLocks) {
             projectLockObject = projectLocks.get(pv.getProject().getId());
@@ -162,22 +163,81 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             return;
         }
 
+        // See documentation on projectLocks; we're going to lock
+        // for one project.
         synchronized (projectLockObject) {
-            // Find the latest ProjectVersion for which we have data
-            Metric m = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
+            // Find the latest ProjectVersion for which we have data;
+            // we will use DEVTOTAL as the metric to measure by.
+            Metric mDevTotal = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
+            Metric mDevActive = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVACTIVE);
             ProjectVersion previous =
-                    ProjectVersionMeasurement.getLastMeasuredVersion(m, pv.getProject());
+                    ProjectVersionMeasurement.getLastMeasuredVersion(mDevTotal, pv.getProject());
             if (null == previous) {
                 // We've got no measurements at all, so start at revision 1
                 previous = ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1));
+                if (null == previous) {
+                    log.warn("Project " + pv.getProject().getName() + " has no revision 1.");
+                    return;
+                }
             }
-            // It's safe to run this on a revision twice
-            runDevTotal(previous, pv);
+            log.debug("Updating from " + previous.toString() + "-" + pv.toString());
+            if (!previous.lte(pv)) {
+                log.info("Range " + previous.toString() + "-" + pv.toString() + " is backwards.");
+                return;
+            }
+
+            // We have now established a sensible range to iterate over.
+            ProjectVersion c = previous;
+            while ((null != c) && c.lte(pv)) {
+                // For each revision, record information for the green blob
+                // graph (dev(active)) and record each developer as he or
+                // she shows up (dev(total)).
+                memoDeveloper(projectStartTime, c);
+                memoWeek(projectStartTime, c);
+                c = c.getNextVersion();
+            }
+            
+            // TODO: Overload this for setting the version, too.
+            markEvaluation(mDevTotal,pv.getProject());
+            markEvaluation(mDevActive,pv.getProject());
             db.commitDBSession();
             db.startDBSession();
         }
     }
 
+    /**
+     * This plug-in stores evaluation marks to record that
+     * it has done calculations (per metric) right through to project version V;
+     * use this to calculate whether the given project version
+     * has been evaluated (i.e. <= V) or not.
+     * 
+     * @param m Metric to check against
+     * @param v Version to check for
+     * @return true if that version has been evaluated already
+     */
+    private boolean isKnown(ProjectVersion v, Metric m) {
+        EvaluationMark mark = EvaluationMark.getEvaluationMarkByMetricAndProject(m,v.getProject());
+        log.warn("Looking for " + v + " for " + m + " and comparing with " + mark);
+        if (null == mark) {
+            return false;
+        }
+        if (null == mark.getVersion()) {
+            return false;
+        }
+        return v.lte(mark.getVersion());
+    }
+
+    /**
+     * Determine the measurement for dev(total) for a given version,
+     * by mapping it to a week and then querying the MDE internal data
+     * tables for answers.
+     * 
+     * @param a Project version
+     * @param m Metric (for label purposes only)
+     * @return Measurement, or null if there is none.
+     * 
+     * @throws org.hibernate.QueryException
+     */
     private ProjectVersionMeasurement recordDevTotal(ProjectVersion a, Metric m) throws QueryException {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>(2);
         parameterMap.put("timestamp", a.getTimestamp());
@@ -190,10 +250,19 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         }
         String s = pvList.get(0).toString();
         ProjectVersionMeasurement result = new ProjectVersionMeasurement(m, a, s);
-        db.addRecord(result);
         return result;
     }
 
+    /**
+     * Query the internal MDE tables to get a raw dev(active) value
+     * for the week around the given version.
+     * 
+     * @param a Project version to query
+     * @param m Metric (for labeling purposes)
+     * @return Measurement, or null if there is none
+     * 
+     * @throws org.hibernate.QueryException
+     */
     private ProjectVersionMeasurement recordDevActive(ProjectVersion a, Metric m) throws QueryException {
         Integer weeknumber = new Integer(convertToWeekOffset(a));
         HashMap<String, Object> parameterMap = new HashMap<String, Object>(2);
@@ -207,47 +276,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         }
         String s = pvList.get(0).toString();
         ProjectVersionMeasurement result = new ProjectVersionMeasurement(m, a, s);
-        db.addRecord(result);
         return result;
-    }
-
-    /*
-     * Find the total number of devleopers in the project for every revision
-     * for which the data is unknown from start to end; store a measurement
-     * for each one. If a revision already has a measurement stored, it
-     * is ignored. This method fills in the MDEDeveloper table, from which
-     * other results are calculated.
-     *
-     * @param start Starting revision
-     * @param end Ending revision
-     */
-    private void runDevTotal(ProjectVersion start, ProjectVersion end) {
-        log.debug("Updating from " +
-                ((null == start) ? "null" : start.toString()) + "-" +
-                ((null == end) ? "null" : end.toString()));
-        if ((null == start) || (null == end)) {
-            log.warn("Range of versions for runDevTotal is broken.");
-            return;
-        }
-        if (!start.lte(end)) {
-            log.info("Range " + start.toString() + "-" + end.toString() + " is backwards.");
-            return;
-        }
-
-        StoredProject p = start.getProject();
-        ProjectVersion projectStartVersion = ProjectVersion.getVersionByRevision(p, new ProjectRevision(1));
-        if (null == projectStartVersion) {
-            log.warn("Project <" + p.getName() + "> has no revision 1.");
-            return;
-        }
-        long projectStartTime = projectStartVersion.getTimestamp();
-
-        ProjectVersion c = start;
-        while ((null != c ) && c.lte(end)) {
-            memoDeveloper(projectStartTime, c);
-            memoWeek(projectStartTime, c);
-            c = c.getNextVersion();
-        }
     }
 
     private void memoDeveloper(long projectStartTime, ProjectVersion c) {
