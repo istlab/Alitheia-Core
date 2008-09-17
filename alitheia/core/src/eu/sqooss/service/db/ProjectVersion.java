@@ -371,7 +371,7 @@ public class ProjectVersion extends DAObject {
     }
     
     public String toString() {
-        return this.project.getName() + "-" + "r" + this.getVersion();
+        return "ProjectVersion(\"" + this.project.getName() + "\",r" + this.getVersion() +")";
     }
 }
 

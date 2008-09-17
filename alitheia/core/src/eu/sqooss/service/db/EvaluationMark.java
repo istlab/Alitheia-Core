@@ -205,6 +205,13 @@ public class EvaluationMark extends DAObject {
             return null;
         }
     }
+
+    public String toString() {
+        return "EvaluationMark(" + getId() + ",\"" + getMetric().getMnemonic()
+                + "\",\"" + getStoredProject().getName() + "\","
+                + (null != getVersion() ? getVersion().toString() : "no version")
+                + ")";
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DAObject;
 
 /**
  * Instances of this object type represent the basic information on
@@ -197,6 +196,10 @@ public class Metric extends DAObject{
             return Long.valueOf(this.getId()).hashCode();
         }
     }   
+
+    public String toString() {
+        return "Metric(" + getId() + ",\"" + getMnemonic() + "\")";
+    }
     
     /**
      * Get a metric from its mnemonic name
