@@ -32,7 +32,7 @@
     <connection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/mde
     </connection>
-  sq  <developerConnection>
+    <developerConnection>
       scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/mde
     </developerConnection>
   </scm>
