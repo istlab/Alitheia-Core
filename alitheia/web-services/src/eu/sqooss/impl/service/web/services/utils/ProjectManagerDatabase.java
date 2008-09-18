@@ -146,12 +146,14 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);
 
         long result = 0;
-
-        List<?> projectVersionFilesNumber = db.doHQL(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID, queryParameters);
-        if (!projectVersionFilesNumber.isEmpty()) {
-            result = ((BigInteger)projectVersionFilesNumber.get(0)).longValue();
+        try {
+            List<?> projectVersionFilesNumber = db.doSQL(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID, queryParameters);
+            if (!projectVersionFilesNumber.isEmpty()) {
+                result = ((BigInteger)projectVersionFilesNumber.get(0)).longValue();
+            }
+        } catch (SQLException e) {
+            //do nothing
         }
-       
         return result;
     }
 
