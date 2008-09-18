@@ -33,10 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.sql.Timestamp;
-
-import eu.sqooss.service.db.DAObject;
-
 /**
  * Instances of this class represent the result of a metric
  * calculation as stored in the database. This class is extended by
