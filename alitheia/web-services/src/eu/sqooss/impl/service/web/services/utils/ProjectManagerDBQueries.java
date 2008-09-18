@@ -44,7 +44,7 @@ interface ProjectManagerDBQueries {
     public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM = "project_ver";
     
     public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID = 
-        "select count(ffv) from FilesForVersion ffv where ffv.version.id=:" + 
+        "select count(ffv) from FileForVersion ffv where ffv.version.id=:" + 
         GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM;
     
     public static final String GET_DIRECTORIES_BY_IDS_PARAM = "list_of_dirs_ids";
