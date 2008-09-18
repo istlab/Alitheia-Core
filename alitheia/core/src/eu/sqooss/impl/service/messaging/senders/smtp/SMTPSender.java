@@ -107,7 +107,7 @@ public class SMTPSender implements MessageSender {
             messageBody.append("To: ");
             Vector<String> recipients = message.getRecipients();
             for (int i = 0; i < recipients.size(); i++) {
-                messageBody.append((String)recipients.elementAt(i));
+                messageBody.append(recipients.elementAt(i));
                 messageBody.append(", ");
             }
             messageBody.append("\r\n");
@@ -138,7 +138,7 @@ public class SMTPSender implements MessageSender {
             synchronized (sessionsLockObject) {
                 SMTPSession session;
                 for (int i = 0; i < sessions.size(); i++) {
-                    session = (SMTPSession)sessions.elementAt(i);
+                    session = sessions.elementAt(i);
                     session.timedOut();
                 }
                 isStopped = true;
