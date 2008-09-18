@@ -73,34 +73,6 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
     public void setProjectVersion(ProjectVersion projectVersion) {
         this.projectVersion = projectVersion;
     }
-    
-    /**
-     * For a given metric and project, return the latest version of that
-     * project that was actually measured.  If no measurements have been made, 
-     * it returns null. For the returned revision which is not null, the
-     * revision is greater than 0, there is a measurement in the database.
-     * 
-     * @param m Metric to look for
-     * @param p Project to look for
-     * @return Last version measured, or revision 0.
-     */
-    public static ProjectVersion getLastMeasuredVersion(Metric m, StoredProject p) {
-        String query = "select pvm from ProjectVersionMeasurement pvm, ProjectVersion pv" +
-           " where pvm.projectVersion = pv" +
-           " and pvm.metric = :metric and pv.project = :project" +
-           " order by pv.timestamp desc";
-
-        HashMap<String, Object> params = new HashMap<String, Object>(4);
-        params.put("metric", m);
-        params.put("project", p);
-        List<?> pvmList = AlitheiaCore.getInstance().getDBService().doHQL( query, params, 1);
-	    
-        ProjectVersion previous = pvmList.isEmpty() ? 
-                null :
-                ((ProjectVersionMeasurement) pvmList.get(0)).getProjectVersion();
-        return previous;
-    }
-
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
