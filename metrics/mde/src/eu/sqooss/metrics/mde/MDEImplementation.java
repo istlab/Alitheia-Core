@@ -34,6 +34,7 @@
 
 package eu.sqooss.metrics.mde;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     /** This is the name of the non-adjusted dev(total) ancilliary metric. */
     private static final String MNEMONIC_MDE_DEVTOTAL = "MDE.dt";
     private static final String MNEMONIC_MDE_DEVACTIVE = "MDE.da";
+    private static final String MNEMONIC_MDE_RAW = "MDE.raw";
 
     HashMap<Long,Object> projectLocks;
 
@@ -79,6 +81,10 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
                     "Mean Developer Engagement: Ancilliary dev(active)",
                     MNEMONIC_MDE_DEVACTIVE,
                     MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Mean Developer Engagement: Raw ratio per week",
+                    MNEMONIC_MDE_RAW,
+                    MetricType.Type.SOURCE_CODE);
         }
         return result;
     }
@@ -98,6 +104,15 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             } else if (MNEMONIC_MDE_DEVACTIVE.equals(m.getMnemonic())) {
                 r = recordDevActive(a,m);
                 metricFound = true;
+            } else if (MNEMONIC_MDE_RAW.equals(m.getMnemonic())) {
+                float v = getRawEngagement(a,m);
+                metricFound = true;
+                if (0.0 <= v) {
+                    // This takes special handling, since it is a float
+                    List<ResultEntry> results = new ArrayList<ResultEntry>(1);
+                    results.add(new ResultEntry(v, ResultEntry.MIME_TYPE_TYPE_FLOAT, m.getMnemonic()));
+                    return results;
+                }
             }
 
             if (null != r) {
@@ -142,7 +157,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         }
         // Find the starting timestamp of the project. This goes via
         // revision 1 of the project.
-        ProjectVersion projectFirstVersion = pv.getProject().getVersionByRevision(1);
+        ProjectVersion projectFirstVersion = ProjectVersion.getVersionByRevision(pv.getProject(),1);
         if (null == projectFirstVersion) {
             log.warn("Project <" + pv.getProject().getName() + "> has no revision 1.");
             return;
@@ -172,10 +187,10 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
             Metric mDevTotal = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVTOTAL);
             Metric mDevActive = Metric.getMetricByMnemonic(MNEMONIC_MDE_DEVACTIVE);
             ProjectVersion previous =
-                    ProjectVersionMeasurement.getLastMeasuredVersion(mDevTotal, pv.getProject());
+                    ProjectVersion.getLastMeasuredVersion(mDevTotal, pv.getProject());
             if (null == previous) {
                 // We've got no measurements at all, so start at revision 1
-                previous = ProjectVersion.getVersionByRevision(pv.getProject(), new ProjectRevision(1));
+                previous = ProjectVersion.getVersionByRevision(pv.getProject(), 1);
                 if (null == previous) {
                     log.warn("Project " + pv.getProject().getName() + " has no revision 1.");
                     return;
@@ -238,7 +253,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      *
      * @throws org.hibernate.QueryException
      */
-    private ProjectVersionMeasurement recordDevTotal(ProjectVersion a, Metric m) throws QueryException {
+    private int getDevTotal(ProjectVersion a) throws QueryException {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>(2);
         parameterMap.put("timestamp", a.getTimestamp());
         parameterMap.put("project", a.getProject());
@@ -246,10 +261,15 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         if ((null == pvList) || (pvList.size() == 0)) {
             // The caller will print a warning that getResult isn't
             // returning a value.
-            return null;
+            return -1;
         }
-        String s = pvList.get(0).toString();
-        ProjectVersionMeasurement result = new ProjectVersionMeasurement(m, a, s);
+        Long s = (Long) pvList.get(0);
+        return s.intValue();
+    }
+
+    private ProjectVersionMeasurement recordDevTotal(ProjectVersion a, Metric m)
+        throws QueryException {
+        ProjectVersionMeasurement result = new ProjectVersionMeasurement(m,a,String.valueOf(getDevTotal(a)));
         return result;
     }
 
@@ -263,7 +283,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
      *
      * @throws org.hibernate.QueryException
      */
-    private ProjectVersionMeasurement recordDevActive(ProjectVersion a, Metric m) throws QueryException {
+    private int getDevActive(ProjectVersion a) throws QueryException {
         Integer weeknumber = new Integer(convertToWeekOffset(a));
         HashMap<String, Object> parameterMap = new HashMap<String, Object>(2);
         parameterMap.put("week", weeknumber);
@@ -272,11 +292,27 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         if ((null == pvList) || (pvList.size() == 0)) {
             // The caller will print a warning that getResult isn't
             // returning a value.
-            return null;
+            return -1;
         }
-        String s = pvList.get(0).toString();
-        ProjectVersionMeasurement result = new ProjectVersionMeasurement(m, a, s);
+        Long s = (Long) pvList.get(0);
+        return s.intValue();
+    }
+
+    private ProjectVersionMeasurement recordDevActive(ProjectVersion a, Metric m)
+        throws QueryException {
+        ProjectVersionMeasurement result = new ProjectVersionMeasurement(m,a,String.valueOf(getDevActive(a)));
         return result;
+    }
+    
+    private float getRawEngagement(ProjectVersion a, Metric m) 
+        throws QueryException {
+        int act = getDevActive(a);
+        int tot = getDevTotal(a);
+        if ((act < 0) || (tot < 0)) {
+            return (float)-1.0;
+        }
+        float v = (float)act / (float)tot;
+        return v;
     }
 
     private void memoDeveloper(long projectStartTime, ProjectVersion c) {
