@@ -38,10 +38,11 @@ interface MetricManagerDBQueries {
         "project_id";
 
     public static final String GET_PROJECT_EVALUATED_METRICS =
-        "select distinct metric "
-        + "from EvaluationMark em, Metric metric "
-        + "where metric.id=em.metric "
-        + " and em.storedProject.id=:" + GET_PROJECT_EVALUATED_METRICS_PARAM
+        "select distinct metric"
+        + " from EvaluationMark em, Metric metric"
+        + " where metric.id=em.metric"
+        + " and em.storedProject.id=:"
+        + GET_PROJECT_EVALUATED_METRICS_PARAM
         + " and em.whenRun is not null ";
 
     public static final String GET_METRICS_BY_RESOURCES_IDS_PARAM = "list_of_ids";
