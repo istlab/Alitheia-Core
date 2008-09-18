@@ -131,7 +131,7 @@ public class MetricType extends DAObject {
             return null;
         }
         else {
-            return (MetricType) result.get(0);
+            return result.get(0);
         }
     }
 }
