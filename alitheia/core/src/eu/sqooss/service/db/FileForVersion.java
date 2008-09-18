@@ -91,8 +91,8 @@ public class FileForVersion implements Serializable {
         this.version = version;
     }
         
+    @SuppressWarnings("unchecked")
     public static List<ProjectFile> getFilesForVersion(ProjectVersion pv) {
-        
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         String paramVersion = "paramVersion";
         
@@ -105,8 +105,8 @@ public class FileForVersion implements Serializable {
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramVersion, pv);
         
+        // TODO: Unchecked
         return (List<ProjectFile>) dbs.doHQL(query, parameters);
-
     }
     
     public String toString() {
