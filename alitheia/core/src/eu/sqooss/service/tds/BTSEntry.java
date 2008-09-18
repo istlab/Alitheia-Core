@@ -31,47 +31,50 @@
  *
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.service.tds;
 
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.List;
 
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.BTSAccessor;
-import eu.sqooss.service.tds.Bug;
-
-class BTSAccessorImpl extends NamedAccessorImpl implements BTSAccessor {
-    class BugNumberListImpl
-        extends LinkedList<Integer>
-        implements BugNumberList {
-        private static final long serialVersionUID = 1;
+/**
+ * The bug interface represents a single bug from a bug tracker (whichever
+ * that may be) in the most abstract form possible. The lowest common
+ * denominator resolves to an ID, a reporter name and a severity. The
+ * severity is an uninterpreted integer, so do not assume that larger
+ * numbers are "worse" or "better".
+ */
+public class BTSEntry {
+    
+    public String bugID;
+    public Date creationTimestamp;
+    public String shortDescr;
+    public BugSeverity severity;
+    public BugPriority priority;
+    public BugState state;
+    public BugResolution resolution;
+    
+    public String product;
+    public String component;
+    
+    public String reporter;
+    public String assignee;
+    
+    public List<BTSEntryComments> commentslist;
+    
+    public enum BugSeverity {
+        BLOCKER, CRITICAL, MAJOR, NORMAL, MINOR, TRIVIAL, ENHANCEMENT
     }
-
-    public static Logger logger;
-
-    public BTSAccessorImpl( long id, String projectName ) {
-        super(id,projectName);
+    
+    public enum BugPriority {
+        LOW, MEDIUM, HIGH
     }
-
-    // Interface methods
-    public BugNumberList getBugs() {
-        return null;
+    
+    public enum BugState {
+        UNCONFIRMED, NEW, ASSIGNED, VERIFIED, CLOSED, REOPENED
     }
-
-    public BugNumberList getBugs( int severity ) {
-        return null;
-    }
-
-    public BugNumberList getBugs( Date d1, Date d2 ) {
-        return null;
-    }
-
-    public BugNumberList getBugs( Date d1, Date d2, int severity ) {
-        return null;
-    }
-
-    public Bug getBug( int n ) {
-        return null;
+    
+    public enum BugResolution {
+        FIXED, INVALID, WONTFIX, DUPLICATE, WORKSFORME, MOVED
     }
 }
 

@@ -30,53 +30,62 @@
  * 
  */
 
-package eu.sqooss.impl.service.updater;
+package eu.sqooss.impl.service.tds;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.DocumentException;
-import org.dom4j.io.SAXReader;
-
-import eu.sqooss.service.db.Bug;
-
-import java.util.Iterator;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+
+import eu.sqooss.service.tds.BTSEntry;
+import eu.sqooss.service.tds.BTSAccessor;
 
 /** 
- * 
- * @author Panos Louridas (louridas@aueb.gr)
+ * A bug parser for Bugzilla XML bug descriptions. 
  */
-public class BugFactory {
+public class BugzillaXMLParser implements BTSAccessor {
     
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final Date DEFAULT_DATE = new Date(0);
-    
+    private String name;
     private String location;
+    private long id;
     
-    public BugFactory(String location) {
-        this.location = location;
+    public void init(String name, Long id, URI btsURL) {
+        this.name = name;
+        this.id = id;
+        this.location = btsURL.getPath();
     }
-    
-    private String getElementValueAsString(Element element) {
-        if (element != null) {
-            return element.getStringValue();
-        } else {
-            return "";
-        }
+
+    public long getId() {
+        return id;
     }
+
+    public String getName() {
+        return name;
+    }  
     
-    public List<Bug> processBugs() throws DocumentException, 
-        MalformedURLException, FileNotFoundException {
-        
-        List<Bug> bugList = new LinkedList<Bug>();
+    public BTSEntry getBug(String bugID) {
+        return null;
+    }
+
+    public List<String> getBugsNewerThan(Date d) {
+        return null;
+    }
+
+    public List<String> getAllBugs() {
+        return null;
+    } 
+    
+    private void processBug(File bug) {
         
         SAXReader reader = new SAXReader();
         Document document = null;
@@ -92,15 +101,21 @@ public class BugFactory {
             try {
                 document = reader.read(new FileReader(this.location));
             } catch (FileNotFoundException fex) {
-                throw fex;
+                
+            } catch (DocumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
+        } catch (DocumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         
         Element root = document.getRootElement();
 
         for (Iterator<Element> i = root.elementIterator("bug"); i.hasNext(); ) {
             Element element = i.next();
-            Bug bug = new Bug();
+            //Bug bug = new Bug();
             
             /* Read all the values we can and call the related setter */
          /*   String elementValue = getElementValueAsString(element.element("bug_file_loc"));
@@ -153,8 +168,14 @@ public class BugFactory {
             bug.setReporter(elementValue);
             elementValue = getElementValueAsString(element.element("resolution"));
             bug.setResolution(elementValue);*/
-            bugList.add(bug);
         }
-        return bugList;
-    } 
+    }
+
+    private String getElementValueAsString(Element element) {
+        if (element != null) {
+            return element.getStringValue();
+        } else {
+            return "";
+        }
+    }
 }

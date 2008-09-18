@@ -66,7 +66,6 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         // Many other implementation classes need the same logger
         TDAccessorImpl.logger = logger;
         SCMAccessorImpl.logger = logger;
-        BTSAccessorImpl.logger = logger;
         MailAccessorImpl.logger = logger;
         CheckoutBaton.logger = logger;
         CheckoutEditor.logger = logger;

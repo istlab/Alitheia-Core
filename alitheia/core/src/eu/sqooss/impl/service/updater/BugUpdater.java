@@ -32,37 +32,29 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.util.Iterator;
-
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 
 /**
- * Provides the entrypoint for updating bug-related data.
- *
- * @author Panos Louridas (louridas@aueb.gr)
+ * Bug updater. Reads data from the TDS and updates 
  */
 public class BugUpdater extends Job {
 
     private DBService db;
-
     private Logger log;
+    private TDSService tds;
 
     public BugUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
         
         this.db = core.getDBService();
         this.log = logger;
+        this.tds = core.getTDSService();
     }
 
     public int priority() {
@@ -70,21 +62,8 @@ public class BugUpdater extends Job {
     }
 
     protected void run() throws Exception {
-        SAXReader reader = new SAXReader();
-        Document document = null;
-
-        try {
-            document = reader.read("asdasd");
-        } catch (DocumentException dex) {
-            throw new UpdaterException(dex.getMessage());
-        }
-
-        Element root = document.getRootElement();
-
-        for (Iterator i = root.elementIterator("bug"); i.hasNext(); ) {
-            Element element = (Element) i.next();
-            Bug bug = new Bug();
-            String description = element.element("short_desc").getStringValue();
-        }
+        //1. Get latest updated date D1
+        //2. Get bugs from date D1 
+        //3. Update
     }
 }

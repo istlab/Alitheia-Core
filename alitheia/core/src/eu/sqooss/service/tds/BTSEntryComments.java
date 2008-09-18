@@ -31,34 +31,9 @@
  *
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.Bug;
+public class BTSEntryComments {
 
-class BugImpl implements Bug {
-    private int bugNumber;
-    private String reporter;
-    private int severity;
-
-    public BugImpl(int n, String r, int s) {
-        bugNumber = n;
-        reporter = r;
-        severity = s;
-    }
-
-    // Interface methods
-    public int getBugNumber() {
-        return bugNumber;
-    }
-
-    public String getReporter() {
-        return reporter;
-    }
-
-    public int getSeverity() {
-        return severity;
-    }
+    
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

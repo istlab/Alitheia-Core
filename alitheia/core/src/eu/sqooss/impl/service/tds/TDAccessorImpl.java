@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.tds;
 
 import java.io.File;
+import java.net.URI;
 
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.TDAccessor;
@@ -44,7 +45,7 @@ public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
     private String bts;
     private String mail;
     private String scm;
-    private BTSAccessorImpl btsAccessor = null;
+    private BTSAccessor btsAccessor = null;
     private SCMAccessorImpl scmAccessor = null;
     private MailAccessorImpl mailAccessor = null;
 
@@ -76,7 +77,7 @@ public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
     // Interface functions
     public BTSAccessor getBTSAccessor() {
         if (btsAccessor == null) {
-            btsAccessor = new BTSAccessorImpl(getId(),getName());
+            btsAccessor = BugParserFactory.getInstance(getName(), getId(), URI.create(this.bts));
         }
         return btsAccessor;
     }
