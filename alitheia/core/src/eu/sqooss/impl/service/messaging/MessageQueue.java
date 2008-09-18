@@ -74,7 +74,7 @@ public class MessageQueue {
                 if (clear) {
                     return null;
                 } else {
-                    MessageImpl message = (MessageImpl)vector.remove(0);
+                    MessageImpl message = vector.remove(0);
                     MessagingServiceImpl.log("The message (id = " + message.getId() + ") is removed from the queue!",
                     		MessagingServiceImpl.LOGGING_INFO_LEVEL);
                     return message;
