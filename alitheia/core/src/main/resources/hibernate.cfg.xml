@@ -71,6 +71,7 @@
         <mapping resource="eu/sqooss/service/db/FileForVersion.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ClusterNode.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ClusterNodeProject.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/BugStatus.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>

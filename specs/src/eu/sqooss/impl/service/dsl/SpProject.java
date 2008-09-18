@@ -68,9 +68,9 @@ public class SpProject implements SpEntity {
         
         id = project.getId();
         name = project.getName();
-        mail = project.getMail();
-        bugs = project.getBugs();
-        repository = project.getRepository();
+        mail = project.getMailUrl();
+        bugs = project.getBtsUrl();
+        repository = project.getScmUrl();
         
         db.commitDBSession();
     }
@@ -80,9 +80,9 @@ public class SpProject implements SpEntity {
         StoredProject project = new StoredProject();
 
         project.setName(name);
-        project.setBugs(bugs);
-        project.setMail(mail);
-        project.setRepository(repository);
+        project.setBtsUrl(bugs);
+        project.setMailUrl(mail);
+        project.setScmUrl(repository);
         
         db.addRecord(project);
         db.commitDBSession();

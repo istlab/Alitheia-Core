@@ -100,11 +100,6 @@ public class ProjectVersion extends DAObject {
     private Set<Tag> tags;
     
     /**
-     * The set of known bugs in this version of the project
-     */
-    private Set<Bug> bugs;
-    
-    /**
      * The set of measurements available for the given version of the project
      */
     private Set<ProjectVersionMeasurement> measurements;
@@ -227,15 +222,7 @@ public class ProjectVersion extends DAObject {
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
-    
-    public Set<Bug> getBugs() {
-        return bugs;
-    }
-    
-    public void setBugs(Set<Bug> bugs) {
-        this.bugs = bugs;
-    }
-    
+        
     /**
      * Get all measurements associated with this version
      */

@@ -8,21 +8,12 @@
     <id name="id" column="BUG_ID">
       <generator class="native" />
     </id>
-    <many-to-one name="commit" column="COMMIT_ID" cascade="merge" />
-    <property name="bugFileLoc" column="BUG_FILE_LOC" />
-    <property name="severity" column="SEVERITY" />
-    <property name="status" column="STATUS" />
+    <many-to-one name="project" column="STORED_PROJECT_ID" />
+    <property name="bugID" column="BUG_EXTERNAL_ID" />
+    <many-to-one name="status" column="BUG_STATUS_ID" />
     <property name="creationTS" column="CREATION_TS" />
-    <property name="deadline" column="DEADLINE" />
     <property name="deltaTS" column="DELTA_TS" />
-    <property name="estimatedTime" column="ESTIMATED_TIME" />
-    <property name="keywords" column="KEYWORDS" />
-    <property name="operatingSystem" column="OPERATING_SYSTEM" />
-    <property name="priority" column="PRIORITY" />
-    <property name="product" column="PRODUCT" />
-    <property name="remainingTime" column="REMAINING_TIME" />
-    <property name="reportPlatform" column="REPORT_PLATFORM" />
-    <property name="reporter" column="REPORTER" />
+    <many-to-one name="reporter" column="REPORTER_ID" />
     <property name="resolution" column="RESOLUTION" />
     <property name="shortDesc" column="SHORT_DESC" />
     <set name="reportMessages" inverse="true" cascade="all-delete-orphan">

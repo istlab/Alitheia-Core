@@ -224,11 +224,11 @@ public class ProjectsView extends AbstractView {
                     else {
                         StoredProject p = new StoredProject();
                         p.setName(reqValPrjName);
-                        p.setWebsite(reqValPrjWeb);
-                        p.setContact(reqValPrjContact);
-                        p.setBugs(reqValPrjBug);
-                        p.setMail(reqValPrjMail);
-                        p.setRepository(reqValPrjCode);
+                        p.setWebsiteUrl(reqValPrjWeb);
+                        p.setContactUrl(reqValPrjContact);
+                        p.setBtsUrl(reqValPrjBug);
+                        p.setMailUrl(reqValPrjMail);
+                        p.setScmUrl(reqValPrjCode);
                         // Setup the evaluation marks for all installed metrics
                         Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
                         Map<String,Object> noProps = Collections.emptyMap();
@@ -244,8 +244,8 @@ public class ProjectsView extends AbstractView {
                         if (sobjDB.addRecord(p) == true) {
                             selProject = p;
                             // register the new project in the TDS
-                            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(), 
-                                    p.getMail(), p.getRepository());
+                            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(), 
+                                    p.getMailUrl(), p.getScmUrl());
                         }
                         else {
                             e.append(sp(in)
@@ -373,15 +373,15 @@ public class ProjectsView extends AbstractView {
             b.append(normalInfoRow(
                     "Project name", selProject.getName(), in));
             b.append(normalInfoRow(
-                    "Homepage", selProject.getWebsite(), in));
+                    "Homepage", selProject.getWebsiteUrl(), in));
             b.append(normalInfoRow(
-                    "Contact e-mail", selProject.getContact(), in));
+                    "Contact e-mail", selProject.getContactUrl(), in));
             b.append(normalInfoRow(
-                    "Bug database", selProject.getBugs(), in));
+                    "Bug database", selProject.getBtsUrl(), in));
             b.append(normalInfoRow(
-                    "Mailing list", selProject.getMail(), in));
+                    "Mailing list", selProject.getMailUrl(), in));
             b.append(normalInfoRow(
-                    "Source code", selProject.getRepository(), in));
+                    "Source code", selProject.getScmUrl(), in));
 
             //------------------------------------------------------------
             // Tool-bar

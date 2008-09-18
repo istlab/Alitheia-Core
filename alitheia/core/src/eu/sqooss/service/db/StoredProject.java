@@ -86,6 +86,7 @@ public class StoredProject extends DAObject {
     private Set<MailingList> mailingLists;
     private Set<StoredProjectMeasurement> measurements;
     private Set<EvaluationMark> evaluationMarks;
+    private Set<Bug> bugs;
 
     public StoredProject() {
         super();
@@ -104,43 +105,43 @@ public class StoredProject extends DAObject {
         this.name = name;
     }
 
-    public String getWebsite() {
+    public String getWebsiteUrl() {
         return websiteUrl;
     }
 
-    public void setWebsite(String url) {
+    public void setWebsiteUrl(String url) {
         this.websiteUrl = url;
     }
 
-    public String getContact() {
+    public String getContactUrl() {
         return contactUrl;
     }
 
-    public void setContact(String url) {
+    public void setContactUrl(String url) {
         this.contactUrl = url;
     }
 
-    public String getBugs() {
+    public String getBtsUrl() {
         return btsUrl;
     }
 
-    public void setBugs(String url) {
+    public void setBtsUrl(String url) {
         this.btsUrl = url;
     }
 
-    public String getRepository() {
+    public String getScmUrl() {
         return scmUrl;
     }
 
-    public void setRepository(String url) {
+    public void setScmUrl(String url) {
         this.scmUrl = url;
     }
 
-    public String getMail() {
+    public String getMailUrl() {
         return mailUrl;
     }
 
-    public void setMail(String url) {
+    public void setMailUrl(String url) {
         this.mailUrl = url;
     }
     
@@ -362,6 +363,14 @@ public class StoredProject extends DAObject {
                 parameterMap);
 
         return (pvList == null || pvList.isEmpty()) ? 0 : (Long) pvList.get(0);
+    }
+
+    public Set<Bug> getBugs() {
+        return bugs;
+    }
+
+    public void setBugs(Set<Bug> bugs) {
+        this.bugs = bugs;
     }
 }
 

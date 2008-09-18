@@ -9,11 +9,11 @@
       <generator class="native" />
     </id>
     <property name="name" column="PROJECT_NAME" unique="true" />
-    <property name="website" column="WEBSITE_URL" />
-    <property name="contact" column="CONTACT_URL" />
-    <property name="bugs" column="BTS_URL" />
-    <property name="repository" column="SCM_URL" />
-    <property name="mail" column="MAIL_URL" />
+    <property name="websiteUrl" column="WEBSITE_URL" />
+    <property name="contactUrl" column="CONTACT_URL" />
+    <property name="btsUrl" column="BTS_URL" />
+    <property name="scmUrl" column="SCM_URL" />
+    <property name="mailUrl" column="MAIL_URL" />
     <list name="projectVersions" inverse="true" cascade="all-delete-orphan" lazy="extra">
         <key column="STORED_PROJECT_ID"/>
         <list-index column="VERSION" base="1"/>
@@ -34,6 +34,10 @@
     <set name="evaluationMarks" inverse="true" cascade="all-delete-orphan">
         <key column="STORED_PROJECT_ID"/>
         <one-to-many class="eu.sqooss.service.db.EvaluationMark"/>
+    </set>
+    <set name="bugs" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID" />
+        <one-to-many class="eu.sqooss.service.db.Bug" />
     </set>
   </class>
 </hibernate-mapping>

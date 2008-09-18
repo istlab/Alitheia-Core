@@ -358,7 +358,20 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             // bug database update
             boolean queued_successfully = false;
             try {
-                // No updater for bugs yet
+                BugUpdater bu;
+                try {
+                    bu = new BugUpdater(project, this, core, logger);
+                    core.getScheduler().enqueue(bu);
+                    if (result != null) {
+                        result.add(bu.hashCode());
+                    }
+                    queued_successfully = true;
+                } catch (UpdaterException e) {
+                    e.printStackTrace();
+                } catch (SchedulerException e) {
+                    e.printStackTrace();
+                }
+                
             } finally {
                 if (!queued_successfully) {
                     removeUpdater(project,UpdateTarget.BUGS);

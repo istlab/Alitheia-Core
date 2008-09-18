@@ -33,143 +33,56 @@
 package eu.sqooss.service.db;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
-import java.util.Map;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * This class represents the data relating to bugs, stored in the database
  */
 public class Bug extends DAObject {
-    /**
-     * The commit which resolves the bug
-     */
-    private ProjectVersion commit;
     
-   /**
-     * A URL which points to more information about the bug.
-     */
-    private String bugFileLoc;
+    /** The project this bug belongs to */
+    private StoredProject project;
     
     /**
-     * Each bug has a "severity" field, indicating the severity of the impact of the bug. 
-     * The intended meanings of the built-in values of this field are as follows:
-     * Blocker          Blocks development and/or testing work
-     * Critical         Crashes, loss of data, severe memory leak
-     * Major            Major loss of function
-     * Minor            Minor loss of function, or other problem where easy workaround is present
-     * Trivial          Cosmetic problem
-     * Enhancement      Request for enhancement
+     * The bugID in the original bug tracking system. Used to correlate
+     * entries to filesystem/other database bug reports.
      */
-    private String severity;
+    private String bugID;
     
-    /**
-     * Each bug has a status. If a bug has a status which shows it has been resolved, 
-     * it also has a resolution, otherwise the resolution field is empty. Values of the field include:
-     * UNCONFIRMED
-     * NEW 
-     * ASSIGNED
-     * REOPENED
-     * RESOLVED
-     * VERIFIED
-     * CLOSED
-     */
-    private String status;
+    /** The bug resolution status. */
+    private BugStatus status;
     
-    /**
-     * Creation timestamp.
-     */
+    /** Creation timestamp. */
     private Date creationTS;
     
-    /**
-     * The deadline for this bug.
-     */
-    private Date deadline;
-    
-    /**
-     * The timestamp of the last update.
-     */
+    /** The timestamp of the last update. */
     private Date deltaTS;
     
-    /**
-     * The original estimate of the total effort required to fix this bug (in hours).
-     */
-    private float estimatedTime;
+    /** The user who reported this. */
+    private Developer reporter;
     
-    /**
-     * A set of keywords.
-     */
-    private String keywords;
-    
-    /**
-     * The operating system on which the bug was observed.
-     */
-    private String operatingSystem;
-    
-    /**
-     * The priority of the bug.
-     */
-    private String priority;
-    
-    /**
-     * The product.
-     */
-    private String product;
-    
-    /**
-     * The current estimate of the remaining effort required to fix this bug (in hours).
-     */
-    private float remainingTime;
-    
-    /**
-     * The platform on which the bug was reported.
-     */
-    private String reportPlatform;
-    
-    /**
-     * The user who reported this.
-     */
-    private String reporter;
-    
-    /**
-     * The bug's resolution status.
-     */
+    /** The bug's resolution status. */
     private String resolution;
     
-    /**
-     * A short description of the bug.
-     */
+    /** A short description of the bug. */
     private String shortDesc;
     
-    /**
-     * The list of messages associated to this bug
-     */
+    /** The list of messages associated to this bug */
     private Set<BugReportMessage> reportMessages;
-     
-    public String getBugFileLoc() {
-        return bugFileLoc;
+
+    public String getBugID() {
+        return bugID;
     }
 
-    public void setBugFileLoc(String bugFileLoc) {
-        this.bugFileLoc = bugFileLoc;
+    public void setBugID(String bugID) {
+        this.bugID = bugID;
     }
 
-    public String getSeverity() {
-        return severity;
-    }
-
-    public void setSeverity(String severity) {
-        this.severity = severity;
-    }
-
-    public String getStatus() {
+    public BugStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(BugStatus status) {
         this.status = status;
     }
 
@@ -181,14 +94,6 @@ public class Bug extends DAObject {
         this.creationTS = creationTS;
     }
 
-    public Date getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(Date deadline) {
-        this.deadline = deadline;
-    }
-
     public Date getDeltaTS() {
         return deltaTS;
     }
@@ -197,67 +102,11 @@ public class Bug extends DAObject {
         this.deltaTS = deltaTS;
     }
 
-    public float getEstimatedTime() {
-        return estimatedTime;
-    }
-
-    public void setEstimatedTime(float estimatedTime) {
-        this.estimatedTime = estimatedTime;
-    }
-
-    public String getKeywords() {
-        return keywords;
-    }
-
-    public void setKeywords(String keywords) {
-        this.keywords = keywords;
-    }
-
-    public String getOperatingSystem() {
-        return operatingSystem;
-    }
-
-    public void setOperatingSystem(String operatingSystem) {
-        this.operatingSystem = operatingSystem;
-    }
-
-    public String getPriority() {
-        return priority;
-    }
-
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
-    public String getProduct() {
-        return product;
-    }
-
-    public void setProduct(String product) {
-        this.product = product;
-    }
-
-    public float getRemainingTime() {
-        return remainingTime;
-    }
-
-    public void setRemainingTime(float remainingTime) {
-        this.remainingTime = remainingTime;
-    }
-
-    public String getReportPlatform() {
-        return reportPlatform;
-    }
-
-    public void setReportPlatform(String reportPlatform) {
-        this.reportPlatform = reportPlatform;
-    }
-
-    public String getReporter() {
+    public Developer getReporter() {
         return reporter;
     }
 
-    public void setReporter(String reporter) {
+    public void setReporter(Developer reporter) {
         this.reporter = reporter;
     }
 
@@ -277,7 +126,7 @@ public class Bug extends DAObject {
         this.shortDesc = shortDesc;
     }
 
-        public Set<BugReportMessage> getReportMessages() {
+    public Set<BugReportMessage> getReportMessages() {
         return reportMessages;
     }
 
@@ -285,39 +134,12 @@ public class Bug extends DAObject {
         this.reportMessages = reportMessages;
     }
 
-        public Bug() {
-        // Nothing to do here
+    public StoredProject getProject() {
+        return project;
     }
 
-    public ProjectVersion getCommit() {
-        return commit;
-    }
-    
-    public void setCommit(ProjectVersion commit) {
-        this.commit = commit;
-    }
-    
-    /**
-     * Returns a list of bugs associated with the specified project.
-     * Note that only bugs associated to a commit will be retrieved.
-     * @param project the project to find bugs in
-     * @return the list of bugs corresponding to commits for the project,
-     * or null if an error occured
-     */
-    @SuppressWarnings("unchecked")
-    public static List<Bug> getProjectBugs(StoredProject project) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("sp", project);
-        List<Bug> bugList = null;
-        try {
-            // PENDING should maybe check for "b.commit not null" first ?
-            bugList = (List<Bug>) dbs.doHQL("from Bug b where b.commit.project=:sp",
-                                            parameterMap);
-        } catch (RuntimeException e) {
-        }
-        return bugList;
+    public void setProject(StoredProject project) {
+        this.project = project;
     }
 }
 

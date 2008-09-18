@@ -314,6 +314,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements EventHandler,
      * - SC_NOT_FOUND (404) if the project or clusternode does not exist in the database.
      * - SC_NOT_IMPLEMENTED if the action type is not supported
      */
+    @SuppressWarnings("unchecked")
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     	
@@ -328,9 +329,6 @@ public class ClusterNodeServiceImpl extends HttpServlet implements EventHandler,
         
         StoredProject project;
         ClusterNode node;
-        ClusterNodeProject nodeproject;
-        
-        
         
         // ERROR if no action requested
         if (requestedAction == null) {

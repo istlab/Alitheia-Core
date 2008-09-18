@@ -32,6 +32,8 @@
 
 package eu.sqooss.service.db;
 
+import java.util.Date;
+
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -45,15 +47,12 @@ public class BugReportMessage extends DAObject {
     /**
      * The original reporter of the bug
      */
-    private Developer bugReporter;
+    private Developer reporter;
+    
     /**
-     * The description of the bug
+     * The date this message was written
      */
-    private String description;
-    /**
-     * Something interesting goes here
-     */
-    private String action;
+    private Date timestamp;
     
     public BugReportMessage() {
         // Nothing to do here
@@ -68,27 +67,19 @@ public class BugReportMessage extends DAObject {
     }
     
     public Developer getBugReporter() {
-        return bugReporter;
+        return reporter;
     }
     
-    public void setBugReporter(Developer bugReporter) {
-        this.bugReporter = bugReporter;
+    public void setBugReporter(Developer reporter) {
+        this.reporter = reporter;
     }
-    
-    public String getDescription() {
-        return description;
+
+    public Date getTimestamp() {
+        return timestamp;
     }
-    
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    public String getAction() {
-        return action;
-    }
-    
-    public void setAction(String action) {
-        this.action = action;
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 }
 

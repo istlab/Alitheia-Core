@@ -35,6 +35,10 @@ package eu.sqooss.impl.metrics.productivity;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Typesafe descriptions of actions supported by the productivity plugin
+ *
+ */
 public class ProductivityMetricActions {
 
     /** Maps categories to actions*/

@@ -103,7 +103,7 @@ public class BugFactory {
             Bug bug = new Bug();
             
             /* Read all the values we can and call the related setter */
-            String elementValue = getElementValueAsString(element.element("bug_file_loc"));
+         /*   String elementValue = getElementValueAsString(element.element("bug_file_loc"));
             bug.setBugFileLoc(elementValue);
             elementValue = getElementValueAsString(element.element("bug_severity"));
             bug.setSeverity(elementValue);
@@ -152,7 +152,7 @@ public class BugFactory {
             elementValue = getElementValueAsString(element.element("reporter"));
             bug.setReporter(elementValue);
             elementValue = getElementValueAsString(element.element("resolution"));
-            bug.setResolution(elementValue);
+            bug.setResolution(elementValue);*/
             bugList.add(bug);
         }
         return bugList;

@@ -318,11 +318,11 @@ public class WebAdminRenderer  extends AbstractView {
 
         StoredProject p = new StoredProject();
         p.setName(name);
-        p.setWebsite(website);
-        p.setContact(contact);
-        p.setBugs(bts);
-        p.setRepository(scm);
-        p.setMail(mail);
+        p.setWebsiteUrl(website);
+        p.setContactUrl(contact);
+        p.setBtsUrl(bts);
+        p.setScmUrl(scm);
+        p.setMailUrl(mail);
 
         /* Run a few checks before actually storing the project */
         // 1. Duplicate project
@@ -338,8 +338,8 @@ public class WebAdminRenderer  extends AbstractView {
         }
 
         // 2. Add accessor and try to access project resources
-        sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), 
-                p.getRepository());
+        sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(), p.getMailUrl(), 
+                p.getScmUrl());
         TDAccessor a = sobjTDS.getAccessor(p.getId());
 
         try {
@@ -356,7 +356,7 @@ public class WebAdminRenderer  extends AbstractView {
         } catch (InvalidRepositoryException e) {
             sobjLogger.warn("Error accessing repository. Project not added");
             vc.put("RESULTS", "<p>ERROR: Can not access " + "repository: &lt;"
-                    + p.getRepository() + "&gt;," + " project not added.</p>"
+                    + p.getScmUrl() + "&gt;," + " project not added.</p>"
                     + tryAgain);
             // Invalid repository, remove and remove accessor
             sobjTDS.releaseAccessor(a);
@@ -366,8 +366,8 @@ public class WebAdminRenderer  extends AbstractView {
         sobjDB.addRecord(p);
         //Remove accessor for unregistered project
         sobjTDS.releaseAccessor(a);
-        sobjTDS.addAccessor(p.getId(), p.getName(), p.getBugs(), p.getMail(), 
-                p.getRepository());
+        sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(), p.getMailUrl(), 
+                p.getScmUrl());
         
         sobjLogger.info("Added a new project <" + name + "> with ID "
                 + p.getId());

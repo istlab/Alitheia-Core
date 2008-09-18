@@ -32,80 +32,44 @@
 
 package eu.sqooss.impl.service.updater;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.DocumentException;
-import org.dom4j.io.SAXReader;
-
 import java.util.Iterator;
 
-import eu.sqooss.service.db.DBService;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
-import eu.sqooss.service.logging.Logger;
-
-import eu.sqooss.service.scheduler.Scheduler;
-
-import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.service.updater.UpdaterException;
-import eu.sqooss.service.scheduler.Job;
-
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.updater.UpdaterException;
 
 /**
  * Provides the entrypoint for updating bug-related data.
- *
- * Construction-wise, it follows the Builder pattern as described by Joshua Block.
- * As we are not sure about the full set of parameters we will be able to use, we employ
- * this design pattern to enable us to work with "optional named" parameters.
  *
  * @author Panos Louridas (louridas@aueb.gr)
  */
 public class BugUpdater extends Job {
 
-    private TDSService tds;
+    private DBService db;
 
-    private DBService dbs;
+    private Logger log;
 
-    private Scheduler scheduler;
-
-    private Logger logger;
-
-    public class Builder {
-        private TDSService tds;
-        private DBService dbs;
-        private Scheduler scheduler;
-        private Logger logger;
-
-        public Builder(String path, TDSService tds, DBService dbs, Scheduler scheduler, Logger logger) throws UpdaterException {
-            if ((path == null) || (tds == null) || (dbs == null) || (scheduler == null) || (logger == null)) {
-                throw new UpdaterException("The components required by the updater are unavailable");
-            }
-            this.tds = tds;
-            this.dbs = dbs;
-            this.scheduler = scheduler;
-            this.logger = logger;
-        }
-
-        /*
-         * Example of optional parameter:
-         * public Builder foo(int val) {
-         *     this.foo = val;
-         *     return this;
-         * }
-         */
-
-        public BugUpdater build() throws UpdaterException {
-            return new BugUpdater(this);
-        }
+    public BugUpdater(StoredProject project, UpdaterServiceImpl updater,
+            AlitheiaCore core, Logger logger) throws UpdaterException {
+        
+        this.db = core.getDBService();
+        this.log = logger;
     }
 
-    private BugUpdater(Builder builder) throws UpdaterException {
+    public int priority() {
+        return 0x1;
     }
 
-    public void doUpdate() throws UpdaterException {
-    }
-
-        public static void processBugs() throws UpdaterException {
+    protected void run() throws Exception {
         SAXReader reader = new SAXReader();
         Document document = null;
 
@@ -122,18 +86,5 @@ public class BugUpdater extends Job {
             Bug bug = new Bug();
             String description = element.element("short_desc").getStringValue();
         }
-    }
-
-    @Override
-    public int priority() {
-        return 1;
-    }
-
-    @Override
-    protected void run() throws Exception {
-        // TODO Auto-generated method stub
-        logger.warn("Bogus method BugUpdater.run() called.");
-        // This updater is broken enough that it can't even
-        // remove itself from the updater.
     }
 }

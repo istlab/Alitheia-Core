@@ -211,8 +211,8 @@ public class TDSServiceImpl implements TDSService, EventHandler {
             }
             for (Object o : l) {
                 StoredProject p = (StoredProject) o;
-                addAccessor(p.getId(), p.getName(), p.getBugs(), 
-                        p.getMail(), p.getRepository());
+                addAccessor(p.getId(), p.getName(), p.getBtsUrl(), 
+                        p.getMailUrl(), p.getScmUrl());
             }
             db.commitDBSession();
         } else {

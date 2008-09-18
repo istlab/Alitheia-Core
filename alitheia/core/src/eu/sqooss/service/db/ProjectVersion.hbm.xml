@@ -26,10 +26,6 @@
         <key column="TAG_VERSION"/>
         <one-to-many class="eu.sqooss.service.db.Tag"/>
     </set>
-    <set name="bugs" inverse="true" cascade="all-delete-orphan">
-        <key column="COMMIT_ID"/>
-        <one-to-many class="eu.sqooss.service.db.Bug"/>
-    </set>
     <set name="measurements" inverse="true" cascade="all-delete-orphan">
         <key column="PROJECT_VERSION_ID"/>
         <one-to-many class="eu.sqooss.service.db.ProjectVersionMeasurement"/>

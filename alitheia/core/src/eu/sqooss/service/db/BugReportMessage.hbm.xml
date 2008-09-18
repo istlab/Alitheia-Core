@@ -9,8 +9,7 @@
       <generator class="native" />
     </id>
     <many-to-one name="bug" column="BUG_ID" not-null="true" cascade="merge"/>
-    <many-to-one name="bugReporter" column="BUG_REPORTER_ID" not-null="true" cascade="merge"/>
-    <property name="description" column="DESCRIPTION" />
-    <property name="action" column="ACTION" />
+    <many-to-one name="bugReporter" column="DEVELOPER_ID" not-null="true" cascade="merge"/>
+    <property name="timestamp" not-null="true" />
   </class>
 </hibernate-mapping>

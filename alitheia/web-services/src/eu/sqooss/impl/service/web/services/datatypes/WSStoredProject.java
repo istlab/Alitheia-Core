@@ -221,12 +221,12 @@ public class WSStoredProject {
         try {
             WSStoredProject wsStoredProject = new WSStoredProject();
             wsStoredProject.setId(storedProject.getId());
-            wsStoredProject.setBugs(storedProject.getBugs());
-            wsStoredProject.setContact(storedProject.getContact());
-            wsStoredProject.setMail(storedProject.getMail());
+            wsStoredProject.setBugs(storedProject.getBtsUrl());
+            wsStoredProject.setContact(storedProject.getContactUrl());
+            wsStoredProject.setMail(storedProject.getMailUrl());
             wsStoredProject.setName(storedProject.getName());
-            wsStoredProject.setRepository(storedProject.getRepository());
-            wsStoredProject.setWebsite(storedProject.getWebsite());
+            wsStoredProject.setRepository(storedProject.getScmUrl());
+            wsStoredProject.setWebsite(storedProject.getWebsiteUrl());
             Set<Developer> developers = storedProject.getDevelopers();
             if ((developers != null) && (developers.size() > 0)) {
                 int index = 0;
