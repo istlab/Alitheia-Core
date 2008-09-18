@@ -33,16 +33,17 @@
 package eu.sqooss.impl.service.web.services.utils;
 
 interface MetricManagerDBQueries {
-    
-    public static final String GET_PROJECT_EVALUATED_METRICS_PARAM = "project_id";
-    
-    public static final String GET_PROJECT_EVALUATED_METRICS = "select distinct metric " +
-                                                               "from EvaluationMark em, Metric metric " +
-                                                               "where metric.id=em.metric " +
-                                                               " and em.storedProject.id=:" +
-                                                               GET_PROJECT_EVALUATED_METRICS_PARAM;
-    
-    
+
+    public static final String GET_PROJECT_EVALUATED_METRICS_PARAM =
+        "project_id";
+
+    public static final String GET_PROJECT_EVALUATED_METRICS =
+        "select distinct metric "
+        + "from EvaluationMark em, Metric metric "
+        + "where metric.id=em.metric "
+        + " and em.storedProject.id=:" + GET_PROJECT_EVALUATED_METRICS_PARAM
+        + " and em.whenRun is not null ";
+
     public static final String GET_METRICS_BY_RESOURCES_IDS_PARAM = "list_of_ids";
     
     public static final String GET_METRICS_BY_RESOURCES_IDS_STORED_PROJECTS = "select distinct spm.metric " +
