@@ -192,10 +192,10 @@ public class MD5 implements Cloneable {
         MD5 md5 = null;
         try {
             md5 = (MD5)super.clone();
-            md5.state = (int[])state.clone();
-            md5.transformBuffer = (int[])transformBuffer.clone();
-            md5.buffer = (byte[])buffer.clone();
-            md5.digestBits = (byte[])digestBits.clone();
+            md5.state = state.clone();
+            md5.transformBuffer = transformBuffer.clone();
+            md5.buffer = buffer.clone();
+            md5.digestBits = digestBits.clone();
             md5.count = count;
             return md5;
         } catch (CloneNotSupportedException ex) {
