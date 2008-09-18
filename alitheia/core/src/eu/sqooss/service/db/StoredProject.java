@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2007,2008 Athens University of Economics and Business
+ *     Author Adriaan de Groot <groot@kde.org>
  * Copyright 2007-2008 by Paul J. Adams <paul.adams@siriusit.co.uk>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -214,6 +214,11 @@ public class StoredProject extends DAObject {
         return ((null!=s) && (s.size()>0));
     }
 
+    //================================================================
+    // Static table information accessors
+    //================================================================
+    
+
     /**
      * Convenience method to retrieve a stored project from the
      * database by name; this is different from the constructor
@@ -233,94 +238,24 @@ public class StoredProject extends DAObject {
         return (prList == null || prList.isEmpty()) ? null : prList.get(0);
     }
 
-    /**
-     * Convenience method to find the latest project version for
-     * a given project.
-     * 
-     * @return ProjectVersion for the latest version or null if not found
-     */
-    public ProjectVersion getLastProjectVersion() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("sp", this);
+    /**                                                                        
+     * Convenience method to find the latest project version for               
+     * a given project.                                                        
+     *                                                                         
+     * @return ProjectVersion for the latest version or null if not found      
+     */                                                                        
+    public ProjectVersion getLastProjectVersion() {                            
+        DBService dbs = AlitheiaCore.getInstance().getDBService();             
+                                                                               
+        Map<String,Object> parameterMap = new HashMap<String,Object>();        
+        parameterMap.put("sp", this);                                          
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.version = (select max(pv2.version) from "
-                + " ProjectVersion pv2 where pv2.project=:sp)",
-                parameterMap);
-
-        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
-    }
-
-    /**
-     * Convenience method to find the number of versions for this project.
-     * Similar to the static getVersionsCount().
-     * 
-     * @return number of versions of the project stored in the database.
-     * @see getVersionsCount
-     */
-    public long getVersionCount() {
-        // TODO: possibly use getProjectVersions().size()?
-        // TODO: possibly use the HQL directly?
-        return getVersionsCount(getId());
-    }
-
-    /**
-     * Look up a project version for this project based on the SVN
-     * revision number (e.g. 1). This does a database lookup and 
-     * returns the ProjectVersion recorded for that SVN revision,
-     * or null if there is no such revision (for instance because
-     * the updater has not added it yet or the revision number is
-     * invalid in some way). This is a lookup, not a creation, of
-     * revisions.
-     * 
-     * @param revision SVN revision number to look up for this project
-     * @return ProjectVersion object corresponding to the revision,
-     *         or null if there is none.
-     */
-    public ProjectVersion getVersionByRevision(long revision) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-   
-        String paramProjectId = "stored_project_id";
-        String paramRevision = "revision_nr";
-        String query = "select pv " +
-                       "from ProjectVersion pv " +
-                       "where pv.project.id=:" + paramProjectId + " and " +
-                       "pv.version=:" + paramRevision;
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramProjectId, getId());
-        parameters.put(paramRevision, revision);
-
-        List<?> versions = dbs.doHQL(query, parameters);
-        if (versions == null || versions.size() == 0) {
-            return null;
-        } else {
-            return (ProjectVersion) versions.get(0);
-        }
-    }
-    
-    /**
-     * Convenience method, essentially like the above.
-     * @param revision ProjectRevision to use for the lookup.
-     * @return ProjectVersion corresponding to the SVN revision, or
-     *          null if there is none.
-     */
-    public ProjectVersion getVersionByRevision(ProjectRevision revision) {
-        if (!revision.hasSVNRevision()) {
-            // Can't do the lookup if we don't have a SVN revision number;
-            // caller should have resolved other revision specifications 
-            // to a number already.
-            return null;
-            // TODO: possibly log this
-        }
-        return getVersionByRevision(revision.getSVNRevision());
-    }
-    
-    //================================================================
-    // Static table information accessors
-    //================================================================
-    
+                + " and pv.version = (select max(pv2.version) from "           
+                + " ProjectVersion pv2 where pv2.project=:sp)",                
+                parameterMap);                                                 
+                                                                               
+        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);                                                                   
+    }                                                                          
 
     /**
      * Count the total number of projects in the database.
@@ -330,18 +265,10 @@ public class StoredProject extends DAObject {
     public static int getProjectCount() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         List<?> l = dbs.doHQL("SELECT COUNT(*) FROM StoredProject");
-        if (l == null) {
+        if ((l == null) || (l.size() < 1)) {
             return 0;
         }
-        if (l.size() < 1) {
-            return 0;
-        }
-
-        Object o = l.get(0);
-        if (o == null) {
-            return 0;
-        }
-        Long i = (Long) o;
+        Long i = (Long) l.get(0);
         return i.intValue();
     }
 
