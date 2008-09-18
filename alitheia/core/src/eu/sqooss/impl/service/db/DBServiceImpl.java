@@ -252,71 +252,6 @@ public class DBServiceImpl implements DBService, FrameworkListener {
     }
 
     /**
-     * Constructor for creating a DBServiceImpl outside the SQO-OSS system, e.g.,
-     * for testing purposes.
-     */
-    public DBServiceImpl() {
-        String dbDriverProp;
-        String dbConnectionURLProp;
-        String dbDialectProp;
-        String dbuserName;
-        String dbPasswd;
-        String hibernateConfigURLProp;
-        URL hibernateConfigURL = null;
-
-        this.logger = new LoggerImpl("standalone");
-        
-        dbDriverProp = System.getProperty(DB_DRIVER_PROPERTY);
-        if (dbDriverProp == null) {
-            System.err.println("Could not get " + DB_DRIVER_PROPERTY + " property.");
-            System.exit(1);
-        }
-        dbConnectionURLProp = System.getProperty(DB_CONNECTION_URL_PROPERTY);
-        if (dbConnectionURLProp == null) {
-            System.err.println("Could not get " + DB_CONNECTION_URL_PROPERTY + " property.");
-            System.exit(1);
-        }
-        dbDialectProp = System.getProperty(DB_DIALECT_PROPERTY);
-        if (dbDialectProp == null) {
-            System.err.println("Could not get " + DB_DIALECT_PROPERTY + " property.");
-            System.exit(1);
-        }
-        
-        dbuserName = System.getProperty(DB_USERNAME_PROPERTY);
-        if (dbuserName == null) {
-            System.err.println("Could not get " + DB_USERNAME_PROPERTY + " property.");
-            System.exit(1);
-        }
-        dbPasswd = System.getProperty(DB_PASSWORD_PROPERTY);
-        if (dbPasswd == null) {
-            System.err.println("Could not get " + DB_PASSWORD_PROPERTY + " property.");
-            System.exit(1);
-        }
-     
-        if (!getJDBCConnection(dbDriverProp, dbConnectionURLProp, dbDialectProp, dbuserName, dbPasswd)) {
-            System.err.println("Could not get JDBC connection.");
-            System.exit(1);
-        }
-
-        hibernateConfigURLProp = System.getProperty(HIBERNATE_CONFIG_PROPERTY);
-        if (hibernateConfigURLProp == null) {
-            System.err.println("Could not get " + HIBERNATE_CONFIG_PROPERTY + " property.");
-            System.exit(1);
-        }
-
-        try {
-            // The following is necessary for MS-Windows environments
-            hibernateConfigURLProp = hibernateConfigURLProp.replaceFirst("^file://[a-zA-z]:", "file://");
-            hibernateConfigURL = new URL(hibernateConfigURLProp);
-        } catch (MalformedURLException e) {
-            System.err.println("Invalid URL for hibernate configuration file: " + hibernateConfigURLProp);
-            System.exit(1);
-        }
-
-        initHibernate(hibernateConfigURL, false);
-    }
-
-    /**
      * Constructor for creating a DBServiceImpl inside the SQO-OSS system.
      * 
      * @param bc The current BundleContext
@@ -856,11 +791,11 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         }
         
         testProject = new StoredProject(testProjectName);
-        testProject.setBugs("bugz");
-        testProject.setContact("kontactz");
-        testProject.setMail("mailz");
-        testProject.setRepository("repoz");
-        testProject.setWebsite("webz");
+        testProject.setBtsUrl("bugz");
+        testProject.setContactUrl("kontactz");
+        testProject.setMailUrl("mailz");
+        testProject.setScmUrl("repoz");
+        testProject.setWebsiteUrl("webz");
 
         // Should still not be in the db yet
         projectList = findObjectsByProperties(StoredProject.class, props);
@@ -904,7 +839,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         // testProject is detached at that point (it belongs to the previous session)
         // so changes should NOT be persisted in the db at the next commit
         startDBSession();
-        testProject.setContact("duh");
+        testProject.setContactUrl("duh");
         if ( !commitDBSession() ) {
             return "error while committing session afer change to project";
         }        
@@ -927,7 +862,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             return "couldn't find test project";
         }
         testProject = projectList.get(0);
-        testProject.setContact("duh");        
+        testProject.setContactUrl("duh");        
 
         props.clear();
         props.put("contact", "duh");
