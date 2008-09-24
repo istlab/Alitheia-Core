@@ -360,33 +360,12 @@ public class ProjectVersion extends DAObject {
         }
         return getVersionByRevision(project, revision.getSVNRevision());
     }
-
-    /**
-     * Convenience method to find the first project version for
-     * a given project.
-     * 
-     * @return ProjectVersion for the first version,
-     *   or <code>null</code> if not found
-     */
-    public static ProjectVersion getFirstProjectVersion(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("sp", sp);
-        List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.version = (select min(pv2.version) from "
-                + " ProjectVersion pv2 where pv2.project=:sp)",
-                parameterMap);
-
-        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
-    }
-
+    
     /**
      * Convenience method to find the latest project version for
      * a given project.
      * 
-     * @return ProjectVersion for the latest version,
-     *   or <code>null</code> if not found
+     * @return ProjectVersion for the latest version or null if not found
      */
     public static ProjectVersion getLastProjectVersion(StoredProject sp) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
