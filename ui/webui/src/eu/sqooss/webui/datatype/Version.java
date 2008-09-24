@@ -98,20 +98,15 @@ public class Version extends AbstractDatatype {
      */
     public Version (WSProjectVersion wsVersion, Terrier terrier) {
         if (wsVersion != null) {
-            this.id = wsVersion.getId();
+            id = wsVersion.getId();
             try {
-                this.number = wsVersion.getVersion();
+                number = wsVersion.getVersion();
             }
             catch (NumberFormatException ex) {}
-            this.name = this.number.toString();
-            this.projectId = wsVersion.getProjectId();
-            this.committerId = wsVersion.getCommitterId();
-            /*
-             * NOTE: The Timestamp has to multiplied with 1000, since
-             * <code>eu.sqooss.impl.service.updater.SourceUpdater</code> does
-             * divide it on 1000 for an unknown reason.
-             */
-            timestamp = new Date(wsVersion.getTimestamp() * 1000);
+            name = ((number != null) ? number.toString() : "N/A");
+            projectId = wsVersion.getProjectId();
+            committerId = wsVersion.getCommitterId();
+            timestamp = new Date(wsVersion.getTimestamp());
         }
         setTerrier(terrier);
     }

@@ -69,18 +69,13 @@ public class TaggedVersion extends Version {
         if (wsVersion != null) {
             id = wsVersion.getId();
             try {
-                this.number = wsVersion.getVersion();
+                number = wsVersion.getVersion();
             }
             catch (NumberFormatException ex) { /* Do nothing */}
             name = ((number != null) ? number.toString() : "N/A");
             projectId = wsVersion.getProjectId();
             committerId = wsVersion.getCommitterId();
-            /*
-             * NOTE: The Timestamp has to multiplied with 1000, since
-             * <code>eu.sqooss.impl.service.updater.SourceUpdater</code> does
-             * divide it on 1000 for some reason.
-             */
-            timestamp = new Date(wsVersion.getTimestamp() * 1000);
+            timestamp = new Date(wsVersion.getTimestamp());
             tagNames = Arrays.asList(wsVersion.getTags());
         }
         setTerrier(terrier);
