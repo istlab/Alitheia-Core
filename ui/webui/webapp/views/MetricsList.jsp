@@ -14,6 +14,7 @@ if (selectedProject.isValid()) {
     // Check if the user has requested a metrics refresh
     if (request.getParameter("refreshPrjMetrics") != null) {
         selectedProject.flushMetrics();
+        selectedProject.getEvaluatedMetrics();
     }
     // Check for a metric selection
     if (request.getParameter("selectMetric") != null) {

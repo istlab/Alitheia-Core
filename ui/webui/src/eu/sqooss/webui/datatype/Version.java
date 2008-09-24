@@ -169,15 +169,14 @@ public class Version extends AbstractDatatype {
     //========================================================================
 
     /**
-     * Gets the total number of files that exist in this particular project
-     * version.
+     * Gets the total number of files, which exists in this project version.
      * 
      * @return Total number of files in this version.
      */
-    public Long getFilesCount() {
+    public long getFilesCount() {
         if (filesNumber == null)
             filesNumber = terrier.getFilesCount(id);
-        return filesNumber;
+        return (filesNumber != null ? filesNumber.longValue(): 0);
     }
 
     /**

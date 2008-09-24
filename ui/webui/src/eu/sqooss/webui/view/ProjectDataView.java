@@ -130,13 +130,10 @@ public class ProjectDataView extends ListView {
 
         // Files in the latest version
         b.append(sp(in++) + "<tr>\n");
-        Long filesCount = project.getLastVersion().getFilesCount();
-        if (filesCount == null)
-            filesCount = new Long(0);
         b.append(sp(in) + "<td><b>Files:</b></td>"
                 + "<td>"
                 + "<a href=\"/files.jsp\">"
-                + filesCount
+                + project.getLastVersion().getFilesCount()
                 + "</a>"
                 + "</td>\n");
         b.append(sp(--in) + "</tr>\n");

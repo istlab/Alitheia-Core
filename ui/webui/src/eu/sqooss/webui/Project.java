@@ -54,7 +54,7 @@ import eu.sqooss.ws.client.datatypes.WSStoredProject;
 public class Project extends WebuiItem {
 
     /*
-     *  Project meta-data fields
+     *  Project specific meta-data fields
      */
     private String bts;
     private String repository;
@@ -93,7 +93,7 @@ public class Project extends WebuiItem {
     private TaggedVersionsList tagged = new TaggedVersionsList();
 
     /*
-     * Defines, if the selected project contains tagged versions at all.
+     * Defines, if the selected project has tagged versions.
      */
     private boolean hasTagged = true;
 
