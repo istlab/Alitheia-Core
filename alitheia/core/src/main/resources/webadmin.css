@@ -95,16 +95,6 @@ body.section-7 #menu li#nav-7 a  {
 	color : #f00 !important;
 }
 
-/* Input box for the message of the day, mixed in with Core controls */
-
-#motdinput {
-	width: 100%;
-}
-
-#motdbutton {
-	float: right;
-}
-
 /* Logs tab gets special handling inside. */
 
 #contents .logs {
@@ -129,10 +119,6 @@ body.section-7 #menu li#nav-7 a  {
 	background: url(/greyBack.jpg) top repeat-x;
 }
 
-#start {
-	padding-right: 15px;
-}
-
 #status li {
 	line-height: 1.5em;
 }
@@ -154,6 +140,7 @@ body.section-7 #menu li#nav-7 a  {
 	background-position: 0 0;
 	padding-top: 3px;
 	padding-left: 37px;
+	padding-bottom: 10px;
 }
 
 

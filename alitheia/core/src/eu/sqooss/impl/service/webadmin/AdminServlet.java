@@ -139,6 +139,7 @@ public class AdminServlet extends HttpServlet {
         dynamicContentMap.put("/alljobs", "alljobs.html");
         dynamicContentMap.put("/users", "users.html");
         dynamicContentMap.put("/rules", "rules.html");
+        dynamicContentMap.put("/jobstat", "jobstat.html");
 
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
