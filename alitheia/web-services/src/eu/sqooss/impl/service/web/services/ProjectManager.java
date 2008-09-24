@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
@@ -56,21 +57,18 @@ import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
 public class ProjectManager extends AbstractManager {
 
     private Logger logger;
-    private FDSService fds;
     private ProjectManagerDatabase dbWrapper;
     private ProjectSecurityWrapper securityWrapper;
 
-    public ProjectManager(Logger logger, DBService db, SecurityManager security, FDSService fds) {
+    public ProjectManager(Logger logger, DBService db, SecurityManager security) {
         super(db);
         this.logger = logger;
-        this.fds = fds;
         this.dbWrapper = new ProjectManagerDatabase(db);
         this.securityWrapper = new ProjectSecurityWrapper(security, db, logger);
     }
@@ -610,12 +608,19 @@ public class ProjectManager extends AbstractManager {
             String password,
             long projectVersionId,
             long directoryId) {
+        //====================================================================
         // Log this call
+        //====================================================================
         logger.info("Get files in directory!"
                 + " user: " + userName
                 +";"
+                + " version Id: " + projectVersionId
+                +";"
                 + " directory Id: " + directoryId);
+
+        //====================================================================
         // Match against the current security policy
+        //====================================================================
         db.startDBSession();
         if (!securityWrapper.checkDirectoriesReadAccess(userName,
                 password, new long[] {directoryId})) {
@@ -626,109 +631,32 @@ public class ProjectManager extends AbstractManager {
                     "Security violation in the get files in directory operation!");
         }
         super.updateUserActivity(userName);
+
+        //====================================================================
         // Retrieve the result(s)
+        //====================================================================
         WSProjectFile[] result = null;
         ProjectVersion version =
             db.findObjectById(ProjectVersion.class, projectVersionId);
         Directory directory =
             db.findObjectById(Directory.class, directoryId);
         if ((version == null) || (directory == null)) return null;
-        List<ProjectFile> files = new ArrayList<ProjectFile>();
 
-        /*********************************************************************
-         * Retrieve the list of file by using the "svn list" approach, which
-         * is provided from the SVNKit library via the FDS service 
-         ********************************************************************/
-        HashMap<String, Long> dirEntries = fds.scmDirList(version, directory);
-
-        // Construct a query for retrieving the corresponding ProjectFile DAOs
-        String query = null;
-        for (String fileName : dirEntries.keySet()) {
-            if (query != null) {
-                query += " or ("
-                    + " pf.projectVersion = pv.id"
-                    + " and pv.version = " + dirEntries.get(fileName)
-                    + " and pf.name = '" + fileName + "'"
-                    + " )";
-            }
-            else {
-                query = "select pf"
-                    + " from ProjectVersion pv, ProjectFile pf"
-                    + " where"
-                    + " pf.dir = " + directoryId
-                    + " and (";
-                query += " ("
-                    + " pf.projectVersion = pv.id"
-                    + " and pv.version = " + dirEntries.get(fileName)
-                    + " and pf.name = '" + fileName + "'"
-                    + ")";
-            }
+        // Retrieve the complete list of files in the selected version
+        Set<ProjectFile> verFiles = version.getFilesForVersion();
+        ArrayList<ProjectFile> dirFiles = new ArrayList<ProjectFile>();
+        for (ProjectFile nextFile : verFiles) {
+            if (nextFile.getDir().getId() == directoryId)
+                dirFiles.add(nextFile);
         }
 
-        // Execute the query and store all DAOs in the dedicated buffer
-        if (query != null) {
-            query += ")";
-            List<?> daoList = db.doHQL(query);
-            if (daoList != null)
-                for (Object nextDAO : daoList) {
-                    ProjectFile fileDAO = (ProjectFile) nextDAO;
-                    dirEntries.remove(fileDAO.getName());
-                    files.add(fileDAO);
-                }
+        // Construct the result
+        if (verFiles.size() > 0) {
+          result = new WSProjectFile[dirFiles.size()];
+          int index = 0;
+          for (ProjectFile nextFile : dirFiles)
+              result[index++] = WSProjectFile.getInstance(nextFile);
         }
-
-        /*
-         * Any files left, fall in the special case (see the note bellow) and
-         * must be retrieved in another way.
-         * 
-         * NOTE: SVNKit sometimes returns a "wrong" revision number for
-         * directories, in case some entities inside the target directory
-         * were changed. In such case, it will return the revision number,
-         * that corresponds to the most recent entity change.
-         */
-        for (String fileName : dirEntries.keySet()) {
-            HashMap<String, Object> props = new HashMap<String, Object>();
-            props.put("name", fileName);
-            props.put("isDirectory", true);
-            props.put("dir", directory);
-            List<ProjectFile> daoList =
-                db.findObjectsByProperties(ProjectFile.class, props);
-            if ((daoList == null) || (daoList.isEmpty())) continue;
-            ProjectFile bestMatch = daoList.get(0);
-            for (ProjectFile nextDir : daoList) {
-                if ((nextDir.getProjectVersion().getVersion()
-                        > bestMatch.getProjectVersion().getVersion())
-                        && (nextDir.getProjectVersion().getVersion()
-                                <= version.getVersion()))
-                    bestMatch = nextDir;
-            }
-            files.add(bestMatch);
-        }
-
-        // Wrap the retrieved file DAOs and construct the results array
-        if (files.size() > 0) {
-            result = new WSProjectFile[files.size()];
-            int index = 0;
-            for (ProjectFile nextFile : files)
-                result[index++] = WSProjectFile.getInstance(nextFile);
-        }
-
-        /*********************************************************************
-         * Alternative way of retrieving the list of files, which is based on
-         * the ProjectFile.getFilesForVersion(ProjectVersion, Directory)
-         * method. 
-         ********************************************************************/
-//        try {
-//            List<ProjectFile> files =
-//                ProjectFile.getFilesForVersion(version, directory);
-//            if (files.size() > 0) {
-//                result = new WSProjectFile[files.size()];
-//                int index = 0;
-//                for (ProjectFile nextFile : files)
-//                    result[index++] = WSProjectFile.getInstance(nextFile);
-//            }
-//        }
-//        catch (IllegalArgumentException ex) {}
 
         db.commitDBSession();
         return result;

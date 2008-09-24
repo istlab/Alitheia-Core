@@ -61,7 +61,6 @@ import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSVersionStats;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
@@ -96,13 +95,12 @@ public class WebServices implements EventHandler{
     private ProjectManager projectManager;
     private UserManager userManager;
 
+    // Instances of the core components
     private Logger logger;
     private PluginAdmin pluginAdmin;
     private SecurityManager securityManager;
     private DBService db;
     private WebadminService wa;
-    private FDSService fds;
-
 
     /**
      * Instantiates a new WebServices object.
@@ -120,14 +118,12 @@ public class WebServices implements EventHandler{
             DBService db,
             PluginAdmin pluginAdmin,
             Logger logger,
-            WebadminService wa,
-            FDSService fds) {
+            WebadminService wa) {
 
         this.securityManager = securityManager;
         this.db = db;
         this.pluginAdmin = pluginAdmin;
         this.logger = logger;
-        this.fds = fds;
         this.wa = wa;
 
         //Register an event handler for DB init events
@@ -143,7 +139,7 @@ public class WebServices implements EventHandler{
 
     private void initComponents() {
         metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
-        projectManager = new ProjectManager(logger, db, securityManager, fds);
+        projectManager = new ProjectManager(logger, db, securityManager);
         userManager = new UserManager(logger, securityManager, db, wa);
     }
 
