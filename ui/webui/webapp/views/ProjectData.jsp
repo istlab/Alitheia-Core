@@ -4,7 +4,11 @@
 %><%@ page import="eu.sqooss.webui.widgets.*"
 %><%
 if (selectedProject.isValid()) {
-    in = 10;
+%>                <div id="selectedproject">
+<%
+    // Indentation depth
+    in = 11;
+
     // Will hold the main window's content
     StringBuilder b = new StringBuilder("");
 
@@ -76,5 +80,8 @@ if (selectedProject.isValid()) {
     winProjectData.setContent(b.toString());
     // Display the main window
     out.print(winProjectData.render(in - 2));
+
+%>                </div>
+<%
 }
 %><!-- ProjectData.jsp -->
