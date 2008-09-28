@@ -3,7 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Kritikos Apostolos <akritiko@csd.auth.gr>
+ * Copyright 2007-2008 by A.U.TH (author: Kritikos Apostolos <akritiko@csd.auth.gr>)
  *
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,67 +34,65 @@
 
 package eu.sqooss.impl.metrics.simulation;
 
-import java.util.List;
-
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
+import java.util.List;
+import java.util.ArrayList;
+
 import eu.sqooss.metrics.simulation.Simulation;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.StoredProject;
+
+import eu.sqooss.service.pa.PluginInfo;
 
 public class SimulationImplementation extends AbstractMetric implements
 		Simulation {
+	
+	public static final String CONFIG_SIMULATION_STEPS = "Simulation steps";
+    public static final String CONFIG_NUMBER_OF_REPETITIONS = "Number of repetitions";
+    public static final String CONFIG_TIME_SCALE = "Time scale";
+	
 	public SimulationImplementation(BundleContext bc) {
 		super(bc);
+		super.addActivationType(StoredProject.class);
+		super.addMetricActivationType("SIMUL", StoredProject.class);
 	}
-
-	private List<Class<? extends DAObject>> activationTypes;
 
 	public boolean install() {
 		boolean result = super.install();
-
+		if (result) {
+			result &= super.addSupportedMetrics("Simulation Metric", "SIMU",
+					MetricType.Type.PROJECT_WIDE);
+		
+			addConfigEntry(CONFIG_SIMULATION_STEPS, 
+	                 "500" , 
+	                 "Number of simulation steps", 
+	                 PluginInfo.ConfigurationType.INTEGER);	
+		}
 		return result;
 	}
 
-	public boolean remove() {
-
-		return super.remove();
+	public boolean remove() {	
+		boolean result = true;
+		result &= super.remove();
+		return result;
 	}
 
 	public boolean update() {
-
 		return remove() && install();
 	}
 
-	public List<ResultEntry> getResult(ProjectFile a, Metric m) {
-		List<ResultEntry> results = null;
+	public List<ResultEntry> getResult(StoredProject sp, Metric m) {
 
+		ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
 		return results;
 	}
 
-	public void run(ProjectFile a) {
-		SimulationJob w = null;
-		try {
-			w = new SimulationJob(this);
+	public void run(StoredProject sp) {
 
-			ServiceReference serviceRef = null;
-			serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-			Scheduler s = ((AlitheiaCore) bc.getService(serviceRef))
-					.getScheduler();
-			//s.enqueue(w);
-			//w.waitForFinished();
-		} catch (Exception e) {
-			log.error("Could not schedule " + w.getClass().getName()
-					+ " for project file: " + ((ProjectFile) a).getFileName());
-		}
 	}
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-
