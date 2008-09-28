@@ -4,8 +4,9 @@ Bundle-Name: Simulation
 Bundle-SymbolicName: eu.sqooss.metric.simulation
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.impl.service.SimulationActivator
-Bundle-Vendor: AUEB
+Bundle-Vendor: AUTH
 Bundle-Description: Simulation metric
+Export-Package: eu.sqooss.metric.simulation, eu.sqooss.metric.simulation.db
 Import-Package:  org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.abstractmetric,
@@ -15,5 +16,7 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.scheduler,
     eu.sqooss.service.tds,
     eu.sqooss.service.util,
+    org.hibernate,
+    org.hibernate.proxy,
     org.apache.commons.codec.digest
 Eclipse-RegisterBuddy: org.hibernate

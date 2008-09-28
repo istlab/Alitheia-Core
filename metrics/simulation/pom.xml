@@ -15,15 +15,12 @@
   <version>0.8.0</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Plug-in 'simulation'</name>
+  <name>Alitheia Plug-in 'Simulation'</name>
   <url>http://ikaria.dmst.aueb.gr/metrics/simulation</url>
   <inceptionYear>2008</inceptionYear>
   <description>
-    This metric is a 'no-op' type of metric, intended to function 
-    as the basis for plug-in development. Potential developers
-    are encouraged to svn cp this metric code to their custom 
-    namespace.
-  </description>
+    Simulation Plug-in runs a simulation for a selected project and returns the troves in the form of time series.
+  </description> 
 
   <scm>
     <connection>
@@ -38,6 +35,15 @@
     <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/eu/sqooss/metrics/simulation/db/</directory>
+        <targetPath>eu/sqooss/metrics/simulation/db</targetPath>
+        <includes>
+          <include>**/*.hbm.xml</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>

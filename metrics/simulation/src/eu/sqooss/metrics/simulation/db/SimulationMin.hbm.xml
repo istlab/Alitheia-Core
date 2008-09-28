@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.metrics.simulation.db.SimulationMin" table="SIMULATION_MIN">
+    <id name="id" column="min_id">
+      <generator class="native" />
+    </id>
+    <property name="time" column="time" not-null="true" type = "long" />
+    <property name="runtime" column="runtime" not-null="true" type = "long" />
+    <property name="loc" column="loc" not-null="true" type="double" />
+    <property name="bDens" column="b_dens" not-null="true" type="double" />
+    <property name="bRepDens" column="b_rep_dens" not-null="true" type="double" />
+    <property name="q" column="q" not-null="true" type="double" />
+    <property name="totS" column="tots" not-null="true" type="double" />
+    <property name="totB" column="totb" not-null="true" type="double" />
+    <property name="totT" column="tott" not-null="true" type="double" />
+    <property name="totF" column="totF" not-null="true" type="double" />
+    <property name="occProgrammers" column="occ_programmers" not-null="true" type="double" />
+    <property name="newBlood" column="new_blood" not-null="true" type="double" />
+   
+  </class>
+</hibernate-mapping>

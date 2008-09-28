@@ -33,9 +33,8 @@
 
 package eu.sqooss.metrics.simulation;
 
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.StoredProjectMetric;
 
-public interface Simulation extends ProjectFileMetric
-{
+public interface Simulation extends StoredProjectMetric {
     
 }
