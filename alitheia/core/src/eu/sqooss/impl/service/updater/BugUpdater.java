@@ -32,12 +32,19 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.tds.BTSAccessor;
+import eu.sqooss.service.tds.BTSEntry;
 import eu.sqooss.service.updater.UpdaterException;
 
 /**
@@ -47,14 +54,16 @@ public class BugUpdater extends Job {
 
     private DBService db;
     private Logger log;
-    private TDSService tds;
-
+    private BTSAccessor bts;
+    private StoredProject sp;
+    
     public BugUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
         
         this.db = core.getDBService();
         this.log = logger;
-        this.tds = core.getTDSService();
+        this.bts = core.getTDSService().getAccessor(project.getId()).getBTSAccessor();
+        this.sp = project;
     }
 
     public int priority() {
@@ -62,8 +71,55 @@ public class BugUpdater extends Job {
     }
 
     protected void run() throws Exception {
+        db.startDBSession();
         //1. Get latest updated date D1
-        //2. Get bugs from date D1 
+        
+        List<String> bugIds = null;
+        
+        if (Bug.getLastUpdate(sp) != null) {
+            bugIds = bts.getBugsNewerThan(Bug.getLastUpdate(sp).getUpdateRun());
+        } else {
+            bugIds = bts.getAllBugs();
+        }
+        log.info("Got " + bugIds.size() + " new bugs");
+
         //3. Update
+        for (String bugID : bugIds) {
+            if (bugExists(sp, bugID)) {
+                log.debug("Updating existing bug " + bugID);
+            }
+            BTSEntry bug = bts.getBug(bugID);
+        }
+        db.commitDBSession();
     }
+    
+    /**
+     * Convert a BTS entry to a Bug DAO
+     */
+    private Bug BTSEntryToBug (BTSEntry b) {
+        if (b == null)
+            return null;
+        
+        Bug bug = new Bug();
+        
+        return bug;
+    }
+    
+    /**
+     * Check if there is an entry in the database with this bug id
+     */
+    private boolean bugExists(StoredProject sp, String bugId) {
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("project", sp);
+        params.put("bugID", bugId);
+        
+        List<Bug> buglist = db.findObjectsByProperties(Bug.class, params);
+        
+        if (buglist.isEmpty())
+            return false;
+        return true;
+    }
+    
+   
 }

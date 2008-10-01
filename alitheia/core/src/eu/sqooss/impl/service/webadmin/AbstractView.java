@@ -353,7 +353,7 @@ public abstract class AbstractView {
                     + " name=\"" + parName + "\""
                     + " value=\""
                     + ((parValue != null) ? parValue : "" )
-                    + "\">\n");
+                    + "\" size=\"30\">\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
         }

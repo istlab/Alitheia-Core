@@ -46,6 +46,7 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.InvocationRule;
@@ -571,8 +572,9 @@ public class ProjectsView extends AbstractView {
                             + getLbl("l0051")
                             + "</td>\n");
                     // Date of the last known bug entry
+                    Bug bug = Bug.getLastUpdate(nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
-                            + getLbl("l0051")
+                            + ((bug == null)?getLbl("l0051"):bug.getBugID())
                             + "</td>\n");
                     // Evaluation state
                     String evalState = getLbl("project_not_evaluated");

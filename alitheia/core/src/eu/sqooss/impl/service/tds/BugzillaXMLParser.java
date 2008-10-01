@@ -32,10 +32,12 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -48,6 +50,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
@@ -99,7 +103,7 @@ public class BugzillaXMLParser implements BTSAccessor {
     /** {@inheritDoc} */
     public BTSEntry getBug(String bugID) {
         
-        File f = new File(location.getAbsolutePath() + File.pathSeparator
+        File f = new File(location.getAbsolutePath() + File.separator
                 + bugID + ".xml");
         
         if (!f.exists() || !f.isFile() || !f.canRead()) {
@@ -152,12 +156,22 @@ public class BugzillaXMLParser implements BTSAccessor {
     protected BTSEntry processBug(File f) {
         //Bugzilla stores dates as: 2003-11-07 14:35 UTC
         SimpleDateFormat dateParser = new SimpleDateFormat("y-M-d k:m z");
-        SAXReader reader = new SAXReader();
+        SAXReader reader = new SAXReader(false);
         Document document = null;
         
-        reader.setIncludeExternalDTDDeclarations(false);
+        //Dummy entity resolver to avoid downloading the bugzilla DTD from 
+        //the web on parsing a bug
+        EntityResolver resolver = new EntityResolver() {
+            public InputSource resolveEntity(String publicId, String systemId) {
+                InputStream in = new ByteArrayInputStream("".getBytes());
+                return new InputSource(in);
+            }
+        };
+        
         reader.setValidation(false);
+        reader.setEntityResolver(resolver);
         reader.setIncludeExternalDTDDeclarations(false);
+        reader.setIncludeInternalDTDDeclarations(false);
         reader.setStripWhitespaceText(true);
         
         //Parse the file

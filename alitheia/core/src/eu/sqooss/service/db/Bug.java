@@ -33,7 +33,12 @@
 package eu.sqooss.service.db;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * This class represents the data relating to bugs, stored in the database
@@ -42,6 +47,9 @@ public class Bug extends DAObject {
     
     /** The project this bug belongs to */
     private StoredProject project;
+    
+    /** When this bug was last touched from the updater */
+    private Date updateRun;
     
     /**
      * The bugID in the original bug tracking system. Used to correlate
@@ -140,6 +148,46 @@ public class Bug extends DAObject {
 
     public void setProject(StoredProject project) {
         this.project = project;
+    }
+
+    public Date getUpdateRun() {
+        return updateRun;
+    }
+
+    public void setUpdateRun(Date updateRun) {
+        this.updateRun = updateRun;
+    }
+    
+    /**
+     * Get the latest entry processed by the bug updater
+     */
+    @SuppressWarnings("unchecked")
+    public static Bug getLastUpdate(StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        if (sp == null)
+            return null;
+        
+        String paramStoredProject = "stroredProject";
+        
+        String query = " select b " +
+            " from Bug b, StoredProject sp" +
+            " where b.project=sp" +
+            " and sp = :" + paramStoredProject + 
+            " and b.updateRun = " +
+            "       (select max(b.updateRun) " +
+            "       from Bug b " +
+            "       where b.project=sp)";
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(paramStoredProject, sp);
+        
+        List<Bug> buglist = (List<Bug>) dbs.doHQL(query, params);
+        
+        if (buglist.isEmpty())
+            return null;
+        
+        return buglist.get(0);
     }
 }
 

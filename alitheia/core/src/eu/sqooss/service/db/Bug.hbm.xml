@@ -9,6 +9,7 @@
       <generator class="native" />
     </id>
     <many-to-one name="project" column="STORED_PROJECT_ID" />
+    <property name="updateRun" column="UPDATE_RUN" />
     <property name="bugID" column="BUG_EXTERNAL_ID" />
     <many-to-one name="status" column="BUG_STATUS_ID" />
     <property name="creationTS" column="CREATION_TS" />
