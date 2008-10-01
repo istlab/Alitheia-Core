@@ -340,7 +340,7 @@ public class Terrier {
                     return new Version(wsversions[0], this);
             }
             catch (WSException e) {
-                addError("Can not retrieve last project version.");
+                addError("Can not retrieve the first project version.");
             }
         }
         else
@@ -368,7 +368,7 @@ public class Terrier {
                     return new Version(wsversions[0], this);
             }
             catch (WSException e) {
-                addError("Can not retrieve last project version.");
+                addError("Can not retrieve the last project version.");
             }
         }
         else
@@ -376,7 +376,14 @@ public class Terrier {
         return null;
     }
 
-    // TODO: Add JavaDoc
+    /**
+     * Retrieves the project version that is preceeding the given one.
+     * 
+     * @param versionId the version id
+     * 
+     * @return The previous project version, or <code>null</code> when the
+     *   given version is the first version of this project.
+     */
     public Version getPreviousVersion(long versionId) {
         if (isConnected()) {
             try {
@@ -395,7 +402,14 @@ public class Terrier {
         return null;
     }
 
-    // TODO: Add JavaDoc
+    /**
+     * Retrieves the project version that is following the given one.
+     * 
+     * @param versionId the version id
+     * 
+     * @return The next project version, or <code>null</code> when the given
+     *   version is the last version of this project.
+     */
     public Version getNextVersion(long versionId) {
         if (isConnected()) {
             try {
