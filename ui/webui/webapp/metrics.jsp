@@ -2,7 +2,7 @@
 %><%@ page session="true"
 %><%
 // Indentation depth
-in = 6;
+in = 9;
 // Check is there is a connection with the SQO-OSS framework
 if (terrier.isConnected()) {
     title = "Metrics";

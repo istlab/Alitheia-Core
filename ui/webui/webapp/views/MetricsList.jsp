@@ -1,11 +1,11 @@
 <%@ page import="eu.sqooss.webui.*"
 %><%@ page import="eu.sqooss.webui.util.*"
 %><%@ page import="eu.sqooss.webui.widgets.*"
-%>          <form id="metrics" name="metrics" method="GET">
-            <div id="metricslist">
+%>                <form id="metrics" name="metrics" method="GET">
+                  <div id="metricslist">
 <%
 // Indentation depth
-in = 7;
+in = 9;
 //out.println(debugRequest(request));
 //============================================================================
 // Show metric per project, when a project selection exists
@@ -16,6 +16,7 @@ if (selectedProject.isValid()) {
         selectedProject.flushMetrics();
         selectedProject.getEvaluatedMetrics();
     }
+
     // Check for a metric selection
     if (request.getParameter("selectMetric") != null) {
         try {
@@ -31,6 +32,7 @@ if (selectedProject.isValid()) {
         }
         catch (NumberFormatException ex) {}
     }
+
     // Prepare the metrics view
     MetricsTableView metricsView =
         new MetricsTableView(selectedProject.getEvaluatedMetrics());
@@ -50,8 +52,8 @@ else {
         + " If you want to see metrics applied to a certain project,"
         + " <a href=\"/projects.jsp\">choose one</a> first."));
 }
-%>            </div>
-            <div id="metricslist">
+%>                  </div>
+                  <div id="metricslist">
 <%
 //============================================================================
 // Show all metrics installed in the SQO-OSS framework
@@ -88,5 +90,5 @@ if (settings.getShowAllMetrics()) {
 // Display the window
 winAllMetrics.setTitle("All installed metrics");
 out.print(winAllMetrics.render(in));
-%>            </div>
-          </form>
+%>                  </div>
+                </form>

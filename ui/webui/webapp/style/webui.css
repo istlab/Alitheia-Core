@@ -5,7 +5,6 @@
 #news,
 #tagcloud,
 #projectslist,
-#metricslist,
 #loginpage {
     border: 1px dotted #CCCCCC;
     margin-bottom: 5px;
@@ -13,9 +12,10 @@
     min-height: 46px;
     padding: 5px 5px 0px 46px;
 }
-#selectedproject,
+#developerslist
 #fileslist,
-#developerslist,
+#metricslist,
+#selectedproject,
 #versionslist {
     border: 1px dotted #CCCCCC;
     margin-bottom: 5px;
@@ -37,10 +37,6 @@
 }
 #projectslist {
     background: #fff url(/img/desktop-mdk.png) no-repeat;
-    background-position: 5px 5px;
-}
-#metricslist {
-    background: #fff url(/img/artsaudiomanager.png) no-repeat;
     background-position: 5px 5px;
 }
 #selectedproject table {
