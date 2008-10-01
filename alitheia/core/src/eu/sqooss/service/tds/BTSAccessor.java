@@ -41,10 +41,10 @@ import java.util.List;
  */
 public interface BTSAccessor extends DataAccessor {
     
-    List<String> getBugsNewerThan(Date d);
+    BTSEntry getBug(String bugID);
     
     List<String> getAllBugs();
     
-    BTSEntry getBug(String bugID);
+    List<String> getBugsNewerThan(Date d);
     
 }

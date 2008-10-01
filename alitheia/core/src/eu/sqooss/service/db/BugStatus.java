@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.tds.AccessorException;
 
 /**
  * States a bug resolution process can be into.
@@ -58,7 +59,7 @@ public class BugStatus extends DAObject {
         return Status.fromString(getStatus());
     }
     
-    public void setBugStatus(Status s) {
+    public void setBugStatus(Status s) throws AccessorException {
         this.status = s.toString();
     }
     

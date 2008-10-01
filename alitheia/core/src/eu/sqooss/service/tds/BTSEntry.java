@@ -33,15 +33,13 @@
 
 package eu.sqooss.service.tds;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /**
  * The bug interface represents a single bug from a bug tracker (whichever
- * that may be) in the most abstract form possible. The lowest common
- * denominator resolves to an ID, a reporter name and a severity. The
- * severity is an uninterpreted integer, so do not assume that larger
- * numbers are "worse" or "better".
+ * that may be) in the most abstract form possible.
  */
 public class BTSEntry {
     
@@ -50,7 +48,7 @@ public class BTSEntry {
     public String shortDescr;
     public BugSeverity severity;
     public BugPriority priority;
-    public BugState state;
+    public BugStatus state;
     public BugResolution resolution;
     
     public String product;
@@ -61,20 +59,83 @@ public class BTSEntry {
     
     public List<BTSEntryComments> commentslist;
     
+    public BTSEntry() {
+        commentslist = new ArrayList<BTSEntryComments>();
+    }
+    
     public enum BugSeverity {
-        BLOCKER, CRITICAL, MAJOR, NORMAL, MINOR, TRIVIAL, ENHANCEMENT
+        BLOCKER, CRITICAL, MAJOR, NORMAL, MINOR, TRIVIAL, ENHANCEMENT;
+        
+        public static BugSeverity fromString(String s) {
+            if (s.equalsIgnoreCase("BLOCKER"))
+                return BLOCKER;
+            if (s.equalsIgnoreCase("CRITICAL"))
+                return CRITICAL;
+            if (s.equalsIgnoreCase("MAJOR"))
+                return MAJOR;
+            if (s.equalsIgnoreCase("NORMAL"))
+                return NORMAL;
+            if (s.equalsIgnoreCase("MINOR"))
+                return MINOR;
+            if (s.equalsIgnoreCase("TRIVIAL"))
+                return TRIVIAL;
+            if (s.equalsIgnoreCase("ENHANCEMENT"))
+                return ENHANCEMENT;
+            return null;
+        }
     }
     
     public enum BugPriority {
-        LOW, MEDIUM, HIGH
+        LOW, MEDIUM, HIGH;
+        
+        public static BugPriority fromString(String s) {
+            if (s.equalsIgnoreCase("LOW"))
+                return LOW;
+            if (s.equalsIgnoreCase("MEDIUM"))
+                return MEDIUM;
+            if (s.equalsIgnoreCase("HIGH"))
+                return HIGH;
+            return null;
+        }
     }
     
-    public enum BugState {
-        UNCONFIRMED, NEW, ASSIGNED, VERIFIED, CLOSED, REOPENED
+    public enum BugStatus {
+        UNCONFIRMED, NEW, ASSIGNED, VERIFIED, CLOSED, REOPENED;
+        public static BugStatus fromString(String s) {
+            if (s.equalsIgnoreCase("UNCONFIRMED"))
+                return UNCONFIRMED;
+            if (s.equalsIgnoreCase("NEW"))
+                return NEW;
+            if (s.equalsIgnoreCase("ASSIGNED"))
+                return ASSIGNED;
+            if (s.equalsIgnoreCase("VERIFIED"))
+                return VERIFIED;
+            if (s.equalsIgnoreCase("CLOSED"))
+                return CLOSED;
+            if (s.equalsIgnoreCase("REOPENED"))
+                return REOPENED;
+            return null;
+        }
     }
     
     public enum BugResolution {
-        FIXED, INVALID, WONTFIX, DUPLICATE, WORKSFORME, MOVED
+        FIXED, INVALID, WONTFIX, DUPLICATE, WORKSFORME, MOVED;
+        
+        public static BugResolution fromString(String s) {
+            if (s.equalsIgnoreCase("FIXED"))
+                return FIXED;
+            if (s.equalsIgnoreCase("INVALID"))
+                return INVALID;
+            if (s.equalsIgnoreCase("WONTFIX"))
+                return WONTFIX;
+            if (s.equalsIgnoreCase("DUPLICATE"))
+                return DUPLICATE;
+            if (s.equalsIgnoreCase("WORKSFORME"))
+                return WORKSFORME;
+            if (s.equalsIgnoreCase("MOVED"))
+                return MOVED;
+            return null;
+        }
     }
 }
 
