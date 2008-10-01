@@ -32,69 +32,88 @@
 
 package eu.sqooss.impl.service.tds;
 
-import java.io.File;
 import java.net.URI;
 
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.SCMAccessor;
 
-public class TDAccessorImpl extends NamedAccessorImpl implements TDAccessor {
+/**
+ * A collection of accessors to project data sources. 
+ */
+public class ProjectDataAccessorImpl implements ProjectAccessor {
     private String bts;
     private String mail;
     private String scm;
+    private String name;
+    private long id;
     private BTSAccessor btsAccessor = null;
-    private SCMAccessorImpl scmAccessor = null;
-    private MailAccessorImpl mailAccessor = null;
+    private SCMAccessor scmAccessor = null;
+    private MailAccessor mailAccessor = null;
 
     public static Logger logger = null;
 
-    public TDAccessorImpl( long id, String name, String bts, String mail, String scm ) {
-        super(id,name);
+    public ProjectDataAccessorImpl(long id, String name, String bts,
+            String mail, String scm) {
         this.bts = bts;
         this.mail = mail;
         this.scm = scm;
-        
-        //TODO: Why do we need the following assignment?
-        if (mail == null) {
-            this.mail = "maildir:///var/spool/mail";
-        }
-
-        if (!this.mail.startsWith("maildir:")) {
-            if (logger != null) {
-                logger.warn("Mail access uses an unsupported URL scheme <" + mail + ">");
-            }
-            this.mail="/var/spool/mail";
-        } else {
-            this.mail = this.mail.substring(8);
-        }
-        logger.info("Accessor for project " + id + " gets mail from " + this.mail);
+        this.id = id;
+        this.name = name;
     }
 
-
     // Interface functions
+    /** {@inheritDoc} */
     public BTSAccessor getBTSAccessor() {
         if (btsAccessor == null) {
-            btsAccessor = BugParserFactory.getInstance(getName(), getId(), URI.create(this.bts));
+            btsAccessor = (BTSAccessor) DataAccessorFactory.getInstance(URI.create(this.bts), name);
+            if (btsAccessor == null) {
+                logger.warn("Bug data accessor for project <" + name
+                        + "> could not be initialized");
+            }
         }
         return btsAccessor;
     }
 
+    /** {@inheritDoc} */
     public MailAccessor getMailAccessor() {
         if (mailAccessor == null) {
-            mailAccessor = new MailAccessorImpl( getId(),getName(),
-                new File(mail) );
+            mailAccessor = (MailAccessor) DataAccessorFactory.getInstance(URI.create(this.mail), name);
+            if (mailAccessor == null) {
+                logger.warn("Mailing list accessor for project <" + name
+                        + "> could not be initialized");
+            }
         }
         return mailAccessor;
     }
 
+    /** {@inheritDoc} */
     public SCMAccessor getSCMAccessor() {
         if (scmAccessor == null) {
-            scmAccessor = new SCMAccessorImpl( getId(),getName(), scm );
+            scmAccessor = (SCMAccessor) DataAccessorFactory.getInstance(URI.create(this.scm), name);
+            if (scmAccessor == null) {
+                logger.warn("SCM accessor for project <" + name
+                        + "> could not be initialized");
+            }
         }
+
         return scmAccessor;
+    }
+
+    /**
+     * Get the project's system id
+     */
+    public Long getId() {
+        return this.id;
+    }
+
+    /**
+     * Get the project's name
+     */
+    public String getName() {
+        return this.name;
     }
 }
 

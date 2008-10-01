@@ -55,7 +55,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 
 import eu.sqooss.service.tds.MailAccessor;
-import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.service.tds.ProjectAccessor;
 
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
@@ -94,7 +94,7 @@ class MailUpdater extends Job {
     protected void run() {
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
-        TDAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
+        ProjectAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
         List<String> lists = mailAccessor.getMailingLists();
         if(lists.size() == 0) {

@@ -54,7 +54,7 @@
       <xs:complexType name="WSFileModification">
         <xs:sequence>
           <xs:element name="projectFileId" type="xs:long"/>
-          <xs:element name="projectVersionNum" type="xs:long"/>
+          <xs:element name="projectVersionTimestamp" type="xs:long"/>
         </xs:sequence>
       </xs:complexType>
       <xs:element name="WSMetricType" type="ax21:WSMetricType"/>
@@ -108,7 +108,7 @@
           <xs:element name="projectId" type="xs:long"/>
           <xs:element name="properties" nillable="true" type="xs:string"/>
           <xs:element name="timestamp" type="xs:long"/>
-          <xs:element name="version" type="xs:long"/>
+          <xs:element name="version" nillable="true" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
       <xs:element name="WSMetricsResultRequest" type="ax21:WSMetricsResultRequest"/>
@@ -155,7 +155,7 @@
           <xs:element name="projectId" type="xs:long"/>
           <xs:element name="properties" nillable="true" type="xs:string"/>
           <xs:element name="timestamp" type="xs:long"/>
-          <xs:element name="version" type="xs:long"/>
+          <xs:element name="version" nillable="true" type="xs:string"/>
           <xs:element maxOccurs="unbounded" name="tags" nillable="true" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
@@ -450,6 +450,38 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getNextVersionById">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="versionId" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getNextVersionByIdResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="ns1:WSProjectVersion"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getPreviousVersionById">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="versionId" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getPreviousVersionByIdResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="ns1:WSProjectVersion"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getFirstProjectVersions">
         <xs:complexType>
           <xs:sequence>
@@ -514,17 +546,34 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="getProjectVersionsByVersionNumbers">
+      <xs:element name="getProjectVersionsByScmIds">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="userName" nillable="true" type="xs:string"/>
             <xs:element name="password" nillable="true" type="xs:string"/>
             <xs:element name="projectId" nillable="true" type="xs:long"/>
-            <xs:element maxOccurs="unbounded" name="versionNumbers" nillable="true" type="xs:long"/>
+            <xs:element maxOccurs="unbounded" name="scmIds" nillable="true" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="getProjectVersionsByVersionNumbersResponse">
+      <xs:element name="getProjectVersionsByScmIdsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSProjectVersion"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getProjectVersionsByTimestamps">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+            <xs:element maxOccurs="unbounded" name="timestamps" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getProjectVersionsByTimestampsResponse">
         <xs:complexType>
           <xs:sequence>
             <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSProjectVersion"/>
@@ -762,23 +811,17 @@
   <wsdl:message name="getAllMetricsResponse">
     <wsdl:part name="part1" element="ns2:getAllMetricsResponse"/>
   </wsdl:message>
-  <wsdl:message name="getFileGroupsByProjectVersionIdMessage">
-    <wsdl:part name="part1" element="ns2:getFileGroupsByProjectVersionId"/>
-  </wsdl:message>
-  <wsdl:message name="getFileGroupsByProjectVersionIdResponse">
-    <wsdl:part name="part1" element="ns2:getFileGroupsByProjectVersionIdResponse"/>
-  </wsdl:message>
-  <wsdl:message name="getProjectVersionsByVersionNumbersMessage">
-    <wsdl:part name="part1" element="ns2:getProjectVersionsByVersionNumbers"/>
-  </wsdl:message>
-  <wsdl:message name="getProjectVersionsByVersionNumbersResponse">
-    <wsdl:part name="part1" element="ns2:getProjectVersionsByVersionNumbersResponse"/>
-  </wsdl:message>
   <wsdl:message name="getProjectsByIdsMessage">
     <wsdl:part name="part1" element="ns2:getProjectsByIds"/>
   </wsdl:message>
   <wsdl:message name="getProjectsByIdsResponse">
     <wsdl:part name="part1" element="ns2:getProjectsByIdsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getFileGroupsByProjectVersionIdMessage">
+    <wsdl:part name="part1" element="ns2:getFileGroupsByProjectVersionId"/>
+  </wsdl:message>
+  <wsdl:message name="getFileGroupsByProjectVersionIdResponse">
+    <wsdl:part name="part1" element="ns2:getFileGroupsByProjectVersionIdResponse"/>
   </wsdl:message>
   <wsdl:message name="getProjectByNameMessage">
     <wsdl:part name="part1" element="ns2:getProjectByName"/>
@@ -803,6 +846,12 @@
   </wsdl:message>
   <wsdl:message name="getFilesNumberByProjectVersionIdResponse">
     <wsdl:part name="part1" element="ns2:getFilesNumberByProjectVersionIdResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getProjectVersionsByScmIdsMessage">
+    <wsdl:part name="part1" element="ns2:getProjectVersionsByScmIds"/>
+  </wsdl:message>
+  <wsdl:message name="getProjectVersionsByScmIdsResponse">
+    <wsdl:part name="part1" element="ns2:getProjectVersionsByScmIdsResponse"/>
   </wsdl:message>
   <wsdl:message name="getFilesInDirectoryMessage">
     <wsdl:part name="part1" element="ns2:getFilesInDirectory"/>
@@ -910,6 +959,12 @@
   <wsdl:message name="getDevelopersByIdsResponse">
     <wsdl:part name="part1" element="ns2:getDevelopersByIdsResponse"/>
   </wsdl:message>
+  <wsdl:message name="getNextVersionByIdMessage">
+    <wsdl:part name="part1" element="ns2:getNextVersionById"/>
+  </wsdl:message>
+  <wsdl:message name="getNextVersionByIdResponse">
+    <wsdl:part name="part1" element="ns2:getNextVersionByIdResponse"/>
+  </wsdl:message>
   <wsdl:message name="getFilesByRegularExpressionMessage">
     <wsdl:part name="part1" element="ns2:getFilesByRegularExpression"/>
   </wsdl:message>
@@ -927,6 +982,18 @@
   </wsdl:message>
   <wsdl:message name="getMetricsByResourcesIdsResponse">
     <wsdl:part name="part1" element="ns2:getMetricsByResourcesIdsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getPreviousVersionByIdMessage">
+    <wsdl:part name="part1" element="ns2:getPreviousVersionById"/>
+  </wsdl:message>
+  <wsdl:message name="getPreviousVersionByIdResponse">
+    <wsdl:part name="part1" element="ns2:getPreviousVersionByIdResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getProjectVersionsByTimestampsMessage">
+    <wsdl:part name="part1" element="ns2:getProjectVersionsByTimestamps"/>
+  </wsdl:message>
+  <wsdl:message name="getProjectVersionsByTimestampsResponse">
+    <wsdl:part name="part1" element="ns2:getProjectVersionsByTimestampsResponse"/>
   </wsdl:message>
   <wsdl:message name="getStoredProjectsMessage">
     <wsdl:part name="part1" element="ns2:getStoredProjects"/>
@@ -965,17 +1032,13 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getAllMetricsMessage" wsaw:Action="urn:getAllMetrics"/>
       <wsdl:output message="axis2:getAllMetricsResponse"/>
     </wsdl:operation>
-    <wsdl:operation name="getFileGroupsByProjectVersionId">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFileGroupsByProjectVersionIdMessage" wsaw:Action="urn:getFileGroupsByProjectVersionId"/>
-      <wsdl:output message="axis2:getFileGroupsByProjectVersionIdResponse"/>
-    </wsdl:operation>
-    <wsdl:operation name="getProjectVersionsByVersionNumbers">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectVersionsByVersionNumbersMessage" wsaw:Action="urn:getProjectVersionsByVersionNumbers"/>
-      <wsdl:output message="axis2:getProjectVersionsByVersionNumbersResponse"/>
-    </wsdl:operation>
     <wsdl:operation name="getProjectsByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectsByIdsMessage" wsaw:Action="urn:getProjectsByIds"/>
       <wsdl:output message="axis2:getProjectsByIdsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getFileGroupsByProjectVersionId">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFileGroupsByProjectVersionIdMessage" wsaw:Action="urn:getFileGroupsByProjectVersionId"/>
+      <wsdl:output message="axis2:getFileGroupsByProjectVersionIdResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getProjectByName">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectByNameMessage" wsaw:Action="urn:getProjectByName"/>
@@ -992,6 +1055,10 @@
     <wsdl:operation name="getFilesNumberByProjectVersionId">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesNumberByProjectVersionIdMessage" wsaw:Action="urn:getFilesNumberByProjectVersionId"/>
       <wsdl:output message="axis2:getFilesNumberByProjectVersionIdResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getProjectVersionsByScmIds">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectVersionsByScmIdsMessage" wsaw:Action="urn:getProjectVersionsByScmIds"/>
+      <wsdl:output message="axis2:getProjectVersionsByScmIdsResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getFilesInDirectory">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesInDirectoryMessage" wsaw:Action="urn:getFilesInDirectory"/>
@@ -1065,6 +1132,10 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getDevelopersByIdsMessage" wsaw:Action="urn:getDevelopersByIds"/>
       <wsdl:output message="axis2:getDevelopersByIdsResponse"/>
     </wsdl:operation>
+    <wsdl:operation name="getNextVersionById">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getNextVersionByIdMessage" wsaw:Action="urn:getNextVersionById"/>
+      <wsdl:output message="axis2:getNextVersionByIdResponse"/>
+    </wsdl:operation>
     <wsdl:operation name="getFilesByRegularExpression">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesByRegularExpressionMessage" wsaw:Action="urn:getFilesByRegularExpression"/>
       <wsdl:output message="axis2:getFilesByRegularExpressionResponse"/>
@@ -1076,6 +1147,14 @@
     <wsdl:operation name="getMetricsByResourcesIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMetricsByResourcesIdsMessage" wsaw:Action="urn:getMetricsByResourcesIds"/>
       <wsdl:output message="axis2:getMetricsByResourcesIdsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getPreviousVersionById">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getPreviousVersionByIdMessage" wsaw:Action="urn:getPreviousVersionById"/>
+      <wsdl:output message="axis2:getPreviousVersionByIdResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getProjectVersionsByTimestamps">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectVersionsByTimestampsMessage" wsaw:Action="urn:getProjectVersionsByTimestamps"/>
+      <wsdl:output message="axis2:getProjectVersionsByTimestampsResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getStoredProjects">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getStoredProjectsMessage" wsaw:Action="urn:getStoredProjects"/>
@@ -1127,26 +1206,17 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFileGroupsByProjectVersionId">
-      <soap:operation soapAction="urn:getFileGroupsByProjectVersionId" style="document"/>
-      <wsdl:input>
-        <soap:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="getProjectVersionsByVersionNumbers">
-      <soap:operation soapAction="urn:getProjectVersionsByVersionNumbers" style="document"/>
-      <wsdl:input>
-        <soap:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="getProjectsByIds">
       <soap:operation soapAction="urn:getProjectsByIds" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFileGroupsByProjectVersionId">
+      <soap:operation soapAction="urn:getFileGroupsByProjectVersionId" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1183,6 +1253,15 @@
     </wsdl:operation>
     <wsdl:operation name="getFilesNumberByProjectVersionId">
       <soap:operation soapAction="urn:getFilesNumberByProjectVersionId" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getProjectVersionsByScmIds">
+      <soap:operation soapAction="urn:getProjectVersionsByScmIds" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1352,6 +1431,15 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="getNextVersionById">
+      <soap:operation soapAction="urn:getNextVersionById" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getFilesByRegularExpression">
       <soap:operation soapAction="urn:getFilesByRegularExpression" style="document"/>
       <wsdl:input>
@@ -1372,6 +1460,24 @@
     </wsdl:operation>
     <wsdl:operation name="getMetricsByResourcesIds">
       <soap:operation soapAction="urn:getMetricsByResourcesIds" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getPreviousVersionById">
+      <soap:operation soapAction="urn:getPreviousVersionById" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getProjectVersionsByTimestamps">
+      <soap:operation soapAction="urn:getProjectVersionsByTimestamps" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1454,26 +1560,17 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFileGroupsByProjectVersionId">
-      <soap12:operation soapAction="urn:getFileGroupsByProjectVersionId" style="document"/>
-      <wsdl:input>
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="getProjectVersionsByVersionNumbers">
-      <soap12:operation soapAction="urn:getProjectVersionsByVersionNumbers" style="document"/>
-      <wsdl:input>
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="getProjectsByIds">
       <soap12:operation soapAction="urn:getProjectsByIds" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFileGroupsByProjectVersionId">
+      <soap12:operation soapAction="urn:getFileGroupsByProjectVersionId" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1510,6 +1607,15 @@
     </wsdl:operation>
     <wsdl:operation name="getFilesNumberByProjectVersionId">
       <soap12:operation soapAction="urn:getFilesNumberByProjectVersionId" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getProjectVersionsByScmIds">
+      <soap12:operation soapAction="urn:getProjectVersionsByScmIds" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1679,6 +1785,15 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="getNextVersionById">
+      <soap12:operation soapAction="urn:getNextVersionById" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getFilesByRegularExpression">
       <soap12:operation soapAction="urn:getFilesByRegularExpression" style="document"/>
       <wsdl:input>
@@ -1699,6 +1814,24 @@
     </wsdl:operation>
     <wsdl:operation name="getMetricsByResourcesIds">
       <soap12:operation soapAction="urn:getMetricsByResourcesIds" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getPreviousVersionById">
+      <soap12:operation soapAction="urn:getPreviousVersionById" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getProjectVersionsByTimestamps">
+      <soap12:operation soapAction="urn:getProjectVersionsByTimestamps" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>

@@ -45,8 +45,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
@@ -199,7 +198,7 @@ public class FileDataView extends AbstractDataView {
             //----------------------------------------------------------------
             /*
              * Data set format:
-             * < metric_mnemonic < file_version, evaluation_value > >
+             * < metric_mnemonic < file_timestamp, evaluation_value > >
              */
             SortedMap<String, SortedMap<Long, String>> data =
                 new TreeMap<String, SortedMap<Long,String>>();
@@ -213,8 +212,8 @@ public class FileDataView extends AbstractDataView {
             // Fill the data set
             SortedMap<Long, Long> mods = terrier.getFileModification(
                     project.getCurrentVersion().getId(), fileId);
-            for (Long versionNum : selectedResources) {
-                Long nextFileId = mods.get(versionNum);
+            for (Long verTimestamp : selectedResources) {
+                Long nextFileId = mods.get(verTimestamp);
                 if (nextFileId != null) {
                     HashMap<String, Result> verResults =
                         selFile.getResults(evaluated.values(), nextFileId);
@@ -227,12 +226,12 @@ public class FileDataView extends AbstractDataView {
                             if (result != null) {
                                 result.setSettings(settings);
                                 data.get(metric.getMnemonic()).put(
-                                        versionNum,
+                                        verTimestamp,
                                         result.getHtml(0));
                             }
                             else {
                                 data.get(metric.getMnemonic()).put(
-                                        versionNum, null);
+                                        verTimestamp, null);
                             }
                         }
                     }
@@ -389,9 +388,22 @@ public class FileDataView extends AbstractDataView {
             // Version number
             Version version = project.getVersion(selFile.getVersion());
             b.append(sp(in) + "<tr>"
-                    + "<td><b>Version</b></td>"
+                    + "<td><b>Version ID</b></td>"
                     + "<td>"
-                    + ((version != null) ? version.getNumber() : "N/A")
+                    + ((version != null) 
+                            ? version.getName()
+                            : "N/A")
+                    + "</td>"
+                    + "</tr>\n");
+
+            b.append(sp(in) + "<tr>"
+                    + "<td><b>Date</b></td>"
+                    + "<td>"
+                    + ((version != null) 
+                            ? Functions.formatTimestamp(
+                                    version.getTimestamp(),
+                                    settings.getUserLocale())
+                            : "N/A")
                     + "</td>"
                     + "</tr>\n");
 
@@ -479,12 +491,13 @@ public class FileDataView extends AbstractDataView {
                     + ">\n");
             SortedMap<Long, Long> mods = terrier.getFileModification(
                     project.getCurrentVersion().getId(), fileId);
-            for (Long version : mods.keySet()) {
+            for (Long verTimestamp : mods.keySet()) {
+
                 b.append(sp(in) + "<option class=\"dvSubselect\""
-                        + ((selectedResources.contains(version))
+                        + ((selectedResources.contains(verTimestamp))
                                 ? " selected" : "")
-                        + " value=\"" + version + "\">"
-                        + "v." + version
+                        + " value=\"" + verTimestamp + "\">"
+                        + project.getVersionByTimestamp(verTimestamp).getName()
                         + "</option>\n");
             }
             b.append(sp(--in) + "</select>\n");
@@ -499,7 +512,8 @@ public class FileDataView extends AbstractDataView {
         return b.toString();
     }
 
-    private String tableChart (long in, SortedMap<String, SortedMap<Long, String>> values) {
+    private String tableChart(long in,
+            SortedMap<String, SortedMap<Long, String>> values) {
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
 
@@ -515,8 +529,8 @@ public class FileDataView extends AbstractDataView {
                 + " style=\"width: 80px;\">"
                 + "&nbsp;</td>\n");
         for (String mnemonic : values.keySet()) {
-            Metric metric = project.getEvaluatedMetrics()
-                    .getMetricByMnemonic(mnemonic);
+            Metric metric = project.getEvaluatedMetrics().getMetricByMnemonic(
+                    mnemonic);
             b.append(sp(in) + "<td class=\"def_head\""
                     + " style=\"width: 80px;\""
                     + " title=\"" + metric.getDescription() + "\">"
@@ -528,15 +542,15 @@ public class FileDataView extends AbstractDataView {
         //--------------------------------------------------------------------
         // Display all available results per metric and version
         //--------------------------------------------------------------------
-        for (Long version : selectedResources) {
+        for (Long verTimestamp : selectedResources) {
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in) + "<td class=\"def_head\">"
-                    + "In v." + version 
+                    + project.getVersionByTimestamp(verTimestamp).getName()
                     + "</td>\n");
             for (String mnemonic : values.keySet()) {
                 String result = null;
-                if (values.get(mnemonic).get(version) != null)
-                    result = values.get(mnemonic).get(version).toString();
+                if (values.get(mnemonic).get(verTimestamp) != null)
+                    result = values.get(mnemonic).get(verTimestamp).toString();
                 b.append(sp(in) + "<td class=\"def_right\">"
                         + ((result != null) ? result : "N/A")
                         + "</td>\n");
@@ -548,27 +562,77 @@ public class FileDataView extends AbstractDataView {
         return b.toString();
     }
 
+//    private String lineChart (SortedMap<String, SortedMap<Long, String>> values) {
+//        // Construct the chart's dataset
+//        XYSeriesCollection data = new XYSeriesCollection();
+//        for (String nextLine : values.keySet()) {
+//            XYSeries lineData = new XYSeries(nextLine);
+//            SortedMap<Long, String> lineValues = values.get(nextLine);
+//            for (Long nextX : lineValues.keySet()) {
+//                if (lineValues.get(nextX) == null) continue;
+//                try {
+//                    lineData.add(nextX, new Double(lineValues.get(nextX)));
+//                }
+//                catch (NumberFormatException ex) { /* Skip */ }
+//            }
+//            if (lineData.getItemCount() > 0)
+//                data.addSeries(lineData);
+//        }
+//        // Generate the chart
+//        if (data.getSeriesCount() > 0) {
+//            JFreeChart chart;
+//            chart = ChartFactory.createXYLineChart(
+//                    null, "Version", "Result",
+//                    data, PlotOrientation.VERTICAL,
+//                    true, true, false);
+//            chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+//            chart.setPadding(RectangleInsets.ZERO_INSETS);
+//            // Save the chart into a temporary file
+//            try {
+//                java.io.File image = java.io.File.createTempFile(
+//                        "img", ".png", settings.getTempFolder());
+//                java.io.File thumbnail = new java.io.File(
+//                        settings.getTempFolder()
+//                        + java.io.File.separator
+//                        + image.getName().replace("img", "thb"));
+//                ChartUtilities.saveChartAsPNG(image, chart, 960, 720);
+//                ChartUtilities.saveChartAsPNG(thumbnail, chart, 320, 240);
+//                if (viewConf.createPDF()) {
+//                    String pdfFile = 
+//                        thumbnail.getName().replace("thb", "pdf").replace("png", "pdf");
+//                    chartToPdf(chart, pdfFile, 960, 720);
+//                }
+//                return thumbnail.getName();
+//            }
+//            catch (IOException e) {
+//                // Do nothing
+//            }
+//        }
+//
+//        return null;
+//    }
+
     private String lineChart (SortedMap<String, SortedMap<Long, String>> values) {
         // Construct the chart's dataset
-        XYSeriesCollection data = new XYSeriesCollection();
+        DefaultCategoryDataset data = new DefaultCategoryDataset();
         for (String nextLine : values.keySet()) {
-            XYSeries lineData = new XYSeries(nextLine);
             SortedMap<Long, String> lineValues = values.get(nextLine);
             for (Long nextX : lineValues.keySet()) {
                 if (lineValues.get(nextX) == null) continue;
                 try {
-                    lineData.add(nextX, new Double(lineValues.get(nextX)));
+                    data.addValue(
+                            new Double(lineValues.get(nextX)),
+                            nextLine,
+                            project.getVersionByTimestamp(nextX).getName());
                 }
                 catch (NumberFormatException ex) { /* Skip */ }
             }
-            if (lineData.getItemCount() > 0)
-                data.addSeries(lineData);
         }
         // Generate the chart
-        if (data.getSeriesCount() > 0) {
+        if (data.getColumnCount() > 0) {
             JFreeChart chart;
-            chart = ChartFactory.createXYLineChart(
-                    null, "Version", "Result",
+            chart = ChartFactory.createLineChart(
+                    null, null, "Evaluation Results",
                     data, PlotOrientation.VERTICAL,
                     true, true, false);
             chart.setBackgroundPaint(new Color(0, 0, 0, 0));
@@ -597,5 +661,4 @@ public class FileDataView extends AbstractDataView {
 
         return null;
     }
-
 }

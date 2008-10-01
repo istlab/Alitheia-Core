@@ -50,7 +50,6 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.tds.ProjectRevision;
 
 import eu.sqooss.metrics.mde.db.MDEDeveloper;
 import eu.sqooss.metrics.mde.db.MDEWeek;
@@ -157,7 +156,9 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
         }
         // Find the starting timestamp of the project. This goes via
         // revision 1 of the project.
-        ProjectVersion projectFirstVersion = ProjectVersion.getVersionByRevision(pv.getProject(),1);
+        ProjectVersion projectFirstVersion = ProjectVersion.getVersionByRevision(
+                pv.getProject(), 
+                ProjectVersion.getFirstRevision(pv.getProject()).getRevisionId());
         if (null == projectFirstVersion) {
             log.warn("Project <" + pv.getProject().getName() + "> has no revision 1.");
             return;
@@ -190,7 +191,8 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
                     ProjectVersion.getLastMeasuredVersion(mDevTotal, pv.getProject());
             if (null == previous) {
                 // We've got no measurements at all, so start at revision 1
-                previous = ProjectVersion.getVersionByRevision(pv.getProject(), 1);
+                previous = ProjectVersion.getVersionByRevision(pv.getProject(), 
+                        ProjectVersion.getFirstRevision(pv.getProject()).getRevisionId());
                 if (null == previous) {
                     log.warn("Project " + pv.getProject().getName() + " has no revision 1.");
                     return;
@@ -348,7 +350,7 @@ public class MDEImplementation extends AbstractMetric implements ProjectVersionM
     }
 
     public static int convertToWeekOffset(StoredProject p, long timestamp) {
-        ProjectVersion start = ProjectVersion.getVersionByRevision(p, new ProjectRevision(1));
+        ProjectVersion start = ProjectVersion.getVersionByRevision(p, ProjectVersion.getFirstRevision(p).getRevisionId());
         if (null == start) {
             // There was no project revision 1, so it must not have started yet.
             return 0;

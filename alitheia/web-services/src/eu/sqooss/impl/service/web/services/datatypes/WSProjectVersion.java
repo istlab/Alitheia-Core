@@ -47,7 +47,7 @@ public class WSProjectVersion {
     private long projectId;
     private String properties;
     private long timestamp;
-    private long version;
+    private String version;
     
     /**
      * @return the id
@@ -136,14 +136,14 @@ public class WSProjectVersion {
     /**
      * @return the version
      */
-    public long getVersion() {
+    public String getVersion() {
         return version;
     }
     
     /**
      * @param version the version to set
      */
-    public void setVersion(long version) {
+    public void setVersion(String version) {
         this.version = version;
     }
     
@@ -166,7 +166,7 @@ public class WSProjectVersion {
             wsProjectVersion.setProjectId(projectVersion.getProject().getId());
             wsProjectVersion.setProperties(projectVersion.getProperties());
             wsProjectVersion.setTimestamp(projectVersion.getTimestamp());
-            wsProjectVersion.setVersion(projectVersion.getVersion());
+            wsProjectVersion.setVersion(projectVersion.getRevisionId());
             return wsProjectVersion;
         } catch (Exception e) {
             return null;

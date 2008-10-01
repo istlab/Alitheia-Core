@@ -242,7 +242,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     if (pf == null) {
                         log.warn("Cannot find path: " + file + " for project:" +
                                 pv.getProject().getName() +" version:" + 
-                                pv.getVersion() + ". Result not stored.");
+                                pv.getRevisionId() + ". Result not stored.");
                         return;
                     }
                     

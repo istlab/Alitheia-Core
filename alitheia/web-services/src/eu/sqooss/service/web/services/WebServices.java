@@ -355,24 +355,45 @@ public class WebServices implements EventHandler{
     }
 
     /**
-     * The method returns all information, that the SQO-OSS framework has
-     * collected about the specified project versions.
+     * This method returns the list of project versions which carry the given
+     * time stamps.
      *
-     * @param userName - the user's name for authentication
-     * @param password - the user's password for authentication
+     * @param userName - the user's name (<i>used for authentication</i>)
+     * @param password - the user's password (<i>used for authentication</i>)
      * @param projectId - the project identifier
-     * @param versionNumbers - the project's version numbers
+     * @param timestamps - the list of time stamps
      *
-     * @return The <code>WSProjectVersion</code> array that describes the
-     * project versions, or <code>null</code> when such project versions do not exist.
+     * @return The array of <code>WSProjectVersion</code> objects for all
+     *  matching project versions, or <code>null</code> if none were found.
      */
-    public WSProjectVersion[] getProjectVersionsByVersionNumbers(
+    public WSProjectVersion[] getProjectVersionsByTimestamps(
             String userName,
             String password,
             long projectId,
-            long[] versionNumbers) {
-        return projectManager.getProjectVersionsByVersionNumbers(
-                userName, password, projectId, versionNumbers);
+            long[] timestamps) {
+        return projectManager.getProjectVersionsByTimestamps(
+                userName, password, projectId, timestamps);
+    }
+
+    /**
+     * This method returns the list of project versions which carry the given
+     * SCM version Ids.
+     *
+     * @param userName - the user's name (<i>used for authentication</i>)
+     * @param password - the user's password (<i>used for authentication</i>)
+     * @param projectId - the project identifier
+     * @param scmIds - the list of SCM version Ids
+     *
+     * @return The array of <code>WSProjectVersion</code> objects for all
+     *  matching project versions, or <code>null</code> if none were found.
+     */
+    public WSProjectVersion[] getProjectVersionsByScmIds(
+            String userName,
+            String password,
+            long projectId,
+            String[] scmIds) {
+        return projectManager.getProjectVersionsByScmIds(
+                userName, password, projectId, scmIds);
     }
 
     /**
@@ -408,6 +429,24 @@ public class WebServices implements EventHandler{
             String password, long[] projectsIds) {
         return projectManager.getLastProjectVersions(
                 userName, password, projectsIds);
+    }
+
+    // TODO: JavaDoc
+    public WSProjectVersion getPreviousVersionById(
+            String userName,
+            String password,
+            long versionId) {
+        return projectManager.getPreviousVersionById(
+                userName, password, versionId);
+    }
+
+    // TODO: JavaDoc
+    public WSProjectVersion getNextVersionById(
+            String userName,
+            String password,
+            long versionId) {
+        return projectManager.getNextVersionById(
+                userName, password, versionId);
     }
 
     /**

@@ -827,7 +827,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         
         ProjectVersion testVersion = new ProjectVersion();
         testVersion.setProject(projectList.get(0));
-        testVersion.setVersion(9999);
+        testVersion.setRevisionId("9999");
         testVersion.setCommitMsg("hello");
         testVersion.setProperties("zob");
         testVersion.setTimestamp(0);
@@ -918,12 +918,12 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                     + originalVersionCount);
         ProjectVersion firstVersion = projectVersions.get(0);
         ProjectVersion lastVersion = projectVersions.get(originalVersionCount-1);
-        logger.debug("first version info: " + firstVersion.getVersion() + " - " + firstVersion.getCommitMsg());
-        logger.debug("last version info: " + lastVersion.getVersion() + " - " + lastVersion.getCommitMsg());
+        logger.debug("first version info: " + firstVersion.getRevisionId() + " - " + firstVersion.getCommitMsg());
+        logger.debug("last version info: " + lastVersion.getRevisionId() + " - " + lastVersion.getCommitMsg());
                 
         testVersion = new ProjectVersion();
         testVersion.setProject(testProject);
-        testVersion.setVersion(lastVersion.getVersion()+1);
+        testVersion.setRevisionId(String.valueOf(Long.parseLong(lastVersion.getRevisionId())+1));
         testVersion.setCommitter(lastVersion.getCommitter());
         testVersion.setCommitMsg("hello");
         testVersion.setProperties("zob");
@@ -957,7 +957,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         testProject = findObjectById(StoredProject.class, 1);
         testVersion = new ProjectVersion();
         testVersion.setProject(testProject);
-        testVersion.setVersion(lastVersion.getVersion()+1);
+        testVersion.setRevisionId(lastVersion.getNextVersion().getRevisionId());
         testVersion.setCommitter(lastVersion.getCommitter());
         testVersion.setCommitMsg("hello");
         testVersion.setProperties("zob");
@@ -978,7 +978,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         commitDBSession();
         startDBSession();
         testProject = findObjectById(StoredProject.class, 1);
-        if ( !deleteRecord(testProject.getLastProjectVersion()) ) {
+        if ( !deleteRecord(ProjectVersion.getLastProjectVersion(testProject))) {
             return "error while removing test project version #2";
         }
         if ( testProject.getProjectVersions().size() != originalVersionCount ) {

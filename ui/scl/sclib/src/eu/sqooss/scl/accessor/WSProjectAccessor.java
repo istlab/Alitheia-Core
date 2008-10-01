@@ -197,24 +197,45 @@ public abstract class WSProjectAccessor extends WSAccessor {
             long projectId) throws WSException;
 
     /**
-     * The method returns all information, that the SQO-OSS framework has
-     * collected about the specified project versions.
+     * This method retrieves from the attached SQO-OSS framework the list of
+     * project versions which carry the given time stamps.
      * 
      * @param projectId - the project identifier
-     * @param versionNumbers - the project's version numbers
+     * @param timestamps - the list of time stamps
      * 
-     * @return The <code>WSProjectVersion</code> array that describes the
-     * project versions, or empty array when such project versions do not exist.
+     * @return The array of <code>WSProjectVersion</code> objects for all
+     *  matching project versions, or <code>null</code> if none were found.
      * 
      * @throws WSException
      * <ul>
-     *  <li>if the connection can't be established to the SQO-OSS's web services service</li>
+     *  <li>if a connection with the SQO-OSS's web services service can
+     *    not be established</li>
      *  <li>if web services service throws an exception</li>
      * <ul>
      */
-    public abstract WSProjectVersion[] getProjectVersionsByVersionNumbers(
-            long projectId, long[] versionNumbers) throws WSException;
-    
+    public abstract WSProjectVersion[] getProjectVersionsByTimestamps(
+            long projectId, long[] timestamps) throws WSException;
+
+    /**
+     * This method retrieves from the attached SQO-OSS framework the list of
+     * project versions which carry the given SCM version Ids.
+     * 
+     * @param projectId - the project identifier
+     * @param scmIds - the list of SCM version Ids
+     * 
+     * @return The array of <code>WSProjectVersion</code> objects for all
+     *  matching project versions, or <code>null</code> if none were found.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection with the SQO-OSS's web services service can
+     *    not be established</li>
+     *  <li>if web services service throws an exception</li>
+     * <ul>
+     */
+    public abstract WSProjectVersion[] getProjectVersionsByScmIds(
+            long projectId, String[] scmIds) throws WSException;
+
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the first (e.g. SVN revision 1) of the projects.
@@ -248,7 +269,15 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSProjectVersion[] getLastProjectVersions(long[] projectsIds) throws WSException;
-    
+
+    // TODO: JavaDoc
+    public abstract WSProjectVersion getPreviousVersionById(long versionId)
+            throws WSException;
+
+    // TODO: JavaDoc
+    public abstract WSProjectVersion getNextVersionById(long versionId)
+            throws WSException;
+
     /**
      * The method returns all information, that the SQO-OSS framework has
      * collected about the specified projects.

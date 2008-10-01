@@ -44,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.util.FileUtils;
 
 /**
  * Instances of this class represent a file relating to a project as
@@ -234,7 +235,7 @@ public class ProjectFile extends DAObject{
         if (!this.getDir().getPath().equals(other.getDir().getPath()))
             return false;
         
-        if (!(this.getProjectVersion().getVersion() == other.getProjectVersion().getVersion()))
+        if (!(this.getProjectVersion().getRevisionId() == other.getProjectVersion().getRevisionId()))
             return false;
         
         if (!(this.getProjectVersion().getProject().getId() == other.getProjectVersion().getProject().getId()))
@@ -440,80 +441,67 @@ public class ProjectFile extends DAObject{
     }
 
     /**
-     * Returns the project version's number where this file was deleted.
-     * <br/>
-     * This method takes into consideration the deletion of parent folders,
-     * thus detecting the situation when a file was deleted indirectly by
-     * removing a parent folder.
-     * <br/>
+     * Returns the project version DAO where this file was deleted.
+     * 
      * For a project files in a deleted state, this method will return the
-     * project version's number of the same file.
+     * project version DAO of the same file.
      *
      * @param pf the project's file
      *
      * @return The project version's number where this file was deleted,
      *   or <code>null</code> if this file still exist.
      */
-    public static Long getDeletionVersion(ProjectFile pf) {
+    public static ProjectVersion getDeletionVersion(ProjectFile pf) {
         DBService db = AlitheiaCore.getInstance().getDBService();
 
         // Skip files which are in a "DELETED" state
         if (pf.isDeleted()) {
-            return pf.getProjectVersion().getVersion();
+            return pf.getProjectVersion();
         }
 
-        // Keep the deletion version
-        Long deletionVersion = null;
+        String paramName = "paramName"; 
+        String paramDir = "paramDir"; 
+        String paramProject = "paramProject";
+        String paramDirectory = "paramDirectory";
+        String paramTimestamp = "paramTimestamp";
+        
+        /* The query needs to cater for a file being deleted
+         * and re-added in the same directory so it only 
+         * considers the latest incarnation of the file
+         */
+        String query = "select pv " +
+            " from ProjectFile pf, ProjectVersion pv " +
+            " where pf.projectVersion = pv " +
+            " and pf.status='DELETED' " +
+            " and pf.name = :" + paramName +
+            " and pf.dir = :" + paramDir + 
+            " and pf.isDirectory = :" + paramDirectory +
+            " and pv.project = :" + paramProject +
+            " and pv.timestamp > " +
+            "           (select max(pv1.timestamp) " +
+            "           from ProjectVersion pv1, ProjectFile pf1" +
+            "           where pf1.projectVersion = pv1" +
+            "           and pf1.status = 'ADDED'" +
+            "           and pf1.name = :" + paramName +
+            "           and pf1.dir = :" + paramDir +
+            "           and pf1.isDirectory = :" + paramDirectory +
+            "           and pv1.project = :" + paramProject +
+            "           and pv1.timestamp < :" + paramTimestamp + 
+            "           group by pv1) ";
 
-        // Retrieve the version of the given project file
-        long fileVersion = pf.getProjectVersion().getVersion();
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(paramName, pf.getName());
+        params.put(paramDir, pf.getDir());
+        params.put(paramDirectory, pf.getIsDirectory());
+        params.put(paramProject, pf.getProjectVersion().getProject());
+        params.put(paramTimestamp, pf.getProjectVersion().getTimestamp());
 
-        // Get all project files in state "DELETED" that match the given
-        // file's name and folder
-        HashMap<String,Object> props = new HashMap<String,Object>();
-        props.put("name", pf.getName());
-        props.put("dir", pf.getDir());
-        props.put("status", new String("DELETED"));
-        List<ProjectFile> deletions =
-            db.findObjectsByProperties(ProjectFile.class, props);
-        // Check if this file was deleted at all
-        if ((deletions != null) && (deletions.size() > 0)) {
-            for (ProjectFile nextDeletion : deletions) {
-                // Skip deletion matches that are not in the same project
-                if (nextDeletion.getProjectVersion().getProject().getId()
-                        != pf.getProjectVersion().getProject().getId())
-                    continue;
-                // Skip deletion matches that are older than the given file
-                long nextDeletionVersion =
-                    nextDeletion.getProjectVersion().getVersion();
-                if (nextDeletionVersion <= fileVersion)
-                    continue;
-                // Check if this deletion is a closer match
-                if ((deletionVersion == null)
-                        || (deletionVersion > nextDeletionVersion)) {
-                    deletionVersion =
-                        nextDeletionVersion;
-                }
-            }
-        }
-
-        // Take into consideration the deletion version of the parent folder
-        ProjectFile parentFolder = getParentFolder(pf);
-        if (parentFolder != null) {
-            Long parentDeletionVersion = getDeletionVersion(parentFolder);
-            if (parentDeletionVersion != null) {
-                // Check if the parent folder was deleted later on
-                if ((deletionVersion != null)
-                    && (parentDeletionVersion.longValue()
-                            > deletionVersion.longValue())) {
-                    return deletionVersion;
-                }
-                return parentDeletionVersion;
-            }
-        }
-
-        // Return the project's version where this file was deleted
-        return deletionVersion;
+        List<ProjectVersion> pvs = (List<ProjectVersion>) db.doHQL(query, params);
+                       
+        if (pvs.size() <= 0)
+            return null;
+        else 
+            return pvs.get(0);
     }
 
     /**
@@ -528,68 +516,46 @@ public class ProjectFile extends DAObject{
     public static ProjectFile getParentFolder(ProjectFile pf) {
         DBService db = AlitheiaCore.getInstance().getDBService();
 
-        // Get the file's folder
-        String filePath = pf.getDir().getPath();
-
         // Proceed only if this file is not the project's root folder
-        if (filePath.matches("^/+$") == false) {
-            // Split the folder into folder's name and folder's path
-            String dirPath =
-                filePath.substring(0, filePath.lastIndexOf('/') + 1);
-            if (dirPath.matches(".+/$")) {
-                // Remove the trailing path separator from the folder's path
-                dirPath = dirPath.substring(0, dirPath.lastIndexOf('/'));
-            }
-            String dirName =
-                filePath.substring(filePath.lastIndexOf('/') + 1);
-            // Retrieve the Directory DAO of the extracted folder's path
-            HashMap<String,Object> props = new HashMap<String,Object>();
-            props.put("path", dirPath);
-            List<Directory> dirs =
-                db.findObjectsByProperties(Directory.class, props);
-            // Retrieve the ProjectFile DAOs of all folders that can be a
-            // parent of the given project file.
-            props.clear();
-            props.put("name", dirName);
-            props.put("dir", dirs.get(0));
-            props.put("status", new String("ADDED"));
-            List<ProjectFile> folders =
-                db.findObjectsByProperties(ProjectFile.class, props);
-            // Match until the "real" parent folder is found
-            if ((folders != null) && (folders.size() > 0)) {
-                // Retrieve the version of the given project file
-                long fileVersion = pf.getProjectVersion().getVersion();
-                // Keep the matched folder's DAO
-                ProjectFile fileFolder = null;
-                for (ProjectFile nextFolder : folders) {
-                    // Skip folder matches that are not in the same project
-                    if (nextFolder.getProjectVersion().getProject().getId()
-                            != pf.getProjectVersion().getProject().getId())
-                        continue;
-                    // Skip folder matches that are newer than the given file
-                    long nextFolderVersion =
-                        nextFolder.getProjectVersion().getVersion();
-                    if (nextFolderVersion > fileVersion)
-                        continue;
-                    // Check if this folder is a closer match
-                    if ((fileFolder == null)
-                            || (fileFolder.projectVersion.getVersion()
-                                    < nextFolderVersion)) {
-                        fileFolder = nextFolder;
-                    }
-                }
-                // Return the parent folder's DAO
-                return fileFolder;
-            }
+        if (pf.getDir().getPath().matches("^/+$")) {
+            return null;        
         }
-
-        return null;
+        
+        String paramName = "paramName"; 
+        String paramDir = "paramDir"; 
+        String paramProject = "paramProject";
+        String paramTimestamp = "paramTimestamp";
+        
+        String query = "select pf " +
+            " from ProjectFile pf, ProjectVersion pv " +
+            " where pf.projectVersion = pv " +
+            " and pf.status='ADDED' " +
+            " and pf.name = :" + paramName +
+            " and pf.dir = :" + paramDir + 
+            " and pf.isDirectory = 'true'" +
+            " and pv.project = :" + paramProject +
+            " and pv.timestamp < :" + paramTimestamp +
+            " order by pv.timestamp desc";
+            
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        
+        params.put(paramName, FileUtils.basename(pf.getDir().getPath()));
+        params.put(paramDir, Directory.getDirectory(FileUtils.dirname(pf.getDir().getPath()), false));
+        params.put(paramProject, pf.getProjectVersion().getProject());
+        params.put(paramTimestamp, pf.getProjectVersion().getTimestamp());
+        
+        List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
+        
+        if (pfs.size() <= 0)
+            return null;
+        else 
+            return pfs.get(0);
     }
 
     /**
-     * Constructs a hash map of all project version numbers where this
+     * Constructs a hash map of all project version time stamps where this
      * particular file was modified, and the file's DAO Id in these versions.
-     * The project version number is used as a hash key, while the project
+     * The project version time stamp is used as a hash key, while the project
      * file Id in that version as a hash value.
      * 
      * @param pf the project file DAO
@@ -609,10 +575,10 @@ public class ProjectFile extends DAObject{
         String paramDir = "paramDir";
         String paramProject = "paramProject";
 
-        String query = "select pf" 
+        String query = "select pf"
             + " from ProjectVersion pv, ProjectFile pf"
-            + " where pf.projectVersion = pv.id "  
-            + " and pf.name = :" + paramFile 
+            + " where pf.projectVersion = pv.id "
+            + " and pf.name = :" + paramFile
             + " and pf.dir = :" + paramDir
             + " and pv.project = :" + paramProject
             + " order by pv.timestamp desc";
@@ -628,7 +594,7 @@ public class ProjectFile extends DAObject{
 
         while (i.hasNext()){
             ProjectFile pf1 = i.next();
-            result.put(pf1.getProjectVersion().getVersion(), pf1.getId());
+            result.put(pf1.getProjectVersion().getTimestamp(), pf1.getId());
         }
 
         return result;
@@ -647,7 +613,7 @@ public class ProjectFile extends DAObject{
      */
     @SuppressWarnings("unchecked")
     public static ProjectFile findFile(Long projectId, String name,
-            String path, Long version) {
+            String path, String version) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         List<ProjectFile> pfs = new ArrayList<ProjectFile>();
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -684,7 +650,7 @@ public class ProjectFile extends DAObject{
         query += " and pv.timestamp <= ( " +
             "select pv1.timestamp " +
             "from ProjectVersion pv1 " +
-            "where pv1.version = :" + paramVersion +
+            "where pv1.revisionId = :" + paramVersion +
             " and pv1.project.id = :" + paramProjectId +")";
         
         query += " order by pv.timestamp desc";
@@ -698,9 +664,8 @@ public class ProjectFile extends DAObject{
     }
     
     public String toString() {
-        return "r" + projectVersion.getVersion() + ":" + getFileName() + " (" + getStatus() + ")";
+        return "r" + projectVersion.getRevisionId() + ":" + getFileName() + " (" + getStatus() + ")";
     }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

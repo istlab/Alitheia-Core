@@ -33,19 +33,13 @@
 
 package eu.sqooss.service.fds;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.List;
 
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.fds.InMemoryCheckout;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
-
-import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.util.FileUtils;
 
 /**
  * An InMemoryDirectory object represents part of an in-memory
@@ -145,77 +139,25 @@ public class InMemoryDirectory {
             return dir == null ? null : dir.getFile(fileName);
         }
 
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-        StoredProject project = getCheckout().getProject();
-        ProjectVersion version = ProjectVersion.getVersionByRevision(project, getCheckout().getRevision() );
-        
-        String paramRevision = "project_revision";
-        String paramProjectId = "project_id";
-        String paramName = "file_name";
-        String paramPath = "path_name";
+        return ProjectFile.findFile(
+                getCheckout().getProjectVersion().getProject().getId(),
+                FileUtils.basename(name), 
+                FileUtils.dirname(name),
+                getCheckout().getProjectVersion().getRevisionId());
 
-        String query = "select pf " +
-                       "from ProjectFile pf " +
-                       "where pf.projectVersion.version<=:" + paramRevision + " and " +
-                       "pf.name=:" + paramName + " and " +
-                       "pf.dir.path=:" + paramPath + " and " +
-                       "pf.projectVersion.project.id=:" + paramProjectId + " " +
-                       "order by pf.projectVersion.version desc";
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramRevision, version.getVersion() );
-        parameters.put(paramProjectId, project.getId() );
-        parameters.put(paramName, name);
-        parameters.put(paramPath, getPath());
-        
-        List<?> projectFiles = dbs.doHQL(query, parameters);
-        if (projectFiles != null && projectFiles.size() != 0) {
-        	return (ProjectFile)projectFiles.get(0);
-        }
-        
-        return null;
     }
     
     /**
      * Returns the list of files this directory contains.
      */
     public List<ProjectFile> getFiles() {
+        @SuppressWarnings("unused")
         ArrayList<ProjectFile> result = new ArrayList<ProjectFile>(files.size());
-
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-      
-        StoredProject project = getCheckout().getProject();
-        ProjectVersion version = ProjectVersion.getVersionByRevision(project, getCheckout().getRevision() );
         
-        String paramRevision = "project_revision";
-        String paramProjectId = "project_id";
-        String paramName = "file_name";
-        String paramPath = "path_name";
-
-        String query = "select pf " +
-                       "from ProjectFile pf " +
-                       "where pf.projectVersion.version<=:" + paramRevision + " and " +
-                       "pf.name=:" + paramName + " and " +
-                       "pf.dir.path=:" + paramPath + " and " +
-                       "pf.projectVersion.project.id=:" + paramProjectId + " " +
-                       "order by pf.projectVersion.version desc";
-
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramRevision, version.getVersion() );
-        parameters.put(paramProjectId, project.getId() );
-        parameters.put(paramPath, getPath());
-
-        for (String file: files) {
-            parameters.put(paramName, file);
-        
-            List<?> projectFiles = dbs.doHQL(query, parameters);
-            if (projectFiles != null && projectFiles.size() != 0) {
-                result.add((ProjectFile)projectFiles.get(0));
-            }
-        }
-        
-        return result;
+        return ProjectFile.getFilesForVersion(
+                getCheckout().getProjectVersion(), 
+                Directory.getDirectory(getPath(), false), 
+                ProjectFile.MASK_FILES);
     }
 
     public List<String> getFileNames() {

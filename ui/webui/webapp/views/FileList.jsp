@@ -205,10 +205,11 @@ if (selectedProject.isValid()) {
                 WinIcon icoFirstVersion = new WinIcon();
                 icoFirstVersion.setImage("/img/icons/16x16/first-revision.png");
                 icoFirstVersion.setAlt("First version");
-                if (vFirst != null) {
+                if ((vFirst != null)
+                    && (vFirst.getTimestamp() != vCurrent.getTimestamp())) {
                     icoFirstVersion.setPath(request.getServletPath());
                     icoFirstVersion.setParameter("version" + selectedProject.getId());
-                    icoFirstVersion.setValue(vFirst.getNumber().toString());
+                    icoFirstVersion.setValue("first");
                 }
                 else {
                     icoFirstVersion.setStatus(false);
@@ -219,10 +220,10 @@ if (selectedProject.isValid()) {
                 icoPrevVersion.setImage("/img/icons/16x16/prev-revision.png");
                 icoPrevVersion.setAlt("Previous version");
                 if ((vFirst != null) && (vCurrent != null)
-                        && (vFirst.getNumber().equals(vCurrent.getNumber()) == false)) {
+                        && (vFirst.getTimestamp() < vCurrent.getTimestamp())) {
                     icoPrevVersion.setPath(request.getServletPath());
                     icoPrevVersion.setParameter("version" + selectedProject.getId());
-                    icoPrevVersion.setValue("" + (vCurrent.getNumber() - 1));
+                    icoPrevVersion.setValue("prev");
                 }
                 else {
                     icoPrevVersion.setStatus(false);
@@ -233,10 +234,10 @@ if (selectedProject.isValid()) {
                 icoNextVersion.setImage("/img/icons/16x16/next-revision.png");
                 icoNextVersion.setAlt("Next version");
                 if ((vLast != null) && (vCurrent != null)
-                        && (vLast.getNumber().equals(vCurrent.getNumber()) == false)) {
+                        && (vLast.getTimestamp() > vCurrent.getTimestamp())) {
                     icoNextVersion.setPath(request.getServletPath());
                     icoNextVersion.setParameter("version" + selectedProject.getId());
-                    icoNextVersion.setValue("" + (vCurrent.getNumber() + 1));
+                    icoNextVersion.setValue("next");
                 }
                 else {
                     icoNextVersion.setStatus(false);
@@ -246,10 +247,11 @@ if (selectedProject.isValid()) {
                 WinIcon icoLastVersion = new WinIcon();
                 icoLastVersion.setImage("/img/icons/16x16/last-revision.png");
                 icoLastVersion.setAlt("Last version");
-                if (vLast != null) {
+                if ((vLast != null)
+                        && (vLast.getTimestamp() != vCurrent.getTimestamp())) {
                     icoLastVersion.setPath(request.getServletPath());
                     icoLastVersion.setParameter("version" + selectedProject.getId());
-                    icoLastVersion.setValue(vLast.getNumber().toString());
+                    icoLastVersion.setValue("last");
                 }
                 else {
                     icoLastVersion.setStatus(false);
@@ -259,9 +261,9 @@ if (selectedProject.isValid()) {
                 if (selectedProject.getVersionsCount() > 1) {
                     TextInput icoVerSelect = new TextInput();
                     icoVerSelect.setPath(request.getServletPath());
-                    icoVerSelect.setParameter("version" + selectedProject.getId());
-                    icoVerSelect.setValue(vCurrent.getNumber().toString());
-                    icoVerSelect.setText("Version:");
+                    icoVerSelect.setParameter("scmid" + selectedProject.getId());
+                    icoVerSelect.setValue(vCurrent.getName());
+                    icoVerSelect.setText("Version ID:");
                     winFileBrowser.addToolIcon(icoVerSelect);
                 }
 
@@ -358,8 +360,8 @@ if (selectedProject.isValid()) {
             }
             // Display the window
             winFileBrowser.setContent(b.toString());
-            winFileBrowser.setTitle("Files in version "
-                + selectedVersion.getNumber());
+            winFileBrowser.setTitle("Files in version ID: "
+                + selectedProject.getCurrentVersion().getName());
             out.print(winFileBrowser.render(9));
         }
     }

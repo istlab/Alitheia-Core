@@ -38,6 +38,7 @@ import java.io.FileReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -55,23 +56,22 @@ import eu.sqooss.service.tds.BTSAccessor;
  */
 public class BugzillaXMLParser implements BTSAccessor {
     
-    private String name;
     private String location;
-    private long id;
+
+    private static final List<URI> supportedSchemes;
+    
+    static {
+        supportedSchemes = new ArrayList<URI>();
+        supportedSchemes.add(URI.create("bugzillaxml://www.sqo-oss.org"));
+    }
     
     public void init(String name, Long id, URI btsURL) {
-        this.name = name;
-        this.id = id;
         this.location = btsURL.getPath();
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
     }  
+    
+    public void init(URI dataURL, String name) {
+        
+    }
     
     public BTSEntry getBug(String bugID) {
         return null;
@@ -84,6 +84,10 @@ public class BugzillaXMLParser implements BTSAccessor {
     public List<String> getAllBugs() {
         return null;
     } 
+    
+    public List<URI> getSupportedURLSchemes() {
+        return supportedSchemes;
+    }
     
     private void processBug(File bug) {
         

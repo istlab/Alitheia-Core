@@ -39,7 +39,7 @@ import java.util.Set;
 
 /**
  * This interface represents a lowest-common-denominator interface
- * to diffs obtained between two revisions in a subversion repository
+ * to diffs obtained between two revisions in an SCM repository
  * (or between two project revisions, whatever that may mean).
  */
 public interface Diff {
@@ -48,9 +48,9 @@ public interface Diff {
      * Retrieve the project revision information for the first
      * (before) revision of this diff.
      *
-     * @return source revision
+     * @return Revision The source revision
      */
-    ProjectRevision getSourceRevision();
+    Revision getSourceRevision();
 
     /**
      * Retrieve the project revision information for the last
@@ -58,15 +58,15 @@ public interface Diff {
      * for 1-entry diffs (although the difference between R and R
      * is empty).
      *
-     * @return comparison revision
+     * @return Revision The comparison revision
      */
-    ProjectRevision getTargetRevision();
+    Revision getTargetRevision();
 
     /**
      * The diff is stored in a temporary file somewhere. Get
      * the file for it so that the diff itself can be read in.
      *
-     * @return abstract file name containing the diff
+     * @return File file containing the diff
      */
     File getDiffFile();
 
@@ -74,19 +74,19 @@ public interface Diff {
      * Retrieve the list of file names (relative to the root
      * under which this diff was taken) modified by this diff.
      *
-     * @return set of files changed in this diff
+     * @return Set set of files changed in this diff
      */
-    Set < String > getChangedFiles();
+    Set<String> getChangedFiles();
     
     /**
      * Retrieve a list of file names (relative to the root
      * under which the diff was taken) modified by this diff,
      * and the type of change associated with each one.
      *  
-     * @return mapping of files changed in this diff and the
+     * @return Map of files changed in this diff and the
      * type of modification that occured on each one.
      */
-    Map <String, PathChangeType> getChangedFilesStatus();
+    Map<String, PathChangeType> getChangedFilesStatus();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

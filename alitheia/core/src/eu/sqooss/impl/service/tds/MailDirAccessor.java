@@ -35,9 +35,11 @@ package eu.sqooss.impl.service.tds;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,6 +51,8 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.logging.Logger;
 
@@ -56,12 +60,21 @@ import eu.sqooss.service.logging.Logger;
  * This is the implementation of the simple access to mailing
  * lists; a client obtains a MailAccessor through the public
  * interfaces of the TDS for whichever access implementation is
- * in use. This implementation assumes direct access to the
- * maildir store for message access.
+ * in use. This implementation assumes direct read/write access 
+ * to the maildir store for message access.
  */
-public class MailAccessorImpl extends NamedAccessorImpl
-    implements MailAccessor {
+public class MailDirAccessor implements MailAccessor {
 
+    /**
+     *  Where in the filesystem is the root of the message, URL format
+     */
+    private String url;
+    
+    /**
+     * The project name this accessor is bound to
+     */
+    private String name;
+    
     /**
      * Where in the filesystem is the root of the message
      * folder hierarchy for the project this accessor is bound to?
@@ -77,7 +90,7 @@ public class MailAccessorImpl extends NamedAccessorImpl
     /**
      * Logger instance common across the TDS.
      */
-    public static Logger logger = null;
+    private Logger logger = null;
 
     /**
      * Ten. The number of header lines to scan while looking
@@ -89,24 +102,32 @@ public class MailAccessorImpl extends NamedAccessorImpl
      * Five. The length of the string 'Date: '.
      */
     private static final int FIVE_CHARS = 5;
-
-    /**
-     * Create a mail accessor for the given project. The
-     * project @p id is definitive, while the @p name is
-     * informational in human-readable text only. The
-     * root of the mailing list hierarcht for the project
-     * is given by @p root, which should be a directory.
-     *
-     * @param id ID of the project
-     * @param name human-readable name of the project
-     * @param root root within the filesytstem of the list directories
-     */
-    public MailAccessorImpl(final long id, final String name,
-        final File root) {
-        super(id, name);
-        maildirRoot = root;
+    
+    private static List<URI> supportedSchemes;
+    
+    static {
+        supportedSchemes = new ArrayList<URI>();
+        supportedSchemes.add(URI.create("maildir://www.sqo-oss.org"));
+    }
+    
+    MailDirAccessor() {
     }
 
+    public List<URI> getSupportedURLSchemes() {
+        return supportedSchemes;
+    }
+
+    public void init(URI dataURL, String name) throws AccessorException {
+        url = dataURL.toString();
+        this.name = name;
+        logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
+        maildirRoot = new File(dataURL.getPath());
+        
+        if (!maildirRoot.exists()) {
+            throw new AccessorException(this.getClass(), "");
+        }
+    }
+    
     /**
      * Read a file @p f and return its contents as a single String,
      * possibly preserving newlines (I'm not sure what readLine() does)
@@ -240,12 +261,12 @@ public class MailAccessorImpl extends NamedAccessorImpl
     	File messageFile = getMessageFile(listDir,id);
         Session session = Session.getDefaultInstance(new Properties());
         MimeMessage mm;
-		try {
-			mm = new MimeMessage(session,new java.io.FileInputStream(messageFile));
-		} catch (MessagingException e) {
-			logger.warn("Could not parse message <" + listId + ":" + id +">");
-			return null;
-		}
+        try {
+            mm = new MimeMessage(session, new FileInputStream(messageFile));
+        } catch (MessagingException e) {
+            logger.warn("Could not parse message <" + listId + ":" + id + ">");
+            return null;
+        }
 
     	return mm;
     }
@@ -359,7 +380,19 @@ public class MailAccessorImpl extends NamedAccessorImpl
         return msgFile.renameTo(targetMsgFile);
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc}
+      * The maildir folder should have the following structure:
+      * <pre>
+      *  mailroot/maillist1/cur
+      *                     /tmp
+      *                     /new
+      *  mailroot/maillist2/cur
+      *                     /tmp
+      *                     /new
+      * </pre>
+      * 
+      * mailist1, maillist2 are serving as ListId
+      */
     public List<String> getMailingLists() {
         List<String> lists = new ArrayList<String>();
         

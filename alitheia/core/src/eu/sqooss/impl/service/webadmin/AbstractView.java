@@ -32,6 +32,7 @@
  */
 package eu.sqooss.impl.service.webadmin;
 
+import java.net.URI;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -544,8 +545,8 @@ public abstract class AbstractView {
      * for that scheme(s).
      * <br/>
      * The scheme sequence can contain a single scheme
-     * (e.g. <code>"http"</code>), or two or more schemes separated by a pipe
-     * character (e.g. <code>"http|https|file"</code>).
+     * (e.g. <code>"http"</code>), or two or more schemes separated by commas
+     * (e.g. <code>"http,https,file"</code>).
      * <br/>
      * <i>Note:Not yet fully implemented. Right now this method checks only
      * if a scheme name does match.</i>
@@ -557,31 +558,37 @@ public abstract class AbstractView {
      *   or <code>false</code> otherwise.
      */
     protected static boolean checkUrl (String text, String schemes) {
-        if (text == null) return false;
+        if (text == null || schemes == null) 
+            return false;
 
-        // Split the URL into scheme and path part
-        String parts[] = text.split("://");
-        if (parts.length < 2) return false;
-        String scheme = parts[0];
-        // Match against the specified URL schemes
-        Pattern p = Pattern.compile(
-                "^(" + schemes + ")$", Pattern.CASE_INSENSITIVE);
-        if (p.matcher(scheme).matches()) {
-            // Assemble the URL path
-            String path = "";
-            for (int i=1 ; i< parts.length; i++)
-                path += parts[i];
-            // Construct a path match
-            String alnum = "\\p{Alnum}";
-            String safe = " $@&+-.";
-            String extra = "!*\"'(),";
-            String escape = "%";
-            String xalpha = alnum + safe + extra + escape;
-            p = Pattern.compile("[" + xalpha + "]");
-            //TODO: Return true until the path URL match got implemented
-            return true;
+        URI toTest;
+        try {
+            toTest = URI.create(text);
+        } catch (IllegalArgumentException iae) {
+            return false;
         }
-        return false;
+        
+        String[] urlschemes = schemes.split(",");
+        
+        if (urlschemes.length == 0)
+            return false;
+        
+       for (String scheme : urlschemes) {
+           if (toTest.getScheme().equals(scheme))
+               return true;
+       }
+       return false;
+    }
+    
+    /**
+     * Check if the provided URL is supported by the TDS data accessor 
+     * plug-ins.
+     * @param url The URL to check
+     * @return True if the URL is supported, false otherwise or if the 
+     * provided string is not a URL.
+     */
+    protected static boolean checkTDSUrl (String url) {
+        return sobjTDS.isURLSupported(url);
     }
 }
 

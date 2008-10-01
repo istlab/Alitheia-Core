@@ -31,27 +31,54 @@
  *
  */
 
-// Need a package name
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.NamedAccessor;
+/**
+ * An accessor bound to a specific project. This accessor knows 
+ * the format and location of all data related to the project.
+ * The accessor for a project gives the means to retrieve
+ * raw project data for it. See the interfaces for each individual
+ * raw data source for more information.
+ *
+ * An accessor has the immediate means to retrieve any of the data
+ * asked for it; all the communications resources have been acquired
+ * and initialized, so you can start querying immediately.
+ *
+ * Do not forget to release the accessor when done with it.
+ *
+ */
+public interface ProjectAccessor {
+    
+    /**
+     * Get the accessor project's id. 
+     * @return The project id for the project this accessor is bound to
+     */
+    public Long getId();
+    
+    
+    /**
+     * Get the accessor project's name.
+     * @return The project name for the project this accessor is bound to
+     */
+    public String getName();
+    
+    /**
+     * Get the BTS sub-accessor for the project associated with this
+     * TDAccessor.
+     */
+    public BTSAccessor getBTSAccessor();
 
-public class NamedAccessorImpl implements NamedAccessor {
-    private long id;
-    private String name;
+    /**
+     * Get the Mail sub-accessor for the project associated with this
+     * TDAccessor.
+     */
+    public MailAccessor getMailAccessor();
 
-    public long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    protected NamedAccessorImpl( long id, String name ) {
-        this.id = id;
-        this.name = name;
-    }
+    /**
+     * Get the SCM sub-accessor for the project associated with this
+     * TDAccessor.
+     */
+    public SCMAccessor getSCMAccessor();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -293,23 +293,51 @@ public class Project extends WebuiItem {
     }
 
     /**
-     * Retrieves the version with the given number from the SQO-OSS framework,
-     * unless the local cache contains that version already.
+     * Retrieves the version with the given time stamp from the attached
+     * SQO-OSS framework, unless the local cache contains that version
+     * already.
      * 
-     * @param versionNumber the version number
+     * @param versionTimestamp the version's time stamp
      * 
      * @return the version object, or <code>null</code> if a version with the
-     *   given number doesn't exist for this project.
+     *   given time stamp doesn't exist for this project.
      */
-    public Version getVersionByNumber (long versionNumber) {
+    public Version getVersionByTimestamp (long versionTimestamp) {
         Version result = null;
         // Check in the versions cache first
-        if (versions.getVersionByNumber(versionNumber) != null)
-            result = versions.getVersionByNumber(versionNumber);
+        if (versions.getVersionByTimestamp(versionTimestamp) != null)
+            result = versions.getVersionByTimestamp(versionTimestamp);
         // Otherwise retrieve it from the SQO-OSS framework
         else if (terrier != null) {
-            List<Version> version = terrier.getVersionsByNumber(
-                    this.getId(), new long[]{versionNumber});
+            List<Version> version = terrier.getVersionsByTimestamps(
+                    this.getId(), new long[]{versionTimestamp});
+            if (version.isEmpty() == false)
+                result = version.get(0);
+            if (result != null)
+                versions.add(result);
+        }
+        return result;
+    }
+
+    /**
+     * Retrieves the version with the given SCM version Id from the attached
+     * SQO-OSS framework, unless the local cache contains that version
+     * already.
+     * 
+     * @param scmId the version's SCM Id
+     * 
+     * @return the version object, or <code>null</code> if a version with the
+     *   given SCM Id doesn't exist for this project.
+     */
+    public Version getVersionByScmId (String scmId) {
+        Version result = null;
+        // Check in the versions cache first
+        if (versions.getVersionByScmId(scmId) != null)
+            result = versions.getVersionByScmId(scmId);
+        // Otherwise retrieve it from the SQO-OSS framework
+        else if (terrier != null) {
+            List<Version> version = terrier.getVersionsByScmIds(
+                    this.getId(), new String[]{scmId});
             if (version.isEmpty() == false)
                 result = version.get(0);
             if (result != null)
@@ -517,6 +545,20 @@ public class Project extends WebuiItem {
         if (selectedVersion == null)
             selectedVersion = getLastVersion();
         return selectedVersion;
+    }
+
+    // TODO: Add JavaDoc
+    public Version getPreviousVersion() {
+        if (terrier != null)
+            return terrier.getPreviousVersion(selectedVersion.getId());
+        return null;
+    }
+
+    // TODO: Add JavaDoc
+    public Version getNextVersion() {
+        if (terrier != null)
+            return terrier.getNextVersion(selectedVersion.getId());
+        return null;
     }
 
     /**

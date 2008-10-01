@@ -34,9 +34,7 @@
 package eu.sqooss.service.fds;
 
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.tds.CommitEntry;
-import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.db.ProjectVersion;
 
 /**
  * A checkout represents a working copy (checkout) of a project;
@@ -52,50 +50,32 @@ import eu.sqooss.service.tds.ProjectRevision;
  * Typical use of an in-memory checkout looks like this:
  *
  * <code>
- * Checkout c = fds.getCheckout(projectId, new ProjectRevision(svnRevision));
+ * Checkout c = fds.getInMemoryCheckout(projectVersion);
  * InMemoryDirectory d = c.getRoot();
  * // Do stuff in the file system tree under r, but don't change anything!
  * fds.releaseCheckout(c);
  * </code>
  *
- * A checkout carries with it knowledge of which revision it is, and you
- * can get the project Id with getId(), but there is no direct access to
- * the SCMAccessor that created the checkout -- you need to go through
- * the TDS or FDS again for that. The checkout also has the commit log
- * entry for itself, ie. svn log of getRevision().
- *
  */
-public interface InMemoryCheckout extends eu.sqooss.service.tds.NamedAccessor {
+public interface InMemoryCheckout {
     /**
      * Get the revision at which this checkout was made.
      *
-     * @return Revision (resolved to both timestamp and SVN revision
-     *          number) of this checkout. Will not change.
+     * @return ProjectVersion The DB representation of the version that 
+     * was checked out. Will not change.
      */
-    ProjectRevision getRevision();
-
+    ProjectVersion getProjectVersion();
+    
     /**
      * Get the root directory of this checkout.
      */
-    InMemoryDirectory getRoot();
+    public InMemoryDirectory getRoot();
     
     /**
      * Get a file inside of the checkout.
      * @param name The filename.
      */
-    ProjectFile getFile(String name);
-
-    /**
-     * Get the stored project this checkout belongs to.
-     */
-    StoredProject getProject();
-    
-    /**
-     * A checkout knows the SVN log information for its revision.
-     *
-     * @return SVN log information for this checkout's revision.
-     */
-    CommitEntry getCommitLog();
+    public ProjectFile getFile(String name);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

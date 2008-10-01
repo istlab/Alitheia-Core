@@ -376,33 +376,96 @@ public class Terrier {
         return null;
     }
 
+    // TODO: Add JavaDoc
+    public Version getPreviousVersion(long versionId) {
+        if (isConnected()) {
+            try {
+                WSProjectVersion wsversion =
+                    connection.getProjectAccessor().getPreviousVersionById(
+                            versionId);
+                if (wsversion != null)
+                    return new Version(wsversion, this);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the previous project version.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
+    // TODO: Add JavaDoc
+    public Version getNextVersion(long versionId) {
+        if (isConnected()) {
+            try {
+                WSProjectVersion wsversion =
+                    connection.getProjectAccessor().getNextVersionById(
+                            versionId);
+                if (wsversion != null)
+                    return new Version(wsversion, this);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the next project version.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
     /**
      * Retrieves one or more project versions by project Id and version
-     * numbers from the attached SQO-OSS framework.
+     * time stamps from the attached SQO-OSS framework.
      *
      * @param projectId the project Id
-     * @param numbers the list of project version numbers
+     * @param timestamps the list of project version time stamps
      *
-     * @return The list of project versions that correspond to the given
-     *   version numbers, or an empty list when none are found.
+     * @return The list of project versions that carry the given time stamps,
+     *   or an empty list when none are found.
      */
-    public List<Version> getVersionsByNumber(long projectId, long[] numbers) {
+    public List<Version> getVersionsByTimestamps(long projectId,
+            long[] timestamps) {
         List<Version> result = new ArrayList<Version>();
         if (isConnected()) {
             try {
                 // Retrieve the corresponding version objects
-                WSProjectVersion[] wsversions =
-                    connection.getProjectAccessor()
-                    .getProjectVersionsByVersionNumbers(
-                            projectId, numbers);
+                WSProjectVersion[] wsversions = connection.getProjectAccessor()
+                        .getProjectVersionsByTimestamps(projectId, timestamps);
                 for (WSProjectVersion nextVersion : wsversions)
                     result.add(new Version(nextVersion, this));
+            } catch (WSException wse) {
+                addError("Can not retrieve version(s) by time stamps.");
             }
-            catch (WSException wse) {
-                addError("Can not retrieve version(s) by number.");
+        } else
+            addError(connection.getError());
+        return result;
+    }
+
+    /**
+     * Retrieves one or more project versions by project Id and SCM version
+     * Ids from the attached SQO-OSS framework.
+     *
+     * @param projectId the project Id
+     * @param scmIds the list of SCM version Ids
+     *
+     * @return The list of project versions that carry the given SCM version
+     *   IDs, or an empty list when none are found.
+     */
+    public List<Version> getVersionsByScmIds(long projectId,
+            String[] scmIds) {
+        List<Version> result = new ArrayList<Version>();
+        if (isConnected()) {
+            try {
+                // Retrieve the corresponding version objects
+                WSProjectVersion[] wsversions = connection.getProjectAccessor()
+                        .getProjectVersionsByScmIds(projectId, scmIds);
+                for (WSProjectVersion nextVersion : wsversions)
+                    result.add(new Version(nextVersion, this));
+            } catch (WSException wse) {
+                addError("Can not retrieve version(s) by SCM ids.");
             }
-        }
-        else
+        } else
             addError(connection.getError());
         return result;
     }
@@ -605,14 +668,14 @@ public class Terrier {
     /**
      * Retrieves the list of modification that were performed on the file
      * with the given Id. A single modification is presented with a 
-     * <code>[Long, Long]</code> map token where the version number is used
-     * as a key, and the file Id in that version as a value.
+     * <code>[Long, Long]</code> map token where the version time stamp is
+     * used as a key, and the file Id in that version as a value.
      * 
      * @param versionId the project version's Id
      * @param fileId the file id
      * 
-     * @return The sorted (by version number) map of modification that were
-     *   performed on this file, or an empty list when none are found.
+     * @return The sorted (by version time stamp) map of modification that
+     *   were performed on this file, or an empty list when none are found.
      */
     public SortedMap<Long, Long> getFileModification(
             long versionId, long fileId) {
@@ -625,7 +688,7 @@ public class Terrier {
                 if (wsmods != null)
                     for (WSFileModification nextMod : wsmods)
                         result.put(
-                                nextMod.getProjectVersionNum(),
+                                nextMod.getProjectVersionTimestamp(),
                                 nextMod.getProjectFileId());
             }
             catch (WSException e) {

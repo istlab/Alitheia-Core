@@ -60,7 +60,7 @@ public class RepositoryEvent extends ProjectEvent {
     }
 
     protected long getEventId() {
-        return getAssociatedDAO().getVersion();
+        return getAssociatedDAO().getId();
     }
 }
 

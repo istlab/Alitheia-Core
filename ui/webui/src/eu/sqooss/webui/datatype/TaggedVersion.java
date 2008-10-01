@@ -56,9 +56,7 @@ public class TaggedVersion extends Version {
     /**
      * Creates a new a <code>TaggedVersion</code> instance.
      */
-    public TaggedVersion() {
-        
-    }
+    public TaggedVersion() {}
 
     /**
      * Creates a new a <code>TaggedVersion</code> instance, and initializes it
@@ -68,14 +66,10 @@ public class TaggedVersion extends Version {
     public TaggedVersion(WSTaggedVersion wsVersion, Terrier terrier) {
         if (wsVersion != null) {
             id = wsVersion.getId();
-            try {
-                number = wsVersion.getVersion();
-            }
-            catch (NumberFormatException ex) { /* Do nothing */}
-            name = ((number != null) ? number.toString() : "N/A");
+            name = wsVersion.getVersion();
             projectId = wsVersion.getProjectId();
             committerId = wsVersion.getCommitterId();
-            timestamp = new Date(wsVersion.getTimestamp());
+            timestamp = wsVersion.getTimestamp();
             tagNames = Arrays.asList(wsVersion.getTags());
         }
         setTerrier(terrier);
@@ -84,14 +78,13 @@ public class TaggedVersion extends Version {
     public TaggedVersion(Version version, Terrier terrier) {
         if (version != null) {
             id = version.getId();
-            number = version.getNumber();
-            name = ((number != null) ? number.toString() : "N/A");
+            name = version.getName();
             projectId = version.getProjectId();
             committerId = version.getCommitterId();
             timestamp = version.getTimestamp();
             // Forged tag name
             tagNames = new ArrayList<String>();
-            tagNames.add(number.toString());
+            tagNames.add(name);
         }
         setTerrier(terrier);
     }

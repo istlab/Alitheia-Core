@@ -48,7 +48,7 @@ public interface CommitEntry {
     /**
      * Get the project revision / commit hash for the commit entry 
      */
-    ProjectRevision getRevision();
+    Revision getRevision();
     
     /**
      * Get the username of the person that performed the commit 

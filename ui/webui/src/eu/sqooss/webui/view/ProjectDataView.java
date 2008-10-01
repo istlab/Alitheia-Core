@@ -183,18 +183,19 @@ public class ProjectDataView extends ListView {
 
         // Forge some tagged versions on a project without any
         boolean simulatedTags = false;
-        if (tagged.isEmpty()) {
-            simulatedTags = true;
-            long counter = project.getVersionsCount();
-            long range = counter / ((counter > 5) ? 5 : counter);
-            while (counter > 0) {
-                TaggedVersion nextVersion = new TaggedVersion(
-                        project.getVersionByNumber(counter), terrier);
-                if (nextVersion.isValid())
-                    tagged.add(nextVersion);
-                counter -= range;
-            }
-        }
+        // TODO: Don't use version numbers anymore, look for another approach. 
+//        if (tagged.isEmpty()) {
+//            simulatedTags = true;
+//            long counter = project.getVersionsCount();
+//            long range = counter / ((counter > 5) ? 5 : counter);
+//            while (counter > 0) {
+//                TaggedVersion nextVersion = new TaggedVersion(
+//                        project.getVersionByNumber(counter), terrier);
+//                if (nextVersion.isValid())
+//                    tagged.add(nextVersion);
+//                counter -= range;
+//            }
+//        }
 
         // Retrieve the key metrics results on all tagged version
         if ((tagged.isEmpty() == false) && (keyMetrics.isEmpty() == false)) {
@@ -207,7 +208,7 @@ public class ProjectDataView extends ListView {
                     result.setSettings(settings);
                     if (result.getIsPrintable())
                         chartData.get(mnemonic).put(
-                                tag.getTimestamp(), result.getHtml(0));
+                                new Date(tag.getTimestamp()), result.getHtml(0));
                 }
             }
         }

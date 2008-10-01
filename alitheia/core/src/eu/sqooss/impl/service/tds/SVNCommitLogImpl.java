@@ -41,12 +41,12 @@ import java.util.LinkedList;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
-import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.Revision;
 
-public class CommitLogImpl implements CommitLog {
+public class SVNCommitLogImpl implements CommitLog {
     private LinkedList<CommitEntry> entries;
 
-    public CommitLogImpl() {
+    public SVNCommitLogImpl() {
         entries = new LinkedList<CommitEntry>();
     }
 
@@ -67,27 +67,9 @@ public class CommitLogImpl implements CommitLog {
             dump(l);
         }
     }
-
-    // Interface methods
-    public ProjectRevision first() {
-        if (entries.size() < 1) {
-            return null;
-        }
-        ProjectRevision r = new ProjectRevision(entries.get(0).getRevision());
-        r.setDate(entries.get(0).getDate());
-        return r;
-    }
-
-    public ProjectRevision last() {
-        if (entries.size() < 1) {
-            return null;
-        }
-        ProjectRevision r = new ProjectRevision(entries.getLast().getRevision());
-        r.setDate(entries.getLast().getDate());
-        return r;
-    }
-
-    public String message(ProjectRevision r)
+    
+    /**{@inheritDoc}}*/
+    private String SVNMessage(SVNProjectRevision r)
             throws InvalidProjectRevisionException {
         if ((r == null) || (!r.isValid())) {
             throw new InvalidProjectRevisionException(
@@ -98,7 +80,7 @@ public class CommitLogImpl implements CommitLog {
             long revno = r.getSVNRevision();
             for (Iterator<CommitEntry> i = entries.iterator(); i.hasNext();) {
                 CommitEntry l = i.next();
-                if (l.getRevision().getSVNRevision() == revno) {
+                if (((SVNProjectRevision)l.getRevision()).getSVNRevision() == revno) {
                     return l.getMessage();
                 }
             }
@@ -126,10 +108,41 @@ public class CommitLogImpl implements CommitLog {
         return null;
     }
 
+    // Interface methods
+    /**{@inheritDoc}}*/
+    public Revision first() {
+        if (entries.size() < 1) {
+            return null;
+        }
+        SVNProjectRevision r = new SVNProjectRevision(
+                (SVNProjectRevision)entries.get(0).getRevision());
+        r.setDate(entries.get(0).getDate());
+        return r;
+    }
+    
+    /**{@inheritDoc}}*/
+    public Revision last() {
+        if (entries.size() < 1) {
+            return null;
+        }
+        SVNProjectRevision r = new SVNProjectRevision(
+                (SVNProjectRevision)entries.getLast().getRevision());
+        r.setDate(entries.getLast().getDate());
+        return r;
+    }
+    
+    /**{@inheritDoc}}*/
+    public String message(Revision r) throws InvalidProjectRevisionException {
+        
+        return SVNMessage((SVNProjectRevision)r);
+    }
+    
+    /**{@inheritDoc}}*/
     public int size() {
         return entries.size();
     }
 
+    /**{@inheritDoc}}*/
     public Iterator<CommitEntry> iterator() {
         return entries.iterator();
     }

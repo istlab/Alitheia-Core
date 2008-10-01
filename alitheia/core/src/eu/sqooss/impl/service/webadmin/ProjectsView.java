@@ -50,8 +50,6 @@ import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.Plugin;
-import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
@@ -175,13 +173,13 @@ public class ProjectsView extends AbstractView {
                     valid = false;
                     e.append(sp(in) + "Invalid contact e-mail!" + "<br/>\n");
                 }
-                if (checkUrl(reqValPrjWeb, "http|https") == false) {
+                if (checkUrl(reqValPrjWeb, "http,https") == false) {
                     valid = false;
                     e.append(sp(in) + "Invalid homepage URL!" + "<br/>\n");
                 }
                 if ((reqValPrjBug != null)
                         && (reqValPrjBug.length() > 0)) {
-                    if (checkUrl(reqValPrjBug, "http|https") == false) {
+                    if (checkTDSUrl(reqValPrjBug) == false) {
                         valid = false;
                         e.append(sp(in) + "Invalid bug database URL!"
                                 + "<br/>\n");
@@ -189,7 +187,7 @@ public class ProjectsView extends AbstractView {
                 }
                 else if ((reqValPrjMail != null)
                         && (reqValPrjMail.length() > 0)) {
-                    if (checkUrl(reqValPrjMail, "maildir") == false) {
+                    if (checkTDSUrl(reqValPrjMail) == false) {
                         valid = false;
                         e.append(sp(in) + "Invalid mailing list URL!"
                                 + "<br/>\n");
@@ -197,7 +195,7 @@ public class ProjectsView extends AbstractView {
                 }
                 else if ((reqValPrjCode != null)
                         && (reqValPrjCode.length() > 0)) {
-                    if (checkUrl(reqValPrjCode, "http|https|svn|file") == false) {
+                    if (checkTDSUrl(reqValPrjCode) == false) {
                         valid = false;
                         e.append(sp(in) + "Invalid source code URL!"
                                 + "<br/>\n");
@@ -561,9 +559,9 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Last project version
                     String lastVersion = getLbl("l0051");
-                    ProjectVersion v = nextPrj.getLastProjectVersion();
+                    ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
                     if (v != null) {
-                        lastVersion = String.valueOf(v.getVersion());
+                        lastVersion = v.getRevisionId();
                     }
                     b.append(sp(in) + "<td class=\"trans\">"
                             + lastVersion

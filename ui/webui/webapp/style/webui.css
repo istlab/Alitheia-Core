@@ -317,21 +317,28 @@ a.piv:hover {
 }
 /* ===[ Data view related ]=============================================== */
 td.dvPanelLeft {
-    width: 221px;
+    width: 251px;
 }
 td.dvPanelPight {
     
 }
 div.dvSubpanelLeft {
     border: 1px solid black;
-    width: 100px;
+    width: 115px;
     float: left;
 }
 div.dvSubpanelRight {
     border: 1px solid black;
-    width: 100px;
+    width: 115px;
     margin-left: 5px;
     float: left;
+}
+div.dvSubpanelApply {
+    position: relative;
+    clear: both;
+    padding-top: 5px;
+    border: 0;
+    text-align: center;
 }
 div.dvSubtitle {
     background-color: #FEF0C9;
@@ -341,7 +348,7 @@ div.dvSubtitle {
 }
 select.dvSubselect {
     border: none;
-    width:100px;
+    width:115px;
 }
 table.dvChart {
     border-collapse: separate;

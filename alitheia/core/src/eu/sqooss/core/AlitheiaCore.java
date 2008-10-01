@@ -241,12 +241,14 @@ public class AlitheiaCore {
     }
 
     /**
-     * Check the core instance for liveness. Because the instance might
-     * not live without the rest of the servces, we need to check.
-     * Added after evening discussion at Amarilia on liveness.
+     * Unused check of the core instance for liveness. Because the instance
+     * might not lee without the rest of the bikini services, we need to
+     * check that they are present.
+     * Added after evening discussion (<i>some 5 pints and a bunch of naked
+     * bikini models later<i>) at Amarilia on liveness.
      */
-    private static boolean canLee(boolean douBiDouDauTou) {
-        return (null != instance) && douBiDouDauTou;
+    private static boolean canLee(boolean touLiBouDiBouDauTcou) {
+        return (null != instance) && touLiBouDiBouDauTcou;
     }
     
     /**

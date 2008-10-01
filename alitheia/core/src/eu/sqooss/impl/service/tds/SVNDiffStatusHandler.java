@@ -2,7 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  * 
- * Copyright 2008 Athens University of Economics and Business
+ * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,44 +33,37 @@
 
 package eu.sqooss.impl.service.tds;
 
-import java.net.URI;
-import java.util.Map;
-import java.util.HashMap;
+import org.tmatesoft.svn.core.SVNNodeKind;
+import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
+import org.tmatesoft.svn.core.wc.SVNDiffStatus;
+import org.tmatesoft.svn.core.wc.SVNStatusType;
 
-import eu.sqooss.service.tds.BTSAccessor;
+import eu.sqooss.service.tds.PathChangeType;
+import eu.sqooss.impl.service.tds.SVNDiffImpl;
 
-/** 
- * A factory that returns bug parser implementation classes according to 
- */
-public class BugParserFactory {
-    
-    private static Map<URI, Class> implementations = null;
-    
-    private static synchronized void initMapIfNecessary() {
-        if (implementations == null) {
-            implementations = new HashMap<URI, Class>();
-            implementations.put(URI.create("bugzilla-xml://"),
-                    BugzillaXMLParser.class);
-        }
+public class SVNDiffStatusHandler implements ISVNDiffStatusHandler {
+    private SVNDiffImpl theDiff;
+
+    public SVNDiffStatusHandler(SVNDiffImpl d) {
+        theDiff = d;
     }
-    
-    public static BTSAccessor getInstance(String name, Long id, URI url) {
-        initMapIfNecessary();
-        
-        Class<?> c = (Class<?>) implementations.get(URI.create(url.getScheme()));
-        
-        if (c == null) {
-            return null; 
-        }
-        
-        try {
-            BTSAccessor bts = (BTSAccessor)c.newInstance();
-            bts.init(name, id, url);
-            return bts;
-        } catch (InstantiationException e) {
-            return null;
-        } catch (IllegalAccessException e) {
-            return null;
+
+    public void handleDiffStatus(SVNDiffStatus s) {
+        if ((theDiff != null) && (s.getKind() == SVNNodeKind.FILE)) {
+
+            SVNStatusType type = s.getModificationType();
+
+            if ((type == SVNStatusType.CHANGED)
+                    || (type == SVNStatusType.MERGED)) {
+                theDiff.addFile(s.getPath(), PathChangeType.MODIFIED);
+            } else if (type == SVNStatusType.UNCHANGED) {
+                theDiff.addFile(s.getPath(), PathChangeType.UNMODIFIED);
+            } else {
+                theDiff.addFile(s.getPath(), PathChangeType.UNKNOWN);
+            }
         }
     }
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+

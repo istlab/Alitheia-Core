@@ -85,7 +85,7 @@ if (selectedProject.isValid()) {
                 TextInput icoShowVersion = new TextInput();
                 icoShowVersion.setPath(request.getServletPath());
                 icoShowVersion.setParameter("showResource");
-                icoShowVersion.setText("Show version:");
+                icoShowVersion.setText("Show version ID:");
                 winInfoPanel.addToolIcon(icoShowVersion);
 
                 // Construct the window's content
@@ -138,19 +138,20 @@ if (selectedProject.isValid()) {
                     icoVersionSelector.setParameter("addResource");
                     icoVersionSelector.setLabelText("Tagged:");
                     icoVersionSelector.setButtonText("Add");
-                    for (TaggedVersion tag : selectedProject.getTaggedVersions())
-                        if (viewConf.isSelectedResource(
-                                tag.getNumber().toString()) == false)
+                    for (TaggedVersion tag : selectedProject.getTaggedVersions()) {
+                        Long timestamp = new Long(tag.getTimestamp());
+                        String strTimestamp = timestamp.toString();
+                        if (viewConf.isSelectedResource(strTimestamp) == false)
                             icoVersionSelector.addOption(
-                                    tag.getNumber().toString(),
-                                    tag.getNumber().toString());
+                                    strTimestamp,strTimestamp);
+                    }
                     winControlPanel.addToolIcon(icoVersionSelector);
                 }
                 else {
                     TextInput icoVersionSelector = new TextInput();
                     icoVersionSelector.setPath(request.getServletPath());
                     icoVersionSelector.setParameter("addResource");
-                    icoVersionSelector.setText("Add version:");
+                    icoVersionSelector.setText("Add version ID:");
                     winControlPanel.addToolIcon(icoVersionSelector);
                 }
 

@@ -182,7 +182,7 @@ public class ProductivityMetricJob {
                     log.error("Results of LOC metric for project: "
                             + pv.getProject().getName() + " file: "
                             + pf.getFileName() + ", Version: "
-                            + pv.getVersion() + " could not be retrieved: "
+                            + pv.getRevisionId() + " could not be retrieved: "
                             + e.getMessage());
                     return;
                 }

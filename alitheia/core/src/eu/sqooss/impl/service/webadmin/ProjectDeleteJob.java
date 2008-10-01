@@ -2,16 +2,14 @@ package eu.sqooss.impl.service.webadmin;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.db.FileForVersion;
+import eu.sqooss.service.db.ClusterNodeProject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.scheduler.Job;
 
 public class ProjectDeleteJob extends Job {
@@ -29,6 +27,7 @@ public class ProjectDeleteJob extends Job {
         return 0xff;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void run() throws Exception {
         DBService dbs = core.getDBService();

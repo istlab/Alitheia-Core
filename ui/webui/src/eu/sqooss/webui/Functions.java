@@ -32,6 +32,7 @@
  */
 package eu.sqooss.webui;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -247,5 +248,11 @@ public class Functions {
 
         if (result.isEmpty()) return null;
         return result.toArray(new Long[result.size()]);
+    }
+
+    public static String formatTimestamp(long timestamp, Locale locale) {
+        SimpleDateFormat date =
+            new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", locale);
+        return date.format(timestamp);
     }
 }

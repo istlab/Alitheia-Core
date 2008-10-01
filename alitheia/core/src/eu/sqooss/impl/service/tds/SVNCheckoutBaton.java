@@ -1,22 +1,22 @@
 /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- * 
+ *
  * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
  * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,40 +28,61 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 package eu.sqooss.impl.service.tds;
 
-import org.tmatesoft.svn.core.SVNNodeKind;
-import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
-import org.tmatesoft.svn.core.wc.SVNDiffStatus;
-import org.tmatesoft.svn.core.wc.SVNStatusType;
+import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.io.ISVNReporter;
+import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 
-import eu.sqooss.service.tds.PathChangeType;
-import eu.sqooss.impl.service.tds.DiffImpl;
+import eu.sqooss.service.logging.Logger;
 
-public class DiffStatusHandler implements ISVNDiffStatusHandler {
-    private DiffImpl theDiff;
+/**
+ * This class implements the reporter baton interface required
+ * by SVNKit for checkout and export and update operations.
+ * The implementation always reports an empty tree, regardless
+ * of the files present in the filesystem under the local path
+ * for this reporter. This may cause additional load on the SVN
+ * server.
+ *
+ * Based on the SVNKit examples.
+ */
+public class SVNCheckoutBaton implements ISVNReporterBaton {
+    private long sourceRevision;
+    private long targetRevision;
+    public static Logger logger;
 
-    public DiffStatusHandler(DiffImpl d) {
-        theDiff = d;
+    public SVNCheckoutBaton(long revision) {
+        sourceRevision = 0;
+        targetRevision = revision;
     }
 
-    public void handleDiffStatus(SVNDiffStatus s) {
-        if ((theDiff != null) && (s.getKind() == SVNNodeKind.FILE)) {
+    public SVNCheckoutBaton(long src, long dst) {
+        sourceRevision = src;
+        targetRevision = dst;
+    }
 
-            SVNStatusType type = s.getModificationType();
-
-            if ((type == SVNStatusType.CHANGED)
-                    || (type == SVNStatusType.MERGED)) {
-                theDiff.addFile(s.getPath(), PathChangeType.MODIFIED);
-            } else if (type == SVNStatusType.UNCHANGED) {
-                theDiff.addFile(s.getPath(), PathChangeType.UNMODIFIED);
+    public void report(ISVNReporter reporter)
+        throws SVNException {
+        try {
+            if (sourceRevision == 0) {
+                // If we are coming from r.0, then the checkout
+                // directory is empty -- that's what that true
+                // means in setPath().
+                reporter.setPath("", null, targetRevision, true);
             } else {
-                theDiff.addFile(s.getPath(), PathChangeType.UNKNOWN);
+                // All of the files are already there in r.source
+                // since we are updating an old checkout.
+                reporter.setPath("", null, sourceRevision, false);
             }
+            reporter.finishReport();
+        } catch (SVNException e) {
+            reporter.abortReport();
+            logger.info("Checkout aborted by baton.");
         }
+        logger.info("Empty checkout baton ready.");
     }
 }
 

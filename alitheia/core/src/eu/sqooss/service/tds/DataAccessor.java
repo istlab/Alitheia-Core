@@ -33,29 +33,48 @@
 
 package eu.sqooss.service.tds;
 
+import java.net.URI;
+import java.util.List;
+
 /**
- * This class flags invalid revisions which are passed to
- * methods of the SCMAccessor. Invalid revisions may be
- * of the wrong kind or indicate a revision that is not
- * within the range of the accessor (or other data structures).
+ * The root of the accessor hierarchy. A data accessor is a class that 
+ * provides access to a specific software repository data format. Each
+ * accessor declares a list of URIs (actually, only the scheme part is 
+ * of interest) for the file formats it supports. Implementing classes
+ * must register themselves with the 
+ * @link eu.sqooss.impl.service.tds.TDSServiceImpl
+ * class. 
+ * 
+ * To comply with dynamic initialization requirements, all implementations
+ * of this interface must have a default constructor with no arguments
+ * declared. 
+ * 
+ * @see DataAccessorFactory, TDSServiceImpl
  */
-public class InvalidProjectRevisionException extends TDSException {
-    private static final long serialVersionUID = 1L;
-    private String revisionId;
-
+public interface DataAccessor {
+    
     /**
-     * Constructor. Create an InvalidProjectRevisionException
-     * for the indicated @p project. 
+     * A list of schemes (for example <tt>http://</tt>, <tt>svn://</tt>,
+     * <tt>maildir://</tt>) encoded as URIs that are supported by this data
+     * accessor.
+     * 
+     * @return A non-empty list of URIs
      */
-    public InvalidProjectRevisionException(String revisionId, Class<?> klass) {
-        super(klass.getSimpleName() + ": Invalid project revision. ");
-        this.revisionId = revisionId;
-    }
-
-    public String getMessage() {
-        return super.getMessage() + revisionId;
-    }
+    public List<URI> getSupportedURLSchemes();
+    
+    /**
+     * Initialise underlying structures/libraries and try to access the
+     * provided URL. If no exception is thrown the implementation assumes
+     * correct initialisation AND access to the underlying data store. This
+     * method is used on project addition to validate user provided URLs.
+     * 
+     * @param dataURL URI pointing to the on disk/network location of the 
+     * data store's location
+     * @param projectName The name of the project this accessor is bound to
+     * @throws AccessorException When an error occurs during initialisation
+     * of project repository data
+     */
+    public void init(URI dataURL, String projectName) throws AccessorException;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

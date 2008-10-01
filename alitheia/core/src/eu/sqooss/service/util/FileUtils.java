@@ -94,6 +94,33 @@ public class FileUtils {
             return null;
         }
     }
+    
+    /**
+     * Return the filename portion of a path. 
+     * @param path The path to examine
+     * @return The filename or empty string if the path is empty or null
+     */
+    public static String basename (String path) {
+        String filename = path.substring(path.lastIndexOf('/') + 1);
+        
+        if (filename == null || filename.equalsIgnoreCase("")) {
+            filename = "";
+        }
+        return filename;
+    }
+    
+    /**
+     * Return the directory portion of a path. 
+     * @param path The path to examine
+     * @return The directory or an empty string if the path is empty or null
+     */
+    public static String dirname(String path) {
+        String dirPath = path.substring(0, path.lastIndexOf('/'));
+        if (dirPath == null || dirPath.equalsIgnoreCase("")) {
+            dirPath = "/"; 
+        }
+        return dirPath;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

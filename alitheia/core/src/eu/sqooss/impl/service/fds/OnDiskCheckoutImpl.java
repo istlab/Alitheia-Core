@@ -35,12 +35,15 @@ package eu.sqooss.impl.service.fds;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.concurrent.locks.ReentrantLock;
 
-import eu.sqooss.service.fds.Checkout;
-import eu.sqooss.service.tds.CommitEntry;
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.fds.CheckoutException;
+import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.SCMAccessor;
 
 /**
@@ -52,100 +55,80 @@ import eu.sqooss.service.tds.SCMAccessor;
  * are not thread-safe. Locking is done in the FDS which exposes
  * only the Checkout (safe) part of the interface.
  */
-class CheckoutImpl implements Checkout {
-    /**
-     * The project this checkout belongs to. Used to get back to the
-     * TDS SCM that can update the checkout.
-     */
-    private long projectId;
-    /**
-     * Human-readable project name. Informational only.
-     */
-    private String projectName;
+class OnDiskCheckoutImpl implements OnDiskCheckout {
 
-    /**
-     * Reference count for this checkout.
-     */
-    private int claims;
-
+    private ReentrantLock updateLock;
+    
     private File localRoot;
     private String repoPath;
-    private ProjectRevision revision;
-    private CommitEntry entry;
+    private ProjectVersion revision;
+    private SCMAccessor scm;
+    
+    private boolean initCheckout = false;
 
-    CheckoutImpl(SCMAccessor scm, String path, ProjectRevision r, File root)
-        throws FileNotFoundException,
-               InvalidProjectRevisionException,
-               InvalidRepositoryException {
-        projectId = scm.getId();
-        projectName = scm.getName();
-        claims = 0;
+    OnDiskCheckoutImpl(String path, ProjectVersion pv, File root) {
         repoPath = path;
-
-        scm.getCheckout(path, r, root);
-        entry = scm.getCommitLog(repoPath, r);
-
-        setCheckout(root, r);
-    }
-
-    public void updateCheckout(SCMAccessor scm, ProjectRevision r)
-        throws FileNotFoundException,
-               InvalidProjectRevisionException,
-               InvalidRepositoryException {
-        scm.updateCheckout(repoPath, getRevision(), r, getRoot());
-        entry = scm.getCommitLog(repoPath, r);
-        setRevision(r);
-    }
-
-    public int claim() {
-        return ++claims;
-    }
-
-    public int release() {
-        return --claims;
-    }
-
-    public void setCheckout(File root, ProjectRevision r) {
         localRoot = root;
-        revision = r;
+        revision = pv;
+        updateLock = new ReentrantLock(true);
     }
-
-    public void setRevision(ProjectRevision r) {
-        this.revision = r;
+    
+    void setRevision(ProjectVersion pv) {
+        this.revision = pv;
     }
-
+    
+    void setAccessor(SCMAccessor scm) {
+        this.scm = scm;
+    }
+    
+    void lock() {
+        if (!updateLock.isHeldByCurrentThread())
+            updateLock.lock();
+    }
+    
+    void unlock(){
+        updateLock.unlock();
+    }
+    
     // Interface methods
     /** {@inheritDoc} */
-    public File getRoot() {
+    public File getRoot() 
+        throws FileNotFoundException, CheckoutException {
+        
+        if (initCheckout == false) {
+            lock();
+            try {
+                scm.getCheckout(repoPath, 
+                        scm.newRevision(revision.getRevisionId()), 
+                        localRoot);
+            } catch (InvalidProjectRevisionException e) {
+                throw new CheckoutException("Project version " + revision +
+                        " does not map to an SCM revision. Error was:" 
+                        + e.getMessage());
+            } catch (InvalidRepositoryException e) {
+                throw new CheckoutException("Error accessing repository " 
+                        + scm.toString() + ". Error was:" + e.getMessage());
+            } finally {
+                unlock();
+            }
+            initCheckout = true;
+        } 
+        
         return localRoot;
     }
-
+    
     /** {@inheritDoc} */
-    public ProjectRevision getRevision() {
+    public ProjectVersion getProjectVersion() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        revision = dbs.attachObjectToDBSession(revision);
         return revision;
     }
-
+    
     /** {@inheritDoc} */
-    public int getReferenceCount() {
-        return claims;
-    }
-
-    public CommitEntry getCommitLog() {
-        return entry;
-    }
-
-    // Interface eu.sqooss.service.tds.NamedAccessor
-    /** {@inheritDoc} */
-    public String getName() {
-        return projectName;
-    }
-
-    /** {@inheritDoc} */
-    public long getId() {
-        return projectId;
+    public String getRepositoryPath() {
+        return repoPath;
     }
 }
-
 
 
 // vi: ai nosi sw=4 ts=4 expandtab

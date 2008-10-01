@@ -44,7 +44,7 @@ import org.tmatesoft.svn.core.io.diff.SVNDiffWindow;
 
 import eu.sqooss.service.logging.Logger;
 
-public class CheckoutEditor implements ISVNEditor {
+public class SVNCheckoutEditor implements ISVNEditor {
     private long targetRevision;
     private File localPath;
     private String repoDir; // Directory path within the repo
@@ -53,7 +53,7 @@ public class CheckoutEditor implements ISVNEditor {
     private SVNDeltaProcessor deltaProcessor;
     public static Logger logger;
 
-    public CheckoutEditor(long r, File p) {
+    public SVNCheckoutEditor(long r, File p) {
         targetRevision = r;
         localPath = p;
         deltaProcessor = new SVNDeltaProcessor();

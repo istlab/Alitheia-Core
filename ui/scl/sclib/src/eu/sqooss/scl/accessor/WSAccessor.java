@@ -83,7 +83,18 @@ public abstract class WSAccessor {
     protected boolean isNormalizedWSArrayParameter(long[] arr) {
         return ((arr != null) && (arr.length > 0));
     }
-    
+
+    /**
+     * The method normalizes the web-service array parameter.
+     * You can't use null or zero-length array.
+     *  
+     * @param arr - the long array
+     * 
+     * @return <code>true</code> if the array isn't null and isn't empty
+     */
+    protected boolean isNormalizedWSArrayParameter(String[] arr) {
+        return ((arr != null) && (arr.length > 0));
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

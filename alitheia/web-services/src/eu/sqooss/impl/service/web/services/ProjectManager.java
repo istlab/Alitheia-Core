@@ -34,7 +34,6 @@ package eu.sqooss.impl.service.web.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -66,6 +65,9 @@ public class ProjectManager extends AbstractManager {
     private ProjectManagerDatabase dbWrapper;
     private ProjectSecurityWrapper securityWrapper;
 
+    private static final String SEC_VIOLATION =
+        "Security violation in method: ";
+
     public ProjectManager(Logger logger, DBService db, SecurityManager security) {
         super(db);
         this.logger = logger;
@@ -76,25 +78,42 @@ public class ProjectManager extends AbstractManager {
     /**
      * @see eu.sqooss.service.web.services.WebServices#getEvaluatedProjects(String, String)
      */
-    public WSStoredProject[] getEvaluatedProjects(String userName, String password) {
-        logger.info("Gets the evaluated project list! user: " + userName);
+    public WSStoredProject[] getEvaluatedProjects(
+            String userName,
+            String password) {
+        // Log this call
+        logger.info("getEvaluatedProjects!"
+                + " user: " + userName);
 
+        // Match against the current security policy
         db.startDBSession();
-
-        if (!securityWrapper.checkProjectsReadAccess(userName, password, null)) {
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, null)) {
             if (db.isDBSessionActive()) {
                 db.commitDBSession();
             }
             throw new SecurityException(
-                    "Security violation in the get evalueated projects operation!");
+                    SEC_VIOLATION + "getEvaluatedProjects!");
         }
-        
         super.updateUserActivity(userName);
 
-        WSStoredProject[] result = dbWrapper.getEvaluatedProjects();
+        // Retrieve the result(s)
+        WSStoredProject[] result = null;
+        List<StoredProject> projects = db.findObjectsByProperties(
+                StoredProject.class, new HashMap<String, Object>());
+        if (projects.size() > 0) {
+            ArrayList<WSStoredProject> evaluated =
+                new ArrayList<WSStoredProject>();
+            for (StoredProject project : projects)
+                if (project.isEvaluated())
+                    evaluated.add(WSStoredProject.getInstance(project));
+            if (evaluated.size() > 0) {
+                result = evaluated.toArray(
+                        new WSStoredProject[evaluated.size()]);
+            }
+        }
 
         db.commitDBSession();
-
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
 
@@ -206,36 +225,95 @@ public class ProjectManager extends AbstractManager {
     }
 
     /**
-     * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByVersionNumbers(String, String, long, long[])
+     * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByTimestamps(String, String, long, long[])
      */
-    public WSProjectVersion[] getProjectVersionsByVersionNumbers(
+    public WSProjectVersion[] getProjectVersionsByTimestamps(
             String userName,
             String password,
             long projectId,
-            long[] versionNumbers) {
+            long[] timestamps) {
+        // Log this call
+        logger.info("getProjectVersionsByRevisions!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId
+                + ";"
+                + " version numbers: " + Arrays.toString(timestamps));
 
-        logger.info("Retrieve project versions by project id and version numbers! user: " +
-        		userName + "; project id: " + projectId + "; version numbers: " + Arrays.toString(versionNumbers));
-
+        // Match against the current security policy
         db.startDBSession();
-
         if (!securityWrapper.checkProjectsReadAccess(
                 userName, password, new long[] {projectId})) {
             if (db.isDBSessionActive()) {
                 db.commitDBSession();
             }
             throw new SecurityException(
-                    "Security violation in the get project versions by version numbers operation!");
+                    SEC_VIOLATION + "getProjectVersionsByRevisions!");
         }
-
         super.updateUserActivity(userName);
 
-        WSProjectVersion[] result = dbWrapper.getProjectVersionsByVersionNumbers(
-                projectId, asCollection(versionNumbers));
+        // Retrieve the result(s)
+        ArrayList<WSProjectVersion> result = new ArrayList<WSProjectVersion>();
+        StoredProject project = db.findObjectById(
+                StoredProject.class, projectId);
+        if (project != null) {
+            for (long timestamp : timestamps) {
+                ProjectVersion version =
+                    ProjectVersion.getVersionByTimestamp(project, timestamp);
+                if (version != null)
+                    result.add(WSProjectVersion.getInstance(version));
+            }
+        }
 
         db.commitDBSession();
+        return (WSProjectVersion[]) normalizeWSArrayResult(
+                result.toArray(new WSProjectVersion[result.size()]));
+    }
 
-        return (WSProjectVersion[]) normalizeWSArrayResult(result);
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getProjectVersionsByScmIds(String, String, long, String[])
+     */
+    public WSProjectVersion[] getProjectVersionsByScmIds(
+            String userName,
+            String password,
+            long projectId,
+            String[] scmIds) {
+        // Log this call
+        logger.info("getProjectVersionsByScmIds!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId
+                + ";"
+                + " SCM version Ids: " + Arrays.toString(scmIds));
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getProjectVersionsByScmIds!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        ArrayList<WSProjectVersion> result = new ArrayList<WSProjectVersion>();
+        StoredProject project = db.findObjectById(
+                StoredProject.class, projectId);
+        if (project != null) {
+            for (String scmId : scmIds) {
+                ProjectVersion version =
+                    ProjectVersion.getVersionByRevision(project, scmId);
+                if (version != null)
+                    result.add(WSProjectVersion.getInstance(version));
+            }
+        }
+
+        db.commitDBSession();
+        return (WSProjectVersion[]) normalizeWSArrayResult(
+                result.toArray(new WSProjectVersion[result.size()]));
     }
 
     public long getVersionsCount(
@@ -267,81 +345,156 @@ public class ProjectManager extends AbstractManager {
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFirstProjectVersions(String, String, long[])
      */
-    @SuppressWarnings("unchecked")
-    public WSProjectVersion[] getFirstProjectVersions(String userName,
-            String password, long[] projectsIds) {
-        db.startDBSession();
+    public WSProjectVersion[] getFirstProjectVersions(
+            String userName,
+            String password,
+            long[] projectsIds) {
+        // Log this call
+        logger.info("getFirstProjectVersions!"
+                + " user: " + userName
+                + " project Ids: " + Arrays.toString(projectsIds));
 
-        StringBuilder b = new StringBuilder();
-        for (long l : projectsIds) {
-            b.append(l);
-            b.append(",");
-        }
-        logger.info("Retrieving first projectVersions " + b.toString());
-        
+        // Match against the current security policy
+        db.startDBSession();
         if (!securityWrapper.checkProjectsReadAccess(userName, password, projectsIds)) {
             if (db.isDBSessionActive()) {
                 db.commitDBSession();
             }
             throw new SecurityException(
-                    "Security violation in the get first project versions operation!");
+                    SEC_VIOLATION + "getFirstProjectVersions!");
         }
-
         super.updateUserActivity(userName);
 
-        String paramProjectIds = "project_ids";
-        String query = 
-               "select pv " +
-               "from ProjectVersion pv " +
-               "where pv.project.id in (:" + paramProjectIds + ")" +
-               " and pv.version= " +
-               "      (select min(pv1.version) " +
-               "      from ProjectVersion pv1 " +
-               "      where pv1.project in (:" + paramProjectIds + ")) ";
-    
-        Map<String, Collection> queryParameters = new Hashtable<String, Collection>(1);
-        queryParameters.put(paramProjectIds, asCollection(projectsIds));
-        List<ProjectVersion> projectVersions = (List<ProjectVersion>) db.doHQL(query, null, queryParameters);
-        b = new StringBuilder();
-        for (ProjectVersion v : projectVersions) {
-            b.append(v.getVersion());
-            b.append(",");
+        // Retrieve the result(s)
+        List<ProjectVersion> projectVersions = new ArrayList<ProjectVersion>();
+        for (long projectId : projectsIds) {
+            StoredProject project = db.findObjectById(
+                    StoredProject.class, projectId);
+            if (project != null) {
+                ProjectVersion version =
+                    ProjectVersion.getFirstProjectVersion(project);
+                if (version != null)
+                    projectVersions.add(version);
+            }
         }
-        logger.debug("Got versions " + b.toString());
-        
         WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
 
         db.commitDBSession();
-
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
+    }
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getPreviousVersionById(String, String, long)
+     */
+    public WSProjectVersion getPreviousVersionById(
+            String userName,
+            String password,
+            long versionId) {
+        // Log this call
+        logger.info("getPreviousVersionById!"
+                + " user: " + userName + ";"
+                + " version Id: " + versionId);
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[] {versionId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getPreviousVersionById!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        WSProjectVersion result = null;
+        ProjectVersion version =
+            db.findObjectById(ProjectVersion.class, versionId);
+        if (version != null) {
+            result = WSProjectVersion.getInstance(
+                    version.getPreviousVersion());
+        }
+
+        db.commitDBSession();
+        return result;
+    }
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getNextVersionById(String, String, long)
+     */
+    public WSProjectVersion getNextVersionById(
+            String userName,
+            String password,
+            long versionId) {
+        // Log this call
+        logger.info("getNextVersionById!"
+                + " user: " + userName + ";"
+                + " version Id: " + versionId);
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, new long[] {versionId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getNextVersionById!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        WSProjectVersion result = null;
+        ProjectVersion version =
+            db.findObjectById(ProjectVersion.class, versionId);
+        if (version != null) {
+            result = WSProjectVersion.getInstance(
+                    version.getNextVersion());
+        }
+
+        db.commitDBSession();
+        return result;
     }
 
     /**
      * @see eu.sqooss.service.web.services.WebServices#getLastProjectVersions(String, String, long[])
      */
-    public WSProjectVersion[] getLastProjectVersions(String userName,
-            String password, long[] projectsIds) {
+    public WSProjectVersion[] getLastProjectVersions(
+            String userName,
+            String password,
+            long[] projectsIds) {
+        // Log this call
+        logger.info("getLastProjectVersions!"
+                + " user: " + userName
+                + " project Ids: " + Arrays.toString(projectsIds));
 
-        logger.info("Retrieve last project version! user: "  + userName +
-                "; project id: " + Arrays.toString(projectsIds));
-
+        // Match against the current security policy
         db.startDBSession();
-
         if (!securityWrapper.checkProjectsReadAccess(userName, password, projectsIds)) {
             if (db.isDBSessionActive()) {
                 db.commitDBSession();
             }
             throw new SecurityException(
-                    "Security violation in the get last project versions operation!");
+                    SEC_VIOLATION + "getLastProjectVersions!");
         }
-
         super.updateUserActivity(userName);
 
-        WSProjectVersion[] result = dbWrapper.getLastProjectVersions(
-                asCollection(projectsIds));
+        // Retrieve the result(s)
+        List<ProjectVersion> projectVersions = new ArrayList<ProjectVersion>();
+        for (long projectId : projectsIds) {
+            StoredProject project = db.findObjectById(
+                    StoredProject.class, projectId);
+            if (project != null) {
+                ProjectVersion version =
+                    ProjectVersion.getLastProjectVersion(project);
+                if (version != null)
+                    projectVersions.add(version);
+            }
+        }
+        WSProjectVersion[] result = WSProjectVersion.asArray(projectVersions);
 
         db.commitDBSession();
-
         return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
 
@@ -645,17 +798,18 @@ public class ProjectManager extends AbstractManager {
         // Retrieve the complete list of files in the selected version
         Set<ProjectFile> verFiles = version.getFilesForVersion();
         ArrayList<ProjectFile> dirFiles = new ArrayList<ProjectFile>();
-        for (ProjectFile nextFile : verFiles) {
-            if (nextFile.getDir().getId() == directoryId)
-                dirFiles.add(nextFile);
-        }
+        if (verFiles != null)
+            for (ProjectFile nextFile : verFiles) {
+                if (nextFile.getDir().getId() == directoryId)
+                    dirFiles.add(nextFile);
+            }
 
         // Construct the result
         if (verFiles.size() > 0) {
-          result = new WSProjectFile[dirFiles.size()];
-          int index = 0;
-          for (ProjectFile nextFile : dirFiles)
-              result[index++] = WSProjectFile.getInstance(nextFile);
+            result = new WSProjectFile[dirFiles.size()];
+            int index = 0;
+            for (ProjectFile nextFile : dirFiles)
+                result[index++] = WSProjectFile.getInstance(nextFile);
         }
 
         db.commitDBSession();
@@ -694,9 +848,9 @@ public class ProjectManager extends AbstractManager {
             if (mods.size() > 0) {
                 int index = 0;
                 result = new WSFileModification[mods.size()];
-                for (Long verNum : mods.keySet())
+                for (Long verTimestamp : mods.keySet())
                     result[index++] =
-                        new WSFileModification(verNum,mods.get(verNum));
+                        new WSFileModification(verTimestamp,mods.get(verTimestamp));
             }
         }
         db.commitDBSession();

@@ -158,33 +158,34 @@ if ((projectId != null)
 // Check if the user has selected a (new) project version
 //============================================================================
 if (selectedProject.isValid()) {
-    // Construct the proper request parameter's name
-    String vparam = "version" + selectedProject.getId();
-    // Check if the user has selected a project version
-    if (request.getParameter(vparam) != null) {
-        Long versionNumber = null;
-        Version selVersion = null;
-        try {
-            // Retrieve the selected version from the SQO-OSS framework
-            versionNumber = new Long(request.getParameter(vparam));
-            List<Version> versions = terrier.getVersionsByNumber(
-                selectedProject.getId(), new long[]{versionNumber});
-            if (versions.size() > 0)
-                selVersion = versions.get(0);
-            else
-                inputError = new String("Version with number"
-                    + " " + versionNumber
-                    + " does not exist!");
+    Version selVersion = null;
+    // Check if the user has navigated to another project version
+    String vparam = request.getParameter("version" + selectedProject.getId());
+    if (vparam != null) {
+        Long versionTimestamp = null;
+        if (vparam.equals("first")) {
+            selVersion = selectedProject.getFirstVersion();
         }
-        catch (NumberFormatException e) {
-            inputError = new String("Wrong version number format!");
+        else if (vparam.equals("last")) {
+            selVersion = selectedProject.getLastVersion();
         }
-        // Switch to the selected version
-        if ((selVersion != null)
-            && (selVersion.getId().equals(
-                selectedProject.getCurrentVersionId()) == false)) {
-            selectedProject.setCurrentVersion(selVersion);
+        else if (vparam.equals("prev")) {
+            selVersion = selectedProject.getPreviousVersion();
         }
+        else if (vparam.equals("next")) {
+            selVersion = selectedProject.getNextVersion();
+        }
+    }
+    // Check if the user has manually selected an another project version
+    vparam = request.getParameter("scmid" + selectedProject.getId());
+    if (vparam != null) {
+        selVersion = selectedProject.getVersionByScmId(vparam);
+    }
+    // Switch to the selected version
+    if ((selVersion != null)
+        && (selVersion.getId().equals(
+            selectedProject.getCurrentVersionId()) == false)) {
+        selectedProject.setCurrentVersion(selVersion);
     }
 }
 //============================================================================
@@ -195,8 +196,8 @@ if (selectedProject.isValid()) {
     msg += "<strong>Project:</strong> " + selectedProject.getName();
     msg += "<span class=\"forget\"><a href=\"/?pid=none\">(forget)</a></span>";
     if (selectedProject.getCurrentVersion() != null) {
-        msg += "<br /><strong>Version:</strong> "
-            + selectedProject.getCurrentVersion().getNumber();
+        msg += "<br /><strong>Version ID:</strong> "
+            + selectedProject.getCurrentVersion().getName();
     }
     else {
         msg += "<br />No versions recorded.";

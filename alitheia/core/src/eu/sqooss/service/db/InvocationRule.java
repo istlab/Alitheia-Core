@@ -702,30 +702,30 @@ public class InvocationRule extends DAObject {
         if (scp == ScopeType.ALL) return true;
 
         // Get the project version where the given file was deleted (if any)
-        Long deletionVersion = ProjectFile.getDeletionVersion(res);
+        ProjectVersion deletionVersion = ProjectFile.getDeletionVersion(res);
         // Get the project version of the given file
-        long fileVersion = res.getProjectVersion().getVersion();
+        ProjectVersion fileVersion = res.getProjectVersion();
 
         // Compare the rule value to the project version of the given file
         switch (scp) {
         case EXACT:
             // Get the project version from the scope value
-            long exact = parseIntValue(val);
+            ProjectVersion exact = ProjectVersion.getVersionByRevision(res.getProjectVersion().getProject(), val);
             // Match only files that are older or equal to the selected
             // project version and were not deleted prior that version.
             if (deletionVersion != null) {
-                return ((fileVersion <= exact)
-                        && (exact < deletionVersion.longValue()));
+                return ((fileVersion.lte(exact))
+                        && (exact.lt(deletionVersion)));
             }
-            return (fileVersion <= exact);
+            return (fileVersion.lte(exact));
         case EACH:
             // Retrieve the latest project version
-            ProjectVersion lastPrjVer = 
-                    res.getProjectVersion().getProject().getLastProjectVersion();
+         /*   ProjectVersion lastPrjVer = 
+                    res.getProjectVersion().getLastProjectVersion();
             long eachBase = parseIntValue(val);
-            long eachNext = eachBase;
-            List<Long> eachList = new ArrayList<Long>();
-            while (eachNext <= lastPrjVer.getVersion()) {
+            ProjectVersion eachNext = eachBase;
+            List<ProjectVersion> eachList = new ArrayList<ProjectVersion>();
+            while (eachNext <= lastPrjVer) {
                 eachList.add(eachNext);
                 eachNext += eachBase;
             }
@@ -739,25 +739,25 @@ public class InvocationRule extends DAObject {
                     }
                 }
                 if (fileVersion <= nextVer) return true;
-            }
+            }*/
             return false;
         case FROM:
             // Get the project version from the scope value
-            long fromVersion = parseIntValue(val);
+            ProjectVersion fromVersion = ProjectVersion.getVersionByRevision(res.getProjectVersion().getProject(), val);
             // Match only files that were not deleted prior the selected
             // project version.
             if (deletionVersion != null) {
-                return (fromVersion < deletionVersion.longValue());
+                return (fromVersion.lt(deletionVersion));
             }
             return true;
         case TO:
             // Get the project version from the scope value
-            long uptoVersion = parseIntValue(val);
+            ProjectVersion uptoVersion = ProjectVersion.getVersionByRevision(res.getProjectVersion().getProject(), val);
             // Match only files that are older or equal to the selected
             // project version.
-            return (fileVersion <= uptoVersion);
+            return (fileVersion.lte(uptoVersion));
         case RANGE:
-            // Get the project version's range from the scope's value
+         /*   // Get the project version's range from the scope's value
             long[] range = parseIntRange(val);
             // Match only files that are older or equal to the newer project
             // version (the upper value in the range) and were not deleted
@@ -771,21 +771,26 @@ public class InvocationRule extends DAObject {
             }
             if (fileVersion <= range[1])
                 return true;
-            else 
+            else */
                 return false;
+            
         case LIST:
             // Get the list of project versions from the scope's value
-            long[] values = parseIntList(val);
+            String[] values = parseVersionList(val);
             for (int i = 0; i < values.length ; i++) {
+                ProjectVersion v = ProjectVersion.getVersionByRevision(res.getProjectVersion().getProject(), values[i]);
+                
+                if (v == null)
+                    continue;
                 // Match only files that are older or equal to the listed
                 // project version and were not deleted prior that version.
                 if (deletionVersion != null) {
-                    if ((fileVersion <= values[i])
-                            && (values[i] < deletionVersion.longValue())) {
+                    if ((fileVersion.lte(v)) && (v.lt(deletionVersion))) {
                         return true;
                     }
                 }
-                if (fileVersion <= values[i]) return true;
+                if (fileVersion.lte(v)) 
+                    return true;
             }
             return false;
         }
@@ -813,8 +818,8 @@ public class InvocationRule extends DAObject {
      * 
      * @return The pair of integers representing the rule's values range.
      */
-    private long[] parseIntRange(String val) {
-        long[] result = new long[2];
+   /* private String[] parseIntRange(String val) {
+        String[] result = new String[2];
         String[] values = val.split("-");
         long n1 = new Long(values[0]);
         long n2 = new Long(values[1]);
@@ -825,7 +830,7 @@ public class InvocationRule extends DAObject {
             result[0] = n2; result[1] = n1;
         }
         return result;
-    }
+    }*/
 
     /**
      * Converts the given rule's value into a list of integer values.
@@ -834,12 +839,7 @@ public class InvocationRule extends DAObject {
      * 
      * @return The list of integers representing the rule's values set.
      */
-    private long[] parseIntList(String val) {
-        String[] values = val.split(",");
-        long[] result = new long[values.length];
-        for (int i = 0; i < values.length ; i++) {
-            result[i] = new Long(values[i]);
-        }
-        return result;
+    private String[] parseVersionList(String val) {
+        return val.split(",");
     }
 }

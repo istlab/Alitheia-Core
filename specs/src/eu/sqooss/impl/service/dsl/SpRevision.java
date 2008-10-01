@@ -8,27 +8,28 @@ import java.util.Date;
 import java.util.TreeSet;
 
 import eu.sqooss.impl.service.SpecsActivator;
-import eu.sqooss.service.fds.Checkout;
+import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 
 public class SpRevision {
     private SpProject project;
-    private ProjectRevision revision;
+    private Revision revision;
     
-    SpRevision(SpProject p, ProjectRevision r) {
+    SpRevision(SpProject p, Revision r) {
         project = p;
         revision = r;
     }
 
-    public long number() {
-        return revision.getSVNRevision();
+    public String uniqueId() {
+        return revision.getUniqueId();
     }
     
     public Date date() {
@@ -42,7 +43,7 @@ public class SpRevision {
         tds.addAccessor(project.id, project.name, project.bugs, project.mail, project.repository);
         SCMAccessor scm = tds.getAccessor(project.id).getSCMAccessor();
         
-        CommitLog log = scm.getCommitLog(revision.prev(), revision);
+        CommitLog log = scm.getCommitLog(scm.getPreviousRevision(revision), revision);
         
         tds.releaseAccessor(tds.getAccessor(project.id));
         
@@ -50,13 +51,12 @@ public class SpRevision {
     }
     
     public ArrayList<String> files()
-        throws InvalidRepositoryException,
-               InvalidProjectRevisionException,
+        throws CheckoutException,
                IOException {
         ArrayList<String> result = new ArrayList<String>();
-        
+        //FIXME: TODO: Fix this
         FDSService fds = SpecsActivator.alitheiaCore.getFDSService();
-        Checkout checkout = fds.getCheckout(project.id, revision);
+        OnDiskCheckout checkout = fds.getCheckout(null);
         
         File root = checkout.getRoot();
         ArrayList<File> files = collectFilesRec(root);
@@ -98,7 +98,7 @@ public class SpRevision {
         tds.addAccessor(project.id, project.name, project.bugs, project.mail, project.repository);
         SCMAccessor scm = tds.getAccessor(project.id).getSCMAccessor();
 
-        Diff diff = scm.getDiff("/", revision.prev(), revision);
+        Diff diff = scm.getDiff("/", scm.getPreviousRevision(revision), revision);
 
         TreeSet<String> files = new TreeSet<String>(diff.getChangedFiles());
         for (String file : files) {

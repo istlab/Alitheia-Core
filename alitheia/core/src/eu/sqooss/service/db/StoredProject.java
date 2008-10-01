@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.tds.ProjectRevision;
 
 /**
  * This class represents a project that Alitheia "knows about".
@@ -210,8 +209,12 @@ public class StoredProject extends DAObject {
      * @return is the project evaluated?
      */
     public boolean isEvaluated() {
-        Set s = getEvaluationMarks();
-        return ((null!=s) && (s.size()>0));
+        Set<EvaluationMark> marks = getEvaluationMarks();
+        if ((marks != null) && (marks.size() > 0))
+            for (EvaluationMark nextMark : marks)
+                if (nextMark.getWhenRun() != null)
+                    return true;
+        return false;
     }
 
     //================================================================
@@ -237,25 +240,6 @@ public class StoredProject extends DAObject {
         List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
         return (prList == null || prList.isEmpty()) ? null : prList.get(0);
     }
-
-    /**                                                                        
-     * Convenience method to find the latest project version for               
-     * a given project.                                                        
-     *                                                                         
-     * @return ProjectVersion for the latest version or null if not found      
-     */                                                                        
-    public ProjectVersion getLastProjectVersion() {                            
-        DBService dbs = AlitheiaCore.getInstance().getDBService();             
-                                                                               
-        Map<String,Object> parameterMap = new HashMap<String,Object>();        
-        parameterMap.put("sp", this);                                          
-        List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.version = (select max(pv2.version) from "           
-                + " ProjectVersion pv2 where pv2.project=:sp)",                
-                parameterMap);                                                 
-                                                                               
-        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);                                                                   
-    }                                                                          
 
     /**
      * Count the total number of projects in the database.

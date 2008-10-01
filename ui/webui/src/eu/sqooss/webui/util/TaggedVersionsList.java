@@ -49,20 +49,33 @@ public class TaggedVersionsList extends ArrayList<TaggedVersion> {
     private static final long serialVersionUID = -2171890702868485954L;
 
     /**
-     * Returns the list of all tagged versions sorted by their version number.
+     * Returns the list of tagged versions sorted by their time stamps.
      * 
      * @return The list of tagged versions.
      */
-    public SortedMap<Long, TaggedVersion> sortByNumber() {
+    public SortedMap<Long, TaggedVersion> sortByTimestamp() {
         SortedMap<Long, TaggedVersion> result =
             new TreeMap<Long, TaggedVersion>();
         for (TaggedVersion nextVersion : this)
-            result.put(nextVersion.getNumber(), nextVersion);
+            result.put(nextVersion.getTimestamp(), nextVersion);
         return result;
     }
 
     /**
-     * Returns the list of all tagged versions sorted by their Id.
+     * Returns the list of tagged versions sorted by their SCM version Id.
+     * 
+     * @return The list of tagged versions.
+     */
+    public SortedMap<String, TaggedVersion> sortByScmId() {
+        SortedMap<String, TaggedVersion> result =
+            new TreeMap<String, TaggedVersion>();
+        for (TaggedVersion nextVersion : this)
+            result.put(nextVersion.getName(), nextVersion);
+        return result;
+    }
+
+    /**
+     * Returns the list of tagged versions sorted by their Id.
      * 
      * @return The list of tagged versions.
      */
@@ -75,16 +88,29 @@ public class TaggedVersionsList extends ArrayList<TaggedVersion> {
     }
 
     /**
-     * Gets the tagged version with the given version number.
+     * Gets the tagged version with the given time stamp.
      * 
-     * @param number the tagged version's number
+     * @param timestamp the tagged version's time stamp
      * 
      * @return The tagged version object, or <code>null</code> if a tagged
-     *  version with the given version number can not be found in this list.
+     *  version with the given time stamp can not be found in this list.
      */
-    public TaggedVersion getTaggedVersionByNumber(Long number) {
-        if (number == null) return null;
-        return sortByNumber().get(number);
+    public TaggedVersion getTaggedVersionByTimestamp(Long timestamp) {
+        if (timestamp == null) return null;
+        return sortByTimestamp().get(timestamp);
+    }
+
+    /**
+     * Gets the tagged version with the given SCM version Id.
+     * 
+     * @param scmId the tagged version's SCM Id
+     * 
+     * @return The tagged version object, or <code>null</code> if a tagged
+     *  version with the given SCM Id can not be found in this list.
+     */
+    public TaggedVersion getTaggedVersionByScmId(String scmId) {
+        if (scmId == null) return null;
+        return sortByScmId().get(scmId);
     }
 
     /**
@@ -100,16 +126,15 @@ public class TaggedVersionsList extends ArrayList<TaggedVersion> {
     }
 
     /**
-     * Gets the list of version numbers of all tagged versions in this list,
+     * Gets the list of time stamps of all tagged versions in this list,
      * indexed by their tagged version Id.
      * 
-     * @return The list of version numbers, or an empty list when none are
-     *   found.
+     * @return The list of time stamps, or an empty list when none are found.
      */
-    public Map<Long, Long> getTaggedVersionNumber() {
+    public Map<Long, Long> getTaggedVersionTimestamp() {
         Map<Long, Long> result = new HashMap<Long, Long>();
         for (TaggedVersion nextVersion : this)
-            result.put(nextVersion.getId(), nextVersion.getNumber());
+            result.put(nextVersion.getId(), nextVersion.getTimestamp());
         return result;
     }
 }

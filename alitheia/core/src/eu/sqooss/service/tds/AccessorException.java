@@ -2,8 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2007-2008 by the Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,37 +32,24 @@
 
 package eu.sqooss.service.tds;
 
+import eu.sqooss.service.tds.TDSException;
+
 /**
- * The accessor for a project gives you the means to retrieve
- * raw project data for it. See the interfaces for each individual
- * raw data source for more.
- *
- * An accessor has the immediate means to retrieve any of the data
- * asked for it; all the communications resources have been acquired
- * and initialized, so you can start querying immediately.
- *
- * Do not forget to release the accessor when done with it.
- *
- * @see TDSService
+ * This exception indicates that an error occurred during accessor
+ * initialization or other operation.
  */
-public interface TDAccessor extends NamedAccessor {
-    /**
-     * Get the BTS sub-accessor for the project associated with this
-     * TDAccessor.
-     */
-    public BTSAccessor getBTSAccessor();
+public final class AccessorException extends TDSException {
+    private static final long serialVersionUID = 1L;
+    private Class<?> accessorClass;
 
-    /**
-     * Get the Mail sub-accessor for the project associated with this
-     * TDAccessor.
-     */
-    public MailAccessor getMailAccessor();
+    public AccessorException(Class<?> c, String message) {
+        super(message);
+        accessorClass = c;
+    }
 
-    /**
-     * Get the SCM sub-accessor for the project associated with this
-     * TDAccessor.
-     */
-    public SCMAccessor getSCMAccessor();
+    public String getMessage() {
+        return accessorClass.getName() + ": " + super.getMessage();
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

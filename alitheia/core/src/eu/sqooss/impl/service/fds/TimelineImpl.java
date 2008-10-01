@@ -33,17 +33,13 @@
 
 package eu.sqooss.impl.service.fds;
 
-import java.util.AbstractSet;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import javax.print.attribute.HashAttributeSet;
 
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.MailMessage;

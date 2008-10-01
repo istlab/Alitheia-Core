@@ -32,56 +32,51 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.net.URI;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
-import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
-import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.TDAccessor;
+import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
 
 public class TDSServiceImpl implements TDSService, EventHandler {
     private Logger logger = null;
-    private HashMap<Long, TDAccessorImpl> accessorPool;
-    private BundleContext bc;
+    private ConcurrentHashMap<Long, ProjectDataAccessorImpl> accessorPool;
+    private ConcurrentHashMap<ProjectDataAccessorImpl, Integer> accessorClaims;
     
     public TDSServiceImpl(BundleContext bc, Logger l)  {
-        this.bc = bc;
         logger = l;
-        // Many other implementation classes need the same logger
-        TDAccessorImpl.logger = logger;
-        SCMAccessorImpl.logger = logger;
-        MailAccessorImpl.logger = logger;
-        CheckoutBaton.logger = logger;
-        CheckoutEditor.logger = logger;
+        ProjectDataAccessorImpl.logger = logger;
 
-        logger.info("TDS service created.");
-
-        // Initialize access methods for all the repo types
-        DAVRepositoryFactory.setup();
-        SVNRepositoryFactoryImpl.setup();
-        FSRepositoryFactory.setup();
-
-        logger.info("SVN repo factories initialized.");
-
-        accessorPool = new HashMap<Long,TDAccessorImpl>();
-        
-        //Register an event handler
+        //Wake up the DataAccessorFactory
+        new DataAccessorFactory(l);
+        DataAccessorFactory.addImplementation(URI.create("bugzilla-xml://www.sqo-oss.org"),
+                BugzillaXMLParser.class);
+        DataAccessorFactory.addImplementation(URI.create("maildir://www.sqo-oss.org"),
+                MailDirAccessor.class);
+        DataAccessorFactory.addImplementation(URI.create("svn://www.sqo-oss.org"),
+                SVNAccessorImpl.class);
+        DataAccessorFactory.addImplementation(URI.create("svn-http://www.sqo-oss.org"),
+                SVNAccessorImpl.class);
+        DataAccessorFactory.addImplementation(URI.create("svn-file://www.sqo-oss.org"),
+                SVNAccessorImpl.class);
+        //Init accessor store
+        accessorPool = new ConcurrentHashMap<Long,ProjectDataAccessorImpl>();
+        accessorClaims = new ConcurrentHashMap<ProjectDataAccessorImpl, Integer>();
+        //Register an event handler for hibernate events
         final String[] topics = new String[] {
                 DBService.EVENT_STARTED
         };
@@ -90,6 +85,8 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         d.put(EventConstants.EVENT_TOPIC, topics ); 
         
         bc.registerService(EventHandler.class.getName(), this, d); 
+        logger.info("TDS service created.");
+        
     }
 
     // Interface methods
@@ -98,37 +95,79 @@ public class TDSServiceImpl implements TDSService, EventHandler {
     // accessorExists; in future there may be when accessor pooling
     // and limiting is implemented. Then it may be that a project
     // exists for the TDS but has no accessor yet.
+    /**{@inheritDoc}}*/
     public boolean projectExists( long projectId ) {
         return accessorPool.containsKey(new Long(projectId));
     }
 
+    /**{@inheritDoc}}*/
     public boolean accessorExists( long projectId ) {
         return projectExists(projectId);
     }
 
-    public TDAccessor getAccessor( long projectId ) {
+    /**{@inheritDoc}}*/
+    public ProjectAccessor getAccessor( long projectId ) {
         if (accessorExists(projectId)) {
-            logger.info("Retrieving accessor for project " + projectId);
-            return accessorPool.get(projectId);
+            ProjectDataAccessorImpl a = accessorPool.get(projectId);
+            synchronized (accessorClaims) {
+                int claims = accessorClaims.get(a);
+                claims++;
+                accessorClaims.put(a, claims);
+            }
+            logger.debug("Retrieving accessor for project " + projectId);
+            return a;
         } else {
-            logger.info("Retrieval request for non-existent project " + projectId);
+            logger.warn("Retrieval request for non-existent project " + projectId);
         }
 
         return null;
     }
 
-    public void releaseAccessor( TDAccessor td ) {
-        logger.info("Release accessor for " + td.getName());
+    /**{@inheritDoc}}*/
+    public void releaseAccessor(ProjectAccessor td) {
+        logger.debug("Release accessor for " + td.getName());
+        synchronized (accessorClaims) {
+            int claims = accessorClaims.get(td);
+            if (claims <= 0) {
+                logger.error("Request to release not claimed accessor");
+            } else {
+                claims--;
+                accessorClaims.put((ProjectDataAccessorImpl)td, claims);
+            }
+        }
     }
 
+    /**{@inheritDoc}}*/
     public void addAccessor( long id, String name, String bts, String mail, String scm ) {
         if (accessorExists(id)) {
             logger.warn("Adding duplicate project id " + id + " <" + name + ">");
             // Continue anyway
         }
-        TDAccessorImpl a = new TDAccessorImpl(id,name,bts,mail,scm);
-        accessorPool.put(new Long(id),a);
+        ProjectDataAccessorImpl a = new ProjectDataAccessorImpl(id,name,bts,mail,scm);
+        accessorPool.putIfAbsent(new Long(id),a);
+        accessorClaims.putIfAbsent(a, 1);
         logger.info("Added project <" + name + ">");
+    }
+    
+    /**{@inheritDoc}}*/
+    public boolean isURLSupported(String URL) {
+        boolean supported = false;
+        URI toTest = null;
+        
+        try {
+            toTest = URI.create(URL);
+        } catch (IllegalArgumentException iae) {
+            return false;
+        }
+        
+        for (String schemes : DataAccessorFactory.getSupportedSchemes()) {
+            if (schemes.equals(toTest.getScheme())) {
+                supported = true;
+                break;
+            }
+        }
+        
+        return supported;
     }
 
     public Object selfTest() {
@@ -143,10 +182,10 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         // Add an accessor for testing purposes when none was there.
         boolean addedAccessor = false;
         final int TEST_PROJECT_ID = 1337;
-        if (accessorPool.isEmpty())
-        {
+        if (accessorPool.isEmpty()) {
             logger.info("Adding bogus project to empty accessor pool.");
-            addAccessor(TEST_PROJECT_ID, "KPilot", "", null, "http://cvs.codeyard.net/svn/kpilot/" );
+            addAccessor(TEST_PROJECT_ID, "KPilot", "", null,
+                    "http://cvs.codeyard.net/svn/kpilot/");
             addedAccessor = true;
         }
 
@@ -154,52 +193,36 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         Iterator<Long> i = accessorKeys.iterator();
         if (!i.hasNext()) {
             // we added an accessor before, so it should be here...
-            if (addedAccessor)
-            {
-                    accessorPool.clear();
+            if (addedAccessor) {
+                accessorPool.clear();
             }
             return new String("No projects to check against.");
         }
 
         // Check consistency of accessor retrieval
-        TDAccessorImpl accessor = accessorPool.get(i.next());
+        ProjectDataAccessorImpl accessor = accessorPool.get(i.next());
         long id = accessor.getId();
-        logger.info("Checking project " + id +
-            " <" + accessor.getName() + ">");
+        logger.debug("Checking project " + id + " <" + accessor.getName() + ">");
         if (accessor != getAccessor(id)) {
-            if (addedAccessor)
-            {
-                    accessorPool.clear();
+            if (addedAccessor) {
+                accessorPool.clear();
             }
-            return new String("Request for project " + i +
-                " got someone else.");
+            return new String("Request for project " + i + " got someone else.");
         }
 
-        if (addedAccessor)
-        {
-                accessorPool.clear();
+        if (addedAccessor) {
+            accessorPool.clear();
         }
         // Everything is ok
         return null;
     }
     
     /**
-     * Tell the TDS which projects are installed. Implemented here s 
+     * Tell the TDS which projects are installed.
      */
     private void stuffer() {
-        logger.debug("TDS now running stuffer.");
-        ServiceReference srefCore = null;
-        DBService db = null;
-        srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
-        AlitheiaCore sobjCore = (AlitheiaCore) bc.getService(srefCore);
-
-        if (sobjCore != null) {
-            // Obtain the required core components
-            db = sobjCore.getDBService();
-            if (db == null) {
-                logger.error("Can not obtain the DB object!");
-            }
-        }
+        logger.info("TDS is now running the stuffer.");
+        DBService db = AlitheiaCore.getInstance().getDBService();
         
         if (db != null && db.startDBSession()) {
             List<?> l = db.doHQL("from StoredProject");
@@ -221,7 +244,6 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         logger.info("TDS Stuffer is finished.");
     }
 
-
     private void bogusStuffer() {
         logger.debug("Stuffing bogus project into TDS");
         // Some dorky default project so the TDS is not empty
@@ -230,6 +252,9 @@ public class TDSServiceImpl implements TDSService, EventHandler {
             "http://cvs.codeyard.net/svn/kpilot/" );
     }
 
+    /**
+     * Fill in the TDS with project info imediately after starting hibernate
+     */
     public void handleEvent(Event e) {
         logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
         if (e.getTopic() == DBService.EVENT_STARTED) {

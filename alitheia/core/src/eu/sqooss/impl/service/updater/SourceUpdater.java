@@ -58,12 +58,13 @@ import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
-import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.util.FileUtils;
 
 final class SourceUpdater extends Job {
     
@@ -199,28 +200,29 @@ final class SourceUpdater extends Job {
         
         CommitLog commitLog = null;
         SCMAccessor scm = null;
+        String lastProjectVersion = null;
         
         try {
             // This is the last version we actually know about
-            ProjectVersion versionDao = 
-                project.getLastProjectVersion();
-            long lastProjectVersion = 
-                (versionDao != null) ? versionDao.getVersion() : 0;
-                
+            ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(project);
             scm = tds.getAccessor(project.getId()).getSCMAccessor();
-            long lastSCMVersion = scm.getHeadRevision();
-
-            /* Don't choke when called to update an up-to-date project */
-            if (lastProjectVersion >= lastSCMVersion) {
-                dbs.commitDBSession();
-                return;
+            if (latestVersion != null) {  
+                Revision r = scm.getHeadRevision();
+                lastProjectVersion = latestVersion.getRevisionId();
+                /* Don't choke when called to update an up-to-date project */
+                if (r.compareTo(scm.newRevision(latestVersion.getRevisionId())) <= 0) {
+                    logger.info("Project " + project.getName() + " is already" +
+                    		" at the newest version " + r.getUniqueId());
+                    dbs.commitDBSession();
+                    return;
+                }
+            } else {
+                lastProjectVersion = scm.getFirstRevision().getUniqueId();
             }
+            
+            commitLog = scm.getCommitLog(scm.newRevision(lastProjectVersion), scm.getHeadRevision());
 
-            commitLog = scm.getCommitLog(new ProjectRevision(
-                    lastProjectVersion + 1),
-                    new ProjectRevision(lastSCMVersion));
-
-            logger.info(project.getName() + ": Log entries: "
+            logger.info(project.getName() + ": New revisions: " 
                     + commitLog.size());
             
         } catch (InvalidRepositoryException e) {
@@ -236,7 +238,7 @@ final class SourceUpdater extends Job {
             commitLogEntry = entry;
             ProjectVersion curVersion = new ProjectVersion(project);
             // Assertion: this value is the same as lastSCMVersion
-            curVersion.setVersion(entry.getRevision().getSVNRevision());
+            curVersion.setRevisionId(entry.getRevision().getUniqueId());
             curVersion.setTimestamp(entry.getDate().getTime());
 
             Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
@@ -251,7 +253,7 @@ final class SourceUpdater extends Job {
             curVersion.setCommitMsg(commitMsg);
             
             /* 
-             * TODO: Fix this when the TDS starts supporting SVN properties 
+             * TODO: Fix this when the TDS starts supporting repository properties 
              * 
              * curVersion.setProperties(entry.getProperties);
              * Use addRecord instead of adding to the list of versions in the
@@ -261,22 +263,22 @@ final class SourceUpdater extends Job {
             dbs.addRecord(curVersion);
 
             /*
-             * Timestamp fix for cases where the new version has a timestamp older
+             * Timestamp fix in cases where the new version has a timestamp older
              * than the previous one
              */
-            ProjectVersion prev = getPreviousVersion(curVersion);
+            ProjectVersion prev = getPreviousVersion(scm, curVersion);
             if (prev != null) {
                 if (prev.getTimestamp() > curVersion.getTimestamp()) {
                     curVersion.setTimestamp(prev.getTimestamp() + 1000);
-                    logger.debug("Applying timestamp fix to version " 
-                            + curVersion.getVersion());
+                    logger.info("Applying timestamp fix to version " 
+                            + curVersion.getRevisionId());
                 }
             }
             
             copyOps = entry.getCopyOperations();
             
             logger.debug(curVersion.getProject().getName() + ": Got version "
-                    + curVersion.getVersion() + " ID " + curVersion.getId());
+                    + curVersion.getRevisionId() + " ID " + curVersion.getId());
             
             for (String chPath : entry.getChangedPaths()) {
                 
@@ -304,9 +306,9 @@ final class SourceUpdater extends Job {
                     CommitCopyEntry copyOp = getCopyOp(chPath);
                     
                     copyFrom = ProjectFile.findFile(project.getId(), 
-                            basename(copyOp.fromPath()), 
-                            dirname(copyOp.fromPath()), 
-                            copyOp.fromRev().getSVNRevision());
+                            FileUtils.basename(copyOp.fromPath()), 
+                            FileUtils.dirname(copyOp.fromPath()), 
+                            copyOp.fromRev().getUniqueId());
                     
                     if (copyFrom == null) {
                         logger.warn("expecting 1 got " + 0 + " files for path " 
@@ -323,10 +325,10 @@ final class SourceUpdater extends Job {
                          * and directories as added
                          */
                         logger.debug("Copying directory " + from.getPath()
-                                + " (from r" + copyOp.fromRev().getSVNRevision()
+                                + " (from r" + copyOp.fromRev().getUniqueId()
                                 + ") to " + to.getPath());
                         handleDirCopy(curVersion, ProjectVersion.getVersionByRevision(curVersion.getProject(),
-                                        copyOp.fromRev()), from, to, copyFrom);  
+                                        copyOp.fromRev().getUniqueId()), from, to, copyFrom);
                         //Ungly hack
                         toAdd = versionFiles.get(versionFiles.size() - 1);
                     } else {
@@ -473,8 +475,8 @@ final class SourceUpdater extends Job {
             String status, SCMNodeType t, ProjectFile copyFrom) {
         ProjectFile pf = new ProjectFile(version);
 
-        String path = dirname(fPath);
-        String fname = basename(fPath);
+        String path = FileUtils.dirname(fPath);
+        String fname = FileUtils.basename(fPath);
 
         Directory dir = getDirectory(path, true);
         pf.setName(fname);
@@ -489,7 +491,7 @@ final class SourceUpdater extends Job {
             pf.setIsDirectory(false);
         }
         versionFiles.add(pf); 
-        logger.info("Adding file " + pf);
+        logger.debug("Adding file " + pf);
         return pf;
     }
     
@@ -647,24 +649,32 @@ final class SourceUpdater extends Job {
     }
     
     /**
-     * Get the previous version in presence of timestamp problems. 
-     * Assumes that 
+     * Uses the SCM to get the previous version in presence of timestamp 
+     * inconsistencies 
      */
-    private ProjectVersion getPreviousVersion(ProjectVersion pv) {
+    private ProjectVersion getPreviousVersion(SCMAccessor scm, ProjectVersion pv) {
         
-        ProjectVersion prev = ProjectVersion.getVersionByRevision(pv.getProject(), 
-                new ProjectRevision(pv.getVersion() - 1));
-        if (prev == null) {
+        Revision p;
+        try {
+            Revision r = scm.newRevision(pv.getRevisionId());
+            p = scm.getPreviousRevision(r);
+        } catch (InvalidProjectRevisionException e) {
+            logger.error(e.getMessage());
+            p = null;
+        }
+        ProjectVersion prev = ProjectVersion.getVersionByRevision(pv.getProject(), pv.getRevisionId());
+        if (p == null || prev == null) {
             logger.error("Could not get previous revision for project " +
                     "version " + pv);
         }
+        
         return prev;
     }
     
     /**
      * Update the FilesForVersion table incrementally 
      */
-    private void updateFilesForVersion(ProjectVersion pv, List<ProjectFile> updFiles) {
+    private void updateFilesForVersion(ProjectVersion pv, List<ProjectFile> versionFiles) {
 
         // Copy old records
         ProjectVersion previous = pv.getPreviousVersion();
@@ -675,7 +685,9 @@ final class SourceUpdater extends Job {
         }
         
         // Update with new records
-        for (ProjectFile pf : updFiles) {
+        for (ProjectFile pf : versionFiles) {
+            //Update the file ids list with the definite list of files
+            updFiles.add(pf.getId());
             if (pf.getStatus() == "ADDED") {
                 filesForVersion.add(pf);
             } else if (pf.getStatus() == "DELETED") {
@@ -683,7 +695,7 @@ final class SourceUpdater extends Job {
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
                     logger.warn("Couldn't remove association of deleted file "
-                            + pf + " in version " + pv.getVersion());
+                            + pf + " in version " + pv.getRevisionId());
                     continue;
                 }
             } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
@@ -695,7 +707,7 @@ final class SourceUpdater extends Job {
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
                     logger.warn("Couldn't remove old association of modified file " + pf.toString() +
-                                 " in version " + pv.getVersion());
+                                 " in version " + pv.getRevisionId());
                     continue;
                 }
                 filesForVersion.add(pf);
@@ -755,23 +767,6 @@ final class SourceUpdater extends Job {
                 return false;
 
         return true;
-    }
-    
-    private String basename(String path) {
-        String filename = path.substring(path.lastIndexOf('/') + 1);
-        
-        if (filename == null || filename.equalsIgnoreCase("")) {
-            filename = "";
-        }
-        return filename;
-    }
-    
-    private String dirname(String path) {
-        String dirPath = path.substring(0, path.lastIndexOf('/'));
-        if (dirPath == null || dirPath.equalsIgnoreCase("")) {
-            dirPath = "/"; // SVN entry does not have a path
-        }
-        return dirPath;
     }
 }
 

@@ -10,7 +10,7 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.MailAccessor;
-import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 
@@ -103,11 +103,12 @@ public class SpProject implements SpEntity {
         tds.addAccessor(id, name, bugs, mail, repository);
         SCMAccessor scm = tds.getAccessor(id).getSCMAccessor();
         
-        ProjectRevision rev = new ProjectRevision(scm.getHeadRevision());
-        while (rev!=null && rev.isValid() && rev.getSVNRevision()>0) {
-            scm.resolveProjectRevision(rev);
+        Revision rev = scm.getHeadRevision();
+        while (rev!=null 
+                && rev.getUniqueId() != null && rev.getUniqueId() != "") {
+
             result.add(new SpRevision(this, rev));
-            rev = rev.prev();
+            rev = scm.getPreviousRevision(rev);
         }
 
         tds.releaseAccessor(tds.getAccessor(id));

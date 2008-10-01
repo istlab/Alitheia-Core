@@ -50,11 +50,10 @@ import org.tmatesoft.svn.core.SVNLogEntryPath;
 
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.PathChangeType;
-import eu.sqooss.service.tds.ProjectRevision;
 import eu.sqooss.service.tds.CommitCopyEntry;
 
-public class CommitEntryImpl implements CommitEntry {
-    private ProjectRevision revision;
+public class SVNCommitEntryImpl implements CommitEntry {
+    private SVNProjectRevision revision;
 
     private String author;
 
@@ -65,8 +64,8 @@ public class CommitEntryImpl implements CommitEntry {
     private List<CommitCopyEntry> copyOps;
     
     @SuppressWarnings("unchecked")
-    public CommitEntryImpl(SVNLogEntry l, String root) {
-        revision = new ProjectRevision(l.getRevision());
+    public SVNCommitEntryImpl(SVNLogEntry l, String root) {
+        revision = new SVNProjectRevision(l.getRevision());
         author = l.getAuthor();
         message = l.getMessage();
         revision.setDate(l.getDate());
@@ -89,14 +88,14 @@ public class CommitEntryImpl implements CommitEntry {
             Long   copyRev = paths.get(path).getCopyRevision();
             
             if ((copyPath != null) && (copyRev != -1)) {
-                copyOps.add(new CommitCopyEntry(copyPath, new ProjectRevision(copyRev), path, revision));
+                copyOps.add(new CommitCopyEntry(copyPath, new SVNProjectRevision(copyRev), path, revision));
             }
         }
         
         
     }
 
-    public ProjectRevision getRevision() {
+    public SVNProjectRevision getRevision() {
         return revision;
     }
 

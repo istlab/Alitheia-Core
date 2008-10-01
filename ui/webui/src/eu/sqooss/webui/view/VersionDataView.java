@@ -36,7 +36,6 @@ package eu.sqooss.webui.view;
 import java.awt.Color;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +46,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
@@ -68,7 +66,8 @@ import eu.sqooss.webui.datatype.Version;
  */
 public class VersionDataView extends AbstractDataView {
     /*
-     * Holds the list of selected resources (<i>a list of version numbers</i>).
+     * Holds the list of selected resources (<i>a list of version time
+     * stamps</i>).
      */
     private List<Long> selectedResources = new ArrayList<Long>();
 
@@ -91,24 +90,20 @@ public class VersionDataView extends AbstractDataView {
      *   (<i>a list of version numbers</i>).
      */
     private void setSelectedResources(List<String> selected) {
+        ArrayList<String> valid = new ArrayList<String>();
         if (selected != null)
             for (String resource : selected) {
-                try {
-                    Long value = new Long(resource);
-                    if ((selectedResources.contains(value) == false)
-                            && (project.getLastVersion().getNumber() >= value)
-                            && (project.getFirstVersion().getNumber() <= value))
-                        selectedResources.add(value);
-                }
-                catch (NumberFormatException ex) { /* Do nothing */ }
+                Version version = project.getVersionByScmId(resource);
+                if (version == null)
+                    continue;
+                if (selectedResources.contains(version.getTimestamp()) == false)
+                    selectedResources.add(version.getTimestamp());
+                if (valid.contains(resource) == false)
+                    valid.add(resource);
             }
 
         // Cleanup the corresponding session variable from invalid entries
-        String[] validResources = new String[selectedResources.size()];
-        int index = 0;
-        for (Long nextVersion : selectedResources)
-            validResources[index++] = nextVersion.toString();
-        viewConf.setSelectedResources(validResources);
+        viewConf.setSelectedResources(valid.toArray(new String[valid.size()]));
     }
 
     /**
@@ -117,11 +112,6 @@ public class VersionDataView extends AbstractDataView {
      */
     private void loadData() {
         if ((project != null) && (project.isValid())) {
-            // Pre-load the selected project versions
-            for (Long version : selectedResources) {
-                project.getVersionByNumber(version);
-            }
-
             /*
              * Load the list of metrics that were evaluated on this resource
              * type and are related to the presented resource type
@@ -172,11 +162,11 @@ public class VersionDataView extends AbstractDataView {
             if (selectedMetrics.size() == 1)
                 highlightedMetric = null;
             //----------------------------------------------------------------
-            // Assemble the results dataset
+            // Assemble the results data-set
             //----------------------------------------------------------------
             /*
              * Data set format:
-             * < metric_mnemonic < version_number, evaluation_value > >
+             * < metric_mnemonic < version_timestamp, evaluation_value > >
              */
             SortedMap<String, SortedMap<Long, String>> data =
                 new TreeMap<String, SortedMap<Long,String>>();
@@ -188,8 +178,9 @@ public class VersionDataView extends AbstractDataView {
                     data.put(metric.getMnemonic(), new TreeMap<Long, String>());
             }
             // Fill the data set
-            for (Long versionNum : selectedResources) {
-                Version nextVersion = project.getVersionByNumber(versionNum);
+            for (Long versionTimestamp : selectedResources) {
+                Version nextVersion =
+                    project.getVersionByTimestamp(versionTimestamp);
                 if (nextVersion != null) {
                     nextVersion.setTerrier(terrier);
                     HashMap<String, Result> verResults =
@@ -205,12 +196,13 @@ public class VersionDataView extends AbstractDataView {
                             if (result != null) {
                                 result.setSettings(settings);
                                 data.get(metric.getMnemonic()).put(
-                                        versionNum,
+                                        nextVersion.getTimestamp(),
                                         result.getHtml(0));
                             }
                             else {
                                 data.get(metric.getMnemonic()).put(
-                                        versionNum, null);
+                                        nextVersion.getTimestamp(),
+                                        null);
                             }
                         }
                     }
@@ -349,8 +341,8 @@ public class VersionDataView extends AbstractDataView {
         Version selVersion = null;
         if (viewConf.getHighlightedResource() != null) {
             try {
-                selVersion = project.getVersionByNumber(
-                        new Long(viewConf.getHighlightedResource()));
+                selVersion = project.getVersionByScmId(
+                        viewConf.getHighlightedResource());
             }
             catch (NumberFormatException ex) { /* Do nothing */ }
         }
@@ -384,16 +376,16 @@ public class VersionDataView extends AbstractDataView {
             Version version = project.getLastVersion();
             if (version != null) {
                 b.append(sp(in) + "<tr>"
-                        + "<td><b>Latest</b></td>"
-                        + "<td>" + version.getNumber() + "</td>"
+                        + "<td><b>Latest ID</b></td>"
+                        + "<td>"+ version.getName() + "</td>"
                         + "</tr>\n");
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat(
-                        "dd MMM yyyy", settings.getUserLocale());
                 b.append(sp(in) + "<tr>"
-                        + "<td><b>Date</b></td>"
+                        + "<td><b>Commited</b></td>"
                         + "<td>"
-                        + dateFormat.format(version.getTimestamp())
+                        + Functions.formatTimestamp(
+                                version.getTimestamp(),
+                                settings.getUserLocale())
                         + "</td>"
                         + "</tr>\n");
 
@@ -413,19 +405,19 @@ public class VersionDataView extends AbstractDataView {
         else {
             b.append(sp(in++) + "<table>\n");
 
-            // Version number
+            // Version revision
             b.append(sp(in) + "<tr>"
-                    + "<td><b>Version</b></td>"
-                    + "<td>" + selVersion.getNumber() + "</td>"
+                    + "<td><b>Version ID</b></td>"
+                    + "<td>" + selVersion.getName() + "</td>"
                     + "</tr>\n");
 
             // Version timestamp
-            SimpleDateFormat dateFormat = new SimpleDateFormat(
-                    "dd MMM yyyy", settings.getUserLocale());
             b.append(sp(in) + "<tr>"
                     + "<td><b>Commited</b></td>"
                     + "<td>"
-                    + dateFormat.format(selVersion.getTimestamp())
+                    + Functions.formatTimestamp(
+                            selVersion.getTimestamp(),
+                            settings.getUserLocale())
                     + "</td>"
                     + "</tr>\n");
 
@@ -510,27 +502,30 @@ public class VersionDataView extends AbstractDataView {
             // Display the list of selected versions
             //----------------------------------------------------------------
             b.append(sp(in++) + "<div class=\"dvSubpanelRight\">\n");
-            b.append(sp(in) + "<div class=\"dvSubtitle\">Versions</div>\n");
+            b.append(sp(in) + "<div class=\"dvSubtitle\">Version Ids</div>\n");
             b.append(sp(in++) + "<select class=\"dvSubselect\""
                     + " name=\"selResources\""
                     + " multiple"
                     + " size=\"5\""
                     + ((selectedResources.size() < 1) ? " disabled" : "")
                     + ">\n");
-            for (Long version : selectedResources) {
+            for (Long versionTimestamp : selectedResources) {
+                boolean isTagged = project.getTaggedVersions()
+                        .getTaggedVersionByTimestamp(versionTimestamp) != null;
+                Version version = 
+                    project.getVersionByTimestamp(versionTimestamp);
                 b.append(sp(in) + "<option class=\"dvSubselect\""
                         + " selected"
-                        + " value=\"" + version + "\">"
-                        + (project.getTaggedVersions().getTaggedVersionByNumber(version) != null ? "* " : "") 
-                        + "v." + version
+                        + " value=\"" + version.getName() + "\">"
+                        + (isTagged ? "* " : "") + version.getName()
                         + "</option>\n");
             }
             b.append(sp(--in) + "</select>\n");
 
             b.append(sp(--in) + "</div>\n");
-            b.append(sp(in++) + "<div style=\"position: relative; clear: both; padding-top: 5px; border: 0; text-align: center;\">\n");
+            b.append(sp(in++) + "<div class=\"dvSubpanelApply\">\n");
             b.append(sp(in) + "<input type=\"submit\" value=\"Apply\">\n");
-            b.append(sp(--in)+ "</div>\n");
+            b.append(sp(--in) + "</div>\n");
             b.append(sp(--in) + "</form>\n");
         }
 
@@ -570,15 +565,17 @@ public class VersionDataView extends AbstractDataView {
         //--------------------------------------------------------------------
         // Display all available results per metric and version
         //--------------------------------------------------------------------
-        for (Long resource : selectedResources) {
+        for (Long versionTimestamp : selectedResources) {
+            Version version = 
+                project.getVersionByTimestamp(versionTimestamp);
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in) + "<td class=\"def_head\">"
-                    + resource 
+                    + version.getName() 
                     + "</td>\n");
             for (String mnemonic : values.keySet()) {
                 String result = null;
-                if (values.get(mnemonic).get(resource) != null) {
-                    result = values.get(mnemonic).get(resource).toString();
+                if (values.get(mnemonic).get(versionTimestamp) != null) {
+                    result = values.get(mnemonic).get(versionTimestamp).toString();
                     try {
                         NumberFormat localise = 
                             NumberFormat.getNumberInstance(
@@ -600,26 +597,26 @@ public class VersionDataView extends AbstractDataView {
     }
 
     private String lineChart (SortedMap<String, SortedMap<Long, String>> values) {
-        // Construct the chart's dataset
-        XYSeriesCollection data = new XYSeriesCollection();
+        // Construct the chart's data-set
+        DefaultCategoryDataset data = new DefaultCategoryDataset();
         for (String nextLine : values.keySet()) {
-            XYSeries lineData = new XYSeries(nextLine);
             SortedMap<Long, String> lineValues = values.get(nextLine);
             for (Long nextX : lineValues.keySet()) {
                 if (lineValues.get(nextX) == null) continue;
                 try {
-                    lineData.add(nextX, new Double(lineValues.get(nextX)));
+                    data.addValue(
+                            new Double(lineValues.get(nextX)),
+                            nextLine,
+                            project.getVersionByTimestamp(nextX).getName());
                 }
                 catch (NumberFormatException ex) { /* Skip */ }
             }
-            if (lineData.getItemCount() > 0)
-                data.addSeries(lineData);
         }
         // Generate the chart
-        if (data.getSeriesCount() > 0) {
+        if (data.getColumnCount() > 0) {
             JFreeChart chart;
-            chart = ChartFactory.createXYLineChart(
-                    null, "Version", "Result",
+            chart = ChartFactory.createLineChart(
+                    null, null, "Evaluation Results",
                     data, PlotOrientation.VERTICAL,
                     true, true, false);
             chart.setBackgroundPaint(new Color(0, 0, 0, 0));

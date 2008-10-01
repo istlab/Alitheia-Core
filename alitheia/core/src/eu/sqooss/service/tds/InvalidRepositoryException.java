@@ -39,18 +39,14 @@ import eu.sqooss.service.tds.TDSException;
  * This exception indicates that the repository is invalid for
  * some project. This may indicate that the TDS does not know
  * about the repository at all or that something has failed
- * in accessing the repository. It is the public face that
- * replaces SVNException from SVNKit, since we don't want to
- * expose that to the other bundles (complicates dependencies
- * too much).
+ * in accessing the repository. 
  */
 public class InvalidRepositoryException extends TDSException {
     private static final long serialVersionUID = 1L;
     private String projectName, projectURL;
 
-    public InvalidRepositoryException(String project, String url, String message) {
+    public InvalidRepositoryException(String url, String message) {
         super(message);
-        projectName = project;
         projectURL = url;
     }
 

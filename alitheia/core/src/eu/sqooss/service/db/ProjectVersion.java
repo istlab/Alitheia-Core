@@ -42,8 +42,6 @@ import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 
-import eu.sqooss.service.tds.ProjectRevision;
-
 /**
  * Instances of this class represent the data about a version of a
  * project as stored in the database
@@ -55,9 +53,9 @@ public class ProjectVersion extends DAObject {
     private StoredProject project;
 
     /**
-     * The version number of the project to which this object relates
+     * The SCM version identifier to which this object relates
      */
-    private long version;
+    private String revisionId;
 
     /**
      * The date/time at which this version occurs, in milliseconds
@@ -120,12 +118,12 @@ public class ProjectVersion extends DAObject {
         this.project = project;
     }
 
-    public long getVersion() {
-        return this.version;
+    public String getRevisionId() {
+        return this.revisionId;
     }
 
-    public void setVersion(long version) {
-        this.version = version;
+    public void setRevisionId(String revisionId) {
+        this.revisionId = revisionId;
     }
 
     public long getTimestamp() {
@@ -236,14 +234,81 @@ public class ProjectVersion extends DAObject {
     }
 
     /**
-     * Less-than-or-equal (operator <=) for project versions, based
-     * on timestamps. The compared version must not be null.
+     * Less-than-or-equal (operator <=) for project versions.
+     * The compared version must not be null.
      * 
      * @param p comparison version
      * @return true if this <= p, in terms of timestamps
      */
     public boolean lte(ProjectVersion p) {
+        if (p.getProject().getId() != p.getProject().getId())
+            throw new IllegalArgumentException("Project " + p.getProject() + 
+                    " != " + getProject() + ", cannot compare versions");
         return this.timestamp <= p.getTimestamp();
+    }
+    
+    /**
+     * Less-than (operator <) for project versions. 
+     * The compared version must not be null.
+     * 
+     * @param p comparison version
+     * @return true if this <= p, in terms of timestamps
+     */
+    public boolean lt(ProjectVersion p) {
+        if (p.getProject().getId() != p.getProject().getId())
+            throw new IllegalArgumentException("Project " + p.getProject() + 
+                    " != " + getProject() + ", cannot compare versions");
+        return this.timestamp < p.getTimestamp();
+    }
+    
+    /**
+     * Greater-than-or-equal (operator >=) for project versions.
+     * The compared version must not be null.
+     * 
+     * @param p comparison version
+     * @return true if this > p, in terms of timestamps
+     */
+    public boolean gte (ProjectVersion p) {
+        if (p.getProject().getId() != p.getProject().getId())
+            throw new IllegalArgumentException("Project " + p.getProject() + 
+                    " != " + getProject() + ", cannot compare versions");
+        return this.timestamp >= p.getTimestamp();
+    }
+    
+    /**
+     * Greater-than (operator >) for project versions.
+     * The compared version must not be null.
+     * 
+     * @param p comparison version
+     * @return true if this > p, in terms of timestamps
+     */
+    public boolean gt (ProjectVersion p) {
+        if (p.getProject().getId() != p.getProject().getId())
+            throw new IllegalArgumentException("Project " + p.getProject() + 
+                    " != " + getProject() + ", cannot compare versions");
+        return this.timestamp > p.getTimestamp();
+    }
+    
+    /**
+     * Version equality method. Note that this is not supposed to be equivalent 
+     * to {@link #equals(Object)}, it just compares the revisionId and timestamp
+     * for 2 revisions provided they are in the same project. 
+     * @param p comparison version
+     * @return true if the versions are equal semantically.
+     */
+    public boolean eq (ProjectVersion p) {
+        if (p.getProject().getId() != p.getProject().getId())
+            throw new IllegalArgumentException("Project " + p.getProject() + 
+                    " != " + getProject() + ", cannot compare versions");
+        
+        if (!p.getRevisionId().equals(revisionId)) 
+            return false;
+        
+        if (!(p.getTimestamp() == timestamp))
+            return false;
+        
+        return true;
+        
     }
     
     /**
@@ -315,9 +380,9 @@ public class ProjectVersion extends DAObject {
     }
 
     /**
-     * Look up a project version for this project based on the SVN
-     * revision number (e.g. 1). This does a database lookup and 
-     * returns the ProjectVersion recorded for that SVN revision,
+     * Look up a project version based on the SCM system provided
+     * revision id. This does a database lookup and 
+     * returns the ProjectVersion recorded for that SCM revision,
      * or null if there is no such revision (for instance because
      * the updater has not added it yet or the revision number is
      * invalid in some way). This is a lookup, not a creation, of
@@ -328,12 +393,12 @@ public class ProjectVersion extends DAObject {
      * @return ProjectVersion object corresponding to the revision,
      *         or null if there is none.
      */
-    public static ProjectVersion getVersionByRevision(StoredProject project, long revision) {
+    public static ProjectVersion getVersionByRevision(StoredProject project, String revisionId) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
    
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put("project", project);
-        parameters.put("version", revision);
+        parameters.put("revisionId", revisionId);
 
         List<ProjectVersion> versions = dbs.findObjectsByProperties(ProjectVersion.class, parameters);
         if (versions == null || versions.size() == 0) {
@@ -344,28 +409,83 @@ public class ProjectVersion extends DAObject {
     }
     
     /**
-     * Convenience method, essentially like the above.
-     * @param project Project to look up
-     * @param revision ProjectRevision to use for the lookup.
-     * @return ProjectVersion corresponding to the SVN revision, or
-     *          null if there is none.
+     * Look up a project version based on the given time stamp. This does a
+     * database lookup and returns the <code>ProjectVersion</code> DAO, which
+     * carries the same time stamp or <code>null</code> if a matching version
+     * can not be found (for instance because the updater has not added it yet
+     * or a version with such a time stamp doesn't exist in this project).
+     * <br/>
+     * This is a lookup, not a creation, of revisions.
+     * 
+     * @param project <code>Project</code> DAO to look up
+     * @param timestamp Version time stamp to look up for this project
+     * @return ProjectVersion object carrying that time stamp,
+     *         or <code>null</code> if there is none.
      */
-    public static ProjectVersion getVersionByRevision(StoredProject project, ProjectRevision revision) {
-        if (!revision.hasSVNRevision()) {
-            // Can't do the lookup if we don't have a SVN revision number;
-            // caller should have resolved other revision specifications 
-            // to a number already.
+    public static ProjectVersion getVersionByTimestamp(
+            StoredProject project, long timestamp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+   
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put("project", project);
+        parameters.put("timestamp", timestamp);
+
+        List<ProjectVersion> versions = dbs.findObjectsByProperties(
+                ProjectVersion.class, parameters);
+        if (versions == null || versions.size() == 0) {
             return null;
-            // TODO: possibly log this
+        } else {
+            return versions.get(0);
         }
-        return getVersionByRevision(project, revision.getSVNRevision());
+    }
+    
+    
+    /**
+     * Convenience method to find the oldest revision stored in the Alitheia
+     * database.
+     * 
+     * @param sp Project to lookup
+     * @return The oldest recorded project revision
+     */
+    public static ProjectVersion getFirstRevision(StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("sp", sp);
+        List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
+                + " and pv.timestamp = (select min(pv2.timestamp) from "
+                + " ProjectVersion pv2 where pv2.project=:sp)",
+                parameterMap);
+
+        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
+    }
+    
+    /**
+     * Convenience method to find the first project version for
+     * a given project.
+     * 
+     * @return The <code>ProjectVersion</code> DAO for the first version,
+     *   or <code>null</code> if not found
+     */
+    public static ProjectVersion getFirstProjectVersion(StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("sp", sp);
+        List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
+                + " and pv.timestamp = (select min(pv2.timestamp) from "
+                + " ProjectVersion pv2 where pv2.project=:sp)",
+                parameterMap);
+
+        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
     }
     
     /**
      * Convenience method to find the latest project version for
      * a given project.
      * 
-     * @return ProjectVersion for the latest version or null if not found
+     * @return The <code>ProjectVersion</code> DAO for the latest version,
+     *   or <code>null</code> if not found
      */
     public static ProjectVersion getLastProjectVersion(StoredProject sp) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
@@ -373,7 +493,7 @@ public class ProjectVersion extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", sp);
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.version = (select max(pv2.version) from "
+                + " and pv.timestamp = (select max(pv2.timestamp) from "
                 + " ProjectVersion pv2 where pv2.project=:sp)",
                 parameterMap);
 
@@ -438,7 +558,7 @@ public class ProjectVersion extends DAObject {
     }
 
     public String toString() {
-        return "ProjectVersion(\"" + this.project.getName() + "\",r" + this.getVersion() +")";
+        return "ProjectVersion(\"" + this.project.getName() + "\",r" + this.revisionId +")";
     }
 }
 

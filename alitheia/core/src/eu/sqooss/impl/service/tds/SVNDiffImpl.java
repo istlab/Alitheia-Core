@@ -40,19 +40,19 @@ import java.util.Set;
 
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.PathChangeType;
-import eu.sqooss.service.tds.ProjectRevision;
+import eu.sqooss.service.tds.Revision;
 
-public class DiffImpl implements Diff {
-    private ProjectRevision revStart,revEnd;
+public class SVNDiffImpl implements Diff {
+    private SVNProjectRevision revStart,revEnd;
     private File diffFile;
     private Map<String, PathChangeType> changedFiles;
 
-    public DiffImpl(ProjectRevision start, ProjectRevision end, File path) {
-        revStart = new ProjectRevision(start);
+    public SVNDiffImpl(SVNProjectRevision start, SVNProjectRevision end, File path) {
+        revStart = new SVNProjectRevision(start);
         if (end!=null) {
-            revEnd = new ProjectRevision(end);
+            revEnd = new SVNProjectRevision(end);
         } else {
-            revEnd = new ProjectRevision(start.getSVNRevision()+1);
+            revEnd = new SVNProjectRevision(start.getSVNRevision()+1);
         }
         diffFile = path;
         changedFiles = new HashMap<String, PathChangeType>();
@@ -78,12 +78,12 @@ public class DiffImpl implements Diff {
     }
 
     // Interface methods
-    public ProjectRevision getSourceRevision() {
-        return new ProjectRevision(revStart);
+    public Revision getSourceRevision() {
+        return new SVNProjectRevision(revStart);
     }
 
-    public ProjectRevision getTargetRevision() {
-        return new ProjectRevision(revEnd);
+    public Revision getTargetRevision() {
+        return new SVNProjectRevision(revEnd);
     }
 
     public File getDiffFile() {

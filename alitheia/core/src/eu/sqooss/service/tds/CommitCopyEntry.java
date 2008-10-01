@@ -39,13 +39,13 @@ package eu.sqooss.service.tds;
 public class CommitCopyEntry {
     
     private String fromPath;
-    private ProjectRevision fromRev;
+    private Revision fromRev;
     
     private String toPath;
-    private ProjectRevision toRev;
+    private Revision toRev;
     
-    public CommitCopyEntry(String fromP, ProjectRevision fromR, String toP, 
-            ProjectRevision toR) {
+    public CommitCopyEntry(String fromP, Revision fromR, String toP, 
+            Revision toR) {
         this.fromPath = fromP;
         this.fromRev = fromR;
         
@@ -63,7 +63,7 @@ public class CommitCopyEntry {
     /**
      * Get the latest revision of to the original path
      */
-    public ProjectRevision fromRev() {
+    public Revision fromRev() {
         return fromRev;
     }
     
@@ -77,7 +77,7 @@ public class CommitCopyEntry {
     /**
      * Get the version of the copied entity after the copy operation
      */
-    public ProjectRevision toRev() {
+    public Revision toRev() {
         return toRev;
     }
 }

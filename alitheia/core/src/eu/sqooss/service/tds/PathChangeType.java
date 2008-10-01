@@ -38,10 +38,21 @@ package eu.sqooss.service.tds;
  * file (path) within two different versions of the project
  */
 public enum PathChangeType {
+        /** The repository does not know what type of change occured */
         UNKNOWN,
+        
+        /** No change occured on this path*/
         UNMODIFIED,
+        
+        /** Path was added */
         ADDED,
+        
+        /** Path was modified */
         MODIFIED,
+        
+        /** Path was deleted, then a new version was added in the same revision*/
         REPLACED,
+        
+        /** Path was deleted */
         DELETED
 }

@@ -59,8 +59,7 @@ public class Version extends AbstractDatatype {
      */
     protected Long projectId;
     protected Long committerId;
-    protected Long number;
-    protected Date timestamp;
+    protected long timestamp;
 
     /*
      * 
@@ -92,21 +91,17 @@ public class Version extends AbstractDatatype {
     public Version () {}
 
     /**
-     * Creates a new a <code>Version</code> instance, and initializes it with
+     * Creates a new a <code>Version</code> instance, and initialises it with
      * the information provided from the given <code>WSProjectVersion</code>
      * object.
      */
     public Version (WSProjectVersion wsVersion, Terrier terrier) {
         if (wsVersion != null) {
             id = wsVersion.getId();
-            try {
-                number = wsVersion.getVersion();
-            }
-            catch (NumberFormatException ex) {}
-            name = ((number != null) ? number.toString() : "N/A");
+            name = wsVersion.getVersion();
             projectId = wsVersion.getProjectId();
             committerId = wsVersion.getCommitterId();
-            timestamp = new Date(wsVersion.getTimestamp());
+            timestamp = wsVersion.getTimestamp();
         }
         setTerrier(terrier);
     }
@@ -129,24 +124,6 @@ public class Version extends AbstractDatatype {
         projectId = p;
     }
 
-    /**
-     * Gets the number of this version.
-     * 
-     * @return The version's number.
-     */
-    public Long getNumber () {
-        return number;
-    }
-
-    /**
-     * Sets the number of this version.
-     * 
-     * @param n the version's number
-     */
-    public void setNumber(Long n) {
-        number = n;
-    }
-
     public Long getCommitterId() {
         return committerId;
     }
@@ -155,7 +132,7 @@ public class Version extends AbstractDatatype {
         this.committerId = commiterId;
     }
 
-    public Date getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 

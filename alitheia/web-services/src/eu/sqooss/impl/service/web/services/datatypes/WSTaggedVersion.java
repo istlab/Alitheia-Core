@@ -72,7 +72,7 @@ public class WSTaggedVersion extends WSProjectVersion {
             result.setProjectId(projectVersion.getProject().getId());
             result.setProperties(projectVersion.getProperties());
             result.setTimestamp(projectVersion.getTimestamp());
-            result.setVersion(projectVersion.getVersion());
+            result.setVersion(projectVersion.getRevisionId());
 
             // Retrieve all tags for the given project version
             String[] tags = new String[projectVersion.getTags().size()];

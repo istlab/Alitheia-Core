@@ -24,29 +24,6 @@ public static String error(String e, long in) {
         + sp(in) + "</font></p>");
 }
 
-public static String versionSelector(Project p, long in) {
-    StringBuilder html = new StringBuilder("");
-    html.append(sp(in++) + "<form id=\"selectversion\">\n");
-    html.append(sp(in) + "<input type=\"text\" class=\"form\""
-        + " name=\"version" + p.getId() + "\""
-        + " value=\"\"/>\n");
-    html.append(sp(in) + "<input type=\"submit\" class=\"form\""
-        + " value=\"Apply\"/>\n");
-    html.append(sp(--in) + "</form>\n");
-    // Shortcuts
-    html.append(sp(in) + "<br/><strong>Jump to:</strong>\n");
-    html.append(sp(in++) + "<ul>\n");
-    html.append(sp(in) + "<li><a href=\"?version" + p.getId()
-        + "=" + p.getFirstVersion().getNumber() + "\">"
-        + "First version</a>\n");
-    if (p.getVersionsCount() > 1)
-        html.append(sp(in) + "<li><a href=\"?version" + p.getId()
-            + "=" + p.getLastVersion().getNumber() + "\">"
-            + "Last version</a>\n");
-    html.append(sp(--in) + "</ul>\n");
-    return html.toString();
-}
-
 public static Long strToLong(String strVal) {
     try {
         return new Long(strVal);

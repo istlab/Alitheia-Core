@@ -32,7 +32,6 @@
 
 package eu.sqooss.service.tds;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
@@ -40,13 +39,12 @@ import java.util.List;
 /** 
  * 
  */
-public interface BTSAccessor extends NamedAccessor {
-    
-    void init(String name, Long id, URI btsURL);
+public interface BTSAccessor extends DataAccessor {
     
     List<String> getBugsNewerThan(Date d);
     
     List<String> getAllBugs();
     
     BTSEntry getBug(String bugID);
+    
 }

@@ -33,20 +33,20 @@
 package eu.sqooss.impl.service.web.services.datatypes;
 
 public class WSFileModification {
-    private Long projectVersionNum;
+    private Long projectVersionTimestamp;
     private Long projectFileId;
 
-    public WSFileModification(Long projectVersionNum, Long projectFileId) {
-        this.projectVersionNum = projectVersionNum;
+    public WSFileModification(Long projectVersionTimestamp, Long projectFileId) {
+        this.projectVersionTimestamp = projectVersionTimestamp;
         this.projectFileId = projectFileId;
     }
 
-    public Long getProjectVersionNum() {
-        return projectVersionNum;
+    public Long getProjectVersionTimestamp() {
+        return projectVersionTimestamp;
     }
 
-    public void setProjectVersionNum(Long projectVersionNum) {
-        this.projectVersionNum = projectVersionNum;
+    public void setProjectVersionTimestamp(Long projectVersionTimestamp) {
+        this.projectVersionTimestamp = projectVersionTimestamp;
     }
 
     public Long getProjectFileId() {

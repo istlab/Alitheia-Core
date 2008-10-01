@@ -33,143 +33,70 @@
 
 package eu.sqooss.impl.service.fds;
 
-import java.io.FileNotFoundException;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.InMemoryDirectory;
-import eu.sqooss.service.tds.CommitEntry;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
-import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
-import eu.sqooss.service.tds.SCMAccessor;
 
 /**
- * The CheckoutImpl implements the Checkout interface. It represents a
- * checkout of a specific project at a specific revision somewhere in the
- * filesystem of the Alitheia core system. A CheckoutImpl exposes
- * additional API for updating the checkout itself and handling the
- * reference counting done on it. Most operations on CheckoutImpl
- * are not thread-safe. Locking is done in the FDS which exposes
- * only the Checkout (safe) part of the interface.
+ * An implementation of the InMemoryCheckout interface that uses the 
+ * DB service to retrieve file information for a specific version.
  */
 class InMemoryCheckoutImpl implements InMemoryCheckout {
-    /**
-     * The project this checkout belongs to. Used to get back to the
-     * TDS SCM that can update the checkout.
-     */
-    private long projectId;
-    /**
-     * Human-readable project name. Informational only.
-     */
-    private String projectName;
-
-    private String repoPath;
-    private ProjectRevision revision;
-    private CommitEntry entry;
-
+   
+    private ProjectVersion revision;
     private InMemoryDirectory root;
+    private Pattern pattern;
 
-    InMemoryCheckoutImpl(SCMAccessor scm, String path, ProjectRevision r)
-        throws FileNotFoundException,
-               InvalidProjectRevisionException,
-               InvalidRepositoryException {
-        projectId = scm.getId();
-        projectName = scm.getName();
-        repoPath = path;
-        root = new InMemoryDirectory(this);
-
-        setRevision(r);
-        Pattern p = Pattern.compile(".*");
-        createCheckout(root,p);
-
-         entry = scm.getCommitLog(repoPath, r);
+    InMemoryCheckoutImpl(ProjectVersion pv) {
+        revision = pv;
+        pattern = Pattern.compile(".*");
     }
 
-    InMemoryCheckoutImpl(SCMAccessor scm, String path, ProjectRevision r, Pattern p)
-        throws FileNotFoundException,
-               InvalidProjectRevisionException,
-               InvalidRepositoryException {
-        projectId = scm.getId();
-        projectName = scm.getName();
-        repoPath = path;
-        root = new InMemoryDirectory(this);
-
-        setRevision(r);
-        createCheckout(root, p);
-
-         entry = scm.getCommitLog(repoPath, r);
+    InMemoryCheckoutImpl(ProjectVersion pv, Pattern p) {
+        revision = pv;
+        pattern = p;
     }
 
-    @SuppressWarnings("unchecked")
-    protected void createCheckout(InMemoryDirectory dir, Pattern pattern) throws InvalidProjectRevisionException {
-        StoredProject project = getProject();
-        if ( project == null ) {
-            throw new InvalidProjectRevisionException(projectName, null);
-        }
-
-        ProjectVersion version = ProjectVersion.getVersionByRevision(project, getRevision() );
-        if ( version == null ) {
-            throw new InvalidProjectRevisionException(projectName, null);
-        }
-        Set<ProjectFile> projectFiles = version.getFilesForVersion();
+    protected void createCheckout() {
+        root = new InMemoryDirectory(this);
+        
+        Set<ProjectFile> projectFiles = revision.getFilesForVersion();
         if (projectFiles != null && projectFiles.size() != 0) {
             for (ProjectFile f : projectFiles) {
                 if (pattern.matcher(f.getFileName()).matches()) {
                     if (!f.getIsDirectory()) {
-                        dir.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
+                        root.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
                     } else {
-                        dir.createSubDirectory(f.getFileName());
+                        root.createSubDirectory(f.getFileName());
                     }
                 }
             }
         }
     }
 
-    public void setRevision(ProjectRevision r) {
-        this.revision = r;
-    }
-
-    // Interface methods
     /** {@inheritDoc} */
-    public ProjectRevision getRevision() {
-        return revision;
-    }
-
-    public StoredProject getProject() {
-        return StoredProject.getProjectByName(projectName);
-    }
-
     public InMemoryDirectory getRoot() {
+        if (root == null) 
+            createCheckout();
         return root;
     }
 
-    public CommitEntry getCommitLog() {
-        return entry;
-    }
-
-    // Interface eu.sqooss.service.tds.NamedAccessor
     /** {@inheritDoc} */
-    public String getName() {
-        return projectName;
-    }
-
-    /** {@inheritDoc} */
-    public long getId() {
-        return projectId;
-    }
-
     public ProjectFile getFile(String name) {
+        if (root == null) 
+            createCheckout();
         return root.getFile(name);
     }
+
+    /** {@inheritDoc} */
+    public ProjectVersion getProjectVersion() {
+        return revision;
+    }
 }
-
-
 
 // vi: ai nosi sw=4 ts=4 expandtab
 

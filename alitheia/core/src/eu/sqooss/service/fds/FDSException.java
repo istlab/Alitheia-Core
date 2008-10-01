@@ -2,8 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2008 Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,29 +30,24 @@
  *
  */
 
-package eu.sqooss.service.tds;
+package eu.sqooss.service.fds;
 
 /**
- * Most of the accessors to data are associated with a single
- * project, which has an ID in the StoredProject table for Alitheia,
- * and an informative (but not necessarily unique) human-readable
- * name. This interface captures that high-level data layout.
+ * This is the base class of exceptions thrown by the FDS.
+ * It is mainly here to group together the exceptions
+ * thrown by the service.
  */
-public interface NamedAccessor {
-    /**
-     * Return the numeric ID for the project associated with this accessor.
-     * At creation time this is guaranteed to be a valid project ID, but
-     * during the lifetime of the accessor the project may be removed or
-     * modified so that the ID becomes invalid.
-     */
-    public long getId();
+public class FDSException extends Exception {
+    private static final long serialVersionUID = 1L;
+    private static String service = "[FDS]";
 
-    /**
-     * Return the name assigned to the project when the accessor was created.
-     * Just like the ID, this may have changed since.
-     */
-    public String getName();
+    public FDSException(String message) {
+        super(message);
+    }
+
+    public String getMessage() {
+        return service + " " + super.getMessage();
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

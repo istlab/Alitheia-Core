@@ -68,12 +68,18 @@ import eu.sqooss.ws.client.ws.GetFirstProjectVersions;
 import eu.sqooss.ws.client.ws.GetFirstProjectVersionsResponse;
 import eu.sqooss.ws.client.ws.GetLastProjectVersions;
 import eu.sqooss.ws.client.ws.GetLastProjectVersionsResponse;
+import eu.sqooss.ws.client.ws.GetPreviousVersionById;
+import eu.sqooss.ws.client.ws.GetPreviousVersionByIdResponse;
+import eu.sqooss.ws.client.ws.GetNextVersionById;
+import eu.sqooss.ws.client.ws.GetNextVersionByIdResponse;
 import eu.sqooss.ws.client.ws.GetProjectByName;
 import eu.sqooss.ws.client.ws.GetProjectByNameResponse;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByIds;
 import eu.sqooss.ws.client.ws.GetProjectVersionsByIdsResponse;
-import eu.sqooss.ws.client.ws.GetProjectVersionsByVersionNumbers;
-import eu.sqooss.ws.client.ws.GetProjectVersionsByVersionNumbersResponse;
+import eu.sqooss.ws.client.ws.GetProjectVersionsByTimestamps;
+import eu.sqooss.ws.client.ws.GetProjectVersionsByTimestampsResponse;
+import eu.sqooss.ws.client.ws.GetProjectVersionsByScmIds;
+import eu.sqooss.ws.client.ws.GetProjectVersionsByScmIdsResponse;
 import eu.sqooss.ws.client.ws.GetProjectsByIds;
 import eu.sqooss.ws.client.ws.GetProjectsByIdsResponse;
 import eu.sqooss.ws.client.ws.GetRootDirectory;
@@ -99,8 +105,10 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getProjectByName";
     private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_IDS =
         "getProjectVersionsByIds";
-    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS =
-        "getProjectVersionsByVersionNumbers";
+    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_TIMESTAMPS =
+        "getProjectVersionsByTimestamps";
+    private static final String METHOD_NAME_GET_PROJECT_VERSIONS_BY_SCM_IDS =
+        "getProjectVersionsByScmIds";
     private static final String METHOD_NAME_GET_VERSIONS_COUNT =
         "getVersionsCount";
     private static final String METHOD_NAME_GET_VERSIONS_STATISTICS =
@@ -109,6 +117,10 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getFirstProjectVersions";
     private static final String METHOD_NAME_GET_LAST_PROJECT_VERSIONS =
         "getLastProjectVersions";
+    private static final String METHOD_NAME_GET_PREVIOUS_VERSION_BY_ID =
+        "getPreviousVersionById";
+    private static final String METHOD_NAME_GET_NEXT_VERSION_BY_ID =
+        "getNextVersionById";
     private static final String METHOD_NAME_GET_PROJECTS_BY_IDS =
         "getProjectsByIds";
     private static final String METHOD_NAME_GET_FILES_NUMBER_BY_PROJECT_VERSION_ID =
@@ -586,38 +598,81 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
     }
 
     /**
-     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectVersionsByVersionNumbers(long, long[])
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectVersionsByTimestamps(long,
+     *      long[])
      */
     @Override
-    public WSProjectVersion[] getProjectVersionsByVersionNumbers(
-            long projectId, long[] versionNumbers) throws WSException {
-        if (!isNormalizedWSArrayParameter(versionNumbers)) return EMPTY_ARRAY_PROJECT_VERSIONS;
-        
-        GetProjectVersionsByVersionNumbersResponse response;
-        GetProjectVersionsByVersionNumbers params;
-        
-        if (!parameters.containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS)) {
-            params = new GetProjectVersionsByVersionNumbers();
+    public WSProjectVersion[] getProjectVersionsByTimestamps(long projectId,
+            long[] timestamps) throws WSException {
+        if (!isNormalizedWSArrayParameter(timestamps))
+            return EMPTY_ARRAY_PROJECT_VERSIONS;
+
+        GetProjectVersionsByTimestampsResponse response;
+        GetProjectVersionsByTimestamps params;
+
+        if (!parameters
+                .containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_TIMESTAMPS)) {
+            params = new GetProjectVersionsByTimestamps();
             params.setPassword(password);
             params.setUserName(userName);
-            parameters.put(METHOD_NAME_GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS,
+            parameters.put(METHOD_NAME_GET_PROJECT_VERSIONS_BY_TIMESTAMPS,
                     params);
         } else {
-            params = (GetProjectVersionsByVersionNumbers) parameters.get(
-                    METHOD_NAME_GET_PROJECT_VERSIONS_BY_VERSION_NUMBERS);
+            params = (GetProjectVersionsByTimestamps) parameters
+                    .get(METHOD_NAME_GET_PROJECT_VERSIONS_BY_TIMESTAMPS);
         }
-        
+
         synchronized (params) {
             params.setProjectId(projectId);
-            params.setVersionNumbers(versionNumbers);
+            params.setTimestamps(timestamps);
             try {
-                response = wsStub.getProjectVersionsByVersionNumbers(params);
+                response = wsStub.getProjectVersionsByTimestamps(params);
             } catch (Exception e) {
                 throw new WSException(e);
             }
         }
-        
-        return (WSProjectVersion[]) normalizeWSArrayResult(response.get_return());
+
+        return (WSProjectVersion[]) normalizeWSArrayResult(response
+                .get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getProjectVersionsByScmIds(long,
+     *      String[])
+     */
+    @Override
+    public WSProjectVersion[] getProjectVersionsByScmIds(long projectId,
+            String[] scmIds) throws WSException {
+        if (!isNormalizedWSArrayParameter(scmIds))
+            return EMPTY_ARRAY_PROJECT_VERSIONS;
+
+        GetProjectVersionsByScmIdsResponse response;
+        GetProjectVersionsByScmIds params;
+
+        if (!parameters
+                .containsKey(METHOD_NAME_GET_PROJECT_VERSIONS_BY_SCM_IDS)) {
+            params = new GetProjectVersionsByScmIds();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_PROJECT_VERSIONS_BY_SCM_IDS,
+                    params);
+        } else {
+            params = (GetProjectVersionsByScmIds) parameters
+                    .get(METHOD_NAME_GET_PROJECT_VERSIONS_BY_SCM_IDS);
+        }
+
+        synchronized (params) {
+            params.setProjectId(projectId);
+            params.setScmIds(scmIds);
+            try {
+                response = wsStub.getProjectVersionsByScmIds(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+
+        return (WSProjectVersion[]) normalizeWSArrayResult(response
+                .get_return());
     }
 
     /**
@@ -680,6 +735,68 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         }
         
         return (WSProjectVersion[]) normalizeWSArrayResult(response.get_return());
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getPreviousVersionById(long)
+     */
+    @Override
+    public WSProjectVersion getPreviousVersionById(long versionId)
+            throws WSException {
+        GetPreviousVersionByIdResponse response;
+        GetPreviousVersionById params;
+
+        if (!parameters.containsKey(METHOD_NAME_GET_PREVIOUS_VERSION_BY_ID)) {
+            params = new GetPreviousVersionById();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_PREVIOUS_VERSION_BY_ID, params);
+        } else {
+            params = (GetPreviousVersionById) parameters.get(
+                    METHOD_NAME_GET_PREVIOUS_VERSION_BY_ID);
+        }
+
+        synchronized (params) {
+            params.setVersionId(versionId);
+            try {
+                response = wsStub.getPreviousVersionById(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+
+        return response.get_return();
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getNextVersionById(long)
+     */
+    @Override
+    public WSProjectVersion getNextVersionById(long versionId)
+            throws WSException {
+        GetNextVersionByIdResponse response;
+        GetNextVersionById params;
+
+        if (!parameters.containsKey(METHOD_NAME_GET_NEXT_VERSION_BY_ID)) {
+            params = new GetNextVersionById();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_NEXT_VERSION_BY_ID, params);
+        } else {
+            params = (GetNextVersionById) parameters.get(
+                    METHOD_NAME_GET_NEXT_VERSION_BY_ID);
+        }
+
+        synchronized (params) {
+            params.setVersionId(versionId);
+            try {
+                response = wsStub.getNextVersionById(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+
+        return response.get_return();
     }
 
     /**

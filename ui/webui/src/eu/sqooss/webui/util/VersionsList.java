@@ -49,15 +49,28 @@ public class VersionsList extends ArrayList<Version> {
     private static final long serialVersionUID = -2171890702868485954L;
 
     /**
-     * Returns the list of project versions sorted by their version number.
+     * Returns the list of project versions sorted by their time stamps.
      * 
      * @return The list of project versions.
      */
-    public SortedMap<Long, Version> sortByNumber() {
+    public SortedMap<Long, Version> sortByTimestamp() {
         SortedMap<Long, Version> result =
             new TreeMap<Long, Version>();
         for (Version nextVersion : this)
-            result.put(nextVersion.getNumber(), nextVersion);
+            result.put(nextVersion.getTimestamp(), nextVersion);
+        return result;
+    }
+
+    /**
+     * Returns the list of project versions sorted by their SCM version Id.
+     * 
+     * @return The list of project versions.
+     */
+    public SortedMap<String, Version> sortByScmId() {
+        SortedMap<String, Version> result =
+            new TreeMap<String, Version>();
+        for (Version nextVersion : this)
+            result.put(nextVersion.getName(), nextVersion);
         return result;
     }
 
@@ -75,16 +88,29 @@ public class VersionsList extends ArrayList<Version> {
     }
 
     /**
-     * Gets the project version with the given version number.
+     * Gets the project version with the given time stamp.
      * 
-     * @param number the project version's number
+     * @param timestamp the project version's time stamp
      * 
      * @return The project version object, or <code>null</code> if a project
-     *  version with the given version number can not be found in this list.
+     *  version with the given time stamp can not be found in this list.
      */
-    public Version getVersionByNumber(Long number) {
-        if (number == null) return null;
-        return sortByNumber().get(number);
+    public Version getVersionByTimestamp(Long timestamp) {
+        if (timestamp == null) return null;
+        return sortByTimestamp().get(timestamp);
+    }
+
+    /**
+     * Gets the project version with the given SCM version Id.
+     * 
+     * @param scmId the project version's SCM Id
+     * 
+     * @return The project version object, or <code>null</code> if a project
+     *  version with the given SCM Id can not be found in this list.
+     */
+    public Version getVersionByScmId(String scmId) {
+        if (scmId == null) return null;
+        return sortByScmId().get(scmId);
     }
 
     /**
@@ -100,16 +126,15 @@ public class VersionsList extends ArrayList<Version> {
     }
 
     /**
-     * Gets the list of version numbers of all project versions in this list,
+     * Gets the list of time stamps of all project versions in this list,
      * indexed by their project version Id.
      * 
-     * @return The list of version numbers, or an empty list when none are
-     *   found.
+     * @return The list of time stamps, or an empty list when none are found.
      */
-    public Map<Long, Long> getVersionNumber() {
+    public Map<Long, Long> getVersionTimestamp() {
         Map<Long, Long> result = new HashMap<Long, Long>();
         for (Version nextVersion : this)
-            result.put(nextVersion.getId(), nextVersion.getNumber());
+            result.put(nextVersion.getId(), nextVersion.getTimestamp());
         return result;
     }
 }

@@ -9,9 +9,9 @@ import org.junit.runner.RunWith;
 
 import eu.sqooss.impl.service.dsl.SpProject;
 import eu.sqooss.impl.service.dsl.SpRevision;
+import eu.sqooss.impl.service.tds.SVNProjectRevision;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
 
 @RunWith(ConcordionRunner.class)
 public class ListRevisions

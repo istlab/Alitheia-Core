@@ -39,13 +39,23 @@ import java.util.List;
 import java.io.FileNotFoundException;
 import javax.mail.internet.MimeMessage;
 
-public interface MailAccessor extends NamedAccessor {
+/**
+ * An interface to a project's mailing list data. The accessor is based
+ * on the notion of mailing lists and messages. If the underlying data store
+ * does not support mailing lists it must return a single mailing list 
+ * with all email messages attached to it.
+ *
+ */
+public interface MailAccessor extends DataAccessor {
     /**
      * Retrieves the entire raw message content of the given
      * message ID (the message ID may be relative to the project
      * that this accessor is attached to).
+     * 
+     * @throws IllegalArgumentException listId or id are null
+     * @throws FileNotFoundException the listId and id are not found
      */
-    public String getRawMessage( String listId, String id )
+    public String getRawMessage( String listId, String messageId )
         throws IllegalArgumentException,
                FileNotFoundException;
 
@@ -53,12 +63,14 @@ public interface MailAccessor extends NamedAccessor {
      * Retrieves a raw message as a parsed MIME message.
      * 
      * @param listId the list the message is in
-     * @param id the message id
+     * @param messageId the message id
+     * 
      * @return a parsed MIME message or null if parsing fails
+     * 
      * @throws IllegalArgumentException listId or id are null
      * @throws FileNotFoundException the listId and id are not found
      */
-    public MimeMessage getMimeMessage( String listId, String id )
+    public MimeMessage getMimeMessage( String listId, String messageId )
     	throws IllegalArgumentException,
     	       FileNotFoundException;
     
@@ -71,15 +83,21 @@ public interface MailAccessor extends NamedAccessor {
     /**
      * Retrieves the list of new messages (only new messages) in the
      * given mailing list.
+     * 
+     * @throws FileNotFoundException if the list does not exist
      */
     public List<String> getNewMessages( String listId )
         throws FileNotFoundException;
     
     /**
      * Retrieve the list of messages in the mailing list in the interval
-     * [d1,d2). The dates are @em envelope dates, not delivery dates.
+     * [d1,d2). The dates are envelope dates, not delivery dates.
+     * 
+     * @throws IllegalArgumentException if one of the arguments is null
+     * @throws FileNotFoundException if the message does not exist or
+     *          if the message is not new
      */
-    public List<String> getMessages( String listId, Date d1, Date d2 )
+    public List<String> getMessages(String listId, Date d1, Date d2)
         throws IllegalArgumentException,
                FileNotFoundException;
 
@@ -89,50 +107,23 @@ public interface MailAccessor extends NamedAccessor {
      * 
      * @param listId the list where this message lives
      * @param messageId the message id
-     * @return true if the move was successful
+     * 
+     * @return true if the marking operation was successful
+     * 
      * @throws IllegalArgumentException if one of the arguments is null
      * @throws FileNotFoundException if the message does not exist or
      *          if the message is not new
      */
-    public boolean markMessageAsSeen( String listId, String messageId )
+    public boolean markMessageAsSeen(String listId, String messageId)
         throws IllegalArgumentException,
                FileNotFoundException;
     
     /**
-     * Returns available mailing lists for the current maildir
-     * 
-     * The maildir folder should have the following structure:
-     * 
-     * mailroot/maillist1/cur
-     *                   /tmp
-     *                   /new
-     * mailroot/maillist2/cur
-     *                   /tmp
-     *                   /new
-     * 
-     * mailist1, maillist2 are serving as ListId
+     * Returns available mailing lists this accessor knows about.
      * 
      * @return a List with the ListIds
      */
     public List<String> getMailingLists();
-    
-    /*
-     * The following methods from D5 are not implemented:
-     *
-     * getSenders( String listId )
-     * getSenders( String listId, Date, Date )
-     *      This method requires retrieving all of the individual
-     *      messages and parsing them; it is better done at a higher
-     *      level either by the updater or the FDS.
-     *
-     * getMessages( String listId, String sender )
-     *      Similar - this should be calculated and cached elsewhere.
-     *
-     * getNextMessage( String listId, String id, boolean mode )
-     *      No idea what this is supposed to do. Jump to next
-     *      message Id after @p id?
-     */
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

@@ -199,7 +199,7 @@ implements ModuleMetrics {
                 log.error("Results of wc.loc metric for project: "
                         + f.getProjectVersion().getProject().getName() + " file: "
                         + f.getFileName() + ", Version: "
-                        + f.getProjectVersion().getVersion() + " could not be retrieved: "
+                        + f.getProjectVersion().getRevisionId() + " could not be retrieved: "
                         + e.getMessage());
               //Do not store partial results
               return;
@@ -275,7 +275,7 @@ implements ModuleMetrics {
                 log.error("Results of MNOL metric for project: "
                         + dir.getProjectVersion().getProject().getName() + " file: "
                         + dir.getFileName() + ", Version: "
-                        + dir.getProjectVersion().getVersion() + " could not be retrieved: "
+                        + dir.getProjectVersion().getRevisionId() + " could not be retrieved: "
                         + e.getMessage());
             }
         } 
