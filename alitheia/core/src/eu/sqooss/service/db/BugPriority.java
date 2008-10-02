@@ -80,6 +80,9 @@ public class BugPriority extends DAObject {
          * @return The status state or null if could not be found
          */
         public static Priority fromString(String s) {
+            if (s == null)
+                return null;                
+            
             if (s.equalsIgnoreCase("LOW"))
                 return LOW;
             if (s.equalsIgnoreCase("MEDIUM"))

@@ -88,6 +88,8 @@ public class BugStatus extends DAObject {
          * @return The {@link Status} enum field or null
          */
         public static Status fromString(String status) {
+            if (status == null)
+                return null;
             if (status.equalsIgnoreCase(UNCONFIRMED.toString()))
                 return Status.UNCONFIRMED;
             if (status.equalsIgnoreCase(NEW.toString()))

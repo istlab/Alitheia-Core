@@ -85,6 +85,8 @@ public class BTSEntry {
          * @return The status state or null if could not be found
          */
         public static BugSeverity fromString(String s) {
+            if (s == null)
+                return null;
             if (s.equalsIgnoreCase("BLOCKER"))
                 return BLOCKER;
             if (s.equalsIgnoreCase("CRITICAL"))
@@ -116,6 +118,8 @@ public class BTSEntry {
          * @return The status state or null if could not be found
          */
         public static BugPriority fromString(String s) {
+            if (s == null)
+                return null;
             if (s.equalsIgnoreCase("LOW"))
                 return LOW;
             if (s.equalsIgnoreCase("MEDIUM"))
@@ -150,6 +154,8 @@ public class BTSEntry {
          * @return The status state or null if could not be found
          */
         public static BugStatus fromString(String s) {
+            if (s == null)
+                return null;
             if (s.equalsIgnoreCase("UNCONFIRMED"))
                 return UNCONFIRMED;
             if (s.equalsIgnoreCase("NEW"))
@@ -189,6 +195,8 @@ public class BTSEntry {
          * @return The resolution state or null if could not be found
          */
         public static BugResolution fromString(String s) {
+            if (s == null)
+                return null;
             if (s.equalsIgnoreCase("FIXED"))
                 return FIXED;
             if (s.equalsIgnoreCase("INVALID"))

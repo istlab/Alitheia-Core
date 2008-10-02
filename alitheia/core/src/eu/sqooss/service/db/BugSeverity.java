@@ -88,6 +88,8 @@ public class BugSeverity extends DAObject {
          * @return The status state or null if could not be found
          */
         public static Severity fromString(String s) {
+            if (s == null)
+                return null;
             if (s.equalsIgnoreCase("BLOCKER"))
                 return BLOCKER;
             if (s.equalsIgnoreCase("CRITICAL"))

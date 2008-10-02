@@ -82,6 +82,9 @@ public class BugResolution extends DAObject {
         MOVED;
         
         public static Resolution fromString(String s) {
+            if (s == null)
+                return null;
+            
             if (s.equalsIgnoreCase("FIXED"))
                 return FIXED;
             if (s.equalsIgnoreCase("INVALID"))

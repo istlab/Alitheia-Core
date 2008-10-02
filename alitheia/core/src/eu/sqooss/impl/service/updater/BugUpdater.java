@@ -39,6 +39,8 @@ import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.BugResolution;
+import eu.sqooss.service.db.BugStatus;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -72,8 +74,7 @@ public class BugUpdater extends Job {
 
     protected void run() throws Exception {
         db.startDBSession();
-        //1. Get latest updated date D1
-        
+        //Get latest updated date
         List<String> bugIds = null;
         
         if (Bug.getLastUpdate(sp) != null) {
@@ -83,7 +84,7 @@ public class BugUpdater extends Job {
         }
         log.info("Got " + bugIds.size() + " new bugs");
 
-        //3. Update
+        //Update
         for (String bugID : bugIds) {
             if (bugExists(sp, bugID)) {
                 log.debug("Updating existing bug " + bugID);
@@ -101,7 +102,14 @@ public class BugUpdater extends Job {
             return null;
         
         Bug bug = new Bug();
+        bug.setBugID(b.bugID);
+        bug.setCreationTS(b.creationTimestamp);
+        bug.setProject(sp);
+        bug.setStatus(BugStatus.getBugStatus(BugStatus.Status.fromString(b.state.toString())));
+        bug.setUpdateRun(new Date(System.currentTimeMillis()));
         
+        bug.setResolution(BugResolution.getBugResolution(BugResolution.Resolution.fromString(b.resolution.toString())));
+        //bug.setReporter(Developer.b.reporter);
         return bug;
     }
     
