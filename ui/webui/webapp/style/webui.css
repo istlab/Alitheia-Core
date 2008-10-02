@@ -12,7 +12,8 @@
     min-height: 46px;
     padding: 5px 5px 0px 46px;
 }
-#developerslist
+#developerslist,
+#disconnected,
 #fileslist,
 #metricslist,
 #selectedproject,
@@ -248,6 +249,15 @@ td.def_head {
     padding-left: 5px;
     text-align: left;
 }
+td.def_subhead {
+    background-color: #CCFFCC;
+    border: 1px solid #C6C6C5;
+    font-size: 12px;
+    font-weight: bold;
+    height: 18px;
+    padding-left: 5px;
+    text-align: left;
+}
 div.def_head {
     height: 18px;
     line-height: 18px;
@@ -273,7 +283,7 @@ td.def_invisible {
     border: 0;
     background-color: transparent;
 }
-/* ===[ Project into view related ]======================================= */
+/* ===[ Project intro view related ]======================================= */
 div.piv {
     background: transparent url(/img/icons/16x16/piv_bg_01.png) no-repeat;
     margin-left: auto;

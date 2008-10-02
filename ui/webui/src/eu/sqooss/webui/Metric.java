@@ -169,11 +169,6 @@ public class Metric extends WebuiItem {
         return "N/A";
     }
 
-    public String getLink() {
-        return "<a href=\"/files.jsp?rid=" + getId() + "\">view results</a>";
-        // TODO: Should go to results.jsp, with Mnem + ids
-    }
-
     public String getSelectMetricLink() {
         return "<a href=\"/metrics.jsp?selectMetric=" + getId() + "\">Select</a>";
     }
@@ -182,12 +177,30 @@ public class Metric extends WebuiItem {
         return "<a href=\"/metrics.jsp?deselectMetric=" + getId() + "\">Deselect</a>";
     }
 
-
     /* (non-Javadoc)
      * @see eu.sqooss.webui.WebuiItem#getHtml(long)
      */
     public String getHtml (long in) {
-        return description + " (" + type + ", " + mnemonic + ")";
+        return mnemonic + " (" + getScope() + ", " + description + ")";
     }
 
+    /**
+     * Verifies if this object is equal to the given <code>Result</code>
+     * object.
+     * 
+     * @param target the target <code>Result</code> object
+     * 
+     * @return <code>true<code>, if this <code>Result</code> is equal to the
+     *   given <code>Result</code> object, or <code>false</code> otherwise.
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) return true;
+        if (target == null) return false;
+        if (getClass() != target.getClass()) return false;
+        Metric result = (Metric) target;
+        if (getId().equals(result.getId()))
+            return true;
+        return false;
+    }
 }

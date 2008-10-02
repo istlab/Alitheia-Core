@@ -4,91 +4,87 @@
 %>                <form id="metrics" name="metrics" method="GET">
                   <div id="metricslist">
 <%
-// Indentation depth
-in = 9;
-//out.println(debugRequest(request));
-//============================================================================
-// Show metric per project, when a project selection exists
-//============================================================================
-if (selectedProject.isValid()) {
-    // Check if the user has requested a metrics refresh
-    if (request.getParameter("refreshPrjMetrics") != null) {
-        selectedProject.flushMetrics();
-        selectedProject.getEvaluatedMetrics();
-    }
-
-    // Check for a metric selection
-    if (request.getParameter("selectMetric") != null) {
-        try {
-            Long selId = new Long(request.getParameter("selectMetric"));
-            selectedProject.selectMetric(selId);
-        }
-        catch (NumberFormatException ex) {}
-    }
-    if (request.getParameter("deselectMetric") != null) {
-        try {
-            Long selId = new Long(request.getParameter("deselectMetric"));
-            selectedProject.deselectMetric(selId);
-        }
-        catch (NumberFormatException ex) {}
-    }
-
-    // Prepare the metrics view
-    MetricsTableView metricsView =
-        new MetricsTableView(selectedProject.getEvaluatedMetrics());
-    metricsView.setProjectId(selectedProject.getId());
-    metricsView.setSelectedMetrics(selectedProject.getSelectedMetrics());
-    metricsView.setShowSelect(true);
-    metricsView.setShowResult(false);
-    // Construct the project metrics window
-    Window winPrjMetrics = new Window();
-    winPrjMetrics.setTitle("Metrics evaluated on project: "
-        + selectedProject.getName());
-    winPrjMetrics.setContent(metricsView.getHtml(in + 2));
-    out.print(winPrjMetrics.render(in));
-}
-else {
-    out.print(sp(in) + Functions.information("No project is selected."
-        + " If you want to see metrics applied to a certain project,"
-        + " <a href=\"/projects.jsp\">choose one</a> first."));
-}
-%>                  </div>
-                  <div id="metricslist">
-<%
 //============================================================================
 // Show all metrics installed in the SQO-OSS framework
 //============================================================================
-// Check if the user has requested a metrics refresh
-if (request.getParameter("refreshAllMetrics") != null) {
+
+// Indentation depth
+in = 9;
+
+/*
+ * Check if the user has requested a refresh of the metrics list
+ */
+if (request.getParameter("refreshMetrics") != null) {
+    if (selectedProject.isValid()) {
+        selectedProject.flushMetrics();
+        selectedProject.getEvaluatedMetrics();
+    }
     // TODO: Still not cached
 }
-// Check if the user has requested to show/hide this view
-winVisible = "showAllMetrics";
-if (request.getParameter(winVisible) != null) {
-    // Check the "Show all installed metrics" flag
-    if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
-        settings.setShowAllMetrics(true);
-    else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
-        settings.setShowAllMetrics(false);
+
+/*
+ *  Check if the user has selected a metric
+ */
+if (request.getParameter("selectMetric") != null) {
+    try {
+        Long selId = new Long(request.getParameter("selectMetric"));
+        selectedProject.selectMetric(selId);
+    }
+    catch (NumberFormatException ex) {}
 }
-Window winAllMetrics = new Window();
+
+/*
+ *  Check if the user has deselected a metric
+ */
+if (request.getParameter("deselectMetric") != null) {
+    try {
+        Long selId = new Long(request.getParameter("deselectMetric"));
+        selectedProject.deselectMetric(selId);
+    }
+    catch (NumberFormatException ex) {}
+}
+
+//winVisible = "showAllMetrics";
+//if (request.getParameter(winVisible) != null) {
+//    // Check the "Show all installed metrics" flag
+//    if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
+//        settings.setShowAllMetrics(true);
+//    else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
+//        settings.setShowAllMetrics(false);
+//}
+
 // Construct the window's title icons
-if (settings.getShowAllMetrics())
-    winAllMetrics.addTitleIcon(WinIcon.minimize(
-        request.getServletPath(), winVisible));
+//if (settings.getShowAllMetrics())
+//    winAllMetrics.addTitleIcon(WinIcon.minimize(
+//        request.getServletPath(), winVisible));
+//else
+//    winAllMetrics.addTitleIcon(WinIcon.maximize(
+//        request.getServletPath(), winVisible));
+
+/*
+ * Construct the window's content
+ */
+Window winMetricsView = new Window();
+if ((selectedProject.isValid() 
+        && selectedProject.getEvaluatedMetrics().size() > 0))
+    winMetricsView.setTitle("Evaluated metrics on"
+            + " project " + selectedProject.getName());
 else
-    winAllMetrics.addTitleIcon(WinIcon.maximize(
-        request.getServletPath(), winVisible));
-// Construct the window's content
-if (settings.getShowAllMetrics()) {
-    MetricsList allMetrics = new MetricsList();
-    allMetrics.addAll(terrier.getAllMetrics());
-    MetricsTableView allMetricsView = new MetricsTableView(allMetrics);
-    allMetricsView.setShowResult(false);
-    winAllMetrics.setContent(allMetricsView.getHtml(in));
-}
-// Display the window
-winAllMetrics.setTitle("All installed metrics");
-out.print(winAllMetrics.render(in));
+    winMetricsView.setTitle("Available metrics");
+
+/*
+ * Initialise the data view's object
+ */
+
+MetricsTableView dataView = new MetricsTableView(selectedProject);
+dataView.setServletPath(request.getServletPath());
+dataView.setSettings(settings);
+dataView.setTerrier(terrier);
+
+/*
+ * Display the window
+ */
+winMetricsView.setContent(dataView.getHtml(in));
+out.print(winMetricsView.render(in));
 %>                  </div>
                 </form>
