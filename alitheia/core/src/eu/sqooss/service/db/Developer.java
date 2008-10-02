@@ -151,7 +151,28 @@ public class Developer extends DAObject{
      *         <li>The passed email is invalid syntactically</li>
      *         <ul>
      */
-    public static synchronized Developer getDeveloperByEmail(String email, StoredProject sp){
+    public static Developer getDeveloperByEmail(String email, 
+            StoredProject sp) {
+        return getDeveloperByEmail(email, sp, true);
+    }
+    
+    /**
+     * Return the entry in the Developer table that corresponds to the provided
+     * email. If the entry does not exist, then the parameter <tt>create</tt>
+     * controls whether it will be created and saved. If the email username (the
+     * part before @) exists in the database, then this record is updated with
+     * the provided email and returned.
+     * 
+     * @param email The Developer's email
+     * @param sp The StoredProject this Developer belongs to
+     * @return A Developer record for the specified Developer or null when:
+     *         <ul>
+     *         <li>The passed StoredProject does not exist</li>
+     *         <li>The passed email is invalid syntactically</li>
+     *         <ul>
+     */
+    public static Developer getDeveloperByEmail(String email,
+            StoredProject sp, boolean create){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> parameterMap = new HashMap<String,Object>();
@@ -174,7 +195,8 @@ public class Developer extends DAObject{
         parameterMap.put("username", unameFromEmail);
         parameterMap.put("storedProject", sp);
         
-        devs = dbs.findObjectsByProperties(Developer.class, parameterMap);
+        devs = dbs.findObjectsByPropertiesForUpdate(Developer.class, 
+                parameterMap);
         
         /* Developer's uname in table, update with email and return it */
         if ( !devs.isEmpty() ) {
@@ -182,6 +204,9 @@ public class Developer extends DAObject{
             d.setEmail(email);
             return d;
         }
+        
+        if (!create)
+            return null;
         
         /* Developer email not in table, create it new developer*/ 
         Developer d = new Developer();
@@ -195,7 +220,7 @@ public class Developer extends DAObject{
         
         return d;
     }
-       
+    
     /**
      * Return the entry in the Developer table that corresponds to the provided
      * username. If the entry does not exist, it will be created and saved. If
@@ -209,8 +234,32 @@ public class Developer extends DAObject{
      * @param sp The StoredProject this Developer belongs to
      * @return A Developer record for the specified Developer or null on failure
      */
+    public static Developer getDeveloperByUsername(String email, 
+            StoredProject sp) {
+        return getDeveloperByUsername(email, sp, true);
+    }
+    
+    /**
+     * Return the entry in the Developer table that corresponds to the provided
+     * username. If the entry does not exist, then the parameter <tt>create</tt>
+     * controls whether it will be created and saved. If the username matches
+     * the email of an existing developer in the database, then this record is
+     * updated with the provided username and returned.
+     * 
+     * This method comes in two flavours that enable its use in both manual and
+     * automatic transaction management environments.
+     * 
+     * @param username The Developer's username
+     * @param sp The StoredProject this Developer belongs to
+     * @param create Create the developer entry if not found?
+     * 
+     * @return A Developer record for the specified Developer or null on failure
+     *         to retrieve or create an entry.
+     * 
+     */    
     @SuppressWarnings("unchecked")
-        public static synchronized Developer getDeveloperByUsername(String username, StoredProject sp) {
+    public static Developer getDeveloperByUsername(String username,
+            StoredProject sp, boolean create) {
 		
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
@@ -227,15 +276,18 @@ public class Developer extends DAObject{
          */
         if (!devs.isEmpty())
             return devs.get(0);
-
+        
         /*
          * Try to find a Developer whose email starts with username
          * 
          * TODO: "like" is NOT a Hibernate keyword. The following query might
-         * only work with postgres
+         * only work with certain databases (tested with mysql, postgres and 
+         * derby).s
          */
-        devs = (List<Developer>) dbs.doHQL("from Developer where email like '"
-                                           + username + "'");
+        parameterMap.clear();
+        //parameterMap.put("username", username);
+        devs = (List<Developer>) dbs.doHQL("from Developer as foo where email like " +
+        		"'" +username+ "'", parameterMap, true);
 
         for (Developer d : devs) {
             String email = d.getEmail();
@@ -246,6 +298,9 @@ public class Developer extends DAObject{
             }
         }
 
+        if (!create)
+            return null;
+        
         /* Developer not in table, create new developer */
         Developer d = new Developer();
 

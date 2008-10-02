@@ -70,7 +70,13 @@ public class Bug extends DAObject {
     private Developer reporter;
     
     /** The bug's resolution status. */
-    private String resolution;
+    private BugResolution resolution;
+    
+    /** The bug's resolution priority*/
+    private BugPriority priority;
+    
+    /** The bug's severity.*/
+    private BugSeverity severity;
     
     /** A short description of the bug. */
     private String shortDesc;
@@ -118,12 +124,28 @@ public class Bug extends DAObject {
         this.reporter = reporter;
     }
 
-    public String getResolution() {
+    public BugResolution getResolution() {
         return resolution;
     }
 
-    public void setResolution(String resolution) {
+    public void setResolution(BugResolution resolution) {
         this.resolution = resolution;
+    }
+    
+    public BugPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(BugPriority priority) {
+        this.priority = priority;
+    }
+    
+    public BugSeverity getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(BugSeverity severity) {
+        this.severity = severity;
     }
 
     public String getShortDesc() {

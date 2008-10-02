@@ -377,8 +377,12 @@ public interface DBService {
         throws QueryException;
 
     /**
-     * Execute a parameterized HQL query to the database.
-     *
+     * Execute a parameterized HQL query to the database. The table whose rows
+     * should be returned and locked must be aliased as 'foo' for the lock
+     * mode to work, for example:
+     * <pre>
+     * <tt>select foo from Developer as foo, StoredProject sp where foo.project=sp...</tt>
+     * </pre>
      * @param hql the HQL query string
      * @param params the map of parameters to be substituted in the HQL query
      * @param lockForUpdate if true, the generated SQL query will use a "SELECT ... FOR UPDATE"

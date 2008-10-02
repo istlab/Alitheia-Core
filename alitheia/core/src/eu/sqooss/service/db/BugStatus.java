@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.tds.AccessorException;
 
 /**
  * States a bug resolution process can be into.
@@ -59,13 +58,14 @@ public class BugStatus extends DAObject {
         return Status.fromString(getStatus());
     }
     
-    public void setBugStatus(Status s) throws AccessorException {
+    public void setBugStatus(Status s) {
         this.status = s.toString();
     }
     
     /**
      * Encapsulates all states a bug can be in with a typesafe enum.
-     *
+     * Resolution states have an 1:1 relationship with the
+     * equivalent TDS classes.
      */
     public enum Status {
         /** Not sure if is a bug, or in voting process */
@@ -85,7 +85,6 @@ public class BugStatus extends DAObject {
         
         /**
          * 
-         * @param status The 
          * @return The {@link Status} enum field or null
          */
         public static Status fromString(String status) {

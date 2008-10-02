@@ -15,7 +15,9 @@
     <property name="creationTS" column="CREATION_TS" />
     <property name="deltaTS" column="DELTA_TS" />
     <many-to-one name="reporter" column="REPORTER_ID" />
-    <property name="resolution" column="RESOLUTION" />
+    <many-to-one name="resolution" column="BUG_RESOLUTION_ID" />
+    <many-to-one name="severity" column="BUG_SEVERITY_ID" />
+    <many-to-one name="priority" column="BUG_PRIORITY_ID" />
     <property name="shortDesc" column="SHORT_DESC" />
     <set name="reportMessages" inverse="true" cascade="all-delete-orphan">
         <key column="BUG_ID"/>
