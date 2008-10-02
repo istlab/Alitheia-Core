@@ -39,7 +39,9 @@ import java.util.List;
 
 /**
  * The bug interface represents a single bug from a bug tracker (whichever
- * that may be) in the most abstract form possible.
+ * that may be) in the most abstract form possible. This class has all 
+ * fields public to avoid excessive use of getters/setters. The class is
+ * only intented to act as a Data Transfer Object.
  */
 public class BTSEntry {
     
@@ -64,8 +66,24 @@ public class BTSEntry {
     }
     
     public enum BugSeverity {
-        BLOCKER, CRITICAL, MAJOR, NORMAL, MINOR, TRIVIAL, ENHANCEMENT;
-        
+        /** The bug must be fixed or else...*/
+        BLOCKER, 
+        /** The bug is critical, affecting the quality of the system/data*/
+        CRITICAL, 
+        /** The bug is significant and should be fixed asap.*/
+        MAJOR, 
+        /** The bug is just another bug.*/
+        NORMAL, 
+        /** The bug does not affect the typical operation of the software*/
+        MINOR, 
+        /** A trivial to fix bug, a typo in some doc or similar.*/
+        TRIVIAL, 
+        /** A user request to enhance the software rather than am actual bug.*/
+        ENHANCEMENT;
+        /**
+         * Get a status state from a string.
+         * @return The status state or null if could not be found
+         */
         public static BugSeverity fromString(String s) {
             if (s.equalsIgnoreCase("BLOCKER"))
                 return BLOCKER;
@@ -86,8 +104,17 @@ public class BTSEntry {
     }
     
     public enum BugPriority {
-        LOW, MEDIUM, HIGH;
+        /** Low resolution priority.*/
+        LOW, 
+        /** Medium resolution priority. */
+        MEDIUM,
+        /** High resolution priority.*/
+        HIGH;
         
+        /**
+         * Get a status state from a string.
+         * @return The status state or null if could not be found
+         */
         public static BugPriority fromString(String s) {
             if (s.equalsIgnoreCase("LOW"))
                 return LOW;
@@ -99,8 +126,29 @@ public class BTSEntry {
         }
     }
     
-    public enum BugStatus {
-        UNCONFIRMED, NEW, ASSIGNED, VERIFIED, CLOSED, REOPENED;
+    /**
+     * Encapsulates all possible bug status states.
+     */
+    public enum BugStatus { 
+        /** Not sure if is a bug, or in voting process */
+        UNCONFIRMED,
+        /** A new bug */
+        NEW,
+        /** The bug has been assigned to a developer */
+        ASSIGNED,
+        /** Bug was closed, but fix was not acceptable */
+        REOPENED,
+        /** The problem was fixed, pending verification */
+        RESOLVED,
+        /** The solution is accepted */
+        VERIFIED,
+        /** The bug is resolved */
+        CLOSED;
+        
+        /**
+         * Get a status state from a string.
+         * @return The status state or null if could not be found
+         */
         public static BugStatus fromString(String s) {
             if (s.equalsIgnoreCase("UNCONFIRMED"))
                 return UNCONFIRMED;
@@ -118,9 +166,28 @@ public class BTSEntry {
         }
     }
     
+    /**
+     * Encapsulates all possible bug resolution states.
+     */
     public enum BugResolution {
-        FIXED, INVALID, WONTFIX, DUPLICATE, WORKSFORME, MOVED;
+        /** The bug is fixed */
+        FIXED, 
+        /** The bug description is not correct or the bug */
+        INVALID,
+        /** The bug will not be fixed due to administrative decision*/
+        WONTFIX,
+        /** The bug is duplicate of another bug */
+        DUPLICATE,
+        /** The bug might be a bug but did not appear on the tester's 
+         * workstation */
+        WORKSFORME,
+        /** The bug has been moved to another bug description */
+        MOVED;
         
+        /**
+         * Get a resolution state from a string.
+         * @return The resolution state or null if could not be found
+         */
         public static BugResolution fromString(String s) {
             if (s.equalsIgnoreCase("FIXED"))
                 return FIXED;
