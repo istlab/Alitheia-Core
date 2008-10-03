@@ -34,8 +34,10 @@ package eu.sqooss.impl.service.updater;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
@@ -47,6 +49,7 @@ import eu.sqooss.service.db.BugSeverity;
 import eu.sqooss.service.db.BugSeverity.Severity;
 import eu.sqooss.service.db.BugPriority;
 import eu.sqooss.service.db.BugPriority.Priority;
+import eu.sqooss.service.db.BugReportMessage;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
@@ -54,6 +57,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
+import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
 import eu.sqooss.service.updater.UpdaterException;
 
 /**
@@ -151,6 +155,18 @@ public class BugUpdater extends Job {
         bug.setUpdateRun(new Date(System.currentTimeMillis()));
         
         bug.setReporter(getDeveloper(b.reporter));
+     
+        Set<BugReportMessage> commentList = new LinkedHashSet<BugReportMessage>();
+        
+        for(BTSEntryComment c : b.commentslist) {
+            BugReportMessage bugmessage = new BugReportMessage(bug);
+            bugmessage.setReporter(getDeveloper(c.commentAuthor));
+            bugmessage.setTimestamp(c.commentTS);
+            bugmessage.setText(c.comment);
+            
+            commentList.add(bugmessage);
+        }
+        bug.setReportMessages(commentList);
         
         return bug;
     }

@@ -54,8 +54,17 @@ public class BugReportMessage extends DAObject {
      */
     private Date timestamp;
     
+    /**
+     * Message text
+     */
+    private String text;
+    
     public BugReportMessage() {
         // Nothing to do here
+    }
+    
+    public BugReportMessage(Bug b) {
+        this.bug = b;
     }
     
     public Bug getBug() {
@@ -65,12 +74,12 @@ public class BugReportMessage extends DAObject {
     public void setBug(Bug bug) {
         this.bug = bug;
     }
-    
-    public Developer getBugReporter() {
+
+    public Developer getReporter() {
         return reporter;
     }
-    
-    public void setBugReporter(Developer reporter) {
+
+    public void setReporter(Developer reporter) {
         this.reporter = reporter;
     }
 
@@ -80,6 +89,14 @@ public class BugReportMessage extends DAObject {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }
 
