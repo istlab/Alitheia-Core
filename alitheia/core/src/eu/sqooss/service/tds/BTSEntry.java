@@ -60,10 +60,12 @@ public class BTSEntry {
     public String reporter;
     public String assignee;
     
-    public List<BTSEntryComments> commentslist;
+    public List<BTSEntryComment> commentslist;
+    public List<BTSEntryAttachement> attachementlist;
     
     public BTSEntry() {
-        commentslist = new ArrayList<BTSEntryComments>();
+        commentslist = new ArrayList<BTSEntryComment>();
+        attachementlist = new ArrayList<BTSEntryAttachement>();
     }
     
     public enum BugSeverity {
@@ -215,6 +217,31 @@ public class BTSEntry {
             return null;
         }
     }
+    
+    /**
+     * Bug revision comment.
+     */
+    public class BTSEntryComment {
+        public String commentAuthor;
+        public Date commentTS;
+        public String comment;
+        
+        public BTSEntryComment() {   
+        }
+    }
+    
+    /**
+     * Bug attachement
+     */
+    public class BTSEntryAttachement {
+        public Date date;
+        public String description;
+        public String type;
+        
+        public BTSEntryAttachement() {
+        }
+    }
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

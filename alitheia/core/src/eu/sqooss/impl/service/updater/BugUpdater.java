@@ -89,17 +89,25 @@ public class BugUpdater extends Job {
         } else {
             bugIds = bts.getAllBugs();
         }
-        log.info("Got " + bugIds.size() + " new bugs");
+        log.info(sp.getName() + ": Got " + bugIds.size() + " new bugs");
 
         //Update
         for (String bugID : bugIds) {
             if (bugExists(sp, bugID)) {
-                log.debug("Updating existing bug " + bugID);
+                log.debug(sp.getName() +  ": Updating existing bug " + bugID);
             }
-            db.addRecord(BTSEntryToBug(bts.getBug(bugID)));
-            log.debug("Added bug " + bugID);
+            Bug bug = BTSEntryToBug(bts.getBug(bugID));
+            
+            if (bug == null) {
+                log.warn(sp.getName() + ": Bug " + bugID + 
+                        " could not be parsed");
+                continue;
+            }
+            db.addRecord(bug);
+            log.debug(sp.getName() + ": Added bug " + bugID);
         }
         db.commitDBSession();
+        
     }
     
     /**
@@ -141,17 +149,23 @@ public class BugUpdater extends Job {
         
         bug.setShortDesc(b.shortDescr);
         bug.setUpdateRun(new Date(System.currentTimeMillis()));
-
-        Developer d = null;
-        if (b.assignee.matches("@")) {
-            d = Developer.getDeveloperByEmail(b.assignee, sp);
-        } else {
-            d = Developer.getDeveloperByUsername(b.assignee, sp);
-        }
         
-        bug.setReporter(d);
+        bug.setReporter(getDeveloper(b.reporter));
         
         return bug;
+    }
+    
+    /**
+     * Get or create a developer entry for a username
+     */
+    private Developer getDeveloper(String name) {
+        Developer d = null;
+        if (name.matches("@")) {
+            d = Developer.getDeveloperByEmail(name, sp);
+        } else {
+            d = Developer.getDeveloperByUsername(name, sp);
+        }
+        return d;
     }
     
     /**
@@ -169,6 +183,4 @@ public class BugUpdater extends Job {
             return false;
         return true;
     }
-    
-   
 }

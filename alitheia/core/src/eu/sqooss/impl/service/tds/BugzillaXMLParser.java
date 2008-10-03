@@ -43,6 +43,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -58,6 +59,8 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
+import eu.sqooss.service.tds.BTSEntry.BTSEntryAttachement;
+import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
 
 /**
  * A parser for Bugzilla XML bug descriptions. This accessor expects to find a
@@ -188,6 +191,8 @@ public class BugzillaXMLParser implements BTSAccessor {
         Element root = document.getRootElement();
         BTSEntry bug = new BTSEntry();
         bug.bugID = f.getName().split("\\.")[0];
+        
+        //Each bug file has just 1 bug element
         Element element = (Element) root.elementIterator("bug").next();
 
         //Must be reading some other XML
@@ -228,6 +233,40 @@ public class BugzillaXMLParser implements BTSAccessor {
         elementValue = getElementValueAsString(element.element("assignee"));
         bug.assignee = elementValue;
         
+        Iterator<Element> i = element.elementIterator("long_desc");
+        
+        while (i.hasNext()) {
+            Element comment = i.next();
+            BTSEntryComment c =  bug.new BTSEntryComment();
+            
+            elementValue = getElementValueAsString(comment.element("who"));
+            c.commentAuthor = elementValue;
+            
+            elementValue = getElementValueAsString(comment.element("bug_when"));
+            c.commentTS = parseDate(elementValue);
+            
+            elementValue = getElementValueAsString(comment.element("thetext"));
+            c.comment = elementValue;
+            
+            bug.commentslist.add(c);
+        }
+        
+        i = element.elementIterator("attachement");
+        
+        while (i.hasNext()) {
+            Element comment = i.next();
+            BTSEntryAttachement a =  bug.new BTSEntryAttachement();
+            
+            elementValue = getElementValueAsString(comment.element("date"));
+            a.date = parseDate(elementValue);
+            
+            elementValue = getElementValueAsString(comment.element("desc"));
+            a.description = elementValue;
+            
+            elementValue = getElementValueAsString(comment.element("type"));
+            a.type = elementValue;
+        }
+        
         return bug;
     }
 
@@ -243,6 +282,8 @@ public class BugzillaXMLParser implements BTSAccessor {
             try {
                 d = dateParser2.parse(date);
             } catch (ParseException e) {
+                logger.warn("BugzillaXMLParser: Could not parse date string " 
+                        + date);
             }
         }
         
