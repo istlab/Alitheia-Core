@@ -81,7 +81,9 @@ public class BugStatus extends DAObject {
         /** The solution is accepted */
         VERIFIED,
         /** The bug is resolved */
-        CLOSED;
+        CLOSED,
+        /** The status is not known*/
+        UNKNOWN;
         
         /**
          * 
@@ -90,21 +92,23 @@ public class BugStatus extends DAObject {
         public static Status fromString(String status) {
             if (status == null)
                 return null;
-            if (status.equalsIgnoreCase(UNCONFIRMED.toString()))
-                return Status.UNCONFIRMED;
-            if (status.equalsIgnoreCase(NEW.toString()))
-                return Status.NEW;
-            if (status.equalsIgnoreCase(ASSIGNED.toString()))
-                return Status.ASSIGNED;
-            if (status.equalsIgnoreCase(REOPENED.toString()))
-                return Status.REOPENED;
-            if (status.equalsIgnoreCase(RESOLVED.toString()))
-                return Status.RESOLVED;
-            if (status.equalsIgnoreCase(VERIFIED.toString()))
-                return Status.VERIFIED;
-            if (status.equalsIgnoreCase(CLOSED.toString()))
-                return Status.CLOSED;
-            return null;
+            if (status.equalsIgnoreCase("UNCONFIRMED"))
+                return UNCONFIRMED;
+            if (status.equalsIgnoreCase("NEW"))
+                return NEW;
+            if (status.equalsIgnoreCase("ASSIGNED"))
+                return ASSIGNED;
+            if (status.equalsIgnoreCase("REOPENED"))
+                return REOPENED;
+            if (status.equalsIgnoreCase("RESOLVED"))
+                return RESOLVED;
+            if (status.equalsIgnoreCase("VERIFIED"))
+                return VERIFIED;
+            if (status.equalsIgnoreCase("CLOSED"))
+                return CLOSED;
+            if (status.equalsIgnoreCase("UNKNOWN"))
+                return UNKNOWN;
+            return UNKNOWN;
         }
     }
     

@@ -47,6 +47,7 @@ public class BTSEntry {
     
     public String bugID;
     public Date creationTimestamp;
+    public Date latestUpdateTimestamp;
     public String shortDescr;
     public BugSeverity severity;
     public BugPriority priority;
@@ -109,7 +110,7 @@ public class BTSEntry {
         /** Low resolution priority.*/
         LOW, 
         /** Medium resolution priority. */
-        MEDIUM,
+        MEDIUM, NORMAL,
         /** High resolution priority.*/
         HIGH;
         
@@ -122,7 +123,7 @@ public class BTSEntry {
                 return null;
             if (s.equalsIgnoreCase("LOW"))
                 return LOW;
-            if (s.equalsIgnoreCase("MEDIUM"))
+            if (s.equalsIgnoreCase("MEDIUM") || s.equals("NORMAL"))
                 return MEDIUM;
             if (s.equalsIgnoreCase("HIGH"))
                 return HIGH;
@@ -168,6 +169,8 @@ public class BTSEntry {
                 return CLOSED;
             if (s.equalsIgnoreCase("REOPENED"))
                 return REOPENED;
+            if (s.equalsIgnoreCase("RESOLVED"))
+                return RESOLVED;
             return null;
         }
     }

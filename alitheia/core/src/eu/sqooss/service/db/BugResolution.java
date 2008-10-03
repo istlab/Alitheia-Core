@@ -79,7 +79,9 @@ public class BugResolution extends DAObject {
         /** The bug might be a bug but did not appear on the tester's workstation */
         WORKSFORME,
         /** The bug has been moved to another bug description */
-        MOVED;
+        MOVED,
+        /** The bug has not been resolved yet*/
+        UNKNOWN;
         
         public static Resolution fromString(String s) {
             if (s == null)
@@ -97,7 +99,10 @@ public class BugResolution extends DAObject {
                 return WORKSFORME;
             if (s.equalsIgnoreCase("MOVED"))
                 return MOVED;
-            return null;
+            if (s.equalsIgnoreCase("UNKNOWN"))
+                return UNKNOWN;
+            /*Default value*/
+            return UNKNOWN;
         }
     }    
     

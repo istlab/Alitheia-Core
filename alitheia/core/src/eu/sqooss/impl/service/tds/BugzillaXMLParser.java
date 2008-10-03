@@ -154,8 +154,6 @@ public class BugzillaXMLParser implements BTSAccessor {
      * returns a bug entry. 
      */
     protected BTSEntry processBug(File f) {
-        //Bugzilla stores dates as: 2003-11-07 14:35 UTC
-        SimpleDateFormat dateParser = new SimpleDateFormat("y-M-d k:m z");
         SAXReader reader = new SAXReader(false);
         Document document = null;
         
@@ -189,7 +187,7 @@ public class BugzillaXMLParser implements BTSAccessor {
         
         Element root = document.getRootElement();
         BTSEntry bug = new BTSEntry();
-        bug.bugID = f.getAbsolutePath().split("\\.")[0];
+        bug.bugID = f.getName().split("\\.")[0];
         Element element = (Element) root.elementIterator("bug").next();
 
         //Must be reading some other XML
@@ -206,11 +204,11 @@ public class BugzillaXMLParser implements BTSAccessor {
         bug.state = BTSEntry.BugStatus.fromString(elementValue);
 
         elementValue = getElementValueAsString(element.element("creation_ts"));
-        try {
-            bug.creationTimestamp = dateParser.parse(elementValue);
-        } catch (ParseException pex) {
-            bug.creationTimestamp = null;
-        }
+        bug.creationTimestamp = parseDate(elementValue);
+        
+        
+        elementValue = getElementValueAsString(element.element("delta_ts"));
+        bug.latestUpdateTimestamp = parseDate(elementValue);
 
         elementValue = getElementValueAsString(element.element("priority"));
         bug.priority = BTSEntry.BugPriority.fromString(elementValue);
@@ -233,6 +231,24 @@ public class BugzillaXMLParser implements BTSAccessor {
         return bug;
     }
 
+    private Date parseDate(String date) {
+        //Bugzilla stores dates as: 2003-11-07 14:35 UTC
+        SimpleDateFormat dateParser1 = new SimpleDateFormat("y-M-d k:m z");
+        //or as: 2003-11-07 14:35:22 UTC
+        SimpleDateFormat dateParser2 = new SimpleDateFormat("y-M-d k:m:s z");
+        Date d = null;
+        try {
+            d = dateParser1.parse(date);
+        } catch (ParseException pex) {
+            try {
+                d = dateParser2.parse(date);
+            } catch (ParseException e) {
+            }
+        }
+        
+        return d;
+    }
+    
     private String getElementValueAsString(Element element) {
         if (element != null) {
             return element.getStringValue();

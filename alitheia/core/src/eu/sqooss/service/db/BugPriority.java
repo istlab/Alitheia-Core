@@ -73,7 +73,9 @@ public class BugPriority extends DAObject {
         /** Medium resolution priority. */
         MEDIUM,
         /** High resolution priority.*/
-        HIGH;
+        HIGH, 
+        /**All other priorities*/
+        UNKNOWN;
         
         /**
          * Get a status state from a string.
@@ -89,7 +91,9 @@ public class BugPriority extends DAObject {
                 return MEDIUM;
             if (s.equalsIgnoreCase("HIGH"))
                 return HIGH;
-            return null;
+            if (s.equalsIgnoreCase("UNSPECIFIED"))
+                return UNKNOWN;
+            return UNKNOWN;
         }
     }    
     
@@ -101,6 +105,8 @@ public class BugPriority extends DAObject {
      * the priority code line to the database
      */
     public static BugPriority getBugPriority(Priority s) {
+        if (s == null)
+            return null;
         return getBugPriority(s.toString(), true);
     }
     

@@ -40,8 +40,15 @@ import java.util.Map;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.BugResolution;
+import eu.sqooss.service.db.BugResolution.Resolution;
 import eu.sqooss.service.db.BugStatus;
+import eu.sqooss.service.db.BugStatus.Status;
+import eu.sqooss.service.db.BugSeverity;
+import eu.sqooss.service.db.BugSeverity.Severity;
+import eu.sqooss.service.db.BugPriority;
+import eu.sqooss.service.db.BugPriority.Priority;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
@@ -89,7 +96,8 @@ public class BugUpdater extends Job {
             if (bugExists(sp, bugID)) {
                 log.debug("Updating existing bug " + bugID);
             }
-            BTSEntry bug = bts.getBug(bugID);
+            db.addRecord(BTSEntryToBug(bts.getBug(bugID)));
+            log.debug("Added bug " + bugID);
         }
         db.commitDBSession();
     }
@@ -104,12 +112,45 @@ public class BugUpdater extends Job {
         Bug bug = new Bug();
         bug.setBugID(b.bugID);
         bug.setCreationTS(b.creationTimestamp);
-        bug.setProject(sp);
-        bug.setStatus(BugStatus.getBugStatus(BugStatus.Status.fromString(b.state.toString())));
-        bug.setUpdateRun(new Date(System.currentTimeMillis()));
+        bug.setDeltaTS(b.latestUpdateTimestamp);
         
-        bug.setResolution(BugResolution.getBugResolution(BugResolution.Resolution.fromString(b.resolution.toString())));
-        //bug.setReporter(Developer.b.reporter);
+        if (b.priority != null) {
+            bug.setPriority(BugPriority.getBugPriority(Priority.fromString(b.priority.toString())));
+        } else {
+            bug.setPriority(BugPriority.getBugPriority(Priority.UNKNOWN));
+        }   
+        bug.setProject(sp);
+        
+        if (b.resolution != null) {
+            bug.setResolution(BugResolution.getBugResolution(Resolution.fromString(b.resolution.toString())));
+        } else {
+            bug.setResolution(BugResolution.getBugResolution(Resolution.UNKNOWN));
+        }
+        
+        if (b.severity != null) {
+            bug.setSeverity(BugSeverity.getBugseverity(Severity.fromString(b.severity.toString())));
+        } else {
+            bug.setSeverity(BugSeverity.getBugseverity(Severity.UNKNOWN));
+        }
+        
+        if (b.state != null) {
+            bug.setStatus(BugStatus.getBugStatus(Status.fromString(b.state.toString())));
+        } else {
+            bug.setStatus(BugStatus.getBugStatus(Status.UNKNOWN));
+        }
+        
+        bug.setShortDesc(b.shortDescr);
+        bug.setUpdateRun(new Date(System.currentTimeMillis()));
+
+        Developer d = null;
+        if (b.assignee.matches("@")) {
+            d = Developer.getDeveloperByEmail(b.assignee, sp);
+        } else {
+            d = Developer.getDeveloperByUsername(b.assignee, sp);
+        }
+        
+        bug.setReporter(d);
+        
         return bug;
     }
     

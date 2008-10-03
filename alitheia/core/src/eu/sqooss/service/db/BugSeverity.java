@@ -81,7 +81,9 @@ public class BugSeverity extends DAObject {
         /** A trivial to fix bug, a typo in some doc or similar.*/
         TRIVIAL, 
         /** A user request to enhance the software rather than am actual bug.*/
-        ENHANCEMENT;
+        ENHANCEMENT,
+        /** An known severity level, used to match */
+        UNKNOWN;
         
         /**
          * Get a status state from a string.
@@ -104,7 +106,9 @@ public class BugSeverity extends DAObject {
                 return TRIVIAL;
             if (s.equalsIgnoreCase("ENHANCEMENT"))
                 return ENHANCEMENT;
-            return null;
+            if (s.equalsIgnoreCase("UNKNOWN"))
+                return UNKNOWN;
+            return UNKNOWN;
         }
     }    
     
