@@ -46,6 +46,7 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -354,13 +355,16 @@ public class MetricActivatorImpl implements MetricActivator {
                 query = "select distinct mm.id " +
                         "from StoredProject sp, MailingList ml, MailMessage mm " +
                         "where mm.list = ml and " +
-                        "ml.storedProject = :" + paramSp;query = "select "; // << Confusing!! - resets the query
+                        "ml.storedProject = :" + paramSp;
             } else if (c.equals(MailingList.class)) { 
                 query = "select distinct ml.id from StoredProject sp, MailingList ml " +
                         "where ml.storedProject = :" + paramSp;
             } else if (c.equals(Developer.class)) { 
                 query = "select distinct d.id from Developer d " +
                         "where d.storedProject = :" + paramSp;
+            } else if (c.equals(Bug.class)){
+                query = "select distinct b.id from Bug b " +
+                        " where b.project =: " + paramSp;
             } else {
                 logger.error("Unknown activation type " + c.getName());
                 return;

@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
@@ -54,11 +55,13 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
 import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
 import eu.sqooss.service.updater.UpdaterException;
+import eu.sqooss.service.updater.UpdaterService;
 
 /**
  * Bug updater. Reads data from the TDS and updates 
@@ -69,12 +72,17 @@ public class BugUpdater extends Job {
     private Logger log;
     private BTSAccessor bts;
     private StoredProject sp;
+    private UpdaterServiceImpl updater;
+    
+    /*Cache bug ids to call the metric activator with them*/
+    private Set<Long> updBugs = new TreeSet<Long>();
     
     public BugUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
         
         this.db = core.getDBService();
         this.log = logger;
+        this.updater = updater;
         this.bts = core.getTDSService().getAccessor(project.getId()).getBTSAccessor();
         this.sp = project;
     }
@@ -131,7 +139,16 @@ public class BugUpdater extends Job {
             db.addRecord(bug);
             log.debug(sp.getName() + ": Added bug " + bugID);
         }
-        db.commitDBSession();
+        try {
+            db.commitDBSession();
+            if (!updBugs.isEmpty()) {
+                MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
+                ma.runMetrics(updBugs, Bug.class);
+            }
+            
+        } finally {
+            updater.removeUpdater(sp.getName(), UpdaterService.UpdateTarget.BUGS);
+        }
     }
     
     /**
