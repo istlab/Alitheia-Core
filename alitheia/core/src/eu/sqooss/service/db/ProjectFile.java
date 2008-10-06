@@ -518,7 +518,7 @@ public class ProjectFile extends DAObject{
 
         // Proceed only if this file is not the project's root folder
         if (pf.getDir().getPath().matches("^/+$")) {
-            return null;        
+            return null;
         }
         
         String paramName = "paramName"; 
@@ -534,7 +534,7 @@ public class ProjectFile extends DAObject{
             " and pf.dir = :" + paramDir + 
             " and pf.isDirectory = 'true'" +
             " and pv.project = :" + paramProject +
-            " and pv.timestamp < :" + paramTimestamp +
+            " and pv.timestamp <= :" + paramTimestamp +
             " order by pv.timestamp desc";
             
         HashMap<String, Object> params = new HashMap<String, Object>();
