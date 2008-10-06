@@ -213,7 +213,7 @@ public class BugUpdater extends Job {
      */
     private Developer getDeveloper(String name) {
         Developer d = null;
-        if (name.matches("@")) {
+        if (name.contains("@")) {
             d = Developer.getDeveloperByEmail(name, sp);
         } else {
             d = Developer.getDeveloperByUsername(name, sp);

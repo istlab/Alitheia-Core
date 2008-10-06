@@ -126,6 +126,9 @@ public class MailDirAccessor implements MailAccessor {
         if (!maildirRoot.exists()) {
             throw new AccessorException(this.getClass(), "");
         }
+        if (logger != null) {
+            logger.info("Created MailDir accessor for " + dataURL.toString());
+        }
     }
     
     /**

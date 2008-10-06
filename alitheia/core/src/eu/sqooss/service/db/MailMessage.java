@@ -122,6 +122,9 @@ public class MailMessage extends DAObject {
         subject = value;
     }
     
+    /**
+     * 
+     */
     public static MailMessage getMessageById(String messageId) {
     	DBService dbs = AlitheiaCore.getInstance().getDBService();
     	Map<String,Object> properties = new HashMap<String, Object>(1);
@@ -133,5 +136,30 @@ public class MailMessage extends DAObject {
     	}
     	
     	return msgList.get(0);
+    }
+    
+    /**
+     * Get the latest known mail message for the provided project, or null.  
+     */
+    public static MailMessage getLatestMailMessage(StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        String paramStoredProject = "paramStoredProject";       
+        
+        String query = "select mm " +
+                        " from MailMessage mm, MailingList ml " +
+                        " where mm.list = ml " +
+                        " and ml.storedProject = :" + paramStoredProject +
+                        " order by mm.sendDate desc";
+                
+        
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put(paramStoredProject, sp);
+        
+        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params, 1);
+        
+        if (!mm.isEmpty())
+            return mm.get(0);
+        
+        return null;
     }
 }

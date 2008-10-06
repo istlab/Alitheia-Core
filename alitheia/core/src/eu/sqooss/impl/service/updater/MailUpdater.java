@@ -34,8 +34,9 @@ package eu.sqooss.impl.service.updater;
 
 import java.io.FileNotFoundException;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -93,7 +94,6 @@ class MailUpdater extends Job {
 
     protected void run() {
         dbs.startDBSession();
-        project = dbs.attachObjectToDBSession(project);
         ProjectAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
         List<String> lists = mailAccessor.getMailingLists();
@@ -104,7 +104,7 @@ class MailUpdater extends Job {
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
             return;
         }
-        Set<MailingList> mllist = project.getMailingLists();
+        List<MailingList> mllist = getMailingLists(project);
         boolean refresh = false;
         //check if the mailing lists exist
         for ( String listId : lists ) {
@@ -127,8 +127,8 @@ class MailUpdater extends Job {
         }
 
         // if we added a new mailing list, retrieve them again
-        if(refresh) {
-            mllist = project.getMailingLists();
+        if (refresh) {
+            mllist = getMailingLists(project);
         }
         for ( MailingList ml : mllist ) {
             processList(mailAccessor, ml);
@@ -147,10 +147,9 @@ class MailUpdater extends Job {
             return;
         }
 
-        for ( String messageId : messageIds ) {
+        for (String messageId : messageIds) {
             String msg = String.format("Message <%s> in list <%s> ", messageId, listId);
-
-            logger.info(msg);
+            
             try {
                 MimeMessage mm = mailAccessor.getMimeMessage(listId, messageId);
                 if (mm == null) {
@@ -159,7 +158,8 @@ class MailUpdater extends Job {
                 }
                 Address[] senderAddr = mm.getFrom();
                 if (senderAddr == null) {
-                    logger.info("Message has no sender?");
+                    logger.warn(project.getName() + ": " 
+                            + msg + "  has no sender. Ignoring");
                     continue;
                 }
                 Address actualSender = senderAddr[0];
@@ -172,7 +172,7 @@ class MailUpdater extends Job {
                 }
 
                 Developer sender = Developer.getDeveloperByEmail(senderEmail,
-                                                                 mllist.getStoredProject());
+                        mllist.getStoredProject());
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
                 if (mmsg == null) {
                     // if the message does not exist in the database, then
@@ -184,8 +184,9 @@ class MailUpdater extends Job {
                     mmsg.setSendDate(mm.getSentDate());
                     mmsg.setArrivalDate(mm.getReceivedDate());
                     mmsg.setSubject(mm.getSubject());
+                    
+                    logger.debug("Adding message " + mm.getMessageID());
                     dbs.addRecord(mmsg);
-                    System.out.println("Adding a new message: " + mm.getMessageID());
                 }
 
                 if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
@@ -200,6 +201,12 @@ class MailUpdater extends Job {
                 logger.warn(msg + " error - " + e.getMessage());
             }
 	}
+    }
+    
+    private List<MailingList> getMailingLists(StoredProject sp) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("storedProject", sp);
+        return dbs.findObjectsByProperties(MailingList.class, params);
     }
 }
 

@@ -50,6 +50,7 @@ import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.InvocationRule;
+import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -568,10 +569,11 @@ public class ProjectsView extends AbstractView {
                             + lastVersion
                             + "</td>\n");
                     // Date of the last known email
+                    MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
-                            + getLbl("l0051")
+                            + ((mm == null)?getLbl("l0051"):mm.getSendDate())
                             + "</td>\n");
-                    // Date of the last known bug entry
+                    // ID of the last known bug entry
                     Bug bug = Bug.getLastUpdate(nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((bug == null)?getLbl("l0051"):bug.getBugID())
