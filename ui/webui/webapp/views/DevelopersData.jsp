@@ -163,6 +163,9 @@ if (selectedProject.isValid()) {
 %><%@ include file="/inc/DataViewIcons.jsp"
 %><%
 
+        /*
+         * Display the window
+         */
         winDataView.setContent(b.toString());
         out.print(winDataView.render(in - 2));
     }

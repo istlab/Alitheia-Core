@@ -10,11 +10,6 @@
     // Indentation depth
     in = 11;
 
-    eu.sqooss.webui.datatype.File selFile = null;
-    if (settings.getFdvSelectedFileId() != null)
-        selFile = selectedProject.getCurrentVersion().getFile(
-                settings.getFdvSelectedFileId());
-
     if (selFile != null) {
         BaseDataSettings viewConf = settings.getDataSettings(
                 SelectedSettings.FILE_DATA_SETTINGS);

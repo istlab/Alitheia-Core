@@ -115,6 +115,10 @@
             icoPieChart.setStatus(false);
         }
 
+        /*
+         * Construct the window icons
+         */
+        icoCloseWin.setPath("/");
         icoCloseWin.setParameter(null);
         winDataView.addTitleIcon(icoCloseWin);
 %>

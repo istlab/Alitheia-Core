@@ -69,7 +69,11 @@ if (selectedProject.isValid()) {
         //====================================================================
         // Display the selected file verbosely (if any)
         //====================================================================
-        if (settings.getFdvSelectedFileId() != null){
+        eu.sqooss.webui.datatype.File selFile = null;
+        if (settings.getFdvSelectedFileId() != null)
+            selFile = selectedProject.getCurrentVersion().getFile(
+                    settings.getFdvSelectedFileId());
+        if (selFile != null) {
 
 %><%@ include file="/views/FileData.jsp"
 %><%
@@ -358,7 +362,17 @@ if (selectedProject.isValid()) {
                 b.append(sp(--in) + "</tr>\n");
                 b.append(sp(--in) + "</table>\n");
             }
-            // Display the window
+
+            /*
+             * Construct the window icons
+             */
+            icoCloseWin.setPath("/");
+            icoCloseWin.setParameter(null);
+            winFileBrowser.addTitleIcon(icoCloseWin);
+
+            /*
+             * Display the window
+             */
             winFileBrowser.setContent(b.toString());
             winFileBrowser.setTitle("Files in version ID: "
                 + selectedProject.getCurrentVersion().getName());
