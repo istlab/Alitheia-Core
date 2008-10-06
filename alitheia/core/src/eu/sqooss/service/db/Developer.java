@@ -171,7 +171,7 @@ public class Developer extends DAObject{
      *         <li>The passed email is invalid syntactically</li>
      *         <ul>
      */
-    public static Developer getDeveloperByEmail(String email,
+    public static synchronized Developer getDeveloperByEmail(String email,
             StoredProject sp, boolean create){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
@@ -258,7 +258,7 @@ public class Developer extends DAObject{
      * 
      */    
     @SuppressWarnings("unchecked")
-    public static Developer getDeveloperByUsername(String username,
+    public static synchronized Developer getDeveloperByUsername(String username,
             StoredProject sp, boolean create) {
 		
         DBService dbs = AlitheiaCore.getInstance().getDBService();
