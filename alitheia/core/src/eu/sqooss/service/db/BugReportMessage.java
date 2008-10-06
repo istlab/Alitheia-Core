@@ -98,6 +98,19 @@ public class BugReportMessage extends DAObject {
     public void setText(String text) {
         this.text = text;
     }
+    
+    public boolean equals(BugReportMessage b) {
+        if (this.timestamp.getTime() != b.timestamp.getTime())
+            return false;
+        
+        if (!b.getBug().getBugID().equals(this.getBug().getBugID()))
+            return false;
+     
+        if (b.getBug().getProject().getId() != bug.getProject().getId())
+            return false;
+        
+        return true;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

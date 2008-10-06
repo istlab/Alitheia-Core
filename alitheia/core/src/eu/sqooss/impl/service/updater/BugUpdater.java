@@ -97,9 +97,6 @@ public class BugUpdater extends Job {
 
         //Update
         for (String bugID : bugIds) {
-            if (bugExists(sp, bugID)) {
-                log.debug(sp.getName() +  ": Updating existing bug " + bugID);
-            }
             Bug bug = BTSEntryToBug(bts.getBug(bugID));
             
             if (bug == null) {
@@ -107,11 +104,34 @@ public class BugUpdater extends Job {
                         " could not be parsed");
                 continue;
             }
+            
+            //Filter out duplicate report messages
+            if (bugExists(sp, bugID)) {
+                log.debug(sp.getName() +  ": Updating existing bug " + bugID);
+                List<BugReportMessage> msgs = bug.getAllReportComments();
+                Set<BugReportMessage> newmsgs = bug.getReportMessages();
+                Set<BugReportMessage> toadd = new LinkedHashSet<BugReportMessage>();
+                
+                for (BugReportMessage newmsg : newmsgs) {
+                    boolean found = false;
+                    for (BugReportMessage msg : msgs) {
+                        if (msg.equals(newmsg)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        toadd.add(newmsg);
+                    }   
+                }
+                
+                bug.setReportMessages(toadd);
+            }
+            
             db.addRecord(bug);
             log.debug(sp.getName() + ": Added bug " + bugID);
         }
         db.commitDBSession();
-        
     }
     
     /**

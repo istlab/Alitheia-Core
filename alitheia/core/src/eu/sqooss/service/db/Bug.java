@@ -211,6 +211,58 @@ public class Bug extends DAObject {
         
         return buglist.get(0);
     }
+    
+    /**
+     * Get a list of all bug report comments for this specific bug,
+     * ordered by the time the comment was left (old to new).  
+     */
+    @SuppressWarnings("unchecked")
+    public List<BugReportMessage> getAllReportComments() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
+        String paramBugID = "paramBugID";
+        String paramStoredProject = "stroredProject";
+        
+        String query = "select brm " +
+        		"from Bug b, BugReportMessage brm " +
+        		"where brm.bug = b " +
+        		"and b.bugID = :" + paramBugID +
+        		" and b.project =:" + paramStoredProject +
+        		" order by brm.timestamp asc" ;
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(paramBugID, bugID);
+        params.put(paramStoredProject, project);
+        
+        return (List<BugReportMessage>) dbs.doHQL(query, params);
+    }
+    
+    /**
+     * Get the latest entry for the bug with the provided Id.
+     */
+    public static Bug getBug(String bugID, StoredProject sp) {    
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
+        String paramBugID = "paramBugID";
+        String paramStoredProject = "stroredProject";
+        
+        String query = "select b " +
+        	        "from Bug b " +
+        	        "where b.bugID = :" + paramBugID + 
+        	        " and b.project = :" + paramStoredProject +
+        	        " order by b.timestamp desc";
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(paramBugID, bugID);
+        params.put(paramStoredProject, sp);
+        
+        List<Bug> bug = (List<Bug>) dbs.doHQL(query, params, 1);
+        
+        if (bug.isEmpty())
+            return null;
+        else 
+            return bug.get(0);
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
