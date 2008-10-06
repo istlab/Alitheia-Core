@@ -11,6 +11,6 @@
     <many-to-one name="bug" column="BUG_ID" not-null="true" cascade="merge"/>
     <many-to-one name="reporter" column="DEVELOPER_ID" not-null="true" cascade="merge"/>
     <property name="timestamp"  />
-    <property name="text" />
+    <property name="text" type="text"/>
   </class>
 </hibernate-mapping>
