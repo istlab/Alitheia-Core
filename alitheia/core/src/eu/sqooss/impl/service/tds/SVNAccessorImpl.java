@@ -261,7 +261,9 @@ public class SVNAccessorImpl implements SCMAccessor {
                 }
                 
                 if (((SVNProjectRevision) r).getSVNRevision() < getFirstSVNRevision()) {
-                    
+                    throw new InvalidProjectRevisionException(
+                            ((SVNProjectRevision) r).getSVNRevision() + 
+                                " < 0", getClass());
                 }
                 
                 //Resolve date

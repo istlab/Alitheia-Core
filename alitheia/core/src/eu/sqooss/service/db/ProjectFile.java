@@ -228,22 +228,6 @@ public class ProjectFile extends DAObject{
         this.measurements = measurements;
     }
     
-    public boolean equals (ProjectFile other) {
-        if (!this.getName().equals(other.getName()))
-            return false;
-        
-        if (!this.getDir().getPath().equals(other.getDir().getPath()))
-            return false;
-        
-        if (!(this.getProjectVersion().getRevisionId() == other.getProjectVersion().getRevisionId()))
-            return false;
-        
-        if (!(this.getProjectVersion().getProject().getId() == other.getProjectVersion().getProject().getId()))
-            return false; 
-        
-        return true;
-    }
-
     /**
      * Returns the full path to the file, relative to the repository root
      * @return

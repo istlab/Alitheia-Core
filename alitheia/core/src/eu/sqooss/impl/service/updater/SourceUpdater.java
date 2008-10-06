@@ -200,7 +200,6 @@ final class SourceUpdater extends Job {
         
         CommitLog commitLog = null;
         SCMAccessor scm = null;
-        String lastProjectVersion = null;
         
         try {
             // This is the last version we actually know about
@@ -208,20 +207,21 @@ final class SourceUpdater extends Job {
             scm = tds.getAccessor(project.getId()).getSCMAccessor();
             if (latestVersion != null) {  
                 Revision r = scm.getHeadRevision();
-                lastProjectVersion = latestVersion.getRevisionId();
+                
                 /* Don't choke when called to update an up-to-date project */
                 if (r.compareTo(scm.newRevision(latestVersion.getRevisionId())) <= 0) {
                     logger.info("Project " + project.getName() + " is already" +
                     		" at the newest version " + r.getUniqueId());
                     dbs.commitDBSession();
-                    return;
+                    return;    
                 }
+                commitLog = scm.getCommitLog(scm.getNextRevision(
+                        scm.newRevision(latestVersion.getRevisionId())), 
+                        scm.getHeadRevision());
             } else {
-                lastProjectVersion = scm.getFirstRevision().getUniqueId();
+                commitLog = scm.getCommitLog(scm.getFirstRevision(), scm.getHeadRevision());
             }
             
-            commitLog = scm.getCommitLog(scm.newRevision(lastProjectVersion), scm.getHeadRevision());
-
             logger.info(project.getName() + ": New revisions: " 
                     + commitLog.size());
             
@@ -585,7 +585,7 @@ final class SourceUpdater extends Job {
                 mark.makeDeleted();
                 /*
                  * Don't store a delete entry for files that have been 
-                 * copied by a yet unprocessed operation 
+                 * *moved* by a yet unprocessed operation 
                  */
                 if (isCopiedPath(mark.getFileName())){
                     continue;
@@ -662,9 +662,15 @@ final class SourceUpdater extends Job {
             logger.error(e.getMessage());
             p = null;
         }
-        ProjectVersion prev = ProjectVersion.getVersionByRevision(pv.getProject(), pv.getRevisionId());
-        if (p == null || prev == null) {
-            logger.error("Could not get previous revision for project " +
+        ProjectVersion prev = null;
+        
+        if (p != null) {
+            prev = ProjectVersion.getVersionByRevision(pv.getProject(), p.getUniqueId());
+           
+        } 
+        
+        if (prev == null) {
+            logger.warn("Could not get previous revision for project " +
                     "version " + pv);
         }
         
