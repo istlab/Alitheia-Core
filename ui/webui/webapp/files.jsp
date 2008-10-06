@@ -7,7 +7,7 @@
 if (terrier.isConnected()) {
     title = "Source files";
 %><%@ include file="/inc/header.jsp"
-%><%@ include file="/views/FileList.jsp"
+%><%@ include file="/views/FileBrowser.jsp"
 %><%
 }
 //============================================================================

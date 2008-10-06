@@ -7,7 +7,7 @@
 if (terrier.isConnected()) {
     title = "Metrics";
 %><%@ include file="/inc/header.jsp"
-%><%@ include file="/views/MetricsList.jsp"
+%><%@ include file="/views/MetricData.jsp"
 %><%
 }
 //============================================================================
