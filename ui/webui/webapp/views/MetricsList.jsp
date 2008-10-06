@@ -15,10 +15,12 @@ in = 9;
  * Check if the user has requested a refresh of the metrics list
  */
 if (request.getParameter("refreshMetrics") != null) {
+    // Refresh the list of metric evaluated on the selected project
     if (selectedProject.isValid()) {
         selectedProject.flushMetrics();
         selectedProject.getEvaluatedMetrics();
     }
+    // Refresh the list of installed metrics
     // TODO: Still not cached
 }
 
@@ -44,30 +46,13 @@ if (request.getParameter("deselectMetric") != null) {
     catch (NumberFormatException ex) {}
 }
 
-//winVisible = "showAllMetrics";
-//if (request.getParameter(winVisible) != null) {
-//    // Check the "Show all installed metrics" flag
-//    if (request.getParameter(winVisible).equals(WinIcon.MAXIMIZE))
-//        settings.setShowAllMetrics(true);
-//    else if (request.getParameter(winVisible).equals(WinIcon.MINIMIZE))
-//        settings.setShowAllMetrics(false);
-//}
-
-// Construct the window's title icons
-//if (settings.getShowAllMetrics())
-//    winAllMetrics.addTitleIcon(WinIcon.minimize(
-//        request.getServletPath(), winVisible));
-//else
-//    winAllMetrics.addTitleIcon(WinIcon.maximize(
-//        request.getServletPath(), winVisible));
-
 /*
  * Construct the window's content
  */
 Window winMetricsView = new Window();
 if ((selectedProject.isValid() 
         && selectedProject.getEvaluatedMetrics().size() > 0))
-    winMetricsView.setTitle("Evaluated metrics on"
+    winMetricsView.setTitle("Metrics evaluated on"
             + " project " + selectedProject.getName());
 else
     winMetricsView.setTitle("Available metrics");
@@ -80,6 +65,24 @@ MetricsTableView dataView = new MetricsTableView(selectedProject);
 dataView.setServletPath(request.getServletPath());
 dataView.setSettings(settings);
 dataView.setTerrier(terrier);
+
+/*
+ * Construct the window icons
+ */
+icoCloseWin.setPath("/");
+icoCloseWin.setParameter(null);
+winMetricsView.addTitleIcon(icoCloseWin);
+
+/*
+ * Construct the toolbar icons
+ */
+WinIcon icoRefresh = new WinIcon();
+icoRefresh.setPath(request.getServletPath());
+icoRefresh.setParameter("refreshMetrics");
+icoRefresh.setValue("true");
+icoRefresh.setAlt("Refresh");
+icoRefresh.setImage("/img/icons/16x16/refresh.png");
+winMetricsView.addToolIcon(icoRefresh);
 
 /*
  * Display the window

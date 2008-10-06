@@ -44,7 +44,7 @@ public class MetricsTableView extends ListView {
     /*
      * Holds the selected project's object.
      */
-    protected Project project;
+    protected Project project = null;
 
     /*
      * Holds the list of installed metrics.
@@ -77,7 +77,8 @@ public class MetricsTableView extends ListView {
      */
     public MetricsTableView (Project project) {
         super();
-        this.project = project;
+        if (project != null)
+            this.project = project.isValid() ? project : null;
     }
 
     /**
@@ -90,7 +91,7 @@ public class MetricsTableView extends ListView {
         instMetrics.addAll(terrier.getAllMetrics());
 
         // Retrieve the list of metrics evaluated on the selected project
-        if ((project != null) && project.isValid())
+        if (project != null)
             evalMetrics = project.getEvaluatedMetrics();
     }
 
@@ -190,7 +191,7 @@ public class MetricsTableView extends ListView {
 
         // Table rows
         b.append(sp(in++) + "<tbody>\n");
-        if ((evalMetrics.size() > 0) && (evalMetrics.size() < instMetrics.size()))
+        if (project != null)
             b.append(sp(in) + "<tr><td" + subhead_class
                     + "style=\"text-align: center;\""
                     + " colspan=\"" + columns + "\">"
@@ -218,7 +219,12 @@ public class MetricsTableView extends ListView {
             }
             b.append(sp(--in) + "</tr>\n");
         }
-        if ((evalMetrics.size() > 0) && (evalMetrics.size() < instMetrics.size()))
+        if ((project != null) && (evalMetrics.isEmpty()))
+            b.append(sp(in) + "<td" + cell_class
+                    + " colspan=\"" + columns + "\">"
+                    + "<i>" + "None Evaluated" + "</i>"
+                    + "</td>\n");
+        if (evalMetrics.size() < instMetrics.size())
             b.append(sp(in) + "<tr><td" + subhead_class
                     + "style=\"text-align: center;\""
                     + " colspan=\"" + columns + "\">"
