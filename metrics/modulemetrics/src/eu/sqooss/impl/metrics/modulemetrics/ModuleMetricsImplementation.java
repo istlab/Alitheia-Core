@@ -261,6 +261,14 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         }
 
         /*
+         * Store the "NOF" metric result.
+         * NOTE: Evaluated on demand, therefore just add an evaluation mark.
+         */
+        markEvaluation(
+                Metric.getMetricByMnemonic(MET_MNOF),
+                affectedVer.getProject());
+
+        /*
          * Store the "NOL" metric result.
          */
         HashMap<String, Object> nol_filter = new HashMap<String, Object>();
