@@ -33,6 +33,7 @@
 package eu.sqooss.impl.service.updater;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -104,7 +105,7 @@ final class SourceUpdater extends Job {
     private CommitEntry commitLogEntry;
     
     /* List of copy operations */
-    private List<CommitCopyEntry> copyOps; 
+    //private List<CommitCopyEntry> copyOps; 
     
     /* State weights to use when evaluating duplicate project file entries
      * in a single revision
@@ -274,16 +275,67 @@ final class SourceUpdater extends Job {
                             + curVersion.getRevisionId());
                 }
             }
-            
-            copyOps = entry.getCopyOperations();
-            
+
             logger.debug(curVersion.getProject().getName() + ": Got version "
                     + curVersion.getRevisionId() + " ID " + curVersion.getId());
             
+            /*
+             * Process copy operations prior to normal operations. After a copy,
+             * a lot of things can happen, for example deleting or adding files
+             * in copied path. Placing copy processing before normal operation
+             * processing ensures that all the files are in place before all
+             * operations that modify the copied paths start being processed.
+             * This actually resembles the way a local checkout works: the user
+             * first copies a path, then modifies the files in the copied path. 
+             * For non copied paths, this has no effect in any case.
+             */
+            for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
+
+                ProjectFile copyFrom = null;
+                copyFrom = ProjectFile.findFile(project.getId(), 
+                            FileUtils.basename(copyOp.fromPath()), 
+                            FileUtils.dirname(copyOp.fromPath()), 
+                            copyOp.fromRev().getUniqueId());
+                    
+                if (copyFrom == null) {
+                    logger.warn("expecting 1 got " + 0 + " files for path " 
+                            + copyOp.fromPath() + " " + prev.toString());
+                }
+                    
+                if (copyFrom.getIsDirectory()) {
+                        
+                    Directory from = getDirectory(copyOp.fromPath(), false);
+                    Directory to = getDirectory(copyOp.toPath(), true);
+
+                    /*
+                     * Recursively copy contents and mark files as modified
+                     * and directories as added
+                     */
+                    logger.debug("Copying directory " + from.getPath()
+                            + " (from r" + copyOp.fromRev().getUniqueId()
+                            + ") to " + to.getPath());
+                    handleDirCopy(curVersion, 
+                            ProjectVersion.getVersionByRevision(curVersion.getProject(),
+                            copyOp.fromRev().getUniqueId()), from, to, copyFrom);
+                } else {
+                    /*
+                     * Create a new entry at the new location and mark the new 
+                     * entry as ADDED
+                     */
+                    addFile(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
+                }   
+            }
+            
+            /*
+             * Now process operations. 
+             */
             for (String chPath : entry.getChangedPaths()) {
                 
+                if (isCopiedPath(chPath)) 
+                    continue; //Processed earlier
+                
                 SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
-                                /*
+                /*
                  * We make the assumption that tags entries can only be
                  * directories, based on info obtained from the SVN manual See:
                  * http://svnbook.red-bean.com/en/1.1/ch04s06.html
@@ -298,54 +350,11 @@ final class SourceUpdater extends Job {
                     break;
                 }
 
-                ProjectFile copyFrom = null;
                 ProjectFile toAdd = null;
                 
-                if (!copyOps.isEmpty() && getCopyOp(chPath) != null) {
-                    
-                    CommitCopyEntry copyOp = getCopyOp(chPath);
-                    
-                    copyFrom = ProjectFile.findFile(project.getId(), 
-                            FileUtils.basename(copyOp.fromPath()), 
-                            FileUtils.dirname(copyOp.fromPath()), 
-                            copyOp.fromRev().getUniqueId());
-                    
-                    if (copyFrom == null) {
-                        logger.warn("expecting 1 got " + 0 + " files for path " 
-                                + copyOp.fromPath() + " " + prev.toString());
-                    }
-                    
-                    if (copyFrom.getIsDirectory()) {
-                        
-                        Directory from = getDirectory(copyOp.fromPath(), false);
-                        Directory to = getDirectory(copyOp.toPath(), true);
-
-                        /*
-                         * Recursively copy contents and mark files as modified
-                         * and directories as added
-                         */
-                        logger.debug("Copying directory " + from.getPath()
-                                + " (from r" + copyOp.fromRev().getUniqueId()
-                                + ") to " + to.getPath());
-                        handleDirCopy(curVersion, ProjectVersion.getVersionByRevision(curVersion.getProject(),
-                                        copyOp.fromRev().getUniqueId()), from, to, copyFrom);
-                        //Ungly hack
-                        toAdd = versionFiles.get(versionFiles.size() - 1);
-                    } else {
-                        /*
-                         * Create a new entry at the new location and mark the new 
-                         * entry as modified
-                         */
-                        toAdd = addFile(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
-                    }
-                    
-                    copyOps.remove(copyOp);
-                    
-                } else {
-                
-                    toAdd = addFile(curVersion, chPath, 
-                        entry.getChangedPathsStatus().get(chPath).toString(), t, copyFrom);
-                }
+                toAdd = addFile(curVersion, chPath, 
+                        entry.getChangedPathsStatus().get(chPath).toString(), 
+                        t, null);
                 
                 /*
                  * Before entering the next block, examine whether the deleted
@@ -356,21 +365,49 @@ final class SourceUpdater extends Job {
                  * examined upon entering
                  */
                 if (toAdd.isDeleted() && (getDirectory(chPath, false) != null)) {
-                        /*
-                         * Directories, when they are deleted, do not have type DIR,
-                         * but something else. So we need to check on deletes
-                         * whether this name was most recently a directory.
-                         */
-                        ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(toAdd);
-
-                        /* If a dir was deleted, mark all children as deleted */
-                        if (lastIncarnation != null
-                                && lastIncarnation.getIsDirectory()) {
-                            // In spite of it not being marked as a directory
-                            // in the node tree right now.
-                            toAdd.setIsDirectory(true);
+                    /*
+                     * Directories, when they are deleted, do not have type DIR,
+                     * but something else. So we need to check on deletes
+                     * whether this name was most recently a directory.
+                     */
+                    ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(toAdd);
+                    
+                    /*
+                     * If a directory is deleted and its previous incarnation cannot
+                     * be found in a previous revision, this means that the
+                     * directory is deleted in the same revision it was added
+                     * (probably copied first)! Search in the current
+                     * revision files then.
+                     */
+                    boolean delAfterCopy = false;
+                    if (lastIncarnation == null) {
+                        for (ProjectFile pf : versionFiles) {
+                            if (pf.getFileName().equals(toAdd.getFileName())
+                                    && pf.getIsDirectory()
+                                    && pf.isAdded()) {
+                                lastIncarnation = pf;
+                                delAfterCopy = true;
+                                break;
+                            }
                         }
+                    }
+                        
+                    /* If a dir was deleted, mark all children as deleted */
+                    if (lastIncarnation != null
+                            && lastIncarnation.getIsDirectory()) {
+                        // In spite of it not being marked as a directory
+                        // in the node tree right now.
+                        toAdd.setIsDirectory(true);
+                    } else {
+                        logger.warn(project.getName() + ": Cannot find previous" +
+                            " version of DELETED directory " + toAdd.getFileName());
+                    }
+                    
+                    if (!delAfterCopy) {
                         handleDirDeletion(toAdd, curVersion);
+                    } else {
+                        handleCopiedDirDeletion(toAdd);
+                    }
                 }
             }
             
@@ -516,7 +553,7 @@ final class SourceUpdater extends Job {
     /**
      * Get a copy operation entry from the list of copy operations
      * 
-     */
+     *
     private CommitCopyEntry getCopyOp(String to) {
         for (CommitCopyEntry copyOp : commitLogEntry.getCopyOperations()) {
             if (to.equals(copyOp.toPath())) {
@@ -525,7 +562,7 @@ final class SourceUpdater extends Job {
         }
 
         return null;
-    }
+    }*/
     
     /**
      * Mark the contents of a directory as DELETED when the directory has been
@@ -536,7 +573,8 @@ final class SourceUpdater extends Job {
     private void handleDirDeletion(ProjectFile pf, ProjectVersion pv) {
         
         if (pf==null || pv==null) {
-            throw new IllegalArgumentException("ProjectFile or Version is null in markDeleted()");
+            throw new IllegalArgumentException("ProjectFile or Version is" +
+            		" null in markDeleted()");
         }
         
         if (pf.getIsDirectory() == false) {
@@ -547,18 +585,9 @@ final class SourceUpdater extends Job {
          * Don't delete subdirectories that have been copied elsewhere 
          * before the parent was deleted 
          */
-        if (isCopiedPath(pf.getFileName())) {
-            return;
-        }
-        
-        // Check that the pf and the pv are consistent.
-        if (pf.getProjectVersion().getProject().getId() != pv.getProject()
-                .getId()) {
-            throw new IllegalArgumentException("ProjectFile project "
-                    + pf.getProjectVersion().getProject().getId()
-                    + " and ProjectVersion project " + pv.getProject().getId()
-                    + " mismatch.");
-        }
+        //if (isCopiedPath(pf.getFileName())) {
+         //   return;
+        //}
         
         logger.debug("Deleting directory " + pf.getFileName() + " ID "
                 + pf.getId());
@@ -566,7 +595,7 @@ final class SourceUpdater extends Job {
         if (d == null) {
             logger.warn("Directory entry " + pf.getFileName() + " in project "
                     + pf.getProjectVersion().getProject().getName()
-                    + " is missing in directory table.");
+                    + " is missing in Directory table.");
             return;
         }
 
@@ -577,25 +606,49 @@ final class SourceUpdater extends Job {
         for (ProjectFile f : files) {
             if (f.getIsDirectory()) {
                 handleDirDeletion(f, pv);
-                ProjectFile mark = new ProjectFile(f, pv);
-                mark.makeDeleted();
-                versionFiles.add(mark);
             }
+            ProjectFile mark = new ProjectFile(f, pv);
+            mark.makeDeleted();
+            versionFiles.add(mark);
         }
+    }
+    
+    private void handleCopiedDirDeletion(ProjectFile pf) {
+        if (pf.getIsDirectory() == false) {
+            logger.warn("handleCopiedDirDeletion: path " + pf.getFileName() +
+                    " is not a directory");
+            return;
+        }
+        
+        List<ProjectFile> files = getVersionFilesInDir(pf);
+        
         for (ProjectFile f : files) {
-            if (!f.getIsDirectory()) {
-                ProjectFile mark = new ProjectFile(f, pv);
-                mark.makeDeleted();
-                /*
-                 * Don't store a delete entry for files that have been 
-                 * *moved* by a yet unprocessed operation 
-                 */
-                if (isCopiedPath(mark.getFileName())){
-                    continue;
-                }
-                versionFiles.add(mark);
+            if (f.getIsDirectory()) {
+                handleCopiedDirDeletion(f);
+            }
+            ProjectFile mark = new ProjectFile(f, f.getProjectVersion());
+            mark.makeDeleted();
+            versionFiles.add(mark);
+        }
+    }
+    
+    private List<ProjectFile> getVersionFilesInDir(ProjectFile f) {
+        
+        if (!f.getIsDirectory()) {
+            logger.warn("getVersionFilesInDir: path " + f.getFileName() +
+                    " is not a directory");
+            return Collections.emptyList();
+        }
+        
+        List<ProjectFile> pfl = new ArrayList<ProjectFile>();
+        
+        for (ProjectFile pf : versionFiles) {
+            if (pf.getDir().getPath().equals(f.getFileName())) {
+                pfl.add(pf);
             }
         }
+        
+        return pfl;
     }
     
     /**
@@ -652,7 +705,7 @@ final class SourceUpdater extends Job {
     }
     
     /**
-     * Uses the SCM to get the previous version in presence of timestamp 
+     * Uses the SCM to get the previous version to avoid timestamp 
      * inconsistencies 
      */
     private ProjectVersion getPreviousVersion(SCMAccessor scm, ProjectVersion pv) {
@@ -702,15 +755,29 @@ final class SourceUpdater extends Job {
             } else if (pf.getStatus() == "DELETED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
                 if (old == null) {
-                    logger.warn("Cannot get previous file ver" +
-                    		"sion for file " + pf.toString());
+                    logger.warn("Cannot get previous file version for file " 
+                            + pf.toString());
                     //continue;
                 }
+                
+                /* 
+                 * A deleted file must be deleted in the directory it was
+                 * previously added or modified. If a file is marked DELETED
+                 * while its previous version is in another directory this
+                 * means that the file was first copied and then deleted 
+                 * in the same revision. Deleting the previous version in
+                 * that case would lead to inconsistencies. 
+                 */
+                if (!old.getFileName().equals(pf.getFileName())) {
+                    logger.debug("Deleted file path " + pf + " is different" +
+                    		" from previous version " + old);
+                    continue;
+                }
+                
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
                     logger.warn("Couldn't remove association of deleted file "
                             + pf + " in version " + pv.getRevisionId());
-                    continue;
                 }
             } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf); 
@@ -718,11 +785,25 @@ final class SourceUpdater extends Job {
                     logger.warn("Cannot get previous file version for file " + pf.toString());
                     //continue;
                 }
+                
+                /* 
+                 * A modified file must be modified in the directory it was
+                 * previously added. If a file is marked MODIFIED
+                 * while its previous version is in another directory this
+                 * means that the file was first copied and then modified 
+                 * in the same revision. Deleting the previous version in
+                 * that case would lead to inconsistencies. 
+                 */
+                if (!old.getFileName().equals(pf.getFileName())) {
+                    logger.debug("Modified file path " + pf + " is different" +
+                                " from previous version " + old);
+                    continue;
+                }
+                
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
                     logger.warn("Couldn't remove old association of modified file " + pf.toString() +
                                  " in version " + pv.getRevisionId());
-                    continue;
                 }
                 filesForVersion.add(pf);
             } else {
