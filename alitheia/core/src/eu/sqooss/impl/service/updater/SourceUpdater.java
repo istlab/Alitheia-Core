@@ -268,7 +268,7 @@ final class SourceUpdater extends Job {
              */
             ProjectVersion prev = getPreviousVersion(scm, curVersion);
             if (prev != null) {
-                if (prev.getTimestamp() > curVersion.getTimestamp()) {
+                if (prev.getTimestamp() >= curVersion.getTimestamp()) {
                     curVersion.setTimestamp(prev.getTimestamp() + 1000);
                     logger.info("Applying timestamp fix to version " 
                             + curVersion.getRevisionId());
@@ -434,7 +434,8 @@ final class SourceUpdater extends Job {
             if (numOccurs.get(fpath) <= 1) { 
                 continue;
             }
-            logger.debug("Duplicate entry in single version for file " + fpath);
+            logger.info("Multiple entries in single version for file " + fpath);
+            
             int points = 0;
             
             ProjectFile copyFrom = null;
@@ -445,6 +446,8 @@ final class SourceUpdater extends Job {
                 if (!f.getFileName().equals(fpath)) { 
                     continue;
                 }
+                
+                logger.info("  " + f);
                 
                 if (stateWeights.get(f.getStatus()) > points) {
                     points = stateWeights.get(f.getStatus());
@@ -689,7 +692,7 @@ final class SourceUpdater extends Job {
         if ( previous != null && previous.getFilesForVersion() != null ) {
             filesForVersion.addAll( previous.getFilesForVersion() );
         }
-        
+
         // Update with new records
         for (ProjectFile pf : versionFiles) {
             //Update the file ids list with the definite list of files
@@ -698,6 +701,11 @@ final class SourceUpdater extends Job {
                 filesForVersion.add(pf);
             } else if (pf.getStatus() == "DELETED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
+                if (old == null) {
+                    logger.warn("Cannot get previous file ver" +
+                    		"sion for file " + pf.toString());
+                    //continue;
+                }
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
                     logger.warn("Couldn't remove association of deleted file "
@@ -708,7 +716,7 @@ final class SourceUpdater extends Job {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf); 
                 if (old == null) {
                     logger.warn("Cannot get previous file version for file " + pf.toString());
-                    continue;
+                    //continue;
                 }
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
