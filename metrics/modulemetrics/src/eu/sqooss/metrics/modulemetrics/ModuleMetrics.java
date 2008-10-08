@@ -32,10 +32,11 @@
 
 package eu.sqooss.metrics.modulemetrics;
 
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 
-public interface ModuleMetrics extends ProjectFileMetric, 
+public interface ModuleMetrics extends AlitheiaPlugin, ProjectFileMetric,
     ProjectVersionMetric {
     
 }

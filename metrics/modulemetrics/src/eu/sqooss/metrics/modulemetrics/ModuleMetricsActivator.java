@@ -44,9 +44,10 @@ public class ModuleMetricsActivator implements BundleActivator {
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
-
-        registration = bc.registerService(ModuleMetricsImplementation.class.getName(),
-                new ModuleMetricsImplementation(bc), null);
+        registration = bc.registerService(
+                ModuleMetricsImplementation.class.getName(),
+                new ModuleMetricsImplementation(bc),
+                null);
     }
 
     public void stop(BundleContext context) throws Exception {
