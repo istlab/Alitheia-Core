@@ -541,7 +541,7 @@ final class SourceUpdater extends Job {
     private boolean isCopiedPath(String path) {
         boolean copied = false;
         for (CommitCopyEntry copyOp : commitLogEntry.getCopyOperations()) {
-            if (path.equals(copyOp.fromPath()) || path.equals(copyOp.toPath())) {
+            if (path.equals(copyOp.toPath())) {
                 copied = true;
                 break;
             }
@@ -549,20 +549,6 @@ final class SourceUpdater extends Job {
 
         return copied;
     }
-    
-    /**
-     * Get a copy operation entry from the list of copy operations
-     * 
-     *
-    private CommitCopyEntry getCopyOp(String to) {
-        for (CommitCopyEntry copyOp : commitLogEntry.getCopyOperations()) {
-            if (to.equals(copyOp.toPath())) {
-                return copyOp;
-            }
-        }
-
-        return null;
-    }*/
     
     /**
      * Mark the contents of a directory as DELETED when the directory has been
@@ -580,14 +566,6 @@ final class SourceUpdater extends Job {
         if (pf.getIsDirectory() == false) {
             return;
         }
-        
-        /*
-         * Don't delete subdirectories that have been copied elsewhere 
-         * before the parent was deleted 
-         */
-        //if (isCopiedPath(pf.getFileName())) {
-         //   return;
-        //}
         
         logger.debug("Deleting directory " + pf.getFileName() + " ID "
                 + pf.getId());
