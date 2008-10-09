@@ -35,7 +35,6 @@ package eu.sqooss.impl.metrics.modulemetrics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -197,10 +196,10 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
          * Get a reference to the WC.LOC metric dependency.
          */
         List<Metric> locMetric = new ArrayList<Metric>();
-        AlitheiaPlugin plugin = core.getPluginAdmin().getImplementingPlugin(
+        AlitheiaPlugin locPlugin = core.getPluginAdmin().getImplementingPlugin(
                 DEP_WC_LOC);
-        if (plugin != null) {
-            locMetric = plugin.getSupportedMetrics();
+        if (locPlugin != null) {
+            locMetric = locPlugin.getSupportedMetrics();
         } else {
             log.error("Could not find the " + DEP_WC_LOC + " metric's plug-in");
             return;
@@ -215,7 +214,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         if (pf.getIsDirectory()) {
             affectedDir = pf;
         } else {
-            affectedDir = ProjectFile.getParentFolder(pf);
+            affectedDir = pf.getParentFolder();
         }
 
         /*
@@ -253,7 +252,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
             // Get the necessary measurement from the Wc.loc metric
             try {
                 if (FileTypeMatcher.isTextType(f.getName())) {
-                    loc += plugin.getResult(f, locMetric).getRow(0).get(0)
+                    loc += locPlugin.getResult(f, locMetric).getRow(0).get(0)
                             .getInteger();
                 }
             } catch (MetricMismatchException e) {
@@ -293,18 +292,18 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
     }
 
     public void run(ProjectVersion pv) {
-        System.out.println ("Run AMS on DAO Id: " + pv.getId()
+   /*     System.out.println ("Run AMS on DAO Id: " + pv.getId()
                 + " Ver: " + pv.getRevisionId());
         /*
          * Get a reference to the MNOL metric dependency.
-         */        
+         *        
         List<Metric> MNOL = new ArrayList<Metric>();
-        AlitheiaPlugin plugin = core.getPluginAdmin().getImplementingPlugin(
-                MET_MNOL);
-        if (plugin != null) {
-            MNOL.add(Metric.getMetricByMnemonic(MET_MNOL));
+        AlitheiaPlugin amsPlugin = core.getPluginAdmin().getImplementingPlugin(
+                MET_AMS);
+        if (amsPlugin != null) {
+            MNOL.add(Metric.getMetricByMnemonic(MET_AMS));
         } else {
-            log.error("Could not find the " + MET_MNOL + " metric's plug-in");
+            log.error("Could not find the " + MET_AMS + " metric's plug-in");
             return;
         }
 
@@ -314,24 +313,19 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
             List<Metric> AMS = new ArrayList<Metric>();
             AMS.add(Metric.getMetricByMnemonic(MET_AMS));
             try {
-                plugin.getResult(prevVersion, AMS);
+                amsPlugin.getResult(prevVersion, AMS);
             } catch (MetricMismatchException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-        }
+        }*/
         //System.out.println("Run AMS on version: " + pv.getRevisionId());
 
         /*
          * Get the list of folders which exists in the given project version.
          */
-        Set<ProjectFile> files = pv.getFilesForVersion();
-        List<ProjectFile> folders = new ArrayList<ProjectFile>();
-        if (files != null)
-            for (ProjectFile file : files)
-                if (file.getIsDirectory())
-                    folders.add(file);
-
+        List<ProjectFile> folders = ProjectFile.getAllDirectoriesForVersion(pv);
+        
         /*
          * Calculate the metric results
          */
