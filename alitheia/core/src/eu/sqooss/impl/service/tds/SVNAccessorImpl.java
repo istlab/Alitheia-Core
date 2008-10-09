@@ -606,6 +606,13 @@ public class SVNAccessorImpl implements SCMAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {
+    	if (!localPath.exists()) {
+    		try {
+    			localPath.createNewFile();
+    		} catch (IOException e) {
+    			throw new FileNotFoundException(e.getMessage());
+    		}
+    	}
         FileOutputStream stream = new FileOutputStream(localPath);
         getFile(repoPath, revision, stream);
         // Stream was closed by other getFile()

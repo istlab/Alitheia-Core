@@ -502,7 +502,8 @@ public class FDSServiceImpl implements FDSService, Runnable {
                     + pf.getProjectVersion().getProject() + " has no revision "
                     + projectRevision + ":" + e.getMessage());
         } catch (FileNotFoundException e) {
-            logger.error("File "+ pf.toString() + " not found in the given repository.");
+            logger.error("File "+ pf.toString() + " not found in the given " +
+            		"repository: " + e.getMessage());
         }
         return null;
     }
