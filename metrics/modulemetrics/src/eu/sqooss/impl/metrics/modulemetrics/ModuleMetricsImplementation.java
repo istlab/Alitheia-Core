@@ -119,8 +119,15 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
 
         // Skip, if the given ProjectFile is not a folder
-        if (pf.getIsDirectory() == false)
-            return null;
+        if (pf.getIsDirectory() == false) {
+            Integer value = 0;
+            ResultEntry entry = new ResultEntry(
+                    value,
+                    ResultEntry.MIME_TYPE_TYPE_INTEGER,
+                    m.getMnemonic());
+            results.add(entry);
+            return results;
+        }
 
         /*
          * TODO: This metric requires two parameters:
@@ -286,9 +293,11 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
     }
 
     public void run(ProjectVersion pv) {
+        System.out.println ("Run AMS on DAO Id: " + pv.getId()
+                + " Ver: " + pv.getRevisionId());
         /*
          * Get a reference to the MNOL metric dependency.
-         */
+         */        
         List<Metric> MNOL = new ArrayList<Metric>();
         AlitheiaPlugin plugin = core.getPluginAdmin().getImplementingPlugin(
                 MET_MNOL);
@@ -299,17 +308,29 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
             return;
         }
 
+        ProjectVersion prevVersion = null;
+        prevVersion = pv.getPreviousVersion();
+        if (prevVersion != null) {
+            List<Metric> AMS = new ArrayList<Metric>();
+            AMS.add(Metric.getMetricByMnemonic(MET_AMS));
+            try {
+                plugin.getResult(prevVersion, AMS);
+            } catch (MetricMismatchException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        //System.out.println("Run AMS on version: " + pv.getRevisionId());
+
         /*
          * Get the list of folders which exists in the given project version.
          */
         Set<ProjectFile> files = pv.getFilesForVersion();
-        if (files == null) {
-            return;
-        }
         List<ProjectFile> folders = new ArrayList<ProjectFile>();
-        for (ProjectFile file : files)
-            if (file.getIsDirectory())
-                folders.add(file);
+        if (files != null)
+            for (ProjectFile file : files)
+                if (file.getIsDirectory())
+                    folders.add(file);
 
         /*
          * Calculate the metric results
