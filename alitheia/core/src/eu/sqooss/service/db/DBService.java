@@ -301,7 +301,9 @@ public interface DBService {
      * @throws SQLException if the query is invalid or a database access error occurs
      * 
      * @see doSQL(String sql, Map<String, Object> params)
+     * @deprecated
      */
+    @Deprecated
     public List<?> doSQL(String sql)
         throws SQLException;
     
@@ -315,7 +317,9 @@ public interface DBService {
      *          the results are returned in an instance of Object[]
      * @throws SQLException if the query is invalid or a database access error occurs
      * @throws QueryException if some parameters are missing
+     * @deprecated
      */
+    @Deprecated
     public List<?> doSQL(String sql, Map<String, Object> params)
         throws SQLException, QueryException;
         

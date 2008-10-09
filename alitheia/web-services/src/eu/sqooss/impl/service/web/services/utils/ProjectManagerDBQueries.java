@@ -43,25 +43,9 @@ interface ProjectManagerDBQueries {
     
     public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM = "project_ver";
     
-    public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID = "select count(*) " +
-                                                                    "from (select pf.directory_id as dir, " +
-                                                                    "             pf.file_name as fname, " +
-                                                                    "             max(pv.project_version_id) as headrev " +
-                                                                    "      from project_file pf, project_version pv " +
-                                                                    "      where pf.project_version_id=pv.project_version_id " +
-                                                                    "            and pv.timestamp<= ( " +
-                                                                    "                select pv2.timestamp " +
-                                                                    "                from project_version pv2 " +
-                                                                    "                where pv2.project_version_id=:" +
-                                                                    GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM +
-                                                                    "                ) " +       
-                                                                    "      group by pf.directory_id, pf.file_name) head," +
-                                                                    "      project_file pf, directory d " +
-                                                                    "where d.directory_id=pf.directory_id " +
-                                                                    "      and head.dir=pf.directory_id " +
-                                                                    "      and head.fname=pf.file_name " +
-                                                                    "      and pf.project_version_id=head.headrev " +
-                                                                    "      and pf.file_status<>'DELETED' ";
+    public static final String GET_FILES_NUMBER_BY_PROJECT_VERSION_ID = 
+         "select count(ffv) from FileForVersion ffv where ffv.version.id = :" 
+        + GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM ;
     
     
     public static final String GET_DIRECTORIES_BY_IDS_PARAM = "list_of_dirs_ids";
@@ -114,8 +98,8 @@ interface ProjectManagerDBQueries {
     		                                               "from ProjectVersion pv " +
     		                                               "where pv.project.id in (:" +
     		                                               GET_LAST_PROJECT_VERSIONS_PARAM + ") " +
-    		                                               " and pv.version= " +
-    		                                               "      (select max(pv1.version) " +
+    		                                               " and pv.timestamp= " +
+    		                                               "      (select max(pv1.timestamp) " +
     		                                               "      from ProjectVersion pv1 " +
     		                                               "      where pv1.project = :" + 
     		                                               GET_LAST_PROJECT_VERSIONS_PARAM + ")";

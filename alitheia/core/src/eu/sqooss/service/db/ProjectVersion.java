@@ -324,14 +324,6 @@ public class ProjectVersion extends DAObject {
         String paramTS = "version_timestamp"; 
         String paramProject = "project_id";
         
-        /*String query = "from ProjectVersion pv where " +
-                        "pv.project.id=:" + paramProject + 
-                        " and pv.timestamp in (" +
-        		"select max(pv2.timestamp) " +
-        		"from ProjectVersion pv2 " +
-        		"where pv2.timestamp < :" + paramTS +
-        		" and pv2.project = pv.project)";*/
-        
         String query = "select pv from ProjectVersion pv where " +
 			" pv.project.id =:" + paramProject +
 			" and pv.timestamp < :" + paramTS + 
@@ -363,13 +355,10 @@ public class ProjectVersion extends DAObject {
         String paramTS = "version_timestamp"; 
         String paramProject = "project_id";
         
-        String query = "from ProjectVersion pv where " +
-                        "pv.project.id=:" + paramProject + 
-                        " and pv.timestamp in (" +
-        		"select min(pv2.timestamp) " +
-        		"from ProjectVersion pv2 " +
-        		"where pv2.timestamp > :" + paramTS +
-        		" and pv2.project = pv.project)";
+        String query = "select pv from ProjectVersion pv where " +
+            " pv.project.id =:" + paramProject +
+            " and pv.timestamp > :" + paramTS + 
+            " order by pv.timestamp asc";
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramTS, this.getTimestamp());
@@ -479,7 +468,7 @@ public class ProjectVersion extends DAObject {
         parameterMap.put("sp", sp);
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
                 + " and pv.timestamp = (select min(pv2.timestamp) from "
-                + " ProjectVersion pv2 where pv2.project=:sp)",
+                + " ProjectVersion pv2 where pv2.project=:sp and pv2.revisionId<>'0')",
                 parameterMap);
 
         return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
