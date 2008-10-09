@@ -160,10 +160,10 @@ final class SourceUpdater extends Job {
             } else if (hcp.equalsIgnoreCase("tags")) {
                 hc = HandleCopies.TAGS;
             } else {
-                logger.warn("Not correct value for property " + HANDLE_COPIES_PROPERTY);
+                warn("Not correct value for property " + HANDLE_COPIES_PROPERTY);
             }
         } else {
-            logger.info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
+            info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
             		" using default:" + this.hc);
         }
         
@@ -173,11 +173,11 @@ final class SourceUpdater extends Job {
             try {
                 this.cleanup = Integer.parseInt(cleanup);
             } catch (NumberFormatException nfe) {
-                logger.warn("Value " + cleanup + " not valid for property " 
+                warn("Value " + cleanup + " not valid for property " 
                         + CLEANUP_PROPERTY);
             }
         } else {
-            logger.info("No value for " + CLEANUP_PROPERTY + " property," +
+            info("No value for " + CLEANUP_PROPERTY + " property," +
             		" using default:" + this.cleanup);
         }
     }
@@ -196,7 +196,7 @@ final class SourceUpdater extends Job {
         dbs.startDBSession();
         int numRevisions = 0;
         
-        logger.info("Running source update for project " + project.getName() 
+        info("Running source update for project " + project.getName() 
                 + " ID " + project.getId());
         
         CommitLog commitLog = null;
@@ -211,8 +211,8 @@ final class SourceUpdater extends Job {
                 
                 /* Don't choke when called to update an up-to-date project */
                 if (r.compareTo(scm.newRevision(latestVersion.getRevisionId())) <= 0) {
-                    logger.info("Project " + project.getName() + " is already" +
-                    		" at the newest version " + r.getUniqueId());
+                    info("Project is already at the newest version " 
+                            + r.getUniqueId());
                     dbs.commitDBSession();
                     return;    
                 }
@@ -220,17 +220,30 @@ final class SourceUpdater extends Job {
                         scm.newRevision(latestVersion.getRevisionId())), 
                         scm.getHeadRevision());
             } else {
+                //Add revision 0 and / file
+                ProjectVersion zero = new ProjectVersion(project);
+                //By convention, same as in first revision
+                zero.setCommitter(Developer.getDeveloperByUsername("sqo-oss", project));
+                zero.setTimestamp(scm.getFirstRevision().getDate().getTime() - 1000);
+                zero.setCommitMsg("Artificial revision to include / directory");
+                zero.setRevisionId("0");
+                dbs.addRecord(zero);
+                ProjectFile root = new ProjectFile(zero);
+                root.setIsDirectory(true);
+                root.setDir(getDirectory("/", true));
+                root.setName("");
+                root.setStatus("ADDED");
+                dbs.addRecord(root);
                 commitLog = scm.getCommitLog(scm.getFirstRevision(), scm.getHeadRevision());
             }
             
-            logger.info(project.getName() + ": New revisions: " 
-                    + commitLog.size());
+            info("New revisions: " + commitLog.size());
             
         } catch (InvalidRepositoryException e) {
-            logger.error("Not such repository:" + e.getMessage());
+            err("Not such repository:" + e.getMessage());
             throw e;
         } catch (InvalidProjectRevisionException e) {
-            logger.error("Not such repository revision:" + e.getMessage());
+            err("Not such repository revision:" + e.getMessage());
             throw e;
         }
         
@@ -271,13 +284,13 @@ final class SourceUpdater extends Job {
             if (prev != null) {
                 if (prev.getTimestamp() >= curVersion.getTimestamp()) {
                     curVersion.setTimestamp(prev.getTimestamp() + 1000);
-                    logger.info("Applying timestamp fix to version " 
+                    info("Applying timestamp fix to version " 
                             + curVersion.getRevisionId());
                 }
             }
 
-            logger.debug(curVersion.getProject().getName() + ": Got version "
-                    + curVersion.getRevisionId() + " ID " + curVersion.getId());
+            debug("Got version " + curVersion.getRevisionId() + 
+                    " ID " + curVersion.getId());
             
             /*
              * Process copy operations prior to normal operations. After a copy,
@@ -298,7 +311,7 @@ final class SourceUpdater extends Job {
                             copyOp.fromRev().getUniqueId());
                     
                 if (copyFrom == null) {
-                    logger.warn("expecting 1 got " + 0 + " files for path " 
+                    warn("expecting 1 got " + 0 + " files for path " 
                             + copyOp.fromPath() + " " + prev.toString());
                 }
                     
@@ -311,7 +324,7 @@ final class SourceUpdater extends Job {
                      * Recursively copy contents and mark files as modified
                      * and directories as added
                      */
-                    logger.debug("Copying directory " + from.getPath()
+                    debug("Copying directory " + from.getPath()
                             + " (from r" + copyOp.fromRev().getUniqueId()
                             + ") to " + to.getPath());
                     handleDirCopy(curVersion, 
@@ -331,9 +344,6 @@ final class SourceUpdater extends Job {
              */
             for (String chPath : entry.getChangedPaths()) {
                 
-                if (isCopiedPath(chPath)) 
-                    continue; //Processed earlier
-                
                 SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
                 /*
                  * We make the assumption that tags entries can only be
@@ -344,11 +354,17 @@ final class SourceUpdater extends Job {
 
                     Tag tag = new Tag(curVersion);
                     tag.setName(chPath.split("tags/")[1]);
-                    logger.debug("Creating tag <" + tag.getName() + ">");
+                    debug("Creating tag <" + tag.getName() + ">");
 
                     dbs.addRecord(tag);
                     break;
                 }
+                
+                if(!canProcess(chPath, null))
+                    continue; //Entries under tags or branches
+                
+                if (isCopiedPath(chPath)) 
+                    continue; //Processed earlier
 
                 ProjectFile toAdd = null;
                 
@@ -399,8 +415,8 @@ final class SourceUpdater extends Job {
                         // in the node tree right now.
                         toAdd.setIsDirectory(true);
                     } else {
-                        logger.warn(project.getName() + ": Cannot find previous" +
-                            " version of DELETED directory " + toAdd.getFileName());
+                        warn("Cannot find previous version of DELETED" +
+                        		" directory " + toAdd.getFileName());
                     }
                     
                     if (!delAfterCopy) {
@@ -421,17 +437,17 @@ final class SourceUpdater extends Job {
             if (numRevisions % this.cleanup == 0) {
                 dirCache.clear();
                 if (!dbs.commitDBSession()) {
-                    logger.warn("Intermediate commit failed, restarting update");
+                    warn("Intermediate commit failed, restarting update");
                     restart();
                     return;
                 } 
                 dbs.startDBSession();
             }
         }
-        logger.info("Processed " + numRevisions + " revisions");
+        info("Processed " + numRevisions + " revisions");
         
         if (!dbs.commitDBSession()) {
-            logger.warn("Final commit failed, restarting update");
+            warn("Final commit failed, restarting update");
             restart();
             return;
         } 
@@ -471,7 +487,7 @@ final class SourceUpdater extends Job {
             if (numOccurs.get(fpath) <= 1) { 
                 continue;
             }
-            logger.info("Multiple entries in single version for file " + fpath);
+            debug("Multiple entries in single version for file " + fpath);
             
             int points = 0;
             
@@ -484,7 +500,7 @@ final class SourceUpdater extends Job {
                     continue;
                 }
                 
-                logger.info("  " + f);
+                debug("  " + f);
                 
                 if (stateWeights.get(f.getStatus()) > points) {
                     points = stateWeights.get(f.getStatus());
@@ -504,7 +520,7 @@ final class SourceUpdater extends Job {
                 winner.setCopyFrom(copyFrom);
                 versionFiles.add(winner);
             }
-            logger.debug("Keeping file " + winner);
+            debug("Keeping file " + winner);
         }
     }
     
@@ -531,7 +547,7 @@ final class SourceUpdater extends Job {
             pf.setIsDirectory(false);
         }
         versionFiles.add(pf); 
-        logger.debug("Adding file " + pf);
+        debug("Adding file " + pf);
         return pf;
     }
     
@@ -567,11 +583,11 @@ final class SourceUpdater extends Job {
             return;
         }
         
-        logger.debug("Deleting directory " + pf.getFileName() + " ID "
+        debug("Deleting directory " + pf.getFileName() + " ID "
                 + pf.getId());
         Directory d = getDirectory(pf.getFileName(), false);
         if (d == null) {
-            logger.warn("Directory entry " + pf.getFileName() + " in project "
+            warn("Directory entry " + pf.getFileName() + " in project "
                     + pf.getProjectVersion().getProject().getName()
                     + " is missing in Directory table.");
             return;
@@ -593,7 +609,7 @@ final class SourceUpdater extends Job {
     
     private void handleCopiedDirDeletion(ProjectFile pf) {
         if (pf.getIsDirectory() == false) {
-            logger.warn("handleCopiedDirDeletion: path " + pf.getFileName() +
+            warn("handleCopiedDirDeletion: path " + pf.getFileName() +
                     " is not a directory");
             return;
         }
@@ -613,7 +629,7 @@ final class SourceUpdater extends Job {
     private List<ProjectFile> getVersionFilesInDir(ProjectFile f) {
         
         if (!f.getIsDirectory()) {
-            logger.warn("getVersionFilesInDir: path " + f.getFileName() +
+            warn("getVersionFilesInDir: path " + f.getFileName() +
                     " is not a directory");
             return Collections.emptyList();
         }
@@ -635,7 +651,7 @@ final class SourceUpdater extends Job {
     private void handleDirCopy(ProjectVersion pv, ProjectVersion fromVersion,
             Directory from, Directory to, ProjectFile copyFrom) {
         
-        if (!canCopy(from, to)) 
+        if (!canProcess(from.getPath(), to.getPath())) 
             return;
        
         addFile(pv, to.getPath(), "ADDED", SCMNodeType.DIR, copyFrom);
@@ -660,20 +676,26 @@ final class SourceUpdater extends Job {
      * Decide whether a path can be copied depending on the value of 
      * the eu.sqooss.updater.handlecopies property.
      */
-    private boolean canCopy(Directory from, Directory to) {
+    private boolean canProcess(String from, String to) {
+        
+        if (from == null)
+            return false;
         
         if (hc.equals(HandleCopies.TAGS)) {
             return true;
         }
         
         if (hc.equals(HandleCopies.TRUNK) && 
-                from.getPath().contains("trunk") &&
-                from.getPath().contains("trunk")) {
+               from.contains("trunk") && (
+                   (to != null && to.contains("trunk")) || 
+                    to == null) 
+           ) {
                 return true;
         }
         
         if (hc.equals(HandleCopies.BRANCHES)) {
-            if (to.getPath().contains("tags")) {
+            if ((to != null && to.contains("tags")) || 
+                    from.contains("tags")) {
                 return false;
             }
             return true;
@@ -693,7 +715,8 @@ final class SourceUpdater extends Job {
             Revision r = scm.newRevision(pv.getRevisionId());
             p = scm.getPreviousRevision(r);
         } catch (InvalidProjectRevisionException e) {
-            logger.error(e.getMessage());
+            err("Cannot get previous version from repository:" 
+                    + e.getMessage());
             p = null;
         }
         ProjectVersion prev = null;
@@ -704,7 +727,7 @@ final class SourceUpdater extends Job {
         } 
         
         if (prev == null) {
-            logger.warn("Could not get previous revision for project " +
+            warn("Could not get previous revision for project " +
                     "version " + pv);
         }
         
@@ -733,9 +756,8 @@ final class SourceUpdater extends Job {
             } else if (pf.getStatus() == "DELETED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
                 if (old == null) {
-                    logger.warn("Cannot get previous file version for file " 
+                    err("Cannot get previous file version for file " 
                             + pf.toString());
-                    //continue;
                 }
                 
                 /* 
@@ -747,20 +769,20 @@ final class SourceUpdater extends Job {
                  * that case would lead to inconsistencies. 
                  */
                 if (!old.getFileName().equals(pf.getFileName())) {
-                    logger.debug("Deleted file path " + pf + " is different" +
+                    debug("Deleted file path " + pf + " is different" +
                     		" from previous version " + old);
                     continue;
                 }
                 
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
-                    logger.warn("Couldn't remove association of deleted file "
+                    warn("Couldn't remove association of deleted file "
                             + pf + " in version " + pv.getRevisionId());
                 }
             } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf); 
                 if (old == null) {
-                    logger.warn("Cannot get previous file version for file " + pf.toString());
+                    err("Cannot get previous file version for file " + pf.toString());
                     //continue;
                 }
                 
@@ -773,19 +795,19 @@ final class SourceUpdater extends Job {
                  * that case would lead to inconsistencies. 
                  */
                 if (!old.getFileName().equals(pf.getFileName())) {
-                    logger.debug("Modified file path " + pf + " is different" +
+                    debug("Modified file path " + pf + " is different" +
                                 " from previous version " + old);
                     continue;
                 }
                 
                 boolean deleted = filesForVersion.remove(old);
                 if (!deleted) {
-                    logger.warn("Couldn't remove old association of modified file " + pf.toString() +
+                    warn("Couldn't remove old association of modified file " + pf.toString() +
                                  " in version " + pv.getRevisionId());
                 }
                 filesForVersion.add(pf);
             } else {
-                logger.warn("Don't know what to do with file status:"
+                warn("Don't know what to do with file status:"
                         + pf.getStatus() + " file_id:" + pf.getId());
             }
         }        
@@ -840,6 +862,22 @@ final class SourceUpdater extends Job {
                 return false;
 
         return true;
+    }
+    
+    private void warn(String message) {
+        logger.warn(project.getName() + ":" + message);
+    }
+    
+    private void err(String message) {
+        logger.error(project.getName() + ":" + message);
+    }
+    
+    private void info(String message) {
+        logger.info(project.getName() + ":" + message);
+    }
+    
+    private void debug(String message) {
+        logger.debug(project.getName() + ":" + message);
     }
 }
 
