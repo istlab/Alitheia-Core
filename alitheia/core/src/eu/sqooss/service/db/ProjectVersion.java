@@ -324,19 +324,24 @@ public class ProjectVersion extends DAObject {
         String paramTS = "version_timestamp"; 
         String paramProject = "project_id";
         
-        String query = "from ProjectVersion pv where " +
+        /*String query = "from ProjectVersion pv where " +
                         "pv.project.id=:" + paramProject + 
                         " and pv.timestamp in (" +
         		"select max(pv2.timestamp) " +
         		"from ProjectVersion pv2 " +
         		"where pv2.timestamp < :" + paramTS +
-        		" and pv2.project = pv.project)";
+        		" and pv2.project = pv.project)";*/
+        
+        String query = "select pv from ProjectVersion pv where " +
+			" pv.project.id =:" + paramProject +
+			" and pv.timestamp < :" + paramTS + 
+			" order by pv.timestamp desc";
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramTS, this.getTimestamp());
         parameters.put(paramProject, this.getProject().getId());
 
-        List<?> projectVersions = dbs.doHQL(query, parameters);
+        List<?> projectVersions = dbs.doHQL(query, parameters, 1);
         
         if(projectVersions == null || projectVersions.size() == 0) {
             return null;
@@ -370,7 +375,7 @@ public class ProjectVersion extends DAObject {
         parameters.put(paramTS, this.getTimestamp());
         parameters.put(paramProject, this.getProject().getId());
 
-        List<?> projectVersions = dbs.doHQL(query, parameters);
+        List<?> projectVersions = dbs.doHQL(query, parameters, 1);
         
         if(projectVersions == null || projectVersions.size() == 0) {
             return null;
