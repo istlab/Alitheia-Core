@@ -32,8 +32,6 @@
 
 package eu.sqooss.impl.service.web.services.utils;
 
-import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
