@@ -595,7 +595,8 @@ public class SVNAccessorImpl implements SCMAccessor {
         } catch (SVNException e) {
             throw new FileNotFoundException(e.getMessage());
         } catch (IOException e) {
-            logger.warn("Failed to close output stream on SVN request." + e);
+            logger.warn("Failed to close output stream on SVN request." + e 
+                    + " Revision:" + revision);
             // Swallow this exception.
         }
     }
