@@ -19,6 +19,10 @@
         <list-index column="REVISION_ID"/>
         <one-to-many class="eu.sqooss.service.db.ProjectVersion"/>
     </list>
+    <set name="developers" inverse="true" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.Developer"/>
+    </set>
     <set name="mailingLists" inverse="true" cascade="all-delete-orphan">
         <key column="PROJECT_ID"/>
         <one-to-many class="eu.sqooss.service.db.MailingList"/>

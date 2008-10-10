@@ -161,6 +161,10 @@ public class StoredProject extends DAObject {
         this.projectVersions = projectVersions;
     }
 
+    public Set<Developer> getDevelopers() {
+        return developers;
+    }
+
     public void setDevelopers(Set<Developer> developers) {
         this.developers = developers;
     }
@@ -272,16 +276,6 @@ public class StoredProject extends DAObject {
         return (pvList == null || pvList.isEmpty()) ? 0 : (Long) pvList.get(0);
     }
 
-    public List<Developer> getDevelopers() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("storedProject", this);
-        
-        return dbs.findObjectsByProperties(Developer.class, params);
-        
-    }
-    
     public Set<Bug> getBugs() {
         return bugs;
     }
