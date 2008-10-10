@@ -36,27 +36,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions;
-import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions.ActionCategory;
+import eu.sqooss.impl.metrics.productivity.ContributionActions;
+import eu.sqooss.impl.metrics.productivity.ContributionActions.ActionCategory;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 
-public class ProductivityActionType extends DAObject {
+public class ContribActionType extends DAObject {
 
     private String actionCategory;
     private String actionType;
     private boolean isPositive;
     
-    public ProductivityMetricActions.ActionCategory getCategory(){
-        return ProductivityMetricActions.ActionCategory.fromString(actionCategory);
+    public ContributionActions.ActionCategory getCategory(){
+        return ContributionActions.ActionCategory.fromString(actionCategory);
     }
     
     public String getActionCategory(){
         return actionCategory;
     }
     
-    public void setCategory(ProductivityMetricActions.ActionCategory s) {
+    public void setCategory(ContributionActions.ActionCategory s) {
         this.actionCategory = s.toString();
     }
     
@@ -64,15 +64,15 @@ public class ProductivityActionType extends DAObject {
         this.actionCategory = s;
     }
     
-    public ProductivityMetricActions.ActionType getType(){
-        return ProductivityMetricActions.ActionType.fromString(actionType);
+    public ContributionActions.ActionType getType(){
+        return ContributionActions.ActionType.fromString(actionType);
     }
     
     public String getActionType(){
         return actionType;
     }
     
-    public void setType(ProductivityMetricActions.ActionType s) {
+    public void setType(ContributionActions.ActionType s) {
         this.actionType = s.toString();
     }
     
@@ -88,8 +88,8 @@ public class ProductivityActionType extends DAObject {
         this.isPositive = isPositive;
     }
     
-    public static ProductivityActionType getProductivityActionType(
-            ProductivityMetricActions.ActionType actionType,
+    public static ContribActionType getProductivityActionType(
+            ContributionActions.ActionType actionType,
             Boolean isPositive) {
         
         DBService dbs = AlitheiaCore.getInstance().getDBService();
@@ -97,8 +97,8 @@ public class ProductivityActionType extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("actionType", actionType.toString());
         
-        List<ProductivityActionType> atl = dbs.findObjectsByProperties(
-                ProductivityActionType.class, parameterMap);
+        List<ContribActionType> atl = dbs.findObjectsByProperties(
+                ContribActionType.class, parameterMap);
         
         if (atl != null) {
             if (!atl.isEmpty() )
@@ -108,7 +108,7 @@ public class ProductivityActionType extends DAObject {
         if (isPositive == null)
             return null;
             
-        ProductivityActionType at = new ProductivityActionType();
+        ContribActionType at = new ContribActionType();
         at.setCategory(ActionCategory.getActionCategory(actionType));
         at.setType(actionType);
         at.setIsPositive(isPositive);

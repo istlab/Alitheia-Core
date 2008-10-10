@@ -105,7 +105,7 @@
 
   <modules>
     <module>wc</module>
-    <module>productivity-metric</module>
+    <module>contrib</module>
     <module>skeleton</module>
     <module>clmt</module>
     <module>quality-model</module>

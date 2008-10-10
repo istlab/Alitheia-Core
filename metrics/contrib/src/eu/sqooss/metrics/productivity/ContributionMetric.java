@@ -35,7 +35,7 @@ package eu.sqooss.metrics.productivity;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 
-public interface ProductivityMetric extends AlitheiaPlugin,
+public interface ContributionMetric extends AlitheiaPlugin,
         ProjectVersionMetric {
 
 }

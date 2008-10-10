@@ -39,7 +39,7 @@ import java.util.HashMap;
  * Typesafe descriptions of actions supported by the productivity plugin
  *
  */
-public class ProductivityMetricActions {
+public class ContributionActions {
 
     /** Maps categories to actions*/
     public static HashMap<ActionCategory, ArrayList<ActionType>> types = 

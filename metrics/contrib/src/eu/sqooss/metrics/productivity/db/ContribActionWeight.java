@@ -36,27 +36,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions;
+import eu.sqooss.impl.metrics.productivity.ContributionActions;
+import eu.sqooss.impl.metrics.productivity.ContributionActions.ActionCategory;
+import eu.sqooss.impl.metrics.productivity.ContributionActions.ActionType;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 
-public class ProductivityWeights extends DAObject{
+public class ContribActionWeight extends DAObject{
 
     private String actionCategory;
     private String actionType;
     private double weight;
-    private long lastUpdateVersions;
+    private long lastUpdateVersion;
     
-    public ProductivityMetricActions.ActionCategory getCategory(){
-        return ProductivityMetricActions.ActionCategory.fromString(actionCategory);
+    public ContributionActions.ActionCategory getCategory(){
+        return ContributionActions.ActionCategory.fromString(actionCategory);
     }
     
     public String getActionCategory(){
         return actionCategory;
     }
     
-    public void setCategory(ProductivityMetricActions.ActionCategory s) {
+    public void setCategory(ContributionActions.ActionCategory s) {
         this.actionCategory = s.toString();
     }
     
@@ -64,15 +66,15 @@ public class ProductivityWeights extends DAObject{
         this.actionCategory = s;
     }
     
-    public ProductivityMetricActions.ActionType getType(){
-        return ProductivityMetricActions.ActionType.fromString(actionType);
+    public ActionType getType(){
+        return ActionType.fromString(actionType);
     }
     
     public String getActionType(){
         return actionType;
     }
     
-    public void setType(ProductivityMetricActions.ActionType s) {
+    public void setType(ActionType s) {
         this.actionType = s.toString();
     }
     
@@ -88,36 +90,36 @@ public class ProductivityWeights extends DAObject{
         this.weight = weight;
     }
     
-    public long getLastUpdateVersions(){
-        return lastUpdateVersions;
+    public long getLastUpdateVersion(){
+        return lastUpdateVersion;
     }
     
-    public void setLastUpdateVersions(long lastUpdateVersions){
-        this.lastUpdateVersions = lastUpdateVersions;
+    public void setLastUpdateVersion(long lastUpdateVersions){
+        this.lastUpdateVersion = lastUpdateVersions;
     }
     
-    public static ProductivityWeights getWeight(ProductivityMetricActions.ActionType actionType){
+    public static ContribActionWeight getWeight(ActionType actionType){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> properties = new HashMap<String,Object>();
         properties.put("actionType", actionType.toString());
         
-        List<ProductivityWeights> w = dbs.findObjectsByPropertiesForUpdate(
-                ProductivityWeights.class, properties);
+        List<ContribActionWeight> w = dbs.findObjectsByPropertiesForUpdate(
+                ContribActionWeight.class, properties);
         
         // NOTE (romain) : This is going to lock many unrelated rows !
         // Review the query, it seems to return multiple rows but we only use the first one.
         return w.isEmpty() ? null : w.get(0);
     }
     
-    public static ProductivityWeights getWeight(ProductivityMetricActions.ActionCategory actionCategory){
+    public static ContribActionWeight getWeight(ActionCategory actionCategory){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> properties = new HashMap<String,Object>();
         properties.put("actionCategory", actionCategory.toString());
         
-        List<ProductivityWeights> w = dbs.findObjectsByPropertiesForUpdate(
-                ProductivityWeights.class, properties);
+        List<ContribActionWeight> w = dbs.findObjectsByPropertiesForUpdate(
+                ContribActionWeight.class, properties);
         
         // NOTE (romain) : This is going to lock many unrelated rows !
         // Review the query, it seems to return multiple rows but we only use the first one.

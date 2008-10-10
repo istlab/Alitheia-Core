@@ -39,7 +39,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.impl.metrics.productivity.ProductivityMetricImpl;
+import eu.sqooss.impl.metrics.productivity.ContributionMetricImpl;
 
 public class Activator implements BundleActivator {
 
@@ -50,8 +50,8 @@ public class Activator implements BundleActivator {
         d.put("metric.id", "");
 	
         registration = bc.registerService(
-            ProductivityMetricImpl.class.getName(), 
-            new ProductivityMetricImpl(bc), null);
+            ContributionMetricImpl.class.getName(), 
+            new ContributionMetricImpl(bc), null);
     }
 
     public void stop(BundleContext context) throws Exception {

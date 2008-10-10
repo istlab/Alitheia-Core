@@ -4,13 +4,13 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.metrics.productivity.db.ProductivityActions" table="PRODUCTIVITY_ACTIONS">
-    <id name="id" column="PRODUCTIVITY_ACTION_ID">
+  <class name="eu.sqooss.metrics.productivity.db.ContribAction" table="CONTRIBUTION_ACTION">
+    <id name="id" column="CONTRIB_ACTION_ID">
       <generator class="native" />
     </id>
     <many-to-one name="developer" column="DEVELOPER_ID" not-null="true" cascade="merge" />
     <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge"/>
-    <many-to-one name="productivityActionType" column="PRODUCTIVITY_ACTION_TYPE_ID" not-null="true" cascade="merge"/>
+    <many-to-one name="contribActionType" column="CONTRIB_ACTION_TYPE_ID" not-null="true" cascade="merge"/>
     <property name="total" column="TOTAL" not-null="true" />
   </class>
 </hibernate-mapping>

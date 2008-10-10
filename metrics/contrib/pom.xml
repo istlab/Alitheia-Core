@@ -11,25 +11,25 @@
   </parent>
 
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>productivity</artifactId>
+  <artifactId>contrib</artifactId>
   <version>0.8.0</version>
   <packaging>jar</packaging>
 
-  <name>Alitheia Plug-in 'productivity'</name>
-  <url>http://ikaria.dmst.aueb.gr/metrics/productivity-metric</url>
+  <name>Alitheia Plug-in 'Contribution'</name>
+  <url>http://ikaria.dmst.aueb.gr/metrics/contrib</url>
   <inceptionYear>2006</inceptionYear>
   <description>
-    Research plugin that attempts to quantify how productive developers
-    are based on the number and size and type of their commits;
-    research done by Giorgos Gousios.
+    Research plugin that attempts to quantify how much do developers
+    contribute to the software and community development of a project.
+    research done by Georgios Gousios.
   </description>
 
   <scm>
     <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/productivity-metric
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/contrib
     </connection>
     <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/productivity-metric
+      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/contrib
     </developerConnection>
   </scm>
 
@@ -38,9 +38,9 @@
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
     <resources>
-      <resource>
-        <directory>${basedir}/src/eu/sqooss/metrics/productivity/db/</directory>
-        <targetPath>eu/sqooss/metrics/productivity/db</targetPath>
+     <resource>
+        <directory>${basedir}/src/eu/sqooss/metrics/contrib/db/</directory>
+        <targetPath>eu/sqooss/metrics/contrib/db</targetPath>
         <includes>
           <include>**/*.hbm.xml</include>
         </includes>

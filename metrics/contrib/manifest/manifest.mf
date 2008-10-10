@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Productivity metric plug-in
-Bundle-SymbolicName: eu.sqooss.metric.productivity
+Bundle-Name: Developer Contribution metric plug-in
+Bundle-SymbolicName: eu.sqooss.metric.contrib
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.metrics.productivity.Activator
 Bundle-Vendor: AUEB

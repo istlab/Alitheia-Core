@@ -36,18 +36,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.sqooss.impl.metrics.productivity.ProductivityMetricActions;
+import eu.sqooss.impl.metrics.productivity.ContributionActions;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.ProjectVersion;
 
-public class ProductivityActions extends DAObject {
+public class ContribAction extends DAObject {
 
     private Developer developer;
     private ProjectVersion projectVersion;
-    private ProductivityActionType productivityActionType;
+    private ContribActionType productivityActionType;
     private long total;
 
     public Developer getDeveloper() {
@@ -66,11 +66,11 @@ public class ProductivityActions extends DAObject {
         this.projectVersion = projectVersion;
     }
     
-    public ProductivityActionType getProductivityActionType() {
+    public ContribActionType getProductivityActionType() {
         return productivityActionType;
     }
 
-    public void setProductivityActionType(ProductivityActionType actionType) {
+    public void setProductivityActionType(ContribActionType actionType) {
         this.productivityActionType = actionType;
     }
     
@@ -82,8 +82,8 @@ public class ProductivityActions extends DAObject {
         this.total = total;
     }
 
-    public static ProductivityActions getProductivityAction(Developer dev, 
-            ProjectVersion pv, ProductivityActionType actionType) {
+    public static ContribAction getProductivityAction(Developer dev, 
+            ProjectVersion pv, ContribActionType actionType) {
         
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
@@ -92,8 +92,8 @@ public class ProductivityActions extends DAObject {
         properties.put("projectVersion", pv);
         properties.put("productivityActionType", actionType);
 
-        List<ProductivityActions> pa = dbs.findObjectsByPropertiesForUpdate(
-                ProductivityActions.class, properties);
+        List<ContribAction> pa = dbs.findObjectsByPropertiesForUpdate(
+                ContribAction.class, properties);
         
         return pa.isEmpty() ? null : pa.get(0);
     }
@@ -114,7 +114,7 @@ public class ProductivityActions extends DAObject {
     }
     
     public static long getTotalActionsPerCategory(
-            ProductivityMetricActions.ActionCategory actionCategory) {
+            ContributionActions.ActionCategory actionCategory) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramCategory = "paramCategory"; 
@@ -138,7 +138,7 @@ public class ProductivityActions extends DAObject {
     }
     
     public static long getTotalActionsPerType(
-            ProductivityMetricActions.ActionType actionType) {
+            ContributionActions.ActionType actionType) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramType = "paramType"; 
@@ -162,7 +162,7 @@ public class ProductivityActions extends DAObject {
     }
     
     public static long getTotalActionsPerTypePerDeveloper(
-            ProductivityMetricActions.ActionType actionType, Developer dev) {
+            ContributionActions.ActionType actionType, Developer dev) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramType = "paramType"; 

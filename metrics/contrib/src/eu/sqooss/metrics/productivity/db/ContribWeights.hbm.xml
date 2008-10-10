@@ -4,13 +4,13 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.metrics.productivity.db.ProductivityWeights" table="PRODUCTIVITY_WEIGHTS">
-    <id name="id" column="PRODUCTIVITY_WEIGHT_ID">
+  <class name="eu.sqooss.metrics.productivity.db.ContribWeights" table="CONTRIBUTION_WEIGHTS">
+    <id name="id" column="CONTRIB_WEIGHT_ID">
       <generator class="native" />
     </id>
     <property name="actionType" column="ACTION_TYPE" type = "string"/>
     <property name="actionCategory" column="ACTION_CATEGORY" type = "string"/>
     <property name="weight" column="WEIGHT" not-null="true" />
-    <property name="lastUpdateVersions" column="LAST_UPDATE_VERSIONS" not-null="true" />
+    <property name="lastUpdateVersion" column="LAST_UPDATE_VERSION" not-null="true" />
   </class>
 </hibernate-mapping>
