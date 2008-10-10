@@ -30,7 +30,7 @@
  *
  */
 
-package eu.sqooss.impl.metrics.productivity;
+package eu.sqooss.impl.metrics.contrib;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,12 +44,12 @@ import java.util.regex.Pattern;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.metrics.productivity.ContributionActions.ActionCategory;
-import eu.sqooss.impl.metrics.productivity.ContributionActions.ActionType;
-import eu.sqooss.metrics.productivity.ContributionMetric;
-import eu.sqooss.metrics.productivity.db.ContribActionType;
-import eu.sqooss.metrics.productivity.db.ContribAction;
-import eu.sqooss.metrics.productivity.db.ContribActionWeight;
+import eu.sqooss.impl.metrics.contrib.ContributionActions.ActionCategory;
+import eu.sqooss.impl.metrics.contrib.ContributionActions.ActionType;
+import eu.sqooss.metrics.contrib.ContributionMetric;
+import eu.sqooss.metrics.contrib.db.ContribAction;
+import eu.sqooss.metrics.contrib.db.ContribActionType;
+import eu.sqooss.metrics.contrib.db.ContribActionWeight;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
@@ -397,7 +397,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             a = new ContribAction();
             a.setDeveloper(dev);
             a.setProjectVersion(pv);
-            a.setProductivityActionType(at);
+            a.setContribActionType(at);
             a.setTotal(value);
             db.addRecord(a);
         } else {

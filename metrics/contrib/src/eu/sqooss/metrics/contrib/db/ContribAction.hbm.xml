@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.metrics.productivity.db.ContribAction" table="CONTRIBUTION_ACTION">
+  <class name="eu.sqooss.metrics.contrib.db.ContribAction" table="CONTRIBUTION_ACTION">
     <id name="id" column="CONTRIB_ACTION_ID">
       <generator class="native" />
     </id>

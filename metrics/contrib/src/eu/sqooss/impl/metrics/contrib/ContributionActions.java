@@ -30,13 +30,13 @@
  *
  */
 
-package eu.sqooss.impl.metrics.productivity;
+package eu.sqooss.impl.metrics.contrib;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Typesafe descriptions of actions supported by the productivity plugin
+ * Typesafe descriptions of actions supported by the contribution plugin
  *
  */
 public class ContributionActions {

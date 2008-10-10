@@ -30,33 +30,14 @@
  *
  */
 
-package eu.sqooss.metrics.productivity;
+package eu.sqooss.metrics.contrib;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+public interface ContributionMetric extends AlitheiaPlugin,
+        ProjectVersionMetric {
 
-import eu.sqooss.impl.metrics.productivity.ContributionMetricImpl;
-
-public class Activator implements BundleActivator {
-
-    private ServiceRegistration registration;
-
-    public void start(BundleContext bc) throws Exception {
-        Dictionary < String, String > d = new Hashtable < String, String >(2);
-        d.put("metric.id", "");
-	
-        registration = bc.registerService(
-            ContributionMetricImpl.class.getName(), 
-            new ContributionMetricImpl(bc), null);
-    }
-
-    public void stop(BundleContext context) throws Exception {
-        registration.unregister();
-    }
 }
 
-// vi: ai nosi sw=4 ts=4 expandtab
+//vi: ai nosi sw=4 ts=4 expandtab

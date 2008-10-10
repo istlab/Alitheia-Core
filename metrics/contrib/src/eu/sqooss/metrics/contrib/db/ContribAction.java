@@ -30,13 +30,13 @@
  *
  */
 
-package eu.sqooss.metrics.productivity.db;
+package eu.sqooss.metrics.contrib.db;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.sqooss.impl.metrics.productivity.ContributionActions;
+import eu.sqooss.impl.metrics.contrib.ContributionActions;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -47,7 +47,7 @@ public class ContribAction extends DAObject {
 
     private Developer developer;
     private ProjectVersion projectVersion;
-    private ContribActionType productivityActionType;
+    private ContribActionType contribActionType;
     private long total;
 
     public Developer getDeveloper() {
@@ -66,12 +66,12 @@ public class ContribAction extends DAObject {
         this.projectVersion = projectVersion;
     }
     
-    public ContribActionType getProductivityActionType() {
-        return productivityActionType;
+    public ContribActionType getContribActionType() {
+        return contribActionType;
     }
 
-    public void setProductivityActionType(ContribActionType actionType) {
-        this.productivityActionType = actionType;
+    public void setContribActionType(ContribActionType actionType) {
+        this.contribActionType = actionType;
     }
     
     public long getTotal(){

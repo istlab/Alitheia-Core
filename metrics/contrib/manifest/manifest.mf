@@ -3,9 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Developer Contribution metric plug-in
 Bundle-SymbolicName: eu.sqooss.metric.contrib
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.metrics.productivity.Activator
+Bundle-Activator: eu.sqooss.metrics.contrib.Activator
 Bundle-Vendor: AUEB
-Export-Package: eu.sqooss.metric.productivity, eu.sqooss.metric.productivity.db
+Export-Package: eu.sqooss.metric.contrib, eu.sqooss.metric.contrib.db
 Import-Package: org.osgi.framework,
     eu.sqooss.impl.service,
     eu.sqooss.service.logging,
@@ -23,5 +23,3 @@ Import-Package: org.osgi.framework,
     net.sf.cglib,
     net.sf.cglib.proxy
 Eclipse-RegisterBuddy: org.hibernate
-
-

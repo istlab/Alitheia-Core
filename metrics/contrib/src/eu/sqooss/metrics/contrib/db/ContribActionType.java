@@ -30,14 +30,14 @@
  *
  */
 
-package eu.sqooss.metrics.productivity.db;
+package eu.sqooss.metrics.contrib.db;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.sqooss.impl.metrics.productivity.ContributionActions;
-import eu.sqooss.impl.metrics.productivity.ContributionActions.ActionCategory;
+import eu.sqooss.impl.metrics.contrib.ContributionActions;
+import eu.sqooss.impl.metrics.contrib.ContributionActions.ActionCategory;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
