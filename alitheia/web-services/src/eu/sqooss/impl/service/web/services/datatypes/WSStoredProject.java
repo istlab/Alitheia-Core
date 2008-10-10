@@ -227,7 +227,7 @@ public class WSStoredProject {
             wsStoredProject.setName(storedProject.getName());
             wsStoredProject.setRepository(storedProject.getScmUrl());
             wsStoredProject.setWebsite(storedProject.getWebsiteUrl());
-            List<Developer> developers = storedProject.getDevelopers();
+            Set<Developer> developers = storedProject.getDevelopers();
             if ((developers != null) && (developers.size() > 0)) {
                 int index = 0;
                 long[] developerIds = new long[developers.size()];
