@@ -221,6 +221,11 @@ public class WcImplementation extends AbstractMetric implements Wc {
             return;
         }
         
+        //Cannot run on deleted files
+        if (pf.isDeleted()) {
+            return;
+        }
+        
         //We don't support binary files either
         if (FileTypeMatcher.getFileType(pf.getName()).equals(
                 FileTypeMatcher.FileType.BIN)) {
