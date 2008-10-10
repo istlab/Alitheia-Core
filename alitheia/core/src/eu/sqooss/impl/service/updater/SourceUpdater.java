@@ -431,7 +431,7 @@ final class SourceUpdater extends Job {
             
             replayLog(curVersion);
             dbs.addRecords(versionFiles);
-            updateFilesForVersion(curVersion, versionFiles);
+            updateFilesForVersion(curVersion);
 
             /* Intermediate clean up */
             if (numRevisions % this.cleanup == 0) {
@@ -504,6 +504,8 @@ final class SourceUpdater extends Job {
                 
                 if (stateWeights.get(f.getStatus()) > points) {
                     points = stateWeights.get(f.getStatus());
+                    if (winner != null)
+                        versionFiles.remove(winner);
                     winner = f;
                 } else {
                     versionFiles.remove(f);
@@ -737,7 +739,7 @@ final class SourceUpdater extends Job {
     /**
      * Update the FilesForVersion table incrementally 
      */
-    private void updateFilesForVersion(ProjectVersion pv, List<ProjectFile> versionFiles) {
+    private void updateFilesForVersion(ProjectVersion pv) {
 
         // Copy old records
         ProjectVersion previous = pv.getPreviousVersion();
