@@ -88,7 +88,7 @@ public class ContribActionType extends DAObject {
         this.isPositive = isPositive;
     }
     
-    public static ContribActionType getProductivityActionType(
+    public static ContribActionType getContribActionType(
             ContributionActions.ActionType actionType,
             Boolean isPositive) {
         

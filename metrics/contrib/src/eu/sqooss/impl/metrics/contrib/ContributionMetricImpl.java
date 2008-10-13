@@ -55,6 +55,7 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
@@ -76,7 +77,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         super.addActivationType(ProjectVersion.class);
         super.addActivationType(Developer.class);
         
-        super.addMetricActivationType("PROD", Developer.class);
+        super.addMetricActivationType("CONTRIB", Developer.class);
         
         super.addDependency("Wc.loc");
     }
@@ -104,11 +105,13 @@ public class ContributionMetricImpl extends AbstractMetric implements
     public boolean remove() {
         boolean result = true;
         
-        String[] tables = {"ProductivityWeights", "ProductivityActions",
-                "ProductivityActionType"};
+        String[] tables = {"ContribActionWeight", 
+                           "ContribAction",
+                           "ContribActionType"};
         
         for (String tablename : tables) {
-            result &= db.deleteRecords((List<DAObject>) db.doHQL("from " + tablename));
+            result &= db.deleteRecords((List<DAObject>) db.doHQL(
+                    "from " + tablename));
         }
         
         result &= super.remove();
@@ -149,11 +152,10 @@ public class ContributionMetricImpl extends AbstractMetric implements
      * {@inheritDoc}
      */
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
-        
         ArrayList<ResultEntry> res = new ArrayList<ResultEntry>();
         String paramVersion = "paramVersion";
         
-        String query = "select a from ProductivityActions a " +
+        String query = "select a from ContribAction a " +
                 " where a.projectVersion = :" + paramVersion ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
@@ -174,7 +176,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
      * This plug-in's result is returned per developer. 
      */
     public List<ResultEntry> getResult(Developer a, Metric m) {
-        
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
         ContribActionWeight weight;
         double value = 0;
@@ -326,7 +327,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 updateWeights(ts);
             }
         }
-        markEvaluation(Metric.getMetricByMnemonic("PROD"), pv.getProject());
+        markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv.getProject());
     }
 
     public void run(Developer v) {
@@ -334,32 +335,28 @@ public class ContributionMetricImpl extends AbstractMetric implements
     }
 
     /**
-     * Get result per developer and per category
-     * 
+     * Get result per developer and per categorys
      */
     private double getResultPerActionCategory(Developer d, ActionCategory ac) {
-        
-        ArrayList<ActionType> actionTypes = ActionType.getActionTypes(ac);
-        
         ContribActionWeight weight;
         long totalActions;
         double value = 0;
 
-        for (int i=0; i<actionTypes.size(); i++) {
-            weight = ContribActionWeight.getWeight(actionTypes.get(i));
+        for (ActionType at : ActionType.getActionTypes(ac)) {
+            weight = ContribActionWeight.getWeight(at);
             
             if (weight == null) {
                 continue;
             }
             
-            ContribActionType at = 
-                ContribActionType.getProductivityActionType(actionTypes.get(i), null);
+            ContribActionType cat = 
+                ContribActionType.getContribActionType(at, null);
                 
             totalActions = 
-                ContribAction.getTotalActionsPerTypePerDeveloper(actionTypes.get(i), d);
+                ContribAction.getTotalActionsPerTypePerDeveloper(at, d);
 
             if(totalActions != 0){
-                if (at.getIsPositive())
+                if (cat.getIsPositive())
                     value += weight.getWeight() * totalActions;
                 else
                     value -= weight.getWeight() * totalActions;
@@ -369,6 +366,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
     }
     
     private long calcDistinctVersions() {
+        DBService db = AlitheiaCore.getInstance().getDBService();
         List<?> distinctVersions = db.doHQL("select " +
                         "count(distinct projectVersion) from ProductivityActions");
         
@@ -381,10 +379,10 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return (Long.parseLong(distinctVersions.get(0).toString())) ;
     }
     
-    private void updateField(ProjectVersion pv, Developer dev, ActionType actionType,
-            boolean isPositive, int value) {
-       
-        ContribActionType at = ContribActionType.getProductivityActionType(actionType, isPositive);
+    private void updateField(ProjectVersion pv, Developer dev, 
+            ActionType actionType, boolean isPositive, int value) {
+        DBService db = AlitheiaCore.getInstance().getDBService();
+        ContribActionType at = ContribActionType.getContribActionType(actionType, isPositive);
         
         if (at == null){
             db.rollbackDBSession();
@@ -444,7 +442,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
     private void updateActionTypeWeight(ActionType actionType, 
             long totalActionsPerType, long totalActionsPerCategory, 
             long distinctVersions) {
-
+        DBService db = AlitheiaCore.getInstance().getDBService();
         double weight = (double)(100 * totalActionsPerType) / 
             (double)totalActionsPerCategory;
 
@@ -465,7 +463,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
     private void updateActionCategoryWeight(ActionCategory actionCategory, 
             long totalActionsPerCategory, long totalActions, 
             long distinctVersions){
-
+        DBService db = AlitheiaCore.getInstance().getDBService();
         double weight = (double)(100 * totalActionsPerCategory) / 
             (double)totalActions;
 

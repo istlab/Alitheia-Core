@@ -129,7 +129,7 @@ public class ContribActionWeight extends DAObject{
     public static long getLastUpdateVersionsCount(){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        String query = "select max(lastUpdateVersions) from ProductivityWeights" ;
+        String query = "select max(lastUpdateVersion) from ContribActionWeight" ;
         
         List<?> totalActions = dbs.doHQL(query);
         

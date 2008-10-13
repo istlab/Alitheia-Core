@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 
 import eu.sqooss.impl.metrics.contrib.ContributionActions;
+import eu.sqooss.impl.metrics.contrib.ContributionActions.ActionCategory;
+import eu.sqooss.impl.metrics.contrib.ContributionActions.ActionType;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -90,7 +92,7 @@ public class ContribAction extends DAObject {
         Map<String,Object> properties = new HashMap<String,Object>();
         properties.put("developer", dev);
         properties.put("projectVersion", pv);
-        properties.put("productivityActionType", actionType);
+        properties.put("contribActionType", actionType);
 
         List<ContribAction> pa = dbs.findObjectsByPropertiesForUpdate(
                 ContribAction.class, properties);
@@ -101,7 +103,7 @@ public class ContribAction extends DAObject {
     public static long getTotalActions(){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        String query = "select sum(total) from ProductivityActions" ;
+        String query = "select sum(total) from ContribAction" ;
         
         List<?> totalActions = dbs.doHQL(query);
         
@@ -113,19 +115,18 @@ public class ContribAction extends DAObject {
         return Long.parseLong(totalActions.get(0).toString());
     }
     
-    public static long getTotalActionsPerCategory(
-            ContributionActions.ActionCategory actionCategory) {
+    public static long getTotalActionsPerCategory(ActionCategory ac) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramCategory = "paramCategory"; 
         
-        String query = "select sum(a.total) from ProductivityActions a, " +
-        		"ProductivityActionType b " +
-        		"where a.productivityActionType = b.id and " +
-        		"b.actionCategory = :" + paramCategory ;
+        String query = "select sum(a.total) " +
+        		"from ContribAction a, ContribActionType b " +
+        		"where a.contribActionType = b " +
+        		"and b.actionCategory = :" + paramCategory ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramCategory, actionCategory.toString());
+        parameters.put(paramCategory, ac.toString());
         
         List<?> totalActions = dbs.doHQL(query, parameters);
         
@@ -143,10 +144,10 @@ public class ContribAction extends DAObject {
         
         String paramType = "paramType"; 
         
-        String query = "select sum(a.total) from ProductivityActions a, " +
-        		"ProductivityActionType b " +
-                " where a.productivityActionType = b.id " +
-                " and b.actionType = :" + paramType ;
+        String query = "select sum(a.total) " +
+                "from ContribAction a, ContribActionType b " +
+                "where a.contribActionType = b " +
+                "and b.actionType = :" + paramType ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramType, actionType.toString());
@@ -161,17 +162,18 @@ public class ContribAction extends DAObject {
         return Long.parseLong(totalActions.get(0).toString());
     }
     
-    public static long getTotalActionsPerTypePerDeveloper(
-            ContributionActions.ActionType actionType, Developer dev) {
+    public static long getTotalActionsPerTypePerDeveloper(ActionType actionType,
+            Developer dev) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramType = "paramType"; 
         String paramDeveloper = "paramDeveloper"; 
         
-        String query = "select sum(a.total) from ProductivityActions a, ProductivityActionType b " +
-                       " where a.productivityActionType = b.id " +
-                       " and b.actionType = :" + paramType +
-                       " and a.developer = :" + paramDeveloper ;
+        String query = "select sum(a.total) " +
+            "from ContribAction a, ContribActionType b " +
+            "where a.contribActionType = b " +
+            " and b.actionType = :" + paramType +
+            " and a.developer = :" + paramDeveloper ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramType, actionType.toString());
