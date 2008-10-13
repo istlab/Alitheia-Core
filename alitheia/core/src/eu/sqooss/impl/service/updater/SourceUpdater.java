@@ -304,6 +304,16 @@ final class SourceUpdater extends Job {
              */
             for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
 
+                if(!canProcess(copyOp.fromPath(), null)) {
+                    logger.warn("Processing file copies with source dir " 
+                    + copyOp.fromPath() + " to " + copyOp.toPath() +
+                    "Copying files with source dir under /tags is a not " +
+                    "supported operation and will cause problems. " +
+                    "Set the " + HANDLE_COPIES_PROPERTY + " to <tags> to " +
+                    "if you want to support this.");
+                    continue; //Do not attempt to copy files from tag
+                }
+                
                 ProjectFile copyFrom = null;
                 copyFrom = ProjectFile.findFile(project.getId(), 
                             FileUtils.basename(copyOp.fromPath()), 
