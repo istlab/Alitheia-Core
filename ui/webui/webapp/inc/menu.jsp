@@ -14,16 +14,22 @@ in = 9;
 <%
 // Check is there is a connection with the SQO-OSS framework
 if (terrier.isConnected()) {
-%>                    <li><a href="/projects.jsp" title="Project details">Projects</a></li>
-                    <li><a href="/metrics.jsp" title="Metric details">Metrics</a></li>
+    String prjLabel = selectedProject.isValid()
+            ? selectedProject.getName() : "Projects";
+%>                    <li><a href="/projects.jsp" title="Project details"><%=prjLabel %></a></li>
 <%
     // Project related menu entries
     if (selectedProject.isValid()) {
-%>                    <li><a href="/versions.jsp" title="Project Versions">Versions</a></li>
-                    <li><a href="/developers.jsp" title="Project Developers">Developers</a></li>
-                    <li><a href="/files.jsp" title="Project Files">Files</a></li>
+%>                  <ul class="l2">
+                      <li><a href="/timeline.jsp" title="Project Timeline">Timeline</a></li>
+                      <li><a href="/versions.jsp" title="Project Versions">Versions</a></li>
+                      <li><a href="/developers.jsp" title="Project Developers">Developers</a></li>
+                      <li><a href="/files.jsp" title="Project Files">Files</a></li>
+                  </ul>
 <%
-}
+    }
+%>                    <li><a href="/metrics.jsp" title="Metric details">Metrics</a></li>
+<%
     // Login related menu entries
     if (user.getLoggedIn()) {
 //                    <li><a href="/logout.jsp" title="Click here to log out">Logout</a></li>
