@@ -203,7 +203,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
         ProjectFile prevFile;
         int locCurrent, locPrevious;
         Developer dev = pv.getCommitter();
-        String commitMsg = pv.getCommitMsg();
         Set<ProjectFile> projectFiles = pv.getVersionFiles();
         
         List<Metric> locMetric = new ArrayList<Metric>();
@@ -216,15 +215,32 @@ public class ContributionMetricImpl extends AbstractMetric implements
             return;
         }
         
-        PluginConfiguration pluginConf = getConfigurationOption(
+        int numFilesThreshold;
+        int updateThreshold; 
+        
+        PluginConfiguration config = getConfigurationOption(
                 ContributionMetricImpl.CONFIG_CMF_THRES);
         
-        if (pluginConf == null || 
-                Integer.parseInt(pluginConf.getValue()) <= 0) {
+        if (config == null || 
+                Integer.parseInt(config.getValue()) <= 0) {
             log.error("Plug-in configuration option " + 
                     ContributionMetricImpl.CONFIG_CMF_THRES + " not found");
             return; 
+        } else {
+            numFilesThreshold = Integer.parseInt(config.getValue());
         }
+        
+        config = getConfigurationOption(ContributionMetricImpl.CONFIG_WEIGHT_UPDATE_VERSIONS);
+        
+        if (config == null || 
+                Integer.parseInt(config.getValue()) <= 0) {
+            log.error("Plug-in configuration option " + 
+                    ContributionMetricImpl.CONFIG_WEIGHT_UPDATE_VERSIONS + " not found");
+            return;
+        } else  {
+            updateThreshold = Integer.parseInt(config.getValue());
+        }
+            
         
         Pattern bugNumberLabel = Pattern.compile("\\A.*(pr:|bug:).*\\Z",
                 Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
@@ -234,20 +250,24 @@ public class ContributionMetricImpl extends AbstractMetric implements
                         | Pattern.MULTILINE | Pattern.DOTALL);
         Matcher m;
 
-        if (commitMsg.length() == 0) {
+        //Commit message is empty
+        if (pv.getCommitMsg().length() == 0) {
             updateField(pv, dev, ActionType.CEC, false, 1);
         } else {
-            m = bugNumberLabel.matcher(commitMsg);
+            //Commit contains a bug report number
+            m = bugNumberLabel.matcher(pv.getCommitMsg());
             if (m.matches()) {
                 updateField(pv, dev, ActionType.CBN, true, 1);
             }
-            m = pHatLabel.matcher(commitMsg);
+            //Commit awards a pointy hat
+            m = pHatLabel.matcher(pv.getCommitMsg());
             if (m.matches()) {
                 updateField(pv, dev, ActionType.CPH, true, 1);
             }
         }
-      
-        if (projectFiles.size() > Integer.parseInt(pluginConf.getValue())) {
+        
+        //Commit more files in a commit than the provided threshold
+        if (projectFiles.size() > numFilesThreshold) {
             updateField(pv, dev, ActionType.CMF, false, 1);
         }
 
@@ -263,8 +283,11 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 if (pf.isAdded()) {
                     updateField(pv, dev, ActionType.CND, true, 1);
                 }
-            } else if (fType == FileTypeMatcher.FileType.SRC) {
-                //Source file change, calc number of lines commited
+            }
+            
+            //Commit of a source file: -
+            if (fType == FileTypeMatcher.FileType.SRC) {
+                //Source file changed, calc number of lines commited
                 try {
                     //File deleted, set current lines to 0 
                     if (pf.isDeleted()) {
@@ -288,6 +311,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
                             locPrevious = 0;
                         }
                     }
+                    //The commit change some lines
                     updateField(pv, dev, ActionType.CAL, true, abs(locCurrent - locPrevious));
                 } catch (MetricMismatchException e) {
                     log.error("Results of LOC metric for project: "
@@ -297,34 +321,30 @@ public class ContributionMetricImpl extends AbstractMetric implements
                             + e.getMessage());
                     return;
                 }
-            } else if (fType == FileTypeMatcher.FileType.BIN) {
-                updateField(pv, dev, ActionType.CBF, true, 1);
-            } else if (fType == FileTypeMatcher.FileType.DOC) {
+            }
+            
+            if (fType == FileTypeMatcher.FileType.BIN) {
+                //Commit of a binary file: -
+                updateField(pv, dev, ActionType.CBF, false, 1);
+            } 
+            
+            if (fType == FileTypeMatcher.FileType.DOC) {
+              //Commit of a documentation file: -
                 updateField(pv, dev, ActionType.CDF, true, 1);
-            } else if (fType == FileTypeMatcher.FileType.TRANS) {
+            } 
+            
+            if (fType == FileTypeMatcher.FileType.TRANS) {
+              //Commit of a translation file: -
                 updateField(pv, dev, ActionType.CTF, true, 1);
             }
         }
         
         //Check if it is required to update the weights
-        pluginConf = getConfigurationOption(
-                ContributionMetricImpl.CONFIG_WEIGHT_UPDATE_VERSIONS);
-        
-        if (pluginConf == null || 
-                Integer.parseInt(pluginConf.getValue()) <= 0) {
-            log.error("Plug-in configuration option " + 
-                    ContributionMetricImpl.CONFIG_WEIGHT_UPDATE_VERSIONS + " not found");
-            return;
-        }
-        
-        synchronized(getClass()){
-            //long distinctVersions = calcDistinctVersions();
-            long ts = (System.currentTimeMillis()/1000);
-                long previousVersions = ContribActionWeight.getLastUpdateVersionsCount();
+        synchronized (this) {
+            long distinctVersions = calcDistinctVersions();
             //Should the weights be updated?
-            if (ts - previousVersions 
-                    >= Integer.parseInt(pluginConf.getValue())){
-                updateWeights(ts);
+            if (distinctVersions % updateThreshold == 0){
+                updateWeights(pv);
             }
         }
         markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv.getProject());
@@ -365,18 +385,18 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return value;
     }
     
-    private long calcDistinctVersions() {
+    private int calcDistinctVersions() {
         DBService db = AlitheiaCore.getInstance().getDBService();
         List<?> distinctVersions = db.doHQL("select " +
-                        "count(distinct projectVersion) from ProductivityActions");
+                "count(distinct projectVersion) from ContribAction");
         
-        if(distinctVersions == null || 
-                distinctVersions.size() == 0 || 
-                distinctVersions.get(0) == null) {
-            return 0L;
+        if (distinctVersions == null || 
+            distinctVersions.size() == 0 || 
+            distinctVersions.get(0) == null) {
+            return 0;
         }
         
-        return (Long.parseLong(distinctVersions.get(0).toString())) ;
+        return (Integer.parseInt(distinctVersions.get(0).toString())) ;
     }
     
     private void updateField(ProjectVersion pv, Developer dev, 
@@ -403,7 +423,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         }
     }
     
-    private void updateWeights(long secLastUpdate) {
+    private void updateWeights(ProjectVersion pv) {
         ActionCategory[] actionCategories = ActionCategory.values();
 
         long totalActions = ContribAction.getTotalActions();
@@ -424,7 +444,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             }
             
             updateActionCategoryWeight(actionCategories[i],
-                    totalActionsPerCategory, totalActions, secLastUpdate);
+                    totalActionsPerCategory, totalActions);
 
             // update action types weights
             ArrayList<ActionType> actionTypes = 
@@ -434,14 +454,14 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 totalActionsPerType = 
                     ContribAction.getTotalActionsPerType(actionTypes.get(j));
                 updateActionTypeWeight(actionTypes.get(j),totalActionsPerType, 
-                        totalActionsPerCategory, secLastUpdate);
+                        totalActionsPerCategory);
             }
         }
     }
     
     private void updateActionTypeWeight(ActionType actionType, 
-            long totalActionsPerType, long totalActionsPerCategory, 
-            long distinctVersions) {
+            long totalActionsPerType, long totalActionsPerCategory) {
+        
         DBService db = AlitheiaCore.getInstance().getDBService();
         double weight = (double)(100 * totalActionsPerType) / 
             (double)totalActionsPerCategory;
@@ -452,17 +472,14 @@ public class ContributionMetricImpl extends AbstractMetric implements
             a = new ContribActionWeight();
             a.setType(actionType);
             a.setWeight(weight);
-            a.setLastUpdateVersion(distinctVersions);
             db.addRecord(a);
         } else {
-            a.setLastUpdateVersion(distinctVersions);
             a.setWeight(weight);
         }
     }
     
     private void updateActionCategoryWeight(ActionCategory actionCategory, 
-            long totalActionsPerCategory, long totalActions, 
-            long distinctVersions){
+            long totalActionsPerCategory, long totalActions){
         DBService db = AlitheiaCore.getInstance().getDBService();
         double weight = (double)(100 * totalActionsPerCategory) / 
             (double)totalActions;
@@ -473,10 +490,8 @@ public class ContributionMetricImpl extends AbstractMetric implements
             a = new ContribActionWeight();
             a.setCategory(actionCategory);
             a.setWeight(weight);
-            a.setLastUpdateVersion(distinctVersions);
             db.addRecord(a);
         } else {
-            a.setLastUpdateVersion(distinctVersions);
             a.setWeight(weight);
         }
     }
