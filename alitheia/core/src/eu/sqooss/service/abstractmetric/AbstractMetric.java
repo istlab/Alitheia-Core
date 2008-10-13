@@ -353,9 +353,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if (r.getRowCount() == 0) {
             synchronized (lockObject(o)) {
                 try {
-                    run(o);
+                    //Another thread might have run the metric
+                    //while we were waiting on the monitor. Don't rerun then.
                     r = getResultIfAlreadyCalculated(o, l);
-
+                    if (r.getRowCount() == 0)
+                        run(o);
+                    
                     if (r.getRowCount() == 0) {
                         log.info("The metric didn't returned "
                                 + "a result even after running it: "
