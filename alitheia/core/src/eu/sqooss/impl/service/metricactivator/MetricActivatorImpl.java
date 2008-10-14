@@ -242,7 +242,7 @@ public class MetricActivatorImpl implements MetricActivator {
         // No matching rule found. Return the default action.
         return defaultAction;
     }
-  
+
     public void runMetrics(Set<Long> daoIDs, Class<? extends DAObject> actType) {
         // TODO: Clustering - Check if not performing on a project assigned to this Clusternode 
         //       Is this called only from SourceUpdater?
@@ -259,8 +259,8 @@ public class MetricActivatorImpl implements MetricActivator {
             AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
             for(Long l : daoIDs) {
                 try {
-                    sched.enqueue(new MetricActivatorJob(metric, l, 
-                            logger, actType, bc));
+                    sched.enqueue(new MetricActivatorJob(metric, l, logger, 
+                            actType));
                 } catch (SchedulerException e) {
                     logger.error("Could not enquere job to run the metric");
                 }
@@ -383,8 +383,7 @@ public class MetricActivatorImpl implements MetricActivator {
         
         for (Long l : objectIDs) {
             try {
-                sched.enqueue(new MetricActivatorJob(metric, l, logger, 
-                        actType, bc));
+                sched.enqueue(new MetricActivatorJob(metric, l, logger, actType));
             } catch (SchedulerException e) {
                 logger.error("Could not start job to sync metric");
             }

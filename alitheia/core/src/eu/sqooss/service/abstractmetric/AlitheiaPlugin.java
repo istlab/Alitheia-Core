@@ -163,9 +163,11 @@ public interface AlitheiaPlugin {
      * @return value of the measurement or null if there is no such measurement.
      * @throws MetricMismatchException if the DAO type is one not supported by
      *          this metric.
+     * @throws AlreadyProcessingException to signify that the provided DAO is 
+     * currently locked for processing by another thread.           
      */
     Result getResult(DAObject o, List<Metric> l)
-        throws MetricMismatchException;
+        throws MetricMismatchException, AlreadyProcessingException;
 
     /**
      * Get the description objects for all metrics supported by this plug-in
@@ -193,9 +195,11 @@ public interface AlitheiaPlugin {
      *
      * @param o The DAO that gets passed to the plug-in in order to run it
      * @throws MetricMismatchException if the DAO is of an unsupported type.
+     * @throws AlreadyProcessingException to signify that the provided DAO is 
+     * currently locked for processing by another thread. 
      */
-    void run(DAObject o)
-        throws MetricMismatchException;
+    void run(DAObject o) throws MetricMismatchException, 
+        AlreadyProcessingException;
 
     /**
      * After installing a new version of the metric, try to

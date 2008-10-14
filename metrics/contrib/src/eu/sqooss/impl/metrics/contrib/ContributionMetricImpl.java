@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.metrics.contrib;
 
+import java.rmi.AlreadyBoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,7 +53,9 @@ import eu.sqooss.metrics.contrib.db.ContribActionType;
 import eu.sqooss.metrics.contrib.db.ContribActionWeight;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -197,7 +200,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return results;
     }
 
-    public void run(ProjectVersion pv) {
+    public void run(ProjectVersion pv) throws AlreadyProcessingException {
         /* Read config options in advance*/        
         FileTypeMatcher.FileType fType;
         ProjectFile prevFile;
@@ -230,12 +233,12 @@ public class ContributionMetricImpl extends AbstractMetric implements
             numFilesThreshold = Integer.parseInt(config.getValue());
         }
         
-        config = getConfigurationOption(ContributionMetricImpl.CONFIG_WEIGHT_UPDATE_VERSIONS);
+        config = getConfigurationOption(CONFIG_WEIGHT_UPDATE_VERSIONS);
         
         if (config == null || 
                 Integer.parseInt(config.getValue()) <= 0) {
             log.error("Plug-in configuration option " + 
-                    ContributionMetricImpl.CONFIG_WEIGHT_UPDATE_VERSIONS + " not found");
+                    CONFIG_WEIGHT_UPDATE_VERSIONS + " not found");
             return;
         } else  {
             updateThreshold = Integer.parseInt(config.getValue());
@@ -293,8 +296,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
                     if (pf.isDeleted()) {
                         locCurrent = 0;
                     } else {
-                        //Get lines of current version of the file from the wc metric
-                        locCurrent = plugin.getResult(pf, locMetric).getRow(0).get(0).getInteger();
+                        locCurrent = getLOCResult(pf, plugin, locMetric);
                     }
                     //Source file just added
                     if (pf.isAdded()) {
@@ -304,7 +306,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
                         //Existing file, get lines of previous version
                         prevFile = ProjectFile.getPreviousFileVersion(pf);
                         if (prevFile != null) {
-                            locPrevious = plugin.getResult(prevFile, locMetric).getRow(0).get(0).getInteger();
+                            locPrevious = getLOCResult(prevFile, plugin, locMetric);
                         } else {
                             log.warn("Cannot get previous file " +
                                         "version for file id: " + pf.getId());
@@ -312,7 +314,8 @@ public class ContributionMetricImpl extends AbstractMetric implements
                         }
                     }
                     //The commit change some lines
-                    updateField(pv, dev, ActionType.CAL, true, abs(locCurrent - locPrevious));
+                    updateField(pv, dev, ActionType.CAL, true, 
+                            abs(locCurrent - locPrevious));
                 } catch (MetricMismatchException e) {
                     log.error("Results of LOC metric for project: "
                             + pv.getProject().getName() + " file: "
@@ -346,7 +349,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             if (distinctVersions % updateThreshold == 0){
                 updateWeights(pv);
             }
-        }
+        }   
         markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv.getProject());
     }
 
@@ -354,6 +357,21 @@ public class ContributionMetricImpl extends AbstractMetric implements
         
     }
 
+    private int getLOCResult(ProjectFile pf, AlitheiaPlugin plugin, 
+            List<Metric> locMetric) 
+        throws MetricMismatchException, AlreadyProcessingException {
+      //Get lines of current version of the file from the wc metric
+        Result r = plugin.getResult(pf, locMetric);
+        if (r != null && r.hasNext()) {
+            return r.getRow(0).get(0).getInteger();
+        }
+        else { 
+            log.warn("Plugin <" + plugin.getName() + "> did" +
+                    " not return a result for file " + pf );
+            return 0;
+        }
+    }
+    
     /**
      * Get result per developer and per categorys
      */

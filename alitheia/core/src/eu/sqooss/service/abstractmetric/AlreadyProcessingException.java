@@ -32,34 +32,21 @@
 
 package eu.sqooss.service.abstractmetric;
 
-import java.util.List;
-
-import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.ProjectFile;
-
 /**
- * A metric plug-in implements the <tt>ProjectFileMetric</tt> interface to
- * indicate that its results are linked to the ProjectFile table, and
- * consequently needs to be recalculated when a particular file is changed
+ * Thrown when a DAO is locked for processing by another metric plugin.
+ * Metrics cannot lock a DAO object; this happens automatically on
+ * entering the metric result calculation code in AbstractMetric to ensure
+ * that no two instances of the metric operate on the same DAO (this happens
+ * often when a metric starts the calculation of another metric as a result
+ * of a metric dependency association). To ensure that a metric transaction
+ * actually sees the results of the calculation of the other metric working
+ * on the same DAO, this exception is thrown.
  */
+public class AlreadyProcessingException extends Exception {
+    
+    private static final long serialVersionUID = 1L;
 
-public interface ProjectFileMetric extends AlitheiaPlugin {
-
-    /**
-     * Run the metric to update the metric results on the file indicated by the
-     * argument DAO
-     *
-     * @param The first new version DAO
-     * @return True, if the metric run succeeded, false otherwise
-     * @see eu.sqooss.service.db.ProjectVersion
-     */
-    void run(ProjectFile a) throws AlreadyProcessingException;
-
-    /**
-     * Return metric results for file <tt>a</tt>
-     *
-     * @param ProjectFile DAO
-     * @return The metric result
-     */
-    List<ResultEntry> getResult(ProjectFile a, Metric m) throws AlreadyProcessingException;
+    AlreadyProcessingException() {
+        super();
+    }
 }

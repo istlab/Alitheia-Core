@@ -52,7 +52,7 @@ public interface StoredProjectMetric extends AlitheiaPlugin {
      * @return True, if the metric run succeeded, false otherwise
      * @see eu.sqooss.service.db.StoredProject
      */
-    void run(StoredProject a);
+    void run(StoredProject a) throws AlreadyProcessingException ;
 
     /**
      * Return metric results for Stored Project <tt>a</tt>
@@ -60,6 +60,6 @@ public interface StoredProjectMetric extends AlitheiaPlugin {
      * @param metricTypeDAO
      * @return
      */
-    List<ResultEntry> getResult(StoredProject a, Metric m);
+    List<ResultEntry> getResult(StoredProject a, Metric m) throws AlreadyProcessingException ;
 
 }

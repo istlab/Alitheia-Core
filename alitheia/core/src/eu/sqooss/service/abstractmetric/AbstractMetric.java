@@ -344,25 +344,31 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *      on the project data specified by o.
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
+     * @throws AlreadyProcessingException 
      */
     public Result getResult(DAObject o, List<Metric> l) 
-    throws MetricMismatchException {
+    throws MetricMismatchException, AlreadyProcessingException {
         Result r = getResultIfAlreadyCalculated(o, l);
 
         // the result hasn't been calculated yet. Do so.
         if (r.getRowCount() == 0) {
+           /*
+             * To ensure that no two instances of the metric operate on the same
+             * DAO lock on the DAO. Working on the same DAO can happen often
+             * when a plugin starts the calculation of another metric as a
+             * result of a plugin dependency association. This lock has the side
+             * effect that no two Plugins can be invoked with the same DAO as an
+             * argument even if the plug-ins do not depend on each other.
+             */
             synchronized (lockObject(o)) {
                 try {
-                    //Another thread might have run the metric
-                    //while we were waiting on the monitor. Don't rerun then.
-                    r = getResultIfAlreadyCalculated(o, l);
-                    if (r.getRowCount() == 0)
-                        run(o);
+                    run(o);
                     
+                    r = getResultIfAlreadyCalculated(o, l);
                     if (r.getRowCount() == 0) {
-                        log.info("The metric didn't returned "
-                                + "a result even after running it: "
-                                + getClass().getCanonicalName());
+                        log.debug("Metric " + getClass() + " didn't return"
+                                + "a result even after running it. DAO: "
+                                + o.getId());
                     }
                 } finally {
                     unlockObject(o);
@@ -375,13 +381,33 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     private Map<Long,Pair<Object,Integer>> locks = new HashMap<Long,Pair<Object,Integer>>();
     
-    private Object lockObject(DAObject o) {
+    private Object lockObject(DAObject o) throws AlreadyProcessingException {
     	synchronized (locks) {
             if (!locks.containsKey(o.getId())) {
                 locks.put(o.getId(), 
                         new Pair<Object, Integer>(new Object(),0));
             }
             Pair<Object, Integer> p = locks.get(o.getId());
+            if (p.second + 1 > 1) {
+                /*
+                 * Break and reschedule the calculation of each call to the
+                 * getResult method if it originates from another thread than
+                 * the thread that has currently locked the DAO object. 
+                 * This is required for the DB transaction in the stopped
+                 * job to see the results of the calculation of the original
+                 * job.
+                 */ 
+                log.debug("DAO Id:" + o.getId() + 
+                        " Already locked - failing job");
+                try {
+                    throw new AlreadyProcessingException();
+                } finally {
+                    MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
+                    HashSet<Long> s = new HashSet<Long>();
+                    s.add(o.getId());
+                    ma.runMetrics(s, o.getClass());
+                }
+            }
             p.second = p.second + 1;
             return p.first;
         }
@@ -393,6 +419,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     		p.second = p.second - 1;
     		if (p.second == 0) {
     			locks.remove(o.getId());
+    		} else {
+    		log.debug("Unlocking DAO Id:" + o.getId());
     		}
     	}
     }
@@ -408,7 +436,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @throws MetricMismatchException
      *                 if the DAO is of a type not supported by this metric.
      */
-    public void run(DAObject o) throws MetricMismatchException {
+    public void run(DAObject o) throws MetricMismatchException, 
+        AlreadyProcessingException {
 
         if (!checkDependencies()) {
             log.error("Plug-in dependency check failed");
@@ -434,7 +463,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 } catch (IllegalAccessException e) {
                     logErr("run", o.getId(), e);
                 } catch (InvocationTargetException e) {
+                    //Forward exception to metric job exception handler
+                    if (e.getCause() instanceof AlreadyProcessingException) 
+                        throw (AlreadyProcessingException) e.getCause();
                     logErr("run", o.getId(), e);
+                } catch (NullPointerException e) {
+                    logErr("run", o.getId(), e);
+                } catch (ExceptionInInitializerError e) {
+                    
                 }
             }
         }
@@ -448,7 +484,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 " Unable to invoke " + method + " method." +
                 " Exception:" + e.getClass().getName() +
                 " Error:" + e.getMessage() + 
-                " Reason:" + e.getCause().getMessage(),e);
+                " Reason:" + e.getCause().getMessage(), e);
     }
 
     /**

@@ -47,7 +47,7 @@ public interface ProjectVersionMetric extends AlitheiaPlugin {
     /**
      * Specialization of run(DAObject) for project versions.
      */
-    void run(ProjectVersion v);
+    void run(ProjectVersion v) throws AlreadyProcessingException;
 
     /**
      * Return results

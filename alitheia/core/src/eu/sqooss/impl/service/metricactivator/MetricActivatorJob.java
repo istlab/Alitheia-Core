@@ -36,6 +36,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -60,13 +61,13 @@ public class MetricActivatorJob extends Job {
     Class<? extends DAObject> daoType;
     
     MetricActivatorJob(AbstractMetric m, Long daoID, Logger l,
-            Class<? extends DAObject> daoType, BundleContext bc) {
+            Class<? extends DAObject> daoType) {
     	this.metric = m;
         this.logger = l;
         this.daoID = daoID;
         this.daoType = daoType;
-        this.dbs = ((AlitheiaCore)bc.getService(bc.getServiceReference(AlitheiaCore.class.getName()))).getDBService();
-        this.ma = ((AlitheiaCore)bc.getService(bc.getServiceReference(AlitheiaCore.class.getName()))).getMetricActivator();   
+        this.dbs = AlitheiaCore.getInstance().getDBService();
+        this.ma = AlitheiaCore.getInstance().getMetricActivator();   
     }
     
     @Override
@@ -86,7 +87,12 @@ public class MetricActivatorJob extends Job {
                 metric.getResult(obj, metric.getSupportedMetrics());
             } catch (MetricMismatchException e) {
                 logger.warn("Metric " + metric.getName() + " failed");
-            }
+            } catch (AlreadyProcessingException ape) {
+                logger.warn("DAO id " + daoID + " is locked, job has been " +
+                		"rescheduled");
+                dbs.rollbackDBSession();
+                return;
+            } 
         }
         if(!dbs.commitDBSession()) {
             logger.warn("commit failed - restarting metric job");

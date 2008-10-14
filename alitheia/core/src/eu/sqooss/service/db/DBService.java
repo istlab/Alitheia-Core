@@ -71,7 +71,8 @@ import org.hibernate.QueryException;
  * 
  * nb: the package eu.sqooss.service.db contains all the Alitheia predefined DAOs that are used by
  * the platform, but it is also possible to add your own DAOs in metrics installed by Alitheia.
- * See the productivity metric for an example how to achieve that.
+ * See the implementation of the developer contribution metric 
+ * (under metrics/contrib) for an example how to achieve that.
  * 
  * 
  * @author Romain Pokrzywka

@@ -45,6 +45,7 @@ import eu.sqooss.metrics.modulemetrics.ModuleMetrics;
 import eu.sqooss.metrics.modulemetrics.db.ModuleNOL;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Directory;
@@ -203,7 +204,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
          */
     }
 
-    public void run(ProjectVersion pv) {
+    public void run(ProjectVersion pv) throws AlreadyProcessingException {
         // First, make sure that "AMS" is evaluated on the previous version.
         ProjectVersion prevVersion = pv.getPreviousVersion();
         if (prevVersion != null) {
@@ -261,7 +262,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         markEvaluation(metric, pv.getProject());
     }
 
-    private void evalNOL(Set<ProjectFile> files) {
+    private void evalNOL(Set<ProjectFile> files) throws AlreadyProcessingException {
         // Get a reference to the WC.LOC metric dependency.
         List<Metric> locMetric = new ArrayList<Metric>();
         AlitheiaPlugin locPlugin = core.getPluginAdmin().getImplementingPlugin(
