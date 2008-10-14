@@ -350,7 +350,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 updateWeights(pv);
             }
         }   
-        markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv.getProject());
+        markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv);
     }
 
     public void run(Developer v) {
