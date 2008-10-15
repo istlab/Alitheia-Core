@@ -462,8 +462,8 @@ final class SourceUpdater extends Job {
             return;
         } 
         
-        ma.runMetrics(updProjectVersions, ProjectVersion.class);
         ma.runMetrics(updFiles, ProjectFile.class);
+        ma.runMetrics(updProjectVersions, ProjectVersion.class);
         
         updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
     }

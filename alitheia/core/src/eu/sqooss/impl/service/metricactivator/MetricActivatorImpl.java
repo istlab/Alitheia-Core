@@ -32,6 +32,7 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -255,6 +256,26 @@ public class MetricActivatorImpl implements MetricActivator {
             return;
         }
         
+        /*/*Poor man's dependency resolution*
+        HashMap<AlitheiaPlugin, List<AlitheiaPlugin>> depList = new HashMap<AlitheiaPlugin, List<AlitheiaPlugin>>();
+        List<AlitheiaPlugin> pluginLump = new ArrayList<AlitheiaPlugin>(); 
+        /* 1. retrieve dependencies *
+        for (PluginInfo pi : plugins) {
+            AlitheiaPlugin p = (AlitheiaPlugin) bc.getService(pi.getServiceRef());
+            List<String> mnemDeps = p.getDependencies();
+            List<AlitheiaPlugin> pluginDeps = new ArrayList<AlitheiaPlugin>();
+            for (String dep : mnemDeps) {
+                pluginDeps.add(pa.getImplementingPlugin(dep));
+            }
+            depList.put(p, pluginDeps);
+            pluginLump.add(p);
+            pluginLump.addAll(pluginDeps);
+        }
+        
+        /* 2. Replace first occurence of a plugo*
+        */
+        
+        /* Fire up plug-ins */
         for (PluginInfo pi : plugins) {
             AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
             for(Long l : daoIDs) {
@@ -265,7 +286,7 @@ public class MetricActivatorImpl implements MetricActivator {
                     logger.error("Could not enquere job to run the metric");
                 }
             }
-        }   
+        }
     }
 
     /**{@inheritDoc}*/
@@ -340,7 +361,7 @@ public class MetricActivatorImpl implements MetricActivator {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(paramSp, sp);
         
-        for(Class<? extends DAObject> c : actTypes) {
+        for (Class<? extends DAObject> c : actTypes) {
             if(c.equals(ProjectFile.class)) {
                 query = "select distinct pf.id " +
                 "from ProjectVersion pv, ProjectFile pf " +

@@ -37,6 +37,8 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -52,6 +54,7 @@ import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
 
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
 
 import eu.sqooss.service.scheduler.Job;
 
@@ -73,6 +76,12 @@ class MailUpdater extends Job {
     private UpdaterServiceImpl updater;
     private DBService dbs;
 
+    /*Cache mail ids to call the metric activator with them*/
+    private Set<Long> updMails = new TreeSet<Long>();
+    
+    /*Cache mailinglist ids to call the metric activator with them*/
+    private Set<Long> updMailingLists = new TreeSet<Long>();
+    
     public MailUpdater(StoredProject project,
                        UpdaterServiceImpl updater,
                        AlitheiaCore core,
@@ -122,6 +131,7 @@ class MailUpdater extends Job {
                 nml.setListId(listId);
                 nml.setStoredProject(project);
                 dbs.addRecord(nml);
+                updMailingLists.add(nml.getId());
                 refresh = true;
             }
         }
@@ -130,11 +140,25 @@ class MailUpdater extends Job {
         if (refresh) {
             mllist = getMailingLists(project);
         }
+        
         for ( MailingList ml : mllist ) {
             processList(mailAccessor, ml);
         }
-        updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
-        dbs.commitDBSession();
+        
+        try {
+            dbs.commitDBSession();
+            MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
+            
+            if (!updMails.isEmpty()) {
+                ma.runMetrics(updMails, MailMessage.class);
+            }
+            
+            if (!updMailingLists.isEmpty()) {
+                ma.runMetrics(updMailingLists, MailingList.class);
+            }
+        } finally {
+            updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
+        }   
     }
 
     private void processList(MailAccessor mailAccessor, MailingList mllist) {
@@ -187,6 +211,7 @@ class MailUpdater extends Job {
                     
                     logger.debug("Adding message " + mm.getMessageID());
                     dbs.addRecord(mmsg);
+                    updMails.add(mmsg.getId());
                 }
 
                 if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
