@@ -13,6 +13,7 @@ Bundle-ClassPath: org.hibernate-3.2.5.jar,
 Export-Package: org.hibernate;version="3.2.5",
     org.hibernate.cfg;version="3.2.5",
     org.hibernate.proxy;version="3.2.5",
+    org.hibernate.exception;version="3.2.5",
     net.sf.cglib,
     net.sf.cglib.proxy
 Import-Package: org.apache.commons.logging,

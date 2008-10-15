@@ -385,7 +385,7 @@ public class MetricActivatorImpl implements MetricActivator {
                         "where d.storedProject = :" + paramSp;
             } else if (c.equals(Bug.class)){
                 query = "select distinct b.id from Bug b " +
-                        " where b.project =: " + paramSp;
+                        " where b.project = :" + paramSp;
             } else {
                 logger.error("Unknown activation type " + c.getName());
                 return;

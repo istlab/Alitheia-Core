@@ -138,6 +138,7 @@ public class BugUpdater extends Job {
             }
             
             db.addRecord(bug);
+            updBugs.add(bug.getId());
             log.debug(sp.getName() + ": Added bug " + bugID);
         }
         try {

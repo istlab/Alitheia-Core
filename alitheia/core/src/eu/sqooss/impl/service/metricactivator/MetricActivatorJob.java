@@ -32,7 +32,7 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
-import org.osgi.framework.BundleContext;
+import org.hibernate.exception.LockAcquisitionException;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
@@ -46,10 +46,8 @@ import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 
 /**
- * Schedule metric jobs in parallel. Used to overcome DB I/O waits
- * when scheduling jobs on large multiprocessor systems.
- * 
- * @author Georgios Gousios
+ * Generic metric job. Manages database sessions and job restarts
+ * on interesting exceptions.
  */
 public class MetricActivatorJob extends Job {
 
@@ -92,7 +90,9 @@ public class MetricActivatorJob extends Job {
                 		"rescheduled");
                 dbs.rollbackDBSession();
                 return;
-            } 
+            } catch (LockAcquisitionException lae) {
+                dbs.rollbackDBSession();
+            }
         }
         if(!dbs.commitDBSession()) {
             logger.warn("commit failed - restarting metric job");
