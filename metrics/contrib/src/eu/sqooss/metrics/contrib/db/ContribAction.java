@@ -43,12 +43,11 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.ProjectVersion;
 
 public class ContribAction extends DAObject {
 
     private Developer developer;
-    private ProjectVersion projectVersion;
+    private Long changedResourceId;
     private ContribActionType contribActionType;
     private long total;
 
@@ -60,12 +59,12 @@ public class ContribAction extends DAObject {
         this.developer = developer;
     }
     
-    public ProjectVersion getProjectVersion() {
-        return projectVersion;
+    public Long getChangedResourceId() {
+        return changedResourceId;
     }
     
-    public void setProjectVersion(ProjectVersion projectVersion) {
-        this.projectVersion = projectVersion;
+    public void setChangedResourceId(Long changedResourceId) {
+        this.changedResourceId = changedResourceId;
     }
     
     public ContribActionType getContribActionType() {
@@ -84,18 +83,17 @@ public class ContribAction extends DAObject {
         this.total = total;
     }
 
-    public static ContribAction getProductivityAction(Developer dev, 
-            ProjectVersion pv, ContribActionType actionType) {
+    public static ContribAction getContribAction(Developer dev, 
+            Long resourceId, ContribActionType actionType) {
         
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> properties = new HashMap<String,Object>();
         properties.put("developer", dev);
-        properties.put("projectVersion", pv);
+        properties.put("changedResourceId", resourceId);
         properties.put("contribActionType", actionType);
-
-        List<ContribAction> pa = dbs.findObjectsByPropertiesForUpdate(
-                ContribAction.class, properties);
+        
+        List<ContribAction> pa = dbs.findObjectsByProperties(ContribAction.class, properties);
         
         return pa.isEmpty() ? null : pa.get(0);
     }

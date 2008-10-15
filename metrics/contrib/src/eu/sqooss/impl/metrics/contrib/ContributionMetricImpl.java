@@ -32,8 +32,8 @@
 
 package eu.sqooss.impl.metrics.contrib;
 
-import java.rmi.AlreadyBoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,9 +57,12 @@ import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -78,7 +81,9 @@ public class ContributionMetricImpl extends AbstractMetric implements
     public ContributionMetricImpl(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectVersion.class);
-        super.addActivationType(Developer.class);
+    //    super.addActivationType(Developer.class);
+      //  super.addActivationType(MailMessage.class);
+        //super.addActivationType(Bug.class);
         
         super.addMetricActivationType("CONTRIB", Developer.class);
         
@@ -95,7 +100,8 @@ public class ContributionMetricImpl extends AbstractMetric implements
          
              addConfigEntry(CONFIG_CMF_THRES, 
                  "5" , 
-                 "Number of committed files above which the developer is penalized", 
+                 "Number of committed files above which the developer is " +
+                 "penalized", 
                  PluginInfo.ConfigurationType.INTEGER);
              addConfigEntry(CONFIG_WEIGHT_UPDATE_VERSIONS, 
                  "150" , 
@@ -121,6 +127,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return result;
     }
     
+    /**{@inheritDoc}*/
     public boolean cleanup(DAObject sp) {
         boolean result = true;
         
@@ -128,12 +135,28 @@ public class ContributionMetricImpl extends AbstractMetric implements
             log.warn("We only support cleaning up per stored project for now");
             return false;
         }
+        result &= cleanupResource (((StoredProject)sp).getProjectVersions(), 
+                ActionCategory.C);
+        result &= cleanupResource(((StoredProject)sp).getBugs(), 
+                ActionCategory.B);
+        
+        Set<MailingList> mlists = ((StoredProject) sp).getMailingLists();
+        for (MailingList ml : mlists) {
+            result &= cleanupResource(ml.getMessages(), ActionCategory.M);            
+        }
+       
+        return result;
+    }
+
+    private boolean cleanupResource (Collection<? extends DAObject> c, 
+            ActionCategory ac) {
         
         Map<String,Object> params = new HashMap<String,Object>();
-        List<ProjectVersion> pvs = ((StoredProject)sp).getProjectVersions();
+        boolean result = false;
         
-        for(ProjectVersion pv : pvs) {
-            params.put("projectVersion", pv);
+        for(DAObject o : c) {
+            params.put("changedResourceId", o.getId());
+            params.put("actionCategory", ac.toString());
             List<ContribAction> pas = 
                 db.findObjectsByProperties(ContribAction.class, params);
             if (!pas.isEmpty()) {
@@ -143,40 +166,56 @@ public class ContributionMetricImpl extends AbstractMetric implements
             }
             params.clear();
         }
-        
         return result;
     }
 
-    /**
-     * Returns an arbitrary result to indicate that the provided project
-     * version has been already processed. If the provided version 
-     * was not processed, it returns null.
-     * 
-     * {@inheritDoc}
+    /*
+     * The following methods are dummy implementations that just
+     * check if a result has been calculated for the provided
+     * DAO or not. 
      */
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
+       return checkResult(a, ActionCategory.C, m);
+    }
+    
+    public List<ResultEntry> getResult(MailMessage mm, Metric m) {
+        return checkResult(mm, ActionCategory.M, m);
+    }
+    
+    public List<ResultEntry> getResult(Bug b, Metric m) {
+        return checkResult(b, ActionCategory.B, m);
+    }
+    
+    private List<ResultEntry> checkResult(DAObject o, ActionCategory ac, 
+            Metric m) {
         ArrayList<ResultEntry> res = new ArrayList<ResultEntry>();
-        String paramVersion = "paramVersion";
+        String paramChResource = "paramChResource";
+        String paramActionCategory = "paramActionCategory";
         
-        String query = "select a from ContribAction a " +
-                " where a.projectVersion = :" + paramVersion ;
+        String query = "select ca " +
+            "from ContribAction ca, ContribActionType cat " +
+            " where ca.contribActionType = cat " +
+            " and cat.actionCategory = :" + paramActionCategory +
+            " and ca.changedResourceId = :" + paramChResource ;
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, a);
+        parameters.put(paramChResource, o.getId());
+        parameters.put(paramActionCategory, ActionCategory.C.toString());
 
-        List<?> p = db.doHQL(query, parameters);
+        List<ContribAction> lp = (List<ContribAction>) db.doHQL(query, parameters);
     
-        if ( p == null || p.isEmpty() ){
+        if (lp == null || lp.isEmpty()) {
             return null;
         } 
-        // TODO: Fix the fixed result
+        //Return a fixed result to indicate successful run on this 
+        //project resource
         res.add(new ResultEntry(1, ResultEntry.MIME_TYPE_TYPE_INTEGER, 
                 m.getMnemonic()));
         return res;
     }
 
-    /**
-     * This plug-in's result is returned per developer. 
+    /*
+     * This plug-in's result is only returned per developer. 
      */
     public List<ResultEntry> getResult(Developer a, Metric m) {
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
@@ -200,6 +239,18 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return results;
     }
 
+    public void run(Developer v) {
+        
+    }
+    
+    public void run(Bug b) throws AlreadyProcessingException {
+        
+    }
+
+    public void run(MailMessage m) throws AlreadyProcessingException {
+        
+    }
+    
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
         /* Read config options in advance*/        
         FileTypeMatcher.FileType fType;
@@ -353,10 +404,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
         markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv);
     }
 
-    public void run(Developer v) {
-        
-    }
-
     private int getLOCResult(ProjectFile pf, AlitheiaPlugin plugin, 
             List<Metric> locMetric) 
         throws MetricMismatchException, AlreadyProcessingException {
@@ -406,7 +453,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
     private int calcDistinctVersions() {
         DBService db = AlitheiaCore.getInstance().getDBService();
         List<?> distinctVersions = db.doHQL("select " +
-                "count(distinct projectVersion) from ContribAction");
+                "count(distinct changedResourceId) from ContribAction");
         
         if (distinctVersions == null || 
             distinctVersions.size() == 0 || 
@@ -420,19 +467,20 @@ public class ContributionMetricImpl extends AbstractMetric implements
     private void updateField(ProjectVersion pv, Developer dev, 
             ActionType actionType, boolean isPositive, int value) {
         DBService db = AlitheiaCore.getInstance().getDBService();
-        ContribActionType at = ContribActionType.getContribActionType(actionType, isPositive);
+        ContribActionType at = ContribActionType.getContribActionType(actionType,
+                isPositive);
         
-        if (at == null){
+        if (at == null) {
             db.rollbackDBSession();
             return;
         }
-                
-        ContribAction a = ContribAction.getProductivityAction(dev, pv, at);
+
+        ContribAction a = ContribAction.getContribAction(dev, pv.getId(), at);
 
         if (a == null) {
             a = new ContribAction();
             a.setDeveloper(dev);
-            a.setProjectVersion(pv);
+            a.setChangedResourceId(pv.getId());
             a.setContribActionType(at);
             a.setTotal(value);
             db.addRecord(a);
@@ -520,7 +568,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
         else
             return value;
     }
-    
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

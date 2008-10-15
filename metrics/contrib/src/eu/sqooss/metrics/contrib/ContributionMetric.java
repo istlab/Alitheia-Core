@@ -33,10 +33,13 @@
 package eu.sqooss.metrics.contrib;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.BugMetric;
+import eu.sqooss.service.abstractmetric.DeveloperMetric;
+import eu.sqooss.service.abstractmetric.MailMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 
 public interface ContributionMetric extends AlitheiaPlugin,
-        ProjectVersionMetric {
+        ProjectVersionMetric, DeveloperMetric, BugMetric, MailMetric {
 
 }
 

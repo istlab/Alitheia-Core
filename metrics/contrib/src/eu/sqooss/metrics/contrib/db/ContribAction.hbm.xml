@@ -9,7 +9,7 @@
       <generator class="native" />
     </id>
     <many-to-one name="developer" column="DEVELOPER_ID" not-null="true" cascade="merge" />
-    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge"/>
+    <property name="changedResourceId" column="CHANGED_RESOURCE_ID" not-null="true"/>
     <many-to-one name="contribActionType" column="CONTRIB_ACTION_TYPE_ID" not-null="true" cascade="merge"/>
     <property name="total" column="TOTAL" not-null="true" />
   </class>
