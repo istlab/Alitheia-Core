@@ -82,6 +82,10 @@ import eu.sqooss.service.db.PluginConfiguration;
  *   <li>Project Version</li>
  *   <li>File Group</li>
  *   <li>File</li>
+ *   <li>Mail Message</li>
+ *   <li>Mailing List</li>
+ *   <li>Bug</li>
+ *   <li>Developer</li>
  *  </ul>
  *
  * As a result, all metric plug-in implementations must implement at least two
@@ -95,6 +99,10 @@ import eu.sqooss.service.db.PluginConfiguration;
  *          <li>{@link ProjectVersionMetric}</li>
  *          <li>{@link ProjectFileMetric}</li>
  *          <li>{@link FileGroupMetric}</li>
+ *          <li>{@link MailingListMetric}</li>
+ *          <li>{@link MailMetric}</li>
+ *          <li>{@link BugMetric}</li>
+ *          <li>{@link DeveloperMetric}</li>
  *      </ul>
  *  </ul>
  *
@@ -273,4 +281,12 @@ public interface AlitheiaPlugin {
      *   needed or if the plug-in is not active.
      */
     Set<PluginConfiguration> getConfigurationSchema();
+    
+    /**
+     * Metric mnemonics for the metrics required to be present for this 
+     * plugin to operate. 
+     * 
+     * @return A, possibly empty, list of metric mnemonics. 
+     */
+    List<String> getDependencies();
 }

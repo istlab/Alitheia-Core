@@ -34,6 +34,7 @@ package eu.sqooss.service.abstractmetric;
 
 import java.util.List;
 
+import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.StoredProject;
 
@@ -41,25 +42,39 @@ import eu.sqooss.service.db.StoredProject;
  * A metric plug-in implements the <tt>StoredProjectMetric</tt> interface to
  * indicate that its results are linked to the StoredProject table, and
  * consequently needs to be recalculated when a change that affects the
- * whole project occurs.
+ * whole project occurs (e.g. addition or deletion of a project). 
+ * The metric might also just
+ * run on StoredProject changes (but store results against another entity), 
+ * in which case it should implement the {@link #run(StoredProject)} method 
+ * normally and provide an implementation of 
+ * {@link #getResult(StoredProject, Metric)} that just returns an empty list.
  */
 public interface StoredProjectMetric extends AlitheiaPlugin {
 
     /**
-     * Run the metric to update the results for this Stored Project DAO
-     *
-     * @param
-     * @return True, if the metric run succeeded, false otherwise
+     * Run the metric to update the metric results on the project
+     * indicated by the argument DAO.
+     * 
+     * @param The DAO to calculate results against
+     * @throws AlreadyProcessingException
+     *                 When another metric is calculating results on the same
+     *                 DAO when this metric was activated. This exception should
+     *                 not be caught (or if caught it should be re-thrown) as
+     *                 correct excecution of metrics depends on it.
+     *                 
      * @see eu.sqooss.service.db.StoredProject
      */
     void run(StoredProject a) throws AlreadyProcessingException ;
 
     /**
-     * Return metric results for Stored Project <tt>a</tt>
-     *
-     * @param metricTypeDAO
-     * @return
+     * Return metric results for StoredProject <tt>s</tt>. Will not trigger a
+     * calculation if the result is not in the DB.
+     * 
+     * @param s DAO to retrieve a stored measurement for.
+     * @param m The metric whose result should be retrieved.
+     * @return The metric result or an empty result list if the result was not
+     *         calculated or the requested metric is not implemented by this
+     *         plugin.
      */
-    List<ResultEntry> getResult(StoredProject a, Metric m) throws AlreadyProcessingException ;
-
+    List<ResultEntry> getResult(StoredProject s, Metric m);
 }

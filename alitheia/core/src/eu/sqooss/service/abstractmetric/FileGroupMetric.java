@@ -36,32 +36,43 @@ import java.util.List;
 
 import eu.sqooss.service.db.FileGroup;
 import eu.sqooss.service.db.Metric;
+
 /**
  * A metric plug-in implements the <tt>FileGroupMetric</tt> interface to
  * indicate that its results are linked to the FileGroup table, and
- * consequently needs to be recalculated when the FileGroup has been updated
+ * consequently needs to be recalculated when a FileGroup was changed as a 
+ * result of BTS activity. The metric might also just
+ * run on File Group changes (but store results againsts another entity), 
+ * in which case it should implement the {@link #run(FileGroup)} method 
+ * normally and provide an implementation of 
+ * {@link #getResult(FileGroup, Metric)} that just returns an empty list.
  */
-
 public interface FileGroupMetric extends AlitheiaPlugin {
 
     /**
-     * Run the metric to update the metric results when new versions
-     * of the evaluated project are available.
-     *
-     * By default, the run method will start updating metric results from
-     * <tt>a</tt> to the newest project version.
-     *
-     * @param The first new version DAO
-     * @return True, if the metric run succeeded, false otherwise
+     * Run the metric to update the metric results on the filegroup indicated
+     *  by the argument DAO.
+     * 
+     * @param The DAO to calculate results against
+     * @throws AlreadyProcessingException
+     *                 When another metric is calculating results on the same
+     *                 DAO when this metric was activated. This exception should
+     *                 not be caught (or if caught it should be re-thrown) as
+     *                 correct excecution of metrics depends on it.
+     *                 
      * @see eu.sqooss.service.db.FileGroup
      */
-    void run(FileGroup a);
+    void run(FileGroup a) throws AlreadyProcessingException;
 
     /**
-     * Return metric results for project version <tt>a</tt>
-     *
-     * @param metricTypeDAO
-     * @return
+     * Return metric results for filegroup <tt>f</tt>. Will not trigger a
+     * calculation if the result is not in the DB.
+     * 
+     * @param f DAO to retrieve a stored measurement for.
+     * @param m The metric whose result should be retrieved.
+     * @return The metric result or an empty result list if the result was not
+     *         calculated or the requested metric is not implemented by this
+     *         plugin.
      */
-    List<ResultEntry> getResult(FileGroup a, Metric m);
+    List<ResultEntry> getResult(FileGroup f, Metric m);
 }

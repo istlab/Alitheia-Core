@@ -40,21 +40,39 @@ import eu.sqooss.service.db.ProjectVersion;
 /**
  * A metric plug-in implements the <tt>ProjectVersionMetric</tt> interface to
  * indicate that its results are linked to the ProjectVersion table, and
- * consequently needs to be recalculated on every new project version.
+ * consequently needs to be recalculated when a ProjectVersion was changed 
+ * as a result of SCM activity. The metric might also just
+ * run on Project Version changes (but store results against another entity), 
+ * in which case it should implement the {@link #run(ProjectVersion)} method 
+ * normally and provide an implementation of 
+ * {@link #getResult(ProjectVersion, Metric)} that just returns an empty list.
  */
 public interface ProjectVersionMetric extends AlitheiaPlugin {
 
     /**
-     * Specialization of run(DAObject) for project versions.
+     * Run the metric to update the metric results on the project version
+     * indicated by the argument DAO.
+     * 
+     * @param The DAO to calculate results against
+     * @throws AlreadyProcessingException
+     *                 When another metric is calculating results on the same
+     *                 DAO when this metric was activated. This exception should
+     *                 not be caught (or if caught it should be re-thrown) as
+     *                 correct excecution of metrics depends on it.
+     *                 
+     * @see eu.sqooss.service.db.ProjectVersion
      */
     void run(ProjectVersion v) throws AlreadyProcessingException;
 
     /**
-     * Return results
-     *
-     * @param The project version to return results for
-     * @return A {@link MetricResult} object when results for this version
-     * exist, <tt>null</tt> otherwise.
+     * Return metric results for ProjectVersion <tt>p</tt>. Will not trigger a
+     * calculation if the result is not in the DB.
+     * 
+     * @param p DAO to retrieve a stored measurement for.
+     * @param m The metric whose result should be retrieved.
+     * @return The metric result or an empty result list if the result was not
+     *         calculated or the requested metric is not implemented by this
+     *         plugin.
      */
-    List<ResultEntry> getResult(ProjectVersion a, Metric m);
+    List<ResultEntry> getResult(ProjectVersion p, Metric m);
 }

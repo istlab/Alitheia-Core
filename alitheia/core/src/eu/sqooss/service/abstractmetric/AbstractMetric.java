@@ -900,4 +900,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
         return true;
     }
+    
+    /** {@inheritDoc} */
+    public List<String> getDependencies() {
+        return dependencies;
+    }
 }

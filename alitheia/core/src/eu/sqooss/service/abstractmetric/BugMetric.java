@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 Athens University of Economics and Business
+ * Copyright 2008 Athens University of Economics and Business
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -34,21 +34,20 @@ package eu.sqooss.service.abstractmetric;
 
 import java.util.List;
 
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.ProjectFile;
 
 /**
- * A metric plug-in implements the <tt>ProjectFileMetric</tt> interface to
- * indicate that its results are linked to the ProjectFile table, and
- * consequently needs to be recalculated when a file was changed as a result
- * of SCM activity. The metric might also just
- * run on Project File changes (but store results against another entity), 
- * in which case it should implement the {@link #run(ProjectFile)} method 
+ * A metric plug-in implements the <tt>BugMetric</tt> interface to
+ * indicate that its results are linked to the Bugs table, and
+ * consequently needs to be recalculated when a Bug was changed as a result of
+ * BTS activity. The metric might also just
+ * run on Bug changes (but store results against another entity), 
+ * in which case it should implement the {@link #run(Bug)} method 
  * normally and provide an implementation of 
- * {@link #getResult(ProjectFile, Metric)} that just returns an empty list.
+ * {@link #getResult(Bug, Metric)} that just returns an empty list.
  */
-public interface ProjectFileMetric extends AlitheiaPlugin {
-
+public interface BugMetric extends AlitheiaPlugin {
     /**
      * Run the metric to update the metric results on the bug indicated by the
      * argument DAO.
@@ -62,17 +61,17 @@ public interface ProjectFileMetric extends AlitheiaPlugin {
      *                 
      * @see eu.sqooss.service.db.Bug
      */
-    void run(ProjectFile a) throws AlreadyProcessingException;
+    void run(Bug b) throws AlreadyProcessingException;
 
     /**
-     * Return metric results for file <tt>a</tt>. Will not trigger a
+     * Return metric results for bug <tt>b</tt>. Will not trigger a
      * calculation if the result is not in the DB.
      * 
-     * @param a DAO to retrieve a stored measurement for.
+     * @param b DAO to retrieve a stored measurement for.
      * @param m The metric whose result should be retrieved.
      * @return The metric result or an empty result list if the result was not
      *         calculated or the requested metric is not implemented by this
      *         plugin.
      */
-    List<ResultEntry> getResult(ProjectFile a, Metric m);
+    List<ResultEntry> getResult(Bug b, Metric m);
 }
