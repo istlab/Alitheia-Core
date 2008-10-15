@@ -94,6 +94,7 @@ final class SourceUpdater extends Job {
      */
     private Set<Long> updProjectVersions = new TreeSet<Long>();
     private Set<Long> updFiles = new TreeSet<Long>();
+    private Set<Long> updDevs = new TreeSet<Long>();
     
     // Avoid Hibernate thrashing by caching frequently accessed objects
     private LRUMap dirCache = new LRUMap(200);
@@ -256,6 +257,9 @@ final class SourceUpdater extends Job {
             curVersion.setTimestamp(entry.getDate().getTime());
 
             Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
+            if (!updDevs.contains(d.getId())) {
+                updDevs.add(d.getId());
+            }
             curVersion.setCommitter(d);
 
             /* TODO: get column length info from Hibernate */
@@ -464,7 +468,7 @@ final class SourceUpdater extends Job {
         
         ma.runMetrics(updFiles, ProjectFile.class);
         ma.runMetrics(updProjectVersions, ProjectVersion.class);
-        
+        ma.runMetrics(updDevs, Developer.class);
         updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
     }
 

@@ -53,7 +53,7 @@ import eu.sqooss.service.util.StringUtils;
  * plug-in.
  * <br/>
  * Usually an instance of a <code>PluginInfo</code> is created from the
- * <code>PluginAdmin<code> implementation, just after a new metric plug-in
+ * <code>PluginAdmin</code> implementation, just after a new metric plug-in
  * bundle is installed in the OSGi framework, who registers a metric
  * plug-in service. Some of the information provided from the metric
  * plug-in object registered with that OSGi service, as well as part of

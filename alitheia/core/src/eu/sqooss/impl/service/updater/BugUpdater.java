@@ -76,6 +76,7 @@ public class BugUpdater extends Job {
     
     /*Cache bug ids to call the metric activator with them*/
     private Set<Long> updBugs = new TreeSet<Long>();
+    private Set<Long> updDevs = new TreeSet<Long>();
     
     public BugUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
@@ -144,8 +145,8 @@ public class BugUpdater extends Job {
             if (!updBugs.isEmpty()) {
                 MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
                 ma.runMetrics(updBugs, Bug.class);
+                ma.runMetrics(updDevs, Developer.class);
             }
-            
         } finally {
             updater.removeUpdater(sp.getName(), UpdaterService.UpdateTarget.BUGS);
         }
@@ -218,6 +219,11 @@ public class BugUpdater extends Job {
         } else {
             d = Developer.getDeveloperByUsername(name, sp);
         }
+        
+        if (!updDevs.contains(d.getId())) {
+            updDevs.add(d.getId());
+        }
+        
         return d;
     }
     

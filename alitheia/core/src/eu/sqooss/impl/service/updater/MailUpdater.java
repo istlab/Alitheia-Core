@@ -82,6 +82,8 @@ class MailUpdater extends Job {
     /*Cache mailinglist ids to call the metric activator with them*/
     private Set<Long> updMailingLists = new TreeSet<Long>();
     
+    private Set<Long> updDevs = new TreeSet<Long>();
+    
     public MailUpdater(StoredProject project,
                        UpdaterServiceImpl updater,
                        AlitheiaCore core,
@@ -151,6 +153,7 @@ class MailUpdater extends Job {
             
             if (!updMails.isEmpty()) {
                 ma.runMetrics(updMails, MailMessage.class);
+                ma.runMetrics(updDevs, Developer.class);
             }
             
             if (!updMailingLists.isEmpty()) {
@@ -197,6 +200,11 @@ class MailUpdater extends Job {
 
                 Developer sender = Developer.getDeveloperByEmail(senderEmail,
                         mllist.getStoredProject());
+
+                if (!updDevs.contains(sender.getId())) {
+                    updDevs.add(sender.getId());
+                }
+                
                 MailMessage mmsg = MailMessage.getMessageById(messageId);
                 if (mmsg == null) {
                     // if the message does not exist in the database, then

@@ -75,7 +75,7 @@ public class Developer extends DAObject{
     private Set<MailMessage> mails;
 	
     /**
-     * The list of bug report messages sent by this developper
+     * The list of bug report messages sent by this developer
      */
     private Set<BugReportMessage> bugReportMessages;
 
@@ -282,7 +282,7 @@ public class Developer extends DAObject{
          * 
          * TODO: "like" is NOT a Hibernate keyword. The following query might
          * only work with certain databases (tested with mysql, postgres and 
-         * derby).s
+         * derby).
          */
         parameterMap.clear();
         //parameterMap.put("username", username);
