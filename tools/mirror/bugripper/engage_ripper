@@ -1,0 +1,111 @@
+#!/bin/bash
+# /*
+# * This file is part of the Alitheia system, developed by the SQO-OSS
+# * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+# *
+# * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+# *
+# * Redistribution and use in source and binary forms, with or without
+# * modification, are permitted provided that the following conditions are
+# * met:
+# *
+# *     * Redistributions of source code must retain the above copyright
+# *       notice, this list of conditions and the following disclaimer.
+# *
+# *     * Redistributions in binary form must reproduce the above
+# *       copyright notice, this list of conditions and the following
+# *       disclaimer in the documentation and/or other materials provided
+# *       with the distribution.
+# *
+# * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# *
+# */
+
+# bugripper home
+bug_home="/home/sgrig/bugripper"
+cd $bug_home
+. configure
+
+
+arg='+'$1
+ count1=$(cat tmpfs/current_sorted_list.idx|wc -l )
+ count2=$(cat tmpfs/history_sorted_list.idx|wc -l )
+ count=$(($count1+$count2))
+ period=$(($days_ago * 86400 * 90 /100))
+ s_time=$(($period / $count))
+
+echo Bug Ripper Estimation
+echo Bugs=$count AutoSleep=$s_time'secs'  ETA=$period'secs'
+echo
+
+
+if (test $arg = "+")
+then 
+	echo 'Usage engage_ripper seconds | max | auto  Seconds to sleep'
+	exit
+elif (test $arg = "+max")
+then
+        arg=0
+elif (test $arg = "+auto")
+then
+        arg=$s_time
+elif (test $arg -gt 1 )
+then
+        arg=$arg
+fi
+
+ echo "START|Ripper Started|"$(date) >> tmpfs/ripper.log
+#Engaging Current List
+ echo "INFO |Engaging Current List|"$(date) >> tmpfs/ripper.log
+
+while read line
+do
+ project=$(echo $line | cut -d "|" -f 2)
+ URL=$(echo $line | cut -d "|" -f 4)
+ bugid=$(echo $line | cut -d "|" -f 5)
+
+ wURL=$(echo $URL'show_bug.cgi?ctype=xml&id='$bugid)
+if (wget -nc --quiet --no-check-certificate -O $data_path'/'$project'/bugs/'$bugid'.xml' $wURL)
+then
+ echo "OK   | "$line >> tmpfs/ripper.log
+else
+ echo "FAIL | "$line >> tmpfs/ripper.log
+fi 
+ sleep $arg
+done < <(cat tmpfs/current_sorted_list.idx)
+rm  tmpfs/current_sorted_list.idx
+
+# Engaging History List
+echo "INFO|Engaging History LIst|"$(date) >> tmpfs/ripper.log
+while read line
+do
+ project=$(echo $line | cut -d "|" -f 2)
+ URL=$(echo $line | cut -d "|" -f 4)
+ bugid=$(echo $line | cut -d "|" -f 5)
+
+ wURL=$(echo $URL'show_bug.cgi?ctype=xml&id='$bugid)
+
+if   !  [ -f  $path'/'$project'/bugs/'$bugid'.xml' ]
+then
+	if (wget -nc --quiet --no-check-certificate -O $data_path'/'$project'/bugs/'$bugid'.xml' $wURL)
+	then
+ 		echo "OK   | "$line >> tmpfs/ripper.log
+	else
+ 		echo "FAIL | "$line >> tmpfs/ripper.log
+	fi
+	 sleep $arg
+fi
+done < <(cat tmpfs/history_sorted_list.idx)
+rm  tmpfs/history_sorted_list.idx
+
+echo "DONE |Ripper finished|"$(date) >> tmpfs/ripper.log
