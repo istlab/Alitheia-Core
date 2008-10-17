@@ -55,29 +55,29 @@ public interface MailAccessor extends DataAccessor {
      * @throws IllegalArgumentException listId or id are null
      * @throws FileNotFoundException the listId and id are not found
      */
-    public String getRawMessage( String listId, String messageId )
+    public String getRawMessage( String listname, String msgFileName )
         throws IllegalArgumentException,
                FileNotFoundException;
 
     /**
      * Retrieves a raw message as a parsed MIME message.
      * 
-     * @param listId the list the message is in
-     * @param messageId the message id
+     * @param listname the list the message is in
+     * @param msgFileName the message id
      * 
      * @return a parsed MIME message or null if parsing fails
      * 
      * @throws IllegalArgumentException listId or id are null
      * @throws FileNotFoundException the listId and id are not found
      */
-    public MimeMessage getMimeMessage( String listId, String messageId )
+    public MimeMessage getMimeMessage( String listname, String msgFileName )
     	throws IllegalArgumentException,
     	       FileNotFoundException;
     
     /**
      * Retrieve the list of messages that are stored in the mailing list.
      */
-    public List<String> getMessages( String listId )
+    public List<String> getMessages( String listname )
         throws FileNotFoundException;
 
     /**
@@ -86,7 +86,7 @@ public interface MailAccessor extends DataAccessor {
      * 
      * @throws FileNotFoundException if the list does not exist
      */
-    public List<String> getNewMessages( String listId )
+    public List<String> getNewMessages( String listname )
         throws FileNotFoundException;
     
     /**
@@ -97,7 +97,7 @@ public interface MailAccessor extends DataAccessor {
      * @throws FileNotFoundException if the message does not exist or
      *          if the message is not new
      */
-    public List<String> getMessages(String listId, Date d1, Date d2)
+    public List<String> getMessages(String listName, Date d1, Date d2)
         throws IllegalArgumentException,
                FileNotFoundException;
 
@@ -105,8 +105,8 @@ public interface MailAccessor extends DataAccessor {
      * Mark a message - which must be in the new state - as seen, so that 
      * it will not be returned by future calls to getNewMessages().
      * 
-     * @param listId the list where this message lives
-     * @param messageId the message id
+     * @param listname the list where this message lives
+     * @param msgFileName the message id
      * 
      * @return true if the marking operation was successful
      * 
@@ -114,7 +114,7 @@ public interface MailAccessor extends DataAccessor {
      * @throws FileNotFoundException if the message does not exist or
      *          if the message is not new
      */
-    public boolean markMessageAsSeen(String listId, String messageId)
+    public boolean markMessageAsSeen(String listname, String msgFileName)
         throws IllegalArgumentException,
                FileNotFoundException;
     
