@@ -411,6 +411,31 @@ public abstract class WSProjectAccessor extends WSAccessor {
             long projectVersionId,
             long projectFileId) throws WSException;
 
+    // ===[ Timeline methods]=================================================
+
+    /**
+     * This method will return the list of project versions, associated to
+     * project related events which had occured during the given time period
+     * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
+     * timestamps</i>).
+     * 
+     * @param projectId the project's identifier
+     * @param tsmFrom the timestamp of the period begin
+     * @param tsmTill the timestamp of the period end
+     * 
+     * @return The <code>WSProjectVersion</code> array that describes the
+     * located project versions, or <code>null</code> when no version related
+     * events were found for the given time period.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection link with the SQO-OSS's Web-Services service can
+     *    not be established at this time</li>
+     *  <li>if the SQO-OSS's Web-Services service itself throw an exception</li>
+     * <ul>
+     */
+    public abstract WSProjectVersion[] getSCMTimeline(
+            long projectId, long tsmFrom, long tsmTill) throws WSException;
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

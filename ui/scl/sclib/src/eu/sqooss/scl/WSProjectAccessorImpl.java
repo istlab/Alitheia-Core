@@ -84,6 +84,8 @@ import eu.sqooss.ws.client.ws.GetProjectsByIds;
 import eu.sqooss.ws.client.ws.GetProjectsByIdsResponse;
 import eu.sqooss.ws.client.ws.GetRootDirectory;
 import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
+import eu.sqooss.ws.client.ws.GetSCMTimeline;
+import eu.sqooss.ws.client.ws.GetSCMTimelineResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
 import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
 import eu.sqooss.ws.client.ws.GetTaggedVersionsByProjectId;
@@ -141,6 +143,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getFileModifications";
     private static final String METHOD_NAME_GET_TAGGED_VERSIONS_BY_PROJECT_ID =
         "getTaggedVersionsByProjectId";
+    private static final String METHOD_NAME_GET_SCM_TIMELINE =
+        "getSCMTimeline";
 
     private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS =
         new WSStoredProject[0];
@@ -827,6 +831,39 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
 
         return (WSStoredProject[]) normalizeWSArrayResult(response.get_return());
 
+    }
+
+    // ===[ Timeline methods]=================================================
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getSCMTimeline(long,
+     *      long, long)
+     */
+    @Override
+    public WSProjectVersion[] getSCMTimeline(long projectId, long tsmFrom,
+            long tsmTill) throws WSException {
+        GetSCMTimelineResponse response;
+        GetSCMTimeline params;
+        if (!parameters.containsKey(METHOD_NAME_GET_SCM_TIMELINE)) {
+            params = new GetSCMTimeline();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_SCM_TIMELINE, params);
+        } else {
+            params = (GetSCMTimeline) parameters
+                    .get(METHOD_NAME_GET_SCM_TIMELINE);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            params.setTsmFrom(tsmFrom);
+            params.setTsmTill(tsmTill);
+            try {
+                response = wsStub.getSCMTimeline(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
     }
 
 }

@@ -580,6 +580,24 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getSCMTimeline">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+            <xs:element name="tsmFrom" nillable="true" type="xs:long"/>
+            <xs:element name="tsmTill" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getSCMTimelineResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSProjectVersion"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getMetricsResult">
         <xs:complexType>
           <xs:sequence>
@@ -911,6 +929,12 @@
     <wsdl:part name="part1" element="ns2:handleEvent"/>
   </wsdl:message>
   <wsdl:message name=""/>
+  <wsdl:message name="getSCMTimelineMessage">
+    <wsdl:part name="part1" element="ns2:getSCMTimeline"/>
+  </wsdl:message>
+  <wsdl:message name="getSCMTimelineResponse">
+    <wsdl:part name="part1" element="ns2:getSCMTimelineResponse"/>
+  </wsdl:message>
   <wsdl:message name="getProjectEvaluatedMetricsMessage">
     <wsdl:part name="part1" element="ns2:getProjectEvaluatedMetrics"/>
   </wsdl:message>
@@ -1099,6 +1123,10 @@
     <wsdl:operation name="handleEvent">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:handleEventMessage" wsaw:Action="urn:handleEvent"/>
       <wsdl:output message="axis2:null"/>
+    </wsdl:operation>
+    <wsdl:operation name="getSCMTimeline">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getSCMTimelineMessage" wsaw:Action="urn:getSCMTimeline"/>
+      <wsdl:output message="axis2:getSCMTimelineResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getProjectEvaluatedMetrics">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectEvaluatedMetricsMessage" wsaw:Action="urn:getProjectEvaluatedMetrics"/>
@@ -1352,6 +1380,15 @@
     </wsdl:operation>
     <wsdl:operation name="handleEvent">
       <soap:operation soapAction="urn:handleEvent" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getSCMTimeline">
+      <soap:operation soapAction="urn:getSCMTimeline" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1706,6 +1743,15 @@
     </wsdl:operation>
     <wsdl:operation name="handleEvent">
       <soap12:operation soapAction="urn:handleEvent" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getSCMTimeline">
+      <soap12:operation soapAction="urn:getSCMTimeline" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
