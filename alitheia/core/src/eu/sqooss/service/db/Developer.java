@@ -52,12 +52,12 @@ public class Developer extends DAObject{
     /**
      * The developer's email
      */
-    private String email;
+    private String email = "";
 
     /**
      * The developer's username
      */
-    private String username;
+    private String username = "";
 
     /**
      * The project this developer belongs to
@@ -195,7 +195,7 @@ public class Developer extends DAObject{
         parameterMap.put("username", unameFromEmail);
         parameterMap.put("storedProject", sp);
         
-        devs = dbs.findObjectsByPropertiesForUpdate(Developer.class, 
+        devs = dbs.findObjectsByProperties(Developer.class, 
                 parameterMap);
         
         /* Developer's uname in table, update with email and return it */
@@ -284,10 +284,8 @@ public class Developer extends DAObject{
          * only work with certain databases (tested with mysql, postgres and 
          * derby).
          */
-        parameterMap.clear();
-        //parameterMap.put("username", username);
         devs = (List<Developer>) dbs.doHQL("from Developer as foo where email like " +
-        		"'" +username+ "'", parameterMap, true);
+        		"'%" +username+ "%' and storedProject.id=" + sp.getId() );
 
         for (Developer d : devs) {
             String email = d.getEmail();
@@ -313,6 +311,10 @@ public class Developer extends DAObject{
 
         return d;
     }   
+    
+    public String toString() {
+        return username + "<" + email +">";
+    }
     
 }
 
