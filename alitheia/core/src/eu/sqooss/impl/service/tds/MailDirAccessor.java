@@ -254,10 +254,10 @@ public class MailDirAccessor implements MailAccessor {
     	throws IllegalArgumentException,
     	       FileNotFoundException {
     	if (listId == null) {
-    		throw new IllegalArgumentException("Bad listId");
+            throw new IllegalArgumentException("Bad listId");
     	}
     	if (id == null ) {
-    		throw new IllegalArgumentException("Bad message Id");
+    	    throw new IllegalArgumentException("Bad message Id");
     	}
 
     	File listDir = getFolder(listId);

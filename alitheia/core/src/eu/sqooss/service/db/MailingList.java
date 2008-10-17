@@ -32,7 +32,13 @@
 
 package eu.sqooss.service.db;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Instances of this class represent t=he basic details of a project
@@ -50,7 +56,7 @@ public class MailingList extends DAObject {
     private StoredProject storedProject;
 
     /**
-     * The set of avilable messages in this list
+     * The set of available messages in this list
      */
     private Set<MailMessage> messages;
 
@@ -78,5 +84,53 @@ public class MailingList extends DAObject {
 
     public void setMessages(Set<MailMessage> messages) {
         this.messages = messages;
+    }
+    
+    /**
+     * Get messages in this mailing list whose arrival date
+     * is newer that the provided date.
+     * 
+     * @param d The date to compare the arrival date with
+     * @return A list of messages newer than <tt>d</tt>
+     */
+    public List<MailMessage> getMessagesNewerThan(Date d) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramDate = "paramDate";
+        String paramMailingList = "paramML";
+        
+        String query =  " select mm " +
+            " from MailMessage mm, MailingList ml " +
+            " where mm.list = :" + paramMailingList +
+            " and mm.sendDate > :" + paramDate;
+        
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put(paramDate, d);
+        params.put(paramMailingList, this);
+        
+        return (List<MailMessage>) dbs.doHQL(query, params);
+    }
+    
+    /**
+     * Get messages in this mailing list whose arrival date
+     * is newer that the provided date.
+     * 
+     * @param d The date to compare the arrival date with
+     * @return A list of messages newer than <tt>d</tt>
+     */
+    public MailMessage getLatestEmail() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramMailingList = "paramML";
+        
+        String query =  " select mm " +
+            " from MailMessage mm, MailingList ml " +
+            " where mm.list = :" + paramMailingList +
+            " order by mm.sendDate desc";
+        
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put(paramMailingList, this);
+        
+        return ((List<MailMessage>) dbs.doHQL(query, params, 1)).get(0);
     }
 }

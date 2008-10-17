@@ -71,6 +71,13 @@ public class MailMessage extends DAObject {
      * software
      */
     Date arrivalDate;
+    
+    /**
+     * Message file name, to connect to the actual file.
+     */
+    String fileName;
+    
+    
 
     public MailMessage() {}
     
@@ -122,8 +129,16 @@ public class MailMessage extends DAObject {
         subject = value;
     }
     
+    public String getFilename() {
+        return fileName;
+    }
+
+    public void setFilename(String filename) {
+        this.fileName = filename;
+    }
+    
     /**
-     * 
+     * Return a stored mail message based on messageId
      */
     public static MailMessage getMessageById(String messageId) {
     	DBService dbs = AlitheiaCore.getInstance().getDBService();
@@ -136,6 +151,23 @@ public class MailMessage extends DAObject {
     	}
     	
     	return msgList.get(0);
+    }
+    
+    /**
+     * 
+     *Return a stored mail message based on filename
+     */
+    public static MailMessage getMessageByFileName(String filename) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String,Object> properties = new HashMap<String, Object>(1);
+        properties.put("fileName", filename);
+        List<MailMessage> msgList = dbs.findObjectsByProperties(MailMessage.class, properties);
+        
+        if ((msgList == null) || (msgList.isEmpty())) {
+            return null;
+        }
+        
+        return msgList.get(0);
     }
     
     /**

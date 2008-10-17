@@ -34,6 +34,9 @@ package eu.sqooss.impl.service.updater;
 
 import java.io.FileNotFoundException;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +69,6 @@ import eu.sqooss.service.updater.UpdaterService;
 
 /**
  * Synchronises raw mails with the database
- *
- * @author Vassilios Karakoidas (vassilios.karakoidas@gmail.com)
  */
 class MailUpdater extends Job {
     private StoredProject project;
@@ -143,8 +144,9 @@ class MailUpdater extends Job {
             mllist = getMailingLists(project);
         }
         
-        for ( MailingList ml : mllist ) {
+        for (MailingList ml : mllist) {
             processList(mailAccessor, ml);
+            createThreads(mailAccessor, ml);
         }
         
         try {
@@ -165,20 +167,20 @@ class MailUpdater extends Job {
     }
 
     private void processList(MailAccessor mailAccessor, MailingList mllist) {
-        List<String> messageIds = null;
+        List<String> fileNames = null;
         String listId = mllist.getListId();
         try {
-            messageIds = mailAccessor.getNewMessages(listId);
+            fileNames = mailAccessor.getNewMessages(listId);
         } catch (FileNotFoundException e) {
             logger.warn("Mailing list <" + listId + "> vanished: " + e.getMessage());
             return;
         }
 
-        for (String messageId : messageIds) {
-            String msg = String.format("Message <%s> in list <%s> ", messageId, listId);
+        for (String fileName : fileNames) {
+            String msg = String.format("Message <%s> in list <%s> ", fileName, listId);
             
             try {
-                MimeMessage mm = mailAccessor.getMimeMessage(listId, messageId);
+                MimeMessage mm = mailAccessor.getMimeMessage(listId, fileName);
                 if (mm == null) {
                     logger.info("Failed to parse message.");
                     continue;
@@ -205,7 +207,7 @@ class MailUpdater extends Job {
                     updDevs.add(sender.getId());
                 }
                 
-                MailMessage mmsg = MailMessage.getMessageById(messageId);
+                MailMessage mmsg = MailMessage.getMessageById(fileName);
                 if (mmsg == null) {
                     // if the message does not exist in the database, then
                     // write a new one
@@ -216,13 +218,14 @@ class MailUpdater extends Job {
                     mmsg.setSendDate(mm.getSentDate());
                     mmsg.setArrivalDate(mm.getReceivedDate());
                     mmsg.setSubject(mm.getSubject());
+                    mmsg.setFilename(fileName);
                     
                     logger.debug("Adding message " + mm.getMessageID());
                     dbs.addRecord(mmsg);
                     updMails.add(mmsg.getId());
                 }
 
-                if (!mailAccessor.markMessageAsSeen(listId, messageId)) {
+                if (!mailAccessor.markMessageAsSeen(listId, fileName)) {
                     logger.warn("Failed to mark message as seen.");
                 }
             } catch (FileNotFoundException e) {
@@ -241,13 +244,57 @@ class MailUpdater extends Job {
         params.put("storedProject", sp);
         return dbs.findObjectsByProperties(MailingList.class, params);
     }
-}
+    
+    private void createThreads(MailAccessor mailAccessor, MailingList ml) {
+                
+        //Get mails for this ML for the last month
+        GregorianCalendar gc = new GregorianCalendar();
+        gc.setTime(ml.getLatestEmail().getSendDate());
+        gc.add(GregorianCalendar.MONTH, -1);
+        
+        List<MailMessage> mmList = ml.getMessagesNewerThan(gc.getTime());
+        ThreadableMail root = new ThreadableMail("Root", "Root", new String[0]);
+      //Create threadables from mailmessages
+        for (MailMessage mail : mmList) {
+            List<String> refs = new ArrayList<String>();
+            try {
+                MimeMessage mm = mailAccessor.getMimeMessage(ml.getListId(), mail.getFilename());
+                String[] inReplyTo = mm.getHeader("In-Reply-To");
+                String[] references = mm.getHeader("References");
+                
+                if (inReplyTo != null) {
+                    for (String reply : inReplyTo) {
+                    
+                    }
+                }
+                
+                if (references != null) {
+                    for (String ref : references) {
+                    
+                    }
+                }
+                
+            } catch (IllegalArgumentException e) {
+                //Ignored, should have been caught earlier
+            } catch (FileNotFoundException e) {
+                //Ignored, should have been caught earlier
+            } catch (MessagingException e) {
+                logger.warn("Could not get mime header for messageId: " 
+                        + mail.getId() + " " + e.getMessage());
+            }
+            
+            ThreadableMail t = new ThreadableMail(mail.getSubject(), 
+                    mail.getMessageId(), refs.toArray(new String[refs.size()] ));
+            t.setNext(root);
+            t.setChild(null);
+        }
+        
+        Threader t = new Threader();
+        Threadable newroot = t.thread(root);
 
-/*
- * TODO:
- * - check consistency (regularly?) by examining all messages and all database entries
- * - prevent multiple update jobs from running at once
- */
+    }
+    
+}
 
 // vi: ai nosi sw=4 ts=4 expandtab
 
