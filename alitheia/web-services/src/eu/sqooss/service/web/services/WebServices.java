@@ -61,6 +61,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSUser;
 import eu.sqooss.impl.service.web.services.datatypes.WSUserGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSVersionStats;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.security.SecurityManager;
@@ -101,6 +102,7 @@ public class WebServices implements EventHandler{
     private SecurityManager securityManager;
     private DBService db;
     private WebadminService wa;
+    private FDSService fds;
 
     /**
      * Instantiates a new WebServices object.
@@ -118,6 +120,7 @@ public class WebServices implements EventHandler{
             DBService db,
             PluginAdmin pluginAdmin,
             Logger logger,
+            FDSService fds,
             WebadminService wa) {
 
         this.securityManager = securityManager;
@@ -139,7 +142,7 @@ public class WebServices implements EventHandler{
 
     private void initComponents() {
         metricManager = new MetricManager(logger, db, pluginAdmin, securityManager);
-        projectManager = new ProjectManager(logger, db, securityManager);
+        projectManager = new ProjectManager(logger, db, securityManager, fds);
         userManager = new UserManager(logger, securityManager, db, wa);
     }
 
@@ -780,6 +783,30 @@ public class WebServices implements EventHandler{
                 userNameForAccess, passwordForAccess, userId);
     }
 
+    // ===[ Timeline methods]=================================================
+
+    /**
+     * This method will return the list of project versions, associated to
+     * project related events which had occured during the given time period
+     * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
+     * timestamps</i>).
+     * 
+     * @param userName the user's name used for authentication
+     * @param password the user's password used for authentication
+     * @param projectId the project's identifier
+     * @param tsmFrom the timestamp of the period begin
+     * @param tsmTill the timestamp of the period end
+     * 
+     * @return The <code>WSProjectVersion</code> array that describes the
+     * located project versions, or <code>null</code> when no version related
+     * events were found for the given time period.
+     */
+    public WSProjectVersion[] getSCMTimeline(String userName,
+            String password, long projectId, long tsmFrom, long tsmTill) {
+        return projectManager.getSCMTimeline(
+                userName, password, projectId, tsmFrom, tsmTill);
+    }
+    
     // ===[ Miscellaneous methods]============================================
 
     /**

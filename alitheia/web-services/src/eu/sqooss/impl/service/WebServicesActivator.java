@@ -48,6 +48,7 @@ import eu.sqooss.impl.service.web.services.Constants;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapperConstants.Privilege;
 import eu.sqooss.impl.service.web.services.utils.SecurityWrapperConstants.ServiceUrl;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
@@ -68,26 +69,31 @@ public class WebServicesActivator implements BundleActivator {
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
     public void start(BundleContext bc) throws Exception {
-    
+        // Get the instance of Alitheia core
         coreServiceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        if (coreServiceRef == null) {
-            throw new BundleException("Can't get the alitheia core service!");
-        }
-        
+        if (coreServiceRef == null)
+            throw new BundleException(
+                    "Can't get a refernece to the Alitheia core service!");
         AlitheiaCore core = (AlitheiaCore)bc.getService(coreServiceRef);
-        
+
+        // Get the instances of the required Alitheia components
         SecurityManager securityManager = core.getSecurityManager();
         DBService db = core.getDBService();
         PluginAdmin pluginAdmin = core.getPluginAdmin();
+        FDSService fds = core.getFDSService();
         logManager  = core.getLogManager();
+
+        // Instantiate a logger object
         logger = logManager.createLogger(Logger.NAME_SQOOSS_WEB_SERVICES);
-        
-        //registers the web service
+
+        // Registers the service(s) of this component
         Object serviceObject = new WebServices(bc, securityManager, db,
-                pluginAdmin, logger, core.getWebadminService());
+                pluginAdmin, logger, fds, core.getWebadminService());
         Properties props = initProperties(bc);
-        String serviceClass = props.getProperty(Constants.PROPERTY_KEY_WEB_SERVICES_INTERFACE); 
-        webServicesReg = bc.registerService(serviceClass, serviceObject, props);
+        String serviceClass = props.getProperty(
+                Constants.PROPERTY_KEY_WEB_SERVICES_INTERFACE); 
+        webServicesReg = bc.registerService(
+                serviceClass, serviceObject, props);
     }
 
     /**

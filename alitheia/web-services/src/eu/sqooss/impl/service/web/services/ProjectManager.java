@@ -34,11 +34,13 @@ package eu.sqooss.impl.service.web.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
@@ -56,6 +58,10 @@ import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.ProjectEvent;
+import eu.sqooss.service.fds.Timeline;
+import eu.sqooss.service.fds.Timeline.ResourceType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
@@ -64,15 +70,17 @@ public class ProjectManager extends AbstractManager {
     private Logger logger;
     private ProjectManagerDatabase dbWrapper;
     private ProjectSecurityWrapper securityWrapper;
+    private FDSService fds;
 
     private static final String SEC_VIOLATION =
         "Security violation in method: ";
 
-    public ProjectManager(Logger logger, DBService db, SecurityManager security) {
+    public ProjectManager(Logger logger, DBService db, SecurityManager security, FDSService fds) {
         super(db);
         this.logger = logger;
         this.dbWrapper = new ProjectManagerDatabase(db);
         this.securityWrapper = new ProjectSecurityWrapper(security, db, logger);
+        this.fds = fds;
     }
 
     /**
@@ -892,6 +900,48 @@ public class ProjectManager extends AbstractManager {
         StoredProject sp = db.findObjectById(StoredProject.class, projectId);
         if (sp != null)
             result = WSTaggedVersion.asArray(sp.getTaggedVersions());
+        db.commitDBSession();
+        return result;
+    }
+
+    public WSProjectVersion[] getSCMTimeline(String userName, String password,
+            long projectId, long tsmFrom, long tsmTill) {
+        // Log this call
+        logger.info("getSCMTimeline!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId);
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getSCMTimeline!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        WSProjectVersion[] result = null;
+        StoredProject sp = db.findObjectById(StoredProject.class, projectId);
+        if (sp != null) {
+            Calendar calFrom = Calendar.getInstance();
+            calFrom.setTimeInMillis(tsmFrom);
+            Calendar calTill = Calendar.getInstance();
+            calTill.setTimeInMillis(tsmTill);
+            Timeline prjTimeline = fds.getTimeline(sp);
+            // Retrieve the list of events fro the given time period
+            SortedSet<ProjectEvent> timeline = prjTimeline.getTimeLine(
+                    calFrom, calTill, ResourceType.SCM);
+            List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+            for (ProjectEvent nextEvent : timeline)
+                versions.add((ProjectVersion) nextEvent.getAssociatedDAO());
+            result = WSProjectVersion.asArray(versions);
+        }
+
         db.commitDBSession();
         return result;
     }
