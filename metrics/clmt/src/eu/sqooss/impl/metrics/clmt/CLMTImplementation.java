@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+
 import org.clmt.cache.Cache;
 import org.clmt.configuration.Calculation;
 import org.clmt.configuration.Filename;
@@ -46,7 +47,6 @@ import org.clmt.configuration.Source;
 import org.clmt.configuration.Task;
 import org.clmt.configuration.TaskException;
 import org.clmt.configuration.properties.CLMTProperties;
-import org.clmt.configuration.properties.Config;
 import org.clmt.metrics.MetricInstantiationException;
 import org.clmt.metrics.MetricList;
 import org.clmt.metrics.MetricNameCategory;
@@ -75,6 +75,21 @@ import eu.sqooss.service.fds.FDSService;
 public class CLMTImplementation extends AbstractMetric implements CLMT {
   
     private AlitheiaCore core;
+    private static HashMap<String, String> metricsConversionTable;
+    
+    static {
+        metricsConversionTable = new HashMap<String, String>();
+        metricsConversionTable.put("NOCL", "NumberOfClasses");
+        metricsConversionTable.put("AFCL", "AfferentCouplings");
+        metricsConversionTable.put("EFCL", "EfferentCouplings");
+        metricsConversionTable.put("INST", "Instability");
+        metricsConversionTable.put("WMC", "WeightedMethodsPerClass");
+        metricsConversionTable.put("DIT", "DepthOfInheritanceTree");
+        metricsConversionTable.put("NOC", "NumberOfChildren");
+        metricsConversionTable.put("CBO", "CouplingBetweenObject");
+        metricsConversionTable.put("RFC", "ResponseForClass");
+        metricsConversionTable.put("LCOM", "LackOfCohesion");
+    }
     
     public CLMTImplementation(BundleContext bc) {
         super(bc);      
@@ -82,14 +97,21 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         this.addActivationType(ProjectFile.class);        
         
         this.addMetricActivationType("NOCL", ProjectVersion.class);
-        this.addMetricActivationType("NOPA", ProjectFile.class);
+        this.addMetricActivationType("AFCL", ProjectFile.class);
+        this.addMetricActivationType("EFCL",  ProjectFile.class);
+        this.addMetricActivationType("INST", ProjectFile.class);
+        this.addMetricActivationType("WMC",ProjectFile.class);
+        this.addMetricActivationType("DIT",  ProjectFile.class);
         this.addMetricActivationType("NOC",  ProjectFile.class);
-        this.addMetricActivationType("NPM", ProjectFile.class);
-        this.addMetricActivationType("NOPRM",ProjectFile.class);
-        this.addMetricActivationType("WMC",  ProjectFile.class);
+        this.addMetricActivationType("CBO",  ProjectFile.class);
+        this.addMetricActivationType("RFC",  ProjectFile.class);
+        this.addMetricActivationType("LCOM",  ProjectFile.class);
+        
         
         ServiceReference sr = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(sr);
+        
+        
     }
     
     public boolean install() {
@@ -100,25 +122,42 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     "NOCL",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "Number of Public Attributes",
-                    "NOPA",
+                    "Afferent Couplings",
+                    "AFCL",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Efferent Couplings",
+                    "EFCL",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Instability Metric",
+                    "INST",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Weighted Methods per Class",
+                    "WMC",
+                    MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "DepthOfInheritanceTree",
+                    "DIT",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
                     "Number of Children",
                     "NOC",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "Number of Public Methods",
-                    "NPM",
+                    "Coupling Between Objects",
+                    "CBO",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "Number of Protected Methods",
-                    "NOPRM",
+                    "Response for Class",
+                    "RFC",
                     MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "Weighted Methods per Class",
-                    "WMC",
+                    "Lack of Cohesion in Methods",
+                    "LCOM",
                     MetricType.Type.SOURCE_CODE);
+            
         }
         return result;
     }
@@ -172,8 +211,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         clmtProp.setLogger(new AlitheiaLoggerAdapter(log));
         clmtProp.setFileType(new AlitheiaFileAdapter(""));
         MetricList.getInstance();
-        Cache cache = Cache.getInstance();
-        cache.setCacheSize(Integer.valueOf(clmtProp.get(Config.CACHE_SIZE)));
+        Cache c = Cache.getInstance();
         
         /*Construct a calculation task*/
         Task task = new Task("JavaCalcTask");
@@ -194,7 +232,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         
         /*Add metrics to the calculation task*/
         for (Metric m : this.getSupportedMetrics()) {
-            task.addCalculation(new Calculation(m.getMnemonic(), "JavaSource"));
+            task.addCalculation(new Calculation(metricsConversionTable.get(m.getMnemonic()), "JavaSource"));
         }
         
         /*Parse files and store them to the parsed file cache*/

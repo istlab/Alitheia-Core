@@ -81,9 +81,9 @@ public class ContributionMetricImpl extends AbstractMetric implements
     public ContributionMetricImpl(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectVersion.class);
-    //    super.addActivationType(Developer.class);
-      //  super.addActivationType(MailMessage.class);
-        //super.addActivationType(Bug.class);
+        super.addActivationType(Developer.class);
+        super.addActivationType(MailMessage.class);
+        super.addActivationType(Bug.class);
         
         super.addMetricActivationType("CONTRIB", Developer.class);
         
@@ -239,16 +239,18 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return results;
     }
 
+    /**No need to activate per developer*/
     public void run(Developer v) {
-        
+        //log.debug("Running for developer " + v.toString());
     }
     
     public void run(Bug b) throws AlreadyProcessingException {
-        
+        log.debug("Running for bug " + b.toString());
     }
 
     public void run(MailMessage m) throws AlreadyProcessingException {
         
+        log.debug("Running for email " + m.toString());
     }
     
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
@@ -337,6 +339,11 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 if (pf.isAdded()) {
                     updateField(pv, dev, ActionType.CND, true, 1);
                 }
+            }
+            
+            if (pf.getCopyFrom() != null) {
+                log.debug("Contrib: Ignoring copied file" + pf);
+                continue;
             }
             
             //Commit of a source file: -
