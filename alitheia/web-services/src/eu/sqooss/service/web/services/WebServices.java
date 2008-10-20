@@ -128,6 +128,7 @@ public class WebServices implements EventHandler{
         this.pluginAdmin = pluginAdmin;
         this.logger = logger;
         this.wa = wa;
+        this.fds = fds;
 
         //Register an event handler for DB init events
         final String[] topics = new String[] {
