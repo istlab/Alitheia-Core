@@ -65,19 +65,26 @@ public class SelectedSettings {
     // VersionDataView specific
     private boolean vdvInputTaggedOnly = false;
 
+    // TimelineView specific
+    private Long tvDateFrom;
+    private Long tvDateTill;
+
     public static final int FILE_DATA_SETTINGS      = 11;
     public static final int VERSION_DATA_SETTINGS   = 12;
     public static final int DEVELOPER_DATA_SETTINGS = 13;
+    public static final int TIMELINE_DATA_SETTINGS  = 14;
 
     public BaseDataSettings fileDataView        = null;
     public BaseDataSettings versionDataView     = null;
     public BaseDataSettings developerDataView   = null;
+    public BaseDataSettings timelineDataView    = null;
 
     public SelectedSettings() {
         super();
         developerDataView = new BaseDataSettings();
         versionDataView = new BaseDataSettings();
         fileDataView = new BaseDataSettings();
+        timelineDataView = new BaseDataSettings();
     }
 
     public BaseDataSettings getDataSettings(int target) {
@@ -88,6 +95,8 @@ public class SelectedSettings {
             return versionDataView;
         case FILE_DATA_SETTINGS:
             return fileDataView;
+        case TIMELINE_DATA_SETTINGS:
+            return timelineDataView;
         default:
             return null;
         }
@@ -101,6 +110,8 @@ public class SelectedSettings {
             versionDataView = new BaseDataSettings(); break;
         case FILE_DATA_SETTINGS:
             fileDataView = new BaseDataSettings(); break;
+        case TIMELINE_DATA_SETTINGS:
+            timelineDataView = new BaseDataSettings(); break;
         }
     }
 
@@ -214,6 +225,26 @@ public class SelectedSettings {
 
     public void setVdvInputTaggedOnly(boolean enable) {
         vdvInputTaggedOnly = enable;
+    }
+
+    // =======================================================================
+    // TimelineView related
+    // =======================================================================
+
+    public Long getTvDateFrom() {
+        return tvDateFrom;
+    }
+
+    public void setTvDateFrom(Long date) {
+        tvDateFrom = date;
+    }
+
+    public Long getTvDateTill() {
+        return tvDateTill;
+    }
+
+    public void setTvDateTill(Long date) {
+        tvDateTill = date;
     }
 
     // =======================================================================

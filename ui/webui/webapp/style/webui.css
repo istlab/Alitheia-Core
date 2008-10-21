@@ -105,6 +105,20 @@ img.icon_disabled {
     margin-right: 1px;
     opacity: .25;
 }
+img:hover.icon2 {
+    background-color: transparent;
+    border: 0px none;
+    margin-left: 1px;
+    margin-right: 1px;
+    opacity: 1;
+}
+img.icon2 {
+    background-color: transparent;
+    border: 0px none;
+    margin-left: 1px;
+    margin-right: 1px;
+    opacity: 0.70;
+}
 p.texticon {
     color: inherit;
     display: inline;
@@ -151,6 +165,25 @@ input.icoTextInput {
     border: 1px inset black;
     display: inline;
     font-size: 11px;
+    margin-left: 5px;
+    padding: 0;
+    vertical-align: top;
+    width: 5em;
+}
+input.icoButton {
+    border: 1px outset black;
+    display: inline;
+    font-size: 10px;
+    margin-left: 5px;
+    padding: 0;
+    vertical-align: top;
+    width: 5em;
+}
+input:hover.icoButton {
+    border: 1px outset black;
+    color: #A4D3EE;
+    display: inline;
+    font-size: 10px;
     margin-left: 5px;
     padding: 0;
     vertical-align: top;
@@ -331,12 +364,12 @@ td.dvPanelPight {
     
 }
 div.dvSubpanelLeft {
-    border: 1px solid black;
+    border: 1px solid #C6C6C5;
     width: 115px;
     float: left;
 }
 div.dvSubpanelRight {
-    border: 1px solid black;
+    border: 1px solid #C6C6C5;
     width: 115px;
     margin-left: 5px;
     float: left;
@@ -349,8 +382,8 @@ div.dvSubpanelApply {
     text-align: center;
 }
 div.dvSubtitle {
-    background-color: #FEF0C9;
-    border-bottom: 1px solid black;
+    background: #F0F0F0 url(/img/icons/16x16/toolbarbg04.png) repeat-x;
+    border-bottom: 1px solid #C6C6C5;
     font-weight: bold;
     padding-left: 5px;
 }
@@ -396,6 +429,53 @@ td.dvChartImage {
 a.dvChartImage img {
     border: 0px none;
     /* width: 100%; */
+}
+/* ===[ Calendar widget related ]========================================= */
+table.cal {
+    background-color: #C6C6C5;
+    margin-bottom: 5px;
+}
+div.calLabel {
+    background: #F0F0F0 url(/img/icons/16x16/toolbarbg04.png) repeat-x;
+    border: 1px solid #C6C6C5;
+    height: 18px;
+    line-height: 16px;
+    margin: 0;
+    padding-top: 2px;
+    padding-left: 5px;
+}
+tr.calLabel {
+    background-color: #E6E6FA;
+    border: 1px solid #C6C6C5;
+}
+td.calLabel {
+    background-color: transparent;
+    font-weight: bold;
+    text-align: center;
+}
+label.calLabel {
+    float: left;
+    font-weight: bold;
+    width: 5ex;
+}
+td.calEmpty {
+    background-color: transparent;
+    border: 1px solid #C6C6C5;
+}
+td.calSelected {
+    background-color: #EED5B7;
+    border: 1px solid #C6C6C5;
+    font-weight: bold;
+    text-align: right;
+}
+td.calCell {
+    background-color: #FFFFFF;
+    border: 1px solid #C6C6C5;
+    text-align: right;
+}
+td:hover.calCell {
+    background-color: #E6E437;
+    cursor: pointer;
 }
 /* ===[ Full screen view related ]======================================== */
 div.fullscreen {

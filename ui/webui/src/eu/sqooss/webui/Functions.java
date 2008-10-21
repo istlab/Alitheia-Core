@@ -255,4 +255,10 @@ public class Functions {
             new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", locale);
         return date.format(timestamp);
     }
+
+    public static String formatDaystamp(long timestamp, Locale locale) {
+        SimpleDateFormat date =
+            new SimpleDateFormat("EEE, dd MMM", locale);
+        return date.format(timestamp);
+    }
 }

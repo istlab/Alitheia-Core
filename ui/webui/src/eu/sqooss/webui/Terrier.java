@@ -287,6 +287,38 @@ public class Terrier {
             addError(connection.getError());
         return result;
     }
+    //========================================================================
+    // TIMELINE RELATED SCL WRAPPER METHODS
+    //========================================================================
+
+    /**
+     * Retrieves the list of project versions referenced by events which had
+     * happened within the selected project during the specified time period.
+     *
+     * @param projectId the project Id
+     * @param tsmFrom begin of the time period
+     * @param tsmTill end of the time period
+     *
+     * @return The list of project versions, or an empty list when none are
+     *   found.
+     */
+    public List<Version> getVersionsTimeline(long projectId,
+            long tsmFrom, long tsmTill) {
+        List<Version> result = new ArrayList<Version>();
+        if (isConnected()) {
+            try {
+                // Retrieve the all version objects inside the time period
+                WSProjectVersion[] wsversions = connection.getProjectAccessor()
+                        .getSCMTimeline(projectId, tsmFrom, tsmTill);
+                for (WSProjectVersion nextVersion : wsversions)
+                    result.add(new Version(nextVersion, this));
+            } catch (WSException wse) {
+                addError("Can not retrieve version(s) for a time period.");
+            }
+        } else
+            addError(connection.getError());
+        return result;
+    }
 
     //========================================================================
     // VERSION RELATED SCL WRAPPER METHODS
