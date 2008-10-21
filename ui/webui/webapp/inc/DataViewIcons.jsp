@@ -99,20 +99,23 @@
         }
 
         /*
-         * Disable the results display buttons, depending on the number of
-         * selected resources and metrics.
+         * Disable the results display buttons, depending on the satisfied
+         * dependencies and supported result display types.
          */
-        if ((viewConf.getSelectedResources().isEmpty())
-                || (viewConf.getSelectedMetrics() == null)) {
-            icoTabular.setStatus(false);
-            icoLineChart.setStatus(false);
-            icoBarChart.setStatus(false);
-            icoPieChart.setStatus(false);
-        }
-        else if (viewConf.getSelectedResources().size() == 1) {
-            icoLineChart.setStatus(false);
-            icoBarChart.setStatus(false);
-            icoPieChart.setStatus(false);
+        if ((dataView.viewDependencies & (
+                AbstractDataView.DEP_RESOURCE + AbstractDataView.DEP_METRIC)) > 0) {
+            if ((viewConf.getSelectedResources().isEmpty())
+                    || (viewConf.getSelectedMetrics() == null)) {
+                icoTabular.setStatus(false);
+                icoLineChart.setStatus(false);
+                icoBarChart.setStatus(false);
+                icoPieChart.setStatus(false);
+            }
+            else if (viewConf.getSelectedResources().size() == 1) {
+                icoLineChart.setStatus(false);
+                icoBarChart.setStatus(false);
+                icoPieChart.setStatus(false);
+            }
         }
 
         /*

@@ -266,6 +266,12 @@ td.def {
     padding-left: 5px;
     text-align: left;
 }
+td.def_major {
+    background-color: #F5F5DC;
+    border: 1px solid #C6C6C5;
+    padding-left: 5px;
+    text-align: left;
+}
 td.def_right {
     border: 1px solid #C6C6C5;
     padding-right: 5px;
@@ -283,6 +289,15 @@ td.def_head {
     height: 18px;
     padding-left: 5px;
     text-align: left;
+}
+td.def_head_center {
+    background-color: #E6E6FA;
+    border: 1px solid #C6C6C5;
+    font-size: 12px;
+    font-weight: bold;
+    height: 18px;
+    padding-left: 5px;
+    text-align: center;
 }
 td.def_subhead {
     background-color: #CCFFCC;

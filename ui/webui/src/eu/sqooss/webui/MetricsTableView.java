@@ -193,7 +193,7 @@ public class MetricsTableView extends ListView {
         b.append(sp(in++) + "<tbody>\n");
         if (project != null)
             b.append(sp(in) + "<tr><td" + subhead_class
-                    + "style=\"text-align: center;\""
+                    + " style=\"text-align: center;\""
                     + " colspan=\"" + columns + "\">"
                     + "<i>Evaluated</i>"
                     + "</td></tr>\n");
@@ -226,7 +226,7 @@ public class MetricsTableView extends ListView {
                     + "</td>\n");
         if (evalMetrics.size() < instMetrics.size())
             b.append(sp(in) + "<tr><td" + subhead_class
-                    + "style=\"text-align: center;\""
+                    + " style=\"text-align: center;\""
                     + " colspan=\"" + columns + "\">"
                     + "Available"
                     + "</td></tr>\n");

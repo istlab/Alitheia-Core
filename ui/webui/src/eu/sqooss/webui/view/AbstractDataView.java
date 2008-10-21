@@ -53,17 +53,33 @@ public abstract class AbstractDataView extends ListView {
      * Holds the selected display type
      */
     protected int chartType = TABLE_CHART;
+
     /*
-     * Definitions of the various result display types
+     * Definitions of the various result display (presentation) types
      */
-    public static final int TABLE_CHART = 2;
-    public static final int LINE_CHART = 4;
-    public static final int PIE_CHART = 8;
-    public static final int BAR_CHART = 16;
+    public static final int TABLE_CHART     = 2;
+    public static final int LINE_CHART      = 4;
+    public static final int PIE_CHART       = 8;
+    public static final int BAR_CHART       = 16;
+
     /*
-     * Defines all charts which are supported by this view.
+     * Defines a mask of all result display types which are supported by
+     * this view.
      */
-    public int supportedCharts = TABLE_CHART;
+    public int supportedCharts              = TABLE_CHART;
+
+    /*
+     * Definitions of the various dependency types
+     */
+    public static final int DEP_RESOURCE    = 2;
+    public static final int DEP_METRIC      = 4;
+    public static final int DEP_OTHER       = 8;
+
+    /*
+     * Defines a mask of all dependencies that has to be satisfied prior this
+     * view can generate all of the supported result display types.
+     */
+    public int viewDependencies             = DEP_RESOURCE + DEP_METRIC;
 
     /**
      * Sets the user settings for this session.

@@ -68,6 +68,7 @@ public class SelectedSettings {
     // TimelineView specific
     private Long tvDateFrom;
     private Long tvDateTill;
+    private Long tvViewRange;
 
     public static final int FILE_DATA_SETTINGS      = 11;
     public static final int VERSION_DATA_SETTINGS   = 12;
@@ -245,6 +246,14 @@ public class SelectedSettings {
 
     public void setTvDateTill(Long date) {
         tvDateTill = date;
+    }
+
+    public Long getTvViewRange() {
+        return tvViewRange;
+    }
+
+    public void setTvViewRange(Long range) {
+        tvViewRange = range;
     }
 
     // =======================================================================

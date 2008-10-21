@@ -261,4 +261,10 @@ public class Functions {
             new SimpleDateFormat("EEE, dd MMM", locale);
         return date.format(timestamp);
     }
+
+    public static String formatMonth(long timestamp, Locale locale) {
+        SimpleDateFormat date =
+            new SimpleDateFormat("MMMMM", locale);
+        return date.format(timestamp);
+    }
 }

@@ -101,10 +101,13 @@ function toggleCalendar(id) {
 <%
     // Indentation depth
     in = 9;
-    
+
+    // Retrieve information for the selected project, if necessary
+    selectedProject.retrieveData(terrier);
+
     BaseDataSettings viewConf = settings.getDataSettings(
             SelectedSettings.TIMELINE_DATA_SETTINGS);
-    
+
     /*
      * Check, if the user has selected to show or hide a certain panel.
      */
@@ -126,7 +129,7 @@ function toggleCalendar(id) {
         else if (request.getParameter("showResultPanel").equals("false"))
             viewConf.setResultPanelState(false);
     }
-    
+
     /*
      * Check, if the user has selected a time period.
      */
@@ -136,7 +139,7 @@ function toggleCalendar(id) {
     if (request.getParameter("dateTill") != null) {
         settings.setTvDateTill(strToLong(request.getParameter("dateTill")));
     }
-    
+
     /*
      * Initialise the data view's object
      */
@@ -144,12 +147,19 @@ function toggleCalendar(id) {
      dataView.setServletPath(request.getServletPath());
      dataView.setSettings(settings, SelectedSettings.TIMELINE_DATA_SETTINGS);
      dataView.setTerrier(terrier);
-    
+
+     /*
+      * Check, if the user has selected a view range
+      */
+     if (request.getParameter("tvViewRange") != null) {
+         settings.setTvViewRange(strToLong(request.getParameter("tvViewRange")));
+     }
+
     // Construct the window's content
     StringBuilder b = new StringBuilder("");
-    Window winTimelineView = new Window();
-    winTimelineView.setTitle("Timeline of project: " + selectedProject.getName());
-    
+    Window winDataView = new Window();
+    winDataView.setTitle("Timeline of project: " + selectedProject.getName());
+
     // Create a wrapper for the sub-views
     b.append(sp(in++) + "<table style=\"width: 100%\">\n");
     b.append(sp(in++) + "<tr>\n");
@@ -229,6 +239,16 @@ function toggleCalendar(id) {
             icoCloseWin.setValue("false");
             winResultPanel.addTitleIcon(icoCloseWin);
 
+            SelectInput icoDisplaySelector = new SelectInput();
+            icoDisplaySelector.setPath(request.getServletPath());
+            icoDisplaySelector.setParameter("tvViewRange");
+            icoDisplaySelector.setLabelText("View:");
+            icoDisplaySelector.setButtonText("Apply");
+            icoDisplaySelector.addOption("1", "Daily");
+            icoDisplaySelector.addOption("2", "Weekly");
+            icoDisplaySelector.addOption("3", "Monthly");
+            winResultPanel.addToolIcon(icoDisplaySelector);
+            
             // Construct the window's content
             dataView.setChartType(viewConf.getChartType());
             winResultPanel.setContent(dataView.getHtml(in + 2));
@@ -244,23 +264,15 @@ function toggleCalendar(id) {
     // Close the sub-views wrapper
     b.append(sp(--in) + "</tr>\n");
     b.append(sp(--in) + "</table>\n");
-    
-    /*
-     * Construct the window icons
-     */
-    icoCloseWin.setPath("/");
-    icoCloseWin.setParameter(null);
-    winTimelineView.addTitleIcon(icoCloseWin);
-    
-    /*
-     * Construct the toolbar icons
-     */
-    
+
+%><%@ include file="/inc/DataViewIcons.jsp"
+%><%
+
     /*
      * Display the window
      */
-     winTimelineView.setContent(b.toString());
-    out.print(winTimelineView.render(in));
+    winDataView.setContent(b.toString());
+    out.print(winDataView.render(in));
 }
 //============================================================================
 // Let the user choose a project, if none was selected

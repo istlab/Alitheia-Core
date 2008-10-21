@@ -38,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.SortedMap;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.Project;
@@ -56,6 +57,8 @@ public class TimelineView extends AbstractDataView {
     public TimelineView(Project project) {
         super();
         this.project = project;
+        supportedCharts = TABLE_CHART + LINE_CHART;
+        viewDependencies = DEP_OTHER;
     }
 
     /**
@@ -103,56 +106,51 @@ public class TimelineView extends AbstractDataView {
 
         if ((settings.getTvDateFrom() != null)
                 && (settings.getTvDateFrom() != null)) {
+            int viewRange = settings.getTvViewRange() != null
+                    ? settings.getTvViewRange().intValue() : 1;
+
             Calendar calLow = Calendar.getInstance();
             calLow.setTimeInMillis(settings.getTvDateFrom());
             calLow.set(Calendar.HOUR, 0);
             calLow.set(Calendar.MINUTE, 0);
             calLow.set(Calendar.SECOND, 0);
             calLow.set(Calendar.MILLISECOND, 0);
-            Calendar calHigh = (Calendar) calLow.clone();
-            calHigh.roll(Calendar.DATE, true);
-            b.append(sp(in++) + "<table>\n");
-            b.append(sp(in) + "<tr>"
-                    + "<td style=\"width: 20%;\"</td>"
-                    + "<td style=\"width: 10%;\"</td>"
-                    + "<td style=\"width: 70%;\"</td>"
-                    + "</tr>\n");
-            while (calLow.getTimeInMillis() < settings.getTvDateTill()) {
-                if (calHigh.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
-                    b.append(sp(in) + "<tr class=\"calLabel\">"
-                            + "<td class=\"calLabel\" colspan=\"3\">"
-                            + "Week " + calLow.get(Calendar.WEEK_OF_YEAR)
-                            + ", " + calLow.get(Calendar.YEAR)
-                            +"</td>"
-                            + "</tr>\n");
-                else
-                    b.append(sp(in++) + "<tr>\n");
-                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
-                b.append(sp(in) + "<td>"
-                        + Functions.formatDaystamp(
-                                calLow.getTimeInMillis(),
-                                settings.getUserLocale())
-                        + "</td>\n");
-                b.append(sp(in) + "<td>" + numVersions + "</td>\n");
-                if (numVersions > 0)
-                    b.append(sp(in) + "<td>"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testl.png\">"
-                            + "<img style=\"height: 10px; width: "
-                            + numVersions
-                            + "px;\""
-                            + " src=\"/img/icons/16x16/testm.png\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testr.png\">"
-                            + "&nbsp;"
-                            + "</td>\n");
-                else
-                    b.append(sp(in) + "<td>&nbsp;</td>\n");
-                b.append(sp(--in) + "</tr>\n");
-                calLow.add(Calendar.DATE, 1);
+            Calendar calHigh;
+
+            switch (viewRange) {
+            case 1:
+                calHigh = (Calendar) calLow.clone();
                 calHigh.add(Calendar.DATE, 1);
+                break;
+            case 2:
+                while (calLow.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+                    calLow.add(Calendar.DATE, -1);
+                calHigh = (Calendar) calLow.clone();
+                calHigh.add(Calendar.DATE, 7);
+                break;
+            case 3:
+                calLow.set(Calendar.DATE, 1);
+                calHigh = (Calendar) calLow.clone();
+                calHigh.add(Calendar.MONTH, 1);
+                calHigh.set(Calendar.DATE, 1);
+                break;
+            default:
+                calHigh = (Calendar) calLow.clone();
+                calHigh.add(Calendar.DATE, 1);
+                break;
             }
-            b.append(sp(--in) + "</table>\n");
+
+            switch (chartType) {
+            case TABLE_CHART:
+                b.append(tableChart(in, calLow, calHigh));
+                break;
+            case LINE_CHART:
+                break;
+            default:
+                b.append(tableChart(in, calLow, calHigh));
+                break;
+            }
+
         }
         return b.toString();
     }
@@ -340,6 +338,136 @@ public class TimelineView extends AbstractDataView {
                 + " value=\"Apply\">\n");
         b.append(sp(in) + "</form>");
         b.append(sp(--in) + "</div>");
+
+        return b.toString();
+    }
+
+    private String tableChart (long in, Calendar calLow, Calendar calHigh) {
+        // Hold the accumulated HTML content
+        StringBuilder b = new StringBuilder("");
+
+        b.append(sp(in++) + "<table>\n");
+        // Table header
+        b.append(sp(in++) + "<thead>\n");
+        b.append(sp(in) + "<tr>"
+                + "<td style=\"width: 20%;\"></td>"
+                + "<td style=\"width: 10%;\"></td>"
+                + "<td style=\"width: 70%;\"></td>"
+                + "</tr>\n");
+        b.append(sp(--in) + "</thead>\n");
+
+        long viewRange = settings.getTvViewRange() != null
+                ? settings.getTvViewRange() : 1;
+        while (calLow.getTimeInMillis() < settings.getTvDateTill()) {
+            if (viewRange == 2) {
+                if (calLow.get(Calendar.MONTH) != calHigh.get(Calendar.MONTH))
+                    b.append(sp(in) + "<tr>"
+                            + "<td class=\"def_head_center\" colspan=\"3\">"
+                            + Functions.formatMonth(
+                                    calHigh.getTimeInMillis(),
+                                    settings.getUserLocale())
+                            + ", " + calHigh.get(Calendar.YEAR)
+                            +"</td>"
+                            + "</tr>\n");
+                b.append(sp(in++) + "<tr>\n");
+                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+                b.append(sp(in) + "<td class=\"def_major\">"
+                        + "Week " + calLow.get(Calendar.WEEK_OF_YEAR)
+                        + "</td>\n");
+                b.append(sp(in) + "<td class=\"def_right\">"
+                        + numVersions + "</td>\n");
+                if (numVersions > 0)
+                    b.append(sp(in) + "<td class=\"def\">"
+                            + "<img style=\"height: 10px; width: 4px;\""
+                            + " src=\"/img/icons/16x16/testl.png\">"
+                            + "<img style=\"height: 10px; width: "
+                            + numVersions
+                            + "px;\""
+                            + " src=\"/img/icons/16x16/testm.png\">"
+                            + "<img style=\"height: 10px; width: 4px;\""
+                            + " src=\"/img/icons/16x16/testr.png\">"
+                            + "&nbsp;"
+                            + "</td>\n");
+                else
+                    b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                calLow.add(Calendar.DATE, 7);
+                calHigh.add(Calendar.DATE, 7);
+            }
+            else if (viewRange == 3) {
+                if (calLow.get(Calendar.MONTH) == 0)
+                    b.append(sp(in) + "<tr>"
+                            + "<td class=\"def_head_center\" colspan=\"3\">"
+                            + calLow.get(Calendar.YEAR)
+                            +"</td>"
+                            + "</tr>\n");
+                b.append(sp(in++) + "<tr>\n");
+                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+                b.append(sp(in) + "<td class=\"def_major\">"
+                        + Functions.formatMonth(
+                                calLow.getTimeInMillis(),
+                                settings.getUserLocale())
+                        + "</td>\n");
+                b.append(sp(in) + "<td class=\"def_right\">"
+                        + numVersions + "</td>\n");
+                if (numVersions > 0)
+                    b.append(sp(in) + "<td class=\"def\">"
+                            + "<img style=\"height: 10px; width: 4px;\""
+                            + " src=\"/img/icons/16x16/testl.png\">"
+                            + "<img style=\"height: 10px; width: "
+                            + numVersions
+                            + "px;\""
+                            + " src=\"/img/icons/16x16/testm.png\">"
+                            + "<img style=\"height: 10px; width: 4px;\""
+                            + " src=\"/img/icons/16x16/testr.png\">"
+                            + "&nbsp;"
+                            + "</td>\n");
+                else
+                    b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                calLow.add(Calendar.MONTH, 1);
+                calHigh.set(Calendar.DATE, 1);
+                calHigh.add(Calendar.MONTH, 1);
+                calHigh.set(Calendar.DATE, 1);
+            }
+            else {
+                if (calLow.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
+                    b.append(sp(in) + "<tr>"
+                            + "<td class=\"def_head_center\" colspan=\"3\">"
+                            + "Week " + calLow.get(Calendar.WEEK_OF_YEAR)
+                            + ", " + calLow.get(Calendar.YEAR)
+                            +"</td>"
+                            + "</tr>\n");
+                b.append(sp(in++) + "<tr>\n");
+                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+                b.append(sp(in) + "<td class=\"def_major\">"
+                        + Functions.formatDaystamp(
+                                calLow.getTimeInMillis(),
+                                settings.getUserLocale())
+                        + "</td>\n");
+                b.append(sp(in) + "<td class=\"def_right\">"
+                        + numVersions + "</td>\n");
+                if (numVersions > 0)
+                    b.append(sp(in) + "<td class=\"def\">"
+                            + "<img style=\"height: 10px; width: 4px;\""
+                            + " src=\"/img/icons/16x16/testl.png\">"
+                            + "<img style=\"height: 10px; width: "
+                            + numVersions
+                            + "px;\""
+                            + " src=\"/img/icons/16x16/testm.png\">"
+                            + "<img style=\"height: 10px; width: 4px;\""
+                            + " src=\"/img/icons/16x16/testr.png\">"
+                            + "&nbsp;"
+                            + "</td>\n");
+                else
+                    b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
+                b.append(sp(--in) + "</tr>\n");
+                calLow.add(Calendar.DATE, 1);
+                calHigh.add(Calendar.DATE, 1);
+            }
+        }
+
+        b.append(sp(--in) + "</table>\n");
 
         return b.toString();
     }
