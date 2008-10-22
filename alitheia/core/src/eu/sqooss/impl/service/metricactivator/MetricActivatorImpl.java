@@ -365,10 +365,12 @@ public class MetricActivatorImpl implements MetricActivator {
             if(c.equals(ProjectFile.class)) {
                 query = "select distinct pf.id " +
                 "from ProjectVersion pv, ProjectFile pf " +
-                "where pf.projectVersion=pv and pv.project = :" + paramSp;
+                "where pf.projectVersion=pv and pv.project = :" + paramSp +
+                " order by pv.timestamp asc";
             } else if (c.equals(ProjectVersion.class)) {
                 query = "select distinct pv.id from ProjectVersion pv " +
-                        "where pv.project = :" + paramSp;
+                        "where pv.project = :" + paramSp + 
+                        " order by pv.timestamp asc ";
             } else if (c.equals(StoredProject.class)) {
                 query = "select distinct sp.id from StoredProject sp where sp = :" 
                     + paramSp;

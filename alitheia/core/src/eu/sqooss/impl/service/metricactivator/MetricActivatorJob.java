@@ -38,8 +38,13 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.InvocationRule.ActionType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
@@ -56,6 +61,7 @@ public class MetricActivatorJob extends Job {
     private MetricActivator ma;
     private Long daoID;
     private AbstractMetric metric;
+    private int priority;
     Class<? extends DAObject> daoType;
     
     MetricActivatorJob(AbstractMetric m, Long daoID, Logger l,
@@ -65,17 +71,38 @@ public class MetricActivatorJob extends Job {
         this.daoID = daoID;
         this.daoType = daoType;
         this.dbs = AlitheiaCore.getInstance().getDBService();
-        this.ma = AlitheiaCore.getInstance().getMetricActivator();   
+        this.ma = AlitheiaCore.getInstance().getMetricActivator(); 
+        this.priority = 0xada;
+        
+        //The more generic a job type the less priority it gets
+        if (daoType.equals(ProjectVersion.class)) {
+            priority = 0xbad;
+        }
+        
+        if (daoType.equals(MailingList.class)) {
+            priority = 0xbad;
+        }
+        
+        if (daoType.equals(Bug.class)) {
+            priority = 0xbad;
+        }
+        
+        if (daoType.equals(Developer.class)) {
+            priority = 0xebd;
+        }
+        
+        if (daoType.equals(StoredProject.class)) {
+            priority = 0xfff;
+        }
     }
     
     @Override
     public int priority() {
-        return 0xada;
+        return priority;
     }
 
     @Override
     protected void run() throws Exception {
-         
         dbs.startDBSession();
         DAObject obj = dbs.findObjectById(daoType, daoID);
         
