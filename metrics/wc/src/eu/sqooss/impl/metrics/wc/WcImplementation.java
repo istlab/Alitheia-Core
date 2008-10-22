@@ -523,11 +523,11 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
     
     private void addPVMeasurement(String s, ProjectVersion pv, int value) {
-        ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(
-                Metric.getMetricByMnemonic(s), 
-                pv, 
+        Metric m = Metric.getMetricByMnemonic(s); 
+        ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(m , pv, 
                 String.valueOf(value));
         db.addRecord(pvm);
+        markEvaluation(m, pv);
     }
     
     private int getMeasurement(ProjectFile pf, String metric)
