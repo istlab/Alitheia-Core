@@ -63,6 +63,7 @@ public class SelectInput extends AbstractIcon {
     @Override
     public String render() {
         StringBuilder b = new StringBuilder("");
+
         if (getStatus()) {
             b.append("<form class=\"icoTextInput\">");
             b.append(labelText != null ? "<b>" + labelText + "</b>" : "");

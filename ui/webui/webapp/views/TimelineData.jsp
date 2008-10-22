@@ -109,6 +109,16 @@ function toggleCalendar(id) {
             SelectedSettings.TIMELINE_DATA_SETTINGS);
 
     /*
+     * Check, if the user has switched to another type for displaying
+     * the metric evaluation results.
+     */
+    if (request.getParameter("chartType") != null) {
+        Long chartType = strToLong(request.getParameter("chartType"));
+        if (chartType != null)
+            viewConf.setChartType(chartType.intValue());
+    }
+
+    /*
      * Check, if the user has selected to show or hide a certain panel.
      */
     if (request.getParameter("showInfoPanel") != null) {
@@ -240,15 +250,23 @@ function toggleCalendar(id) {
             winResultPanel.addTitleIcon(icoCloseWin);
 
             if ((settings.getTvDateFrom() != null)
-                    && (settings.getTvDateFrom() != null)) {
+                    && (settings.getTvDateFrom() != null)
+                    && (viewConf.getChartType() == AbstractDataView.TABLE_CHART)) {
                 SelectInput icoDisplaySelector = new SelectInput();
                 icoDisplaySelector.setPath(request.getServletPath());
                 icoDisplaySelector.setParameter("tvViewRange");
                 icoDisplaySelector.setLabelText("View:");
                 icoDisplaySelector.setButtonText("Apply");
-                icoDisplaySelector.addOption("1", "Daily");
-                icoDisplaySelector.addOption("2", "Weekly");
-                icoDisplaySelector.addOption("3", "Monthly");
+                String[] ranges = new String[]{"Daily", "Weekly", "Monthly"};
+                int i = 1;
+                for (String rangeName : ranges)
+                    icoDisplaySelector.addOption(
+                            new Long(i).toString(), ranges[i++ - 1]);
+                int selectedRange = settings.getTvViewRange() != null 
+                        ? settings.getTvViewRange().intValue() : 1;
+                if (selectedRange > ranges.length)
+                    selectedRange = 1;
+                icoDisplaySelector.setSelected(ranges[selectedRange - 1]);
                 winResultPanel.addToolIcon(icoDisplaySelector);
             }
 

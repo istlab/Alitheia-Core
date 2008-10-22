@@ -33,12 +33,21 @@
 
 package eu.sqooss.webui.view;
 
+import java.awt.Color;
+import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.SortedMap;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.TimePeriodValues;
+import org.jfree.data.time.TimePeriodValuesCollection;
+import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.Project;
@@ -145,6 +154,25 @@ public class TimelineView extends AbstractDataView {
                 b.append(tableChart(in, calLow, calHigh));
                 break;
             case LINE_CHART:
+                String chartFile = lineChart(calLow, calHigh);
+                if (chartFile != null) {
+                    chartFile = "/tmp/" + chartFile;
+                    b.append(sp(in++) + "<table>\n");
+                    b.append(sp(in++) + "</tr>\n");
+                    b.append(sp(in) + "<td"
+                            + " class=\"dvChartImage\""
+                            + "<a class=\"dvChartImage\""
+                            + " href=\"/fullscreen.jsp?"
+                            + "chartfile=" + chartFile.replace("thb", "img") + "\">"
+                            + "<img src=\"" + chartFile + "\">"
+                            + "</a>"
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(--in) + "</table>\n");
+                }
+                else
+                    b.append(Functions.information(
+                            "Inapplicable results."));
                 break;
             default:
                 b.append(tableChart(in, calLow, calHigh));
@@ -474,5 +502,48 @@ public class TimelineView extends AbstractDataView {
         b.append(sp(--in) + "</table>\n");
 
         return b.toString();
+    }
+
+    private String lineChart (Calendar calLow, Calendar calHigh) {
+        // Construct the chart's dataset
+        TimePeriodValuesCollection data = new TimePeriodValuesCollection();
+        // TODO:: Quick definition. Rework to support bug and email timelines.
+        TimePeriodValues versionsData = new TimePeriodValues("Versions");
+        while (calLow.getTimeInMillis() < settings.getTvDateTill()) {
+            int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+            versionsData.add(
+                    new Day(calLow.getTime()),
+                    new Double(numVersions));
+            calLow.add(Calendar.DATE, 1);
+            calHigh.add(Calendar.DATE, 1);
+        }
+        if (versionsData.getItemCount() > 0)
+            data.addSeries(versionsData);
+
+        // Generate the chart
+        if (data.getSeriesCount() > 0) {
+            JFreeChart chart;
+            chart = ChartFactory.createTimeSeriesChart(
+                    null, "Time", "Result",
+                    data,
+                    true, true, false);
+            chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+            chart.setPadding(RectangleInsets.ZERO_INSETS);
+            // Save the chart into a temporary file
+            try {
+                java.io.File image = java.io.File.createTempFile(
+                        "img", ".png", settings.getTempFolder());
+                java.io.File thumbnail = new java.io.File(
+                        settings.getTempFolder()
+                        + java.io.File.separator
+                        + image.getName().replace("img", "thb"));
+                ChartUtilities.saveChartAsPNG(image, chart, 960, 720);
+                ChartUtilities.saveChartAsPNG(thumbnail, chart, 320, 240);
+                return thumbnail.getName();
+            }
+            catch (IOException e) { /* Do nothing. */ }
+        }
+
+        return null;
     }
 }
