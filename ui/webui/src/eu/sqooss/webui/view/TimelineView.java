@@ -150,8 +150,12 @@ public class TimelineView extends AbstractDataView {
                 b.append(tableChart(in, calLow, calHigh));
                 break;
             }
-
         }
+        else {
+            b.append(sp(in)
+                    + "Select the time period for which you want to display results.");
+        }
+
         return b.toString();
     }
 
