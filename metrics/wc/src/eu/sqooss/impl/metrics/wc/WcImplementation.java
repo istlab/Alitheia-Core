@@ -41,6 +41,7 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.StringTokenizer;
@@ -51,11 +52,16 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
+import eu.sqooss.service.abstractmetric.MetricMismatchException;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
@@ -68,11 +74,29 @@ public class WcImplementation extends AbstractMetric implements Wc {
     private static final String MNEMONIC_WC_LONB  = "Wc.lonb";
     private static final String MNEMONIC_WC_WORDS = "Wc.words";
     
+    private static final String MNEMONIC_WC_PV_NOF = "NOF";
+    private static final String MNEMONIC_WC_PV_NOSF = "NOSF";
+    private static final String MNEMONIC_WC_PV_NODF = "NODF";
+    private static final String MNEMONIC_WC_PV_TL   = "TL";
+    private static final String MNEMONIC_WC_PV_TLOC = "TLOC";
+    private static final String MNEMONIC_WC_PV_TLOCOM = "TLOCOM";
+    private static final String MNEMONIC_WC_PV_TLDOC = "TLDOC";
+    
     private static HashMap<String,String[]> commentDelimiters;
     
+    /*Implements Ohloh in 500 lines*/
     public WcImplementation(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectFile.class);
+        super.addActivationType(ProjectVersion.class);
+        
+        super.addMetricActivationType(MNEMONIC_WC_PV_NOF, ProjectVersion.class);
+        super.addMetricActivationType(MNEMONIC_WC_PV_NOSF, ProjectVersion.class);
+        super.addMetricActivationType(MNEMONIC_WC_PV_NODF, ProjectVersion.class);
+        super.addMetricActivationType(MNEMONIC_WC_PV_TL, ProjectVersion.class);
+        super.addMetricActivationType(MNEMONIC_WC_PV_TLOC, ProjectVersion.class);
+        super.addMetricActivationType(MNEMONIC_WC_PV_TLOCOM, ProjectVersion.class);
+        super.addMetricActivationType(MNEMONIC_WC_PV_TLDOC, ProjectVersion.class);
         
         super.addMetricActivationType(MNEMONIC_WC_LOC, ProjectFile.class);
         super.addMetricActivationType(MNEMONIC_WC_LOCOM, ProjectFile.class);
@@ -82,37 +106,44 @@ public class WcImplementation extends AbstractMetric implements Wc {
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
        
-        
         fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
         
         commentDelimiters = new HashMap<String,String[]>(10);
         // Fill up the comment delimiters hash with a collection
         // of delimiters for various languages.
-        addCommentDelimiters("cpp|C|cc|java",new String[]{"//","/\\*","\\*/"});
+        addCommentDelimiters("cpp|C|cc|java|hpp|h",new String[]{"//","/\\*","\\*/"});
         addCommentDelimiters("c",new String[]{null,"/\\*","\\*/"});
-        addCommentDelimiters("py|sh",new String[]{"#",null,null});
-        addCommentDelimiters("html",new String[]{null,"<!--","-->"});
+        addCommentDelimiters("py|sh|pl|rb",new String[]{"#",null,null});
+        addCommentDelimiters("html|xml|xsl",new String[]{null,"<!--","-->"});
     }
 
     public boolean install() {
         boolean result = super.install();
         if (result) {
+            result &= super.addSupportedMetrics("Total lines",
+                    MNEMONIC_WC_LOC, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Comment lines",
+                    MNEMONIC_WC_LOCOM, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Non-blank lines", 
+                    MNEMONIC_WC_LONB, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Total words", 
+                    MNEMONIC_WC_WORDS, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Number of Files", 
+                    MNEMONIC_WC_PV_NOF, MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics("Number of Source Code Files",
+                    MNEMONIC_WC_PV_NOSF, MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics(
-                    "Total lines",
-                    MNEMONIC_WC_LOC,
-                    MetricType.Type.SOURCE_CODE);
+                    "Number of Documentation Files", 
+                    MNEMONIC_WC_PV_NODF,MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics("Total Number of Lines", 
+                    MNEMONIC_WC_PV_TL, MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics(
-                    "Comment lines",
-                    MNEMONIC_WC_LOCOM,
-                    MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Non-blank lines", 
-                    MNEMONIC_WC_LONB,
-                    MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Total words", 
-                    MNEMONIC_WC_WORDS,
-                    MetricType.Type.SOURCE_CODE);
+                    "Total Number of Documentation Lines", 
+                    MNEMONIC_WC_PV_TLDOC, MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics("Total Lines of Code", 
+                    MNEMONIC_WC_PV_TLOC, MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics("Total Lines of Comments", 
+                    MNEMONIC_WC_PV_TLOCOM, MetricType.Type.PROJECT_WIDE);
         }
         return result;
     }
@@ -423,6 +454,100 @@ public class WcImplementation extends AbstractMetric implements Wc {
             }
             
             return r;
+        }
+    }
+
+    public List<ResultEntry> getResult(ProjectVersion p, Metric m) {
+        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        // Search for a matching project version measurement
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("projectVersion", p);
+        filter.put("metric", m);
+        List<ProjectVersionMeasurement> measurement =
+            db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
+        return convertVersionMeasurements(measurement,m.getMnemonic());
+    }
+
+    public void run(ProjectVersion v) throws AlreadyProcessingException {
+        Set<ProjectFile> ffv = v.getFilesForVersion();
+        
+        int nof = 0;            //Number of files
+        int nosf = 0;           //Number of source code files
+        int nodf = 0;           //Number of documentation files
+        int totalLines = 0;     //Total Lines 
+        int totalLoC = 0;       //Total Lines of code
+        int totalLoComm = 0;    //Total Lines of comments
+        int totalLocDoc = 0;    //Total Lines of doc
+        
+        for (ProjectFile pf : ffv) {
+            // We do not support directories
+            if (pf.getIsDirectory()) {
+                continue;
+            }
+            
+            //Cannot run on deleted files
+            if (pf.isDeleted()) {
+                continue;
+            }
+            
+            nof ++;
+            //We don't support binary files either
+            if (FileTypeMatcher.getFileType(pf.getName()).equals(
+                    FileTypeMatcher.FileType.BIN)) {
+                continue;
+            }
+            
+            int lines = getMeasurement(pf, MNEMONIC_WC_LOC);
+            totalLines += lines;
+
+            if (FileTypeMatcher.getFileType(pf.getName()).equals(
+                    FileTypeMatcher.FileType.SRC)) {
+                nosf ++;
+                totalLoC += lines;
+                totalLoComm += getMeasurement(pf, MNEMONIC_WC_LOCOM);
+            }
+            
+            if (FileTypeMatcher.getFileType(pf.getName()).equals(
+                    FileTypeMatcher.FileType.DOC)) {
+                nodf ++;
+                totalLocDoc += lines;
+            }
+        }
+        addPVMeasurement(MNEMONIC_WC_PV_NODF, v, nodf);
+        addPVMeasurement(MNEMONIC_WC_PV_NOF, v, nof);
+        addPVMeasurement(MNEMONIC_WC_PV_NOSF, v, nosf);
+        addPVMeasurement(MNEMONIC_WC_PV_TL, v, totalLines);
+        addPVMeasurement(MNEMONIC_WC_PV_TLDOC, v, totalLocDoc);
+        addPVMeasurement(MNEMONIC_WC_PV_TLOC, v, totalLoC);
+        addPVMeasurement(MNEMONIC_WC_PV_TLOCOM, v, totalLoComm);
+    }
+    
+    private void addPVMeasurement(String s, ProjectVersion pv, int value) {
+        ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(
+                Metric.getMetricByMnemonic(s), 
+                pv, 
+                String.valueOf(value));
+        db.addRecord(pvm);
+    }
+    
+    private int getMeasurement(ProjectFile pf, String metric)
+        throws AlreadyProcessingException {
+        ArrayList<Metric> lm = new ArrayList<Metric>();
+        lm.add(Metric.getMetricByMnemonic(metric));
+        Result loc;
+        try {
+            loc = getResult(pf, lm);
+            if (!loc.hasNext()) {
+                log.warn("Cannot find measurement for metric " 
+                        + MNEMONIC_WC_LOC + " for file " + pf);
+                return 0;
+            } else {
+                return loc.getRow(0).get(0).getInteger();
+            }
+        } catch (MetricMismatchException e) {
+            return 0;
+        } catch (Exception e) {
+            return 0;
         }
     }
 }
