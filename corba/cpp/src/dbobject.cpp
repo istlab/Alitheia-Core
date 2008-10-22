@@ -329,6 +329,13 @@ BugResolution::operator CORBA::Any() const
     return any;
 }
 
+BugResolution BugResolution::fromCorba( const CORBA::Any& any )
+{
+    alitheia::BugResolution bug;
+    any >>= bug;
+    return BugResolution( bug );
+}
+
 BugPriority::BugPriority( const alitheia::BugPriority& res )
     : DAObject( res.id ),
       priority( res.priority )
@@ -350,6 +357,13 @@ BugPriority::operator CORBA::Any() const
     return any;
 }
 
+BugPriority BugPriority::fromCorba( const CORBA::Any& any )
+{
+    alitheia::BugPriority bug;
+    any >>= bug;
+    return BugPriority( bug );
+}
+
 BugSeverity::BugSeverity( const alitheia::BugSeverity& res )
     : DAObject( res.id ),
       severity( res.severity )
@@ -369,6 +383,13 @@ BugSeverity::operator CORBA::Any() const
     CORBA::Any any;
     any <<= toCorba();
     return any;
+}
+
+BugSeverity BugSeverity::fromCorba( const CORBA::Any& any )
+{
+    alitheia::BugSeverity bug;
+    any >>= bug;
+    return BugSeverity( bug );
 }
 
 Bug::Bug( const alitheia::Bug& bug )
@@ -408,6 +429,13 @@ Bug::operator CORBA::Any() const
     CORBA::Any any;
     any <<= toCorba();
     return any;
+}
+
+Bug Bug::fromCorba( const CORBA::Any& any )
+{
+    alitheia::Bug bug;
+    any >>= bug;
+    return Bug( bug );
 }
 
 MetricType::MetricType( const alitheia::MetricType& type )

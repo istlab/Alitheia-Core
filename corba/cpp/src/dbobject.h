@@ -87,7 +87,7 @@ namespace Alitheia
     public:
         BugPriority() {}
         explicit BugPriority( const eu::sqooss::impl::service::corba::alitheia::BugPriority& priority );
-        static BugResolution fromCorba( const CORBA::Any& priority );
+        static BugPriority fromCorba( const CORBA::Any& priority );
 
         eu::sqooss::impl::service::corba::alitheia::BugPriority toCorba() const;
         operator CORBA::Any() const;

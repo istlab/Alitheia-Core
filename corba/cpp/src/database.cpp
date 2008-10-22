@@ -113,7 +113,23 @@ Database::property_map_value any_to_variant( const CORBA::Any& any )
     CORBA::Long l;
     if( any >>= l )
         return result = (int)l;
-    
+
+    alitheia::Bug bug;
+    if( any >>= bug )
+        return result = Bug::fromCorba( any );
+
+    alitheia::BugPriority bugPrio;
+    if( any >>= bugPrio )
+        return result = BugPriority::fromCorba( any );
+
+    alitheia::BugResolution bugReso;
+    if( any >>= bugReso )
+        return result = BugResolution::fromCorba( any );
+
+    alitheia::BugSeverity bugSev;
+    if( any >>= bugSev )
+        return result = BugSeverity::fromCorba( any );
+
     alitheia::Developer dev;
     if( any >>= dev )
         return result = Developer::fromCorba( any );
@@ -177,7 +193,19 @@ CORBA::Any variant_to_any( const Database::property_map_value& variant )
     
     else if( variant.type() == typeid( std::string ) )
         result <<= CORBA::string_dup( boost::get< std::string >( variant ).c_str() );
-    
+   
+    else if( variant.type() == typeid( Bug ) )
+        result = boost::get< Bug >( variant );
+
+    else if( variant.type() == typeid( BugPriority ) )
+        result = boost::get< BugPriority >( variant );
+
+    else if( variant.type() == typeid( BugResolution ) )
+        result = boost::get< BugResolution >( variant );
+
+    else if( variant.type() == typeid( BugSeverity ) )
+        result = boost::get< BugSeverity >( variant );
+
     else if( variant.type() == typeid( Developer ) )
         result = boost::get< Developer >( variant );
     

@@ -66,6 +66,10 @@ namespace Alitheia
         typedef boost::variant< int,
                                 bool,
                                 std::string,
+                                Bug,
+                                BugPriority,
+                                BugResolution,
+                                BugSeverity,
                                 Developer,
                                 Directory,
                                 FileGroup,
@@ -77,7 +81,7 @@ namespace Alitheia
                                 ProjectFileMeasurement,
                                 ProjectVersion,
                                 ProjectVersionMeasurement,
-                                StoredProject > property_map_value;
+                                StoredProject> property_map_value;
         typedef std::map< property_map_key, property_map_value > property_map;
         typedef property_map_value db_row_entry;
 
