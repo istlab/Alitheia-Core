@@ -274,12 +274,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     	 List<ResultEntry> results = new ArrayList<ResultEntry>();
     	 for(ProjectFileMeasurement r : l) {
-    		 // There is only one measurement per metric and project file
-    		 Integer value = Integer.parseInt(r.getResult());
-    		 // ... and therefore only one result entry
-    		 ResultEntry entry = 
-    			 new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, label);
-    		 results.add(entry);
+    	     // There is only one measurement per metric and project file
+            Integer value = Integer.parseInt(r.getResult());
+            // ... and therefore only one result entry
+            ResultEntry entry = new ResultEntry(value,
+                    ResultEntry.MIME_TYPE_TYPE_INTEGER, label);
+            results.add(entry);
     	 }
     	 return results;
      }
@@ -351,7 +351,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         Result r = getResultIfAlreadyCalculated(o, l);
 
         // the result hasn't been calculated yet. Do so.
-        if (r.getRowCount() == 0) {
+        if (r == null || r.getRowCount() == 0) {
            /*
              * To ensure that no two instances of the metric operate on the same
              * DAO lock on the DAO. Working on the same DAO can happen often
@@ -365,7 +365,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     run(o);
                     
                     r = getResultIfAlreadyCalculated(o, l);
-                    if (r.getRowCount() == 0) {
+                    if (r == null || r.getRowCount() == 0) {
                         log.debug("Metric " + getClass() + " didn't return"
                                 + "a result even after running it. DAO: "
                                 + o.getId());
@@ -464,11 +464,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     logErr("run", o.getId(), e);
                 } catch (InvocationTargetException e) {
                     //Forward exception to metric job exception handler
-                    if (e.getCause() instanceof AlreadyProcessingException) 
+                    if (e.getCause() instanceof AlreadyProcessingException) { 
                         throw (AlreadyProcessingException) e.getCause();
-                    else 
-                        throw new Exception(e.getCause());
-                    //logErr("run", o.getId(), e);
+                    }
+                    else {
+                        if (e != null && e.getCause() != null) {
+                            logErr("run", o.getId(), e);
+                            throw new Exception(e.getCause());
+                        }
+                    }
                 } 
             }
         }
