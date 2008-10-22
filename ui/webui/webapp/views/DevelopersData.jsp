@@ -22,7 +22,7 @@ if (selectedProject.isValid()) {
 %><%@ include file="/inc/DataViewParameters.jsp"
 %><%
 
-        // Retrieve the highlighted metric (if any)
+        // Reset the selected resources' list if requested
         if (request.getParameter("resetResources") != null) {
             viewConf.setSelectedResources(null);
         }
@@ -117,11 +117,11 @@ if (selectedProject.isValid()) {
                                 developer.getUsername());
                 winControlPanel.addToolIcon(icoAddResource);
                 
-                TextIcon icoResetResources = new TextIcon();
+                SubmitButton icoResetResources = new SubmitButton();
                 icoResetResources.setPath(request.getServletPath());
                 icoResetResources.setParameter("resetResources");
                 icoResetResources.setValue("true");
-                icoResetResources.setText("Reset");
+                icoResetResources.setButtonText("Reset");
                 winControlPanel.addToolIcon(icoResetResources);
 
                 // Construct the window's content

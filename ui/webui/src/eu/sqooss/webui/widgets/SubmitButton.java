@@ -32,63 +32,25 @@
  */
 package eu.sqooss.webui.widgets;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-public class SelectInput extends AbstractIcon {
-    private SortedMap<String, String> options = new TreeMap<String, String>();
-    private String selected;
-    private String labelText;
+public class SubmitButton extends AbstractIcon {
     private String buttonText = "Apply";
 
-    public void setSelected(String name) {
-        this.selected = name;
-    }
-
-    public void setLabelText(String text) {
-        this.labelText = text;
-    }
-
     public void setButtonText(String text) {
-        this.buttonText = text;
-    }
-
-    public void addOption(String value, String name) {
-        if ((value != null)
-                && (name != null)
-                && (options.containsKey(name) == false))
-            options.put(name, value);
+        if (text != null)
+            this.buttonText = text;
     }
 
     @Override
     public String render() {
         StringBuilder b = new StringBuilder("");
-        if (getStatus()) {
-            b.append("<form class=\"icoTextInput\">");
-            b.append(labelText != null ? "<b>" + labelText + "</b>" : "");
-            b.append("<select class=\"icoTextInput\""
-                    + " name=\""
-                    + ((getParameter() != null) ? getParameter() : "" )
-                    + "\""
-                    + ((selected != null)
-                            ? " value=\"" + options.get(selected) +"\"" 
-                            : "" )
-                    + "/>");
-            for (String name : options.keySet()) {
-                b.append("<option"
-                        + ((name.equals(selected)) ? " selected" : "")
-                        + " value=\"" + options.get(name) + "\">"
-                        + "" + name
-                        + "</option>");
-            }
-            b.append("</select>");
-            b.append("<input type=\"submit\" class=\"icoButton\""
-                    + " value=\"" + buttonText + "\">");
-            b.append("</form>\n");
-        }
-        else {
-            b.append(labelText != null ? "<b>" + labelText + "</b>" : "");
-        }
+        b.append("<form class=\"icoTextInput\">");
+        b.append("<input type=\"hidden\""
+                + " name=\"" + getParameter() + "\""
+                + " value=\"" + getValue() + "\">");
+        b.append("<input type=\"submit\" class=\"icoButton\""
+                + (getStatus() ? "" : " disabled")
+                + " value=\"" + buttonText + "\">");
+        b.append("</form>\n");
         return b.toString();
     }
 

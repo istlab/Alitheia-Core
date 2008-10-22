@@ -158,7 +158,7 @@ a:hover.texticon {
 form.icoTextInput {
     display: inline;
     font-size: 10px;
-    margin-left: 5px;
+    margin-left: 0px;
     vertical-align: top;
 }
 input.icoTextInput {
