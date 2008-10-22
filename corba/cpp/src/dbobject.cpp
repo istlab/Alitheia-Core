@@ -78,6 +78,11 @@ StoredProject StoredProject::getProjectByName( const std::string& name )
     return projects.empty() ? StoredProject() : projects.front();
 }
 
+vector< Bug > StoredProject::getBugs() const
+{
+    return Core::instance()->getBugs( *this );
+}
+
 ProjectVersion StoredProject::getLastProjectVersion( const StoredProject& project )
 {
     Database db;

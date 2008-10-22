@@ -25,6 +25,7 @@ namespace Alitheia
         friend class ::Alitheia::ProjectVersion;
         friend class ::Alitheia::ProjectFileBuffer;
         friend class ::Alitheia::Scheduler;
+        friend class ::Alitheia::StoredProject;
 
     protected:
         Core();
