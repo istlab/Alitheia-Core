@@ -1,3 +1,5 @@
+project( AlitheiaLib )
+
 cmake_minimum_required( VERSION 2.6 )
 
 find_package( MICO )
@@ -28,10 +30,10 @@ set( HEADERS
      scheduler.h
 )
 
-include_directories( . ${MICO_INCLUDE_DIR} )
+include_directories( . ${MICO_INCLUDE_DIR} ${AlitheiaLib_BINARY_DIR} )
 
 add_custom_command( OUTPUT Alitheia.cpp Alitheia.h
-                    COMMAND idl --any --poa --c++-suffix cpp ../../idl/Alitheia.idl
-                    DEPENDS ../../idl/Alitheia.idl )
+                    COMMAND ${MICO_IDL_COMPILER} --any --poa --c++-suffix cpp ${CMAKE_CURRENT_SOURCE_DIR}/../../idl/Alitheia.idl
+                    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../idl/Alitheia.idl" )
 
 add_library( alitheia STATIC ${SOURCES} ${HEADERS} )
