@@ -5,19 +5,14 @@ find_package( MICO REQUIRED )
 
 set ( SRC_FILES
      main.cpp
-     wcmetric.cpp
-  )
-
-set ( HEADER_FILES
-    wcmetric.h
   )
 
 include_directories( ${MICO_INCLUDE_DIR} ../../include .)
 link_directories( ${Boost_LIBRARY_DIRS})
 
-add_executable( wcmetric ${SRC_FILES} ${HEADER_FILES} )
+add_executable( logger ${SRC_FILES} )
 
-target_link_libraries( wcmetric 
+target_link_libraries( logger
     alitheia
     ${MICO_LIBRARIES}
     boost_thread-mt

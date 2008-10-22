@@ -1,32 +1,29 @@
-project(process_wrapper)
+cmake_minimum_required( VERSION 2.6 )
 
-find_package(Boost REQUIRED)
+find_package( Boost REQUIRED )
 
-set ( SRC_FILES
+set( SRC_FILES
      main.cpp
      wrappermetric.cpp
      wrappermetricjob.cpp
      temporaryfile.cpp
   )
 
-set ( HEADER_FILES
+set( HEADER_FILES
     wrappermetric.h
     wrappermetricjob.h
     temporaryfile.h
   )
 
-include_directories(/opt/local/include ../../include .)
-link_directories( ../../lib ${Boost_LIBRARY_DIRS})
+include_directories( ../../include . )
+link_directories( ${Boost_LIBRARY_DIRS} )
 
 add_executable( process_wrapper ${SRC_FILES}  ${HEADER_FILES} )
 
 
 target_link_libraries( process_wrapper
   alitheia
-  mico2.3.12 
-  micocoss2.3.12
-  ssl 
-  crypto
+  ${MICO_LIBRARIES}
   boost_thread-mt
   boost_date_time
   boost_program_options

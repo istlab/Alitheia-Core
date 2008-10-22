@@ -50,24 +50,9 @@ public:
         return string();
     }
 
-    string getResult( const ProjectFile& ) const
+    std::vector< ResultEntry > getResult( const ProjectFile&, const Metric& m ) const
     {
-        return "getResult";
-    }
-
-    string getResult( const ProjectVersion& ) const
-    {
-        return "getResult";
-    }
-
-    string getResult( const StoredProject& ) const
-    {
-        return "getResult";
-    }
-
-    string getResult( const FileGroup& ) const
-    {
-        return "getResult";
+        return std::vector< ResultEntry >();
     }
 
     void run( ProjectFile& file )

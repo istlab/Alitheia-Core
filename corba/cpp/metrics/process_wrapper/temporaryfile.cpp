@@ -3,6 +3,8 @@
 #include <fstream>
 #include <boost/filesystem/operations.hpp>
 
+#include <cstring>
+
 using std::string;
 using std::ios_base;
 using std::iostream;
