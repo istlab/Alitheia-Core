@@ -239,16 +239,19 @@ function toggleCalendar(id) {
             icoCloseWin.setValue("false");
             winResultPanel.addTitleIcon(icoCloseWin);
 
-            SelectInput icoDisplaySelector = new SelectInput();
-            icoDisplaySelector.setPath(request.getServletPath());
-            icoDisplaySelector.setParameter("tvViewRange");
-            icoDisplaySelector.setLabelText("View:");
-            icoDisplaySelector.setButtonText("Apply");
-            icoDisplaySelector.addOption("1", "Daily");
-            icoDisplaySelector.addOption("2", "Weekly");
-            icoDisplaySelector.addOption("3", "Monthly");
-            winResultPanel.addToolIcon(icoDisplaySelector);
-            
+            if ((settings.getTvDateFrom() != null)
+                    && (settings.getTvDateFrom() != null)) {
+                SelectInput icoDisplaySelector = new SelectInput();
+                icoDisplaySelector.setPath(request.getServletPath());
+                icoDisplaySelector.setParameter("tvViewRange");
+                icoDisplaySelector.setLabelText("View:");
+                icoDisplaySelector.setButtonText("Apply");
+                icoDisplaySelector.addOption("1", "Daily");
+                icoDisplaySelector.addOption("2", "Weekly");
+                icoDisplaySelector.addOption("3", "Monthly");
+                winResultPanel.addToolIcon(icoDisplaySelector);
+            }
+
             // Construct the window's content
             dataView.setChartType(viewConf.getChartType());
             winResultPanel.setContent(dataView.getHtml(in + 2));
