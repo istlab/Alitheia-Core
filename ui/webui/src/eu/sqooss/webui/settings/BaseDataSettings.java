@@ -63,7 +63,10 @@ public class BaseDataSettings {
     }
 
     public void setSelectedResources(String[] selected) {
-        selectedResources = new ArrayList<String>(Arrays.asList(selected));
+        if (selected != null)
+            selectedResources = new ArrayList<String>(Arrays.asList(selected));
+        else
+            selectedResources = new ArrayList<String>();
     }
 
     public void addSelectedResource(String resource) {

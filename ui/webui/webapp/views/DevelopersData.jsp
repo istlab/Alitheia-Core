@@ -22,6 +22,11 @@ if (selectedProject.isValid()) {
 %><%@ include file="/inc/DataViewParameters.jsp"
 %><%
 
+        // Retrieve the highlighted metric (if any)
+        if (request.getParameter("resetResources") != null) {
+            viewConf.setSelectedResources(null);
+        }
+
         /*
          * Initialise the date view's object
          */
@@ -111,6 +116,13 @@ if (selectedProject.isValid()) {
                                 developer.getUsername(),
                                 developer.getUsername());
                 winControlPanel.addToolIcon(icoAddResource);
+                
+                TextIcon icoResetResources = new TextIcon();
+                icoResetResources.setPath(request.getServletPath());
+                icoResetResources.setParameter("resetResources");
+                icoResetResources.setValue("true");
+                icoResetResources.setText("Reset");
+                winControlPanel.addToolIcon(icoResetResources);
 
                 // Construct the window's content
                 winControlPanel.setContent(dataView.getControls(in + 2));
