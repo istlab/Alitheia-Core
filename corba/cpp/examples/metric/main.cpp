@@ -76,7 +76,6 @@ public:
         ProjectFileMeasurement m;
         m.metric = metrics.front();
         m.projectFile = file;
-        m.whenRun = m.metric.plugin.installdate;
         stringstream ss;
         ss << count;
         m.result = ss.str();

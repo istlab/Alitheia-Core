@@ -15,6 +15,7 @@ import eu.sqooss.impl.metrics.corba.CorbaProjectFileMetricImpl;
 import eu.sqooss.impl.metrics.corba.CorbaProjectVersionMetricImpl;
 import eu.sqooss.impl.metrics.corba.CorbaStoredProjectMetricImpl;
 import eu.sqooss.impl.service.CorbaActivator;
+import eu.sqooss.impl.service.corba.alitheia.Bug;
 import eu.sqooss.impl.service.corba.alitheia.CorePOA;
 import eu.sqooss.impl.service.corba.alitheia.FileGroupMetric;
 import eu.sqooss.impl.service.corba.alitheia.FileGroupMetricHelper;
@@ -26,6 +27,7 @@ import eu.sqooss.impl.service.corba.alitheia.ProjectFileMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersion;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetric;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMetricHelper;
+import eu.sqooss.impl.service.corba.alitheia.StoredProject;
 import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetric;
 import eu.sqooss.impl.service.corba.alitheia.StoredProjectMetricHelper;
 import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
@@ -161,4 +163,18 @@ public class CoreImpl extends CorePOA {
         db.commitDBSession();
         return result;
     }
+
+	public Bug[] getBugs(StoredProject project) {
+		db.startDBSession();
+		Set<eu.sqooss.service.db.Bug> bugs = DAObject.fromCorbaObject(project).getBugs();
+		eu.sqooss.service.db.Bug[] bugsArray = (eu.sqooss.service.db.Bug[]) bugs.toArray();
+		
+		Bug[] result = new Bug[bugs.size()];
+		for( int i = 0; i < bugs.size(); ++i ) {
+			result[ i ] = DAObject.toCorbaObject(bugsArray[ i ]);
+		}
+		
+		db.commitDBSession();
+		return result;
+	}
 }

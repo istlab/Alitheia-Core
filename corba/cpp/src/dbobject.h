@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <string>    
+#include <vector>
+
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #include "Alitheia.h"
 
@@ -22,6 +25,7 @@ namespace Alitheia
         int id;
     };
 
+    class Bug;
     class ProjectVersion;
 
     class StoredProject : public DAObject
@@ -36,11 +40,12 @@ namespace Alitheia
  
         static StoredProject getProjectByName( const std::string& name );
         static ProjectVersion getLastProjectVersion( const StoredProject& project );
-      
+     
+        std::vector< Bug > getBugs() const;
+
         std::string name;
         std::string website;
         std::string contact;
-        std::string bugs;
         std::string repository;
         std::string mail;
     };
@@ -64,6 +69,67 @@ namespace Alitheia
         StoredProject storedProject;
     };
 
+    class BugResolution : public DAObject
+    {
+    public:
+        BugResolution() {}
+        explicit BugResolution( const eu::sqooss::impl::service::corba::alitheia::BugResolution& resolution );
+        static BugResolution fromCorba( const CORBA::Any& resolution );
+
+        eu::sqooss::impl::service::corba::alitheia::BugResolution toCorba() const;
+        operator CORBA::Any() const;
+
+        std::string resolution;
+    };
+
+    class BugPriority : public DAObject
+    {
+    public:
+        BugPriority() {}
+        explicit BugPriority( const eu::sqooss::impl::service::corba::alitheia::BugPriority& priority );
+        static BugResolution fromCorba( const CORBA::Any& priority );
+
+        eu::sqooss::impl::service::corba::alitheia::BugPriority toCorba() const;
+        operator CORBA::Any() const;
+
+        std::string priority;
+    };
+
+    class BugSeverity : public DAObject
+    {
+    public:
+        BugSeverity() {}
+        explicit BugSeverity( const eu::sqooss::impl::service::corba::alitheia::BugSeverity& severity );
+        static BugSeverity fromCorba( const CORBA::Any& severity );
+
+        eu::sqooss::impl::service::corba::alitheia::BugSeverity toCorba() const;
+        operator CORBA::Any() const;
+
+        std::string severity;
+    };
+
+    class Bug : public DAObject
+    {
+    public:
+        Bug() {}
+        explicit Bug( const eu::sqooss::impl::service::corba::alitheia::Bug& bug );
+        static Bug fromCorba( const CORBA::Any& severity );
+
+        eu::sqooss::impl::service::corba::alitheia::Bug toCorba() const;
+        operator CORBA::Any() const;
+
+        StoredProject project;
+        boost::posix_time::ptime updateRun;
+        std::string bugId;
+        boost::posix_time::ptime creationTS;
+        boost::posix_time::ptime deltaTS;
+        Developer reporter;
+        BugResolution resolution;
+        BugPriority priority;
+        BugSeverity severity;
+        std::string shortDesc;
+    };
+
     class Directory : public DAObject
     {
     public:
@@ -83,7 +149,7 @@ namespace Alitheia
     class ProjectVersion : public DAObject
     {
     public:
-        ProjectVersion() : version(0), timeStamp(0){}
+        ProjectVersion() : timeStamp(0){}
         explicit ProjectVersion( const eu::sqooss::impl::service::corba::alitheia::ProjectVersion& version );
         static ProjectVersion fromCorba( const CORBA::Any& version );
         
@@ -93,7 +159,7 @@ namespace Alitheia
         std::vector< ProjectFile > getVersionFiles() const;
 
         StoredProject project;
-        int version;
+        std::string version;
         int timeStamp;
         Developer committer;
         std::string commitMsg;
@@ -225,7 +291,6 @@ namespace Alitheia
 
         Metric metric;
         ProjectFile projectFile;
-        std::string whenRun;
         std::string result;
     };
 
@@ -241,7 +306,6 @@ namespace Alitheia
 
         Metric metric;
         ProjectVersion projectVersion;
-        std::string whenRun;
         std::string result;
     };
 }

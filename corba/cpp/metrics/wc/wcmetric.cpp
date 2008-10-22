@@ -97,7 +97,6 @@ void WcMetric::run( ProjectFile& file )
     m.metric = metrics.front();
     m.projectFile = file;
     
-    m.whenRun = to_iso_string( second_clock::local_time() );
     stringstream ss;
     ss << count;
     m.result = ss.str();

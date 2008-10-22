@@ -50,26 +50,29 @@ module alitheia
   struct BugResolution
   {
     long id;
+    string resolution;
   };
 
   struct BugPriority
   {
     long id;
+    string priority;
   };
 
   struct BugSeverity
   {
     long id;
+    string severity;
   };
  
   struct Bug
   {
     long id;
     StoredProject project;
-    long updateRun;
+    string updateRun;
     string bugId;
-    long creationTS;
-    long deltaTS;
+    string creationTS;
+    string deltaTS;
     Developer reporter;
     BugResolution resolution;
     BugPriority priority;
@@ -157,6 +160,7 @@ module alitheia
   typedef sequence<ProjectFile> ProjectFileList;
   typedef sequence<ProjectVersion> ProjectVersionList;
   typedef sequence<Metric> MetricList;
+  typedef sequence<Bug> BugList;
 
   struct ResultEntry
   {
@@ -193,6 +197,8 @@ module alitheia
     MetricList getSupportedMetrics( in string metricname );
     
     ProjectFileList getVersionFiles( in ProjectVersion version );
+  
+    BugList getBugs( in StoredProject project );
   };
 
   interface Scheduler

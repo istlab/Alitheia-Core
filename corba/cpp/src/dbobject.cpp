@@ -12,9 +12,11 @@
 #include <fstream>
 #include <vector>
 
-using namespace Alitheia;
+#include <boost/date_time/posix_time/posix_time.hpp>
 
+using namespace Alitheia;
 using namespace eu::sqooss::impl::service::corba;
+using namespace boost::posix_time;
 
 using std::string;
 using std::istream;
@@ -37,7 +39,6 @@ StoredProject::StoredProject( const alitheia::StoredProject& project )
       name( project.name ),
       website( project.website ),
       contact( project.contact ),
-      bugs( project.bugs ),
       repository( project.repository ),
       mail( project.mail )
 {
@@ -50,7 +51,6 @@ alitheia::StoredProject StoredProject::toCorba() const
     result.name = CORBA::string_dup( name.c_str() );
     result.website = CORBA::string_dup( website.c_str() );
     result.contact = CORBA::string_dup( contact.c_str() );
-    result.bugs = CORBA::string_dup( bugs.c_str() );
     result.repository = CORBA::string_dup( repository.c_str() );
     return result;
 }
@@ -106,7 +106,7 @@ alitheia::ProjectVersion ProjectVersion::toCorba() const
     alitheia::ProjectVersion result;
     result.id = id;
     result.project = project.toCorba();
-    result.version = version;
+    result.version = CORBA::string_dup( version.c_str() );
     result.timeStamp = timeStamp;
     result.committer = committer.toCorba();
     result.commitMsg = CORBA::string_dup( commitMsg.c_str() );
@@ -303,6 +303,108 @@ FileGroup FileGroup::fromCorba( const CORBA::Any& any )
     return FileGroup( group );
 }
 
+BugResolution::BugResolution( const alitheia::BugResolution& res )
+    : DAObject( res.id ),
+      resolution( res.resolution )
+{
+}
+
+alitheia::BugResolution BugResolution::toCorba() const
+{
+    alitheia::BugResolution result;
+    result.id = id;
+    result.resolution = CORBA::string_dup( resolution.c_str() );
+    return result;
+}
+
+BugResolution::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+BugPriority::BugPriority( const alitheia::BugPriority& res )
+    : DAObject( res.id ),
+      priority( res.priority )
+{
+}
+
+alitheia::BugPriority BugPriority::toCorba() const
+{
+    alitheia::BugPriority result;
+    result.id = id;
+    result.priority = CORBA::string_dup( priority.c_str() );
+    return result;
+}
+
+BugPriority::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+BugSeverity::BugSeverity( const alitheia::BugSeverity& res )
+    : DAObject( res.id ),
+      severity( res.severity )
+{
+}
+
+alitheia::BugSeverity BugSeverity::toCorba() const
+{
+    alitheia::BugSeverity result;
+    result.id = id;
+    result.severity = CORBA::string_dup( severity.c_str() );
+    return result;
+}
+
+BugSeverity::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
+Bug::Bug( const alitheia::Bug& bug )
+    : DAObject( bug.id ),
+      project( bug.project ),
+      updateRun( from_iso_string( string( bug.updateRun ) ) ),
+      bugId( bug.bugId ),
+      creationTS( from_iso_string( string( bug.creationTS ) ) ),
+      deltaTS( from_iso_string( string( bug.deltaTS ) ) ),
+      reporter( bug.reporter),
+      resolution( bug.resolution ),
+      priority( bug.priority ),
+      severity( bug.severity ),
+      shortDesc( bug.shortDesc )
+{
+}
+
+alitheia::Bug Bug::toCorba() const
+{
+    alitheia::Bug result;
+    result.id = id;
+    result.project = project.toCorba();
+    result.updateRun = CORBA::string_dup( to_iso_string( updateRun ).c_str() );
+    result.bugId = CORBA::string_dup( bugId.c_str() );
+    result.creationTS= CORBA::string_dup( to_iso_string( creationTS ).c_str() );
+    result.deltaTS = CORBA::string_dup( to_iso_string( deltaTS ).c_str() );
+    result.reporter = reporter.toCorba();
+    result.resolution = resolution.toCorba();
+    result.priority = priority.toCorba();
+    result.severity = severity.toCorba();
+    result.shortDesc = CORBA::string_dup( shortDesc.c_str() );
+    return result;
+}
+
+Bug::operator CORBA::Any() const
+{
+    CORBA::Any any;
+    any <<= toCorba();
+    return any;
+}
+
 MetricType::MetricType( const alitheia::MetricType& type )
     : DAObject( type.id ),
       type( static_cast< Type >( type.type ) )
@@ -464,7 +566,6 @@ ProjectFileMeasurement::ProjectFileMeasurement( const alitheia::ProjectFileMeasu
     : DAObject( measurement.id ),
       metric( measurement.measureMetric ),
       projectFile( measurement.file ),
-      whenRun( measurement.whenRun ),
       result( measurement.result )
 {
 }
@@ -475,7 +576,6 @@ alitheia::ProjectFileMeasurement ProjectFileMeasurement::toCorba() const
     result.id = id;
     result.measureMetric = metric.toCorba();
     result.file = projectFile.toCorba();
-    result.whenRun = CORBA::string_dup( whenRun.c_str() );
     result.result = CORBA::string_dup( this->result.c_str() );
     return result;
 }
@@ -498,7 +598,6 @@ ProjectVersionMeasurement::ProjectVersionMeasurement( const alitheia::ProjectVer
     : DAObject( measurement.id ),
       metric( measurement.measureMetric ),
       projectVersion( measurement.version ),
-      whenRun( measurement.whenRun ),
       result( measurement.result )
 {
 }
@@ -509,7 +608,6 @@ alitheia::ProjectVersionMeasurement ProjectVersionMeasurement::toCorba() const
     result.id = id;
     result.measureMetric = metric.toCorba();
     result.version = projectVersion.toCorba();
-    result.whenRun = CORBA::string_dup( whenRun.c_str() );
     result.result = CORBA::string_dup( this->result.c_str() );
     return result;
 }

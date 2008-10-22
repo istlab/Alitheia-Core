@@ -138,7 +138,6 @@ void ProjectFileWrapperMetricJob::run()
     m.metric = metrics.front();
     m.projectFile = projectFile;
     
-    m.whenRun = to_iso_string( second_clock::local_time() );
     m.result = result;
     Database db;
     db.addRecord( m );
@@ -225,7 +224,6 @@ void ProjectVersionWrapperMetricJob::run()
     ProjectVersionMeasurement m;
     m.metric = metrics.front();
     m.projectVersion = projectVersion;
-    m.whenRun = to_iso_string( second_clock::local_time() );
     m.result = result;
     Database db;
     db.addRecord( m );

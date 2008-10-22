@@ -195,6 +195,21 @@ vector< ProjectFile > Core::getVersionFiles( const ProjectVersion& version ) con
     return result;
 }
 
+vector< Bug > Core::getBugs( const StoredProject& project ) const
+{
+    const alitheia::BugList& bugs = *(d->core->getBugs( project.toCorba() ) );
+
+    vector< Bug > result;
+
+    const uint length = bugs.length();
+    for( uint i = 0; i < length; ++i )
+    {
+        result.push_back( Bug( bugs[ i ] ) );
+    }
+
+    return result;
+}
+
 /**
  * Runs the Alitheia CORBA system.
  * Blocks until shutdown is called.

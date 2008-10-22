@@ -11,6 +11,10 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 
+import eu.sqooss.impl.service.corba.alitheia.BugHelper;
+import eu.sqooss.impl.service.corba.alitheia.BugPriorityHelper;
+import eu.sqooss.impl.service.corba.alitheia.BugResolutionHelper;
+import eu.sqooss.impl.service.corba.alitheia.BugSeverityHelper;
 import eu.sqooss.impl.service.corba.alitheia.DeveloperHelper;
 import eu.sqooss.impl.service.corba.alitheia.DirectoryHelper;
 import eu.sqooss.impl.service.corba.alitheia.FileGroupHelper;
@@ -24,6 +28,10 @@ import eu.sqooss.impl.service.corba.alitheia.ProjectVersionHelper;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurementHelper;
 import eu.sqooss.impl.service.corba.alitheia.ResultEntry;
 import eu.sqooss.impl.service.corba.alitheia.StoredProjectHelper;
+import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.BugPriority;
+import eu.sqooss.service.db.BugResolution;
+import eu.sqooss.service.db.BugSeverity;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
@@ -178,6 +186,22 @@ public abstract class DAObject {
             {
                 return (T) fromCorbaObject(ProjectVersionMeasurementHelper.extract(object));
             }
+            else if( type.equals("BugResolution") )
+            {
+                return (T) fromCorbaObject(BugResolutionHelper.extract(object));
+            }
+            else if( type.equals("BugPriority") )
+            {
+                return (T) fromCorbaObject(BugPriorityHelper.extract(object));
+            }
+            else if( type.equals("BugSeverity") )
+            {
+                return (T) fromCorbaObject(BugSeverityHelper.extract(object));
+            }
+            else if( type.equals("Bug") )
+            {
+                return (T) fromCorbaObject(BugHelper.extract(object));
+            }
         }
         catch( BadKind e )
         {
@@ -216,6 +240,14 @@ public abstract class DAObject {
             eu.sqooss.impl.service.corba.alitheia.ProjectFileMeasurementHelper.insert(result, toCorbaObject((eu.sqooss.service.db.ProjectFileMeasurement)obj));
         else if (obj instanceof eu.sqooss.service.db.ProjectVersionMeasurement)
             eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurementHelper.insert(result, toCorbaObject((eu.sqooss.service.db.ProjectVersionMeasurement)obj));
+        else if (obj instanceof eu.sqooss.service.db.BugResolution)
+            eu.sqooss.impl.service.corba.alitheia.BugResolutionHelper.insert(result, toCorbaObject((eu.sqooss.service.db.BugResolution)obj));
+        else if (obj instanceof eu.sqooss.service.db.BugPriority)
+            eu.sqooss.impl.service.corba.alitheia.BugPriorityHelper.insert(result, toCorbaObject((eu.sqooss.service.db.BugPriority)obj));
+        else if (obj instanceof eu.sqooss.service.db.BugSeverity)
+            eu.sqooss.impl.service.corba.alitheia.BugSeverityHelper.insert(result, toCorbaObject((eu.sqooss.service.db.BugSeverity)obj));
+        else if (obj instanceof eu.sqooss.service.db.Bug)
+            eu.sqooss.impl.service.corba.alitheia.BugHelper.insert(result, toCorbaObject((eu.sqooss.service.db.Bug)obj));
         return result;
     }
     
@@ -244,6 +276,104 @@ public abstract class DAObject {
         } catch( Exception e ) {
         }
         return new Date();
+    }
+
+    /**
+     * Translates an Alitheia-BugResolution into a Corba one.
+     */
+    public static eu.sqooss.impl.service.corba.alitheia.BugResolution toCorbaObject(BugResolution br) {
+    	eu.sqooss.impl.service.corba.alitheia.BugResolution resolution = new eu.sqooss.impl.service.corba.alitheia.BugResolution();
+    	resolution.id = (int)br.getId();
+    	resolution.resolution = br.getResolution();
+    	return resolution;
+    }
+    
+    /**
+     * Translates a Corba-BugResolution into an Alitheia one.
+     */
+    public static BugResolution fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.BugResolution b) {
+    	BugResolution resolution = new BugResolution();
+    	resolution.setId(b.id);
+    	resolution.setResolution(b.resolution);
+    	return resolution;
+    }
+
+    /**
+     * Translates an Alitheia-BugPriority into a Corba one.
+     */
+    public static eu.sqooss.impl.service.corba.alitheia.BugPriority toCorbaObject(BugPriority bp) {
+    	eu.sqooss.impl.service.corba.alitheia.BugPriority priority = new eu.sqooss.impl.service.corba.alitheia.BugPriority();
+    	priority.id = (int)bp.getId();
+    	priority.priority = bp.getPriority();
+    	return priority;
+    }
+    
+    /**
+     * Translates a Corba-BugPriority into an Alitheia one.
+     */
+    public static BugPriority fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.BugPriority b) {
+    	BugPriority priority = new BugPriority();
+    	priority.setId(b.id);
+    	priority.setpriority(b.priority);
+    	return priority;
+    }
+
+    /**
+     * Translates an Alitheia-BugSeverity into a Corba one.
+     */
+    public static eu.sqooss.impl.service.corba.alitheia.BugSeverity toCorbaObject(BugSeverity bs) {
+    	eu.sqooss.impl.service.corba.alitheia.BugSeverity severity = new eu.sqooss.impl.service.corba.alitheia.BugSeverity();
+    	severity.id = (int)bs.getId();
+    	severity.severity = bs.getSeverity();
+    	return severity;
+    }
+    
+    /**
+     * Translates a Corba-BugSeverity into an Alitheia one.
+     */
+    public static BugSeverity fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.BugSeverity b) {
+    	BugSeverity severity = new BugSeverity();
+    	severity.setId(b.id);
+    	severity.setSeverity(b.severity);
+    	return severity;
+    }
+
+    /**
+     * Translates an Alitheia-Bug into a Corba one.
+     */
+    public static eu.sqooss.impl.service.corba.alitheia.Bug toCorbaObject(Bug bug) {
+    	eu.sqooss.impl.service.corba.alitheia.Bug result = new eu.sqooss.impl.service.corba.alitheia.Bug();
+    	result.id = (int)bug.getId();
+    	result.project = toCorbaObject(bug.getProject());
+    	result.updateRun = formatDate(bug.getUpdateRun());
+    	result.bugId = bug.getBugID();
+    	result.creationTS = formatDate(bug.getCreationTS());
+    	result.deltaTS = formatDate(bug.getDeltaTS());
+    	result.reporter = toCorbaObject(bug.getReporter());
+    	result.resolution = toCorbaObject(bug.getResolution());
+    	result.priority = toCorbaObject(bug.getPriority());
+    	result.severity = toCorbaObject(bug.getSeverity());
+    	result.shortDesc = bug.getShortDesc();
+    	return result;
+    }
+ 
+    /**
+     * Translates a Corba-Bug into an Alitheia one.
+     */
+    public static Bug fromCorbaObject(eu.sqooss.impl.service.corba.alitheia.Bug b) {
+    	Bug bug = new Bug();
+    	bug.setId(b.id);
+    	bug.setProject(fromCorbaObject(b.project));
+    	bug.setUpdateRun(parseDate(b.updateRun));
+    	bug.setBugID(b.bugId);
+    	bug.setCreationTS(parseDate(b.creationTS));
+    	bug.setDeltaTS(parseDate(b.deltaTS));
+    	bug.setReporter(fromCorbaObject(b.reporter));
+    	bug.setResolution(fromCorbaObject(b.resolution));
+    	bug.setPriority(fromCorbaObject(b.priority));
+    	bug.setSeverity(fromCorbaObject(b.severity));
+    	bug.setShortDesc(b.shortDesc);
+    	return bug;
     }
 
     /**

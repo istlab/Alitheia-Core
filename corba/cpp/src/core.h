@@ -46,6 +46,7 @@ namespace Alitheia
                                   const std::string& mnemonic, MetricType::Type type ) const;
         std::vector< Metric > getSupportedMetrics( const AbstractMetric* metric ) const;
         std::vector< ProjectFile > getVersionFiles( const ProjectVersion& version ) const;
+        std::vector< Bug > getBugs( const StoredProject& project ) const;
 
         int getUniqueId() const;
 
