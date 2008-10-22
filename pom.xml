@@ -133,6 +133,7 @@
 
   <modules>
     <module>alitheia</module>
+    <module>corba</module>
     <module>metrics</module>
     <module>ui</module>
     <module>specs</module>

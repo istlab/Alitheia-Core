@@ -44,7 +44,7 @@
         </executions>
         <configuration>
           <compiler>idlj</compiler>
-          <sourceDirectory>.</sourceDirectory>
+          <sourceDirectory>${basedir}</sourceDirectory>
           <outputDirectory>${basedir}/../corbaservice/src</outputDirectory>
           <sources>
             <source>

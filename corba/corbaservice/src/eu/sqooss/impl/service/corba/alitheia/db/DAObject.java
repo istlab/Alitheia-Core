@@ -254,7 +254,6 @@ public abstract class DAObject {
         measurement.id = (int)m.getId();
         measurement.measureMetric = toCorbaObject(m.getMetric());
         measurement.file = toCorbaObject(m.getProjectFile());
-        measurement.whenRun = formatDate(m.getWhenRun());
         measurement.result = m.getResult() == null ? "" : m.getResult();
         return measurement;
     }
@@ -267,7 +266,6 @@ public abstract class DAObject {
         measurement.setId(m.id);
         measurement.setMetric(fromCorbaObject(m.measureMetric));
         measurement.setProjectFile(fromCorbaObject(m.file));
-        measurement.setWhenRun(new Timestamp(parseDate(m.whenRun).getTime()));
         measurement.setResult(m.result);
         return measurement;
     }
@@ -280,7 +278,6 @@ public abstract class DAObject {
         measurement.id = (int)m.getId();
         measurement.measureMetric = toCorbaObject(m.getMetric());
         measurement.version = toCorbaObject(m.getProjectVersion());
-        measurement.whenRun = formatDate(m.getWhenRun());
         measurement.result = m.getResult() == null ? "" : m.getResult();
         return measurement;
     }
@@ -293,7 +290,6 @@ public abstract class DAObject {
         measurement.setId(m.id);
         measurement.setMetric(fromCorbaObject(m.measureMetric));
         measurement.setProjectVersion(fromCorbaObject(m.version));
-        measurement.setWhenRun(new Timestamp(parseDate(m.whenRun).getTime()));
         measurement.setResult(m.result);
         return measurement;
     }
@@ -463,11 +459,10 @@ public abstract class DAObject {
         eu.sqooss.impl.service.corba.alitheia.StoredProject storedProject = new eu.sqooss.impl.service.corba.alitheia.StoredProject();
         storedProject.id = (int)project.getId();
         storedProject.name = project.getName();
-        storedProject.website = project.getWebsite();
-        storedProject.contact = project.getContact();
-        storedProject.bugs = project.getBugs();
-        storedProject.repository = project.getRepository();
-        storedProject.mail = project.getMail();
+        storedProject.website = project.getWebsiteUrl();
+        storedProject.contact = project.getContactUrl();
+        storedProject.repository = project.getScmUrl();
+        storedProject.mail = project.getMailUrl();
         return storedProject;
     }
 
@@ -478,11 +473,10 @@ public abstract class DAObject {
         StoredProject storedProject = getOrCreateObject(StoredProject.class, project.id);
         storedProject.setId(project.id);
         storedProject.setName(project.name);
-        storedProject.setWebsite(project.website);
-        storedProject.setContact(project.contact);
-        storedProject.setBugs(project.bugs);
-        storedProject.setRepository(project.repository);
-        storedProject.setMail(project.mail);
+        storedProject.setWebsiteUrl(project.website);
+        storedProject.setContactUrl(project.contact);
+        storedProject.setScmUrl(project.repository);
+        storedProject.setMailUrl(project.mail);
         return storedProject;
     }
 
@@ -493,7 +487,7 @@ public abstract class DAObject {
         eu.sqooss.impl.service.corba.alitheia.ProjectVersion projectVersion = new eu.sqooss.impl.service.corba.alitheia.ProjectVersion();
         projectVersion.id = (int)version.getId();
         projectVersion.project = toCorbaObject(version.getProject());
-        projectVersion.version = (int)version.getVersion();
+        projectVersion.version = version.getRevisionId();
         projectVersion.timeStamp = (int)version.getTimestamp();
         projectVersion.committer = toCorbaObject(version.getCommitter());
         projectVersion.commitMsg = version.getCommitMsg();
@@ -508,7 +502,7 @@ public abstract class DAObject {
         ProjectVersion projectVersion = getOrCreateObject(ProjectVersion.class, version.id);
         projectVersion.setId(version.id);
         projectVersion.setProject(fromCorbaObject(version.project));
-        projectVersion.setVersion(version.version);
+        projectVersion.setRevisionId(version.version);
         projectVersion.setTimestamp(version.timeStamp);
         projectVersion.setCommitter(fromCorbaObject(version.committer));
         projectVersion.setCommitMsg(version.commitMsg);

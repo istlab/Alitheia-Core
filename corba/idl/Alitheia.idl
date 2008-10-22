@@ -23,7 +23,6 @@ module alitheia
     string name;
     string website;
     string contact;
-    string bugs;
     string repository;
     string mail;
   };
@@ -41,11 +40,41 @@ module alitheia
   {
     long id;
     StoredProject project;
-    long version;
+    string version;
     long timeStamp;
     Developer committer;
     string commitMsg;
     string properties;
+  };
+
+  struct BugResolution
+  {
+    long id;
+  };
+
+  struct BugPriority
+  {
+    long id;
+  };
+
+  struct BugSeverity
+  {
+    long id;
+  };
+ 
+  struct Bug
+  {
+    long id;
+    StoredProject project;
+    long updateRun;
+    string bugId;
+    long creationTS;
+    long deltaTS;
+    Developer reporter;
+    BugResolution resolution;
+    BugPriority priority;
+    BugSeverity severity;
+    string shortDesc;
   };
 
   struct ProjectFile
@@ -114,7 +143,6 @@ module alitheia
     long id;
     Metric measureMetric;
     ProjectFile file;
-    string whenRun;
     string result;
   };
 
@@ -123,7 +151,6 @@ module alitheia
     long id;
     Metric measureMetric;
     ProjectVersion version;
-    string whenRun;
     string result;
   };
 

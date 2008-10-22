@@ -16,12 +16,12 @@ import eu.sqooss.impl.service.corba.alitheia.ProjectFile;
 import eu.sqooss.impl.service.corba.alitheia.ProjectVersion;
 import eu.sqooss.impl.service.corba.alitheia.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.InMemoryDirectory;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.ProjectRevision;
 
 /**
  * Wrapper class provided to export the FDS into the Corba ORB.
@@ -121,8 +121,12 @@ public class FDSImpl extends FDSPOA {
 	 * @return A reference to a Corba style checkout.
 	 */
 	protected Checkout createCheckout(eu.sqooss.service.db.ProjectVersion version, String pattern) throws InvalidRepositoryException, InvalidProjectRevisionException {
-		ProjectRevision rev = new ProjectRevision(version.getVersion());
-		InMemoryCheckout co = fds.getInMemoryCheckout(version.getProject().getId(), rev, Pattern.compile(pattern));
+		InMemoryCheckout co = null;
+		try {
+			co = fds.getInMemoryCheckout(version, Pattern.compile(pattern));
+		} catch (CheckoutException e) {
+			return new Checkout();
+		}
 		
 		List<eu.sqooss.service.db.ProjectFile> files = getFiles(co.getRoot());
 		

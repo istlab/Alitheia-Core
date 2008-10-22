@@ -35,13 +35,7 @@
     <defaultGoal>package</defaultGoal>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/build</outputDirectory>
-    
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-        </configuration>
-      </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
@@ -83,6 +77,11 @@
       <artifactId>core</artifactId>
       <version>0.8.0</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.corba</groupId>
+      <artifactId>idl</artifactId>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.equinox</groupId>

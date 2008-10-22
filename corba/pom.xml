@@ -39,8 +39,7 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <outputDirectory>${basedir}/../equinox</outputDirectory>
-          <finalName>${artifactId}_${version}</finalName>
+          <outputDirectory>${basedir}/target</outputDirectory>
           <archive>
             <manifestFile>${basedir}/META-INF/MANIFEST.MF</manifestFile>
             <addMavenDescriptor>false</addMavenDescriptor>
@@ -50,6 +49,8 @@
       <plugin>
         <artifactId>maven-deploy-plugin</artifactId>
         <configuration>
+          <outputDirectory>../equinox</outputDirectory>
+          <finalName>${artifactId}-${version}</finalName>
           <generatePom>false</generatePom>
         </configuration>
       </plugin>
@@ -103,4 +104,3 @@
     <module>corbaservice</module>
   </modules>
 </project>
-

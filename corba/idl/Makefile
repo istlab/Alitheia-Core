@@ -6,6 +6,8 @@ all : build
 build :
 	$(MAVEN)
 
+build-dir :
+
 clean : clean-dir
 	rm -rf build target
 	rm -rf ../corbaservice/src/eu/sqooss/impl/service/corba/alitheia/*.java
