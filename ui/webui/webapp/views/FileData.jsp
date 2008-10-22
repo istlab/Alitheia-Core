@@ -139,6 +139,8 @@
 
 %><%@ include file="/inc/DataViewIcons.jsp"
 %><%
+
+        icoCloseWin.setPath(request.getServletPath());
         icoCloseWin.setParameter("fid");
         icoCloseWin.setValue("none");
 
