@@ -157,7 +157,7 @@ a:hover.texticon {
 }
 form.icoTextInput {
     display: inline;
-    font-size: 10px;
+    font-size: 11px;
     margin-left: 0px;
     vertical-align: top;
 }
@@ -171,6 +171,7 @@ input.icoTextInput {
     width: 5em;
 }
 input.icoButton {
+    background: #DEDD8D url(/img/icons/16x16/button02_in.png) repeat-x;
     border: 1px outset black;
     display: inline;
     font-size: 10px;
@@ -180,8 +181,8 @@ input.icoButton {
     width: 5em;
 }
 input:hover.icoButton {
+    background: #DEDD8D url(/img/icons/16x16/button02_ho.png) repeat-x;
     border: 1px outset black;
-    color: #A4D3EE;
     display: inline;
     font-size: 10px;
     margin-left: 5px;
@@ -470,6 +471,7 @@ td.calLabel {
 }
 label.calLabel {
     float: left;
+    font-size: 11px;
     font-weight: bold;
     width: 5ex;
 }
