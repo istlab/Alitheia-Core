@@ -131,6 +131,12 @@ public class MailingList extends DAObject {
         Map<String,Object> params = new HashMap<String, Object>();
         params.put(paramMailingList, this);
         
-        return ((List<MailMessage>) dbs.doHQL(query, params, 1)).get(0);
+        
+        List<MailMessage> ml = (List<MailMessage>) dbs.doHQL(query, params, 1);
+        
+        if (ml.isEmpty())
+            return null;
+        
+        return ml.get(0); 
     }
 }

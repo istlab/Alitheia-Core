@@ -163,7 +163,10 @@ public class AdminServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
-        db.startDBSession();
+        if (!db.isDBSessionActive()) {
+            db.startDBSession();
+        } 
+        
         try {
             String query = request.getPathInfo();
 
@@ -211,7 +214,10 @@ public class AdminServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
-        db.startDBSession();
+        if (!db.isDBSessionActive()) {
+            db.startDBSession();
+        } 
+        
         try {
             String query = request.getPathInfo();
 
