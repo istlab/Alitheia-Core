@@ -347,7 +347,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @throws AlreadyProcessingException 
      */
     public Result getResult(DAObject o, List<Metric> l) 
-    throws MetricMismatchException, AlreadyProcessingException {
+    throws MetricMismatchException, AlreadyProcessingException, Exception {
         Result r = getResultIfAlreadyCalculated(o, l);
 
         // the result hasn't been calculated yet. Do so.
@@ -437,7 +437,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *                 if the DAO is of a type not supported by this metric.
      */
     public void run(DAObject o) throws MetricMismatchException, 
-        AlreadyProcessingException {
+        AlreadyProcessingException, Exception {
 
         if (!checkDependencies()) {
             log.error("Plug-in dependency check failed");
@@ -466,12 +466,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     //Forward exception to metric job exception handler
                     if (e.getCause() instanceof AlreadyProcessingException) 
                         throw (AlreadyProcessingException) e.getCause();
-                    logErr("run", o.getId(), e);
-                } catch (NullPointerException e) {
-                    logErr("run", o.getId(), e);
-                } catch (ExceptionInInitializerError e) {
-                    
-                }
+                    else 
+                        throw new Exception(e.getCause());
+                    //logErr("run", o.getId(), e);
+                } 
             }
         }
         if(!found) {
@@ -480,7 +478,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
     
     private void logErr(String method, long id, Exception e) {
-        log.error("Plugin :" + this.getClass().toString() + " DAO id:" + id + 
+        log.error("Plugin:" + this.getClass().toString() + " DAO id:" + id + 
                 " Unable to invoke " + method + " method." +
                 " Exception:" + e.getClass().getName() +
                 " Error:" + e.getMessage() + 
