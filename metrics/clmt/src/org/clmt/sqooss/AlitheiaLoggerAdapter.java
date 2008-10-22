@@ -34,29 +34,32 @@ package org.clmt.sqooss;
 
 import org.clmt.configuration.logging.CLMTLogger;
 
-import eu.sqooss.service.logging.Logger;
+import eu.sqooss.impl.metrics.clmt.CLMTImplementation;
+import eu.sqooss.service.db.ProjectVersion;
 
 public class AlitheiaLoggerAdapter implements CLMTLogger {
 
-    private Logger log = null;
+    private CLMTImplementation clmt;
+    private ProjectVersion pv;
     
-    public AlitheiaLoggerAdapter(Logger l) {
-        this.log = l;
+    public AlitheiaLoggerAdapter(CLMTImplementation l, ProjectVersion pv) {
+        this.clmt = l;
+        this.pv = pv;
     }
     
     public void fine(String message) {
-        log.info(message);
+        clmt.getLogger().info(message);
     }
 
     public void info(String message) {
-        log.info(message);
+        clmt.getLogger().info(message);
     }
 
     public void severe(String message) {
-        log.error(message);
+        clmt.error(pv, message);
     }
 
     public void warning(String message) {
-        log.warn(message);
+        clmt.warn(pv, message);
     }
 }

@@ -32,6 +32,9 @@
 
 package org.clmt.sqooss;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -73,14 +76,21 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public String getName() {
-        Thread.dumpStack();
-        return null;
+        if (!path.equals(""))
+            return eu.sqooss.service.util.FileUtils.basename(path);
+        else 
+            return "";
     }
 
     @Override
     public OutputStream getOutputStream() {
-        Thread.dumpStack();
-        return null;
+        File f = new File(this.path);
+        try {
+            FileOutputStream fos = new FileOutputStream(f);
+            return fos;
+        } catch (FileNotFoundException e) {
+            return null;
+        }
     }
 
     @Override

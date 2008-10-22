@@ -374,7 +374,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
                     //The commit change some lines
                     updateField(pv, dev, ActionType.CAL, true, 
                             abs(locCurrent - locPrevious));
-                } catch (MetricMismatchException e) {
+                } catch (Exception e) {
                     log.error("Results of LOC metric for project: "
                             + pv.getProject().getName() + " file: "
                             + pf.getFileName() + ", Version: "
@@ -413,7 +413,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
 
     private int getLOCResult(ProjectFile pf, AlitheiaPlugin plugin, 
             List<Metric> locMetric) 
-        throws MetricMismatchException, AlreadyProcessingException {
+        throws MetricMismatchException, AlreadyProcessingException, Exception {
       //Get lines of current version of the file from the wc metric
         Result r = plugin.getResult(pf, locMetric);
         if (r != null && r.hasNext()) {

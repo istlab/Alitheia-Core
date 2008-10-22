@@ -214,7 +214,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
             AMS.add(Metric.getMetricByMnemonic(MET_AMS));
             try {
                 amsPlugin.getResult(prevVersion, AMS);
-            } catch (MetricMismatchException e) {
+            } catch (Exception e) {
                 // Do nothing
             }
         }
@@ -325,7 +325,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                         loc += locPlugin.getResult(
                                 f, locMetric).getRow(0).get(0).getInteger();
                     }
-                } catch (MetricMismatchException e) {
+                } catch (Exception e) {
                     log.error("Results of " + DEP_WC_LOC
                             + " metric for project: "
                             + f.getProjectVersion().getProject().getName()
