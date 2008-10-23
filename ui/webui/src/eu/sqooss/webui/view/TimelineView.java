@@ -403,11 +403,13 @@ public class TimelineView extends AbstractDataView {
                             + "</tr>\n");
                 b.append(sp(in++) + "<tr>\n");
                 int numVersions = getVersionsInPeriod(calLow, calHigh).size();
-                b.append(sp(in) + "<td class=\"def_major\">"
-                        + "Week " + calLow.get(Calendar.WEEK_OF_YEAR)
-                        + "</td>\n");
-                b.append(sp(in) + "<td class=\"def_right\">"
-                        + numVersions + "</td>\n");
+                if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
+                    b.append(sp(in) + "<td class=\"def_major\">"
+                            + "Week " + calLow.get(Calendar.WEEK_OF_YEAR)
+                            + "</td>\n");
+                    b.append(sp(in) + "<td class=\"def_right\">"
+                            + numVersions + "</td>\n");
+                }
                 if (numVersions > 0)
                     b.append(sp(in) + "<td class=\"def\">"
                             + "<img style=\"height: 10px; width: 4px;\""
@@ -420,7 +422,7 @@ public class TimelineView extends AbstractDataView {
                             + " src=\"/img/icons/16x16/testr.png\">"
                             + "&nbsp;"
                             + "</td>\n");
-                else
+                else if (settings.getTvShowEmptyState())
                     b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
                 b.append(sp(--in) + "</tr>\n");
                 calLow.add(Calendar.DATE, 7);
@@ -435,13 +437,15 @@ public class TimelineView extends AbstractDataView {
                             + "</tr>\n");
                 b.append(sp(in++) + "<tr>\n");
                 int numVersions = getVersionsInPeriod(calLow, calHigh).size();
-                b.append(sp(in) + "<td class=\"def_major\">"
-                        + Functions.formatMonth(
-                                calLow.getTimeInMillis(),
-                                settings.getUserLocale())
-                        + "</td>\n");
-                b.append(sp(in) + "<td class=\"def_right\">"
-                        + numVersions + "</td>\n");
+                if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
+                    b.append(sp(in) + "<td class=\"def_major\">"
+                            + Functions.formatMonth(
+                                    calLow.getTimeInMillis(),
+                                    settings.getUserLocale())
+                            + "</td>\n");
+                    b.append(sp(in) + "<td class=\"def_right\">"
+                            + numVersions + "</td>\n");
+                }
                 if (numVersions > 0)
                     b.append(sp(in) + "<td class=\"def\">"
                             + "<img style=\"height: 10px; width: 4px;\""
@@ -454,7 +458,7 @@ public class TimelineView extends AbstractDataView {
                             + " src=\"/img/icons/16x16/testr.png\">"
                             + "&nbsp;"
                             + "</td>\n");
-                else
+                else if (settings.getTvShowEmptyState())
                     b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
                 b.append(sp(--in) + "</tr>\n");
                 calLow.add(Calendar.MONTH, 1);
@@ -472,13 +476,15 @@ public class TimelineView extends AbstractDataView {
                             + "</tr>\n");
                 b.append(sp(in++) + "<tr>\n");
                 int numVersions = getVersionsInPeriod(calLow, calHigh).size();
-                b.append(sp(in) + "<td class=\"def_major\">"
-                        + Functions.formatDaystamp(
-                                calLow.getTimeInMillis(),
-                                settings.getUserLocale())
-                        + "</td>\n");
-                b.append(sp(in) + "<td class=\"def_right\">"
-                        + numVersions + "</td>\n");
+                if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
+                    b.append(sp(in) + "<td class=\"def_major\">"
+                            + Functions.formatDaystamp(
+                                    calLow.getTimeInMillis(),
+                                    settings.getUserLocale())
+                            + "</td>\n");
+                    b.append(sp(in) + "<td class=\"def_right\">"
+                            + numVersions + "</td>\n");
+                }
                 if (numVersions > 0)
                     b.append(sp(in) + "<td class=\"def\">"
                             + "<img style=\"height: 10px; width: 4px;\""
@@ -491,7 +497,7 @@ public class TimelineView extends AbstractDataView {
                             + " src=\"/img/icons/16x16/testr.png\">"
                             + "&nbsp;"
                             + "</td>\n");
-                else
+                else if (settings.getTvShowEmptyState())
                     b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
                 b.append(sp(--in) + "</tr>\n");
                 calLow.add(Calendar.DATE, 1);

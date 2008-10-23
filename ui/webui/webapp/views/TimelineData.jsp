@@ -151,6 +151,16 @@ function toggleCalendar(id) {
     }
 
     /*
+     * Check, if the user has selected a time period.
+     */
+     if (request.getParameter("showEmptyState") != null) {
+         if (request.getParameter("showEmptyState").equals("true"))
+             settings.setTvShowEmptyState(true);
+         else if (request.getParameter("showEmptyState").equals("false"))
+             settings.setTvShowEmptyState(false);
+     }
+
+    /*
      * Initialise the data view's object
      */
      TimelineView dataView = new TimelineView(selectedProject);
@@ -252,6 +262,24 @@ function toggleCalendar(id) {
             if ((settings.getTvDateFrom() != null)
                     && (settings.getTvDateFrom() != null)
                     && (viewConf.getChartType() == AbstractDataView.TABLE_CHART)) {
+                // Show empty records icons
+                WinIcon icoShowEmpty = new WinIcon();
+                icoShowEmpty.setPath(request.getServletPath());
+                icoShowEmpty.setParameter("showEmptyState");
+                icoShowEmpty.setValue("" + !settings.getTvShowEmptyState());
+                if (settings.getTvShowEmptyState()) {
+                    icoShowEmpty.setAlt("Hide all empty records");
+                    icoShowEmpty.setImage("/img/icons/16x16/hide_empty.png");
+                }
+                else {
+                    icoShowEmpty.setAlt("Show all empty records");
+                    icoShowEmpty.setImage("/img/icons/16x16/show_empty.png");
+                }
+                winResultPanel.addToolIcon(icoShowEmpty);
+
+                // Put a separator
+                winResultPanel.addToolIcon(icoSeparator);
+
                 SelectInput icoDisplaySelector = new SelectInput();
                 icoDisplaySelector.setPath(request.getServletPath());
                 icoDisplaySelector.setParameter("tvViewRange");

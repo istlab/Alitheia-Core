@@ -69,6 +69,7 @@ public class SelectedSettings {
     private Long tvDateFrom;
     private Long tvDateTill;
     private Long tvViewRange;
+    private boolean tvShowEmpty = true;
 
     public static final int FILE_DATA_SETTINGS      = 11;
     public static final int VERSION_DATA_SETTINGS   = 12;
@@ -254,6 +255,14 @@ public class SelectedSettings {
 
     public void setTvViewRange(Long range) {
         tvViewRange = range;
+    }
+
+    public void setTvShowEmptyState(boolean state) {
+        tvShowEmpty = state;
+    }
+
+    public boolean getTvShowEmptyState() {
+        return tvShowEmpty;
     }
 
     // =======================================================================
