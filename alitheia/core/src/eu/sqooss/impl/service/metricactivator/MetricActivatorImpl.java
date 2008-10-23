@@ -363,14 +363,23 @@ public class MetricActivatorImpl implements MetricActivator {
         
         for (Class<? extends DAObject> c : actTypes) {
             if(c.equals(ProjectFile.class)) {
-                query = "select distinct pf.id " +
+//                query = "select distinct pf.id " +
+//                "from ProjectVersion pv, ProjectFile pf " +
+//                "where pf.projectVersion=pv and pv.project = :" + paramSp +
+//                " order by pv.timestamp asc";
+                query = "select pf.id " +
                 "from ProjectVersion pv, ProjectFile pf " +
                 "where pf.projectVersion=pv and pv.project = :" + paramSp +
+                " group by pf.id, pv.timestamp" +
                 " order by pv.timestamp asc";
             } else if (c.equals(ProjectVersion.class)) {
-                query = "select distinct pv.id from ProjectVersion pv " +
-                        "where pv.project = :" + paramSp + 
-                        " order by pv.timestamp asc ";
+//                query = "select distinct pv.id from ProjectVersion pv " +
+//                        "where pv.project = :" + paramSp + 
+//                        " order by pv.timestamp asc ";
+                query = "select pv.id from ProjectVersion pv " +
+                "where pv.project = :" + paramSp + 
+                " group by pv.id, pv.timestamp" +
+                " order by pv.timestamp asc ";
             } else if (c.equals(StoredProject.class)) {
                 query = "select distinct sp.id from StoredProject sp where sp = :" 
                     + paramSp;
