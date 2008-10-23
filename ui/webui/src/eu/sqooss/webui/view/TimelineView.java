@@ -430,11 +430,11 @@ public class TimelineView extends AbstractDataView {
                             + " src=\"/img/icons/16x16/testr.png\">"
                             + "&nbsp;"
                             + "</td>\n");
-                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(--in) + "</tr>\n");
                 }
                 else if (settings.getTvShowEmptyState()) {
                     b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(--in) + "</tr>\n");
                 }
 
                 calLow.add(Calendar.DATE, 7);
@@ -478,11 +478,11 @@ public class TimelineView extends AbstractDataView {
                             + " src=\"/img/icons/16x16/testr.png\">"
                             + "&nbsp;"
                             + "</td>\n");
-                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(--in) + "</tr>\n");
                 }
                 else if (settings.getTvShowEmptyState()) {
                     b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(--in) + "</tr>\n");
                 }
 
                 calLow.add(Calendar.MONTH, 1);
@@ -529,11 +529,11 @@ public class TimelineView extends AbstractDataView {
                             + " src=\"/img/icons/16x16/testr.png\">"
                             + "&nbsp;"
                             + "</td>\n");
-                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(--in) + "</tr>\n");
                 }
                 else if (settings.getTvShowEmptyState()) {
                     b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(--in) + "</tr>\n");
                 }
 
                 calLow.add(Calendar.DATE, 1);
