@@ -392,25 +392,33 @@ public class TimelineView extends AbstractDataView {
                 ? settings.getTvViewRange() : 1;
         while (calLow.getTimeInMillis() < settings.getTvDateTill()) {
             if (viewRange == 2) {
-                if (calLow.get(Calendar.MONTH) != calHigh.get(Calendar.MONTH))
-                    b.append(sp(in) + "<tr>"
-                            + "<td class=\"def_head_center\" colspan=\"3\">"
-                            + Functions.formatMonth(
-                                    calHigh.getTimeInMillis(),
-                                    settings.getUserLocale())
-                            + ", " + calHigh.get(Calendar.YEAR)
-                            +"</td>"
-                            + "</tr>\n");
-                b.append(sp(in++) + "<tr>\n");
+                Calendar calPeriod;
+                if (calLow.get(Calendar.MONTH) != calHigh.get(Calendar.MONTH)) {
+                    calPeriod = (Calendar) calLow.clone();
+                    calPeriod.add(Calendar.MONTH, 1);
+                    if (!((getVersionsInPeriod(calLow, calPeriod).size() == 0)
+                            && (settings.getTvShowEmptyState() == false)))
+                        b.append(sp(in) + "<tr>"
+                                + "<td class=\"def_head_center\" colspan=\"3\">"
+                                + Functions.formatMonth(
+                                        calHigh.getTimeInMillis(),
+                                        settings.getUserLocale())
+                                + ", " + calHigh.get(Calendar.YEAR)
+                                +"</td>"
+                                + "</tr>\n");
+                }
+
                 int numVersions = getVersionsInPeriod(calLow, calHigh).size();
                 if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
+                    b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td class=\"def_major\">"
                             + "Week " + calLow.get(Calendar.WEEK_OF_YEAR)
                             + "</td>\n");
                     b.append(sp(in) + "<td class=\"def_right\">"
                             + numVersions + "</td>\n");
                 }
-                if (numVersions > 0)
+
+                if (numVersions > 0) {
                     b.append(sp(in) + "<td class=\"def\">"
                             + "<img style=\"height: 10px; width: 4px;\""
                             + " src=\"/img/icons/16x16/testl.png\">"
@@ -422,22 +430,33 @@ public class TimelineView extends AbstractDataView {
                             + " src=\"/img/icons/16x16/testr.png\">"
                             + "&nbsp;"
                             + "</td>\n");
-                else if (settings.getTvShowEmptyState())
+                    b.append(sp(in++) + "<tr>\n");
+                }
+                else if (settings.getTvShowEmptyState()) {
                     b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(in++) + "<tr>\n");
+                }
+
                 calLow.add(Calendar.DATE, 7);
                 calHigh.add(Calendar.DATE, 7);
             }
             else if (viewRange == 3) {
-                if (calLow.get(Calendar.MONTH) == 0)
-                    b.append(sp(in) + "<tr>"
-                            + "<td class=\"def_head_center\" colspan=\"3\">"
-                            + calLow.get(Calendar.YEAR)
-                            +"</td>"
-                            + "</tr>\n");
-                b.append(sp(in++) + "<tr>\n");
+                Calendar calPeriod;
+                if (calLow.get(Calendar.MONTH) == 0) {
+                    calPeriod = (Calendar) calLow.clone();
+                    calPeriod.add(Calendar.YEAR, 1);
+                    if (!((getVersionsInPeriod(calLow, calPeriod).size() == 0)
+                            && (settings.getTvShowEmptyState() == false)))
+                        b.append(sp(in) + "<tr>"
+                                + "<td class=\"def_head_center\" colspan=\"3\">"
+                                + calLow.get(Calendar.YEAR)
+                                +"</td>"
+                                + "</tr>\n");
+                }
+
                 int numVersions = getVersionsInPeriod(calLow, calHigh).size();
                 if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
+                    b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td class=\"def_major\">"
                             + Functions.formatMonth(
                                     calLow.getTimeInMillis(),
@@ -446,7 +465,8 @@ public class TimelineView extends AbstractDataView {
                     b.append(sp(in) + "<td class=\"def_right\">"
                             + numVersions + "</td>\n");
                 }
-                if (numVersions > 0)
+
+                if (numVersions > 0) {
                     b.append(sp(in) + "<td class=\"def\">"
                             + "<img style=\"height: 10px; width: 4px;\""
                             + " src=\"/img/icons/16x16/testl.png\">"
@@ -458,9 +478,13 @@ public class TimelineView extends AbstractDataView {
                             + " src=\"/img/icons/16x16/testr.png\">"
                             + "&nbsp;"
                             + "</td>\n");
-                else if (settings.getTvShowEmptyState())
+                    b.append(sp(in++) + "<tr>\n");
+                }
+                else if (settings.getTvShowEmptyState()) {
                     b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                b.append(sp(--in) + "</tr>\n");
+                    b.append(sp(in++) + "<tr>\n");
+                }
+
                 calLow.add(Calendar.MONTH, 1);
                 calHigh.set(Calendar.DATE, 1);
                 calHigh.add(Calendar.MONTH, 1);
