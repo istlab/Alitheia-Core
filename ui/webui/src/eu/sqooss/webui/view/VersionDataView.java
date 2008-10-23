@@ -119,6 +119,9 @@ public class VersionDataView extends AbstractDataView {
             evaluated = project.getEvaluatedMetrics().getMetricMnemonics(
                     MetricActivator.PROJECTVERSION,
                     MetricType.SOURCE_CODE);
+            evaluated.putAll(project.getEvaluatedMetrics().getMetricMnemonics(
+                    MetricActivator.PROJECTVERSION,
+                    MetricType.PROJECT_WIDE));
 
             if (viewConf != null) {
                 // Load the list of selected metrics
@@ -468,6 +471,7 @@ public class VersionDataView extends AbstractDataView {
 
         // Load the selected versions' data
         loadData();
+
         if (project.getVersionsCount() < 1) {
             b.append(sp(in)
                     + Functions.error("This project has no versions!"));
