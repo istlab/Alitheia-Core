@@ -39,7 +39,7 @@ import org.osgi.framework.BundleContext;
 import java.util.List;
 import java.util.ArrayList;
 
-import eu.sqooss.metrics.simulation.Simulation;
+import eu.sqooss.metrics.simulation.SimulationMetric;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
@@ -47,15 +47,14 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.StoredProject;
 
+import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.pa.PluginInfo;
 
 public class SimulationImplementation extends AbstractMetric implements
-		Simulation {
+		SimulationMetric {
 	
-	public static final String CONFIG_SIMULATION_STEPS = "Simulation steps";
-    public static final String CONFIG_NUMBER_OF_REPETITIONS = "Number of repetitions";
-    public static final String CONFIG_TIME_SCALE = "Time scale";
-	
+	public static final String CONFIG_SIMULATION_STEPS = "Simulation_steps";
+   
 	public SimulationImplementation(BundleContext bc) {
 		super(bc);
 		super.addActivationType(StoredProject.class);
@@ -93,6 +92,23 @@ public class SimulationImplementation extends AbstractMetric implements
 	}
 
 	public void run(StoredProject sp) {
+		
+		int numFilesThreshold;
+		
+		PluginConfiguration config = getConfigurationOption(
+                SimulationImplementation.CONFIG_SIMULATION_STEPS);
+        
+        if (config == null || 
+                Integer.parseInt(config.getValue()) <= 0) {
+            log.error("Plug-in configuration option " + 
+            		SimulationImplementation.CONFIG_SIMULATION_STEPS + " not found");
+            return; 
+        } else {
+            numFilesThreshold = Integer.parseInt(config.getValue());
+        }
+        
+        config = getConfigurationOption(CONFIG_SIMULATION_STEPS);
+        
 
 	}
 }
