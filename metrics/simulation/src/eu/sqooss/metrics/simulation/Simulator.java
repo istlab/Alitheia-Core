@@ -46,7 +46,6 @@ import eu.sqooss.metrics.simulation.db.SimulationResults;
 import eu.sqooss.metrics.simulation.db.SimulationMin;
 import eu.sqooss.metrics.simulation.db.SimulationMax;
 import eu.sqooss.metrics.simulation.db.SimulationChi;
-import eu.sqooss.metrics.simulation.db.SimulationChi2;
 
 /**
  * SimulationAlgorithm runs the simulation for a project and generates the
@@ -258,7 +257,7 @@ public class Simulator {
 	private LinkedList<SimulationMax> maxRecords = new LinkedList<SimulationMax>();
 	private LinkedList<SimulationMin> minRecords = new LinkedList<SimulationMin>();
 	private LinkedList<SimulationChi> chiRecords = new LinkedList<SimulationChi>();
-	private LinkedList<SimulationChi2> chi2Records = new LinkedList<SimulationChi2>();
+//	private LinkedList<SimulationChi2> chi2Records = new LinkedList<SimulationChi2>();
 	private LinkedList<SimulationResults> resultRecords = new LinkedList<SimulationResults>();
 
 	public Simulator(SimulationParameters parameters) {
@@ -1531,8 +1530,8 @@ public class Simulator {
 							if (t1 % 10 == 1) {
 								try {
 									
-									SimulationChi2 tempChi2 = new SimulationChi2(t1,1l,ll[t1], bbb, bbbr, qqq[t1], aas, aab, aat, aaf, po[t1], nnb);
-									chi2Records.add(tempChi2);
+		//							SimulationChi2 tempChi2 = new SimulationChi2(t1,1l,ll[t1], bbb, bbbr, qqq[t1], aas, aab, aat, aaf, po[t1], nnb);
+		//							chi2Records.add(tempChi2);
 									
 									tempWriter.write(t1 + "\t" + ll[t1] + "\t"
 											+ bbb + "\t" + bbbr + "\t"
@@ -1993,10 +1992,10 @@ public class Simulator {
 		return chiRecords;
 	}
 	
-	public LinkedList<SimulationChi2> getChi2Records()
+	/*public LinkedList<SimulationChi2> getChi2Records()
 	{
 		return chi2Records;
-	}
+	}*/
 	
 	public LinkedList<SimulationResults> getResultRecords()
 	{
