@@ -37,7 +37,7 @@ int main( int argc, char **argv)
             ss << " ";
     }
 
-    l.info( ss.str() );
+    l.error( ss.str() );
 
     return 0;
 }

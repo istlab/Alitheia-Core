@@ -8,6 +8,10 @@ import eu__POA
 import base64
 
 import eu.sqooss.impl.service.corba.alitheia
+from  eu.sqooss.impl.service.corba.alitheia import Bug
+from  eu.sqooss.impl.service.corba.alitheia import BugPriority
+from  eu.sqooss.impl.service.corba.alitheia import BugResolution
+from  eu.sqooss.impl.service.corba.alitheia import BugSeverity
 from  eu.sqooss.impl.service.corba.alitheia import Developer
 from  eu.sqooss.impl.service.corba.alitheia import Directory
 from  eu.sqooss.impl.service.corba.alitheia import FileGroup
@@ -202,6 +206,9 @@ class Core:
     def getSupportedMetrics(self,metric):
         return self.core.getSupportedMetrics(metric.orbname)
 
+    def getBugs(self,project):
+        return self.core.getBugs(project)
+
 class FDS (eu__POA.sqooss.impl.service.corba.alitheia.FDS):
     fds = None
 
@@ -253,9 +260,7 @@ class Database (eu__POA.sqooss.impl.service.corba.alitheia.Database):
         return self.db.findObjectById(any,long(id)).value()
       
     def findObjectsByProperties(self,type,properties):
-        print 'findObjectsByProperties'
         any = CORBA.Any(CORBA.TypeCode('IDL:eu/sqooss/impl/service/corba/alitheia/' + type.__name__ + ':1.0'), type())
-        print any.value()
         map = []
         
         for k, v in properties.iteritems():
@@ -416,13 +421,39 @@ class FileGroupMetric (eu__POA.sqooss.impl.service.corba.alitheia.FileGroupMetri
     def getResult(self,fileGroup):
         print 'getResult: Nothing to do'
 
+OldBugInit = Bug.__init__
+def BugInit(self, id=0, project=None, updateRun='', bugId='', creationTS='', deltaTS='', reporter=None, resolution=None, priority=None, severity=None, shortDesc=''):
+    if project is None:
+        project=StoredProject();
+    if reporter is None:
+        reporter=Developer();
+    if resolution is None:
+        resolution=BugResolution();
+    if priority is None:
+        priority=BugPriority();
+    if severity is None:
+        severity=BugSeverity();
+    return OldBugInit(self, id, project, updateRun, bugId, creationTS, deltaTS, reporter, resolution, priority, severity, shortDesc )
+
+OldBugResolutionInit = BugResolution.__init__
+def BugResolutionInit(self, id=0, resolution=''):
+    return OldBugResolutionInit(self, id, resolution)
+
+OldBugPriorityInit = BugPriority.__init__
+def BugPriorityInit(self, id=0, priority=''):
+    return OldBugPriorityInit(self, id, priority)
+
+OldBugSeverityInit = BugSeverity.__init__
+def BugSeverityInit(self, id=0, severity=''):
+    return OldBugSeverityInit(self, id, severity)
+
 OldDirectoryInit = Directory.__init__
 def DirectoryInit(self, id=0, path=''):
     return OldDirectoryInit(self, id, path)
 
 OldStoredProjectInit = StoredProject.__init__
-def StoredProjectInit(self, id=0, name='', website='', contact='', bugs='', repository='', mail=''):
-    return OldStoredProjectInit(self, id, name, website, contact, bugs, repository, mail)
+def StoredProjectInit(self, id=0, name='', website='', contact='', repository='', mail=''):
+    return OldStoredProjectInit(self, id, name, website, contact, repository, mail)
 
 OldDeveloperInit = Developer.__init__
 def DeveloperInit(self, id=0, name='', email='', username='', project=None):
@@ -473,20 +504,20 @@ def MetricInit(self, id=0, metricPlugin=None, type=None, mnemonic='', descriptio
     return OldMetricInit(self, id, metricPlugin, type, mnemonic, description)
 
 OldProjectFileMeasurementInit = ProjectFileMeasurement.__init__
-def ProjectFileMeasurementInit(self, id=0, measureMetric=None, file=None, whenRun='', result=''):
+def ProjectFileMeasurementInit(self, id=0, measureMetric=None, file=None, result=''):
     if measureMetric is None:
         measureMetric=Metric()
     if file is None:
         file=ProjectFile()
-    return OldProjectFileMeasurementInit(self, id, measureMetric, file, whenRun, result)
+    return OldProjectFileMeasurementInit(self, id, measureMetric, file, result)
 
 OldProjectVersionMeasurementInit = ProjectVersionMeasurement.__init__
-def ProjectVersionMeasurementInit(self, id=0, measureMetric=None, version=None, whenRun='', result=''):
+def ProjectVersionMeasurementInit(self, id=0, measureMetric=None, version=None, result=''):
     if measureMetric is None:
         measureMetric=Metric()
     if version is None:
         version=ProjectVersion()
-    return OldProjectVersionMeasurementInit(self, id, measureMetric, version, whenRun, result)
+    return OldProjectVersionMeasurementInit(self, id, measureMetric, version, result)
 
 
 @staticmethod
@@ -503,12 +534,15 @@ def StoredProjectGetProjectByName(name):
 def StoredProjectGetLastProjectVersion(project):
     db = Database()
     properties = { 'sp': project }
-    objects = db.doHQL('from ProjectVersion pv where pv.project=:sp and pv.version = ( select max( pv2.version ) from ProjectVersion pv2 where pv2.project=:sp)', properties)
+    objects = db.doHQL('from ProjectVersion pv where pv.project=:sp and pv.timestamp = ( select max( pv2.timestamp ) from ProjectVersion pv2 where pv2.project=:sp)', properties)
 
     if len(objects) == 0:
         return None
 
     return objects[0]
+
+def StoredProjectGetBugs(self):
+    return Core.instance().getBugs(self)
 
 def ProjectFileGetFileName(self):
     if self.dir.path == '/':
@@ -538,6 +572,10 @@ def ProjectFileIter(self):
     self.buffer = ''
     return self
 
+setattr(eu.sqooss.impl.service.corba.alitheia.Bug,                      '__init__',BugInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.BugPriority,              '__init__',BugPriorityInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.BugResolution,            '__init__',BugResolutionInit)
+setattr(eu.sqooss.impl.service.corba.alitheia.BugSeverity,              '__init__',BugSeverityInit)
 setattr(eu.sqooss.impl.service.corba.alitheia.Directory,                '__init__',DirectoryInit)
 setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,            '__init__',StoredProjectInit)
 setattr(eu.sqooss.impl.service.corba.alitheia.Developer,                '__init__',DeveloperInit)
@@ -553,6 +591,7 @@ setattr(eu.sqooss.impl.service.corba.alitheia.ProjectVersionMeasurement,'__init_
 
 setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getProjectByName',StoredProjectGetProjectByName)
 setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getLastProjectVersion',StoredProjectGetLastProjectVersion)
+setattr(eu.sqooss.impl.service.corba.alitheia.StoredProject,'getBugs',StoredProjectGetBugs)
 
 setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'getFileName',ProjectFileGetFileName)
 setattr(eu.sqooss.impl.service.corba.alitheia.ProjectFile,'next',ProjectFileNext)

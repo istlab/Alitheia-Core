@@ -39,7 +39,6 @@ class WcMetricJob(Job):
         m = ProjectFileMeasurement()
         m.measureMetric = metrics[0]
         m.file = self.projectFile
-        m.whenRun = datetime.datetime.now().isoformat()
         m.result = str(count)
 
         db = Database()
@@ -50,7 +49,24 @@ class WcMetric(ProjectFileMetric):
     scheduler = Scheduler()
 
     def run(self,file):
-        self.scheduler.enqueueJob(WcMetricJob(self,file))
+        self.logger.info(self.metric.name() + ': measuring ' + file.getFileName())
+        count = 0
+        for line in file:
+            count += 1
+
+        metrics = self.getSupportedMetrics()
+        print metrics
+        if len(metrics) == 0:
+            return
+
+        # add the result
+        m = ProjectFileMeasurement()
+        m.measureMetric = metrics[0]
+        m.file = file
+        m.result = str(count)
+
+        db = Database()
+        db.addRecord(m)
 
     def name(self):
         return 'CORBA Wc metric'

@@ -50,6 +50,8 @@ props = {'name': 'Boost'}
 objects = db.findObjectsByProperties(StoredProject, props)
 print objects
 
+print StoredProject.getProjectByName('Boost')
+
 version = StoredProject.getLastProjectVersion(StoredProject.getProjectByName('Boost'))
 print version, version.version
 

@@ -90,7 +90,7 @@ ProjectVersion StoredProject::getLastProjectVersion( const StoredProject& projec
     properties[ "sp" ] = project;
     const vector< Database::db_row_entry > versions = db.doHQL(
         "from ProjectVersion pv where pv.project=:sp "
-        "and pv.version = ( select max( pv2.version ) from "
+        "and pv.timestamp = ( select max( pv2.timestamp ) from "
         "ProjectVersion pv2 where pv2.project=:sp)", properties );
     return versions.empty() ? ProjectVersion() : boost::get< ProjectVersion >( versions.front() );
 }

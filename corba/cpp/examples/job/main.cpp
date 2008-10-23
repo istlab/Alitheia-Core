@@ -10,6 +10,8 @@
 using namespace std;
 using namespace Alitheia;
 
+static boost::mutex mutex;
+
 class TestJob : public Job
 {
 public:
@@ -38,32 +40,13 @@ public:
     void stateChanged( State state )
     {
         boost::mutex::scoped_lock scoped_lock( mutex );
-        if( state == Finished )
-        {
-            l << "Deleting job..." << std::endl;
-            try{
-                Logger log( Logger::NameSqoOssMetric );
-                log.setTeeStream( std::cout );
-                log << "deleting..." << std::endl;
-            delete this;
-                log << "deleting done." << std::endl;
-            } catch( ... )
-            {
-            }
-            return;
-            l << "Done deleting job..." << std::endl;
-        }
         l << "TestJob::stateChanged(): Our job " << name << " changed to state " << state << endl;
     }
 
 private:
     Logger& l;
     const string name;
-
-    static boost::mutex mutex;
 };
-
-boost::mutex TestJob::mutex;
 
 int main( int argc, char **argv)
 {
@@ -73,28 +56,29 @@ int main( int argc, char **argv)
     logger.setTeeStream( cout );
   
     logger << "Creating job #1" << endl;
-    Job* const j1 = new TestJob( logger, "Job 1" );
+    TestJob j1( logger, "Job 1" );
 
     logger << "Creating job #2" << endl;
-    Job* const j2 = new TestJob( logger, "Job 2" );
+    TestJob j2( logger, "Job 2" );
 
     logger << "Creating job #3" << endl;
-    Job* const j3 = new TestJob( logger, "Job 3" );
+    TestJob j3( logger, "Job 3" );
 
     logger << "Creating job #4" << endl;
-    Job* const j4 = new TestJob( logger, "Job 4" );
+    TestJob j4( logger, "Job 4" );
 
-    j2->addDependency( j1 );
-    j3->addDependency( j1 );
-    j4->addDependency( j2 );
-    j4->addDependency( j3 );
+    j2.addDependency( &j1 );
+    j3.addDependency( &j1 );
+    j4.addDependency( &j2 );
+    j4.addDependency( &j3 );
     
     logger << "Job waiting for execution..." << endl;
    
-    sched.enqueueJob( j1 );
-    sched.enqueueJob( j2 );
-    sched.enqueueJob( j3 );
-    sched.enqueueJob( j4 );
+    sched.enqueueJob( &j1 );
+    sched.enqueueJob( &j2 );
+    sched.enqueueJob( &j3 );
+    sched.enqueueJob( &j4 );
     
-    j4->waitForFinished();
+    j4.waitForFinished();
+    boost::mutex::scoped_lock scoped_lock( mutex );
 }
