@@ -285,7 +285,7 @@ function toggleCalendar(id) {
                 icoDisplaySelector.setParameter("tvViewRange");
                 icoDisplaySelector.setLabelText("View:");
                 icoDisplaySelector.setButtonText("Apply");
-                String[] ranges = new String[]{"Daily", "Weekly", "Monthly"};
+                String[] ranges = new String[]{"Daily", "Weekly", "Monthly", "Annually"};
                 int i = 1;
                 for (String rangeName : ranges)
                     icoDisplaySelector.addOption(

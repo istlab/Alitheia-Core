@@ -143,6 +143,13 @@ public class TimelineView extends AbstractDataView {
                 calHigh.add(Calendar.MONTH, 1);
                 calHigh.set(Calendar.DATE, 1);
                 break;
+            case 4:
+                calLow.set(Calendar.DATE, 1);
+                calHigh = (Calendar) calLow.clone();
+                calHigh.add(Calendar.YEAR, 1);
+                calHigh.set(Calendar.DATE, 1);
+                calHigh.set(Calendar.MONTH, Calendar.JANUARY);
+                break;
             default:
                 calHigh = (Calendar) calLow.clone();
                 calHigh.add(Calendar.DATE, 1);
@@ -442,6 +449,8 @@ public class TimelineView extends AbstractDataView {
 
                 calLow.add(Calendar.DATE, 7);
                 calHigh.add(Calendar.DATE, 7);
+                if (calHigh.getTimeInMillis() > settings.getTvDateTill())
+                    calHigh.setTimeInMillis(settings.getTvDateTill() + 1);
             }
             else if (viewRange == 3) {
                 Calendar calPeriod;
@@ -491,9 +500,50 @@ public class TimelineView extends AbstractDataView {
                 }
 
                 calLow.add(Calendar.MONTH, 1);
-                calHigh.set(Calendar.DATE, 1);
+                calLow.set(Calendar.DATE, 1);
                 calHigh.add(Calendar.MONTH, 1);
                 calHigh.set(Calendar.DATE, 1);
+                if (calHigh.getTimeInMillis() > settings.getTvDateTill())
+                    calHigh.setTimeInMillis(settings.getTvDateTill() + 1);
+            }
+            else if (viewRange == 4) {
+                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+                if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
+                    b.append(sp(in++) + "<tr>\n");
+                    b.append(sp(in) + "<td class=\"def_major\">"
+                            + calLow.get(Calendar.YEAR)
+                            + "</td>\n");
+                    b.append(sp(in) + "<td class=\"def_right\">"
+                            + numVersions + "</td>\n");
+                }
+
+                if (numVersions > 0) {
+                    b.append(sp(in) + "<td class=\"def\">"
+                            + "<img style=\"height: 10px; width: 4px;\""
+                            + " src=\"/img/icons/16x16/testl.png\">"
+                            + "<img style=\"height: 10px; width: "
+                            + numVersions
+                            + "px;\""
+                            + " src=\"/img/icons/16x16/testm.png\">"
+                            + "<img style=\"height: 10px; width: 4px;\""
+                            + " src=\"/img/icons/16x16/testr.png\">"
+                            + "&nbsp;"
+                            + "</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                }
+                else if (settings.getTvShowEmptyState()) {
+                    b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
+                    b.append(sp(--in) + "</tr>\n");
+                }
+
+                calLow.add(Calendar.YEAR, 1);
+                calLow.set(Calendar.DATE, 1);
+                calLow.set(Calendar.MONTH, Calendar.JANUARY);
+                calHigh.add(Calendar.YEAR, 1);
+                calHigh.set(Calendar.DATE, 1);
+                calHigh.set(Calendar.MONTH, Calendar.JANUARY);
+                if (calHigh.getTimeInMillis() > settings.getTvDateTill())
+                    calHigh.setTimeInMillis(settings.getTvDateTill() + 1);
             }
             else {
                 Calendar calPeriod;
