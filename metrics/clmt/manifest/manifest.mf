@@ -20,9 +20,4 @@ Import-Package:  org.osgi.framework,
     eu.sqooss.service.tds,
     eu.sqooss.service.util,
     eu.sqooss.service.pa,
-    org.apache.commons.codec.digest,
-    org.hibernate,
-    org.hibernate.proxy,
-    net.sf.cglib,
-    net.sf.cglib.proxy
-Eclipse-RegisterBuddy: org.hibernate
+    org.apache.commons.codec.digest
