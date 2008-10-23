@@ -33,8 +33,9 @@
 
 package eu.sqooss.metrics.simulation;
 
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.StoredProjectMetric;
 
-public interface Simulation extends StoredProjectMetric {
+public interface SimulationMetric extends AlitheiaPlugin, StoredProjectMetric {
     
 }
