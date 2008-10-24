@@ -41,6 +41,7 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -469,54 +470,66 @@ public class WcImplementation extends AbstractMetric implements Wc {
     }
 
     public void run(ProjectVersion v) throws AlreadyProcessingException {
-        Set<ProjectFile> ffv = v.getFilesForVersion();
         
-        int nof = 0;            //Number of files
+        String paramVersion = "paramVersion";
+        String paramMetricLoC = "paramMetricLoC";
+        String paramMetricLoCom = "paramMetricLoCom";
+        
+        String query = "select pfm " +
+            " from ProjectFileMeasurement pfm, FileForVersion ffv " +
+            " where ffv.version = :" + paramVersion +
+            " and pfm.projectFile = ffv.file " + 
+            " and (pfm.metric = :" + paramMetricLoC +
+            "      or pfm.metric = :" +  paramMetricLoCom +
+            " )"; 
+        
+        String queryTotalFiles = "select count(ffv.file) " +
+            " from FileForVersion ffv " +
+            " where ffv.version = :" + paramVersion +
+            " and ffv.file.isDirectory = 0";
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(paramVersion, v);
+        params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC));
+        params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM));
+        
+        List<ProjectFileMeasurement> results = 
+            (List<ProjectFileMeasurement>) db.doHQL(query, params);
+        
+        long nof = 0;            //Number of files
         int nosf = 0;           //Number of source code files
         int nodf = 0;           //Number of documentation files
-        int totalLines = 0;     //Total Lines 
         int totalLoC = 0;       //Total Lines of code
         int totalLoComm = 0;    //Total Lines of comments
         int totalLocDoc = 0;    //Total Lines of doc
         
-        for (ProjectFile pf : ffv) {
-            // We do not support directories
-            if (pf.getIsDirectory()) {
-                continue;
-            }
-            
-            //Cannot run on deleted files
-            if (pf.isDeleted()) {
-                continue;
-            }
-            
-            nof ++;
-            //We don't support binary files either
-            if (FileTypeMatcher.getFileType(pf.getName()).equals(
-                    FileTypeMatcher.FileType.BIN)) {
-                continue;
-            }
-            
-            int lines = getMeasurement(pf, MNEMONIC_WC_LOC);
-            totalLines += lines;
-
-            if (FileTypeMatcher.getFileType(pf.getName()).equals(
-                    FileTypeMatcher.FileType.SRC)) {
+        params.clear();
+        params.put(paramVersion, v);
+        nof = (Long) db.doHQL(queryTotalFiles, params).get(0);
+        
+        for (ProjectFileMeasurement pfm : results) {
+            String fname = pfm.getProjectFile().getName();
+            int result = Integer.parseInt(pfm.getResult());
+            if (FileTypeMatcher.getFileType(fname).equals(
+                            FileTypeMatcher.FileType.SRC)) {
                 nosf ++;
-                totalLoC += lines;
-                totalLoComm += getMeasurement(pf, MNEMONIC_WC_LOCOM);
+                if (pfm.getMetric().getMnemonic().equals(MNEMONIC_WC_LOC)) {
+                    totalLoC += result;
+                } else {
+                    totalLoComm += result;
+                }
             }
             
-            if (FileTypeMatcher.getFileType(pf.getName()).equals(
-                    FileTypeMatcher.FileType.DOC)) {
+            if (FileTypeMatcher.getFileType(fname).equals(
+                            FileTypeMatcher.FileType.DOC)) {
                 nodf ++;
-                totalLocDoc += lines;
+                totalLocDoc += result;
             }
         }
         addPVMeasurement(MNEMONIC_WC_PV_NODF, v, nodf);
-        addPVMeasurement(MNEMONIC_WC_PV_NOF, v, nof);
+        addPVMeasurement(MNEMONIC_WC_PV_NOF, v, (int)nof);
         addPVMeasurement(MNEMONIC_WC_PV_NOSF, v, nosf);
-        addPVMeasurement(MNEMONIC_WC_PV_TL, v, totalLines);
+        addPVMeasurement(MNEMONIC_WC_PV_TL, v, totalLocDoc + totalLoC);
         addPVMeasurement(MNEMONIC_WC_PV_TLDOC, v, totalLocDoc);
         addPVMeasurement(MNEMONIC_WC_PV_TLOC, v, totalLoC);
         addPVMeasurement(MNEMONIC_WC_PV_TLOCOM, v, totalLoComm);
@@ -528,27 +541,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
                 String.valueOf(value));
         db.addRecord(pvm);
         markEvaluation(m, pv);
-    }
-    
-    private int getMeasurement(ProjectFile pf, String metric)
-        throws AlreadyProcessingException {
-        ArrayList<Metric> lm = new ArrayList<Metric>();
-        lm.add(Metric.getMetricByMnemonic(metric));
-        Result loc;
-        try {
-            loc = getResult(pf, lm);
-            if (!loc.hasNext()) {
-                log.warn("Cannot find measurement for metric " 
-                        + MNEMONIC_WC_LOC + " for file " + pf);
-                return 0;
-            } else {
-                return loc.getRow(0).get(0).getInteger();
-            }
-        } catch (MetricMismatchException e) {
-            return 0;
-        } catch (Exception e) {
-            return 0;
-        }
     }
 }
 
