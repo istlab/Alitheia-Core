@@ -395,18 +395,21 @@ public class TimelineView extends AbstractDataView {
                 + "</tr>\n");
         b.append(sp(--in) + "</thead>\n");
 
-        boolean firstResult = true;
+        boolean displayHeader = true;
         long viewRange = settings.getTvViewRange() != null
                 ? settings.getTvViewRange() : 1;
         while (calLow.getTimeInMillis() < settings.getTvDateTill()) {
             if (viewRange == 2) {
-                Calendar calPeriod;
-                if ((calLow.get(Calendar.MONTH) != calHigh.get(Calendar.MONTH))
-                        || (firstResult)) {
-                    firstResult = false;
-                    calPeriod = (Calendar) calLow.clone();
-                    calPeriod.add(Calendar.MONTH, 1);
-                    if (!((getVersionsInPeriod(calLow, calPeriod).size() == 0)
+                Calendar calTmp;
+                calTmp = (Calendar) calLow.clone();
+                calTmp.add(Calendar.DATE, -7);
+                if (calLow.get(Calendar.MONTH) != calTmp.get(Calendar.MONTH))
+                    displayHeader = true;
+                if (displayHeader) {
+                    displayHeader = false;
+                    calTmp = (Calendar) calLow.clone();
+                    calTmp.add(Calendar.MONTH, 1);
+                    if (!((getVersionsInPeriod(calLow, calTmp).size() == 0)
                             && (settings.getTvShowEmptyState() == false)))
                         b.append(sp(in) + "<tr>"
                                 + "<td class=\"def_head_center\" colspan=\"3\">"
@@ -454,9 +457,10 @@ public class TimelineView extends AbstractDataView {
             }
             else if (viewRange == 3) {
                 Calendar calPeriod;
-                if ((calLow.get(Calendar.MONTH) == 0)
-                        || (firstResult)) {
-                    firstResult = false;
+                if (calLow.get(Calendar.MONTH) == 0)
+                    displayHeader = true;
+                if (displayHeader) {
+                    displayHeader = false;
                     calPeriod = (Calendar) calLow.clone();
                     calPeriod.add(Calendar.YEAR, 1);
                     if (!((getVersionsInPeriod(calLow, calPeriod).size() == 0)
@@ -547,9 +551,10 @@ public class TimelineView extends AbstractDataView {
             }
             else {
                 Calendar calPeriod;
-                if ((calLow.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
-                        || (firstResult)) {
-                    firstResult = false;
+                if (calLow.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
+                    displayHeader = true;
+                if (displayHeader) {
+                    displayHeader = false;
                     calPeriod = (Calendar) calLow.clone();
                     calPeriod.add(Calendar.DATE, 7);
                     if (!((getVersionsInPeriod(calLow, calPeriod).size() == 0)
