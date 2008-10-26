@@ -44,8 +44,12 @@ public void jspInit() {
     id="settings"
     class="eu.sqooss.webui.SelectedSettings"
     scope="session"><%
-    // Init with the user's locale
+    // Init with the provided user locale
     settings.setUserLocale(request.getLocale());
+    // Init a temporary folder for this user session
+    settings.setTempFolder(
+            config.getServletContext().getRealPath("/"),
+            session.getId());
 %></jsp:useBean><jsp:setProperty name="settings" property="*"
 /><jsp:useBean
     id="ProjectsListView"
@@ -100,21 +104,7 @@ icoCloseWin.setAlt("Close");
 icoCloseWin.setValue(WinIcon.MINIMIZE);
 
 //============================================================================
-// Local file storage
-//============================================================================
-// Folder relative to this web application's root (deployment) folder, where
-// the application will store all generated temporary files.
-String tempFolderName = "tmp";
-File tempFolder = new File(
-    config.getServletContext().getRealPath("/")
-    + File.separatorChar
-    + tempFolderName);
-if (tempFolder.exists() == false)
-    tempFolder.mkdir();
-settings.setTempFolder(tempFolder);
-
-//============================================================================
-// Connect to another SQO-OSS framework if requested.
+// Connect to another SQO-OSS framework, if requested.
 // TODO: Right now it is used for test purposes only.
 //============================================================================
 if (request.getParameter("frameworkUrl") != null) {
@@ -125,7 +115,7 @@ if (request.getParameter("frameworkUrl") != null) {
 }
 
 //============================================================================
-// Check if the user has selected a project (or switched to a new project)
+// Check, if the user has selected a project (or switched to a new project)
 //============================================================================
 if (request.getParameter("pid") != null) {
     if (request.getParameter("pid").equals("none"))
@@ -155,7 +145,7 @@ if ((projectId != null)
     }
 }
 //============================================================================
-// Check if the user has selected a (new) project version
+// Check, if the user has selected a (new) project version
 //============================================================================
 if (selectedProject.isValid()) {
     Version selVersion = null;

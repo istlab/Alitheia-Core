@@ -177,7 +177,7 @@ public class DeveloperDataView extends AbstractDataView {
             //----------------------------------------------------------------
             // Display the results in the selected form
             //----------------------------------------------------------------
-            String chartFile = null;
+            String chartName = null;
             switch (chartType) {
             case TABLE_CHART:
                 b.append(tableChart(in, data));
@@ -188,15 +188,17 @@ public class DeveloperDataView extends AbstractDataView {
                  */
                 if ((highlightedMetric != null)
                         && (data.containsKey(highlightedMetric)))
-                    chartFile = barChart(
+                    chartName = barChart(
                             data.subMap(highlightedMetric, highlightedMetric +"\0"));
                 else
-                    chartFile = barChart(data);
+                    chartName = barChart(data);
                 /*
                  * Display the generated results chart.
                  */
-                if (chartFile != null) {
-                    chartFile = "/tmp/" + chartFile;
+                if (chartName != null) {
+                    String thumbURL = settings.getTempURL(chartName);
+                    String chartURL = settings.getTempURL(
+                            chartName.replace("thb", "img"));
                     b.append(sp(in++) + "<table"
                             + " style=\"margin-top: 0;\">\n");
                     /*
@@ -233,8 +235,8 @@ public class DeveloperDataView extends AbstractDataView {
                             + " rowspan=\"" + chartRowSpan + "\">"
                             + "<a class=\"dvChartImage\""
                             + " href=\"/fullscreen.jsp?"
-                            + "chartfile=" + chartFile.replace("thb", "img") + "\">"
-                            + "<img src=\"" + chartFile + "\">"
+                            + "chartfile=" + chartURL + "\">"
+                            + "<img src=\"" + thumbURL + "\">"
                             + "</a>"
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
@@ -285,20 +287,22 @@ public class DeveloperDataView extends AbstractDataView {
                  */
                 if ((highlightedMetric != null)
                         && (data.containsKey(highlightedMetric)))
-                    chartFile = pieChart(
+                    chartName = pieChart(
                             highlightedMetric,
                             data.get(highlightedMetric));
                 else if (data.size() == 1)
-                    chartFile = pieChart(
+                    chartName = pieChart(
                             data.firstKey(),
                             data.get(data.firstKey()));
                 else
-                    chartFile = "";
+                    chartName = "";
                 /*
                  * Display the generated results chart.
                  */
-                if (chartFile != null) {
-                    chartFile = "/tmp/" + chartFile;
+                if (chartName != null) {
+                    String thumbURL = settings.getTempURL(chartName);
+                    String chartURL = settings.getTempURL(
+                            chartName.replace("thb", "img"));
                     b.append(sp(in++) + "<table"
                             + " style=\"margin-top: 0;\">\n");
                     /*
@@ -330,7 +334,7 @@ public class DeveloperDataView extends AbstractDataView {
                     int chartRowSpan = 2;
                     if (data.size() > 1)
                         chartRowSpan += data.size();
-                    if (chartFile.equals("/tmp/"))
+                    if (chartName.equals(""))
                         b.append(sp(in) + "<td"
                                 + " class=\"dvChartImage\""
                                 + " rowspan=\"" + chartRowSpan + "\">"
@@ -344,8 +348,8 @@ public class DeveloperDataView extends AbstractDataView {
                                 + " rowspan=\"" + chartRowSpan + "\">"
                                 + "<a class=\"dvChartImage\""
                                 + " href=\"/fullscreen.jsp?"
-                                + "chartfile=" + chartFile.replace("thb", "img") + "\">"
-                                + "<img src=\"" + chartFile + "\">"
+                                + "chartfile=" + chartURL + "\">"
+                                + "<img src=\"" + thumbURL + "\">"
                                 + "</a>"
                                 + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");

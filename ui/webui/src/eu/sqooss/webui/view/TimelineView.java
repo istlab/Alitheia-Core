@@ -161,17 +161,19 @@ public class TimelineView extends AbstractDataView {
                 b.append(tableChart(in, calLow, calHigh));
                 break;
             case LINE_CHART:
-                String chartFile = lineChart(calLow, calHigh);
-                if (chartFile != null) {
-                    chartFile = "/tmp/" + chartFile;
+                String chartName = lineChart(calLow, calHigh);
+                if (chartName != null) {
+                    String thumbURL = settings.getTempURL(chartName);
+                    String chartURL = settings.getTempURL(
+                            chartName.replace("thb", "img"));
                     b.append(sp(in++) + "<table>\n");
                     b.append(sp(in++) + "</tr>\n");
                     b.append(sp(in) + "<td"
-                            + " class=\"dvChartImage\""
+                            + " class=\"dvChartImage\">"
                             + "<a class=\"dvChartImage\""
                             + " href=\"/fullscreen.jsp?"
-                            + "chartfile=" + chartFile.replace("thb", "img") + "\">"
-                            + "<img src=\"" + chartFile + "\">"
+                            + "chartfile=" + chartURL + "\">"
+                            + "<img src=\"" + thumbURL + "\">"
                             + "</a>"
                             + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");

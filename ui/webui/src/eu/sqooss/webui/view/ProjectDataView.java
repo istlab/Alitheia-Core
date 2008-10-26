@@ -219,17 +219,19 @@ public class ProjectDataView extends ListView {
 
         // Generate and include the chart image into the rendered content
         if (chartData.isEmpty() == false) {
-            String chartFile = lineChart(chartData);
-            if (chartFile != null) {
-                chartFile = "/tmp/" + chartFile;
+            String chartName = lineChart(chartData);
+            if (chartName != null) {
+                String thumbURL = settings.getTempURL(chartName);
+                String chartURL = settings.getTempURL(
+                        chartName.replace("thb", "img"));
                 b.append(sp(in++) + "<table>\n");
                 b.append(sp(in++) + "<tr>\n");
                 b.append(sp(in)
                         + "<td class=\"pdv_chart\" colspan=\"2\">"
                         + "<a class=\"pdv_chart\""
                         + " href=\"/fullscreen.jsp?"
-                        + "chartfile=" + chartFile + "\">"
-                        + "<img src=\"" + chartFile + "\">"
+                        + "chartfile=" + chartURL + "\">"
+                        + "<img src=\"" + thumbURL + "\">"
                         + "</a>"
                         + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");

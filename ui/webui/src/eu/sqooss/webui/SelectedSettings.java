@@ -274,15 +274,37 @@ public class SelectedSettings {
     }
 
     public void setUserLocale(Locale userLocale) {
-        this.userLocale = userLocale;
+        if (userLocale != null)
+            this.userLocale = userLocale;
     }
 
     public File getTempFolder() {
         return tempFolder;
     }
 
-    public void setTempFolder(File path) {
-        tempFolder = path;
+    public String getTempURL(String resource) {
+        if (tempFolder.exists())
+            return "/" + tempFolder.getName() + "/" + resource;
+        return null;
+    }
+
+    /**
+     * This method will create (unless it already exists) a temporary folder,
+     * relative to this web application's root (deployment) folder.
+     * <br>
+     * The purpose of this folder is to be used later as a place for storing
+     * temporary files (like chart images) generated during the application
+     * use.
+     * 
+     * @param path the path to the folder where this application is deployed
+     * @param folder the name of the temporary folder
+     */
+    public void setTempFolder(String path, String folder) {
+        if ((path != null) && (folder != null)) {
+            tempFolder = new File(path + File.separatorChar + folder);
+            if (tempFolder.exists() == false)
+                tempFolder.mkdir();
+        }
     }
 
 }
