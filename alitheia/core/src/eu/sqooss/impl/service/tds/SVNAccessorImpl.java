@@ -228,14 +228,14 @@ public class SVNAccessorImpl implements SCMAccessor {
             connectToRepository();
         }
         try {
-            svnRepository.getRevisionPropertyValue(1, SVNProperty.REVISION);
+            svnRepository.getRevisionPropertyValue(0, SVNProperty.REVISION);
         } catch (SVNException e) {
-            logger.warn("Could not get revision 1 from repository " + url + 
+            logger.warn("Could not get revision 0 from repository " + url + 
                     e.getMessage());
             throw new InvalidRepositoryException(url, e.getMessage());
         }
 
-        return 1;
+        return 0;
     }
     
     /** {@inheritDoc}} */
