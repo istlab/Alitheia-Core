@@ -6,7 +6,7 @@ Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.metrics.modulemetrics.ModuleMetricsActivator
 Bundle-Vendor: AUEB
 Bundle-Description: Various metrics for modules (directories)
-Export-Package: eu.sqooss.metric.modulemetrics, eu.sqooss.metrics.modulemetrics.db
+Export-Package: eu.sqooss.metric.modulemetrics
 Import-Package: org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.logging,
@@ -18,7 +18,3 @@ Import-Package: org.osgi.framework,
     eu.sqooss.service.util,
     eu.sqooss.service.pa,
     org.apache.commons.codec.digest,
-    org.hibernate,
-    org.hibernate.proxy
-Eclipse-RegisterBuddy: org.hibernate
-

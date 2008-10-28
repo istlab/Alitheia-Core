@@ -35,23 +35,20 @@ package eu.sqooss.impl.metrics.modulemetrics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.modulemetrics.ModuleMetrics;
-import eu.sqooss.metrics.modulemetrics.db.ModuleNOL;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
-import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.ResultEntry;
-import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FileTypeMatcher;
@@ -118,44 +115,19 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         // Prepare an array for storing the retrieved measurement results
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
 
-        /*
-         * NOTE: Return a fake result on ProjectFile which is not a folder,
-         * since we can not instruct the MetricActivator to not call us on
-         * regular files.
-         */
-        if (pf.getIsDirectory() == false) {
-            results.add(new ResultEntry(
-                    0, ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic()));
-            return results;
-        }
-
-        /*
-         * TODO: This metric requires two parameters:
-         *      - a major parameter - ProjectFile DAO
-         *      - a minor parameter - ProjectVersion DAO
-         * in order to provide correct results. Because of a known limitation
-         * in the AbstractMetric.getResult() methods, right now the minor DAO
-         * can not be passed as a parameter to this metric and therefore has
-         * to be simulated. In this case the latest known ProjectVersion is
-         * used instead of it.
-         */
-        ProjectVersion pv = ProjectVersion.getLastProjectVersion(
-                pf.getProjectVersion().getProject());
-
         // Search for a matching measurement results
-        String measurement = null;
-        if (m.getMnemonic().equals(MET_MNOL)) {
-            measurement = ModuleNOL.getResult(pf, pv);
-        } else if (m.getMnemonic().equals(MET_MNOF)) {
-            measurement = String.valueOf(ProjectFile.getFilesForVersion(
-                    pv, pf.toDirectory(), ProjectFile.MASK_FILES).size());
-        }
+        List<ProjectFileMeasurement> measurement = null;
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("projectFile", pf);
+        filter.put("metric", m);
+        measurement = db.findObjectsByProperties(
+                ProjectFileMeasurement.class, filter);
 
         // Convert the measurement into a result object
-        if (measurement != null) {
+        if (!measurement.isEmpty()) {
             results.add(new ResultEntry(
-                    Integer.parseInt(measurement),
-                    ResultEntry.MIME_TYPE_TYPE_INTEGER,
+                    Float.parseFloat(measurement.get(0).getResult()),
+                    ResultEntry.MIME_TYPE_TYPE_FLOAT,
                     m.getMnemonic()));
         }
 
@@ -185,48 +157,50 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         return results.isEmpty() ? null : results;
     }
 
-    public void run(ProjectFile pf) {
-        /*
-         * Evaluate the "NOF" metric result.
-         * NOTE: Evaluated on the fly, therefore just add an evaluation mark
-         * for it.
-         */
-        markEvaluation(
-                Metric.getMetricByMnemonic(MET_MNOF),
-                pf.getProjectVersion().getProject());
+    public void run(ProjectFile pf) throws AlreadyProcessingException {
+        if (! pf.getIsDirectory()) {
+            return;
+        }
+      
+        int mnof = 0;
+        int mnol = 0;
+        
+        List<ProjectFile> pfs = ProjectFile.getFilesForVersion(
+                pf.getProjectVersion(), pf.getDir(), ProjectFile.MASK_FILES);
+        
+        boolean foundSource = false; 
+        for (ProjectFile f : pfs) {
 
-        /*
-         * Evaluate the "NOL" metric result.
-         * NOTE: Evaluated during the "AMS" metric evaluation. Otherwise and
-         * because of the current activation scheme, the consistency of the
-         * "NOL" metric results (used during the "AMS" calculation) can not
-         * be guaranteed.
-         */
+            if (FileTypeMatcher.getFileType(f.getName()) 
+                    != FileTypeMatcher.FileType.SRC) {
+                continue;
+            }
+            // Found one source file, treat the folder as a source module
+            mnof++;
+            foundSource = true;
+            // Get the necessary measurement from the Wc.loc metric
+
+                if (FileTypeMatcher.isTextType(f.getName())) {
+                    mnol += getMeasurement(DEP_WC_LOC, f);
+                }
+        }
+        
+        //Only store results for source dirs
+        if (foundSource) {
+            Metric m = Metric.getMetricByMnemonic(MET_MNOL);
+            ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf,
+                    String.valueOf(mnol));
+            db.addRecord(pfm);
+            markEvaluation(m, pf.getProjectVersion());
+            m = Metric.getMetricByMnemonic(MET_MNOF);
+            pfm = new ProjectFileMeasurement(m, pf,
+                    String.valueOf(mnof));
+            db.addRecord(pfm);
+            markEvaluation(m, pf.getProjectVersion());
+        }
     }
 
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
-        // First, make sure that "AMS" is evaluated on the previous version.
-        ProjectVersion prevVersion = pv.getPreviousVersion();
-        if (prevVersion != null) {
-            AlitheiaPlugin amsPlugin =
-                core.getPluginAdmin().getImplementingPlugin(MET_AMS);
-            List<Metric> AMS = new ArrayList<Metric>();
-            AMS.add(Metric.getMetricByMnemonic(MET_AMS));
-            try {
-                amsPlugin.getResult(prevVersion, AMS);
-            } catch (Exception e) {
-                // Do nothing
-            }
-        }
-
-        /*
-         * Evaluate the "NOL" metric on all folders affected by changes in
-         * this version.
-         */
-        Set<ProjectFile> changedFiles = pv.getVersionFiles();
-        if (changedFiles != null)
-            evalNOL(changedFiles);
-
         // Get the list of folders which exist in this project version.
         List<ProjectFile> folders = ProjectFile.getAllDirectoriesForVersion(pv);
 
@@ -234,22 +208,11 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         int locs = 0;
         int sourceModules = 0;
         for (ProjectFile pf : folders) {
-            // Try to retrieve the MNOL measurement for this folder
-            try {
-                int mnolValue = Integer.parseInt(ModuleNOL.getResult(pf, pv));
-                /*
-                 * TODO: Unless a getResult(majorDAO, minorDAO, metricMnemonic)
-                 * is implemented, the line bellow should be left commented
-                 * and the above call used instead.
-                 */
-//                int mnolValue += amsPlugin.getResult(pf, pv, MNOL)
-//                        .getRow(0).get(0).getInteger();
-                if (mnolValue > 0)
-                    sourceModules++;
-                locs += mnolValue;
-            } catch (NumberFormatException ex) {
-                continue;
-            }
+            int mnolValue = getMeasurement(MET_MNOL, pf);
+            // Try to retrieve the MNOL measurement for this folder 
+            if (mnolValue > 0)
+                sourceModules++;
+            locs += mnolValue; 
         } 
 
         // Store the "AMS" metric result
@@ -261,90 +224,32 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         db.addRecord(ams);
         markEvaluation(metric, pv.getProject());
     }
-
-    private void evalNOL(Set<ProjectFile> files) throws AlreadyProcessingException {
-        // Get a reference to the WC.LOC metric dependency.
-        List<Metric> locMetric = new ArrayList<Metric>();
-        AlitheiaPlugin locPlugin = core.getPluginAdmin().getImplementingPlugin(
-                DEP_WC_LOC);
-        if (locPlugin == null) {
-            log.error("Could not find the " + DEP_WC_LOC + " metric's plug-in");
-            return;
+    
+    private int getMeasurement(String mnemonic, ProjectFile f) 
+        throws AlreadyProcessingException {
+        List<Metric> metric = new ArrayList<Metric>();
+        AlitheiaPlugin plugin = core.getPluginAdmin().getImplementingPlugin(mnemonic);
+        if (plugin == null) {
+            log.error("Could not find the " + mnemonic + " metric's plug-in");
         }
-        locMetric.add(Metric.getMetricByMnemonic(DEP_WC_LOC));
-
-        List<Long> alreadyEvaluated = new ArrayList<Long>();
-        for (ProjectFile pf : files) {
-            // Skip folders
-            if (pf.getIsDirectory())
-                continue;
-
-            // Retrieve the DAO of the folder affected by this file change.
-            ProjectFile affectedFolder = pf.getParentFolder();
-            ProjectVersion affectedVer = pf.getProjectVersion();
-
-            /*
-             * Skip upon invalid parent folder DAO.
-             * NOTE: For a file that resides in the project's root folder the
-             * error message will not be generated.
-             */
-            if (affectedFolder == null) {
-                Directory parentDir = pf.getDir();
-                Directory rootDir = Directory.getDirectory(Directory.SCM_ROOT,
-                        false);
-                if ((parentDir == null) || (rootDir == null)
-                        || (parentDir.getId() != rootDir.getId()))
-                    log.error("Could not get enclosing directory for pf.id="
-                            + pf.getId());
-                continue;
-            }
-
-            // Do not evaluate the same folder twice
-            if (alreadyEvaluated.contains(affectedFolder.getId()))
-                continue;
-            alreadyEvaluated.add(affectedFolder.getId());
-
-            /*
-             * Get the list of files residing in the affected directory in the
-             * changed file's version
-             */
-            List<ProjectFile> pfs = ProjectFile.getFilesForVersion(affectedVer,
-                    affectedFolder.toDirectory(), ProjectFile.MASK_FILES);
-
-            // Calculate the "NOL" metric results
-            int loc = 0;
-            boolean foundSource = false;
-            for (ProjectFile f : pfs) {
-                if (FileTypeMatcher.getFileType(f.getName()) == FileTypeMatcher.FileType.SRC) {
-                    // Found one source file, treat the folder as a source module
-                    foundSource = true;
-                }
-                // Get the necessary measurement from the Wc.loc metric
-                try {
-                    if (FileTypeMatcher.isTextType(f.getName())) {
-                        loc += locPlugin.getResult(
-                                f, locMetric).getRow(0).get(0).getInteger();
-                    }
-                } catch (Exception e) {
-                    log.error("Results of " + DEP_WC_LOC
-                            + " metric for project: "
-                            + f.getProjectVersion().getProject().getName()
-                            + ", file: " + f.getFileName() + ", version: "
-                            + f.getProjectVersion().getRevisionId()
-                            + " could not be retrieved: " + e.getMessage());
-                    // Do not store partial results
-                    return;
-                }
-            }
-
-            // Store the "NOL" metric result.
-            if (foundSource) {
-                Metric metric = Metric.getMetricByMnemonic(MET_MNOL);
-                ModuleNOL mnol = new ModuleNOL(
-                        affectedFolder, affectedVer, String.valueOf(loc));
-                db.addRecord(mnol);
-                markEvaluation(metric, affectedVer.getProject());
-            }
+        metric.add(Metric.getMetricByMnemonic(mnemonic));
+        
+        try {
+            return plugin.getResult(f, metric).getRow(0).get(0).getInteger();
+        } catch (AlreadyProcessingException ape) {
+            throw ape;
+        } catch (NumberFormatException ex) {
+            log.warn("ModuleMetrics: Not an integer: " + ex);
+            return 0;
+        }
+        catch (Exception e) {
+            log.error("ModuleMetrics: Results of " + DEP_WC_LOC
+                    + " metric for project: "
+                    + f.getProjectVersion().getProject().getName()
+                    + ", file: " + f.getFileName() + ", version: "
+                    + f.getProjectVersion().getRevisionId()
+                    + " could not be retrieved: " + e.getMessage());
+            return 0;
         }
     }
 }
