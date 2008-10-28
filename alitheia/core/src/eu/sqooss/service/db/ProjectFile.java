@@ -292,7 +292,6 @@ public class ProjectFile extends DAObject{
             
             query += " pf.name = :" + paramFile +
             " and pf.dir = :" + paramDir;
-            
             if (pf.copyFrom != null) {
                 query += " ) or ( pf.name = :" + paramCopyFromName +
                 " and pf.dir = :" + paramCopyFromDir +
@@ -552,11 +551,6 @@ public class ProjectFile extends DAObject{
      */
     public ProjectFile getParentFolder() {
         DBService db = AlitheiaCore.getInstance().getDBService();
-
-        // Proceed only if this file is not the project's root folder
-        if (getDir().getPath().matches("^/+$")) {
-            return null;
-        }
         
         String paramName = "paramName"; 
         String paramDir = "paramDir"; 
@@ -566,7 +560,6 @@ public class ProjectFile extends DAObject{
         String query = "select pf " +
             " from ProjectFile pf, ProjectVersion pv " +
             " where pf.projectVersion = pv " +
-            " and pf.status='ADDED' " +
             " and pf.name = :" + paramName +
             " and pf.dir = :" + paramDir + 
             " and pf.isDirectory = 'true'" +

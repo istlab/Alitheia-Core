@@ -70,7 +70,6 @@ import eu.sqooss.service.util.FileUtils;
 final class SourceUpdater extends Job {
     
     private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.svn.handlecopies";
-    private static final String CLEANUP_PROPERTY = "eu.sqooss.updater.svn.cleanup";
     
     private enum HandleCopies {
         TRUNK, BRANCHES, TAGS
@@ -84,7 +83,6 @@ final class SourceUpdater extends Job {
     private MetricActivator ma;
     
     private HandleCopies hc = HandleCopies.BRANCHES;
-    private int cleanup = 5;
     
     /*
      * Cache project version and project file IDs for kick-starting
@@ -104,9 +102,6 @@ final class SourceUpdater extends Job {
     
     /* Currently processed commit log entry*/
     private CommitEntry commitLogEntry;
-    
-    /* List of copy operations */
-    //private List<CommitCopyEntry> copyOps; 
     
     /* State weights to use when evaluating duplicate project file entries
      * in a single revision
@@ -167,20 +162,6 @@ final class SourceUpdater extends Job {
             info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
             		" using default:" + this.hc);
         }
-        
-        String cleanup = System.getProperty(CLEANUP_PROPERTY);
-        
-        if (cleanup != null) {
-            try {
-                this.cleanup = Integer.parseInt(cleanup);
-            } catch (NumberFormatException nfe) {
-                warn("Value " + cleanup + " not valid for property " 
-                        + CLEANUP_PROPERTY);
-            }
-        } else {
-            info("No value for " + CLEANUP_PROPERTY + " property," +
-            		" using default:" + this.cleanup);
-        }
     }
 
     public int priority() {
@@ -217,15 +198,13 @@ final class SourceUpdater extends Job {
                     dbs.commitDBSession();
                     return;    
                 }
-                commitLog = scm.getCommitLog(scm.getNextRevision(
-                        scm.newRevision(latestVersion.getRevisionId())), 
-                        scm.getHeadRevision());
+                
+                
             } else {
-                //Add revision 0 and / file
+                //Add revision 0 and / (root) file entry
                 ProjectVersion zero = new ProjectVersion(project);
-                //By convention, same as in first revision
                 zero.setCommitter(Developer.getDeveloperByUsername("sqo-oss", project));
-                zero.setTimestamp(scm.getFirstRevision().getDate().getTime() - 1000);
+                zero.setTimestamp(scm.getFirstRevision().getDate().getTime());
                 zero.setCommitMsg("Artificial revision to include / directory");
                 zero.setRevisionId("0");
                 dbs.addRecord(zero);
@@ -235,9 +214,14 @@ final class SourceUpdater extends Job {
                 root.setName("");
                 root.setStatus("ADDED");
                 dbs.addRecord(root);
-                commitLog = scm.getCommitLog(scm.getFirstRevision(), scm.getHeadRevision());
+                HashSet<ProjectFile> ffv = new HashSet<ProjectFile>();
+                ffv.add(root);
+                zero.setFilesForVersion(ffv);
+                latestVersion = ProjectVersion.getLastProjectVersion(project);
             }
-            
+            commitLog = scm.getCommitLog(scm.getNextRevision(
+                    scm.newRevision(latestVersion.getRevisionId())), 
+                    scm.getHeadRevision());
             info("New revisions: " + commitLog.size());
             
         } catch (InvalidRepositoryException e) {
@@ -377,7 +361,9 @@ final class SourceUpdater extends Job {
                 if(!canProcess(chPath, null))
                     continue; //Entries under tags or branches
                 
-                if (isCopiedPath(chPath)) 
+                //Dirs are processed recursively. This allows
+                //copy-and-modify-in-copied-dir scenarions to be processed
+                if (isCopiedPath(chPath) && t != SCMNodeType.FILE) 
                     continue; //Processed earlier
 
                 ProjectFile toAdd = null;
@@ -443,28 +429,20 @@ final class SourceUpdater extends Job {
             
             numRevisions++;
             
+            addModifiedDirEntries(curVersion);
             replayLog(curVersion);
             dbs.addRecords(versionFiles);
             updateFilesForVersion(curVersion);
 
-            /* Intermediate clean up */
-            if (numRevisions % this.cleanup == 0) {
-                dirCache.clear();
-                if (!dbs.commitDBSession()) {
-                    warn("Intermediate commit failed, restarting update");
-                    restart();
-                    return;
-                } 
-                dbs.startDBSession();
+            dirCache.clear();
+            if (!dbs.commitDBSession()) {
+                warn("Intermediate commit failed, restarting update");
+                restart();
+                return;
             }
+            dbs.startDBSession();
         }
         info("Processed " + numRevisions + " revisions");
-        
-        if (!dbs.commitDBSession()) {
-            warn("Final commit failed, restarting update");
-            restart();
-            return;
-        } 
         
         ma.runMetrics(updFiles, ProjectFile.class);
         ma.runMetrics(updProjectVersions, ProjectVersion.class);
@@ -541,7 +519,46 @@ final class SourceUpdater extends Job {
     }
     
     /**
-     * Constructs a project file out of provided elements
+     * On a filesystem, when a file is modified (or added or deleted) in
+     * a directory then the directory access time is changed to reflect
+     * the change in the contents. To achieve exactly the same effect and also
+     * to allow results to be stored against directories, we add a MODIFIED 
+     * dir entry for each directory whose contents are changed in a revision. 
+     */
+    private void addModifiedDirEntries(ProjectVersion pv) {
+        //Copy list of version files to an immutable object
+        List<ProjectFile> chFiles = new ArrayList<ProjectFile>(this.versionFiles);
+        
+        for (ProjectFile pf : chFiles) {
+            ProjectFile parent = pf.getParentFolder();
+            
+            //Parent dir not in the DB, it should be added in this revision
+            if (parent == null) {
+              continue;  
+            }
+            
+            //Check if parent dir exists in this revision's entries
+            boolean exists = false;
+            for (ProjectFile dir : chFiles) {
+                //Only search directories
+                if (!dir.getIsDirectory())
+                    continue;
+                if (parent.getFileName().equals(dir.getFileName())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                //Create it!
+                addFile(pv, parent.getFileName(), ProjectFile.STATE_MODIFIED, 
+                        SCMNodeType.DIR, null);
+            }
+        }
+    }
+    
+    /**
+     * Constructs a project file out of the provided elements and adds it
+     * to the project file cache.
      */
     private ProjectFile addFile(ProjectVersion version, String fPath, 
             String status, SCMNodeType t, ProjectFile copyFrom) {
@@ -798,8 +815,7 @@ final class SourceUpdater extends Job {
             } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
                 ProjectFile old = ProjectFile.getPreviousFileVersion(pf); 
                 if (old == null) {
-                    err("Cannot get previous file version for file " + pf.toString());
-                    //continue;
+                    err("Cannot get previous file version for MODIFIED file " + pf.toString());
                 }
                 
                 /* 
@@ -813,13 +829,15 @@ final class SourceUpdater extends Job {
                 if (!old.getFileName().equals(pf.getFileName())) {
                     debug("Modified file path " + pf + " is different" +
                                 " from previous version " + old);
-                    continue;
-                }
-                
-                boolean deleted = filesForVersion.remove(old);
-                if (!deleted) {
-                    warn("Couldn't remove old association of modified file " + pf.toString() +
-                                 " in version " + pv.getRevisionId());
+                } else if (old.isDeleted()) {
+                    info("File " + pf + " was resurructed from " + old +
+                        ", then was modified in the same revision :-)");
+                } else {
+                    boolean deleted = filesForVersion.remove(old);
+                    if (!deleted) {
+                        warn("Couldn't remove old association of modified file " + pf.toString() +
+                                " in version " + pv.getRevisionId());
+                    } 
                 }
                 filesForVersion.add(pf);
             } else {
