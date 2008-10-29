@@ -1515,8 +1515,6 @@ public class SimulationModel {
 						aat = 0;
 						aaf = 0;
 						nnb = 0;
-						
-						//chi2Records.clear();
 
 						for (t1 = 1; t1 <= simulationSteps; t1++) {
 							bbb += bb[t1];
@@ -1528,9 +1526,6 @@ public class SimulationModel {
 							nnb += nb[t1];
 							if (t1 % 10 == 1) {
 								try {
-									
-		//							SimulationChi2 tempChi2 = new SimulationChi2(t1,1l,ll[t1], bbb, bbbr, qqq[t1], aas, aab, aat, aaf, po[t1], nnb);
-		//							chi2Records.add(tempChi2);
 									
 									tempWriter.write(t1 + "\t" + ll[t1] + "\t"
 											+ bbb + "\t" + bbbr + "\t"
