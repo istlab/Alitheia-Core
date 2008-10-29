@@ -71,7 +71,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
     public enum ConfigurationType {
         INTEGER,
         STRING,
-        BOOLEAN;
+        BOOLEAN,
+        DOUBLE;
 
         public static ConfigurationType fromString(String config) {
             if (config.equals(BOOLEAN.toString()))
@@ -82,6 +83,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
             if (config.equals(INTEGER.toString()))
                 return INTEGER;
+           
+            if (config.equals(DOUBLE.toString()))
+            	return DOUBLE;
 
             return null;
         }
@@ -287,6 +291,15 @@ public class PluginInfo implements Comparable<PluginInfo> {
                         throw new Exception("Not a valid integer value!");
                     }
                 }
+                
+                // Check for a double type
+                else if (type.equals(ConfigurationType.DOUBLE)) {
+                    try {
+                        Double.valueOf(newVal);
+                    } catch (NumberFormatException nfe) {
+                        throw new Exception("Not a valid double value!");
+                    }
+                }
 
                 // Update the given configuration property
                 pc = db.attachObjectToDBSession(pc);
@@ -348,6 +361,15 @@ public class PluginInfo implements Comparable<PluginInfo> {
                 Integer.valueOf(value);
             } catch (NumberFormatException nfe) {
                 throw new Exception("Not a valid integer value!");
+            }
+        }
+     
+     // Check for an invalid double value
+        else if (type.equals(ConfigurationType.DOUBLE.toString())) {
+            try {
+                Double.valueOf(value);
+            } catch (NumberFormatException nfe) {
+                throw new Exception("Not a valid double value!");
             }
         }
 
