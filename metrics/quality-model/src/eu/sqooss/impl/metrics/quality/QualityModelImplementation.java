@@ -34,30 +34,101 @@
 
 package eu.sqooss.impl.metrics.quality;
 
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.HashMap;
+
+import eu.sqooss.metrics.quality.db.QualityModelResults;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.quality.QualityModel;
+import eu.sqooss.metrics.quality.bean.QualityModelBean;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.abstractmetric.Result;
+import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
 
 
 public class QualityModelImplementation extends AbstractMetric implements QualityModel {
 
+	/**
+	 * Holds the instance of the Alitheia core service
+	 */
+	private AlitheiaCore core;
+	
 	public QualityModelImplementation(BundleContext bc) {
         super(bc);     
+        super.addActivationType(ProjectVersion.class);
+        super.addMetricActivationType("Qual", ProjectVersion.class);
+
+     // Quality Sub-Metrics
+        super.addMetricActivationType("Qual.cd", ProjectVersion.class);
+        super.addMetricActivationType("Qual.cm", ProjectVersion.class);
+
+     // Code Quality Sub-Metrics
+        super.addMetricActivationType("Qual.cd.mnt", ProjectVersion.class);        
+        super.addMetricActivationType("Qual.cd.rlb", ProjectVersion.class);
+        super.addMetricActivationType("Qual.cd.sec", ProjectVersion.class);
+
+     // Maintainabilty Quality Sub-Metrics
+        super.addMetricActivationType("Qual.cd.mnt.anlz", ProjectVersion.class);        
+        super.addMetricActivationType("Qual.cd.mnt.chng", ProjectVersion.class);
+        super.addMetricActivationType("Qual.cd.mnt.stb", ProjectVersion.class);
+        super.addMetricActivationType("Qual.cd.mnt.tstb", ProjectVersion.class);
+
+     // Community Quality Sub-Metrics
+        super.addMetricActivationType("Qual.cm.mail", ProjectVersion.class);
+        super.addMetricActivationType("Qual.cd.doc", ProjectVersion.class);
+        
+        
+     // Retrieve the instance of the Alitheia core service
+        ServiceReference serviceRef = bc.getServiceReference(
+                AlitheiaCore.class.getName());
+        if (serviceRef != null)
+            core = (AlitheiaCore) bc.getService(serviceRef);
     }
       
     public boolean install() { 	
     	boolean result = true;
-
-    	super.addSupportedMetrics("Quality", "QUAL", MetricType.Type.SOURCE_CODE);
+    	
+    	
     	//TODO add ALL the metrics dependecies when they are ready!
+    	addDependency("Wc.loc");
+    	
+    	// Installing...
     	result &= super.install();
+    	if (result) {
+    		result &= super.addSupportedMetrics("A Profile-based Overall Quality", "Qual", MetricType.Type.PROJECT_WIDE);
+    		result &= super.addSupportedMetrics("Code Quality", "Qual.cd", MetricType.Type.PROJECT_WIDE);
+    		result &= super.addSupportedMetrics("Community Quality", "Qual.cm", MetricType.Type.PROJECT_WIDE);
+
+         // Code Quality Sub-Metrics
+            result &= super.addSupportedMetrics("Maintainability","Qual.cd.mnt", MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Reliabity","Qual.cd.rlb", MetricType.Type.BUG_DATABASE);
+            result &= super.addSupportedMetrics("Security","Qual.cd.sec", MetricType.Type.SOURCE_CODE);
+
+         // Maintainabilty Quality Sub-Metrics
+            result &= super.addSupportedMetrics("Analyzability","Qual.cd.mnt.anlz", MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Changeability","Qual.cd.mnt.chng", MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Stability","Qual.cd.mnt.stb", MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Testability","Qual.cd.mnt.tstb", MetricType.Type.SOURCE_CODE);
+
+         // Community Quality Sub-Metrics
+            result &= super.addSupportedMetrics("Mailling list quality","Qual.cm.mail", MetricType.Type.MAILING_LIST);
+            result &= super.addSupportedMetrics("Documentation quality","Qual.cm.doc", MetricType.Type.PROJECT_WIDE);
+            
+
+    	}
     	return result;
     }
 
@@ -66,20 +137,51 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
     	return result;
     }
 
-    public boolean update() {
-
-        return remove() && install(); 
+    public List<ResultEntry> getResult(ProjectVersion v, Metric m) {
+        
+        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        // Search for a matching project file measurement
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("projectVersion", v);
+        filter.put("metric", m);
+        List<ProjectVersionMeasurement> measurement =
+            db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
+    	return convertVersionMeasurement(measurement.get(0),m.getMnemonic());
     }
 
-	public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public void run(ProjectVersion v) {
-		// TODO Auto-generated method stub
-		
-	}
+        String result = null;
+        
+        QualityModelBean model = new QualityModelBean();
+        // Store the results
+        // NOTE: Might not work...most use getMetricByMnemonic()
+        for(Metric metric : this.getSupportedMetrics() ){
+            result = model.getPessimisticAssignement().toString();
+            addProjectVersionMeasurement(metric,v,result);
+        }
+
+        
+    }  
+
+    private void addProjectVersionMeasurement(Metric metric, ProjectVersion pv, String value) {
+        ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(metric, pv, value);
+        db.addRecord(pvm);
+        markEvaluation(metric, pv);
+    }
+     /**
+      * Convenience method to convert a single measurement to a list of
+      * result entries
+      * @param v Single measurement to convert
+      * @param label Metric mnemonic label
+      * @return Singleton list of results for the measurement
+      */
+      public static List<ResultEntry> convertVersionMeasurement(ProjectVersionMeasurement v, String mnemonic) {
+         List<ResultEntry> results = new ArrayList<ResultEntry>(1);
+         results.add(new ResultEntry(v.getResult(), ResultEntry.MIME_TYPE_TEXT_PLAIN, mnemonic));
+         return results;
+     }
+
+	
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
