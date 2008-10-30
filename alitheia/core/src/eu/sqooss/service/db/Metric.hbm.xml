@@ -11,7 +11,7 @@
     <many-to-one name="plugin" column="PLUGIN_ID" not-null="true" lazy="false" />
     <many-to-one name="metricType" column="METRIC_TYPE" lazy="false" fetch="join" />
     <property name="description" column="DESCRIPTION" not-null="true" />
-    <property name="mnemonic" column="MNEMONIC" not-null="true" length="10" unique="true" />
+    <property name="mnemonic" column="MNEMONIC" not-null="true" length="20" unique="true" />
     <set name="evaluationMarks" inverse="true" cascade="all-delete-orphan">
         <key column="METRIC_ID"/>
         <one-to-many class="eu.sqooss.service.db.EvaluationMark"/>
