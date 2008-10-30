@@ -98,6 +98,9 @@ public class QualityModelBean implements Serializable {
      * @param objectOriented
      */
     public void initialize(boolean objectOriented) {
+	//TODO:Clear hashmap
+	// criteriaMap.clear();
+
         this.objectOriented = objectOriented;
 
         // Construct the Quality Model Tree (up side down) with the default
@@ -158,6 +161,98 @@ public class QualityModelBean implements Serializable {
         criteriaInitializationMap = new HashMap<String, Boolean>();
         // Constructing leaves for OO Product
         if (isObjectOriented()) {
+            // Constructing leaves for non-OO Product
+            // Analyzability SubCriteria
+            Criterion weightedMethodPerClass = new NumericCriterionElement(
+                    "Weighted Method per Class", 1.0 / 3.0,
+                    CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
+                            Double.POSITIVE_INFINITY, 100.0, 60.0, 20.0 }));
+            Criterion numberOfBaseClasses = new NumericCriterionElement(
+                    "Number of base classes", 1.0 / 3.0,
+                    CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
+                            Double.POSITIVE_INFINITY, 3.0, 7.0, 10.0 }));
+            Criterion classCommentsFrequency = new NumericCriterionElement(
+                    "Class comments frequency", 1.0 / 3.0,
+                    CriterionScale.MoreIsBetter, Arrays.asList(new Double[] {
+                            Double.NEGATIVE_INFINITY, 0.1, 0.3, 0.5 }));
+            
+            criteriaMap.put(weightedMethodPerClass.getName(), weightedMethodPerClass);
+            criteriaMap.put(numberOfBaseClasses.getName(), numberOfBaseClasses);
+            criteriaMap.put(classCommentsFrequency.getName(), classCommentsFrequency);
+            
+            // Analyzability ( Maintainability subcriterion)
+            analyzability = new ComposedCriterion("Analyzability", 1.0 / 4.0,
+                    Arrays.asList(new Criterion[] { weightedMethodPerClass,
+                            numberOfBaseClasses, classCommentsFrequency }));
+            criteriaMap.put(analyzability.getName(), analyzability);
+
+            // Changeability SubCriteria
+            Criterion couplingBetweenObjects = new NumericCriterionElement(
+                    "Coupling between objects", 1.0 / 3.0,
+                    CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
+                            Double.POSITIVE_INFINITY, 5.0, 4.0, 2.0 }));
+            Criterion lackOfCohesion = new NumericCriterionElement(
+                    "lackOfCohesion", 1.0 / 3.0,
+                    CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
+                            Double.POSITIVE_INFINITY, 70.0, 50.0, 30.0 }));
+            Criterion depthOfInheritanceTree = new NumericCriterionElement(
+                    "Depth of inheritance tree", 1.0 / 3.0,
+                    CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
+                            Double.POSITIVE_INFINITY, 10.0, 7.0, 5.0 }));
+            
+
+            criteriaMap.put(couplingBetweenObjects.getName(), couplingBetweenObjects);
+            criteriaMap.put(lackOfCohesion.getName(),lackOfCohesion);
+            criteriaMap.put(depthOfInheritanceTree.getName(),
+                    depthOfInheritanceTree);
+
+            // Changeability ( Maintainability subcriterion)
+            changeability = new ComposedCriterion("Changeability", 1.0 / 4.0,
+                    Arrays.asList(new Criterion[] { couplingBetweenObjects, lackOfCohesion,
+                            depthOfInheritanceTree }));
+            criteriaMap.put(changeability.getName(), changeability);
+
+            // Stability SubCreteria
+            Criterion numberOfChildren = new NumericCriterionElement(
+                    "Number of children", 1.0 / 3.0,
+                    CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
+                            Double.POSITIVE_INFINITY, 10.0, 7.0, 5.0 }));
+            
+            // the depthOfInheritanceTree is already defined
+            // the couplingBetweenObjects is already defined
+
+            criteriaMap.put(numberOfChildren.getName(), numberOfChildren);
+            
+            // Stability ( Maintainability subcriterion)
+            stability = new ComposedCriterion("Stability", 1.0 / 4.0, Arrays
+                    .asList(new Criterion[] { numberOfChildren,
+                            couplingBetweenObjects, depthOfInheritanceTree }));
+            criteriaMap.put(stability.getName(), stability);
+
+            // Testability SubCreteria
+            Criterion responseForAClass = new NumericCriterionElement(
+                    "Response for a class ", 1.0 / 4.0,
+                    CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
+                            Double.POSITIVE_INFINITY, 20.0, 60.0, 100.0 }));
+            Criterion averageCCPerClass = new NumericCriterionElement(
+                    "Average cyclomatic complexity per class", 1.0 / 4.0,
+                    CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
+                            Double.POSITIVE_INFINITY, 8.0, 6.0, 4.0 }));
+            // the numberOfBaseClasses is already defined
+            numberOfBaseClasses.setRelativeImportance(1.0/4.0);
+            // the numberOfChildren is already defined
+            numberOfChildren.setRelativeImportance(1.0/4.0);
+
+            criteriaMap.put(responseForAClass.getName(),responseForAClass);
+            criteriaMap.put(averageCCPerClass.getName(),averageCCPerClass);
+            
+            // Testability ( Maintainability subcriterion)
+            testability = new ComposedCriterion("Testability", 1.0 / 4.0,
+                    Arrays.asList(new Criterion[] {
+                            numberOfBaseClasses,
+                            responseForAClass, averageCCPerClass,numberOfChildren }));
+            criteriaMap.put(testability.getName(), testability);
+
 
         } else {
             // Constructing leaves for non-OO Product

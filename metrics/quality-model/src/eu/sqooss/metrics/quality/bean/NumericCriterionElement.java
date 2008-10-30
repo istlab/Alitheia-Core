@@ -135,16 +135,16 @@ public class NumericCriterionElement extends Criterion {
         double metricValue;
         switch (criterionScale) {
         case MoreIsBetter:
-            metricValue = -Double.MAX_VALUE;
+            metricValue =  profilesValues.get(1)+0.1;
             break;
         case LessIsBetter:
-            metricValue = Double.MAX_VALUE;
+            metricValue = profilesValues.get(1)-0.1;
             break;
         case ValueIsBetter:
-            metricValue = Double.NaN;
+            metricValue = profilesValues.get(1);
             break;
         default:
-            metricValue = Double.NaN;
+            metricValue = profilesValues.get(1);
             break;
         }
 
