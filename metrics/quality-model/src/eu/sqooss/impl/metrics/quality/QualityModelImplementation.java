@@ -40,8 +40,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.HashMap;
 
-import eu.sqooss.metrics.quality.db.QualityModelResults;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
