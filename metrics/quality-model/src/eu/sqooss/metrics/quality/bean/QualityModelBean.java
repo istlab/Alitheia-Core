@@ -50,6 +50,22 @@ import eu.sqooss.metrics.quality.bean.NumericCriterionElement;
  */
 public class QualityModelBean implements Serializable {
 
+	   public static final String OVERALL_QUALITY = "SQO-OSS Quality Characteristics";
+	    public static final String CODE_QUALITY = "Product (Code) Quality";
+	    public static final String MAINTAINABLITY = "Maintainability";
+	    public static final String ANALAZYBILITY = "Analyzability";
+	    public static final String CHANGEABILITY = "Changeability";
+	    public static final String STABILITY = "Stability";
+	    public static final String TESTABILITY = "Testability"'
+	    public static final String RELIABILITY = "Reliability";
+	    public static final String MATURITY = "Maturity";
+	    public static final String EFFECTIVENESS = "Effectiveness";
+	    public static final String SECURITY = "Security";
+	    public static final String COMMUNITY_QUALITY = "Community Quality";
+	    public static final String MAILLING_LIST_QUALITY = "Mailing list Quality";
+	    public static final String DOCUMENTATION_QUALITY = "Documentation Quality";
+
+
     /**
      * The (auto-generated) <code>serialVersionUID</code> for the
      * {@link Serializable} interface.

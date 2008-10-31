@@ -64,36 +64,78 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
 	 */
 	private AlitheiaCore core;
 	
+    private HashMap<String,String> mnemonicToName;
+
+    public static final String OVERALL_QUALITY_MNEMONIC = "Qual";
+    public static final String CODE_QUALITY_MNEMONIC = "Qual.cd";
+    public static final String MAINTAINABLITY_MNEMONIC = "Qual.cd.mnt";
+    public static final String ANALAZYBILITY_MNEMONIC = "Qual.cd.mnt.anlz";
+    public static final String CHANGEABILITY_MNEMONIC = "Qual.cd.mnt.chng";
+    public static final String STABILITY_MNEMONIC = "Qual.cd.mnt.stb";
+    public static final String TESTABILITY_MNEMONIC = "Qual.cd.mnt.tstb";
+    public static final String RELIABILITY_MNEMONIC = "Qual.cd.rlb";
+    public static final String MATURITY_MNEMONIC = "Qual.cd.rlb.mtr";
+    public static final String EFFECTIVENESS_MNEMONIC = "Qual.cd.rlb.effct";
+    public static final String SECURITY_MNEMONIC = "Qual.cd.sec";
+    public static final String COMMUNITY_QUALITY_MNEMONIC = "Qual.cm";
+    public static final String MAILLING_LIST_QUALITY_MNEMONIC = "Qual.cm.mail";
+    public static final String DOCUMENTATION_QUALITY_MNEMONIC = "Qual.cd.doc";
+
+
 	public QualityModelImplementation(BundleContext bc) {
         super(bc);     
         super.addActivationType(ProjectVersion.class);
-        super.addMetricActivationType("Qual", ProjectVersion.class);
+        super.addMetricActivationType(OVERALL_QUALITY_MNEMONIC, ProjectVersion.class);
 
      // Quality Sub-Metrics
-        super.addMetricActivationType("Qual.cd", ProjectVersion.class);
-        super.addMetricActivationType("Qual.cm", ProjectVersion.class);
+        super.addMetricActivationType(CODE_QUALITY_MNEMONIC, ProjectVersion.class);
+        super.addMetricActivationType(COMMUNITY_QUALITY_MNEMONIC, ProjectVersion.class);
 
      // Code Quality Sub-Metrics
-        super.addMetricActivationType("Qual.cd.mnt", ProjectVersion.class);        
-        super.addMetricActivationType("Qual.cd.rlb", ProjectVersion.class);
-        super.addMetricActivationType("Qual.cd.sec", ProjectVersion.class);
+        super.addMetricActivationType(MAINTAINABLITY_MNEMONIC, ProjectVersion.class);        
+        super.addMetricActivationType(RELIABILITY_MNEMONIC, ProjectVersion.class);
+        super.addMetricActivationType(SECURITY_MNEMONIC, ProjectVersion.class);
 
      // Maintainabilty Quality Sub-Metrics
-        super.addMetricActivationType("Qual.cd.mnt.anlz", ProjectVersion.class);        
-        super.addMetricActivationType("Qual.cd.mnt.chng", ProjectVersion.class);
-        super.addMetricActivationType("Qual.cd.mnt.stb", ProjectVersion.class);
-        super.addMetricActivationType("Qual.cd.mnt.tstb", ProjectVersion.class);
+        super.addMetricActivationType(ANALAZYBILITY_MNEMONIC, ProjectVersion.class);        
+        super.addMetricActivationType(CHANGEABILITY_MNEMONIC, ProjectVersion.class);
+        super.addMetricActivationType(STABILITY_MNEMONIC, ProjectVersion.class);
+        super.addMetricActivationType(TESTABILITY_MNEMONIC, ProjectVersion.class);
+
+     // Reliability Quality Sub-Metrics
+        super.addMetricActivationType(MATURITY_MNEMONIC, ProjectVersion.class);        
+        super.addMetricActivationType(EFFECTIVENESS_MNEMONIC, ProjectVersion.class);
 
      // Community Quality Sub-Metrics
-        super.addMetricActivationType("Qual.cm.mail", ProjectVersion.class);
-        super.addMetricActivationType("Qual.cd.doc", ProjectVersion.class);
+        super.addMetricActivationType(MAILLING_LIST_QUALITY_MNEMONIC, ProjectVersion.class);
+        super.addMetricActivationType(DOCUMENTATION_QUALITY_MNEMONIC, ProjectVersion.class);
         
-        
+        initializeMnemonicToName();        
+
      // Retrieve the instance of the Alitheia core service
         ServiceReference serviceRef = bc.getServiceReference(
                 AlitheiaCore.class.getName());
         if (serviceRef != null)
             core = (AlitheiaCore) bc.getService(serviceRef);
+    }
+    
+    private void initializeMnemonicToName(){
+        mnemonicToName = new HashMap<String,String>();
+        mnemonicToName.put(OVERALL_QUALITY_MNEMONIC, QualityModelBean.OVERALL_QUALITY);
+        mnemonicToName.put(CODE_QUALITY_MNEMONIC, QualityModelBean.CODE_QUALITY);
+        mnemonicToName.put(MAINTAINABLITY_MNEMONIC, QualityModelBean.MAINTAINABLITY);
+        mnemonicToName.put(ANALAZYBILITY_MNEMONIC, QualityModelBean.ANALAZYBILITY);
+        mnemonicToName.put(CHANGEABILITY_MNEMONIC, QualityModelBean.CHANGEABILITY);
+        mnemonicToName.put(STABILITY_MNEMONIC, QualityModelBean.STABILITY);
+        mnemonicToName.put(TESTABILITY_MNEMONIC, QualityModelBean.TESTABILITY);
+        mnemonicToName.put(RELIABILITY_MNEMONIC, QualityModelBean.RELIABILITY);
+        mnemonicToName.put(MATURITY_MNEMONIC, QualityModelBean.MATURITY);
+        mnemonicToName.put(EFFECTIVENESS_MNEMONIC, QualityModelBean.EFFECTIVENESS);
+        mnemonicToName.put(SECURITY_MNEMONIC, QualityModelBean.SECURITY);
+        mnemonicToName.put(COMMUNITY_QUALITY_MNEMONIC, QualityModelBean.COMMUNITY_QUALITY);
+        mnemonicToName.put(MAILLING_LIST_QUALITY_MNEMONIC, QualityModelBean.MAILLING_LIST_QUALITY);
+        mnemonicToName.put(DOCUMENTATION_QUALITY_MNEMONIC, QualityModelBean.DOCUMENTATION_QUALITY);
+
     }
       
     public boolean install() { 	
