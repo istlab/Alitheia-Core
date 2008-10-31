@@ -79,7 +79,7 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
     public static final String SECURITY_MNEMONIC = "Qual.cd.sec";
     public static final String COMMUNITY_QUALITY_MNEMONIC = "Qual.cm";
     public static final String MAILLING_LIST_QUALITY_MNEMONIC = "Qual.cm.mail";
-    public static final String DOCUMENTATION_QUALITY_MNEMONIC = "Qual.cd.doc";
+    public static final String DOCUMENTATION_QUALITY_MNEMONIC = "Qual.cm.doc";
 
 
 	public QualityModelImplementation(BundleContext bc) {
@@ -148,24 +148,28 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
     	// Installing...
     	result &= super.install();
     	if (result) {
-    		result &= super.addSupportedMetrics("A Profile-based Overall Quality", "Qual", MetricType.Type.PROJECT_WIDE);
-    		result &= super.addSupportedMetrics("Code Quality", "Qual.cd", MetricType.Type.PROJECT_WIDE);
-    		result &= super.addSupportedMetrics("Community Quality", "Qual.cm", MetricType.Type.PROJECT_WIDE);
+    		result &= super.addSupportedMetrics("A Profile-based Overall Quality", OVERALL_QUALITY_MNEMONIC, MetricType.Type.PROJECT_WIDE);
+    		result &= super.addSupportedMetrics("Code Quality", CODE_QUALITY_MNEMONIC, MetricType.Type.PROJECT_WIDE);
+    		result &= super.addSupportedMetrics("Community Quality", COMMUNITY_QUALITY_MNEMONIC, MetricType.Type.PROJECT_WIDE);
 
          // Code Quality Sub-Metrics
-            result &= super.addSupportedMetrics("Maintainability","Qual.cd.mnt", MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Reliabity","Qual.cd.rlb", MetricType.Type.BUG_DATABASE);
-            result &= super.addSupportedMetrics("Security","Qual.cd.sec", MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Maintainability",MAINTAINABLITY_MNEMONIC, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Reliabity",RELIABILITY_MNEMONIC, MetricType.Type.BUG_DATABASE);
+            result &= super.addSupportedMetrics("Security",SECURITY_MNEMONIC, MetricType.Type.SOURCE_CODE);
 
          // Maintainabilty Quality Sub-Metrics
-            result &= super.addSupportedMetrics("Analyzability","Qual.cd.mnt.anlz", MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Changeability","Qual.cd.mnt.chng", MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Stability","Qual.cd.mnt.stb", MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Testability","Qual.cd.mnt.tstb", MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Analyzability",ANALAZYBILITY_MNEMONIC, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Changeability",CHANGEABILITY_MNEMONIC, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Stability",STABILITY_MNEMONIC, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Testability",TESTABILITY_MNEMONIC, MetricType.Type.SOURCE_CODE);
+
+         // Reliability Quality Sub-Metrics
+            result &= super.addSupportedMetrics("Maturity",MATURITY_MNEMONIC, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Effectiveness",EFFECTIVENESS_MNEMONIC, MetricType.Type.SOURCE_CODE);
 
          // Community Quality Sub-Metrics
-            result &= super.addSupportedMetrics("Mailling list quality","Qual.cm.mail", MetricType.Type.MAILING_LIST);
-            result &= super.addSupportedMetrics("Documentation quality","Qual.cm.doc", MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics("Mailling list quality",MAILLING_LIST_QUALITY_MNEMONIC, MetricType.Type.MAILING_LIST);
+            result &= super.addSupportedMetrics("Documentation quality",DOCUMENTATION_QUALITY_MNEMONIC, MetricType.Type.PROJECT_WIDE);
             
 
     	}
