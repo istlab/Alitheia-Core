@@ -56,7 +56,7 @@ public class QualityModelBean implements Serializable {
 	    public static final String ANALAZYBILITY = "Analyzability";
 	    public static final String CHANGEABILITY = "Changeability";
 	    public static final String STABILITY = "Stability";
-	    public static final String TESTABILITY = "Testability"'
+	    public static final String TESTABILITY = "Testability";
 	    public static final String RELIABILITY = "Reliability";
 	    public static final String MATURITY = "Maturity";
 	    public static final String EFFECTIVENESS = "Effectiveness";
