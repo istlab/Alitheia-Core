@@ -45,6 +45,7 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
@@ -166,7 +167,9 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         int mnol = 0;
         
         List<ProjectFile> pfs = ProjectFile.getFilesForVersion(
-                pf.getProjectVersion(), pf.getDir(), ProjectFile.MASK_FILES);
+                pf.getProjectVersion(), 
+                Directory.getDirectory(pf.getFileName(), false), 
+                ProjectFile.MASK_FILES);
         
         boolean foundSource = false; 
         for (ProjectFile f : pfs) {
@@ -178,11 +181,11 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
             // Found one source file, treat the folder as a source module
             mnof++;
             foundSource = true;
+            
             // Get the necessary measurement from the Wc.loc metric
-
-                if (FileTypeMatcher.isTextType(f.getName())) {
-                    mnol += getMeasurement(DEP_WC_LOC, f);
-                }
+            if (FileTypeMatcher.isTextType(f.getName())) {
+                mnol += getMeasurement(DEP_WC_LOC, f);
+            }
         }
         
         //Only store results for source dirs
@@ -207,22 +210,45 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         // Calculate the metric results
         int locs = 0;
         int sourceModules = 0;
+        boolean foundSource = false; 
+        //For each directory in version
         for (ProjectFile pf : folders) {
-            int mnolValue = getMeasurement(MET_MNOL, pf);
-            // Try to retrieve the MNOL measurement for this folder 
-            if (mnolValue > 0)
-                sourceModules++;
-            locs += mnolValue; 
+            //Determine whether the directory contains source code files
+            List<ProjectFile> pfs = ProjectFile.getFilesForVersion(
+                    pf.getProjectVersion(), 
+                    Directory.getDirectory(pf.getFileName(), false),
+                    ProjectFile.MASK_FILES);
+            
+            for (ProjectFile f : pfs) {
+
+                if (FileTypeMatcher.getFileType(f.getName()) == 
+                    FileTypeMatcher.FileType.SRC) {
+                    // Found one source file, treat the folder as a source module
+                    foundSource = true;
+                    break;
+                }
+            }
+            
+            if (foundSource) {
+                int mnolValue = getMeasurement(MET_MNOL, pf);
+                // Try to retrieve the MNOL measurement for this folder 
+                if (mnolValue > 0)
+                    sourceModules++;
+                
+                locs += mnolValue;
+            }
         } 
 
-        // Store the "AMS" metric result
-        Metric metric = Metric.getMetricByMnemonic(MET_AMS);
-        ProjectVersionMeasurement ams = new ProjectVersionMeasurement(
-                metric, pv, String.valueOf(0));
-        if (sourceModules > 0)
-            ams.setResult(String.valueOf(((float) (locs / sourceModules))));
-        db.addRecord(ams);
-        markEvaluation(metric, pv.getProject());
+        if (foundSource) {
+            // Store the "AMS" metric result
+            Metric metric = Metric.getMetricByMnemonic(MET_AMS);
+            ProjectVersionMeasurement ams = new ProjectVersionMeasurement(
+                    metric, pv, String.valueOf(0));
+            if (sourceModules > 0)
+                ams.setResult(String.valueOf(((float) (locs / sourceModules))));
+            db.addRecord(ams);
+            markEvaluation(metric, pv.getProject());
+        }
     }
     
     private int getMeasurement(String mnemonic, ProjectFile f) 
@@ -243,7 +269,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
             return 0;
         }
         catch (Exception e) {
-            log.error("ModuleMetrics: Results of " + DEP_WC_LOC
+            log.error("ModuleMetrics: Results of " + mnemonic
                     + " metric for project: "
                     + f.getProjectVersion().getProject().getName()
                     + ", file: " + f.getFileName() + ", version: "

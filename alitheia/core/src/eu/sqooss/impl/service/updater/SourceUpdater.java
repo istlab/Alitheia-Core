@@ -198,8 +198,6 @@ final class SourceUpdater extends Job {
                     dbs.commitDBSession();
                     return;    
                 }
-                
-                
             } else {
                 //Add revision 0 and / (root) file entry
                 ProjectVersion zero = new ProjectVersion(project);
