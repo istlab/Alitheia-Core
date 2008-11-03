@@ -183,6 +183,13 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.clmt</groupId>
+      <artifactId>clmt</artifactId>
+      <version>0.9.0</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>
 

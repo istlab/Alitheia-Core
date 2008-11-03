@@ -48,6 +48,7 @@ import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
 import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
 import eu.sqooss.impl.service.pa.PAServiceImpl;
+import eu.sqooss.impl.service.parser.ParserImpl;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.security.SecurityManagerImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
@@ -60,6 +61,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.parser.Parser;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
@@ -115,6 +117,9 @@ public class AlitheiaCore {
 
     /** The parent bundle's context object. */
     private BundleContext bc;
+    
+    /** */
+    private Parser parser;
     
     /** The Core is singleton-line because it has a special instance */
     private static AlitheiaCore instance = null;
@@ -238,6 +243,19 @@ public class AlitheiaCore {
      */
     public DBService getDBService() {
         return db;
+    }
+    
+    /**
+     * Returns the locally stored Parser componenet's instance.
+     * 
+     * @return The Parser component's instance.
+     */
+    public Parser getParser() {
+    	if(parser == null) {
+    		parser = new ParserImpl(getLogManager().createLogger(Logger.NAME_SQOOSS_PARSER));
+    	}
+    	
+    	return parser;
     }
 
     /**
