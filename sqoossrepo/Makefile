@@ -131,6 +131,7 @@ $(eval $(call rejar_template,org,junit,4.4))
 $(eval $(call rejar_template,org/postgresql,jdbc,8.2.505))
 $(eval $(call rejar_template,com,mysql,5.1.6))
 $(eval $(call rejar_template,org/tmatesoft,svnkit,1.1.4))
+$(eval $(call rejar_template,org/clmt,0.9.0))
 
 extra-hibernate :
 	cp javax/transaction/1.1/transaction-1.1.jar tmp/javax.transaction-1.1.jar
