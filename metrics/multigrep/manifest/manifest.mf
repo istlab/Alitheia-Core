@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Krazy Metric Plug-in
-Bundle-SymbolicName: eu.sqooss.metric.krazy
+Bundle-Name: Multigrep Metric Plug-in
+Bundle-SymbolicName: eu.sqooss.metric.multigrep
 Bundle-Version: 0.0.1
-Bundle-Activator: eu.sqooss.metrics.krazy.KrazyActivator
+Bundle-Activator: eu.sqooss.metrics.multigrep.MultiGrepActivator
 Bundle-Vendor: KDE
-Bundle-Description: Krazy meta-metric
+Bundle-Description: Multigrep meta-metric
 Import-Package:  org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.abstractmetric,
