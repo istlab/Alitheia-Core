@@ -32,7 +32,6 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -87,6 +86,8 @@ public class MetricActivatorImpl implements MetricActivator {
     private Long firstRuleId = null;
     private HashMap<Long,InvocationRule> rules = null;
 
+    private HashMap<Class<? extends DAObject>, Integer> defaultPriorities;
+    
     public MetricActivatorImpl(BundleContext bc, Logger logger) {
         this.bc=bc;
 
@@ -94,6 +95,14 @@ public class MetricActivatorImpl implements MetricActivator {
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
 
+        this.defaultPriorities = new HashMap<Class<? extends DAObject>, Integer>();
+        defaultPriorities.put(ProjectFile.class, 0x1000000);
+        defaultPriorities.put(MailMessage.class, 0x1000000);
+        defaultPriorities.put(Bug.class, 0x1000000);
+        defaultPriorities.put(ProjectVersion.class, 0x2000000);
+        defaultPriorities.put(MailingList.class, 0x2000000);
+        defaultPriorities.put(Developer.class, 0x4000000);
+        defaultPriorities.put(StoredProject.class, 0x8000000);
         this.logger = logger;
         this.pa = core.getPluginAdmin();
         this.db = core.getDBService();
@@ -256,35 +265,18 @@ public class MetricActivatorImpl implements MetricActivator {
             return;
         }
         
-        /*/*Poor man's dependency resolution*
-        HashMap<AlitheiaPlugin, List<AlitheiaPlugin>> depList = new HashMap<AlitheiaPlugin, List<AlitheiaPlugin>>();
-        List<AlitheiaPlugin> pluginLump = new ArrayList<AlitheiaPlugin>(); 
-        /* 1. retrieve dependencies *
-        for (PluginInfo pi : plugins) {
-            AlitheiaPlugin p = (AlitheiaPlugin) bc.getService(pi.getServiceRef());
-            List<String> mnemDeps = p.getDependencies();
-            List<AlitheiaPlugin> pluginDeps = new ArrayList<AlitheiaPlugin>();
-            for (String dep : mnemDeps) {
-                pluginDeps.add(pa.getImplementingPlugin(dep));
-            }
-            depList.put(p, pluginDeps);
-            pluginLump.add(p);
-            pluginLump.addAll(pluginDeps);
-        }
-        
-        /* 2. Replace first occurence of a plugo*
-        */
-        
         /* Fire up plug-ins */
         for (PluginInfo pi : plugins) {
             AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
+            int priority = defaultPriorities.get(actType);
             for(Long l : daoIDs) {
                 try {
-                    sched.enqueue(new MetricActivatorJob(metric, l, logger, 
-                            actType));
+                    sched.enqueue(new MetricActivatorJob(metric, l, logger,
+                            actType, priority));
                 } catch (SchedulerException e) {
                     logger.error("Could not enquere job to run the metric");
                 }
+                priority++;
             }
         }
     }
@@ -363,19 +355,12 @@ public class MetricActivatorImpl implements MetricActivator {
         
         for (Class<? extends DAObject> c : actTypes) {
             if(c.equals(ProjectFile.class)) {
-//                query = "select distinct pf.id " +
-//                "from ProjectVersion pv, ProjectFile pf " +
-//                "where pf.projectVersion=pv and pv.project = :" + paramSp +
-//                " order by pv.timestamp asc";
                 query = "select pf.id " +
                 "from ProjectVersion pv, ProjectFile pf " +
                 "where pf.projectVersion=pv and pv.project = :" + paramSp +
                 " group by pf.id, pv.timestamp" +
                 " order by pv.timestamp asc";
             } else if (c.equals(ProjectVersion.class)) {
-//                query = "select distinct pv.id from ProjectVersion pv " +
-//                        "where pv.project = :" + paramSp + 
-//                        " order by pv.timestamp asc ";
                 query = "select pv.id from ProjectVersion pv " +
                 "where pv.project = :" + paramSp + 
                 " group by pv.id, pv.timestamp" +
@@ -387,7 +372,8 @@ public class MetricActivatorImpl implements MetricActivator {
                 query = "select distinct mm.id " +
                         "from StoredProject sp, MailingList ml, MailMessage mm " +
                         "where mm.list = ml and " +
-                        "ml.storedProject = :" + paramSp;
+                        "ml.storedProject = :" + paramSp + 
+                        " order by mm.arrivalDate asc";
             } else if (c.equals(MailingList.class)) { 
                 query = "select distinct ml.id from StoredProject sp, MailingList ml " +
                         "where ml.storedProject = :" + paramSp;
@@ -396,7 +382,8 @@ public class MetricActivatorImpl implements MetricActivator {
                         "where d.storedProject = :" + paramSp;
             } else if (c.equals(Bug.class)){
                 query = "select distinct b.id from Bug b " +
-                        " where b.project = :" + paramSp;
+                        " where b.project = :" + paramSp + 
+                        " order by b.deltaTS asc";
             } else {
                 logger.error("Unknown activation type " + c.getName());
                 return;
@@ -412,13 +399,14 @@ public class MetricActivatorImpl implements MetricActivator {
         List<Long> objectIDs = (List<Long>) db.doHQL(hqlQuery, map);
         AbstractMetric metric = 
             (AbstractMetric) bc.getService(pi.getServiceRef());
-        
+        int priority = defaultPriorities.get(actType);
         for (Long l : objectIDs) {
             try {
-                sched.enqueue(new MetricActivatorJob(metric, l, logger, actType));
+                sched.enqueue(new MetricActivatorJob(metric, l, logger, actType, priority));
             } catch (SchedulerException e) {
                 logger.error("Could not start job to sync metric");
             }
+            priority++;
         }
     }
 }

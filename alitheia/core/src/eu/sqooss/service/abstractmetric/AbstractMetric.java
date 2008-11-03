@@ -111,10 +111,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     
     /** 
      * Metric mnemonics for the metrics required to be present for this 
-     * metric to operate 
+     * metric to operate.
      */
     private List<String> dependencies = new ArrayList<String>();
-
+    
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -709,7 +709,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * activation types, depending on which project resource they are 
      * interested in. 
      * 
-     * The activation types are not persisted across restarts
+     * The activation types are not persisted across restarts, so this list
+     * must be instantiated in the metric's constructor. The order 
+     * at which activation types are added to the list corresponds to the order
+     * at which the metric is called on updates. 
      *  
      * @param c The activation type to register for the plug-in
      */
@@ -906,5 +909,5 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** {@inheritDoc} */
     public List<String> getDependencies() {
         return dependencies;
-    }
+    }    
 }
