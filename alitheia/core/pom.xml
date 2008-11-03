@@ -184,7 +184,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.clmt</groupId>
+      <groupId>org</groupId>
       <artifactId>clmt</artifactId>
       <version>0.9.0</version>
       <type>jar</type>
