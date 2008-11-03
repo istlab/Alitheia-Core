@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service;
+package eu.sqooss.metrics.simulation;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
