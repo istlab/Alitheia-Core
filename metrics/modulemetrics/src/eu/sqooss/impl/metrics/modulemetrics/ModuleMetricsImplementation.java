@@ -63,6 +63,8 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
     // Mnemonic names of all supported metrics
     private static String MET_MNOF = "MNOF";
     private static String MET_MNOL = "MNOL";
+    private static String MET_RMNOL = "RMNOL";
+    private static String MET_RMNOF = "RMNOF";
     private static String MET_AMS = "AMS";
 
     // Holds the instance of the Alitheia core service
@@ -77,12 +79,14 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         super(bc);
 
         super.addActivationType(ProjectFile.class);
-        super.addActivationType(ProjectVersion.class);
+       // super.addActivationType(ProjectVersion.class);
 
         super.addMetricActivationType(MET_MNOF, ProjectFile.class);
         super.addMetricActivationType(MET_MNOL, ProjectFile.class);
-        super.addMetricActivationType(MET_AMS, ProjectVersion.class);
-
+     //   super.addMetricActivationType(MET_AMS, ProjectVersion.class);
+     //   super.addMetricActivationType(MET_RMNOL, ProjectFile.class);
+     //   super.addMetricActivationType(MET_RMNOF, ProjectFile.class);
+        
         // Define the plug-in dependencies
         super.addDependency(DEP_WC_LOC);
 
@@ -97,17 +101,25 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics(
-                    "Number of Files in Module",
+                    "Number of Source Code Files in Module",
                     MET_MNOF,
                     MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics(
-                    "Number of Lines in Module",
+                    "Number of Source Code Lines in Module",
                     MET_MNOL,
                     MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics(
+        /*    result &= super.addSupportedMetrics(
                     "Average Module Size",
                     MET_AMS,
                     MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics(
+                    "Number of Source Code Files in Module (Recursive)",
+                    MET_RMNOF,
+                    MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics(
+                    "Number of Source Code Lines in Module (Recursive)",
+                    MET_RMNOL,
+                    MetricType.Type.PROJECT_WIDE);*/
         }
         return result;
     }
@@ -116,6 +128,15 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         // Prepare an array for storing the retrieved measurement results
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
 
+        if (!pf.getIsDirectory())
+            return null;
+        
+        if (m.getMnemonic().equals(MET_RMNOL))
+            return getRMNOL(pf);
+        
+        if ((m.getMnemonic().equals(MET_RMNOF)))
+            return getRMNOF(pf);
+        
         // Search for a matching measurement results
         List<ProjectFileMeasurement> measurement = null;
         HashMap<String, Object> filter = new HashMap<String, Object>();
@@ -133,6 +154,16 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         }
 
         return results.isEmpty() ? null : results;
+    }
+    
+    private List<ResultEntry> getRMNOF(ProjectFile pf) {
+        
+        //List<ProjectFile> dirs =  
+        return null;
+    }
+
+    private List<ResultEntry> getRMNOL(ProjectFile pf) {
+        return null;
     }
 
     public List<ResultEntry> getResult(ProjectVersion pv, Metric m) {
