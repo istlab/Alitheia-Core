@@ -32,44 +32,14 @@
  */
 package eu.sqooss.service.parser;
 
-import org.w3c.dom.Document;
-
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-
 /**
- * The <code>Parser</code> service provides a high level parsing
- * facility. It utilizes the CLMT parsing API.
  * 
- * Each <i>ProjectFile</i> is automatically translated into its
- * XML-based representation.  
  * 
- * The output format is called IXR (Intermediate XML Representation)
- * and is the output format of CLMT. 
  * 
- * More information can be found in 
- * http://istlab.dmst.aueb.gr/content/rel_pages/sense_software-page.html
- *
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
-public interface Parser {
-	/**
-	 * Parse a specified ProjectFile
-	 * 
-	 * @param l The pf's language module that will be used
-	 * @param pf The ProjectFile that will be parsed
-	 * @return The produced XML document
-	 * @throws ParsingException
-	 */
-	public Document parse(Language l, ProjectFile pf) throws ParsingException;
-	
-	/**
-	 * Parse all the files for a specified ProjectVersion
-	 * 
-	 * @param l The pf's language module that will be used
-	 * @param pv The ProjectVersion that will be parsed
-	 * @return The produced XML document
-	 * @throws ParsingException
-	 */	
-	public Document[] parse(Language l, ProjectVersion pv) throws ParsingException;
+public enum Language {
+	JAVA,
+	C,
+	CPLUPLUS;
 }

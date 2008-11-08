@@ -35,6 +35,10 @@ package eu.sqooss.impl.service.parser;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.clmt.configuration.Properties;
 
 import org.clmt.io.CLMTFile;
@@ -47,9 +51,12 @@ import org.w3c.dom.Document;
 
 import eu.sqooss.service.logging.Logger;
 
+import eu.sqooss.service.parser.Language;
 import eu.sqooss.service.parser.Parser;
+import eu.sqooss.service.parser.ParsingException;
 
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
 
 /**
  * 
@@ -64,24 +71,65 @@ public class ParserImpl implements Parser {
 		this.logger = logger;
 	}
 
-	public Document parseC(ProjectFile pf) {
-		return null;
+
+	@Override
+	public Document parse(Language l, ProjectFile pf) throws ParsingException {
+		Document d = null;
+		
+		if (l == Language.JAVA) {
+			d = parseJava(pf);
+		} else if (l == Language.C) {				
+			d = parseC(pf);
+		} else if(l == Language.CPLUPLUS) {
+			throw new ParsingException("C++ is not supported yet!");
+		}
+		
+		if(d == null) {
+			logger.warn("Parser (" + l + "): cannot parse ProjectFile with id = " + pf.getId());
+			
+			return null;
+		}
+		
+		return d;
 	}
 
-	public Document parseCPlusPlus(ProjectFile pf) {
-		return null;
+
+	@Override
+	public Document[] parse(Language l, ProjectVersion pv) throws ParsingException {
+		List<Document> results = new ArrayList<Document>();
+		Set<ProjectFile> pfs = pv.getFilesForVersion();
+			
+		for ( ProjectFile pf : pfs ) {
+			Document d = parse(l, pf);
+			
+			if(d == null) { continue; }
+			
+			results.add(d);
+		}
+		
+		if(results.size() == 0) {
+			throw new ParsingException(
+					"Parser (" + l + "): Parsing completely failed for ProjectVersion with id " + pv.getId());
+		}
+		
+		return results.toArray(new Document[] {});
 	}
 
-	public Document parseJava(ProjectFile pf) {
+	private Document parseJava(ProjectFile pf) {
 		LangJava lj = new LangJava();
 		
 		try {
 			return lj.toIXR(new ParserCLMTFile(pf), new Properties());
 		} catch (LanguageException le) {
-			logger.warn(le.toString());
+			logger.warn("Parser (JAVA): Parsing failed for file with id " + pf.getId());
+			logger.warn("Reason: " + le.getMessage());
 			
 			return null;
 		}
+	}
+	
+	private Document parseC(ProjectFile pf) {
+		return null;
 	}
 	
 	class ParserCLMTFile extends CLMTFile {
