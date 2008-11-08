@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: SENSE/ISTLab 
+Bundle-Name: CLMT
+Bundle-Version: 0.9.0
+Bundle-SymbolicName: org.clmt
+Bundle-ClassPath: org.clmt-0.9.0.jar
+Export-Package: org.clmt.io, org.clmt.languages, org.clmt.languages.c, org.clmt.languages.java

@@ -44,7 +44,11 @@ Import-Package: org.osgi.framework,
     org.tmatesoft.svn.core.wc;version="1.1.4",
     org.tmatesoft.svn.core.internal.io.dav;version="1.1.4",
     org.tmatesoft.svn.core.internal.io.fs;version="1.1.4",
-    org.tmatesoft.svn.core.internal.io.svn;version="1.1.4"
+    org.tmatesoft.svn.core.internal.io.svn;version="1.1.4",
+    org.clmt.languages;version="0.9.0",
+    org.clmt.languages.c;version="0.9.0",
+    org.clmt.io;version="0.9.0",
+    org.clmt.languages;version="0.9.0"
 Export-Package: eu.sqooss.core,
     eu.sqooss.service.abstractmetric,
     eu.sqooss.service.metricactivator,
