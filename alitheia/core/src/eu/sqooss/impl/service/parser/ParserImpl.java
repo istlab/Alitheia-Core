@@ -45,6 +45,7 @@ import org.clmt.io.CLMTFile;
 
 import org.clmt.languages.LanguageException;
 
+import org.clmt.languages.c.LangC;
 import org.clmt.languages.java.LangJava;
 
 import org.w3c.dom.Document;
@@ -59,10 +60,10 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 
 /**
- * 
+ * Implementation of Parser interface
  * 
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
- *
+ * @see eu.sqooss.servive.parser.Parser
  */
 public class ParserImpl implements Parser {
 	private Logger logger;
@@ -115,6 +116,9 @@ public class ParserImpl implements Parser {
 		return results.toArray(new Document[] {});
 	}
 
+	/**
+	 * Internal parser method for Java 
+	 */
 	private Document parseJava(ProjectFile pf) {
 		LangJava lj = new LangJava();
 		
@@ -123,15 +127,31 @@ public class ParserImpl implements Parser {
 		} catch (LanguageException le) {
 			logger.warn("Parser (JAVA): Parsing failed for file with id " + pf.getId());
 			logger.warn("Reason: " + le.getMessage());
-			
-			return null;
 		}
-	}
-	
-	private Document parseC(ProjectFile pf) {
+		
 		return null;
 	}
 	
+	/**
+	 * Internal parser method for C
+	 */
+	private Document parseC(ProjectFile pf) {
+		LangC lc = new LangC();
+
+		try {
+			return lc.toIXR(new ParserCLMTFile(pf), new Properties());
+		} catch (LanguageException le) {
+			logger.warn("Parser (C): Parsing failed for file with id " + pf.getId());
+			logger.warn("Reason: " + le.getMessage());
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Parser Dummy implementation for CLMTFile
+	 * Remember, the parser works only with CLMTFile(s). 
+	 */
 	class ParserCLMTFile extends CLMTFile {
 		private ProjectFile pf;
 		

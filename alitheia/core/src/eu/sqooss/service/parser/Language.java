@@ -33,8 +33,8 @@
 package eu.sqooss.service.parser;
 
 /**
- * 
- * 
+ * Enumeration of all implemented (or soon-to-be-supported)
+ * languages.
  * 
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */

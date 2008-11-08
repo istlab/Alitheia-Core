@@ -33,8 +33,7 @@
 package eu.sqooss.service.parser;
 
 /**
- * 
- * 
+ * A simple Exception class to handle parser errors
  * 
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
