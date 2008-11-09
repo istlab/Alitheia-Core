@@ -139,6 +139,7 @@ extra-hibernate :
 	cp org/objectweb/asm/1.5.3/asm-1.5.3.jar tmp/org.objectweb.asm-1.5.3.jar
 	cp org/objectweb/asm/attrs/1.5.3/attrs-1.5.3.jar tmp/org.objectweb.asm.attrs-1.5.3.jar
 	cp org/antlr/2.7.6/antlr-2.7.6.jar tmp/
+	cp com/mchange/c3p0/0.9.1.2/c3p0-0.9.1.2.jar tmp/
 
 extra-velocity :
 	cp org/apache/commons/collections/3.2/collections-3.2.jar tmp/

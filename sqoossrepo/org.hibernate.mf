@@ -9,7 +9,8 @@ Bundle-ClassPath: org.hibernate-3.2.5.jar,
     net.sf.cglib-2.1.3.jar,
     org.objectweb.asm-1.5.3.jar,
     org.objectweb.asm.attrs-1.5.3.jar,
-    antlr-2.7.6.jar
+    antlr-2.7.6.jar,
+    c3p0-0.9.1.2.jar
 Export-Package: org.hibernate;version="3.2.5",
     org.hibernate.cfg;version="3.2.5",
     org.hibernate.proxy;version="3.2.5",
