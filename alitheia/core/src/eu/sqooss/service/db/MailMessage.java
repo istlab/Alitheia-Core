@@ -33,7 +33,10 @@
 
 package eu.sqooss.service.db;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
 

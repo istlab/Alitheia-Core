@@ -9,10 +9,18 @@
       <generator class="native" />
     </id>
     <property name="listId" column="MLIST_LISTID" not-null="true"/>
+    
     <many-to-one name="storedProject" column="PROJECT_ID" not-null="true" cascade="merge" />
+    
     <set name="messages" inverse="true" cascade="all-delete-orphan" lazy="extra">
         <key column="MLIST_ID"/>
         <one-to-many class="eu.sqooss.service.db.MailMessage"/>
     </set>
+    
+    <set name="threads" inverse="true" cascade="all-delete-orphan" lazy="extra">
+        <key column="MLIST_ID"/>
+        <one-to-many class="eu.sqooss.service.db.MailingListThread"/>
+    </set>
+    
   </class>
 </hibernate-mapping>

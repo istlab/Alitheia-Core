@@ -35,7 +35,6 @@ package eu.sqooss.impl.service.updater;
 import java.io.FileNotFoundException;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +53,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.StoredProject;
 
 import eu.sqooss.service.logging.Logger;
@@ -146,7 +146,7 @@ class MailUpdater extends Job {
         
         for (MailingList ml : mllist) {
             processList(mailAccessor, ml);
-            createThreads(mailAccessor, ml);
+            //createThreads(mailAccessor, ml);
         }
         
         try {
@@ -219,9 +219,9 @@ class MailUpdater extends Job {
                     mmsg.setArrivalDate(mm.getReceivedDate());
                     mmsg.setSubject(mm.getSubject());
                     mmsg.setFilename(fileName);
-                    
-                    logger.debug("Adding message " + mm.getMessageID());
                     dbs.addRecord(mmsg);
+                    logger.debug("Adding message " + mm.getMessageID());
+                    
                     updMails.add(mmsg.getId());
                 }
 
@@ -253,25 +253,40 @@ class MailUpdater extends Job {
         gc.add(GregorianCalendar.MONTH, -1);
         
         List<MailMessage> mmList = ml.getMessagesNewerThan(gc.getTime());
-        ThreadableMail root = new ThreadableMail("Root", "Root", new String[0]);
-      //Create threadables from mailmessages
+
         for (MailMessage mail : mmList) {
             List<String> refs = new ArrayList<String>();
             try {
                 MimeMessage mm = mailAccessor.getMimeMessage(ml.getListId(), mail.getFilename());
+                
+                /* Thread identification code. Naive, but works in most cases*/
                 String[] inReplyTo = mm.getHeader("In-Reply-To");
                 String[] references = mm.getHeader("References");
+                boolean newThread = false;
+                String parentId = null;
                 
-                if (inReplyTo != null) {
-                    for (String reply : inReplyTo) {
-                    
+                if (inReplyTo == null) {
+                    if (references == null) {
+                        newThread = true;
+                    } else {
+                        //Arbitrarily set first message reference as parent.
+                        //Mime message protocol does not specify any such
+                        //ordering, in fact it does not specify any ordering
+                        //scheme at all.
+                        parentId = references[0];
                     }
+                } else {
+                    parentId = inReplyTo[0];
                 }
                 
-                if (references != null) {
-                    for (String ref : references) {
+                MailingListThread mlt = null;
+                
+                if (newThread) {
+                    mlt =  new MailingListThread(ml);
+                    dbs.addRecord(mlt);
+                    logger.debug("Adding new thread " + mlt.getId());
+                } else {
                     
-                    }
                 }
                 
             } catch (IllegalArgumentException e) {
@@ -282,18 +297,8 @@ class MailUpdater extends Job {
                 logger.warn("Could not get mime header for messageId: " 
                         + mail.getId() + " " + e.getMessage());
             }
-            
-            ThreadableMail t = new ThreadableMail(mail.getSubject(), 
-                    mail.getMessageId(), refs.toArray(new String[refs.size()] ));
-            t.setNext(root);
-            t.setChild(null);
         }
-        
-        Threader t = new Threader();
-        Threadable newroot = t.thread(root);
-
     }
-    
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

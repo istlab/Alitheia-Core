@@ -60,6 +60,11 @@ public class MailingList extends DAObject {
      */
     private Set<MailMessage> messages;
 
+    /**
+     * The set of threaded discussions in this list
+     */
+    private Set<MailingListThread> threads; 
+    
     public MailingList() {}
 
     public String getListId() {
@@ -84,6 +89,14 @@ public class MailingList extends DAObject {
 
     public void setMessages(Set<MailMessage> messages) {
         this.messages = messages;
+    }
+    
+    public Set<MailingListThread> getThreads() {
+        return threads;
+    }
+
+    public void setThreads(Set<MailingListThread> threads) {
+        this.threads = threads;
     }
     
     /**

@@ -81,6 +81,8 @@
         <mapping resource="eu/sqooss/service/db/BugPriority.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/BugResolution.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/BugSeverity.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MailingListThread.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MailThread.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>

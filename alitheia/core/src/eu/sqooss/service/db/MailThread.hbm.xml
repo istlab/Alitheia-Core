@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.MailThread" table="MAILTHREAD">
+    <id name="id" column="MLIST_ID">
+      <generator class="native" />
+    </id>
+    
+    <many-to-one name="mail" column="MAIL_ID" not-null="true" cascade="merge"/>
+    <many-to-one name="parent" column="PARENT_ID" cascade="merge"/>
+    <many-to-one name="thread" column="MAILING_LIST_ID" not-null="true" cascade="merge" />
+    
+  </class>
+</hibernate-mapping>

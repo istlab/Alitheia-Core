@@ -75,6 +75,11 @@ public class Directory extends DAObject {
     public void setFiles(Set<ProjectFile> files) {
         this.files = files;
     }
+    
+    public boolean isSubDirOf(Directory d) {
+        //
+        return false;
+    }
 
     /**
      * Return the entry in the Directory table that corresponds to the
