@@ -290,48 +290,78 @@ final class SourceUpdater extends Job {
              */
             for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
 
-                if(!canProcess(copyOp.fromPath(), null)) {
-                    logger.warn("Processing file copies with source dir " 
-                    + copyOp.fromPath() + " to " + copyOp.toPath() +
-                    "Copying files with source dir under /tags is a not " +
-                    "supported operation and will cause problems. " +
-                    "Set the " + HANDLE_COPIES_PROPERTY + " to <tags> to " +
-                    "if you want to support this.");
-                    continue; //Do not attempt to copy files from tag
+            	CommitCopyEntry cce = copyOp;
+                if (!canProcess(cce.fromPath(), null)) {
+                    warn("Processing file copies with source dir " + cce.fromPath()
+                            + " to " + cce.toPath());
+
+                    /* Work around copies from tags by re-writing the from path */
+                    if (cce.fromPath().contains("tags/")) {
+                        warn("Attempting to circumvent copy from /tags dir");
+                        String tag = cce.fromPath().split("tags/")[1];
+                        ProjectVersion tagSourceVersion = Tag
+                                .getProjectVersionForNamedTag(tag, 
+                                        curVersion.getProject());
+                        if (tagSourceVersion == null) {
+                            warn("Source version not found for tag " + tag);
+                            continue; // Tag not recorded for some reason
+                        } 
+                        CommitLog versionLog = scm.getCommitLog(scm.newRevision(tagSourceVersion.getRevisionId()));
+                        for(CommitEntry ce : versionLog) {
+                            for(CommitCopyEntry cpEntry : ce.getCopyOperations()) {
+                                if (cpEntry.toPath().equals(cce.fromPath())) {
+                                    //Got ya!
+                                    //Found where this tag originally came from
+                                    //create a fake copy op to copy from the 
+                                    //original source to the new target. 
+                                    //Of course, this discards any changes made
+                                    //in the intermediate copy destination, but
+                                    //one shouldn't edit files sin /tags, right? :-)
+                                    cce = new CommitCopyEntry(cpEntry.fromPath(), 
+                                            scm.newRevision(
+                                            tagSourceVersion.getRevisionId()), 
+                                            copyOp.toPath(), copyOp.toRev());
+                                }
+                            }
+                            if (!cce.fromPath().equals(copyOp.fromPath())) {
+                                break;
+                            }
+                        }
+                    }
                 }
                 
                 ProjectFile copyFrom = null;
                 copyFrom = ProjectFile.findFile(project.getId(), 
-                            FileUtils.basename(copyOp.fromPath()), 
-                            FileUtils.dirname(copyOp.fromPath()), 
-                            copyOp.fromRev().getUniqueId());
+                            FileUtils.basename(cce.fromPath()), 
+                            FileUtils.dirname(cce.fromPath()), 
+                            cce.fromRev().getUniqueId());
                     
                 if (copyFrom == null) {
                     warn("expecting 1 got " + 0 + " files for path " 
-                            + copyOp.fromPath() + " " + prev.toString());
+                            + cce.fromPath() + " " + prev.toString());
                 }
                     
                 if (copyFrom.getIsDirectory()) {
                         
-                    Directory from = getDirectory(copyOp.fromPath(), false);
-                    Directory to = getDirectory(copyOp.toPath(), true);
+                    Directory from = getDirectory(cce.fromPath(), false);
+                    Directory to = getDirectory(cce.toPath(), true);
 
                     /*
                      * Recursively copy contents and mark files as modified
                      * and directories as added
                      */
                     debug("Copying directory " + from.getPath()
-                            + " (from r" + copyOp.fromRev().getUniqueId()
+                            + " (from r" + cce.fromRev().getUniqueId()
                             + ") to " + to.getPath());
                     handleDirCopy(curVersion, 
                             ProjectVersion.getVersionByRevision(curVersion.getProject(),
-                            copyOp.fromRev().getUniqueId()), from, to, copyFrom);
+                            cce.fromRev().getUniqueId()), from, to, copyFrom);
                 } else {
                     /*
                      * Create a new entry at the new location and mark the new 
                      * entry as ADDED
                      */
-                    addFile(curVersion, copyOp.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
+                    addFile(curVersion, cce.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
                 }   
             }
             
@@ -727,6 +757,12 @@ final class SourceUpdater extends Job {
         if (hc.equals(HandleCopies.BRANCHES)) {
             if ((to != null && to.contains("tags")) || 
                     from.contains("tags")) {
+            	err("Copying files with source dir under /tags is not a " +
+            	"supported operation and may cause data consistency problems." +
+            	"The system will use a pseudo-copy mode that may or may not work." +
+            	" Set the " + HANDLE_COPIES_PROPERTY + " to <tags> if you want " +
+            	"proper support for copies from tags, but bear in mind this " +
+            	"will cause performance problems ");
                 return false;
             }
             return true;

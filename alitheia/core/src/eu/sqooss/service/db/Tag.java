@@ -33,6 +33,11 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -43,7 +48,7 @@ public class Tag extends DAObject {
     /**
      * The version of the project to which this tag relates
      */
-    private ProjectVersion pv;
+    private ProjectVersion projectVersion;
 
     /**
      * The name of the tag provided at the time it was commited by the
@@ -55,15 +60,15 @@ public class Tag extends DAObject {
         // Nothing to do
     }
     public Tag(ProjectVersion pv) {
-        this.pv = pv;
+        this.projectVersion = pv;
     }
 
     public ProjectVersion getProjectVersion() {
-        return pv;
+        return projectVersion;
     }
 
     public void setProjectVersion(ProjectVersion pv) {
-        this.pv = pv;
+        this.projectVersion = pv;
     }
 
     public String getName() {
@@ -73,7 +78,39 @@ public class Tag extends DAObject {
     public void setName(String name) {
         this.name = name;
     }
+
+    public static ProjectVersion getProjectVersionForNamedTag(String tagName,
+            StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramTagName = "tagname";
+        String paramProject = "project_id";
+
+        String query = "select pv " 
+                + " from ProjectVersion pv, Tag t "
+                + " where t.projectVersion = pv " 
+                + " and t.name = :" + paramTagName 
+                + " and pv.project =:" + paramProject;
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(paramTagName, tagName);
+        parameters.put(paramProject, sp);
+
+        List<?> projectVersions = dbs.doHQL(query, parameters, 1);
+
+        if (projectVersions == null || projectVersions.size() == 0) {
+            return null;
+        } else {
+            return (ProjectVersion) projectVersions.get(0);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "<Tag: " + name + " from version "
+                + projectVersion.getRevisionId() + ">";
+    }
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab
 
