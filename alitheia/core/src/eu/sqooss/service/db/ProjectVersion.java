@@ -493,6 +493,60 @@ public class ProjectVersion extends DAObject {
 
         return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
     }
+    
+    /**
+     * Returns all directories that are visible in a given project 
+     * version. 
+     *
+     * @param version Project and version to look at
+     * @return List of directories visible in that version (may be empty, 
+     * not null)
+     */
+    public List<ProjectFile> getAllDirectoriesForVersion() {
+        return getFilesOrDirs(this, ProjectFile.MASK_DIRECTORIES);
+    }
+    
+    /**
+     * Returns all the files that are visible in a given project 
+     * version. 
+     *
+     * @param version Project and version to look at
+     * @return List of files visible in that version (may be empty, 
+     * not null)
+     */
+    public List<ProjectFile> getAllFilesForVersion() {
+        return getFilesOrDirs(this, ProjectFile.MASK_FILES);
+    }
+    
+    
+    /**
+     * Get either all files or directories recursively in a project version.
+     */
+    private List<ProjectFile> getFilesOrDirs(ProjectVersion pv, int mask) {
+        
+        if (pv==null) {
+            throw new IllegalArgumentException("Project version" +
+                        " is null in getFilesOrDirs");
+        }
+        
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramVersion = "paramVersion";
+        String paramIsDirectory = "is_directory";
+
+        String query = "select ffv.file " +
+        " from FileForVersion ffv " +
+        " where ffv.version = :" + paramVersion +
+        " and ffv.file.isDirectory = :" + paramIsDirectory;
+        
+        Boolean isDirectory = ((mask == ProjectFile.MASK_DIRECTORIES)?true:false);
+        
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put(paramVersion, pv);
+        parameters.put(paramIsDirectory, isDirectory);
+        
+        return (List<ProjectFile>) dbs.doHQL(query, parameters);
+    }
 
     /**
      * For a given metric and project, return the latest version of that

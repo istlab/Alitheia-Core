@@ -384,59 +384,6 @@ public class ProjectFile extends DAObject{
     }
     
     /**
-     * Returns all the files that are visible in a given project 
-     * version. 
-     *
-     * @param version Project and version to look at
-     * @return List of files visible in that version (may be empty, 
-     * not null)
-     */
-    public static List<ProjectFile> getAllFilesForVersion(ProjectVersion pv) {
-        return getFilesOrDirs(pv, MASK_FILES);
-    }
-    
-    /**
-     * Returns either all directories that are visible in a given project 
-     * version. 
-     *
-     * @param version Project and version to look at
-     * @return List of directories visible in that version (may be empty, 
-     * not null)
-     */
-    public static List<ProjectFile> getAllDirectoriesForVersion(ProjectVersion pv) {
-        return getFilesOrDirs(pv, MASK_DIRECTORIES);
-    }
-    
-    /**
-     * Get either all files or directories recursively in a project version.
-     */
-    private static List<ProjectFile> getFilesOrDirs(ProjectVersion pv, int mask) {
-        
-        if (pv==null) {
-            throw new IllegalArgumentException("Project version" +
-                        " is null in getFilesOrDirs");
-        }
-        
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramVersion = "paramVersion";
-        String paramIsDirectory = "is_directory";
-
-        String query = "select ffv.file " +
-        " from FileForVersion ffv " +
-        " where ffv.version = :" + paramVersion +
-        " and ffv.file.isDirectory = :" + paramIsDirectory;
-        
-        Boolean isDirectory = ((mask == MASK_DIRECTORIES)?true:false);
-        
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, pv);
-        parameters.put(paramIsDirectory, isDirectory);
-        
-        return (List<ProjectFile>) dbs.doHQL(query, parameters);
-    }
-    
-    /**
      * Returns all of the files visible in a given project version
      * that match the provided Pattern. The Pattern is evaluated
      * against the file path.
