@@ -222,262 +222,300 @@ final class SourceUpdater extends Job {
                     scm.getHeadRevision());
             info("New revisions: " + commitLog.size());
             
+            for (CommitEntry entry : commitLog) {
+                versionFiles.clear();
+                commitLogEntry = entry;
+                ProjectVersion curVersion = processCommit(scm, entry);
+
+                /*
+                 * Process copy operations prior to normal operations. After a
+                 * copy, a lot of things can happen, for example deleting or
+                 * adding files in copied path. Placing copy processing before
+                 * normal operation processing ensures that all the files are in
+                 * place before all operations that modify the copied paths
+                 * start being processed. This actually resembles the way a
+                 * local checkout works: the user first copies a path, then
+                 * modifies the files in the copied path. For non copied paths,
+                 * this has no effect in any case.
+                 */
+                processCopyOps(scm, entry, curVersion, getPreviousVersion(scm,
+                        curVersion));
+
+                /*
+                 * Now process normal operations.
+                 */
+                processNormalOps(scm, entry, curVersion);
+
+                /*
+                 * For each directory whose contents were modified, add a
+                 * modified entry.
+                 */
+                addModifiedDirEntries(curVersion);
+
+                /*
+                 * Replay the SVN on the intermediate files to remove
+                 * duplicates. Handles cases such as when a file was copied and
+                 * modified in the same revision.
+                 */
+                replayLog(curVersion);
+                dbs.addRecords(versionFiles);
+
+                /*
+                 * Update the list of live files in this revision. This list is
+                 * generated to speed up excecution of metrics and UIs.
+                 */
+                updateFilesForVersion(curVersion);
+
+                numRevisions++;
+                dirCache.clear();
+
+                if (!dbs.commitDBSession()) {
+                    warn("Intermediate commit failed, restarting update");
+                    restart();
+                    return;
+                }
+                dbs.startDBSession();
+            }
+            info("Processed " + numRevisions + " revisions");
         } catch (InvalidRepositoryException e) {
             err("Not such repository:" + e.getMessage());
             throw e;
         } catch (InvalidProjectRevisionException e) {
             err("Not such repository revision:" + e.getMessage());
             throw e;
+        } finally {
+            //Run the metrics even if the update fails, to ensure that 
+            //the versions that were processed correctly will be measured
+            updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
+            ma.runMetrics(updFiles, ProjectFile.class);
+            ma.runMetrics(updProjectVersions, ProjectVersion.class);
+            ma.runMetrics(updDevs, Developer.class);
         }
-        
-        for (CommitEntry entry : commitLog) {
-            versionFiles.clear();
-            commitLogEntry = entry;
-            ProjectVersion curVersion = new ProjectVersion(project);
-            // Assertion: this value is the same as lastSCMVersion
-            curVersion.setRevisionId(entry.getRevision().getUniqueId());
-            curVersion.setTimestamp(entry.getDate().getTime());
-
-            Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
-            if (!updDevs.contains(d.getId())) {
-                updDevs.add(d.getId());
-            }
-            curVersion.setCommitter(d);
-
-            /* TODO: get column length info from Hibernate */
-            String commitMsg = entry.getMessage();
-            if (commitMsg.length() > 512) {
-                commitMsg = commitMsg.substring(0, 511);
-            }
-
-            curVersion.setCommitMsg(commitMsg);
-            
-            /* 
-             * TODO: Fix this when the TDS starts supporting repository properties 
-             * 
-             * curVersion.setProperties(entry.getProperties);
-             * Use addRecord instead of adding to the list of versions in the
-             * project so we don't need to load the complete list of revisions
-             * (especially as we used getLastProjectVersion above) 
-             */
-            dbs.addRecord(curVersion);
-
-            /*
-             * Timestamp fix in cases where the new version has a timestamp older
-             * than the previous one
-             */
-            ProjectVersion prev = getPreviousVersion(scm, curVersion);
-            if (prev != null) {
-                if (prev.getTimestamp() >= curVersion.getTimestamp()) {
-                    curVersion.setTimestamp(prev.getTimestamp() + 1000);
-                    info("Applying timestamp fix to version " 
-                            + curVersion.getRevisionId());
-                }
-            }
-
-            debug("Got version " + curVersion.getRevisionId() + 
-                    " ID " + curVersion.getId());
-            
-            /*
-             * Process copy operations prior to normal operations. After a copy,
-             * a lot of things can happen, for example deleting or adding files
-             * in copied path. Placing copy processing before normal operation
-             * processing ensures that all the files are in place before all
-             * operations that modify the copied paths start being processed.
-             * This actually resembles the way a local checkout works: the user
-             * first copies a path, then modifies the files in the copied path. 
-             * For non copied paths, this has no effect in any case.
-             */
-            for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
-
-            	CommitCopyEntry cce = copyOp;
-                if (!canProcess(cce.fromPath(), null)) {
-                    warn("Processing file copies with source dir " + cce.fromPath()
-                            + " to " + cce.toPath());
-
-                    /* Work around copies from tags by re-writing the from path */
-                    if (cce.fromPath().contains("tags/")) {
-                        warn("Attempting to circumvent copy from /tags dir");
-                        String tag = cce.fromPath().split("tags/")[1];
-                        ProjectVersion tagSourceVersion = Tag
-                                .getProjectVersionForNamedTag(tag, 
-                                        curVersion.getProject());
-                        if (tagSourceVersion == null) {
-                            warn("Source version not found for tag " + tag);
-                            continue; // Tag not recorded for some reason
-                        } 
-                        CommitLog versionLog = scm.getCommitLog(scm.newRevision(tagSourceVersion.getRevisionId()));
-                        for(CommitEntry ce : versionLog) {
-                            for(CommitCopyEntry cpEntry : ce.getCopyOperations()) {
-                                if (cpEntry.toPath().equals(cce.fromPath())) {
-                                    //Got ya!
-                                    //Found where this tag originally came from
-                                    //create a fake copy op to copy from the 
-                                    //original source to the new target. 
-                                    //Of course, this discards any changes made
-                                    //in the intermediate copy destination, but
-                                    //one shouldn't edit files sin /tags, right? :-)
-                                    cce = new CommitCopyEntry(cpEntry.fromPath(), 
-                                            scm.newRevision(
-                                            tagSourceVersion.getRevisionId()), 
-                                            copyOp.toPath(), copyOp.toRev());
-                                }
-                            }
-                            if (!cce.fromPath().equals(copyOp.fromPath())) {
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                ProjectFile copyFrom = null;
-                copyFrom = ProjectFile.findFile(project.getId(), 
-                            FileUtils.basename(cce.fromPath()), 
-                            FileUtils.dirname(cce.fromPath()), 
-                            cce.fromRev().getUniqueId());
-                    
-                if (copyFrom == null) {
-                    warn("expecting 1 got " + 0 + " files for path " 
-                            + cce.fromPath() + " " + prev.toString());
-                }
-                    
-                if (copyFrom.getIsDirectory()) {
-                        
-                    Directory from = getDirectory(cce.fromPath(), false);
-                    Directory to = getDirectory(cce.toPath(), true);
-
-                    /*
-                     * Recursively copy contents and mark files as modified
-                     * and directories as added
-                     */
-                    debug("Copying directory " + from.getPath()
-                            + " (from r" + cce.fromRev().getUniqueId()
-                            + ") to " + to.getPath());
-                    handleDirCopy(curVersion, 
-                            ProjectVersion.getVersionByRevision(curVersion.getProject(),
-                            cce.fromRev().getUniqueId()), from, to, copyFrom);
-                } else {
-                    /*
-                     * Create a new entry at the new location and mark the new 
-                     * entry as ADDED
-                     */
-                    addFile(curVersion, cce.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
-                }   
-            }
-            
-            /*
-             * Now process operations. 
-             */
-            for (String chPath : entry.getChangedPaths()) {
-                
-                SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
-                /*
-                 * We make the assumption that tags entries can only be
-                 * directories, based on info obtained from the SVN manual See:
-                 * http://svnbook.red-bean.com/en/1.1/ch04s06.html
-                 */
-                if (t == SCMNodeType.DIR && isTag(entry, chPath)) {
-
-                    Tag tag = new Tag(curVersion);
-                    tag.setName(chPath.split("tags/")[1]);
-                    debug("Creating tag <" + tag.getName() + ">");
-
-                    dbs.addRecord(tag);
-                    break;
-                }
-                
-                if(!canProcess(chPath, null))
-                    continue; //Entries under tags or branches
-                
-                //Dirs are processed recursively. This allows
-                //copy-and-modify-in-copied-dir scenarions to be processed
-                if (isCopiedPath(chPath) && t != SCMNodeType.FILE) 
-                    continue; //Processed earlier
-
-                ProjectFile toAdd = null;
-                
-                toAdd = addFile(curVersion, chPath, 
-                        entry.getChangedPathsStatus().get(chPath).toString(), 
-                        t, null);
-                
-                /*
-                 * Before entering the next block, examine whether the deleted
-                 * file was a directory or not. If there is no path entry in the
-                 * Directory table for the processed file path, this means that
-                 * the path is definitely not a directory. If there is such an
-                 * entry, it may be shared with another project; this case is
-                 * examined upon entering
-                 */
-                if (toAdd.isDeleted() && (getDirectory(chPath, false) != null)) {
-                    /*
-                     * Directories, when they are deleted, do not have type DIR,
-                     * but something else. So we need to check on deletes
-                     * whether this name was most recently a directory.
-                     */
-                    ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(toAdd);
-                    
-                    /*
-                     * If a directory is deleted and its previous incarnation cannot
-                     * be found in a previous revision, this means that the
-                     * directory is deleted in the same revision it was added
-                     * (probably copied first)! Search in the current
-                     * revision files then.
-                     */
-                    boolean delAfterCopy = false;
-                    if (lastIncarnation == null) {
-                        for (ProjectFile pf : versionFiles) {
-                            if (pf.getFileName().equals(toAdd.getFileName())
-                                    && pf.getIsDirectory()
-                                    && pf.isAdded()) {
-                                lastIncarnation = pf;
-                                delAfterCopy = true;
-                                break;
-                            }
-                        }
-                    }
-                        
-                    /* If a dir was deleted, mark all children as deleted */
-                    if (lastIncarnation != null
-                            && lastIncarnation.getIsDirectory()) {
-                        // In spite of it not being marked as a directory
-                        // in the node tree right now.
-                        toAdd.setIsDirectory(true);
-                    } else {
-                        warn("Cannot find previous version of DELETED" +
-                        		" directory " + toAdd.getFileName());
-                    }
-                    
-                    if (!delAfterCopy) {
-                        handleDirDeletion(toAdd, curVersion);
-                    } else {
-                        handleCopiedDirDeletion(toAdd);
-                    }
-                }
-            }
-            
-            numRevisions++;
-            
-            addModifiedDirEntries(curVersion);
-            replayLog(curVersion);
-            dbs.addRecords(versionFiles);
-            updateFilesForVersion(curVersion);
-
-            dirCache.clear();
-            if (!dbs.commitDBSession()) {
-                warn("Intermediate commit failed, restarting update");
-                restart();
-                return;
-            }
-            dbs.startDBSession();
-        }
-        info("Processed " + numRevisions + " revisions");
-        
-        ma.runMetrics(updFiles, ProjectFile.class);
-        ma.runMetrics(updProjectVersions, ProjectVersion.class);
-        ma.runMetrics(updDevs, Developer.class);
-        updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
     }
 
+    /*
+     * This method processes project version metadata.
+     */
+    private ProjectVersion processCommit(SCMAccessor scm, CommitEntry entry) {
+        ProjectVersion curVersion = new ProjectVersion(project);
+        // Assertion: this value is the same as lastSCMVersion
+        curVersion.setRevisionId(entry.getRevision().getUniqueId());
+        curVersion.setTimestamp(entry.getDate().getTime());
+
+        Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
+        if (!updDevs.contains(d.getId())) {
+            updDevs.add(d.getId());
+        }
+        curVersion.setCommitter(d);
+
+        /* TODO: get column length info from Hibernate */
+        String commitMsg = entry.getMessage();
+        if (commitMsg.length() > 512) {
+            commitMsg = commitMsg.substring(0, 511);
+        }
+
+        curVersion.setCommitMsg(commitMsg);
+        dbs.addRecord(curVersion);
+
+        /*
+         * Timestamp fix in cases where the new version has a timestamp older
+         * than the previous one
+         */
+        ProjectVersion prev = getPreviousVersion(scm, curVersion);
+        if (prev != null) {
+            if (prev.getTimestamp() >= curVersion.getTimestamp()) {
+                curVersion.setTimestamp(prev.getTimestamp() + 1000);
+                info("Applying timestamp fix to version " 
+                        + curVersion.getRevisionId());
+            }
+        }
+
+        debug("Got version " + curVersion.getRevisionId() + 
+                " ID " + curVersion.getId());
+        return curVersion;
+    }
+
+    /*
+     * Copy operations copy or move files or directories accross
+     * the virtual filetree generated by the SCM.
+     */
+    private void processCopyOps(SCMAccessor scm, CommitEntry entry,
+            ProjectVersion curVersion, ProjectVersion prev)
+            throws InvalidProjectRevisionException, InvalidRepositoryException {
+        for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
+
+        	CommitCopyEntry cce = copyOp;
+            if (!canProcess(cce.fromPath(), null)) {
+                warn("Processing file copies with source dir " + cce.fromPath()
+                        + " to " + cce.toPath());
+
+                /* Work around copies from tags by re-writing the from path */
+                if (cce.fromPath().contains("tags/")) {
+                    warn("Attempting to circumvent copy from /tags dir");
+                    String tag = cce.fromPath().split("tags/")[1];
+                    ProjectVersion tagSourceVersion = Tag
+                            .getProjectVersionForNamedTag(tag, 
+                                    curVersion.getProject());
+                    if (tagSourceVersion == null) {
+                        warn("Source version not found for tag " + tag);
+                        continue; // Tag not recorded for some reason
+                    } 
+                    CommitLog versionLog = scm.getCommitLog(scm.newRevision(tagSourceVersion.getRevisionId()));
+                    for(CommitEntry ce : versionLog) {
+                        for(CommitCopyEntry cpEntry : ce.getCopyOperations()) {
+                            if (cpEntry.toPath().equals(cce.fromPath())) {
+                              /*  Got ya!
+                                Found where this tag originally came from
+                                create a fake copy op to copy from the 
+                                original source to the new target. 
+                                Of course, this discards any changes made
+                                in the intermediate copy destination, but
+                                one shouldn't edit files sin /tags, right? :-)
+                               */ 
+                                cce = new CommitCopyEntry(cpEntry.fromPath(), 
+                                        scm.newRevision(
+                                        tagSourceVersion.getRevisionId()), 
+                                        copyOp.toPath(), copyOp.toRev());
+                                break;
+                            }
+                        }
+                        if (!cce.fromPath().equals(copyOp.fromPath())) {
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            ProjectFile copyFrom = null;
+            copyFrom = ProjectFile.findFile(project.getId(), 
+                        FileUtils.basename(cce.fromPath()), 
+                        FileUtils.dirname(cce.fromPath()), 
+                        cce.fromRev().getUniqueId());
+                
+            if (copyFrom == null) {
+                warn("expecting 1 got " + 0 + " files for path " 
+                        + cce.fromPath() + " " + prev.toString());
+            }
+                
+            if (copyFrom.getIsDirectory()) {
+                    
+                Directory from = getDirectory(cce.fromPath(), false);
+                Directory to = getDirectory(cce.toPath(), true);
+
+                /*
+                 * Recursively copy contents and mark files as modified
+                 * and directories as added
+                 */
+                debug("Copying directory " + from.getPath()
+                        + " (from r" + cce.fromRev().getUniqueId()
+                        + ") to " + to.getPath());
+                handleDirCopy(curVersion, 
+                        ProjectVersion.getVersionByRevision(curVersion.getProject(),
+                        cce.fromRev().getUniqueId()), from, to, copyFrom);
+            } else {
+                /*
+                 * Create a new entry at the new location and mark the new 
+                 * entry as ADDED
+                 */
+                addFile(curVersion, cce.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
+            }   
+        }
+    }
+
+    /*
+     * Normal operations are the operations that do not copy files or are
+     * not a result of a file copy.
+     */
+    private void processNormalOps(SCMAccessor scm, CommitEntry entry,
+            ProjectVersion curVersion) throws InvalidRepositoryException {
+        for (String chPath : entry.getChangedPaths()) {
+            
+            SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
+            /*
+             * We make the assumption that tags entries can only be
+             * directories, based on info obtained from the SVN manual See:
+             * http://svnbook.red-bean.com/en/1.1/ch04s06.html
+             */
+            if (t == SCMNodeType.DIR && isTag(entry, chPath)) {
+
+                Tag tag = new Tag(curVersion);
+                tag.setName(chPath.split("tags/")[1]);
+                debug("Creating tag <" + tag.getName() + ">");
+
+                dbs.addRecord(tag);
+                break;
+            }
+            
+            if(!canProcess(chPath, null))
+                continue; //Entries under tags or branches
+            
+            //Dirs are processed recursively. This allows
+            //copy-and-modify-in-copied-dir scenarions to be processed
+            if (isCopiedPath(chPath) && t != SCMNodeType.FILE) 
+                continue; //Processed earlier
+
+            ProjectFile toAdd = null;
+            
+            toAdd = addFile(curVersion, chPath, 
+                    entry.getChangedPathsStatus().get(chPath).toString(), 
+                    t, null);
+            
+            /*
+             * Before entering the next block, examine whether the deleted
+             * file was a directory or not. If there is no path entry in the
+             * Directory table for the processed file path, this means that
+             * the path is definitely not a directory. If there is such an
+             * entry, it may be shared with another project; this case is
+             * examined upon entering
+             */
+            if (toAdd.isDeleted() && (getDirectory(chPath, false) != null)) {
+                /*
+                 * Directories, when they are deleted, do not have type DIR,
+                 * but something else. So we need to check on deletes
+                 * whether this name was most recently a directory.
+                 */
+                ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(toAdd);
+                
+                /*
+                 * If a directory is deleted and its previous incarnation cannot
+                 * be found in a previous revision, this means that the
+                 * directory is deleted in the same revision it was added
+                 * (probably copied first)! Search in the current
+                 * revision files then.
+                 */
+                boolean delAfterCopy = false;
+                if (lastIncarnation == null) {
+                    for (ProjectFile pf : versionFiles) {
+                        if (pf.getFileName().equals(toAdd.getFileName())
+                                && pf.getIsDirectory()
+                                && pf.isAdded()) {
+                            lastIncarnation = pf;
+                            delAfterCopy = true;
+                            break;
+                        }
+                    }
+                }
+                    
+                /* If a dir was deleted, mark all children as deleted */
+                if (lastIncarnation != null
+                        && lastIncarnation.getIsDirectory()) {
+                    // In spite of it not being marked as a directory
+                    // in the node tree right now.
+                    toAdd.setIsDirectory(true);
+                } else {
+                    warn("Cannot find previous version of DELETED" +
+                                " directory " + toAdd.getFileName());
+                }
+                
+                if (!delAfterCopy) {
+                    handleDirDeletion(toAdd, curVersion);
+                } else {
+                    handleCopiedDirDeletion(toAdd);
+                }
+            }
+        }
+    }
+    
     /**
      * SVN supports doing weird things on a single file in a single revision.
      * For example, you can copy a file and then delete it or delete it and
