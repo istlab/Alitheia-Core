@@ -84,9 +84,6 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_PRJ_CODE      = "projectSCM";
     private static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
     
-    
-    private static List<StoredProject> projectsCache = null;
-    
     /**
      * Instantiates a new projects view.
      *
@@ -355,7 +352,8 @@ public class ProjectsView extends AbstractView {
         b.append(errorFieldset(e, ++in));
 
         // Get the complete list of projects stored in the SQO-OSS framework
-        List<StoredProject> projects = getProjects();
+        List<StoredProject> projects = sobjDB.findObjectsByProperties(
+                    StoredProject.class, new HashMap<String, Object>());
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
         // ===================================================================
@@ -632,8 +630,6 @@ public class ProjectsView extends AbstractView {
         // ===============================================================
         b.append(sp(--in) + "</form>\n");
         
-        // Reset the cache
-        projectsCache = null;
         return b.toString();
     }
 
@@ -747,19 +743,6 @@ public class ProjectsView extends AbstractView {
                 + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
         b.append(sp(--in) + "</thead>\n");
-    }
-
-    public static List<StoredProject> getProjects() {
-        if (null == projectsCache) {
-            projectsCache = 
-                sobjDB.findObjectsByProperties(
-                    StoredProject.class, new HashMap<String, Object>());
-        }
-        return projectsCache;
-    }
-
-    public static void ungetProjects() {
-        projectsCache = null;
     }
 }
 

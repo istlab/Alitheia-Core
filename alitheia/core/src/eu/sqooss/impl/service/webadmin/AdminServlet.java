@@ -300,8 +300,6 @@ public class AdminServlet extends HttpServlet {
         response.setContentType("text/html");
         t.merge(vc, writer);
 
-        // This is some required cleanup of DB objects
-        projectsView.ungetProjects();
         print.print(writer.toString());
     }
 
