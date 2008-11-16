@@ -80,10 +80,6 @@ public class MailMessage extends DAObject {
      */
     String fileName;
     
-    
-
-    public MailMessage() {}
-    
     public Date getArrivalDate() {
 	return arrivalDate;
     }
@@ -196,5 +192,20 @@ public class MailMessage extends DAObject {
             return mm.get(0);
         
         return null;
+    }
+    
+    /**
+     * Get the thread a mail message belongs to.
+     * 
+     * @param mm The Mail
+     */
+    public MailThread getThread() {
+        
+        return null;
+    }
+    
+    @Override
+    public String toString() {
+        return "MailMessage(" + sender + "," + subject + "," + sendDate + ")";
     }
 }

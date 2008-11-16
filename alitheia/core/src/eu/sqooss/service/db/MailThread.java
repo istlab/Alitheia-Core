@@ -46,8 +46,16 @@ public class MailThread extends DAObject {
     private MailMessage parent;
     
     /** The thread this entry belongs to */
-    private MailingListThread thread;
+    private MailingListThread thread;    
+
+    public MailThread() {}
     
+    public MailThread(MailMessage mail, MailMessage parent, 
+            MailingListThread thread) {
+        this.mail = mail;
+        this.parent = parent;
+        this.thread = thread;
+    }
     public MailMessage getMail() {
         return mail;
     }
@@ -65,15 +73,5 @@ public class MailThread extends DAObject {
     }
     public void setThread(MailingListThread thread) {
         this.thread = thread;
-    }
-    
-    /**
-     * Get the thread a mail message belongs to.
-     * 
-     * @param mm The Mail
-     */
-    public static MailThread getThread(MailMessage mm) {
-        
-        return null;
     }
 }

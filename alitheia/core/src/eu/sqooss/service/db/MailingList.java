@@ -32,6 +32,7 @@
 
 package eu.sqooss.service.db;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -114,14 +115,20 @@ public class MailingList extends DAObject {
         
         String query =  " select mm " +
             " from MailMessage mm, MailingList ml " +
-            " where mm.list = :" + paramMailingList +
+            " where mm.list = ml " +
+            " and mm.list = :" + paramMailingList +
             " and mm.sendDate > :" + paramDate;
         
         Map<String,Object> params = new HashMap<String, Object>();
         params.put(paramDate, d);
         params.put(paramMailingList, this);
         
-        return (List<MailMessage>) dbs.doHQL(query, params);
+        List<MailMessage> msgs = (List<MailMessage>) dbs.doHQL(query, params);
+        
+        if (msgs == null || msgs.size() == 0)
+            return Collections.emptyList();
+            
+        return msgs;
     }
     
     /**
@@ -138,7 +145,8 @@ public class MailingList extends DAObject {
         
         String query =  " select mm " +
             " from MailMessage mm, MailingList ml " +
-            " where mm.list = :" + paramMailingList +
+            " where mm.list = ml " +
+            " and mm.list = :" + paramMailingList +
             " order by mm.sendDate desc";
         
         Map<String,Object> params = new HashMap<String, Object>();
@@ -151,5 +159,10 @@ public class MailingList extends DAObject {
             return null;
         
         return ml.get(0); 
+    }
+    
+    @Override
+    public String toString() {
+        return "Mailing list("+ storedProject.getName() + "," + listId + ")"; 
     }
 }

@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.updater;
 import java.io.FileNotFoundException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +53,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailThread;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.StoredProject;
@@ -109,13 +111,14 @@ class MailUpdater extends Job {
         ProjectAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
         List<String> lists = mailAccessor.getMailingLists();
-        if(lists.size() == 0) {
+        
+        if ( lists.size() == 0 ) {
             logger.warn("Project <" + project.getName() + "> with ID " + project.getId() +
             " has no mailing lists.");
             dbs.commitDBSession();
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
-            return;
         }
+        
         List<MailingList> mllist = getMailingLists(project);
         boolean refresh = false;
         //check if the mailing lists exist
@@ -143,14 +146,17 @@ class MailUpdater extends Job {
         if (refresh) {
             mllist = getMailingLists(project);
         }
-        
-        for (MailingList ml : mllist) {
-            processList(mailAccessor, ml);
-            //createThreads(mailAccessor, ml);
-        }
-        
+               
         try {
-            dbs.commitDBSession();
+            
+            for (MailingList ml : mllist) {
+                processList(mailAccessor, ml);
+                createThreads(mailAccessor, ml);
+                if (!dbs.commitDBSession()) 
+                    dbs.rollbackDBSession();
+                dbs.startDBSession();
+            }
+            
             MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
             
             if (!updMails.isEmpty()) {
@@ -162,12 +168,13 @@ class MailUpdater extends Job {
                 ma.runMetrics(updMailingLists, MailingList.class);
             }
         } finally {
+            dbs.commitDBSession();
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
         }   
     }
 
     private void processList(MailAccessor mailAccessor, MailingList mllist) {
-        List<String> fileNames = null;
+        List<String> fileNames = Collections.emptyList();
         String listId = mllist.getListId();
         try {
             fileNames = mailAccessor.getNewMessages(listId);
@@ -217,7 +224,13 @@ class MailUpdater extends Job {
                     mmsg.setSender(sender);
                     mmsg.setSendDate(mm.getSentDate());
                     mmsg.setArrivalDate(mm.getReceivedDate());
-                    mmsg.setSubject(mm.getSubject());
+                    
+                    /*512 characters should be enough for everybody*/
+                    String subject = mm.getSubject();
+                    if (mm.getSubject().length() > 512)
+                        subject = subject.substring(0, 511);
+                    
+                    mmsg.setSubject(subject);
                     mmsg.setFilename(fileName);
                     dbs.addRecord(mmsg);
                     logger.debug("Adding message " + mm.getMessageID());
@@ -245,15 +258,28 @@ class MailUpdater extends Job {
         return dbs.findObjectsByProperties(MailingList.class, params);
     }
     
+    /**
+     * Create 
+     */
     private void createThreads(MailAccessor mailAccessor, MailingList ml) {
-                
+        int newThreads = 0, updatedThreads = 0;
         //Get mails for this ML for the last month
         GregorianCalendar gc = new GregorianCalendar();
-        gc.setTime(ml.getLatestEmail().getSendDate());
+        MailMessage lastEmail = null;
+        lastEmail = ml.getLatestEmail();
+        
+        if (lastEmail == null) {
+            return; //No messages for this mailing list
+        }
+        
+        gc.setTime(lastEmail.getSendDate());
         gc.add(GregorianCalendar.MONTH, -1);
         
         List<MailMessage> mmList = ml.getMessagesNewerThan(gc.getTime());
-
+        
+        if (mmList.isEmpty())
+            return;
+        
         for (MailMessage mail : mmList) {
             List<String> refs = new ArrayList<String>();
             try {
@@ -276,18 +302,53 @@ class MailUpdater extends Job {
                         parentId = references[0];
                     }
                 } else {
+                    /*
+                     * In most cases, the first in-reply-to entry corresponds to
+                     * the answered email. If not, the thread is still valid.
+                     */
                     parentId = inReplyTo[0];
                 }
                 
                 MailingListThread mlt = null;
+                /*Get the parent mail object*/
+                MailMessage parentMail = MailMessage.getMessageById(parentId);
+                
+                if (parentId != null) {
+                    /* Try to find the thread object created by the parent*/
+                    Map<String,Object> properties = new HashMap<String,Object>();
+                    properties.put("mail", parentMail);
+                    List<MailThread> threads = dbs.findObjectsByProperties(MailThread.class, properties);
+                    
+                    /* Safeguard */
+                    if (threads.size() > 1) {
+                        logger.warn("Message " + parentMail + " belongs to " +
+                        		"more than one thread?");
+                    }
+                    
+                    if (threads != null && threads.size() == 0) {
+                        newThread = true;
+                    } else {
+                        /*Add the processed message as child to the parent's thread*/
+                        MailThread mt = new MailThread(mail, parentMail, 
+                                threads.get(0).getThread());
+                        dbs.addRecord(mt);
+                        logger.debug("Updating thread " + mt.getId());
+                        updatedThreads++;
+                    }
+                }
                 
                 if (newThread) {
+                    /*Create a new thread*/
                     mlt =  new MailingListThread(ml);
                     dbs.addRecord(mlt);
-                    logger.debug("Adding new thread " + mlt.getId());
-                } else {
+                    /*Add this message as top-level parent to the thread*/
+                    MailThread mt = new MailThread(mail, null, mlt);
+                    dbs.addRecord(mt);
+                    mt.setMail(mail);
                     
-                }
+                    logger.debug("Adding new thread " + mlt.getId());
+                    newThreads++;
+                } 
                 
             } catch (IllegalArgumentException e) {
                 //Ignored, should have been caught earlier
@@ -298,6 +359,10 @@ class MailUpdater extends Job {
                         + mail.getId() + " " + e.getMessage());
             }
         }
+        
+        logger.info("Mail thread updater - " + ml 
+                + " " + newThreads + " new threads, " + updatedThreads 
+                + " updated threads" );
     }
 }
 
