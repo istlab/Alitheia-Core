@@ -284,6 +284,7 @@ final class SourceUpdater extends Job {
             err("Not such repository revision:" + e.getMessage());
             throw e;
         } finally {
+            dbs.commitDBSession();
             //Run the metrics even if the update fails, to ensure that 
             //the versions that were processed correctly will be measured
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);

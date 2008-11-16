@@ -96,52 +96,54 @@ public class BugUpdater extends Job {
         db.startDBSession();
         //Get latest updated date
         List<String> bugIds = null;
-        
-        if (Bug.getLastUpdate(sp) != null) {
-            bugIds = bts.getBugsNewerThan(Bug.getLastUpdate(sp).getUpdateRun());
-        } else {
-            bugIds = bts.getAllBugs();
-        }
-        log.info(sp.getName() + ": Got " + bugIds.size() + " new bugs");
-
-        //Update
-        for (String bugID : bugIds) {
-            Bug bug = BTSEntryToBug(bts.getBug(bugID));
-            
-            if (bug == null) {
-                log.warn(sp.getName() + ": Bug " + bugID + 
-                        " could not be parsed");
-                continue;
+        try {
+            if (Bug.getLastUpdate(sp) != null) {
+                bugIds = bts.getBugsNewerThan(
+                        Bug.getLastUpdate(sp).getUpdateRun());
+            } else {
+                bugIds = bts.getAllBugs();
             }
-            
-            //Filter out duplicate report messages
-            if (bugExists(sp, bugID)) {
-                log.debug(sp.getName() +  ": Updating existing bug " + bugID);
-                List<BugReportMessage> msgs = bug.getAllReportComments();
-                Set<BugReportMessage> newmsgs = bug.getReportMessages();
-                Set<BugReportMessage> toadd = new LinkedHashSet<BugReportMessage>();
-                
-                for (BugReportMessage newmsg : newmsgs) {
-                    boolean found = false;
-                    for (BugReportMessage msg : msgs) {
-                        if (msg.equals(newmsg)) {
-                            found = true;
-                            break;
+            log.info(sp.getName() + ": Got " + bugIds.size() + " new bugs");
+
+            // Update
+            for (String bugID : bugIds) {
+                Bug bug = BTSEntryToBug(bts.getBug(bugID));
+
+                if (bug == null) {
+                    log.warn(sp.getName() + ": Bug " + bugID
+                            + " could not be parsed");
+                    continue;
+                }
+
+                // Filter out duplicate report messages
+                if (bugExists(sp, bugID)) {
+                    log.debug(sp.getName() + ": Updating existing bug "
+                                    + bugID);
+                    List<BugReportMessage> msgs = bug.getAllReportComments();
+                    Set<BugReportMessage> newmsgs = bug.getReportMessages();
+                    Set<BugReportMessage> toadd = new LinkedHashSet<BugReportMessage>();
+
+                    for (BugReportMessage newmsg : newmsgs) {
+                        boolean found = false;
+                        for (BugReportMessage msg : msgs) {
+                            if (msg.equals(newmsg)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            toadd.add(newmsg);
                         }
                     }
-                    if (!found) {
-                        toadd.add(newmsg);
-                    }   
+
+                    bug.setReportMessages(toadd);
                 }
-                
-                bug.setReportMessages(toadd);
+
+                db.addRecord(bug);
+                updBugs.add(bug.getId());
+                log.debug(sp.getName() + ": Added bug " + bugID);
             }
-            
-            db.addRecord(bug);
-            updBugs.add(bug.getId());
-            log.debug(sp.getName() + ": Added bug " + bugID);
-        }
-        try {
+
             db.commitDBSession();
             if (!updBugs.isEmpty()) {
                 MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
