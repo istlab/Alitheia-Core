@@ -548,11 +548,12 @@ public abstract class AbstractView {
      * (e.g. <code>"http"</code>), or two or more schemes separated by commas
      * (e.g. <code>"http,https,file"</code>).
      * <br/>
-     * <i>Note:Not yet fully implemented. Right now this method checks only
-     * if a scheme name does match.</i>
+     * <br/>
+     * <i><b>Note:</b> Not yet fully implemented. Right now this method checks
+     * only if a scheme name does match.</i>
      * 
      * @param text the property value
-     * @param schemes the pipe (|) separated schemes sequence.
+     * @param schemes the list of comma separated scheme definitions
      * 
      * @return <code>true</code> upon successful validation,
      *   or <code>false</code> otherwise.
