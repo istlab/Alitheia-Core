@@ -491,12 +491,12 @@ public abstract class AbstractView {
         if (text == null) return false;
 
         // Check for head or foot occurrence of deprecated signs
-        Pattern p = Pattern.compile("^[ _]+.*");
+        Pattern p = Pattern.compile("^[ _\\-]+.*");
         if (p.matcher(text).matches()) return false;
-        p = Pattern.compile(".*[ _]+$");
+        p = Pattern.compile(".*[ _\\-]+$");
         if (p.matcher(text).matches()) return false;
         // Check the name
-        p = Pattern.compile("[\\p{Alnum}_ ]+");
+        p = Pattern.compile("[\\p{Alnum}_\\- ]+");
         return p.matcher(text).matches();
     }
 
@@ -564,22 +564,23 @@ public abstract class AbstractView {
         URI toTest;
         try {
             toTest = URI.create(text);
+            if (toTest.getScheme() == null)
+                return false;
         } catch (IllegalArgumentException iae) {
             return false;
         }
-        
+
         String[] urlschemes = schemes.split(",");
-        
         if (urlschemes.length == 0)
             return false;
-        
+
        for (String scheme : urlschemes) {
            if (toTest.getScheme().equals(scheme))
                return true;
        }
        return false;
     }
-    
+
     /**
      * Check if the provided URL is supported by the TDS data accessor 
      * plug-ins.
