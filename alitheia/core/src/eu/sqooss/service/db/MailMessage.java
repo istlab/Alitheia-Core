@@ -174,33 +174,43 @@ public class MailMessage extends DAObject {
      */
     public static MailMessage getLatestMailMessage(StoredProject sp) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
-        String paramStoredProject = "paramStoredProject";       
-        
-        String query = "select mm " +
-                        " from MailMessage mm, MailingList ml " +
-                        " where mm.list = ml " +
-                        " and ml.storedProject = :" + paramStoredProject +
-                        " order by mm.sendDate desc";
-                
-        
-        Map<String,Object> params = new HashMap<String, Object>();
+        String paramStoredProject = "paramStoredProject";
+
+        String query = "select mm " 
+                + " from MailMessage mm, MailingList ml "
+                + " where mm.list = ml " 
+                + " and ml.storedProject = :" + paramStoredProject 
+                + " order by mm.sendDate desc";
+
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put(paramStoredProject, sp);
-        
+
         List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params, 1);
-        
+
         if (!mm.isEmpty())
             return mm.get(0);
-        
+
         return null;
     }
-    
+
     /**
-     * Get the thread a mail message belongs to.
+     * Get the thread this mail message belongs to.
      * 
-     * @param mm The Mail
+     * @return The thread this mail belongs to or null if the message cannot
+     *  be found in the mailthread table (e.g. when the message is too old).
      */
-    public MailThread getThread() {
-        
+    public MailingListThread getThread() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("mail", this);
+
+        List<MailThread> mt = dbs.findObjectsByProperties(MailThread.class,
+                params);
+
+        if (!mt.isEmpty())
+            return mt.get(0).getThread();
+
         return null;
     }
     

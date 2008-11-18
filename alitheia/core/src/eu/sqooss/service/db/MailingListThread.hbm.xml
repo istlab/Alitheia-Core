@@ -4,12 +4,19 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.MailingListThread" table="MAILINGLIST_THREAD">
-    <id name="id" column="MLTHREAD_ID">
-      <generator class="native" />
-    </id>
-    
-    <many-to-one name="list" column="MAILING_LIST_ID" not-null="true" cascade="merge" />
-    
-  </class>
+	<class name="eu.sqooss.service.db.MailingListThread" table="MAILINGLIST_THREAD">
+		<id name="id" column="MLTHREAD_ID">
+			<generator class="native" />
+		</id>
+
+		<many-to-one name="list" column="MAILING_LIST_ID"
+			not-null="true" cascade="merge" />
+
+		<set name="messages" inverse="true" cascade="all-delete-orphan"
+			lazy="extra">
+			<key column="MAIL_ID" />
+			<one-to-many class="eu.sqooss.service.db.MailMessage" />
+		</set>
+
+	</class>
 </hibernate-mapping>

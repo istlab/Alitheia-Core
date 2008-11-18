@@ -30,25 +30,110 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import eu.sqooss.core.AlitheiaCore;
+
 /**
  * Entity that holds information about a mailing list thread.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
 public class MailingListThread extends DAObject {
-    
-    /**The mailing list this thread belongs to*/
+
+    /** The mailing list this thread belongs to */
     private MailingList list;
+
+    /** An un-ordered set of messages participating in this thread */
+    private Set<MailMessage> messages;
 
     public MailingListThread(MailingList l) {
         this.list = l;
     }
-    
+
     public MailingList getList() {
         return list;
     }
 
     public void setList(MailingList list) {
         this.list = list;
+    }
+
+    public Set<MailMessage> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Set<MailMessage> messages) {
+        this.messages = messages;
+    }
+
+    /**
+     * Get the email that kickstarted this thread.
+     */
+    public MailMessage getStartingEmail() {
+
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("thread", this);
+        params.put("parent", null);
+
+        List<MailThread> mt = dbs.findObjectsByProperties(MailThread.class,
+                params);
+
+        if (!mt.isEmpty())
+            return mt.get(0).getMail();
+
+        return null;
+    }
+    
+    /**
+     * Get the email that closed this thread. The ordering is
+     * done by date.
+     * 
+     * @return The last MailMessage in a thread.
+     */
+    public MailMessage getLastEmail() {
+
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramThread = ":paramThread";
+        
+        String query = "select mm " +
+                " from MailMessage mm, MailThread mt " +
+                " where mt.mail = mm " +
+                " and mt.thread = :" + paramThread + 
+                " order by mm.sendDate desc" ;
+        Map<String,Object> params = new HashMap<String, Object>(1);
+        params.put(paramThread, this);
+        
+        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params, 1);
+        
+        if (mm == null || mm.isEmpty())
+            return null;
+        
+        return mm.get(0);
+    }
+    
+    /**
+     * Get the number of levels in the reply chain.
+     */
+    public int getThreadDepth() {
+        if (messages.size() == 1)
+            return 1;
+        
+        return 0;
+    }
+    
+    /**
+     * 
+     * @param level 
+     * @return
+     */
+    public List<MailMessage> getMailsAtLevel(int level) {
+        return null;
     }
 }
