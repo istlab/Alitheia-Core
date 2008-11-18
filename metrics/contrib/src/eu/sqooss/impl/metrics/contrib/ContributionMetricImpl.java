@@ -63,6 +63,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -75,6 +76,8 @@ import eu.sqooss.service.pa.PluginInfo;
 public class ContributionMetricImpl extends AbstractMetric implements
         ContributionMetric {
 
+	public static final Object lockObject = new Object();
+	
     public static final String CONFIG_CMF_THRES = "CMF_threshold";
     public static final String CONFIG_WEIGHT_UPDATE_VERSIONS = "Weights_Update_Interval";
     
@@ -239,18 +242,22 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return results;
     }
 
-    /**No need to activate per developer*/
     public void run(Developer v) {
+    	
         //log.debug("Running for developer " + v.toString());
     }
     
     public void run(Bug b) throws AlreadyProcessingException {
-        log.debug("Running for bug " + b.toString());
+        debug("Running for bug " + b.toString(), b);
     }
 
     public void run(MailMessage m) throws AlreadyProcessingException {
-        
-        log.debug("Running for email " + m.toString());
+    	MailingListThread t = m.getThread();
+    	
+    //	if (t.getStartingEmail().equals(m))
+    //	    updateField(pv, dev, ActionType.CBN, true, 1);
+    	
+    	debug("Running for email " + m.toString(), m);
     }
     
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
@@ -267,7 +274,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         if (plugin != null) {
             locMetric = plugin.getSupportedMetrics();
         } else {
-            log.error("Could not find the WC plugin");
+            err("Could not find the WC plugin", pv);
             return;
         }
         
@@ -279,8 +286,9 @@ public class ContributionMetricImpl extends AbstractMetric implements
         
         if (config == null || 
                 Integer.parseInt(config.getValue()) <= 0) {
-            log.error("Plug-in configuration option " + 
-                    ContributionMetricImpl.CONFIG_CMF_THRES + " not found");
+            err("Plug-in configuration option " 
+            		+ ContributionMetricImpl.CONFIG_CMF_THRES 
+                    + " not found", pv);
             return; 
         } else {
             numFilesThreshold = Integer.parseInt(config.getValue());
@@ -290,8 +298,8 @@ public class ContributionMetricImpl extends AbstractMetric implements
         
         if (config == null || 
                 Integer.parseInt(config.getValue()) <= 0) {
-            log.error("Plug-in configuration option " + 
-                    CONFIG_WEIGHT_UPDATE_VERSIONS + " not found");
+            err("Plug-in configuration option " + 
+                    CONFIG_WEIGHT_UPDATE_VERSIONS + " not found", pv);
             return;
         } else  {
             updateThreshold = Integer.parseInt(config.getValue());
@@ -342,7 +350,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             }
             
             if (pf.getCopyFrom() != null) {
-                log.debug("Contrib: Ignoring copied file" + pf);
+                debug("Contrib: Ignoring copied file" + pf, pf.getProjectVersion());
                 continue;
             }
             
@@ -366,8 +374,8 @@ public class ContributionMetricImpl extends AbstractMetric implements
                         if (prevFile != null) {
                             locPrevious = getLOCResult(prevFile, plugin, locMetric);
                         } else {
-                            log.warn("Cannot get previous file " +
-                                        "version for file id: " + pf.getId());
+                            warn("Cannot get previous file " +
+                            		"version for file id: " + pf.getId(), pv);
                             locPrevious = 0;
                         }
                     }
@@ -375,11 +383,10 @@ public class ContributionMetricImpl extends AbstractMetric implements
                     updateField(pv, dev, ActionType.CAL, true, 
                             abs(locCurrent - locPrevious));
                 } catch (Exception e) {
-                    log.error("Results of LOC metric for project: "
-                            + pv.getProject().getName() + " file: "
-                            + pf.getFileName() + ", Version: "
-                            + pv.getRevisionId() + " could not be retrieved: "
-                            + e.getMessage());
+                    err("Results of LOC metric for file: "
+                            + pf.getFileName() 
+                            + " could not be retrieved: "
+                            + e.getMessage(), pv);
                     return;
                 }
             }
@@ -401,7 +408,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         }
         
         //Check if it is required to update the weights
-        synchronized (this) {
+        synchronized (lockObject) {
             long distinctVersions = calcDistinctVersions();
             //Should the weights be updated?
             if (distinctVersions % updateThreshold == 0){
@@ -420,8 +427,9 @@ public class ContributionMetricImpl extends AbstractMetric implements
             return r.getRow(0).get(0).getInteger();
         }
         else { 
-            log.warn("Plugin <" + plugin.getName() + "> did" +
-                    " not return a result for file " + pf );
+            warn("Plugin <" + plugin.getName() + "> did" +
+                    " not return a result for file " + pf, 
+                    pf.getProjectVersion() );
             return 0;
         }
     }
@@ -574,6 +582,26 @@ public class ContributionMetricImpl extends AbstractMetric implements
             return -1 * value;
         else
             return value;
+    }
+    
+    private void err(String msg, DAObject o) {
+    	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
+    			+ " Error:"+ msg);
+    }
+    
+    private void warn(String msg, DAObject o) {
+    	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
+    			+ " Warning:" + msg);
+    }
+    
+    private void info(String msg, DAObject o) {
+    	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
+    			+ " Info:" + msg);
+    }
+    
+    private void debug(String msg, DAObject o) {
+    	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
+    			+ " Debug:" + msg);
     }
 }
 

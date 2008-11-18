@@ -94,7 +94,22 @@ public class ContributionActions {
         /** Commit comment that awards a pointy hat */
         CPH,
         /** Add or remove lines of code */
-        CAL;
+        CAL,  
+        /**Email that closes a thread*/
+        MCT,
+        /**Email that starts a new thread*/
+        MST,
+        /**First reply to a thread*/
+        MFR,
+        /**Report a bug*/
+        BRP,
+        /**Report a bug that is closed/duplicate*/
+        BDUP,
+        /**Close a bug*/
+        BCL,
+        /**Create a comment on a bug*/
+        BCC
+        ;
         
         public static ActionType fromString(String s) {
             if ("CNS".equalsIgnoreCase(s))
@@ -121,6 +136,20 @@ public class ContributionActions {
                 return ActionType.CPH;
             else if ("CAL".equalsIgnoreCase(s))
                 return ActionType.CAL;
+            else if ("MCT".equalsIgnoreCase(s))
+                return ActionType.MCT;
+            else if ("MST".equalsIgnoreCase(s))
+                return ActionType.MST;
+            else if ("MFR".equalsIgnoreCase(s))
+                return ActionType.MFR;
+            else if ("BRP".equalsIgnoreCase(s))
+                return ActionType.BRP;
+            else if ("BDUP".equalsIgnoreCase(s))
+                return ActionType.BDUP;
+            else if ("BCL".equalsIgnoreCase(s))
+                return ActionType.BCL;
+            else if ("BCC".equalsIgnoreCase(s))
+                return ActionType.BCC;
             else
                 return null;
         }
