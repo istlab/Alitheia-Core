@@ -490,8 +490,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
         params.put(paramVersion, v);
         params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC));
         params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM));
-        Boolean isDirectory = false;
-        params.put(paramIsDirectory, isDirectory);
         
         List<ProjectFileMeasurement> results = 
             (List<ProjectFileMeasurement>) db.doHQL(query, params);
@@ -505,6 +503,8 @@ public class WcImplementation extends AbstractMetric implements Wc {
         
         params.clear();
         params.put(paramVersion, v);
+        Boolean isDirectory = false;
+        params.put(paramIsDirectory, isDirectory);
         nof = (Long) db.doHQL(queryTotalFiles, params).get(0);
         
         for (ProjectFileMeasurement pfm : results) {
