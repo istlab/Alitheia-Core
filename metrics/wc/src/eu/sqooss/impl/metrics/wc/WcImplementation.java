@@ -471,6 +471,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
         String paramVersion = "paramVersion";
         String paramMetricLoC = "paramMetricLoC";
         String paramMetricLoCom = "paramMetricLoCom";
+        String paramIsDirectory = "paramIsDirectory";
         
         String query = "select pfm " +
             " from ProjectFileMeasurement pfm, FileForVersion ffv " +
@@ -483,12 +484,14 @@ public class WcImplementation extends AbstractMetric implements Wc {
         String queryTotalFiles = "select count(ffv.file) " +
             " from FileForVersion ffv " +
             " where ffv.version = :" + paramVersion +
-            " and ffv.file.isDirectory = 0";
+            " and ffv.file.isDirectory = :" + paramIsDirectory;
         
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(paramVersion, v);
         params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC));
         params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM));
+        Boolean isDirectory = false;
+        params.put(paramIsDirectory, isDirectory);
         
         List<ProjectFileMeasurement> results = 
             (List<ProjectFileMeasurement>) db.doHQL(query, params);
