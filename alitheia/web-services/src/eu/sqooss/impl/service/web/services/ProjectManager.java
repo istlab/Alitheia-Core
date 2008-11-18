@@ -1,8 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2008 - Organization for Free and Open Source Software,
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -46,6 +44,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
+import eu.sqooss.impl.service.web.services.datatypes.WSMailMessage;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
@@ -55,6 +54,7 @@ import eu.sqooss.impl.service.web.services.utils.ProjectManagerDatabase;
 import eu.sqooss.impl.service.web.services.utils.ProjectSecurityWrapper;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Directory;
+import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -65,6 +65,11 @@ import eu.sqooss.service.fds.Timeline.ResourceType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.security.SecurityManager;
 
+/**
+ *
+ * @author Evgeni Grigorov, <tt>(ProSyst Software GmbH)</tt>
+ * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
+ */
 public class ProjectManager extends AbstractManager {
 
     private Logger logger;
@@ -904,6 +909,10 @@ public class ProjectManager extends AbstractManager {
         return result;
     }
 
+    //========================================================================
+    // TIMELINE RELATED PROJECT METHODS
+    //========================================================================
+
     public WSProjectVersion[] getSCMTimeline(String userName, String password,
             long projectId, long tsmFrom, long tsmTill) {
         // Log this call
@@ -940,6 +949,48 @@ public class ProjectManager extends AbstractManager {
             for (ProjectEvent nextEvent : timeline)
                 versions.add((ProjectVersion) nextEvent.getAssociatedDAO());
             result = WSProjectVersion.asArray(versions);
+        }
+
+        db.commitDBSession();
+        return result;
+    }
+
+    public WSMailMessage[] getMailTimeline(String userName, String password,
+            long projectId, long tsmFrom, long tsmTill) {
+        // Log this call
+        logger.info("getMailTimeline!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId);
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getMailTimeline!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        WSMailMessage[] result = null;
+        StoredProject sp = db.findObjectById(StoredProject.class, projectId);
+        if (sp != null) {
+            Calendar calFrom = Calendar.getInstance();
+            calFrom.setTimeInMillis(tsmFrom);
+            Calendar calTill = Calendar.getInstance();
+            calTill.setTimeInMillis(tsmTill);
+            Timeline prjTimeline = fds.getTimeline(sp);
+            // Retrieve the list of events fro the given time period
+            SortedSet<ProjectEvent> timeline = prjTimeline.getTimeLine(
+                    calFrom, calTill, ResourceType.MAIL);
+            List<MailMessage> versions = new ArrayList<MailMessage>();
+            for (ProjectEvent nextEvent : timeline)
+                versions.add((MailMessage) nextEvent.getAssociatedDAO());
+            result = WSMailMessage.asArray(versions);
         }
 
         db.commitDBSession();

@@ -1,8 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2008 - Organization for Free and Open Source Software,
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -48,6 +46,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
 import eu.sqooss.impl.service.web.services.datatypes.WSDirectory;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileGroup;
 import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
+import eu.sqooss.impl.service.web.services.datatypes.WSMailMessage;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetric;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricType;
 import eu.sqooss.impl.service.web.services.datatypes.WSMetricsRequest;
@@ -88,6 +87,9 @@ import eu.sqooss.service.webadmin.WebadminService;
  * SQO-OSS framework information, that are exported in form of web services,
  * for use by the SQO-OSS user interfaces (<i>or other web service aware
  * applications</i>).
+ * 
+ * @author Evgeni Grigorov, <tt>(ProSyst Software GmbH)</tt>
+ * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
  */
 public class WebServices implements EventHandler{
 
@@ -784,11 +786,13 @@ public class WebServices implements EventHandler{
                 userNameForAccess, passwordForAccess, userId);
     }
 
-    // ===[ Timeline methods]=================================================
+    //========================================================================
+    // TIMELINE RELATED PROJECT METHODS
+    //========================================================================
 
     /**
-     * This method will return the list of project versions, associated to
-     * project related events which had occured during the given time period
+     * This method will return the list of project version, associated to
+     * project related events which had happened during the given time period
      * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
      * timestamps</i>).
      * 
@@ -798,16 +802,38 @@ public class WebServices implements EventHandler{
      * @param tsmFrom the timestamp of the period begin
      * @param tsmTill the timestamp of the period end
      * 
-     * @return The <code>WSProjectVersion</code> array that describes the
-     * located project versions, or <code>null</code> when no version related
-     * events were found for the given time period.
+     * @return The array of <code>WSProjectVersion</code> objects that
+     * describe all located project versions, or <code>null</code> when no
+     * version related events exist in the given time period.
      */
     public WSProjectVersion[] getSCMTimeline(String userName,
             String password, long projectId, long tsmFrom, long tsmTill) {
         return projectManager.getSCMTimeline(
                 userName, password, projectId, tsmFrom, tsmTill);
     }
-    
+
+    /**
+     * This method will return the list of email messages, associated to
+     * project related events which had happened during the given time period
+     * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
+     * timestamps</i>).
+     * 
+     * @param userName the user's name used for authentication
+     * @param password the user's password used for authentication
+     * @param projectId the project's identifier
+     * @param tsmFrom the timestamp of the period begin
+     * @param tsmTill the timestamp of the period end
+     * 
+     * @return The array of <code>WSMailMessage</code> objects that describe
+     * all located email messages, or <code>null</code> when no email related
+     * events exist in the given time period.
+     */
+    public WSMailMessage[] getMailTimeline(String userName,
+            String password, long projectId, long tsmFrom, long tsmTill) {
+        return projectManager.getMailTimeline(
+                userName, password, projectId, tsmFrom, tsmTill);
+    }
+
     // ===[ Miscellaneous methods]============================================
 
     /**
