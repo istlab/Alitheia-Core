@@ -57,6 +57,18 @@
           <xs:element name="projectVersionTimestamp" type="xs:long"/>
         </xs:sequence>
       </xs:complexType>
+      <xs:element name="WSMailMessage" type="ax21:WSMailMessage"/>
+      <xs:complexType name="WSMailMessage">
+        <xs:sequence>
+          <xs:element name="deliveredTimestamp" type="xs:long"/>
+          <xs:element name="id" type="xs:long"/>
+          <xs:element name="listId" type="xs:long"/>
+          <xs:element name="messageId" nillable="true" type="xs:string"/>
+          <xs:element name="senderId" type="xs:long"/>
+          <xs:element name="sentTimestamp" type="xs:long"/>
+          <xs:element name="subject" nillable="true" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
       <xs:element name="WSMetricType" type="ax21:WSMetricType"/>
       <xs:complexType name="WSMetricType">
         <xs:sequence>
@@ -350,6 +362,24 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSFileModification"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getMailTimeline">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+            <xs:element name="tsmFrom" nillable="true" type="xs:long"/>
+            <xs:element name="tsmTill" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getMailTimelineResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSMailMessage"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -871,17 +901,17 @@
   <wsdl:message name="getProjectVersionsByScmIdsResponse">
     <wsdl:part name="part1" element="ns2:getProjectVersionsByScmIdsResponse"/>
   </wsdl:message>
-  <wsdl:message name="getFilesInDirectoryMessage">
-    <wsdl:part name="part1" element="ns2:getFilesInDirectory"/>
-  </wsdl:message>
-  <wsdl:message name="getFilesInDirectoryResponse">
-    <wsdl:part name="part1" element="ns2:getFilesInDirectoryResponse"/>
-  </wsdl:message>
   <wsdl:message name="createPendingUserMessage">
     <wsdl:part name="part1" element="ns2:createPendingUser"/>
   </wsdl:message>
   <wsdl:message name="createPendingUserResponse">
     <wsdl:part name="part1" element="ns2:createPendingUserResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getFilesInDirectoryMessage">
+    <wsdl:part name="part1" element="ns2:getFilesInDirectory"/>
+  </wsdl:message>
+  <wsdl:message name="getFilesInDirectoryResponse">
+    <wsdl:part name="part1" element="ns2:getFilesInDirectoryResponse"/>
   </wsdl:message>
   <wsdl:message name="getUsersByIdsMessage">
     <wsdl:part name="part1" element="ns2:getUsersByIds"/>
@@ -941,6 +971,12 @@
   <wsdl:message name="getProjectEvaluatedMetricsResponse">
     <wsdl:part name="part1" element="ns2:getProjectEvaluatedMetricsResponse"/>
   </wsdl:message>
+  <wsdl:message name="getMailTimelineMessage">
+    <wsdl:part name="part1" element="ns2:getMailTimeline"/>
+  </wsdl:message>
+  <wsdl:message name="getMailTimelineResponse">
+    <wsdl:part name="part1" element="ns2:getMailTimelineResponse"/>
+  </wsdl:message>
   <wsdl:message name="getProjectVersionsByProjectIdMessage">
     <wsdl:part name="part1" element="ns2:getProjectVersionsByProjectId"/>
   </wsdl:message>
@@ -959,17 +995,17 @@
   <wsdl:message name="getEvaluatedProjectsResponse">
     <wsdl:part name="part1" element="ns2:getEvaluatedProjectsResponse"/>
   </wsdl:message>
-  <wsdl:message name="getVersionsCountMessage">
-    <wsdl:part name="part1" element="ns2:getVersionsCount"/>
-  </wsdl:message>
-  <wsdl:message name="getVersionsCountResponse">
-    <wsdl:part name="part1" element="ns2:getVersionsCountResponse"/>
-  </wsdl:message>
   <wsdl:message name="getFileModificationsMessage">
     <wsdl:part name="part1" element="ns2:getFileModifications"/>
   </wsdl:message>
   <wsdl:message name="getFileModificationsResponse">
     <wsdl:part name="part1" element="ns2:getFileModificationsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getVersionsCountMessage">
+    <wsdl:part name="part1" element="ns2:getVersionsCount"/>
+  </wsdl:message>
+  <wsdl:message name="getVersionsCountResponse">
+    <wsdl:part name="part1" element="ns2:getVersionsCountResponse"/>
   </wsdl:message>
   <wsdl:message name="notifyAdminMessage">
     <wsdl:part name="part1" element="ns2:notifyAdmin"/>
@@ -1084,13 +1120,13 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectVersionsByScmIdsMessage" wsaw:Action="urn:getProjectVersionsByScmIds"/>
       <wsdl:output message="axis2:getProjectVersionsByScmIdsResponse"/>
     </wsdl:operation>
-    <wsdl:operation name="getFilesInDirectory">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesInDirectoryMessage" wsaw:Action="urn:getFilesInDirectory"/>
-      <wsdl:output message="axis2:getFilesInDirectoryResponse"/>
-    </wsdl:operation>
     <wsdl:operation name="createPendingUser">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:createPendingUserMessage" wsaw:Action="urn:createPendingUser"/>
       <wsdl:output message="axis2:createPendingUserResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getFilesInDirectory">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFilesInDirectoryMessage" wsaw:Action="urn:getFilesInDirectory"/>
+      <wsdl:output message="axis2:getFilesInDirectoryResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getUsersByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getUsersByIdsMessage" wsaw:Action="urn:getUsersByIds"/>
@@ -1132,6 +1168,10 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectEvaluatedMetricsMessage" wsaw:Action="urn:getProjectEvaluatedMetrics"/>
       <wsdl:output message="axis2:getProjectEvaluatedMetricsResponse"/>
     </wsdl:operation>
+    <wsdl:operation name="getMailTimeline">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMailTimelineMessage" wsaw:Action="urn:getMailTimeline"/>
+      <wsdl:output message="axis2:getMailTimelineResponse"/>
+    </wsdl:operation>
     <wsdl:operation name="getProjectVersionsByProjectId">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getProjectVersionsByProjectIdMessage" wsaw:Action="urn:getProjectVersionsByProjectId"/>
       <wsdl:output message="axis2:getProjectVersionsByProjectIdResponse"/>
@@ -1144,13 +1184,13 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getEvaluatedProjectsMessage" wsaw:Action="urn:getEvaluatedProjects"/>
       <wsdl:output message="axis2:getEvaluatedProjectsResponse"/>
     </wsdl:operation>
-    <wsdl:operation name="getVersionsCount">
-      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getVersionsCountMessage" wsaw:Action="urn:getVersionsCount"/>
-      <wsdl:output message="axis2:getVersionsCountResponse"/>
-    </wsdl:operation>
     <wsdl:operation name="getFileModifications">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getFileModificationsMessage" wsaw:Action="urn:getFileModifications"/>
       <wsdl:output message="axis2:getFileModificationsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getVersionsCount">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getVersionsCountMessage" wsaw:Action="urn:getVersionsCount"/>
+      <wsdl:output message="axis2:getVersionsCountResponse"/>
     </wsdl:operation>
     <wsdl:operation name="notifyAdmin">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:notifyAdminMessage" wsaw:Action="urn:notifyAdmin"/>
@@ -1297,8 +1337,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFilesInDirectory">
-      <soap:operation soapAction="urn:getFilesInDirectory" style="document"/>
+    <wsdl:operation name="createPendingUser">
+      <soap:operation soapAction="urn:createPendingUser" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1306,8 +1346,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="createPendingUser">
-      <soap:operation soapAction="urn:createPendingUser" style="document"/>
+    <wsdl:operation name="getFilesInDirectory">
+      <soap:operation soapAction="urn:getFilesInDirectory" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1405,6 +1445,15 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="getMailTimeline">
+      <soap:operation soapAction="urn:getMailTimeline" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getProjectVersionsByProjectId">
       <soap:operation soapAction="urn:getProjectVersionsByProjectId" style="document"/>
       <wsdl:input>
@@ -1432,8 +1481,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getVersionsCount">
-      <soap:operation soapAction="urn:getVersionsCount" style="document"/>
+    <wsdl:operation name="getFileModifications">
+      <soap:operation soapAction="urn:getFileModifications" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1441,8 +1490,8 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFileModifications">
-      <soap:operation soapAction="urn:getFileModifications" style="document"/>
+    <wsdl:operation name="getVersionsCount">
+      <soap:operation soapAction="urn:getVersionsCount" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1660,8 +1709,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFilesInDirectory">
-      <soap12:operation soapAction="urn:getFilesInDirectory" style="document"/>
+    <wsdl:operation name="createPendingUser">
+      <soap12:operation soapAction="urn:createPendingUser" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1669,8 +1718,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="createPendingUser">
-      <soap12:operation soapAction="urn:createPendingUser" style="document"/>
+    <wsdl:operation name="getFilesInDirectory">
+      <soap12:operation soapAction="urn:getFilesInDirectory" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1768,6 +1817,15 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="getMailTimeline">
+      <soap12:operation soapAction="urn:getMailTimeline" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getProjectVersionsByProjectId">
       <soap12:operation soapAction="urn:getProjectVersionsByProjectId" style="document"/>
       <wsdl:input>
@@ -1795,8 +1853,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getVersionsCount">
-      <soap12:operation soapAction="urn:getVersionsCount" style="document"/>
+    <wsdl:operation name="getFileModifications">
+      <soap12:operation soapAction="urn:getFileModifications" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
@@ -1804,8 +1862,8 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getFileModifications">
-      <soap12:operation soapAction="urn:getFileModifications" style="document"/>
+    <wsdl:operation name="getVersionsCount">
+      <soap12:operation soapAction="urn:getVersionsCount" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>

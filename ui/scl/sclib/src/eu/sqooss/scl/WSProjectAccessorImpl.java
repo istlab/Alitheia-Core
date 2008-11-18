@@ -1,8 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2008 - Organization for Free and Open Source Software,
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -45,6 +43,7 @@ import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
+import eu.sqooss.ws.client.datatypes.WSMailMessage;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -86,6 +85,8 @@ import eu.sqooss.ws.client.ws.GetRootDirectory;
 import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
 import eu.sqooss.ws.client.ws.GetSCMTimeline;
 import eu.sqooss.ws.client.ws.GetSCMTimelineResponse;
+import eu.sqooss.ws.client.ws.GetMailTimeline;
+import eu.sqooss.ws.client.ws.GetMailTimelineResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
 import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
 import eu.sqooss.ws.client.ws.GetTaggedVersionsByProjectId;
@@ -97,6 +98,11 @@ import eu.sqooss.ws.client.ws.GetVersionsStatisticsResponse;
 import eu.sqooss.ws.client.ws.GetFileModifications;
 import eu.sqooss.ws.client.ws.GetFileModificationsResponse;
 
+/**
+ *
+ * @author Evgeni Grigorov, <tt>(ProSyst Software GmbH)</tt>
+ * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
+ */
 class WSProjectAccessorImpl extends WSProjectAccessor {
 
     private static final String METHOD_NAME_GET_EVALUATED_PROJECTS =
@@ -145,6 +151,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getTaggedVersionsByProjectId";
     private static final String METHOD_NAME_GET_SCM_TIMELINE =
         "getSCMTimeline";
+    private static final String METHOD_NAME_GET_MAIL_TIMELINE =
+        "getMailTimeline";
 
     private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS =
         new WSStoredProject[0];
@@ -833,7 +841,9 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
 
     }
 
-    // ===[ Timeline methods]=================================================
+    //========================================================================
+    // TIMELINE RELATED PROJECT METHODS
+    //========================================================================
 
     /**
      * @see eu.sqooss.scl.accessor.WSProjectAccessor#getSCMTimeline(long,
@@ -866,6 +876,36 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         return response.get_return();
     }
 
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getMailTimeline(long,
+     *      long, long)
+     */
+    @Override
+    public WSMailMessage[] getMailTimeline(long projectId, long tsmFrom,
+            long tsmTill) throws WSException {
+        GetMailTimelineResponse response;
+        GetMailTimeline params;
+        if (!parameters.containsKey(METHOD_NAME_GET_MAIL_TIMELINE)) {
+            params = new GetMailTimeline();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_MAIL_TIMELINE, params);
+        } else {
+            params = (GetMailTimeline) parameters
+                    .get(METHOD_NAME_GET_MAIL_TIMELINE);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            params.setTsmFrom(tsmFrom);
+            params.setTsmTill(tsmTill);
+            try {
+                response = wsStub.getMailTimeline(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

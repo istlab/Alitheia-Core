@@ -1,8 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2008 - Organization for Free and Open Source Software,
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -37,6 +35,7 @@ import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileGroup;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
+import eu.sqooss.ws.client.datatypes.WSMailMessage;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -44,7 +43,10 @@ import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
 
 /**
- * This class contains the projects methods. 
+ * This class contains the projects methods.
+ *
+ * @author Evgeni Grigorov, <tt>(ProSyst Software GmbH)</tt>
+ * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
  */
 public abstract class WSProjectAccessor extends WSAccessor {
     
@@ -411,21 +413,19 @@ public abstract class WSProjectAccessor extends WSAccessor {
             long projectVersionId,
             long projectFileId) throws WSException;
 
-    // ===[ Timeline methods]=================================================
+    //========================================================================
+    // TIMELINE RELATED PROJECT METHODS
+    //========================================================================
 
     /**
-     * This method will return the list of project versions, associated to
-     * project related events which had occured during the given time period
+     * This method will return the list of project version, associated to
+     * project related events which had happened during the given time period
      * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
      * timestamps</i>).
      * 
      * @param projectId the project's identifier
      * @param tsmFrom the timestamp of the period begin
      * @param tsmTill the timestamp of the period end
-     * 
-     * @return The <code>WSProjectVersion</code> array that describes the
-     * located project versions, or <code>null</code> when no version related
-     * events were found for the given time period.
      * 
      * @throws WSException
      * <ul>
@@ -435,6 +435,30 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSProjectVersion[] getSCMTimeline(
+            long projectId, long tsmFrom, long tsmTill) throws WSException;
+
+    /**
+     * This method will return the list of email messages, associated to
+     * project related events which had happened during the given time period
+     * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
+     * timestamps</i>).
+     * 
+     * @param projectId the project's identifier
+     * @param tsmFrom the timestamp of the period begin
+     * @param tsmTill the timestamp of the period end
+     * 
+     * @return The array of <code>WSMailMessage</code> objects that describe
+     * all located email messages, or <code>null</code> when no email related
+     * events exist in the given time period.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection link with the SQO-OSS's Web-Services service can
+     *    not be established at this time</li>
+     *  <li>if the SQO-OSS's Web-Services service itself throw an exception</li>
+     * <ul>
+     */
+    public abstract WSMailMessage[] getMailTimeline(
             long projectId, long tsmFrom, long tsmTill) throws WSException;
 }
 
