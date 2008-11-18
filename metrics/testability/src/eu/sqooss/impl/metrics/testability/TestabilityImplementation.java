@@ -34,17 +34,14 @@
 
 package eu.sqooss.impl.metrics.testability;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.LinkedList;
-import java.util.StringTokenizer;
+import java.util.List;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -52,7 +49,6 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.testability.Testability;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
@@ -89,7 +85,7 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
         if (result) {
             result &= super.addSupportedMetrics(
                     this.getDescription(),
-                    "TESTCOV",
+                    MNEMONIC_NCASES,
                     MetricType.Type.SOURCE_CODE);
         }
         return result;
@@ -149,10 +145,11 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
 
         String extension = FileTypeMatcher.getFileExtension(pf.getName());
         LinkedList<TestabilityScanner> scanners = allScanners.get(extension);
+        
         // Metric doesn't support this type of file
-        if (extension == null)
+        if (scanners == null)
             return;
-
+        
         // Create an input stream from the project file's content
         InputStream in = fds.getFileContents(pf);
         if (in == null)
@@ -186,8 +183,6 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
 
         }
     }
-
-
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
