@@ -47,6 +47,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSFileModification;
 import eu.sqooss.impl.service.web.services.datatypes.WSMailMessage;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
+import eu.sqooss.impl.service.web.services.datatypes.WSShortProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.datatypes.WSTaggedVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSVersionStats;
@@ -949,6 +950,48 @@ public class ProjectManager extends AbstractManager {
             for (ProjectEvent nextEvent : timeline)
                 versions.add((ProjectVersion) nextEvent.getAssociatedDAO());
             result = WSProjectVersion.asArray(versions);
+        }
+
+        db.commitDBSession();
+        return result;
+    }
+
+    public WSShortProjectVersion[] getShortSCMTimeline(String userName,
+            String password, long projectId, long tsmFrom, long tsmTill) {
+        // Log this call
+        logger.info("getShortSCMTimeline!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId);
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getShortSCMTimeline!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        WSShortProjectVersion[] result = null;
+        StoredProject sp = db.findObjectById(StoredProject.class, projectId);
+        if (sp != null) {
+            Calendar calFrom = Calendar.getInstance();
+            calFrom.setTimeInMillis(tsmFrom);
+            Calendar calTill = Calendar.getInstance();
+            calTill.setTimeInMillis(tsmTill);
+            Timeline prjTimeline = fds.getTimeline(sp);
+            // Retrieve the list of events fro the given time period
+            SortedSet<ProjectEvent> timeline = prjTimeline.getTimeLine(
+                    calFrom, calTill, ResourceType.SCM);
+            List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+            for (ProjectEvent nextEvent : timeline)
+                versions.add((ProjectVersion) nextEvent.getAssociatedDAO());
+            result = WSShortProjectVersion.asArray(versions);
         }
 
         db.commitDBSession();

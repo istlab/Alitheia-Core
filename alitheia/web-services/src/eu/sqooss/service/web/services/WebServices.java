@@ -54,6 +54,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
+import eu.sqooss.impl.service.web.services.datatypes.WSShortProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.datatypes.WSTaggedVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSUser;
@@ -809,6 +810,28 @@ public class WebServices implements EventHandler{
     public WSProjectVersion[] getSCMTimeline(String userName,
             String password, long projectId, long tsmFrom, long tsmTill) {
         return projectManager.getSCMTimeline(
+                userName, password, projectId, tsmFrom, tsmTill);
+    }
+
+    /**
+     * This method will return the list of project version, associated to
+     * project related events which had happened during the given time period
+     * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
+     * timestamps</i>).
+     * 
+     * @param userName the user's name used for authentication
+     * @param password the user's password used for authentication
+     * @param projectId the project's identifier
+     * @param tsmFrom the timestamp of the period begin
+     * @param tsmTill the timestamp of the period end
+     * 
+     * @return The array of <code>WSProjectVersion</code> objects that
+     * describe all located project versions, or <code>null</code> when no
+     * version related events exist in the given time period.
+     */
+    public WSShortProjectVersion[] getShortSCMTimeline(String userName,
+            String password, long projectId, long tsmFrom, long tsmTill) {
+        return projectManager.getShortSCMTimeline(
                 userName, password, projectId, tsmFrom, tsmTill);
     }
 

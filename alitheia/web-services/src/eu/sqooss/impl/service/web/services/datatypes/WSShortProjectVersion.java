@@ -32,103 +32,70 @@ package eu.sqooss.impl.service.web.services.datatypes;
 
 import java.util.List;
 
-import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.ProjectVersion;
 
 /**
- * This class wraps a single <code>eu.sqooss.service.db.MailMessage</code>
- * <tt>DAO</tt>.
- *
+ * This class partially wraps a single project version <tt>DAO</tt> i.e. just
+ * the <tt>Id</tt> of the version <tt>DAO</tt> and the version's timestamp.
+ * <br/>
+ * In you need a full version <tt>DAO</tt> wrapper, then please have a look at
+ * the <code>WSProjectVersion</code> class.
+ * @see eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion
+ * 
  * @author Evgeni Grigorov, <tt>(ProSyst Software GmbH)</tt>
  * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
  */
-public class WSMailMessage {
+public class WSShortProjectVersion {
 
     private long id;
+    private long timestamp;
 
-    long senderId;
-    long listId;
-    String messageId;
-    String subject;
-    long sent;
-    long delivered;
-
-
+    /**
+     * Returns the <tt>Id</tt> of the wrapped version <tt>DAO</tt>.
+     * @return The <tt>Id</tt> of the wrapped project version <tt>DAO</tt>.
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Initializes the <tt>DAO Id</tt> of this project version wrapper.
+     * @param id the <tt>Id</tt> of the wrapped project version <tt>DAO</tt>
+     */
     public void setId(long id) {
         this.id = id;
     }
 
-    public long getSenderId() {
-        return senderId;
+    /**
+     * @return The timestamp of the wrapped project version.
+     */
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setSenderId(long senderId) {
-        this.senderId = senderId;
-    }
-
-    public long getListId() {
-        return listId;
-    }
-
-    public void setListId(long listId) {
-        this.listId = listId;
-    }
-
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public long getSentTimestamp() {
-        return sent;
-    }
-
-    public void setSentTimestamp(long timestamp) {
-        this.sent = timestamp;
-    }
-
-    public long getDeliveredTimestamp() {
-        return delivered;
-    }
-
-    public void setDeliveredTimestamp(long timestamp) {
-        this.delivered = timestamp;
+    /**
+     * Initializes the timestamp of this project version wrapper.
+     * @param timestamp the timestamp to set
+     */
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     /**
      * This method instantiates and initializes a new
-     * <code>WSMailMessage</code> object by wrapping the given mail message
-     * <tt>DAO</tt>.
+     * <code>WSShortProjectVersion</code> object by wrapping the given project
+     * version <tt>DAO</tt>.
      * 
-     * @param mailMessage a mail message <tt>DAO</tt>
+     * @param dao a project version <tt>DAO</tt>
      * 
-     * @return The new <code>WSMailMessage</code> object
+     * @return The new <code>WSShortProjectVersion</code> object
      */
-    public static WSMailMessage getInstance(MailMessage dao) {
+    public static WSShortProjectVersion getInstance(ProjectVersion dao) {
         if (dao == null) return null;
         try {
-            WSMailMessage wrapper = new WSMailMessage();
+            WSShortProjectVersion wrapper = new WSShortProjectVersion();
             wrapper.setId(dao.getId());
-            wrapper.setSenderId(dao.getSender().getId());
-            wrapper.setListId(dao.getList().getId());
-            wrapper.setMessageId(dao.getMessageId());
-            wrapper.setSubject(dao.getSubject());
-            wrapper.setSentTimestamp(dao.getSendDate().getTime());
-            wrapper.setDeliveredTimestamp(dao.getArrivalDate().getTime());
+            wrapper.setTimestamp(dao.getTimestamp());
             return wrapper;
         } catch (Exception e) {
             return null;
@@ -137,27 +104,27 @@ public class WSMailMessage {
 
     /**
      * This method returns an array containing all of the elements in the
-     * given list of <code>MailMessage</code> <tt>DAO</tt>s.
+     * given list of <code>ProjectVersion</code> <tt>DAO</tt>s.
      *  
-     * @param daoList a list of <code>MailMessage</code> <tt>DAO</tt>s
+     * @param daoList a list of <code>ProjectVersion</code> <tt>DAO</tt>s
      * 
-     * @return An array of <code>WSMailMessage</code> objects,
+     * @return An array of <code>WSShortProjectVersion</code> objects,
      *   or <code>null</code> upon an empty list or incompatible
      *   <tt>DAO</tt>s.
      */
-    public static WSMailMessage[] asArray(List<?> daoList) {
-        WSMailMessage[] result = null;
+    public static WSShortProjectVersion[] asArray(List<?> daoList) {
+        WSShortProjectVersion[] result = null;
         if (daoList != null) {
-            result = new WSMailMessage[daoList.size()];
-            MailMessage dao;
-            WSMailMessage wrapper;
+            result = new WSShortProjectVersion[daoList.size()];
+            ProjectVersion dao;
+            WSShortProjectVersion wrapper;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    dao = (MailMessage) daoList.get(i);
+                    dao = (ProjectVersion) daoList.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                wrapper = WSMailMessage.getInstance(dao);
+                wrapper = WSShortProjectVersion.getInstance(dao);
                 if (wrapper == null)
                     return null;
                 result[i] = wrapper;
