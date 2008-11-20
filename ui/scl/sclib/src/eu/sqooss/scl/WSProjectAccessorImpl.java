@@ -47,6 +47,7 @@ import eu.sqooss.ws.client.datatypes.WSMailMessage;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSShortProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
 import eu.sqooss.ws.client.ws.GetDevelopersByIds;
@@ -85,6 +86,8 @@ import eu.sqooss.ws.client.ws.GetRootDirectory;
 import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
 import eu.sqooss.ws.client.ws.GetSCMTimeline;
 import eu.sqooss.ws.client.ws.GetSCMTimelineResponse;
+import eu.sqooss.ws.client.ws.GetShortSCMTimeline;
+import eu.sqooss.ws.client.ws.GetShortSCMTimelineResponse;
 import eu.sqooss.ws.client.ws.GetMailTimeline;
 import eu.sqooss.ws.client.ws.GetMailTimelineResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
@@ -151,6 +154,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getTaggedVersionsByProjectId";
     private static final String METHOD_NAME_GET_SCM_TIMELINE =
         "getSCMTimeline";
+    private static final String METHOD_NAME_GET_SHORT_SCM_TIMELINE =
+        "getShortSCMTimeline";
     private static final String METHOD_NAME_GET_MAIL_TIMELINE =
         "getMailTimeline";
 
@@ -869,6 +874,37 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setTsmTill(tsmTill);
             try {
                 response = wsStub.getSCMTimeline(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getShortSCMTimeline(long,
+     *      long, long)
+     */
+    @Override
+    public WSShortProjectVersion[] getShortSCMTimeline(long projectId,
+            long tsmFrom, long tsmTill) throws WSException {
+        GetShortSCMTimelineResponse response;
+        GetShortSCMTimeline params;
+        if (!parameters.containsKey(METHOD_NAME_GET_SHORT_SCM_TIMELINE)) {
+            params = new GetShortSCMTimeline();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_SHORT_SCM_TIMELINE, params);
+        } else {
+            params = (GetShortSCMTimeline) parameters
+                    .get(METHOD_NAME_GET_SHORT_SCM_TIMELINE);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            params.setTsmFrom(tsmFrom);
+            params.setTsmTill(tsmTill);
+            try {
+                response = wsStub.getShortSCMTimeline(params);
             } catch (Exception e) {
                 throw new WSException(e);
             }
