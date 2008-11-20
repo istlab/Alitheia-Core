@@ -38,6 +38,7 @@ import eu.sqooss.ws.client.datatypes.WSFileModification;
 import eu.sqooss.ws.client.datatypes.WSMailMessage;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSShortMailMessage;
 import eu.sqooss.ws.client.datatypes.WSShortProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
@@ -480,6 +481,30 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract WSMailMessage[] getMailTimeline(
+            long projectId, long tsmFrom, long tsmTill) throws WSException;
+
+    /**
+     * This method will return the list of email messages, associated to
+     * project related events which had happened during the given time period
+     * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
+     * timestamps</i>).
+     * 
+     * @param projectId the project's identifier
+     * @param tsmFrom the timestamp of the period begin
+     * @param tsmTill the timestamp of the period end
+     * 
+     * @return The array of <code>WSMailMessage</code> objects that describe
+     * all located email messages, or <code>null</code> when no email related
+     * events exist in the given time period.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection link with the SQO-OSS's Web-Services service can
+     *    not be established at this time</li>
+     *  <li>if the SQO-OSS's Web-Services service itself throw an exception</li>
+     * <ul>
+     */
+    public abstract WSShortMailMessage[] getShortMailTimeline(
             long projectId, long tsmFrom, long tsmTill) throws WSException;
 }
 

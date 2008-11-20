@@ -144,6 +144,13 @@
           <xs:element name="result" nillable="true" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
+      <xs:element name="WSShortMailMessage" type="ax21:WSShortMailMessage"/>
+      <xs:complexType name="WSShortMailMessage">
+        <xs:sequence>
+          <xs:element name="deliveredTimestamp" type="xs:long"/>
+          <xs:element name="id" type="xs:long"/>
+        </xs:sequence>
+      </xs:complexType>
       <xs:element name="WSShortProjectVersion" type="ax21:WSShortProjectVersion"/>
       <xs:complexType name="WSShortProjectVersion">
         <xs:sequence>
@@ -651,6 +658,24 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getShortMailTimeline">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+            <xs:element name="tsmFrom" nillable="true" type="xs:long"/>
+            <xs:element name="tsmTill" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getShortMailTimelineResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSShortMailMessage"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getShortSCMTimeline">
         <xs:complexType>
           <xs:sequence>
@@ -1032,6 +1057,12 @@
   <wsdl:message name="getVersionsCountResponse">
     <wsdl:part name="part1" element="ns2:getVersionsCountResponse"/>
   </wsdl:message>
+  <wsdl:message name="getShortMailTimelineMessage">
+    <wsdl:part name="part1" element="ns2:getShortMailTimeline"/>
+  </wsdl:message>
+  <wsdl:message name="getShortMailTimelineResponse">
+    <wsdl:part name="part1" element="ns2:getShortMailTimelineResponse"/>
+  </wsdl:message>
   <wsdl:message name="notifyAdminMessage">
     <wsdl:part name="part1" element="ns2:notifyAdmin"/>
   </wsdl:message>
@@ -1222,6 +1253,10 @@
     <wsdl:operation name="getVersionsCount">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getVersionsCountMessage" wsaw:Action="urn:getVersionsCount"/>
       <wsdl:output message="axis2:getVersionsCountResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getShortMailTimeline">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getShortMailTimelineMessage" wsaw:Action="urn:getShortMailTimeline"/>
+      <wsdl:output message="axis2:getShortMailTimelineResponse"/>
     </wsdl:operation>
     <wsdl:operation name="notifyAdmin">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:notifyAdminMessage" wsaw:Action="urn:notifyAdmin"/>
@@ -1527,6 +1562,15 @@
     </wsdl:operation>
     <wsdl:operation name="getVersionsCount">
       <soap:operation soapAction="urn:getVersionsCount" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getShortMailTimeline">
+      <soap:operation soapAction="urn:getShortMailTimeline" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1908,6 +1952,15 @@
     </wsdl:operation>
     <wsdl:operation name="getVersionsCount">
       <soap12:operation soapAction="urn:getVersionsCount" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getShortMailTimeline">
+      <soap12:operation soapAction="urn:getShortMailTimeline" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>

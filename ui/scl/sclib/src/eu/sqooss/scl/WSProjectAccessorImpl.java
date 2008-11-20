@@ -47,6 +47,7 @@ import eu.sqooss.ws.client.datatypes.WSMailMessage;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSShortMailMessage;
 import eu.sqooss.ws.client.datatypes.WSShortProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
@@ -58,6 +59,8 @@ import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjectsResponse;
 import eu.sqooss.ws.client.ws.GetFileGroupsByProjectVersionId;
 import eu.sqooss.ws.client.ws.GetFileGroupsByProjectVersionIdResponse;
+import eu.sqooss.ws.client.ws.GetFileModifications;
+import eu.sqooss.ws.client.ws.GetFileModificationsResponse;
 import eu.sqooss.ws.client.ws.GetFilesByRegularExpression;
 import eu.sqooss.ws.client.ws.GetFilesByRegularExpressionResponse;
 import eu.sqooss.ws.client.ws.GetFilesInDirectory;
@@ -70,6 +73,8 @@ import eu.sqooss.ws.client.ws.GetLastProjectVersions;
 import eu.sqooss.ws.client.ws.GetLastProjectVersionsResponse;
 import eu.sqooss.ws.client.ws.GetPreviousVersionById;
 import eu.sqooss.ws.client.ws.GetPreviousVersionByIdResponse;
+import eu.sqooss.ws.client.ws.GetMailTimeline;
+import eu.sqooss.ws.client.ws.GetMailTimelineResponse;
 import eu.sqooss.ws.client.ws.GetNextVersionById;
 import eu.sqooss.ws.client.ws.GetNextVersionByIdResponse;
 import eu.sqooss.ws.client.ws.GetProjectByName;
@@ -86,10 +91,10 @@ import eu.sqooss.ws.client.ws.GetRootDirectory;
 import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
 import eu.sqooss.ws.client.ws.GetSCMTimeline;
 import eu.sqooss.ws.client.ws.GetSCMTimelineResponse;
+import eu.sqooss.ws.client.ws.GetShortMailTimeline;
+import eu.sqooss.ws.client.ws.GetShortMailTimelineResponse;
 import eu.sqooss.ws.client.ws.GetShortSCMTimeline;
 import eu.sqooss.ws.client.ws.GetShortSCMTimelineResponse;
-import eu.sqooss.ws.client.ws.GetMailTimeline;
-import eu.sqooss.ws.client.ws.GetMailTimelineResponse;
 import eu.sqooss.ws.client.ws.GetStoredProjects;
 import eu.sqooss.ws.client.ws.GetStoredProjectsResponse;
 import eu.sqooss.ws.client.ws.GetTaggedVersionsByProjectId;
@@ -98,8 +103,6 @@ import eu.sqooss.ws.client.ws.GetVersionsCount;
 import eu.sqooss.ws.client.ws.GetVersionsCountResponse;
 import eu.sqooss.ws.client.ws.GetVersionsStatistics;
 import eu.sqooss.ws.client.ws.GetVersionsStatisticsResponse;
-import eu.sqooss.ws.client.ws.GetFileModifications;
-import eu.sqooss.ws.client.ws.GetFileModificationsResponse;
 
 /**
  *
@@ -158,6 +161,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getShortSCMTimeline";
     private static final String METHOD_NAME_GET_MAIL_TIMELINE =
         "getMailTimeline";
+    private static final String METHOD_NAME_GET_SHORT_MAIL_TIMELINE =
+        "getShortMailTimeline";
 
     private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS =
         new WSStoredProject[0];
@@ -936,6 +941,37 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setTsmTill(tsmTill);
             try {
                 response = wsStub.getMailTimeline(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getShortMailTimeline(
+     *      long, long, long)
+     */
+    @Override
+    public WSShortMailMessage[] getShortMailTimeline(long projectId,
+            long tsmFrom, long tsmTill) throws WSException {
+        GetShortMailTimelineResponse response;
+        GetShortMailTimeline params;
+        if (!parameters.containsKey(METHOD_NAME_GET_SHORT_MAIL_TIMELINE)) {
+            params = new GetShortMailTimeline();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_SHORT_MAIL_TIMELINE, params);
+        } else {
+            params = (GetShortMailTimeline) parameters
+                    .get(METHOD_NAME_GET_SHORT_MAIL_TIMELINE);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            params.setTsmFrom(tsmFrom);
+            params.setTsmTill(tsmTill);
+            try {
+                response = wsStub.getShortMailTimeline(params);
             } catch (Exception e) {
                 throw new WSException(e);
             }
