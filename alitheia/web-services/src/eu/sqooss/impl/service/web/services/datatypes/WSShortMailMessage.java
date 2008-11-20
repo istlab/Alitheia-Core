@@ -35,27 +35,17 @@ import java.util.List;
 import eu.sqooss.service.db.MailMessage;
 
 /**
- * This class wraps a single <code>eu.sqooss.service.db.MailMessage</code>
- * <tt>DAO</tt>.
- *
- * @author Evgeni Grigorov, <tt>(ProSyst Software GmbH)</tt>
- * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
- */
-/**
  * This class partially wraps a single email message <tt>DAO</tt> i.e. just
- * the <tt>Id</tt> of the version <tt>DAO</tt> and the delivery timestamp.
+ * the <tt>Id</tt> of the version <tt>DAO</tt> and the sending timestamp.
  * <br/>
  * In you need a full email <tt>DAO</tt> wrapper, then please have a look at
  * the <code>WSMailMessage</code> class.
  * @see eu.sqooss.impl.service.web.services.datatypes.WSMailMessage
- * 
- * @author Evgeni Grigorov, <tt>(ProSyst Software GmbH)</tt>
- * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
  */
 public class WSShortMailMessage {
 
     private long id;
-    private long delivered;
+    private long timestamp;
 
 
     public long getId() {
@@ -66,12 +56,12 @@ public class WSShortMailMessage {
         this.id = id;
     }
 
-    public long getDeliveredTimestamp() {
-        return delivered;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setDeliveredTimestamp(long timestamp) {
-        this.delivered = timestamp;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     /**
@@ -88,7 +78,7 @@ public class WSShortMailMessage {
         try {
             WSShortMailMessage wrapper = new WSShortMailMessage();
             wrapper.setId(dao.getId());
-            wrapper.setDeliveredTimestamp(dao.getArrivalDate().getTime());
+            wrapper.setTimestamp(dao.getSendDate().getTime());
             return wrapper;
         } catch (Exception e) {
             return null;
