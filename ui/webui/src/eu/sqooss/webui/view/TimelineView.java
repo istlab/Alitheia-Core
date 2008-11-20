@@ -1,9 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008-2008 by Sebastian Kuegler <sebas@kde.org>
+ * Copyright 2008 - Organization for Free and Open Source Software,
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -40,6 +37,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -51,11 +50,17 @@ import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.Project;
-import eu.sqooss.webui.datatype.Version;
-import eu.sqooss.webui.util.VersionsList;
+import eu.sqooss.webui.datatype.MailMessage;
+import eu.sqooss.webui.datatype.ShortVersion;
+import eu.sqooss.webui.util.MailMessagesList;
 
+/**
+ * 
+ * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
+ */
 public class TimelineView extends AbstractDataView {
-    VersionsList versions = new VersionsList();
+    private SortedMap<Long, Long> versions = new TreeMap<Long, Long>();
+    private MailMessagesList emails = new MailMessagesList();
 
     /**
      * Instantiates a new <code>TimelineView</code> object, and initializes
@@ -77,24 +82,49 @@ public class TimelineView extends AbstractDataView {
     private void loadData() {
         if ((project != null) && (project.isValid())) {
             /*
-             * Load the list of versions referenced by events which occurred
+             * Load the list of resources referenced by events which occurred
              * within the selected time period.
              */
             if ((terrier != null)
                     && (settings.getTvDateFrom() != null)
-                    && (settings.getTvDateFrom() != null))
-                versions.addAll(terrier.getVersionsTimeline(project.getId(),
-                        settings.getTvDateFrom(), settings.getTvDateTill()));
+                    && (settings.getTvDateFrom() != null)) {
+                for (ShortVersion version : terrier.getShortVersionsTimeline(
+                        project.getId(),
+                        settings.getTvDateFrom(), settings.getTvDateTill()))
+                    versions.put(version.getTimestamp(), version.getId());
+                emails.addAll(terrier.getEmailsTimeline(project.getId(),
+                    settings.getTvDateFrom(), settings.getTvDateTill()));
+            }
         }
     }
 
-    private List<Version> getVersionsInPeriod(Calendar from, Calendar till) {
-        ArrayList<Version> result = new ArrayList<Version>();
-        for (Long timestamp : versions.sortByTimestamp().keySet()) {
+    /*
+     * Retrieves the total number of all project version which were committed
+     * during the given time period.
+     */
+    private long countVersionsInPeriod(Calendar from, Calendar till) {
+        long total = 0;
+        for (Long timestamp : versions.keySet()) {
             if (timestamp != null) {
                 if (timestamp < from.getTimeInMillis()) continue;
                 if (timestamp >= till.getTimeInMillis()) break;
-                result.add(versions.getVersionByTimestamp(timestamp));
+                total++;
+            }
+        }
+        return total;
+    }
+
+    /*
+     * Retrieves all email messages which were delivered during the given
+     * time period.
+     */
+    private List<MailMessage> getEmailsInPeriod(Calendar from, Calendar till) {
+        ArrayList<MailMessage> result = new ArrayList<MailMessage>();
+        for (Long timestamp : emails.sortByTimestamp().keySet()) {
+            if (timestamp != null) {
+                if (timestamp < from.getTimeInMillis()) continue;
+                if (timestamp >= till.getTimeInMillis()) break;
+                result.add(emails.getMailByTimestamp(timestamp));
             }
         }
         return result;
@@ -411,7 +441,8 @@ public class TimelineView extends AbstractDataView {
                     displayHeader = false;
                     calTmp = (Calendar) calLow.clone();
                     calTmp.add(Calendar.MONTH, 1);
-                    if (!((getVersionsInPeriod(calLow, calTmp).size() == 0)
+                    if (!((countVersionsInPeriod(calLow, calTmp) == 0)
+                            && (getEmailsInPeriod(calLow, calTmp).size() == 0)
                             && (settings.getTvShowEmptyState() == false)))
                         b.append(sp(in) + "<tr>"
                                 + "<td class=\"def_head_center\" colspan=\"3\">"
@@ -423,8 +454,10 @@ public class TimelineView extends AbstractDataView {
                                 + "</tr>\n");
                 }
 
-                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
-                if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
+                long numVersions = countVersionsInPeriod(calLow, calHigh);
+                int numEmails = getEmailsInPeriod(calLow, calHigh).size();
+                if (!((numVersions + numEmails == 0)
+                        && (settings.getTvShowEmptyState() == false))) {
                     b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td class=\"def_major\">"
                             + "Week " + calLow.get(Calendar.WEEK_OF_YEAR)
@@ -433,12 +466,14 @@ public class TimelineView extends AbstractDataView {
                             + numVersions + "</td>\n");
                 }
 
-                if (numVersions > 0) {
+                if (numVersions + numEmails > 0) {
                     b.append(sp(in) + "<td class=\"def\">"
                             + "<img style=\"height: 10px; width: 4px;\""
                             + " src=\"/img/icons/16x16/testl.png\">"
                             + "<img style=\"height: 10px; width: "
-                            + numVersions
+                            + (versions.size() > 0
+                                    ? (int)(numVersions * 300 / versions.size())
+                                    : 0)
                             + "px;\""
                             + " src=\"/img/icons/16x16/testm.png\">"
                             + "<img style=\"height: 10px; width: 4px;\""
@@ -465,7 +500,7 @@ public class TimelineView extends AbstractDataView {
                     displayHeader = false;
                     calPeriod = (Calendar) calLow.clone();
                     calPeriod.add(Calendar.YEAR, 1);
-                    if (!((getVersionsInPeriod(calLow, calPeriod).size() == 0)
+                    if (!((countVersionsInPeriod(calLow, calPeriod) == 0)
                             && (settings.getTvShowEmptyState() == false)))
                         b.append(sp(in) + "<tr>"
                                 + "<td class=\"def_head_center\" colspan=\"3\">"
@@ -474,7 +509,7 @@ public class TimelineView extends AbstractDataView {
                                 + "</tr>\n");
                 }
 
-                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+                long numVersions = countVersionsInPeriod(calLow, calHigh);
                 if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
                     b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td class=\"def_major\">"
@@ -491,7 +526,9 @@ public class TimelineView extends AbstractDataView {
                             + "<img style=\"height: 10px; width: 4px;\""
                             + " src=\"/img/icons/16x16/testl.png\">"
                             + "<img style=\"height: 10px; width: "
-                            + numVersions
+                            + (versions.size() > 0
+                                    ? (int)(numVersions * 300 / versions.size())
+                                    : 0)
                             + "px;\""
                             + " src=\"/img/icons/16x16/testm.png\">"
                             + "<img style=\"height: 10px; width: 4px;\""
@@ -513,7 +550,7 @@ public class TimelineView extends AbstractDataView {
                     calHigh.setTimeInMillis(settings.getTvDateTill() + 1);
             }
             else if (viewRange == 4) {
-                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+                long numVersions = countVersionsInPeriod(calLow, calHigh);
                 if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
                     b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td class=\"def_major\">"
@@ -528,7 +565,9 @@ public class TimelineView extends AbstractDataView {
                             + "<img style=\"height: 10px; width: 4px;\""
                             + " src=\"/img/icons/16x16/testl.png\">"
                             + "<img style=\"height: 10px; width: "
-                            + numVersions
+                            + (versions.size() > 0
+                                    ? (int)(numVersions * 300 / versions.size())
+                                    : 0)
                             + "px;\""
                             + " src=\"/img/icons/16x16/testm.png\">"
                             + "<img style=\"height: 10px; width: 4px;\""
@@ -559,7 +598,7 @@ public class TimelineView extends AbstractDataView {
                     displayHeader = false;
                     calPeriod = (Calendar) calLow.clone();
                     calPeriod.add(Calendar.DATE, 7);
-                    if (!((getVersionsInPeriod(calLow, calPeriod).size() == 0)
+                    if (!((countVersionsInPeriod(calLow, calPeriod) == 0)
                             && (settings.getTvShowEmptyState() == false)))
                         b.append(sp(in) + "<tr>"
                                 + "<td class=\"def_head_center\" colspan=\"3\">"
@@ -569,7 +608,7 @@ public class TimelineView extends AbstractDataView {
                                 + "</tr>\n");
                 }
 
-                int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+                long numVersions = countVersionsInPeriod(calLow, calHigh);
                 if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
                     b.append(sp(in++) + "<tr>\n");
                     b.append(sp(in) + "<td class=\"def_major\">"
@@ -586,7 +625,9 @@ public class TimelineView extends AbstractDataView {
                             + "<img style=\"height: 10px; width: 4px;\""
                             + " src=\"/img/icons/16x16/testl.png\">"
                             + "<img style=\"height: 10px; width: "
-                            + numVersions
+                            + (versions.size() > 0
+                                    ? (int)(numVersions * 300 / versions.size())
+                                    : 0)
                             + "px;\""
                             + " src=\"/img/icons/16x16/testm.png\">"
                             + "<img style=\"height: 10px; width: 4px;\""
@@ -616,7 +657,7 @@ public class TimelineView extends AbstractDataView {
         // TODO:: Quick definition. Rework to support bug and email timelines.
         TimePeriodValues versionsData = new TimePeriodValues("Versions");
         while (calLow.getTimeInMillis() < settings.getTvDateTill()) {
-            int numVersions = getVersionsInPeriod(calLow, calHigh).size();
+            long numVersions = countVersionsInPeriod(calLow, calHigh);
             versionsData.add(
                     new Day(calLow.getTime()),
                     new Double(numVersions));

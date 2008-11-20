@@ -1,9 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2008 by Sebastian Kuegler <sebas@kde.org>
+ * Copyright 2008 - Organization for Free and Open Source Software,
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -45,15 +42,19 @@ import java.util.Vector;
 import eu.sqooss.scl.WSException;
 import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.webui.datatype.File;
+import eu.sqooss.webui.datatype.MailMessage;
+import eu.sqooss.webui.datatype.ShortVersion;
 import eu.sqooss.webui.datatype.TaggedVersion;
 import eu.sqooss.webui.datatype.Version;
 import eu.sqooss.ws.client.datatypes.WSDeveloper;
 import eu.sqooss.ws.client.datatypes.WSDirectory;
 import eu.sqooss.ws.client.datatypes.WSFileModification;
+import eu.sqooss.ws.client.datatypes.WSMailMessage;
 import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSShortProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
 import eu.sqooss.ws.client.datatypes.WSUser;
@@ -65,6 +66,10 @@ import eu.sqooss.ws.client.datatypes.WSVersionStats;
  * This class is the entry point for retrieving data from the SQO-OSS
  * framework through the Web-services service (WSS). It establishes a
  * connection to the WSS and exposes its data query methods.
+ * 
+ * @author Adriaan de Groot, <tt>(KDE)</tt>
+ * @author Sebastian Kuegler, <tt>(KDE)</tt>
+ * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
  */
 public class Terrier {
     // Accumulates the generated error messages
@@ -308,9 +313,9 @@ public class Terrier {
         if (isConnected()) {
             try {
                 // Retrieve the all version objects inside the time period
-                WSProjectVersion[] wsversions = connection.getProjectAccessor()
+                WSProjectVersion[] wsAnswer = connection.getProjectAccessor()
                         .getSCMTimeline(projectId, tsmFrom, tsmTill);
-                for (WSProjectVersion nextVersion : wsversions)
+                for (WSProjectVersion nextVersion : wsAnswer)
                     result.add(new Version(nextVersion, this));
             } catch (WSException wse) {
                 addError("Can not retrieve version(s) for a time period.");
@@ -320,6 +325,64 @@ public class Terrier {
         return result;
     }
 
+    /**
+     * Retrieves the list of project versions referenced by events which had
+     * happened within the selected project during the specified time period.
+     *
+     * @param projectId the project Id
+     * @param tsmFrom begin of the time period
+     * @param tsmTill end of the time period
+     *
+     * @return The list of project versions, or an empty list when none are
+     *   found.
+     */
+    public List<ShortVersion> getShortVersionsTimeline(long projectId,
+            long tsmFrom, long tsmTill) {
+        List<ShortVersion> result = new ArrayList<ShortVersion>();
+        if (isConnected()) {
+            try {
+                // Retrieve the all version objects inside the time period
+                WSShortProjectVersion[] wsAnswer =
+                    connection.getProjectAccessor().getShortSCMTimeline(
+                            projectId, tsmFrom, tsmTill);
+                for (WSShortProjectVersion nextVersion : wsAnswer)
+                    result.add(new ShortVersion(nextVersion));
+            } catch (WSException wse) {
+                addError("Can not retrieve version(s) for a time period.");
+            }
+        } else
+            addError(connection.getError());
+        return result;
+    }
+
+    /**
+     * Retrieves the list of email message referenced by events which had
+     * happened within the selected project during the specified time period.
+     *
+     * @param projectId the project Id
+     * @param tsmFrom begin of the time period
+     * @param tsmTill end of the time period
+     *
+     * @return The list of email messages, or an empty list when none are
+     *   found.
+     */
+    public List<MailMessage> getEmailsTimeline(long projectId,
+            long tsmFrom, long tsmTill) {
+        List<MailMessage> result = new ArrayList<MailMessage>();
+        if (isConnected()) {
+            try {
+                // Retrieve the all email objects inside the time period
+                WSMailMessage[] wsAnswer = connection.getProjectAccessor()
+                        .getMailTimeline(projectId, tsmFrom, tsmTill);
+                for (WSMailMessage nextEmail : wsAnswer)
+                    result.add(new MailMessage(nextEmail, this));
+            } catch (WSException wse) {
+                addError("Can not retrieve email(s) for a time period.");
+            }
+        } else
+            addError(connection.getError());
+        return result;
+    }
     //========================================================================
     // VERSION RELATED SCL WRAPPER METHODS
     //========================================================================
