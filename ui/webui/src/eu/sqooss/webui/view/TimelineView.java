@@ -34,9 +34,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -50,9 +48,8 @@ import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.Project;
-import eu.sqooss.webui.datatype.MailMessage;
+import eu.sqooss.webui.datatype.ShortEmail;
 import eu.sqooss.webui.datatype.ShortVersion;
-import eu.sqooss.webui.util.MailMessagesList;
 
 /**
  * 
@@ -60,7 +57,13 @@ import eu.sqooss.webui.util.MailMessagesList;
  */
 public class TimelineView extends AbstractDataView {
     private SortedMap<Long, Long> versions = new TreeMap<Long, Long>();
-    private MailMessagesList emails = new MailMessagesList();
+    private SortedMap<Long, Long> emails = new TreeMap<Long, Long>();
+    private SortedMap<Long, Long> bugs = new TreeMap<Long, Long>();
+
+    public static int RANGE_DAILY      = 1;
+    public static int RANGE_WEEKLY     = 2;
+    public static int RANGE_MONTHLY    = 3;
+    public static int RANGE_ANNUALLY   = 4;
 
     /**
      * Instantiates a new <code>TimelineView</code> object, and initializes
@@ -88,18 +91,23 @@ public class TimelineView extends AbstractDataView {
             if ((terrier != null)
                     && (settings.getTvDateFrom() != null)
                     && (settings.getTvDateFrom() != null)) {
+                // Get all versions committed in the selected period
                 for (ShortVersion version : terrier.getShortVersionsTimeline(
                         project.getId(),
                         settings.getTvDateFrom(), settings.getTvDateTill()))
                     versions.put(version.getTimestamp(), version.getId());
-                emails.addAll(terrier.getEmailsTimeline(project.getId(),
-                    settings.getTvDateFrom(), settings.getTvDateTill()));
+                // Get all emails delivered in the selected period
+                for (ShortEmail email : terrier.getShortEmailsTimeline(
+                        project.getId(),
+                        settings.getTvDateFrom(), settings.getTvDateTill()))
+                    emails.put(email.getTimestamp(), email.getId());
+                // Get all bug reports submitted in the selected period
             }
         }
     }
 
     /*
-     * Retrieves the total number of all project version which were committed
+     * Retrieves the total number of project version which were committed
      * during the given time period.
      */
     private long countVersionsInPeriod(Calendar from, Calendar till) {
@@ -115,19 +123,19 @@ public class TimelineView extends AbstractDataView {
     }
 
     /*
-     * Retrieves all email messages which were delivered during the given
-     * time period.
+     * Retrieves the total number of email messages which were delivered
+     * during the given time period.
      */
-    private List<MailMessage> getEmailsInPeriod(Calendar from, Calendar till) {
-        ArrayList<MailMessage> result = new ArrayList<MailMessage>();
-        for (Long timestamp : emails.sortByTimestamp().keySet()) {
+    private long countEmailsInPeriod(Calendar from, Calendar till) {
+        long total = 0;
+        for (Long timestamp : emails.keySet()) {
             if (timestamp != null) {
                 if (timestamp < from.getTimeInMillis()) continue;
                 if (timestamp >= till.getTimeInMillis()) break;
-                result.add(emails.getMailByTimestamp(timestamp));
+                total++;
             }
         }
-        return result;
+        return total;
     }
 
     /* (non-Javadoc)
@@ -413,9 +421,93 @@ public class TimelineView extends AbstractDataView {
         return b.toString();
     }
 
+    private String tableResultCell(
+            long in, String title, long value, long length, String imgPrefix) {
+        // Hold the accumulated content
+        StringBuilder b = new StringBuilder("");
+
+        b.append(sp(in) + "<td class=\"def_right\">"
+                + title + value + "</td>\n");
+        b.append(sp(in) + "<td class=\"def\">"
+                + "<img style=\"height: 10px; width: 4px;\""
+                + " src=\"/img/icons/16x16/" + imgPrefix + "l.png\">"
+                + "<img style=\"height: 10px; width: "
+                + length
+                + "px;\""
+                + " src=\"/img/icons/16x16/" + imgPrefix + "m.png\">"
+                + "<img style=\"height: 10px; width: 4px;\""
+                + " src=\"/img/icons/16x16/" + imgPrefix + "r.png\">"
+                + "&nbsp;"
+                + "</td>\n");
+
+        return b.toString();
+    }
+
+    private String tableResultRow(
+            long in, String label, long numVersions, long numEmails, long numBugs) {
+        // Hold the accumulated content
+        StringBuilder b = new StringBuilder("");
+
+        long barLenght = 0;
+
+        if (!((numVersions + numEmails + numBugs == 0)
+                && (settings.getTvShowEmptyState() == false))) {
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in) + "<td rowspan=\"3\" class=\"def_major\">"
+                    + label
+                    + "</td>\n");
+        }
+
+        if (numVersions + numEmails > 0) {
+            // Versions row
+            barLenght = versions.size() > 0
+                    ? (int) (numVersions * 300 / versions.size()) : 0;
+            b.append(tableResultCell(
+                    in, "", numVersions, barLenght, "test"));
+            b.append(sp(--in) + "</tr>\n");
+            // Emails row
+            b.append(sp(in++) + "<tr>\n");
+            barLenght = emails.size() > 0
+                    ? (int) (numEmails * 300 / emails.size()) : 0;
+            b.append(tableResultCell(
+                    in, "", numEmails, barLenght, "test"));
+            b.append(sp(--in) + "</tr>\n");
+            // Bugs row
+            b.append(sp(in++) + "<tr>\n");
+            barLenght = bugs.size() > 0
+                    ? (int) (numBugs * 300 / bugs.size()) : 0;
+            b.append(tableResultCell(
+                    in, "", numBugs, barLenght, "test"));
+            b.append(sp(--in) + "</tr>\n");
+        }
+        else if (settings.getTvShowEmptyState()) {
+            // Versions row
+            b.append(sp(in)
+                    + "<td colspan=2 class=\"def\">&nbsp;</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            // Emails row
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in)
+                    + "<td colspan=2 class=\"def\">&nbsp;</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+            // Bugs row
+            b.append(sp(in++) + "<tr>\n");
+            b.append(sp(in)
+                    + "<td colspan=2 class=\"def\">&nbsp;</td>\n");
+            b.append(sp(--in) + "</tr>\n");
+        }
+
+        return b.toString();
+    }
+
     private String tableChart (long in, Calendar calLow, Calendar calHigh) {
         // Hold the accumulated HTML content
         StringBuilder b = new StringBuilder("");
+        
+        long numVersions = 0;
+        long numEmails = 0;
+        long numBugs = 0;
+        String label = "";
 
         b.append(sp(in++) + "<table>\n");
         // Table header
@@ -429,9 +521,12 @@ public class TimelineView extends AbstractDataView {
 
         boolean displayHeader = true;
         long viewRange = settings.getTvViewRange() != null
-                ? settings.getTvViewRange() : 1;
+                ? settings.getTvViewRange() : RANGE_DAILY;
         while (calLow.getTimeInMillis() < settings.getTvDateTill()) {
-            if (viewRange == 2) {
+            // ---------------------------------------------------------------
+            // WEEKLY VIEW
+            // ---------------------------------------------------------------
+            if (viewRange == RANGE_WEEKLY) {
                 Calendar calTmp;
                 calTmp = (Calendar) calLow.clone();
                 calTmp.add(Calendar.DATE, -7);
@@ -442,7 +537,7 @@ public class TimelineView extends AbstractDataView {
                     calTmp = (Calendar) calLow.clone();
                     calTmp.add(Calendar.MONTH, 1);
                     if (!((countVersionsInPeriod(calLow, calTmp) == 0)
-                            && (getEmailsInPeriod(calLow, calTmp).size() == 0)
+                            && (countEmailsInPeriod(calLow, calTmp) == 0)
                             && (settings.getTvShowEmptyState() == false)))
                         b.append(sp(in) + "<tr>"
                                 + "<td class=\"def_head_center\" colspan=\"3\">"
@@ -454,45 +549,21 @@ public class TimelineView extends AbstractDataView {
                                 + "</tr>\n");
                 }
 
-                long numVersions = countVersionsInPeriod(calLow, calHigh);
-                int numEmails = getEmailsInPeriod(calLow, calHigh).size();
-                if (!((numVersions + numEmails == 0)
-                        && (settings.getTvShowEmptyState() == false))) {
-                    b.append(sp(in++) + "<tr>\n");
-                    b.append(sp(in) + "<td class=\"def_major\">"
-                            + "Week " + calLow.get(Calendar.WEEK_OF_YEAR)
-                            + "</td>\n");
-                    b.append(sp(in) + "<td class=\"def_right\">"
-                            + numVersions + "</td>\n");
-                }
-
-                if (numVersions + numEmails > 0) {
-                    b.append(sp(in) + "<td class=\"def\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testl.png\">"
-                            + "<img style=\"height: 10px; width: "
-                            + (versions.size() > 0
-                                    ? (int)(numVersions * 300 / versions.size())
-                                    : 0)
-                            + "px;\""
-                            + " src=\"/img/icons/16x16/testm.png\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testr.png\">"
-                            + "&nbsp;"
-                            + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
-                else if (settings.getTvShowEmptyState()) {
-                    b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
+                numVersions = countVersionsInPeriod(calLow, calHigh);
+                numEmails = countEmailsInPeriod(calLow, calHigh);
+                label = "Week " + calLow.get(Calendar.WEEK_OF_YEAR);
+                b.append(tableResultRow(
+                        in, label, numVersions, numEmails, numBugs));
 
                 calLow.add(Calendar.DATE, 7);
                 calHigh.add(Calendar.DATE, 7);
                 if (calHigh.getTimeInMillis() > settings.getTvDateTill())
                     calHigh.setTimeInMillis(settings.getTvDateTill() + 1);
             }
-            else if (viewRange == 3) {
+            // ---------------------------------------------------------------
+            // MONTHLY VIEW
+            // ---------------------------------------------------------------
+            else if (viewRange == RANGE_MONTHLY) {
                 Calendar calPeriod;
                 if (calLow.get(Calendar.MONTH) == 0)
                     displayHeader = true;
@@ -509,38 +580,12 @@ public class TimelineView extends AbstractDataView {
                                 + "</tr>\n");
                 }
 
-                long numVersions = countVersionsInPeriod(calLow, calHigh);
-                if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
-                    b.append(sp(in++) + "<tr>\n");
-                    b.append(sp(in) + "<td class=\"def_major\">"
-                            + Functions.formatMonth(
-                                    calLow.getTimeInMillis(),
-                                    settings.getUserLocale())
-                            + "</td>\n");
-                    b.append(sp(in) + "<td class=\"def_right\">"
-                            + numVersions + "</td>\n");
-                }
-
-                if (numVersions > 0) {
-                    b.append(sp(in) + "<td class=\"def\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testl.png\">"
-                            + "<img style=\"height: 10px; width: "
-                            + (versions.size() > 0
-                                    ? (int)(numVersions * 300 / versions.size())
-                                    : 0)
-                            + "px;\""
-                            + " src=\"/img/icons/16x16/testm.png\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testr.png\">"
-                            + "&nbsp;"
-                            + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
-                else if (settings.getTvShowEmptyState()) {
-                    b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
+                numVersions = countVersionsInPeriod(calLow, calHigh);
+                numEmails = countEmailsInPeriod(calLow, calHigh);
+                label = Functions.formatMonth(
+                        calLow.getTimeInMillis(), settings.getUserLocale());
+                b.append(tableResultRow(
+                        in, label, numVersions, numEmails, numBugs));
 
                 calLow.add(Calendar.MONTH, 1);
                 calLow.set(Calendar.DATE, 1);
@@ -549,37 +594,15 @@ public class TimelineView extends AbstractDataView {
                 if (calHigh.getTimeInMillis() > settings.getTvDateTill())
                     calHigh.setTimeInMillis(settings.getTvDateTill() + 1);
             }
-            else if (viewRange == 4) {
-                long numVersions = countVersionsInPeriod(calLow, calHigh);
-                if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
-                    b.append(sp(in++) + "<tr>\n");
-                    b.append(sp(in) + "<td class=\"def_major\">"
-                            + calLow.get(Calendar.YEAR)
-                            + "</td>\n");
-                    b.append(sp(in) + "<td class=\"def_right\">"
-                            + numVersions + "</td>\n");
-                }
-
-                if (numVersions > 0) {
-                    b.append(sp(in) + "<td class=\"def\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testl.png\">"
-                            + "<img style=\"height: 10px; width: "
-                            + (versions.size() > 0
-                                    ? (int)(numVersions * 300 / versions.size())
-                                    : 0)
-                            + "px;\""
-                            + " src=\"/img/icons/16x16/testm.png\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testr.png\">"
-                            + "&nbsp;"
-                            + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
-                else if (settings.getTvShowEmptyState()) {
-                    b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
+            // ---------------------------------------------------------------
+            // ANNUALLY VIEW
+            // ---------------------------------------------------------------
+            else if (viewRange == RANGE_ANNUALLY) {
+                numVersions = countVersionsInPeriod(calLow, calHigh);
+                numEmails = countEmailsInPeriod(calLow, calHigh);
+                label = "" + calLow.get(Calendar.YEAR);
+                b.append(tableResultRow(
+                        in, label, numVersions, numEmails, numBugs));
 
                 calLow.add(Calendar.YEAR, 1);
                 calLow.set(Calendar.DATE, 1);
@@ -590,6 +613,9 @@ public class TimelineView extends AbstractDataView {
                 if (calHigh.getTimeInMillis() > settings.getTvDateTill())
                     calHigh.setTimeInMillis(settings.getTvDateTill() + 1);
             }
+            // ---------------------------------------------------------------
+            // DAILY VIEW
+            // ---------------------------------------------------------------
             else {
                 Calendar calPeriod;
                 if (calLow.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
@@ -608,38 +634,12 @@ public class TimelineView extends AbstractDataView {
                                 + "</tr>\n");
                 }
 
-                long numVersions = countVersionsInPeriod(calLow, calHigh);
-                if (!((numVersions == 0) && (settings.getTvShowEmptyState() == false))) {
-                    b.append(sp(in++) + "<tr>\n");
-                    b.append(sp(in) + "<td class=\"def_major\">"
-                            + Functions.formatDaystamp(
-                                    calLow.getTimeInMillis(),
-                                    settings.getUserLocale())
-                            + "</td>\n");
-                    b.append(sp(in) + "<td class=\"def_right\">"
-                            + numVersions + "</td>\n");
-                }
-
-                if (numVersions > 0) {
-                    b.append(sp(in) + "<td class=\"def\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testl.png\">"
-                            + "<img style=\"height: 10px; width: "
-                            + (versions.size() > 0
-                                    ? (int)(numVersions * 300 / versions.size())
-                                    : 0)
-                            + "px;\""
-                            + " src=\"/img/icons/16x16/testm.png\">"
-                            + "<img style=\"height: 10px; width: 4px;\""
-                            + " src=\"/img/icons/16x16/testr.png\">"
-                            + "&nbsp;"
-                            + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
-                else if (settings.getTvShowEmptyState()) {
-                    b.append(sp(in) + "<td class=\"def\">&nbsp;</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                }
+                numVersions = countVersionsInPeriod(calLow, calHigh);
+                numEmails = countEmailsInPeriod(calLow, calHigh);
+                label = Functions.formatDaystamp(
+                        calLow.getTimeInMillis(), settings.getUserLocale());
+                b.append(tableResultRow(
+                        in, label, numVersions, numEmails, numBugs));
 
                 calLow.add(Calendar.DATE, 1);
                 calHigh.add(Calendar.DATE, 1);

@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.Locale;
 
 import eu.sqooss.webui.settings.BaseDataSettings;
+import eu.sqooss.webui.view.TimelineView;
 
 public class SelectedSettings {
     // Shared settings
@@ -68,8 +69,8 @@ public class SelectedSettings {
     // TimelineView specific
     private Long tvDateFrom;
     private Long tvDateTill;
-    private Long tvViewRange;
-    private boolean tvShowEmpty = true;
+    private Long tvViewRange = new Long(TimelineView.RANGE_ANNUALLY);
+    private boolean tvShowEmpty = false;
 
     public static final int FILE_DATA_SETTINGS      = 11;
     public static final int VERSION_DATA_SETTINGS   = 12;

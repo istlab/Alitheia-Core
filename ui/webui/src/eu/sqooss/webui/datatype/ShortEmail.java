@@ -30,32 +30,32 @@
 
 package eu.sqooss.webui.datatype;
 
-import eu.sqooss.ws.client.datatypes.WSShortProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSShortMailMessage;
 
 /**
- * This class represents a tiny wrapper for a single version of a project that
- * has been evaluated by the SQO-OSS framework. It encapsulates and provides
- * access to just two of the version meta-data fields i.e. assigned
- * <tt>DAO Id</tt> and timestamp.
+ * This class represents a tiny wrapper for a single email message associated
+ * with a project that has been evaluated by the SQO-OSS framework. It
+ * encapsulates and provides access to just two of the email meta-data fields
+ * i.e. assigned <tt>DAO Id</tt> and sending timestamp.
  * 
  * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
  */
-public class ShortVersion {
+public class ShortEmail {
 
     /*
-     * Project version's specific meta-data
+     * Email message's specific meta-data
      */
     protected long id;
     protected long timestamp;
 
     /**
-     * Creates a new a <code>Version</code> instance, and initializes it with
-     * the information provided from the given
-     * <code>WSShortProjectVersion</code> object.
+     * Creates a new a <code>ShortEmail</code> instance, and initializes it
+     * with the information provided from the given
+     * <code>WSShortMailMessage</code> wrapper object.
      * 
-     * @param wrapper a <code>WSShortProjectVersion</code> version wrapper
+     * @param wrapper a <code>WSShortMailMessage</code> email wrapper
      */
-    public ShortVersion(WSShortProjectVersion wrapper) {
+    public ShortEmail(WSShortMailMessage wrapper) {
         if (wrapper != null) {
             id = wrapper.getId();
             timestamp = wrapper.getTimestamp();
@@ -63,18 +63,18 @@ public class ShortVersion {
     }
 
     /**
-     * Gets the <tt>DAO Id</tt> of the stored project version.
+     * Gets the <tt>DAO Id</tt> of the stored email message.
      * 
-     * @return The <tt>DAO Id</tt> of the stored project version.
+     * @return The <tt>DAO Id</tt> of the stored email message.
      */
     public long getId() {
         return id;
     }
 
     /**
-     * Gets the timestamp (commit time) of the stored project version.
+     * Gets the timestamp (sending time) of the stored email message.
      * 
-     * @return The timestamp of the stored project version.
+     * @return The timestamp of the stored email message.
      */
     public long getTimestamp() {
         return timestamp;
