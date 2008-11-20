@@ -44,13 +44,12 @@ import eu.sqooss.service.db.MailMessage;
 public class WSMailMessage {
 
     private long id;
-
-    long senderId;
-    long listId;
-    String messageId;
-    String subject;
-    long sent;
-    long delivered;
+    private long senderId;
+    private long listId;
+    private String messageId;
+    private String subject;
+    private long sent;
+    private long delivered;
 
 
     public long getId() {
@@ -111,10 +110,10 @@ public class WSMailMessage {
 
     /**
      * This method instantiates and initializes a new
-     * <code>WSMailMessage</code> object by wrapping the given mail message
+     * <code>WSMailMessage</code> object by wrapping the given email message
      * <tt>DAO</tt>.
      * 
-     * @param mailMessage a mail message <tt>DAO</tt>
+     * @param dao an email message <tt>DAO</tt>
      * 
      * @return The new <code>WSMailMessage</code> object
      */

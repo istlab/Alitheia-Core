@@ -54,6 +54,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
+import eu.sqooss.impl.service.web.services.datatypes.WSShortMailMessage;
 import eu.sqooss.impl.service.web.services.datatypes.WSShortProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.impl.service.web.services.datatypes.WSTaggedVersion;
@@ -792,7 +793,7 @@ public class WebServices implements EventHandler{
     //========================================================================
 
     /**
-     * This method will return the list of project version, associated to
+     * This method will return the list of project versions, associated to
      * project related events which had happened during the given time period
      * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
      * timestamps</i>).
@@ -814,10 +815,13 @@ public class WebServices implements EventHandler{
     }
 
     /**
-     * This method will return the list of project version, associated to
+     * This method will return the list of project versions, associated to
      * project related events which had happened during the given time period
      * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
      * timestamps</i>).
+     * <br/>
+     * <br/>
+     * <i><b>NOTE:</b> This method uses the short version wrapper class.</i>
      * 
      * @param userName the user's name used for authentication
      * @param password the user's password used for authentication
@@ -857,7 +861,34 @@ public class WebServices implements EventHandler{
                 userName, password, projectId, tsmFrom, tsmTill);
     }
 
-    // ===[ Miscellaneous methods]============================================
+    /**
+     * This method will return the list of email messages, associated to
+     * project related events which had happened during the given time period
+     * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
+     * timestamps</i>).
+     * <br/>
+     * <br/>
+     * <i><b>NOTE:</b> This method uses the short email wrapper class.</i>
+     * 
+     * @param userName the user's name used for authentication
+     * @param password the user's password used for authentication
+     * @param projectId the project's identifier
+     * @param tsmFrom the timestamp of the period begin
+     * @param tsmTill the timestamp of the period end
+     * 
+     * @return The array of <code>WSMailMessage</code> objects that describe
+     * all located email messages, or <code>null</code> when no email related
+     * events exist in the given time period.
+     */
+    public WSShortMailMessage[] getShortMailTimeline(String userName,
+            String password, long projectId, long tsmFrom, long tsmTill) {
+        return projectManager.getShortMailTimeline(
+                userName, password, projectId, tsmFrom, tsmTill);
+    }
+
+    //========================================================================
+    // MISCELANEOUS METHODS
+    //========================================================================
 
     /**
      * Returns the user's message of the day. MOTD's are usually created by
