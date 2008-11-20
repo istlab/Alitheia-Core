@@ -147,8 +147,8 @@
       <xs:element name="WSShortMailMessage" type="ax21:WSShortMailMessage"/>
       <xs:complexType name="WSShortMailMessage">
         <xs:sequence>
-          <xs:element name="deliveredTimestamp" type="xs:long"/>
           <xs:element name="id" type="xs:long"/>
+          <xs:element name="timestamp" type="xs:long"/>
         </xs:sequence>
       </xs:complexType>
       <xs:element name="WSShortProjectVersion" type="ax21:WSShortProjectVersion"/>
