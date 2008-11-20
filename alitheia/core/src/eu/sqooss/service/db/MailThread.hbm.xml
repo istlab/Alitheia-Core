@@ -5,13 +5,13 @@
 
 <hibernate-mapping>
   <class name="eu.sqooss.service.db.MailThread" table="MAILTHREAD">
-    <id name="id" column="MLIST_ID">
+    <id name="id" column="MAILTHREAD_ID">
       <generator class="native" />
     </id>
     
     <many-to-one name="mail" column="MAIL_ID" not-null="true" cascade="merge"/>
     <many-to-one name="parent" column="PARENT_ID" cascade="merge"/>
-    <many-to-one name="thread" column="MAILING_LIST_ID" not-null="true" cascade="merge" />
-    
+    <many-to-one name="thread" column="MAIL_THREAD_ID" not-null="true" cascade="merge" />
+    <property name="depth" not-null="true" />
   </class>
 </hibernate-mapping>

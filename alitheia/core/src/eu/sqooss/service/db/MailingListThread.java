@@ -30,6 +30,7 @@
 
 package eu.sqooss.service.db;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,11 +48,12 @@ public class MailingListThread extends DAObject {
     /** The mailing list this thread belongs to */
     private MailingList list;
 
-    /** An un-ordered set of messages participating in this thread */
-    private Set<MailMessage> messages;
-
+    /** Flag to identify a thread as a flamewar */
+    private boolean isFlameWar;
+    
     public MailingListThread(MailingList l) {
         this.list = l;
+        this.isFlameWar = false;
     }
 
     public MailingList getList() {
@@ -62,14 +64,38 @@ public class MailingListThread extends DAObject {
         this.list = list;
     }
 
-    public Set<MailMessage> getMessages() {
-        return messages;
+    public boolean getIsFlameWar() {
+        return isFlameWar;
     }
 
-    public void setMessages(Set<MailMessage> messages) {
-        this.messages = messages;
+    public void setIsFlameWar(boolean isFlameWar) {
+        this.isFlameWar = isFlameWar;
     }
+    
+    /** 
+     * Get an unsorted list of messages in this thread.
+     */
+    public List<MailMessage> getMessages() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
+        String paramThread = "paramThread";
+        
+        String query = " select mm " + 
+                " from MailMessage mm, MailThread mt " +
+                " where mt.mail = mm " +
+                " and mt.thread = :" + paramThread;
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(paramThread, this);
+
+        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params);
+
+        if (mm != null && !mm.isEmpty())
+            return mm;
+
+        return Collections.emptyList();
+    }
+    
     /**
      * Get the email that kickstarted this thread.
      */
@@ -97,7 +123,6 @@ public class MailingListThread extends DAObject {
      * @return The last MailMessage in a thread.
      */
     public MailMessage getLastEmail() {
-
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramThread = ":paramThread";
@@ -119,21 +144,54 @@ public class MailingListThread extends DAObject {
     }
     
     /**
-     * Get the number of levels in the reply chain.
+     * Get the number of levels in the reply tree.
      */
     public int getThreadDepth() {
-        if (messages.size() == 1)
-            return 1;
         
-        return 0;
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramThread = ":paramThread";
+        
+        String query = "select max(mm.depth) " +
+                " from MailThread mt " +
+                " where mt.thread = :" + paramThread;
+        Map<String,Object> params = new HashMap<String, Object>(1);
+        params.put(paramThread, this);
+        
+        List<Integer> mm = (List<Integer>) dbs.doHQL(query, params, 1);
+        
+        if (mm == null || mm.isEmpty())
+            return 0;
+        
+        return mm.get(0).intValue();
     }
     
     /**
-     * 
+     * Get all emails at the provided depth. 
      * @param level 
-     * @return
+     * @return 
      */
-    public List<MailMessage> getMailsAtLevel(int level) {
-        return null;
+    public List<MailMessage> getMessagesAtLevel(int level) {
+        
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramThread = ":paramThread";
+        String paramDepth = ":paramDepth";
+        
+        String query = "select mm " +
+                " from MailThread mt " +
+                " where mt.thread = :" + paramThread + 
+                " and mt.depth = :" + paramDepth ;
+        
+        Map<String,Object> params = new HashMap<String, Object>(1);
+        params.put(paramThread, this);
+        params.put(paramDepth, level);
+        
+        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params);
+        
+        if (mm == null || mm.isEmpty())
+            return Collections.emptyList();
+        
+        return mm;
     }
 }

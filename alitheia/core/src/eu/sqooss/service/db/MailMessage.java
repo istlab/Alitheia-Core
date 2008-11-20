@@ -208,8 +208,24 @@ public class MailMessage extends DAObject {
         List<MailThread> mt = dbs.findObjectsByProperties(MailThread.class,
                 params);
 
+        if (mt == null || mt.isEmpty())
+            return null;
+            
+        return mt.get(0).getThread();
+
+    }
+    
+    public MailThread getThreadEntry() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("mail", this);
+
+        List<MailThread> mt = dbs.findObjectsByProperties(MailThread.class,
+                params);
+
         if (!mt.isEmpty())
-            return mt.get(0).getThread();
+            return mt.get(0);
 
         return null;
     }

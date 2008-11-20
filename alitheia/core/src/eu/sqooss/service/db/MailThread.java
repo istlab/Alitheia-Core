@@ -47,15 +47,21 @@ public class MailThread extends DAObject {
     private MailMessage parent;
     
     /** The thread this entry belongs to */
-    private MailingListThread thread;    
+    private MailingListThread thread; 
+    
+    /** The level of this thread entry in the reply tree, i.e. the number of
+     * parent the email identified by this thread entry has.
+     */
+    private int depth;
 
     public MailThread() {}
     
     public MailThread(MailMessage mail, MailMessage parent, 
-            MailingListThread thread) {
+            MailingListThread thread, int depth) {
         this.mail = mail;
         this.parent = parent;
         this.thread = thread;
+        this.depth = depth;
     }
     public MailMessage getMail() {
         return mail;
@@ -74,5 +80,13 @@ public class MailThread extends DAObject {
     }
     public void setThread(MailingListThread thread) {
         this.thread = thread;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 }
