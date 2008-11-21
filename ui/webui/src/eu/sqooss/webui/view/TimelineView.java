@@ -426,19 +426,25 @@ public class TimelineView extends AbstractDataView {
         // Hold the accumulated content
         StringBuilder b = new StringBuilder("");
 
-        b.append(sp(in) + "<td class=\"def_right\">"
-                + title + value + "</td>\n");
-        b.append(sp(in) + "<td class=\"def\">"
-                + "<img style=\"height: 10px; width: 4px;\""
-                + " src=\"/img/icons/16x16/" + imgPrefix + "l.png\">"
-                + "<img style=\"height: 10px; width: "
-                + length
-                + "px;\""
-                + " src=\"/img/icons/16x16/" + imgPrefix + "m.png\">"
-                + "<img style=\"height: 10px; width: 4px;\""
-                + " src=\"/img/icons/16x16/" + imgPrefix + "r.png\">"
-                + "&nbsp;"
-                + "</td>\n");
+        if (length > 0) {
+            b.append(sp(in) + "<td class=\"def_right\">"
+                    + title + value + "</td>\n");
+            b.append(sp(in) + "<td class=\"def\">"
+                    + "<img style=\"height: 10px; width: 4px;\""
+                    + " src=\"/img/icons/16x16/" + imgPrefix + "l.png\">"
+                    + "<img style=\"height: 10px; width: "
+                    + length
+                    + "px;\""
+                    + " src=\"/img/icons/16x16/" + imgPrefix + "m.png\">"
+                    + "<img style=\"height: 10px; width: 4px;\""
+                    + " src=\"/img/icons/16x16/" + imgPrefix + "r.png\">"
+                    + "&nbsp;"
+                    + "</td>\n");
+        }
+        else {
+            b.append(sp(in) + "<td colspan=\"2\" class=\"def_empty\">"
+                    + "&nbsp;" + "</td>\n");
+        }
 
         return b.toString();
     }
@@ -460,40 +466,40 @@ public class TimelineView extends AbstractDataView {
 
         if (numVersions + numEmails > 0) {
             // Versions row
-            barLenght = versions.size() > 0
+            barLenght = numVersions > 0
                     ? (int) (numVersions * 300 / versions.size()) : 0;
             b.append(tableResultCell(
-                    in, "", numVersions, barLenght, "test"));
+                    in, "", numVersions, barLenght, "bar01"));
             b.append(sp(--in) + "</tr>\n");
             // Emails row
             b.append(sp(in++) + "<tr>\n");
-            barLenght = emails.size() > 0
+            barLenght = numEmails > 0
                     ? (int) (numEmails * 300 / emails.size()) : 0;
             b.append(tableResultCell(
-                    in, "", numEmails, barLenght, "test"));
+                    in, "", numEmails, barLenght, "bar02"));
             b.append(sp(--in) + "</tr>\n");
             // Bugs row
             b.append(sp(in++) + "<tr>\n");
-            barLenght = bugs.size() > 0
+            barLenght = numBugs > 0
                     ? (int) (numBugs * 300 / bugs.size()) : 0;
             b.append(tableResultCell(
-                    in, "", numBugs, barLenght, "test"));
+                    in, "", numBugs, barLenght, "bar03"));
             b.append(sp(--in) + "</tr>\n");
         }
         else if (settings.getTvShowEmptyState()) {
             // Versions row
             b.append(sp(in)
-                    + "<td colspan=2 class=\"def\">&nbsp;</td>\n");
+                    + "<td colspan=\"2\" class=\"def\">&nbsp;</td>\n");
             b.append(sp(--in) + "</tr>\n");
             // Emails row
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in)
-                    + "<td colspan=2 class=\"def\">&nbsp;</td>\n");
+                    + "<td colspan=\"2\" class=\"def\">&nbsp;</td>\n");
             b.append(sp(--in) + "</tr>\n");
             // Bugs row
             b.append(sp(in++) + "<tr>\n");
             b.append(sp(in)
-                    + "<td colspan=2 class=\"def\">&nbsp;</td>\n");
+                    + "<td colspan=\"2\" class=\"def\">&nbsp;</td>\n");
             b.append(sp(--in) + "</tr>\n");
         }
 
