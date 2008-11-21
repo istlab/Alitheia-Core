@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.db;
 
+import eu.sqooss.core.AlitheiaCore;
+
 /**
  * Base class for describing all DAO, providing a simple id interface
  */
@@ -56,6 +58,18 @@ public class DAObject {
      */
     public void setId(long id) {
         this.id = id;
+    }
+    
+    /**
+     * Create a DAO instance of the correct type for a given DAO id.
+     * @param <T> A subclass of DAObject
+     * @param id The id of the object to look for
+     * @param type The type of the object to look for
+     * @return 
+     */
+    public static <T extends DAObject> T loadDAObyId(long id, Class<T> type) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        return dbs.findObjectById(type, id);
     }
 }
 

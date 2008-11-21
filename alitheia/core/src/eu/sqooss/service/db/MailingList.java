@@ -162,6 +162,7 @@ public class MailingList extends DAObject {
         return ml.get(0); 
     }
     
+    
     @Override
     public String toString() {
         return "Mailing list("+ storedProject.getName() + "," + listId + ")"; 

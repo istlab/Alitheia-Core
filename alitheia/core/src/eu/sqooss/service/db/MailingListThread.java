@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -193,5 +192,29 @@ public class MailingListThread extends DAObject {
             return Collections.emptyList();
         
         return mm;
+    }
+    
+    public static List<MailThread> getThreadForMail(MailMessage mm, MailingList ml) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramMailingList = "paramML";
+        String paramMail = "paramMail";
+        
+        String query =  " select mt " +
+            " from MailingListThread mlt, MailThread mt " +
+            " where mt.thread = mlt " +
+            " and mlt.list = :" + paramMailingList +
+            " and mt.mail = :" + paramMail;
+        
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put(paramMailingList, ml);
+        params.put(paramMail, mm);
+        
+        List<MailThread> mt = (List<MailThread>) dbs.doHQL(query, params);
+        
+        if (mt.isEmpty())
+            return Collections.emptyList();
+        
+        return mt; 
     }
 }
