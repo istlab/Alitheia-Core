@@ -87,6 +87,9 @@ class MailUpdater extends Job {
     /*Cache mailinglist ids to call the metric activator with them*/
     private Set<Long> updMailingLists = new TreeSet<Long>();
     
+    /*Cache mail thread ids to call the metric activator with them*/
+    private Set<Long> updMailThreads = new TreeSet<Long>();
+    
     private Set<Long> updDevs = new TreeSet<Long>();
     
     public MailUpdater(StoredProject project,
@@ -152,6 +155,7 @@ class MailUpdater extends Job {
                 if (!updMails.isEmpty()) {
                     ma.runMetrics(updMails, MailMessage.class);
                     ma.runMetrics(updDevs, Developer.class);
+                    ma.runMetrics(updMailThreads, MailingListThread.class);
                 }
                 dbs.commitDBSession();
                 updMails.clear();
@@ -302,10 +306,18 @@ class MailUpdater extends Job {
             return; //No messages for this mailing list
         }
         
-        gc.setTime(lastEmail.getSendDate());
-        gc.add(GregorianCalendar.MONTH, -1);
+        String paramMl = "paramMl";
+        String query = " select mm " +
+            " from  MailingList ml, MailMessage mm" +
+            " where mm.list = ml " +
+            " and ml = :" + paramMl +
+            " and not exists (from MailThread mt where mt.mail = mm)" +
+            " order by mm.arrivalDate asc"; 
+            
+        Map<String,Object> params = new HashMap<String, Object>(1);
+        params.put(paramMl, ml);
         
-        List<MailMessage> mmList = ml.getMessagesNewerThan(gc.getTime());
+        List<MailMessage> mmList = (List<MailMessage>) dbs.doHQL(query, params);
         
         if (mmList.isEmpty())
             return;
@@ -315,8 +327,9 @@ class MailUpdater extends Job {
             if (mail.getThread() != null)
                 continue;
 
-            MimeMessage mm = mailAccessor.getMimeMessage(ml.getListId(), mail
-                    .getFilename());
+            MimeMessage mm = mailAccessor.getMimeMessage(ml.getListId(), 
+                    mail.getFilename());
+            
             processed.put(mail.getFilename(), mm);
 
             /* Thread identification code. Naive, but works in most cases */
@@ -365,7 +378,7 @@ class MailUpdater extends Job {
                 } else {
                     /*
                      * Mails identified as children to a thread only by the
-                     * References header are placed at the same depth level as
+                     * References header, are placed at the same depth level as
                      * their parent (Usenet news style).
                      */
                     int depth = threads.get(0).getDepth();
@@ -376,7 +389,9 @@ class MailUpdater extends Job {
                     MailThread mt = new MailThread(mail, parentMail, 
                             threads.get(0).getThread(), depth);
                     dbs.addRecord(mt);
+                    threads.get(0).getThread().setLastUpdated(mail.getSendDate());
                     logger.debug("Updating thread " + mt.getThread().getId());
+                    updMailThreads.add(threads.get(0).getId());
                     updatedThreads++;
                 }
             }
@@ -408,7 +423,7 @@ class MailUpdater extends Job {
                         childMM.getThreadEntry().setParent(mail);
                         MailThread mt = new MailThread(mail, null, thr, 0);
                         dbs.addRecord(mt);
-
+                        thr.setLastUpdated(mail.getSendDate());
                         logger.debug("Reconstructing thread " + thr.getId());
 
                         /* New top level email added, increase depth level */
@@ -416,6 +431,8 @@ class MailUpdater extends Job {
                             threadEntry.getThreadEntry().setDepth(
                                     threadEntry.getThreadEntry().getDepth() + 1);
                         }
+                        updMailThreads.add(thr.getId());
+                        updatedThreads++;
                     }
                 }
 
@@ -423,14 +440,14 @@ class MailUpdater extends Job {
                     continue;
 
                 /* Create a new thread */
-                mlt = new MailingListThread(ml);
+                mlt = new MailingListThread(ml, mail.getSendDate());
                 dbs.addRecord(mlt);
                 /* Add this message as top-level parent to the thread */
                 MailThread mt = new MailThread(mail, null, mlt, 0);
                 dbs.addRecord(mt);
                 mt.setMail(mail);
-
                 logger.debug("Adding new thread " + mlt.getId());
+                updMailThreads.add(mlt.getId());
                 newThreads++;
             } 
         }

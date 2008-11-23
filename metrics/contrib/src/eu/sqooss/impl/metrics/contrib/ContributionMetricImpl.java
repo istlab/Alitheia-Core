@@ -61,7 +61,7 @@ import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailThread;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
@@ -85,7 +85,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         super(bc);
         super.addActivationType(ProjectVersion.class);
         super.addActivationType(Developer.class);
-        super.addActivationType(MailMessage.class);
+        super.addActivationType(MailingListThread.class);
         super.addActivationType(Bug.class);
         
         super.addMetricActivationType("CONTRIB", Developer.class);
@@ -181,7 +181,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
        return checkResult(a, ActionCategory.C, m);
     }
     
-    public List<ResultEntry> getResult(MailMessage mm, Metric m) {
+    public List<ResultEntry> getResult(MailingListThread mm, Metric m) {
         return checkResult(mm, ActionCategory.M, m);
     }
     
@@ -203,7 +203,14 @@ public class ContributionMetricImpl extends AbstractMetric implements
         
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramChResource, o.getId());
-        parameters.put(paramActionCategory, ActionCategory.C.toString());
+        
+        if (o instanceof MailingListThread) {
+            parameters.put(paramActionCategory, ActionCategory.M.toString());
+        } else if (o instanceof ProjectVersion) {
+            parameters.put(paramActionCategory, ActionCategory.C.toString());
+        } else if (o instanceof Bug) {
+            parameters.put(paramActionCategory, ActionCategory.B.toString());
+        } 
 
         List<ContribAction> lp = (List<ContribAction>) db.doHQL(query, parameters);
     
@@ -251,13 +258,14 @@ public class ContributionMetricImpl extends AbstractMetric implements
         debug("Running for bug " + b.toString(), b);
     }
 
-    public void run(MailMessage m) throws AlreadyProcessingException {
-    	MailingListThread t = m.getThread();
+    public void run(MailingListThread t) throws AlreadyProcessingException {
+    	/*MailingListThread t = m.getThread();
     	
-    //	if (t.getStartingEmail().equals(m))
-    //	    updateField(pv, dev, ActionType.CBN, true, 1);
-    	
-    	debug("Running for email " + m.toString(), m);
+    	if (t.getStartingEmail().equals(m)) {
+    	    updateField(m, m.getSender(), ActionType.MST, true, 1);
+    	} else if (t.getLastEmail().equals(m)) {
+    	    updateField(m, m.getSender(), ActionType.MCT, true, 1);    
+    	}*/
     }
     
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
@@ -479,7 +487,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return (Integer.parseInt(distinctVersions.get(0).toString())) ;
     }
     
-    private void updateField(ProjectVersion pv, Developer dev, 
+    private void updateField(DAObject o, Developer dev, 
             ActionType actionType, boolean isPositive, int value) {
         DBService db = AlitheiaCore.getInstance().getDBService();
         ContribActionType at = ContribActionType.getContribActionType(actionType,
@@ -490,12 +498,12 @@ public class ContributionMetricImpl extends AbstractMetric implements
             return;
         }
 
-        ContribAction a = ContribAction.getContribAction(dev, pv.getId(), at);
+        ContribAction a = ContribAction.getContribAction(dev, o.getId(), at);
 
         if (a == null) {
             a = new ContribAction();
             a.setDeveloper(dev);
-            a.setChangedResourceId(pv.getId());
+            a.setChangedResourceId(o.getId());
             a.setContribActionType(at);
             a.setTotal(value);
             db.addRecord(a);

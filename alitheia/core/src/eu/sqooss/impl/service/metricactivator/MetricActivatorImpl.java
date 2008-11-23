@@ -54,7 +54,9 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailThread;
 import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
@@ -87,8 +89,8 @@ public class MetricActivatorImpl implements MetricActivator {
     private Long firstRuleId = null;
     private HashMap<Long,InvocationRule> rules = null;
 
-    private HashMap<Class<? extends DAObject>, Integer> defaultPriorities;
-    private HashMap<Class<? extends DAObject>, Integer> maxPriorities;
+    private HashMap<Class<? extends DAObject>, Integer> defaultPriority;
+    private HashMap<Class<? extends DAObject>, Integer> maxPriority;
     private HashMap<Class<? extends DAObject>, Integer> currentPriorities;
      
     public MetricActivatorImpl(BundleContext bc, Logger logger) {
@@ -100,23 +102,25 @@ public class MetricActivatorImpl implements MetricActivator {
 
         currentPriorities = new HashMap<Class<? extends DAObject>, Integer>();
         
-        defaultPriorities = new HashMap<Class<? extends DAObject>, Integer>();
-        defaultPriorities.put(ProjectFile.class, 0x1000000);
-        defaultPriorities.put(MailMessage.class, 0x1000000);
-        defaultPriorities.put(Bug.class, 0x1000000);
-        defaultPriorities.put(ProjectVersion.class, 0x8000000);
-        defaultPriorities.put(MailingList.class, 0x8000000);
-        defaultPriorities.put(Developer.class, 0xf000000);
-        defaultPriorities.put(StoredProject.class, 0x1E000000);
+        defaultPriority = new HashMap<Class<? extends DAObject>, Integer>();
+        defaultPriority.put(ProjectFile.class, 0x1000000);
+        defaultPriority.put(MailMessage.class, 0x1000000);
+        defaultPriority.put(Bug.class, 0x1000000);
+        defaultPriority.put(ProjectVersion.class, 0x8000000);
+        defaultPriority.put(MailingList.class, 0x8000000);
+        defaultPriority.put(Developer.class, 0xf000000);
+        defaultPriority.put(MailingListThread.class, 0xf000000);
+        defaultPriority.put(StoredProject.class, 0x1E000000);
         
-        maxPriorities = new HashMap<Class<? extends DAObject>, Integer>();
-        maxPriorities.put(ProjectFile.class, defaultPriorities.get(ProjectVersion.class));
-        maxPriorities.put(MailMessage.class, defaultPriorities.get(MailingList.class));
-        maxPriorities.put(Bug.class, defaultPriorities.get(Developer.class));
-        maxPriorities.put(ProjectVersion.class, defaultPriorities.get(StoredProject.class));
-        maxPriorities.put(MailingList.class, defaultPriorities.get(StoredProject.class));
-        maxPriorities.put(Developer.class, defaultPriorities.get(StoredProject.class));
-        maxPriorities.put(StoredProject.class, 0x1E000000);
+        maxPriority = new HashMap<Class<? extends DAObject>, Integer>();
+        maxPriority.put(ProjectFile.class, defaultPriority.get(ProjectVersion.class));
+        maxPriority.put(MailMessage.class, defaultPriority.get(MailingList.class));
+        maxPriority.put(Bug.class, defaultPriority.get(Developer.class));
+        maxPriority.put(ProjectVersion.class, defaultPriority.get(StoredProject.class));
+        maxPriority.put(MailingList.class, defaultPriority.get(StoredProject.class));
+        maxPriority.put(Developer.class, defaultPriority.get(StoredProject.class));
+        maxPriority.put(MailingListThread.class, defaultPriority.get(StoredProject.class));
+        maxPriority.put(StoredProject.class, 0x1E000000);
         
         this.logger = logger;
         this.pa = core.getPluginAdmin();
@@ -360,6 +364,12 @@ public class MetricActivatorImpl implements MetricActivator {
                 query = "select distinct b.id from Bug b " +
                         " where b.project = :" + paramSp + 
                         " order by b.deltaTS asc";
+            } else if (c.equals(MailThread.class)) {
+                query = "select distinct mlt.id " +
+                	"from MailingListThread mlt, MailingList ml " +
+                        " where mlt.list = ml " +
+                        " and ml.storedProject = :" + paramSp + 
+                        " order by mlt.lastUpdated asc";
             } else {
                 logger.error("Unknown activation type " + c.getName());
                 return;
@@ -413,15 +423,15 @@ public class MetricActivatorImpl implements MetricActivator {
         Integer priority = currentPriorities.get(actType);
         
         if (priority == null) {
-            priority = defaultPriorities.get(actType);
+            priority = defaultPriority.get(actType);
             currentPriorities.put(actType, priority);
             return priority;
         }
         
         priority = priority + 1;
         
-        if (priority >= maxPriorities.get(actType)) {
-            priority = defaultPriorities.get(actType);
+        if (priority >= maxPriority.get(actType)) {
+            priority = defaultPriority.get(actType);
         }
         
         currentPriorities.put(actType, priority);

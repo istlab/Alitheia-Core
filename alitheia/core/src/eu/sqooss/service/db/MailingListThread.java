@@ -31,6 +31,7 @@
 package eu.sqooss.service.db;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +51,18 @@ public class MailingListThread extends DAObject {
     /** Flag to identify a thread as a flamewar */
     private boolean isFlameWar;
     
-    public MailingListThread(MailingList l) {
+    /**
+     * Get the last date this thread was updated, by convention the arrival date
+     * of the last email that arrived on this thread
+     */
+    private Date lastUpdated;
+    
+    public MailingListThread() {}
+    
+    public MailingListThread(MailingList l, Date d) {
         this.list = l;
         this.isFlameWar = false;
+        this.lastUpdated = d;
     }
 
     public MailingList getList() {
@@ -69,6 +79,14 @@ public class MailingListThread extends DAObject {
 
     public void setIsFlameWar(boolean isFlameWar) {
         this.isFlameWar = isFlameWar;
+    }
+    
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
     
     /** 

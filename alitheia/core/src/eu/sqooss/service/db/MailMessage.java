@@ -234,4 +234,42 @@ public class MailMessage extends DAObject {
     public String toString() {
         return "MailMessage(" + sender + "," + subject + "," + sendDate + ")";
     }
+    
+    /**
+     * Compare two MailMessages by value. 
+     * @param m The object to compare this to.
+     * @return True if this object and the compared object encapsulate the same
+     * mail message, even if the objects are different. False otherwise.
+     */
+    @Override
+    public final boolean equals(Object o) {
+        if (! (o instanceof MailMessage))
+            return false;
+        
+        MailMessage m = (MailMessage) o;
+        
+        if (!fileName.equals(m.getFilename()))
+            return false;
+        
+        if (!messageId.equals(m.getMessageId()))
+            return false;
+        
+        if (!sender.getEmail().equals(m.sender.getEmail()))
+            return false;
+        
+        if (!sendDate.equals(m.getSendDate()))
+            return false;
+        
+        return true;
+    }
+    
+    @Override
+    public final int hashCode() {
+        int result = 17;
+        result += 31 * result + fileName.hashCode();
+        result += 31 * result + messageId.hashCode();
+        result += 31 * result + sender.getEmail().hashCode();
+        result += 31 * result + sendDate.hashCode();
+        return result;
+    }
 }

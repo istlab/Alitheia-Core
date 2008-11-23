@@ -13,6 +13,7 @@
 			not-null="true" cascade="merge" />
 
         <property name="isFlameWar" column="IS_FLAME" not-null="true"/>
+        <property name="lastUpdated" column="LAST_UPDATED" not-null="true"/>
        
 	</class>
 </hibernate-mapping>
