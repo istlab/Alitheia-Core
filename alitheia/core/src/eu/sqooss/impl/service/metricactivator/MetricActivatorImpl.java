@@ -88,7 +88,9 @@ public class MetricActivatorImpl implements MetricActivator {
     private HashMap<Long,InvocationRule> rules = null;
 
     private HashMap<Class<? extends DAObject>, Integer> defaultPriorities;
-    
+    private HashMap<Class<? extends DAObject>, Integer> maxPriorities;
+    private HashMap<Class<? extends DAObject>, Integer> currentPriorities;
+     
     public MetricActivatorImpl(BundleContext bc, Logger logger) {
         this.bc=bc;
 
@@ -96,14 +98,26 @@ public class MetricActivatorImpl implements MetricActivator {
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
 
-        this.defaultPriorities = new HashMap<Class<? extends DAObject>, Integer>();
+        currentPriorities = new HashMap<Class<? extends DAObject>, Integer>();
+        
+        defaultPriorities = new HashMap<Class<? extends DAObject>, Integer>();
         defaultPriorities.put(ProjectFile.class, 0x1000000);
         defaultPriorities.put(MailMessage.class, 0x1000000);
         defaultPriorities.put(Bug.class, 0x1000000);
-        defaultPriorities.put(ProjectVersion.class, 0x2000000);
-        defaultPriorities.put(MailingList.class, 0x2000000);
-        defaultPriorities.put(Developer.class, 0x4000000);
-        defaultPriorities.put(StoredProject.class, 0x8000000);
+        defaultPriorities.put(ProjectVersion.class, 0x8000000);
+        defaultPriorities.put(MailingList.class, 0x8000000);
+        defaultPriorities.put(Developer.class, 0xf000000);
+        defaultPriorities.put(StoredProject.class, 0x1E000000);
+        
+        maxPriorities = new HashMap<Class<? extends DAObject>, Integer>();
+        maxPriorities.put(ProjectFile.class, defaultPriorities.get(ProjectVersion.class));
+        maxPriorities.put(MailMessage.class, defaultPriorities.get(MailingList.class));
+        maxPriorities.put(Bug.class, defaultPriorities.get(Developer.class));
+        maxPriorities.put(ProjectVersion.class, defaultPriorities.get(StoredProject.class));
+        maxPriorities.put(MailingList.class, defaultPriorities.get(StoredProject.class));
+        maxPriorities.put(Developer.class, defaultPriorities.get(StoredProject.class));
+        maxPriorities.put(StoredProject.class, 0x1E000000);
+        
         this.logger = logger;
         this.pa = core.getPluginAdmin();
         this.db = core.getDBService();
@@ -255,9 +269,8 @@ public class MetricActivatorImpl implements MetricActivator {
     }
 
     public void runMetrics(Set<Long> daoIDs, Class<? extends DAObject> actType) {
-        // TODO: Clustering - Check if not performing on a project assigned to this Clusternode 
-        //       Is this called only from SourceUpdater?
-
+        //TODO: Check if the project is assigned to this host
+        
         List<PluginInfo> plugins = pa.listPluginProviders(actType);
         
         if (plugins == null || plugins.size() == 0) {
@@ -269,15 +282,8 @@ public class MetricActivatorImpl implements MetricActivator {
         /* Fire up plug-ins */
         for (PluginInfo pi : plugins) {
             AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
-            int priority = defaultPriorities.get(actType);
             for(Long l : daoIDs) {
-                try {
-                    sched.enqueue(new MetricActivatorJob(metric, l, logger,
-                            actType, priority));
-                } catch (SchedulerException e) {
-                    logger.error("Could not enquere job to run the metric");
-                }
-                priority++;
+                schedJob(metric, l, actType, getNextPriority(actType));
             }
         }
     }
@@ -306,39 +312,8 @@ public class MetricActivatorImpl implements MetricActivator {
  
     /**{@inheritDoc}*/
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
-        ClusterNodeService cns = null;
-        ClusterNodeProject cnp = null;
-        
-        /// ClusterNode Checks - Cloned from UpdaterServiceImpl
-        cns = core.getClusterNodeService();
-        if (cns==null) {
-            logger.warn("ClusterNodeService reference not found - ClusterNode assignment checks will be ignored");
-        } else {
-            // first check if project is assigned to any ClusterNode
-            boolean dbSessionWasActive = db.isDBSessionActive(); 
-            if (!dbSessionWasActive) {db.startDBSession();}
-            cnp = ClusterNodeProject.getProjectAssignment(sp);
-            if (!dbSessionWasActive) {db.rollbackDBSession();}  
-            if (cnp==null) {
-                // project is not assigned yet to any ClusterNode, assign it here by-default
-                try {
-                    cns.assignProject(sp);
-                } catch (ClusterNodeActionException ex){
-                    logger.warn("Couldn't assign project " + sp.getName() + " to ClusterNode " + cns.getClusterNodeName());
-                    return;
-                }
-            } else { 
-                // project is somewhere assigned , check if it is assigned to this Cluster Node
-                if (!cns.isProjectAssigned(sp)){
-                    logger.warn("Project " + sp.getName() + " is not assigned to this ClusterNode - Ignoring Metric synchronization");
-                    // TODO: Clustering - further implementation:
-                    //       If needed, forward sync to the appropriate ClusterNode!
-                    return;   
-                }                
-                // at this point, we are sure the project is assigned to this ClusterNode - Go On...                
-            }
-        }  
-        // Done with ClusterNode Checks
+        if (!canRunOnHost(sp))
+            return;
         
 
         PluginInfo mi = pa.getPluginInfo(m);
@@ -390,24 +365,77 @@ public class MetricActivatorImpl implements MetricActivator {
                 return;
             }
 
-            syncMetric(mi, c, query, params);
+            List<Long> objectIDs = (List<Long>) db.doHQL(query, params);
+            AbstractMetric metric = 
+                (AbstractMetric) bc.getService(mi.getServiceRef());
+            for (Long l : objectIDs) {
+                schedJob(metric, l, c, getNextPriority(c));
+            }
         }
     }
-    
-    @SuppressWarnings("unchecked")
-    private void syncMetric(PluginInfo pi, Class<? extends DAObject> actType,
-            String hqlQuery, Map<String, Object> map) {
-        List<Long> objectIDs = (List<Long>) db.doHQL(hqlQuery, map);
-        AbstractMetric metric = 
-            (AbstractMetric) bc.getService(pi.getServiceRef());
-        int priority = defaultPriorities.get(actType);
-        for (Long l : objectIDs) {
-            try {
-                sched.enqueue(new MetricActivatorJob(metric, l, logger, actType, priority));
-            } catch (SchedulerException e) {
-                logger.error("Could not start job to sync metric");
+
+    private boolean canRunOnHost(StoredProject sp) {
+        ClusterNodeService cns = null;
+        ClusterNodeProject cnp = null;
+        
+        cns = core.getClusterNodeService();
+        if (cns == null) {
+            logger.warn("ClusterNodeService reference not found " +
+            		"- ClusterNode assignment checks will be ignored");
+            return true;
+        } else {
+            cnp = ClusterNodeProject.getProjectAssignment(sp);
+            if (cnp == null) {
+                // project is not assigned yet to any ClusterNode, assign it
+                // here by-default
+                try {
+                    cns.assignProject(sp);
+                } catch (ClusterNodeActionException ex) {
+                    logger.warn("Couldn't assign project " + sp.getName()
+                            + " to ClusterNode " + cns.getClusterNodeName());
+                    return false;
+                }
+            } else {
+                // project is somewhere assigned , check if it is assigned to
+                // this Cluster Node
+                if (!cns.isProjectAssigned(sp)) {
+                    logger.warn("Project " + sp.getName() + " is not assigned" +
+                        " to this ClusterNode - Ignoring Metric synchronization");
+                    return false;
+                }
             }
-            priority++;
+        }
+        // Done with ClusterNode Checks
+        return true;
+    }
+    
+    private synchronized int getNextPriority(Class<? extends DAObject> actType) {
+        Integer priority = currentPriorities.get(actType);
+        
+        if (priority == null) {
+            priority = defaultPriorities.get(actType);
+            currentPriorities.put(actType, priority);
+            return priority;
+        }
+        
+        priority = priority + 1;
+        
+        if (priority >= maxPriorities.get(actType)) {
+            priority = defaultPriorities.get(actType);
+        }
+        
+        currentPriorities.put(actType, priority);
+        
+        return priority;
+    }
+    
+    private void schedJob(AbstractMetric m, long objectId, 
+            Class<? extends DAObject> actType, int priority) {
+        try {
+            sched.enqueue(new MetricActivatorJob(m, objectId, logger, actType,
+                    priority));
+        } catch (SchedulerException e) {
+            logger.error("Could not start job to sync metric");
         }
     }
 }
