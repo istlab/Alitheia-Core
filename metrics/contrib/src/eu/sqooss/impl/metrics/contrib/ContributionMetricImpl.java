@@ -61,7 +61,7 @@ import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.MailThread;
+import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
@@ -76,10 +76,19 @@ import eu.sqooss.service.pa.PluginInfo;
 public class ContributionMetricImpl extends AbstractMetric implements
         ContributionMetric {
 
-	public static final Object lockObject = new Object();
-	
+    private Object lockObject = new Object();
+    
+    /** Number of files after which a commit is considered too big */
     public static final String CONFIG_CMF_THRES = "CMF_threshold";
+    
+    /** Number of project resources processed prior to each weight update*/
     public static final String CONFIG_WEIGHT_UPDATE_VERSIONS = "Weights_Update_Interval";
+    public static final int DEFAULT_WEIGHT_UPDATE_INTERVAL = 150;
+    private int weightUpdateInterval;
+    
+    /** Name of the measurement*/
+    public static final String METRIC_CONTRIB = "CONTRIB";
+    
     
     public ContributionMetricImpl(BundleContext bc) {
         super(bc);
@@ -90,7 +99,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         
         super.addMetricActivationType("CONTRIB", Developer.class);
         
-        super.addDependency("Wc.loc");
+        super.addDependency("Wc.loc");   
     }
     
     public boolean install() {
@@ -98,7 +107,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
          if (result) {
              result &= super.addSupportedMetrics(
                      "Developer Contribution Metric",
-                     "CONTRIB",
+                     METRIC_CONTRIB,
                      MetricType.Type.PROJECT_WIDE);
          
              addConfigEntry(CONFIG_CMF_THRES, 
@@ -107,7 +116,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
                  "penalized", 
                  PluginInfo.ConfigurationType.INTEGER);
              addConfigEntry(CONFIG_WEIGHT_UPDATE_VERSIONS, 
-                 "150" , 
+                 String.valueOf(DEFAULT_WEIGHT_UPDATE_INTERVAL) , 
                  "Number of revisions between weight updates", 
                  PluginInfo.ConfigurationType.INTEGER);
          }
@@ -189,9 +198,25 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return checkResult(b, ActionCategory.B, m);
     }
     
+    public List<ResultEntry> getResult(MailMessage mm, Metric m) {
+        return checkResult(mm, ActionCategory.M, m);
+    }
+    
     private List<ResultEntry> checkResult(DAObject o, ActionCategory ac, 
             Metric m) {
         ArrayList<ResultEntry> res = new ArrayList<ResultEntry>();
+        
+        if (getResult(o) == null)
+            return null;
+
+        //Return a fixed result to indicate successful run on this 
+        //project resource
+        res.add(new ResultEntry(1, ResultEntry.MIME_TYPE_TYPE_INTEGER, 
+                m.getMnemonic()));
+        return res;
+    }
+
+    private ContribAction getResult(DAObject o) {
         String paramChResource = "paramChResource";
         String paramActionCategory = "paramActionCategory";
         
@@ -204,7 +229,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramChResource, o.getId());
         
-        if (o instanceof MailingListThread) {
+        if (o instanceof MailingListThread || o instanceof MailMessage) {
             parameters.put(paramActionCategory, ActionCategory.M.toString());
         } else if (o instanceof ProjectVersion) {
             parameters.put(paramActionCategory, ActionCategory.C.toString());
@@ -212,16 +237,13 @@ public class ContributionMetricImpl extends AbstractMetric implements
             parameters.put(paramActionCategory, ActionCategory.B.toString());
         } 
 
-        List<ContribAction> lp = (List<ContribAction>) db.doHQL(query, parameters);
+        List<ContribAction> lp = (List<ContribAction>) db.doHQL(query, parameters, 1);
     
         if (lp == null || lp.isEmpty()) {
             return null;
-        } 
-        //Return a fixed result to indicate successful run on this 
-        //project resource
-        res.add(new ResultEntry(1, ResultEntry.MIME_TYPE_TYPE_INTEGER, 
-                m.getMnemonic()));
-        return res;
+        }
+        
+        return lp.get(0);
     }
 
     /*
@@ -249,23 +271,65 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return results;
     }
 
-    public void run(Developer v) {
-    	
-        //log.debug("Running for developer " + v.toString());
-    }
-    
-    public void run(Bug b) throws AlreadyProcessingException {
-        debug("Running for bug " + b.toString(), b);
-    }
+    public void run(MailMessage mm) throws AlreadyProcessingException {}
+    public void run(Developer v) throws AlreadyProcessingException {}
+    public void run(Bug b) throws AlreadyProcessingException {}
 
     public void run(MailingListThread t) throws AlreadyProcessingException {
-    	/*MailingListThread t = m.getThread();
-    	
-    	if (t.getStartingEmail().equals(m)) {
-    	    updateField(m, m.getSender(), ActionType.MST, true, 1);
-    	} else if (t.getLastEmail().equals(m)) {
-    	    updateField(m, m.getSender(), ActionType.MCT, true, 1);    
-    	}*/
+        Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
+        List<MailMessage> emails = t.getMessagesByArrivalOrder();
+        MailMessage lastProcessed = null;
+        
+        //Find the last email from this thread's collection of emails
+        //that has been processed in a previous invocation.
+        for (int i = emails.size() - 1; i >= 0; i--) {
+            //Find first email whose contrib action is not null
+            ContribAction old = getResult(emails.get(i));
+            if (old != null) {
+                lastProcessed = DAObject.loadDAObyId(
+                        old.getChangedResourceId(), MailMessage.class);
+            }
+        }
+        
+        for (MailMessage mm : emails) {
+            ContribAction ca = getResult(mm);
+            if (ca!= null) {
+                //This mail has been processed again, check if 
+                //email that closes the thread has been updated
+                if (mm.equals(lastProcessed)) {
+                    ContribAction oldCa = ContribAction.getContribAction(
+                            lastProcessed.getSender(), lastProcessed.getId(),
+                            ContribActionType.getContribActionType(
+                                    ActionType.MCT, true));
+
+                    oldCa.setTotal(oldCa.getTotal() - 1);
+                }
+                continue;
+            }
+                        
+            if (mm.getThreadEntry().getParent() == null) {
+                //New thread
+                updateField(mm, mm.getSender(), ActionType.MST, true, 1);
+            } else{
+                if (mm.getThreadEntry().getDepth() == 1) {
+                  //First reply to a thread
+                    MailMessage firstMessage = t.getMessagesAtLevel(1).get(0);
+                    if (firstMessage.equals(mm))
+                        updateField(mm, mm.getSender(), ActionType.MFR, true, 1);
+                }
+                
+                if (mm.equals(emails.get(emails.size() - 1))) {
+                    //Mail that closes a thread
+                    updateField(mm, mm.getSender(), ActionType.MCT, true, 1);
+                }
+            }
+            updateField(mm, mm.getSender(), ActionType.MSE, true, 1);
+            //Update the category weights if necessary
+            synchronized(lockObject) {
+                updateWeights();      
+            }
+        }
+        markEvaluation(contrib, t.getList().getStoredProject());
     }
     
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
@@ -287,7 +351,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         }
         
         int numFilesThreshold;
-        int updateThreshold; 
+        int updateThreshold = getWeightUpdateThreshold(); 
         
         PluginConfiguration config = getConfigurationOption(
                 ContributionMetricImpl.CONFIG_CMF_THRES);
@@ -300,19 +364,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             return; 
         } else {
             numFilesThreshold = Integer.parseInt(config.getValue());
-        }
-        
-        config = getConfigurationOption(CONFIG_WEIGHT_UPDATE_VERSIONS);
-        
-        if (config == null || 
-                Integer.parseInt(config.getValue()) <= 0) {
-            err("Plug-in configuration option " + 
-                    CONFIG_WEIGHT_UPDATE_VERSIONS + " not found", pv);
-            return;
-        } else  {
-            updateThreshold = Integer.parseInt(config.getValue());
-        }
-            
+        }    
         
         Pattern bugNumberLabel = Pattern.compile("\\A.*(pr:|bug:).*\\Z",
                 Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
@@ -415,14 +467,10 @@ public class ContributionMetricImpl extends AbstractMetric implements
             }
         }
         
-        //Check if it is required to update the weights
-        synchronized (lockObject) {
-            long distinctVersions = calcDistinctVersions();
-            //Should the weights be updated?
-            if (distinctVersions % updateThreshold == 0){
-                updateWeights(pv);
-            }
-        }   
+        //Update the category weights if necessary
+        synchronized(lockObject) {
+            updateWeights();   
+        }
         markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv);
     }
 
@@ -443,7 +491,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
     }
     
     /**
-     * Get result per developer and per categorys
+     * Get result per developer and per category
      */
     private double getResultPerActionCategory(Developer d, ActionCategory ac) {
         ContribActionWeight weight;
@@ -512,7 +560,14 @@ public class ContributionMetricImpl extends AbstractMetric implements
         }
     }
     
-    private void updateWeights(ProjectVersion pv) {
+    private void updateWeights() {
+        
+        long distinctVersions = calcDistinctVersions();
+        //Should the weights be updated?
+        if (distinctVersions % getWeightUpdateThreshold() != 0){
+           return;
+        }
+        
         ActionCategory[] actionCategories = ActionCategory.values();
 
         long totalActions = ContribAction.getTotalActions();
@@ -590,6 +645,23 @@ public class ContributionMetricImpl extends AbstractMetric implements
             return -1 * value;
         else
             return value;
+    }
+    
+    private int getWeightUpdateThreshold() {
+        if (weightUpdateInterval == 0) {
+        PluginConfiguration config = getConfigurationOption(CONFIG_WEIGHT_UPDATE_VERSIONS);
+
+            if (config == null || Integer.parseInt(config.getValue()) <= 0) {
+                log.warn("Plug-in configuration option "
+                        + CONFIG_WEIGHT_UPDATE_VERSIONS + " not found,"
+                        + "setting to default value: " 
+                        + DEFAULT_WEIGHT_UPDATE_INTERVAL);
+                weightUpdateInterval = DEFAULT_WEIGHT_UPDATE_INTERVAL;
+            } else {
+                weightUpdateInterval = Integer.parseInt(config.getValue());
+            }
+        }
+        return weightUpdateInterval;
     }
     
     private void err(String msg, DAObject o) {

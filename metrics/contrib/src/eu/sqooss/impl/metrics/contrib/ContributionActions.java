@@ -58,6 +58,20 @@ public class ContributionActions {
         c.add(ActionType.CPH);
         c.add(ActionType.CAL);
         types.put(ActionCategory.C, c);
+        
+        c= new ArrayList<ActionType>();
+        c.add(ActionType.MCT);
+        c.add(ActionType.MST);
+        c.add(ActionType.MSE);
+        c.add(ActionType.MFR);
+        types.put(ActionCategory.M, c);
+        
+        c = new ArrayList<ActionType>();
+        c.add(ActionType.BCC);
+        c.add(ActionType.BCL);
+        c.add(ActionType.BDUP);
+        c.add(ActionType.BRP);
+        types.put(ActionCategory.B, c);
     }
     
     /**
@@ -101,6 +115,8 @@ public class ContributionActions {
         MST,
         /**First reply to a thread*/
         MFR,
+        /**Send an email to a list*/
+        MSE,
         /**Report a bug*/
         BRP,
         /**Report a bug that is closed/duplicate*/
@@ -142,6 +158,8 @@ public class ContributionActions {
                 return ActionType.MST;
             else if ("MFR".equalsIgnoreCase(s))
                 return ActionType.MFR;
+            else if ("MSE".equalsIgnoreCase(s))
+                return ActionType.MSE;
             else if ("BRP".equalsIgnoreCase(s))
                 return ActionType.BRP;
             else if ("BDUP".equalsIgnoreCase(s))

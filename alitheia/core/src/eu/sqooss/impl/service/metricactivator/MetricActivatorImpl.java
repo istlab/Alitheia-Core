@@ -364,7 +364,7 @@ public class MetricActivatorImpl implements MetricActivator {
                 query = "select distinct b.id from Bug b " +
                         " where b.project = :" + paramSp + 
                         " order by b.deltaTS asc";
-            } else if (c.equals(MailThread.class)) {
+            } else if (c.equals(MailingListThread.class)) {
                 query = "select distinct mlt.id " +
                 	"from MailingListThread mlt, MailingList ml " +
                         " where mlt.list = ml " +

@@ -134,15 +134,14 @@ public class MailingListThread extends DAObject {
     }
     
     /**
-     * Get the email that closed this thread. The ordering is
-     * done by date.
+     * Get all messages in this thread by order of arrival.
      * 
      * @return The last MailMessage in a thread.
      */
-    public MailMessage getLastEmail() {
+    public List<MailMessage> getMessagesByArrivalOrder() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
-        String paramThread = ":paramThread";
+        String paramThread = "paramThread";
         
         String query = "select mm " +
                 " from MailMessage mm, MailThread mt " +
@@ -152,12 +151,12 @@ public class MailingListThread extends DAObject {
         Map<String,Object> params = new HashMap<String, Object>(1);
         params.put(paramThread, this);
         
-        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params, 1);
+        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params);
         
         if (mm == null || mm.isEmpty())
-            return null;
+            return Collections.emptyList();
         
-        return mm.get(0);
+        return mm;
     }
     
     /**
@@ -184,21 +183,23 @@ public class MailingListThread extends DAObject {
     }
     
     /**
-     * Get all emails at the provided depth. 
-     * @param level 
-     * @return 
+     * Get all emails at the provided depth, ordered by arrival time
+     * @param level The thread depth level for which to select emails.
+     * @return The emails at the specified thead depth.
      */
     public List<MailMessage> getMessagesAtLevel(int level) {
         
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
-        String paramThread = ":paramThread";
-        String paramDepth = ":paramDepth";
+        String paramThread = "paramThread";
+        String paramDepth = "paramDepth";
         
         String query = "select mm " +
-                " from MailThread mt " +
-                " where mt.thread = :" + paramThread + 
-                " and mt.depth = :" + paramDepth ;
+                " from MailMessage mm, MailThread mt " +
+                " where mt.mail = mm" +
+                " and mt.thread = :" + paramThread + 
+                " and mt.depth = :" + paramDepth +
+                " order by mm.sendDate asc";
         
         Map<String,Object> params = new HashMap<String, Object>(1);
         params.put(paramThread, this);
