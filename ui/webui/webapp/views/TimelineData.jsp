@@ -160,6 +160,36 @@ function toggleCalendar(id) {
              settings.setTvShowEmptyState(false);
      }
 
+     /*
+      * Check, if the user has selected to show/hide the versions timeline
+      */
+      if (request.getParameter("showVersions") != null) {
+          if (request.getParameter("showVersions").equals("true"))
+              settings.setTvShowVersions(true);
+          else if (request.getParameter("showVersions").equals("false"))
+              settings.setTvShowVersions(false);
+      }
+
+     /*
+      * Check, if the user has selected to show/hide the emails timeline
+      */
+      if (request.getParameter("showEmails") != null) {
+          if (request.getParameter("showEmails").equals("true"))
+              settings.setTvShowEmails(true);
+          else if (request.getParameter("showEmails").equals("false"))
+              settings.setTvShowEmails(false);
+      }
+
+     /*
+      * Check, if the user has selected to show/hide the bugs timeline
+      */
+      if (request.getParameter("showBugs") != null) {
+          if (request.getParameter("showBugs").equals("true"))
+              settings.setTvShowBugs(true);
+          else if (request.getParameter("showBugs").equals("false"))
+              settings.setTvShowBugs(false);
+      }
+
     /*
      * Initialise the data view's object
      */
@@ -296,6 +326,60 @@ function toggleCalendar(id) {
                     selectedRange = 1;
                 icoDisplaySelector.setSelected(ranges[selectedRange - 1]);
                 winResultPanel.addToolIcon(icoDisplaySelector);
+
+                // Put a separator
+                winResultPanel.addToolIcon(icoSeparator);
+
+                // Display/hide versions timeline
+                WinIcon icoShowVersions = new WinIcon();
+                icoShowVersions.setPath(request.getServletPath());
+                icoShowVersions.setParameter("showVersions");
+                icoShowVersions.setValue("" + !settings.getTvShowVersions());
+                if (settings.getTvShowVersions()) {
+                    icoShowVersions.setAlt("Hide versions timeline");
+                    icoShowVersions.setImage(
+                            "/img/icons/16x16/versions_info.png");
+                }
+                else {
+                    icoShowVersions.setAlt("Show versions timeline");
+                    icoShowVersions.setImage(
+                            "/img/icons/16x16/versions_info_off.png");
+                }
+                winResultPanel.addToolIcon(icoShowVersions);
+
+                // Display/hide emails timeline
+                WinIcon icoShowEmails = new WinIcon();
+                icoShowEmails.setPath(request.getServletPath());
+                icoShowEmails.setParameter("showEmails");
+                icoShowEmails.setValue("" + !settings.getTvShowEmails());
+                if (settings.getTvShowEmails()) {
+                    icoShowEmails.setAlt("Hide emails timeline");
+                    icoShowEmails.setImage(
+                            "/img/icons/16x16/emails_info.png");
+                }
+                else {
+                    icoShowEmails.setAlt("Show emails timeline");
+                    icoShowEmails.setImage(
+                            "/img/icons/16x16/emails_info_off.png");
+                }
+                winResultPanel.addToolIcon(icoShowEmails);
+
+                // Display/hide bugs timeline
+                WinIcon icoShowBugs = new WinIcon();
+                icoShowBugs.setPath(request.getServletPath());
+                icoShowBugs.setParameter("showBugs");
+                icoShowBugs.setValue("" + !settings.getTvShowBugs());
+                if (settings.getTvShowBugs()) {
+                    icoShowBugs.setAlt("Hide bugs timeline");
+                    icoShowBugs.setImage(
+                            "/img/icons/16x16/bugs_info.png");
+                }
+                else {
+                    icoShowBugs.setAlt("Show bugs timeline");
+                    icoShowBugs.setImage(
+                            "/img/icons/16x16/bugs_info_off.png");
+                }
+                winResultPanel.addToolIcon(icoShowBugs);
             }
 
             // Construct the window's content

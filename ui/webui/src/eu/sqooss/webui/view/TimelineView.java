@@ -48,6 +48,7 @@ import org.jfree.ui.RectangleInsets;
 
 import eu.sqooss.webui.Functions;
 import eu.sqooss.webui.Project;
+import eu.sqooss.webui.datatype.ShortBug;
 import eu.sqooss.webui.datatype.ShortEmail;
 import eu.sqooss.webui.datatype.ShortVersion;
 
@@ -101,7 +102,11 @@ public class TimelineView extends AbstractDataView {
                         project.getId(),
                         settings.getTvDateFrom(), settings.getTvDateTill()))
                     emails.put(email.getTimestamp(), email.getId());
-                // Get all bug reports submitted in the selected period
+                // Get all bugs submitted in the selected period
+                for (ShortBug bug : terrier.getShortBugsTimeline(
+                        project.getId(),
+                        settings.getTvDateFrom(), settings.getTvDateTill()))
+                    bugs.put(bug.getTimestamp(), bug.getId());
             }
         }
     }
@@ -138,6 +143,22 @@ public class TimelineView extends AbstractDataView {
         return total;
     }
 
+    /*
+     * Retrieves the total number of bug entries which were submited
+     * during the given time period.
+     */
+    private long countBugsInPeriod(Calendar from, Calendar till) {
+        long total = 0;
+        for (Long timestamp : bugs.keySet()) {
+            if (timestamp != null) {
+                if (timestamp < from.getTimeInMillis()) continue;
+                if (timestamp >= till.getTimeInMillis()) break;
+                total++;
+            }
+        }
+        return total;
+    }
+
     /* (non-Javadoc)
      * @see eu.sqooss.webui.ListView#getHtml(long)
      */
@@ -150,6 +171,11 @@ public class TimelineView extends AbstractDataView {
 
         // Load the selected versions' data
         loadData();
+
+        if (!(settings.getTvShowVersions()
+                || settings.getTvShowEmails()
+                || settings.getTvShowBugs()))
+            return b.toString();
 
         if ((settings.getTvDateFrom() != null)
                 && (settings.getTvDateFrom() != null)) {
@@ -426,7 +452,7 @@ public class TimelineView extends AbstractDataView {
         // Hold the accumulated content
         StringBuilder b = new StringBuilder("");
 
-        if (length > 0) {
+        if (value > 0) {
             b.append(sp(in) + "<td class=\"def_right\">"
                     + title + value + "</td>\n");
             b.append(sp(in) + "<td class=\"def\">"
@@ -456,54 +482,79 @@ public class TimelineView extends AbstractDataView {
 
         long barLenght = 0;
 
-        if (!((numVersions + numEmails + numBugs == 0)
-                && (settings.getTvShowEmptyState() == false))) {
+        long rows = getTotalEvents(1, 1, 1);
+        long total = getTotalEvents(numVersions, numEmails, numBugs);
+
+        if (!((total == 0) && (settings.getTvShowEmptyState() == false))) {
             b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in) + "<td rowspan=\"3\" class=\"def_major\">"
+            b.append(sp(in) + "<td rowspan=\"" + rows +"\" class=\"def_major\">"
                     + label
                     + "</td>\n");
         }
 
-        if (numVersions + numEmails > 0) {
+        if (total > 0) {
             // Versions row
-            barLenght = numVersions > 0
-                    ? (int) (numVersions * 300 / versions.size()) : 0;
-            b.append(tableResultCell(
-                    in, "", numVersions, barLenght, "bar01"));
-            b.append(sp(--in) + "</tr>\n");
+            if (settings.getTvShowVersions()) {
+                barLenght = numVersions > 0
+                ? (int) (numVersions * 300 / versions.size()) : 0;
+                b.append(tableResultCell(
+                        in, "", numVersions, barLenght, "bar01"));
+                b.append(sp(--in) + "</tr>\n");
+            }
             // Emails row
-            b.append(sp(in++) + "<tr>\n");
-            barLenght = numEmails > 0
-                    ? (int) (numEmails * 300 / emails.size()) : 0;
-            b.append(tableResultCell(
-                    in, "", numEmails, barLenght, "bar02"));
-            b.append(sp(--in) + "</tr>\n");
+            if (settings.getTvShowEmails()) {
+                if (settings.getTvShowVersions())
+                    b.append(sp(in++) + "<tr>\n");
+                barLenght = numEmails > 0
+                        ? (int) (numEmails * 300 / emails.size()) : 0;
+                b.append(tableResultCell(
+                        in, "", numEmails, barLenght, "bar02"));
+                b.append(sp(--in) + "</tr>\n");
+            }
             // Bugs row
-            b.append(sp(in++) + "<tr>\n");
-            barLenght = numBugs > 0
-                    ? (int) (numBugs * 300 / bugs.size()) : 0;
-            b.append(tableResultCell(
-                    in, "", numBugs, barLenght, "bar03"));
-            b.append(sp(--in) + "</tr>\n");
+            if (settings.getTvShowBugs()) {
+                if (settings.getTvShowVersions()
+                        || settings.getTvShowEmails())
+                    b.append(sp(in++) + "<tr>\n");
+                barLenght = numBugs > 0
+                        ? (int) (numBugs * 300 / bugs.size()) : 0;
+                b.append(tableResultCell(
+                        in, "", numBugs, barLenght, "bar03"));
+                b.append(sp(--in) + "</tr>\n");
+            }
         }
         else if (settings.getTvShowEmptyState()) {
             // Versions row
-            b.append(sp(in)
-                    + "<td colspan=\"2\" class=\"def\">&nbsp;</td>\n");
-            b.append(sp(--in) + "</tr>\n");
+            if (settings.getTvShowVersions()) {
+                b.append(tableResultCell(in, null, 0, 0, null));
+                b.append(sp(--in) + "</tr>\n");
+            }
             // Emails row
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in)
-                    + "<td colspan=\"2\" class=\"def\">&nbsp;</td>\n");
-            b.append(sp(--in) + "</tr>\n");
+            if (settings.getTvShowEmails()) {
+                if (settings.getTvShowVersions())
+                    b.append(sp(in++) + "<tr>\n");
+                b.append(tableResultCell(in, null, 0, 0, null));
+                b.append(sp(--in) + "</tr>\n");
+            }
             // Bugs row
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in)
-                    + "<td colspan=\"2\" class=\"def\">&nbsp;</td>\n");
-            b.append(sp(--in) + "</tr>\n");
+            if (settings.getTvShowBugs()) {
+                if (settings.getTvShowVersions()
+                        || settings.getTvShowEmails())
+                    b.append(sp(in++) + "<tr>\n");
+                b.append(tableResultCell(in, null, 0, 0, null));
+                b.append(sp(--in) + "</tr>\n");
+            }
         }
 
         return b.toString();
+    }
+
+    private long getTotalEvents (long vers, long emls, long bugs) {
+        long total = 0;
+        total += settings.getTvShowVersions() ? vers : 0;
+        total += settings.getTvShowEmails() ? emls : 0;
+        total += settings.getTvShowBugs() ? bugs : 0;
+        return total;
     }
 
     private String tableChart (long in, Calendar calLow, Calendar calHigh) {
@@ -542,8 +593,11 @@ public class TimelineView extends AbstractDataView {
                     displayHeader = false;
                     calTmp = (Calendar) calLow.clone();
                     calTmp.add(Calendar.MONTH, 1);
-                    if (!((countVersionsInPeriod(calLow, calTmp) == 0)
-                            && (countEmailsInPeriod(calLow, calTmp) == 0)
+                    long total = getTotalEvents(
+                            countVersionsInPeriod(calLow, calTmp),
+                            countEmailsInPeriod(calLow, calTmp),
+                            countBugsInPeriod(calLow, calTmp));
+                    if (!((total == 0)
                             && (settings.getTvShowEmptyState() == false)))
                         b.append(sp(in) + "<tr>"
                                 + "<td class=\"def_head_center\" colspan=\"3\">"
@@ -557,6 +611,7 @@ public class TimelineView extends AbstractDataView {
 
                 numVersions = countVersionsInPeriod(calLow, calHigh);
                 numEmails = countEmailsInPeriod(calLow, calHigh);
+                numBugs = countBugsInPeriod(calLow, calHigh);
                 label = "Week " + calLow.get(Calendar.WEEK_OF_YEAR);
                 b.append(tableResultRow(
                         in, label, numVersions, numEmails, numBugs));
@@ -577,7 +632,11 @@ public class TimelineView extends AbstractDataView {
                     displayHeader = false;
                     calPeriod = (Calendar) calLow.clone();
                     calPeriod.add(Calendar.YEAR, 1);
-                    if (!((countVersionsInPeriod(calLow, calPeriod) == 0)
+                    long total = getTotalEvents(
+                            countVersionsInPeriod(calLow, calPeriod),
+                            countEmailsInPeriod(calLow, calPeriod),
+                            countBugsInPeriod(calLow, calPeriod));
+                    if (!((total == 0)
                             && (settings.getTvShowEmptyState() == false)))
                         b.append(sp(in) + "<tr>"
                                 + "<td class=\"def_head_center\" colspan=\"3\">"
@@ -588,6 +647,7 @@ public class TimelineView extends AbstractDataView {
 
                 numVersions = countVersionsInPeriod(calLow, calHigh);
                 numEmails = countEmailsInPeriod(calLow, calHigh);
+                numBugs = countBugsInPeriod(calLow, calHigh);
                 label = Functions.formatMonth(
                         calLow.getTimeInMillis(), settings.getUserLocale());
                 b.append(tableResultRow(
@@ -606,6 +666,7 @@ public class TimelineView extends AbstractDataView {
             else if (viewRange == RANGE_ANNUALLY) {
                 numVersions = countVersionsInPeriod(calLow, calHigh);
                 numEmails = countEmailsInPeriod(calLow, calHigh);
+                numBugs = countBugsInPeriod(calLow, calHigh);
                 label = "" + calLow.get(Calendar.YEAR);
                 b.append(tableResultRow(
                         in, label, numVersions, numEmails, numBugs));
@@ -630,7 +691,11 @@ public class TimelineView extends AbstractDataView {
                     displayHeader = false;
                     calPeriod = (Calendar) calLow.clone();
                     calPeriod.add(Calendar.DATE, 7);
-                    if (!((countVersionsInPeriod(calLow, calPeriod) == 0)
+                    long total = getTotalEvents(
+                            countVersionsInPeriod(calLow, calPeriod),
+                            countEmailsInPeriod(calLow, calPeriod),
+                            countBugsInPeriod(calLow, calPeriod));
+                    if (!((total == 0)
                             && (settings.getTvShowEmptyState() == false)))
                         b.append(sp(in) + "<tr>"
                                 + "<td class=\"def_head_center\" colspan=\"3\">"
@@ -642,6 +707,7 @@ public class TimelineView extends AbstractDataView {
 
                 numVersions = countVersionsInPeriod(calLow, calHigh);
                 numEmails = countEmailsInPeriod(calLow, calHigh);
+                numBugs = countBugsInPeriod(calLow, calHigh);
                 label = Functions.formatDaystamp(
                         calLow.getTimeInMillis(), settings.getUserLocale());
                 b.append(tableResultRow(

@@ -43,6 +43,7 @@ import eu.sqooss.scl.WSException;
 import eu.sqooss.webui.datatype.Developer;
 import eu.sqooss.webui.datatype.File;
 import eu.sqooss.webui.datatype.MailMessage;
+import eu.sqooss.webui.datatype.ShortBug;
 import eu.sqooss.webui.datatype.ShortEmail;
 import eu.sqooss.webui.datatype.ShortVersion;
 import eu.sqooss.webui.datatype.TaggedVersion;
@@ -55,6 +56,7 @@ import eu.sqooss.ws.client.datatypes.WSMetric;
 import eu.sqooss.ws.client.datatypes.WSMetricType;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
+import eu.sqooss.ws.client.datatypes.WSShortBug;
 import eu.sqooss.ws.client.datatypes.WSShortMailMessage;
 import eu.sqooss.ws.client.datatypes.WSShortProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
@@ -358,7 +360,7 @@ public class Terrier {
     }
 
     /**
-     * Retrieves the list of email message referenced by events which had
+     * Retrieves the list of email messages referenced by events which had
      * happened within the selected project during the specified time period.
      *
      * @param projectId the project Id
@@ -387,7 +389,7 @@ public class Terrier {
     }
 
     /**
-     * Retrieves the list of email message referenced by events which had
+     * Retrieves the list of email messages referenced by events which had
      * happened within the selected project during the specified time period.
      *
      * @param projectId the project Id
@@ -410,6 +412,36 @@ public class Terrier {
                     result.add(new ShortEmail(nextEmail));
             } catch (WSException wse) {
                 addError("Can not retrieve email(s) for a time period.");
+            }
+        } else
+            addError(connection.getError());
+        return result;
+    }
+
+    /**
+     * Retrieves the list of bug entries referenced by events which had
+     * happened within the selected project during the specified time period.
+     *
+     * @param projectId the project Id
+     * @param tsmFrom begin of the time period
+     * @param tsmTill end of the time period
+     *
+     * @return The list of bug entries, or an empty list when none are
+     *   found.
+     */
+    public List<ShortBug> getShortBugsTimeline(long projectId,
+            long tsmFrom, long tsmTill) {
+        List<ShortBug> result = new ArrayList<ShortBug>();
+        if (isConnected()) {
+            try {
+                // Retrieve the all email objects inside the time period
+                WSShortBug[] wsAnswer =
+                    connection.getProjectAccessor().getShortBugTimeline(
+                            projectId, tsmFrom, tsmTill);
+                for (WSShortBug nextBug : wsAnswer)
+                    result.add(new ShortBug(nextBug));
+            } catch (WSException wse) {
+                addError("Can not retrieve bug(s) for a time period.");
             }
         } else
             addError(connection.getError());

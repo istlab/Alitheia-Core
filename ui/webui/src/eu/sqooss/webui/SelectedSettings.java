@@ -70,7 +70,10 @@ public class SelectedSettings {
     private Long tvDateFrom;
     private Long tvDateTill;
     private Long tvViewRange = new Long(TimelineView.RANGE_ANNUALLY);
-    private boolean tvShowEmpty = false;
+    private boolean tvShowEmpty     = false;
+    private boolean tvShowVersions  = true;
+    private boolean tvShowEmails    = false;
+    private boolean tvShowBugs      = false;
 
     public static final int FILE_DATA_SETTINGS      = 11;
     public static final int VERSION_DATA_SETTINGS   = 12;
@@ -264,6 +267,30 @@ public class SelectedSettings {
 
     public boolean getTvShowEmptyState() {
         return tvShowEmpty;
+    }
+
+    public void setTvShowVersions(boolean state) {
+        tvShowVersions = state;
+    }
+
+    public boolean getTvShowVersions() {
+        return tvShowVersions;
+    }
+
+    public void setTvShowEmails(boolean state) {
+        tvShowEmails = state;
+    }
+
+    public boolean getTvShowEmails() {
+        return tvShowEmails;
+    }
+
+    public void setTvShowBugs(boolean state) {
+        tvShowBugs = state;
+    }
+
+    public boolean getTvShowBugs() {
+        return tvShowBugs;
     }
 
     // =======================================================================
