@@ -47,6 +47,7 @@ import eu.sqooss.ws.client.datatypes.WSMailMessage;
 import eu.sqooss.ws.client.datatypes.WSProjectFile;
 import eu.sqooss.ws.client.datatypes.WSProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
+import eu.sqooss.ws.client.datatypes.WSShortBug;
 import eu.sqooss.ws.client.datatypes.WSShortMailMessage;
 import eu.sqooss.ws.client.datatypes.WSShortProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
@@ -91,6 +92,8 @@ import eu.sqooss.ws.client.ws.GetRootDirectory;
 import eu.sqooss.ws.client.ws.GetRootDirectoryResponse;
 import eu.sqooss.ws.client.ws.GetSCMTimeline;
 import eu.sqooss.ws.client.ws.GetSCMTimelineResponse;
+import eu.sqooss.ws.client.ws.GetShortBugTimeline;
+import eu.sqooss.ws.client.ws.GetShortBugTimelineResponse;
 import eu.sqooss.ws.client.ws.GetShortMailTimeline;
 import eu.sqooss.ws.client.ws.GetShortMailTimelineResponse;
 import eu.sqooss.ws.client.ws.GetShortSCMTimeline;
@@ -163,6 +166,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getMailTimeline";
     private static final String METHOD_NAME_GET_SHORT_MAIL_TIMELINE =
         "getShortMailTimeline";
+    private static final String METHOD_NAME_GET_SHORT_BUG_TIMELINE =
+        "getShortBugTimeline";
 
     private static final WSStoredProject[] EMPTY_ARRAY_STORED_PROJECTS =
         new WSStoredProject[0];
@@ -972,6 +977,37 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setTsmTill(tsmTill);
             try {
                 response = wsStub.getShortMailTimeline(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
+    }
+
+    /**
+     * @see eu.sqooss.scl.accessor.WSProjectAccessor#getShortBugTimeline(
+     *      long, long, long)
+     */
+    @Override
+    public WSShortBug[] getShortBugTimeline(long projectId,
+            long tsmFrom, long tsmTill) throws WSException {
+        GetShortBugTimelineResponse response;
+        GetShortBugTimeline params;
+        if (!parameters.containsKey(METHOD_NAME_GET_SHORT_BUG_TIMELINE)) {
+            params = new GetShortBugTimeline();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_SHORT_BUG_TIMELINE, params);
+        } else {
+            params = (GetShortBugTimeline) parameters
+                    .get(METHOD_NAME_GET_SHORT_BUG_TIMELINE);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            params.setTsmFrom(tsmFrom);
+            params.setTsmTill(tsmTill);
+            try {
+                response = wsStub.getShortBugTimeline(params);
             } catch (Exception e) {
                 throw new WSException(e);
             }

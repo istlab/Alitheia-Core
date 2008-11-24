@@ -144,6 +144,13 @@
           <xs:element name="result" nillable="true" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
+      <xs:element name="WSShortBug" type="ax21:WSShortBug"/>
+      <xs:complexType name="WSShortBug">
+        <xs:sequence>
+          <xs:element name="id" type="xs:long"/>
+          <xs:element name="timestamp" type="xs:long"/>
+        </xs:sequence>
+      </xs:complexType>
       <xs:element name="WSShortMailMessage" type="ax21:WSShortMailMessage"/>
       <xs:complexType name="WSShortMailMessage">
         <xs:sequence>
@@ -658,6 +665,24 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getShortBugTimeline">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+            <xs:element name="tsmFrom" nillable="true" type="xs:long"/>
+            <xs:element name="tsmTill" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getShortBugTimelineResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" name="return" nillable="true" type="ns1:WSShortBug"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getShortMailTimeline">
         <xs:complexType>
           <xs:sequence>
@@ -891,6 +916,12 @@
       </xs:element>
     </xs:schema>
   </wsdl:types>
+  <wsdl:message name="getShortBugTimelineMessage">
+    <wsdl:part name="part1" element="ns2:getShortBugTimeline"/>
+  </wsdl:message>
+  <wsdl:message name="getShortBugTimelineResponse">
+    <wsdl:part name="part1" element="ns2:getShortBugTimelineResponse"/>
+  </wsdl:message>
   <wsdl:message name="getMetricTypesByIdsMessage">
     <wsdl:part name="part1" element="ns2:getMetricTypesByIds"/>
   </wsdl:message>
@@ -1142,6 +1173,10 @@
     <wsdl:part name="part1" element="ns2:getTaggedVersionsByProjectIdResponse"/>
   </wsdl:message>
   <wsdl:portType name="wsPortType">
+    <wsdl:operation name="getShortBugTimeline">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getShortBugTimelineMessage" wsaw:Action="urn:getShortBugTimeline"/>
+      <wsdl:output message="axis2:getShortBugTimelineResponse"/>
+    </wsdl:operation>
     <wsdl:operation name="getMetricTypesByIds">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMetricTypesByIdsMessage" wsaw:Action="urn:getMetricTypesByIds"/>
       <wsdl:output message="axis2:getMetricTypesByIdsResponse"/>
@@ -1317,6 +1352,15 @@
   </wsdl:portType>
   <wsdl:binding name="wsSOAP11Binding" type="axis2:wsPortType">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="getShortBugTimeline">
+      <soap:operation soapAction="urn:getShortBugTimeline" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getMetricTypesByIds">
       <soap:operation soapAction="urn:getMetricTypesByIds" style="document"/>
       <wsdl:input>
@@ -1707,6 +1751,15 @@
   </wsdl:binding>
   <wsdl:binding name="wsSOAP12Binding" type="axis2:wsPortType">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="getShortBugTimeline">
+      <soap12:operation soapAction="urn:getShortBugTimeline" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getMetricTypesByIds">
       <soap12:operation soapAction="urn:getMetricTypesByIds" style="document"/>
       <wsdl:input>
