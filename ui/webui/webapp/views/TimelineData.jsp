@@ -290,7 +290,7 @@ function toggleCalendar(id) {
             winResultPanel.addTitleIcon(icoCloseWin);
 
             if ((settings.getTvDateFrom() != null)
-                    && (settings.getTvDateFrom() != null)
+                    && (settings.getTvDateTill() != null)
                     && (viewConf.getChartType() == AbstractDataView.TABLE_CHART)) {
                 // Show empty records icons
                 WinIcon icoShowEmpty = new WinIcon();
@@ -329,7 +329,10 @@ function toggleCalendar(id) {
 
                 // Put a separator
                 winResultPanel.addToolIcon(icoSeparator);
+            }
 
+            if ((settings.getTvDateFrom() != null)
+                    && (settings.getTvDateTill() != null)) {
                 // Display/hide versions timeline
                 WinIcon icoShowVersions = new WinIcon();
                 icoShowVersions.setPath(request.getServletPath());

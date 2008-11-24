@@ -442,6 +442,12 @@ td.dvChartImage {
     padding: 5px;
     text-align: center;
 }
+td.dvChartImageSingle {
+    background-color: #E6E437;
+    border: 1px solid black;
+    padding: 5px;
+    text-align: center;
+}
 a.dvChartImage img {
     border: 0px none;
     /* width: 100%; */

@@ -233,7 +233,7 @@ public class TimelineView extends AbstractDataView {
                     b.append(sp(in++) + "<table>\n");
                     b.append(sp(in++) + "</tr>\n");
                     b.append(sp(in) + "<td"
-                            + " class=\"dvChartImage\">"
+                            + " class=\"dvChartImageSingle\">"
                             + "<a class=\"dvChartImage\""
                             + " href=\"/fullscreen.jsp?"
                             + "chartfile=" + chartURL + "\">"
@@ -726,18 +726,56 @@ public class TimelineView extends AbstractDataView {
     private String lineChart (Calendar calLow, Calendar calHigh) {
         // Construct the chart's dataset
         TimePeriodValuesCollection data = new TimePeriodValuesCollection();
-        // TODO:: Quick definition. Rework to support bug and email timelines.
-        TimePeriodValues versionsData = new TimePeriodValues("Versions");
-        while (calLow.getTimeInMillis() < settings.getTvDateTill()) {
-            long numVersions = countVersionsInPeriod(calLow, calHigh);
-            versionsData.add(
-                    new Day(calLow.getTime()),
-                    new Double(numVersions));
-            calLow.add(Calendar.DATE, 1);
-            calHigh.add(Calendar.DATE, 1);
+
+        Calendar myLow;
+        Calendar myHigh;
+        // Versions chart
+        if (settings.getTvShowVersions()) {
+            TimePeriodValues versionsData = new TimePeriodValues("Versions");
+            myLow = (Calendar) calLow.clone();
+            myHigh = (Calendar) calHigh.clone();
+            while (myLow.getTimeInMillis() < settings.getTvDateTill()) {
+                long numVersions = countVersionsInPeriod(myLow, myHigh);
+                versionsData.add(
+                        new Day(myLow.getTime()), new Double(numVersions));
+                myLow.add(Calendar.DATE, 1);
+                myHigh.add(Calendar.DATE, 1);
+            }
+            if (versionsData.getItemCount() > 0)
+                data.addSeries(versionsData);
         }
-        if (versionsData.getItemCount() > 0)
-            data.addSeries(versionsData);
+
+        // Emails chart
+        if (settings.getTvShowEmails()) {
+            TimePeriodValues emailsData = new TimePeriodValues("Emails");
+            myLow = (Calendar) calLow.clone();
+            myHigh = (Calendar) calHigh.clone();
+            while (myLow.getTimeInMillis() < settings.getTvDateTill()) {
+                long numEmails = countEmailsInPeriod(myLow, myHigh);
+                emailsData.add(
+                        new Day(myLow.getTime()), new Double(numEmails));
+                myLow.add(Calendar.DATE, 1);
+                myHigh.add(Calendar.DATE, 1);
+            }
+            if (emailsData.getItemCount() > 0)
+                data.addSeries(emailsData);
+        }
+
+        // Bugs chart
+        if (settings.getTvShowBugs()) {
+            TimePeriodValues bugsData = new TimePeriodValues("Bugs");
+            myLow = (Calendar) calLow.clone();
+            myHigh = (Calendar) calHigh.clone();
+            while (myLow.getTimeInMillis() < settings.getTvDateTill()) {
+                long numBugs = countBugsInPeriod(myLow, myHigh);
+                bugsData.add(
+                        new Day(myLow.getTime()), new Double(numBugs));
+                myLow.add(Calendar.DATE, 1);
+                myHigh.add(Calendar.DATE, 1);
+            }
+            if (bugsData.getItemCount() > 0)
+                data.addSeries(bugsData);
+        }
 
         // Generate the chart
         if (data.getSeriesCount() > 0) {
