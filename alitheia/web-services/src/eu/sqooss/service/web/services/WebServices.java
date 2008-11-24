@@ -54,6 +54,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSMetricsResultRequest;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectFile;
 import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSResultEntry;
+import eu.sqooss.impl.service.web.services.datatypes.WSShortBug;
 import eu.sqooss.impl.service.web.services.datatypes.WSShortMailMessage;
 import eu.sqooss.impl.service.web.services.datatypes.WSShortProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
@@ -886,6 +887,30 @@ public class WebServices implements EventHandler{
                 userName, password, projectId, tsmFrom, tsmTill);
     }
 
+    /**
+     * This method will return the list of bug entries, associated to
+     * project related events which had happened during the given time period
+     * (<i>specified using the <code>tsmFrom<code> and <code>tsmTill</code>
+     * timestamps</i>).
+     * <br/>
+     * <br/>
+     * <i><b>NOTE:</b> This method uses the short bug wrapper class.</i>
+     * 
+     * @param userName the user's name used for authentication
+     * @param password the user's password used for authentication
+     * @param projectId the project's identifier
+     * @param tsmFrom the timestamp of the period begin
+     * @param tsmTill the timestamp of the period end
+     * 
+     * @return The array of <code>WSBug</code> objects that describe
+     * all located bug entries, or <code>null</code> when no bug related
+     * events exist in the given time period.
+     */
+    public WSShortBug[] getShortBugTimeline(String userName,
+            String password, long projectId, long tsmFrom, long tsmTill) {
+        return projectManager.getShortBugTimeline(
+                userName, password, projectId, tsmFrom, tsmTill);
+    }
     //========================================================================
     // MISCELANEOUS METHODS
     //========================================================================

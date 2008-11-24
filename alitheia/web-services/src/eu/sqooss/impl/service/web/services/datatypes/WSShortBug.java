@@ -32,20 +32,20 @@ package eu.sqooss.impl.service.web.services.datatypes;
 
 import java.util.List;
 
-import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.Bug;
 
 /**
- * This class partially wraps a single email message <tt>DAO</tt> i.e. just
- * the <tt>Id</tt> of the email <tt>DAO</tt> and the sending timestamp.
+ * This class partially wraps a single bug entry <tt>DAO</tt> i.e. just
+ * the <tt>Id</tt> of the bug <tt>DAO</tt> and the creation timestamp.
  * <br/>
- * In you need a full email <tt>DAO</tt> wrapper, then please have a look at
- * the <code>WSMailMessage</code> class.
- * @see eu.sqooss.impl.service.web.services.datatypes.WSMailMessage
+ * In you need a full bug <tt>DAO</tt> wrapper, then please have a look at
+ * the <code>WSBug</code> class.
+ * @see eu.sqooss.impl.service.web.services.datatypes.WSBug
  * 
  * @author Evgeni Grigorov, <tt>(ProSyst Software GmbH)</tt>
  * @author Boryan Yotov, <tt>(ProSyst Software GmbH)</tt>
  */
-public class WSShortMailMessage {
+public class WSShortBug {
 
     private long id;
     private long timestamp;
@@ -68,20 +68,19 @@ public class WSShortMailMessage {
     }
 
     /**
-     * This method instantiates and initializes a new
-     * <code>WSShortMailMessage</code> object by wrapping the given email
-     * message <tt>DAO</tt>.
+     * This method instantiates and initializes a new <code>WSShortBug</code>
+     * object by wrapping the given bug <tt>DAO</tt>.
      * 
-     * @param dao an email message <tt>DAO</tt>
+     * @param dao a bug <tt>DAO</tt>
      * 
-     * @return The new <code>WSShortMailMessage</code> object
+     * @return The new <code>WSShortBug</code> object
      */
-    public static WSShortMailMessage getInstance(MailMessage dao) {
+    public static WSShortBug getInstance(Bug dao) {
         if (dao == null) return null;
         try {
-            WSShortMailMessage wrapper = new WSShortMailMessage();
+            WSShortBug wrapper = new WSShortBug();
             wrapper.setId(dao.getId());
-            wrapper.setTimestamp(dao.getSendDate().getTime());
+            wrapper.setTimestamp(dao.getCreationTS().getTime());
             return wrapper;
         } catch (Exception e) {
             return null;
@@ -90,27 +89,27 @@ public class WSShortMailMessage {
 
     /**
      * This method returns an array containing all of the elements in the
-     * given list of <code>MailMessage</code> <tt>DAO</tt>s.
+     * given list of <code>Bug</code> <tt>DAO</tt>s.
      *  
-     * @param daoList a list of <code>MailMessage</code> <tt>DAO</tt>s
+     * @param daoList a list of <code>Bug</code> <tt>DAO</tt>s
      * 
-     * @return An array of <code>WSShortMailMessage</code> objects,
+     * @return An array of <code>WSShortBug</code> objects,
      *   or <code>null</code> upon an empty list or incompatible
      *   <tt>DAO</tt>s.
      */
-    public static WSShortMailMessage[] asArray(List<?> daoList) {
-        WSShortMailMessage[] result = null;
+    public static WSShortBug[] asArray(List<?> daoList) {
+        WSShortBug[] result = null;
         if (daoList != null) {
-            result = new WSShortMailMessage[daoList.size()];
-            MailMessage dao;
-            WSShortMailMessage wrapper;
+            result = new WSShortBug[daoList.size()];
+            Bug dao;
+            WSShortBug wrapper;
             for (int i = 0; i < result.length; i++) {
                 try {
-                    dao = (MailMessage) daoList.get(i);
+                    dao = (Bug) daoList.get(i);
                 } catch (ClassCastException e) {
                     return null;
                 }
-                wrapper = WSShortMailMessage.getInstance(dao);
+                wrapper = WSShortBug.getInstance(dao);
                 if (wrapper == null)
                     return null;
                 result[i] = wrapper;
