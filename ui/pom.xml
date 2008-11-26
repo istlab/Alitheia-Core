@@ -67,6 +67,7 @@
   <modules>
     <module>scl</module>
     <module>webui</module>
+    <module>eclipse</module>
   </modules>
 </project>
 
