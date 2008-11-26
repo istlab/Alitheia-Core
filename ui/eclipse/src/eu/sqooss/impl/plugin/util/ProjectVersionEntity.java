@@ -227,20 +227,20 @@ public class ProjectVersionEntity implements Entity {
 
     private void initVersions(String[] vers) {
         if (this.versions == null) {
-            WSProjectVersion[] versions;
             try {
+                WSProjectVersion[] mainVersions;
                 // Retrieve and store locally the first project version
-                versions = projectAccessor.getFirstProjectVersions(projectId);
-                if ((versions != null) && (versions.length == 1))
-                    this.firstVersion = versions[0];
+                mainVersions = projectAccessor.getFirstProjectVersions(projectId);
+                if ((mainVersions != null) && (mainVersions.length == 1))
+                    this.firstVersion = mainVersions[0];
                 // Retrieve and store locally the latest project version
-                versions = projectAccessor.getLastProjectVersions(projectId);
-                if ((versions != null) && (versions.length == 1))
-                    this.lastVersion = versions[0];
+                mainVersions = projectAccessor.getLastProjectVersions(projectId);
+                if ((mainVersions != null) && (mainVersions.length == 1))
+                    this.lastVersion = mainVersions[0];
             } catch (WSException wse) {
                 /* Just ignore */
             }
-            // Create placeholders for the version in between first and latest
+            // Create placeholders for the versions in between first and latest
             if ((this.firstVersion != null) && (this.lastVersion != null)) {
                 this.versions = new TreeMap<Long, WSProjectVersion>();
 
@@ -255,7 +255,7 @@ public class ProjectVersionEntity implements Entity {
                 if (latestScmRev != currentScmRevision) {
                     this.versions.put(latestScmRev, lastVersion);
                 }
-                for (long ver = firstScmRev + 1; ver < latestScmRev; ++ver) {
+                for (long ver = firstScmRev + 1; ver < latestScmRev; ver++) {
                     if (ver != currentScmRevision)
                         this.versions.put(ver, null);
                 }
@@ -266,7 +266,7 @@ public class ProjectVersionEntity implements Entity {
             // Sort out all versions which aren't retrieved yet
             List<String> missing = new ArrayList<String>();
             for (String version : vers)
-                if (this.versions.get(version) == null)
+                if (this.versions.get(Long.valueOf(version)) == null)
                     missing.add(version);
 
             // Pull all missing versions out of SQO-OSS
@@ -278,7 +278,7 @@ public class ProjectVersionEntity implements Entity {
                             missing.toArray(new String[missing.size()]));
                     for (WSProjectVersion version : result) {
                         this.versions.put(
-                                new Long(version.getVersion()).longValue(),
+                                Long.valueOf(version.getVersion()),
                                 version);
                     }
                 } catch (WSException wse) {

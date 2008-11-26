@@ -97,7 +97,7 @@ public class ProjectFileEntity implements Entity {
     public String getName() {
         return projectFile.getFileName();
     }
-    
+
     /**
      * @see eu.sqooss.plugin.util.Entity#getVersions(boolean))
      */
@@ -106,10 +106,12 @@ public class ProjectFileEntity implements Entity {
             initVersions((WSProjectAccessor) session.getAccessor(
                     WSAccessor.Type.PROJECT));
         }
-        if (this.fileModifications == null) return null;
-        else return sortedVersions;
+        if (this.fileModifications == null)
+            return null;
+        else
+            return sortedVersions;
     }
-    
+
     public Long getCurrentVersion() {
         return Long.valueOf(currentFileModification.getProjectVersionNum());
     }
@@ -254,32 +256,34 @@ public class ProjectFileEntity implements Entity {
         WSMetric[] arrayResult = new WSMetric[result.size()];
         return result.toArray(arrayResult);
     }
-    
+
     private void initVersions(WSProjectAccessor projectAccessor) {
+        // Retrieve the list of modifications performed on this file
         WSFileModification[] modifications;
-        WSProjectVersion[] fileProjectVersions;
+        WSProjectVersion fileVersion = null;
         try {
             modifications = projectAccessor.getFileModifications(
                     projectVersion.getId(), projectFile.getId());
-            fileProjectVersions = projectAccessor.getProjectVersionsByIds(
-                    new long[] {projectFile.getProjectVersionId()});
+            WSProjectVersion[] fileVersions =
+                projectAccessor.getProjectVersionsByIds(
+                        new long[] {projectFile.getProjectVersionId()});
+            if ((fileVersions != null) && (fileVersions.length == 1))
+                fileVersion = fileVersions[0];
         } catch (WSException wse) {
             modifications = null;
-            fileProjectVersions = null;
+            fileVersion = null;
         }
-        if ((modifications == null) ||
-                (fileProjectVersions == null) ||
-                (fileProjectVersions.length != 1)){
+
+        if ((modifications == null) || (fileVersion == null)){
             this.fileModifications = null;
         } else {
             fileModifications = new Hashtable<Long, WSFileModification>();
-            WSProjectVersion fileProjectVersion = fileProjectVersions[0];
-            for (WSFileModification currentModification : modifications) {
-                if (currentModification.getProjectVersionNum() != fileProjectVersion.getVersion()) {
-                    fileModifications.put(Long.valueOf(currentModification.getProjectVersionNum()),
-                            currentModification);
+            for (WSFileModification modification : modifications) {
+                String modVersion = modification.getProjectVersionNum();
+                if (!modVersion.equals(fileVersion.getVersion())) {
+                    fileModifications.put(Long.valueOf(modVersion),modification);
                 } else {
-                    this.currentFileModification = currentModification;
+                    this.currentFileModification = modification;
                 }
             }
             Set<Long> keySet = this.fileModifications.keySet();
@@ -287,7 +291,6 @@ public class ProjectFileEntity implements Entity {
             Arrays.sort(sortedVersions);
         }
     }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
