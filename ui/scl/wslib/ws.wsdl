@@ -50,6 +50,7 @@
 <xs:complexType name="WSFileModification">
 <xs:sequence>
 <xs:element name="projectFileId" type="xs:long" />
+<xs:element name="projectVersionNum" nillable="true" type="xs:string" />
 <xs:element name="projectVersionTimestamp" type="xs:long" />
 </xs:sequence>
 </xs:complexType>
