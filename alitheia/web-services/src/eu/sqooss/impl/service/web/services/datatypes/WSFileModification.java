@@ -1,8 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2008 - Organization for Free and Open Source Software,
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,30 +31,45 @@
 package eu.sqooss.impl.service.web.services.datatypes;
 
 public class WSFileModification {
-    private Long projectVersionTimestamp;
-    private Long projectFileId;
+    private Long versionTimestamp;
+    private Long fileId;
+    /* TODO: [byotov] - The inclusion of a "versionRevision" field was
+     * necessary in order to quickly fix of the Eclipse Plug-in. Once I have
+     * enough time, I'll fix the plug-in to rely upon version timestamps
+     * instead and then remove the extra field.
+     */
+    private String versionRevision;
 
-    public WSFileModification(Long projectVersionTimestamp, Long projectFileId) {
-        this.projectVersionTimestamp = projectVersionTimestamp;
-        this.projectFileId = projectFileId;
+    public WSFileModification(Long versionTimestamp, Long fileId,
+            String versionRevision) {
+        this.versionTimestamp = versionTimestamp;
+        this.fileId = fileId;
+        this.versionRevision = versionRevision;
     }
 
     public Long getProjectVersionTimestamp() {
-        return projectVersionTimestamp;
+        return versionTimestamp;
     }
 
-    public void setProjectVersionTimestamp(Long projectVersionTimestamp) {
-        this.projectVersionTimestamp = projectVersionTimestamp;
+    public void setProjectVersionTimestamp(Long versionTimestamp) {
+        this.versionTimestamp = versionTimestamp;
     }
 
     public Long getProjectFileId() {
-        return projectFileId;
+        return fileId;
     }
 
-    public void setProjectFileId(Long projectFileId) {
-        this.projectFileId = projectFileId;
+    public void setProjectFileId(Long fileId) {
+        this.fileId = fileId;
     }
 
+    public String getProjectVersionNum() {
+        return versionRevision;
+    }
+
+    public void setProjectVersionNum(String versionRevision) {
+        this.versionRevision = versionRevision;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
