@@ -111,8 +111,7 @@ public class ProjectFileEntity implements Entity {
     }
     
     public Long getCurrentVersion() {
-        return Long.valueOf(currentFileModification.
-                getProjectVersionNum());
+        return Long.valueOf(currentFileModification.getProjectVersionNum());
     }
     
     public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long[] versions) {
@@ -147,14 +146,14 @@ public class ProjectFileEntity implements Entity {
     
     public long getVersionById(long id) {
         if (id == this.currentFileModification.getProjectFileId()) {
-            return this.currentFileModification.getProjectVersionNum();
+            return new Long(this.currentFileModification.getProjectVersionNum()).longValue();
         }
         Iterator<Long> keys = this.fileModifications.keySet().iterator();
         Long currentKey;
         while (keys.hasNext()) {
             currentKey = keys.next();
             if (id == this.fileModifications.get(currentKey).getProjectFileId()) {
-                return this.fileModifications.get(currentKey).getProjectVersionNum();
+                return new Long(this.fileModifications.get(currentKey).getProjectVersionNum()).longValue();
             }
         }
         throw new IllegalArgumentException("The version is not valid!");
@@ -166,7 +165,9 @@ public class ProjectFileEntity implements Entity {
         Hashtable<Long, Long> daoVersions = new Hashtable<Long, Long>();
         long[] daoIds = new long[versions.length];
         for (int i = 0; i < versions.length; i++) {
-            if (currentFileModification.getProjectVersionNum() == versions[i].longValue()) {
+            long verRevision = new Long(
+                    currentFileModification.getProjectVersionNum());
+            if (verRevision == versions[i].longValue()) {
                 daoIds[i] = currentFileModification.getProjectFileId();
                 daoVersions.put(Long.valueOf(currentFileModification.getProjectFileId()),
                         Long.valueOf(currentFileModification.getProjectVersionNum()));

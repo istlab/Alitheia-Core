@@ -33,13 +33,11 @@
 package eu.sqooss.impl.plugin.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import eu.sqooss.plugin.util.Entity;
 import eu.sqooss.scl.WSException;
@@ -65,12 +63,11 @@ public class ProjectVersionEntity implements Entity {
     private WSProjectAccessor projectAccessor;
     private WSMetricAccessor metricAccessor;
     private WSMetric[] metrics;
-    private Map<Long, WSProjectVersion> versions;
-    private Long[] sortedVersions;
+    private SortedMap<Long, WSProjectVersion> versions;
     private WSProjectVersion firstVersion;
     private WSProjectVersion lastVersion;
     private MetricResultHashtable resultEntries;
-    
+
     public ProjectVersionEntity(WSStoredProject storedProject,
             WSProjectVersion projectVersion, WSSession session) {
         this.storedProject = storedProject;
@@ -82,7 +79,7 @@ public class ProjectVersionEntity implements Entity {
                 WSAccessor.Type.METRIC);
         resultEntries = new MetricResultHashtable();
     }
-    
+
     /**
      * @see eu.sqooss.plugin.util.Entity#getMetrics()
      */
@@ -95,8 +92,8 @@ public class ProjectVersionEntity implements Entity {
      * @see eu.sqooss.plugin.util.Entity#getName()
      */
     public String getName() {
-        return this.storedProject.getName() +
-        " (ver. " + this.projectVersion.getVersion() + ")";
+        return this.storedProject.getName()
+            + " (ver. " + this.projectVersion.getVersion() + ")";
     }
 
     /**
@@ -104,12 +101,15 @@ public class ProjectVersionEntity implements Entity {
      */
     public Long[] getSortedVersions() {
         initVersions(null);
-        if (this.versions == null) return null;
-        else return sortedVersions;
+        if (this.versions == null)
+            return null;
+        else
+            return this.versions.keySet().toArray(
+                    new Long[this.versions.size()]);
     }
 
     public Long getCurrentVersion() {
-        return this.projectVersion.getVersion();
+        return (new Long(this.projectVersion.getVersion()).longValue());
     }
 
     public WSResultEntry[] getMetricsResults(WSMetric[] metrics, Long[] versions) {
@@ -118,7 +118,8 @@ public class ProjectVersionEntity implements Entity {
         WSResultEntry currentResultEntry;
         for (WSMetric metric : metrics) {
             for (Long version : versions) {
-                currentResultEntry = this.resultEntries.get(version, metric.getMnemonic());
+                currentResultEntry = this.resultEntries.get(
+                        version, metric.getMnemonic());
                 if (currentResultEntry == null) {
                     missingMetrics.add(metric);
                 } else {
@@ -143,7 +144,7 @@ public class ProjectVersionEntity implements Entity {
 
     public long getVersionById(long id) {
         if (id == this.projectVersion.getId()) {
-            return this.projectVersion.getVersion();
+            return (new Long(this.projectVersion.getVersion()).longValue());
         }
         Iterator<Long> keys = this.versions.keySet().iterator();
         WSProjectVersion currentVersion;
@@ -152,15 +153,16 @@ public class ProjectVersionEntity implements Entity {
             currentVersion = this.versions.get(keys.next());
             if ((currentVersion != null) &&
                     (currentVersion.getId() == id)) {
-                return currentVersion.getVersion();
+                return (new Long(currentVersion.getVersion()).longValue());
             }
         }
         //gets from the core
         try {
             WSProjectVersion[] result = projectAccessor.getProjectVersionsByIds(new long[] {id});
             if (result.length == 1) {
-                this.versions.put(result[0].getVersion(), result[0]);
-                return result[0].getVersion();
+                long rev = new Long(result[0].getVersion()).longValue();
+                this.versions.put(rev, result[0]);
+                return rev;
             }
         } catch (WSException wse) {
             //do nothing
@@ -172,10 +174,15 @@ public class ProjectVersionEntity implements Entity {
         WSMetricsResultRequest resultRequest = new WSMetricsResultRequest();
         Hashtable<Long, Long> daoVersions = new Hashtable<Long, Long>();
         long[] daoIds = new long[versions.length];
-        initVersions(versions);
+        String[] revisions = new String[versions.length];
+        for (int i = 0; i < versions.length ; i++)
+            revisions[i] = versions[i].toString();
+        initVersions(revisions);
         WSProjectVersion projectVer;
         for (int i = 0; i < versions.length; i++) {
-            if (projectVersion.getVersion() == versions[i].longValue()) {
+            long currentScmRevision =
+                new Long(projectVersion.getVersion()).longValue();
+            if (currentScmRevision == versions[i].longValue()) {
                 daoIds[i] = projectVersion.getId();
                 daoVersions.put(Long.valueOf(projectVersion.getId()),
                         Long.valueOf(projectVersion.getVersion()));
@@ -217,59 +224,65 @@ public class ProjectVersionEntity implements Entity {
             }
         }
     }
-    
-    private void initVersions(Long[] vers) {
+
+    private void initVersions(String[] vers) {
         if (this.versions == null) {
             WSProjectVersion[] versions;
             try {
+                // Retrieve and store locally the first project version
                 versions = projectAccessor.getFirstProjectVersions(projectId);
-                if ((versions != null) && (versions.length == 1)) {
+                if ((versions != null) && (versions.length == 1))
                     this.firstVersion = versions[0];
-                }
-                versions  = projectAccessor.getLastProjectVersions(projectId);
-                if ((versions != null) && (versions.length == 1)) {
+                // Retrieve and store locally the latest project version
+                versions = projectAccessor.getLastProjectVersions(projectId);
+                if ((versions != null) && (versions.length == 1))
                     this.lastVersion = versions[0];
-                }
             } catch (WSException wse) {
-                //do nothing here
+                /* Just ignore */
             }
-            if ((this.firstVersion != null) &&
-                    (this.lastVersion != null)) {
-                this.versions = new HashMap<Long, WSProjectVersion>();
-                this.versions.put(firstVersion.getVersion(), firstVersion);
-                if (lastVersion.getVersion() != projectVersion.getVersion()) {
-                    this.versions.put(lastVersion.getVersion(), lastVersion);
+            // Create placeholders for the version in between first and latest
+            if ((this.firstVersion != null) && (this.lastVersion != null)) {
+                this.versions = new TreeMap<Long, WSProjectVersion>();
+
+                long firstScmRev =
+                    new Long(firstVersion.getVersion()).longValue();
+                long latestScmRev =
+                    new Long(lastVersion.getVersion()).longValue();
+                long currentScmRevision =
+                    new Long(projectVersion.getVersion()).longValue();
+
+                this.versions.put(firstScmRev, firstVersion);
+                if (latestScmRev != currentScmRevision) {
+                    this.versions.put(latestScmRev, lastVersion);
                 }
-                for (long ver = firstVersion.getVersion()+1; ver < lastVersion.getVersion(); ++ver) {
-                    if (ver != projectVersion.getVersion()) {
-                        this.versions.put(Long.valueOf(ver), null);
-                    }
+                for (long ver = firstScmRev + 1; ver < latestScmRev; ++ver) {
+                    if (ver != currentScmRevision)
+                        this.versions.put(ver, null);
                 }
-                Set<Long> keySet = this.versions.keySet();
-                sortedVersions = this.versions.keySet().toArray(new Long[keySet.size()]);
-                Arrays.sort(sortedVersions);
             }
         }
+
         if ((this.versions != null) && (vers != null)) {
-            List<Long> missingVers = new ArrayList<Long>();
-            for (Long version : vers) {
-                if (this.versions.get(version) == null) {
-                    missingVers.add(version);
-                }
-            }
-            if (!missingVers.isEmpty()) {
-                long[] missingVersArray = new long[missingVers.size()];
-                for (int i = 0; i < missingVers.size(); i++) {
-                    missingVersArray[i] = missingVers.get(i).longValue();
-                }
+            // Sort out all versions which aren't retrieved yet
+            List<String> missing = new ArrayList<String>();
+            for (String version : vers)
+                if (this.versions.get(version) == null)
+                    missing.add(version);
+
+            // Pull all missing versions out of SQO-OSS
+            if (!missing.isEmpty()) {
                 try {
-                    WSProjectVersion[] result = projectAccessor.getProjectVersionsByVersionNumbers(
-                            storedProject.getId(), missingVersArray);
+                    WSProjectVersion[] result =
+                        projectAccessor.getProjectVersionsByScmIds(
+                            storedProject.getId(),
+                            missing.toArray(new String[missing.size()]));
                     for (WSProjectVersion version : result) {
-                        this.versions.put(version.getVersion(), version);
+                        this.versions.put(
+                                new Long(version.getVersion()).longValue(),
+                                version);
                     }
                 } catch (WSException wse) {
-                    //do nothing
+                    /* Just ignore */
                 }
             }
         }

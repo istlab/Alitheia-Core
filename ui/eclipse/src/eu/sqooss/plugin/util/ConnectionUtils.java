@@ -483,13 +483,13 @@ public class ConnectionUtils {
             }
         } else {
             try {
-                long[] versionNumber = new long[] {Long.valueOf(projectVersion)};
-                versions = accessor.getProjectVersionsByVersionNumbers(projectId[0], versionNumber);
+                String[] versionNumber = new String[] {projectVersion};
+                versions = accessor.getProjectVersionsByScmIds(projectId[0], versionNumber);
             } catch (NumberFormatException nfe) { /*do nothing here*/}
             if ((versions == null) || (versions.length == 0)) {
                 WSProjectVersion[] firstVersion = accessor.getFirstProjectVersions(projectId);
                 WSProjectVersion[] lastVersion = accessor.getLastProjectVersions(projectId);
-                errorMessage = "Incorect version! ";
+                errorMessage = "Incorrect version! ";
                 if (firstVersion.length != 0) {
                     errorMessage += "first-" + firstVersion[0].getVersion() + "; ";
                 }
