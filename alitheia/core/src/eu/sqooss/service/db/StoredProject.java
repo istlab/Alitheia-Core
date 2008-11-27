@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.BugStatus.Status;
 
 /**
  * This class represents a project that Alitheia "knows about".
@@ -274,6 +275,50 @@ public class StoredProject extends DAObject {
                 parameterMap);
 
         return (pvList == null || pvList.isEmpty()) ? 0 : (Long) pvList.get(0);
+    }
+
+    /**
+     * Returns the total number of mails which belong to the project with the
+     * given Id.
+     *
+     * @param projectId - the project's identifier
+     *
+     * @return The total number of mails associated with that project.
+     */
+    public static long getMailsCount(Long projectId) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("pid", projectId);
+        List<?> res = dbs.doHQL("select count(*)"
+                + " from MailMessage mm, MailingList ml"
+                + " where ml.storedProject.id=:pid"
+                + " and mm.list.id=ml.id",
+                parameterMap);
+
+        return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
+    }
+
+    /**
+     * Returns the total number of bugs which belong to the project with the
+     * given Id.
+     *
+     * @param projectId - the project's identifier
+     *
+     * @return The total number of bugs associated with that project.
+     */
+    public static long getBugsCount(Long projectId) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("pid", projectId);
+        List<?> res = dbs.doHQL("select count(*)"
+                + " from Bug bg"
+                + " where bg.project.id=:pid"
+                + " and bg.status.status='" + Status.NEW + "'",
+                parameterMap);
+
+        return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
     }
 
     public Set<Bug> getBugs() {
