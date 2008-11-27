@@ -18,6 +18,17 @@ if (selectedProject.isValid()) {
             + (selectedProject.getLastVersion().getFilesCount() == 1
                     ? " file"
                     : " files");
+    // Project mails
+    String mailsStr = "" + selectedProject.getMailsCount()
+            + (selectedProject.getMailsCount() == 1 
+                    ? " mail"
+                    : " mails");
+    // Project bugs
+    String bugsStr = "" + selectedProject.getBugsCount()
+            + (selectedProject.getBugsCount() == 1 
+                    ? " bug"
+                    : " bugs");
+    
 %>                <div id="selectedproject">
                   <div class="piv">
                     <table class="piv">
@@ -34,13 +45,13 @@ if (selectedProject.isValid()) {
                       </tr>
                       <tr>
                         <td class="piv piv_resource" style="color: #939393;">
-                          N/A bugs
+                          <a class="piv" href="timeline.jsp"><%= bugsStr %></a>
                         </td>
                         <td class="piv piv_project">
                           <a class="piv" href="projects.jsp"><%= selectedProject.getName() %></a>
                         </td>
                         <td class="piv piv_resource" style="color: #939393;">
-                          N/A mailing lists
+                          <a class="piv" href="timeline.jsp"><%= mailsStr %></a>
                         </td>
                       </tr>
                     </table>

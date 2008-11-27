@@ -447,6 +447,7 @@ public class Terrier {
             addError(connection.getError());
         return result;
     }
+
     //========================================================================
     // VERSION RELATED SCL WRAPPER METHODS
     //========================================================================
@@ -871,6 +872,60 @@ public class Terrier {
         else
             addError(connection.getError());
         return result;
+    }
+
+    //========================================================================
+    // MAIL RELATED SCL WRAPPER METHODS
+    //========================================================================
+
+    /**
+     * Returns the current number of mails that belong to the project with the
+     * given Id.
+     *
+     * @param projectId the project Id
+     *
+     * @return The current number of mails associated with that project.
+     */
+    public Long getMailsCount(Long projectId) {
+        if (isConnected()) {
+            try {
+                return connection.getProjectAccessor().getMailsCount(
+                        projectId);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the number of project mails.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
+
+    //========================================================================
+    // BUG RELATED SCL WRAPPER METHODS
+    //========================================================================
+
+    /**
+     * Returns the current number of bugs that belong to the project with the
+     * given Id.
+     *
+     * @param projectId the project Id
+     *
+     * @return The current number of bugs associated with that project.
+     */
+    public Long getBugsCount(Long projectId) {
+        if (isConnected()) {
+            try {
+                return connection.getProjectAccessor().getBugsCount(
+                        projectId);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the number of project bugs.");
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
     }
 
     //========================================================================

@@ -44,12 +44,12 @@ import eu.sqooss.webui.util.VersionsList;
 import eu.sqooss.ws.client.datatypes.WSStoredProject;
 
 /**
- * This class represents a project that has been evaluated by the SQO-OSS
- * framework.
+ * This class represents a single project that has been evaluated by the
+ * SQO-OSS framework.
  * <br/>
- * It provides access to the project metadata, versions and files.
- * In addition it provides information about the metrics that have been
- * applied to this project and its resources.
+ * It provides access to the project's meta-data, versions and files. In
+ * addition it provides information about the metrics that have been evaluated
+ * on this project and their results.
  */
 public class Project extends WebuiItem {
 
@@ -121,6 +121,16 @@ public class Project extends WebuiItem {
      * A cache for all developers that have been selected for this project.
      */
     private DevelopersList selectedDevelopers = new DevelopersList();
+
+    /*
+     * Holds the number of mails that are associated with this project.
+     */
+    private Long mailsCount = null;
+
+    /*
+     * Holds the number of bugs that are associated with this project.
+     */
+    private Long bugsCount = null;
 
     /**
      * Instantiates a new <code>Project</code> object, without initializing
@@ -710,6 +720,42 @@ public class Project extends WebuiItem {
      */
     public DevelopersList getSelectedDevelopers() {
         return selectedDevelopers;
+    }
+
+    //========================================================================
+    // MAIL RELATED METHODS
+    //========================================================================
+
+    /**
+     * Returns the total number of mails that belong to this project
+     *
+     * @return Total number of mails associated with this project.
+     */
+    public long getMailsCount() {
+        if (mailsCount == null)
+            mailsCount = terrier.getMailsCount(id);
+        if (mailsCount != null)
+            return mailsCount;
+        else
+            return 0;
+    }
+
+    //========================================================================
+    // BUG RELATED METHODS
+    //========================================================================
+
+    /**
+     * Returns the total number of bugs that belong to this project
+     *
+     * @return Total number of bugs associated with this project.
+     */
+    public long getBugsCount() {
+        if (bugsCount == null)
+            bugsCount = terrier.getBugsCount(id);
+        if (bugsCount != null)
+            return bugsCount;
+        else
+            return 0;
     }
 
     //========================================================================
