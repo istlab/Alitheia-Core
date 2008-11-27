@@ -417,6 +417,48 @@ public abstract class WSProjectAccessor extends WSAccessor {
             long projectFileId) throws WSException;
 
     //========================================================================
+    // MAIL RELATED PROJECT METHODS
+    //========================================================================
+
+    /**
+     * Returns the total number of mails that belong to the project with the
+     * given Id.
+     *
+     * @param projectId the project's identifier
+     *
+     * @return The total number of mails associated with that project.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection link with the SQO-OSS's Web-Services service can
+     *    not be established at this time</li>
+     *  <li>if the SQO-OSS's Web-Services service itself throw an exception</li>
+     * <ul>
+     */
+    public abstract long getMailsCount(long projectId) throws WSException;
+
+    //========================================================================
+    // BUG RELATED PROJECT METHODS
+    //========================================================================
+
+    /**
+     * Returns the total number of bugs that belong to the project with the
+     * given Id.
+     *
+     * @param projectId the project's identifier
+     *
+     * @return The total number of bugs associated with that project.
+     * 
+     * @throws WSException
+     * <ul>
+     *  <li>if a connection link with the SQO-OSS's Web-Services service can
+     *    not be established at this time</li>
+     *  <li>if the SQO-OSS's Web-Services service itself throw an exception</li>
+     * <ul>
+     */
+    public abstract long getBugsCount(long projectId) throws WSException;
+
+    //========================================================================
     // TIMELINE RELATED PROJECT METHODS
     //========================================================================
 

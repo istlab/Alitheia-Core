@@ -876,6 +876,22 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getBugsCount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getBugsCountResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getFilesNumberByProjectVersionId">
         <xs:complexType>
           <xs:sequence>
@@ -886,6 +902,22 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="getFilesNumberByProjectVersionIdResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getMailsCount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="password" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getMailsCountResponse">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="return" nillable="true" type="xs:long"/>
@@ -1031,6 +1063,12 @@
   <wsdl:message name="getRootDirectoryResponse">
     <wsdl:part name="part1" element="ns2:getRootDirectoryResponse"/>
   </wsdl:message>
+  <wsdl:message name="getBugsCountMessage">
+    <wsdl:part name="part1" element="ns2:getBugsCount"/>
+  </wsdl:message>
+  <wsdl:message name="getBugsCountResponse">
+    <wsdl:part name="part1" element="ns2:getBugsCountResponse"/>
+  </wsdl:message>
   <wsdl:message name="getMessageOfTheDayMessage">
     <wsdl:part name="part1" element="ns2:getMessageOfTheDay"/>
   </wsdl:message>
@@ -1124,6 +1162,12 @@
   </wsdl:message>
   <wsdl:message name="getLastProjectVersionsResponse">
     <wsdl:part name="part1" element="ns2:getLastProjectVersionsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getMailsCountMessage">
+    <wsdl:part name="part1" element="ns2:getMailsCount"/>
+  </wsdl:message>
+  <wsdl:message name="getMailsCountResponse">
+    <wsdl:part name="part1" element="ns2:getMailsCountResponse"/>
   </wsdl:message>
   <wsdl:message name="getShortSCMTimelineMessage">
     <wsdl:part name="part1" element="ns2:getShortSCMTimeline"/>
@@ -1250,6 +1294,10 @@
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getRootDirectoryMessage" wsaw:Action="urn:getRootDirectory"/>
       <wsdl:output message="axis2:getRootDirectoryResponse"/>
     </wsdl:operation>
+    <wsdl:operation name="getBugsCount">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getBugsCountMessage" wsaw:Action="urn:getBugsCount"/>
+      <wsdl:output message="axis2:getBugsCountResponse"/>
+    </wsdl:operation>
     <wsdl:operation name="getMessageOfTheDay">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMessageOfTheDayMessage" wsaw:Action="urn:getMessageOfTheDay"/>
       <wsdl:output message="axis2:getMessageOfTheDayResponse"/>
@@ -1313,6 +1361,10 @@
     <wsdl:operation name="getLastProjectVersions">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getLastProjectVersionsMessage" wsaw:Action="urn:getLastProjectVersions"/>
       <wsdl:output message="axis2:getLastProjectVersionsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getMailsCount">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getMailsCountMessage" wsaw:Action="urn:getMailsCount"/>
+      <wsdl:output message="axis2:getMailsCountResponse"/>
     </wsdl:operation>
     <wsdl:operation name="getShortSCMTimeline">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getShortSCMTimelineMessage" wsaw:Action="urn:getShortSCMTimeline"/>
@@ -1524,6 +1576,15 @@
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="getBugsCount">
+      <soap:operation soapAction="urn:getBugsCount" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getMessageOfTheDay">
       <soap:operation soapAction="urn:getMessageOfTheDay" style="document"/>
       <wsdl:input>
@@ -1661,6 +1722,15 @@
     </wsdl:operation>
     <wsdl:operation name="getLastProjectVersions">
       <soap:operation soapAction="urn:getLastProjectVersions" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getMailsCount">
+      <soap:operation soapAction="urn:getMailsCount" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -1923,6 +1993,15 @@
         <soap12:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="getBugsCount">
+      <soap12:operation soapAction="urn:getBugsCount" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="getMessageOfTheDay">
       <soap12:operation soapAction="urn:getMessageOfTheDay" style="document"/>
       <wsdl:input>
@@ -2060,6 +2139,15 @@
     </wsdl:operation>
     <wsdl:operation name="getLastProjectVersions">
       <soap12:operation soapAction="urn:getLastProjectVersions" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getMailsCount">
+      <soap12:operation soapAction="urn:getMailsCount" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>

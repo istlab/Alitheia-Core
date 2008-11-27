@@ -52,6 +52,8 @@ import eu.sqooss.ws.client.datatypes.WSShortMailMessage;
 import eu.sqooss.ws.client.datatypes.WSShortProjectVersion;
 import eu.sqooss.ws.client.datatypes.WSTaggedVersion;
 import eu.sqooss.ws.client.datatypes.WSVersionStats;
+import eu.sqooss.ws.client.ws.GetBugsCount;
+import eu.sqooss.ws.client.ws.GetBugsCountResponse;
 import eu.sqooss.ws.client.ws.GetDevelopersByIds;
 import eu.sqooss.ws.client.ws.GetDevelopersByIdsResponse;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIds;
@@ -76,6 +78,8 @@ import eu.sqooss.ws.client.ws.GetPreviousVersionById;
 import eu.sqooss.ws.client.ws.GetPreviousVersionByIdResponse;
 import eu.sqooss.ws.client.ws.GetMailTimeline;
 import eu.sqooss.ws.client.ws.GetMailTimelineResponse;
+import eu.sqooss.ws.client.ws.GetMailsCount;
+import eu.sqooss.ws.client.ws.GetMailsCountResponse;
 import eu.sqooss.ws.client.ws.GetNextVersionById;
 import eu.sqooss.ws.client.ws.GetNextVersionByIdResponse;
 import eu.sqooss.ws.client.ws.GetProjectByName;
@@ -128,6 +132,10 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getProjectVersionsByScmIds";
     private static final String METHOD_NAME_GET_VERSIONS_COUNT =
         "getVersionsCount";
+    private static final String METHOD_NAME_GET_MAILS_COUNT =
+        "getMailsCount";
+    private static final String METHOD_NAME_GET_BUGS_COUNT =
+        "getBugsCount";
     private static final String METHOD_NAME_GET_VERSIONS_STATISTICS =
         "getVersionsStatistics";
     private static final String METHOD_NAME_GET_FIRST_PROJECT_VERSIONS =
@@ -854,6 +862,62 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
 
         return (WSStoredProject[]) normalizeWSArrayResult(response.get_return());
 
+    }
+
+    //========================================================================
+    // MAIL RELATED PROJECT METHODS
+    //========================================================================
+
+    @Override
+    public long getMailsCount(long projectId) throws WSException {
+        GetMailsCountResponse response;
+        GetMailsCount params;
+        if (!parameters.containsKey(METHOD_NAME_GET_MAILS_COUNT)) {
+            params = new GetMailsCount();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_MAILS_COUNT, params);
+        } else {
+            params = (GetMailsCount) parameters.get(
+                    METHOD_NAME_GET_MAILS_COUNT);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.getMailsCount(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
+    }
+
+    //========================================================================
+    // BUG RELATED PROJECT METHODS
+    //========================================================================
+
+    @Override
+    public long getBugsCount(long projectId) throws WSException {
+        GetBugsCountResponse response;
+        GetBugsCount params;
+        if (!parameters.containsKey(METHOD_NAME_GET_BUGS_COUNT)) {
+            params = new GetBugsCount();
+            params.setPassword(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_BUGS_COUNT, params);
+        } else {
+            params = (GetBugsCount) parameters.get(
+                    METHOD_NAME_GET_BUGS_COUNT);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.getBugsCount(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
     }
 
     //========================================================================
