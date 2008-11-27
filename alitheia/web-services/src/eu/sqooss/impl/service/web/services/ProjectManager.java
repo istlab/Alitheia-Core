@@ -603,7 +603,60 @@ public class ProjectManager extends AbstractManager {
             result = WSTaggedVersion.asArray(sp.getTaggedVersions());
 
         db.commitDBSession();
-        return result;
+        return (WSTaggedVersion[]) normalizeWSArrayResult(result);
+    }
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getVersionsStatistics(String, String, long[])
+     */
+    public WSVersionStats[] getVersionsStatistics(
+            String userName,
+            String password,
+            long[] projectVersionsIds) {
+        // Log this call
+        logger.info("getVersionsStatistics!"
+                + " user: " + userName
+                + ";"
+                + " version Ids: " + Arrays.toString(projectVersionsIds));
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectVersionsReadAccess(
+                userName, password, projectVersionsIds)) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getVersionsStatistics!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        if (projectVersionsIds != null) {
+            List<WSVersionStats> result = new ArrayList<WSVersionStats>();
+            for (Long nextId : projectVersionsIds) {
+                ProjectVersion nextVersion =
+                    db.findObjectById(ProjectVersion.class, nextId);
+                if (nextVersion != null) {
+                    WSVersionStats stats = new WSVersionStats();
+                    stats.setVersionId(nextVersion.getId());
+                    stats.setDeletedCount(ProjectVersion.getFilesCount(
+                            nextVersion, ProjectFile.STATE_DELETED));
+                    stats.setModifiedCount(ProjectVersion.getFilesCount(
+                            nextVersion, ProjectFile.STATE_MODIFIED));
+                    stats.setAddedCount(ProjectVersion.getFilesCount(
+                            nextVersion, ProjectFile.STATE_ADDED));
+                    result.add(stats);
+                }
+            }
+            if (result.size() > 0) {
+                db.commitDBSession();
+                return result.toArray(new WSVersionStats[result.size()]);
+            }
+        }
+
+        db.commitDBSession();
+        return null;
     }
 
     //========================================================================
@@ -721,58 +774,6 @@ public class ProjectManager extends AbstractManager {
         db.commitDBSession();
 
         return (WSDeveloper[]) normalizeWSArrayResult(result);
-    }
-
-    /**
-     * @see eu.sqooss.service.web.services.WebServices#getVersionsStatistics(String, String, long[])
-     */
-    public WSVersionStats[] getVersionsStatistics(
-            String userName,
-            String password,
-            long[] projectVersionsIds) {
-        // Log this call
-        logger.info("Get versions statistics!"
-                + " user: " + userName
-                + ";"
-                + " version Ids: " + Arrays.toString(projectVersionsIds));
-        // Match against the current security policy
-        db.startDBSession();
-        
-        if (!securityWrapper.checkProjectVersionsReadAccess(
-                userName, password, projectVersionsIds)) {
-            if (db.isDBSessionActive()) {
-                db.commitDBSession();
-            }
-            throw new SecurityException(
-                    "Security violation in the get versions statistics operation!");
-        }
-        
-        super.updateUserActivity(userName);
-        // Retrieve the result(s)
-        if (projectVersionsIds != null) {
-            List<WSVersionStats> result = new ArrayList<WSVersionStats>();
-            for (Long nextId : projectVersionsIds) {
-                ProjectVersion nextVersion =
-                    db.findObjectById(ProjectVersion.class, nextId);
-                if (nextVersion != null) {
-                    WSVersionStats stats = new WSVersionStats();
-                    stats.setVersionId(nextVersion.getId());
-                    stats.setDeletedCount(ProjectVersion.getFilesCount(
-                            nextVersion, ProjectFile.STATE_DELETED));
-                    stats.setModifiedCount(ProjectVersion.getFilesCount(
-                            nextVersion, ProjectFile.STATE_MODIFIED));
-                    stats.setAddedCount(ProjectVersion.getFilesCount(
-                            nextVersion, ProjectFile.STATE_ADDED));
-                    result.add(stats);
-                }
-            }
-            if (result.size() > 0) {
-                db.commitDBSession();
-                return result.toArray(new WSVersionStats[result.size()]);
-            }
-        }
-        db.commitDBSession();
-        return null;
     }
 
     /**
@@ -952,6 +953,78 @@ public class ProjectManager extends AbstractManager {
     }
 
     //========================================================================
+    // MAIL RELATED PROJECT METHODS
+    //========================================================================
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getMailsCount(String, String, long)
+     */
+    public long getMailsCount(
+            String userName,
+            String password,
+            long projectId) {
+        // Log this call
+        logger.info("getEmailsCount!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId);
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getEmailsCount!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        long result = StoredProject.getMailsCount(projectId);
+
+        db.commitDBSession();
+        return result;
+    }
+
+    //========================================================================
+    // BUG RELATED PROJECT METHODS
+    //========================================================================
+
+    /**
+     * @see eu.sqooss.service.web.services.WebServices#getBugsCount(String, String, long)
+     */
+    public long getBugsCount(
+            String userName,
+            String password,
+            long projectId) {
+        // Log this call
+        logger.info("getBugsCount!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId);
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, password, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getBugsCount!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        long result = StoredProject.getBugsCount(projectId);
+
+        db.commitDBSession();
+        return result;
+    }
+
+    //========================================================================
     // TIMELINE RELATED PROJECT METHODS
     //========================================================================
 
@@ -994,7 +1067,7 @@ public class ProjectManager extends AbstractManager {
         }
 
         db.commitDBSession();
-        return result;
+        return (WSProjectVersion[]) normalizeWSArrayResult(result);
     }
 
     public WSShortProjectVersion[] getShortSCMTimeline(String userName,
@@ -1036,7 +1109,7 @@ public class ProjectManager extends AbstractManager {
         }
 
         db.commitDBSession();
-        return result;
+        return (WSShortProjectVersion[]) normalizeWSArrayResult(result);
     }
 
     public WSMailMessage[] getMailTimeline(String userName, String password,
@@ -1078,7 +1151,7 @@ public class ProjectManager extends AbstractManager {
         }
 
         db.commitDBSession();
-        return result;
+        return (WSMailMessage[]) normalizeWSArrayResult(result);
     }
 
     public WSShortMailMessage[] getShortMailTimeline(String userName,
@@ -1120,7 +1193,7 @@ public class ProjectManager extends AbstractManager {
         }
 
         db.commitDBSession();
-        return result;
+        return (WSShortMailMessage[]) normalizeWSArrayResult(result);
     }
 
     public WSShortBug[] getShortBugTimeline(String userName,
@@ -1165,7 +1238,7 @@ public class ProjectManager extends AbstractManager {
         }
 
         db.commitDBSession();
-        return result;
+        return (WSShortBug[]) normalizeWSArrayResult(result);
     }
 }
 

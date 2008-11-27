@@ -152,11 +152,14 @@ public class WebServices implements EventHandler{
         userManager = new UserManager(logger, securityManager, db, wa);
     }
 
-    // ===[ ProjectManager methods]===========================================
+    //========================================================================
+    // PROJECT MANAGER METHODS
+    //========================================================================
 
     /**
-     * This method returns an array of all projects accessible from the given
-     * user, that the SQO-OSS framework has had evaluated.
+     * This method returns an array of all projects that has been evaluated by
+     * the SQO-OSS framework while stripping those which aren't accessible
+     * with the given user credentials.
      *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
@@ -170,8 +173,9 @@ public class WebServices implements EventHandler{
     }
 
     /**
-     * This method returns an array of all projects accessible from the given
-     * user, no matter if the SQO-OSS framework had evaluated them or not.
+     * This method returns an array of all projects which are accessible with
+     * the given user credentials, no matter if the SQO-OSS framework had
+     * evaluated them or not.
      *
      * @param userName - the user's name used for authentication
      * @param password - the user's password used for authentication
@@ -564,6 +568,40 @@ public class WebServices implements EventHandler{
                 password, developersIds);
     }
 
+    /**
+     * Returns the total number of mails that belong to the given project.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectId - the project's identifier
+     *
+     * @return The total number of mails associated with that project.
+     */
+    public long getMailsCount(
+            String userName,
+            String password,
+            long projectId) {
+        return projectManager.getMailsCount(
+                userName, password, projectId);
+    }
+
+    /**
+     * Returns the total number of bugs that belong to the given project.
+     *
+     * @param userName - the user's name used for authentication
+     * @param password - the user's password used for authentication
+     * @param projectId - the project's identifier
+     *
+     * @return The total number of bugs associated with that project.
+     */
+    public long getBugsCount(
+            String userName,
+            String password,
+            long projectId) {
+        return projectManager.getBugsCount(
+                userName, password, projectId);
+    }
+
     // ===[ MetricManager methods]============================================
 
     /**
@@ -911,14 +949,16 @@ public class WebServices implements EventHandler{
         return projectManager.getShortBugTimeline(
                 userName, password, projectId, tsmFrom, tsmTill);
     }
+
     //========================================================================
     // MISCELANEOUS METHODS
     //========================================================================
 
     /**
-     * Returns the user's message of the day. MOTD's are usually created by
-     * the SQO-OSS system administrator or the SQO-OSS framework itself,
-     * upon occurrence of specific events (like addition of a new project).
+     * Returns the user's message of the day (MOTD). MOTD's are usually
+     * created by the SQO-OSS system administrator or the SQO-OSS framework
+     * itself, upon occurrence of specific events (like addition of a new
+     * project).
      *
      * @param userName - the user's name
      * @param password - the user's password
@@ -961,8 +1001,11 @@ public class WebServices implements EventHandler{
     public WSConstants getConstants(String userName, String password) {
         return userManager.getConstants(userName, password);
     }
-    
-    // ===[EventHandler method]===============================================
+
+    //========================================================================
+    // EVENT HANDLER METHODS
+    //========================================================================
+
     public void handleEvent(Event e) {
         logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
         if (e.getTopic() == DBService.EVENT_STARTED) {
