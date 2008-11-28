@@ -325,10 +325,10 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                         m.getMnemonic());
 
                 results.add(entry);
-            }
-            return results;
+            }            
         }
-        return null;
+        
+        return results;
     }
     
     public void run(ProjectFile a) {
@@ -341,6 +341,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             if (p.second.equals(clmtmetric))
                 return p.first;
         }
+        
         return null;
     }
     
