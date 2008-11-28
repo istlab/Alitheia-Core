@@ -67,11 +67,17 @@ import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.util.Pair;
 
+/**
+ * The main implementation 
+ * 
+ * @author Georgios Gousios (gousiosg@aueb.gr)
+ * @author Vassilios Karakoidas (bkarak@aueb.gr)
+ *
+ */
 public class CLMTImplementation extends AbstractMetric implements CLMT {
-  
     private AlitheiaCore core;
     private static List<Pair<String, String>> metricsConversionTable;
-    private static List<String> clmtPlugins;
+    private static String[] clmtPlugins;
     
     static {
         metricsConversionTable = new ArrayList<Pair<String, String>>();
@@ -97,15 +103,13 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         //WeigthedMethodsPerClass Module
         metricsConversionTable.add(new Pair<String, String>("WMC", "WeigthedMethodsPerClass"));
         
-        clmtPlugins = new ArrayList<String>();
-        
-        clmtPlugins.add("NumberOfChildren");
-        clmtPlugins.add("DepthOfInheritanceTree");
-        clmtPlugins.add("NativeMethodsMetrics");
-        clmtPlugins.add("Instability");
-        clmtPlugins.add("ProjectStatistics");
-        clmtPlugins.add("ObjectOrientedProjectStatistics");
-        clmtPlugins.add("WeigthedMethodsPerClass");
+        clmtPlugins = new String[] { "NumberOfChildren", 
+        							 "DepthOfInheritanceTree",
+        							 "NativeMethodsMetrics",
+        							 "Instability",
+        							 "ProjectStatistics",
+        							 "ObjectOrientedProjectStatistics",
+        							 "WeigthedMethodsPerClass" };
     }
     
     public CLMTImplementation(BundleContext bc) {
@@ -170,8 +174,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         return result;
     }
     
-    public void run(ProjectVersion pv) {
-        
+    public void run(ProjectVersion pv) {  
         FDSService fds = core.getFDSService();
         Pattern p = Pattern.compile(".*java$");
         
@@ -182,10 +185,10 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             return;
         }
         
-        FileOps.instance().setProjectFiles(pfs);
-        FileOps.instance().setFDS(fds);
+        FileOps.getInstance().setProjectFiles(pfs);
+        FileOps.getInstance().setFDS(fds);
         
-        /*CMLT Init*/
+        /*CLMT Init*/
         CLMTProperties clmtProp = CLMTProperties.getInstance();
         clmtProp.setLogger(new AlitheiaLoggerAdapter(this, pv));
         clmtProp.setFileType(new AlitheiaFileAdapter(""));
@@ -220,6 +223,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         /*Run metrics against the source files*/
         MetricList mlist = MetricList.getInstance();
         MetricResultList mrlist = new MetricResultList();
+        
         for (Calculation calc : task.getCalculations()) {
             try {
                 Source source = task.getSourceById(calc.getID());
@@ -232,30 +236,30 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         
         String[] keys = mrlist.getFilenames();
         MetricResult[] lmr = null;
-        for(String file: keys) {
+        
+        for (String file : keys) {
             lmr = mrlist.getResultsByFilename(file);
             
             /*Find project file in this version's project files*/
             ProjectFile pf = null;
+            
             for (ProjectFile pf1 : pfs) {
                 if (pf1.getFileName().equals(file)) {
                     pf = pf1;
                 }
             }
             
-            for(MetricResult mr : lmr) {
-                Metric m =  Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));
+            for (MetricResult mr : lmr) {
+                Metric m =  Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));                
                 
-                if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {
-
-                    //This measurement is not to be stored yet
-                    if (m == null) {
-                        return;
-                    }
-                    
+                if (m == null) {
+                	continue;
+                }
+                
+                if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {                    
                     if (pf == null) {
                         warn(pv, "Cannot find file:" + file + 
-                                " Result not stored.");
+                                 " Result not stored.");
                         continue;
                     }
                     
@@ -266,12 +270,6 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     
                     db.addRecord(pfm);
                 } else {
-  
-                    //This measurement is not to be stored yet
-                    if (m == null) {
-                        return;
-                    }
-                    
                     ProjectVersionMeasurement meas = new ProjectVersionMeasurement();
                     meas.setProjectVersion(pv);
                     meas.setResult(mr.getValue());
@@ -296,13 +294,17 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         if (! measurements.isEmpty()) {
             for (ProjectVersionMeasurement meas : measurements) {
                 Integer value = Integer.parseInt(meas.getResult());
-                ResultEntry entry = new ResultEntry(value, 
-                        ResultEntry.MIME_TYPE_TYPE_INTEGER, 
-                        m.getMnemonic());
+                
+                ResultEntry entry =  new ResultEntry(value, 
+                									 ResultEntry.MIME_TYPE_TYPE_INTEGER, 
+                									 m.getMnemonic());
+                
                 results.add(entry);
             }
+            
             return results;
         }
+        
         return null;
     }
 

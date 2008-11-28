@@ -44,11 +44,12 @@ public class FileOps {
     
     private ThreadLocal<FDSService> fds = new ThreadLocal<FDSService>();
     private ThreadLocal<List<ProjectFile>> pfl = new ThreadLocal<List<ProjectFile>>();
+    
     static {
         instance = new FileOps();
     }
     
-    public static FileOps instance() {
+    public static FileOps getInstance() {
         return instance;
     }
     

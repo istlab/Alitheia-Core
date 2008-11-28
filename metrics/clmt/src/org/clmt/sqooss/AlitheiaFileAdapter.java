@@ -45,23 +45,24 @@ import org.clmt.io.CLMTFile;
 import eu.sqooss.impl.metrics.clmt.FileOps;
 
 public final class AlitheiaFileAdapter extends CLMTFile {
-
     private String path;
-    InputStream contents;
+    private FileOps fileOps;
      
     public AlitheiaFileAdapter(String path) {
         this.path = path;
+        this.fileOps = FileOps.getInstance();
     }
     
     @Override
     public boolean delete() {   
-        Thread.dumpStack();
+        //Thread.dumpStack();
+        
         return false;
     }
 
     @Override
     public boolean exists() {
-        return FileOps.instance().exists(path);
+        return fileOps.exists(path);
     }
 
     @Override
@@ -71,7 +72,7 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public InputStream getInputStream() {
-        return contents = FileOps.instance().getFileContents(path);
+        return fileOps.getFileContents(path);
     }
 
     @Override
@@ -95,7 +96,7 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public boolean isDirectory() {
-        return FileOps.instance().isDirectory(path);
+        return fileOps.isDirectory(path);
     }
 
     @Override
@@ -106,13 +107,14 @@ public final class AlitheiaFileAdapter extends CLMTFile {
     @Override
     public CLMTFile[] listFiles() {
         
-        if(!isDirectory()) 
-            return null;
+        if(!isDirectory()) {
+            return new CLMTFile[] {};
+        }
         
         ArrayList<CLMTFile> files = new ArrayList<CLMTFile>(); 
         
-        List<String> fileList = FileOps.instance().listFiles(path); 
-        List<String> dirList = FileOps.instance().getDirectories(path);
+        List<String> fileList = fileOps.listFiles(path); 
+        List<String> dirList = fileOps.getDirectories(path);
         
         for (String s : fileList) {
             files.add(newFile(this.path + "/" +s));
@@ -127,7 +129,7 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public boolean mkdirs() {
-        Thread.dumpStack();
+        //Thread.dumpStack();
         return false;
     }
 
