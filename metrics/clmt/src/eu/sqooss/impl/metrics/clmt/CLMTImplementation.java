@@ -244,9 +244,9 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             }
             
             for(MetricResult mr : lmr) {
-                Metric m =  Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getName()));
-
-                if (mr.getNameCategory() != MetricNameCategory.PROJECT_WIDE) {
+                Metric m =  Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));
+                
+                if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {
 
                     //This measurement is not to be stored yet
                     if (m == null) {
