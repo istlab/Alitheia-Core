@@ -395,27 +395,24 @@ public class ProjectFile extends DAObject{
      * specifed pattern (may be empty, not null)
      * 
      */
-    public static List<ProjectFile> getFilesForVersion(ProjectVersion version, Pattern p) {
-      
+    public static List<ProjectFile> getFilesForVersion(ProjectVersion version, Pattern p) {      
         Set<ProjectFile> files = version.getFilesForVersion();
         List<ProjectFile> matchedFiles = new ArrayList<ProjectFile>();
         
         if (files == null) {
-            // Empty array list with a capacity of 1
-            return new ArrayList<ProjectFile>();
+            return matchedFiles;
         }
         
-        Iterator<ProjectFile> i = files.iterator();
-        
-        while (i.hasNext()) {
-            ProjectFile pf = i.next();
+        for ( ProjectFile pf : files ) {
             Matcher m = p.matcher(pf.getFileName());
+            
             if (m.matches() && !matchedFiles.contains(pf)) {
                 for(ProjectFile tmpPF : matchedFiles) {
                     if (tmpPF.getFileName().equals(pf.getFileName())) {
                         System.err.println("Duplicate filename in file list:" + tmpPF.getFileName());
                     }
                 }
+                
                 matchedFiles.add(pf);
             }
         }
