@@ -77,6 +77,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         ContributionMetric {
 
     private Object lockObject = new Object();
+    private static long processedObjects = 0;
     
     /** Number of files after which a commit is considered too big */
     public static final String CONFIG_CMF_THRES = "CMF_threshold";
@@ -281,8 +282,9 @@ public class ContributionMetricImpl extends AbstractMetric implements
         MailMessage lastProcessed = null;
         
         //Find the last email from this thread's collection of emails
-        //that has been processed in a previous invocation.
-        for (int i = emails.size() - 1; i >= 0; i--) {
+        //that has been processed in a previous invocation. Avoid 
+        //scanning threads with just one email.
+        for (int i = emails.size() - 1; i > 0; i--) { 
             //Find first email whose contrib action is not null
             ContribAction old = getResult(emails.get(i));
             if (old != null) {
@@ -296,13 +298,14 @@ public class ContributionMetricImpl extends AbstractMetric implements
             if (ca!= null) {
                 //This mail has been processed again, check if 
                 //email that closes the thread has been updated
-                if (mm.equals(lastProcessed)) {
+                if (lastProcessed != null && mm.equals(lastProcessed)) {
                     ContribAction oldCa = ContribAction.getContribAction(
                             lastProcessed.getSender(), lastProcessed.getId(),
                             ContribActionType.getContribActionType(
                                     ActionType.MCT, true));
-
-                    oldCa.setTotal(oldCa.getTotal() - 1);
+                    if (oldCa != null) {
+                        oldCa.setTotal(oldCa.getTotal() - 1);
+                    }
                 }
                 continue;
             }
@@ -323,12 +326,15 @@ public class ContributionMetricImpl extends AbstractMetric implements
                     updateField(mm, mm.getSender(), ActionType.MCT, true, 1);
                 }
             }
+            
             updateField(mm, mm.getSender(), ActionType.MSE, true, 1);
-            //Update the category weights if necessary
-            synchronized(lockObject) {
-                updateWeights();      
-            }
         }
+        
+        //Update the category weights, if necessary
+        synchronized(lockObject) {
+            updateWeights();      
+        }
+        
         markEvaluation(contrib, t.getList().getStoredProject());
     }
     
@@ -520,21 +526,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         }
         return value;
     }
-    
-    private int calcDistinctVersions() {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        List<?> distinctVersions = db.doHQL("select " +
-                "count(distinct changedResourceId) from ContribAction");
-        
-        if (distinctVersions == null || 
-            distinctVersions.size() == 0 || 
-            distinctVersions.get(0) == null) {
-            return 0;
-        }
-        
-        return (Integer.parseInt(distinctVersions.get(0).toString())) ;
-    }
-    
+ 
     private void updateField(DAObject o, Developer dev, 
             ActionType actionType, boolean isPositive, int value) {
         DBService db = AlitheiaCore.getInstance().getDBService();
@@ -562,10 +554,26 @@ public class ContributionMetricImpl extends AbstractMetric implements
     
     private void updateWeights() {
         
-        long distinctVersions = calcDistinctVersions();
+      /*  long distinctVersions = 0;
+        List<?> versions = db.doHQL("select " +
+        "count(distinct changedResourceId) from ContribAction");
+
+        if (versions == null || 
+                versions.size() == 0 || 
+                versions.get(0) == null) {
+            return;
+        }
+        
+        distinctVersions = (Integer.parseInt(versions.get(0).toString())) ;
+        
         //Should the weights be updated?
         if (distinctVersions % getWeightUpdateThreshold() != 0){
            return;
+        }
+        */
+        processedObjects ++;
+        if (processedObjects % getWeightUpdateThreshold() != 0 ) {
+            return;
         }
         
         ActionCategory[] actionCategories = ActionCategory.values();

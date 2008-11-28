@@ -147,7 +147,7 @@ public class MailingListThread extends DAObject {
                 " from MailMessage mm, MailThread mt " +
                 " where mt.mail = mm " +
                 " and mt.thread = :" + paramThread + 
-                " order by mm.sendDate desc" ;
+                " order by mm.sendDate asc" ;
         Map<String,Object> params = new HashMap<String, Object>(1);
         params.put(paramThread, this);
         
