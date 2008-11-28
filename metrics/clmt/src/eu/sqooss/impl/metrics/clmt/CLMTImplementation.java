@@ -143,34 +143,49 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         boolean result = super.install();
         if (result) {
             result &= super.addSupportedMetrics("Number of Children",
-                    "NOCH", MetricType.Type.SOURCE_CODE);
+                    							"NOCH", 
+                    							MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics("Depth Of Inheritance Tree",
-                    "DIT",MetricType.Type.SOURCE_CODE);
+                    							"DIT",
+                    							MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics("Number of Native Methods",
-                    "NMPV",MetricType.Type.PROJECT_WIDE);
+                    							"NMPV",
+                    							MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Number of Native Methods Per Class",
-                    "NMPC",MetricType.Type.SOURCE_CODE);
+                    							"NMPC",
+                    							MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics("Efferent Couplings",
-                    "EFC", MetricType.Type.SOURCE_FOLDER);
+                    							"EFC", 
+                    							MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics("Afferent Couplings",
-                    "AFC", MetricType.Type.SOURCE_FOLDER);
+                    							"AFC", 
+                    							MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics("Instability Metric",
-                    "INST", MetricType.Type.SOURCE_FOLDER);
+                    							"INST",
+                    							MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics("Number of Modules/Namespaces",
-                    "NUMMOD",MetricType.Type.SOURCE_CODE);
+                    							"NUMMOD",
+                    							MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics("Average Lines of Code per Module",
-                    "AVGLMOD",MetricType.Type.PROJECT_WIDE);
+                    							"AVGLMOD",
+                    							MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Average Methods per Class",
-                    "AVGMETCL",MetricType.Type.PROJECT_WIDE);
+                    							"AVGMETCL",
+                    							MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Number of Enumerations",
-                    "NUMENUM",MetricType.Type.PROJECT_WIDE);
+                    							"NUMENUM",
+                    							MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Number of Interfaces",
-                    "NUMIFACE",MetricType.Type.PROJECT_WIDE);
+                    							"NUMIFACE",
+                    							MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Number of Classes",
-                    "NUMCL",MetricType.Type.PROJECT_WIDE);
+                    							"NUMCL",
+                    							MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Weighted Methods per Class",
-                    "WMC", MetricType.Type.SOURCE_CODE);
+                    							"WMC", 
+                    							MetricType.Type.SOURCE_CODE);
         }
+        
         return result;
     }
     
@@ -246,6 +261,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             for (ProjectFile pf1 : pfs) {
                 if (pf1.getFileName().equals(file)) {
                     pf = pf1;
+                    break;
                 }
             }
             
@@ -277,6 +293,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     
                     db.addRecord(meas);
                 }
+                
                 markEvaluation(m, pv);
             }
         }
@@ -284,6 +301,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectVersion", a);
@@ -301,15 +319,14 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                 
                 results.add(entry);
             }
-            
-            return results;
         }
         
-        return null;
+        return results;
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectFile", a);
