@@ -108,7 +108,7 @@ class MailUpdater extends Job {
     }
 
     public int priority() {
-        return 0;
+        return 0x1;
     }
 
     protected void run() throws Exception {
@@ -461,6 +461,11 @@ class MailUpdater extends Job {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("storedProject", sp);
         return dbs.findObjectsByProperties(MailingList.class, params);
+    }
+    
+    @Override
+    public String toString() {
+        return "MailUpdaterJob - Project:{" + project + "}";
     }
 }
 

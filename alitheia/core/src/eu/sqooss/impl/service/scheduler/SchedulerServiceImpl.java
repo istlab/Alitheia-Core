@@ -141,11 +141,11 @@ public class SchedulerServiceImpl implements Scheduler {
         }
 
         if (state == Job.State.Finished) {
-            stats.removeRunJob(job.getClass().toString());
+            stats.removeRunJob(job.toString());
             stats.incFinishedJobs();
         } else if (state == Job.State.Running) {
             stats.removeWaitingJob(job.getClass().toString());
-            stats.addRunJob(job.getClass().toString());
+            stats.addRunJob(job.toString());
         } else if (state == Job.State.Error) {
 
             if (failedQueue.remainingCapacity() == 1)

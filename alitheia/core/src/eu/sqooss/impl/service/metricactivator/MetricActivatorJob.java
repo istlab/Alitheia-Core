@@ -101,6 +101,11 @@ public class MetricActivatorJob extends Job {
             restart();
         }
     }
+    
+    @Override
+    public String toString() {
+        return "MetricActivatorJob: Metric:{" + metric.getName() +"} Activator:{" + daoType.getSimpleName() + "} DAO:{" + daoID + "}";
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

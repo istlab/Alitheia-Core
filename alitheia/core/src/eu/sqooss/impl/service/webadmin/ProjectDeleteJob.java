@@ -74,4 +74,9 @@ public class ProjectDeleteJob extends Job {
         }
 
     }
+    
+    @Override
+    public String toString() {
+        return "ProjectDeleteJob - Project:{" + sp +"}";
+    }
 }

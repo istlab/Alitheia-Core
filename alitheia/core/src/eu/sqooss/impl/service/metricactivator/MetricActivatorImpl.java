@@ -54,7 +54,6 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
-import eu.sqooss.service.db.MailThread;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
@@ -69,10 +68,11 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 
-public class MetricActivatorImpl implements MetricActivator {
+public class MetricActivatorImpl  implements MetricActivator {
 
     /** The parent bundle's context object. */
     private BundleContext bc;
@@ -319,68 +319,10 @@ public class MetricActivatorImpl implements MetricActivator {
         if (!canRunOnHost(sp))
             return;
         
-
-        PluginInfo mi = pa.getPluginInfo(m);
-        List<Class<? extends DAObject>> actTypes = mi.getActivationTypes();
-        
-        if ((actTypes == null) || actTypes.isEmpty()) {
-            logger.error("Plugin " + mi.getPluginName() +
-            		" has no activation types");
-            return;
-        }
-        
-        String query = "" , paramSp = "paramSp";
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put(paramSp, sp);
-        
-        for (Class<? extends DAObject> c : actTypes) {
-            if(c.equals(ProjectFile.class)) {
-                query = "select pf.id " +
-                "from ProjectVersion pv, ProjectFile pf " +
-                "where pf.projectVersion=pv and pv.project = :" + paramSp +
-                " group by pf.id, pv.timestamp" +
-                " order by pv.timestamp asc";
-            } else if (c.equals(ProjectVersion.class)) {
-                query = "select pv.id from ProjectVersion pv " +
-                "where pv.project = :" + paramSp + 
-                " group by pv.id, pv.timestamp" +
-                " order by pv.timestamp asc ";
-            } else if (c.equals(StoredProject.class)) {
-                query = "select distinct sp.id from StoredProject sp where sp = :" 
-                    + paramSp;
-            } else if (c.equals(MailMessage.class)) { 
-                query = "select distinct mm.id " +
-                        "from StoredProject sp, MailingList ml, MailMessage mm " +
-                        "where mm.list = ml and " +
-                        "ml.storedProject = :" + paramSp + 
-                        " order by mm.arrivalDate asc";
-            } else if (c.equals(MailingList.class)) { 
-                query = "select distinct ml.id from StoredProject sp, MailingList ml " +
-                        "where ml.storedProject = :" + paramSp;
-            } else if (c.equals(Developer.class)) { 
-                query = "select distinct d.id from Developer d " +
-                        "where d.storedProject = :" + paramSp;
-            } else if (c.equals(Bug.class)){
-                query = "select distinct b.id from Bug b " +
-                        " where b.project = :" + paramSp + 
-                        " order by b.deltaTS asc";
-            } else if (c.equals(MailingListThread.class)) {
-                query = "select distinct mlt.id " +
-                	"from MailingListThread mlt, MailingList ml " +
-                        " where mlt.list = ml " +
-                        " and ml.storedProject = :" + paramSp + 
-                        " order by mlt.lastUpdated asc";
-            } else {
-                logger.error("Unknown activation type " + c.getName());
-                return;
-            }
-
-            List<Long> objectIDs = (List<Long>) db.doHQL(query, params);
-            AbstractMetric metric = 
-                (AbstractMetric) bc.getService(mi.getServiceRef());
-            for (Long l : objectIDs) {
-                schedJob(metric, l, c, getNextPriority(c));
-            }
+        try {
+            sched.enqueue(new MetricSchedulerJob(m, sp));
+        } catch (SchedulerException e) {
+            logger.error("Could not start metric scheduler job");
         }
     }
 
@@ -446,6 +388,103 @@ public class MetricActivatorImpl implements MetricActivator {
                     priority));
         } catch (SchedulerException e) {
             logger.error("Could not start job to sync metric");
+        }
+    }
+    
+    /**
+     * Job that creates metric jobs. Used to avoid blocking the UI or user
+     * scipts while scheduling large metric updates. Its priority ensures
+     * that it will not fill up queues while updater jobs are running, 
+     * leaving memory free till it is really required. 
+     */
+    private class MetricSchedulerJob extends Job {
+
+        private AlitheiaPlugin m;
+        private StoredProject sp;
+        
+        public MetricSchedulerJob(AlitheiaPlugin m, StoredProject sp) {
+            this.m = m;
+            this.sp = sp;
+        }
+        
+        @Override
+        public int priority() {
+            return 0x2;
+        }
+
+        @Override
+        protected void run() throws Exception {
+            DBService dbs = AlitheiaCore.getInstance().getDBService();
+            dbs.startDBSession();
+            sp = DAObject.loadDAObyId(sp.getId(), StoredProject.class);
+            PluginInfo mi = pa.getPluginInfo(m);
+            List<Class<? extends DAObject>> actTypes = mi.getActivationTypes();
+            
+            if ((actTypes == null) || actTypes.isEmpty()) {
+                logger.error("Plugin " + mi.getPluginName() +
+                            " has no activation types");
+                return;
+            }
+            
+            String query = "" , paramSp = "paramSp";
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put(paramSp, sp);
+            
+            for (Class<? extends DAObject> c : actTypes) {
+                if(c.equals(ProjectFile.class)) {
+                    query = "select pf.id " +
+                    "from ProjectVersion pv, ProjectFile pf " +
+                    "where pf.projectVersion=pv and pv.project = :" + paramSp +
+                    " group by pf.id, pv.timestamp" +
+                    " order by pv.timestamp asc";
+                } else if (c.equals(ProjectVersion.class)) {
+                    query = "select pv.id from ProjectVersion pv " +
+                    "where pv.project = :" + paramSp + 
+                    " group by pv.id, pv.timestamp" +
+                    " order by pv.timestamp asc ";
+                } else if (c.equals(StoredProject.class)) {
+                    query = "select distinct sp.id from StoredProject sp where sp = :" 
+                        + paramSp;
+                } else if (c.equals(MailMessage.class)) { 
+                    query = "select distinct mm.id " +
+                            "from StoredProject sp, MailingList ml, MailMessage mm " +
+                            "where mm.list = ml and " +
+                            "ml.storedProject = :" + paramSp + 
+                            " order by mm.arrivalDate asc";
+                } else if (c.equals(MailingList.class)) { 
+                    query = "select distinct ml.id from StoredProject sp, MailingList ml " +
+                            "where ml.storedProject = :" + paramSp;
+                } else if (c.equals(Developer.class)) { 
+                    query = "select distinct d.id from Developer d " +
+                            "where d.storedProject = :" + paramSp;
+                } else if (c.equals(Bug.class)){
+                    query = "select distinct b.id from Bug b " +
+                            " where b.project = :" + paramSp + 
+                            " order by b.deltaTS asc";
+                } else if (c.equals(MailingListThread.class)) {
+                    query = "select distinct mlt.id " +
+                            "from MailingListThread mlt, MailingList ml " +
+                            " where mlt.list = ml " +
+                            " and ml.storedProject = :" + paramSp + 
+                            " order by mlt.lastUpdated asc";
+                } else {
+                    logger.error("Unknown activation type " + c.getName());
+                    return;
+                }
+
+                List<Long> objectIDs = (List<Long>) db.doHQL(query, params);
+                AbstractMetric metric = 
+                    (AbstractMetric) bc.getService(mi.getServiceRef());
+                for (Long l : objectIDs) {
+                    schedJob(metric, l, c, getNextPriority(c));
+                }   
+            }
+            dbs.commitDBSession();
+        }
+        
+        @Override
+        public String toString() {
+            return "MetricSchedulerJob - Project:{" + sp + "}" ;
         }
     }
 }

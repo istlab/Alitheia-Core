@@ -987,6 +987,11 @@ final class SourceUpdater extends Job {
     private void debug(String message) {
         logger.debug(project.getName() + ":" + message);
     }
+    
+    @Override
+    public String toString() {
+        return "SourceUpdaterJob - Project:{" + project +"}";
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

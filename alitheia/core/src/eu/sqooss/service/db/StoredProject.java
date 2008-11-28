@@ -328,6 +328,11 @@ public class StoredProject extends DAObject {
     public void setBugs(Set<Bug> bugs) {
         this.bugs = bugs;
     }
+    
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
