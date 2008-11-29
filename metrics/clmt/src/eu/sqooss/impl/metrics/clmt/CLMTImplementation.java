@@ -34,7 +34,10 @@ package eu.sqooss.impl.metrics.clmt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -86,33 +89,33 @@ import eu.sqooss.service.util.Pair;
  */
 public class CLMTImplementation extends AbstractMetric implements CLMT {
     private AlitheiaCore core;
-    private static List<Pair<String, String>> metricsConversionTable;
-    private static String[] clmtPlugins;
+    private final static Map<String, String> metricsConversionTable;
+    private final static String[] clmtPlugins;
 
     static {
-        metricsConversionTable = new ArrayList<Pair<String, String>>();
+        metricsConversionTable = new Hashtable<String, String>();
         // NumberOfChildren Module
-        metricsConversionTable.add(new Pair<String, String>("NOCH", "NumberOfChildren"));
+        metricsConversionTable.put("NumberOfChildren", "NOCH");
         // DepthOfInheritanceTree module
-        metricsConversionTable.add(new Pair<String, String>("DIT", "DepthOfInheritanceTree"));
+        metricsConversionTable.put("DepthOfInheritanceTree", "DIT");
         // JavaMetrics module
-        metricsConversionTable.add(new Pair<String, String>("NMPV", "NativeMethodsPerProject"));
-        metricsConversionTable.add(new Pair<String, String>("NMPC", "NativeMethodsPerCodeUnit"));
-        metricsConversionTable.add(new Pair<String, String>("SCPV", "StaticClassesPerProject"));
+        metricsConversionTable.put("NativeMethodsPerProject", "NMPV");
+        metricsConversionTable.put("NativeMethodsPerCodeUnit", "NMPC");
+        metricsConversionTable.put("StaticClassesPerProject", "SCPV");
         // Instability Module
-        metricsConversionTable.add(new Pair<String, String>("EFC", "EfferentCouplings"));
-        metricsConversionTable.add(new Pair<String, String>("AFC", "AfferentCouplings"));
-        metricsConversionTable.add(new Pair<String, String>("INST", "Instability"));
+        metricsConversionTable.put("EfferentCouplings", "EFC");
+        metricsConversionTable.put("AfferentCouplings", "AFC");
+        metricsConversionTable.put("Instability", "INST");
         // ProjectStatistics Module
-        metricsConversionTable.add(new Pair<String, String>("NUMMOD", "ModuleCount"));
-        metricsConversionTable.add(new Pair<String, String>("AVGLMOD", "AverageLOCperModule"));
+        metricsConversionTable.put("ModuleCount", "NUMMOD");
+        metricsConversionTable.put("AverageLOCperModule", "AVGLMOD");
         // ObjectOrientedProjectStatistics Module
-        metricsConversionTable.add(new Pair<String, String>("AVGMETCL", "AverageMethodsPerClass"));
-        metricsConversionTable.add(new Pair<String, String>("NUMENUM", "NumberOfEnumerations"));
-        metricsConversionTable.add(new Pair<String, String>("NUMIFACE", "NumberOfInterfaces"));
-        metricsConversionTable.add(new Pair<String, String>("NUMCL", "NumberOfClasses"));
+        metricsConversionTable.put("AverageMethodsPerClass", "AVGMETCL");
+        metricsConversionTable.put("NumberOfEnumerations", "NUMENUM");
+        metricsConversionTable.put("NumberOfInterfaces", "NUMIFACE");
+        metricsConversionTable.put("NumberOfClasses", "NUMCL");
         // WeigthedMethodsPerClass Module
-        metricsConversionTable.add(new Pair<String, String>("WMC", "WeigthedMethodsPerClass"));
+        metricsConversionTable.put("WeigthedMethodsPerClass", "WMC");
 
         clmtPlugins = new String[] { "NumberOfChildren",
                                      "DepthOfInheritanceTree", 
@@ -210,6 +213,11 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         Pattern p = Pattern.compile(".*java$");
 
         List<ProjectFile> pfs = ProjectFile.getFilesForVersion(pv, p);
+        Map<String, ProjectFile> pfmap = new HashMap<String, ProjectFile>();
+        
+        for ( ProjectFile pfile : pfs ) {
+            pfmap.put(pfile.getFileName(), pfile);
+        }
 
         if (pfs.isEmpty()) {
             warn(pv, "No Supported files found (.*java$)");
@@ -245,11 +253,6 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
         task.addSources(s);
 
-        /* Add metrics to the calculation task */
-        for (String plugin : clmtPlugins) {
-            task.addCalculation(new Calculation(plugin, "JavaSource"));
-        }
-
         /* Parse files and store them to the parsed file cache */
         info(pv, "Starting conversion to IXR");
         
@@ -262,17 +265,16 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         info(pv, "Sources converted to IXR (Time elapsed: " + (end - start) + " msecs)");
 
         /* Run metrics against the source files */
-        MetricList mlist = MetricList.getInstance();
+        MetricList mlist =  MetricList.getInstance();
         MetricResultList mrlist = new MetricResultList();
 
-        for (Calculation calc : task.getCalculations()) {
+        for ( String cp : clmtPlugins ) {
             try {
-                start = System.currentTimeMillis();                
-                Source source = task.getSourceById(calc.getID());
-                org.clmt.metrics.Metric metric = mlist.getMetric(calc.getName(), source);
+                start = System.currentTimeMillis();
+                org.clmt.metrics.Metric metric = mlist.getMetric(cp, s);
                 mrlist.merge(metric.calculate());
-                end = System.currentTimeMillis();                
-                info(pv, "Calculation of " + calc.getName() + " completed (Time elapsed: " + (end - start) + " msecs)");
+                end = System.currentTimeMillis();
+                info(pv, "Calculation of " + cp + " completed (Time elapsed: " + (end - start) + " msecs)");
             } catch (MetricInstantiationException mie) {
                 warn(pv, "Could not load plugin : " + mie.getMessage());
             }
@@ -285,16 +287,13 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             lmr = mrlist.getResultsByFilename(file);
 
             /* Find project file in this version's project files */
-            ProjectFile pf = null;
-
-            for (ProjectFile pf1 : pfs) {
-                if (pf1.getFileName().compareTo(file) == 0) {
-                    pf = pf1;
-                    break;
-                }
-            }
+            ProjectFile pf = pfmap.get(file);
 
             for (MetricResult mr : lmr) {
+                if(!metricsConversionTable.containsKey(mr.getMeasurementName())) {
+                    continue;
+                }
+                
                 Metric m = Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));
 
                 if (m == null) {
@@ -429,12 +428,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     }
 
     private static String getAlitheiaMetricName(String clmtmetric) {
-        for (Pair<String, String> p : metricsConversionTable) {
-            if (p.second.equals(clmtmetric))
-                return p.first;
-        }
-
-        return null;
+        return CLMTImplementation.metricsConversionTable.get(clmtmetric);
     }
     
     private String message(ProjectVersion pv, String msg) {

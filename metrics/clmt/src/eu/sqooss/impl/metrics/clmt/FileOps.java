@@ -34,6 +34,7 @@ package eu.sqooss.impl.metrics.clmt;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import eu.sqooss.service.db.ProjectFile;
@@ -55,7 +56,7 @@ public class FileOps {
     }    
     
     public void setProjectFiles(List<ProjectFile> pfl) {
-        this.pfl = pfl;
+        this.pfl = Arrays.asList(pfl.toArray(new ProjectFile[] {}));
     }
     
     public void setFDS(FDSService fds) {
