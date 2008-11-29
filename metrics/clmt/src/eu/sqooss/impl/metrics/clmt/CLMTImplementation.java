@@ -249,9 +249,13 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         }
 
         /* Parse files and store them to the parsed file cache */
-        task.toIXR();
+        info(pv, "Starting conversion to IXR");
         
-        info(pv, "Source data converted to IXR");
+        long start = System.currentTimeMillis();
+            task.toIXR();
+        long end = System.currentTimeMillis();
+        
+        info(pv, "Sources converted to IXR (Time elapsed: " + (end - start) + " msecs)");
 
         /* Run metrics against the source files */
         MetricList mlist = MetricList.getInstance();
@@ -259,14 +263,14 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
         for (Calculation calc : task.getCalculations()) {
             try {
+                start = System.currentTimeMillis();                
                 Source source = task.getSourceById(calc.getID());
-                long start = System.currentTimeMillis();
                 org.clmt.metrics.Metric metric = mlist.getMetric(calc.getName(), source);
-                long end = System.currentTimeMillis();
                 mrlist.merge(metric.calculate());
-                info(pv, "Calculation " + calc.getName() + " completed (Time elapsed: " + (end - start) + " msecs");
+                end = System.currentTimeMillis();                
+                info(pv, "Calculation of " + calc.getName() + " completed (Time elapsed: " + (end - start) + " msecs)");
             } catch (MetricInstantiationException mie) {
-                warn(pv, "Could not load plugin :" + mie.getMessage());
+                warn(pv, "Could not load plugin : " + mie.getMessage());
             }
         }
 
@@ -303,7 +307,8 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     ProjectFileMeasurement pfm = new ProjectFileMeasurement();
                     pfm.setMetric(m);
                     pfm.setProjectFile(pf);
-                    pfm.setResult(mr.getValue());                   
+                    pfm.setResult(mr.getValue());
+                    
 
                     db.addRecord(pfm);
                 } else {

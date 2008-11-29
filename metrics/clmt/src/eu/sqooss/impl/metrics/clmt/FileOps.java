@@ -47,9 +47,7 @@ import eu.sqooss.service.fds.FDSService;
  *
  */
 public class FileOps {
-    
-    private static final FileOps instance;
-    
+    private static final FileOps instance;    
     private ThreadLocal<FDSService> fds = new ThreadLocal<FDSService>();
     private ThreadLocal<List<ProjectFile>> pfl = new ThreadLocal<List<ProjectFile>>();
     
