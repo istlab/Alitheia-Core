@@ -67,19 +67,16 @@ public class FileOps {
                 return pf;
             }
         }
+        
         return null;
     }
     
     public boolean exists(String path) {
-        //System.err.println("CLMT.FileOps.exists:" + path);
-        if (getFileForPath(path) != null)
-                return true;
-        
-        return false;
+        return (getFileForPath(path) != null);
     }
     
     public boolean isDirectory(String path) {
-        System.err.println("CLMT.FileOps.isDirectory:" + path);
+        //System.err.println("CLMT.FileOps.isDirectory:" + path);
         
         ProjectFile pf = getFileForPath(path);
         
@@ -97,7 +94,7 @@ public class FileOps {
      * in the directory. The path is not appended. 
      */
     public List<String> getDirectories(String path) {
-        System.err.println("CLMT.FileOps.getDirectories:" + path);
+        //System.err.println("CLMT.FileOps.getDirectories:" + path);
         
         return null;
     }
@@ -109,7 +106,7 @@ public class FileOps {
      * in the directory. The path is not appended.
      */
     public List<String> listFiles(String path) {
-        System.err.println("CLMT.FileOps.listFiles:" + path);
+        //System.err.println("CLMT.FileOps.listFiles:" + path);
         return null;
     }
     

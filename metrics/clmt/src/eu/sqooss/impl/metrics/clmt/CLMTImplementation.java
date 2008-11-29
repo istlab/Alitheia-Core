@@ -68,310 +68,328 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.util.Pair;
 
 /**
- * The main implementation 
+ * The main implementation
  * 
  * @author Georgios Gousios (gousiosg@aueb.gr)
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
- *
+ * 
  */
 public class CLMTImplementation extends AbstractMetric implements CLMT {
     private AlitheiaCore core;
     private static List<Pair<String, String>> metricsConversionTable;
     private static String[] clmtPlugins;
-    
+
     static {
         metricsConversionTable = new ArrayList<Pair<String, String>>();
-        //NumberOfChildren Module
+        // NumberOfChildren Module
         metricsConversionTable.add(new Pair<String, String>("NOCH", "NumberOfChildren"));
-        //DepthOfInheritanceTree module
+        // DepthOfInheritanceTree module
         metricsConversionTable.add(new Pair<String, String>("DIT", "DepthOfInheritanceTree"));
-        //NativeMethodsMetrics module
+        // JavaMetrics module
         metricsConversionTable.add(new Pair<String, String>("NMPV", "NativeMethodsPerProject"));
         metricsConversionTable.add(new Pair<String, String>("NMPC", "NativeMethodsPerCodeUnit"));
-        //Instability Module
-        metricsConversionTable.add(new Pair<String, String>("EFC",  "EfferentCouplings"));
-        metricsConversionTable.add(new Pair<String, String>("AFC",  "AfferentCouplings"));
+        metricsConversionTable.add(new Pair<String, String>("SCPV", "StaticClassesPerProject"));
+        // Instability Module
+        metricsConversionTable.add(new Pair<String, String>("EFC", "EfferentCouplings"));
+        metricsConversionTable.add(new Pair<String, String>("AFC", "AfferentCouplings"));
         metricsConversionTable.add(new Pair<String, String>("INST", "Instability"));
-        //ProjectStatistics Module
+        // ProjectStatistics Module
         metricsConversionTable.add(new Pair<String, String>("NUMMOD", "ModuleCount"));
         metricsConversionTable.add(new Pair<String, String>("AVGLMOD", "AverageLOCperModule"));
-        //ObjectOrientedProjectStatistics Module
+        // ObjectOrientedProjectStatistics Module
         metricsConversionTable.add(new Pair<String, String>("AVGMETCL", "AverageMethodsPerClass"));
         metricsConversionTable.add(new Pair<String, String>("NUMENUM", "NumberOfEnumerations"));
         metricsConversionTable.add(new Pair<String, String>("NUMIFACE", "NumberOfInterfaces"));
         metricsConversionTable.add(new Pair<String, String>("NUMCL", "NumberOfClasses"));
-        //WeigthedMethodsPerClass Module
+        // WeigthedMethodsPerClass Module
         metricsConversionTable.add(new Pair<String, String>("WMC", "WeigthedMethodsPerClass"));
-        
-        clmtPlugins = new String[] { "NumberOfChildren", 
-        							 "DepthOfInheritanceTree",
-        							 "NativeMethodsMetrics",
-        							 "Instability",
-        							 "ProjectStatistics",
-        							 "ObjectOrientedProjectStatistics",
-        							 "WeigthedMethodsPerClass" };
+
+        clmtPlugins = new String[] { "NumberOfChildren",
+                                     "DepthOfInheritanceTree", 
+                                     "JavaMetrics",
+                                     "Instability",
+                                     "ProjectStatistics",
+                                     "ObjectOrientedProjectStatistics", 
+                                     "WeigthedMethodsPerClass" };
     }
-    
+
     public CLMTImplementation(BundleContext bc) {
-        super(bc);      
+        super(bc);
         this.addActivationType(ProjectVersion.class);
-        
+
         this.addMetricActivationType("NOCH", ProjectVersion.class);
-        this.addMetricActivationType("DIT",  ProjectFile.class);
+        this.addMetricActivationType("DIT", ProjectFile.class);
+        
         this.addMetricActivationType("NMPV", ProjectVersion.class);
         this.addMetricActivationType("NMPC", ProjectFile.class);
-        
+        this.addMetricActivationType("SCPV", ProjectFile.class);
+
         this.addMetricActivationType("EFC", ProjectFile.class);
-        this.addMetricActivationType("AFC",ProjectFile.class);
-        this.addMetricActivationType("INST",  ProjectFile.class);
-        
-        this.addMetricActivationType("NUMMOD",ProjectVersion.class);
-        this.addMetricActivationType("AVGLMOD",  ProjectVersion.class);
-        
-        this.addMetricActivationType("AVGMETCL",ProjectVersion.class);
-        this.addMetricActivationType("NUMENUM",  ProjectVersion.class);
-        this.addMetricActivationType("NUMIFACE",ProjectVersion.class);
-        this.addMetricActivationType("NUMCL",  ProjectVersion.class);
-        
-        this.addMetricActivationType("WMC",  ProjectFile.class);
-        
+        this.addMetricActivationType("AFC", ProjectFile.class);
+        this.addMetricActivationType("INST", ProjectFile.class);
+
+        this.addMetricActivationType("NUMMOD", ProjectVersion.class);
+        this.addMetricActivationType("AVGLMOD", ProjectVersion.class);
+
+        this.addMetricActivationType("AVGMETCL", ProjectVersion.class);
+        this.addMetricActivationType("NUMENUM", ProjectVersion.class);
+        this.addMetricActivationType("NUMIFACE", ProjectVersion.class);
+        this.addMetricActivationType("NUMCL", ProjectVersion.class);
+
+        this.addMetricActivationType("WMC", ProjectFile.class);
+
         ServiceReference sr = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(sr);
     }
-    
+
     public boolean install() {
         boolean result = super.install();
         if (result) {
-            result &= super.addSupportedMetrics("Number of Children",
-                    							"NOCH", 
-                    							MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Number of Children", 
+                                                "NOCH",
+                                                MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics("Depth Of Inheritance Tree",
-                    							"DIT",
-                    							MetricType.Type.SOURCE_CODE);
+                                                "DIT", 
+                                                MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics("Number of Native Methods",
-                    							"NMPV",
-                    							MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Number of Native Methods Per Class",
-                    							"NMPC",
-                    							MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Efferent Couplings",
-                    							"EFC", 
-                    							MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics("Afferent Couplings",
-                    							"AFC", 
-                    							MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics("Instability Metric",
-                    							"INST",
-                    							MetricType.Type.SOURCE_FOLDER);
+                                                "NMPV", 
+                                                MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics("Number of Static Classes", 
+                                                "SCPV", 
+                                                MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics("Number of Native Methods Per Class", 
+                                                "NMPC",
+                                                MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Efferent Couplings", 
+                                                "EFC",
+                                                MetricType.Type.SOURCE_FOLDER);
+            result &= super.addSupportedMetrics("Afferent Couplings", 
+                                                "AFC",
+                                                MetricType.Type.SOURCE_FOLDER);
+            result &= super.addSupportedMetrics("Instability Metric", 
+                                                "INST",
+                                                MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics("Number of Modules/Namespaces",
-                    							"NUMMOD",
-                    							MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Average Lines of Code per Module",
-                    							"AVGLMOD",
-                    							MetricType.Type.PROJECT_WIDE);
+                                                "NUMMOD", 
+                                                MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics("Average Lines of Code per Module", 
+                                                "AVGLMOD",
+                                                MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Average Methods per Class",
-                    							"AVGMETCL",
-                    							MetricType.Type.PROJECT_WIDE);
+                                                "AVGMETCL", 
+                                                MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Number of Enumerations",
-                    							"NUMENUM",
-                    							MetricType.Type.PROJECT_WIDE);
+                                                "NUMENUM", 
+                                                MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Number of Interfaces",
-                    							"NUMIFACE",
-                    							MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Number of Classes",
-                    							"NUMCL",
-                    							MetricType.Type.PROJECT_WIDE);
+                                                "NUMIFACE", 
+                                                MetricType.Type.PROJECT_WIDE);
+            result &= super.addSupportedMetrics("Number of Classes", 
+                                                "NUMCL",
+                                                MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics("Weighted Methods per Class",
-                    							"WMC", 
-                    							MetricType.Type.SOURCE_CODE);
+                                                "WMC", 
+                                                MetricType.Type.SOURCE_CODE);
         }
-        
+
         return result;
     }
-    
-    public void run(ProjectVersion pv) {  
+
+    public void run(ProjectVersion pv) {
         FDSService fds = core.getFDSService();
         Pattern p = Pattern.compile(".*java$");
-        
+
         List<ProjectFile> pfs = ProjectFile.getFilesForVersion(pv, p);
-        
+
         if (pfs.isEmpty()) {
-            /*No supported files found*/
+            warn(pv, "No Supported files found (.*java$)");
             return;
         }
-        
+
         FileOps.getInstance().setProjectFiles(pfs);
         FileOps.getInstance().setFDS(fds);
-        
-        /*CLMT Init*/
+
+        /* CLMT Init */
         CLMTProperties clmtProp = CLMTProperties.getInstance();
         clmtProp.setLogger(new AlitheiaLoggerAdapter(this, pv));
         clmtProp.setFileType(new AlitheiaFileAdapter(""));
-        MetricList.getInstance();
-        
-        /*Construct a calculation task*/
+
+        /* Construct a calculation task */
         Task task = new Task("JavaCalcTask");
         Source s = null;
-        
+
         try {
             s = new Source("JavaSource", "Java");
         } catch (TaskException e) {
-            warn(pv, "Error constructing Java calculation task:" 
-                    + e.getMessage());
+            warn(pv, "Error constructing Java calculation task:" + e.getMessage());
         }
-        
-        /*Add source files to the calculation task*/
+
+        /* Add source files to the calculation task */
         for (ProjectFile pf : pfs) {
             s.addFile(new Filename(pf.getFileName()));
         }
         
+        info(pv, "Found " + s.getFileCount() + " files");
+
         task.addSources(s);
-        
-        /*Add metrics to the calculation task*/        
+
+        /* Add metrics to the calculation task */
         for (String plugin : clmtPlugins) {
             task.addCalculation(new Calculation(plugin, "JavaSource"));
         }
-        
-        /*Parse files and store them to the parsed file cache*/
+
+        /* Parse files and store them to the parsed file cache */
         task.toIXR();
-            
-        /*Run metrics against the source files*/
+        
+        info(pv, "Source data converted to IXR");
+
+        /* Run metrics against the source files */
         MetricList mlist = MetricList.getInstance();
         MetricResultList mrlist = new MetricResultList();
-        
+
         for (Calculation calc : task.getCalculations()) {
             try {
                 Source source = task.getSourceById(calc.getID());
-                org.clmt.metrics.Metric metric = mlist.getMetric(calc.getName(),source);
+                long start = System.currentTimeMillis();
+                org.clmt.metrics.Metric metric = mlist.getMetric(calc.getName(), source);
+                long end = System.currentTimeMillis();
                 mrlist.merge(metric.calculate());
+                info(pv, "Calculation " + calc.getName() + " completed (Time elapsed: " + (end - start) + " msecs");
             } catch (MetricInstantiationException mie) {
                 warn(pv, "Could not load plugin :" + mie.getMessage());
             }
         }
-        
+
         String[] keys = mrlist.getFilenames();
         MetricResult[] lmr = null;
-        
+
         for (String file : keys) {
             lmr = mrlist.getResultsByFilename(file);
-            
-            /*Find project file in this version's project files*/
+
+            /* Find project file in this version's project files */
             ProjectFile pf = null;
-            
+
             for (ProjectFile pf1 : pfs) {
-                if (pf1.getFileName().equals(file)) {
+                if (pf1.getFileName().compareTo(file) == 0) {
                     pf = pf1;
                     break;
                 }
             }
-            
+
             for (MetricResult mr : lmr) {
-                Metric m =  Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));                
-                
+                Metric m = Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));
+
                 if (m == null) {
-                	continue;
+                    warn(pv, "Metric " + mr.getMeasurementName() + " not found. Skipping.");
+                    continue;
                 }
-                
-                if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {                    
+
+                if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {
                     if (pf == null) {
-                        warn(pv, "Cannot find file:" + file + 
-                                 " Result not stored.");
+                        warn(pv, "Cannot find file:" + file + " Result not stored.");
                         continue;
                     }
-                    
+
                     ProjectFileMeasurement pfm = new ProjectFileMeasurement();
                     pfm.setMetric(m);
                     pfm.setProjectFile(pf);
                     pfm.setResult(mr.getValue());
-                    
+
                     db.addRecord(pfm);
                 } else {
                     ProjectVersionMeasurement meas = new ProjectVersionMeasurement();
                     meas.setProjectVersion(pv);
                     meas.setResult(mr.getValue());
                     meas.setMetric(m);
-                    
+
                     db.addRecord(meas);
                 }
-                
+
                 markEvaluation(m, pv);
             }
         }
     }
-    
+
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-        
+
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectVersion", a);
         filter.put("metric", m);
-        List<ProjectVersionMeasurement> measurements =
+        List<ProjectVersionMeasurement> measurements = 
             db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
 
-        if (! measurements.isEmpty()) {
+        if (!measurements.isEmpty()) {
             for (ProjectVersionMeasurement meas : measurements) {
                 Integer value = Integer.parseInt(meas.getResult());
-                
-                ResultEntry entry =  new ResultEntry(value, 
-                									 ResultEntry.MIME_TYPE_TYPE_INTEGER, 
-                									 m.getMnemonic());
-                
+
+                ResultEntry entry = new ResultEntry(value,
+                        ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
+
                 results.add(entry);
             }
+            
+            return results;
         }
-        
-        return results;
+
+        return null;
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-        
+
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectFile", a);
         filter.put("metric", m);
-        List<ProjectFileMeasurement> measurements =
+        List<ProjectFileMeasurement> measurements = 
             db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
 
-        if (! measurements.isEmpty()) {
+        if (!measurements.isEmpty()) {
             for (ProjectFileMeasurement pfm : measurements) {
                 Integer value = Integer.parseInt(pfm.getResult());
-                ResultEntry entry = new ResultEntry(value, 
-                        ResultEntry.MIME_TYPE_TYPE_INTEGER, 
-                        m.getMnemonic());
+                ResultEntry entry = new ResultEntry(value,
+                        ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
 
                 results.add(entry);
-            }            
+            }
+            
+            return results;
         }
-        
-        return results;
+
+        return null;
     }
-    
+
     public void run(ProjectFile a) {
-        //Nothing to do, the metric is activated by project versions only
+        // Nothing to do, the metric is activated by project versions only
         return;
     }
-    
+
     private static String getAlitheiaMetricName(String clmtmetric) {
         for (Pair<String, String> p : metricsConversionTable) {
             if (p.second.equals(clmtmetric))
                 return p.first;
         }
-        
+
         return null;
     }
     
+    public void info(ProjectVersion pv, String msg) {
+        log.warn("CLMT (" + pv.getProject().getName() + " - "
+                + pv.getRevisionId() + "):" + msg);        
+    }
+
     public void warn(ProjectVersion pv, String msg) {
-        log.warn("CLMT (" + pv.getProject().getName() + " - " 
+        log.warn("CLMT (" + pv.getProject().getName() + " - "
                 + pv.getRevisionId() + "):" + msg);
     }
-    
+
     public void error(ProjectVersion pv, String msg) {
-        log.error("CLMT (" + pv .getProject().getName() + " - " 
+        log.error("CLMT (" + pv.getProject().getName() + " - "
                 + pv.getRevisionId() + "):" + msg);
     }
-    
+
     public Logger getLogger() {
         return log;
     }
