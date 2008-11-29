@@ -47,28 +47,23 @@ import eu.sqooss.service.fds.FDSService;
  *
  */
 public class FileOps {
-    private static final FileOps instance;    
-    private ThreadLocal<FDSService> fds = new ThreadLocal<FDSService>();
-    private ThreadLocal<List<ProjectFile>> pfl = new ThreadLocal<List<ProjectFile>>();
+    private FDSService fds;
+    private List<ProjectFile> pfl;
     
-    static {
-        instance = new FileOps();
+    public FileOps() {
+        
+    }    
+    
+    public void setProjectFiles(List<ProjectFile> pfl) {
+        this.pfl = pfl;
     }
     
-    public static FileOps getInstance() {
-        return instance;
-    }
-    
-    public synchronized void setProjectFiles(List<ProjectFile> pfl) {
-        this.pfl.set(pfl);
-    }
-    
-    public synchronized void setFDS(FDSService fds) {
-        this.fds.set(fds);
+    public void setFDS(FDSService fds) {
+        this.fds = fds;
     }
 
     private ProjectFile getFileForPath(String path) {
-        for (ProjectFile pf : pfl.get()) {
+        for (ProjectFile pf : pfl) {
             if (pf.getFileName().equals(path)) {
                 return pf;
             }
@@ -117,6 +112,6 @@ public class FileOps {
         //System.err.println("CLMT.FileOps.getFileContents" + ":" + path);
         ProjectFile pf = getFileForPath(path);
         
-        return fds.get().getFileContents(pf);
+        return fds.getFileContents(pf);
     }
 }

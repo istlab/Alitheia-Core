@@ -48,9 +48,9 @@ public final class AlitheiaFileAdapter extends CLMTFile {
     private String path;
     private FileOps fileOps;
      
-    public AlitheiaFileAdapter(String path) {
+    public AlitheiaFileAdapter(String path, FileOps fops) {
         this.path = path;
-        this.fileOps = FileOps.getInstance();
+        this.fileOps = fops;
     }
     
     @Override
@@ -135,7 +135,7 @@ public final class AlitheiaFileAdapter extends CLMTFile {
 
     @Override
     public CLMTFile newFile(String path) {
-        return new AlitheiaFileAdapter(path);
+        return new AlitheiaFileAdapter(path, fileOps);
     }
 
 }

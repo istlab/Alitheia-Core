@@ -216,13 +216,15 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             return;
         }
 
-        FileOps.getInstance().setProjectFiles(pfs);
-        FileOps.getInstance().setFDS(fds);
+        FileOps fops = new FileOps();
+        
+        fops.setProjectFiles(pfs);
+        fops.setFDS(fds);
 
         /* CLMT Init */
         CLMTProperties clmtProp = CLMTProperties.getInstance();
         clmtProp.setLogger(new AlitheiaLoggerAdapter(this, pv));
-        clmtProp.setFileType(new AlitheiaFileAdapter(""));
+        clmtProp.setFileType(new AlitheiaFileAdapter("", fops));
 
         /* Construct a calculation task */
         Task task = new Task("JavaCalcTask");
@@ -252,7 +254,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         info(pv, "Starting conversion to IXR");
         
         long start = System.currentTimeMillis();
-            task.toIXR();
+        task.toIXR();
         long end = System.currentTimeMillis();
         
         info(pv, "Sources converted to IXR (Time elapsed: " + (end - start) + " msecs)");
@@ -308,7 +310,6 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     pfm.setMetric(m);
                     pfm.setProjectFile(pf);
                     pfm.setResult(mr.getValue());
-                    
 
                     db.addRecord(pfm);
                 } else {

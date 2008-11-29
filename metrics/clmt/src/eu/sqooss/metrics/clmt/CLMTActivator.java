@@ -44,9 +44,9 @@ public class CLMTActivator implements BundleActivator {
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
-
         registration = bc.registerService(CLMTImplementation.class.getName(),
-                new CLMTImplementation(bc), null);
+                                          new CLMTImplementation(bc), 
+                                          null);
     }
 
     public void stop(BundleContext context) throws Exception {
