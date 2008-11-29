@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.clmt.cache.CacheMap;
 import org.clmt.configuration.Calculation;
 import org.clmt.configuration.Filename;
 import org.clmt.configuration.Source;
@@ -231,6 +232,9 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
         /* CLMT Init */
         CLMTProperties clmtProp = CLMTProperties.getInstance();
+        // TODO: for the time begin, you are going to flush 
+        // caches by hand
+        CacheMap cacheMap = CacheMap.getInstance(); 
         clmtProp.setLogger(new AlitheiaLoggerAdapter(this, pv));
         clmtProp.setFileType(new AlitheiaFileAdapter("", fops));
 
@@ -279,6 +283,8 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                 warn(pv, "Could not load plugin : " + mie.getMessage());
             }
         }
+        
+        cacheMap.clear();
 
         String[] keys = mrlist.getFilenames();
         MetricResult[] lmr = null;
