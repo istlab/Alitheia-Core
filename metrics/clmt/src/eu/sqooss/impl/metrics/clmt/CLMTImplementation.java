@@ -132,7 +132,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         
         this.addMetricActivationType("NMPV", ProjectVersion.class);
         this.addMetricActivationType("NMPC", ProjectFile.class);
-        this.addMetricActivationType("SCPV", ProjectFile.class);
+        this.addMetricActivationType("SCPV", ProjectVersion.class);
 
         this.addMetricActivationType("EFC", ProjectFile.class);
         this.addMetricActivationType("AFC", ProjectFile.class);
