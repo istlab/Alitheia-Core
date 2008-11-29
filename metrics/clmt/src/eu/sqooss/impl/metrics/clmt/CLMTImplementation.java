@@ -116,7 +116,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
         clmtPlugins = new String[] { "NumberOfChildren",
                                      "DepthOfInheritanceTree", 
-                                     "JavaMetrics",
+                                     //"JavaMetrics",
                                      //"Instability",
                                      "ProjectStatistics",
                                      "ObjectOrientedProjectStatistics", 
@@ -254,7 +254,9 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         info(pv, "Starting conversion to IXR");
         
         long start = System.currentTimeMillis();
-        task.toIXR();
+        synchronized (task) {
+            task.toIXR();
+        }
         long end = System.currentTimeMillis();
         
         info(pv, "Sources converted to IXR (Time elapsed: " + (end - start) + " msecs)");
@@ -435,19 +437,24 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         return null;
     }
     
+    private String message(ProjectVersion pv, String msg) {
+        String s = "CLMT (" + pv.getProject().getName() + " - " 
+                            + pv.getRevisionId() + " - " 
+                            + Thread.currentThread().getId() + "):" + msg;
+        
+        return s;
+    }
+    
     public void info(ProjectVersion pv, String msg) {
-        log.warn("CLMT (" + pv.getProject().getName() + " - "
-                + pv.getRevisionId() + "):" + msg);        
+        log.warn(message(pv, msg));        
     }
 
     public void warn(ProjectVersion pv, String msg) {
-        log.warn("CLMT (" + pv.getProject().getName() + " - "
-                + pv.getRevisionId() + "):" + msg);
+        log.warn(message(pv, msg));
     }
 
     public void error(ProjectVersion pv, String msg) {
-        log.error("CLMT (" + pv.getProject().getName() + " - "
-                + pv.getRevisionId() + "):" + msg);
+        log.error(message(pv, msg));
     }
 
     public Logger getLogger() {
