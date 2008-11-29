@@ -35,6 +35,7 @@ package eu.sqooss.impl.metrics.clmt;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.clmt.configuration.Calculation;
@@ -43,32 +44,41 @@ import org.clmt.configuration.Source;
 import org.clmt.configuration.Task;
 import org.clmt.configuration.TaskException;
 import org.clmt.configuration.properties.CLMTProperties;
+
 import org.clmt.metrics.MetricInstantiationException;
 import org.clmt.metrics.MetricList;
 import org.clmt.metrics.MetricNameCategory;
 import org.clmt.metrics.MetricResult;
 import org.clmt.metrics.MetricResultList;
+
 import org.clmt.sqooss.AlitheiaFileAdapter;
 import org.clmt.sqooss.AlitheiaLoggerAdapter;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+
 import eu.sqooss.metrics.clmt.CLMT;
+
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
+
 import eu.sqooss.service.fds.FDSService;
+
 import eu.sqooss.service.logging.Logger;
+
 import eu.sqooss.service.util.Pair;
 
 /**
- * The main implementation
+ * The main implementation of CLMT Plug-in
  * 
  * @author Georgios Gousios (gousiosg@aueb.gr)
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
@@ -107,7 +117,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         clmtPlugins = new String[] { "NumberOfChildren",
                                      "DepthOfInheritanceTree", 
                                      "JavaMetrics",
-                                     "Instability",
+                                     //"Instability",
                                      "ProjectStatistics",
                                      "ObjectOrientedProjectStatistics", 
                                      "WeigthedMethodsPerClass" };
@@ -166,7 +176,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             result &= super.addSupportedMetrics("Afferent Couplings", 
                                                 "AFC",
                                                 MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics("Instability Metric", 
+            result &= super.addSupportedMetrics("Instability Metric",
                                                 "INST",
                                                 MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics("Number of Modules/Namespaces",
@@ -293,7 +303,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     ProjectFileMeasurement pfm = new ProjectFileMeasurement();
                     pfm.setMetric(m);
                     pfm.setProjectFile(pf);
-                    pfm.setResult(mr.getValue());
+                    pfm.setResult(mr.getValue());                   
 
                     db.addRecord(pfm);
                 } else {
@@ -311,21 +321,43 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     }
 
     public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
+        ResultResolver rr = new ResultResolver();
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
 
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectVersion", a);
         filter.put("metric", m);
+        
         List<ProjectVersionMeasurement> measurements = 
             db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
+        
+        if (measurements == null) { 
+            return null;
+        }
 
         if (!measurements.isEmpty()) {
             for (ProjectVersionMeasurement meas : measurements) {
-                Integer value = Integer.parseInt(meas.getResult());
+                ResultEntry entry = null;                
+                String type = rr.identify(meas.getResult());
+                
+                if(type.compareTo(ResultEntry.MIME_TYPE_TYPE_INTEGER) == 0) {                
+                    Integer value = Integer.parseInt(meas.getResult());
 
-                ResultEntry entry = new ResultEntry(value,
-                        ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
+                    entry = new ResultEntry(value,
+                                            ResultEntry.MIME_TYPE_TYPE_INTEGER, 
+                                            m.getMnemonic());
+                } else if (type.compareTo(ResultEntry.MIME_TYPE_TYPE_DOUBLE) == 0) {
+                   Double value = Double.parseDouble(meas.getResult());
+
+                   entry = new ResultEntry(value,
+                                           ResultEntry.MIME_TYPE_TYPE_DOUBLE, 
+                                           m.getMnemonic());
+                } else {
+                    entry = new ResultEntry(meas.getResult(),
+                                            ResultEntry.MIME_TYPE_TEXT_PLAIN,
+                                            m.getMnemonic());
+                }
 
                 results.add(entry);
             }
@@ -337,6 +369,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
+        ResultResolver rr = new ResultResolver();
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
 
         // Search for a matching project file measurement
@@ -345,12 +378,33 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         filter.put("metric", m);
         List<ProjectFileMeasurement> measurements = 
             db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
+        
+        if(measurements == null) { 
+            return null; 
+        }
 
         if (!measurements.isEmpty()) {
             for (ProjectFileMeasurement pfm : measurements) {
-                Integer value = Integer.parseInt(pfm.getResult());
-                ResultEntry entry = new ResultEntry(value,
-                        ResultEntry.MIME_TYPE_TYPE_INTEGER, m.getMnemonic());
+                ResultEntry entry = null;                
+                String type = rr.identify(pfm.getResult());
+                
+                if(type.compareTo(ResultEntry.MIME_TYPE_TYPE_INTEGER) == 0) {                
+                    Integer value = Integer.parseInt(pfm.getResult());
+
+                    entry = new ResultEntry(value,
+                                            ResultEntry.MIME_TYPE_TYPE_INTEGER, 
+                                            m.getMnemonic());
+                } else if (type.compareTo(ResultEntry.MIME_TYPE_TYPE_DOUBLE) == 0) {
+                   Double value = Double.parseDouble(pfm.getResult());
+
+                   entry = new ResultEntry(value,
+                                           ResultEntry.MIME_TYPE_TYPE_DOUBLE, 
+                                           m.getMnemonic());
+                } else {
+                    entry = new ResultEntry(pfm.getResult(),
+                                            ResultEntry.MIME_TYPE_TEXT_PLAIN,
+                                            m.getMnemonic());
+                }
 
                 results.add(entry);
             }
@@ -395,5 +449,28 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     }
 }
 
-// vi: ai nosi sw=4 ts=4 expandtab
-
+class ResultResolver {
+    private Pattern intPattern;
+    private Pattern decPattern;
+    
+    public ResultResolver() { 
+        intPattern = Pattern.compile("[0-9]+");
+        decPattern = Pattern.compile("[0-9]+\\.[0-9]+");
+    }
+    
+    public String identify(String s) {
+        Matcher m = intPattern.matcher(s);
+        if(m.matches()) { 
+            return ResultEntry.MIME_TYPE_TYPE_INTEGER;
+        }
+        //
+        m = decPattern.matcher(s);
+        if(m.matches()) {
+            return ResultEntry.MIME_TYPE_TYPE_DOUBLE;
+        }
+        
+        // else ... unknown input, treat it as a string
+        
+        return ResultEntry.MIME_TYPE_TEXT_PLAIN;
+    }
+}

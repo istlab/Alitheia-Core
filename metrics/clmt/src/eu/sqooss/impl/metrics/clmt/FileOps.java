@@ -33,11 +33,19 @@
 package eu.sqooss.impl.metrics.clmt;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.fds.FDSService;
 
+/**
+ * File Operations for CLMT plug-in
+ * 
+ * @author Georgios Gousios (gousiosg@aueb.gr)
+ * @author Vassilios Karakoidas (bkarak@aueb.gr)
+ *
+ */
 public class FileOps {
     
     private static final FileOps instance;
@@ -80,10 +88,7 @@ public class FileOps {
         
         ProjectFile pf = getFileForPath(path);
         
-        if ((pf != null) && pf.getIsDirectory() )
-            return true;
-        
-        return false;
+        return ((pf != null) && pf.getIsDirectory() );
     }
     
     /**
@@ -96,7 +101,7 @@ public class FileOps {
     public List<String> getDirectories(String path) {
         //System.err.println("CLMT.FileOps.getDirectories:" + path);
         
-        return null;
+        return new ArrayList<String>();
     }
     
     /**
