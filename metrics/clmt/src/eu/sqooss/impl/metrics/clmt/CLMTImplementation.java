@@ -342,9 +342,12 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
                     db.addRecord(meas);
                 }
-
-                markEvaluation(m, pv);
             }
+        }
+        
+        for (String mnem : metricsConversionTable.values()) {
+            Metric m = Metric.getMetricByMnemonic(mnem);
+            markEvaluation(m, pv);
         }
     }
 
