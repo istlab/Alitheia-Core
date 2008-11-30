@@ -19,7 +19,9 @@
   <url>http://ikaria.dmst.aueb.gr/metrics/simulation</url>
   <inceptionYear>2008</inceptionYear>
   <description>
-    Simulation Plug-in runs a simulation for a selected project and returns the troves in the form of time series.
+    Simulation Plug-in runs a simulation for a selected project and 
+    returns the troves in the form of time series. Research done by
+    Ioannis Antoniades.
   </description> 
 
   <scm>
@@ -64,20 +66,35 @@
     </plugins>
   </build>
   
+  <repositories>
+    <repository>
+      <id>sqoossrepo</id>
+      <name>SQO-OSS Local Maven Repository</name>
+      <url>file://${basedir}/../../sqoossrepo</url>
+    </repository>
+  </repositories>
+  
+   <distributionManagement>
+    <repository>
+      <id>sqoossdeploy</id>
+      <name>SQO-OSS Deployment Directory</name>
+      <url>file://${basedir}/../../equinox</url>
+    </repository>
+  </distributionManagement>
+  
   <dependencies>
-  	<dependency>
-      <groupId>org.jfree</groupId>
-      <artifactId>jcommon</artifactId>
-      <version>1.0.13</version>
-      <type>jar</type>
-    </dependency>
     <dependency>
       <groupId>org.jfree</groupId>
       <artifactId>chart</artifactId>
       <version>1.0.10</version>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>org.jfree</groupId>
+      <artifactId>jcommon</artifactId>
+      <version>1.0.13</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
-
 </project>
 
