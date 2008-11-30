@@ -50,7 +50,7 @@ import eu.sqooss.metrics.quality.bean.NumericCriterionElement;
  */
 public class QualityModelBean implements Serializable {
 
-	
+	// Nodes
 	public static final String OVERALL_QUALITY = "SQO-OSS Quality Characteristics";
 	public static final String CODE_QUALITY = "Product (Code) Quality";
 	public static final String MAINTAINABLITY = "Maintainability";
@@ -66,7 +66,17 @@ public class QualityModelBean implements Serializable {
 	public static final String MAILLING_LIST_QUALITY = "Mailing list Quality";
 	public static final String DOCUMENTATION_QUALITY = "Documentation Quality";
 
-
+	//Leaves
+	public static final String WEIGHTED_METHOD_PER_CLASS= "Weighted Method per Class";
+	public static final String NUMBER_OF_BASE_CLASSES= "Number of base classes";
+	public static final String CLASS_COMMENTS_FREQUENCY= "Class comments frequency";
+	public static final String COUPLING_BETWEEN_OBJECTS= "Coupling between objects";
+	public static final String LACK_OF_COHESION= "Lack of cohesion";
+	public static final String DEPTH_OF_INHERITANCE_TREE= "Depth of inheritance tree";
+	public static final String NUMBER_OF_CHILDREN= "Documentation Quality";
+	public static final String RESPONSE_FOR_A_CLASS= "Response for a class";
+	public static final String AVERAGE_C_C_PER_CLASS = "Average cyclomatic complexity per class";
+	
     /**
      * The (auto-generated) <code>serialVersionUID</code> for the
      * {@link Serializable} interface.
@@ -209,7 +219,7 @@ public class QualityModelBean implements Serializable {
                     CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
                             Double.POSITIVE_INFINITY, 5.0, 4.0, 2.0 }));
             Criterion lackOfCohesion = new NumericCriterionElement(
-                    "lackOfCohesion", 1.0 / 3.0,
+                    "Lack of cohesion", 1.0 / 3.0,
                     CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
                             Double.POSITIVE_INFINITY, 70.0, 50.0, 30.0 }));
             Criterion depthOfInheritanceTree = new NumericCriterionElement(
@@ -248,7 +258,7 @@ public class QualityModelBean implements Serializable {
 
             // Testability SubCreteria
             Criterion responseForAClass = new NumericCriterionElement(
-                    "Response for a class ", 1.0 / 4.0,
+                    "Response for a class", 1.0 / 4.0,
                     CriterionScale.LessIsBetter, Arrays.asList(new Double[] {
                             Double.POSITIVE_INFINITY, 20.0, 60.0, 100.0 }));
             Criterion averageCCPerClass = new NumericCriterionElement(
