@@ -34,27 +34,24 @@
 
 package eu.sqooss.impl.metrics.simulation;
 
-import org.osgi.framework.BundleContext;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
 
+//import eu.sqooss.core.AlitheiaCore;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.StoredProject;
-
+import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.pa.PluginInfo;
 
 import eu.sqooss.metrics.simulation.SimulationMetric;
+
 import eu.sqooss.metrics.simulation.SimulationXMLParser;
 import eu.sqooss.metrics.simulation.SimulationParameters;
 import eu.sqooss.metrics.simulation.SimulationModel;
@@ -63,23 +60,12 @@ import eu.sqooss.metrics.simulation.db.SimulationMin;
 import eu.sqooss.metrics.simulation.db.SimulationMax;
 import eu.sqooss.metrics.simulation.db.SimulationChi;
 
-//import eu.sqooss.metrics.simulation.GraphDesigner;
-
 public class SimulationImplementation extends AbstractMetric implements
 		SimulationMetric {
 
 	public static final String CONFIG_IC_NOF_SIMULATION_STEPS = "NOF_Simulation_Steps";
 	public static final String CONFIG_IC_NOF_REPETITIONS = "NOF_Repetitions";
 	public static final String CONFIG_IC_TIME_SCALE = "Time_scale";
-	// public static final String CONFIG_BMFIXED_PROGRAMMERS_SUBMIT =
-	// "Programmers' insterest for submition tasks";
-	// public static final String CONFIG_BMFIXED_PROGRAMMERS_DEBUG =
-	// "Programmers' insterest for debugging tasks";
-	// public static final String CONFIG_BMFIXED_PROGRAMMERS_TEST =
-	// "Programmers' insterest for testing tasks";
-	// public static final String
-	// CONFIG_BMFIXED_PROGRAMMERS_FUNCTIONAL_IMPROVEMENT =
-	// "Programmers' insterest for functional improvement tasks";
 	public static final String CONFIG_BMFIXED_TASKS_RELEASES_WEIGHT = "Releases weight";
 	public static final String CONFIG_BMFIXED_TASKS_LOC_INCREMENT_WEIGHT = "LOC increment weight";
 	public static final String CONFIG_BMFIXED_TASKS_COMMITS_WEIGHT = "Commits weight";
@@ -92,20 +78,6 @@ public class SimulationImplementation extends AbstractMetric implements
 	public static final String CONFIG_BMPROJECT_A_STDEV_S0 = "S0 Standard Deviation";
 	public static final String CONFIG_BMPROJECT_B_QZERO = "Q0";
 	public static final String CONFIG_BMPROJECT_C_PR_RELEASE_INTERVAL = "Project Release Interval";
-	// public static final String CONFIG_PD_LOC_MEAN =
-	// "Mean of the lines of code added with each new module submission";
-	// public static final String CONFIG_PD_LOC_STDEV =
-	// "The standard deviation of the previous variable";
-	// public static final String CONFIG_PD_LOC_COMPLETE_MEAN =
-	// "Mean number of lines of code for a module so as to be considered as functionally complete"
-	// ;
-	// public static final String CONFIG_PD_LOC_COMPLETE_STDEV =
-	// "The standard deviation of the previous variable";
-	// public static final String CONFIG_PD_LOC_FUNCTIONAL_IMPROVEMENT_MEAN =
-	// "Mean of lines of code to be added to a module when a commit of functional improvement type is being fired"
-	// ;
-	// public static final String CONFIG_PD_LOC_FUNCTIONAL_IMPROVEMENT_STDEV =
-	// "The standard deviation of the previous variable";
 	public static final String CONFIG_PD_BUGS_MEAN = "Mean NOF Bugs";
 	public static final String CONFIG_PD_BUGS_STDEV = "The standard deviation of the previous variable";
 	public static final String CONFIG_PD_BUGS_S_MEAN = "Mean NOF days for a LOC submission";
@@ -118,12 +90,16 @@ public class SimulationImplementation extends AbstractMetric implements
 	public SimulationImplementation(BundleContext bc) {
 		super(bc);
 		super.addActivationType(StoredProject.class);
-		super.addMetricActivationType("SIMU", StoredProject.class);
+		super.addMetricActivationType("SIMULATION", StoredProject.class);
 	}
 
 	public boolean install() {
-		boolean result = super.install();
+		boolean result = true;
+
+		// Installing...
+		result &= super.install();
 		if (result) {
+
 			result &= super.addSupportedMetrics("Simulation Metric", "SIMU",
 					MetricType.Type.PROJECT_WIDE);
 
@@ -137,26 +113,6 @@ public class SimulationImplementation extends AbstractMetric implements
 
 			addConfigEntry(CONFIG_IC_TIME_SCALE, "0.1", "Time scale",
 					PluginInfo.ConfigurationType.DOUBLE);
-
-			// addConfigEntry(CONFIG_BMFIXED_PROGRAMMERS_SUBMIT,
-			// "500" ,
-			// "Programmers' insterest for submition tasks",
-			// PluginInfo.ConfigurationType.INTEGER);
-			//			
-			// addConfigEntry(CONFIG_BMFIXED_PROGRAMMERS_DEBUG,
-			// "500" ,
-			// "Programmers' insterest for debugging tasks",
-			// PluginInfo.ConfigurationType.INTEGER);
-			//			
-			// addConfigEntry(CONFIG_BMFIXED_PROGRAMMERS_TEST,
-			// "500" ,
-			// "Programmers' insterest for testing tasks",
-			// PluginInfo.ConfigurationType.INTEGER);
-			//			
-			// addConfigEntry(CONFIG_BMFIXED_PROGRAMMERS_FUNCTIONAL_IMPROVEMENT,
-			// "500" ,
-			// "Programmers' insterest for functional improvement tasks",
-			// PluginInfo.ConfigurationType.INTEGER);
 
 			addConfigEntry(CONFIG_BMFIXED_TASKS_RELEASES_WEIGHT, "0.4",
 					"Releases' weight", PluginInfo.ConfigurationType.DOUBLE);
@@ -210,38 +166,6 @@ public class SimulationImplementation extends AbstractMetric implements
 					"Meantime (in days) of a new release",
 					PluginInfo.ConfigurationType.INTEGER);
 
-			// addConfigEntry(CONFIG_PD_LOC_MEAN,
-			// "500" ,
-			//"Mean of the lines of code added with each new module submission",
-			// PluginInfo.ConfigurationType.INTEGER);
-			//			
-			// addConfigEntry(CONFIG_PD_LOC_STDEV,
-			// "500" ,
-			// "The standard deviation of the previous variable",
-			// PluginInfo.ConfigurationType.INTEGER);
-			//			
-			// addConfigEntry(CONFIG_PD_LOC_COMPLETE_MEAN,
-			// "500" ,
-			// "Mean number of lines of code for a module so as to be considered as functionally complete"
-			// ,
-			// PluginInfo.ConfigurationType.INTEGER);
-			//			
-			// addConfigEntry(CONFIG_PD_LOC_COMPLETE_STDEV,
-			// "500" ,
-			// "The standard deviation of the previous variable",
-			// PluginInfo.ConfigurationType.INTEGER);
-			//			
-			// addConfigEntry(CONFIG_PD_LOC_FUNCTIONAL_IMPROVEMENT_MEAN,
-			// "500" ,
-			// "Mean of lines of code to be added to a module when a commit of functional improvement type is being fired"
-			// ,
-			// PluginInfo.ConfigurationType.INTEGER);
-			//			
-			// addConfigEntry(CONFIG_PD_LOC_FUNCTIONAL_IMPROVEMENT_STDEV,
-			// "500" ,
-			// "The standard deviation of the previous variable",
-			// PluginInfo.ConfigurationType.INTEGER);
-
 			addConfigEntry(CONFIG_PD_BUGS_MEAN, "0.004",
 					"Initial mean bugs per line of code",
 					PluginInfo.ConfigurationType.DOUBLE);
@@ -275,13 +199,33 @@ public class SimulationImplementation extends AbstractMetric implements
 			addConfigEntry(CONFIG_PD_TESTS_TESTING_TIME_STDEV, "0.2",
 					"The standard deviation of the previous variable",
 					PluginInfo.ConfigurationType.DOUBLE);
-			
-			
 
+			System.out.println("\ninstalled\n");
 		}
 		return result;
 	}
 
+	public boolean remove() {
+		boolean result = super.remove();
+		return result;
+	}
+	
+	public List<ResultEntry> getResult(StoredProject sp, Metric m) {
+
+		ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+		
+		//on behalf of run
+		runSimulation();
+
+		return results;
+	}
+	
+	public void run(StoredProject sp) {
+
+		System.out.println("\nRun works\n");
+		
+	}
+	
 	public void runSimulation() {
 
 		// File paths for XSD & XML
@@ -313,32 +257,6 @@ public class SimulationImplementation extends AbstractMetric implements
 		LinkedList<SimulationChi> simulationChiResults = simulator
 				.getChiRecords();
 		db.addRecords(simulationChiResults);
-		
-		
-	}
 
-	public boolean remove() {
-		boolean result = true;
-		result &= super.remove();
-		return result;
-	}
-
-	public boolean update() {
-		return remove() && install();
-	}
-
-	public List<ResultEntry> getResult(StoredProject sp, Metric m) {
-
-		ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-
-		// TODO: Remove when finished...
-		System.out.println("Plug-in resulted correctly");
-
-		return results;
-	}
-
-	public void run(StoredProject sp) {
-		
-		runSimulation();
 	}
 }
