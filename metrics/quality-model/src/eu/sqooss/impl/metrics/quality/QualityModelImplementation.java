@@ -65,6 +65,8 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
 	private AlitheiaCore core;
 	
     private HashMap<String,String> mnemonicToName;
+    
+    private HashMap<String,String> metricToName;
 
     public static final String OVERALL_QUALITY_MNEMONIC = "Qual";
     public static final String CODE_QUALITY_MNEMONIC = "Qual.cd";
@@ -80,6 +82,8 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
     public static final String COMMUNITY_QUALITY_MNEMONIC = "Qual.cm";
     public static final String MAILLING_LIST_QUALITY_MNEMONIC = "Qual.cm.mail";
     public static final String DOCUMENTATION_QUALITY_MNEMONIC = "Qual.cm.doc";
+    
+    public static final String objectOrientedDiscriminatingMetric = "TLOC";
 
 
 	public QualityModelImplementation(BundleContext bc) {
@@ -111,7 +115,8 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
         super.addMetricActivationType(DOCUMENTATION_QUALITY_MNEMONIC, ProjectVersion.class);
         
         initializeMnemonicToName();        
-
+        initializeMetricToName();
+        
      // Retrieve the instance of the Alitheia core service
         ServiceReference serviceRef = bc.getServiceReference(
                 AlitheiaCore.class.getName());
@@ -137,13 +142,21 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
         mnemonicToName.put(DOCUMENTATION_QUALITY_MNEMONIC, QualityModelBean.DOCUMENTATION_QUALITY);
 
     }
+    
+    private void initializeMetricToName()
+    {
+    	metricToName = new HashMap<String,String>();
+//    	mnemonicToName.put( , );
+//    	mnemonicToName.put( , );
+//    	mnemonicToName.put( , );
+    }
       
     public boolean install() { 	
     	boolean result = true;
     	
     	
     	//TODO add ALL the metrics dependecies when they are ready!
-    	addDependency("Wc.loc");
+    	addDependency("TLOC");
     	
     	// Installing...
     	result &= super.install();
@@ -184,7 +197,7 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
     public List<ResultEntry> getResult(ProjectVersion v, Metric m) {
         
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-        // Search for a matching project file measurement
+        // Search for a matching project version measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectVersion", v);
         filter.put("metric", m);
@@ -196,17 +209,43 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
 	public void run(ProjectVersion v) {
         String result = null;
         
-        QualityModelBean model = new QualityModelBean();
+//        QualityModelBean model = new QualityModelBean(isObjectOriented(v));
+        for(String mnemonic: getDependencies()){
+        	HashMap<String, Object> filter = new HashMap<String, Object>();
+	        filter.put("projectVersion", v);
+	        filter.put("metric", Metric.getMetricByMnemonic(mnemonic));
+	        List<ProjectVersionMeasurement> measurement =
+	            db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
+	        if(measurement == null || measurement.isEmpty() || measurement.get(0).getResult() == null || measurement.get(0).equals("N/A"))
+	        {
+	        	continue;
+	        }
+
+	    }
         // Store the results
         // NOTE: Might not work...most use getMetricByMnemonic()
         for(Metric metric : this.getSupportedMetrics() ){
-            result = model.getPessimisticAssignement().toString();
+            result = "Good";//model.getPessimisticAssignement().toString();
             addProjectVersionMeasurement(metric,v,result);
         }
-
-        
     }  
 
+	private boolean isObjectOriented(ProjectVersion pv)
+	{
+		ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        // Search for a matching project version measurement
+        HashMap<String, Object> filter = new HashMap<String, Object>();
+        filter.put("projectVersion", pv);
+        filter.put("metric", objectOrientedDiscriminatingMetric);
+        List<ProjectVersionMeasurement> measurement =
+            db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
+        if(measurement == null || measurement.isEmpty() || measurement.get(0).getResult() == null || measurement.get(0).equals("N/A"))
+        	return false;
+        else
+        	return true;
+		
+	}
+	
     private void addProjectVersionMeasurement(Metric metric, ProjectVersion pv, String value) {
         ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(metric, pv, value);
         db.addRecord(pvm);

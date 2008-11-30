@@ -50,7 +50,7 @@ import eu.sqooss.metrics.quality.bean.NumericCriterionElement;
  */
 public class QualityModelBean implements Serializable {
 
-	   public static final String OVERALL_QUALITY = "SQO-OSS Quality Characteristics";
+	    public static final String OVERALL_QUALITY = "SQO-OSS Quality Characteristics";
 	    public static final String CODE_QUALITY = "Product (Code) Quality";
 	    public static final String MAINTAINABLITY = "Maintainability";
 	    public static final String ANALAZYBILITY = "Analyzability";
@@ -104,8 +104,8 @@ public class QualityModelBean implements Serializable {
      * 
      * @see #initialize(boolean)
      */
-    public QualityModelBean() {
-        initialize(false);
+    public QualityModelBean(boolean isObjectOriented) {
+        initialize(isObjectOriented);
     }
 
     /**
@@ -114,8 +114,8 @@ public class QualityModelBean implements Serializable {
      * @param objectOriented
      */
     public void initialize(boolean objectOriented) {
-	//TODO:Clear hashmap
-	// criteriaMap.clear();
+	
+    	criteriaMap.clear();
 
         this.objectOriented = objectOriented;
 
