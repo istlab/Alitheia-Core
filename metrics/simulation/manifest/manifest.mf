@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Simulation
+Bundle-Name: Simulation metric plug-in
 Bundle-SymbolicName: eu.sqooss.metric.simulation
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.metrics.simulation.SimulationActivator
@@ -17,7 +17,7 @@ Import-Package: org.osgi.framework,
     eu.sqooss.service.tds,
     eu.sqooss.service.pa,
     eu.sqooss.service.util,
+    org.apache.commons.codec.digest,
     org.hibernate,
-    org.hibernate.proxy,
-    org.apache.commons.codec.digest
+    org.hibernate.proxy
 Eclipse-RegisterBuddy: org.hibernate
