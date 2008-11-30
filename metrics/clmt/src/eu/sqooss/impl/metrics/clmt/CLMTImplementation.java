@@ -121,7 +121,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         clmtPlugins = new String[] { "NumberOfChildren",
                                      "DepthOfInheritanceTree", 
                                      //"JavaMetrics",
-                                     //"Instability",
+                                     "Instability",
                                      "ProjectStatistics",
                                      "ObjectOrientedProjectStatistics", 
                                      "WeigthedMethodsPerClass" };
@@ -211,9 +211,8 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
     public void run(ProjectVersion pv) {
         FDSService fds = core.getFDSService();
-        Pattern p = Pattern.compile(".*java$");
 
-        List<ProjectFile> pfs = ProjectFile.getFilesForVersion(pv, p);
+        List<ProjectFile> pfs = pv.getAllFilesForVersion();
         Map<String, ProjectFile> pfmap = new HashMap<String, ProjectFile>();
         
         for ( ProjectFile pfile : pfs ) {
@@ -249,8 +248,14 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         }
 
         /* Add source files to the calculation task */
+        Pattern p = Pattern.compile(".*java$");
+        
         for (ProjectFile pf : pfs) {
-            s.addFile(new Filename(pf.getFileName()));
+            String f = pf.getFileName();
+            Matcher m = p.matcher(f);
+            if(m.matches()) {
+                s.addFile(new Filename(f));
+            }
         }
         
         info(pv, "Found " + s.getFileCount() + " files");
@@ -261,9 +266,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         info(pv, "Starting conversion to IXR");
         
         long start = System.currentTimeMillis();
-        synchronized (task) {
-            task.toIXR();
-        }
+        task.toIXR();
         long end = System.currentTimeMillis();
         
         info(pv, "Sources converted to IXR (Time elapsed: " + (end - start) + " msecs)");
@@ -285,17 +288,29 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         }
         
         cacheMap.clear();
-
+        
         String[] keys = mrlist.getFilenames();
         MetricResult[] lmr = null;
-
+        
+        List<ProjectFile> directories = pv.getAllDirectoriesForVersion();
+        
         for (String file : keys) {
             lmr = mrlist.getResultsByFilename(file);
 
             /* Find project file in this version's project files */
             ProjectFile pf = pfmap.get(file);
+            
+            // TODO: quick fix, will optimize this later 
+            if(pf == null) {
+                for ( ProjectFile pfile : directories ) {
+                    if(pfile.getFileName().endsWith(file)) {
+                        pf = pfile;
+                        break;
+                    }
+                }
+           }
 
-            for (MetricResult mr : lmr) {
+           for (MetricResult mr : lmr) {
                 if(!metricsConversionTable.containsKey(mr.getMeasurementName())) {
                     continue;
                 }
@@ -309,7 +324,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
                 if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {
                     if (pf == null) {
-                        warn(pv, "Cannot find file:" + file + " Result not stored.");
+                        warn(pv, "Cannot find file : " + file + " - Result not stored.");
                         continue;
                     }
 
