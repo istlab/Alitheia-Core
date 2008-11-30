@@ -34,15 +34,14 @@ package eu.sqooss.impl.metrics.clmt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.clmt.cache.CacheMap;
-import org.clmt.configuration.Calculation;
 import org.clmt.configuration.Filename;
 import org.clmt.configuration.Source;
 import org.clmt.configuration.Task;
@@ -95,32 +94,14 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
     static {
         metricsConversionTable = new Hashtable<String, String>();
-        // NumberOfChildren Module
-        metricsConversionTable.put("NumberOfChildren", "NOCH");
-        // DepthOfInheritanceTree module
-        metricsConversionTable.put("DepthOfInheritanceTree", "DIT");
-        // JavaMetrics module
-        metricsConversionTable.put("NativeMethodsPerProject", "NMPV");
-        metricsConversionTable.put("NativeMethodsPerCodeUnit", "NMPC");
-        metricsConversionTable.put("StaticClassesPerProject", "SCPV");
-        // Instability Module
-        metricsConversionTable.put("EfferentCouplings", "EFC");
-        metricsConversionTable.put("AfferentCouplings", "AFC");
-        metricsConversionTable.put("Instability", "INST");
-        // ProjectStatistics Module
-        metricsConversionTable.put("ModuleCount", "NUMMOD");
-        metricsConversionTable.put("AverageLOCperModule", "AVGLMOD");
-        // ObjectOrientedProjectStatistics Module
-        metricsConversionTable.put("AverageMethodsPerClass", "AVGMETCL");
-        metricsConversionTable.put("NumberOfEnumerations", "NUMENUM");
-        metricsConversionTable.put("NumberOfInterfaces", "NUMIFACE");
-        metricsConversionTable.put("NumberOfClasses", "NUMCL");
-        // WeigthedMethodsPerClass Module
-        metricsConversionTable.put("WeigthedMethodsPerClass", "WMC");
+        
+        for ( CLMTMeasurement cm : CLMTMeasurement.values() ) {
+            metricsConversionTable.put(cm.getClmtMeasurementName(), cm.getMnemonic());
+        }
 
         clmtPlugins = new String[] { "NumberOfChildren",
                                      "DepthOfInheritanceTree", 
-                                     //"JavaMetrics",
+                                     "JavaMetrics",
                                      "Instability",
                                      "ProjectStatistics",
                                      "ObjectOrientedProjectStatistics", 
@@ -130,27 +111,11 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     public CLMTImplementation(BundleContext bc) {
         super(bc);
         this.addActivationType(ProjectVersion.class);
-
-        this.addMetricActivationType("NOCH", ProjectVersion.class);
-        this.addMetricActivationType("DIT", ProjectFile.class);
+        this.addActivationType(ProjectFile.class);
         
-        this.addMetricActivationType("NMPV", ProjectVersion.class);
-        this.addMetricActivationType("NMPC", ProjectFile.class);
-        this.addMetricActivationType("SCPV", ProjectVersion.class);
-
-        this.addMetricActivationType("EFC", ProjectFile.class);
-        this.addMetricActivationType("AFC", ProjectFile.class);
-        this.addMetricActivationType("INST", ProjectFile.class);
-
-        this.addMetricActivationType("NUMMOD", ProjectVersion.class);
-        this.addMetricActivationType("AVGLMOD", ProjectVersion.class);
-
-        this.addMetricActivationType("AVGMETCL", ProjectVersion.class);
-        this.addMetricActivationType("NUMENUM", ProjectVersion.class);
-        this.addMetricActivationType("NUMIFACE", ProjectVersion.class);
-        this.addMetricActivationType("NUMCL", ProjectVersion.class);
-
-        this.addMetricActivationType("WMC", ProjectFile.class);
+        for ( CLMTMeasurement cm : CLMTMeasurement.values() ) {
+            this.addMetricActivationType(cm.getMnemonic(), cm.getClazz());
+        }
 
         ServiceReference sr = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(sr);
@@ -159,51 +124,11 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     public boolean install() {
         boolean result = super.install();
         if (result) {
-            result &= super.addSupportedMetrics("Number of Children", 
-                                                "NOCH",
-                                                MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Depth Of Inheritance Tree",
-                                                "DIT", 
-                                                MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Number of Native Methods",
-                                                "NMPV", 
-                                                MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Number of Static Classes", 
-                                                "SCPV", 
-                                                MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Number of Native Methods Per Class", 
-                                                "NMPC",
-                                                MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Efferent Couplings", 
-                                                "EFC",
-                                                MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics("Afferent Couplings", 
-                                                "AFC",
-                                                MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics("Instability Metric",
-                                                "INST",
-                                                MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics("Number of Modules/Namespaces",
-                                                "NUMMOD", 
-                                                MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Average Lines of Code per Module", 
-                                                "AVGLMOD",
-                                                MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Average Methods per Class",
-                                                "AVGMETCL", 
-                                                MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Number of Enumerations",
-                                                "NUMENUM", 
-                                                MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Number of Interfaces",
-                                                "NUMIFACE", 
-                                                MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Number of Classes", 
-                                                "NUMCL",
-                                                MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Weighted Methods per Class",
-                                                "WMC", 
-                                                MetricType.Type.SOURCE_CODE);
+            for ( CLMTMeasurement cm : CLMTMeasurement.values() ) {
+                result &= super.addSupportedMetrics(cm.getDescription(), 
+                                                    cm.getMnemonic(), 
+                                                    cm.getType());
+            }
         }
 
         return result;
@@ -293,6 +218,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         MetricResult[] lmr = null;
         
         List<ProjectFile> directories = pv.getAllDirectoriesForVersion();
+        Map<String, Metric> metricMap = new HashMap<String, Metric>();
         
         for (String file : keys) {
             lmr = mrlist.getResultsByFilename(file);
@@ -315,12 +241,19 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     continue;
                 }
                 
-                Metric m = Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));
+                Metric m = metricMap.get(mr.getMeasurementName());
+                
+                if (m == null) {
+                    m = Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));
+                    if (m != null) {
+                        metricMap.put(mr.getMeasurementName(), m);
+                    }
+                }
 
                 if (m == null) {
                     warn(pv, "Metric " + mr.getMeasurementName() + " not found. Skipping.");
                     continue;
-                }
+                }                
 
                 if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {
                     if (pf == null) {
@@ -389,12 +322,16 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                                             ResultEntry.MIME_TYPE_TEXT_PLAIN,
                                             m.getMnemonic());
                 }
+                
+                log.info(entry.getMnemonic() + " - " + meas.getResult() + " - " + entry.getMimeType());
 
                 results.add(entry);
             }
             
             return results;
         }
+        
+        log.info("Someone called projectversion getResults");
 
         return null;
     }
@@ -407,6 +344,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectFile", a);
         filter.put("metric", m);
+        
         List<ProjectFileMeasurement> measurements = 
             db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
         
@@ -437,11 +375,15 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                                             m.getMnemonic());
                 }
 
+                log.info(entry.getMnemonic() + " - " + pfm.getResult() + " - " + entry.getMimeType());
+                
                 results.add(entry);
             }
             
             return results;
         }
+        
+        log.info("Someone called projectfile getResults");
 
         return null;
     }
