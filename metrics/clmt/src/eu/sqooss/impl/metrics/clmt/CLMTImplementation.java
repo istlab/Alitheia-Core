@@ -42,10 +42,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.clmt.cache.CacheMap;
+
 import org.clmt.configuration.Filename;
 import org.clmt.configuration.Source;
 import org.clmt.configuration.Task;
 import org.clmt.configuration.TaskException;
+
 import org.clmt.configuration.properties.CLMTProperties;
 
 import org.clmt.metrics.MetricInstantiationException;
@@ -68,7 +70,6 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
@@ -77,8 +78,6 @@ import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FDSService;
 
 import eu.sqooss.service.logging.Logger;
-
-import eu.sqooss.service.util.Pair;
 
 /**
  * The main implementation of CLMT Plug-in
@@ -247,13 +246,11 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     m = Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));
                     if (m != null) {
                         metricMap.put(mr.getMeasurementName(), m);
+                    } else {
+                        warn(pv, "Metric " + mr.getMeasurementName() + " not found. Skipping.");
+                        continue;                        
                     }
                 }
-
-                if (m == null) {
-                    warn(pv, "Metric " + mr.getMeasurementName() + " not found. Skipping.");
-                    continue;
-                }                
 
                 if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {
                     if (pf == null) {
@@ -296,7 +293,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         List<ProjectVersionMeasurement> measurements = 
             db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
         
-        if (measurements == null) { 
+        if (measurements == null) {
             return null;
         }
 
@@ -323,16 +320,12 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                                             m.getMnemonic());
                 }
                 
-                log.info(entry.getMnemonic() + " - " + meas.getResult() + " - " + entry.getMimeType());
-
                 results.add(entry);
             }
             
             return results;
         }
         
-        log.info("Someone called projectversion getResults");
-
         return null;
     }
 
@@ -375,16 +368,12 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                                             m.getMnemonic());
                 }
 
-                log.info(entry.getMnemonic() + " - " + pfm.getResult() + " - " + entry.getMimeType());
-                
                 results.add(entry);
             }
             
             return results;
         }
         
-        log.info("Someone called projectfile getResults");
-
         return null;
     }
 
