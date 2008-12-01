@@ -182,6 +182,10 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             }
         }
         
+        if (s.getFileCount() <= 0) {
+            return;
+        }
+        
         info(pv, "Found " + s.getFileCount() + " files");
 
         task.addSources(s);
