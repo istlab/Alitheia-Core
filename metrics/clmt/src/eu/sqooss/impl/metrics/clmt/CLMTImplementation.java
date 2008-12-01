@@ -279,8 +279,8 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
             }
         }
         
-        for (String mnem : metricsConversionTable.values()) {
-            Metric m = Metric.getMetricByMnemonic(mnem);
+        for (CLMTMeasurement cm : CLMTMeasurement.values() ) {
+            Metric m = Metric.getMetricByMnemonic(cm.getMnemonic());
             markEvaluation(m, pv);
         }
     }
@@ -322,8 +322,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
                     entry = new ResultEntry(meas.getResult(),
                                             ResultEntry.MIME_TYPE_TEXT_PLAIN,
                                             m.getMnemonic());
-                }
-                
+                }                
                 results.add(entry);
             }
             
