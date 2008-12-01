@@ -398,7 +398,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     }
     
     public void info(ProjectVersion pv, String msg) {
-        log.warn(message(pv, msg));        
+        log.info(message(pv, msg));        
     }
 
     public void warn(ProjectVersion pv, String msg) {
