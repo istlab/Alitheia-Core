@@ -22,6 +22,11 @@ if (selectedProject.isValid()) {
 %><%@ include file="/inc/DataViewParameters.jsp"
 %><%
 
+        // Reset the selected resources' list if requested
+        if (request.getParameter("resetResources") != null) {
+            viewConf.setSelectedResources(null);
+        }
+
         /*
          * Check if the user switched to tagged versions input only
          */
@@ -154,6 +159,13 @@ if (selectedProject.isValid()) {
                     icoVersionSelector.setText("Add version ID:");
                     winControlPanel.addToolIcon(icoVersionSelector);
                 }
+
+                SubmitButton icoResetResources = new SubmitButton();
+                icoResetResources.setPath(request.getServletPath());
+                icoResetResources.setParameter("resetResources");
+                icoResetResources.setValue("true");
+                icoResetResources.setButtonText("Reset");
+                winControlPanel.addToolIcon(icoResetResources);
 
                 // Construct the window's content
                 winControlPanel.setContent(dataView.getControls(in + 2));
