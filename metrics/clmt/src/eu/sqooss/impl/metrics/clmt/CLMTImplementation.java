@@ -84,7 +84,6 @@ import eu.sqooss.service.logging.Logger;
  * 
  * @author Georgios Gousios (gousiosg@aueb.gr)
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
- * 
  */
 public class CLMTImplementation extends AbstractMetric implements CLMT {
     private AlitheiaCore core;
@@ -240,43 +239,44 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
            }
 
            for (MetricResult mr : lmr) {
-                if(!metricsConversionTable.containsKey(mr.getMeasurementName())) {
-                    continue;
-                }
-                
-                Metric m = metricMap.get(mr.getMeasurementName());
-                
-                if (m == null) {
-                    m = Metric.getMetricByMnemonic(getAlitheiaMetricName(mr.getMeasurementName()));
-                    if (m != null) {
-                        metricMap.put(mr.getMeasurementName(), m);
-                    } else {
-                        warn(pv, "Metric " + mr.getMeasurementName() + " not found. Skipping.");
-                        continue;                        
-                    }
-                }
+               String mName = mr.getMeasurementName();
+               if(!metricsConversionTable.containsKey(mName)) {
+                   continue;
+               }
+               
+               Metric m = metricMap.get(mName);
 
-                if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {
-                    if (pf == null) {
-                        warn(pv, "Cannot find file : " + file + " - Result not stored.");
-                        continue;
-                    }
+               if (m == null) {
+                   m = Metric.getMetricByMnemonic(getAlitheiaMetricName(mName));
+                   if (m != null) {
+                       metricMap.put(mName, m);
+                   } else {
+                       warn(pv, "Metric " + mName + " not found. Skipping.");
+                       continue;
+                   }
+               }
 
-                    ProjectFileMeasurement pfm = new ProjectFileMeasurement();
-                    pfm.setMetric(m);
-                    pfm.setProjectFile(pf);
-                    pfm.setResult(mr.getValue());
+               if (mr.getMetricNameCategory() != MetricNameCategory.PROJECT_WIDE) {
+                   if (pf == null) {
+                       warn(pv, "Cannot find file : " + file + " - Result not stored.");
+                       continue;
+                   }
 
-                    db.addRecord(pfm);
-                } else {
-                    ProjectVersionMeasurement meas = new ProjectVersionMeasurement();
-                    meas.setProjectVersion(pv);
-                    meas.setResult(mr.getValue());
-                    meas.setMetric(m);
+                   ProjectFileMeasurement pfm = new ProjectFileMeasurement();
+                   pfm.setMetric(m);
+                   pfm.setProjectFile(pf);
+                   pfm.setResult(mr.getValue());
 
-                    db.addRecord(meas);
-                }
-            }
+                   db.addRecord(pfm);
+               } else {
+                   ProjectVersionMeasurement meas = new ProjectVersionMeasurement();
+                   meas.setProjectVersion(pv);
+                   meas.setResult(mr.getValue());
+                   meas.setMetric(m);
+
+                   db.addRecord(meas);
+               }
+           }
         }
         
         for (CLMTMeasurement cm : CLMTMeasurement.values() ) {
@@ -303,7 +303,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
 
         if (!measurements.isEmpty()) {
             for (ProjectVersionMeasurement meas : measurements) {
-                ResultEntry entry = null;                
+                ResultEntry entry = null;
                 String type = rr.identify(meas.getResult());
                 
                 if(type.compareTo(ResultEntry.MIME_TYPE_TYPE_INTEGER) == 0) {                
