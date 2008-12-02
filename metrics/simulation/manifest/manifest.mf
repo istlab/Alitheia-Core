@@ -4,7 +4,7 @@ Bundle-Name: Simulation metric plug-in
 Bundle-SymbolicName: eu.sqooss.metric.simulation
 Bundle-Version: 0.0.1
 Bundle-Activator: eu.sqooss.metrics.simulation.SimulationActivator
-Bundle-Vendor: AUTH
+Bundle-Vendor: Aristotle University of Thessaloniki
 Bundle-Description: Simulation metric
 Export-Package: eu.sqooss.metric.simulation, eu.sqooss.metric.simulation.db
 Import-Package: org.osgi.framework,
