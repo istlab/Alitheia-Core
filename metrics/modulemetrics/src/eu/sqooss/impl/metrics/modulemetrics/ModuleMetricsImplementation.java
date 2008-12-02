@@ -79,13 +79,13 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         super(bc);
 
         super.addActivationType(ProjectFile.class);
-        super.addActivationType(ProjectVersion.class);
+     //   super.addActivationType(ProjectVersion.class);
 
         super.addMetricActivationType(MET_MNOF, ProjectFile.class);
         super.addMetricActivationType(MET_MNOL, ProjectFile.class);
         super.addMetricActivationType(MET_AMS, ProjectVersion.class);
-        super.addMetricActivationType(MET_RMNOL, ProjectFile.class);
-        super.addMetricActivationType(MET_RMNOF, ProjectFile.class);
+     //   super.addMetricActivationType(MET_RMNOL, ProjectFile.class);
+     //   super.addMetricActivationType(MET_RMNOF, ProjectFile.class);
         
         // Define the plug-in dependencies
         super.addDependency(DEP_WC_LOC);
@@ -112,14 +112,14 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                     "Average Module Size",
                     MET_AMS,
                     MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics(
+   /*         result &= super.addSupportedMetrics(
                     "Number of Source Code Files in Module (Recursive)",
                     MET_RMNOF,
                     MetricType.Type.PROJECT_WIDE);
             result &= super.addSupportedMetrics(
                     "Number of Source Code Lines in Module (Recursive)",
                     MET_RMNOL,
-                    MetricType.Type.PROJECT_WIDE);
+                    MetricType.Type.PROJECT_WIDE);*/
         }
         return result;
     }
