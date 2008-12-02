@@ -109,7 +109,6 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     public CLMTImplementation(BundleContext bc) {
         super(bc);
         this.addActivationType(ProjectVersion.class);
-        this.addActivationType(ProjectFile.class);
         
         for ( CLMTMeasurement cm : CLMTMeasurement.values() ) {
             this.addMetricActivationType(cm.getMnemonic(), cm.getClazz());
