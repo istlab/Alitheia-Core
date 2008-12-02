@@ -9,7 +9,7 @@
 %>
 
 <p><font size="+2">Simulation Model: </font></p>
-<p><font size="+1"><a href="simulation.jsp">Average Scenario</a> | <a href="simulation_best.jsp">Best case Scenario</a> | <a href="simulation_realistic.jsp">Realistic case Scenario</a> | Worst case Scenario</font></p>
+<p><font size="+1"><a href="simulation.jsp">Average Scenario</a> | <a href="simulation_best.jsp">Best case Scenario</a> | Worst case Scenario</font></p>
 
 <p><center>
 
