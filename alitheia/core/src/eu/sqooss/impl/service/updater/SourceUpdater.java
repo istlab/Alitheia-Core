@@ -588,7 +588,7 @@ final class SourceUpdater extends Job {
         List<ProjectFile> chFiles = new ArrayList<ProjectFile>(this.versionFiles);
         
         for (ProjectFile pf : chFiles) {
-            ProjectFile parent = pf.getParentFolder();
+            ProjectFile parent = getParentFolder(pv, pf);
             
             //Parent dir not in the DB, it should be added in this revision
             if (parent == null) {
@@ -829,6 +829,43 @@ final class SourceUpdater extends Job {
         }
         
         return prev;
+    }
+    
+    /*Get the latest entry for the enclosing directory */
+    private ProjectFile getParentFolder(ProjectVersion pv, ProjectFile pf) {
+        DBService db = AlitheiaCore.getInstance().getDBService();
+        
+        String paramName = "paramName"; 
+        String paramDir = "paramDir";
+        String paramIsDir = "paramIsDir"; 
+        String paramProject = "paramProject";
+        String paramOrder = "paramOrder";
+        String paramVersion = "paramVersion";
+        
+        String query = "select pf " +
+            " from ProjectFile pf, ProjectVersion pv " +
+            " where pf.projectVersion = pv " +
+            " and pf.name = :" + paramName +
+            " and pf.dir = :" + paramDir + 
+            " and pf.isDirectory = :" + paramIsDir + 
+            " and pv.project = :" + paramProject +
+            " and pv.order <= :" + paramOrder +
+            " order by pv.order desc";
+        
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        
+        params.put(paramName, FileUtils.basename(pf.getDir().getPath()));
+        params.put(paramDir, Directory.getDirectory(FileUtils.dirname(pf.getDir().getPath()), false));
+        params.put(paramProject, pv.getProject());
+        params.put(paramIsDir, true);
+        params.put(paramOrder, pv.getOrder());
+        
+        List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
+        
+        if (pfs.size() <= 0)
+            return null;
+        else 
+            return pfs.get(0);
     }
     
     /**

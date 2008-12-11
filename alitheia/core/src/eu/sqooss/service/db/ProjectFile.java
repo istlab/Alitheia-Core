@@ -485,38 +485,38 @@ public class ProjectFile extends DAObject{
     }
 
     /**
-     * Gets the parent folder of the given project file.
+     * Gets the enclosing directory of the given project file.
      *
      * @param pf the project file
      *
-     * @return The <code>ProjectFile</code> DAO of the parent folder,
+     * @return The <code>ProjectFile</code> DAO of the enclosing directory,
      *   or <code>null</code> if the given file is located in the project's
      *   root folder (<i>or the given file is the root folder</i> ).
      */
-    public ProjectFile getParentFolder() {
+    public ProjectFile getEnclosingDirectory() {
         DBService db = AlitheiaCore.getInstance().getDBService();
         
         String paramName = "paramName"; 
-        String paramDir = "paramDir"; 
+        String paramDir = "paramDir";
+        String paramIsDir = "paramIsDir"; 
         String paramProject = "paramProject";
-        String paramOrder = "paramOrder";
+        String paramVersion = "paramVersion";
+       
+        String query = "select ffv.file " +
+            " from FileForVersion ffv " +
+            " where ffv.version = :" + paramVersion +
+            " and ffv.file.name = :" + paramName +
+            " and ffv.file.dir = :" + paramDir + 
+            " and ffv.file.isDirectory = :" + paramIsDir + 
+            " and ffv.version.project = :" + paramProject;
         
-        String query = "select pf " +
-            " from ProjectFile pf, ProjectVersion pv " +
-            " where pf.projectVersion = pv " +
-            " and pf.name = :" + paramName +
-            " and pf.dir = :" + paramDir + 
-            " and pf.isDirectory = 'true'" +
-            " and pv.project = :" + paramProject +
-            " and pv.order <= :" + paramOrder +
-            " order by pv.order desc";
-            
         HashMap<String, Object> params = new HashMap<String, Object>();
         
         params.put(paramName, FileUtils.basename(getDir().getPath()));
         params.put(paramDir, Directory.getDirectory(FileUtils.dirname(getDir().getPath()), false));
         params.put(paramProject, getProjectVersion().getProject());
-        params.put(paramOrder, getProjectVersion().getOrder());
+        params.put(paramIsDir, true);
+        params.put(paramVersion, getProjectVersion());
         
         List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
         
