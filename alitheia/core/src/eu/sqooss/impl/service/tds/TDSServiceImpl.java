@@ -171,6 +171,7 @@ public class TDSServiceImpl implements TDSService, EventHandler {
     }
 
     public Object selfTest() {
+        bogusStuffer();
         // Fail if certain required data structures are not initialized
         if (logger == null) {
             return new String("No logger available.");
@@ -227,19 +228,13 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         if (db != null && db.startDBSession()) {
             List<?> l = db.doHQL("from StoredProject");
 
-            if (l.isEmpty()) {
-                bogusStuffer();
-                // Next for loop is empty as well
-            }
             for (Object o : l) {
                 StoredProject p = (StoredProject) o;
                 addAccessor(p.getId(), p.getName(), p.getBtsUrl(), 
                         p.getMailUrl(), p.getScmUrl());
             }
             db.commitDBSession();
-        } else {
-            bogusStuffer();
-        }
+        } 
 
         logger.info("TDS Stuffer is finished.");
     }
@@ -253,7 +248,7 @@ public class TDSServiceImpl implements TDSService, EventHandler {
     }
 
     /**
-     * Fill in the TDS with project info imediately after starting hibernate
+     * Fill in the TDS with project info immediately after starting hibernate
      */
     public void handleEvent(Event e) {
         logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
