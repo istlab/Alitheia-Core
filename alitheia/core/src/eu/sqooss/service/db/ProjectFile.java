@@ -274,7 +274,7 @@ public class ProjectFile extends DAObject{
         }
 
         String paramFile = "paramFile";
-        String paramTimestamp = "paramTimestamp";
+        String paramOrder = "paramOrder";
         String paramDir = "paramDir";
         String paramProject = "paramProject";
         String paramCopyFromName = "paramCopyFromName";
@@ -284,7 +284,7 @@ public class ProjectFile extends DAObject{
             " from ProjectVersion pv, ProjectFile pf" +
             " where pf.projectVersion = pv.id " +
             " and pv.project = :" + paramProject +
-            " and pv.timestamp < :" + paramTimestamp +
+            " and pv.order < :" + paramOrder +
             " and "; 
             if (pf.copyFrom != null) {
                 query += "(("; 
@@ -297,12 +297,12 @@ public class ProjectFile extends DAObject{
                 " and pf.dir = :" + paramCopyFromDir +
                 "     ))" ;
             }
-            query += " order by pv.timestamp desc";
+            query += " order by pv.order desc";
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());
         parameters.put(paramProject, pf.getProjectVersion().getProject());
-        parameters.put(paramTimestamp, pf.getProjectVersion().getTimestamp());
+        parameters.put(paramOrder, pf.getProjectVersion().getOrder());
         
         if (pf.copyFrom != null) {
             parameters.put(paramCopyFromName, pf.getCopyFrom().getName());
@@ -443,7 +443,7 @@ public class ProjectFile extends DAObject{
         String paramDir = "paramDir"; 
         String paramProject = "paramProject";
         String paramDirectory = "paramDirectory";
-        String paramTimestamp = "paramTimestamp";
+        String paramOrder = "paramOrder";
         
         /* The query needs to cater for a file being deleted
          * and re-added in the same directory so it only 
@@ -457,8 +457,8 @@ public class ProjectFile extends DAObject{
             " and pf.dir = :" + paramDir + 
             " and pf.isDirectory = :" + paramDirectory +
             " and pv.project = :" + paramProject +
-            " and pv.timestamp > " +
-            "           (select max(pv1.timestamp) " +
+            " and pv.order > " +
+            "           (select max(pv1.order) " +
             "           from ProjectVersion pv1, ProjectFile pf1" +
             "           where pf1.projectVersion = pv1" +
             "           and pf1.status = 'ADDED'" +
@@ -466,7 +466,7 @@ public class ProjectFile extends DAObject{
             "           and pf1.dir = :" + paramDir +
             "           and pf1.isDirectory = :" + paramDirectory +
             "           and pv1.project = :" + paramProject +
-            "           and pv1.timestamp < :" + paramTimestamp + 
+            "           and pv1.order < :" + paramOrder + 
             "           group by pv1) ";
 
         HashMap<String, Object> params = new HashMap<String, Object>();
@@ -474,7 +474,7 @@ public class ProjectFile extends DAObject{
         params.put(paramDir, pf.getDir());
         params.put(paramDirectory, pf.getIsDirectory());
         params.put(paramProject, pf.getProjectVersion().getProject());
-        params.put(paramTimestamp, pf.getProjectVersion().getTimestamp());
+        params.put(paramOrder, pf.getProjectVersion().getOrder());
 
         List<ProjectVersion> pvs = (List<ProjectVersion>) db.doHQL(query, params);
                        
@@ -499,7 +499,7 @@ public class ProjectFile extends DAObject{
         String paramName = "paramName"; 
         String paramDir = "paramDir"; 
         String paramProject = "paramProject";
-        String paramTimestamp = "paramTimestamp";
+        String paramOrder = "paramOrder";
         
         String query = "select pf " +
             " from ProjectFile pf, ProjectVersion pv " +
@@ -508,15 +508,15 @@ public class ProjectFile extends DAObject{
             " and pf.dir = :" + paramDir + 
             " and pf.isDirectory = 'true'" +
             " and pv.project = :" + paramProject +
-            " and pv.timestamp <= :" + paramTimestamp +
-            " order by pv.timestamp desc";
+            " and pv.order <= :" + paramOrder +
+            " order by pv.order desc";
             
         HashMap<String, Object> params = new HashMap<String, Object>();
         
         params.put(paramName, FileUtils.basename(getDir().getPath()));
         params.put(paramDir, Directory.getDirectory(FileUtils.dirname(getDir().getPath()), false));
         params.put(paramProject, getProjectVersion().getProject());
-        params.put(paramTimestamp, getProjectVersion().getTimestamp());
+        params.put(paramOrder, getProjectVersion().getOrder());
         
         List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
         
@@ -555,7 +555,7 @@ public class ProjectFile extends DAObject{
             + " and pf.name = :" + paramFile
             + " and pf.dir = :" + paramDir
             + " and pv.project = :" + paramProject
-            + " order by pv.timestamp desc";
+            + " order by pv.order desc";
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());
@@ -627,7 +627,7 @@ public class ProjectFile extends DAObject{
             "where pv1.revisionId = :" + paramVersion +
             " and pv1.project.id = :" + paramProjectId +")";
         
-        query += " order by pv.timestamp desc";
+        query += " order by pv.order desc";
 
         pfs = (List<ProjectFile>) dbs.doHQL(query, parameters, 1);
         

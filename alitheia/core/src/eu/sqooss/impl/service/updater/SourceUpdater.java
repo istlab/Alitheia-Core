@@ -206,6 +206,7 @@ final class SourceUpdater extends Job {
                 zero.setTimestamp(scm.getFirstRevision().getDate().getTime());
                 zero.setCommitMsg("Artificial revision to include / directory");
                 zero.setRevisionId("0");
+                zero.setOrder(0);
                 dbs.addRecord(zero);
                 ProjectFile root = new ProjectFile(zero);
                 root.setIsDirectory(true);
@@ -317,20 +318,9 @@ final class SourceUpdater extends Job {
         }
 
         curVersion.setCommitMsg(commitMsg);
-        dbs.addRecord(curVersion);
-
-        /*
-         * Timestamp fix in cases where the new version has a timestamp older
-         * than the previous one
-         */
         ProjectVersion prev = getPreviousVersion(scm, curVersion);
-        if (prev != null) {
-            if (prev.getTimestamp() >= curVersion.getTimestamp()) {
-                curVersion.setTimestamp(prev.getTimestamp() + 1000);
-                info("Applying timestamp fix to version " 
-                        + curVersion.getRevisionId());
-            }
-        }
+        curVersion.setOrder(prev.getOrder() + 1);
+        dbs.addRecord(curVersion);
 
         debug("Got version " + curVersion.getRevisionId() + 
                 " ID " + curVersion.getId());

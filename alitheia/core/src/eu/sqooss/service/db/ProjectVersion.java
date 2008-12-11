@@ -79,6 +79,12 @@ public class ProjectVersion extends DAObject {
     private String properties;
     
     /**
+     * The order of this version. The ordering of revisions depends on
+     * the project's SCM.  
+     */
+    private long order;
+    
+    /**
      * The files changed in this version
      */
     private Set<ProjectFile> versionFiles;
@@ -179,6 +185,14 @@ public class ProjectVersion extends DAObject {
         this.commitMsg = commitMsg;
     }
     
+    public long getOrder() {
+        return order;
+    }
+    
+    public void setOrder(long order) {
+        this.order = order;
+    }
+    
     /**
      * Returns the files that were changed in this revision
      */
@@ -238,13 +252,13 @@ public class ProjectVersion extends DAObject {
      * The compared version must not be null.
      * 
      * @param p comparison version
-     * @return true if this <= p, in terms of timestamps
+     * @return true if this <= p, in terms of revision order
      */
     public boolean lte(ProjectVersion p) {
         if (p.getProject().getId() != p.getProject().getId())
             throw new IllegalArgumentException("Project " + p.getProject() + 
                     " != " + getProject() + ", cannot compare versions");
-        return this.timestamp <= p.getTimestamp();
+        return this.order <= p.getOrder();
     }
     
     /**
@@ -252,13 +266,13 @@ public class ProjectVersion extends DAObject {
      * The compared version must not be null.
      * 
      * @param p comparison version
-     * @return true if this <= p, in terms of timestamps
+     * @return true if this <= p, in terms of revision order
      */
     public boolean lt(ProjectVersion p) {
         if (p.getProject().getId() != p.getProject().getId())
             throw new IllegalArgumentException("Project " + p.getProject() + 
                     " != " + getProject() + ", cannot compare versions");
-        return this.timestamp < p.getTimestamp();
+        return this.order < p.getOrder();
     }
     
     /**
@@ -266,13 +280,13 @@ public class ProjectVersion extends DAObject {
      * The compared version must not be null.
      * 
      * @param p comparison version
-     * @return true if this > p, in terms of timestamps
+     * @return true if this > p, in terms of revision order
      */
     public boolean gte (ProjectVersion p) {
         if (p.getProject().getId() != p.getProject().getId())
             throw new IllegalArgumentException("Project " + p.getProject() + 
                     " != " + getProject() + ", cannot compare versions");
-        return this.timestamp >= p.getTimestamp();
+        return this.order >= p.getOrder();
     }
     
     /**
@@ -280,18 +294,18 @@ public class ProjectVersion extends DAObject {
      * The compared version must not be null.
      * 
      * @param p comparison version
-     * @return true if this > p, in terms of timestamps
+     * @return true if this > p, in terms of revision order
      */
     public boolean gt (ProjectVersion p) {
         if (p.getProject().getId() != p.getProject().getId())
             throw new IllegalArgumentException("Project " + p.getProject() + 
                     " != " + getProject() + ", cannot compare versions");
-        return this.timestamp > p.getTimestamp();
+        return this.order > p.getOrder();
     }
     
     /**
      * Version equality method. Note that this is not supposed to be equivalent 
-     * to {@link #equals(Object)}, it just compares the revisionId and timestamp
+     * to {@link #equals(Object)}, it just compares the revisionId and order
      * for 2 revisions provided they are in the same project. 
      * @param p comparison version
      * @return true if the versions are equal semantically.
@@ -304,7 +318,7 @@ public class ProjectVersion extends DAObject {
         if (!p.getRevisionId().equals(revisionId)) 
             return false;
         
-        if (!(p.getTimestamp() == timestamp))
+        if (!(p.getOrder() == order))
             return false;
         
         return true;
@@ -321,16 +335,16 @@ public class ProjectVersion extends DAObject {
     public ProjectVersion getPreviousVersion() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        String paramTS = "version_timestamp"; 
-        String paramProject = "project_id";
+        String paramOrder = "versionOrder"; 
+        String paramProject = "projectId";
         
         String query = "select pv from ProjectVersion pv where " +
 			" pv.project.id =:" + paramProject +
-			" and pv.timestamp < :" + paramTS + 
-			" order by pv.timestamp desc";
+			" and pv.order < :" + paramOrder + 
+			" order by pv.order desc";
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramTS, this.getTimestamp());
+        parameters.put(paramOrder, this.getOrder());
         parameters.put(paramProject, this.getProject().getId());
 
         List<?> projectVersions = dbs.doHQL(query, parameters, 1);
@@ -352,16 +366,16 @@ public class ProjectVersion extends DAObject {
     public ProjectVersion getNextVersion() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        String paramTS = "version_timestamp"; 
-        String paramProject = "project_id";
+        String paramTS = "versionOrder"; 
+        String paramProject = "projectId";
         
         String query = "select pv from ProjectVersion pv where " +
             " pv.project.id =:" + paramProject +
-            " and pv.timestamp > :" + paramTS + 
-            " order by pv.timestamp asc";
+            " and pv.order > :" + paramTS + 
+            " order by pv.order asc";
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramTS, this.getTimestamp());
+        parameters.put(paramTS, this.getOrder());
         parameters.put(paramProject, this.getProject().getId());
 
         List<?> projectVersions = dbs.doHQL(query, parameters, 1);
@@ -408,7 +422,10 @@ public class ProjectVersion extends DAObject {
      * carries the same time stamp or <code>null</code> if a matching version
      * can not be found (for instance because the updater has not added it yet
      * or a version with such a time stamp doesn't exist in this project).
-     * <br/>
+     * Depending on the underlying SCM timestamp keeping accuracy and commit
+     * frequency, more than one revisions can match the given timestamp;
+     * in that case only the first match is returned  
+     * <br/> 
      * This is a lookup, not a creation, of revisions.
      * 
      * @param project <code>Project</code> DAO to look up
@@ -441,34 +458,13 @@ public class ProjectVersion extends DAObject {
      * @param sp Project to lookup
      * @return The oldest recorded project revision
      */
-    public static ProjectVersion getFirstRevision(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("sp", sp);
-        List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.timestamp = (select min(pv2.timestamp) from "
-                + " ProjectVersion pv2 where pv2.project=:sp)",
-                parameterMap);
-
-        return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
-    }
-    
-    /**
-     * Convenience method to find the first project version for
-     * a given project.
-     * 
-     * @return The <code>ProjectVersion</code> DAO for the first version,
-     *   or <code>null</code> if not found
-     */
     public static ProjectVersion getFirstProjectVersion(StoredProject sp) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", sp);
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.timestamp = (select min(pv2.timestamp) from "
-                + " ProjectVersion pv2 where pv2.project=:sp and pv2.revisionId<>'0')",
+                + " and pv.order = 1",
                 parameterMap);
 
         return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
@@ -487,7 +483,7 @@ public class ProjectVersion extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", sp);
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.timestamp = (select max(pv2.timestamp) from "
+                + " and pv.order = (select max(pv2.order) from "
                 + " ProjectVersion pv2 where pv2.project=:sp)",
                 parameterMap);
 
@@ -562,7 +558,7 @@ public class ProjectVersion extends DAObject {
         String query = "select pvm from ProjectVersionMeasurement pvm, ProjectVersion pv" +
            " where pvm.projectVersion = pv" +
            " and pvm.metric = :metric and pv.project = :project" +
-           " order by pv.timestamp desc";
+           " order by pv.order desc";
 
         HashMap<String, Object> params = new HashMap<String, Object>(4);
         params.put("metric", m);

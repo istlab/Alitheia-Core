@@ -436,12 +436,12 @@ public class MetricActivatorImpl  implements MetricActivator {
                     "from ProjectVersion pv, ProjectFile pf " +
                     "where pf.projectVersion=pv and pv.project = :" + paramSp +
                     " group by pf.id, pv.timestamp" +
-                    " order by pv.timestamp asc";
+                    " order by pv.order asc";
                 } else if (c.equals(ProjectVersion.class)) {
                     query = "select pv.id from ProjectVersion pv " +
                     "where pv.project = :" + paramSp + 
                     " group by pv.id, pv.timestamp" +
-                    " order by pv.timestamp asc ";
+                    " order by pv.order asc ";
                 } else if (c.equals(StoredProject.class)) {
                     query = "select distinct sp.id from StoredProject sp where sp = :" 
                         + paramSp;

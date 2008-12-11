@@ -11,6 +11,7 @@
     <many-to-one name="project" column="STORED_PROJECT_ID" not-null="true" cascade="merge" />
     <property name="revisionId" column="REVISION_ID" />
     <property name="timestamp" column="TIMESTAMP" />
+    <property name="order" column="VERSION_ORDER" not-null="true"/>
     <many-to-one name="committer" column="COMMITTER_ID" not-null="true" cascade="merge" />
     <property name="commitMsg" column="COMMIT_MESSAGE" length="512"/>
     <property name="properties" column="PROPERTIES" length="512"/>
