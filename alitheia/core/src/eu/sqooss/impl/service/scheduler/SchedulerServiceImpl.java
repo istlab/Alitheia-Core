@@ -152,7 +152,7 @@ public class SchedulerServiceImpl implements Scheduler {
                 failedQueue.remove();
             failedQueue.add(job);
             
-            stats.removeRunJob(job.getClass().toString());
+            stats.removeRunJob(job.toString());
             stats.addFailedJob(job.getClass().toString());
         }
     }
