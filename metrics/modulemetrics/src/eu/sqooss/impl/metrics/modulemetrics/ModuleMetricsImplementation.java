@@ -79,13 +79,11 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         super(bc);
 
         super.addActivationType(ProjectFile.class);
-     //   super.addActivationType(ProjectVersion.class);
+        super.addActivationType(ProjectVersion.class);
 
         super.addMetricActivationType(MET_MNOF, ProjectFile.class);
         super.addMetricActivationType(MET_MNOL, ProjectFile.class);
         super.addMetricActivationType(MET_AMS, ProjectVersion.class);
-     //   super.addMetricActivationType(MET_RMNOL, ProjectFile.class);
-     //   super.addMetricActivationType(MET_RMNOF, ProjectFile.class);
         
         // Define the plug-in dependencies
         super.addDependency(DEP_WC_LOC);
@@ -112,14 +110,6 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                     "Average Module Size",
                     MET_AMS,
                     MetricType.Type.PROJECT_WIDE);
-   /*         result &= super.addSupportedMetrics(
-                    "Number of Source Code Files in Module (Recursive)",
-                    MET_RMNOF,
-                    MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics(
-                    "Number of Source Code Lines in Module (Recursive)",
-                    MET_RMNOL,
-                    MetricType.Type.PROJECT_WIDE);*/
         }
         return result;
     }
@@ -130,13 +120,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
 
         if (!pf.getIsDirectory())
             return null;
-        
-        if (m.getMnemonic().equals(MET_RMNOL))
-            return getRMNOL(pf);
-        
-        if ((m.getMnemonic().equals(MET_RMNOF)))
-            return getRMNOF(pf);
-        
+
         // Search for a matching measurement results
         List<ProjectFileMeasurement> measurement = null;
         HashMap<String, Object> filter = new HashMap<String, Object>();
@@ -148,29 +132,14 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         // Convert the measurement into a result object
         if (!measurement.isEmpty()) {
             results.add(new ResultEntry(
-                    Float.parseFloat(measurement.get(0).getResult()),
-                    ResultEntry.MIME_TYPE_TYPE_FLOAT,
+                    Integer.parseInt(measurement.get(0).getResult()),
+                    ResultEntry.MIME_TYPE_TYPE_INTEGER,
                     m.getMnemonic()));
         }
 
         return results.isEmpty() ? null : results;
     }
-    
-    private List<ResultEntry> getRMNOF(ProjectFile pf) {
-        
-        List<ProjectFile> dirs = pf.getProjectVersion().getAllDirectoriesForVersion();  
-        
-        for (ProjectFile dir : dirs) {
-            //if (pf.)
-        }
-        
-        return null;
-    }
-
-    private List<ResultEntry> getRMNOL(ProjectFile pf) {
-        return null;
-    }
-
+ 
     public List<ResultEntry> getResult(ProjectVersion pv, Metric m) {
         // Prepare an array for storing the retrieved measurement results
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
@@ -246,7 +215,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         // Calculate the metric results
         int locs = 0;
         int sourceModules = 0;
-        boolean foundSource = false; 
+        boolean foundSource = false, thisIsSourceDir = false; 
         //For each directory in version
         for (ProjectFile pf : folders) {
             //Determine whether the directory contains source code files
@@ -261,11 +230,12 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                     FileTypeMatcher.FileType.SRC) {
                     // Found one source file, treat the folder as a source module
                     foundSource = true;
+                    thisIsSourceDir = true;
                     break;
                 }
             }
             
-            if (foundSource) {
+            if (thisIsSourceDir) {
                 int mnolValue = getMeasurement(MET_MNOL, pf);
                 // Try to retrieve the MNOL measurement for this folder 
                 if (mnolValue > 0)
@@ -273,6 +243,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                 
                 locs += mnolValue;
             }
+            thisIsSourceDir = false;
         } 
 
         if (foundSource) {
