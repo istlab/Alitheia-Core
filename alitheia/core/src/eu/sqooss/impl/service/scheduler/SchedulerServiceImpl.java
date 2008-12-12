@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.scheduler;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -58,7 +59,7 @@ public class SchedulerServiceImpl implements Scheduler {
     private SchedulerStats stats = new SchedulerStats();
 
     // thread safe job queue
-    private BlockingQueue<Job> blockedQueue = new PriorityBlockingQueue<Job>(1,
+    private PriorityQueue<Job> blockedQueue = new PriorityQueue<Job>(1,
             new JobPriorityComparator());
     private BlockingQueue<Job> workQueue = new PriorityBlockingQueue<Job>(1,
             new JobPriorityComparator());
@@ -365,11 +366,6 @@ public class SchedulerServiceImpl implements Scheduler {
     public Job[] getFailedQueue() {
         Job[] failedJobs = new Job[failedQueue.size()];
         return failedQueue.toArray(failedJobs);
-    }
-
-    public Job[] getWaitQueue() {
-        Job[] blockedJobs = new Job[blockedQueue.size()];
-        return blockedQueue.toArray(blockedJobs);
     }
 
     public WorkerThread[] getWorkerThreads() {

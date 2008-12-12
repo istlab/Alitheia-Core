@@ -105,11 +105,6 @@ public interface Scheduler {
     Job[] getFailedQueue();
     
     /**
-     * Get a copy of the failed job queue
-     */
-    Job[] getWaitQueue();
-    
-    /**
      * Get the list of threads working on jobs of this scheduler.
      */
     WorkerThread[] getWorkerThreads();

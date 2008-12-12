@@ -41,7 +41,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,51 +111,6 @@ public class WebAdminRenderer  extends AbstractView {
         }
         result.append("\t</tbody>\n");
         result.append("</table>");
-        return result.toString();
-    }
-
-    /**
-     * Creates an HTML table displaying the details of all the jobs
-     * that are waiting whilst the system is up
-     *
-     * @return a String representing the HTML table
-     */
-    public static String renderWaitJobs() {
-        StringBuilder result = new StringBuilder();
-        Job[] jobs = sobjSched.getWaitQueue();
-        result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
-        result.append("\t<thead>\n");
-        result.append("\t\t<tr>\n");
-        result.append("\t\t\t<td>Queue pos</td>\n");
-        result.append("\t\t\t<td>Job Type</td>\n");
-        result.append("\t\t\t<td>Job depedencies</td>\n");
-        result.append("\t\t</tr>\n");
-        result.append("\t</thead>\n");
-        result.append("\t<tbody>\n");
-
-        int i = 0;
-        for(Job j: jobs) {
-            i++;
-            result.append("\t\t<tr>\n\t\t\t<td>");
-            result.append(i);
-            result.append("</td>\n\t\t\t<td>");
-            result.append(j.getClass().toString());
-            result.append("</td>\n\t\t\t<td>");
-            Iterator<Job> ji = j.dependencies().iterator();
-
-            while(ji.hasNext()) {
-                result.append(ji.next().getClass().toString());
-                if(ji.hasNext())
-                    result.append(",");
-            }
-            result.append("</td>\n\t\t\t<td>");
-
-            result.append("\t\t\t</td>\n\t\t</tr>");
-        }
-
-        result.append("\t</tbody>\n");
-        result.append("</table>");
-
         return result.toString();
     }
 
