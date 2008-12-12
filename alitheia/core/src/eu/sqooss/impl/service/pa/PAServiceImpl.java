@@ -31,7 +31,17 @@
  */
 package eu.sqooss.impl.service.pa;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
@@ -54,6 +64,9 @@ import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
 
 public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler  {
 
@@ -91,8 +104,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
      * Keeps a list of registered metric plug-in's services, indexed by the
      * plugin's hash code (stored in the database).
      */
-    private HashMap<String, PluginInfo> registeredPlugins =
-        new HashMap<String, PluginInfo>();
+    private ConcurrentHashMap<String, PluginInfo> registeredPlugins =
+        new ConcurrentHashMap<String, PluginInfo>();
 
     /**
      * Instantiates a new <code>PluginAdmin</code>.
@@ -560,50 +573,19 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
      * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.Long)
      */
     public boolean uninstallPlugin(Long serviceID) {
-        logger.info (
-                "Uninstalling plugin with service ID " + serviceID);
-
-        // Pre-formated error messages
-        final String UNINSTALL_FAILED =
-            "The uninstallation of plugin with"
-            + " service ID "+ serviceID
-            + " failed : ";
-
+        Scheduler s = AlitheiaCore.getInstance().getScheduler();
         try {
-            // Get the metric plug-in's service
+            PluginUninstallJob puj = new PluginUninstallJob(serviceID);
+            s.enqueue(puj);
+        } catch (SchedulerException e) {
             ServiceReference srefPlugin = getPluginService(serviceID);
-
             // Get the metric plug-in's object
             AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
-            if (sobjPlugin != null) {
-                // Release the stored configuration DAOs
-                getPluginInfo(sobjPlugin).setPluginConfiguration(
-                        new HashSet<PluginConfiguration>());
-                // Execute the remove() method of this metric plug-in,
-                // and update the plug-in's information object upon success.
-                if (sobjPlugin.remove()) {
-                        // Create an info object for registered plug-in
-                        PluginInfo pluginInfo =
-                            createRegisteredPI(srefPlugin);
-                        if (pluginInfo != null) {
-                            // Remove the old "installed" info object
-                            registeredPlugins.remove(
-                                    sobjPlugin.getUniqueKey());
-                            // Store the info object
-                            registeredPlugins.put(
-                                    pluginInfo.getHashcode(), pluginInfo);
-                            return true;
-                        }
-                }
-            }
-            else {
-                logger.warn(UNINSTALL_FAILED + CANT_GET_SOBJ);
-            }
-        } catch (Exception e) {
-            logger.warn(UNINSTALL_FAILED, e);
+            logger.warn("Failed to enqueue plugin uninstall job for plug-in <" 
+                    +  sobjPlugin.getName() + ">. Error was: " + e.getMessage());
+            return false;
         }
-
-        return false;
+        return true;
     }
 
     public <T extends DAObject> List<PluginInfo> listPluginProviders(Class<T> o) {
@@ -752,6 +734,74 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
             while (initEventQueue.size() > 0) {
                 serviceChanged(initEventQueue.remove());
             }
+        }
+    }
+    
+    private class PluginUninstallJob extends Job {
+
+        private Long serviceID;
+        
+        public PluginUninstallJob(Long serviceID) {
+            this.serviceID = serviceID;
+        }
+        
+        @Override
+        public int priority() {
+            // TODO Auto-generated method stub
+            return 0x3;
+        }
+
+        @Override
+        protected void run() throws Exception {
+            // TODO Auto-generated method stub
+            logger.info (
+                    "Uninstalling plugin with service ID " + serviceID);
+
+            // Pre-formated error messages
+            final String UNINSTALL_FAILED =
+                "The uninstallation of plugin with"
+                + " service ID "+ serviceID
+                + " failed : ";
+
+            try {
+                DBService dbs = AlitheiaCore.getInstance().getDBService();
+                dbs.startDBSession();
+                // Get the metric plug-in's service
+                ServiceReference srefPlugin = getPluginService(serviceID);
+
+                // Get the metric plug-in's object
+                AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);
+                if (sobjPlugin == null) {
+                    logger.warn(UNINSTALL_FAILED + CANT_GET_SOBJ);
+                }
+                // Execute the remove() method of this metric plug-in,
+                // and update the plug-in's information object upon success.
+                if (sobjPlugin.remove()) {
+                    // Release the stored configuration DAOs
+                    getPluginInfo(sobjPlugin).setPluginConfiguration(
+                            new HashSet<PluginConfiguration>());
+                    
+                    // Create an info object for registered plug-in
+                    PluginInfo pluginInfo =
+                        createRegisteredPI(srefPlugin);
+                    if (pluginInfo != null) {
+                        // Remove the old "installed" info object
+                        registeredPlugins.remove(
+                                sobjPlugin.getUniqueKey());
+                        // Store the info object
+                        registeredPlugins.put(
+                                pluginInfo.getHashcode(), pluginInfo);
+                    }
+                }
+                dbs.commitDBSession();
+            } catch (Exception e) {
+                logger.warn(UNINSTALL_FAILED, e);
+            }
+        }
+        
+        @Override
+        public String toString() {
+            return "PluginUninstallJob - ServiceID:{" + serviceID + "}" ;
         }
     }
 }

@@ -176,6 +176,8 @@ public class PluginsView extends AbstractView{
                         if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be uninstalled."
                                     + " Check log for details.");
+                        } else {
+                            e.append("A job was scheduled to remove the plug-in");
                         }
                     } 
                 }

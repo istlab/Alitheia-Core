@@ -89,7 +89,7 @@ public class FileTypeMatcher {
             "Makefile", ".hpp", ".pl", ".js", ".sql", ".css", ".jsp", ".bat", 
             ".php", ".asp", ".aspx", ".bat", ".vbs", ".y", ".l", ".asm", ".s",
             ".bas", ".cc", ".d", ".e", ".for", ".pm", ".hxx", ".hs", ".m", 
-            ".pas", ".cgi", ".idl"};
+            ".pas", ".cgi", ".idl", ".am"};
 
     private static String[] docMimes = { ".txt", ".sgml", ".html", ".tex",
             ".htm", ".bib", ".docbook" };
