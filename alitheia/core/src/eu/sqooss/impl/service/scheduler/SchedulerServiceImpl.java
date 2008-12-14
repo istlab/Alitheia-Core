@@ -37,6 +37,7 @@ package eu.sqooss.impl.service.scheduler;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -95,6 +96,19 @@ public class SchedulerServiceImpl implements Scheduler {
             stats.incTotalJobs();
         }
         jobDependenciesChanged(job);
+    }
+    
+    public void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException {
+        synchronized (this) {
+            for (Job job : jobs) {
+                logger.info("Scheduler ServiceImpl: queuing job "
+                        + job.toString());
+                job.callAboutToBeEnqueued(this);
+                workQueue.add(job);
+                stats.addWaitingJob(job.getClass().toString());
+                stats.incTotalJobs();
+            }
+        }
     }
 
     public void dequeue(Job job) {
@@ -376,6 +390,8 @@ public class SchedulerServiceImpl implements Scheduler {
         WorkerThread t = new WorkerThreadImpl(this, true);
         t.start();
     }
+
+   
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

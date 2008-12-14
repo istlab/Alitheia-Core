@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.metricactivator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -475,9 +476,14 @@ public class MetricActivatorImpl  implements MetricActivator {
                 List<Long> objectIDs = (List<Long>) db.doHQL(query, params);
                 AbstractMetric metric = 
                     (AbstractMetric) bc.getService(mi.getServiceRef());
+                HashSet<Job> jobs = new HashSet<Job>(objectIDs.size());
+                
                 for (Long l : objectIDs) {
-                    schedJob(metric, l, c, getNextPriority(c));
+                    jobs.add(new MetricActivatorJob(metric, l, logger, c,
+                    getNextPriority(c)));
+                    //schedJob(metric, l, c, getNextPriority(c));
                 }   
+                sched.enqueueNoDependencies(jobs);
             }
             dbs.commitDBSession();
         }

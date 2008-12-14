@@ -34,6 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.service.scheduler;
 
+import java.util.Set;
+
 /**
  * Interface for the scheduler.
  *
@@ -48,6 +50,11 @@ public interface Scheduler {
      */
     void enqueue(Job job) throws SchedulerException;
 
+    /**
+     * Queue 
+     */
+    void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException;
+    
     /**
      * This method is called, when the state of the job \a job changes to 
      * \a state.
