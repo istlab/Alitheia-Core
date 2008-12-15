@@ -66,7 +66,9 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.service.webadmin.WebadminService;
 
@@ -118,8 +120,11 @@ public class AlitheiaCore {
     /** The parent bundle's context object. */
     private BundleContext bc;
     
-    /** */
+    /** The parser service instance */
     private Parser parser;
+    
+    /** Instance of the admin service*/
+    private AdminService admin;
     
     /** The Core is singleton-line because it has a special instance */
     private static AlitheiaCore instance = null;
@@ -400,7 +405,7 @@ public class AlitheiaCore {
     
     /**
      * Returns the locally stored Metric Activator component's instance.
-     * <br/>
+     * 
      * <i>The instance is created when this method is called for a first
      * time.</i>
      * 
@@ -413,6 +418,21 @@ public class AlitheiaCore {
                             Logger.NAME_SQOOSS_METRICACTIVATOR));
         }
         return ma;
+    }
+    
+    /**
+     * Returns an instance to the administration service.
+     * 
+     * @return A reference to the administration service or null if the
+     *  service cannot be instantiated.
+     */
+    public AdminService getAdminService() {
+        if (admin == null) {
+            admin = new AdminServiceImpl(
+                    getLogManager().createLogger(
+                            Logger.NAME_SQOOSS_ADMINACTION));
+        }
+        return admin;
     }
 
     
