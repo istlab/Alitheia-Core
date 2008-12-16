@@ -63,8 +63,6 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
     // Mnemonic names of all supported metrics
     private static String MET_MNOF = "MNOF";
     private static String MET_MNOL = "MNOL";
-    private static String MET_RMNOL = "RMNOL";
-    private static String MET_RMNOF = "RMNOF";
     private static String MET_AMS = "AMS";
 
     // Holds the instance of the Alitheia core service
