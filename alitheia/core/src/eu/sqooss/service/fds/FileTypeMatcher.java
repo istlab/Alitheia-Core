@@ -39,29 +39,12 @@ import java.util.HashMap;
  * A simple, file extension based, file type matcher class. It uses a set of
  * statically loaded look-up tables and string comparisons to do its job.
  */
-public class FileTypeMatcher {
+public final class FileTypeMatcher {
 
     private FileTypeMatcher instance;
-    private static HashMap<String, FileType> lookupTable;
+    private static HashMap<String, FileType> lookupTable = new HashMap<String, FileType>();
     
-    private FileTypeMatcher() { 
-        lookupTable = new HashMap<String, FileType>();
-        
-        for (String s : srcMimes)
-            lookupTable.put(s, FileType.SRC);
-
-        for (String s : docMimes)
-            lookupTable.put(s, FileType.DOC);
-
-        for (String s : xmlFormats)
-            lookupTable.put(s, FileType.XML);
-
-        for (String s : binMimes)
-            lookupTable.put(s, FileType.BIN);
-        
-        for (String s : transMimes)
-            lookupTable.put(s, FileType.TRANS);
-    }
+    private FileTypeMatcher() { }
     
     public FileTypeMatcher getInstance() {
         if (instance == null) {
@@ -134,6 +117,25 @@ public class FileTypeMatcher {
     		"no_NO|no_NO_NY|pl_PL|pt_PT|ro_RO|ru_RU|sr_YU|sh_YU|sk_SK|sl_SI|" +
     		"es_AR|es_BO|es_CL|es_CO|es_CR|es_DO|es_EC|es_SV|es_GT|es_HN|" +
     		"es_MX|es_NI|es_PA|es_PY|es_PE|es_PR|es_UY|es_VE|tr_TR|uk_UA";
+    
+    static {
+        lookupTable = new HashMap<String, FileType>();
+        
+        for (String s : srcMimes)
+            lookupTable.put(s, FileType.SRC);
+
+        for (String s : docMimes)
+            lookupTable.put(s, FileType.DOC);
+
+        for (String s : xmlFormats)
+            lookupTable.put(s, FileType.XML);
+
+        for (String s : binMimes)
+            lookupTable.put(s, FileType.BIN);
+        
+        for (String s : transMimes)
+            lookupTable.put(s, FileType.TRANS);
+    }
     
     /**
      * Return the file extension of path, or null if no file extension can
