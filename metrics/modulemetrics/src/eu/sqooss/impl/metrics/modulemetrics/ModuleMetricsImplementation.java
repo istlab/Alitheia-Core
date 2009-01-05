@@ -210,6 +210,9 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         // Get the list of folders which exist in this project version.
         List<ProjectFile> folders = pv.getAllDirectoriesForVersion();
 
+        log.debug("ModuleMetrics: Got " + folders.size() + " directories " +
+        		"for version " + pv);
+        
         // Calculate the metric results
         int locs = 0;
         int sourceModules = 0;
@@ -221,7 +224,8 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                     pf.getProjectVersion(), 
                     Directory.getDirectory(pf.getFileName(), false),
                     ProjectFile.MASK_FILES);
-            
+            log.debug("ModuleMetrics: Got " + pfs.size() + " files for directory " +
+                    pf);
             for (ProjectFile f : pfs) {
 
                 if (FileTypeMatcher.getFileType(f.getName()) == 
