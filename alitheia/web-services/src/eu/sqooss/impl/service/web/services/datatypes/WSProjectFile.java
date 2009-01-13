@@ -154,7 +154,7 @@ public class WSProjectFile {
             result.setShortName(projectFile.getName());
             result.setFileName(projectFile.getFileName());
             result.setProjectVersionId(projectFile.getProjectVersion().getId());
-            result.setStatus(projectFile.getStatus());
+            result.setStatus(projectFile.getState().toString());
             if (projectFile.getIsDirectory()) {
                 Directory dir = projectFile.toDirectory();
                 if (dir != null)

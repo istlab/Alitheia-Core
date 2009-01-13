@@ -34,11 +34,15 @@
 
 package eu.sqooss.service.db;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -82,19 +86,13 @@ public class ProjectVersion extends DAObject {
      * The order of this version. The ordering of revisions depends on
      * the project's SCM.  
      */
-    private long order;
+    private long sequence;
     
     /**
      * The files changed in this version
      */
     private Set<ProjectFile> versionFiles;
     
-    /**
-     * The complete set of files for that version (ie. the state of the 
-     * project at that version). Note that the files contained in this set may 
-     * come from a previous version, if they haven't been modified since.
-     */
-    private Set<ProjectFile> filesForVersion;
     /**
      * The file groups contained in that version
      */
@@ -108,6 +106,23 @@ public class ProjectVersion extends DAObject {
      * The set of measurements available for the given version of the project
      */
     private Set<ProjectVersionMeasurement> measurements;
+    
+	/**
+	 * Mask used to select directories
+	 */
+	public static final int MASK_DIRECTORIES = 0x2;
+
+	//Select files, directories or both while querying
+	/**
+	 * Mask used to select files
+	 */
+	public static final int MASK_FILES = 0x1;
+	
+	/**
+	 * Mask used to select both files and directories
+	 */
+	public static final int MASK_ALL = MASK_FILES | MASK_DIRECTORIES;
+
 
     public ProjectVersion() {
         // Nothing to do
@@ -185,12 +200,12 @@ public class ProjectVersion extends DAObject {
         this.commitMsg = commitMsg;
     }
     
-    public long getOrder() {
-        return order;
+    public long getSequence() {
+        return sequence;
     }
     
-    public void setOrder(long order) {
-        this.order = order;
+    public void setSequence(long sequence) {
+        this.sequence = sequence;
     }
     
     /**
@@ -203,17 +218,7 @@ public class ProjectVersion extends DAObject {
     public void setVersionFiles( Set<ProjectFile> versionFiles ) {
         this.versionFiles = versionFiles;
     }
-
-    /**
-     * Returns all files that are live 
-     */
-    public Set<ProjectFile> getFilesForVersion() {
-        return filesForVersion;
-    }
-    public void setFilesForVersion(Set<ProjectFile> filesForVersion) {
-        this.filesForVersion = filesForVersion;
-    }
-    
+  
     /**
      * Return the file groups that were changed in this version
      */
@@ -258,7 +263,7 @@ public class ProjectVersion extends DAObject {
         if (p.getProject().getId() != p.getProject().getId())
             throw new IllegalArgumentException("Project " + p.getProject() + 
                     " != " + getProject() + ", cannot compare versions");
-        return this.order <= p.getOrder();
+        return this.sequence <= p.getSequence();
     }
     
     /**
@@ -272,7 +277,7 @@ public class ProjectVersion extends DAObject {
         if (p.getProject().getId() != p.getProject().getId())
             throw new IllegalArgumentException("Project " + p.getProject() + 
                     " != " + getProject() + ", cannot compare versions");
-        return this.order < p.getOrder();
+        return this.sequence < p.getSequence();
     }
     
     /**
@@ -286,7 +291,7 @@ public class ProjectVersion extends DAObject {
         if (p.getProject().getId() != p.getProject().getId())
             throw new IllegalArgumentException("Project " + p.getProject() + 
                     " != " + getProject() + ", cannot compare versions");
-        return this.order >= p.getOrder();
+        return this.sequence >= p.getSequence();
     }
     
     /**
@@ -300,7 +305,7 @@ public class ProjectVersion extends DAObject {
         if (p.getProject().getId() != p.getProject().getId())
             throw new IllegalArgumentException("Project " + p.getProject() + 
                     " != " + getProject() + ", cannot compare versions");
-        return this.order > p.getOrder();
+        return this.sequence > p.getSequence();
     }
     
     /**
@@ -318,13 +323,13 @@ public class ProjectVersion extends DAObject {
         if (!p.getRevisionId().equals(revisionId)) 
             return false;
         
-        if (!(p.getOrder() == order))
+        if (!(p.getSequence() == sequence))
             return false;
         
         return true;
         
     }
-    
+       
     /**
      * Allow moving backward in version history by finding the most-recent
      * version of this project before the current one, or null if there
@@ -340,11 +345,11 @@ public class ProjectVersion extends DAObject {
         
         String query = "select pv from ProjectVersion pv where " +
 			" pv.project.id =:" + paramProject +
-			" and pv.order < :" + paramOrder + 
-			" order by pv.order desc";
+			" and pv.sequence < :" + paramOrder + 
+			" order by pv.sequence desc";
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramOrder, this.getOrder());
+        parameters.put(paramOrder, this.getSequence());
         parameters.put(paramProject, this.getProject().getId());
 
         List<?> projectVersions = dbs.doHQL(query, parameters, 1);
@@ -366,16 +371,16 @@ public class ProjectVersion extends DAObject {
     public ProjectVersion getNextVersion() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        String paramTS = "versionOrder"; 
+        String paramTS = "versionsequence"; 
         String paramProject = "projectId";
         
         String query = "select pv from ProjectVersion pv where " +
             " pv.project.id =:" + paramProject +
-            " and pv.order > :" + paramTS + 
-            " order by pv.order asc";
+            " and pv.sequence > :" + paramTS + 
+            " order by pv.sequence asc";
         
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramTS, this.getOrder());
+        parameters.put(paramTS, this.getSequence());
         parameters.put(paramProject, this.getProject().getId());
 
         List<?> projectVersions = dbs.doHQL(query, parameters, 1);
@@ -464,7 +469,7 @@ public class ProjectVersion extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", sp);
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.order = 1",
+                + " and pv.sequence = 1",
                 parameterMap);
 
         return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
@@ -483,67 +488,13 @@ public class ProjectVersion extends DAObject {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", sp);
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
-                + " and pv.order = (select max(pv2.order) from "
+                + " and pv.sequence = (select max(pv2.sequence) from "
                 + " ProjectVersion pv2 where pv2.project=:sp)",
                 parameterMap);
 
         return (pvList == null || pvList.isEmpty()) ? null : (ProjectVersion) pvList.get(0);
     }
     
-    /**
-     * Returns all directories that are visible in a given project 
-     * version. 
-     *
-     * @param version Project and version to look at
-     * @return List of directories visible in that version (may be empty, 
-     * not null)
-     */
-    public List<ProjectFile> getAllDirectoriesForVersion() {
-        return getFilesOrDirs(this, ProjectFile.MASK_DIRECTORIES);
-    }
-    
-    /**
-     * Returns all the files that are visible in a given project 
-     * version. 
-     *
-     * @param version Project and version to look at
-     * @return List of files visible in that version (may be empty, 
-     * not null)
-     */
-    public List<ProjectFile> getAllFilesForVersion() {
-        return getFilesOrDirs(this, ProjectFile.MASK_FILES);
-    }
-    
-    
-    /**
-     * Get either all files or directories recursively in a project version.
-     */
-    private List<ProjectFile> getFilesOrDirs(ProjectVersion pv, int mask) {
-        
-        if (pv==null) {
-            throw new IllegalArgumentException("Project version" +
-                        " is null in getFilesOrDirs");
-        }
-        
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramVersion = "paramVersion";
-        String paramIsDirectory = "is_directory";
-
-        String query = "select ffv.file " +
-        " from FileForVersion ffv " +
-        " where ffv.version = :" + paramVersion +
-        " and ffv.file.isDirectory = :" + paramIsDirectory;
-        
-        Boolean isDirectory = ((mask == ProjectFile.MASK_DIRECTORIES)?true:false);
-        
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramVersion, pv);
-        parameters.put(paramIsDirectory, isDirectory);
-        
-        return (List<ProjectFile>) dbs.doHQL(query, parameters);
-    }
-
     /**
      * For a given metric and project, return the latest version of that
      * project that was actually measured.  If no measurements have been made, 
@@ -558,7 +509,7 @@ public class ProjectVersion extends DAObject {
         String query = "select pvm from ProjectVersionMeasurement pvm, ProjectVersion pv" +
            " where pvm.projectVersion = pv" +
            " and pvm.metric = :metric and pv.project = :project" +
-           " order by pv.order desc";
+           " order by pv.sequence desc";
 
         HashMap<String, Object> params = new HashMap<String, Object>(4);
         params.put("metric", m);
@@ -580,7 +531,7 @@ public class ProjectVersion extends DAObject {
      * 
      * @return The number of files in that version and that state.
      */
-    public static long getFilesCount(ProjectVersion pv, String state) {
+    public long getFilesCount(ProjectFileState state) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         // Construct the field names
         String parVersionId     = "project_version_id"; 
@@ -591,8 +542,8 @@ public class ProjectVersion extends DAObject {
             + " and pf.status=:" + parFileStatus;
         // Execute the query
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(parVersionId,    pv);
-        parameters.put(parFileStatus,   state);
+        parameters.put(parVersionId, this);
+        parameters.put(parFileStatus, state);
         List<?> queryResult = dbs.doHQL(query, parameters);
         // Return the query's result (if found)
         if(queryResult != null || queryResult.size() > 0)
@@ -600,9 +551,189 @@ public class ProjectVersion extends DAObject {
         // Default result
         return 0;
     }
+    
+    /**
+     * Get the number of files (excluding directories and deleted files) in this version. 
+     * @return The number of live files in a specific project version.
+     */
+    public long getLiveFilesCount() {
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+    	String paramVersion = "paramVersion";
+        String paramIsDirectory = "paramIsDirectory";
+        String paramProject = "paramProject";
+        String paramState = "paramState";
+        
+    	  /* Get the live file count faster than loading all files */
+        String queryTotalFiles = "select count(pf) " 
+	    		+ "from ProjectFile pf, ProjectVersion pv "
+	    		+ "where pf.validFrom.sequence <= pv.sequence" 
+				+ " and pf.validUntil.sequence >= pv.sequence"
+				+ " and pf.state <> :" + paramState 
+				+ " and pf.projectVersion.project = :" + paramProject
+				+ " and pf.isDirectory = :" + paramIsDirectory 
+				+ " and pv.project = :" + paramProject 
+				+ " and pv = :" + paramVersion ;
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(paramVersion, this);
+        params.put(paramIsDirectory, Boolean.FALSE);
+        params.put(paramState, ProjectFileState.deleted());
+        params.put(paramProject, this.getProject());
+        
+        return (Long) dbs.doHQL(queryTotalFiles, params).get(0);
+    }
+    
 
     public String toString() {
         return "ProjectVersion(\"" + this.project.getName() + "\",r" + this.revisionId +")";
+    }
+    
+    private List<ProjectFile> getVersionFiles(Directory d, int mask) {
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+ 	    String paramDirectory = "paramDirectory";
+ 	    String paramIsDirectory = "is_directory";
+ 	    String paramVersion = "paramVersion";
+     	String paramProject = "paramProject";
+     	String paramState = "paramStatus";
+ 	
+ 	    String query = "select pf " 
+ 	    		+ "from ProjectFile pf, ProjectVersion pv "
+ 	    		+ "where pf.validFrom.sequence <= pv.sequence" 
+ 				+ " and pf.validUntil.sequence >= pv.sequence"
+ 				+ " and pf.state <> :" + paramState 
+ 				+ " and pf.projectVersion.project = :" + paramProject
+ 				+ " and pv.project = :" + paramProject 
+ 				+ " and pv = :" + paramVersion ; 
+ 				
+ 	    if (d != null) {
+ 	    	query += " and pf.dir = :" + paramDirectory;
+ 	    }
+ 	        
+ 	    if (mask != ProjectVersion.MASK_ALL) {
+ 	        query += " and pf.isDirectory = :" + paramIsDirectory;
+ 	    }
+ 	    
+ 	    Map<String,Object> params = new HashMap<String,Object>();
+ 	    
+ 	 //   params.put(paramVersionSequence, this.sequence);
+     	params.put(paramProject, this.project);
+     	params.put(paramState, ProjectFileState.deleted());
+     	params.put(paramVersion, this);
+ 	    
+     	if (d != null) {
+     		params.put(paramDirectory, d);
+     	}
+     	
+ 	    if (mask != ProjectVersion.MASK_ALL) {
+ 	        Boolean isDirectory = ((mask == ProjectVersion.MASK_DIRECTORIES)?true:false);
+ 	        params.put(paramIsDirectory, isDirectory);
+ 	    }
+ 	    
+ 	    List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, params);
+
+ 	    if (projectFiles == null) 
+ 	        return Collections.emptyList();
+
+ 	    return projectFiles;
+
+    }
+    
+    /**
+     * Returns all files that are live in this version. 
+     */
+    public List<ProjectFile> getFiles() {
+    	return getVersionFiles(null, ProjectVersion.MASK_ALL);
+    }
+
+	
+    /**
+	 * Returns either all the files or the directories or both 
+	 * that are visible in a given project version and in a given directory. 
+	 * Does not list recursively. Does not return null, but the list may be empty.
+	 *
+	 * @param d Directory to list
+	 * @param mask Used to restrict the returned values to either files or
+	 * directories
+	 * @return List of files visible in that version (may be empty, not null)
+	 */
+	public List<ProjectFile> getFiles(Directory d, int mask) {
+	    return getVersionFiles(d, mask);
+	}
+	
+	/**
+	 * Returns all of the files visible in a given project version
+	 * and in a given directory. Does not list recursively.
+	 * Does not return null, but the list may be empty.
+	 *
+	 * @param d Directory to list
+	 * @return List of files visible in that version (may be empty, not null)
+	 */
+	public List<ProjectFile> getFiles(Directory d) {
+	    return getFiles(d, ProjectVersion.MASK_ALL);
+	}
+	
+	/**
+	 * Returns all of the files visible in a given project version that match
+	 * the provided Pattern. The Pattern is evaluated against the file path.
+	 * Does not return null, but the list may be empty.
+	 * 
+	 * @param p
+	 *            A regular expression pattern. File paths that match the
+	 *            provided pattern are returned as results.
+	 * @return List of files visible in that version, whose path matches the
+	 *         specified pattern (may be empty, not null)
+	 * 
+	 */
+	public List<ProjectFile> getFiles(Pattern p) {      
+	    List<ProjectFile> files = this.getFiles();
+	    List<ProjectFile> matchedFiles = new ArrayList<ProjectFile>();
+	    
+	    if (files == null) {
+	        return matchedFiles;
+	    }
+	    
+	    for ( ProjectFile pf : files ) {
+	        Matcher m = p.matcher(pf.getFileName());
+	        
+	        if (m.matches() && !matchedFiles.contains(pf)) {
+	            for(ProjectFile tmpPF : matchedFiles) {
+	                if (tmpPF.getFileName().equals(pf.getFileName())) {
+	                    System.err.println("Duplicate filename in file list:" 
+	                    		+ tmpPF.getFileName());
+	                }
+	            }
+	            
+	            matchedFiles.add(pf);
+	        }
+	    }
+	    
+	    return matchedFiles;
+	}
+	
+	 /**
+     * Returns all directories that are visible in a given project 
+     * version. 
+     *
+     * @param version Project and version to look at
+     * @return List of directories visible in that version (may be empty, 
+     * not null)
+     */
+    public List<ProjectFile> allDirs() {
+        return getVersionFiles(null, ProjectVersion.MASK_DIRECTORIES);
+    }
+    
+    /**
+     * Returns all the files that are visible in a given project 
+     * version. 
+     *
+     * @param version Project and version to look at
+     * @return List of files visible in that version (may be empty, 
+     * not null)
+     */
+    public List<ProjectFile> allFiles() {
+    	return getVersionFiles(null, ProjectVersion.MASK_FILES);
     }
 }
 

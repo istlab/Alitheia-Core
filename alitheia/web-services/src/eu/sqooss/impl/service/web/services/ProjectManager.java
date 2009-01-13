@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 
 import eu.sqooss.impl.service.web.services.datatypes.WSDeveloper;
@@ -60,6 +59,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.BugStatus.Status;
@@ -640,12 +640,9 @@ public class ProjectManager extends AbstractManager {
                 if (nextVersion != null) {
                     WSVersionStats stats = new WSVersionStats();
                     stats.setVersionId(nextVersion.getId());
-                    stats.setDeletedCount(ProjectVersion.getFilesCount(
-                            nextVersion, ProjectFile.STATE_DELETED));
-                    stats.setModifiedCount(ProjectVersion.getFilesCount(
-                            nextVersion, ProjectFile.STATE_MODIFIED));
-                    stats.setAddedCount(ProjectVersion.getFilesCount(
-                            nextVersion, ProjectFile.STATE_ADDED));
+                    stats.setDeletedCount(nextVersion.getFilesCount(ProjectFileState.deleted()));
+                    stats.setModifiedCount(nextVersion.getFilesCount(ProjectFileState.modified()));
+                    stats.setAddedCount(nextVersion.getFilesCount(ProjectFileState.added()));
                     result.add(stats);
                 }
             }
@@ -829,12 +826,7 @@ public class ProjectManager extends AbstractManager {
         super.updateUserActivity(userName);
         // Retrieve the result(s)
         WSDirectory result = null;
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("path", "/");
-        List<Directory> directories = db.findObjectsByProperties(
-                Directory.class, params);
-        if ((directories != null) && (directories.size() > 0))
-            result = WSDirectory.getInstance(directories.get(0));
+        result = WSDirectory.getInstance(Directory.getDirectory("/", false));
         db.commitDBSession();
         return result;
     }
@@ -882,16 +874,10 @@ public class ProjectManager extends AbstractManager {
         if ((version == null) || (directory == null)) return null;
 
         // Retrieve the complete list of files in the selected version
-        Set<ProjectFile> verFiles = version.getFilesForVersion();
-        ArrayList<ProjectFile> dirFiles = new ArrayList<ProjectFile>();
-        if (verFiles != null)
-            for (ProjectFile nextFile : verFiles) {
-                if (nextFile.getDir().getId() == directoryId)
-                    dirFiles.add(nextFile);
-            }
-
+        List<ProjectFile> dirFiles = version.getFiles(directory);
+        
         // Construct the result
-        if (verFiles.size() > 0) {
+        if (dirFiles.size() > 0) {
             result = new WSProjectFile[dirFiles.size()];
             int index = 0;
             for (ProjectFile nextFile : dirFiles)

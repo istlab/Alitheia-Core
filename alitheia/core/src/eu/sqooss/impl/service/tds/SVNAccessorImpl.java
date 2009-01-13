@@ -460,7 +460,7 @@ public class SVNAccessorImpl implements SCMAccessor {
 
         // Handle the various kinds of nodes that repoPath may refer to
         if ((SVNNodeKind.NONE == nodeKind) || (SVNNodeKind.UNKNOWN == nodeKind)) {
-            logger.info("Requested path " + repoPath + " does not exist.");
+            logger.warn("Requested path " + repoPath + " does not exist.");
             throw new FileNotFoundException(repoPath);
         }
         if (SVNNodeKind.FILE == nodeKind) {
@@ -575,18 +575,18 @@ public class SVNAccessorImpl implements SCMAccessor {
             //        nodeKind.toString().toUpperCase());
 
             if (SVNNodeKind.NONE == nodeKind) {
-                logger.warn(projectname + ": Requested path " + repoPath
-                        + " does not exist.");
+                logger.warn(projectname + ": Requested path " + repoPath +
+                        "@" + revision.getUniqueId() + " does not exist.");
                 throw new FileNotFoundException(repoPath);
             }
             if (SVNNodeKind.DIR == nodeKind) {
-                logger.warn(projectname + ": Requested path " + repoPath
-                        + " is a directory.");
+                logger.warn(projectname + ": Requested path " + repoPath +
+                		"@" + revision.getUniqueId() + " is a directory.");
                 throw new FileNotFoundException(repoPath + " (dir)");
             }
             if (SVNNodeKind.UNKNOWN == nodeKind) {
-                logger.warn(projectname + ": Requested path " + repoPath
-                        + " is of unknown type.");
+                logger.warn(projectname + ": Requested path " + repoPath +
+                		"@" + revision.getUniqueId() + " is of unknown type.");
                 throw new FileNotFoundException(repoPath + " (unknown)");
             }
 

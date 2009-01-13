@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
 import java.net.URI;
-import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -57,6 +56,10 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.DialectFactory;
+import org.hibernate.engine.Mapping;
+import org.hibernate.mapping.AuxiliaryDatabaseObject;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
@@ -69,7 +72,6 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.impl.service.logging.LoggerImpl;
 
 /**
  * Implementation of the Database service, using Hibernate's Thread-based session handling
@@ -222,6 +224,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             if (resetDatabase) {
                 c.setProperty("hibernate.hbm2ddl.auto", "create");
             }
+            
             // Get the list of eu.sqo-oss.metrics.* jars and add them to the config
             String equinoxInstallDirProperty = System.getProperty("osgi.install.area");
             if ( equinoxInstallDirProperty != null ) {
@@ -242,13 +245,22 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                                 + ". Custom DAOs from metrics bundles won't be initialized.");
                 }
             }
+
+            List<AuxiliaryDatabaseObject> objs = loadDBScripts();
+            
             sessionFactory = c.buildSessionFactory();
+            
 
         } catch (Throwable e) {
             logger.error("Failed to initialize Hibernate: " + e.getMessage());
             e.printStackTrace();
             throw new ExceptionInInitializerError(e);
         }
+    }
+    
+    private List<AuxiliaryDatabaseObject> loadDBScripts() {
+    	
+    	return null;
     }
 
     /**
@@ -388,6 +400,44 @@ public class DBServiceImpl implements DBService, FrameworkListener {
         }
     }
 
+    public int callProcedure(String procName, List<String> args, Map<String, Object> params)
+			throws SQLException, QueryException {
+		boolean autoSession = !isDBSessionActive();
+		StringBuilder sql = new StringBuilder("call " + procName + "(");
+		
+		for (String arg : args) {
+			sql.append(":").append(arg).append(",");
+		}
+		sql.deleteCharAt(sql.lastIndexOf(",")).append(")");
+		
+		try {
+			Session s = sessionFactory.getCurrentSession();
+			if (autoSession) {
+				s.beginTransaction();
+			}
+			Query query = s.createSQLQuery(sql.toString());
+			if (params != null) {
+				for (String param : params.keySet()) {
+					query.setParameter(param, params.get(param));
+				}
+			}
+			int result = query.executeUpdate();
+			if (autoSession) {
+				s.getTransaction().commit();
+			}
+			return result;
+		} catch (JDBCException e) {
+			logExceptionAndTerminateSession(e);
+			throw e.getSQLException();
+		} catch (QueryException e) {
+			logExceptionAndTerminateSession(e);
+			throw e;
+		} catch (HibernateException e) {
+			logExceptionAndTerminateSession(e);
+			return -1;
+		}
+	}
+    
     /* (non-Javadoc)
      * @see eu.sqooss.service.db.DBService#doHQL(java.lang.String)
      */
@@ -1199,6 +1249,49 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             throw ebis;
         }
     }
+    
+    private class AuxObject implements AuxiliaryDatabaseObject {
+    	
+    	private String dialectName;
+    	private Dialect dialect;
+    	private String create;
+    	private String drop;
+    	    	
+    	public AuxObject(String d, String create, String drop) {
+    		addDialectScope(d);
+    		this.create = create;
+    		this.drop = drop;
+    	}
+    	
+		public void addDialectScope(String d) {
+    		this.dialectName = d;
+    		dialect = DialectFactory.buildDialect(dialectName);
+		}
+
+		public boolean appliesToDialect(Dialect d) {
+			if (d.equals(dialect))
+				return true;
+			
+			return false;
+		}
+
+		public String sqlCreateString(Dialect dialect, Mapping p,
+				String defaultCatalog, String defaultSchema)
+				throws HibernateException {
+			if (appliesToDialect(dialect))
+				return create;
+			return null;
+		}
+
+		public String sqlDropString(Dialect dialect, String defaultCatalog,
+				String defaultSchema) {
+			if (appliesToDialect(dialect))
+				return drop;
+			return null;
+		}
+    	
+    }
+    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

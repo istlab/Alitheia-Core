@@ -33,21 +33,25 @@
 
 package eu.sqooss.impl.service.updater;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
+import org.hibernate.QueryException;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.Tag;
@@ -70,51 +74,62 @@ import eu.sqooss.service.util.FileUtils;
 
 final class SourceUpdater extends Job {
     
-    private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.svn.handlecopies";
-    
-    private enum HandleCopies {
-        TRUNK, BRANCHES, TAGS
-    }
-    
-    private UpdaterServiceImpl updater;
+	private UpdaterServiceImpl updater;
     private StoredProject project;
     private TDSService tds;
     private DBService dbs;
     private Logger logger;
     private MetricActivator ma;
     
-    private HandleCopies hc = HandleCopies.BRANCHES;
+    /* Flag set on start up */
+    private boolean supportStoredProcedureUpdates; 
     
     /*
-     * Cache project version and project file IDs for kick-starting
+     * Hold project version and project file IDs for kick-starting
      * metric update jobs after the metadata update. This is done
-     * to avoid holding references to huge data graphs on large
-     * updates
+     * to avoid holding references to huge data graphs during large
+     * updates.
      */
     private Set<Long> updProjectVersions = new TreeSet<Long>();
     private Set<Long> updFiles = new TreeSet<Long>();
     private Set<Long> updDevs = new TreeSet<Long>();
     
-    // Avoid Hibernate thrashing by caching frequently accessed objects
+    /* Avoid Hibernate thrashing by caching frequently accessed directories */
     private LRUMap dirCache = new LRUMap(200);
     
-    /* Cache all file records for a processed version*/
+    /* Container for all project file records for each processed version*/
     private List<ProjectFile> versionFiles = new ArrayList<ProjectFile>();
     
     /* Currently processed commit log entry*/
     private CommitEntry commitLogEntry;
     
-    /* State weights to use when evaluating duplicate project file entries
+    /* 
+     * State weights to use when evaluating duplicate project file entries
      * in a single revision
      */
-    private static HashMap<String, Integer> stateWeights ;
+    private static Map<Integer, Integer> stateWeights ;
+    
     static {
-        stateWeights = new HashMap<String, Integer>();
-        stateWeights.put(ProjectFile.STATE_ADDED, 2);
-        stateWeights.put(ProjectFile.STATE_MODIFIED, 4);
-        stateWeights.put(ProjectFile.STATE_REPLACED, 8);
-        stateWeights.put(ProjectFile.STATE_DELETED, 16);
+        stateWeights = new HashMap<Integer, Integer>();
+        stateWeights.put(ProjectFileState.STATE_ADDED, 2);
+        stateWeights.put(ProjectFileState.STATE_MODIFIED, 4);
+        stateWeights.put(ProjectFileState.STATE_REPLACED, 8);
+        stateWeights.put(ProjectFileState.STATE_DELETED, 16);
     }
+    
+    /*
+     * A Map from SCM file status codes represented as strings
+     * to system internal ids.
+     */
+    private static Map<String, Integer> SCMStatusIDs;
+    static {
+        SCMStatusIDs = new HashMap<String, Integer>();
+        SCMStatusIDs.put("ADDED", ProjectFileState.STATE_ADDED);
+        SCMStatusIDs.put("MODIFIED", ProjectFileState.STATE_MODIFIED);
+        SCMStatusIDs.put("DELETED", ProjectFileState.STATE_DELETED);
+        SCMStatusIDs.put("REPLACED", ProjectFileState.STATE_REPLACED);
+    }
+    
     
     /**
      * Update SVN metadata by synchronizing the latest version available to
@@ -126,12 +141,6 @@ final class SourceUpdater extends Job {
      * @param core A reference to the core service
      * @param logger A preconfigured logger, common to all updaters
      * @throws UpdaterException When things go wrong
-     */
-    /*
-     * Notes:
-     * -When we use ProjectFile.getFilesForVersion we always feed it with
-     * the previous version. This is only necessary in the updater context
-     * as the FilesForVersion table that getFilesForVersion depends on
      */
     public SourceUpdater(StoredProject project, UpdaterServiceImpl updater,
             AlitheiaCore core, Logger logger) throws UpdaterException {
@@ -146,23 +155,6 @@ final class SourceUpdater extends Job {
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
         this.ma = core.getMetricActivator();
-        
-        String hcp = System.getProperty(HANDLE_COPIES_PROPERTY);
-        
-        if (hcp != null) {
-            if (hcp.equalsIgnoreCase("trunk")) {
-                hc = HandleCopies.TRUNK;
-            } else if (hcp.equalsIgnoreCase("branches")) {
-                hc = HandleCopies.BRANCHES;
-            } else if (hcp.equalsIgnoreCase("tags")) {
-                hc = HandleCopies.TAGS;
-            } else {
-                warn("Not correct value for property " + HANDLE_COPIES_PROPERTY);
-            }
-        } else {
-            info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
-            		" using default:" + this.hc);
-        }
     }
 
     public int priority() {
@@ -177,6 +169,9 @@ final class SourceUpdater extends Job {
     protected void run() throws Exception {
         
         dbs.startDBSession();
+        
+        setSupportsStoredProcedureUpdates();
+        
         int numRevisions = 0;
         
         info("Running source update for project " + project.getName() 
@@ -206,17 +201,18 @@ final class SourceUpdater extends Job {
                 zero.setTimestamp(scm.getFirstRevision().getDate().getTime());
                 zero.setCommitMsg("Artificial revision to include / directory");
                 zero.setRevisionId("0");
-                zero.setOrder(0);
+                zero.setSequence(0);
                 dbs.addRecord(zero);
                 ProjectFile root = new ProjectFile(zero);
                 root.setIsDirectory(true);
                 root.setDir(getDirectory("/", true));
                 root.setName("");
-                root.setStatus("ADDED");
+                root.setState(ProjectFileState.added());
+                root.setValidFrom(zero);
+                root.setValidUntil(zero);
                 dbs.addRecord(root);
                 HashSet<ProjectFile> ffv = new HashSet<ProjectFile>();
                 ffv.add(root);
-                zero.setFilesForVersion(ffv);
                 latestVersion = ProjectVersion.getLastProjectVersion(project);
             }
             commitLog = scm.getCommitLog(scm.getNextRevision(
@@ -263,10 +259,12 @@ final class SourceUpdater extends Job {
                 dbs.addRecords(versionFiles);
 
                 /*
-                 * Update the list of live files in this revision. This list is
-                 * generated to speed up excecution of metrics and UIs.
+                 * Update the list of live files in this revision. 
                  */
-                updateFilesForVersion(curVersion);
+                if (supportStoredProcedureUpdates)
+                	updateValidUntilProc(curVersion);
+                else
+                	updateValidUntil(curVersion);
 
                 numRevisions++;
                 dirCache.clear();
@@ -295,8 +293,33 @@ final class SourceUpdater extends Job {
             ma.runMetrics(updDevs, Developer.class);
         }
     }
+   
+    private void setSupportsStoredProcedureUpdates() {
+    	String paramVersion = "paramVersion";
+ 	    String paramPrevVersion = "paramPrev";
+     	String paramState = "paramStatus";
+     	
+    	List<String> arglist = new ArrayList<String>();
+    	arglist.add(paramPrevVersion);
+    	arglist.add(paramVersion);
+    	arglist.add(paramState);
+     	
+    	Map<String,Object> params = new HashMap<String,Object>();
+     	params.put(paramState, 0);
+     	params.put(paramVersion, 0);
+     	params.put(paramPrevVersion, 0);
+     	
+     	try {
+			dbs.callProcedure("updatelivefiles", arglist, params);
+			this.supportStoredProcedureUpdates = true;
+		} catch (QueryException e) {
+			this.supportStoredProcedureUpdates = false;
+		} catch (SQLException e) {
+			this.supportStoredProcedureUpdates = false;
+		}
+	}
 
-    /*
+	/*
      * This method processes project version metadata.
      */
     private ProjectVersion processCommit(SCMAccessor scm, CommitEntry entry) {
@@ -319,7 +342,7 @@ final class SourceUpdater extends Job {
 
         curVersion.setCommitMsg(commitMsg);
         ProjectVersion prev = getPreviousVersion(scm, curVersion);
-        curVersion.setOrder(prev.getOrder() + 1);
+        curVersion.setSequence(prev.getSequence() + 1);
         dbs.addRecord(curVersion);
 
         debug("Got version " + curVersion.getRevisionId() + 
@@ -336,80 +359,39 @@ final class SourceUpdater extends Job {
             throws InvalidProjectRevisionException, InvalidRepositoryException {
         for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
 
-        	CommitCopyEntry cce = copyOp;
-            if (!canProcess(cce.fromPath(), null)) {
-                warn("Processing file copies with source dir " + cce.fromPath()
-                        + " to " + cce.toPath());
-
-                /* Work around copies from tags by re-writing the from path */
-                if (cce.fromPath().contains("tags/")) {
-                    warn("Attempting to circumvent copy from /tags dir");
-                    String tag = cce.fromPath().split("tags/")[1];
-                    ProjectVersion tagSourceVersion = Tag
-                            .getProjectVersionForNamedTag(tag, 
-                                    curVersion.getProject());
-                    if (tagSourceVersion == null) {
-                        warn("Source version not found for tag " + tag);
-                        continue; // Tag not recorded for some reason
-                    } 
-                    CommitLog versionLog = scm.getCommitLog(scm.newRevision(tagSourceVersion.getRevisionId()));
-                    for(CommitEntry ce : versionLog) {
-                        for(CommitCopyEntry cpEntry : ce.getCopyOperations()) {
-                            if (cpEntry.toPath().equals(cce.fromPath())) {
-                              /*  Got ya!
-                                Found where this tag originally came from
-                                create a fake copy op to copy from the 
-                                original source to the new target. 
-                                Of course, this discards any changes made
-                                in the intermediate copy destination, but
-                                one shouldn't edit files sin /tags, right? :-)
-                               */ 
-                                cce = new CommitCopyEntry(cpEntry.fromPath(), 
-                                        scm.newRevision(
-                                        tagSourceVersion.getRevisionId()), 
-                                        copyOp.toPath(), copyOp.toRev());
-                                break;
-                            }
-                        }
-                        if (!cce.fromPath().equals(copyOp.fromPath())) {
-                            break;
-                        }
-                    }
-                }
-            }
-            
             ProjectFile copyFrom = null;
             copyFrom = ProjectFile.findFile(project.getId(), 
-                        FileUtils.basename(cce.fromPath()), 
-                        FileUtils.dirname(cce.fromPath()), 
-                        cce.fromRev().getUniqueId());
+                        FileUtils.basename(copyOp.fromPath()), 
+                        FileUtils.dirname(copyOp.fromPath()), 
+                        copyOp.fromRev().getUniqueId());
                 
             if (copyFrom == null) {
                 warn("expecting 1 got " + 0 + " files for path " 
-                        + cce.fromPath() + " " + prev.toString());
+                        + copyOp.fromPath() + " " + prev.toString());
             }
                 
             if (copyFrom.getIsDirectory()) {
                     
-                Directory from = getDirectory(cce.fromPath(), false);
-                Directory to = getDirectory(cce.toPath(), true);
+                Directory from = getDirectory(copyOp.fromPath(), false);
+                Directory to = getDirectory(copyOp.toPath(), true);
 
                 /*
                  * Recursively copy contents and mark files as modified
                  * and directories as added
                  */
                 debug("Copying directory " + from.getPath()
-                        + " (from r" + cce.fromRev().getUniqueId()
+                        + " (from r" + copyOp.fromRev().getUniqueId()
                         + ") to " + to.getPath());
                 handleDirCopy(curVersion, 
                         ProjectVersion.getVersionByRevision(curVersion.getProject(),
-                        cce.fromRev().getUniqueId()), from, to, copyFrom);
+                        copyOp.fromRev().getUniqueId()), from, to, copyFrom);
             } else {
                 /*
                  * Create a new entry at the new location and mark the new 
                  * entry as ADDED
                  */
-                addFile(curVersion, cce.toPath(), "ADDED", SCMNodeType.FILE, copyFrom);
+                addFile(curVersion, copyOp.toPath(), ProjectFileState.added(), 
+                        SCMNodeType.FILE, copyFrom);
             }   
         }
     }
@@ -437,10 +419,7 @@ final class SourceUpdater extends Job {
                 dbs.addRecord(tag);
                 break;
             }
-            
-            if(!canProcess(chPath, null))
-                continue; //Entries under tags or branches
-            
+                        
             //Dirs are processed recursively. This allows
             //copy-and-modify-in-copied-dir scenarions to be processed
             if (isCopiedPath(chPath) && t != SCMNodeType.FILE) 
@@ -448,8 +427,9 @@ final class SourceUpdater extends Job {
 
             ProjectFile toAdd = null;
             
-            toAdd = addFile(curVersion, chPath, 
-                    entry.getChangedPathsStatus().get(chPath).toString(), 
+            toAdd = addFile(curVersion, chPath,
+                    ProjectFileState.fromStatus(SCMStatusIDs.get(
+                    entry.getChangedPathsStatus().get(chPath).toString())), 
                     t, null);
             
             /*
@@ -494,7 +474,7 @@ final class SourceUpdater extends Job {
                     // In spite of it not being marked as a directory
                     // in the node tree right now.
                     toAdd.setIsDirectory(true);
-                } else {
+                } else if (!delAfterCopy) {
                     warn("Cannot find previous version of DELETED" +
                                 " directory " + toAdd.getFileName());
                 }
@@ -552,8 +532,8 @@ final class SourceUpdater extends Job {
                 
                 debug("  " + f);
                 
-                if (stateWeights.get(f.getStatus()) > points) {
-                    points = stateWeights.get(f.getStatus());
+                if (stateWeights.get(f.getState().getStatus()) > points) {
+                    points = stateWeights.get(f.getState().getStatus());
                     if (winner != null)
                         versionFiles.remove(winner);
                     winner = f;
@@ -588,7 +568,7 @@ final class SourceUpdater extends Job {
         List<ProjectFile> chFiles = new ArrayList<ProjectFile>(this.versionFiles);
         
         for (ProjectFile pf : chFiles) {
-            ProjectFile parent = getParentFolder(pv, pf);
+            ProjectFile parent = pf.getEnclosingDirectory();
             
             //Parent dir not in the DB, it should be added in this revision
             if (parent == null) {
@@ -608,7 +588,7 @@ final class SourceUpdater extends Job {
             }
             if (!exists) {
                 //Create it!
-                addFile(pv, parent.getFileName(), ProjectFile.STATE_MODIFIED, 
+                addFile(pv, parent.getFileName(), ProjectFileState.modified(), 
                         SCMNodeType.DIR, null);
             }
         }
@@ -619,7 +599,7 @@ final class SourceUpdater extends Job {
      * to the project file cache.
      */
     private ProjectFile addFile(ProjectVersion version, String fPath, 
-            String status, SCMNodeType t, ProjectFile copyFrom) {
+            ProjectFileState status, SCMNodeType t, ProjectFile copyFrom) {
         ProjectFile pf = new ProjectFile(version);
 
         String path = FileUtils.dirname(fPath);
@@ -628,8 +608,10 @@ final class SourceUpdater extends Job {
         Directory dir = getDirectory(path, true);
         pf.setName(fname);
         pf.setDir(dir);
-        pf.setStatus(status);
+        pf.setState(status);
         pf.setCopyFrom(copyFrom);
+        pf.setValidFrom(version);
+        pf.setValidUntil(version);
         
         if (t == SCMNodeType.DIR) {
             pf.setIsDirectory(true);
@@ -686,14 +668,14 @@ final class SourceUpdater extends Job {
 
         ProjectVersion prev = pv.getPreviousVersion();
         
-        List<ProjectFile> files = ProjectFile.getFilesForVersion(prev, d);
+        List<ProjectFile> files = prev.getFiles(d);
         
         for (ProjectFile f : files) {
             if (f.getIsDirectory()) {
                 handleDirDeletion(f, pv);
             }
             ProjectFile mark = new ProjectFile(f, pv);
-            mark.makeDeleted();
+            mark.setState(ProjectFileState.deleted());
             versionFiles.add(mark);
         }
     }
@@ -712,7 +694,7 @@ final class SourceUpdater extends Job {
                 handleCopiedDirDeletion(f);
             }
             ProjectFile mark = new ProjectFile(f, f.getProjectVersion());
-            mark.makeDeleted();
+            mark.setState(ProjectFileState.deleted());
             versionFiles.add(mark);
         }
     }
@@ -741,64 +723,76 @@ final class SourceUpdater extends Job {
      */
     private void handleDirCopy(ProjectVersion pv, ProjectVersion fromVersion,
             Directory from, Directory to, ProjectFile copyFrom) {
-        
-        if (!canProcess(from.getPath(), to.getPath())) 
-            return;
        
-        addFile(pv, to.getPath(), "ADDED", SCMNodeType.DIR, copyFrom);
+        addFile(pv, to.getPath(), ProjectFileState.added(), SCMNodeType.DIR, copyFrom);
         
         /*Recursively copy directories*/
-        List<ProjectFile> fromPF = ProjectFile.getFilesForVersion(fromVersion, from, ProjectFile.MASK_DIRECTORIES);
+        List<ProjectFile> fromPF = fromVersion.getFiles(from, ProjectVersion.MASK_DIRECTORIES);
         
         for (ProjectFile f : fromPF) {
             handleDirCopy(pv, fromVersion, getDirectory(f.getFileName(), false), 
                     getDirectory(to.getPath() + "/" + f.getName(), true), f);
         }
         
-        fromPF = ProjectFile.getFilesForVersion(fromVersion, from, ProjectFile.MASK_FILES);
+        fromPF = fromVersion.getFiles(from, ProjectVersion.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
             addFile(pv, to.getPath() + "/" + f.getName(),
-                    "ADDED", SCMNodeType.FILE, f);
+                    ProjectFileState.added(), SCMNodeType.FILE, f);
         }
+    }
+  
+    /**
+     * Update the validUntil field after all files have been processed. This
+     * version uses a stored procedure
+     */
+    @SuppressWarnings("deprecation")
+    private void updateValidUntilProc(ProjectVersion pv) {
+    	String paramVersion = "paramVersion";
+ 	    String paramPrevVersion = "paramPrev";
+     	String paramState = "paramStatus";
+     	
+    	List<String> arglist = new ArrayList<String>();
+    	arglist.add(paramPrevVersion);
+    	arglist.add(paramVersion);
+    	arglist.add(paramState);
+     	
+    	Map<String,Object> params = new HashMap<String,Object>();
+     	params.put(paramState, ProjectFileState.deleted().getId());
+     	params.put(paramVersion, pv.getId());
+     	params.put(paramPrevVersion, pv.getPreviousVersion().getId());
+     	
+     	try {
+			dbs.callProcedure("updatelivefiles", arglist, params);
+		} catch (QueryException e) {
+			logger.error("Error calling");
+		} catch (SQLException e) {
+			logger.error("Error in stored procedure 'updatelivefiles'");
+			e.printStackTrace();
+		}
     }
     
     /**
-     * Decide whether a path can be copied depending on the value of 
-     * the eu.sqooss.updater.handlecopies property.
+     * Update the validUntil field after all files have been processed.
      */
-    private boolean canProcess(String from, String to) {
+	private void updateValidUntil(ProjectVersion pv) {
+
+    	//Create a lookup table to speedup searching in the processing loop 
+    	Map<String, ProjectFile> cache = new HashMap<String, ProjectFile>();
+    	
+    	for (ProjectFile pf : versionFiles) {
+    		cache.put(pf.getFileName(), pf);
+    	}
+    	
+        List<ProjectFile> pfs = pv.getPreviousVersion().getFiles();
         
-        if (from == null)
-            return false;
-        
-        if (hc.equals(HandleCopies.TAGS)) {
-            return true;
-        }
-        
-        if (hc.equals(HandleCopies.TRUNK) && 
-               from.contains("trunk") && (
-                   (to != null && to.contains("trunk")) || 
-                    to == null) 
-           ) {
-                return true;
-        }
-        
-        if (hc.equals(HandleCopies.BRANCHES)) {
-            if ((to != null && to.contains("tags")) || 
-                    from.contains("tags")) {
-            	err("Copying files with source dir under /tags is not a " +
-            	"supported operation and may cause data consistency problems." +
-            	"The system will use a pseudo-copy mode that may or may not work." +
-            	" Set the " + HANDLE_COPIES_PROPERTY + " to <tags> if you want " +
-            	"proper support for copies from tags, but bear in mind this " +
-            	"will cause performance problems ");
-                return false;
-            }
-            return true;
-        }
-        
-        return false;
+        for (ProjectFile pf : pfs) {
+        	//File was not modified in this revision, bump up the
+        	if (cache.get(pf.getFileName()) == null) {
+        		pf.setValidUntil(pv);
+        		continue;
+        	}
+        }     
     }
     
     /**
@@ -829,124 +823,6 @@ final class SourceUpdater extends Job {
         }
         
         return prev;
-    }
-    
-    /*Get the latest entry for the enclosing directory */
-    private ProjectFile getParentFolder(ProjectVersion pv, ProjectFile pf) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        
-        String paramName = "paramName"; 
-        String paramDir = "paramDir";
-        String paramIsDir = "paramIsDir"; 
-        String paramProject = "paramProject";
-        String paramOrder = "paramOrder";
-        String paramVersion = "paramVersion";
-        
-        String query = "select pf " +
-            " from ProjectFile pf, ProjectVersion pv " +
-            " where pf.projectVersion = pv " +
-            " and pf.name = :" + paramName +
-            " and pf.dir = :" + paramDir + 
-            " and pf.isDirectory = :" + paramIsDir + 
-            " and pv.project = :" + paramProject +
-            " and pv.order <= :" + paramOrder +
-            " order by pv.order desc";
-        
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        
-        params.put(paramName, FileUtils.basename(pf.getDir().getPath()));
-        params.put(paramDir, Directory.getDirectory(FileUtils.dirname(pf.getDir().getPath()), false));
-        params.put(paramProject, pv.getProject());
-        params.put(paramIsDir, true);
-        params.put(paramOrder, pv.getOrder());
-        
-        List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
-        
-        if (pfs.size() <= 0)
-            return null;
-        else 
-            return pfs.get(0);
-    }
-    
-    /**
-     * Update the FilesForVersion table incrementally 
-     */
-    private void updateFilesForVersion(ProjectVersion pv) {
-
-        // Copy old records
-        ProjectVersion previous = pv.getPreviousVersion();
-        
-        Set<ProjectFile> filesForVersion = new HashSet<ProjectFile>();
-        if ( previous != null && previous.getFilesForVersion() != null ) {
-            filesForVersion.addAll( previous.getFilesForVersion() );
-        }
-
-        // Update with new records
-        for (ProjectFile pf : versionFiles) {
-            //Update the file ids list with the definite list of files
-            updFiles.add(pf.getId());
-            if (pf.getStatus() == "ADDED") {
-                filesForVersion.add(pf);
-            } else if (pf.getStatus() == "DELETED") {
-                ProjectFile old = ProjectFile.getPreviousFileVersion(pf);
-                if (old == null) {
-                    err("Cannot get previous file version for file " 
-                            + pf.toString());
-                }
-                
-                /* 
-                 * A deleted file must be deleted in the directory it was
-                 * previously added or modified. If a file is marked DELETED
-                 * while its previous version is in another directory this
-                 * means that the file was first copied and then deleted 
-                 * in the same revision. Deleting the previous version in
-                 * that case would lead to inconsistencies. 
-                 */
-                if (!old.getFileName().equals(pf.getFileName())) {
-                    debug("Deleted file path " + pf + " is different" +
-                    		" from previous version " + old);
-                    continue;
-                }
-                
-                boolean deleted = filesForVersion.remove(old);
-                if (!deleted) {
-                    warn("Couldn't remove association of deleted file "
-                            + pf + " in version " + pv.getRevisionId());
-                }
-            } else if (pf.getStatus() == "MODIFIED" || pf.getStatus() == "REPLACED") {
-                ProjectFile old = ProjectFile.getPreviousFileVersion(pf); 
-                if (old == null) {
-                    err("Cannot get previous file version for MODIFIED file " + pf.toString());
-                }
-                
-                /* 
-                 * A modified file must be modified in the directory it was
-                 * previously added. If a file is marked MODIFIED
-                 * while its previous version is in another directory this
-                 * means that the file was first copied and then modified 
-                 * in the same revision. Deleting the previous version in
-                 * that case would lead to inconsistencies. 
-                 */
-                if (!old.getFileName().equals(pf.getFileName())) {
-                    debug("Modified file path " + pf + " is different" +
-                                " from previous version " + old);
-                } else if (old.isDeleted()) {
-                    info("File " + pf + " was resurructed from " + old +
-                        ", then was modified in the same revision :-)");
-                } else {
-                    boolean deleted = filesForVersion.remove(old);
-                    if (!deleted) {
-                        warn("Couldn't remove old association of modified file " + pf.toString() +
-                                " in version " + pv.getRevisionId());
-                    } 
-                }
-                filesForVersion.add(pf);
-            } else {
-                warn("Don't know what to do with file status:"
-                        + pf.getStatus() + " file_id:" + pf.getId());
-            }
-        }        
-        pv.setFilesForVersion(filesForVersion);
     }
     
     /**

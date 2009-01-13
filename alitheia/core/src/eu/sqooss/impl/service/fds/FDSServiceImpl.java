@@ -250,7 +250,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
      */
     private Revision projectFileRevision(ProjectFile pf) {
         // Make sure that the file exists in the specified project version
-        String fileStatus = pf.getStatus();
+        String fileStatus = pf.getState().toString();
         if (PathChangeType.valueOf(fileStatus) == PathChangeType.DELETED) {
             return null;
         }

@@ -33,7 +33,7 @@
 
 package eu.sqooss.impl.service.fds;
 
-import java.util.Set;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import eu.sqooss.service.db.ProjectFile;
@@ -64,7 +64,7 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     protected void createCheckout() {
         root = new InMemoryDirectory(this);
         
-        Set<ProjectFile> projectFiles = revision.getFilesForVersion();
+        List<ProjectFile> projectFiles = revision.getFiles();
         if (projectFiles != null && projectFiles.size() != 0) {
             for (ProjectFile f : projectFiles) {
                 if (pattern.matcher(f.getFileName()).matches()) {

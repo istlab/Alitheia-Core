@@ -1,0 +1,21 @@
+In this directory, you can put scipts that will be run automatically 
+while the database is initializing. The scripts are mainly used to create
+stored procedures and indexes in addition to those created by hibernate.
+The files must follow the following naming convention and always come in
+pairs, one for creating and one for dropping the database object:
+ 
+	<objecttype>.<action>.<objectname>.<db>.sql
+
+where
+
+objecttype: one of {proc, idx, const}
+action: one of {create, drop} 
+name: the name of the object, string without spaces
+db: the name of the DBMS this object works with, currently on of {mysql, postgres}
+
+for example the file
+   proc.create.updatelivefiles.mysql.sql
+
+defines the create script of a stored procedure that only works with mysql. 
+
+WARNING: Currently does not work

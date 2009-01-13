@@ -58,6 +58,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FDSService;
@@ -472,24 +473,31 @@ public class WcImplementation extends AbstractMetric implements Wc {
         String paramMetricLoC = "paramMetricLoC";
         String paramMetricLoCom = "paramMetricLoCom";
         String paramIsDirectory = "paramIsDirectory";
-        
-        String query = "select pfm " +
-            " from ProjectFileMeasurement pfm, FileForVersion ffv " +
-            " where ffv.version = :" + paramVersion +
-            " and pfm.projectFile = ffv.file " + 
-            " and (pfm.metric = :" + paramMetricLoC +
-            "      or pfm.metric = :" +  paramMetricLoCom +
-            " )"; 
-        
-        String queryTotalFiles = "select count(ffv.file) " +
-            " from FileForVersion ffv " +
-            " where ffv.version = :" + paramVersion +
-            " and ffv.file.isDirectory = :" + paramIsDirectory;
+        String paramProject = "paramProject";
+        String paramState = "paramState";
+       
+        /* Get all measurements for live version files for metrics LoC and LoCom*/ 
+        String query = "select pfm " 
+        	+ "from ProjectFile pf, ProjectVersion pv, ProjectFileMeasurement pfm "
+        	+ "where pf.validFrom.sequence <= pv.sequence" 
+        	+ " and pf.validUntil.sequence >= pv.sequence"
+        	+ " and pf.state <> :" + paramState 
+        	+ " and pf.projectVersion.project = :" + paramProject
+        	+ " and pf.isDirectory = :" + paramIsDirectory 
+        	+ " and pv.project = :" + paramProject 
+        	+ " and pv = :" + paramVersion 
+        	+ " and pfm.projectFile = pf"
+        	+ " and (pfm.metric = :" + paramMetricLoC 
+            + "      or pfm.metric = :" +  paramMetricLoCom 
+            + " )";
         
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(paramVersion, v);
         params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC));
         params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM));
+        params.put(paramVersion, v);
+        params.put(paramIsDirectory, Boolean.FALSE);
+        params.put(paramState, ProjectFileState.deleted());
+        params.put(paramProject, v.getProject());
         
         List<ProjectFileMeasurement> results = 
             (List<ProjectFileMeasurement>) db.doHQL(query, params);
@@ -501,11 +509,9 @@ public class WcImplementation extends AbstractMetric implements Wc {
         int totalLoComm = 0;    //Total Lines of comments
         int totalLocDoc = 0;    //Total Lines of doc
         
-        params.clear();
-        params.put(paramVersion, v);
-        Boolean isDirectory = false;
-        params.put(paramIsDirectory, isDirectory);
-        nof = (Long) db.doHQL(queryTotalFiles, params).get(0);
+        params.remove(paramMetricLoCom);
+        params.remove(paramMetricLoC);
+        nof = v.getLiveFilesCount();
         
         for (ProjectFileMeasurement pfm : results) {
             String fname = pfm.getProjectFile().getName();

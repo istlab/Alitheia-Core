@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-  <class name="eu.sqooss.service.db.Developer" table="Developer">
+  <class name="eu.sqooss.service.db.Developer" table="DEVELOPER">
     <id name="id" column="DEVELOPER_ID">
       <generator class="native" />
     </id>

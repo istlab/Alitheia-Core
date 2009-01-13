@@ -134,7 +134,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
     public void run(ProjectVersion pv) {
         FDSService fds = core.getFDSService();
 
-        List<ProjectFile> pfs = pv.getAllFilesForVersion();
+        List<ProjectFile> pfs = pv.allFiles();
         Map<String, ProjectFile> pfmap = new HashMap<String, ProjectFile>();
         
         for ( ProjectFile pfile : pfs ) {
@@ -218,7 +218,7 @@ public class CLMTImplementation extends AbstractMetric implements CLMT {
         String[] keys = mrlist.getFilenames();
         MetricResult[] lmr = null;
         
-        List<ProjectFile> directories = pv.getAllDirectoriesForVersion();
+        List<ProjectFile> directories = pv.allDirs();
         Map<String, Metric> metricMap = new HashMap<String, Metric>();
         
         for (String file : keys) {

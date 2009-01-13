@@ -34,14 +34,11 @@
 package eu.sqooss.service.db;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.FileUtils;
@@ -51,30 +48,10 @@ import eu.sqooss.service.util.FileUtils;
  * stored in the database
  */
 public class ProjectFile extends DAObject{
-    // File status constants
-    public static final String STATE_ADDED    = "ADDED";
-    public static final String STATE_MODIFIED = "MODIFIED";
-    public static final String STATE_DELETED  = "DELETED";
-    public static final String STATE_REPLACED  = "REPLACED";
-    
-    //Select files, directories or both while querying
+   
     /**
-     * Mask used to select files
-     */
-    public static final int MASK_FILES = 0x1;
-    
-    /**
-     * Mask used to select directories
-     */
-    public static final int MASK_DIRECTORIES = 0x2;
-    
-    /**
-     * Mask used to select both files and directories
-     */
-    public static final int MASK_ALL = MASK_FILES | MASK_DIRECTORIES;
-    
-    /**
-     * The filename
+     * The filename (name without a directory for files, the directory
+     * name for directories)
      */
     private String name;
 
@@ -84,14 +61,9 @@ public class ProjectFile extends DAObject{
     private ProjectVersion projectVersion;
 
     /**
-     * A representation of the status of the file in this revision:
-     * <ul>
-     * <li>ADDED</li>
-     * <li>MODIFIED</li>
-     * <li>DELETED</li>
-     * </ul>
+     * The file's status in this revision 
      */
-    private String status;
+    private ProjectFileState state;
 
     /**
      * If this "file" is actually a directory then this is set to true
@@ -102,6 +74,17 @@ public class ProjectFile extends DAObject{
      * The SVN directory for which this file can be found
      */
     private Directory dir;
+    
+    /**
+     * The start revision a file has been valid from (the 
+     * addition/copy revision)
+     */
+    private ProjectVersion validFrom;
+    
+    /**
+     * The revision this file version stopped being 
+     */
+    private ProjectVersion validUntil;
 
     /**
      * The ProjectFile this file was copied from. Only gets a value 
@@ -121,6 +104,8 @@ public class ProjectFile extends DAObject{
 
     public ProjectFile(ProjectVersion pv) {
         this.projectVersion = pv;
+        this.setValidFrom(pv);
+        this.setValidUntil(pv);
         isDirectory = false; //By default, all entries are files
     }
 
@@ -146,7 +131,9 @@ public class ProjectFile extends DAObject{
         this.measurements = null;
         this.name = f.getName();
         this.projectVersion = v;
-        this.status = f.getStatus();
+        this.validFrom = v;
+        this.validUntil = v;
+        //this.status = f.getStatus();
     }
     
     /**
@@ -176,26 +163,22 @@ public class ProjectFile extends DAObject{
         return projectVersion;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setState(ProjectFileState state) {
+        this.state = state;
     }
 
-    public String getStatus() {
-        return status;
+    public ProjectFileState getState() {
+        return state;
     }
 
     public boolean isDeleted() {
-        return "DELETED".equalsIgnoreCase(status);
+        return (state.equals(ProjectFileState.deleted()));
     }
 
     public boolean isAdded() {
-        return "ADDED".equalsIgnoreCase(status);
+        return (state.equals(ProjectFileState.added()));
     }
-    
-    public void makeDeleted() {
-        setStatus("DELETED");
-    }
-    
+   
     public boolean getIsDirectory() {
         return isDirectory;
     }
@@ -210,6 +193,22 @@ public class ProjectFile extends DAObject{
 
     public void setDir(Directory dir) {
         this.dir = dir;
+    }
+    
+    public ProjectVersion getValidFrom() {
+        return validFrom;
+    }
+
+    public void setValidFrom(ProjectVersion validFrom) {
+        this.validFrom = validFrom;
+    }
+
+    public ProjectVersion getValidUntil() {
+        return validUntil;
+    }
+
+    public void setValidUntil(ProjectVersion validUntil) {
+        this.validUntil = validUntil;
     }
     
     public ProjectFile getCopyFrom() {
@@ -274,7 +273,7 @@ public class ProjectFile extends DAObject{
         }
 
         String paramFile = "paramFile";
-        String paramOrder = "paramOrder";
+        String paramOrder = "paramsequence";
         String paramDir = "paramDir";
         String paramProject = "paramProject";
         String paramCopyFromName = "paramCopyFromName";
@@ -284,7 +283,7 @@ public class ProjectFile extends DAObject{
             " from ProjectVersion pv, ProjectFile pf" +
             " where pf.projectVersion = pv.id " +
             " and pv.project = :" + paramProject +
-            " and pv.order < :" + paramOrder +
+            " and pv.sequence < :" + paramOrder +
             " and "; 
             if (pf.copyFrom != null) {
                 query += "(("; 
@@ -297,12 +296,12 @@ public class ProjectFile extends DAObject{
                 " and pf.dir = :" + paramCopyFromDir +
                 "     ))" ;
             }
-            query += " order by pv.order desc";
+            query += " order by pv.sequence desc";
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());
         parameters.put(paramProject, pf.getProjectVersion().getProject());
-        parameters.put(paramOrder, pf.getProjectVersion().getOrder());
+        parameters.put(paramOrder, pf.getProjectVersion().getSequence());
         
         if (pf.copyFrom != null) {
             parameters.put(paramCopyFromName, pf.getCopyFrom().getName());
@@ -315,109 +314,6 @@ public class ProjectFile extends DAObject{
         }else {
             return (ProjectFile) projectFiles.get(0);
         }
-    }
-
-    /**
-     * Returns all of the files visible in a given project version
-     * and in a given directory. Does not list recursively.
-     * Does not return null, but the list may be empty.
-     *
-     * @param version Project and version to look at
-     * @param d Directory to list
-     * @return List of files visible in that version (may be empty, not null)
-     */
-    public static List<ProjectFile> getFilesForVersion(ProjectVersion version,
-            Directory d) {
-        return getFilesForVersion(version, d, MASK_ALL);
-    }
-    
-    /**
-     * Returns either all the files or the directories or both 
-     * that are visible in a given project version and in a given directory. 
-     * Does not list recursively. Does not return null, but the list may be empty.
-     *
-     * @param version Project and version to look at
-     * @param d Directory to list
-     * @param mask Used to restrict the returned values to either files or
-     * directories
-     * @return List of files visible in that version (may be empty, not null)
-     */
-    @SuppressWarnings("unchecked")
-    public static List<ProjectFile> getFilesForVersion(ProjectVersion version,
-            Directory d, int mask) {
-        if (version==null || d==null) {
-            throw new IllegalArgumentException("Project version or directory" +
-            		" is null in getFilesForVersion.");
-	}
-
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramVersion = "paramVersion";
-        String paramDirectory = "paramDirectory";
-        String paramIsDirectory = "is_directory";
-
-        String query = "select pf " +
-        	" from ProjectFile pf, FileForVersion ffv " +
-        	" where ffv.file = pf " +
-        	" and ffv.version = :" + paramVersion +
-        	" and pf.dir = :" + paramDirectory;
-            
-        if (mask != MASK_ALL) {
-            query += " and pf.isDirectory = :" + paramIsDirectory;
-        }
-        
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramDirectory, d);
-        parameters.put(paramVersion, version);
-        
-        if (mask != MASK_ALL) {
-            Boolean isDirectory = ((mask == MASK_DIRECTORIES)?true:false);
-            parameters.put(paramIsDirectory, isDirectory);
-        }
-        
-        List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, parameters);
-        if (projectFiles == null || projectFiles.size() == 0) {
-            return Collections.emptyList();
-        } else {
-            return projectFiles;
-        }
-    }
-    
-    /**
-     * Returns all of the files visible in a given project version
-     * that match the provided Pattern. The Pattern is evaluated
-     * against the file path.
-     * Does not return null, but the list may be empty.
-     *
-     * @param version Project and version to look at
-     * @param filter SQL-like expression to filter out unwanted paths
-     * @return List of files visible in that version, whose path matches the 
-     * specifed pattern (may be empty, not null)
-     * 
-     */
-    public static List<ProjectFile> getFilesForVersion(ProjectVersion version, Pattern p) {      
-        Set<ProjectFile> files = version.getFilesForVersion();
-        List<ProjectFile> matchedFiles = new ArrayList<ProjectFile>();
-        
-        if (files == null) {
-            return matchedFiles;
-        }
-        
-        for ( ProjectFile pf : files ) {
-            Matcher m = p.matcher(pf.getFileName());
-            
-            if (m.matches() && !matchedFiles.contains(pf)) {
-                for(ProjectFile tmpPF : matchedFiles) {
-                    if (tmpPF.getFileName().equals(pf.getFileName())) {
-                        System.err.println("Duplicate filename in file list:" + tmpPF.getFileName());
-                    }
-                }
-                
-                matchedFiles.add(pf);
-            }
-        }
-        
-        return matchedFiles;
     }
 
     /**
@@ -443,7 +339,9 @@ public class ProjectFile extends DAObject{
         String paramDir = "paramDir"; 
         String paramProject = "paramProject";
         String paramDirectory = "paramDirectory";
-        String paramOrder = "paramOrder";
+        String paramOrder = "paramsequence";
+        String paramStatusAdded = "paramStatusAdded";
+        String paramStatusDeleted = "paramStatusDeleted";
         
         /* The query needs to cater for a file being deleted
          * and re-added in the same directory so it only 
@@ -452,29 +350,31 @@ public class ProjectFile extends DAObject{
         String query = "select pv " +
             " from ProjectFile pf, ProjectVersion pv " +
             " where pf.projectVersion = pv " +
-            " and pf.status='DELETED' " +
+            " and pf.state= :" + paramStatusDeleted +
             " and pf.name = :" + paramName +
             " and pf.dir = :" + paramDir + 
             " and pf.isDirectory = :" + paramDirectory +
             " and pv.project = :" + paramProject +
-            " and pv.order > " +
-            "           (select max(pv1.order) " +
+            " and pv.sequence > " +
+            "           (select max(pv1.sequence) " +
             "           from ProjectVersion pv1, ProjectFile pf1" +
             "           where pf1.projectVersion = pv1" +
-            "           and pf1.status = 'ADDED'" +
+            "           and pf1.state = :" + paramStatusAdded +
             "           and pf1.name = :" + paramName +
             "           and pf1.dir = :" + paramDir +
             "           and pf1.isDirectory = :" + paramDirectory +
             "           and pv1.project = :" + paramProject +
-            "           and pv1.order < :" + paramOrder + 
+            "           and pv1.sequence < :" + paramOrder + 
             "           group by pv1) ";
 
         HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(paramStatusDeleted, ProjectFileState.deleted());
+        params.put(paramStatusAdded, ProjectFileState.added());
         params.put(paramName, pf.getName());
         params.put(paramDir, pf.getDir());
         params.put(paramDirectory, pf.getIsDirectory());
         params.put(paramProject, pf.getProjectVersion().getProject());
-        params.put(paramOrder, pf.getProjectVersion().getOrder());
+        params.put(paramOrder, pf.getProjectVersion().getSequence());
 
         List<ProjectVersion> pvs = (List<ProjectVersion>) db.doHQL(query, params);
                        
@@ -500,23 +400,25 @@ public class ProjectFile extends DAObject{
         String paramDir = "paramDir";
         String paramIsDir = "paramIsDir"; 
         String paramProject = "paramProject";
-        String paramVersion = "paramVersion";
-       
-        String query = "select ffv.file " +
-            " from FileForVersion ffv " +
-            " where ffv.version = :" + paramVersion +
-            " and ffv.file.name = :" + paramName +
-            " and ffv.file.dir = :" + paramDir + 
-            " and ffv.file.isDirectory = :" + paramIsDir + 
-            " and ffv.version.project = :" + paramProject;
+        String paramSequence = "paramSequence";
+        
+        String query = "select pf " +
+            " from ProjectFile pf, ProjectVersion pv " +
+            " where pf.projectVersion = pv " +
+            " and pf.name = :" + paramName +
+            " and pf.dir = :" + paramDir + 
+            " and pf.isDirectory = :" + paramIsDir + 
+            " and pv.project = :" + paramProject +
+            " and pv.sequence <= :" + paramSequence +
+            " order by pv.sequence desc";
         
         HashMap<String, Object> params = new HashMap<String, Object>();
         
-        params.put(paramName, FileUtils.basename(getDir().getPath()));
-        params.put(paramDir, Directory.getDirectory(FileUtils.dirname(getDir().getPath()), false));
-        params.put(paramProject, getProjectVersion().getProject());
+        params.put(paramName, FileUtils.basename(this.getDir().getPath()));
+        params.put(paramDir, Directory.getDirectory(FileUtils.dirname(this.getDir().getPath()), false));
+        params.put(paramProject, this.getProjectVersion().getProject());
         params.put(paramIsDir, true);
-        params.put(paramVersion, getProjectVersion());
+        params.put(paramSequence, this.getProjectVersion().getSequence());
         
         List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
         
@@ -555,7 +457,7 @@ public class ProjectFile extends DAObject{
             + " and pf.name = :" + paramFile
             + " and pf.dir = :" + paramDir
             + " and pv.project = :" + paramProject
-            + " order by pv.order desc";
+            + " order by pv.sequence desc";
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());
@@ -600,6 +502,7 @@ public class ProjectFile extends DAObject{
         String paramName = "paramName";
         String paramVersion = "paramVersion";
         String paramPath = "paramPath";
+        String paramStatus = "paramStatus";
         
         String query = "select pf " 
             + " from ProjectFile pf, ProjectVersion pv, StoredProject sp ";
@@ -608,10 +511,11 @@ public class ProjectFile extends DAObject{
             query += ", Directory d ";
 
         query += " where pf.projectVersion = pv.id " 
-            + " and pf.status <> 'DELETED'"
+            + " and pf.state <> :" + paramStatus 
             + " and pv.project.id = :" + paramProjectId 
             + " and pf.name = :" + paramName;
         
+        parameters.put(paramStatus, ProjectFileState.deleted());        
         parameters.put(paramProjectId, projectId);
         parameters.put(paramName, name);
         
@@ -627,7 +531,7 @@ public class ProjectFile extends DAObject{
             "where pv1.revisionId = :" + paramVersion +
             " and pv1.project.id = :" + paramProjectId +")";
         
-        query += " order by pv.order desc";
+        query += " order by pv.sequence desc";
 
         pfs = (List<ProjectFile>) dbs.doHQL(query, parameters, 1);
         
@@ -638,7 +542,7 @@ public class ProjectFile extends DAObject{
     }
     
     public String toString() {
-        return "r" + projectVersion.getRevisionId() + ":" + getFileName() + " (" + getStatus() + ")";
+        return "r" + projectVersion.getRevisionId() + ":" + getFileName() + " (" + getState() + ")";
     }
 }
 

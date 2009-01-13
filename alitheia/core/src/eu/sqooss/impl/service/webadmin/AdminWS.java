@@ -33,27 +33,23 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.io.PrintWriter;
 import java.io.IOException;
-
-import java.lang.management.RuntimeMXBean;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServlet;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.scheduler.SchedulerStats;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.scheduler.Scheduler;
 
 public class AdminWS extends HttpServlet {
     private static final long serialVersionUID = 1L;

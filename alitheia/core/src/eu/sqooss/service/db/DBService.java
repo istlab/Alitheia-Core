@@ -325,6 +325,29 @@ public interface DBService {
         throws SQLException, QueryException;
         
     /**
+     * Execute a named stored procedure. Stored procedures in general should be
+     * avoided as much as possible as they harm portability and this is why
+     * this method is marked as deprecated. For the same reason this method only
+     * returns an integer and not a cursor, as one should expect.
+     * In some cases however, e.g. when doing large batch updates or when 
+     * moving large volumes, stored procedures can speed up things. To maintain
+     * portability, there must always be an alternative execution path that 
+     * does not involve calling a stored procedure. 
+     * 
+     * @param sql The name of the procedure to call (case sensitive)
+     * @param arglist Names for the stored procedure arguments, order must be the
+     * same as in the stored procedure itself.
+     * @param params The map of parameters to be substituted in the SQL query
+     * @return The number of rows affected by the execution of the procedure.
+     * @throws SQLException if the stored procedure execution fails for some reason.
+     * @throws QueryException if some parameters are missing
+     * @deprecated
+     */
+    @Deprecated
+    public int callProcedure(String procName, List<String> arglist, Map<String, Object> params)
+    	throws SQLException, QueryException;
+    
+    /**
      * Execute a complete HQL query to the database.
      * To limit risks of HQL injection exploits, please do not execute queries like
      * <code>"FROM " + objectClass</code>.

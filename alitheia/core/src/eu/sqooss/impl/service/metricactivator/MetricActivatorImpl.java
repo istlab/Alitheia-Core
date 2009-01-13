@@ -60,6 +60,7 @@ import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.InvocationRule.ActionType;
@@ -198,7 +199,7 @@ public class MetricActivatorImpl  implements MetricActivator {
         //====================================================================
         if (resource instanceof ProjectFile) {
             // Skip on project file in state "DELETED"
-            if (((ProjectFile) resource).getStatus().equals("DELETED")) {
+            if (((ProjectFile) resource).getState().equals(ProjectFileState.deleted())) {
                 return defaultAction;
             }
             ProjectVersion version =
@@ -437,12 +438,12 @@ public class MetricActivatorImpl  implements MetricActivator {
                     "from ProjectVersion pv, ProjectFile pf " +
                     "where pf.projectVersion=pv and pv.project = :" + paramSp +
                     " group by pf.id, pv.timestamp" +
-                    " order by pv.order asc";
+                    " order by pv.sequence asc";
                 } else if (c.equals(ProjectVersion.class)) {
                     query = "select pv.id from ProjectVersion pv " +
                     "where pv.project = :" + paramSp + 
                     " group by pv.id, pv.timestamp" +
-                    " order by pv.order asc ";
+                    " order by pv.sequence asc ";
                 } else if (c.equals(StoredProject.class)) {
                     query = "select distinct sp.id from StoredProject sp where sp = :" 
                         + paramSp;

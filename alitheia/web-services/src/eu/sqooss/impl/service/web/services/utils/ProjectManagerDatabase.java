@@ -46,6 +46,7 @@ import eu.sqooss.impl.service.web.services.datatypes.WSProjectVersion;
 import eu.sqooss.impl.service.web.services.datatypes.WSStoredProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
@@ -134,21 +135,13 @@ public class ProjectManagerDatabase implements ProjectManagerDBQueries {
         ProjectVersion projectVersion = db.findObjectById(
                 ProjectVersion.class, projectVersionId);
         if (projectVersion == null) return null;
-        List<ProjectFile> files = ProjectFile.getFilesForVersion(
-                projectVersion, pattern);
+        List<ProjectFile> files = projectVersion.getFiles(pattern);
         return WSProjectFile.asArray(files);
     }
     
     public long getFilesNumberByProjectVersionId(long projectVersionId) {
-        Map<String, Object> queryParameters = new Hashtable<String, Object>(1);
-        queryParameters.put(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID_PARAM, projectVersionId);
-
-        long result = 0;
-        List<?> projectVersionFilesNumber = db.doHQL(GET_FILES_NUMBER_BY_PROJECT_VERSION_ID, queryParameters);
-        if (!projectVersionFilesNumber.isEmpty()) {
-            result = ((Long)projectVersionFilesNumber.get(0)).longValue();
-        }
-        return result;
+    	ProjectVersion pv = ProjectVersion.loadDAObyId(projectVersionId, ProjectVersion.class);
+        return pv.getLiveFilesCount();
     }
 
     @SuppressWarnings("unchecked")

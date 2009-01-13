@@ -10,10 +10,13 @@
     </id>
     <property name="name" column="FILE_NAME" />
     <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge"/>
-    <property name="status" column="FILE_STATUS" />
+    <many-to-one name="state" column="STATE_ID" not-null="true" cascade="merge"/>
     <property name="isDirectory" column="IS_DIRECTORY" />
     <many-to-one name="dir" column="DIRECTORY_ID" not-null="true" cascade="merge"/>
     <many-to-one name="copyFrom" column="COPY_FROM_ID" cascade="merge"/>
+    <many-to-one name="validFrom" column="VALID_FROM_ID" cascade="merge" not-null="true"/>
+    <many-to-one name="validUntil" column="VALID_TO_ID" cascade="merge" not-null="true"/>
+    
     <set name="measurements" inverse="true" cascade="all-delete-orphan">
         <key column="PROJECT_FILE_ID"/>
         <one-to-many class="eu.sqooss.service.db.ProjectFileMeasurement"/>

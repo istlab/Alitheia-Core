@@ -34,7 +34,6 @@ import java.io.OutputStream;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.clmt.configuration.Properties;
 
@@ -94,7 +93,7 @@ public class ParserImpl implements Parser {
 	
 	public Document[] parse(Language l, ProjectVersion pv) throws ParsingException {
 		List<Document> results = new ArrayList<Document>();
-		Set<ProjectFile> pfs = pv.getFilesForVersion();
+		List<ProjectFile> pfs = pv.getFiles();
 			
 		for ( ProjectFile pf : pfs ) {
 			Document d = parse(l, pf);

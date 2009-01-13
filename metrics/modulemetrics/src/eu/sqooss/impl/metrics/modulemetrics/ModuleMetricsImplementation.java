@@ -169,10 +169,9 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         int mnof = 0;
         int mnol = 0;
         
-        List<ProjectFile> pfs = ProjectFile.getFilesForVersion(
-                pf.getProjectVersion(), 
+        List<ProjectFile> pfs = pf.getProjectVersion().getFiles(
                 Directory.getDirectory(pf.getFileName(), false), 
-                ProjectFile.MASK_FILES);
+                ProjectVersion.MASK_FILES);
         
         boolean foundSource = false; 
         for (ProjectFile f : pfs) {
@@ -208,7 +207,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
 
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
         // Get the list of folders which exist in this project version.
-        List<ProjectFile> folders = pv.getAllDirectoriesForVersion();
+        List<ProjectFile> folders = pv.allDirs();
 
         log.debug("ModuleMetrics: Got " + folders.size() + " directories " +
         		"for version " + pv);
@@ -220,10 +219,9 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         //For each directory in version
         for (ProjectFile pf : folders) {
             //Determine whether the directory contains source code files
-            List<ProjectFile> pfs = ProjectFile.getFilesForVersion(
-                    pf.getProjectVersion(), 
+            List<ProjectFile> pfs = pf.getProjectVersion().getFiles(
                     Directory.getDirectory(pf.getFileName(), false),
-                    ProjectFile.MASK_FILES);
+                    ProjectVersion.MASK_FILES);
             log.debug("ModuleMetrics: Got " + pfs.size() + " files for directory " +
                     pf);
             for (ProjectFile f : pfs) {
