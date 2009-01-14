@@ -542,7 +542,10 @@ public class ProjectFile extends DAObject{
     }
     
     public String toString() {
-        return "r" + projectVersion.getRevisionId() + ":" + getFileName() + " (" + getState() + ")";
+    	StringBuilder sb  = new StringBuilder();
+        return sb.append("r").append(projectVersion.getRevisionId())
+        		.append(":").append(((getFileName()==null)?"":getFileName()))
+        		.append(" (").append(getState()).append(")").toString();
     }
 }
 
