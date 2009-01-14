@@ -31,7 +31,8 @@ declare cur1 CURSOR FOR
         from PROJECT_FILE pf2, DIRECTORY dir2
         where pf2.PROJECT_VERSION_ID = newpv
         and pf2.DIRECTORY_ID=dir2.DIRECTORY_ID
-        );
+		and dir.directory_id = dir2.directory_id
+	);
 
 declare continue handler for not found set done = 1; 
 
