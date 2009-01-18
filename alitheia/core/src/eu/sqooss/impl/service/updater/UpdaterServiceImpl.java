@@ -430,12 +430,14 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             errorMessage = "Bad updater request is missing project name.";
             logger.warn(errorMessage);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMessage);
+            dbs.commitDBSession();
             return;
         }
         if (t == null) {
             errorMessage = "Bad updater request is missing update target.";
             logger.warn(errorMessage);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMessage);
+            dbs.commitDBSession();
             return;
         }
 
@@ -445,6 +447,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             errorMessage = "The project <" + p + "> was not found";
             logger.warn(errorMessage);
             response.sendError(HttpServletResponse.SC_NOT_FOUND, errorMessage);
+            dbs.commitDBSession();
             return;
         }
 
@@ -455,6 +458,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             errorMessage = "Bad updater request for target <" + t + ">";
             logger.warn(errorMessage);
             response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errorMessage);
+            dbs.commitDBSession();
             return;
         }
 

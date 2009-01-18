@@ -503,37 +503,30 @@ public class ProjectFile extends DAObject{
         String paramVersion = "paramVersion";
         String paramPath = "paramPath";
         String paramStatus = "paramStatus";
+        StringBuilder query = new StringBuilder();
         
-        String query = "select pf " 
-            + " from ProjectFile pf, ProjectVersion pv, StoredProject sp ";
-        
-        if (path != null)
-            query += ", Directory d ";
+        query.append("select pf ");
+        query.append("from ProjectFile pf, ProjectVersion pv, StoredProject sp, Directory d ");
+        query.append(" where pf.projectVersion = pv.id "); 
+        query.append(" and pf.state <> :").append(paramStatus); 
+        query.append(" and pv.project.id = :").append(paramProjectId); 
+        query.append(" and pf.name = :").append(paramName);
+        query.append(" and pf.dir.id = d.id "); 
+        query.append(" and d.path = :").append(paramPath);
+        query.append(" and pv.sequence <= ( ");
+        query.append("    select pv1.sequence ");
+        query.append("    from ProjectVersion pv1 ");
+        query.append("    where pv1.revisionId = :").append(paramVersion);
+        query.append("    and pv1.project.id = :").append(paramProjectId).append(")");
+        query.append(" order by pv.sequence desc");
 
-        query += " where pf.projectVersion = pv.id " 
-            + " and pf.state <> :" + paramStatus 
-            + " and pv.project.id = :" + paramProjectId 
-            + " and pf.name = :" + paramName;
-        
         parameters.put(paramStatus, ProjectFileState.deleted());        
         parameters.put(paramProjectId, projectId);
         parameters.put(paramName, name);
-        
-        query += " and pf.dir.id = d.id " 
-            + " and d.path = :" + paramPath;
         parameters.put(paramPath, path);
-
-        
         parameters.put(paramVersion, version);
-        query += " and pv.timestamp <= ( " +
-            "select pv1.timestamp " +
-            "from ProjectVersion pv1 " +
-            "where pv1.revisionId = :" + paramVersion +
-            " and pv1.project.id = :" + paramProjectId +")";
         
-        query += " order by pv.sequence desc";
-
-        pfs = (List<ProjectFile>) dbs.doHQL(query, parameters, 1);
+        pfs = (List<ProjectFile>) dbs.doHQL(query.toString(), parameters, 1);
         
         if (pfs.isEmpty()) 
             return null;

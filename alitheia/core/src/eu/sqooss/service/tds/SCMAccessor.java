@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 
 /**
  * An interface to a source code repository. To be as generic as possible,
@@ -346,12 +347,35 @@ public interface SCMAccessor extends DataAccessor {
     	throws InvalidRepositoryException;
 
     /**
-     * Get the subdirectory of the project within the repsitory.
+     * Get the subdirectory of the project within the repository.
      * 
      * @throws InvalidRepositoryException When there is an error accessing the 
      * underlying repository
      */
     public String getSubProjectPath() throws InvalidRepositoryException;
+    
+    /**
+     * Get a list of files in a node in a specific revision. If the 
+     * node is a file and not a directory, then the node itself is returned.
+     * 
+     * @param dir
+     * @param r
+     * @return 
+     * @throws InvalidRepositoryException
+     */
+    public List<SCMNode> listDirectory(SCMNode dir)
+    	throws InvalidRepositoryException ;
+    
+    /**
+     * Returns a node object from the path. If the node does not exist 
+     * in the SCM for the specific revision, then <tt>null</tt> is returned.
+     * @param path
+     * @param r
+     * @return
+     * @throws InvalidRepositoryException
+     */
+    public SCMNode getNode(String path, Revision r) 
+    	throws InvalidRepositoryException;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

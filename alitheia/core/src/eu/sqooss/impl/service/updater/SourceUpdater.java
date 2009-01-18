@@ -45,6 +45,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
 import org.hibernate.QueryException;
+import org.hibernate.exception.SQLGrammarException;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
@@ -66,6 +67,7 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
@@ -74,7 +76,13 @@ import eu.sqooss.service.util.FileUtils;
 
 final class SourceUpdater extends Job {
     
-	private UpdaterServiceImpl updater;
+    private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.svn.handlecopies";
+    
+    private enum HandleCopies {
+        TRUNK, BRANCHES, TAGS
+    }
+    
+    private UpdaterServiceImpl updater;
     private StoredProject project;
     private TDSService tds;
     private DBService dbs;
@@ -82,6 +90,7 @@ final class SourceUpdater extends Job {
     private MetricActivator ma;
     
     /* Flag set on start up */
+    private HandleCopies hc = HandleCopies.BRANCHES;
     private boolean supportStoredProcedureUpdates; 
     
     /*
@@ -108,6 +117,9 @@ final class SourceUpdater extends Job {
      * in a single revision
      */
     private static Map<Integer, Integer> stateWeights ;
+    
+    /*SCM accessor to the project's repository */
+    private SCMAccessor scm = null;
     
     static {
         stateWeights = new HashMap<Integer, Integer>();
@@ -155,6 +167,23 @@ final class SourceUpdater extends Job {
         this.tds = core.getTDSService();
         this.dbs = core.getDBService();
         this.ma = core.getMetricActivator();
+        
+        String hcp = System.getProperty(HANDLE_COPIES_PROPERTY);
+        
+        if (hcp != null) {
+            if (hcp.equalsIgnoreCase("trunk")) {
+                hc = HandleCopies.TRUNK;
+            } else if (hcp.equalsIgnoreCase("branches")) {
+                hc = HandleCopies.BRANCHES;
+            } else if (hcp.equalsIgnoreCase("tags")) {
+                hc = HandleCopies.TAGS;
+            } else {
+                warn("Not correct value for property " + HANDLE_COPIES_PROPERTY);
+            }
+        } else {
+            info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
+            		" using default:" + this.hc);
+        }
     }
 
     public int priority() {
@@ -178,7 +207,6 @@ final class SourceUpdater extends Job {
                 + " ID " + project.getId());
         
         CommitLog commitLog = null;
-        SCMAccessor scm = null;
         
         try {
             // This is the last version we actually know about
@@ -312,10 +340,11 @@ final class SourceUpdater extends Job {
      	try {
 			dbs.callProcedure("updatelivefiles", arglist, params);
 			this.supportStoredProcedureUpdates = true;
-		} catch (QueryException e) {
+		} catch (Exception e) {
 			this.supportStoredProcedureUpdates = false;
-		} catch (SQLException e) {
-			this.supportStoredProcedureUpdates = false;
+		} finally {
+			if (!dbs.isDBSessionActive())
+				dbs.startDBSession();
 		}
 	}
 
@@ -357,46 +386,75 @@ final class SourceUpdater extends Job {
     private void processCopyOps(SCMAccessor scm, CommitEntry entry,
             ProjectVersion curVersion, ProjectVersion prev)
             throws InvalidProjectRevisionException, InvalidRepositoryException {
-        for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
-
+        for (CommitCopyEntry cce : entry.getCopyOperations()) {
+            
+        	if (!canProcess(cce.fromPath(), cce.toPath())) {
+        		return; 
+        	}
+        	
             ProjectFile copyFrom = null;
             copyFrom = ProjectFile.findFile(project.getId(), 
-                        FileUtils.basename(copyOp.fromPath()), 
-                        FileUtils.dirname(copyOp.fromPath()), 
-                        copyOp.fromRev().getUniqueId());
+                        FileUtils.basename(cce.fromPath()), 
+                        FileUtils.dirname(cce.fromPath()), 
+                        cce.fromRev().getUniqueId());
                 
+            /* Source location is an entry we do not have info for, 
+             * due to updater settings. Use the SCM to retrieve
+             * the missing info.
+             */
             if (copyFrom == null) {
                 warn("expecting 1 got " + 0 + " files for path " 
-                        + copyOp.fromPath() + " " + prev.toString());
+                        + cce.fromPath() + " " + prev.toString());
+                SCMNodeType type = scm.getNodeType(cce.fromPath(), cce.fromRev());
+                
+                if (type.equals(SCMNodeType.FILE)) {
+                	addFile(curVersion, cce.toPath(), ProjectFileState.added(), 
+                			SCMNodeType.FILE, copyFrom);
+                } else if (type.equals(SCMNodeType.DIR)) {
+                	
+                	SCMNode n = scm.getNode(cce.fromPath(), cce.fromRev());
+                	
+                	if (n != null) {
+                		debug("Copying directory");
+                		handleDirCopyFromRepository(curVersion, n, cce.toPath());
+                	} else {
+                		warn("Directory " + cce.fromPath() + " cannot be found");
+                	}
+                } else {
+                	warn("Path " + cce.fromPath() + " is of uknown type " 
+                			+ type + " which the updater cannot process");
+                }
+                
+                continue;
             }
                 
             if (copyFrom.getIsDirectory()) {
                     
-                Directory from = getDirectory(copyOp.fromPath(), false);
-                Directory to = getDirectory(copyOp.toPath(), true);
+                Directory from = getDirectory(cce.fromPath(), false);
+                Directory to = getDirectory(cce.toPath(), true);
 
                 /*
                  * Recursively copy contents and mark files as modified
                  * and directories as added
                  */
                 debug("Copying directory " + from.getPath()
-                        + " (from r" + copyOp.fromRev().getUniqueId()
+                        + " (from r" + cce.fromRev().getUniqueId()
                         + ") to " + to.getPath());
                 handleDirCopy(curVersion, 
                         ProjectVersion.getVersionByRevision(curVersion.getProject(),
-                        copyOp.fromRev().getUniqueId()), from, to, copyFrom);
+                        cce.fromRev().getUniqueId()), from, to, copyFrom);
             } else {
                 /*
                  * Create a new entry at the new location and mark the new 
                  * entry as ADDED
                  */
-                addFile(curVersion, copyOp.toPath(), ProjectFileState.added(), 
-                        SCMNodeType.FILE, copyFrom);
+                addFile(curVersion, cce.toPath(), ProjectFileState.added(), 
+                		SCMNodeType.FILE, copyFrom);
             }   
         }
     }
 
-    /*
+	/*
      * Normal operations are the operations that do not copy files or are
      * not a result of a file copy.
      */
@@ -419,7 +477,10 @@ final class SourceUpdater extends Job {
                 dbs.addRecord(tag);
                 break;
             }
-                        
+            
+            if(!canProcess(chPath, null))
+                continue; //Entries under tags or branches
+            
             //Dirs are processed recursively. This allows
             //copy-and-modify-in-copied-dir scenarions to be processed
             if (isCopiedPath(chPath) && t != SCMNodeType.FILE) 
@@ -723,6 +784,9 @@ final class SourceUpdater extends Job {
      */
     private void handleDirCopy(ProjectVersion pv, ProjectVersion fromVersion,
             Directory from, Directory to, ProjectFile copyFrom) {
+        
+        if (!canProcess(from.getPath(), to.getPath())) 
+            return;
        
         addFile(pv, to.getPath(), ProjectFileState.added(), SCMNodeType.DIR, copyFrom);
         
@@ -741,6 +805,47 @@ final class SourceUpdater extends Job {
                     ProjectFileState.added(), SCMNodeType.FILE, f);
         }
     }
+    
+    /**
+     * When the option to exclude the processing of certain paths has been 
+     * enabled, some directories cannot be found where they should be.
+     * In that case, search them in the repository. 
+     */
+    private void handleDirCopyFromRepository(ProjectVersion pv,
+			SCMNode fromFile, String to) {
+
+    	ProjectFile dest = ProjectFile.findFile(project.getId(), 
+                FileUtils.basename(to), 
+                FileUtils.dirname(to), 
+                fromFile.getRevision().getUniqueId());
+    	
+    	ProjectFileState pfs = ProjectFileState.added();
+    	
+    	if (dest != null) {
+    		pfs = ProjectFileState.modified();
+    	}
+    	
+    	addFile(pv, to, pfs, SCMNodeType.DIR, null);
+        
+        /*Recursively copy directories*/
+        List<SCMNode> dirFiles;
+		try {
+			dirFiles = scm.listDirectory(fromFile);
+		} catch (InvalidRepositoryException e) {
+			warn("Cannot list files of SVN directory " + fromFile + 
+					" in revision " + fromFile.getRevision());
+			return;
+		}
+        
+        for (SCMNode f : dirFiles) {
+        	if (f.getType().equals(SCMNodeType.DIR)) {
+        		handleDirCopyFromRepository(pv, f, f.getPath());
+        	} else {
+        		addFile(pv, to + "/" + FileUtils.basename(f.getPath()),
+        				ProjectFileState.added(), SCMNodeType.FILE, null);		
+        	}
+        }
+	}
   
     /**
      * Update the validUntil field after all files have been processed. This
@@ -793,6 +898,38 @@ final class SourceUpdater extends Job {
         		continue;
         	}
         }     
+    }
+    
+	/**
+     * Decide whether a path can be copied depending on the value of 
+     * the eu.sqooss.updater.handlecopies property.
+     */
+    private boolean canProcess(String from, String to) {
+        
+        if (from == null)
+            return false;
+        
+        if (hc.equals(HandleCopies.TAGS)) {
+            return true;
+        }
+        
+        if (hc.equals(HandleCopies.TRUNK) && 
+               from.contains("trunk") && (
+                   (to != null && to.contains("trunk")) || 
+                    to == null) 
+           ) {
+                return true;
+        }
+        
+        if (hc.equals(HandleCopies.BRANCHES)) {
+            if ((to != null && to.contains("tags")) || 
+                    from.contains("tags")) {
+                return false;
+            }
+            return true;
+        }
+        
+        return false;
     }
     
     /**

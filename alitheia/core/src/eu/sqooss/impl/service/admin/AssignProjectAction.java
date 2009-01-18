@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.admin;
 import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.admin.ActionParam;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 
@@ -66,7 +67,7 @@ public class AssignProjectAction extends ActionBase {
     }
     
     @Override
-    public boolean execute(Map<String, Object> params) {
+    public boolean execute(Map<ActionParam, Object> params) {
         
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         StoredProject sp = null;

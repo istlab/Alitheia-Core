@@ -1,6 +1,7 @@
-DELIMITER $$ 
+DELIMITER // 
 
-DROP PROCEDURE IF EXISTS updatelivefiles$$
+DROP PROCEDURE IF EXISTS updatelivefiles;
+//
 
 CREATE PROCEDURE updatelivefiles (IN oldpv BIGINT, IN newpv BIGINT, 
     IN deletedstatusid INT)
@@ -34,9 +35,14 @@ declare cur1 CURSOR FOR
 		and dir.directory_id = dir2.directory_id
 	);
 
-declare continue handler for not found set done = 1; 
+declare continue handler for not found set done = 1;
 
-select STORED_PROJECT_ID into projectid 
+create temporary table if not exists PROJECT_FILES_UPDATE (
+    PROJECT_FILE_ID BIGINT,
+    index using hash (PROJECT_FILE_ID)
+) ENGINE=MEMORY;
+
+select STORED_PROJECT_ID into projectid
 from PROJECT_VERSION
 where PROJECT_VERSION_ID = newpv;
 
@@ -44,11 +50,17 @@ open cur1;
 
 repeat
     fetch cur1 into fileid;
-    update PROJECT_FILE 
-    set VALID_TO_ID=newpv
-    where PROJECT_FILE_ID=fileid;
+    insert into PROJECT_FILES_UPDATE values (fileid);
 until done end repeat;
 
-END$$
+update PROJECT_FILE, PROJECT_FILES_UPDATE
+set  PROJECT_FILE.VALID_TO_ID=newpv
+where  PROJECT_FILE.PROJECT_FILE_ID = PROJECT_FILES_UPDATE.PROJECT_FILE_ID;
+
+delete from PROJECT_FILES_UPDATE;
+
+END;
+//
+
 DELIMITER ;
 

@@ -57,14 +57,14 @@ public class SCMNode {
     /**
      * The SCM revision this node 
      */
-    private long revision;
+    private Revision revision;
     
     /**
      * The list of children of the node, if the node is a directory
      */
     private List<SCMNode> children;
     
-    public SCMNode(String path, SCMNodeType type, long revision) {
+    public SCMNode(String path, SCMNodeType type, Revision revision) {
         this.path = path;
         this.type = type;
         this.revision = revision;
@@ -250,7 +250,7 @@ public class SCMNode {
     /**
      * @return the revision
      */
-    public long getRevision() {
+    public Revision getRevision() {
         return revision;
     }
 

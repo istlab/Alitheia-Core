@@ -66,7 +66,7 @@ public interface AdminAction {
      *            The parameters to pass to the action.
      * @return True if the action succeeds. False otherwise.
      */
-    public boolean execute(Map<String, Object> params);
+    public boolean execute(Map<ActionParam, Object> params);
 
     /**
      * Get the result of the action.

@@ -42,10 +42,13 @@ import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
@@ -71,6 +74,7 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 
 public class SVNAccessorImpl implements SCMAccessor {
@@ -816,6 +820,65 @@ public class SVNAccessorImpl implements SCMAccessor {
     public String toString() {
         return projectname.concat(":").concat(url);
     }
+
+	public List<SCMNode> listDirectory(SCMNode dir) 
+		throws InvalidRepositoryException {
+		
+		ArrayList<SCMNode> contents = new ArrayList<SCMNode>();
+		
+		 if (svnRepository == null) {
+			 connectToRepository();
+		 }
+		 
+		 if (!getNodeType(dir.getPath(), dir.getRevision()).equals(SCMNodeType.DIR)) {
+			 contents.add(dir);
+			 return contents;
+		 }
+		 
+		 Collection<SVNDirEntry> svnContents = Collections.emptyList();
+		 
+		 try {
+			svnRepository.getDir(dir.getPath(), 
+					Long.parseLong(dir.getRevision().getUniqueId()), 
+					false, svnContents);
+			
+			Iterator<SVNDirEntry> i = svnContents.iterator();
+			
+			while (i.hasNext()) {
+				SVNDirEntry d = i.next();
+				
+				SCMNode node = new SCMNode(
+						dir.getPath() + "/" + d.getName(),
+						(d.getKind() == SVNNodeKind.DIR)?SCMNodeType.DIR:SCMNodeType.FILE,
+					    dir.getRevision());
+				
+				contents.add(node);
+			}
+			
+		} catch (NumberFormatException e) {
+			logger.warn("Not an SVN revision: " + dir.getRevision().getUniqueId());
+		} catch (SVNException e) {
+			logger.warn("Error getting dir contents for path " + dir.getPath());
+		} 
+		 
+		return contents;
+	}
+
+	public SCMNode getNode(String path, Revision r)
+			throws InvalidRepositoryException {
+		
+		 if (svnRepository == null) {
+			 connectToRepository();
+		 }
+		 
+		 SCMNodeType t = getNodeType(path, r);
+
+		 if ( !t.equals(SCMNodeType.UNKNOWN)) {
+			 return new SCMNode(path, t, r);
+		 }
+		 
+		return null;
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
