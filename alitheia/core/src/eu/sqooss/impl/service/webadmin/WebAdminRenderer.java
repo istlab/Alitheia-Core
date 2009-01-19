@@ -273,52 +273,43 @@ public class WebAdminRenderer  extends AbstractView {
             return;
         }
 
-        StoredProject p = new StoredProject();
-        p.setName(name);
-        p.setWebsiteUrl(website);
-        p.setContactUrl(contact);
-        p.setBtsUrl(bts);
-        p.setScmUrl(scm);
-        p.setMailUrl(mail);
-
         /* Run a few checks before actually storing the project */
         // 1. Duplicate project
         
         HashMap<String, Object> props = new HashMap<String, Object>();
-        props.put("name", (Object) p.getName());
+        props.put("name",  name);
         if (!sobjDB.findObjectsByProperties(StoredProject.class, props).isEmpty()) {
-            projectFailed(p.getName(), "Name Exists", "A project with the same name already exists");
+            projectFailed(name, "Name Exists", "A project with the same name already exists");
             return;
         }
 
         // 2. Check for data handlers Add accessor and try to access project resources
-        if (!sobjTDS.isURLSupported(p.getScmUrl())) {
-            projectFailed(p.getName(), "SCM failed", "No appropriate accessor for repository URI: &lt;"
-                    + p.getScmUrl() + "&gt;");
+        if (!sobjTDS.isURLSupported(scm)) {
+            projectFailed(name, "SCM failed", "No appropriate accessor for repository URI: &lt;"
+                    + scm + "&gt;");
             return;
         }
         
-        if (!sobjTDS.isURLSupported(p.getMailUrl())) {
-            projectFailed(p.getName(), "Mailing Lists failed", "No appropriate accessor for URI: &lt;"
-                    + p.getMailUrl() + "&gt;");
+        if (!sobjTDS.isURLSupported(mail)) {
+            projectFailed(name, "Mailing Lists failed", "No appropriate accessor for URI: &lt;"
+                    + mail + "&gt;");
             return;
         }
         
-        if (!sobjTDS.isURLSupported(p.getBtsUrl())) {
-            projectFailed(p.getName(), "BTS failed", "No appropriate accessor for bug data URI: &lt;"
-                    + p.getBtsUrl()+ "&gt;");
+        if (!sobjTDS.isURLSupported(bts)) {
+            projectFailed(name, "BTS failed", "No appropriate accessor for bug data URI: &lt;"
+                    + bts + "&gt;");
             return;
         }
         
-        sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(), p.getMailUrl(), 
-                p.getScmUrl());
+        sobjTDS.addAccessor(Integer.MAX_VALUE, name, bts, mail, scm);
         
-        ProjectAccessor a = sobjTDS.getAccessor(p.getId()); 
+        ProjectAccessor a = sobjTDS.getAccessor(Integer.MAX_VALUE); 
         try {
             a.getSCMAccessor().getHeadRevision();
         } catch (InvalidRepositoryException e) {
-            projectFailed(p.getName(), "SCM failed", "SCM accessor failed initialization for repository URI: &lt;"
-                    + p.getScmUrl() + "&gt;");
+            projectFailed(name, "SCM failed", "SCM accessor failed initialization for repository URI: &lt;"
+                    + scm + "&gt;");
             // Invalid repository, remove and remove accessor
             sobjTDS.releaseAccessor(a);
             return;
@@ -327,21 +318,32 @@ public class WebAdminRenderer  extends AbstractView {
         
         BTSAccessor ba = a.getBTSAccessor(); 
         if (ba == null) {
-            projectFailed(p.getName(), "BTS failed",
+            projectFailed(name, "BTS failed",
                     "Bug Accessor failed initialization for URI: &lt;"
-                            + p.getScmUrl() + "&gt;");
+                            + bts + "&gt;");
             sobjTDS.releaseAccessor(a);
             return;
         }
         
         MailAccessor ma = a.getMailAccessor();
         if (ma == null) {
-            projectFailed(p.getName(), "Mailing Lists failed",
+            projectFailed(name, "Mailing Lists failed",
                     "Mailing lists accessor failed initialization for URI: &lt;"
-                            + p.getScmUrl() + "&gt;");
+                            + mail + "&gt;");
             sobjTDS.releaseAccessor(a);
             return;
         }
+        sobjTDS.releaseAccessor(a);
+        
+        StoredProject p = new StoredProject(name);
+        //The project is now ready to be added 
+        sobjDB.addRecord(p);
+        
+        p.setWebsiteUrl(website);
+        p.setContactUrl(contact);
+        p.setBtsUrl(bts);
+        p.setScmUrl(scm);
+        p.setMailUrl(mail);
         
         // Setup the evaluation marks for all installed metrics
         Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
@@ -353,12 +355,7 @@ public class WebAdminRenderer  extends AbstractView {
             marks.add(em);
         }
         p.setEvaluationMarks(marks);
-        
-        //The project is now ready to be added 
-        sobjDB.addRecord(p);
-        
-        //Remove accessor for unregistered project
-        sobjTDS.releaseAccessor(a);
+
         sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(), p.getMailUrl(), 
                 p.getScmUrl());
         

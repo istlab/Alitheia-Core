@@ -45,7 +45,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
 import org.hibernate.QueryException;
-import org.hibernate.exception.SQLGrammarException;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
@@ -389,6 +388,7 @@ final class SourceUpdater extends Job {
         for (CommitCopyEntry cce : entry.getCopyOperations()) {
             
         	if (!canProcess(cce.fromPath(), cce.toPath())) {
+        		warn("Ignoring copy from " + cce.fromPath() + " to " + cce.toPath() + " due to updated config");
         		return; 
         	}
         	

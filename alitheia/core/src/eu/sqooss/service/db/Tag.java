@@ -104,6 +104,23 @@ public class Tag extends DAObject {
             return (ProjectVersion) projectVersions.get(0);
         }
     }
+    
+    public static List<ProjectVersion> getTaggedVersions(StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramProject = "project_id";
+
+        String query = "select pv " 
+                + " from ProjectVersion pv, Tag t "
+                + " where t.projectVersion = pv " 
+                + " and pv.project =:" + paramProject;
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(paramProject, sp);
+
+        return (List<ProjectVersion>) dbs.doHQL(query, parameters);
+
+    }
 
     @Override
     public String toString() {

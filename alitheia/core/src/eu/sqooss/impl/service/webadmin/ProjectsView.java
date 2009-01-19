@@ -47,6 +47,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.InvocationRule;
@@ -72,6 +73,7 @@ public class ProjectsView extends AbstractView {
     private static String ACT_CON_UPD_CODE      = "conUpdateCode";
     private static String ACT_CON_UPD_MAIL      = "conUpdateMail";
     private static String ACT_CON_UPD_BUGS      = "conUpdateBugs";
+    private static String ACT_CON_UPD_ALL_NODE  = "conUpdateAllOnNode";
 
     // Servlet parameters
     private static String REQ_PAR_ACTION        = "reqAction";
@@ -107,7 +109,7 @@ public class ProjectsView extends AbstractView {
         // Stores the accumulated error messages
         StringBuilder e = new StringBuilder();
         // Indentation spacer
-        long in = 6;
+        int in = 6;
 
         // Initialize the resource bundles with the request's locale
         initResources(req.getLocale());
@@ -115,13 +117,6 @@ public class ProjectsView extends AbstractView {
         // Request values
         String reqValAction        = "";
         Long   reqValProjectId     = null;
-        String reqValPrjName       = null;
-        String reqValPrjWeb        = null;
-        String reqValPrjContact    = null;
-        String reqValPrjBug        = null;
-        String reqValPrjMail       = null;
-        String reqValPrjCode       = null;
-        String reqValSyncPlugin    = null;
 
         // Selected project
         StoredProject selProject = null;
@@ -137,206 +132,234 @@ public class ProjectsView extends AbstractView {
 
             // Retrieve the selected editor's action (if any)
             reqValAction = req.getParameter(REQ_PAR_ACTION);
-            if (reqValAction == null) {
-                reqValAction = "";
-            }
-
+            
             // Retrieve the selected project's DAO (if any)
             reqValProjectId = fromString(req.getParameter(REQ_PAR_PROJECT_ID));
             if (reqValProjectId != null) {
                 selProject = sobjDB.findObjectById(
                         StoredProject.class, reqValProjectId);
             }
-
-            // Retrieve the selected plug-in's hash-code
-            reqValSyncPlugin = req.getParameter(REQ_PAR_SYNC_PLUGIN);
-
-            // ---------------------------------------------------------------
-            // Add project
-            // ---------------------------------------------------------------
-            if (reqValAction.equals(ACT_CON_ADD_PROJECT)) {
-                // Retrieve the specified project properties
-                reqValPrjName = req.getParameter(REQ_PAR_PRJ_NAME);
-                reqValPrjWeb = req.getParameter(REQ_PAR_PRJ_WEB);
-                reqValPrjContact = req.getParameter(REQ_PAR_PRJ_CONT);
-                reqValPrjBug = req.getParameter(REQ_PAR_PRJ_BUG);
-                reqValPrjMail = req.getParameter(REQ_PAR_PRJ_MAIL);
-                reqValPrjCode = req.getParameter(REQ_PAR_PRJ_CODE);
-                // Checks the validity of the project properties
-                boolean valid = true;
-                if (checkProjectName(reqValPrjName) == false) {
-                    valid = false;
-                    e.append(sp(in) + "Invalid project name!" + "<br/>\n");
-                }
-                if (checkEmail(reqValPrjContact) == false) {
-                    valid = false;
-                    e.append(sp(in) + "Invalid contact e-mail!" + "<br/>\n");
-                }
-                if (checkUrl(reqValPrjWeb, "http,https") == false) {
-                    valid = false;
-                    e.append(sp(in) + "Invalid homepage URL!" + "<br/>\n");
-                }
-                if ((reqValPrjBug != null)
-                        && (reqValPrjBug.length() > 0)) {
-                    if (checkTDSUrl(reqValPrjBug) == false) {
-                        valid = false;
-                        e.append(sp(in) + "Invalid bug database URL!"
-                                + "<br/>\n");
-                    }
-                }
-                else if ((reqValPrjMail != null)
-                        && (reqValPrjMail.length() > 0)) {
-                    if (checkTDSUrl(reqValPrjMail) == false) {
-                        valid = false;
-                        e.append(sp(in) + "Invalid mailing list URL!"
-                                + "<br/>\n");
-                    }
-                }
-                else if ((reqValPrjCode != null)
-                        && (reqValPrjCode.length() > 0)) {
-                    if (checkTDSUrl(reqValPrjCode) == false) {
-                        valid = false;
-                        e.append(sp(in) + "Invalid source code URL!"
-                                + "<br/>\n");
-                    }
-                }
-                else {
-                    valid = false;
-                    e.append(sp(in)
-                            + "At least one resource source must be specified!"
-                            + "<br/>\n");
-                }
-                // Proceed upon valid project properties
-                if (valid) {
-                    // Check if a project with the same name already exists
-                    HashMap<String, Object> params =
-                        new HashMap<String, Object>();
-                    params.put("name", reqValPrjName);
-                    if (sobjDB.findObjectsByProperties(
-                            StoredProject.class, params).size() > 1) {
-                        e.append(sp(in) + getErr("prj_exists")
-                                + "<br/>\n");
-                    }
-                    // Create the new project's DAO
-                    else {
-                        StoredProject p = new StoredProject();
-                        p.setName(reqValPrjName);
-                        p.setWebsiteUrl(reqValPrjWeb);
-                        p.setContactUrl(reqValPrjContact);
-                        p.setBtsUrl(reqValPrjBug);
-                        p.setMailUrl(reqValPrjMail);
-                        p.setScmUrl(reqValPrjCode);
-                        // Setup the evaluation marks for all installed metrics
-                        Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
-                        Map<String,Object> noProps = Collections.emptyMap();
-                        for( Metric m : sobjDB.findObjectsByProperties(Metric.class, noProps) ) {
-                            EvaluationMark em = new EvaluationMark();
-                            em.setMetric(m);
-                            em.setStoredProject(p);
-                            marks.add(em);
-                        }
-                        p.setEvaluationMarks(marks);
-
-                        // Try to add the DAO to the DB
-                        if (sobjDB.addRecord(p) == true) {
-                            selProject = p;
-                            // register the new project in the TDS
-                            sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(), 
-                                    p.getMailUrl(), p.getScmUrl());
-                        }
-                        else {
-                            e.append(sp(in)
-                                    + getErr("prj_add_failed")
-                                    + " " + getMsg("m0001")
-                                    + "<br/>\n");
-                        }
-                    }
-                }
-                // Return to the "Add project" view upon failure
-                if (e.length() > 0) {
-                    reqValAction = ACT_REQ_ADD_PROJECT;
-                }
-            }
-            // ---------------------------------------------------------------
-            // Remove project
-            // ---------------------------------------------------------------
-            else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {
-                if (selProject != null) {
-                    // Deleting large projects in the foreground is
-                    // very slow
-                    ProjectDeleteJob pdj = 
-                        new ProjectDeleteJob(sobjCore,selProject);
-                    try {
-                        sobjSched.enqueue(pdj);
-                    } catch (SchedulerException e1) {
-                        e.append(sp(in) + getErr("e0034") + "<br/>\n");
-                    }
-                    selProject = null;
-                } else {
-                    e.append(sp(in) + getErr("e0034") + "<br/>\n");
-                }
-            }
-            // ---------------------------------------------------------------
-            // Trigger code update
-            // ---------------------------------------------------------------
-            else if (reqValAction.equals(ACT_CON_UPD_CODE)) {
-                if (sobjUpdater.update(
-                        selProject, UpdateTarget.CODE, null) == false) {
-                    e.append(sp(in) + getErr("e0035")
-                            + " " + getMsg("try_again")
-                            + "<br/>\n");
-                }
-            }
-            // ---------------------------------------------------------------
-            // Trigger mailing list(s) update
-            // ---------------------------------------------------------------
-            else if (reqValAction.equals(ACT_CON_UPD_MAIL)) {
-                if (sobjUpdater.update(
-                        selProject, UpdateTarget.MAIL, null) == false) {
-                    e.append(sp(in) + getErr("e0036")
-                            + " " + getMsg("try_again")
-                            + "<br/>\n");
-                }
-            }
-            // ---------------------------------------------------------------
-            // Trigger bugs list(s) update
-            // ---------------------------------------------------------------
-            else if (reqValAction.equals(ACT_CON_UPD_BUGS)) {
-                if (sobjUpdater.update(
-                        selProject, UpdateTarget.BUGS, null) == false) {
-                    e.append(sp(in) + getErr("e0037")
-                            + " " + getMsg("try_again")
-                            + "<br/>\n");
-                }
-            }
-            // ---------------------------------------------------------------
-            // Trigger update on all resources for that project
-            // ---------------------------------------------------------------
-            else if (reqValAction.equals(ACT_CON_UPD_ALL)) {
-                if (sobjUpdater.update(
-                        selProject, UpdateTarget.ALL, null) == false) {
-                    e.append(sp(in) + getErr("e0038")
-                            + " " + getMsg("try_again")
-                            + "<br/>\n");
-                }
-            }
-            // ---------------------------------------------------------------
-            // Trigger synchronize on the selected plug-in for that project
-            // ---------------------------------------------------------------
-            if ((reqValSyncPlugin != null) && (selProject != null)) {
-                PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);
-                if (pInfo != null) {
-                    AlitheiaPlugin pObj = sobjPA.getPlugin(pInfo);
-                    if (pObj != null) {
-                        compMA.syncMetric(pObj, selProject);
-                        sobjLogger.debug("Syncronise plugin ("
-                                + pObj.getName()
-                                + ") on project ("
-                                + selProject.getName() + ").");
-                    }
-                }
+            
+            if (reqValAction == null) {
+                reqValAction = "";
+            } else if (reqValAction.equals(ACT_CON_ADD_PROJECT)) {
+            	selProject = addProject(e, req, in);
+            } else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {
+            	selProject = removeProject(e, selProject, in);
+            } else if (reqValAction.equals(ACT_CON_UPD_CODE)) {
+            	triggerCodeUpdate(e, selProject, in);
+            } else if (reqValAction.equals(ACT_CON_UPD_MAIL)) {
+            	triggerMailUpdate(e, selProject, in);
+            } else if (reqValAction.equals(ACT_CON_UPD_BUGS)) {
+            	triggerBugUpdate(e, selProject, in);
+            } else if (reqValAction.equals(ACT_CON_UPD_ALL)) {
+            	triggerAllUpdate(e, selProject, in);
+            } else if (reqValAction.equals(ACT_CON_UPD_ALL_NODE)) {
+            	triggerAllUpdateNode(e, selProject, in);
+            } else {
+            	// Retrieve the selected plug-in's hash-code
+        		String reqValSyncPlugin = req.getParameter(REQ_PAR_SYNC_PLUGIN);
+        		syncPlugin(e, selProject, reqValSyncPlugin);
             }
         }
+        createFrom(b, e, selProject, reqValAction , in);
+        return b.toString();
+    }
+  
+	// ---------------------------------------------------------------
+    // Add project
+    // ---------------------------------------------------------------
+    private static StoredProject addProject(StringBuilder e, HttpServletRequest req, int indent) {
+
+    	// Retrieve the specified project properties
+		String reqValPrjName = req.getParameter(REQ_PAR_PRJ_NAME);
+		String reqValPrjWeb = req.getParameter(REQ_PAR_PRJ_WEB);
+		String reqValPrjContact = req.getParameter(REQ_PAR_PRJ_CONT);
+		String reqValPrjBug = req.getParameter(REQ_PAR_PRJ_BUG);
+		String reqValPrjMail = req.getParameter(REQ_PAR_PRJ_MAIL);
+		String reqValPrjCode = req.getParameter(REQ_PAR_PRJ_CODE);
+		// Checks the validity of the project properties
+		boolean valid = true;
+		if (checkProjectName(reqValPrjName) == false) {
+			valid = false;
+			e.append(sp(indent)).append("Invalid project name!<br/>\n");
+		}
+		if (checkEmail(reqValPrjContact) == false) {
+			valid = false;
+			e.append(sp(indent)).append("Invalid contact e-mail!<br/>\n");
+		}
+		if (checkUrl(reqValPrjWeb, "http,https") == false) {
+			valid = false;
+			e.append(sp(indent)).append("Invalid homepage URL!<br/>\n");
+		}
+		if ((reqValPrjBug != null) && (reqValPrjBug.length() > 0)) {
+			if (checkTDSUrl(reqValPrjBug) == false) {
+				valid = false;
+				e.append(sp(indent)).append("Invalid bug database URL!<br/>\n");
+			}
+		} else if ((reqValPrjMail != null) && (reqValPrjMail.length() > 0)) {
+			if (checkTDSUrl(reqValPrjMail) == false) {
+				valid = false;
+				e.append(sp(indent)).append("Invalid mailing list URL!<br/>\n");
+			}
+		} else if ((reqValPrjCode != null) && (reqValPrjCode.length() > 0)) {
+			if (checkTDSUrl(reqValPrjCode) == false) {
+				valid = false;
+				e.append(sp(indent)).append("Invalid source code URL!<br/>\n");
+			}
+		} else {
+			valid = false;
+			e.append(sp(indent))
+				.append("At least one resource source must be specified!")
+				.append("<br/>\n");
+		}
+		StoredProject p = null;
+		// Proceed upon valid project properties
+		if (valid) {
+			// Check if a project with the same name already exists
+			HashMap<String, Object> params = new HashMap<String, Object>();
+			params.put("name", reqValPrjName);
+			if (sobjDB.findObjectsByProperties(StoredProject.class, params).size() > 1) {
+				e.append(sp(indent) + getErr("prj_exists") + "<br/>\n");
+			}
+			// Create the new project's DAO
+			else {
+				p = new StoredProject();
+				p.setName(reqValPrjName);
+				p.setWebsiteUrl(reqValPrjWeb);
+				p.setContactUrl(reqValPrjContact);
+				p.setBtsUrl(reqValPrjBug);
+				p.setMailUrl(reqValPrjMail);
+				p.setScmUrl(reqValPrjCode);
+				// Setup the evaluation marks for all installed metrics
+				Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
+				Map<String, Object> noProps = Collections.emptyMap();
+				for (Metric m : sobjDB.findObjectsByProperties(Metric.class,
+						noProps)) {
+					EvaluationMark em = new EvaluationMark();
+					em.setMetric(m);
+					em.setStoredProject(p);
+					marks.add(em);
+				}
+				p.setEvaluationMarks(marks);
+
+				// Try to add the DAO to the DB
+				if (sobjDB.addRecord(p) == true) {
+					// register the new project in the TDS
+					sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(),
+							p.getMailUrl(), p.getScmUrl());
+				} else {
+					e.append(sp(indent)).append(getErr("prj_add_failed"))
+					 .append(getMsg("m0001")).append("<br/>\n");
+				}
+			}
+		}
+		return p;
+		// Return to the "Add project" view upon failure
+		//if (e.length() > 0) {
+			//reqValAction = ACT_REQ_ADD_PROJECT;
+		//}
+    }
+    
+    // ---------------------------------------------------------------
+    // Remove project
+    // ---------------------------------------------------------------
+    private static StoredProject removeProject(StringBuilder e, 
+    		StoredProject selProject, int indent) {
+    	if (selProject != null) {
+			// Deleting large projects in the foreground is
+			// very slow
+			ProjectDeleteJob pdj = new ProjectDeleteJob(sobjCore, selProject);
+			try {
+				sobjSched.enqueue(pdj);
+			} catch (SchedulerException e1) {
+				e.append(sp(indent)).append(getErr("e0034")).append("<br/>\n");
+			}
+			selProject = null;
+		} else {
+			e.append(sp(indent) + getErr("e0034") + "<br/>\n");
+		}
+    	return selProject;
+    }
+    // ---------------------------------------------------------------
+	// Trigger code update
+	// ---------------------------------------------------------------
+	private static void triggerCodeUpdate(StringBuilder e,
+			StoredProject selProject, int indent) {
+		if (sobjUpdater.update(selProject, UpdateTarget.CODE, null) == false) {
+			e.append(sp(indent)).append(getErr("e0035")).append(
+					getMsg("try_again")).append("<br/>\n");
+		}
+	}
+
+	// ---------------------------------------------------------------
+	// Trigger mailing list(s) update
+	// ---------------------------------------------------------------
+	private static void triggerMailUpdate(StringBuilder e,
+			StoredProject selProject, int indent) {
+		if (sobjUpdater.update(selProject, UpdateTarget.MAIL, null) == false) {
+			e.append(sp(indent)).append(getErr("e0036")).append(
+					getMsg("try_again")).append("<br/>\n");
+		}
+	}
+
+	// ---------------------------------------------------------------
+	// Trigger bugs list(s) update
+	// ---------------------------------------------------------------
+	private static void triggerBugUpdate(StringBuilder e,
+			StoredProject selProject, int indent) {
+		if (sobjUpdater.update(selProject, UpdateTarget.BUGS, null) == false) {
+			e.append(sp(indent)).append(getErr("e0037")).append(
+					getMsg("try_again")).append("<br/>\n");
+		}
+	}
+
+	// ---------------------------------------------------------------
+	// Trigger update on all resources for that project
+	// ---------------------------------------------------------------
+	private static void triggerAllUpdate(StringBuilder e,
+			StoredProject selProject, int indent) {
+		if (sobjUpdater.update(selProject, UpdateTarget.ALL, null) == false) {
+			e.append(sp(indent)).append(getErr("e0036 ")).append(
+					getMsg("try_again")).append("<br/>\n");
+		}
+	}
+	
+	// ---------------------------------------------------------------
+	// Trigger update on all resources on all projects of a node
+	// ---------------------------------------------------------------
+    private static void triggerAllUpdateNode(StringBuilder e,
+			StoredProject selProject, int in) {
+		List<ClusterNodeProject> projectList = 
+			ClusterNodeProject.getNodeAssignments(
+					ClusterNode.getClusteNodeByName(
+							sobjClusterNode.getClusterNodeName()));
+		
+		for (ClusterNodeProject project : projectList) {
+			triggerAllUpdate(e, project.getProject(), in);
+		}
+	}
+
+	
+	// ---------------------------------------------------------------
+	// Trigger synchronize on the selected plug-in for that project
+	// ---------------------------------------------------------------
+    private static void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
+		if ((reqValSyncPlugin != null) && (selProject != null)) {
+			PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);
+			if (pInfo != null) {
+				AlitheiaPlugin pObj = sobjPA.getPlugin(pInfo);
+				if (pObj != null) {
+					compMA.syncMetric(pObj, selProject);
+					sobjLogger.debug("Syncronise plugin (" + pObj.getName()
+							+ ") on project (" + selProject.getName() + ").");
+				}
+			}
+		}
+    }
+    
+    private static void createFrom(StringBuilder b, StringBuilder e, 
+    		StoredProject selProject, String reqValAction, int in) {
 
         // ===============================================================
         // Create the form
@@ -407,17 +430,17 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in++) + "<table class=\"borderless\" width='100%'>\n");
             // Create the input fields
             b.append(normalInputRow(
-                    "Project name", REQ_PAR_PRJ_NAME, reqValPrjName, in));
+                    "Project name", REQ_PAR_PRJ_NAME, "", in));
             b.append(normalInputRow(
-                    "Homepage", REQ_PAR_PRJ_WEB, reqValPrjWeb, in));
+                    "Homepage", REQ_PAR_PRJ_WEB, "", in));
             b.append(normalInputRow(
-                    "Contact e-mail", REQ_PAR_PRJ_CONT, reqValPrjContact, in));
+                    "Contact e-mail", REQ_PAR_PRJ_CONT, "", in));
             b.append(normalInputRow(
-                    "Bug database", REQ_PAR_PRJ_BUG, reqValPrjBug, in));
+                    "Bug database", REQ_PAR_PRJ_BUG, "", in));
             b.append(normalInputRow(
-                    "Mailing list", REQ_PAR_PRJ_MAIL, reqValPrjMail, in));
+                    "Mailing list", REQ_PAR_PRJ_MAIL, "", in));
             b.append(normalInputRow(
-                    "Source code", REQ_PAR_PRJ_CODE, reqValPrjCode, in));
+                    "Source code", REQ_PAR_PRJ_CODE, "", in));
 
             //------------------------------------------------------------
             // Tool-bar
@@ -629,8 +652,6 @@ public class ProjectsView extends AbstractView {
         // Close the form
         // ===============================================================
         b.append(sp(--in) + "</form>\n");
-        
-        return b.toString();
     }
 
 
@@ -665,7 +686,7 @@ public class ProjectsView extends AbstractView {
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("add_project") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_ADD_PROJECT + "';" + SUBMIT + "\">\n");
         // Remove project button
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0059") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_REM_PROJECT + "';" + SUBMIT + "\"" + ((selProject != null) ? "" : " disabled") + ">");
-        b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='6'>\n");
+        b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
         // Trigger source update
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0061") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_CODE + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                 selProject, UpdateTarget.CODE) == false))
@@ -682,6 +703,10 @@ public class ProjectsView extends AbstractView {
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0064") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
                 selProject, UpdateTarget.ALL) == false))
                 ? "" : " disabled") + ">\n");
+        b.append(sp(--in) + "</td>\n");
+        b.append(sp(--in) + "<td colspan=\"2\" align=\"right\">\n");
+     // Trigger updates on host
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ sobjClusterNode.getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\">\n");
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
     }

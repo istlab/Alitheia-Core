@@ -35,6 +35,7 @@
 
 package eu.sqooss.service.db;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,33 +51,100 @@ import eu.sqooss.service.db.BugStatus.Status;
  * has to be a record of this type in the system.
  */
 public class StoredProject extends DAObject {
-    /**
-     * Public, human-readable name of the project (e.g. Evolution,
-     * GNOME, Catalina, Sciplot). Used for display purposes.
-     */
-    private String name;
-    /**
-     * URL of the public, human-readable project website.
-     */
-    private String websiteUrl;
-    /**
-     * URL (generally mailto:) of the project contact person.
-     */
-    private String contactUrl;
-    /**
-     * This is information for accessing the BTS system
-     * via the TDS. Consider it write-once when the project
-     * is added to the system by the administrator.
-     */
-    private String btsUrl;
-    /**
-     * Access to the SCM via the TDS. @see btsUrl.
-     */
-    private String scmUrl;
-    /**
-     * Access to the mail store via the TDS. @see btsUrl.
-     */
-    private String mailUrl;
+	
+	/**
+	 * Stores all standard project-wide configuration options that
+	 * the system actually knows about.  
+	 * 
+	 * @author Georgios Gousios <gousiosg@gmail.com>
+	 *
+	 */
+	public enum ConfigOption {
+		
+		/**
+		 * The project's name
+		 */
+		PROJECT_NAME("eu.sqooss.project.name", "The project's name"),
+		
+		/**
+		 * The project's website
+		 */
+		PROJECT_WEBSITE("eu.sqooss.project.website", "The project's website"),
+		
+		/**
+		 * The project's contact address
+		 */
+		PROJECT_CONTACT("eu.sqooss.project.website", "The project's contact address (if any)"),
+		
+		/**
+		 * The project's SCM type (currently SVN)
+		 */
+		PROJECT_SCM_TYPE("eu.sqooss.project.scm.type", "The project's SCM type"),
+
+		/**
+		 * The project's SCM URL
+		 */
+		PROJECT_SCM_URL("eu.sqooss.project.scm.url", "The project's SCM URL"),
+		
+		/**
+		 * The project's SCM URL
+		 */
+		PROJECT_SCM_SOURCE("eu.sqooss.project.scm.source", "The project's original SCM URL"),
+		
+		/**
+		 * The project's MailingList URL
+		 */
+		PROJECT_ML_URL("eu.sqooss.project.ml.url", "The project's mailing list URL"),
+		
+		/**
+		 * The project's BTS URL
+		 */
+		PROJECT_BTS_URL("eu.sqooss.project.ml.url", "The project's bug tracking system URL"),
+		
+		/**
+		 * The source code paths to process while executing the updater
+		 */
+		PROJECT_SCM_PATHS_INCL("eu.sqooss.project.path.incl", "The source code paths to process"),
+		
+		/**
+		 * The source code paths to process not to process
+		 */
+		PROJECT_SCM_PATHS_EXCL("eu.sqooss.project.path.excl", "The source code paths not to process"),
+		
+		/**
+		 * The source code paths that stores the project's main tree
+		 */
+		PROJECT_SCM_PATHS_TRUNK("eu.sqooss.project.trunk", "The source code paths not to process"),
+		
+		/**
+		 * The source code paths that stores the project's branches (if applicable)
+		 */
+		PROJECT_SCM_PATHS_BRANCH("eu.sqooss.project.branch", "The source code paths not to process"),
+		
+		/**
+		 * The source code paths that stores the project's tags (if applicable)
+		 */
+		PROJECT_SCM_PATHS_TAG("eu.sqooss.project.path.tag", "The source code paths not to process");
+		
+		private final String name;
+		private final String desc;
+		
+		public String getName() {
+			return name;
+		}
+
+		public String getDesc() {
+			return desc;
+		}
+
+		private ConfigOption(String name, String desc) {
+			this.name = name;
+			this.desc = desc;
+		}
+	}
+	
+	private String name;
+	
     /**
      * The versions that this project contains
      */
@@ -88,12 +156,11 @@ public class StoredProject extends DAObject {
     private Set<EvaluationMark> evaluationMarks;
     private Set<Bug> bugs;
 
-    public StoredProject() {
-        super();
-    }
-
+	public StoredProject() {
+		
+	}
+	
     public StoredProject(String name) {
-        this();
         this.name = name;
     }
 
@@ -106,56 +173,51 @@ public class StoredProject extends DAObject {
     }
 
     public String getWebsiteUrl() {
-        return websiteUrl;
+        return getConfigValue(ConfigOption.PROJECT_WEBSITE.getName());
     }
 
     public void setWebsiteUrl(String url) {
-        this.websiteUrl = url;
+    	addConfig(ConfigOption.PROJECT_WEBSITE, url);
     }
 
     public String getContactUrl() {
-        return contactUrl;
+    	return getConfigValue(ConfigOption.PROJECT_CONTACT.getName());
     }
 
     public void setContactUrl(String url) {
-        this.contactUrl = url;
+    	addConfig(ConfigOption.PROJECT_CONTACT, url);
     }
 
     public String getBtsUrl() {
-        return btsUrl;
+    	return getConfigValue(ConfigOption.PROJECT_BTS_URL.getName());
     }
 
     public void setBtsUrl(String url) {
-        this.btsUrl = url;
+    	addConfig(ConfigOption.PROJECT_BTS_URL, url);
     }
 
     public String getScmUrl() {
-        return scmUrl;
+    	return getConfigValue(ConfigOption.PROJECT_SCM_URL.getName());
     }
 
     public void setScmUrl(String url) {
-        this.scmUrl = url;
+    	addConfig(ConfigOption.PROJECT_SCM_URL, url);
     }
 
     public String getMailUrl() {
-        return mailUrl;
+    	return getConfigValue(ConfigOption.PROJECT_ML_URL.getName());
     }
 
     public void setMailUrl(String url) {
-        this.mailUrl = url;
+    	addConfig(ConfigOption.PROJECT_ML_URL, url);
     }
     
     public List<ProjectVersion> getProjectVersions() {
         return projectVersions;
     }
 
-    // TODO: this seems kind of inefficient
     public List<ProjectVersion> getTaggedVersions() {
-        List<ProjectVersion> versions = getProjectVersions();
-        for (ProjectVersion version : versions)
-            if (version.getTags() == null)
-                versions.remove(version);
-        return versions;
+        return Tag.getTaggedVersions(this);
     }
     
     public void setProjectVersions(List<ProjectVersion> projectVersions) {
@@ -216,6 +278,109 @@ public class StoredProject extends DAObject {
                 if (nextMark.getWhenRun() != null)
                     return true;
         return false;
+    }
+    
+    /**
+     * 
+     * @param co
+     * @return
+     */
+    public List<String> getConfig (ConfigOption co) {
+    	return getConfigValues(co.getName());
+    }
+    
+    /**
+     * Get the first (in an arbitrary definition of order) value for
+     * a configuration option.  
+     * @param key The key to retrieve a value for
+     * @return The configuration value or null, if the option is not set
+     */
+    public String getConfigValue (String key) {
+    	List<String> values = getConfigValues(key);
+    	if (values.isEmpty())
+    		return null;
+    	return values.get(0);
+    }
+    
+    /** 
+     * Get the values for a project configuration entry.
+     * 
+     * @param key The key whose value we want to retrieve
+     */
+    public List<String> getConfigValues (String key) {
+    	ConfigurationOption co = ConfigurationOption.fromKey(key);
+    	
+    	if (co == null)
+    		return null;
+    	
+    	return co.getValues(this);
+    }
+    
+    /**
+	 * Set the value for a project configuration key. If the key does not exist
+	 * in the configuration key table, it will be created with and empty
+	 * description. The schema allows multiple values per key, so there is no
+	 * need to encode multiple key values in a single configuration entry.
+	 * 
+	 * @param key The key to set the value for
+	 * @param value The value to be set 
+	 */
+    public void setConfigValue (String key, String value) {
+    	updateConfigValue(null, key, value, true);
+    }
+    
+    
+    /**
+	 * Append a value to a project configuration key. If the key does not exist
+	 * in the configuration key table, it will be created with and empty
+	 * description. The schema allows multiple values per key, so there is no
+	 * need to encode multiple key values in a single configuration entry.
+	 * 
+	 * @param key The key to set the value for
+	 * @param value The value to be set 
+	 */
+    public void addConfigValue(String key, String value) {
+    	updateConfigValue(null, key, value, false);
+    }
+    
+    /**
+	 * Append a value to a project configuration option. If the configuration
+	 * option does not exist in the database, it will be created. The schema
+	 * allows multiple values per key, so there is no need to encode multiple
+	 * key values in a single configuration entry.
+	 * 
+	 * @param co The configuration option to store a value for
+	 * @param value The value to set to the configuration option
+	 */
+	public void addConfig(ConfigOption co, String value) {
+		updateConfigValue(co, null, value, false);
+	}
+    
+    private void updateConfigValue (ConfigOption configOpt, String key, 
+    		String value, boolean update) {
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	ConfigurationOption co = null;
+    	
+    	if (configOpt == null) {
+    		co = ConfigurationOption.fromKey(key);
+    	
+    		if (co == null) {
+    			co = new ConfigurationOption(key, "");
+    			dbs.addRecord(co);
+    		}
+    	} else {
+    		co = ConfigurationOption.fromKey(configOpt.getName());
+        	
+    		if (co == null) {
+    			co = new ConfigurationOption(configOpt.getName(), 
+    					configOpt.getDesc());
+    			dbs.addRecord(co);
+    		}
+    	}
+    	
+    	List<String> values = new ArrayList<String>();
+    	values.add(value);
+    	co.setValues(this, values, update);
     }
 
     //================================================================
@@ -331,7 +496,7 @@ public class StoredProject extends DAObject {
     
     @Override
     public String toString() {
-        return this.name;
+        return getName();
     }
 }
 

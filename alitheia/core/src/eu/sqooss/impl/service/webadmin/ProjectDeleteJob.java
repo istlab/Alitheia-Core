@@ -10,6 +10,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.StoredProjectConfig;
 import eu.sqooss.service.scheduler.Job;
 
 public class ProjectDeleteJob extends Job {
@@ -58,10 +59,16 @@ public class ProjectDeleteJob extends Job {
         }
         
         boolean success = true;
-        // Delete project's assignments
+        // Delete project's cluster node assignments
         ClusterNodeProject cnp = ClusterNodeProject.getProjectAssignment(sp);
         if (cnp != null) {
             success &= dbs.deleteRecord(cnp);
+        }
+        
+        //Delete the project's config options
+        List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(sp);
+        if (!confParams.isEmpty()) {
+        	success &= dbs.deleteRecords(confParams);
         }
         
         // Delete the selected project

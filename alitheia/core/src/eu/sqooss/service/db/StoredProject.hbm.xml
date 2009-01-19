@@ -9,11 +9,6 @@
       <generator class="native" />
     </id>
     <property name="name" column="PROJECT_NAME" unique="true" />
-    <property name="websiteUrl" column="WEBSITE_URL" />
-    <property name="contactUrl" column="CONTACT_URL" />
-    <property name="btsUrl" column="BTS_URL" />
-    <property name="scmUrl" column="SCM_URL" />
-    <property name="mailUrl" column="MAIL_URL" />
     <list name="projectVersions" inverse="true" cascade="all-delete-orphan" lazy="extra">
         <key column="STORED_PROJECT_ID"/>
         <list-index column="REVISION_ID"/>
