@@ -294,7 +294,7 @@ public class MailDirAccessor implements MailAccessor {
     }
 
     /** {@inheritDoc} */
-    public final List < String > getNewMessages(final String listId)
+    public final List<String> getNewMessages(final String listId)
         throws FileNotFoundException {
     File listDir = getFolder(listId);
     List < String > l = new LinkedList < String >();
@@ -312,7 +312,7 @@ public class MailDirAccessor implements MailAccessor {
 }
 
     /** {@inheritDoc} */
-    public final List < String > getMessages(final String listId,
+    public final List<String> getMessages(final String listId,
         final Date d1, final Date d2)
         throws FileNotFoundException {
         File listDir = getFolder(listId);
@@ -416,6 +416,10 @@ public class MailDirAccessor implements MailAccessor {
         }
         
         return lists;
+    }
+    
+    public String getName() {
+    	return "MailDirAccessor";
     }
 }
 

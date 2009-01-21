@@ -60,6 +60,7 @@ import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
+import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
@@ -85,7 +86,12 @@ public class BugUpdater extends Job {
         this.db = core.getDBService();
         this.log = logger;
         this.updater = updater;
-        this.bts = core.getTDSService().getAccessor(project.getId()).getBTSAccessor();
+        try {
+			this.bts = core.getTDSService().getAccessor(project.getId()).getBTSAccessor();
+		} catch (InvalidAccessorException e) {
+			throw new UpdaterException("Could not initialize " +
+					"project accessor" + e.getMessage());
+		}
         this.sp = project;
     }
 

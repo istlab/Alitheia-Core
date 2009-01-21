@@ -55,6 +55,7 @@ import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
@@ -257,7 +258,14 @@ public class FDSServiceImpl implements FDSService, Runnable {
 
         String projectVersion = pf.getProjectVersion().getRevisionId();
         long projectId = pf.getProjectVersion().getProject().getId();
-        return tds.getAccessor(projectId).getSCMAccessor().newRevision(projectVersion);
+        try {
+			return tds.getAccessor(projectId).getSCMAccessor().newRevision(projectVersion);
+		} catch (InvalidAccessorException e) {
+			logger.error("Invalid SCM accessor for project " + 
+                    pf.getProjectVersion().getProject().getName() + 
+                    " "  + e.getMessage());
+			return null;
+		}
     }
 
     /**
@@ -304,7 +312,14 @@ public class FDSServiceImpl implements FDSService, Runnable {
         long projectId = pf.getProjectVersion().getProject().getId();
 
         // Get a TDS handle for the selected ProjectFile
-        return tds.getAccessor(projectId).getSCMAccessor();
+        try {
+			return tds.getAccessor(projectId).getSCMAccessor();
+		} catch (InvalidAccessorException e) {
+			logger.error("Invalid SCM accessor for project " + 
+                    pf.getProjectVersion().getProject().getName() + 
+                    " "  + e.getMessage());
+			return null;
+		}
     }
     
     /**
@@ -334,12 +349,18 @@ public class FDSServiceImpl implements FDSService, Runnable {
                         " not available even though it exists.");
         }
         
-        SCMAccessor svn = a.getSCMAccessor();
-        if (svn == null) {
-            logger.warn("No SCM available for " + pv.getProject().getName());
-            throw new CheckoutException(
+        try {
+        	SCMAccessor svn = a.getSCMAccessor();
+        	if (svn == null) {
+        		logger.warn("No SCM available for " + pv.getProject().getName());
+        		throw new CheckoutException(
                     "No SCM accessor available for project " + 
                     pv.getProject().getName());
+        	}
+        } catch(InvalidAccessorException e) {
+        	throw new CheckoutException(
+                    "Invalid SCM accessor for project " + 
+                    pv.getProject().getName() + " "  + e.getMessage());
         }
         
         return true;
@@ -537,7 +558,14 @@ public class FDSServiceImpl implements FDSService, Runnable {
         }
         
         long projectId = pv.getProject().getId();
-        SCMAccessor svn = tds.getAccessor(projectId).getSCMAccessor();
+        SCMAccessor svn = null;
+		try {
+			svn = tds.getAccessor(projectId).getSCMAccessor();
+		} catch (InvalidAccessorException e) {
+			throw new CheckoutException(
+                    "Invalid SCM accessor for project " + 
+                    pv.getProject().getName() + ": "  + e.getMessage());
+		}
         svn.newRevision(pv.getRevisionId());
         logger.info("Finding available checkout for " 
                 + pv.getProject().getName() + " revision " 
@@ -555,7 +583,14 @@ public class FDSServiceImpl implements FDSService, Runnable {
         }
         
         long projectId = pv.getProject().getId();
-        SCMAccessor svn = tds.getAccessor(projectId).getSCMAccessor();
+        SCMAccessor svn = null;
+		try {
+			svn = tds.getAccessor(projectId).getSCMAccessor();
+		} catch (InvalidAccessorException e) {
+			throw new CheckoutException(
+                    "Invalid SCM accessor for project " + 
+                    pv.getProject().getName() + ": "  + e.getMessage());
+		}
         
         svn.newRevision(pv.getRevisionId());
 

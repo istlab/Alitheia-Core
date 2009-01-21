@@ -7,6 +7,7 @@ import java.util.List;
 import eu.sqooss.impl.service.SpecsActivator;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.MailAccessor;
@@ -101,7 +102,12 @@ public class SpProject implements SpEntity {
         
         TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
         tds.addAccessor(id, name, bugs, mail, repository);
-        SCMAccessor scm = tds.getAccessor(id).getSCMAccessor();
+        SCMAccessor scm = null;
+		try {
+			scm = tds.getAccessor(id).getSCMAccessor();
+		} catch (InvalidAccessorException e) {
+			return null;
+		}
         
         Revision rev = scm.getHeadRevision();
         while (rev!=null 
@@ -120,7 +126,12 @@ public class SpProject implements SpEntity {
         
         TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
         tds.addAccessor(id, name, bugs, mail, repository);
-        MailAccessor mail = tds.getAccessor(id).getMailAccessor();
+        MailAccessor mail = null;
+		try {
+			mail = tds.getAccessor(id).getMailAccessor();
+		} catch (InvalidAccessorException e) {
+			return null;
+		}
 
         List<String> names = mail.getMailingLists();
         for (String name : names) {

@@ -323,4 +323,8 @@ public class BugzillaXMLParser implements BTSAccessor {
             return true;
         }
     }
+    
+    public String getName() {
+    	return "BugzillaXMLAccessor";
+    }
 }

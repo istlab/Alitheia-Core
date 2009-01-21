@@ -33,19 +33,15 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
+import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -55,6 +51,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -242,28 +239,30 @@ public class WebAdminRenderer  extends AbstractView {
     }
 
     public void addProject(HttpServletRequest request) {
-
-        String name = request.getParameter("name");
-        String website = request.getParameter("website");
-        String contact = request.getParameter("contact");
-        String bts = request.getParameter("bts");
-        String mail = request.getParameter("mail");
-        String scm = request.getParameter("scm");
-
-        addProject(name, website, contact, bts, mail, scm);
+        Properties p = new Properties();
+        p.put(ConfigOption.PROJECT_NAME, request.getParameter("name"));
+        p.put(ConfigOption.PROJECT_WEBSITE, request.getParameter("website"));
+        p.put(ConfigOption.PROJECT_CONTACT, request.getParameter("contact"));
+        p.put(ConfigOption.PROJECT_BTS_URL, request.getParameter("bts"));
+        p.put(ConfigOption.PROJECT_ML_URL, request.getParameter("mail"));
+        p.put(ConfigOption.PROJECT_SCM_URL, request.getParameter("scm"));
+        
+        addProject(p);
     }
 
-    private void addProject(String name, String website, String contact,
-            String bts, String mail, String scm) {
+    private void addProject(Properties p) {
         final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
+        
+        String name = p.getProperty(ConfigOption.PROJECT_NAME.getName());
+        String bts = p.getProperty(ConfigOption.PROJECT_BTS_URL.getName());
+        String scm = p.getProperty(ConfigOption.PROJECT_SCM_URL.getName());
+        String mail = p.getProperty(ConfigOption.PROJECT_ML_URL.getName());
+        
         // Avoid missing-entirely kinds of parameters.
-        if ( (name == null) ||
-             (website == null) ||
-             (contact == null) ||
-             (bts == null) || 
-             (mail == null) ||
-             (scm == null) ) {
-            projectFailed("", "Missing information" , "Add project failed because some of the required information was missing.");
+        if ( (name == null) || (bts == null) || 
+             (mail == null) || (scm == null) ) {
+            projectFailed("", "Missing information" , 
+            		"Add project failed because some of the required information was missing.");
             return;
         }
 
@@ -275,7 +274,6 @@ public class WebAdminRenderer  extends AbstractView {
 
         /* Run a few checks before actually storing the project */
         // 1. Duplicate project
-        
         HashMap<String, Object> props = new HashMap<String, Object>();
         props.put("name",  name);
         if (!sobjDB.findObjectsByProperties(StoredProject.class, props).isEmpty()) {
@@ -301,49 +299,55 @@ public class WebAdminRenderer  extends AbstractView {
                     + bts + "&gt;");
             return;
         }
-        
+
         sobjTDS.addAccessor(Integer.MAX_VALUE, name, bts, mail, scm);
+        ProjectAccessor a = sobjTDS.getAccessor(Integer.MAX_VALUE);
         
-        ProjectAccessor a = sobjTDS.getAccessor(Integer.MAX_VALUE); 
-        try {
+        try{
             a.getSCMAccessor().getHeadRevision();
+            BTSAccessor ba = a.getBTSAccessor(); 
+            if (ba == null) {
+            	projectFailed(name, "BTS failed",
+                    "Bug Accessor failed initialization for URI: &lt;"
+                            + bts + "&gt;");
+            	return;
+            }
+        
+            MailAccessor ma = a.getMailAccessor();
+            if (ma == null) {
+            	projectFailed(name, "Mailing Lists failed",
+            			"Mailing lists accessor failed initialization for URI: &lt;"
+            			+ mail + "&gt;");
+            return;
+            }
         } catch (InvalidRepositoryException e) {
             projectFailed(name, "SCM failed", "SCM accessor failed initialization for repository URI: &lt;"
                     + scm + "&gt;");
-            // Invalid repository, remove and remove accessor
-            sobjTDS.releaseAccessor(a);
             return;
-        } 
-        
-        
-        BTSAccessor ba = a.getBTSAccessor(); 
-        if (ba == null) {
-            projectFailed(name, "BTS failed",
-                    "Bug Accessor failed initialization for URI: &lt;"
-                            + bts + "&gt;");
-            sobjTDS.releaseAccessor(a);
-            return;
+        } catch (Exception e) {
+        	projectFailed(name, "Accessor failed", e.getMessage()); 
+        	return;
+        } finally {
+        	sobjTDS.releaseAccessor(a);
         }
         
-        MailAccessor ma = a.getMailAccessor();
-        if (ma == null) {
-            projectFailed(name, "Mailing Lists failed",
-                    "Mailing lists accessor failed initialization for URI: &lt;"
-                            + mail + "&gt;");
-            sobjTDS.releaseAccessor(a);
-            return;
-        }
-        sobjTDS.releaseAccessor(a);
-        
-        StoredProject p = new StoredProject(name);
+        StoredProject sp = new StoredProject(name);
         //The project is now ready to be added 
-        sobjDB.addRecord(p);
+        sobjDB.addRecord(sp);
         
-        p.setWebsiteUrl(website);
-        p.setContactUrl(contact);
-        p.setBtsUrl(bts);
-        p.setScmUrl(scm);
-        p.setMailUrl(mail);
+        //Store all known properties to the database
+        for (ConfigOption co : ConfigOption.values()) {
+        	String s = p.getProperty(co.getName());
+        	
+        	if (s == null)
+        		continue;
+        	
+        	String[] subopts = s.split(" ");
+        	
+        	for (String subopt : subopts) {
+        		sp.addConfig(co, subopt);
+        	}
+        }
         
         // Setup the evaluation marks for all installed metrics
         Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
@@ -351,20 +355,20 @@ public class WebAdminRenderer  extends AbstractView {
         for( Metric m : sobjDB.findObjectsByProperties(Metric.class, noProps) ) {
             EvaluationMark em = new EvaluationMark();
             em.setMetric(m);
-            em.setStoredProject(p);
+            em.setStoredProject(sp);
             marks.add(em);
         }
-        p.setEvaluationMarks(marks);
+        sp.setEvaluationMarks(marks);
 
-        sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(), p.getMailUrl(), 
-                p.getScmUrl());
+        sobjTDS.addAccessor(sp.getId(), sp.getName(), sp.getBtsUrl(), sp.getMailUrl(), 
+                sp.getScmUrl());
         
         sobjLogger.info("Added a new project <" + name + "> with ID "
-                + p.getId());
+                + sp.getId());
         vc.put("RESULTS", "<p>New project added successfully.</p>"
                 + returnToList);
         
-        sobjUpdater.update(p, UpdaterService.UpdateTarget.ALL, null);
+        sobjUpdater.update(sp, UpdaterService.UpdateTarget.ALL, null);
     }
     
     private void projectFailed (String project, String error, String reason) {
@@ -378,16 +382,16 @@ public class WebAdminRenderer  extends AbstractView {
     }
 
     public void addProjectDir(HttpServletRequest request) {
-        String info = request.getParameter("info");
+        String info = request.getParameter("properties");
 
-        if(info == null || info.length() == 0) {
+        if (info == null || info.length() == 0) {
             vc.put("RESULTS",
                     "<p>Add project failed because some of the required information was missing.</p>"
                     + "<b>" + info + "</b>");
             return;
         }
 
-        if (!info.endsWith("info.txt")) {
+        if (!info.endsWith(".properties")) {
             vc.put("RESULTS",
                     "<p>The entered path does not include an info.txt file</p> <br/>"
                     + "<b>" + info + "</b>");
@@ -395,50 +399,28 @@ public class WebAdminRenderer  extends AbstractView {
         }
 
         File f = new File(info);
-
-        if (!f.exists() || !f.isFile()) {
-            vc.put("RESULTS",
-                    "<p>The provided path does not exist or is not a file</p> <br/>"
-                    + "<b>" + info + "</b>");
-            return;
-        }
-
-        String name = f.getParentFile().getName();
-        String bts = "bugzilla-xml://" + f.getParentFile().getAbsolutePath() + "/bugs";
-        String mail = "maildir://" + f.getParentFile().getAbsolutePath() + "/mail";
-        String scm = "svn-file://" + f.getParentFile().getAbsolutePath() + "/svn";
-
-        Pattern wsPattern = Pattern.compile("^Website:?\\s*(http.*)$");
-        Pattern ctnPattern = Pattern.compile("^Contact:?\\s*(.*)$");
-
-        String website = "", contact = "";
-
+        Properties p = new Properties();
         try {
-            LineNumberReader lnr = new LineNumberReader(new FileReader(f));
-            String line = null;
-            while((line = lnr.readLine()) != null) {
-                Matcher m = wsPattern.matcher(line);
-                if(m.matches()){
-                    website = m.group(1);
-                }
-                m = ctnPattern.matcher(line);
-                if(m.matches()){
-                    contact = m.group(1);
-                }
-            }
-        } catch (FileNotFoundException fnfe) {
-            vc.put("RESULTS",
-                    "<p>Error opeing file info.txt, file vanished?</p> <br/>"
-                    + "<b>" + fnfe.getMessage() + "</b>");
-            return;
-        } catch (IOException e) {
-            vc.put("RESULTS",
+			p.load(new FileInputStream(f));
+		} catch (Exception e1) {
+			projectFailed("RESULTS", e1.getMessage(),
                     "<p>The provided path does not exist or is not a file</p> <br/>"
                     + "<b>" + info + "</b>");
-            return;
-        }
+			return;
+		} 
 
-        addProject(name, website, contact, bts, mail, scm);
+		if (p.getProperty(ConfigOption.PROJECT_NAME.getName()) == null)
+			p.setProperty(ConfigOption.PROJECT_NAME.getName(), 
+					f.getParentFile().getName());
+		
+        p.setProperty(ConfigOption.PROJECT_BTS_URL.getName(),
+        		"bugzilla-xml://" + f.getParentFile().getAbsolutePath() + "/bugs");
+        p.setProperty(ConfigOption.PROJECT_ML_URL.getName(), 
+        		"maildir://" + f.getParentFile().getAbsolutePath() + "/mail");
+        p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(),
+        		"svn-file://" + f.getParentFile().getAbsolutePath() + "/svn");
+        
+        addProject(p);
     }
 
     /**

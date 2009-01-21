@@ -75,6 +75,12 @@ public interface DataAccessor {
      * of project repository data
      */
     public void init(URI dataURL, String projectName) throws AccessorException;
+    
+    /**
+     * Get a renderable String representing this accessor. This string is
+     * mostly used to identify the accessor in logging operations. 
+     */
+    public String getName();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

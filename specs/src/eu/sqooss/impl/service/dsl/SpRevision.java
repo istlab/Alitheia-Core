@@ -13,6 +13,7 @@ import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
+import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
@@ -41,7 +42,12 @@ public class SpRevision {
                InvalidProjectRevisionException {
         TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
         tds.addAccessor(project.id, project.name, project.bugs, project.mail, project.repository);
-        SCMAccessor scm = tds.getAccessor(project.id).getSCMAccessor();
+        SCMAccessor scm = null;
+		try {
+			scm = tds.getAccessor(project.id).getSCMAccessor();
+		} catch (InvalidAccessorException e) {
+			return null;
+		}
         
         CommitLog log = scm.getCommitLog(scm.getPreviousRevision(revision), revision);
         
@@ -96,7 +102,12 @@ public class SpRevision {
         
         TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
         tds.addAccessor(project.id, project.name, project.bugs, project.mail, project.repository);
-        SCMAccessor scm = tds.getAccessor(project.id).getSCMAccessor();
+        SCMAccessor scm = null;
+		try {
+			scm = tds.getAccessor(project.id).getSCMAccessor();
+		} catch (InvalidAccessorException e) {
+			return null;
+		}
 
         Diff diff = scm.getDiff("/", scm.getPreviousRevision(revision), revision);
 

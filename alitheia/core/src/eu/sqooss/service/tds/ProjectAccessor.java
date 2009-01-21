@@ -55,7 +55,6 @@ public interface ProjectAccessor {
      */
     public Long getId();
     
-    
     /**
      * Get the accessor project's name.
      * @return The project name for the project this accessor is bound to
@@ -66,19 +65,19 @@ public interface ProjectAccessor {
      * Get the BTS sub-accessor for the project associated with this
      * TDAccessor.
      */
-    public BTSAccessor getBTSAccessor();
+    public BTSAccessor getBTSAccessor() throws InvalidAccessorException;
 
     /**
      * Get the Mail sub-accessor for the project associated with this
      * TDAccessor.
      */
-    public MailAccessor getMailAccessor();
+    public MailAccessor getMailAccessor() throws InvalidAccessorException;
 
     /**
      * Get the SCM sub-accessor for the project associated with this
      * TDAccessor.
      */
-    public SCMAccessor getSCMAccessor();
+    public SCMAccessor getSCMAccessor() throws InvalidAccessorException;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

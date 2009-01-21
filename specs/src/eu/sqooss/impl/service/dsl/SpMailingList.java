@@ -9,6 +9,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.impl.service.SpecsActivator;
+import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.TDSService;
 
@@ -52,7 +53,12 @@ public class SpMailingList {
         
         TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
         tds.addAccessor(project.id, project.name, project.bugs, project.mail, project.repository);
-        MailAccessor mail = tds.getAccessor(project.id).getMailAccessor();
+        MailAccessor mail;
+		try {
+			mail = tds.getAccessor(project.id).getMailAccessor();
+		} catch (InvalidAccessorException e) {
+			return null;
+		}
 
         List<String> ids = mail.getMessages(name);
         
@@ -68,7 +74,12 @@ public class SpMailingList {
         
         TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
         tds.addAccessor(project.id, project.name, project.bugs, project.mail, project.repository);
-        MailAccessor mail = tds.getAccessor(project.id).getMailAccessor();
+        MailAccessor mail = null;
+		try {
+			mail = tds.getAccessor(project.id).getMailAccessor();
+		} catch (InvalidAccessorException e) {
+			return null;
+		}
 
         List<String> ids = mail.getNewMessages(name);
         
@@ -84,7 +95,12 @@ public class SpMailingList {
         
         TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
         tds.addAccessor(project.id, project.name, project.bugs, project.mail, project.repository);
-        MailAccessor mail = tds.getAccessor(project.id).getMailAccessor();
+        MailAccessor mail = null;
+		try {
+			mail = tds.getAccessor(project.id).getMailAccessor();
+		} catch (InvalidAccessorException e) {
+			return null;
+		}
 
         List<String> ids = mail.getMessages(name);
         List<String> seen_ids = mail.getNewMessages(name);
@@ -115,7 +131,12 @@ public class SpMailingList {
         public void markAsSeen() throws FileNotFoundException {
             TDSService tds = SpecsActivator.alitheiaCore.getTDSService();
             tds.addAccessor(project.id, project.name, project.bugs, project.mail, project.repository);
-            MailAccessor mail = tds.getAccessor(parent.project.id).getMailAccessor();
+            MailAccessor mail = null;
+			try {
+				mail = tds.getAccessor(parent.project.id).getMailAccessor();
+			} catch (InvalidAccessorException e) {
+				
+			}
             
             mail.markMessageAsSeen(parent.name, id);
             

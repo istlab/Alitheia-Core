@@ -820,6 +820,10 @@ public class SVNAccessorImpl implements SCMAccessor {
     public String toString() {
         return projectname.concat(":").concat(url);
     }
+    
+    public String getName() {
+    	return "SVNAccessor";
+    }
 
 	public List<SCMNode> listDirectory(SCMNode dir) 
 		throws InvalidRepositoryException {

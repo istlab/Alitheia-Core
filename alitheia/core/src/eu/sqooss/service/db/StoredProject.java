@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -74,7 +75,7 @@ public class StoredProject extends DAObject {
 		/**
 		 * The project's contact address
 		 */
-		PROJECT_CONTACT("eu.sqooss.project.website", "The project's contact address (if any)"),
+		PROJECT_CONTACT("eu.sqooss.project.contact", "The project's contact address (if any)"),
 		
 		/**
 		 * The project's SCM type (currently SVN)
@@ -99,7 +100,7 @@ public class StoredProject extends DAObject {
 		/**
 		 * The project's BTS URL
 		 */
-		PROJECT_BTS_URL("eu.sqooss.project.ml.url", "The project's bug tracking system URL"),
+		PROJECT_BTS_URL("eu.sqooss.project.bts.url", "The project's bug tracking system URL"),
 		
 		/**
 		 * The source code paths to process while executing the updater
@@ -114,17 +115,17 @@ public class StoredProject extends DAObject {
 		/**
 		 * The source code paths that stores the project's main tree
 		 */
-		PROJECT_SCM_PATHS_TRUNK("eu.sqooss.project.trunk", "The source code paths not to process"),
+		PROJECT_SCM_PATHS_TRUNK("eu.sqooss.project.trunk", "The project's main tree path"),
 		
 		/**
 		 * The source code paths that stores the project's branches (if applicable)
 		 */
-		PROJECT_SCM_PATHS_BRANCH("eu.sqooss.project.branch", "The source code paths not to process"),
+		PROJECT_SCM_PATHS_BRANCH("eu.sqooss.project.branch", "The project's branch path"),
 		
 		/**
 		 * The source code paths that stores the project's tags (if applicable)
 		 */
-		PROJECT_SCM_PATHS_TAG("eu.sqooss.project.path.tag", "The source code paths not to process");
+		PROJECT_SCM_PATHS_TAG("eu.sqooss.project.path.tag", "The project's tag path");
 		
 		private final String name;
 		private final String desc;
