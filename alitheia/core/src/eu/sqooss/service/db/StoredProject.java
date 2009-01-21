@@ -36,6 +36,7 @@
 package eu.sqooss.service.db;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -282,12 +283,13 @@ public class StoredProject extends DAObject {
     }
     
     /**
-     * 
-     * @param co
-     * @return
+     * Get the first (in an arbitrary definition of order) value for
+     * a configuration option.  
+     * @param key The {@link ConfigOption} to look the value for
+     * @return The configuration value or null, if the option is not set
      */
-    public List<String> getConfig (ConfigOption co) {
-    	return getConfigValues(co.getName());
+    public String getConfigValue (ConfigOption key) {
+    	return getConfigValue(key.getName());
     }
     
     /**
@@ -303,6 +305,15 @@ public class StoredProject extends DAObject {
     	return values.get(0);
     }
     
+    /**
+     * Get the values for a project configuration entry.
+     * @param co The {@link ConfigOption} to look the value for
+     * @return A list of values for the provided configuration option 
+     */
+    public List<String> getConfigValues (ConfigOption co) {
+    	return getConfigValues(co.getName());
+    }
+    
     /** 
      * Get the values for a project configuration entry.
      * 
@@ -312,7 +323,7 @@ public class StoredProject extends DAObject {
     	ConfigurationOption co = ConfigurationOption.fromKey(key);
     	
     	if (co == null)
-    		return null;
+    		return Collections.emptyList();
     	
     	return co.getValues(this);
     }

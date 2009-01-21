@@ -54,6 +54,7 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
@@ -90,6 +91,22 @@ final class SourceUpdater extends Job {
     
     /* Flag set on start up */
     private HandleCopies hc = HandleCopies.BRANCHES;
+    
+    /* List of paths included or excluded from processing*/
+    private List<String> inclPaths;
+    private List<String> exclPaths;
+    
+    /* 
+     * Location of common svn paths, used to identify a sub project
+     * in a large project repository
+     */
+    private String trunkPath;
+    private String branchesPath;
+    private String tagsPath;
+    
+    /* Does the database support stored procedure based updates
+     * of the project file validUntil field?
+     */
     private boolean supportStoredProcedureUpdates; 
     
     /*
@@ -198,7 +215,7 @@ final class SourceUpdater extends Job {
         
         dbs.startDBSession();
         
-        setSupportsStoredProcedureUpdates();
+        init();
         
         int numRevisions = 0;
         
@@ -283,7 +300,19 @@ final class SourceUpdater extends Job {
                  * modified in the same revision.
                  */
                 replayLog(curVersion);
+                
+                /*
+                 * Add files to the database 
+                 */
                 dbs.addRecords(versionFiles);
+                
+                if (versionFiles.size() <= 0)
+                	warn("No files processed for version: " + curVersion);
+                
+                
+                for (ProjectFile pf : versionFiles) {
+                	updFiles.add(pf.getId());
+                }
 
                 /*
                  * Update the list of live files in this revision. 
@@ -311,17 +340,18 @@ final class SourceUpdater extends Job {
             err("Not such repository revision:" + e.getMessage());
             throw e;
         } finally {
-            dbs.commitDBSession();
+            
             //Run the metrics even if the update fails, to ensure that 
             //the versions that were processed correctly will be measured
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
             ma.runMetrics(updFiles, ProjectFile.class);
             ma.runMetrics(updProjectVersions, ProjectVersion.class);
             ma.runMetrics(updDevs, Developer.class);
+            dbs.commitDBSession();
         }
     }
    
-    private void setSupportsStoredProcedureUpdates() {
+    private void init() {
     	String paramVersion = "paramVersion";
  	    String paramPrevVersion = "paramPrev";
      	String paramState = "paramStatus";
@@ -345,6 +375,26 @@ final class SourceUpdater extends Job {
 			if (!dbs.isDBSessionActive())
 				dbs.startDBSession();
 		}
+		
+    	this.inclPaths = project.getConfigValues(ConfigOption.PROJECT_SCM_PATHS_INCL);
+    	
+    	/*
+    	 * Based on the assumption that if users do not specify a path to 
+    	 * process then want all paths to be processed.
+    	 */
+    	if (inclPaths.size() == 0)
+    		inclPaths.add("/");
+    	
+    	this.exclPaths = project.getConfigValues(ConfigOption.PROJECT_SCM_PATHS_EXCL);
+    	
+    	String branch = project.getConfigValue(ConfigOption.PROJECT_SCM_PATHS_BRANCH);
+    	this.branchesPath = (branch == null)?"/branches":branch;
+    	
+    	String trunk = project.getConfigValue(ConfigOption.PROJECT_SCM_PATHS_TRUNK);
+    	this.trunkPath = (trunk == null)?"/trunk":trunk;
+    	
+    	String tag = project.getConfigValue(ConfigOption.PROJECT_SCM_PATHS_TAG);
+    	this.tagsPath = (tag == null)?"/tags":tag;
 	}
 
 	/*
@@ -373,6 +423,7 @@ final class SourceUpdater extends Job {
         curVersion.setSequence(prev.getSequence() + 1);
         dbs.addRecord(curVersion);
 
+        updProjectVersions.add(curVersion.getId());
         debug("Got version " + curVersion.getRevisionId() + 
                 " ID " + curVersion.getId());
         return curVersion;
@@ -388,8 +439,9 @@ final class SourceUpdater extends Job {
         for (CommitCopyEntry cce : entry.getCopyOperations()) {
             
         	if (!canProcess(cce.fromPath(), cce.toPath())) {
-        		warn("Ignoring copy from " + cce.fromPath() + " to " + cce.toPath() + " due to updated config");
-        		return; 
+        		warn("Ignoring copy from " + cce.fromPath() + " to " 
+        				+ cce.toPath() + " due to updater config");
+        		continue;
         	}
         	
             ProjectFile copyFrom = null;
@@ -471,15 +523,17 @@ final class SourceUpdater extends Job {
             if (t == SCMNodeType.DIR && isTag(entry, chPath)) {
 
                 Tag tag = new Tag(curVersion);
-                tag.setName(chPath.split("tags/")[1]);
+                tag.setName(chPath.split(this.tagsPath)[1]);
                 debug("Creating tag <" + tag.getName() + ">");
 
                 dbs.addRecord(tag);
                 break;
             }
             
-            if(!canProcess(chPath, null))
-                continue; //Entries under tags or branches
+            if(!canProcessPath(chPath)) {
+            	warn("Ignoring path " + chPath + " due to project configuration"); 
+                continue; 
+            }
             
             //Dirs are processed recursively. This allows
             //copy-and-modify-in-copied-dir scenarions to be processed
@@ -900,36 +954,68 @@ final class SourceUpdater extends Job {
         }     
     }
     
-	/**
-     * Decide whether a path can be copied depending on the value of 
-     * the eu.sqooss.updater.handlecopies property.
-     */
-    private boolean canProcess(String from, String to) {
-        
-        if (from == null)
-            return false;
-        
-        if (hc.equals(HandleCopies.TAGS)) {
-            return true;
-        }
-        
+	/*
+	 * Decide what to do for copied paths. Paths whose source
+	 * or destination cannot be processed by path restrictions 
+	 * set by the include/exclude path lists cannot be copied as well.  
+	 */
+    private boolean canProcess(String path, String to) {
+    	boolean canProcess = canProcessPath(path) & canProcessPath(to);
+    	
+    	if (!canProcess)
+    		return false;
+    	
+    	if (hc.equals(HandleCopies.TAGS))
+    		return true;
+    	
         if (hc.equals(HandleCopies.TRUNK) && 
-               from.contains("trunk") && (
-                   (to != null && to.contains("trunk")) || 
+               path.contains(this.trunkPath) && (
+                   (to != null && to.contains(this.trunkPath)) || 
                     to == null) 
            ) {
                 return true;
         }
         
         if (hc.equals(HandleCopies.BRANCHES)) {
-            if ((to != null && to.contains("tags")) || 
-                    from.contains("tags")) {
+            if ((to != null && to.contains(this.tagsPath)) || 
+                    path.contains(this.tagsPath)) {
                 return false;
             }
             return true;
         }
         
         return false;
+    }
+    
+    private boolean canProcessPath(String path) {
+    	boolean canProcess = false;
+    	boolean cannotProcess = true;
+    	
+    	//Cannot process null paths
+    	if (path == null)
+            return false;
+    	
+    	//Check if path is in the include list
+    	for (String inclPath : this.inclPaths) {
+    		if (path.startsWith(inclPath)) {
+    			canProcess = true;
+    			break;
+    		}	
+    	}
+        
+    	//Path not in include list, can't process
+    	if (!canProcess)
+    		return false;
+    	
+    	//Check if path is in the exclude list
+    	for (String exclPath : this.exclPaths) {
+    		if (path.startsWith(exclPath)) {
+    			cannotProcess = false;
+    			break;
+    		}	
+    	}
+    	
+    	return canProcess & cannotProcess;
     }
     
     /**
@@ -988,13 +1074,13 @@ final class SourceUpdater extends Job {
      * @return True if <tt>entry</tt> represents a tag
      */
     private boolean isTag(CommitEntry entry, String path) {
-        if(!path.contains("/tags/"))
+        if(!path.contains(this.tagsPath))
             return false;
 
         /* Prevent commits that create the tags/ directory
          * from being classified as tags
          */
-        if(path.length() <= 5)
+        if(path.length() <= this.tagsPath.length())
             return false;
 
         /* Tags can only be added (for the time being at least)*/
