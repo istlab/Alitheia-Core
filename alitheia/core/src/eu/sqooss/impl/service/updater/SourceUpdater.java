@@ -369,8 +369,8 @@ final class SourceUpdater extends Job {
             ma.runMetrics(updFiles, ProjectFile.class);
             ma.runMetrics(updProjectVersions, ProjectVersion.class);
             ma.runMetrics(updDevs, Developer.class);
-            dbs.commitDBSession();
         }
+        dbs.commitDBSession();
     }
    
     private void init() {

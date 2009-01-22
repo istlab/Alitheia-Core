@@ -38,6 +38,7 @@ import java.io.OutputStream;
 
 import org.tmatesoft.svn.core.SVNCommitInfo;
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNPropertyValue;
 import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.diff.SVNDeltaProcessor;
 import org.tmatesoft.svn.core.io.diff.SVNDiffWindow;
@@ -177,6 +178,18 @@ public class SVNCheckoutEditor implements ISVNEditor {
 
     public void abortEdit() {
     }
+
+	public void changeDirProperty(String arg0, SVNPropertyValue arg1)
+			throws SVNException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void changeFileProperty(String arg0, String arg1,
+			SVNPropertyValue arg2) throws SVNException {
+		// TODO Auto-generated method stub
+		
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

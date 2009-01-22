@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
@@ -190,7 +191,7 @@ public class SVNAccessorImpl implements SCMAccessor {
         String date = "";
         try {
             date = svnRepository.getRevisionPropertyValue(r.getSVNRevision(),
-                    SVNRevisionProperty.DATE);
+                    SVNRevisionProperty.DATE).getString();
             SimpleDateFormat dateParser = new SimpleDateFormat("y-M-d'T'H:m:s.S'Z'");
             d = dateParser.parse(date);
         } catch (SVNException e) {
@@ -842,7 +843,7 @@ public class SVNAccessorImpl implements SCMAccessor {
 			 return contents;
 		 }
 		 
-		 Collection<SVNDirEntry> svnContents = Collections.emptyList();
+		 Collection<SVNDirEntry> svnContents = new Vector<SVNDirEntry>();
 		 
 		 try {
 			svnRepository.getDir(dir.getPath(), 

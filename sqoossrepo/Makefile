@@ -130,7 +130,7 @@ $(eval $(call rejar_template,org,hibernate,3.2.5,$(MAKE) extra-hibernate))
 $(eval $(call rejar_template,org,junit,4.4))
 $(eval $(call rejar_template,org/postgresql,jdbc,8.2.505))
 $(eval $(call rejar_template,com,mysql,5.1.6))
-$(eval $(call rejar_template,org/tmatesoft,svnkit,1.1.4))
+$(eval $(call rejar_template,org/tmatesoft,svnkit,1.2.2))
 $(eval $(call rejar_template,org,clmt,0.9.0))
 $(eval $(call rejar_template,org/jfree,chart,1.0.10,cp org/jfree/jcommon/1.0.13/jcommon-1.0.13.jar tmp/org.jfree.jcommon-1.0.13.jar))
 
