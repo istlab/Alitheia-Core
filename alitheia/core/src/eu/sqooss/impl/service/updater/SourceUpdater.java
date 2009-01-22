@@ -935,7 +935,7 @@ final class SourceUpdater extends Job {
         /*Recursively copy directories*/
         List<SCMNode> dirFiles;
 		try {
-			dirFiles = scm.listDirectory(fromFile);
+			dirFiles = scm.listDirectory(scm.getNode(to, scm.newRevision(pv.getRevisionId())));
 		} catch (InvalidRepositoryException e) {
 			warn("Cannot list files of SVN directory " + fromFile);
 			return;
