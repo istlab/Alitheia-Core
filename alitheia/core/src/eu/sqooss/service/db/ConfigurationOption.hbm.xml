@@ -8,7 +8,7 @@
     <id name="id" column="CONFIG_OPTION_ID">
       <generator class="native" />
     </id>
-    <property name="key" column="KEY" unique="true" not-null="true" />
-    <property name="description" column="DESCRIPTION" not-null="true" />
+    <property name="key" column="CONFIG_KEY" unique="true" not-null="true" />
+    <property name="description" column="CONFIG_DESCR" not-null="true" />
   </class>
 </hibernate-mapping>

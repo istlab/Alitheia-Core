@@ -106,12 +106,12 @@ public class StoredProject extends DAObject {
 		/**
 		 * The source code paths to process while executing the updater
 		 */
-		PROJECT_SCM_PATHS_INCL("eu.sqooss.project.path.incl", "The source code paths to process"),
+		PROJECT_SCM_PATHS_INCL("eu.sqooss.project.scm.path.incl", "The source code paths to process"),
 		
 		/**
 		 * The source code paths to process not to process
 		 */
-		PROJECT_SCM_PATHS_EXCL("eu.sqooss.project.path.excl", "The source code paths not to process"),
+		PROJECT_SCM_PATHS_EXCL("eu.sqooss.project.scm.path.excl", "The source code paths not to process"),
 		
 		/**
 		 * The source code paths that stores the project's main tree

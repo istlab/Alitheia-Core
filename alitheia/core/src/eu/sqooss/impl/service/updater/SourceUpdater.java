@@ -47,6 +47,7 @@ import org.apache.commons.collections.LRUMap;
 import org.hibernate.QueryException;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
@@ -77,6 +78,7 @@ import eu.sqooss.service.util.FileUtils;
 final class SourceUpdater extends Job {
     
     private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.svn.handlecopies";
+    private static final String OMMIT_NO_FILES_VERSIONS = "eu.sqooss.updater.svn.ommitfileless";
     
     private enum HandleCopies {
         TRUNK, BRANCHES, TAGS
@@ -107,7 +109,9 @@ final class SourceUpdater extends Job {
     /* Does the database support stored procedure based updates
      * of the project file validUntil field?
      */
-    private boolean supportStoredProcedureUpdates; 
+    private boolean supportStoredProcedureUpdates;
+    
+    private boolean ommitFileless = false;
     
     /*
      * Hold project version and project file IDs for kick-starting
@@ -200,6 +204,10 @@ final class SourceUpdater extends Job {
             info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
             		" using default:" + this.hc);
         }
+        
+        this.ommitFileless = (System.getProperty(OMMIT_NO_FILES_VERSIONS).equals("false"))?false:true;
+        if (ommitFileless)
+        	info("Ommiting versions with no processed files");
     }
 
     public int priority() {
@@ -268,7 +276,7 @@ final class SourceUpdater extends Job {
                 versionFiles.clear();
                 commitLogEntry = entry;
                 ProjectVersion curVersion = processCommit(scm, entry);
-
+                
                 /*
                  * Process copy operations prior to normal operations. After a
                  * copy, a lot of things can happen, for example deleting or
@@ -280,8 +288,7 @@ final class SourceUpdater extends Job {
                  * modifies the files in the copied path. For non copied paths,
                  * this has no effect in any case.
                  */
-                processCopyOps(scm, entry, curVersion, getPreviousVersion(scm,
-                        curVersion));
+                processCopyOps(scm, entry, curVersion, curVersion.getPreviousVersion());
 
                 /*
                  * Now process normal operations.
@@ -302,14 +309,29 @@ final class SourceUpdater extends Job {
                 replayLog(curVersion);
                 
                 /*
+                 * No files processed in revision, treat it as it never 
+                 * existed.
+                 */
+                if (versionFiles.size() <= 0 && ommitFileless) { 
+                	String msg = "No files processed for version: " 
+                		+ curVersion;
+                	
+                	if (curVersion.isBranch() || curVersion.isTag()) {
+                		debug(msg + ". Version creates tag/branch. " +
+                				"Not removing");
+                	} else {
+                		debug(msg + ". Removing");
+                		updProjectVersions.remove(curVersion.getId());
+                		updDevs.remove(curVersion.getCommitter().getId());
+                		dbs.deleteRecord(curVersion);
+                		continue;
+                	}
+                }
+                
+                /*
                  * Add files to the database 
                  */
                 dbs.addRecords(versionFiles);
-                
-                if (versionFiles.size() <= 0)
-                	warn("No files processed for version: " + curVersion);
-                
-                
                 for (ProjectFile pf : versionFiles) {
                 	updFiles.add(pf.getId());
                 }
@@ -419,13 +441,51 @@ final class SourceUpdater extends Job {
         }
 
         curVersion.setCommitMsg(commitMsg);
-        ProjectVersion prev = getPreviousVersion(scm, curVersion);
-        curVersion.setSequence(prev.getSequence() + 1);
+        curVersion.setSequence(Integer.MAX_VALUE);
         dbs.addRecord(curVersion);
-
+        
+        ProjectVersion prev = curVersion.getPreviousVersion();
+        curVersion.setSequence(prev.getSequence() + 1);
         updProjectVersions.add(curVersion.getId());
         debug("Got version " + curVersion.getRevisionId() + 
                 " ID " + curVersion.getId());
+        
+        /* A dir copy operation to a path under the project's defined
+         * tags or branches directories is supposed to create a 
+         * branch or tag, as per: 
+         * http://svnbook.red-bean.com/en/1.1/ch04s06.html
+         * 
+         */
+        for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
+        	SCMNode s = null; 
+        	try {
+        		s = scm.getNode(copyOp.fromPath(), copyOp.fromRev());
+        	} catch (InvalidRepositoryException ire) {
+        		warn("Cannot find node type for path " + copyOp.fromPath());
+        	} catch (InvalidProjectRevisionException e) {
+        		warn("Cannot find node type for path " + copyOp.fromPath() 
+        				+ ". Repository error");
+			}
+        	/*Furthermore, the copied directory's state must be added.*/
+        	if (!s.getType().equals(SCMNodeType.DIR) || 
+        	    !entry.getChangedPathsStatus().get(copyOp.toPath()).equals(PathChangeType.ADDED)) {
+        		continue;
+        	}
+        	
+        	String dirname = FileUtils.dirname(copyOp.toPath());
+        	
+        	if (dirname.equals(branchesPath) || dirname.equals(branchesPath + "/")) {
+        		Branch b = new Branch(curVersion, FileUtils.basename(copyOp.toPath()), null);
+        		dbs.addRecord(b);
+        	}
+        	
+        	if (dirname.equals(tagsPath) || dirname.equals(tagsPath + "/")) {
+        		Tag tag = new Tag(curVersion);
+        		tag.setName(FileUtils.basename(copyOp.toPath()));
+        		dbs.addRecord(tag);
+        	}
+        }
+        
         return curVersion;
     }
 
@@ -438,9 +498,13 @@ final class SourceUpdater extends Job {
             throws InvalidProjectRevisionException, InvalidRepositoryException {
         for (CommitCopyEntry cce : entry.getCopyOperations()) {
             
-        	if (!canProcess(cce.fromPath(), cce.toPath())) {
-        		warn("Ignoring copy from " + cce.fromPath() + " to " 
-        				+ cce.toPath() + " due to updater config");
+        	/* We only want to process copies within allowed paths or
+        	 *  from anywhere to an allowed path
+        	 */
+        	if (!canProcessCopy(cce.fromPath(), cce.toPath()) && 
+        			!canProcessPath(cce.toPath())) {
+        		debug("Ignoring copy from " + cce.fromPath() + " to " 
+        				+ cce.toPath() + " due to project config");
         		continue;
         	}
         	
@@ -467,10 +531,11 @@ final class SourceUpdater extends Job {
                 	SCMNode n = scm.getNode(cce.fromPath(), cce.fromRev());
                 	
                 	if (n != null) {
-                		debug("Copying directory");
+                		debug("Copying directory "+ n.getPath() +" from repository");
                 		handleDirCopyFromRepository(curVersion, n, cce.toPath());
                 	} else {
-                		warn("Directory " + cce.fromPath() + " cannot be found");
+                		warn("Directory " + cce.fromPath() + " cannot be found" +
+                				" in project repository!");
                 	}
                 } else {
                 	warn("Path " + cce.fromPath() + " is of uknown type " 
@@ -515,23 +580,9 @@ final class SourceUpdater extends Job {
         for (String chPath : entry.getChangedPaths()) {
             
             SCMNodeType t = scm.getNodeType(chPath, entry.getRevision());
-            /*
-             * We make the assumption that tags entries can only be
-             * directories, based on info obtained from the SVN manual See:
-             * http://svnbook.red-bean.com/en/1.1/ch04s06.html
-             */
-            if (t == SCMNodeType.DIR && isTag(entry, chPath)) {
 
-                Tag tag = new Tag(curVersion);
-                tag.setName(chPath.split(this.tagsPath)[1]);
-                debug("Creating tag <" + tag.getName() + ">");
-
-                dbs.addRecord(tag);
-                break;
-            }
-            
             if(!canProcessPath(chPath)) {
-            	warn("Ignoring path " + chPath + " due to project configuration"); 
+            	debug("Ignoring path " + chPath + " due to project configuration"); 
                 continue; 
             }
             
@@ -839,7 +890,7 @@ final class SourceUpdater extends Job {
     private void handleDirCopy(ProjectVersion pv, ProjectVersion fromVersion,
             Directory from, Directory to, ProjectFile copyFrom) {
         
-        if (!canProcess(from.getPath(), to.getPath())) 
+        if (!canProcessCopy(from.getPath(), to.getPath())) 
             return;
        
         addFile(pv, to.getPath(), ProjectFileState.added(), SCMNodeType.DIR, copyFrom);
@@ -886,8 +937,11 @@ final class SourceUpdater extends Job {
 		try {
 			dirFiles = scm.listDirectory(fromFile);
 		} catch (InvalidRepositoryException e) {
-			warn("Cannot list files of SVN directory " + fromFile + 
-					" in revision " + fromFile.getRevision());
+			warn("Cannot list files of SVN directory " + fromFile);
+			return;
+		} catch (InvalidProjectRevisionException e) {
+			warn("Cannot list files of SVN directory " + fromFile 
+					+ "Repository error" );
 			return;
 		}
         
@@ -959,8 +1013,8 @@ final class SourceUpdater extends Job {
 	 * or destination cannot be processed by path restrictions 
 	 * set by the include/exclude path lists cannot be copied as well.  
 	 */
-    private boolean canProcess(String path, String to) {
-    	boolean canProcess = canProcessPath(path) & canProcessPath(to);
+    private boolean canProcessCopy(String path, String to) {
+    	boolean canProcess = canProcessPath(path) && canProcessPath(to);
     	
     	if (!canProcess)
     		return false;
@@ -1065,39 +1119,7 @@ final class SourceUpdater extends Job {
         } 
         return dir;
     }
-    
-    /**
-     * Tell tags from regular commits (heuristic based)
-     *  
-     * @param entry
-     * @param path
-     * @return True if <tt>entry</tt> represents a tag
-     */
-    private boolean isTag(CommitEntry entry, String path) {
-        if(!path.contains(this.tagsPath))
-            return false;
-
-        /* Prevent commits that create the tags/ directory
-         * from being classified as tags
-         */
-        if(path.length() <= this.tagsPath.length())
-            return false;
-
-        /* Tags can only be added (for the time being at least)*/
-        if(entry.getChangedPathsStatus().get(path) != PathChangeType.ADDED)
-            return false;
-
-        /* If a path is not the prefix for all changed files
-         * in a commit, then it is a leaf node (and therefore
-         * not a tag)
-         */
-        for(String chPath: entry.getChangedPaths())
-            if(!chPath.startsWith(path))
-                return false;
-
-        return true;
-    }
-    
+  
     private void warn(String message) {
         logger.warn(project.getName() + ":" + message);
     }

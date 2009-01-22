@@ -69,9 +69,11 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.CommitEntry;
+import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNode;
@@ -825,6 +827,7 @@ public class SVNAccessorImpl implements SCMAccessor {
     	return "SVNAccessor";
     }
 
+    /** {@inheritDoc}} */
 	public List<SCMNode> listDirectory(SCMNode dir) 
 		throws InvalidRepositoryException {
 		
@@ -867,7 +870,8 @@ public class SVNAccessorImpl implements SCMAccessor {
 		 
 		return contents;
 	}
-
+	
+	/** {@inheritDoc}} */
 	public SCMNode getNode(String path, Revision r)
 			throws InvalidRepositoryException {
 		
@@ -877,10 +881,29 @@ public class SVNAccessorImpl implements SCMAccessor {
 		 
 		 SCMNodeType t = getNodeType(path, r);
 
+		 
+		 
 		 if ( !t.equals(SCMNodeType.UNKNOWN)) {
 			 return new SCMNode(path, t, r);
 		 }
 		 
+		return null;
+	}
+
+	/** {@inheritDoc}} */
+	//TODO: Finish implementation
+	public PathChangeType getNodeChangeType(SCMNode s)
+			throws InvalidRepositoryException, InvalidProjectRevisionException {
+		
+		CommitLog log = getCommitLog(s.getRevision());
+		
+		Iterator<CommitEntry> i = log.iterator();
+		
+		while (i.hasNext()) {
+			CommitEntry ce = i.next();
+			
+		}
+		
 		return null;
 	}
 }

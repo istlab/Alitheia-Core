@@ -85,6 +85,7 @@
         <mapping resource="eu/sqooss/service/db/ProjectFileState.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/StoredProjectConfig.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ConfigurationOption.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Branch.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>

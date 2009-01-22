@@ -735,6 +735,37 @@ public class ProjectVersion extends DAObject {
     public List<ProjectFile> allFiles() {
     	return getVersionFiles(null, ProjectVersion.MASK_FILES);
     }
+    
+    /**
+     * Return true if this version's actions generated a tag.
+     */
+    public boolean isTag() {
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	Map<String, Object> props = new HashMap<String, Object>();
+    	props.put("projectVersion", this);
+    	
+    	List<Tag> tags = dbs.findObjectsByProperties(Tag.class, props);
+    	
+    	if (tags.isEmpty())
+    		return false;
+    	
+    	return true;
+    }
+    
+    /**
+     * Return true if this version's actions generated a branch.
+     */
+    public boolean isBranch() {
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	Map<String, Object> props = new HashMap<String, Object>();
+    	props.put("branchVersion", this);
+    	List<Branch> branches = dbs.findObjectsByProperties(Branch.class, props);
+    	
+    	if (branches.isEmpty())
+    		return false;
+    	
+    	return true;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

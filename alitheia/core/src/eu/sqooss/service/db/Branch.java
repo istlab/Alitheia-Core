@@ -39,51 +39,57 @@ import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
 
-public class StoredProjectConfig extends DAObject {
+/**
+ * Keeps track of branching and merging operations. 
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
+ */
+public class Branch extends DAObject {
+	private ProjectVersion branchVersion;
+	private ProjectVersion mergeVersion;
+	private String name;
+	
+	public Branch() {}
+	
+	public Branch(ProjectVersion branch, String name, ProjectVersion merge) {
+		this.branchVersion = branch;
+		this.name = name;
+		this.mergeVersion = merge;
+	}
+	
+	public ProjectVersion getBranchVersion() {
+		return branchVersion;
+	}
+	public void setBranchVersion(ProjectVersion branchVersion) {
+		this.branchVersion = branchVersion;
+	}
+	public ProjectVersion getMergeVersion() {
+		return mergeVersion;
+	}
+	public void setMergeVersion(ProjectVersion mergeVersion) {
+		this.mergeVersion = mergeVersion;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public static List<ProjectVersion> getBranchVersions(StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
-	private ConfigurationOption confOpt;
-	private StoredProject project;
-	private String value;
-	
-	public StoredProjectConfig() {}
-	
-	public StoredProjectConfig(ConfigurationOption co, String value, 
-			StoredProject sp) {
-		this.confOpt = co;
-		this.value = value;
-		this.project = sp;
-	}
-	
-	public ConfigurationOption getConfOpt() {
-		return confOpt;
-	}
-	
-	public void setConfOpt(ConfigurationOption confOpt) {
-		this.confOpt = confOpt;
-	}
-	
-	public StoredProject getProject() {
-		return project;
-	}
-	
-	public void setProject(StoredProject project) {
-		this.project = project;
-	}
-	
-	public String getValue() {
-		return value;
-	}
-	
-	public void setValue(String value) {
-		this.value = value;
-	}
-	
-	public static List<StoredProjectConfig> fromProject(StoredProject sp) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("project", sp);
-		
-		return dbs.findObjectsByProperties(StoredProjectConfig.class, params);
-	}
+        String paramProject = "project_id";
+
+        String query = "select pv " 
+                + " from ProjectVersion pv, Branch b "
+                + " where b.branchVersion = pv " 
+                + " and pv.project =:" + paramProject;
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(paramProject, sp);
+
+        return (List<ProjectVersion>) dbs.doHQL(query, parameters);
+
+    }
 }

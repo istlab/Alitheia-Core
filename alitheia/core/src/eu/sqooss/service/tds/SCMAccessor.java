@@ -359,23 +359,45 @@ public interface SCMAccessor extends DataAccessor {
      * node is a file and not a directory, then the node itself is returned.
      * 
      * @param dir
-     * @param r
      * @return 
-     * @throws InvalidRepositoryException
+     * @throws InvalidProjectRevisionException When the provided revision is
+     *  invalid
+     * @throws InvalidRepositoryException When there is an error accessing
+     *  the underlying repository
      */
     public List<SCMNode> listDirectory(SCMNode dir)
-    	throws InvalidRepositoryException ;
+    	throws InvalidRepositoryException,
+    	InvalidProjectRevisionException ;
     
     /**
      * Returns a node object from the path. If the node does not exist 
      * in the SCM for the specific revision, then <tt>null</tt> is returned.
-     * @param path
-     * @param r
-     * @return
-     * @throws InvalidRepositoryException
+     * 
+     * @param path The path to return a node for
+     * @param r The revision to search the node in
+     * @return An {@link SCMNode} or null if the node was not found.  
+     * @throws InvalidProjectRevisionException When the provided revision is
+     *  invalid
+     * @throws InvalidRepositoryException When there is an error accessing
+     *  the underlying repository
      */
     public SCMNode getNode(String path, Revision r) 
-    	throws InvalidRepositoryException;
+    	throws  InvalidRepositoryException,
+    			InvalidProjectRevisionException;
+    
+    /**
+     * Gets the status a the node in the provided revision.  
+     * 
+     * @return A {@link PathChangeType} value. If the node was not changed
+     * in the revision the method will return {@link PathChangeType.UNMODIFIED}
+     * @throws InvalidProjectRevisionException When the provided revision is
+     *  invalid
+     * @throws InvalidRepositoryException When there is an error accessing
+     *  the underlying repository
+     */
+    public PathChangeType getNodeChangeType(SCMNode s) 
+    	throws InvalidRepositoryException, 
+    		   InvalidProjectRevisionException;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
