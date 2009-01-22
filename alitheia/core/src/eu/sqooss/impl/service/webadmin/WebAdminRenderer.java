@@ -345,7 +345,8 @@ public class WebAdminRenderer  extends AbstractView {
         	String[] subopts = s.split(" ");
         	
         	for (String subopt : subopts) {
-        		sp.addConfig(co, subopt);
+        		if (subopt.trim().length() > 0)
+        			sp.addConfig(co, subopt.trim());
         	}
         }
         

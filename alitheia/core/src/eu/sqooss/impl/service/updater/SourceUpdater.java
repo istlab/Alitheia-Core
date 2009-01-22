@@ -1069,7 +1069,7 @@ final class SourceUpdater extends Job {
     		}	
     	}
     	
-    	return canProcess & cannotProcess;
+    	return canProcess && cannotProcess;
     }
     
     /**
