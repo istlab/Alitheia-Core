@@ -324,7 +324,9 @@ final class SourceUpdater extends Job {
                 		updProjectVersions.remove(curVersion.getId());
                 		updDevs.remove(curVersion.getCommitter().getId());
                 		dbs.deleteRecord(curVersion);
-                		continue;
+                		dbs.rollbackDBSession();
+                        dbs.startDBSession();
+                        continue;
                 	}
                 }
                 

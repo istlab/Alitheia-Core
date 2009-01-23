@@ -96,14 +96,17 @@ public class ProjectFileState extends DAObject {
     public static ProjectFileState fromStatus(int status) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        Map<String, Object> params = new HashMap<String, Object>();
+	if (!dbs.isDBSessionActive())
+            return null;
+
+	Map<String, Object> params = new HashMap<String, Object>();
         params.put("status", status);
         List<ProjectFileState> pfs = dbs.findObjectsByProperties(ProjectFileState.class, params);
         
         if (!pfs.isEmpty()) {            
             return pfs.get(0);
         }
-        
+       	
         ProjectFileState state = new ProjectFileState();
         state.setStatus(status);
         
