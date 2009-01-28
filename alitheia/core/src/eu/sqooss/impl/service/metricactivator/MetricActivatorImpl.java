@@ -481,7 +481,7 @@ public class MetricActivatorImpl  implements MetricActivator {
                 
                 for (Long l : objectIDs) {
                     jobs.add(new MetricActivatorJob(metric, l, logger, c,
-                    getNextPriority(c)));
+                    		getNextPriority(c)));
                     //schedJob(metric, l, c, getNextPriority(c));
                 }   
                 sched.enqueueNoDependencies(jobs);

@@ -33,72 +33,57 @@
 
 package eu.sqooss.impl.service.admin;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.admin.ActionParam;
-import eu.sqooss.service.db.ClusterNode;
-import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.pa.PluginInfo;
 
-/**
- * Administrative action that assigns a project to a node in a 
- * cluster installation. Takes the following parameters:
- * 
- * <ul>
- *      <li>{@link ActionParam.PROJECT_NAME}</li>
- *      <li>{@link ActionParam.CLUSTERNODE_NAME}</li>
- * </ul>
- *
- */
-public class AssignProjectAction extends ActionBase {
-    
-    public AssignProjectAction() {
-        registerParam(ActionParam.PROJECT_NAME, true);
-        registerParam(ActionParam.CLUSTERNODE_NAME, true);
-    }
-    
-    public String getActionName() {
-        return "assignpr";
-    }
-    
-    public String getActionDescr() {
-        return "Assign a project to a cluster node";
-    }
-    
-    @Override
+public class ScheduleMetricAction extends ActionBase {
+
+	public ScheduleMetricAction() {
+		registerParam(ActionParam.PROJECT_ID, true);
+		registerParam(ActionParam.PLUGIN_ID, true);
+	}
+	
+	@Override
+	public String getActionDescr() {
+		return "Schedule a plug-in run for all activation types on the" +
+				" provided project";
+	}
+
+	@Override
+	public String getActionName() {
+		return "schedplug";
+	}
+	
+	@Override
 	public boolean execute(Map<ActionParam, Object> params) {
-
-		if (!execute(params))
-			return false;
-		
 		DBService db = AlitheiaCore.getInstance().getDBService();
-        StoredProject sp = StoredProject.getProjectByName(
+		PluginAdmin pa = AlitheiaCore.getInstance().getPluginAdmin();
+		MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
+		
+		StoredProject sp = StoredProject.getProjectByName(
         		(String)params.get(ActionParam.PROJECT_NAME));
         
-        ClusterNode cl = ClusterNode.getClusteNodeByName(
-        		(String)params.get(ActionParam.CLUSTERNODE_NAME));
-        
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put("project", sp);
-        
-        List<ClusterNodeProject> cnl = db.findObjectsByPropertiesForUpdate(ClusterNodeProject.class, props);
-        
-        if (cnl.isEmpty()) {
-        	//Project has not been assigned yet
-        	ClusterNodeProject ass = new ClusterNodeProject();
-        	ass.setProject(sp);
-        	ass.setNode(cl);
-        	return db.addRecord(ass);
-        } else {
-        	//Assignement exists, update it
-        	ClusterNodeProject ass = cnl.get(0);
-        	ass.setProject(sp);
-        }
+		Plugin p = Plugin.loadDAObyId(Integer.parseInt(((String)params.get(ActionParam.PLUGIN_ID))), Plugin.class);
 		
-		return true;
+		PluginInfo pInfo = pa.getPluginInfo(p.getHashcode());
+		if (pInfo != null) {
+			AlitheiaPlugin ap = pa.getPlugin(pInfo);
+			if (ap != null) {
+				ma.syncMetric(ap, sp);
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return false;
 	}
 }

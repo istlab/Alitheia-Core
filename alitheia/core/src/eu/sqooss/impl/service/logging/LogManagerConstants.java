@@ -74,7 +74,8 @@ public class LogManagerConstants {
         Logger.NAME_SQOOSS_WEB_SERVICES,
         Logger.NAME_SQOOSS_PA,
         Logger.NAME_SQOOSS_TESTER,
-        Logger.NAME_SQOOSS_PARSER
+        Logger.NAME_SQOOSS_PARSER,
+        Logger.NAME_SQOOSS_ADMINACTION
     } ;
 
     /**

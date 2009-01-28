@@ -159,6 +159,15 @@ public class AlitheiaCore {
         padmin = new PAServiceImpl(bc,
                 getLogManager().createLogger(Logger.NAME_SQOOSS_PA));
     }
+    
+    /**
+     * Initializes an instance of the Plug-in Admin component.
+     */
+    private void initAdminService() {
+    	admin = new AdminServiceImpl(bc,
+    			getLogManager().createLogger(Logger.NAME_SQOOSS_ADMINACTION));
+		
+    }
 
     /**
      * Simple constructor.
@@ -212,6 +221,8 @@ public class AlitheiaCore {
         initPluginAdmin();
         // Create an instance of the WebAdmin component
         initWebAdmin();
+        // Create an instance of the Administration service component
+        initAdminService(); 
     }
 
     /**
@@ -427,11 +438,10 @@ public class AlitheiaCore {
      *  service cannot be instantiated.
      */
     public AdminService getAdminService() {
-        if (admin == null) {
-            admin = new AdminServiceImpl(
-                    getLogManager().createLogger(
-                            Logger.NAME_SQOOSS_ADMINACTION));
-        }
+    	admin = new AdminServiceImpl(bc,
+    			getLogManager().createLogger(Logger.NAME_SQOOSS_ADMINACTION));
+			
+
         return admin;
     }
 

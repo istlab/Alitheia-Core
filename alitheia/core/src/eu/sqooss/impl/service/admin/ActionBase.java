@@ -40,8 +40,10 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.ActionParam;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminActionError;
+import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.StoredProject;
 
 /**
@@ -58,17 +60,14 @@ public abstract class ActionBase implements AdminAction {
     
     private Map<ActionParam, Boolean> supportedParams = new HashMap<ActionParam, Boolean>();
     private AdminActionError e;
-    private String result;
+    private String result = "OK";
     
     /**{@inheritDoc}*/
     public abstract String getActionName();
     
     /**{@inheritDoc}*/
     public abstract String getActionDescr();
-    
-    /**{@inheritDoc}*/
-    public abstract boolean execute(Map<ActionParam, Object> opts);
-    
+ 
     /**{@inheritDoc}*/
     public String getResult() {
         return result;
@@ -90,6 +89,11 @@ public abstract class ActionBase implements AdminAction {
     /**{@inheritDoc}*/
     public AdminActionError getError() {
         return e;
+    }
+    
+    /**{@inheritDoc}*/
+    public void registerWith(AdminService as) {
+    	as.registerAdminAction(getActionName(), this.getClass());
     }
     
     /** Register an action parameter. */
@@ -124,6 +128,8 @@ public abstract class ActionBase implements AdminAction {
         case PROJECT_ID:
             return validateProjectId(value);
         case CLUSTERNODE_NAME:
+            return validateClusterNodeName(value);
+        case PLUGIN_ID:
             return validateClusterNodeName(value);
         default:
             return false;
@@ -168,4 +174,19 @@ public abstract class ActionBase implements AdminAction {
         }
         return true;
     }   
+    
+    private final boolean validatePluginID(String pluginid) {
+        DBService db = AlitheiaCore.getInstance().getDBService();
+        Plugin p = Plugin.loadDAObyId(Integer.parseInt(pluginid), Plugin.class);
+        
+        if (p == null) {
+            e = AdminActionError.ENOPLUGINID;
+            return false;
+        }
+        return true;
+    }   
+    
+    public boolean execute(Map<ActionParam, Object> params) {    	 
+    	 return validateParams(params);
+    }
 }

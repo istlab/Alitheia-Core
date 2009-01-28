@@ -93,4 +93,10 @@ public interface AdminAction {
      *         action.
      */
     public Map<String, String> getHelp();
+    
+    /**
+     * Make this action available to the provided admin service instance.
+     * @param as  The admin service to register this action with.
+     */
+    public void registerWith(AdminService as);
 }

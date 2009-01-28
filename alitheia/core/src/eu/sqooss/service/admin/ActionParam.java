@@ -9,7 +9,8 @@ public enum ActionParam {
     		"to the database"),
     PROJECT_ID("projectid", "The database key for the project"),
     CLUSTERNODE_NAME("clusternodename", " The name of a node in a " +
-    		"SQO-OSS cluster.");
+    		"SQO-OSS cluster."),
+    PLUGIN_ID("pluginid", "The SQO-OSS id for specific plugin");
     
     private String name;
     private String help;

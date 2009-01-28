@@ -51,12 +51,27 @@ public enum AdminActionError {
     /** Value is not an integer */
     ENOINT("Value is not an integer"),
     
+    /** No plugin with this plugin id exist*/
+    ENOPLUGINID("Project id is not valid"),
+    
+    /** Missing parameter */
+    EMISPARAM("Not all required parameter values have been set"),
+    
     /** No parameter validator */
-    ENOVALID("No parameter validator");
+    ENOVALID("No parameter validator"), 
+    
+    /** Missing action*/
+    EMISACTION("No such action or no action");
     
     private String error;
     
     private AdminActionError(String err) {
         this.error = err;
+    }
+    
+    public String toXML() {
+    	return "<error>\n<code>" + this 
+    		+ "</code>\n<msg>" + error + 
+    		"</msg>\n</error>"; 
     }
 }
