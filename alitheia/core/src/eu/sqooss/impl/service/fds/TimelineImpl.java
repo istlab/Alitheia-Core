@@ -36,12 +36,16 @@ package eu.sqooss.impl.service.fds;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.ProjectVersion;
@@ -69,16 +73,23 @@ class TimelineImpl implements Timeline {
         
         final long begin = from.getTimeInMillis();
         final long end = to.getTimeInMillis();
-
-        List<ProjectVersion> versions = project.getProjectVersions();
-        if (versions != null) {
-            for(ProjectVersion version : versions) {
-                if (version.getTimestamp() < begin || version.getTimestamp() > end)
-                    continue;
-                result.add( new RepositoryEvent(version.getTimestamp(), version) );
-            }
+        
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        StringBuilder query = new StringBuilder("select pv ");
+        query.append("from ProjectVersion pv ");
+        query.append("where pv.timestamp < :paramTo ");
+        query.append("and pv.timestamp > :paramFrom ");
+        query.append("and pv.project = :paramProject ");
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("paramTo", end);
+        params.put("paramFrom", begin);
+        params.put("paramProject", project);
+        
+        List<ProjectVersion> versions = (List<ProjectVersion>) dbs.doHQL(query.toString(), params);
+        
+        for(ProjectVersion version : versions) {
+        	result.add( new RepositoryEvent(version.getTimestamp(), version) );
         }
-
         return result;
     }
     
@@ -88,22 +99,28 @@ class TimelineImpl implements Timeline {
         final Date begin = from.getTime();
         final Date end = to.getTime();
         
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        StringBuilder query = new StringBuilder("select mm ");
+        query.append("from MailMessage mm ");
+        query.append("where mm.arrivalDate < :paramTo ");
+        query.append("and mm.arrivalDate > :paramFrom ");
+        query.append("and mm.list = :paramList ");
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("paramTo", end);
+        params.put("paramFrom", begin);        
+        
         Set<MailingList> lists = project.getMailingLists();
         if (lists != null) {
-            for (MailingList list : lists) {
-                // get all messages
-                Set<MailMessage> messages = list.getMessages();
-                if (messages == null)
-                    continue;
-                for (MailMessage message : messages)
-                {
-                    if (message.getSendDate().before(begin) ||
-                        message.getSendDate().after(end))
-                        continue;
-                    result.add( new MailingListEvent( message.getSendDate().getTime(), message ) );
-                }
-            }
-        }
+			for (MailingList list : lists) {
+				params.put("paramlist", list);
+				List<MailMessage> messages = (List<MailMessage>) dbs.doHQL(query.toString(), params);
+
+				for (MailMessage message : messages) {
+					result.add(new MailingListEvent(
+							message.getSendDate().getTime(), message));
+				}
+			}
+		}
 
         return result;
     }
@@ -114,17 +131,21 @@ class TimelineImpl implements Timeline {
         final Date begin = from.getTime();
         final Date end = to.getTime();
 
-        Set<Bug> bugs = project.getBugs();
-        if (bugs != null) {
-            for (Bug bug : bugs) {
-                // PENDING: Use creation date or last update date ?
-                if ( bug.getCreationTS().before(begin) ||
-                     bug.getCreationTS().after(end) )
-                    continue;
-                result.add( new BugDBEvent( bug.getCreationTS().getTime(), bug ) );
-            }
-        }
-
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        StringBuilder query = new StringBuilder("select b ");
+        query.append("from Bug b ");
+        query.append("where b.creationTS < :paramTo ");
+        query.append("and b.creationTS > :paramFrom ");
+        query.append("and b.project = :paramProject ");
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("paramTo", end);
+        params.put("paramFrom", begin);
+        params.put("paramProject", project);
+        List<Bug> bugs = (List<Bug>) dbs.doHQL(query.toString(), params);
+        
+        for (Bug bug : bugs) {
+			result.add(new BugDBEvent(bug.getCreationTS().getTime(), bug));
+		}
         return result;
     }
  
