@@ -63,12 +63,16 @@ import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
+import org.tmatesoft.svn.core.wc.ISVNAnnotateHandler;
 import org.tmatesoft.svn.core.wc.SVNDiffClient;
+import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
+import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
+import eu.sqooss.service.tds.AnnotatedLine;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
@@ -906,6 +910,62 @@ public class SVNAccessorImpl implements SCMAccessor {
 		}
 		
 		return null;
+	}
+
+	/** {@inheritDoc }*/
+	public List<AnnotatedLine> getNodeAnnotations(SCMNode s) {
+		if (!s.getType().equals(SCMNodeType.FILE))
+			return Collections.emptyList();
+		
+		List<AnnotatedLine> annotations = new ArrayList<AnnotatedLine>();
+		SVNLogClient log = new SVNLogClient(SVNWCUtil.createDefaultAuthenticationManager(), null);
+		SVNAnnotator annotator = new SVNAnnotator();
+		try {
+			log.doAnnotate(SVNURL.parseURIDecoded(url+s.getPath()), 
+					SVNRevision.create(Long.parseLong(s.getRevision().getUniqueId())), 
+					null, 
+					SVNRevision.create(Long.parseLong(s.getRevision().getUniqueId())), 
+					annotator);
+		} catch (NumberFormatException e) {
+			logger.error("Number formating error " + e.getMessage());
+			return Collections.emptyList();
+		} catch (SVNException e) {
+			logger.error("Repository error " + e.getMessage());
+			return Collections.emptyList();
+		}
+		
+		return annotator.getAnnotatedFile();
+	}
+	
+	/** Used by the #getNodeAnnotations method to annotate a file */
+	private class SVNAnnotator implements ISVNAnnotateHandler {
+
+		private List<AnnotatedLine> annotate = new ArrayList<AnnotatedLine>();
+		
+		public void handleEOF() {}
+
+		public void handleLine(Date date, long revision, String author,
+				String line) throws SVNException {
+			AnnotatedLine al = new AnnotatedLine();
+			al.developer = String.copyValueOf(author.toCharArray());
+			al.line = String.copyValueOf(line.toCharArray());
+			al.rev = newRevision(String.valueOf(revision));
+			annotate.add(al);
+		}
+
+		public void handleLine(Date date, long revision, String author,
+				String line, Date mergedDate, long mergedRevision,
+				String mergedAuthor, String mergedPath, int lineNumber)
+				throws SVNException {
+			handleLine(date, revision, author, line);
+		}
+
+		public boolean handleRevision(Date date, long revision, String author,
+				File contents) throws SVNException { return false;}
+		
+		public List<AnnotatedLine> getAnnotatedFile() {
+			return annotate;
+		}
 	}
 }
 

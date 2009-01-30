@@ -398,6 +398,13 @@ public interface SCMAccessor extends DataAccessor {
     public PathChangeType getNodeChangeType(SCMNode s) 
     	throws InvalidRepositoryException, 
     		   InvalidProjectRevisionException;
+    
+    /**
+     * Get an annotated version of the contents of the file represented
+     * by the provided SCMNode. This is equivalent to <tt>svn blame</tt>,
+     * <tt>git blame</tt> and <tt>cvs annotate</tt>. 
+     */
+    public List<AnnotatedLine> getNodeAnnotations(SCMNode s);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
