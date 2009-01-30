@@ -57,6 +57,7 @@ public class ContributionActions {
         c.add(ActionType.CBN);
         c.add(ActionType.CPH);
         c.add(ActionType.CAL);
+        c.add(ActionType.TL);
         types.put(ActionCategory.C, c);
         
         c= new ArrayList<ActionType>();
@@ -103,6 +104,8 @@ public class ContributionActions {
          * developer)
          */
         TCF,
+        /** Total lines until current version */
+        TL,
         /** Commit comment that includes a bug report number */
         CBN,
         /** Commit comment that awards a pointy hat */
@@ -146,6 +149,8 @@ public class ContributionActions {
                 return ActionType.TCO;
             else if ("TCF".equalsIgnoreCase(s))
                 return ActionType.TCF;
+            else if ("TL".equalsIgnoreCase(s))
+                return ActionType.TL;
             else if ("CBN".equalsIgnoreCase(s))
                 return ActionType.CBN;
             else if ("CPH".equalsIgnoreCase(s))

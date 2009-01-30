@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.metrics.contrib.db.ContribLinesPerDevPerFile" table="CONTRIB_LINES">
+    <id name="id" column="CONTRIB_LINES_ID">
+      <generator class="native" />
+    </id>
+    <many-to-one name="developer" column="DEVELOPER_ID" not-null="true" cascade="merge" unique-key="contribcacheunq"/>
+    <many-to-one name="file" column="PROJECT_FILE_ID" not-null="true" cascade="merge" unique-key="contribcacheunq"/>
+    <property name="numLines" column="NUM_LINES" not-null="true" />
+  </class>
+</hibernate-mapping>

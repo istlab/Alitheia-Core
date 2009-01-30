@@ -51,6 +51,7 @@ import eu.sqooss.metrics.contrib.ContributionMetric;
 import eu.sqooss.metrics.contrib.db.ContribAction;
 import eu.sqooss.metrics.contrib.db.ContribActionType;
 import eu.sqooss.metrics.contrib.db.ContribActionWeight;
+import eu.sqooss.metrics.contrib.db.ContribLinesPerDevPerFile;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
@@ -72,6 +73,12 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.FileTypeMatcher;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.tds.AnnotatedLine;
+import eu.sqooss.service.tds.InvalidAccessorException;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.TDSService;
 
 public class ContributionMetricImpl extends AbstractMetric implements
         ContributionMetric {
@@ -345,7 +352,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         int locCurrent, locPrevious;
         Developer dev = pv.getCommitter();
         Set<ProjectFile> projectFiles = pv.getVersionFiles();
-        
+        long ts = System.currentTimeMillis();
         List<Metric> locMetric = new ArrayList<Metric>();
         AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin("Wc.loc");
         
@@ -416,11 +423,11 @@ public class ContributionMetricImpl extends AbstractMetric implements
             }
             
             if (pf.getCopyFrom() != null) {
-                debug("Contrib: Ignoring copied file" + pf, pf.getProjectVersion());
+                debug("Ignoring copied file" + pf, pf.getProjectVersion());
                 continue;
             }
             
-            //Commit of a source file: -
+            //Commit of a source file: REMOVE THIS SECTION
             if (fType == FileTypeMatcher.FileType.SRC) {
                 //Source file changed, calc number of lines commited
                 try {
@@ -433,21 +440,19 @@ public class ContributionMetricImpl extends AbstractMetric implements
                     //Source file just added
                     if (pf.isAdded()) {
                         updateField(pv, dev, ActionType.CNS, true, 1);
-                        locPrevious = 0;
+                        locPrevious = 0; 
                     } else {
                         //Existing file, get lines of previous version
                         prevFile = ProjectFile.getPreviousFileVersion(pf);
                         if (prevFile != null) {
                             locPrevious = getLOCResult(prevFile, plugin, locMetric);
                         } else {
-                            warn("Cannot get previous file " +
-                            		"version for file id: " + pf.getId(), pv);
                             locPrevious = 0;
                         }
                     }
                     //The commit change some lines
                     updateField(pv, dev, ActionType.CAL, true, 
-                            abs(locCurrent - locPrevious));
+                            locCurrent - locPrevious);
                 } catch (Exception e) {
                     err("Results of LOC metric for file: "
                             + pf.getFileName() 
@@ -472,7 +477,93 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 updateField(pv, dev, ActionType.CTF, true, 1);
             }
         }
+        System.err.println(pv + ": Stage 1:" + (System.currentTimeMillis() - ts));
+        ts = System.currentTimeMillis();
         
+        /* The following block of code calculates the real total lines for 
+         * the commiter of the current version. The total number of lines
+         * per developer is at any given time the number of lines at
+         * the time of his/her commit closest to the given time. 
+         */
+        int totalLines = 0;
+        Map<Developer, Integer> linesPerDev = new HashMap<Developer, Integer>();
+        TDSService tds = AlitheiaCore.getInstance().getTDSService();
+        SCMAccessor scm = null;
+        /* Get a list of all live files*/
+        List<ProjectFile> files = pv.allFiles();
+        
+        /*Cache to avoid hammering the db*/
+        HashMap<String, Developer> devCache = new HashMap<String, Developer>();
+        try {
+			scm = tds.getAccessor(pv.getProject().getId()).getSCMAccessor();
+			//For each file
+			for (ProjectFile pf : files) {
+				//Ignore non-text (binary) files
+				if (FileTypeMatcher.getFileType(pf.getName()) != FileTypeMatcher.FileType.TXT)
+					continue;
+
+				//Ignore copied files
+				if (pf.getCopyFrom() != null) {
+					debug("Ignoring copied file " + pf, 
+							pf.getProjectVersion());
+					continue;
+				}
+
+				//Try to get the latest analyzed version of the file from the 
+				//cache table
+				Integer lines = ContribLinesPerDevPerFile.getLinesPerDevPerFile(pf, pv.getCommitter());
+
+				//If the file is not in the cache
+				if (lines == null) {
+					//Get the file in annotated form from the repo
+					List<AnnotatedLine> annotated = scm.getNodeAnnotations(
+							scm.getNode(pf.getFileName(), 
+							scm.newRevision(pv.getRevisionId())));
+					linesPerDev.clear();
+					//Calculate lines per developer
+					for (AnnotatedLine al : annotated) {
+						
+						Developer d = null;
+						if (devCache.get(al.developer) == null) { 
+							devCache.put(al.developer, Developer.getDeveloperByUsername(al.developer, pv.getProject()));
+						} 
+						
+						d = devCache.get(al.developer);
+						//Count lines per developer
+						if (linesPerDev.get(d) != null) {
+							linesPerDev.put(d,
+									linesPerDev.get(d).intValue() + 1);
+						} else {
+							linesPerDev.put(d, 1);
+						}
+					}
+					//Store the per developer line counts in the cache table
+					for (Developer d : linesPerDev.keySet()) {
+						ContribLinesPerDevPerFile c = new ContribLinesPerDevPerFile(
+								pf, d, linesPerDev.get(d));
+						//For the developer we are counting lines for,
+						//store the number of lines in the processed file
+						if (d.equals(pv.getCommitter())) {
+							lines = linesPerDev.get(d); 
+						} else {
+							lines = 0;
+						}
+						
+						db.addRecord(c);
+					}
+				}
+				totalLines += lines;
+			}
+			//Update the total number of lines
+			updateField(pv, pv.getCommitter(), ActionType.TL, true, totalLines);
+		} catch (InvalidAccessorException e) {
+			e.printStackTrace();
+		} catch (InvalidRepositoryException e) {
+			e.printStackTrace();
+		} catch (InvalidProjectRevisionException e) {
+			e.printStackTrace();
+		}
+		System.err.println(pv + ": Stage 2:" + (System.currentTimeMillis() - ts));
         //Update the category weights if necessary
         synchronized(lockObject) {
             updateWeights();   
