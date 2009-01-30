@@ -62,20 +62,17 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 
-
-/*
-** The Squeleton class is the bit that actually implements the metrics
-** in this plug-in. It must extend AbstractMetric (so that it can be
-** called by the various metrics drivers) and implement at least one of
-** the four *Metric interfaces; by doing so it registers itself as 
-** willing to respond to changes of the type corresponding to the
-** *Metric interfaces it implements.
-**
-** The Squeleton example class implements ProjectFileMetric, which 
-** means it will respond to changes in files in project revisions
-** (i.e. it will do a computation for each file changed in each
-** SVN revision).
-*/ 
+/**
+ * The Squeleton class is the bit that actually implements the metrics in this
+ * plug-in. It must extend AbstractMetric (so that it can be called by the
+ * various metrics drivers) and implement at least one of the four *Metric
+ * interfaces; by doing so it registers itself as willing to respond to changes
+ * of the type corresponding to the *Metric interfaces it implements.
+ * 
+ * The Squeleton example class implements ProjectFileMetric, which means it will
+ * respond to changes in files in project revisions (i.e. it will do a
+ * computation for each file changed in each SVN revision).
+ */ 
 public class Skeleton extends AbstractMetric implements ProjectFileMetric {
     private static String MNEMONIC_METRIC = "SKEL";
     private static String METRIC_DEPENDENCY_MNEMONIC = "Wc.loc";

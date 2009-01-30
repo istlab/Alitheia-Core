@@ -48,25 +48,25 @@
 package eu.sqooss.metrics.skeleton;
 
 /*
-** These are standard OSGi imports which we need for an activator.
-**/
+ * These are standard OSGi imports which we need for an activator.
+ */
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 
 /*
-** The rest of the code is boilerplate; we use the
-** implementation of the Squeleton plug-in to instantiate
-** a service. This doesn't even need to be exported from the
-** bundle, I don't think.
-**
-** The Squeleton plug-in is simple because it has only a single
-** interface and we have put the implementation in the same package
-** as the activator. Some plug-ins are big and complicated and
-** will put interfaces in this package and the implementation
-** in impl.metrics; that's up to you.
-*/
+ * The rest of the code is boilerplate; we use the
+ * implementation of the Squeleton plug-in to instantiate
+ * a service. This doesn't even need to be exported from the
+ * bundle, I don't think.
+ *
+ * The Squeleton plug-in is simple because it has only a single
+ * interface and we have put the implementation in the same package
+ * as the activator. Some plug-ins are big and complicated and
+ * will put interfaces in this package and the implementation
+ * in impl.metrics; that's up to you.
+ */
 public class SkeletonActivator implements BundleActivator {
 
     private ServiceRegistration registration;
