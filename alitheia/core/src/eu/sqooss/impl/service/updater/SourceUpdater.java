@@ -614,7 +614,7 @@ final class SourceUpdater extends Job {
                  * but something else. So we need to check on deletes
                  * whether this name was most recently a directory.
                  */
-                ProjectFile lastIncarnation = ProjectFile.getPreviousFileVersion(toAdd);
+                ProjectFile lastIncarnation = toAdd.getPreviousFileVersion();
                 
                 /*
                  * If a directory is deleted and its previous incarnation cannot

@@ -56,8 +56,9 @@ public class ContributionActions {
         c.add(ActionType.CMF);
         c.add(ActionType.CBN);
         c.add(ActionType.CPH);
-        c.add(ActionType.CAL);
-        c.add(ActionType.TL);
+        c.add(ActionType.TLA);
+        c.add(ActionType.TLR);
+        c.add(ActionType.TLM);
         types.put(ActionCategory.C, c);
         
         c= new ArrayList<ActionType>();
@@ -104,14 +105,16 @@ public class ContributionActions {
          * developer)
          */
         TCF,
-        /** Total lines until current version */
-        TL,
+        /** Total lines modified until current version */
+        TLM,
+        /** Total lines added until current version */
+        TLA,
+        /** Total lines removed until current version */
+        TLR,
         /** Commit comment that includes a bug report number */
         CBN,
         /** Commit comment that awards a pointy hat */
         CPH,
-        /** Add or remove lines of code */
-        CAL,  
         /**Email that closes a thread*/
         MCT,
         /**Email that starts a new thread*/
@@ -149,14 +152,16 @@ public class ContributionActions {
                 return ActionType.TCO;
             else if ("TCF".equalsIgnoreCase(s))
                 return ActionType.TCF;
-            else if ("TL".equalsIgnoreCase(s))
-                return ActionType.TL;
+            else if ("TLA".equalsIgnoreCase(s))
+                return ActionType.TLA;
+            else if ("TLR".equalsIgnoreCase(s))
+                return ActionType.TLR;
+            else if ("TLM".equalsIgnoreCase(s))
+                return ActionType.TLM;
             else if ("CBN".equalsIgnoreCase(s))
                 return ActionType.CBN;
             else if ("CPH".equalsIgnoreCase(s))
                 return ActionType.CPH;
-            else if ("CAL".equalsIgnoreCase(s))
-                return ActionType.CAL;
             else if ("MCT".equalsIgnoreCase(s))
                 return ActionType.MCT;
             else if ("MST".equalsIgnoreCase(s))

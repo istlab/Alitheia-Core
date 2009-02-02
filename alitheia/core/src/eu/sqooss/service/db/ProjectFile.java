@@ -264,11 +264,11 @@ public class ProjectFile extends DAObject{
      * @return The previous file revision, or null if the file is not found
      * or if the file was added in the provided revision
      */
-    public static ProjectFile getPreviousFileVersion(ProjectFile pf) {
+    public ProjectFile getPreviousFileVersion() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         //No need to query if a file was just added
-        if (pf.isAdded()) {
+        if (this.isAdded()) {
             return null;
         }
 
@@ -285,27 +285,27 @@ public class ProjectFile extends DAObject{
             " and pv.project = :" + paramProject +
             " and pv.sequence < :" + paramOrder +
             " and "; 
-            if (pf.copyFrom != null) {
+            if (this.copyFrom != null) {
                 query += "(("; 
             }
             
             query += " pf.name = :" + paramFile +
             " and pf.dir = :" + paramDir;
-            if (pf.copyFrom != null) {
+            if (this.copyFrom != null) {
                 query += " ) or ( pf.name = :" + paramCopyFromName +
                 " and pf.dir = :" + paramCopyFromDir +
                 "     ))" ;
             }
             query += " order by pv.sequence desc";
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramFile, pf.getName());
-        parameters.put(paramDir, pf.getDir());
-        parameters.put(paramProject, pf.getProjectVersion().getProject());
-        parameters.put(paramOrder, pf.getProjectVersion().getSequence());
+        parameters.put(paramFile, this.getName());
+        parameters.put(paramDir, this.getDir());
+        parameters.put(paramProject, this.getProjectVersion().getProject());
+        parameters.put(paramOrder, this.getProjectVersion().getSequence());
         
-        if (pf.copyFrom != null) {
-            parameters.put(paramCopyFromName, pf.getCopyFrom().getName());
-            parameters.put(paramCopyFromDir, pf.getCopyFrom().getDir());
+        if (this.copyFrom != null) {
+            parameters.put(paramCopyFromName, this.getCopyFrom().getName());
+            parameters.put(paramCopyFromDir, this.getCopyFrom().getDir());
         }
         List<?> projectFiles = dbs.doHQL(query, parameters, 1);
 
