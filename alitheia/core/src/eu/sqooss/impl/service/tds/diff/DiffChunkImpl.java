@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2008 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,56 +31,79 @@
  *
  */
 
-package eu.sqooss.service.tds;
+package eu.sqooss.impl.service.tds.diff;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import eu.sqooss.service.tds.DiffChunk;
 
 /**
- * This interface represents a lowest-common-denominator interface
- * to diffs obtained between two revisions in an SCM repository
- * (or between two project revisions, whatever that may mean).
+ * A simple DTO holding information about a diff chunk 
+ *
  */
-public interface Diff {
-    
-    /**
-     * Retrieve the project revision information for the first
-     * (before) revision of this diff.
-     *
-     * @return Revision The source revision
-     */
-    Revision getSourceRevision();
+public class DiffChunkImpl implements DiffChunk {
 
-    /**
-     * Retrieve the project revision information for the last
-     * revision for this diff. This may be the same as first()
-     * for 1-entry diffs (although the difference between R and R
-     * is empty).
-     *
-     * @return Revision The comparison revision
-     */
-    Revision getTargetRevision();
+	private String chunk;
+	private DiffOp diffOp;
+	private String path;
+	private int sourceLenght, sourceStartLine, targetLength, targetStartLine;
 
-    /**
-     * Get the actual diff data in a multiline string format.
-     *
-     */
-    String getDiffData();
+	public void setDiffOp(DiffOp getDiffOp) {
+		this.diffOp = getDiffOp;
+	}
 
-    /**
-     * Retrieve the list of file names (relative to the root
-     * under which this diff was taken) modified by this diff.
-     *
-     * @return Set set of files changed in this diff
-     */
-    Set<String> getChangedPaths();
-    
-    /**
-     * Get all the chunks indexed by the file they apply to.
-     */
-    Map<String, List<DiffChunk>> getDiffChunks();
+	public void setChunk(String chunk) {
+		this.chunk = chunk;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public void setSourceLenght(int sourceLenght) {
+		this.sourceLenght = sourceLenght;
+	}
+
+	public void setSourceStartLine(int sourceStartLine) {
+		this.sourceStartLine = sourceStartLine;
+	}
+
+	public void setTargetLength(int targetLength) {
+		this.targetLength = targetLength;
+	}
+
+	public void setTargetStartLine(int targetStartLine) {
+		this.targetStartLine = targetStartLine;
+	}
+
+	public String getChunk() {
+		return chunk;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public int getSourceLenght() {
+		return sourceLenght;
+	}
+
+	public int getSourceStartLine() {
+		return sourceStartLine;
+	}
+
+	public int getTargetLength() {
+		return targetLength;
+	}
+
+	public int getTargetStartLine() {
+		return targetStartLine;
+	}
+
+	public DiffOp getDiffOp() {
+		return diffOp;
+	}
+	
+	@Override
+	public String toString() {
+		return chunk;
+	}
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

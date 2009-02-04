@@ -33,6 +33,7 @@
 
 package eu.sqooss.impl.service.tds;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -70,6 +71,7 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.tds.diff.UnifiedDiffParser;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
@@ -720,7 +722,7 @@ public class SVNAccessorImpl implements SCMAccessor {
             throw new InvalidProjectRevisionException("Invalid start revision", getClass());
         }
         revstart = ((SVNProjectRevision)r1).getSVNRevision();
-        logger.info("Start revision for diff " + r1);
+        logger.debug("Start revision for diff " + r1);
 
         if (r2 == null) {
             if (revstart == getHeadSVNRevision()) {
@@ -733,9 +735,9 @@ public class SVNAccessorImpl implements SCMAccessor {
                 throw new InvalidProjectRevisionException("Invalid end revision", getClass());
             }
             revend = ((SVNProjectRevision)r2).getSVNRevision();
-            logger.info("End revision for diff " + r2);
         }
-
+        logger.debug("End revision for diff " + r2);
+        
         SVNNodeKind nodeKind;
         try {
             nodeKind = svnRepository.checkPath(repoPath, revstart);
@@ -750,10 +752,9 @@ public class SVNAccessorImpl implements SCMAccessor {
             throw new FileNotFoundException(repoPath);
         }
 
-        File f = null;
         try {
             SVNDiffClient d = new SVNDiffClient(svnRepository.getAuthenticationManager(),null);
-            f = File.createTempFile("tds-" + Thread.currentThread().getId(),".diff");
+            ByteArrayOutputStream diff = new ByteArrayOutputStream();
             SVNURL u = svnRepository.getLocation().appendPath(repoPath,true);
             d.doDiff(u,
                 SVNRevision.create(revstart),
@@ -761,26 +762,22 @@ public class SVNAccessorImpl implements SCMAccessor {
                 SVNRevision.create(revend),
                 true,
                 false,
-                new FileOutputStream(f));
+                diff);
             // Store the diff
-            SVNDiffImpl theDiff = new SVNDiffImpl((SVNProjectRevision)r1, (SVNProjectRevision)r2,f);
-            // Add status information
-            d.doDiffStatus(u,SVNRevision.create(revstart),
-                u,SVNRevision.create(revend),
-                true,false,new SVNDiffStatusHandler(theDiff));
-            f.delete();
-            logger.info("Done diff of " + repoPath +
-                " to " + f.getAbsolutePath());
+            UnifiedDiffParser theDiff = new UnifiedDiffParser((SVNProjectRevision)r1, 
+            		(SVNProjectRevision)r2, repoPath, diff.toString());
+            
+            if (!theDiff.parseDiff()) {
+            	logger.error("Error generating diff: " 
+            			+ theDiff.getError());
+            	return null;
+            }
+            logger.info("Done diff of " + repoPath);
             return theDiff;
         } catch (SVNException e) {
             logger.warn(e.getMessage());
             throw new InvalidRepositoryException(url,e.getMessage());
-        } catch (IOException e) {
-            logger.warn(e.getMessage());
-            throw new FileNotFoundException("Could not create temporary file for diff.");
-        } finally {
-            f.delete();
-        }
+        } 
     }
 
     /**{@inheritDoc}*/

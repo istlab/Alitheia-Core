@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
- * Copyright 2007-2008 by Adriaan de Groot <groot@kde.org>
+ * Copyright 2008 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,54 +33,56 @@
 
 package eu.sqooss.service.tds;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
- * This interface represents a lowest-common-denominator interface
- * to diffs obtained between two revisions in an SCM repository
- * (or between two project revisions, whatever that may mean).
+ * A chunk in a diff file. It is generic enough to represent chunks in
+ * both unified and original formats.
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
  */
-public interface Diff {
-    
-    /**
-     * Retrieve the project revision information for the first
-     * (before) revision of this diff.
-     *
-     * @return Revision The source revision
-     */
-    Revision getSourceRevision();
-
-    /**
-     * Retrieve the project revision information for the last
-     * revision for this diff. This may be the same as first()
-     * for 1-entry diffs (although the difference between R and R
-     * is empty).
-     *
-     * @return Revision The comparison revision
-     */
-    Revision getTargetRevision();
-
-    /**
-     * Get the actual diff data in a multiline string format.
-     *
-     */
-    String getDiffData();
-
-    /**
-     * Retrieve the list of file names (relative to the root
-     * under which this diff was taken) modified by this diff.
-     *
-     * @return Set set of files changed in this diff
-     */
-    Set<String> getChangedPaths();
-    
-    /**
-     * Get all the chunks indexed by the file they apply to.
-     */
-    Map<String, List<DiffChunk>> getDiffChunks();
+public interface DiffChunk {
+	
+	/**
+	 * 
+	 */
+	public enum DiffOp {
+		ADD,
+		DELETE,
+		CHANGE,
+		UNDEF
+	}
+	
+	/**
+	 * Get the actual diff text.
+	 */
+	String getChunk();
+	
+	/**
+	 * Get the starting line on the source file
+	 */
+	int getSourceStartLine();
+	
+	/**
+	 * Get the length of text in the source file
+	 */
+	int getSourceLenght();
+	
+	/**
+	 * Get the starting line on the target file
+	 */
+	int getTargetStartLine();
+	
+	/**
+	 * Get the length of text in the target file
+	 */
+	int getTargetLength();
+	
+	/**
+	 *  Get the repository path this diff chunk applies to 
+	 */
+	String getPath();
+	
+	/**
+	 * The operation this diff chunk represents. 
+	 */
+	DiffOp getDiffOp();
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

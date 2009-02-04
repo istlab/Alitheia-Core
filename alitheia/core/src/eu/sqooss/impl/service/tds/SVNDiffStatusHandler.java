@@ -39,12 +39,12 @@ import org.tmatesoft.svn.core.wc.SVNDiffStatus;
 import org.tmatesoft.svn.core.wc.SVNStatusType;
 
 import eu.sqooss.service.tds.PathChangeType;
-import eu.sqooss.impl.service.tds.SVNDiffImpl;
+import eu.sqooss.impl.service.tds.diff.UnifiedDiffParser;
 
 public class SVNDiffStatusHandler implements ISVNDiffStatusHandler {
-    private SVNDiffImpl theDiff;
+    private UnifiedDiffParser theDiff;
 
-    public SVNDiffStatusHandler(SVNDiffImpl d) {
+    public SVNDiffStatusHandler(UnifiedDiffParser d) {
         theDiff = d;
     }
 
@@ -55,11 +55,11 @@ public class SVNDiffStatusHandler implements ISVNDiffStatusHandler {
 
             if ((type == SVNStatusType.CHANGED)
                     || (type == SVNStatusType.MERGED)) {
-                theDiff.addFile(s.getPath(), PathChangeType.MODIFIED);
+              // theDiff.addFile(s.getPath(), PathChangeType.MODIFIED);
             } else if (type == SVNStatusType.UNCHANGED) {
-                theDiff.addFile(s.getPath(), PathChangeType.UNMODIFIED);
+              //  theDiff.addFile(s.getPath(), PathChangeType.UNMODIFIED);
             } else {
-                theDiff.addFile(s.getPath(), PathChangeType.UNKNOWN);
+              //  theDiff.addFile(s.getPath(), PathChangeType.UNKNOWN);
             }
         }
     }
