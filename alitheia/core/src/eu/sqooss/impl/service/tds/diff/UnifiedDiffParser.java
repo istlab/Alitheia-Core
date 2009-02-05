@@ -37,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,8 +64,8 @@ public class UnifiedDiffParser implements Diff {
 	 * Most patterns copied verbatim from Perl unified diff parser implementation:
 	 * http://search.cpan.org/~nikc/SVN-Web-0.53/lib/SVN/Web/Diff.pm
 	 */
-	private static String diffChunkStart = "^\\@\\@ -(\\d+),(\\d+) [+](\\d+),(\\d+) \\@\\@$";
-	private static String diffChunkStartAlt = "^\\@\\@ -(\\d+),(\\d+) [+](\\d+) \\@\\@$";
+	private static String diffChunkStart = "^\\@\\@ -(\\d+)(,\\d+)?\\s*[+](\\d+)(,\\d+)? \\@\\@$";
+	private static String propChunkStart = "^Property.*:\\s*(.*)$";
 	private static String chunkFileSource = "^\\-\\-\\- ([^\\s]+)\\s+(.+)$";
 	private static String chunkFileTarget = "^\\+\\+\\+ ([^\\s]+)\\s+(.+)$";
 	private static String index = "^Index:\\s?(.*)$";
@@ -131,7 +132,7 @@ public class UnifiedDiffParser implements Diff {
 			return true;
 		
 		Pattern chunkStart = Pattern.compile(diffChunkStart);
-		Pattern chunkStartAlt = Pattern.compile(diffChunkStartAlt);
+		Pattern propChunk = Pattern.compile(propChunkStart);
 		Pattern fileTarget = Pattern.compile(chunkFileTarget);
 		Pattern fileSource = Pattern.compile(chunkFileSource);
 		Pattern idx = Pattern.compile(index);
@@ -193,11 +194,27 @@ public class UnifiedDiffParser implements Diff {
 					return false;
 				}
 				
-				/* Match chunk start lines like
-				 * @@ -111,10 +111,10 @@
+				/*
+				 * Match a chunk describing a property change 
+				 * (this is SVN specific code)
+				 *  Property changes on: ProjectFile.java
 				 */
-				if (chunkStart.matcher(line).matches() ||
-						chunkStartAlt.matcher(line).matches()) {
+				if (propChunk.matcher(line).matches()) {
+					if (chnkStart == true) {
+						curChunk.setChunk(curChunkText.toString());
+						curChunkList.add(curChunk);
+					}
+					chnkStart = true;
+					curChunk = new DiffChunkImpl();
+					curChunk.setDiffOp(DiffOp.UNDEF);
+					curChunkText = new StringBuffer();
+				}
+				
+				/* Match chunk start lines like
+				 * @@ -111,10 +111,10 @@ or
+				 * @@ -1 +1 @@
+				 */
+				if (chunkStart.matcher(line).matches()) {
 					
 					if (chnkStart == true) {
 						curChunk.setChunk(curChunkText.toString());
@@ -214,10 +231,14 @@ public class UnifiedDiffParser implements Diff {
 					curChunk.setDiffOp(DiffOp.UNDEF);
 					curChunk.setPath(curPath);
 					curChunk.setSourceLenght(Integer.parseInt(m.group(1)));
-					curChunk.setSourceStartLine(Integer.parseInt(m.group(2)));
+					if (m.group(2) != null) {
+						curChunk.setSourceStartLine(Integer.parseInt(m.group(2).substring(1)));
+					} else {
+						curChunk.setSourceStartLine(0);
+					}
 					curChunk.setTargetStartLine(Integer.parseInt(m.group(3)));
-					if (m.groupCount() > 3) {
-						curChunk.setTargetStartLine(Integer.parseInt(m.group(4)));
+					if (m.group(4) != null) {
+						curChunk.setTargetStartLine(Integer.parseInt(m.group(4).substring(1)));
 					} else {
 						curChunk.setTargetStartLine(0);
 					}
@@ -232,9 +253,14 @@ public class UnifiedDiffParser implements Diff {
 			return false;
 		}
 		//Clean up
-		curChunk.setChunk(curChunkText.toString());
-		curChunkList.add(curChunk);
-		diffChunks.put(curPath, curChunkList);
+		if (curChunk != null) { //This means that the actual diff was empty
+			curChunk.setChunk(curChunkText.toString());
+			curChunkList.add(curChunk);
+			diffChunks.put(curPath, curChunkList);
+		} else {
+			diffChunks.put(curPath, new ArrayList<DiffChunk>());
+		}
+		
 		//Don't hold up space now that the diff is parsed
 		theDiff = null;
 		parsed = true;

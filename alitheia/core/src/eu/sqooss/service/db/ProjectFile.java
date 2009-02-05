@@ -178,6 +178,14 @@ public class ProjectFile extends DAObject{
     public boolean isAdded() {
         return (state.equals(ProjectFileState.added()));
     }
+    
+    public boolean isReplaced() {
+        return (state.equals(ProjectFileState.replaced()));
+    }
+    
+    public boolean isModified() {
+        return (state.equals(ProjectFileState.modified()));
+    }
    
     public boolean getIsDirectory() {
         return isDirectory;

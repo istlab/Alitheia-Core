@@ -367,7 +367,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
         }
         
         int numFilesThreshold;
-        int updateThreshold = getWeightUpdateThreshold(); 
         
         PluginConfiguration config = getConfigurationOption(
                 ContributionMetricImpl.CONFIG_CMF_THRES);
@@ -428,7 +427,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             fType = ftm.getFileType(pf.getFileName());
             
             if (pf.getCopyFrom() != null) {
-                debug("Ignoring copied file" + pf, pf.getProjectVersion());
+                debug("Ignoring copied file " + pf, pf.getProjectVersion());
                 continue;
             }
             
@@ -439,7 +438,13 @@ public class ContributionMetricImpl extends AbstractMetric implements
                     if (pf.isDeleted()) {
                     	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
                         updateField(pv, dev, ActionType.TLR, true, locPrev);
-                    } 
+                    } else if(pf.isReplaced()) {
+                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
+                        updateField(pv, dev, ActionType.TLR, true, locPrev);
+                        updateField(pv, dev, ActionType.CNS, true, 1);
+                        updateField(pv, dev, ActionType.TLA, true, 
+                        		getLOCResult(pf, plugin, locMetric));
+                    }
                     //Source file just added
                     else if (pf.isAdded()) {
                         updateField(pv, dev, ActionType.CNS, true, 1);
@@ -479,18 +484,8 @@ public class ContributionMetricImpl extends AbstractMetric implements
                         	updateField(pv, dev, ActionType.TLR, true, Math.abs(added - removed));
                         }
                     }
-                } catch (MetricMismatchException e) {
-					e.printStackTrace();
-				} catch (InvalidAccessorException e) {
-					e.printStackTrace();
-				} catch (InvalidProjectRevisionException e) {
-					e.printStackTrace();
-				} catch (InvalidRepositoryException e) {
-					e.printStackTrace();
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
+                } catch (Exception e) {
+                	err(e.getMessage(), pf);
 				} 
             }
             
@@ -718,17 +713,17 @@ public class ContributionMetricImpl extends AbstractMetric implements
     }
     
     private void warn(String msg, DAObject o) {
-    	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
+    	log.warn("Contrib (" + o.getClass() + "): Object: " + o.toString() 
     			+ " Warning:" + msg);
     }
     
     private void info(String msg, DAObject o) {
-    	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
+    	log.info("Contrib (" + o.getClass() + "): Object: " + o.toString() 
     			+ " Info:" + msg);
     }
     
     private void debug(String msg, DAObject o) {
-    	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
+    	log.debug("Contrib (" + o.getClass() + "): Object: " + o.toString() 
     			+ " Debug:" + msg);
     }
 }

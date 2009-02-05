@@ -723,7 +723,6 @@ public class SVNAccessorImpl implements SCMAccessor {
             throw new InvalidProjectRevisionException("Invalid start revision", getClass());
         }
         revstart = ((SVNProjectRevision)r1).getSVNRevision();
-        logger.debug("Start revision for diff " + r1);
 
         if (r2 == null) {
             if (revstart == getHeadSVNRevision()) {
@@ -737,7 +736,10 @@ public class SVNAccessorImpl implements SCMAccessor {
             }
             revend = ((SVNProjectRevision)r2).getSVNRevision();
         }
-        logger.debug("End revision for diff " + r2);
+
+        logger.debug("Diffing versions " + r1.getUniqueId() + ":" 
+        		+ r2.getUniqueId() + " of path " + projectname + ":" 
+        		+ repoPath);
         
         SVNNodeKind nodeKind;
         try {
@@ -773,7 +775,7 @@ public class SVNAccessorImpl implements SCMAccessor {
             			+ theDiff.getError());
             	return null;
             }
-            logger.info("Done diff of " + repoPath);
+
             return theDiff;
         } catch (SVNException e) {
             logger.warn(e.getMessage());
