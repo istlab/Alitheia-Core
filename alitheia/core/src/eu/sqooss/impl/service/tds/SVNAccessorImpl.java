@@ -85,6 +85,7 @@ import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
+import eu.sqooss.service.util.FileUtils;
 
 public class SVNAccessorImpl implements SCMAccessor {
     private String url;
@@ -765,7 +766,7 @@ public class SVNAccessorImpl implements SCMAccessor {
                 diff);
             // Store the diff
             UnifiedDiffParser theDiff = new UnifiedDiffParser((SVNProjectRevision)r1, 
-            		(SVNProjectRevision)r2, repoPath, diff.toString());
+            		(SVNProjectRevision)r2, FileUtils.dirname(repoPath), diff.toString());
             
             if (!theDiff.parseDiff()) {
             	logger.error("Error generating diff: " 

@@ -67,7 +67,8 @@ import eu.sqooss.service.fds.FileTypeMatcher;
 public class WcImplementation extends AbstractMetric implements Wc {
     
     private FDSService fds;
-	
+    private FileTypeMatcher ftm = FileTypeMatcher.getInstance();
+
     private static final String MNEMONIC_WC_LOC   = "Wc.loc";
     private static final String MNEMONIC_WC_LOCOM = "Wc.locom";
     private static final String MNEMONIC_WC_LONB  = "Wc.lonb";
@@ -106,7 +107,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
        
         fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
-        
         commentDelimiters = new HashMap<String,String[]>(10);
         // Fill up the comment delimiters hash with a collection
         // of delimiters for various languages.
@@ -257,7 +257,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
         }
         
         //We don't support binary files either
-        if (FileTypeMatcher.getFileType(pf.getName()).equals(
+        if (ftm.getFileType(pf.getName()).equals(
                 FileTypeMatcher.FileType.BIN)) {
             return;
         }
@@ -516,7 +516,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
         for (ProjectFileMeasurement pfm : results) {
             String fname = pfm.getProjectFile().getName();
             int result = Integer.parseInt(pfm.getResult());
-            if (FileTypeMatcher.getFileType(fname).equals(
+            if (ftm.getFileType(fname).equals(
                             FileTypeMatcher.FileType.SRC)) {
                 nosf ++;
                 if (pfm.getMetric().getMnemonic().equals(MNEMONIC_WC_LOC)) {
@@ -526,7 +526,7 @@ public class WcImplementation extends AbstractMetric implements Wc {
                 }
             }
             
-            if (FileTypeMatcher.getFileType(fname).equals(
+            if (ftm.getFileType(fname).equals(
                             FileTypeMatcher.FileType.DOC)) {
                 nodf ++;
                 totalLocDoc += result;

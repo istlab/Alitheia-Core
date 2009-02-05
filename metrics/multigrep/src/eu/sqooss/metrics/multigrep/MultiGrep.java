@@ -215,7 +215,8 @@ public class MultiGrep extends AbstractMetric implements ProjectFileMetric  {
 
         // Check for a usable filetype
         boolean found = false;
-        if (FileTypeMatcher.getFileType(pf.getName())
+        FileTypeMatcher ftm = FileTypeMatcher.getInstance();
+        if (ftm.getFileType(pf.getName())
                 .equals(FileTypeMatcher.FileType.SRC)) {
             String extension = FileTypeMatcher.getFileExtension(pf.getFileName());
             for(String s : CPPExtensions) {

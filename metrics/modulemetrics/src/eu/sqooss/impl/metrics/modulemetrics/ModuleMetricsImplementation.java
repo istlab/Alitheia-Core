@@ -174,9 +174,10 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                 ProjectVersion.MASK_FILES);
         
         boolean foundSource = false; 
+        FileTypeMatcher ftm = FileTypeMatcher.getInstance();
         for (ProjectFile f : pfs) {
 
-            if (FileTypeMatcher.getFileType(f.getName()) 
+            if (ftm.getFileType(f.getName()) 
                     != FileTypeMatcher.FileType.SRC) {
                 continue;
             }
@@ -185,7 +186,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
             foundSource = true;
             
             // Get the necessary measurement from the Wc.loc metric
-            if (FileTypeMatcher.isTextType(f.getName())) {
+            if (ftm.isTextType(f.getName())) {
                 mnol += getMeasurement(DEP_WC_LOC, f);
             }
         }
@@ -208,7 +209,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
         // Get the list of folders which exist in this project version.
         List<ProjectFile> folders = pv.allDirs();
-
+        FileTypeMatcher ftm = FileTypeMatcher.getInstance();
         log.debug("ModuleMetrics: Got " + folders.size() + " directories " +
         		"for version " + pv);
         
@@ -226,7 +227,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                     pf);
             for (ProjectFile f : pfs) {
 
-                if (FileTypeMatcher.getFileType(f.getName()) == 
+                if (ftm.getFileType(f.getName()) == 
                     FileTypeMatcher.FileType.SRC) {
                     // Found one source file, treat the folder as a source module
                     foundSource = true;

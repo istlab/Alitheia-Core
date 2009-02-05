@@ -32,7 +32,9 @@
 
 package eu.sqooss.impl.metrics.contrib;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -77,6 +79,7 @@ import eu.sqooss.service.fds.FileTypeMatcher.FileType;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.tds.AnnotatedLine;
 import eu.sqooss.service.tds.Diff;
+import eu.sqooss.service.tds.DiffChunk;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -408,19 +411,21 @@ public class ContributionMetricImpl extends AbstractMetric implements
             updateField(pv, dev, ActionType.CMF, false, 1);
         }
 
+        FileTypeMatcher ftm = FileTypeMatcher.getInstance();
         Iterator<ProjectFile> i = projectFiles.iterator();
         
         while (i.hasNext()) {
             ProjectFile pf = i.next();
-
-            fType = FileTypeMatcher.getFileType(pf.getFileName());
-
+            
             if (pf.getIsDirectory()) {
                 //New directory added
                 if (pf.isAdded()) {
                     updateField(pv, dev, ActionType.CND, true, 1);
                 }
+                continue;
             }
+            
+            fType = ftm.getFileType(pf.getFileName());
             
             if (pf.getCopyFrom() != null) {
                 debug("Ignoring copied file" + pf, pf.getProjectVersion());
@@ -428,7 +433,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             }
             
             //Commit of a source file
-            if (fType == FileTypeMatcher.FileType.TXT) {
+            if (ftm.isTextType(pf.getFileName())) {
                 //Source file changed, calc number of lines commited
                 try {
                     if (pf.isDeleted()) {
@@ -439,15 +444,40 @@ public class ContributionMetricImpl extends AbstractMetric implements
                     else if (pf.isAdded()) {
                         updateField(pv, dev, ActionType.CNS, true, 1);
                         updateField(pv, dev, ActionType.TLA, true, 
-                        		getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric));
+                        		getLOCResult(pf, plugin, locMetric));
                     } else {
                         //Existing file, get lines of previous version
                         ProjectFile prevFile = pf.getPreviousFileVersion();
                         SCMAccessor scm = AlitheiaCore.getInstance().getTDSService().getAccessor(pv.getProject().getId()).getSCMAccessor();
                         Diff d = scm.getDiff(pf.getFileName(), 
-                        		scm.newRevision(pf.getProjectVersion().getRevisionId()),
-                        		scm.newRevision(prevFile.getProjectVersion().getRevisionId()));
-                        //updateField(pv, dev, ActionType.CAL, true);  
+                        		scm.newRevision(prevFile.getProjectVersion().getRevisionId()),
+                        		scm.newRevision(pf.getProjectVersion().getRevisionId()));
+                        Map<String, List<DiffChunk>> diff = d.getDiffChunks();
+                        List<DiffChunk> chunks = diff.get(pf.getFileName());
+                        int added = 0, removed = 0;
+                        
+                        for (DiffChunk chunk : chunks) {
+                        	String theDiff = chunk.getChunk();
+                        	BufferedReader r = new BufferedReader(new StringReader(theDiff));
+                    		String line;
+                    		while ((line = r.readLine()) != null) {
+                    			if (line.startsWith("+")) 
+                    				added ++;
+                    			if (line.startsWith("-"))
+                    				removed++;
+                    		}
+                        }
+                        
+                        if (added != 0 && removed != 0 ) {
+                        	updateField(pv, dev, ActionType.TLM, true, Math.min(added, removed));
+                        }
+                        
+                        if (added > removed) {
+                        	updateField(pv, dev, ActionType.TLA, true, Math.abs(added - removed));
+                        }
+                        else { 
+                        	updateField(pv, dev, ActionType.TLR, true, Math.abs(added - removed));
+                        }
                     }
                 } catch (MetricMismatchException e) {
 					e.printStackTrace();
@@ -464,31 +494,29 @@ public class ContributionMetricImpl extends AbstractMetric implements
 				} 
             }
             
-            if (fType == FileTypeMatcher.FileType.SRC) {
-                //Commit of a new source file: +
-                updateField(pv, dev, ActionType.CNS, true, 1);
-            }
-            
-            if (fType == FileTypeMatcher.FileType.BIN) {
-                //Commit of a binary file: -
-                updateField(pv, dev, ActionType.CBF, false, 1);
-            } 
-            
-            if (fType == FileTypeMatcher.FileType.DOC) {
-              //Commit of a documentation file: +
-                updateField(pv, dev, ActionType.CDF, true, 1);
-            } 
-            
-            if (fType == FileTypeMatcher.FileType.TRANS) {
-              //Commit of a translation file: +
-                updateField(pv, dev, ActionType.CTF, true, 1);
+            if (pf.isAdded()) {
+            	if (fType == FileTypeMatcher.FileType.SRC) {
+					// Commit of a new source file: +
+					updateField(pv, dev, ActionType.CNS, true, 1);
+				}
+
+				if (fType == FileTypeMatcher.FileType.BIN) {
+					// Commit of a binary file: -
+					updateField(pv, dev, ActionType.CBF, false, 1);
+				}
+
+				if (fType == FileTypeMatcher.FileType.DOC) {
+					// Commit of a documentation file: +
+					updateField(pv, dev, ActionType.CDF, true, 1);
+				}
+
+				if (fType == FileTypeMatcher.FileType.TRANS) {
+					// Commit of a translation file: +
+					updateField(pv, dev, ActionType.CTF, true, 1);
+				}
             }
         }
 
-        //Update the category weights if necessary
-        synchronized(lockObject) {
-            updateWeights();   
-        }
         markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv);
     }
 

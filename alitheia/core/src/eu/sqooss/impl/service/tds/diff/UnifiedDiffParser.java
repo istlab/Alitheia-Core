@@ -49,16 +49,18 @@ import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffChunk;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.DiffChunk.DiffOp;
+import eu.sqooss.service.util.FileUtils;
 
 /**
  * An implementation of the Diff interface, for the unified diff format.
- * 
+ *  
  * @author Georgios Gousios - <gousiosg@gmail.com>
+ * @see {@link http://en.wikipedia.org/wiki/Diff#Unified_format}
  *
  */
 public class UnifiedDiffParser implements Diff {
 	/* 
-	 * Most patterns copied verbatim from Perl implementation:
+	 * Most patterns copied verbatim from Perl unified diff parser implementation:
 	 * http://search.cpan.org/~nikc/SVN-Web-0.53/lib/SVN/Web/Diff.pm
 	 */
 	private static String diffChunkStart = "^\\@\\@ -(\\d+),(\\d+) [+](\\d+),(\\d+) \\@\\@$";
@@ -119,6 +121,10 @@ public class UnifiedDiffParser implements Diff {
 		return theDiff;
 	}
 	
+	/**
+	 * Parse a unified diff and return true on success or false
+	 * and set the error message.
+	 */
 	public boolean parseDiff() {
 		//Don't re-parse the parsed diff
 		if (parsed)
@@ -169,7 +175,7 @@ public class UnifiedDiffParser implements Diff {
 					
 					m = fileSource.matcher(line);
 					m.matches();
-					curPath = m.group(1);
+					curPath = FileUtils.appendPath(basePath, m.group(1));
 					changedPaths.add(curPath);
 					curChunkList = new ArrayList<DiffChunk>();
 					diffStart = true;

@@ -42,7 +42,9 @@ package eu.sqooss.service.tds;
 public interface DiffChunk {
 	
 	/**
-	 * 
+	 * All possible diff operations. Only applies in cases where the
+	 * diff format provides this information. In all other cases, 
+	 * the DiffOp is set to UNDEF. 
 	 */
 	public enum DiffOp {
 		ADD,

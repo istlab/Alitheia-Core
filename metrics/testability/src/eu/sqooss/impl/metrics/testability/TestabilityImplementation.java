@@ -138,8 +138,9 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
         //3. Store a result to the database
 
         // We do not support directories and binary files
+    	FileTypeMatcher ftm = FileTypeMatcher.getInstance();
         if (pf.getIsDirectory() ||
-                FileTypeMatcher.getFileType(pf.getName()).equals(
+                ftm.getFileType(pf.getName()).equals(
                 FileTypeMatcher.FileType.BIN))
             return;
 

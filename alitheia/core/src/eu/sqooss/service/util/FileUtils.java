@@ -121,6 +121,32 @@ public class FileUtils {
         }
         return dirPath;
     }
+    
+    /**
+     * Append two repository paths making sure that there are the path 
+     * seperators are OK at the merge point. 
+     * 
+     * @param path The original path
+     * @param toAppend The path to append to the original path
+     * @return A String with the two paths appended
+     */
+    public static String appendPath(String path, String toAppend) {
+    	if (path == null)
+    		return toAppend;
+    	if (toAppend == null)
+    		return path;
+    	
+    	String newPath;
+    	
+    	if (path.endsWith("/") && toAppend.startsWith("/"))
+    		newPath = path.concat(toAppend.substring(1));
+    	else if (!path.endsWith("/") && !toAppend.startsWith("/"))
+    		newPath = path.concat("/").concat(toAppend);
+    	else 
+    		newPath = path.concat(toAppend);
+    	
+    	return newPath;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
