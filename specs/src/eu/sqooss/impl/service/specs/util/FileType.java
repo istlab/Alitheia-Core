@@ -88,7 +88,8 @@ public class FileType
         		this.name = name;
         	}
             this.extension = FileTypeMatcher.getFileExtension(name);
-            FileTypeMatcher.FileType ft = FileTypeMatcher.getFileType(name);
+            FileTypeMatcher ftm = FileTypeMatcher.getInstance();
+            FileTypeMatcher.FileType ft = ftm.getFileType(name);
             if (null == this.extension) {
 	        this.extension = "(null)";
             }

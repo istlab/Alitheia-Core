@@ -111,10 +111,10 @@ public class SpRevision {
 
         Diff diff = scm.getDiff("/", scm.getPreviousRevision(revision), revision);
 
-        TreeSet<String> files = new TreeSet<String>(diff.getChangedFiles());
+       /* TreeSet<String> files = new TreeSet<String>(diff.getChangedFiles());
         for (String file : files) {
             result.add(new SpRevision.Change(file, diff.getChangedFilesStatus().get(file).name().toLowerCase()));
-        }
+        }*/
         
         tds.releaseAccessor(tds.getAccessor(project.id));
 
