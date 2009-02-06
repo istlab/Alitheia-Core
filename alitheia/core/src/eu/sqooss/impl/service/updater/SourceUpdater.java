@@ -263,8 +263,8 @@ final class SourceUpdater extends Job {
                 root.setValidFrom(zero);
                 root.setValidUntil(zero);
                 dbs.addRecord(root);
-                HashSet<ProjectFile> ffv = new HashSet<ProjectFile>();
-                ffv.add(root);
+                dbs.commitDBSession();
+                dbs.startDBSession();
                 latestVersion = ProjectVersion.getLastProjectVersion(project);
             }
             commitLog = scm.getCommitLog(scm.getNextRevision(
