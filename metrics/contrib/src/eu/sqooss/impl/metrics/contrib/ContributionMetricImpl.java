@@ -33,7 +33,6 @@
 package eu.sqooss.impl.metrics.contrib;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +53,6 @@ import eu.sqooss.metrics.contrib.ContributionMetric;
 import eu.sqooss.metrics.contrib.db.ContribAction;
 import eu.sqooss.metrics.contrib.db.ContribActionType;
 import eu.sqooss.metrics.contrib.db.ContribActionWeight;
-import eu.sqooss.metrics.contrib.db.ContribLinesPerDevPerFile;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
@@ -75,16 +73,10 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.FileTypeMatcher;
-import eu.sqooss.service.fds.FileTypeMatcher.FileType;
 import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.tds.AnnotatedLine;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffChunk;
-import eu.sqooss.service.tds.InvalidAccessorException;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
-import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.SCMAccessor;
-import eu.sqooss.service.tds.TDSService;
 
 public class ContributionMetricImpl extends AbstractMetric implements
         ContributionMetric {
@@ -453,12 +445,23 @@ public class ContributionMetricImpl extends AbstractMetric implements
                     } else {
                         //Existing file, get lines of previous version
                         ProjectFile prevFile = pf.getPreviousFileVersion();
+                        
+                        if (prevFile == null) {
+                        	warn("Could not find previous version", pf);
+                        	continue;
+                        }
+                        
                         SCMAccessor scm = AlitheiaCore.getInstance().getTDSService().getAccessor(pv.getProject().getId()).getSCMAccessor();
                         Diff d = scm.getDiff(pf.getFileName(), 
                         		scm.newRevision(prevFile.getProjectVersion().getRevisionId()),
                         		scm.newRevision(pf.getProjectVersion().getRevisionId()));
                         Map<String, List<DiffChunk>> diff = d.getDiffChunks();
                         List<DiffChunk> chunks = diff.get(pf.getFileName());
+                        
+                        if (chunks == null)
+                        	continue; //Diff was empty
+                     
+                        
                         int added = 0, removed = 0;
                         
                         for (DiffChunk chunk : chunks) {

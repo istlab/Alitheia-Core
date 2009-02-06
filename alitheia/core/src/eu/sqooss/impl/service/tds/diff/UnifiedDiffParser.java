@@ -189,26 +189,43 @@ public class UnifiedDiffParser implements Diff {
 					continue;
 				}
 				
-				if (!diffStart) {
-					error = "Not a chunk length definition: " + line;
-					return false;
-				}
-				
 				/*
 				 * Match a chunk describing a property change 
 				 * (this is SVN specific code)
 				 *  Property changes on: ProjectFile.java
 				 */
 				if (propChunk.matcher(line).matches()) {
+					/* Match */
 					if (chnkStart == true) {
 						curChunk.setChunk(curChunkText.toString());
 						curChunkList.add(curChunk);
 					}
+					
 					chnkStart = true;
 					curChunk = new DiffChunkImpl();
 					curChunk.setDiffOp(DiffOp.UNDEF);
 					curChunkText = new StringBuffer();
+					
+					/* If the property change is the only thing
+					 * appearing in the diff, we need to start 
+					 * parsing and init some variables first. 
+					 */
+					if (!diffStart) {
+						curChunkList = new ArrayList<DiffChunk>();
+						diffStart = true;
+						m = propChunk.matcher(line);
+						m.matches();
+						curPath = FileUtils.appendPath(basePath, m.group(1));
+						changedPaths.add(curPath);
+					}
 				}
+				
+				if (!diffStart) {
+					error = "Not a chunk header: " + line;
+					return false;
+				}
+				
+				
 				
 				/* Match chunk start lines like
 				 * @@ -111,10 +111,10 @@ or
@@ -253,12 +270,14 @@ public class UnifiedDiffParser implements Diff {
 			return false;
 		}
 		//Clean up
-		if (curChunk != null) { //This means that the actual diff was empty
+		if (curChunk != null) { 
 			curChunk.setChunk(curChunkText.toString());
 			curChunkList.add(curChunk);
 			diffChunks.put(curPath, curChunkList);
 		} else {
-			diffChunks.put(curPath, new ArrayList<DiffChunk>());
+			//This means that the actual diff was empty
+			List<DiffChunk> l = Collections.emptyList();
+			diffChunks.put(curPath, l);
 		}
 		
 		//Don't hold up space now that the diff is parsed

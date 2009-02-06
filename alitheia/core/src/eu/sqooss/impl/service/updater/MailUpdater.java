@@ -256,6 +256,10 @@ class MailUpdater extends Job {
             Developer sender = Developer.getDeveloperByEmail(senderEmail,
                     mllist.getStoredProject());
 
+            if (sender == null)
+            	logger.error(project.getName() 
+            			+ ": Error adding developer");
+            
             if (!updDevs.contains(sender.getId())) {
                 updDevs.add(sender.getId());
             }
@@ -273,8 +277,10 @@ class MailUpdater extends Job {
 
                 /* 512 characters should be enough for everybody */
                 String subject = mm.getSubject();
-                if (mm.getSubject().length() > 512)
-                    subject = subject.substring(0, 511);
+                if (subject != null) {
+                	if (mm.getSubject().length() > 512)
+                		subject = subject.substring(0, 511);
+                }
 
                 mmsg.setSubject(subject);
                 mmsg.setFilename(fileName);
