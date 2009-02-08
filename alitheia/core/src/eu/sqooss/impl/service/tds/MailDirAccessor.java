@@ -263,12 +263,16 @@ public class MailDirAccessor implements MailAccessor {
     	File listDir = getFolder(listId);
     	File messageFile = getMessageFile(listDir,id);
         Session session = Session.getDefaultInstance(new Properties());
-        MimeMessage mm;
+        MimeMessage mm = null;
         try {
-            mm = new MimeMessage(session, new FileInputStream(messageFile));
+            FileInputStream fis = new FileInputStream(messageFile);
+            mm = new MimeMessage(session, fis);
+            fis.close();
         } catch (MessagingException e) {
             logger.warn("Could not parse message <" + listId + ":" + id + ">");
             return null;
+        } catch (IOException ioe) {
+            logger.warn("Error reading from file stream " + messageFile.getName());
         }
 
     	return mm;
