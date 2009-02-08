@@ -469,38 +469,41 @@ public class WcImplementation extends AbstractMetric implements Wc {
 
     public void run(ProjectVersion v) throws AlreadyProcessingException {
         
-        String paramVersion = "paramVersion";
+        String paramVersionId = "paramVersion";
         String paramMetricLoC = "paramMetricLoC";
         String paramMetricLoCom = "paramMetricLoCom";
         String paramIsDirectory = "paramIsDirectory";
-        String paramProject = "paramProject";
+        String paramProjectId = "paramProjectId";
         String paramState = "paramState";
        
         /* Get all measurements for live version files for metrics LoC and LoCom*/ 
-        String query = "select pfm " 
-        	+ "from ProjectFile pf, ProjectVersion pv, ProjectFileMeasurement pfm "
-        	+ "where pf.validFrom.sequence <= pv.sequence" 
-        	+ " and pf.validUntil.sequence >= pv.sequence"
-        	+ " and pf.state <> :" + paramState 
-        	+ " and pf.projectVersion.project = :" + paramProject
-        	+ " and pf.isDirectory = :" + paramIsDirectory 
-        	+ " and pv.project = :" + paramProject 
-        	+ " and pv = :" + paramVersion 
-        	+ " and pfm.projectFile = pf"
-        	+ " and (pfm.metric = :" + paramMetricLoC 
-            + "      or pfm.metric = :" +  paramMetricLoCom 
-            + " )";
+        StringBuffer q = new StringBuffer("select pfm ");
+        q.append(" from ProjectVersion pv, ProjectVersion pv2,");
+        q.append(" ProjectVersion pv3, ProjectFile pf, ProjectFileMeasurement pfm ");
+        q.append(" where pv.project.id = :").append(paramProjectId);
+        q.append(" and pv.id = :").append(paramVersionId);
+        q.append(" and pfm.projectFile = pf ");
+        q.append(" and pv2.project.id = :").append(paramProjectId);
+        q.append(" and pv3.project.id = :").append(paramProjectId);
+        q.append(" and pf.validFrom.id = pv2.id");
+        q.append(" and pf.validUntil.id = pv3.id");
+        q.append(" and pv2.sequence <= pv.sequence");
+        q.append(" and pv3.sequence >= pv.sequence");
+        q.append(" and pf.state <> :").append(paramState);
+        q.append(" and pf.isDirectory = :").append(paramIsDirectory);
+        q.append(" and (pfm.metric.id = :").append(paramMetricLoC);
+        q.append(" or pfm.metric.id = :").append(paramMetricLoCom).append(")");
         
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC));
-        params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM));
-        params.put(paramVersion, v);
+        params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC).getId());
+        params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM).getId());
+        params.put(paramVersionId, v.getId());
         params.put(paramIsDirectory, Boolean.FALSE);
         params.put(paramState, ProjectFileState.deleted());
-        params.put(paramProject, v.getProject());
+        params.put(paramProjectId, v.getProject().getId());
         
         List<ProjectFileMeasurement> results = 
-            (List<ProjectFileMeasurement>) db.doHQL(query, params);
+            (List<ProjectFileMeasurement>) db.doHQL(q.toString(), params);
         
         long nof = 0;            //Number of files
         int nosf = 0;           //Number of source code files

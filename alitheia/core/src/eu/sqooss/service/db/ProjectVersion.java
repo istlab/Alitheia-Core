@@ -559,29 +559,32 @@ public class ProjectVersion extends DAObject {
     public long getLiveFilesCount() {
     	DBService dbs = AlitheiaCore.getInstance().getDBService();
 
-    	String paramVersion = "paramVersion";
+    	String paramVersionId = "paramVersion";
         String paramIsDirectory = "paramIsDirectory";
-        String paramProject = "paramProject";
+        String paramProjectId = "paramProject";
         String paramState = "paramState";
-        
-    	  /* Get the live file count faster than loading all files */
-        String queryTotalFiles = "select count(pf) " 
-	    		+ "from ProjectFile pf, ProjectVersion pv "
-	    		+ "where pf.validFrom.sequence <= pv.sequence" 
-				+ " and pf.validUntil.sequence >= pv.sequence"
-				+ " and pf.state <> :" + paramState 
-				+ " and pf.projectVersion.project = :" + paramProject
-				+ " and pf.isDirectory = :" + paramIsDirectory 
-				+ " and pv.project = :" + paramProject 
-				+ " and pv = :" + paramVersion ;
+    
+        StringBuffer q = new StringBuffer("select count(pf) ");
+        q.append(" from ProjectVersion pv, ProjectVersion pv2,");
+        q.append(" ProjectVersion pv3, ProjectFile pf ");
+        q.append(" where pv.project.id = :").append(paramProjectId);
+        q.append(" and pv.id = :").append(paramVersionId);
+        q.append(" and pv2.project.id = :").append(paramProjectId);
+        q.append(" and pv3.project.id = :").append(paramProjectId);
+        q.append(" and pf.validFrom.id = pv2.id");
+        q.append(" and pf.validUntil.id = pv3.id");
+        q.append(" and pv2.sequence <= pv.sequence");
+        q.append(" and pv3.sequence >= pv.sequence");
+        q.append(" and pf.isDirectory = :").append(paramIsDirectory);
+        q.append(" and pf.state <> :").append(paramState);
         
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(paramVersion, this);
+        params.put(paramVersionId, this.getId());
         params.put(paramIsDirectory, Boolean.FALSE);
         params.put(paramState, ProjectFileState.deleted());
-        params.put(paramProject, this.getProject());
+        params.put(paramProjectId, this.getProject().getId());
         
-        return (Long) dbs.doHQL(queryTotalFiles, params).get(0);
+        return (Long) dbs.doHQL(q.toString(), params).get(0);
     }
     
 
@@ -590,37 +593,41 @@ public class ProjectVersion extends DAObject {
     }
     
     private List<ProjectFile> getVersionFiles(Directory d, int mask) {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
- 	    String paramDirectory = "paramDirectory";
- 	    String paramIsDirectory = "is_directory";
- 	    String paramVersion = "paramVersion";
-     	String paramProject = "paramProject";
-     	String paramState = "paramStatus";
- 	
- 	    String query = "select pf " 
- 	    		+ "from ProjectFile pf, ProjectVersion pv "
- 	    		+ "where pf.validFrom.sequence <= pv.sequence" 
- 				+ " and pf.validUntil.sequence >= pv.sequence"
- 				+ " and pf.state <> :" + paramState 
- 				+ " and pf.projectVersion.project = :" + paramProject
- 				+ " and pv.project = :" + paramProject 
- 				+ " and pv = :" + paramVersion ; 
- 				
- 	    if (d != null) {
- 	    	query += " and pf.dir = :" + paramDirectory;
+        String paramDirectory = "paramDirectory";
+        String paramIsDirectory = "is_directory";
+        String paramVersionId = "paramVersionId";
+        String paramProjectId = "paramProjectId";
+        String paramState = "paramStatus";
+
+        StringBuffer q = new StringBuffer("select pf ");
+        q.append(" from ProjectVersion pv, ProjectVersion pv2,");
+        q.append(" ProjectVersion pv3, ProjectFile pf ");
+        q.append(" where pv.project.id = :").append(paramProjectId);
+        q.append(" and pv.id = :").append(paramVersionId);
+        q.append(" and pv2.project.id = :").append(paramProjectId);
+        q.append(" and pv3.project.id = :").append(paramProjectId);
+        q.append(" and pf.validFrom.id = pv2.id");
+        q.append(" and pf.validUntil.id = pv3.id");
+        q.append(" and pv2.sequence <= pv.sequence");
+        q.append(" and pv3.sequence >= pv.sequence");
+        q.append(" and pf.state <> :").append(paramState);
+        
+ 	   if (d != null) {
+ 	    	q.append(" and pf.dir = :").append(paramDirectory);
  	    }
  	        
  	    if (mask != ProjectVersion.MASK_ALL) {
- 	        query += " and pf.isDirectory = :" + paramIsDirectory;
+ 	    	q.append(" and pf.isDirectory = :").append(paramIsDirectory);
  	    }
  	    
  	    Map<String,Object> params = new HashMap<String,Object>();
  	    
  	 //   params.put(paramVersionSequence, this.sequence);
-     	params.put(paramProject, this.project);
+     	params.put(paramProjectId, this.project.getId());
      	params.put(paramState, ProjectFileState.deleted());
-     	params.put(paramVersion, this);
+     	params.put(paramVersionId, this.getId());
  	    
      	if (d != null) {
      		params.put(paramDirectory, d);
@@ -631,7 +638,7 @@ public class ProjectVersion extends DAObject {
  	        params.put(paramIsDirectory, isDirectory);
  	    }
  	    
- 	    List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(query, params);
+ 	    List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(q.toString(), params);
 
  	    if (projectFiles == null) 
  	        return Collections.emptyList();
