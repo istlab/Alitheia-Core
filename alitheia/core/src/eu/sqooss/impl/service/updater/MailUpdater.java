@@ -34,10 +34,8 @@
 package eu.sqooss.impl.service.updater;
 
 import java.io.FileNotFoundException;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,24 +48,17 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
-
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
-import eu.sqooss.service.db.MailThread;
 import eu.sqooss.service.db.MailingList;
-import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.StoredProject;
-
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
-
 import eu.sqooss.service.scheduler.Job;
-
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
-
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
 
@@ -86,9 +77,6 @@ class MailUpdater extends Job {
     
     /*Cache mailinglist ids to call the metric activator with them*/
     private Set<Long> updMailingLists = new TreeSet<Long>();
-    
-    /*Cache mail thread ids to call the metric activator with them*/
-    private Set<Long> updMailThreads = new TreeSet<Long>();
     
     private Set<Long> updDevs = new TreeSet<Long>();
     
@@ -130,36 +118,28 @@ class MailUpdater extends Job {
             
             for (Long mlId : listIds) {
                 dbs.startDBSession();
-                
                 List<String> filenames = Collections.emptyList();
                 MailingList ml = DAObject.loadDAObyId(mlId, MailingList.class);
-                
+                dbs.commitDBSession();
                 if (ml == null) {
                     logger.warn("No mailing list with id " + mlId);
                     continue;
                 }
                 
                 filenames = processList(mailAccessor, ml);
-                createThreads(mailAccessor, ml);
-                /*
-                 * The following block is used after successfully processing and
-                 * threading all new emails to prevent marking emails as seen in
-                 * case of an exception in the mail or thread processing code.
-                 */
-                for (String fname : filenames) {
-                    if (!mailAccessor.markMessageAsSeen(ml.getListId(), fname))
-                        logger.warn("Failed to mark message <" + fname
-                                + "> as seen");
-                }
-
+                dbs.startDBSession();
+                ml = dbs.attachObjectToDBSession(ml);
+                MailThreadUpdater mtu = new MailThreadUpdater(ml, logger);
+                AlitheiaCore.getInstance().getScheduler().enqueue(mtu);
+                logger.info("Added thread update job for " + ml);                
+                
                 if (!updMails.isEmpty()) {
                     ma.runMetrics(updMails, MailMessage.class);
                     ma.runMetrics(updDevs, Developer.class);
-                    ma.runMetrics(updMailThreads, MailingListThread.class);
                 }
-                dbs.commitDBSession();
                 updMails.clear();
                 updDevs.clear();
+                dbs.commitDBSession();
             }
         } catch (IllegalArgumentException e) {
             logger.error("MailUpdater: IllegalArgumentException: " 
@@ -210,7 +190,7 @@ class MailUpdater extends Job {
         List<Long> listIds = new ArrayList<Long>();
         List<MailingList> mailingLists = getMailingLists(this.project);
         
-        for(MailingList ml : mailingLists) {
+        for (MailingList ml : mailingLists) {
             listIds.add(ml.getId());
         }
         
@@ -229,6 +209,7 @@ class MailUpdater extends Job {
         }
 
         for (String fileName : fileNames) {
+            if (!dbs.isDBSessionActive()) dbs.startDBSession();
             String msg = String.format("Message <%s> in list <%s> ", fileName,
                     listId);
 
@@ -286,181 +267,16 @@ class MailUpdater extends Job {
                 mmsg.setFilename(fileName);
                 dbs.addRecord(mmsg);
                 logger.debug("Adding message " + mm.getMessageID());
-
-                updMails.add(mmsg.getId());
-            }
-	}
-        return fileNames;
-    }
-
-    /**
-     * Create a parent - child thread hierarchy
-     * @throws FileNotFoundException 
-     * @throws IllegalArgumentException 
-     * @throws MessagingException 
-     */
-    private void createThreads(MailAccessor mailAccessor, MailingList ml) 
-        throws IllegalArgumentException, FileNotFoundException, MessagingException {
-        int newThreads = 0, updatedThreads = 0;
-        //Get mails for this ML for the last month
-        GregorianCalendar gc = new GregorianCalendar();
-        MailMessage lastEmail = null;
-        lastEmail = ml.getLatestEmail();
-        HashMap<String, MimeMessage> processed = new HashMap<String, MimeMessage>();
-        
-        if (lastEmail == null) {
-            return; //No messages for this mailing list
-        }
-        
-        String paramMl = "paramMl";
-        String query = " select mm " +
-            " from  MailingList ml, MailMessage mm" +
-            " where mm.list = ml " +
-            " and ml = :" + paramMl +
-            " and not exists (from MailThread mt where mt.mail = mm)" +
-            " order by mm.arrivalDate asc"; 
-            
-        Map<String,Object> params = new HashMap<String, Object>(1);
-        params.put(paramMl, ml);
-        
-        List<MailMessage> mmList = (List<MailMessage>) dbs.doHQL(query, params);
-        
-        if (mmList.isEmpty())
-            return;
-        
-        for (MailMessage mail : mmList) {
-            // Message has been already added to thread
-            if (mail.getThread() != null)
-                continue;
-
-            MimeMessage mm = mailAccessor.getMimeMessage(ml.getListId(), 
-                    mail.getFilename());
-            
-            processed.put(mail.getFilename(), mm);
-
-            /* Thread identification code. Naive, but works in most cases */
-            String[] inReplyTo = mm.getHeader("In-Reply-To");
-            String[] references = mm.getHeader("References");
-            boolean newThread = false, reference = false;
-            String parentId = null;
-
-            if (inReplyTo == null) {
-                if (references == null) {
-                    newThread = true;
-                } else {
-                    // Arbitrarily set first message reference as parent.
-                    // Mime message protocol does not specify any such
-                    // ordering, in fact it does not specify any ordering
-                    // scheme at all.
-                    parentId = references[0];
-                    reference = true;
-                }
-            } else {
-                /*
-                 * In most cases, the first in-reply-to entry corresponds to the
-                 * answered email. If not, the thread is still valid.
-                 */
-                parentId = inReplyTo[0];
-            }
-
-            MailingListThread mlt = null;
-            /* Get the parent mail object */
-            MailMessage parentMail = MailMessage.getMessageById(parentId);
-
-            if (parentId != null) {
-                /* Try to find the thread object created by the parent */
-                List<MailThread> threads = MailingListThread.getThreadForMail(
-                        parentMail, ml);
-
-                /* Safeguard */
-                if (threads != null && threads.size() > 1) {
-                    logger.warn("Message " + parentMail + " belongs to "
-                            + "more than one thread?");
-                }
                 
-                /* Parent-less child, parent might have arrived later */
-                if (threads != null && threads.size() == 0) {
-                    newThread = true;
-                } else {
-                    /*
-                     * Mails identified as children to a thread only by the
-                     * References header, are placed at the same depth level as
-                     * their parent (Usenet news style).
-                     */
-                    int depth = threads.get(0).getDepth();
-                    if (!reference) {
-                        depth = depth + 1;
-                    }
-                    /* Add the processed message as child to the parent's thread */
-                    MailThread mt = new MailThread(mail, parentMail, 
-                            threads.get(0).getThread(), depth);
-                    dbs.addRecord(mt);
-                    threads.get(0).getThread().setLastUpdated(mail.getSendDate());
-                    logger.debug("Updating thread " + mt.getThread().getId());
-                    updMailThreads.add(threads.get(0).getId());
-                    updatedThreads++;
+                updMails.add(mmsg.getId());
+                if (dbs.commitDBSession()) {
+                    if (!mailAccessor.markMessageAsSeen(mllist.getListId(), fileName))
+                        logger.warn("Failed to mark message <" + fileName
+                                + "> as seen");
                 }
             }
-
-            if (newThread) {
-                boolean childExists = false;
-
-                /*
-                 * Check if a child mail has arrived before the processed mail.
-                 */
-                for (String key : processed.keySet()) {
-                    MimeMessage child = processed.get(key);
-                    if ((child.getHeader("In-Reply-To") != null && 
-                            child.getHeader("In-Reply-To")[0].equals(mail.getMessageId()))
-                       || (child.getHeader("References") != null && 
-                            child.getHeader("References")[0].equals(mail.getMessageId()))) {
-
-                        childExists = true;
-
-                        /* Get thread whose parent is the discovered child */
-                        MailMessage childMM = MailMessage.getMessageById(child.getMessageID());
-                        MailingListThread thr = childMM.getThread();
-
-                        /*
-                         * Set the old thread parent as child of the current
-                         * mail and current email as top level parent of the
-                         * thread
-                         */
-                        childMM.getThreadEntry().setParent(mail);
-                        MailThread mt = new MailThread(mail, null, thr, 0);
-                        dbs.addRecord(mt);
-                        thr.setLastUpdated(mail.getSendDate());
-                        logger.debug("Reconstructing thread " + thr.getId());
-
-                        /* New top level email added, increase depth level */
-                        for (MailMessage threadEntry : thr.getMessages()) {
-                            threadEntry.getThreadEntry().setDepth(
-                                    threadEntry.getThreadEntry().getDepth() + 1);
-                        }
-                        updMailThreads.add(thr.getId());
-                        updatedThreads++;
-                    }
-                }
-
-                if (childExists)
-                    continue;
-
-                /* Create a new thread */
-                mlt = new MailingListThread(ml, mail.getSendDate());
-                dbs.addRecord(mlt);
-                /* Add this message as top-level parent to the thread */
-                MailThread mt = new MailThread(mail, null, mlt, 0);
-                dbs.addRecord(mt);
-                mt.setMail(mail);
-                logger.debug("Adding new thread " + mlt.getId());
-                updMailThreads.add(mlt.getId());
-                newThreads++;
-            } 
         }
-        
-        logger.info("Mail thread updater - " + ml 
-                + " " + newThreads + " new threads, " + updatedThreads 
-                + " updated threads" );
+        return fileNames;
     }
     
     private List<MailingList> getMailingLists(StoredProject sp) {
