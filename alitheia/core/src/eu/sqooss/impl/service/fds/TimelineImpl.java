@@ -102,8 +102,8 @@ class TimelineImpl implements Timeline {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         StringBuilder query = new StringBuilder("select mm ");
         query.append("from MailMessage mm ");
-        query.append("where mm.arrivalDate < :paramTo ");
-        query.append("and mm.arrivalDate > :paramFrom ");
+        query.append("where mm.sendDate < :paramTo ");
+        query.append("and mm.sendDate > :paramFrom ");
         query.append("and mm.list = :paramList ");
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("paramTo", end);
@@ -112,7 +112,7 @@ class TimelineImpl implements Timeline {
         Set<MailingList> lists = project.getMailingLists();
         if (lists != null) {
 			for (MailingList list : lists) {
-				params.put("paramlist", list);
+				params.put("paramList", list);
 				List<MailMessage> messages = (List<MailMessage>) dbs.doHQL(query.toString(), params);
 
 				for (MailMessage message : messages) {

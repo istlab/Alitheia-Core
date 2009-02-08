@@ -66,7 +66,8 @@ import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
 
 /**
- * Bug updater. Reads data from the TDS and updates 
+ * Bug updater. Reads data from the TDS and updates the bug metadata
+ * database. 
  */
 public class BugUpdater extends Job {
 
@@ -114,6 +115,7 @@ public class BugUpdater extends Job {
 
             // Update
             for (String bugID : bugIds) {
+                if (!db.isDBSessionActive()) db.startDBSession();
                 Bug bug = BTSEntryToBug(bts.getBug(bugID));
 
                 if (bug == null) {
@@ -149,9 +151,9 @@ public class BugUpdater extends Job {
                 db.addRecord(bug);
                 updBugs.add(bug.getId());
                 log.debug(sp.getName() + ": Added bug " + bugID);
+                db.commitDBSession();
             }
 
-            db.commitDBSession();
             if (!updBugs.isEmpty()) {
                 MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
                 ma.runMetrics(updBugs, Bug.class);
