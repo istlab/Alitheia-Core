@@ -121,20 +121,21 @@ public class ProjectManager extends AbstractManager {
 
         // Retrieve the result(s)
         WSStoredProject[] result = null;
-        List<StoredProject> projects = db.findObjectsByProperties(
-                StoredProject.class, new HashMap<String, Object>());
-        if (projects.size() > 0) {
-            ArrayList<WSStoredProject> evaluated =
-                new ArrayList<WSStoredProject>();
-            for (StoredProject project : projects)
-                if (project.isEvaluated())
-                    evaluated.add(WSStoredProject.getInstance(project));
-            if (evaluated.size() > 0) {
-                result = evaluated.toArray(
-                        new WSStoredProject[evaluated.size()]);
-            }
+        
+        StringBuffer q = new StringBuffer("select distinct sp ");
+        q.append("from StoredProject sp, EvaluationMark em ");
+        q.append("where em.storedProject = sp");
+       
+        List<StoredProject> evalProjects = (List<StoredProject>) db.doHQL(q.toString()); 
+        ArrayList<WSStoredProject> evaluated = new ArrayList<WSStoredProject>();
+        
+        for (StoredProject project : evalProjects) {
+                evaluated.add(WSStoredProject.getInstance(project));
         }
-
+        
+        if (evaluated.size() > 0) {
+            result = evaluated.toArray(new WSStoredProject[evaluated.size()]);
+        }
         db.commitDBSession();
         return (WSStoredProject[]) normalizeWSArrayResult(result);
     }
