@@ -63,6 +63,7 @@ import eu.sqooss.service.updater.UpdaterException;
 public class MailThreadUpdater extends Job {
 
     private MailingList ml;
+    private String projectName;
     private Logger logger;
     private DBService dbs;
     private MailAccessor mailAccessor;
@@ -73,13 +74,13 @@ public class MailThreadUpdater extends Job {
             throws UpdaterException {
         this.ml = ml;
         this.logger = l;
-        
+        this.projectName = ml.getStoredProject().getName();
         dbs = AlitheiaCore.getInstance().getDBService();
         try {
             mailAccessor = AlitheiaCore.getInstance().getTDSService().getAccessor(
                     ml.getStoredProject().getId()).getMailAccessor();
         } catch (InvalidAccessorException e) {
-            logger.error("Could not get MailAccessor for project" 
+            err("Could not get MailAccessor for project" 
                     + ml.getStoredProject().getName());
         }
     }
@@ -167,7 +168,7 @@ public class MailThreadUpdater extends Job {
 
                 /* Safeguard */
                 if (threads != null && threads.size() > 1) {
-                    logger.warn("Message " + parentMail + " belongs to "
+                    warn("Message " + parentMail + " belongs to "
                             + "more than one thread?");
                 }
                 
@@ -189,7 +190,7 @@ public class MailThreadUpdater extends Job {
                             threads.get(0).getThread(), depth);
                     dbs.addRecord(mt);
                     threads.get(0).getThread().setLastUpdated(mail.getSendDate());
-                    logger.debug("Updating thread " + mt.getThread().getId());
+                    debug("Updating thread " + mt.getThread().getId());
                     updMailThreads.add(threads.get(0).getId());
                     updatedThreads++;
                 }
@@ -212,6 +213,14 @@ public class MailThreadUpdater extends Job {
 
                         /* Get thread whose parent is the discovered child */
                         MailMessage childMM = MailMessage.getMessageById(child.getMessageID());
+                        
+                        if (childMM == null) {
+                            warn("Supposedly processed child of message "
+                                    + mail + " not found in DB.");
+                            childExists = false;
+                            break;
+                        }
+                        
                         MailingListThread thr = childMM.getThread();
 
                         /*
@@ -219,11 +228,18 @@ public class MailThreadUpdater extends Job {
                          * mail and current email as top level parent of the
                          * thread
                          */
-                        childMM.getThreadEntry().setParent(mail);
+                        MailThread oldThread = childMM.getThreadEntry();
+                        
+                        if (oldThread == null) {
+                            warn("Child " + childMM + " does not " +
+                            		"belong to a thread?");
+                        }
+                        
+                        oldThread.setParent(mail);
                         MailThread mt = new MailThread(mail, null, thr, 0);
                         dbs.addRecord(mt);
                         thr.setLastUpdated(mail.getSendDate());
-                        logger.debug("Reconstructing thread " + thr.getId());
+                        debug("Reconstructing thread " + thr.getId());
 
                         /* New top level email added, increase depth level */
                         for (MailMessage threadEntry : thr.getMessages()) {
@@ -245,14 +261,14 @@ public class MailThreadUpdater extends Job {
                 MailThread mt = new MailThread(mail, null, mlt, 0);
                 dbs.addRecord(mt);
                 mt.setMail(mail);
-                logger.debug("Adding new thread " + mlt.getId());
+                debug("Adding new thread " + mlt.getId());
                 updMailThreads.add(mlt.getId());
                 newThreads++;
             } 
             dbs.commitDBSession();
         }
         dbs.startDBSession();
-        logger.info("Mail thread updater - " + ml 
+        info("Mail thread updater - " + ml 
                 + " " + newThreads + " new threads, " + updatedThreads 
                 + " updated threads" );
         AlitheiaCore.getInstance().getMetricActivator().runMetrics(updMailThreads, MailingListThread.class);
@@ -261,19 +277,25 @@ public class MailThreadUpdater extends Job {
     
     @Override
     public String toString() {
-        String msg; 
-        boolean commitSession = false;
-        if (!dbs.isDBSessionActive()) {
-            dbs.startDBSession();
-            commitSession = true;
-        }
-        ml = dbs.attachObjectToDBSession(ml);
-        msg =  "MailThreadUpdater Job - Project:{" + ml.getStoredProject() 
+
+        return "MailThreadUpdater Job - Project:{" + projectName 
         + "}, Mailing List: {" + ml.getListId() + "}";
         
-        if (commitSession) 
-            dbs.commitDBSession();
-        
-        return msg;
+    }
+    
+    private void warn(String message) {
+        logger.warn(projectName + ":" + message);
+    }
+    
+    private void err(String message) {
+        logger.error(projectName + ":" + message);
+    }
+    
+    private void info(String message) {
+        logger.info(projectName + ":" + message);
+    }
+    
+    private void debug(String message) {
+        logger.debug(projectName + ":" + message);
     }
 }

@@ -122,7 +122,7 @@ class MailUpdater extends Job {
                 MailingList ml = DAObject.loadDAObyId(mlId, MailingList.class);
                 dbs.commitDBSession();
                 if (ml == null) {
-                    logger.warn("No mailing list with id " + mlId);
+                    warn("No mailing list with id " + mlId);
                     continue;
                 }
                 
@@ -131,7 +131,7 @@ class MailUpdater extends Job {
                 ml = dbs.attachObjectToDBSession(ml);
                 MailThreadUpdater mtu = new MailThreadUpdater(ml, logger);
                 AlitheiaCore.getInstance().getScheduler().enqueue(mtu);
-                logger.info("Added thread update job for " + ml);                
+                info("Added thread update job for " + ml);                
                 
                 if (!updMails.isEmpty()) {
                     ma.runMetrics(updMails, MailMessage.class);
@@ -142,16 +142,13 @@ class MailUpdater extends Job {
                 dbs.commitDBSession();
             }
         } catch (IllegalArgumentException e) {
-            logger.error("MailUpdater: IllegalArgumentException: " 
-                    + e.getMessage() + " at:", e);
+            err("MailUpdater: IllegalArgumentException: " + e.getMessage());
             throw e;
         } catch (FileNotFoundException e) {
-            logger.error("MailUpdater: FileNotFoundException: " 
-                    + e.getMessage() + " at:", e);
+            err("MailUpdater: FileNotFoundException: " + e.getMessage());
             throw e;
         } catch (MessagingException e) {
-            logger.error("MailUpdater: MessagingException: " 
-                    + e.getMessage() + " at:", e);
+            err("MailUpdater: MessagingException: " + e.getMessage());
             throw e;
         } finally {
             updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
@@ -162,8 +159,7 @@ class MailUpdater extends Job {
         List<String> lists = mailAccessor.getMailingLists();
         
         if ( lists.size() == 0 ) {
-            logger.warn("Project <" + project.getName() + "> with ID " + project.getId() +
-            " has no mailing lists.");
+            warn("No mailing lists");
         }
         
         List<MailingList> mllist = getMailingLists(project);
@@ -204,7 +200,7 @@ class MailUpdater extends Job {
         try {
             fileNames = mailAccessor.getNewMessages(listId);
         } catch (FileNotFoundException e) {
-            logger.warn("Mailing list <" + listId + "> vanished: " + e.getMessage());
+            warn("Mailing list <" + listId + "> vanished: " + e.getMessage());
             return Collections.emptyList();
         }
 
@@ -214,14 +210,17 @@ class MailUpdater extends Job {
                     listId);
 
             MimeMessage mm = mailAccessor.getMimeMessage(listId, fileName);
+            
             if (mm == null) {
-                logger.info("Failed to parse message.");
+                warn("Failed to parse message " + fileName);
+                mailAccessor.markMessageAsSeen(mllist.getListId(), fileName);
                 continue;
             }
+            
             Address[] senderAddr = mm.getFrom();
             if (senderAddr == null) {
-                logger.warn(project.getName() + ": " + msg
-                        + "  has no sender. Ignoring");
+                warn("Message " + msg + "  has no sender. Ignoring");
+                
                 continue;
             }
             Address actualSender = senderAddr[0];
@@ -238,8 +237,7 @@ class MailUpdater extends Job {
                     mllist.getStoredProject());
 
             if (sender == null)
-            	logger.error(project.getName() 
-            			+ ": Error adding developer");
+            	err("Error adding developer");
             
             if (!updDevs.contains(sender.getId())) {
                 updDevs.add(sender.getId());
@@ -256,7 +254,7 @@ class MailUpdater extends Job {
                 mmsg.setSendDate(mm.getSentDate());
                 mmsg.setArrivalDate(mm.getReceivedDate());
 
-                /* 512 characters should be enough for everybody */
+                /* 512 characters should be enough subject for everybody */
                 String subject = mm.getSubject();
                 if (subject != null) {
                 	if (mm.getSubject().length() > 512)
@@ -266,17 +264,33 @@ class MailUpdater extends Job {
                 mmsg.setSubject(subject);
                 mmsg.setFilename(fileName);
                 dbs.addRecord(mmsg);
-                logger.debug("Adding message " + mm.getMessageID());
+                debug("Adding message " + mm.getMessageID());
                 
                 updMails.add(mmsg.getId());
                 if (dbs.commitDBSession()) {
                     if (!mailAccessor.markMessageAsSeen(mllist.getListId(), fileName))
-                        logger.warn("Failed to mark message <" + fileName
+                        warn("Failed to mark message <" + fileName
                                 + "> as seen");
                 }
             }
         }
         return fileNames;
+    }
+    
+    private void warn(String message) {
+        logger.warn(project.getName() + ":" + message);
+    }
+    
+    private void err(String message) {
+        logger.error(project.getName() + ":" + message);
+    }
+    
+    private void info(String message) {
+        logger.info(project.getName() + ":" + message);
+    }
+    
+    private void debug(String message) {
+        logger.debug(project.getName() + ":" + message);
     }
     
     private List<MailingList> getMailingLists(StoredProject sp) {

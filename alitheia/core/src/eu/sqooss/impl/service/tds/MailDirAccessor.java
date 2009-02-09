@@ -267,6 +267,11 @@ public class MailDirAccessor implements MailAccessor {
         try {
             FileInputStream fis = new FileInputStream(messageFile);
             mm = new MimeMessage(session, fis);
+            mm.getFrom();
+            mm.getSubject();
+            mm.getMessageID();
+            mm.getSentDate();
+            mm.getReceivedDate();
             fis.close();
         } catch (MessagingException e) {
             logger.warn("Could not parse message <" + listId + ":" + id + ">");

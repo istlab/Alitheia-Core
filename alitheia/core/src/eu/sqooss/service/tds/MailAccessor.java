@@ -60,7 +60,11 @@ public interface MailAccessor extends DataAccessor {
                FileNotFoundException;
 
     /**
-     * Retrieves a raw message as a parsed MIME message.
+     * Retrieves a raw message as a parsed MIME message. This method makes 
+     * sure that important email header fields can be parsed. If it 
+     * cannot parse one of the following fields it will return null. The
+     * fields the method tries are: From, Sender, Subject, ReceivedDate,
+     * SentDate, MessageID.
      * 
      * @param listname the list the message is in
      * @param msgFileName the message id
