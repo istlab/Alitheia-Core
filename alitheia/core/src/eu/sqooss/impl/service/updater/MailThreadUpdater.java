@@ -99,6 +99,8 @@ public class MailThreadUpdater extends Job {
         HashMap<String, MimeMessage> processed = new HashMap<String, MimeMessage>();
         
         if (lastEmail == null) {
+            info("No mail messages for list " + ml);
+            dbs.commitDBSession();
             return; //No messages for this mailing list
         }
         
@@ -115,8 +117,11 @@ public class MailThreadUpdater extends Job {
         
         List<Long> mmList = (List<Long>) dbs.doHQL(query, params);
         
-        if (mmList.isEmpty())
+        if (mmList.isEmpty()) {
+            info("No unprocessed mail messages found for list " + ml);
+            dbs.commitDBSession();
             return;
+        }
         
         for (Long mailId : mmList) {
             if (!dbs.isDBSessionActive())
@@ -270,9 +275,9 @@ public class MailThreadUpdater extends Job {
         dbs.startDBSession();
         info("Mail thread updater - " + ml 
                 + " " + newThreads + " new threads, " + updatedThreads 
-                + " updated threads" );
+                + " thread updates" );
         AlitheiaCore.getInstance().getMetricActivator().runMetrics(updMailThreads, MailingListThread.class);
-        dbs.commitDBSession();
+        if (dbs.isDBSessionActive()) dbs.commitDBSession();
     }   
     
     @Override

@@ -188,6 +188,10 @@ public class Developer extends DAObject{
             return devs.get(0);
         
         parameterMap.clear();
+        
+        if (!email.contains("@"))
+            return null;
+        
         String unameFromEmail = email.substring(0, email.indexOf('@'));
         
         if (unameFromEmail == "" || unameFromEmail == email)

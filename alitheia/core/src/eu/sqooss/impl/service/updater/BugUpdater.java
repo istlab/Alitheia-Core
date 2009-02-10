@@ -159,6 +159,7 @@ public class BugUpdater extends Job {
                 ma.runMetrics(updBugs, Bug.class);
                 ma.runMetrics(updDevs, Developer.class);
             }
+            if (db.isDBSessionActive())db.commitDBSession();
         } finally {
             updater.removeUpdater(sp.getName(), UpdaterService.UpdateTarget.BUGS);
         }
@@ -208,7 +209,7 @@ public class BugUpdater extends Job {
      
         Set<BugReportMessage> commentList = new LinkedHashSet<BugReportMessage>();
         
-        for(BTSEntryComment c : b.commentslist) {
+        for (BTSEntryComment c : b.commentslist) {
             BugReportMessage bugmessage = new BugReportMessage(bug);
             bugmessage.setReporter(getDeveloper(c.commentAuthor));
             bugmessage.setTimestamp(c.commentTS);

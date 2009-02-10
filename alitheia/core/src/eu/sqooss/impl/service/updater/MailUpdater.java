@@ -220,7 +220,6 @@ class MailUpdater extends Job {
             Address[] senderAddr = mm.getFrom();
             if (senderAddr == null) {
                 warn("Message " + msg + "  has no sender. Ignoring");
-                
                 continue;
             }
             Address actualSender = senderAddr[0];
@@ -228,9 +227,15 @@ class MailUpdater extends Job {
             if (actualSender instanceof InternetAddress) {
                 senderEmail = ((InternetAddress) actualSender).getAddress();
             } else {
-                InternetAddress inet = new InternetAddress(actualSender
-                        .toString());
+                InternetAddress inet = 
+                    new InternetAddress(actualSender.toString());
                 senderEmail = inet.getAddress();
+            }
+            
+            if (!senderEmail.contains("@")) {
+                warn(msg + ": Not an email address: " + senderEmail);
+                mailAccessor.markMessageAsSeen(mllist.getListId(), fileName);
+                continue;
             }
 
             Developer sender = Developer.getDeveloperByEmail(senderEmail,
