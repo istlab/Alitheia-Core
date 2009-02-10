@@ -229,14 +229,17 @@ class MailUpdater extends Job {
             }
             
             Address[] senderAddr = mm.getFrom();
+            String devName = "";
             if (senderAddr == null) {
                 warn("Message " + msg + "  has no sender. Ignoring");
                 continue;
             }
+            
             Address actualSender = senderAddr[0];
             String senderEmail = null;
             if (actualSender instanceof InternetAddress) {
                 senderEmail = ((InternetAddress) actualSender).getAddress();
+                devName = ((InternetAddress) actualSender).getPersonal();
             } else {
                 InternetAddress inet = 
                     new InternetAddress(actualSender.toString());
@@ -254,6 +257,10 @@ class MailUpdater extends Job {
 
             if (sender == null)
             	err("Error adding developer");
+            
+            /*Set the developer name*/
+            if (devName != null)
+                sender.setName(devName);
             
             if (!updDevs.contains(sender.getId())) {
                 updDevs.add(sender.getId());
