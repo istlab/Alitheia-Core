@@ -34,8 +34,12 @@
 package eu.sqooss.impl.service.updater;
 
 import java.io.FileNotFoundException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +83,13 @@ class MailUpdater extends Job {
     private Set<Long> updMailingLists = new TreeSet<Long>();
     
     private Set<Long> updDevs = new TreeSet<Long>();
+    
+    private static String[] dateFmts = {
+        "EEE MMM d HH:mm:ss yyyy",  //Fri Dec  5 12:50:00 2003
+        "d MMM yyyy HH:mm:ss Z",    //28 Nov 2000 18:26:25 -0500
+        "MM/dd/yy KK:mm a",         //9/15/00 12:40 PM
+        "d MMM yyyy HH:mm"          //16 March 1998 20:10
+    };
     
     public MailUpdater(StoredProject project,
                        UpdaterServiceImpl updater,
@@ -256,7 +267,16 @@ class MailUpdater extends Job {
                 mmsg.setList(mllist);
                 mmsg.setMessageId(mm.getMessageID());
                 mmsg.setSender(sender);
-                mmsg.setSendDate(mm.getSentDate());
+                
+                Date sentDate = getSentDate(mm);
+                if (sentDate != null) {
+                    mmsg.setSendDate(sentDate);
+                } else {
+                    warn(msg + " does not contain a parsable date, ignoring");
+                    mailAccessor.markMessageAsSeen(mllist.getListId(), fileName);
+                    continue;
+                }
+               
                 mmsg.setArrivalDate(mm.getReceivedDate());
 
                 /* 512 characters should be enough subject for everybody */
@@ -280,6 +300,47 @@ class MailUpdater extends Job {
             }
         }
         return fileNames;
+    }
+    
+    private Date getSentDate(MimeMessage mm) {
+        Date d = null;
+        String date = null;
+        try {
+            d = mm.getSentDate();
+            String[] dates = mm.getHeader("Date");
+            
+            if (dates != null && dates.length > 0)
+                date = mm.getHeader("Date")[0];
+             
+        } catch (MessagingException e) {
+            //Swallow this exception here
+        }
+        
+        if (d != null)  //Date is standards compliant
+            return d;
+        else 
+            return getDate(date); 
+    }
+    
+    /* Try hard to parse dates by hand as various Microsoft MUAs, Emacs,
+     * Evolution and others don't feel like respecting the standards 
+     * (namely rfc822 and its extension draft-ietf-drums-msg-fmt-08)
+     */
+    private Date getDate(String date) {
+        if (date == null)
+            return null;
+        
+        Date d = null;
+        for (String fmt : this.dateFmts) {
+            try {
+                DateFormat df = new SimpleDateFormat(fmt);
+                d = df.parse(date.trim());
+            } catch (ParseException e) {
+                continue;
+            }
+            break;
+        }
+        return d;
     }
     
     private void warn(String message) {
