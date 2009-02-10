@@ -191,21 +191,18 @@ public class Bug extends DAObject {
         if (sp == null)
             return null;
         
-        String paramStoredProject = "stroredProject";
+        String paramStoredProject = "storedProject";
         
         String query = " select b " +
             " from Bug b, StoredProject sp" +
             " where b.project=sp" +
             " and sp = :" + paramStoredProject + 
-            " and b.updateRun = " +
-            "       (select max(b.updateRun) " +
-            "       from Bug b " +
-            "       where b.project=sp)";
+            " order by b.updateRun desc";
         
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(paramStoredProject, sp);
         
-        List<Bug> buglist = (List<Bug>) dbs.doHQL(query, params);
+        List<Bug> buglist = (List<Bug>) dbs.doHQL(query, params,1);
         
         if (buglist.isEmpty())
             return null;
