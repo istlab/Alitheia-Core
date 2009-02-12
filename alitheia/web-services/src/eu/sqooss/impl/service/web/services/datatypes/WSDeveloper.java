@@ -128,7 +128,7 @@ public class WSDeveloper {
         try {
             WSDeveloper wsDeveloper = new WSDeveloper();
             wsDeveloper.setId(developer.getId());
-            wsDeveloper.setEmail(developer.getEmail());
+            wsDeveloper.setEmail((developer.getAliases().size()==0)?developer.getAliases().get(0).getEmail():null);
             wsDeveloper.setName(developer.getName());
             wsDeveloper.setStoredProjectId(developer.getStoredProject().getId());
             wsDeveloper.setUsername(developer.getUsername());

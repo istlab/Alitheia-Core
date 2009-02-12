@@ -127,7 +127,6 @@ public class WSMailMessage {
             wrapper.setMessageId(dao.getMessageId());
             wrapper.setSubject(dao.getSubject());
             wrapper.setSentTimestamp(dao.getSendDate().getTime());
-            wrapper.setDeliveredTimestamp(dao.getArrivalDate().getTime());
             return wrapper;
         } catch (Exception e) {
             return null;

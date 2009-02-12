@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -57,6 +58,19 @@ public class MailingListThread extends DAObject {
      */
     private Date lastUpdated;
     
+    /**
+     * A set containing the messages that belong to this thread
+     */
+    private Set<MailMessage> messages;
+    
+    public Set<MailMessage> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Set<MailMessage> messages) {
+        this.messages = messages;
+    }
+
     public MailingListThread() {}
     
     public MailingListThread(MailingList l, Date d) {
@@ -89,30 +103,6 @@ public class MailingListThread extends DAObject {
         this.lastUpdated = lastUpdated;
     }
     
-    /** 
-     * Get an unsorted list of messages in this thread.
-     */
-    public List<MailMessage> getMessages() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramThread = "paramThread";
-        
-        String query = " select mm " + 
-                " from MailMessage mm, MailThread mt " +
-                " where mt.mail = mm " +
-                " and mt.thread = :" + paramThread;
-        
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put(paramThread, this);
-
-        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params);
-
-        if (mm != null && !mm.isEmpty())
-            return mm;
-
-        return Collections.emptyList();
-    }
-    
     /**
      * Get the email that kickstarted this thread.
      */
@@ -122,13 +112,14 @@ public class MailingListThread extends DAObject {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("thread", this);
+        params.put("depth", 0);
         params.put("parent", null);
-
-        List<MailThread> mt = dbs.findObjectsByProperties(MailThread.class,
+        
+        List<MailMessage> mm = dbs.findObjectsByProperties(MailMessage.class,
                 params);
 
-        if (!mt.isEmpty())
-            return mt.get(0).getMail();
+        if (!mm.isEmpty())
+            return mm.get(0);
 
         return null;
     }
@@ -185,7 +176,7 @@ public class MailingListThread extends DAObject {
     /**
      * Get all emails at the provided depth, ordered by arrival time
      * @param level The thread depth level for which to select emails.
-     * @return The emails at the specified thead depth.
+     * @return The emails at the specified thread depth.
      */
     public List<MailMessage> getMessagesAtLevel(int level) {
         
@@ -195,10 +186,10 @@ public class MailingListThread extends DAObject {
         String paramDepth = "paramDepth";
         
         String query = "select mm " +
-                " from MailMessage mm, MailThread mt " +
-                " where mt.mail = mm" +
-                " and mt.thread = :" + paramThread + 
-                " and mt.depth = :" + paramDepth +
+                " from MailMessage mm, MailingListThread mlt " +
+                " where mail.thread = mlt" +
+                " and mlt = :" + paramThread + 
+                " and mm.depth = :" + paramDepth +
                 " order by mm.sendDate asc";
         
         Map<String,Object> params = new HashMap<String, Object>(1);
@@ -211,29 +202,5 @@ public class MailingListThread extends DAObject {
             return Collections.emptyList();
         
         return mm;
-    }
-    
-    public static List<MailThread> getThreadForMail(MailMessage mm, MailingList ml) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramMailingList = "paramML";
-        String paramMail = "paramMail";
-        
-        String query =  " select mt " +
-            " from MailingListThread mlt, MailThread mt " +
-            " where mt.thread = mlt " +
-            " and mlt.list = :" + paramMailingList +
-            " and mt.mail = :" + paramMail;
-        
-        Map<String,Object> params = new HashMap<String, Object>();
-        params.put(paramMailingList, ml);
-        params.put(paramMail, mm);
-        
-        List<MailThread> mt = (List<MailThread>) dbs.doHQL(query, params);
-        
-        if (mt.isEmpty())
-            return Collections.emptyList();
-        
-        return mt; 
     }
 }

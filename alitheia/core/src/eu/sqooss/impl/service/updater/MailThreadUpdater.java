@@ -1,4 +1,4 @@
-/*
+    /*
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
@@ -44,7 +44,6 @@ import javax.mail.internet.MimeMessage;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
-import eu.sqooss.service.db.MailThread;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.logging.Logger;
@@ -109,8 +108,8 @@ public class MailThreadUpdater extends Job {
             " from  MailingList ml, MailMessage mm" +
             " where mm.list = ml " +
             " and ml = :" + paramMl +
-            " and not exists (from MailThread mt where mt.mail = mm)" +
-            " order by mm.arrivalDate asc"; 
+            " and mm.thread is null " +
+            " order by mm.sendDate asc"; 
             
         Map<String,Object> params = new HashMap<String, Object>(1);
         params.put(paramMl, ml);
@@ -166,19 +165,9 @@ public class MailThreadUpdater extends Job {
             /* Get the parent mail object */
             MailMessage parentMail = MailMessage.getMessageById(parentId);
 
-            if (parentId != null) {
-                /* Try to find the thread object created by the parent */
-                List<MailThread> threads = MailingListThread.getThreadForMail(
-                        parentMail, ml);
-
-                /* Safeguard */
-                if (threads != null && threads.size() > 1) {
-                    warn("Message " + parentMail + " belongs to "
-                            + "more than one thread?");
-                }
-                
+            if (parentId != null) { 
                 /* Parent-less child, parent might have arrived later */
-                if (threads != null && threads.size() == 0) {
+                if (parentMail == null || parentMail.getThread() == null) {
                     newThread = true;
                 } else {
                     /*
@@ -186,17 +175,17 @@ public class MailThreadUpdater extends Job {
                      * References header, are placed at the same depth level as
                      * their parent (Usenet news style).
                      */
-                    int depth = threads.get(0).getDepth();
+                    int depth = parentMail.getDepth();
                     if (!reference) {
                         depth = depth + 1;
                     }
                     /* Add the processed message as child to the parent's thread */
-                    MailThread mt = new MailThread(mail, parentMail, 
-                            threads.get(0).getThread(), depth);
-                    dbs.addRecord(mt);
-                    threads.get(0).getThread().setLastUpdated(mail.getSendDate());
-                    debug("Updating thread " + mt.getThread().getId());
-                    updMailThreads.add(threads.get(0).getId());
+                    mail.setDepth(depth);
+                    mail.setParent(parentMail);
+                    mail.setThread(parentMail.getThread());
+                    parentMail.getThread().setLastUpdated(mail.getSendDate());
+                    debug("Updating thread " + parentMail.getThread().getId());
+                    updMailThreads.add(parentMail.getThread().getId());
                     updatedThreads++;
                 }
             }
@@ -216,7 +205,7 @@ public class MailThreadUpdater extends Job {
 
                         childExists = true;
 
-                        /* Get thread whose parent is the discovered child */
+                        /* Get message whose parent is the discovered child */
                         MailMessage childMM = MailMessage.getMessageById(child.getMessageID());
                         
                         if (childMM == null) {
@@ -231,25 +220,17 @@ public class MailThreadUpdater extends Job {
                         /*
                          * Set the old thread parent as child of the current
                          * mail and current email as top level parent of the
-                         * thread
+                         * thread 
                          */
-                        MailThread oldThread = childMM.getThreadEntry();
-                        
-                        if (oldThread == null) {
-                            warn("Child " + childMM + " does not " +
-                            		"belong to a thread?");
-                        }
-                        
-                        oldThread.setParent(mail);
-                        MailThread mt = new MailThread(mail, null, thr, 0);
-                        dbs.addRecord(mt);
-                        thr.setLastUpdated(mail.getSendDate());
+                        childMM.setParent(mail);
+                        mail.setParent(null);
+                        mail.setDepth(0);
+                        childMM.getThread().setLastUpdated(mail.getSendDate());
                         debug("Reconstructing thread " + thr.getId());
 
-                        /* New top level email added, increase depth level */
-                        for (MailMessage threadEntry : thr.getMessages()) {
-                            threadEntry.getThreadEntry().setDepth(
-                                    threadEntry.getThreadEntry().getDepth() + 1);
+                        /* New top level email added, increase depth level in children messages */
+                        for (MailMessage msg : thr.getMessages()) {
+                            msg.setDepth(msg.getDepth() + 1);
                         }
                         updMailThreads.add(thr.getId());
                         updatedThreads++;
@@ -262,10 +243,8 @@ public class MailThreadUpdater extends Job {
                 /* Create a new thread */
                 mlt = new MailingListThread(ml, mail.getSendDate());
                 dbs.addRecord(mlt);
-                /* Add this message as top-level parent to the thread */
-                MailThread mt = new MailThread(mail, null, mlt, 0);
-                dbs.addRecord(mt);
-                mt.setMail(mail);
+                mail.setThread(mlt);
+                mail.setDepth(0);
                 debug("Adding new thread " + mlt.getId());
                 updMailThreads.add(mlt.getId());
                 newThreads++;

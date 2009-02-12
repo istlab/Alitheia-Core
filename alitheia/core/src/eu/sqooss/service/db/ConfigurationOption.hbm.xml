@@ -10,5 +10,11 @@
     </id>
     <property name="key" column="CONFIG_KEY" unique="true" not-null="true" />
     <property name="description" column="CONFIG_DESCR" not-null="true" />
+    
+    <set name="projects" table="StoredProjectConfig" cascade="all-delete-orphan">
+        <key column="CONFIG_OPTION_ID" />
+        <many-to-many column="STORED_PROJECT_ID" class="eu.sqooss.service.db.StoredProject"/>
+    </set>
+    
   </class>
 </hibernate-mapping>

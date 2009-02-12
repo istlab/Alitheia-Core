@@ -36,6 +36,7 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -49,8 +50,10 @@ import eu.sqooss.core.AlitheiaCore;
 public class ConfigurationOption extends DAObject {
 	private String key;
 	private String description;
+	private Set<StoredProject> projects;
 	
-	public ConfigurationOption() {}
+	
+    public ConfigurationOption() {}
 	
 	public ConfigurationOption(String key, String description) {
 		this.key = key;
@@ -72,6 +75,14 @@ public class ConfigurationOption extends DAObject {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public Set<StoredProject> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(Set<StoredProject> projects) {
+        this.projects = projects;
+    }
 	
 	/**
 	 * 

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.DeveloperAlias" table="DEVELOPER_ALIAS">
+    <id name="id" column="DEVELOPER_ALIAS_ID">
+      <generator class="native" />
+    </id>
+    
+    <property name="email" column="EMAIL" not-null="true"/>    
+    <many-to-one name="developer" column="DEVELOPER_ID" cascade="merge" not-null="true"/>
+  </class>
+</hibernate-mapping>

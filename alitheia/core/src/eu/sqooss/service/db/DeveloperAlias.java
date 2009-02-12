@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2008 - Organization for Free and Open Source Software,  
+ * Copyright 2009 - Organization for Free and Open Source Software,  
  *                 Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,62 +31,30 @@
  *
  */
 
+
 package eu.sqooss.service.db;
 
-/**
- * Entity that holds information about a mail message's thread status.
- * 
- * @author Georgios Gousios <gousiosg@gmail.com>
- */
-public class MailThread extends DAObject {
-    
-    /** The mail this entry represents */ 
-    private MailMessage mail;
-    
-    /** The parent of this entry in the thread */
-    private MailMessage parent;
-    
-    /** The thread this entry belongs to */
-    private MailingListThread thread; 
-    
-    /** The level of this thread entry in the reply tree, i.e. the number of
-     * parent the email identified by this thread entry has.
-     */
-    private int depth;
+public class DeveloperAlias extends DAObject {
+    private String email;
+    private Developer developer;
 
-    public MailThread() {}
+    public DeveloperAlias() {}
     
-    public MailThread(MailMessage mail, MailMessage parent, 
-            MailingListThread thread, int depth) {
-        this.mail = mail;
-        this.parent = parent;
-        this.thread = thread;
-        this.depth = depth;
+    public DeveloperAlias(String email, Developer d) {
+        this.email = email; 
+        this.developer = d;
     }
-    public MailMessage getMail() {
-        return mail;
+    
+    public String getEmail() {
+        return email;
     }
-    public void setMail(MailMessage mail) {
-        this.mail = mail;
+    public void setEmail(String email) {
+        this.email = email;
     }
-    public MailMessage getParent() {
-        return parent;
+    public Developer getDeveloper() {
+        return developer;
     }
-    public void setParent(MailMessage parent) {
-        this.parent = parent;
-    }
-    public MailingListThread getThread() {
-        return thread;
-    }
-    public void setThread(MailingListThread thread) {
-        this.thread = thread;
-    }
-
-    public int getDepth() {
-        return depth;
-    }
-
-    public void setDepth(int depth) {
-        this.depth = depth;
+    public void setDeveloper(Developer developer) {
+        this.developer = developer;
     }
 }

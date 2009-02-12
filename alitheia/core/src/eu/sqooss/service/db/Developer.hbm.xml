@@ -10,9 +10,16 @@
     </id>
     
     <property name="name" column="NAME" />
-    <property name="email" column="EMAIL" />
     <property name="username" column="USERNAME" />
+    
     <many-to-one name="storedProject" column="STORED_PROJECT_ID" cascade="merge"/>
+    
+    <list name="aliases" inverse="true" cascade="all-delete-orphan">
+    	<key column="DEVELOPER_ID" />
+    	<index column="EMAIL"/>
+    	<one-to-many class="eu.sqooss.service.db.DeveloperAlias"/>
+    </list>
+    
     <set name="commits" inverse="true" cascade="all-delete-orphan">
         <key column="COMMITTER_ID"/>
         <one-to-many class="eu.sqooss.service.db.ProjectVersion"/>

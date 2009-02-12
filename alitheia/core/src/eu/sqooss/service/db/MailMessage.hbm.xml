@@ -5,16 +5,19 @@
 
 <hibernate-mapping>
   <class name="eu.sqooss.service.db.MailMessage" table="MAILMESSAGE">
-    <id name="id" column="ID">
+    <id name="id" column="MAILMESSAGE_ID">
       <generator class="native" />
     </id>
     <many-to-one name="sender" column="SENDER_ID" not-null="true" cascade="merge" />
     <many-to-one name="list" column="MLIST_ID" not-null="true" cascade="merge" />
     <property name="messageId" column="MESSAGEID" not-null="true" />
     <property name="sendDate" column="SEND_DATE" not-null="true" />
-    <property name="arrivalDate" column="ARRIVAL_DATE" />
     <property name="subject" column="SUBJECT" length="512" />
     <property name="filename" column="FILE_NAME" />
+    <property name="depth" column="DEPTH"/>
+    <many-to-one name="thread" column="THREAD_ID" cascade="merge"/> 
+    <many-to-one name="parent" column="PARENT_ID" cascade="merge"/> 
+    
   </class>
 </hibernate-mapping>
 

@@ -50,7 +50,7 @@ public class MailMessage extends DAObject {
     Developer sender;
 
     /**
-     * The list to which the email was orignally sent
+     * The list to which the email was originally sent
      */
     MailingList list;
 
@@ -68,24 +68,51 @@ public class MailMessage extends DAObject {
      * The date on which the email was originally sent
      */
     Date sendDate;
-
-    /**
-     * The date on which the email was archived by the list managing
-     * software
-     */
-    Date arrivalDate;
     
     /**
      * Message file name, to connect to the actual file.
      */
     String fileName;
     
-    public Date getArrivalDate() {
-	return arrivalDate;
-    }
+    /**
+     * The thread this mail message belongs to.
+     */
+    MailingListThread thread;
     
-    public void setArrivalDate(Date ad) {
-	this.arrivalDate = ad;
+    /**
+     * The message's nesting level in the thread it belongs to
+     */
+    int depth;
+    
+    /**
+     * The message that is the immediate parent to this email in the
+     * thread they belong to.
+     */
+    MailMessage parent;
+   
+    
+    public MailingListThread getThread() {
+        return thread;
+    }
+
+    public void setThread(MailingListThread thread) {
+        this.thread = thread;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 
     public Developer getSender() {
@@ -136,6 +163,14 @@ public class MailMessage extends DAObject {
         this.fileName = filename;
     }
     
+    public MailMessage getParent() {
+        return parent;
+    }
+
+    public void setParent(MailMessage parent) {
+        this.parent = parent;
+    }
+    
     /**
      * Return a stored mail message based on messageId
      */
@@ -153,8 +188,7 @@ public class MailMessage extends DAObject {
     }
     
     /**
-     * 
-     *Return a stored mail message based on filename
+     * Return a stored mail message based on filename
      */
     public static MailMessage getMessageByFileName(String filename) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
@@ -192,43 +226,6 @@ public class MailMessage extends DAObject {
 
         return null;
     }
-
-    /**
-     * Get the thread this mail message belongs to.
-     * 
-     * @return The thread this mail belongs to or null if the message cannot
-     *  be found in the mailthread table (e.g. when the message is too old).
-     */
-    public MailingListThread getThread() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("mail", this);
-
-        List<MailThread> mt = dbs.findObjectsByProperties(MailThread.class,
-                params);
-
-        if (mt == null || mt.isEmpty())
-            return null;
-            
-        return mt.get(0).getThread();
-
-    }
-    
-    public MailThread getThreadEntry() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("mail", this);
-
-        List<MailThread> mt = dbs.findObjectsByProperties(MailThread.class,
-                params);
-
-        if (!mt.isEmpty())
-            return mt.get(0);
-
-        return null;
-    }
     
     @Override
     public String toString() {
@@ -254,9 +251,6 @@ public class MailMessage extends DAObject {
         if (!messageId.equals(m.getMessageId()))
             return false;
         
-        if (!sender.getEmail().equals(m.sender.getEmail()))
-            return false;
-        
         if (!sendDate.equals(m.getSendDate()))
             return false;
         
@@ -268,7 +262,6 @@ public class MailMessage extends DAObject {
         int result = 17;
         result += 31 * result + fileName.hashCode();
         result += 31 * result + messageId.hashCode();
-        result += 31 * result + sender.getEmail().hashCode();
         result += 31 * result + sendDate.hashCode();
         return result;
     }

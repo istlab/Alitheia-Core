@@ -20,7 +20,6 @@
     <many-to-one name="priority" column="BUG_PRIORITY_ID" />
     <property name="shortDesc" column="SHORT_DESC" />
     <set name="reportMessages" inverse="true" cascade="all-delete-orphan">
-      
         <key column="BUG_ID"/>
         <one-to-many class="eu.sqooss.service.db.BugReportMessage"/>
     </set>

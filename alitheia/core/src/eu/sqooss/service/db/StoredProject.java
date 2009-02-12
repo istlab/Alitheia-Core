@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -157,8 +156,10 @@ public class StoredProject extends DAObject {
     private Set<StoredProjectMeasurement> measurements;
     private Set<EvaluationMark> evaluationMarks;
     private Set<Bug> bugs;
+    private Set<ConfigurationOption> configOpts;
 
-	public StoredProject() {
+	
+    public StoredProject() {
 		
 	}
 	
@@ -250,6 +251,15 @@ public class StoredProject extends DAObject {
         this.measurements = measurements;
     }
 
+    public Set<ConfigurationOption> getConfigOpts() {
+        return configOpts;
+    }
+
+    public void setConfigOpts(Set<ConfigurationOption> configOpts) {
+        this.configOpts = configOpts;
+    }
+
+    
     /**
      * Get the evaluation marks for this project; this includes
      * all of the plugins that have ectually stored any results

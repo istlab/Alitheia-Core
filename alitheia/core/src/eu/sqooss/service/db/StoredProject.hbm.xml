@@ -34,5 +34,10 @@
         <key column="STORED_PROJECT_ID" />
         <one-to-many class="eu.sqooss.service.db.Bug" />
     </set>
+    
+    <set name="configOpts" table="StoredProjectConfig" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID" />
+        <many-to-many column="CONFIG_OPTION_ID" class="eu.sqooss.service.db.ConfigurationOption"/>
+    </set>
   </class>
 </hibernate-mapping>

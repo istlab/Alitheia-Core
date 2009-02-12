@@ -246,21 +246,46 @@ class MailUpdater extends Job {
                 senderEmail = inet.getAddress();
             }
             
-            if (!senderEmail.contains("@")) {
-                warn(msg + ": Not an email address: " + senderEmail);
-                mailAccessor.markMessageAsSeen(mllist.getListId(), fileName);
-                continue;
+            Developer sender = null;
+            
+            //Try to find developer from name first
+            if (devName != null) {
+                sender = Developer.getDeveloperByName(devName,mllist.getStoredProject(), false);
+            }
+            
+            if (sender == null) {
+                //Dev not found by name, try email
+                if (!senderEmail.contains("@")) {
+                    //Email cannot be used, drop this mail
+                    warn(msg + ": Not an email address: " + senderEmail);
+                    mailAccessor.markMessageAsSeen(mllist.getListId(), fileName);
+                    continue;
+                }
+                
+                sender = Developer.getDeveloperByEmail(senderEmail,
+                        mllist.getStoredProject(), false);
+                
+                if (sender == null) {
+                    //Cannot find dev by email either, so add him by email
+                    sender = Developer.getDeveloperByEmail(senderEmail,
+                            mllist.getStoredProject(), true);
+                } else {
+                    //Found dev by email, but not by name
+                    //Add a name to the developer, if we have one
+                    if (devName != null)
+                        sender.setName(devName);    
+                }
+            } else {
+                //Add a new email alias, if not exists
+                sender.addAlias(senderEmail);
             }
 
-            Developer sender = Developer.getDeveloperByEmail(senderEmail,
-                    mllist.getStoredProject());
-
-            if (sender == null)
+            //By now we should have a developer associated with the processed email
+            //if not some other error occure, complain about this and abandon
+            if (sender == null) {
             	err("Error adding developer");
-            
-            /*Set the developer name*/
-            if (devName != null)
-                sender.setName(devName);
+            	continue;
+            }
             
             if (!updDevs.contains(sender.getId())) {
                 updDevs.add(sender.getId());
@@ -283,8 +308,6 @@ class MailUpdater extends Job {
                     mailAccessor.markMessageAsSeen(mllist.getListId(), fileName);
                     continue;
                 }
-               
-                mmsg.setArrivalDate(mm.getReceivedDate());
 
                 /* 512 characters should be enough subject for everybody */
                 String subject = mm.getSubject();

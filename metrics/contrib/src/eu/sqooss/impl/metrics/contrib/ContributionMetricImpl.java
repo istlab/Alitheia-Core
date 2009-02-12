@@ -315,11 +315,11 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 continue;
             }
                         
-            if (mm.getThreadEntry().getParent() == null) {
+            if (mm.getParent() == null) {
                 //New thread
                 updateField(mm, mm.getSender(), ActionType.MST, true, 1);
             } else{
-                if (mm.getThreadEntry().getDepth() == 1) {
+                if (mm.getDepth() == 1) {
                   //First reply to a thread
                     MailMessage firstMessage = t.getMessagesAtLevel(1).get(0);
                     if (firstMessage.equals(mm))

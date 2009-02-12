@@ -103,6 +103,11 @@ public class ProjectVersion extends DAObject {
     private Set<Tag> tags;
     
     /**
+     * The set of known branches in this version of the project
+     */
+    private Set<Branch> branches;
+    
+    /**
      * The set of measurements available for the given version of the project
      */
     private Set<ProjectVersionMeasurement> measurements;
@@ -239,6 +244,14 @@ public class ProjectVersion extends DAObject {
     
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
+    }
+    
+    public Set<Branch> getBranches() {
+        return branches;
+    }
+    
+    public void setBranches(Set<Branch> branches) {
+        this.branches = branches;
     }
         
     /**

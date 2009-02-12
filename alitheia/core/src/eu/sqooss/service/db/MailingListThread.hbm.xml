@@ -9,11 +9,15 @@
 			<generator class="native" />
 		</id>
 
-		<many-to-one name="list" column="MAILING_LIST_ID"
-			not-null="true" cascade="merge" />
+		<many-to-one name="list" column="MAILING_LIST_ID" not-null="true" cascade="merge" />
 
         <property name="isFlameWar" column="IS_FLAME" not-null="true"/>
         <property name="lastUpdated" column="LAST_UPDATED" not-null="true"/>
+       
+       <set name="messages" inverse="true" cascade="all-delete-orphan" >
+        <key column="THREAD_ID"/>
+        <one-to-many class="eu.sqooss.service.db.MailMessage"/>
+    </set>
        
 	</class>
 </hibernate-mapping>

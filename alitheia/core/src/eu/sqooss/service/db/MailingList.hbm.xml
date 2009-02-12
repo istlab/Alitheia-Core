@@ -18,7 +18,7 @@
     </set>
     
     <set name="threads" inverse="true" cascade="all-delete-orphan" lazy="extra">
-        <key column="MLIST_ID"/>
+        <key column="MAILING_LIST_ID"/>
         <one-to-many class="eu.sqooss.service.db.MailingListThread"/>
     </set>
     

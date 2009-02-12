@@ -51,15 +51,15 @@ public class Developer extends DAObject{
     private String name;
 
     /**
-     * The developer's email
-     */
-    private String email = "";
-
-    /**
      * The developer's username
      */
     private String username = "";
 
+    /**
+     * The list of developer emails
+     */
+    private List<DeveloperAlias> aliases;
+    
     /**
      * The project this developer belongs to
      */
@@ -87,14 +87,6 @@ public class Developer extends DAObject{
 
     public String getName() {
         return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getUsername() {
@@ -136,7 +128,44 @@ public class Developer extends DAObject{
     public void setBugReportMessages(Set<BugReportMessage> bugReportMessages) {
         this.bugReportMessages = bugReportMessages;
     }
+    
+    public List<DeveloperAlias> getAliases() {
+        return aliases;
+    }
 
+    public void setAliases(List<DeveloperAlias> aliases) {
+        this.aliases = aliases;
+    }
+    
+    /**
+     * Adds a new email alias for the developer, if it doesn't already exist.
+     * @param email The email to setup an alias for. This method does not check
+     * if the email is a correct and valid email address.
+     */
+    public void addAlias(String email) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
+        String paramProject = "project";
+        String paramEmail = "email";
+        
+        StringBuffer q = new StringBuffer("select da");
+        q.append(" from Developer d, DeveloperAlias da ");
+        q.append(" where da.developer = d ");
+        q.append(" and d.storedProject = :").append(paramProject);
+        q.append(" and da.email = :").append(paramEmail);
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(paramEmail, email);
+        params.put(paramProject, this.storedProject);
+        
+        List<DeveloperAlias> das = (List<DeveloperAlias>) dbs.doHQL(q.toString(), params);
+        
+        if (das.isEmpty()) { //Alias does not exist, add it
+            DeveloperAlias da = new DeveloperAlias(email, this);
+            dbs.addRecord(da);
+        }
+    }
+    
     /**
      * Return the entry in the Developer table that corresponds to the provided
      * email. If the entry does not exist, it will be created and saved. If the
@@ -176,12 +205,20 @@ public class Developer extends DAObject{
             StoredProject sp, boolean create){
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("email", email);
-        parameterMap.put("storedProject", sp);
+        String paramProject = "project";
+        String paramEmail = "email";
         
-        List<Developer> devs = dbs.findObjectsByProperties(Developer.class, 
-                                                           parameterMap);
+        StringBuffer q = new StringBuffer("select d ");
+        q.append(" from Developer d, DeveloperAlias da ");
+        q.append(" where da.developer = d ");
+        q.append(" and d.storedProject = :").append(paramProject);
+        q.append(" and da.email = :").append(paramEmail);
+        
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put(paramEmail, email);
+        parameterMap.put(paramProject, sp);
+        
+        List<Developer> devs = (List<Developer>) dbs.doHQL(q.toString(), parameterMap);
         
         /* Developer in the DB, return it */
         if ( !devs.isEmpty() )
@@ -206,7 +243,7 @@ public class Developer extends DAObject{
         /* Developer's uname in table, update with email and return it */
         if ( !devs.isEmpty() ) {
             Developer d = devs.get(0);
-            d.setEmail(email);
+            d.addAlias(email);
             return d;
         }
         
@@ -215,13 +252,13 @@ public class Developer extends DAObject{
         
         /* Developer email not in table, create it new developer*/ 
         Developer d = new Developer();
-
-        d.setEmail(email);
         d.setStoredProject(sp);
         
         /*Failure here probably indicates non-existing StoredProject*/
         if ( !dbs.addRecord(d) )
             return null;
+        
+        d.addAlias(email);
         
         return d;
     }
@@ -293,11 +330,13 @@ public class Developer extends DAObject{
         		"'%" +username+ "%' and storedProject.id=" + sp.getId() );
 
         for (Developer d : devs) {
-            String email = d.getEmail();
-            /* Ok got one, update the username */
-            if (email.startsWith(username)) {
-                d.setUsername(username);
-                return d;
+            List<DeveloperAlias> aliases = d.getAliases();
+            for (DeveloperAlias da : aliases) {
+                /* Ok got one, update the username */
+                if (da.getEmail().startsWith(username)) {
+                    d.setUsername(username);
+                    return d;
+                }
             }
         }
 
@@ -317,8 +356,44 @@ public class Developer extends DAObject{
         return d;
     }   
     
+    /**
+     * Get a developer entry by developer name. If the entry does not exist,
+     * then the parameter <tt>create</tt> controls whether it will be created
+     * and saved.
+     * 
+     * @param name
+     * @param sp
+     * @param create
+     * @return
+     */
+    public static synchronized Developer getDeveloperByName(String name, 
+            StoredProject sp, boolean create) {
+        
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("name", name);
+        params.put("storedProject", sp);
+
+        List<Developer> devs = dbs.findObjectsByProperties(Developer.class,params);
+        
+        /* This code assumes that each name is unique in a project*/
+        if (devs.size() > 0)
+            return devs.get(0);
+        
+        if (!create)        
+            return null;
+        
+        Developer d = new Developer();
+        d.setName(name);
+        if (!dbs.addRecord(d))
+            return null;
+        
+        return d;
+    }
+    
     public String toString() {
-        return username + "<" + email +">";
+        return name + "<" + username +">, ";
     }
     
 }

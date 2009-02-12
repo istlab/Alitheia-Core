@@ -27,6 +27,10 @@
         <key column="TAG_VERSION"/>
         <one-to-many class="eu.sqooss.service.db.Tag"/>
     </set>
+    <set name="branches" inverse="true" cascade="all-delete-orphan">
+        <key column="BRANCH_VERSION"/>
+        <one-to-many class="eu.sqooss.service.db.Branch"/>
+    </set>
     <set name="measurements" inverse="true" cascade="all-delete-orphan">
         <key column="PROJECT_VERSION_ID"/>
         <one-to-many class="eu.sqooss.service.db.ProjectVersionMeasurement"/>
