@@ -16,7 +16,7 @@
     
     <list name="aliases" inverse="true" cascade="all-delete-orphan">
     	<key column="DEVELOPER_ID" />
-    	<index column="EMAIL"/>
+    	<index column="DEVELOPER_ALIAS_ID"/>
     	<one-to-many class="eu.sqooss.service.db.DeveloperAlias"/>
     </list>
     
@@ -29,7 +29,7 @@
         <one-to-many class="eu.sqooss.service.db.MailMessage"/>
     </set>
     <set name="bugReportMessages" inverse="true" cascade="all-delete-orphan">
-        <key column="BUG_REPORTER_ID"/>
+        <key column="DEVELOPER_ID"/>
         <one-to-many class="eu.sqooss.service.db.BugReportMessage"/>
     </set>
   </class>

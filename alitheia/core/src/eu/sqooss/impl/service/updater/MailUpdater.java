@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -208,6 +210,7 @@ class MailUpdater extends Job {
         throws IllegalArgumentException, FileNotFoundException, MessagingException {
         List<String> fileNames = Collections.emptyList();
         String listId = mllist.getListId();
+        Pattern from = Pattern.compile(":\\s*\"?([^\"]*)\"?\\s*");
         try {
             fileNames = mailAccessor.getNewMessages(listId);
         } catch (FileNotFoundException e) {
@@ -244,6 +247,11 @@ class MailUpdater extends Job {
                 InternetAddress inet = 
                     new InternetAddress(actualSender.toString());
                 senderEmail = inet.getAddress();
+            }
+            
+            //Purify the developer's name
+            if (devName != null && devName.contains("\"")) {
+                devName = devName.replace("\"", "");
             }
             
             Developer sender = null;
