@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
@@ -241,10 +243,23 @@ public class Developer extends DAObject{
                 parameterMap);
         
         /* Developer's uname in table, update with email and return it */
-        if ( !devs.isEmpty() ) {
+        if (!devs.isEmpty()) {
             Developer d = devs.get(0);
             d.addAlias(email);
             return d;
+        }
+        
+        /* Try Ohloh */
+        String hash = DigestUtils.shaHex(email);
+        OhlohDeveloper od = OhlohDeveloper.getByEmailHash(hash);
+        
+        if (od != null) {
+            Developer d = getDeveloperByUsername(od.getUname(), sp, false);
+        
+            if (d != null) {
+                d.addAlias(email);
+                return d;
+            }
         }
         
         if (!create)
@@ -339,7 +354,7 @@ public class Developer extends DAObject{
                 }
             }
         }
-
+       
         if (!create)
             return null;
         

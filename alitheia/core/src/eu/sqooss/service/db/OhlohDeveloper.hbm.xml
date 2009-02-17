@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.OhlohDeveloper" table="OHLOH_DEVELOPER">
+    <id name="id" column="DIRECTORY_ID">
+      <generator class="native" />
+    </id>
+    <property name="uname" column="USERNAME" />
+    <property name="emailHash" column="EMAIL_HASH" unique="true" />
+    <property name="ohlohId" column="OHLOH_ID" unique="true" />
+    <property name="timestamp" column="UPDATE_TIMESTAMP" />
+  </class>
+</hibernate-mapping>
+

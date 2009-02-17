@@ -86,6 +86,7 @@
         <mapping resource="eu/sqooss/service/db/ConfigurationOption.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Branch.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/DeveloperAlias.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/OhlohDeveloper.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>

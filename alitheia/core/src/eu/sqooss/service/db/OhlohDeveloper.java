@@ -36,8 +36,16 @@
  */
 package eu.sqooss.service.db;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import eu.sqooss.core.AlitheiaCore;
+
 /**
- * Class
+ * Holds data imported from Ohloh to help with resolving repository account
+ * names to emails.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
@@ -53,13 +61,23 @@ public class OhlohDeveloper extends DAObject {
     private String ohlohId;
     
     /** The latest update timestamp for this account*/
-    private Long timestamp;
+    private Date timestamp;
 
-    public Long getTimestamp() {
+    public OhlohDeveloper() {}
+    
+    public OhlohDeveloper(String uname, String hash, 
+            String ohlohId) {
+        this.uname = uname;
+        this.emailHash = hash;
+        this.ohlohId = ohlohId;
+        this.timestamp = new Date();
+    }
+    
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Long timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -85,5 +103,31 @@ public class OhlohDeveloper extends DAObject {
 
     public void setOhlohId(String ohlohId) {
         this.ohlohId = ohlohId;
+    }
+    
+    public static OhlohDeveloper getByOhlohId(String id) {
+       return getBy("ohlohId", id);
+    }
+    
+    public static OhlohDeveloper getByEmailHash(String hash) {
+        return getBy("emailHash", hash);
+    }
+    
+    public static List<OhlohDeveloper> getByUserName(String uname) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("uname", uname);
+        return dbs.findObjectsByProperties(OhlohDeveloper.class, params);
+    }
+    
+    private static OhlohDeveloper getBy(String name, String value) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(name, value);
+        List<OhlohDeveloper> l = dbs.findObjectsByProperties(OhlohDeveloper.class, params);
+        
+        if (!l.isEmpty())
+            return l.get(0);
+        return null;
     }
 }

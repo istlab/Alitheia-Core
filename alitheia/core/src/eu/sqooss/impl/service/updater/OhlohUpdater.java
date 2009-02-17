@@ -37,7 +37,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.Iterator;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -46,6 +49,7 @@ import org.dom4j.io.SAXReader;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
+import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.util.FileUtils;
 
@@ -93,7 +97,11 @@ public class OhlohUpdater extends UpdaterBaseJob {
             //updater.removeUpdater(p, t);
         }
         
-        String[] files = f.list();
+        String[] files = f.list(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".xml");
+            }            
+        });
         
         
         for (String file : files) {
@@ -131,14 +139,29 @@ public class OhlohUpdater extends UpdaterBaseJob {
                 continue;
             }
             
-            Element result = (Element) document.getRootElement().elementIterator("result");
+            Element root = (Element) document.getRootElement();
+            Iterator i = root.element("result").elementIterator("account");
             
-            if (result == null) {
-                logger.warn("Cannot find <result> element in file " + document.getPath());
+            if (i == null || !i.hasNext()) {
+                logger.warn("Cannot find <account> element in file " + document.getPath());
             }
             
-            //result.get
-            
+            while (i.hasNext()) {
+                Element account = (Element) i.next();
+                String id = getString(account.element("id"));
+                String uname = getString(account.element("name"));
+                String mailhash = getString(account.element("email_sha1"));
+                
+                OhlohDeveloper od = OhlohDeveloper.getByOhlohId(id);
+                if (od != null) { //Exists, update fields to track updates
+                    od.setEmailHash(mailhash);
+                    od.setTimestamp(new Date());
+                    od.setUname(uname);
+                } else {
+                    od = new OhlohDeveloper(uname, mailhash, id);
+                    dbs.addRecord(od);
+                }
+            }
             dbs.commitDBSession();
         }
     }
