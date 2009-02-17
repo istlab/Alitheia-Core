@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package eu.sqooss.service.scheduler;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
@@ -77,6 +78,11 @@ public abstract class Job implements Comparable<Job> {
      */
     protected static List<Pair<Job,Job>> s_dependencies = new LinkedList<Pair<Job,Job>>();
 
+    /**
+     * A list of objects that listen to this job's state changes  
+     */
+    private List<JobStateListener> listeners = new ArrayList<JobStateListener>();
+    
     private State m_state;
 
     private Scheduler m_scheduler;
@@ -367,7 +373,8 @@ public abstract class Job implements Comparable<Job> {
         }
 
         stateChanged(m_state);
-
+        fireStateChangedEvent();
+        
         synchronized(this) {
         	notifyAll();
         }
@@ -378,7 +385,7 @@ public abstract class Job implements Comparable<Job> {
      * The default implementation does nothing.
      */
     protected void stateChanged(State state) {
-
+        
     }
 
     /**
@@ -428,5 +435,29 @@ public abstract class Job implements Comparable<Job> {
      * @parem s The scheduler, the job is dequeued from.
      */
     protected void aboutToBeDequeued(Scheduler s) {
+    }
+    
+    /**
+     * Add a listener from the job's list of state listeners
+     */
+    public final synchronized void addJobStateListener(JobStateListener l) {
+        listeners.add(l);
+    }
+    
+    /**
+     * Remove a listener from the job's list of state listeners
+     * @param l The listener to remove'
+     */
+    public final synchronized void removeJobStateListener(JobStateListener l) {
+        listeners.remove(l);
+    }
+    
+    /**
+     * Called when the job's state has changed to notify clients about that.
+     */
+    private void fireStateChangedEvent() {
+        for (JobStateListener l : listeners) {
+            l.jobStateChanged(this, m_state);
+        }
     }
 }

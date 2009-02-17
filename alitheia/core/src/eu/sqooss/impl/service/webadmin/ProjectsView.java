@@ -286,7 +286,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerCodeUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, UpdateTarget.CODE, null) == false) {
+		if (sobjUpdater.update(selProject, UpdateTarget.CODE) == false) {
 			e.append(sp(indent)).append(getErr("e0035")).append(
 					getMsg("try_again")).append("<br/>\n");
 		}
@@ -297,7 +297,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerMailUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, UpdateTarget.MAIL, null) == false) {
+		if (sobjUpdater.update(selProject, UpdateTarget.MAIL) == false) {
 			e.append(sp(indent)).append(getErr("e0036")).append(
 					getMsg("try_again")).append("<br/>\n");
 		}
@@ -308,7 +308,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerBugUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, UpdateTarget.BUGS, null) == false) {
+		if (sobjUpdater.update(selProject, UpdateTarget.BUGS) == false) {
 			e.append(sp(indent)).append(getErr("e0037")).append(
 					getMsg("try_again")).append("<br/>\n");
 		}
@@ -319,7 +319,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, UpdateTarget.ALL, null) == false) {
+		if (sobjUpdater.update(selProject, UpdateTarget.ALL) == false) {
 			e.append(sp(indent)).append(getErr("e0036 ")).append(
 					getMsg("try_again")).append("<br/>\n");
 		}

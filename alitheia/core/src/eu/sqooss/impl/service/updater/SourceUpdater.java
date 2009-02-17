@@ -37,7 +37,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,16 +47,13 @@ import org.hibernate.QueryException;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Branch;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.db.Tag;
-import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.CommitCopyEntry;
@@ -72,10 +68,9 @@ import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
-import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.util.FileUtils;
 
-final class SourceUpdater extends Job {
+final class SourceUpdater extends UpdaterBaseJob {
     
     private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.svn.handlecopies";
     private static final String OMMIT_NO_FILES_VERSIONS = "eu.sqooss.updater.svn.ommitfileless";
@@ -84,11 +79,7 @@ final class SourceUpdater extends Job {
         TRUNK, BRANCHES, TAGS
     }
     
-    private UpdaterServiceImpl updater;
-    private StoredProject project;
     private TDSService tds;
-    private DBService dbs;
-    private Logger logger;
     private MetricActivator ma;
     
     /* Flag set on start up */
@@ -174,40 +165,10 @@ final class SourceUpdater extends Job {
      * @param logger A preconfigured logger, common to all updaters
      * @throws UpdaterException When things go wrong
      */
-    public SourceUpdater(StoredProject project, UpdaterServiceImpl updater,
-            AlitheiaCore core, Logger logger) throws UpdaterException {
-        if ((project == null) || (core == null) || (logger == null)) {
-            throw new UpdaterException(
-                    "The components required by the updater are unavailable.");
-        }
-
-        this.project = project;
-        this.updater = updater;
-        this.logger = logger;
+    public SourceUpdater() throws UpdaterException {
+        AlitheiaCore core = AlitheiaCore.getInstance();
         this.tds = core.getTDSService();
-        this.dbs = core.getDBService();
         this.ma = core.getMetricActivator();
-        
-        String hcp = System.getProperty(HANDLE_COPIES_PROPERTY);
-        
-        if (hcp != null) {
-            if (hcp.equalsIgnoreCase("trunk")) {
-                hc = HandleCopies.TRUNK;
-            } else if (hcp.equalsIgnoreCase("branches")) {
-                hc = HandleCopies.BRANCHES;
-            } else if (hcp.equalsIgnoreCase("tags")) {
-                hc = HandleCopies.TAGS;
-            } else {
-                warn("Not correct value for property " + HANDLE_COPIES_PROPERTY);
-            }
-        } else {
-            info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
-            		" using default:" + this.hc);
-        }
-        
-        this.ommitFileless = (System.getProperty(OMMIT_NO_FILES_VERSIONS).equals("false"))?false:true;
-        if (ommitFileless)
-        	info("Ommiting versions with no processed files");
     }
 
     public int priority() {
@@ -222,6 +183,7 @@ final class SourceUpdater extends Job {
     protected void run() throws Exception {
         
         dbs.startDBSession();
+        project = dbs.attachObjectToDBSession(project);
         
         init();
         
@@ -367,7 +329,6 @@ final class SourceUpdater extends Job {
             
             //Run the metrics even if the update fails, to ensure that 
             //the versions that were processed correctly will be measured
-            updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.CODE);
             ma.runMetrics(updFiles, ProjectFile.class);
             ma.runMetrics(updProjectVersions, ProjectVersion.class);
             ma.runMetrics(updDevs, Developer.class);
@@ -376,6 +337,28 @@ final class SourceUpdater extends Job {
     }
    
     private void init() {
+        
+        String hcp = System.getProperty(HANDLE_COPIES_PROPERTY);
+        
+        if (hcp != null) {
+            if (hcp.equalsIgnoreCase("trunk")) {
+                hc = HandleCopies.TRUNK;
+            } else if (hcp.equalsIgnoreCase("branches")) {
+                hc = HandleCopies.BRANCHES;
+            } else if (hcp.equalsIgnoreCase("tags")) {
+                hc = HandleCopies.TAGS;
+            } else {
+                warn("Not correct value for property " + HANDLE_COPIES_PROPERTY);
+            }
+        } else {
+            info("No value for " + HANDLE_COPIES_PROPERTY + " property," +
+                    " using default:" + this.hc);
+        }
+        
+        this.ommitFileless = (System.getProperty(OMMIT_NO_FILES_VERSIONS).equals("false"))?false:true;
+        if (ommitFileless)
+            info("Ommiting versions with no processed files");
+        
     	String paramVersion = "paramVersion";
  	    String paramPrevVersion = "paramPrev";
      	String paramState = "paramStatus";
@@ -1121,21 +1104,10 @@ final class SourceUpdater extends Job {
         } 
         return dir;
     }
-  
-    private void warn(String message) {
-        logger.warn(project.getName() + ":" + message);
-    }
     
-    private void err(String message) {
-        logger.error(project.getName() + ":" + message);
-    }
-    
-    private void info(String message) {
-        logger.info(project.getName() + ":" + message);
-    }
-    
-    private void debug(String message) {
-        logger.debug(project.getName() + ":" + message);
+    @Override
+    public Job getJob() {
+        return this;
     }
     
     @Override

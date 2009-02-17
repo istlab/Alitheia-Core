@@ -53,7 +53,7 @@ JETTY_CONFIG=-DDEBUG_VERBOSE=1 \
 JAVA_DEBUG_ARGS=-Xdebug \
 	-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y
 JAVA_MONITOR_ARGS=-Dcom.sun.management.jmxremote
-JAVA_CORE_ARGS= -DDEBUG $(JAVA_ADD_ARGS) $(CL_CONFIG) $(LOG4J_CONFIG) \
+JAVA_CORE_ARGS= -Xmx1000M -DDEBUG $(JAVA_ADD_ARGS) $(CL_CONFIG) $(LOG4J_CONFIG) \
 	$(JETTY_CONFIG) $(HIBERNATE_CONFIG) \
 	-jar org.eclipse.equinox.osgi-3.3.0.jar
 

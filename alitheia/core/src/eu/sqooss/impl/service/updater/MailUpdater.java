@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.mail.Address;
@@ -55,28 +54,20 @@ import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.updater.UpdaterException;
-import eu.sqooss.service.updater.UpdaterService;
 
 /**
- * Synchronises raw mails with the database
+ * Synchronises raw mails with the database.
  */
-class MailUpdater extends Job {
-    private StoredProject project;
-    private AlitheiaCore core;
-    private Logger logger;
-    private UpdaterServiceImpl updater;
-    private DBService dbs;
+class MailUpdater extends UpdaterBaseJob {
 
     /*Cache mail ids to call the metric activator with them*/
     private Set<Long> updMails = new TreeSet<Long>();
@@ -93,19 +84,8 @@ class MailUpdater extends Job {
         "d MMM yyyy HH:mm"          //16 March 1998 20:10
     };
     
-    public MailUpdater(StoredProject project,
-                       UpdaterServiceImpl updater,
-                       AlitheiaCore core,
-                       Logger logger) throws UpdaterException {
-        if (project == null || core == null || logger == null) {
-            throw new UpdaterException("Cannot initialise MailUpdater (path/core/logger is null)");
-        }
+    public MailUpdater() throws UpdaterException {
 
-        this.core = core;
-        this.project = project;
-        this.logger = logger;
-        this.updater = updater;
-        this.dbs = core.getDBService();
     }
 
     public int priority() {
@@ -114,7 +94,7 @@ class MailUpdater extends Job {
 
     protected void run() throws Exception {
 
-        ProjectAccessor spAccessor = core.getTDSService().getAccessor(project.getId());
+        ProjectAccessor spAccessor = AlitheiaCore.getInstance().getTDSService().getAccessor(project.getId());
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
         MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
         List<Long> listIds = Collections.emptyList();
@@ -163,8 +143,6 @@ class MailUpdater extends Job {
         } catch (MessagingException e) {
             err("MailUpdater: MessagingException: " + e.getMessage());
             throw e;
-        } finally {
-            updater.removeUpdater(project.getName(), UpdaterService.UpdateTarget.MAIL);
         }   
     }
 
@@ -271,25 +249,19 @@ class MailUpdater extends Job {
                 }
                 
                 sender = Developer.getDeveloperByEmail(senderEmail,
-                        mllist.getStoredProject(), false);
+                        mllist.getStoredProject(), true);
                 
-                if (sender == null) {
-                    //Cannot find dev by email either, so add him by email
-                    sender = Developer.getDeveloperByEmail(senderEmail,
-                            mllist.getStoredProject(), true);
-                } else {
-                    //Found dev by email, but not by name
-                    //Add a name to the developer, if we have one
-                    if (devName != null)
-                        sender.setName(devName);    
-                }
+                //Found dev by email, but not by name
+                //Add a name to the developer, if we have one
+                if (devName != null)
+                    sender.setName(devName);    
             } else {
                 //Add a new email alias, if not exists
                 sender.addAlias(senderEmail);
             }
 
-            //By now we should have a developer associated with the processed email
-            //if not some other error occure, complain about this and abandon
+            //By now we should have a developer associated with the processed email;
+            //if not some other error occurs, complain about this and abandon
             if (sender == null) {
             	err("Error adding developer");
             	continue;
@@ -381,26 +353,15 @@ class MailUpdater extends Job {
         return d;
     }
     
-    private void warn(String message) {
-        logger.warn(project.getName() + ":" + message);
-    }
-    
-    private void err(String message) {
-        logger.error(project.getName() + ":" + message);
-    }
-    
-    private void info(String message) {
-        logger.info(project.getName() + ":" + message);
-    }
-    
-    private void debug(String message) {
-        logger.debug(project.getName() + ":" + message);
-    }
-    
     private List<MailingList> getMailingLists(StoredProject sp) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("storedProject", sp);
         return dbs.findObjectsByProperties(MailingList.class, params);
+    }
+    
+    @Override
+    public Job getJob() {
+        return this;
     }
     
     @Override

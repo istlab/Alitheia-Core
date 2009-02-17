@@ -43,24 +43,21 @@ import java.util.TreeSet;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
-import eu.sqooss.service.db.BugResolution;
-import eu.sqooss.service.db.BugResolution.Resolution;
-import eu.sqooss.service.db.BugStatus;
-import eu.sqooss.service.db.BugStatus.Status;
-import eu.sqooss.service.db.BugSeverity;
-import eu.sqooss.service.db.BugSeverity.Severity;
 import eu.sqooss.service.db.BugPriority;
-import eu.sqooss.service.db.BugPriority.Priority;
 import eu.sqooss.service.db.BugReportMessage;
-import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.BugResolution;
+import eu.sqooss.service.db.BugSeverity;
+import eu.sqooss.service.db.BugStatus;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.db.BugPriority.Priority;
+import eu.sqooss.service.db.BugResolution.Resolution;
+import eu.sqooss.service.db.BugSeverity.Severity;
+import eu.sqooss.service.db.BugStatus.Status;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
-import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.updater.UpdaterService;
@@ -69,100 +66,86 @@ import eu.sqooss.service.updater.UpdaterService;
  * Bug updater. Reads data from the TDS and updates the bug metadata
  * database. 
  */
-public class BugUpdater extends Job {
+public class BugUpdater extends UpdaterBaseJob {
 
-    private DBService db;
-    private Logger log;
     private BTSAccessor bts;
-    private StoredProject sp;
-    private UpdaterServiceImpl updater;
-    
+
     /*Cache bug ids to call the metric activator with them*/
     private Set<Long> updBugs = new TreeSet<Long>();
     private Set<Long> updDevs = new TreeSet<Long>();
     
-    public BugUpdater(StoredProject project, UpdaterServiceImpl updater,
-            AlitheiaCore core, Logger logger) throws UpdaterException {
-        
-        this.db = core.getDBService();
-        this.log = logger;
-        this.updater = updater;
-        try {
-			this.bts = core.getTDSService().getAccessor(project.getId()).getBTSAccessor();
-		} catch (InvalidAccessorException e) {
-			throw new UpdaterException("Could not initialize " +
-					"project accessor" + e.getMessage());
-		}
-        this.sp = project;
-    }
+    public BugUpdater() throws UpdaterException {}
 
     public int priority() {
         return 0x1;
     }
 
     protected void run() throws Exception {
-        db.startDBSession();
+        dbs.startDBSession();
+        project = dbs.attachObjectToDBSession(project);
         //Get latest updated date
         List<String> bugIds = null;
-        try {
-            if (Bug.getLastUpdate(sp) != null) {
-                bugIds = bts.getBugsNewerThan(
-                        Bug.getLastUpdate(sp).getUpdateRun());
-            } else {
-                bugIds = bts.getAllBugs();
+
+        this.bts = AlitheiaCore.getInstance().getTDSService().getAccessor(
+                project.getId()).getBTSAccessor();
+        if (Bug.getLastUpdate(project) != null) {
+            bugIds = bts.getBugsNewerThan(Bug.getLastUpdate(project)
+                    .getUpdateRun());
+        } else {
+            bugIds = bts.getAllBugs();
+        }
+        logger.info(project.getName() + ": Got " + bugIds.size() + " new bugs");
+
+        // Update
+        for (String bugID : bugIds) {
+            if (!dbs.isDBSessionActive())
+                dbs.startDBSession();
+            Bug bug = BTSEntryToBug(bts.getBug(bugID));
+
+            if (bug == null) {
+                logger.warn(project.getName() + ": Bug " + bugID
+                        + " could not be parsed");
+                continue;
             }
-            log.info(sp.getName() + ": Got " + bugIds.size() + " new bugs");
 
-            // Update
-            for (String bugID : bugIds) {
-                if (!db.isDBSessionActive()) db.startDBSession();
-                Bug bug = BTSEntryToBug(bts.getBug(bugID));
+            // Filter out duplicate report messages
+            if (bugExists(project, bugID)) {
+                logger.debug(project.getName() + ": Updating existing bug "
+                        + bugID);
+                List<BugReportMessage> msgs = bug.getAllReportComments();
+                Set<BugReportMessage> newmsgs = bug.getReportMessages();
+                Set<BugReportMessage> toadd = new LinkedHashSet<BugReportMessage>();
 
-                if (bug == null) {
-                    log.warn(sp.getName() + ": Bug " + bugID
-                            + " could not be parsed");
-                    continue;
-                }
-
-                // Filter out duplicate report messages
-                if (bugExists(sp, bugID)) {
-                    log.debug(sp.getName() + ": Updating existing bug "
-                                    + bugID);
-                    List<BugReportMessage> msgs = bug.getAllReportComments();
-                    Set<BugReportMessage> newmsgs = bug.getReportMessages();
-                    Set<BugReportMessage> toadd = new LinkedHashSet<BugReportMessage>();
-
-                    for (BugReportMessage newmsg : newmsgs) {
-                        boolean found = false;
-                        for (BugReportMessage msg : msgs) {
-                            if (msg.equals(newmsg)) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            toadd.add(newmsg);
+                for (BugReportMessage newmsg : newmsgs) {
+                    boolean found = false;
+                    for (BugReportMessage msg : msgs) {
+                        if (msg.equals(newmsg)) {
+                            found = true;
+                            break;
                         }
                     }
-
-                    bug.setReportMessages(toadd);
+                    if (!found) {
+                        toadd.add(newmsg);
+                    }
                 }
 
-                db.addRecord(bug);
-                updBugs.add(bug.getId());
-                log.debug(sp.getName() + ": Added bug " + bugID);
-                db.commitDBSession();
+                bug.setReportMessages(toadd);
             }
 
-            if (!updBugs.isEmpty()) {
-                MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
-                ma.runMetrics(updBugs, Bug.class);
-                ma.runMetrics(updDevs, Developer.class);
-            }
-            if (db.isDBSessionActive())db.commitDBSession();
-        } finally {
-            updater.removeUpdater(sp.getName(), UpdaterService.UpdateTarget.BUGS);
+            dbs.addRecord(bug);
+            updBugs.add(bug.getId());
+            logger.debug(project.getName() + ": Added bug " + bugID);
+            dbs.commitDBSession();
         }
+
+        if (!updBugs.isEmpty()) {
+            MetricActivator ma = AlitheiaCore.getInstance()
+                    .getMetricActivator();
+            ma.runMetrics(updBugs, Bug.class);
+            ma.runMetrics(updDevs, Developer.class);
+        }
+        if (dbs.isDBSessionActive())
+            dbs.commitDBSession();
     }
     
     /**
@@ -182,7 +165,7 @@ public class BugUpdater extends Job {
         } else {
             bug.setPriority(BugPriority.getBugPriority(Priority.UNKNOWN));
         }   
-        bug.setProject(sp);
+        bug.setProject(project);
         
         if (b.resolution != null) {
             bug.setResolution(BugResolution.getBugResolution(Resolution.fromString(b.resolution.toString())));
@@ -228,9 +211,9 @@ public class BugUpdater extends Job {
     private Developer getDeveloper(String name) {
         Developer d = null;
         if (name.contains("@")) {
-            d = Developer.getDeveloperByEmail(name, sp);
+            d = Developer.getDeveloperByEmail(name, project);
         } else {
-            d = Developer.getDeveloperByUsername(name, sp);
+            d = Developer.getDeveloperByUsername(name, project);
         }
         
         if (!updDevs.contains(d.getId())) {
@@ -249,7 +232,7 @@ public class BugUpdater extends Job {
         params.put("project", sp);
         params.put("bugID", bugId);
         
-        List<Bug> buglist = db.findObjectsByProperties(Bug.class, params);
+        List<Bug> buglist = dbs.findObjectsByProperties(Bug.class, params);
         
         if (buglist.isEmpty())
             return false;
@@ -257,7 +240,12 @@ public class BugUpdater extends Job {
     }
     
     @Override
+    public Job getJob() {
+        return this;
+    }
+    
+    @Override
     public String toString() {
-        return "BugUpdaterJob - Project:{" + sp +"}";
+        return "BugUpdaterJob - Project:{" + project +"}";
     }
 }

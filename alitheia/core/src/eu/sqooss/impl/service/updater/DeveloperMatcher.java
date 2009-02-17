@@ -35,30 +35,32 @@ package eu.sqooss.impl.service.updater;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.db.DeveloperAlias;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.scheduler.Job;
 
 /**
- * Bug updater. Reads data from the TDS and updates the bug metadata
- * database. 
+ * Heuristic based matcher for developer identities. Will lock all developer
+ * records per project to avoid concurrent access when running.
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
  */
-public class DeveloperMatcher extends Job {
+public class DeveloperMatcher extends UpdaterBaseJob {
 
     private StoredProject sp;
-    private UpdaterServiceImpl upd;
-    private Logger log;
     private DBService dbs;
     
+    private Map<String, Developer> emailToDev = new TreeMap<String, Developer>();
+    private Map<String, Developer> unameToDev = new TreeMap<String, Developer>();
+    private Map<String, Developer> nameToDev = new TreeMap<String, Developer>();
+    private Map<String, Developer> emailprefToDev = new TreeMap<String, Developer>();
     
-    public DeveloperMatcher(StoredProject sp, UpdaterServiceImpl upd, Logger l) {
-        this.sp = sp;
-        this.upd = upd;
-        this.log = l;
+    public DeveloperMatcher() {
         dbs = AlitheiaCore.getInstance().getDBService();
     }
     
@@ -76,8 +78,55 @@ public class DeveloperMatcher extends Job {
         params.put("sp", sp);
         List<Developer> devs = (List<Developer>) dbs.doHQL(query, params, true);
         
+        //Fill in indices
+        for (Developer d : devs) {
+            for (DeveloperAlias da : d.getAliases()) {
+                emailToDev.put(da.getEmail(), d);
+                emailprefToDev.put(da.getEmail().substring(0, da.getEmail().indexOf('@')).toLowerCase(), d);
+            }
+            
+            if (d.getName() != null) {
+                unameToDev.put(d.getUsername().toLowerCase(), d);
+            }
+            
+            if (d.getName() != null) {
+                nameToDev.put(d.getName().toLowerCase(), d);
+            }
+        }
+        
         for (Developer d : devs) {
             
+            //Developer is registered by username 
+            if (d.getAliases().isEmpty()) {
+                
+            }
+            
+            //We have the developer's name, check if it matches a user name
+            if (d.getName() != null || d.getName().length() > 0) {
+                String[] nameParts = d.getName().split(" ");
+                int namePartNo = nameParts.length;
+                
+                //name.surname@email.com
+                if (emailprefToDev.containsKey(nameParts[0] + "." + nameParts[namePartNo - 1])) {
+                    
+                }
+                
+                //nsurname@email.com
+                if (emailprefToDev.containsKey(nameParts[namePartNo - 1] + "." + nameParts[0])) {
+                    
+                }
+                
+                //nsurname@email.com
+                if (emailprefToDev.containsKey(nameParts[namePartNo - 1] + "." + nameParts[0])) {
+                    
+                }
+                
+            }
         }
+    }
+
+    @Override
+    public Job getJob() {
+        return this;
     }
 }

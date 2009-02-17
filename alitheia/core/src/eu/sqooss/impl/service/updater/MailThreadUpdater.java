@@ -248,7 +248,10 @@ public class MailThreadUpdater extends Job {
                 debug("Adding new thread " + mlt.getId());
                 updMailThreads.add(mlt.getId());
                 newThreads++;
-            } 
+            }
+            if (mail.getThread() == null) 
+                warn("Mail message " + mail + " was not assigned any thread");
+            
             dbs.commitDBSession();
         }
         dbs.startDBSession();
