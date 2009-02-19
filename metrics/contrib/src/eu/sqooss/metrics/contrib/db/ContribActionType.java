@@ -106,7 +106,7 @@ public class ContribActionType extends DAObject {
         String paramCat = "paramCat";
         
         StringBuilder q = new StringBuilder(" select distinct(cat) ");
-        q.append(" from ContributionAction ca, ContributionActionType cat ");
+        q.append(" from ContribAction ca, ContribActionType cat ");
         q.append(" where ca.contribActionType = cat ");
         q.append(" and ca.developer.storedProject = :").append(paramProject);
         q.append(" and ca.changedResourceTimestamp <= :").append(paramBefore);

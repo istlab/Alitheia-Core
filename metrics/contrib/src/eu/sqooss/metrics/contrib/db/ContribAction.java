@@ -118,7 +118,7 @@ public class ContribAction extends DAObject {
         String paramContribActionType = "paramContribActionType";
         
         StringBuffer q = new StringBuffer("select sum(ca.total) ");
-        q.append(" from ContributionAction ca " );
+        q.append(" from ContribAction ca " );
         q.append(" where ca.changedResourceTimestamp <= :").append(paramTimestamp);
         q.append(" and ca.developer = :").append(paramDeveloper);
         q.append(" and ca.contribActionType = :").append(paramContribActionType);
@@ -131,8 +131,12 @@ public class ContribAction extends DAObject {
         
         List<Long> result = (List<Long>) dbs.doHQL(q.toString(),params);
         
-        if (!result.isEmpty())
-            return result.get(0);
+        if (!result.isEmpty()) {
+            if (result.get(0) != null)
+                return result.get(0);
+            else
+                return 0L;
+        }
         
         return 0L;
     }
@@ -146,7 +150,7 @@ public class ContribAction extends DAObject {
         String paramContribActionType = "paramContribActionType";
         
         StringBuffer q = new StringBuffer("select sum(ca.total) ");
-        q.append(" from ContributionAction ca " );
+        q.append(" from ContribAction ca " );
         q.append(" where ca.changedResourceTimestamp <= :").append(paramTimestamp);
         q.append(" and ca.developer.storedProject = :").append(paramProject);
         q.append(" and ca.contribActionType = :").append(paramContribActionType);
@@ -158,8 +162,12 @@ public class ContribAction extends DAObject {
         
         List<Long> result = (List<Long>) dbs.doHQL(q.toString(),params);
         
-        if (!result.isEmpty())
-            return result.get(0);
+        if (!result.isEmpty()) {
+            if (result.get(0) != null)
+                return result.get(0);
+            else
+                return 0L;
+        }
         
         return 0L;
     }

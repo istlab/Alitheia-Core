@@ -192,10 +192,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return checkResult(b, ActionCategory.B, m);
     }
     
-    public List<ResultEntry> getResult(MailMessage mm, Metric m) {
-        return checkResult(mm, ActionCategory.M, m);
-    }
-    
     private List<ResultEntry> checkResult(DAObject o, ActionCategory ac, 
             Metric m) {
         ArrayList<ResultEntry> res = new ArrayList<ResultEntry>();
@@ -258,9 +254,9 @@ public class ContributionMetricImpl extends AbstractMetric implements
             
             if (total != 0) { 
                 if (cat.getIsPositive()) {
-                    result += perDev / total;
+                    result += (double)(perDev / total);
                 } else {
-                    result -= perDev / total;
+                    result -= (double)(perDev / total);
                 }
             }
         }
@@ -271,9 +267,14 @@ public class ContributionMetricImpl extends AbstractMetric implements
         return results;
     }
 
-    public void run(MailMessage mm) throws AlreadyProcessingException {}
     public void run(Developer v) throws AlreadyProcessingException {}
-    public void run(Bug b) throws AlreadyProcessingException {}
+    public void run(Bug b) throws AlreadyProcessingException {
+        Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
+        
+        
+        
+        markEvaluation(contrib, b.getProject());
+    }
 
     public void run(MailingListThread t) throws AlreadyProcessingException {
         Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
