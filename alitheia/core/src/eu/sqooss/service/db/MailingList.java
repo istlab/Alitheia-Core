@@ -133,11 +133,7 @@ public class MailingList extends DAObject {
     }
     
     /**
-     * Get messages in this mailing list whose arrival date
-     * is newer that the provided date.
-     * 
-     * @param d The date to compare the arrival date with
-     * @return A list of messages newer than <tt>d</tt>
+     * Get the latest mail message in this mailing list.
      */
     public MailMessage getLatestEmail() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
@@ -155,6 +151,31 @@ public class MailingList extends DAObject {
         
         
         List<MailMessage> ml = (List<MailMessage>) dbs.doHQL(query, params, 1);
+        
+        if (ml.isEmpty())
+            return null;
+        
+        return ml.get(0); 
+    }
+    
+    /**
+     * Get the latest updated thread in this mailing list.
+     */
+    public MailingListThread getLatestThread() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramMailingList = "paramML";
+        
+        String query =  " select mt " +
+            " from MailThread mt, MailingList ml " +
+            " where mt.list = ml " +
+            " and mm.list = :" + paramMailingList +
+            " order by mt.lastUpdated desc";
+        
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put(paramMailingList, this);
+        
+        List<MailingListThread> ml = (List<MailingListThread>) dbs.doHQL(query, params, 1);
         
         if (ml.isEmpty())
             return null;

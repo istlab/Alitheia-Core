@@ -12,5 +12,6 @@
     <property name="changedResourceId" column="CHANGED_RESOURCE_ID" not-null="true"/>
     <many-to-one name="contribActionType" column="CONTRIB_ACTION_TYPE_ID" not-null="true" cascade="merge"/>
     <property name="total" column="TOTAL" not-null="true" />
+    <property name="changedResourceTimestamp" column="CHANGED_RESOURCE_DATE" not-null="true" />
   </class>
 </hibernate-mapping>

@@ -32,6 +32,7 @@
 
 package eu.sqooss.metrics.contrib.db;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.StoredProject;
 
 public class ContribAction extends DAObject {
 
@@ -50,6 +52,15 @@ public class ContribAction extends DAObject {
     private Long changedResourceId;
     private ContribActionType contribActionType;
     private long total;
+    private Date changedResourceTimestamp;    
+
+    public Date getChangedResourceTimestamp() {
+        return changedResourceTimestamp;
+    }
+
+    public void setChangedResourceTimestamp(Date changedResourceTimestamp) {
+        this.changedResourceTimestamp = changedResourceTimestamp;
+    }
 
     public Developer getDeveloper() {
         return developer;
@@ -97,6 +108,62 @@ public class ContribAction extends DAObject {
         
         return pa.isEmpty() ? null : pa.get(0);
     }
+    
+    public static Long getDevActionsPerType(Developer dev, 
+            Date timestamp, ContribActionType actionType) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramTimestamp = "paramTimemstamp";
+        String paramDeveloper = "paramDeveloper";
+        String paramContribActionType = "paramContribActionType";
+        
+        StringBuffer q = new StringBuffer("select sum(ca.total) ");
+        q.append(" from ContributionAction ca " );
+        q.append(" where ca.changedResourceTimestamp <= :").append(paramTimestamp);
+        q.append(" and ca.developer = :").append(paramDeveloper);
+        q.append(" and ca.contribActionType = :").append(paramContribActionType);
+        
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put(paramTimestamp, timestamp);
+        params.put(paramDeveloper, dev);
+        params.put(paramContribActionType, actionType);
+        
+        
+        List<Long> result = (List<Long>) dbs.doHQL(q.toString(),params);
+        
+        if (!result.isEmpty())
+            return result.get(0);
+        
+        return 0L;
+    }
+    
+    public static Long getTotalActionsPerTypePerProject(StoredProject sp, 
+            Date timestamp, ContribActionType actionType) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramTimestamp = "paramTimemstamp";
+        String paramProject = "paramProject";
+        String paramContribActionType = "paramContribActionType";
+        
+        StringBuffer q = new StringBuffer("select sum(ca.total) ");
+        q.append(" from ContributionAction ca " );
+        q.append(" where ca.changedResourceTimestamp <= :").append(paramTimestamp);
+        q.append(" and ca.developer.storedProject = :").append(paramProject);
+        q.append(" and ca.contribActionType = :").append(paramContribActionType);
+        
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put(paramTimestamp, timestamp);
+        params.put(paramProject, sp);
+        params.put(paramContribActionType, actionType);
+        
+        List<Long> result = (List<Long>) dbs.doHQL(q.toString(),params);
+        
+        if (!result.isEmpty())
+            return result.get(0);
+        
+        return 0L;
+    }
+    
   
     public static long getTotalActions(){
         DBService dbs = AlitheiaCore.getInstance().getDBService();

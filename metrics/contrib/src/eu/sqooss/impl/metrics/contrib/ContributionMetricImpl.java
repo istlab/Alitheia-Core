@@ -52,7 +52,6 @@ import eu.sqooss.impl.metrics.contrib.ContributionActions.ActionType;
 import eu.sqooss.metrics.contrib.ContributionMetric;
 import eu.sqooss.metrics.contrib.db.ContribAction;
 import eu.sqooss.metrics.contrib.db.ContribActionType;
-import eu.sqooss.metrics.contrib.db.ContribActionWeight;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
@@ -81,16 +80,9 @@ import eu.sqooss.service.tds.SCMAccessor;
 public class ContributionMetricImpl extends AbstractMetric implements
         ContributionMetric {
 
-    private Object lockObject = new Object();
-    private static long processedObjects = 0;
-    
-    /** Number of files after which a commit is considered too big */
+     /** Number of files after which a commit is considered too big */
     public static final String CONFIG_CMF_THRES = "CMF_threshold";
-    
-    /** Number of project resources processed prior to each weight update*/
-    public static final String CONFIG_WEIGHT_UPDATE_VERSIONS = "Weights_Update_Interval";
-    public static final int DEFAULT_WEIGHT_UPDATE_INTERVAL = 150;
-    private int weightUpdateInterval;
+
     
     /** Name of the measurement*/
     public static final String METRIC_CONTRIB = "CONTRIB";
@@ -101,7 +93,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         super.addActivationType(ProjectVersion.class);
         super.addActivationType(Developer.class);
         super.addActivationType(MailingListThread.class);
-        super.addActivationType(Bug.class);
+      //  super.addActivationType(Bug.class);
         
         super.addMetricActivationType("CONTRIB", Developer.class);
         
@@ -120,10 +112,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
                  "5" , 
                  "Number of committed files above which the developer is " +
                  "penalized", 
-                 PluginInfo.ConfigurationType.INTEGER);
-             addConfigEntry(CONFIG_WEIGHT_UPDATE_VERSIONS, 
-                 String.valueOf(DEFAULT_WEIGHT_UPDATE_INTERVAL) , 
-                 "Number of revisions between weight updates", 
                  PluginInfo.ConfigurationType.INTEGER);
          }
          return result;
@@ -255,25 +243,31 @@ public class ContributionMetricImpl extends AbstractMetric implements
     /*
      * This plug-in's result is only returned per developer. 
      */
-    public List<ResultEntry> getResult(Developer a, Metric m) {
+    public List<ResultEntry> getResult(Developer d, Metric m) {
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-        ContribActionWeight weight;
-        double value = 0;
-
-        ActionCategory[] actionCategories = ActionCategory.values();
-
-        for (int i = 0; i < actionCategories.length; i++) {
-            weight = ContribActionWeight.getWeight(actionCategories[i]);
-
-            if (weight != null) {
-                value = value + weight.getWeight() * 
-                    getResultPerActionCategory(a, actionCategories[i]);
+        ProjectVersion newestPV = ProjectVersion.getLastProjectVersion(d.getStoredProject());
+        
+        double result = 0;
+        
+        //Get a list of action types that have been recorded per project 
+        //until the newest project version
+        for (ContribActionType cat : 
+            ContribActionType.getProjectActionTypes(d.getStoredProject(), newestPV.getDate())) {
+            long total = ContribAction.getTotalActionsPerTypePerProject(d.getStoredProject(), newestPV.getDate(), cat);
+            long perDev = ContribAction.getDevActionsPerType(d, newestPV.getDate(), cat);
+            
+            if (total != 0) { 
+                if (cat.getIsPositive()) {
+                    result += perDev / total;
+                } else {
+                    result -= perDev / total;
+                }
             }
         }
-
-        ResultEntry entry = new ResultEntry(value,
+        ResultEntry re = new ResultEntry(new Double(result), 
                 ResultEntry.MIME_TYPE_TYPE_DOUBLE, m.getMnemonic());
-        results.add(entry);
+        results.add(re);
+        
         return results;
     }
 
@@ -286,7 +280,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         List<MailMessage> emails = t.getMessagesByArrivalOrder();
         MailMessage lastProcessed = null;
         
-        //Find the last email from this thread's collection of emails
+        //Find the last email in this thread
         //that has been processed in a previous invocation. Avoid 
         //scanning threads with just one email.
         for (int i = emails.size() - 1; i > 0; i--) { 
@@ -301,7 +295,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         for (MailMessage mm : emails) {
             ContribAction ca = getResult(mm);
             if (ca!= null) {
-                //This mail has been processed again, check if 
+                //This mail has been processed again, check if the
                 //email that closes the thread has been updated
                 if (lastProcessed != null && mm.equals(lastProcessed)) {
                     ContribAction oldCa = ContribAction.getContribAction(
@@ -318,7 +312,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             if (mm.getParent() == null) {
                 //New thread
                 updateField(mm, mm.getSender(), ActionType.MST, true, 1);
-            } else{
+            } else {
                 if (mm.getDepth() == 1) {
                   //First reply to a thread
                     MailMessage firstMessage = t.getMessagesAtLevel(1).get(0);
@@ -334,12 +328,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
             
             updateField(mm, mm.getSender(), ActionType.MSE, true, 1);
         }
-        
-        //Update the category weights, if necessary
-        synchronized(lockObject) {
-            updateWeights();      
-        }
-        
         markEvaluation(contrib, t.getList().getStoredProject());
     }
     
@@ -460,7 +448,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
                         
                         if (chunks == null)
                         	continue; //Diff was empty
-                     
                         
                         int added = 0, removed = 0;
                         
@@ -534,37 +521,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
         }
     }
     
-    /**
-     * Get result per developer and per category
-     */
-    private double getResultPerActionCategory(Developer d, ActionCategory ac) {
-        ContribActionWeight weight;
-        long totalActions;
-        double value = 0;
-
-        for (ActionType at : ActionType.getActionTypes(ac)) {
-            weight = ContribActionWeight.getWeight(at);
-            
-            if (weight == null) {
-                continue;
-            }
-            
-            ContribActionType cat = 
-                ContribActionType.getContribActionType(at, null);
-                
-            totalActions = 
-                ContribAction.getTotalActionsPerTypePerDeveloper(at, d);
-
-            if(totalActions != 0){
-                if (cat.getIsPositive())
-                    value += weight.getWeight() * totalActions;
-                else
-                    value -= weight.getWeight() * totalActions;
-            }
-        }
-        return value;
-    }
- 
     private void updateField(DAObject o, Developer dev, 
             ActionType actionType, boolean isPositive, int value) {
         DBService db = AlitheiaCore.getInstance().getDBService();
@@ -584,105 +540,19 @@ public class ContributionMetricImpl extends AbstractMetric implements
             a.setChangedResourceId(o.getId());
             a.setContribActionType(at);
             a.setTotal(value);
+            
+            if (o instanceof ProjectVersion)
+                a.setChangedResourceTimestamp(((ProjectVersion)o).getDate());
+            else if (o instanceof MailingListThread)
+                a.setChangedResourceTimestamp(((MailingListThread)o).getLastUpdated());
+            else if (o instanceof MailMessage)
+                a.setChangedResourceTimestamp(((MailMessage)o).getSendDate());
+            else
+                a.setChangedResourceTimestamp(null); //Make it fail
+            
             db.addRecord(a);
         } else {
             a.setTotal(a.getTotal() + value);
-        }
-    }
-    
-    private void updateWeights() {
-        
-      /*  long distinctVersions = 0;
-        List<?> versions = db.doHQL("select " +
-        "count(distinct changedResourceId) from ContribAction");
-
-        if (versions == null || 
-                versions.size() == 0 || 
-                versions.get(0) == null) {
-            return;
-        }
-        
-        distinctVersions = (Integer.parseInt(versions.get(0).toString())) ;
-        
-        //Should the weights be updated?
-        if (distinctVersions % getWeightUpdateThreshold() != 0){
-           return;
-        }
-        */
-        processedObjects ++;
-        if (processedObjects % getWeightUpdateThreshold() != 0 ) {
-            return;
-        }
-        
-        ActionCategory[] actionCategories = ActionCategory.values();
-
-        long totalActions = ContribAction.getTotalActions();
-        long totalActionsPerCategory;
-        long totalActionsPerType;
-        
-        if (totalActions <= 0) {
-            return;
-        }
-        
-        for (int i = 0; i < actionCategories.length; i++) {
-            //update action category weight
-            totalActionsPerCategory = 
-                ContribAction.getTotalActionsPerCategory(actionCategories[i]);
-                
-            if (totalActionsPerCategory <= 0) {
-                continue;
-            }
-            
-            updateActionCategoryWeight(actionCategories[i],
-                    totalActionsPerCategory, totalActions);
-
-            // update action types weights
-            ArrayList<ActionType> actionTypes = 
-                ActionType.getActionTypes(actionCategories[i]);
-
-            for (int j = 0; j < actionTypes.size(); j++) {
-                totalActionsPerType = 
-                    ContribAction.getTotalActionsPerType(actionTypes.get(j));
-                updateActionTypeWeight(actionTypes.get(j),totalActionsPerType, 
-                        totalActionsPerCategory);
-            }
-        }
-    }
-    
-    private void updateActionTypeWeight(ActionType actionType, 
-            long totalActionsPerType, long totalActionsPerCategory) {
-        
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        double weight = (double)(100 * totalActionsPerType) / 
-            (double)totalActionsPerCategory;
-
-        ContribActionWeight a = ContribActionWeight.getWeight(actionType);
-       
-        if (a == null) {
-            a = new ContribActionWeight();
-            a.setType(actionType);
-            a.setWeight(weight);
-            db.addRecord(a);
-        } else {
-            a.setWeight(weight);
-        }
-    }
-    
-    private void updateActionCategoryWeight(ActionCategory actionCategory, 
-            long totalActionsPerCategory, long totalActions){
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        double weight = (double)(100 * totalActionsPerCategory) / 
-            (double)totalActions;
-
-        ContribActionWeight a = ContribActionWeight.getWeight(actionCategory);
-
-        if (a == null) { //No weight calculated for this action yet
-            a = new ContribActionWeight();
-            a.setCategory(actionCategory);
-            a.setWeight(weight);
-            db.addRecord(a);
-        } else {
-            a.setWeight(weight);
         }
     }
     
@@ -692,24 +562,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         else
             return value;
     }
-    
-    private int getWeightUpdateThreshold() {
-        if (weightUpdateInterval == 0) {
-        PluginConfiguration config = getConfigurationOption(CONFIG_WEIGHT_UPDATE_VERSIONS);
-
-            if (config == null || Integer.parseInt(config.getValue()) <= 0) {
-                log.warn("Plug-in configuration option "
-                        + CONFIG_WEIGHT_UPDATE_VERSIONS + " not found,"
-                        + "setting to default value: " 
-                        + DEFAULT_WEIGHT_UPDATE_INTERVAL);
-                weightUpdateInterval = DEFAULT_WEIGHT_UPDATE_INTERVAL;
-            } else {
-                weightUpdateInterval = Integer.parseInt(config.getValue());
-            }
-        }
-        return weightUpdateInterval;
-    }
-    
+ 
     private void err(String msg, DAObject o) {
     	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
     			+ " Error:"+ msg);

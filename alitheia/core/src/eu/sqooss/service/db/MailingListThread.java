@@ -135,9 +135,9 @@ public class MailingListThread extends DAObject {
         String paramThread = "paramThread";
         
         String query = "select mm " +
-                " from MailMessage mm, MailThread mt " +
-                " where mt.mail = mm " +
-                " and mt.thread = :" + paramThread + 
+                " from MailMessage mm, MailingListThread mt " +
+                " where mm.thread = mt " +
+                " and mt = :" + paramThread + 
                 " order by mm.sendDate asc" ;
         Map<String,Object> params = new HashMap<String, Object>(1);
         params.put(paramThread, this);
@@ -160,8 +160,9 @@ public class MailingListThread extends DAObject {
         String paramThread = ":paramThread";
         
         String query = "select max(mm.depth) " +
-                " from MailThread mt " +
-                " where mt.thread = :" + paramThread;
+                " from MailMessage mm, MailingListThread mt " +
+                " where mt = :" + paramThread +
+                " and mm.thread = mt";
         Map<String,Object> params = new HashMap<String, Object>(1);
         params.put(paramThread, this);
         
@@ -187,7 +188,7 @@ public class MailingListThread extends DAObject {
         
         String query = "select mm " +
                 " from MailMessage mm, MailingListThread mlt " +
-                " where mail.thread = mlt" +
+                " where mm.thread = mlt" +
                 " and mlt = :" + paramThread + 
                 " and mm.depth = :" + paramDepth +
                 " order by mm.sendDate asc";

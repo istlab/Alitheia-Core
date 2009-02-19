@@ -32,6 +32,7 @@
 
 package eu.sqooss.metrics.contrib.db;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import eu.sqooss.impl.metrics.contrib.ContributionActions.ActionCategory;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
 
 public class ContribActionType extends DAObject {
 
@@ -88,34 +90,62 @@ public class ContribActionType extends DAObject {
         this.isPositive = isPositive;
     }
     
+    /**
+     * Get a list of distinct action types that have been recorded per project 
+     * until the provided date
+     * @param sp The project to check actions for
+     * @param before 
+     * @return
+     */
+    public static List<ContribActionType> getProjectActionTypes(StoredProject sp,
+            Date before) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
+        String paramProject = "paramProject";
+        String paramBefore = "paramBefore";
+        String paramCat = "paramCat";
+        
+        StringBuilder q = new StringBuilder(" select distinct(cat) ");
+        q.append(" from ContributionAction ca, ContributionActionType cat ");
+        q.append(" where ca.contribActionType = cat ");
+        q.append(" and ca.developer.storedProject = :").append(paramProject);
+        q.append(" and ca.changedResourceTimestamp <= :").append(paramBefore);
+        //q.append(" and cat.actionCategory = :").append(paramCat);
+        
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put(paramProject, sp);
+        params.put(paramBefore, before);
+        //params.put(paramCat, ac);
+        
+        return (List<ContribActionType>) dbs.doHQL(q.toString(),params);  
+    }
+    
     public static ContribActionType getContribActionType(
             ContributionActions.ActionType actionType,
             Boolean isPositive) {
         
         DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
+  
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("actionType", actionType.toString());
-        
+
         List<ContribActionType> atl = dbs.findObjectsByProperties(
                 ContribActionType.class, parameterMap);
-        
-        if (atl != null) {
-            if (!atl.isEmpty() )
-                return atl.get(0);
-        }
-       
+
+        if (!atl.isEmpty())
+            return atl.get(0);
+
         if (isPositive == null)
             return null;
-            
+
         ContribActionType at = new ContribActionType();
         at.setCategory(ActionCategory.getActionCategory(actionType));
         at.setType(actionType);
         at.setIsPositive(isPositive);
-            
-        if ( !dbs.addRecord(at) )
+
+        if (!dbs.addRecord(at)) {
             return null;
-            
+        }
         return at;
     }
 }
