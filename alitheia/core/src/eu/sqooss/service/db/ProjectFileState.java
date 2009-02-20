@@ -50,6 +50,8 @@ import eu.sqooss.core.AlitheiaCore;
  * </ul>
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
+ * 
+ * @assoc 1 - n ProjectFile
  */
 public class ProjectFileState extends DAObject {
     

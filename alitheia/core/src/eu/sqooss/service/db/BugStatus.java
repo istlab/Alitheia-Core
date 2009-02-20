@@ -41,6 +41,8 @@ import eu.sqooss.core.AlitheiaCore;
 
 /**
  * States a bug resolution process can be into.
+ * 
+ * @assoc 1 - n Bug
  */
 public class BugStatus extends DAObject {
     

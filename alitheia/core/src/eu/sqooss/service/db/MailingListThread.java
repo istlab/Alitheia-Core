@@ -43,6 +43,8 @@ import eu.sqooss.core.AlitheiaCore;
  * Entity that holds information about a mailing list thread.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
+ * 
+ * @assoc 1 - n MailMessage
  */
 public class MailingListThread extends DAObject {
 

@@ -45,6 +45,8 @@ import eu.sqooss.core.AlitheiaCore;
  * Inlcudes methods to get the values for a specific project.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
+ * 
+ * @assoc 1 - n StoredProjectConfig
  *
  */
 public class ConfigurationOption extends DAObject {

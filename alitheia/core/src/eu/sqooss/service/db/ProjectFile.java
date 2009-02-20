@@ -46,6 +46,9 @@ import eu.sqooss.service.util.FileUtils;
 /**
  * Instances of this class represent a file relating to a project as
  * stored in the database
+ * 
+ * @assoc 1 - n ProjectFileMeasurement
+ * 
  */
 public class ProjectFile extends DAObject{
    

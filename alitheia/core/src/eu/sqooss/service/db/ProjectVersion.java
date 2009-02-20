@@ -49,6 +49,9 @@ import eu.sqooss.core.AlitheiaCore;
 /**
  * Instances of this class represent the data about a version of a
  * project as stored in the database
+ * 
+ * @assoc 1 - n ProjectFile
+ * @assoc 1 - n ProjectVersionMeasurement
  */
 public class ProjectVersion extends DAObject {
     /**

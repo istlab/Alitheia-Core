@@ -39,6 +39,10 @@ import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
 
+/**
+ * Object that encapsulates project assignments to cluster nodes. 
+ *
+ */
 public class ClusterNodeProject extends DAObject {
 
     private ClusterNode node;

@@ -44,6 +44,9 @@ import eu.sqooss.core.AlitheiaCore;
 /**
  * Instances of this class represent data related to Alitheia Core
  * plugins, stored in the database
+ * 
+ * @assoc 1 - n PluginConfiguration
+ * @assoc 1 - n Metric
  */
 public class Plugin extends DAObject{
     /**

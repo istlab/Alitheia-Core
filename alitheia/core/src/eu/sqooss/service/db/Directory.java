@@ -42,7 +42,9 @@ import eu.sqooss.core.AlitheiaCore;
 
 /**
  * This class represents the data relating to a directory within an
- * inserted project's SVN tree, stored inthe database
+ * inserted project's SVN tree, stored in the database
+ * 
+ * @assoc 1 - n ProjectFile
  */
 public class Directory extends DAObject {
     /**

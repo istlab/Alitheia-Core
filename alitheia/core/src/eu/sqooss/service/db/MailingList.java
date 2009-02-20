@@ -45,6 +45,10 @@ import eu.sqooss.core.AlitheiaCore;
 /**
  * Instances of this class represent t=he basic details of a project
  * mailing list stored in the database
+ * 
+ * @assoc 1 - n MailMessage
+ * @assoc 1 - n MailingListThread
+ * 
  */
 public class MailingList extends DAObject {
     /**

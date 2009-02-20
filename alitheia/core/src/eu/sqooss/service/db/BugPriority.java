@@ -41,6 +41,8 @@ import eu.sqooss.core.AlitheiaCore;
 
 /**
  * The bug resolution priority.
+ * 
+ * @assoc 1 - n Bug
  */
 public class BugPriority extends DAObject {
     

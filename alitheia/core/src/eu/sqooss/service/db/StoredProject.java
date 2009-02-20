@@ -50,6 +50,16 @@ import eu.sqooss.service.db.BugStatus.Status;
  * These projects are the ones that are examined by the cruncher.
  * Basically, if the cruncher is operating on a project, there
  * has to be a record of this type in the system.
+ * 
+ * @assoc 1 - n Bug
+ * @assoc 1 - n StoredProjectConfig
+ * @assoc 1 - n MailingList
+ * @assoc 1 - n ProjectVersion
+ * @assoc 1 - n EvaluationMark
+ * @assoc 1 - n StoredProjectMeasurement
+ * @assoc 1 - n Developer
+ * @assoc 1 - n ClusterNodeProject
+ * 
  */
 public class StoredProject extends DAObject {
 	

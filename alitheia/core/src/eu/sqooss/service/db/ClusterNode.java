@@ -41,6 +41,11 @@ import eu.sqooss.core.AlitheiaCore;
 
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * A node in a Alitheia Core cluster installation
+ * 
+ * @assoc 1 - n ClusterNodeProject
+ */
 public class ClusterNode extends DAObject {
 
     private String name;

@@ -43,6 +43,8 @@ import eu.sqooss.service.db.DAObject;
 /**
  * Instances of this class represent the data of an SVN tag for a
  * project, as stored in the database
+ * 
+ * @assoc 1 - 1 ProjectVersion
  */
 public class Tag extends DAObject {
     /**

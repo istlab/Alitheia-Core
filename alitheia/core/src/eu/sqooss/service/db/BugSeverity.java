@@ -41,6 +41,8 @@ import eu.sqooss.core.AlitheiaCore;
 
 /**
  * The bug resolution severity.
+ * 
+ *  @assoc 1 - n Bug
  */
 public class BugSeverity extends DAObject {
     

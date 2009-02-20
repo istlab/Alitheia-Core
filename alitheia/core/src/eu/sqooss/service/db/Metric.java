@@ -43,6 +43,14 @@ import eu.sqooss.core.AlitheiaCore;
 /**
  * Instances of this object type represent the basic information on
  * Metrics stored in the database 
+ * 
+ * @assoc 1 - n MetricMeasurement
+ * @assoc 1 - n EvaluationMark
+ * @assoc 1 - n ProjectVersionMeasurement
+ * @assoc 1 - n StoredProjectMeasurement
+ * @assoc 1 - n ProjectFileMeasurement
+ * @assoc 1 - n FileGroupMeasurement
+ * 
  */
 public class Metric extends DAObject{
     /**

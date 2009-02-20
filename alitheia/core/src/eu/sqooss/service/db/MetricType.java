@@ -43,6 +43,8 @@ import eu.sqooss.service.db.DAObject;
 /**
  * Instances of this class represent to what forms of data a metric
  * stored in the database is related to
+ * 
+ * @assoc 1 - n Metric
  */
 public class MetricType extends DAObject {
     /**

@@ -43,6 +43,9 @@ import eu.sqooss.core.AlitheiaCore;
 
 /**
  * This class represents the data relating to bugs, stored in the database
+ * 
+ * @assoc 1 - n BugReportMessage
+ *  
  */
 public class Bug extends DAObject {
     

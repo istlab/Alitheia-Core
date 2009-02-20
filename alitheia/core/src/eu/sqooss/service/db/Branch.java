@@ -43,6 +43,7 @@ import eu.sqooss.core.AlitheiaCore;
  * Keeps track of branching and merging operations. 
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
+ * @assoc 1 - 1 ProjectVersion
  */
 public class Branch extends DAObject {
 	private ProjectVersion branchVersion;

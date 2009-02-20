@@ -34,6 +34,12 @@
 
 package eu.sqooss.service.db;
 
+/**
+ * An alternate developer identity.
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
+ *
+ */
 public class DeveloperAlias extends DAObject {
     private String email;
     private Developer developer;

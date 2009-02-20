@@ -45,6 +45,11 @@ import eu.sqooss.service.db.DAObject;
 
 /**
  * A DAObject representing a developer belonging to a project.
+ * 
+ * @assoc 1 - n DeveloperAlias
+ * @assoc 1 - n ProjectVersion
+ * @assoc 1 - n MailMessage
+ * @assoc 1 - n BugReportMessage
  */
 public class Developer extends DAObject{
     /**
