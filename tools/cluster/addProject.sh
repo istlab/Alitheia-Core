@@ -19,7 +19,7 @@ fi
 server=$1;
 projectName=$2;
 
-infoFile="$data_home/$projectName/info.txt"
+infoFile="$data_home/$projectName/project.properties"
 
 if [ ! -f $infoFile ]; then
  echo "Couldn't find the information file $infoFile"
@@ -29,5 +29,5 @@ fi
 echo "================"
 echo "# submiting $infoFile "
 echo "================"
-$curl -q -d"info=$infoFile" http://$server/diraddproject 
+$curl -q -d"properties=$infoFile" http://$server/diraddproject 
 

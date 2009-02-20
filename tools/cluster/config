@@ -1,5 +1,5 @@
 # where scripts reside
-scripts=~/develop/sqo-oss-multiserver/tools/cluster
+scripts=~/sqo-oss/tools/cluster
 
 # where svn repositories are created
 data_home=/home/data
@@ -14,10 +14,10 @@ project_import_directory=$scripts/imported_projects
 procmail_home=/home/alitheia
 
 # External tools
-xml=/usr/bin/xml ; if [ ! -f $xml ]; then echo "$xml not found!"; exit; fi
+xml=/usr/bin/xmlstarlet ; if [ ! -f $xml ]; then echo "$xml not found!"; exit; fi
 svnsync=/usr/bin/svnsync ; if [ ! -f $svnsync ]; then echo "$svnsync not found!"; exit; fi
 curl=/usr/bin/curl; if [ ! -f $curl ]; then echo "$curl not found!"; exit; fi
-sed=/usr/bin/sed; if [ ! -f $sed ]; then echo "$sedl not found!"; exit; fi
+sed=/bin/sed; if [ ! -f $sed ]; then echo "$sed not found!"; exit; fi
 svnadmin=/usr/bin/svnadmin; if [ ! -f $svnadmin ]; then echo "$svnadmin not found!"; exit; fi
 
 # sed options
