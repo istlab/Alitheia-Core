@@ -202,7 +202,20 @@ public class MailThreadUpdater extends Job {
                             child.getHeader("In-Reply-To")[0].equals(mail.getMessageId()))
                        || (child.getHeader("References") != null && 
                             child.getHeader("References")[0].equals(mail.getMessageId()))) {
-
+                        
+                        /*
+                         * Messages whose in-reply-to or references field is
+                         * equal to the messageid field are erroneous according
+                         * to the RFC-822 but nevertheless do appear in mailing
+                         * lists. Stop processing if we find such a message and
+                         * just create a new thread instead. 
+                         */
+                        if (parentId != null 
+                                && parentId.equals(mail.getMessageId())) {
+                            warn("Message" + mail + " with the same parent and child message ids");
+                            break;
+                        }
+                        
                         childExists = true;
 
                         /* Get message whose parent is the discovered child */
