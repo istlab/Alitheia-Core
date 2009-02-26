@@ -123,6 +123,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         availUpdaters.put(UpdateTarget.MAIL, MailUpdater.class);
         availUpdaters.put(UpdateTarget.BUGS, BugUpdater.class);
         availUpdaters.put(UpdateTarget.OHLOH, OhlohUpdater.class);
+        availUpdaters.put(UpdateTarget.DEVS, DeveloperMatcher.class);
         
         logger.info("Succesfully started updater service");
     }

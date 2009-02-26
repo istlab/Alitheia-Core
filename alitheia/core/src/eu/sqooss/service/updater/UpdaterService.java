@@ -79,7 +79,7 @@ public interface UpdaterService {
         OHLOH;
         
         public static String[] toStringArray() {
-            String[] targets = new String[4];
+            String[] targets = new String[6];
             targets[0] = "CODE";
             targets[1] = "MAIL";
             targets[2] = "BUGS";
