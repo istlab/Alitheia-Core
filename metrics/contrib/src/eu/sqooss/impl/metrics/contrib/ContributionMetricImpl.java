@@ -59,6 +59,8 @@ import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.BugReportMessage;
+import eu.sqooss.service.db.BugResolution;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
@@ -82,18 +84,16 @@ public class ContributionMetricImpl extends AbstractMetric implements
 
      /** Number of files after which a commit is considered too big */
     public static final String CONFIG_CMF_THRES = "CMF_threshold";
-
     
     /** Name of the measurement*/
     public static final String METRIC_CONTRIB = "CONTRIB";
-    
     
     public ContributionMetricImpl(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectVersion.class);
         super.addActivationType(Developer.class);
         super.addActivationType(MailingListThread.class);
-      //  super.addActivationType(Bug.class);
+        super.addActivationType(Bug.class);
         
         super.addMetricActivationType("CONTRIB", Developer.class);
         
@@ -268,10 +268,17 @@ public class ContributionMetricImpl extends AbstractMetric implements
     }
 
     public void run(Developer v) throws AlreadyProcessingException {}
+    
     public void run(Bug b) throws AlreadyProcessingException {
         Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
+        updateField(b, b.getReporter(), ActionType.BRP, true, 1);
         
+        if (b.getResolution().equals(BugResolution.Resolution.DUPLICATE))
+            updateField(b, b.getReporter(), ActionType.BDUP, true, 1);
         
+        for(BugReportMessage brm : b.getReportMessages()) {
+            updateField(b, brm.getReporter(), ActionType.BCC, true, 1);
+        }
         
         markEvaluation(contrib, b.getProject());
     }
@@ -548,6 +555,8 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 a.setChangedResourceTimestamp(((MailingListThread)o).getLastUpdated());
             else if (o instanceof MailMessage)
                 a.setChangedResourceTimestamp(((MailMessage)o).getSendDate());
+            else if (o instanceof Bug)
+                a.setChangedResourceTimestamp(((Bug)o).getCreationTS());
             else
                 a.setChangedResourceTimestamp(null); //Make it fail
             
@@ -556,14 +565,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
             a.setTotal(a.getTotal() + value);
         }
     }
-    
-    private int abs (int value){
-        if (value < 0) 
-            return -1 * value;
-        else
-            return value;
-    }
- 
+   
     private void err(String msg, DAObject o) {
     	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
     			+ " Error:"+ msg);
