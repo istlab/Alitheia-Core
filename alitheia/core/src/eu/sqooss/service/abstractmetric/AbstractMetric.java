@@ -54,6 +54,10 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.EvaluationMark;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailMessageMeasurement;
+import eu.sqooss.service.db.MailingListThread;
+import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
@@ -859,6 +863,60 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         
         /* Config option not found */
         return null;
+    }
+    
+    /**
+     * Convenience method to get the measurement for a single metric for a 
+     * StoredProject.
+     */
+    public List<ResultEntry> getResult(StoredProject s, Metric m, String mime) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("storedProject", s);
+        List<StoredProject> mmsgs = dbs.findObjectsByProperties(StoredProject.class, props);
+        
+        if (mmsgs.isEmpty())
+            return null;
+        
+        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
+        result.add(new ResultEntry(mmsgs.get(0), mime, m.getMnemonic()));
+        return result;
+    }
+    
+    /**
+     * Convenience method to get the measurement for a single metric for a 
+     * MailMessage.
+     */
+    protected List<ResultEntry> getResult(MailMessage mm, Metric m, String mime) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("mail", mm);
+        List<MailMessageMeasurement> mmsgs = dbs.findObjectsByProperties(MailMessageMeasurement.class, props);
+        
+        if (mmsgs.isEmpty())
+            return null;
+        
+        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
+        result.add(new ResultEntry(mmsgs.get(0), mime, m.getMnemonic()));
+        return result;
+    }
+    
+    /**
+     * Convenience method to get the measurement for a single metric for a 
+     * MailingListThread.
+     */
+    public List<ResultEntry> getResult(MailingListThread mt, Metric m, String mime) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("thread", mt);
+        List<MailingListThreadMeasurement> mmsgs = dbs.findObjectsByProperties(MailingListThreadMeasurement.class, props);
+        
+        if (mmsgs.isEmpty())
+            return null;
+        
+        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
+        result.add(new ResultEntry(mmsgs.get(0), mime, m.getMnemonic()));
+        return result;
     }
     
     /**{@inheritDoc}*/
