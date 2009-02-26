@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+  <groupId>org.hibernate.annotations</groupId>
+  <artifactId>commons</artifactId>
+  <version>3.4.0</version>
+  <versioning>
+    <versions>
+      <version>3.4.0</version>
+    </versions>
+    <lastUpdated>20090225144139</lastUpdated>
+  </versioning>
+</metadata>

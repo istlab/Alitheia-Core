@@ -10,11 +10,16 @@ Bundle-ClassPath: org.hibernate-3.2.5.jar,
     org.objectweb.asm-1.5.3.jar,
     org.objectweb.asm.attrs-1.5.3.jar,
     antlr-2.7.6.jar,
-    c3p0-0.9.1.2.jar
+    c3p0-0.9.1.2.jar,
+    annotations-3.4.0.jar,
+    commons-3.4.0.jar,
+    slf4j-1.5.6.jar,
+    slf4j-log4j-1.5.6.jar
 Export-Package: org.hibernate;version="3.2.5",
     org.hibernate.cfg;version="3.2.5",
     org.hibernate.proxy;version="3.2.5",
     org.hibernate.exception;version="3.2.5",
+    org.hibernate.type;version="3.2.5",
     net.sf.cglib,
     net.sf.cglib.proxy
 Import-Package: org.apache.commons.logging,
