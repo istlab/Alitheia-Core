@@ -199,7 +199,7 @@ public class DeveloperMatcher extends UpdaterBaseJob {
         
         info("Matched " + matches.size() + " developers in " 
                 + (System.currentTimeMillis() - ts) + "ms");
-        //dbs.commitDBSession();
+        dbs.commitDBSession();
     }
     
     /*

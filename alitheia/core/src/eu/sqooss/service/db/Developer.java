@@ -233,7 +233,7 @@ public class Developer extends DAObject{
         
         parameterMap.clear();
         
-        if (!email.contains("@"))
+      /*  if (!email.contains("@"))
             return null;
         
         String unameFromEmail = email.substring(0, email.indexOf('@'));
@@ -247,12 +247,12 @@ public class Developer extends DAObject{
         devs = dbs.findObjectsByProperties(Developer.class, 
                 parameterMap);
         
-        /* Developer's uname in table, update with email and return it */
+        /* Developer's uname in table, update with email and return it *
         if (!devs.isEmpty()) {
             Developer d = devs.get(0);
             d.addAlias(email);
             return d;
-        }
+        }*/
         
         /* Try Ohloh */
         String hash = DigestUtils.shaHex(email);
@@ -346,19 +346,19 @@ public class Developer extends DAObject{
          * only work with certain databases (tested with mysql, postgres and 
          * derby).
          */
-        devs = (List<Developer>) dbs.doHQL("from Developer as foo where email like " +
+        /*devs = (List<Developer>) dbs.doHQL("from Developer as foo where email like " +
         		"'%" +username+ "%' and storedProject.id=" + sp.getId() );
 
         for (Developer d : devs) {
             Set<DeveloperAlias> aliases = d.getAliases();
             for (DeveloperAlias da : aliases) {
-                /* Ok got one, update the username */
+                /* Ok got one, update the username *
                 if (da.getEmail().startsWith(username)) {
                     d.setUsername(username);
                     return d;
                 }
             }
-        }
+        }*/
        
         if (!create)
             return null;
