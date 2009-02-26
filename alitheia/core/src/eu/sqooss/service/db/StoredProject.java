@@ -59,6 +59,7 @@ import eu.sqooss.service.db.BugStatus.Status;
  * @assoc 1 - n StoredProjectMeasurement
  * @assoc 1 - n Developer
  * @assoc 1 - n ClusterNodeProject
+ * @assoc 1 - n TimeLineEvent
  * 
  */
 public class StoredProject extends DAObject {
@@ -167,8 +168,16 @@ public class StoredProject extends DAObject {
     private Set<EvaluationMark> evaluationMarks;
     private Set<Bug> bugs;
     private Set<ConfigurationOption> configOpts;
-
+    private Set<TimeLineEvent> timelineEvents;
 	
+    public Set<TimeLineEvent> getTimelineEvents() {
+        return timelineEvents;
+    }
+
+    public void setTimelineEvents(Set<TimeLineEvent> timelineEvents) {
+        this.timelineEvents = timelineEvents;
+    }
+
     public StoredProject() {
 		
 	}

@@ -14,11 +14,10 @@
     
     <many-to-one name="storedProject" column="STORED_PROJECT_ID" cascade="merge"/>
     
-    <list name="aliases" inverse="true" cascade="all-delete-orphan">
+    <set name="aliases" inverse="true" cascade="all-delete-orphan">
     	<key column="DEVELOPER_ID" />
-    	<index column="DEVELOPER_ALIAS_ID"/>
     	<one-to-many class="eu.sqooss.service.db.DeveloperAlias"/>
-    </list>
+    </set>
     
     <set name="commits" inverse="true" cascade="all-delete-orphan">
         <key column="COMMITTER_ID"/>

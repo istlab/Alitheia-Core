@@ -115,7 +115,7 @@ public class ProjectVersion extends DAObject {
      */
     private Set<ProjectVersionMeasurement> measurements;
     
-	/**
+    /**
 	 * Mask used to select directories
 	 */
 	public static final int MASK_DIRECTORIES = 0x2;
@@ -215,7 +215,7 @@ public class ProjectVersion extends DAObject {
     public void setSequence(long sequence) {
         this.sequence = sequence;
     }
-    
+  
     /**
      * Returns the files that were changed in this revision
      */

@@ -65,7 +65,7 @@ public class Developer extends DAObject{
     /**
      * The list of developer emails
      */
-    private List<DeveloperAlias> aliases;
+    private Set<DeveloperAlias> aliases;
     
     /**
      * The project this developer belongs to
@@ -136,11 +136,11 @@ public class Developer extends DAObject{
         this.bugReportMessages = bugReportMessages;
     }
     
-    public List<DeveloperAlias> getAliases() {
+    public Set<DeveloperAlias> getAliases() {
         return aliases;
     }
 
-    public void setAliases(List<DeveloperAlias> aliases) {
+    public void setAliases(Set<DeveloperAlias> aliases) {
         this.aliases = aliases;
     }
     
@@ -350,7 +350,7 @@ public class Developer extends DAObject{
         		"'%" +username+ "%' and storedProject.id=" + sp.getId() );
 
         for (Developer d : devs) {
-            List<DeveloperAlias> aliases = d.getAliases();
+            Set<DeveloperAlias> aliases = d.getAliases();
             for (DeveloperAlias da : aliases) {
                 /* Ok got one, update the username */
                 if (da.getEmail().startsWith(username)) {

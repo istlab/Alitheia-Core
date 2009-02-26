@@ -39,5 +39,10 @@
         <key column="STORED_PROJECT_ID" />
         <many-to-many column="CONFIG_OPTION_ID" class="eu.sqooss.service.db.ConfigurationOption"/>
     </set>
+    
+    <set name="timelineEvents" table="TimeLineEvent" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID" />
+        <one-to-many class="eu.sqooss.service.db.TimeLineEvent"/>
+    </set>
   </class>
 </hibernate-mapping>

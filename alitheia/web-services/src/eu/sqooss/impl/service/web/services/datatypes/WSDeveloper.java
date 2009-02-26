@@ -33,8 +33,10 @@
 package eu.sqooss.impl.service.web.services.datatypes;
 
 import java.util.List;
+import java.util.Set;
 
 import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.DeveloperAlias;
 
 public class WSDeveloper {
     
@@ -128,7 +130,8 @@ public class WSDeveloper {
         try {
             WSDeveloper wsDeveloper = new WSDeveloper();
             wsDeveloper.setId(developer.getId());
-            wsDeveloper.setEmail((developer.getAliases().size()==0)?developer.getAliases().get(0).getEmail():null);
+            Set<DeveloperAlias> s = developer.getAliases();
+            wsDeveloper.setEmail((s.size()!=0)?s.iterator().next().getEmail():null);
             wsDeveloper.setName(developer.getName());
             wsDeveloper.setStoredProjectId(developer.getStoredProject().getId());
             wsDeveloper.setUsername(developer.getUsername());
