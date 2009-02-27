@@ -159,7 +159,7 @@ public class MailingListThread extends DAObject {
         
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
-        String paramThread = ":paramThread";
+        String paramThread = "paramThread";
         
         String query = "select max(mm.depth) " +
                 " from MailMessage mm, MailingListThread mt " +

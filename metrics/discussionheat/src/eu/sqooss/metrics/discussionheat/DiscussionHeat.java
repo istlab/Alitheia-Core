@@ -1,20 +1,21 @@
 package eu.sqooss.metrics.discussionheat;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
-import eu.sqooss.service.abstractmetric.MailMetric;
 import eu.sqooss.service.abstractmetric.MailingListThreadMetric;
 import eu.sqooss.service.abstractmetric.ResultEntry;
-import eu.sqooss.service.abstractmetric.StoredProjectMetric;
-import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailingListThread;
+import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.StoredProject;
 
 /**
  * Discussion heat plug-in. 
@@ -22,66 +23,75 @@ import eu.sqooss.service.db.StoredProject;
  * @author Georgios Gousios <gousiosg@gmail.com>
  */ 
 public class DiscussionHeat extends AbstractMetric implements 
-    MailingListThreadMetric, MailMetric, StoredProjectMetric {
+    MailingListThreadMetric {
+    
+    private static final String thrDepth = "select distinct m.depth" +
+    		" from MailMessage m, MailingListThread mt " +
+    		" where mt.list.storedProject = :sp " +
+    		" and m.thread = mt order by m.depth";
+    
+    private static final String numMails = "select distinct count(mm) " +
+    		"from MailMessage mm, MailingListThread mt " +
+    		"where mm.thread = mt " +
+    		"and mt.list.storedProject = :sp " +
+    		"group by mt " +
+    		"order by count (mm)";
     
     public DiscussionHeat(BundleContext bc) {
         super(bc);        
  
         super.addActivationType(MailingListThread.class);
-        super.addActivationType(MailMessage.class);
-        
-        super.addMetricActivationType("THRDPT1", StoredProject.class);
-        super.addMetricActivationType("THRDPTM", StoredProject.class);
-        super.addMetricActivationType("THRDPT3", StoredProject.class);
-
-        super.addMetricActivationType("MSGTRH1", StoredProject.class);
-        super.addMetricActivationType("MSGTHRM", StoredProject.class);
-        super.addMetricActivationType("MSGTRH3", StoredProject.class);
-        
-        super.addMetricActivationType("HOTNESSLVL", MailingListThread.class);
+        super.addMetricActivationType("HOTNESS", MailingListThread.class);
     }
     
     public boolean install() {
         boolean result = super.install();
-        result &= super.addSupportedMetrics("Thread Depth - 1rst Quartile",
-                "THRDPT1", MetricType.Type.PROJECT_WIDE);
-        result &= super.addSupportedMetrics("Thread Depth - Median",
-                "THRDPTM", MetricType.Type.PROJECT_WIDE);
-        result &= super.addSupportedMetrics("Thread Depth - 3rd Quartile",
-                "THRDPTM", MetricType.Type.PROJECT_WIDE);
-        result &= super.addSupportedMetrics("Messages Per Thread - 1rst Quartile",
-                "MSGTRH1", MetricType.Type.PROJECT_WIDE);
-        result &= super.addSupportedMetrics("Messages Per Thread - Median",
-                "MSGTHRM", MetricType.Type.PROJECT_WIDE);
-        result &= super.addSupportedMetrics("Messages Per Thread - 3rd Quartile",
-                "MSGTRH3", MetricType.Type.PROJECT_WIDE);
+
         result &= super.addSupportedMetrics("Hotness level",
-                "HOTNESSLVL", MetricType.Type.THREAD);
+                "HOTNESS", MetricType.Type.THREAD);
         return result;
     }
 
     public List<ResultEntry> getResult(MailingListThread mt, Metric m) {
-        return getResult(mt, m, ResultEntry.MIME_TYPE_TYPE_DOUBLE);
+        return getResult(mt, m, ResultEntry.MIME_TYPE_TYPE_INTEGER);
     }
 
     public void run(MailingListThread m) throws AlreadyProcessingException {
         
-    }
-
-    public List<ResultEntry> getResult(MailMessage mm, Metric m) {
-        return getResult(mm, m, ResultEntry.MIME_TYPE_TYPE_INTEGER);
-    }
-
-    public void run(MailMessage m) throws AlreadyProcessingException {
-        //double thrDepthQ1 = getResult(m.getList().getStoredProject(), Metric.getMetricByMnemonic("THRDPT1"));
-    }
-
-    public List<ResultEntry> getResult(StoredProject s, Metric m) {
-        return getResult(s, m, ResultEntry.MIME_TYPE_TYPE_DOUBLE);
-    }
-
-    public void run(StoredProject a) throws AlreadyProcessingException {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("sp", m.getList().getStoredProject());
         
+        List<Integer> thrDepths = (List<Integer>)db.doHQL(thrDepth, params);
+        List<Long> mailsPerList = (List<Long>)db.doHQL(numMails, params);
+        
+        int score = getQuartile(thrDepths, m.getThreadDepth()) 
+                + getQuartile(mailsPerList, m.getMessages().size());
+        
+        Metric hotness = Metric.getMetricByMnemonic("HOTNESS");
+        
+        MailingListThreadMeasurement mm = new MailingListThreadMeasurement(
+                hotness, m, String.valueOf(score));
+        
+        dbs.addRecord(mm);
+        
+        markEvaluation(Metric.getMetricByMnemonic("HOTNESS"),
+                m.getList().getStoredProject());        
+    }
+    
+    private int getQuartile(List<? extends Number> distrib, int num) {
+        int median = distrib.size() / 2;
+        int quart3 = median + ((distrib.size() - median)/2);
+        int quart1 = median - (median/2);
+        
+        if (num > distrib.get(quart3).intValue())
+            return 4;
+        if (num > distrib.get(median).intValue())
+            return 3;
+        if (num > distrib.get(quart1).intValue())
+            return 2;
+        
+        return 1;
     }
 }
 

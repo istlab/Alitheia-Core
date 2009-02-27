@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: 
-Bundle-SymbolicName: eu.sqooss.metric.skeleton
-Bundle-Version: 0.0.1
-Bundle-Vendor: AUEB
-Bundle-Description: Skeleton metric
-Bundle-Activator: eu.sqooss.metrics.skeleton.SkeletonActivator
+Bundle-SymbolicName: eu.sqooss.metric.discussionheat
+Bundle-Version: 0.8
+Bundle-Vendor: Georgios Gousios <gousiosg@gmail.com>
+Bundle-Description: Discussion Heat plug-in
+Bundle-Activator: eu.sqooss.metrics.discussionheat.DiscussionHeatActivator
 Import-Package:  org.osgi.framework,
     eu.sqooss.core,
     eu.sqooss.service.abstractmetric,
