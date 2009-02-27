@@ -42,6 +42,7 @@ import eu.sqooss.core.AlitheiaCore;
 
 /**
  * DAO Object for the MailMessage database table
+ * @assoc 1 - n MailMessageMeasurement
  */
 public class MailMessage extends DAObject {
     /**

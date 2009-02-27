@@ -233,16 +233,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                         Method method = this.getClass().getMethod("getResult", c, Metric.class);
                         re =  (List<ResultEntry>) method.invoke(this, o, m);
                     } catch (SecurityException e) {
-                        logErr("getResult", o.getId(), e);
+                        logErr("getResult", o, e);
                     } catch (NoSuchMethodException e) {
                         log.error("No method getResult(" + c.getName()
                                 + ") for type " + this.getClass().getName());
                     } catch (IllegalArgumentException e) {
-                        logErr("getResult", o.getId(), e);
+                        logErr("getResult", o, e);
                     } catch (IllegalAccessException e) {
-                        logErr("getResult", o.getId(), e);
+                        logErr("getResult", o, e);
                     } catch (InvocationTargetException e) {
-                        logErr("getResult", o.getId(), e);
+                        logErr("getResult", o, e);
                     }
                 }
             }
@@ -460,13 +460,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     Method m = this.getClass().getMethod("run", c);
                     m.invoke(this, o);
                 } catch (SecurityException e) {
-                    logErr("run", o.getId(), e);
+                    logErr("run", o, e);
                 } catch (NoSuchMethodException e) {
-                    logErr("run", o.getId(), e);
+                    logErr("run", o, e);
                 } catch (IllegalArgumentException e) {
-                    logErr("run", o.getId(), e);
+                    logErr("run", o, e);
                 } catch (IllegalAccessException e) {
-                    logErr("run", o.getId(), e);
+                    logErr("run", o, e);
                 } catch (InvocationTargetException e) {
                     //Forward exception to metric job exception handler
                     if (e.getCause() instanceof AlreadyProcessingException) { 
@@ -474,7 +474,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     }
                     else {
                         if (e != null && e.getCause() != null) {
-                            logErr("run", o.getId(), e);
+                            logErr("run", o, e);
                             throw new Exception(e.getCause());
                         }
                     }
@@ -486,12 +486,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
     }
     
-    private void logErr(String method, long id, Exception e) {
-        log.error("Plugin:" + this.getClass().toString() + " DAO id:" + id + 
-                " Unable to invoke " + method + " method." +
-                " Exception:" + e.getClass().getName() +
-                " Error:" + e.getMessage() + 
-                " Reason:" + e.getCause().getMessage(), e);
+    private void logErr(String method, DAObject o, Exception e) {
+        log.error("Plugin:" + this.getClass().toString() + 
+                "\nDAO id:" + o.getId() + 
+                "\nDAO class:" + o.getClass() +
+                "\nUnable to invoke " + method + " method." +
+                "\nException:" + e.getClass().getName() +
+                "\nError:" + e.getMessage() + 
+                "\nReason:" + e.getCause().getMessage(), e);
     }
 
     /**
@@ -869,10 +871,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Convenience method to get the measurement for a single metric for a 
      * StoredProject.
      */
-    public List<ResultEntry> getResult(StoredProject s, Metric m, String mime) {
+    protected List<ResultEntry> getResult(StoredProject s, Metric m, String mime) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("storedProject", s);
+        props.put("metric", m);
         List<StoredProject> mmsgs = dbs.findObjectsByProperties(StoredProject.class, props);
         
         if (mmsgs.isEmpty())
@@ -891,6 +894,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("mail", mm);
+        props.put("metric", m);
         List<MailMessageMeasurement> mmsgs = dbs.findObjectsByProperties(MailMessageMeasurement.class, props);
         
         if (mmsgs.isEmpty())
@@ -905,10 +909,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Convenience method to get the measurement for a single metric for a 
      * MailingListThread.
      */
-    public List<ResultEntry> getResult(MailingListThread mt, Metric m, String mime) {
+    protected List<ResultEntry> getResult(MailingListThread mt, Metric m, String mime) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("thread", mt);
+        props.put("metric", m);
         List<MailingListThreadMeasurement> mmsgs = dbs.findObjectsByProperties(MailingListThreadMeasurement.class, props);
         
         if (mmsgs.isEmpty())
@@ -916,6 +921,25 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         
         ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
         result.add(new ResultEntry(Integer.parseInt(mmsgs.get(0).getResult()), mime, m.getMnemonic()));
+        return result;
+    }
+    
+    /**
+     * Convenience method to get the measurement for a single metric for a 
+     * ProjectVersion.
+     */
+    protected List<ResultEntry> getResult(ProjectVersion pv, Metric m, String mime) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("projectVersion", pv);
+        props.put("metric", m);
+        List<ProjectVersionMeasurement> pvms = dbs.findObjectsByProperties(ProjectVersionMeasurement.class, props);
+        
+        if (pvms.isEmpty())
+            return null;
+        
+        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
+        result.add(new ResultEntry(Integer.parseInt(pvms.get(0).getResult()), mime, m.getMnemonic()));
         return result;
     }
     

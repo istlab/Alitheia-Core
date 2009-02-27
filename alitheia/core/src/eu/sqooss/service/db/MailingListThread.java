@@ -45,6 +45,7 @@ import eu.sqooss.core.AlitheiaCore;
  * @author Georgios Gousios <gousiosg@gmail.com>
  * 
  * @assoc 1 - n MailMessage
+ * @assoc 1 - n MailingListThreadMeasurement
  */
 public class MailingListThread extends DAObject {
 
@@ -115,7 +116,6 @@ public class MailingListThread extends DAObject {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("thread", this);
         params.put("depth", 0);
-        params.put("parent", null);
         
         List<MailMessage> mm = dbs.findObjectsByProperties(MailMessage.class,
                 params);
