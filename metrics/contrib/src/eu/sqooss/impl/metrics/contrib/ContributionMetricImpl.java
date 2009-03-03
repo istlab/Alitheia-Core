@@ -334,7 +334,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 }
             }
             
-            updateField(mm, mm.getSender(), ActionType.MSE, true, 1);
+            //updateField(mm, mm.getSender(), ActionType.MSE, true, 1);
         }
         markEvaluation(contrib, t.getList().getStoredProject());
     }
@@ -425,18 +425,18 @@ public class ContributionMetricImpl extends AbstractMetric implements
                 try {
                     if (pf.isDeleted()) {
                     	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
-                        updateField(pv, dev, ActionType.TLR, true, locPrev);
+                        updateField(pv, dev, ActionType.CREM, true, locPrev);
                     } else if(pf.isReplaced()) {
                     	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
-                        updateField(pv, dev, ActionType.TLR, true, locPrev);
+                        updateField(pv, dev, ActionType.CREM, true, locPrev);
                         updateField(pv, dev, ActionType.CNS, true, 1);
-                        updateField(pv, dev, ActionType.TLA, true, 
+                        updateField(pv, dev, ActionType.CADD, true, 
                         		getLOCResult(pf, plugin, locMetric));
                     }
                     //Source file just added
                     else if (pf.isAdded()) {
                         updateField(pv, dev, ActionType.CNS, true, 1);
-                        updateField(pv, dev, ActionType.TLA, true, 
+                        updateField(pv, dev, ActionType.CADD, true, 
                         		getLOCResult(pf, plugin, locMetric));
                     } else {
                         //Existing file, get lines of previous version
@@ -472,14 +472,14 @@ public class ContributionMetricImpl extends AbstractMetric implements
                         }
                         
                         if (added != 0 && removed != 0 ) {
-                        	updateField(pv, dev, ActionType.TLM, true, Math.min(added, removed));
+                        	updateField(pv, dev, ActionType.CCNG, true, Math.min(added, removed));
                         }
                         
                         if (added > removed) {
-                        	updateField(pv, dev, ActionType.TLA, true, Math.abs(added - removed));
+                        	updateField(pv, dev, ActionType.CADD, true, Math.abs(added - removed));
                         }
                         else { 
-                        	updateField(pv, dev, ActionType.TLR, true, Math.abs(added - removed));
+                        	updateField(pv, dev, ActionType.CREM, true, Math.abs(added - removed));
                         }
                     }
                 } catch (Exception e) {

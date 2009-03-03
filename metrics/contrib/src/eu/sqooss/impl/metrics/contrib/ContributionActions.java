@@ -56,9 +56,9 @@ public class ContributionActions {
         c.add(ActionType.CMF);
         c.add(ActionType.CBN);
         c.add(ActionType.CPH);
-        c.add(ActionType.TLA);
-        c.add(ActionType.TLR);
-        c.add(ActionType.TLM);
+        c.add(ActionType.CADD);
+        c.add(ActionType.CREM);
+        c.add(ActionType.CCNG);
         types.put(ActionCategory.C, c);
         
         c= new ArrayList<ActionType>();
@@ -81,47 +81,37 @@ public class ContributionActions {
      * various project assets
      */
     public enum ActionType {
-        /** Commit new source file */
+        /** Commit new source file +*/
         CNS,
-        /** Commit new directory */
+        /** Commit new directory +*/
         CND,
-        /** Commit documentation files */
+        /** Commit documentation files +*/
         CDF,
-        /** Commit translation files */
+        /** Commit translation files +*/
         CTF,
-        /** Commit binary files */
+        /** Commit binary files -*/
         CBF,
-        /** Commit with empty commit message */
+        /** Commit with empty commit message -*/
         CEC,
-        /** Commit more than X files in a single commit */
+        /** Commit more than X files in a single commit -*/
         CMF,
-        /** 
-         * Commit to the SCM repository (for calculating the number
-         * of commits per developer) 
-         */
-        TCO,
-        /**
-         * Commit files (for calculating the number of committed files per
-         * developer)
-         */
-        TCF,
-        /** Total lines modified until current version */
-        TLM,
-        /** Total lines added until current version */
-        TLA,
-        /** Total lines removed until current version */
-        TLR,
-        /** Commit comment that includes a bug report number */
+        /** Total lines modified until current version +*/
+        CCNG,
+        /** Total lines added until current version +*/
+        CADD,
+        /** Total lines removed until current version +*/
+        CREM,
+        /** Commit comment that includes a bug report number +*/
         CBN,
-        /** Commit comment that awards a pointy hat */
+        /** Commit comment that awards a pointy hat +*/
         CPH,
-        /**Email that closes a thread*/
+        /**Email that closes a thread +*/
         MCT,
-        /**Email that starts a new thread*/
+        /**Email that starts a new thread +*/
         MST,
-        /**First reply to a thread*/
+        /**First reply to a thread +*/
         MFR,
-        /**Send an email to a list*/
+        /**Send an email to a list +*/
         MSE,
         /**Report a bug*/
         BRP,
@@ -129,7 +119,7 @@ public class ContributionActions {
         BDUP,
         /**Close a bug*/
         BCL,
-        /**Create a comment on a bug*/
+        /**Create a comment on a bug+*/
         BCC
         ;
         
@@ -148,16 +138,12 @@ public class ContributionActions {
                 return ActionType.CEC;
             else if ("CMF".equalsIgnoreCase(s))
                 return ActionType.CMF;
-            else if ("TCO".equalsIgnoreCase(s))
-                return ActionType.TCO;
-            else if ("TCF".equalsIgnoreCase(s))
-                return ActionType.TCF;
-            else if ("TLA".equalsIgnoreCase(s))
-                return ActionType.TLA;
-            else if ("TLR".equalsIgnoreCase(s))
-                return ActionType.TLR;
-            else if ("TLM".equalsIgnoreCase(s))
-                return ActionType.TLM;
+            else if ("CADD".equalsIgnoreCase(s))
+                return ActionType.CADD;
+            else if ("CREM".equalsIgnoreCase(s))
+                return ActionType.CREM;
+            else if ("CCNG".equalsIgnoreCase(s))
+                return ActionType.CCNG;
             else if ("CBN".equalsIgnoreCase(s))
                 return ActionType.CBN;
             else if ("CPH".equalsIgnoreCase(s))
