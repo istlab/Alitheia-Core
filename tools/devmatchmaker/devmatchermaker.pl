@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 
 use strict;
-# use Text::Phonetic;
 use Data::Dumper;
 
 my $devs = "developers.txt";
@@ -25,9 +24,9 @@ for my $line (@lines) {
   my @lineparts = (my $name, my $username, my $user_emails) =
       split(/\|/, $line);
   my @user_emails = split(/,/, $user_emails);
-  $usernames{$username} = $linecount;
+  $usernames{$username} = $linecount if $username;
   foreach my $user_mail (@user_emails) {
-      $emails{$user_mail}->{linecount} = $linecount;
+      $emails{$user_mail}->{linenum} = $linecount;
       $emails{$user_mail}->{rname} = $name if $name;
   }
 }
@@ -36,24 +35,44 @@ my $i = 0;
 my $total = keys(%emails);
 while (my ($email, $data) = each(%emails)) {
     $i++;
+    last if $i == 2;
     print(STDERR "match $i" . '/' . "$total...\n");
+    my @potential_unames = potential_usernames($data->{rname});
     while (my ($username, $u_linenum) = each(%usernames)) {
 	my $name_part = (split(/@/, $email))[0];
-	#print "matching $name_part with $username\n";
-	my $distance = levenshtein($name_part, $username);
+	my $distance;
+	my $best_match;
+	my $matched_against;
+	my $best_distance = 10000;
+	for my $potential_uname (@potential_unames) {
+	    $distance = levenshtein($potential_uname, $username);
+	    if ($distance < $best_distance) {
+		$best_distance = $distance;
+		$best_match = $username;
+		$matched_against = $potential_uname;
+	    }
+	}
+	$distance = levenshtein($name_part, $username);
+	if ($distance < $best_distance) {
+	    $best_distance = $distance;
+	    $best_match = $username;
+	    $matched_against = $name_part;
+	}
 	if (!exists($matches{$email})
-	    || $matches{$email}->{distance} > $distance) {
-	    $matches{$email}->{distance} = $distance;
-	    $matches{$email}->{username} = $username;
+	    || $matches{$email}->{distance} > $best_distance) {
+	    $matches{$email}->{distance} = $best_distance;
+	    $matches{$email}->{username} = $best_match;
+	    $matches{$email}->{against} = $matched_against;
+	    $matches{$email}->{rname} = $data->{rname};
 	    $matches{$email}->{linenum} = "$data->{linenum}:$u_linenum";
+	    print $email, Dumper $matches{$email};
 	}
     }
+    # print $email, Dumper $matches{$email};
 }
 
-# match all potential names against usernames
-
 while (my ($email, $match) = each(%matches)) {
-    print($email, " ", $match->{username}, " ", $match->{distance}, "\n");
+    print($email, " ", $match->{against}, " ", $match->{username}, " '", $match->{rname}, "' ", $match->{distance}, "\n");
 }
 
 # The function expects two string parameters
@@ -94,7 +113,7 @@ sub levenshtein {
 	    if ($min1 <= $min2 && $min1 <= $min3) {
 		$d{$i}{$j} = $min1;
 	    }
-	    elsif ($min2 <= $min1 && $min2 <= $min3){
+	    elsif ($min2 <= $min1 && $min2 <= $min3) {
 		$d{$i}{$j} = $min2;
 	    } else {
 		$d{$i}{$j} = $min3;
