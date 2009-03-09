@@ -35,44 +35,62 @@ my $i = 0;
 my $total = keys(%emails);
 while (my ($email, $data) = each(%emails)) {
     $i++;
-    last if $i == 2;
     print(STDERR "match $i" . '/' . "$total...\n");
+    my %match = (
+	source => $email,
+	target => '',
+	matched_with => '',
+	distance => 10000,
+    );
+    my %best_match = %match;
     my @potential_unames = potential_usernames($data->{rname});
     while (my ($username, $u_linenum) = each(%usernames)) {
 	my $name_part = (split(/@/, $email))[0];
 	my $distance;
-	my $best_match;
-	my $matched_against;
-	my $best_distance = 10000;
+	$match{target} = $username;
 	for my $potential_uname (@potential_unames) {
-	    $distance = levenshtein($potential_uname, $username);
-	    if ($distance < $best_distance) {
-		$best_distance = $distance;
-		$best_match = $username;
-		$matched_against = $potential_uname;
+	    $match{matched_with} = $potential_uname;
+	    if (length($potential_uname) < 4) {
+		if ($potential_uname eq $username) {
+		    $distance = -1;
+		    $match{distance} = - 1;
+		    update_match(\%match, \%best_match);
+		}
+	    } else {
+		$match{distance} = levenshtein($potential_uname, $username);
+		update_match(\%match, \%best_match);
 	    }
 	}
-	$distance = levenshtein($name_part, $username);
-	if ($distance < $best_distance) {
-	    $best_distance = $distance;
-	    $best_match = $username;
-	    $matched_against = $name_part;
+	if ($match{distance} > -1) {
+	    $match{distance} = levenshtein($name_part, $username);
+	    $match{matched_with} = $name_part;
+	    update_match(\%match, \%best_match);
 	}
 	if (!exists($matches{$email})
-	    || $matches{$email}->{distance} > $best_distance) {
-	    $matches{$email}->{distance} = $best_distance;
-	    $matches{$email}->{username} = $best_match;
-	    $matches{$email}->{against} = $matched_against;
+	    || $matches{$email}->{distance} > $best_match{distance}) {
+	    $matches{$email}->{distance} = $best_match{distance};
+	    $matches{$email}->{username} = $best_match{target};
+	    $matches{$email}->{with} = $best_match{matched_with};
 	    $matches{$email}->{rname} = $data->{rname};
 	    $matches{$email}->{linenum} = "$data->{linenum}:$u_linenum";
-	    print $email, Dumper $matches{$email};
+	    # print $email, Dumper $matches{$email};
 	}
     }
     # print $email, Dumper $matches{$email};
 }
 
 while (my ($email, $match) = each(%matches)) {
-    print($email, " ", $match->{against}, " ", $match->{username}, " '", $match->{rname}, "' ", $match->{distance}, "\n");
+    print("email:$email username: $match->{username} matched_with:$match->{with} rname: $match->{rname} distance: $match->{distance} \n");
+}
+
+
+sub update_match {
+    my ($match, $best_match) = @_;
+    if ($match->{distance} < $best_match->{distance}) {
+	while (my ($key, $value) = each(%$match)) {
+	    $best_match->{$key} = $match->{$key};
+	}
+    }
 }
 
 # The function expects two string parameters
