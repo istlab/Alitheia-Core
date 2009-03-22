@@ -32,6 +32,8 @@
 
 package eu.sqooss.impl.service.fds;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -531,16 +533,30 @@ public class FDSServiceImpl implements FDSService, Runnable {
 
     /** {@inheritDoc} */
     public InputStream getFileContents(ProjectFile pf) {
-        File file = getFile(pf);
-        if (file == null) {
+        
+        Revision projectRevision = projectFileRevision(pf);
+        if (projectRevision == null) {
             return null;
         }
+        
+        SCMAccessor scm = projectFileAccessor(pf);
+        ByteArrayOutputStream buff = new ByteArrayOutputStream();
         try {
-            return new FileInputStream(file);
+            scm.getFile(pf.getFileName(), projectRevision, buff);
+        } catch (InvalidProjectRevisionException e) {
+            logger.error("The repository for " + pf.toString() + " is invalid: " 
+                    + e.getMessage());
+        } catch (InvalidRepositoryException e) {
+            logger.error("The repository for " 
+                    + pf.getProjectVersion().getProject() + " has no revision "
+                    + projectRevision + ":" + e.getMessage());
         } catch (FileNotFoundException e) {
-            logger.error("File " + pf + " not found in the given repository.");
-            return null;
+            logger.error("File "+ pf.toString() + " not found in the given " +
+                    "repository: " + e.getMessage());
         }
+        
+        ByteArrayInputStream contents = new ByteArrayInputStream(buff.toByteArray());
+        return contents;
     }
 
     /** {@inheritDoc} */
