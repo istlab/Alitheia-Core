@@ -38,6 +38,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +58,7 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.admin.ActionParam;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminActionError;
 import eu.sqooss.service.admin.AdminService;
@@ -93,7 +95,6 @@ public final class AdminServiceImpl extends HttpServlet
     
     public AdminServiceImpl(BundleContext bc, Logger l) {
         log = l;
-        actionList = new HashMap<String, Class<? extends AdminAction>>();
         
         /* Get a reference to the HTTP service */
         ServiceReference serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
@@ -169,9 +170,31 @@ public final class AdminServiceImpl extends HttpServlet
     	if (m.matches()) {
     		String action = m.group(1);
     		try {
-				AdminAction aa = actionList.get(action).newInstance();
+				Class<? extends AdminAction> c = actionList.get(action);
+				AdminAction aa = c.newInstance();
+				Map<ActionParam, Object> actionParams = new HashMap<ActionParam, Object>();
 				
-								
+                while (params.hasMoreElements()) {
+                    String param = params.nextElement();
+                    ActionParam ap = ActionParam.valueOf(param);
+                    
+                    if (ap == null) {
+                        log.warn("Unknown parameter " + param);
+                        continue;
+                    }
+                    
+                    actionParams.put(ap, request.getParameter(param));
+                }
+                
+                if (aa.execute(actionParams)) {
+                    response.getWriter().append(aa.getResult());
+                } else {
+                    log.warn("Error executing action:" +
+                            aa + ":" + aa.getError().toString());
+                    response.getWriter().append(
+                           aa.getError().toXML());
+                }
+				
 			} catch (InstantiationException e) {
 				log.warn("Error instantiating action handler for action:" +
 						action + ":" + e.getMessage());

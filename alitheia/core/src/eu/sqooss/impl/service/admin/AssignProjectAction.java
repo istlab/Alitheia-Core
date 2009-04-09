@@ -72,7 +72,7 @@ public class AssignProjectAction extends ActionBase {
     @Override
 	public boolean execute(Map<ActionParam, Object> params) {
 
-		if (!execute(params))
+		if (!validateParams(params))
 			return false;
 		
 		DBService db = AlitheiaCore.getInstance().getDBService();
