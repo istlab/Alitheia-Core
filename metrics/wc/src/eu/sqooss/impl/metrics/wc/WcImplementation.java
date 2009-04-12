@@ -279,29 +279,33 @@ public class WcImplementation extends AbstractMetric implements Wc {
         
 
         // Store the results
+        List<Metric> toUpdate = new ArrayList<Metric>();
         Metric metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOC);
         ProjectFileMeasurement locm = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[0]));
         db.addRecord(locm);
-        markEvaluation(metric, pf);
+        toUpdate.add(metric);
 
         metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
         ProjectFileMeasurement locc = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[1]));
         db.addRecord(locc);
-        markEvaluation(metric, pf);
-
+        toUpdate.add(metric);
+        
         metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LONB);
         ProjectFileMeasurement lonb = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[2]));
         db.addRecord(lonb);
-        markEvaluation(metric, pf);
+        toUpdate.add(metric);
 
         metric = Metric.getMetricByMnemonic(MNEMONIC_WC_WORDS);
         ProjectFileMeasurement words_measure = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[3]));
         db.addRecord(words_measure);
-        markEvaluation(metric, pf);
+        toUpdate.add(metric);
+        
+        markEvaluation(toUpdate, pf.getProjectVersion().getProject(),
+                pf.getProjectVersion());
     }
 
     /**
