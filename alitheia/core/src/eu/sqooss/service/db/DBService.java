@@ -414,7 +414,8 @@ public interface DBService {
      * @param hql the HQL query string
      * @param params the map of parameters to be substituted in the HQL query
      * @param lockForUpdate if true, the generated SQL query will use a "SELECT ... FOR UPDATE"
-     *        statement. Otherwise, a normal "SELECT" will be used
+     *        statement. Otherwise, a normal "SELECT" will be used. Only one table can be 
+     *        locked per query. 
      * @return a list of {@link DAObject}, with a corresponding lock in the database.
      *         If the query contains multiple columns,
      *         the results are returned in an instance of Object[]

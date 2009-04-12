@@ -33,11 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.List;
-import java.util.HashMap;
-
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * Instances of this class represent the result of measurements made
  * against ProjectVersions as stored in the database

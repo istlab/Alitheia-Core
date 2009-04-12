@@ -47,6 +47,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;

@@ -96,9 +96,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * metric jobs 
      */
     protected PluginAdmin pa;
-
-    /** Cache the result of the mark evaluation function*/
-    private HashMap<Long, Long> evaluationMarked = new HashMap<Long, Long>();
     
     /** Metric dependencies */
     private List<String> metricDependencies = new ArrayList<String>();
@@ -565,7 +562,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param p  Evaluated project
      * @param pv Evaluated project version
      */
-    private void markEvaluation (Metric me, StoredProject p, ProjectVersion pv) {
+    protected void markEvaluation (List<Metric> me, StoredProject p, ProjectVersion pv) {
         // Possibly we should check and log if p and pv are both set
         // and inconsistent, but for now let us assume that the methods
         // in Abstract metric calling this do the right thing.
@@ -573,25 +570,36 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         if (null == theProject) {
             theProject = pv.getProject();
         }
-    	// Store the evaluation mark locally
-    	evaluationMarked.put(theProject.getId(), me.getId());
-
+    	
     	// Search for a previous evaluation of this metric on this project
     	HashMap<String, Object> filter = new HashMap<String, Object>();
-    	filter.put("metric", me);
     	filter.put("storedProject", theProject);
-    	List<EvaluationMark> em = db.findObjectsByPropertiesForUpdate(EvaluationMark.class, filter);
 
-    	if ( em.isEmpty() ) {
-    	    log.error("Couldn't retrieve the evaluation mark record for metric " + me
-    	              + ". Try reinstalling the plugin.");
-    	    return;
+    	StringBuffer metricIds = new StringBuffer("(");
+    	for (Metric m : me) {
+    	    metricIds.append(m.getId()).append(",");
     	}
-        EvaluationMark m = em.get(0);
-        m.updateWhenRunToNow();
-        if (null != pv) {
-            m.setVersion(pv);
+    	metricIds.deleteCharAt(metricIds.length() - 1);
+    	metricIds.append(")");
+    	
+    	StringBuffer q = new StringBuffer("from EvaluationMark as foo ");
+    	q.append(" where storedProject = :").append("storedProject");
+    	q.append(" and metric.id in ").append(metricIds);
+    	
+    	List<EvaluationMark> em = (List<EvaluationMark>)db.doHQL(q.toString(), filter, true);
+    	
+    	if (em.isEmpty()) {
+            log.error("Couldn't retrieve the evaluation mark record for metrics: "
+                            + me + ". Try reinstalling the plugin.");
+            return;
         }
+    	
+    	for (EvaluationMark m : em) {
+    	    m.updateWhenRunToNow();
+            if (null != pv) {
+                m.setVersion(pv);
+            }
+    	}
     }
 
     /**
@@ -602,7 +610,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param pf Project File that was evaluated
      */
     public void markEvaluation (Metric me, ProjectFile pf) {
-        markEvaluation(me,pf.getProjectVersion().getProject(),null);
+        List<Metric> metrics = new ArrayList<Metric>();
+        metrics.add(me);
+        markEvaluation(metrics, pf.getProjectVersion().getProject(), null);
     }
     
     /**
@@ -614,7 +624,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param pv Project version that was evaluated
      */
     public void markEvaluation (Metric me, ProjectVersion pv) {
-        markEvaluation(me,null,pv);
+        List<Metric> metrics = new ArrayList<Metric>();
+        metrics.add(me);
+        markEvaluation(metrics,null,pv);
     }
     
     /**
@@ -624,7 +636,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param pf Project that was evaluated
      */
     public void markEvaluation (Metric me, StoredProject pf) {
-        markEvaluation(me,pf,null);
+        List<Metric> metrics = new ArrayList<Metric>();
+        metrics.add(me);
+        markEvaluation(metrics, pf, null);
     }
     
     /**

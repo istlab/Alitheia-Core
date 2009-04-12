@@ -535,21 +535,26 @@ public class WcImplementation extends AbstractMetric implements Wc {
                 totalLocDoc += result;
             }
         }
-        addPVMeasurement(MNEMONIC_WC_PV_NODF, v, nodf);
-        addPVMeasurement(MNEMONIC_WC_PV_NOF, v, (int)nof);
-        addPVMeasurement(MNEMONIC_WC_PV_NOSF, v, nosf);
-        addPVMeasurement(MNEMONIC_WC_PV_TL, v, totalLocDoc + totalLoC);
-        addPVMeasurement(MNEMONIC_WC_PV_TLDOC, v, totalLocDoc);
-        addPVMeasurement(MNEMONIC_WC_PV_TLOC, v, totalLoC);
-        addPVMeasurement(MNEMONIC_WC_PV_TLOCOM, v, totalLoComm);
+        
+        List<Metric> toUpdate = new ArrayList<Metric>();
+        
+        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_NODF, v, nodf));
+        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_NOF, v, (int)nof));
+        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_NOSF, v, nosf));
+        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TL, v, totalLocDoc + totalLoC));
+        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLDOC, v, totalLocDoc));
+        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLOC, v, totalLoC));
+        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLOCOM, v, totalLoComm));
+        
+        markEvaluation(toUpdate, v.getProject(), v);
     }
     
-    private void addPVMeasurement(String s, ProjectVersion pv, int value) {
+    private Metric addPVMeasurement(String s, ProjectVersion pv, int value) {
         Metric m = Metric.getMetricByMnemonic(s); 
         ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(m , pv, 
                 String.valueOf(value));
         db.addRecord(pvm);
-        markEvaluation(m, pv);
+        return m;
     }
 }
 
