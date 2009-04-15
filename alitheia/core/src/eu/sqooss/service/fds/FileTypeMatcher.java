@@ -250,7 +250,8 @@ public final class FileTypeMatcher {
 	 * 
 	 * @param path
 	 *            The path to check
-	 * @return True is the file is a text file as identified by the extention
+	 * @return True is the file is a text file as identified by the 
+	 * extension
 	 */
 	public boolean isTextType(String path) {
 		return !isBinaryType(path);
@@ -261,13 +262,29 @@ public final class FileTypeMatcher {
 	 * 
 	 * @param path
 	 *            The path to check
-	 * @return True is the file is a binary file as identified by the extention
+	 * @return True is the file is a binary file as identified by the 
+	 * extension
 	 */
 	public boolean isBinaryType(String path) {
 		if (getFileType(path).equals(FileType.BIN)) {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+     * Checks whether a file is of source code type
+     * 
+     * @param path The path to check
+     * @return True is the file is a source code file as identified by the 
+     * extension
+     */
+	public boolean isSourceFile(String path) {
+	    FileType ft = getFileType(path);
+	    if (ft.equals(FileType.SRC)) {
+	        return true;
+	    }
+	    return false;
 	}
 
 	/**

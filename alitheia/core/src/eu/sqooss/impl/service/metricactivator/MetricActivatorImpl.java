@@ -245,7 +245,7 @@ public class MetricActivatorImpl  implements MetricActivator {
                 }
                 // Skip on a different metric type
                 boolean metricTypeNotFound = true;
-                for (Metric metric : ap.getSupportedMetrics()) {
+                for (Metric metric : ap.getAllSupportedMetrics()) {
                     metric = db.attachObjectToDBSession(metric);
                     if (metric.getMetricType().getEnumType() == metricType) {
                         metricTypeNotFound = false;

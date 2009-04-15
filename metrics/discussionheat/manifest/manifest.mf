@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: 
+Bundle-Name: Discussion Heat Measurement Plug-in
 Bundle-SymbolicName: eu.sqooss.metric.discussionheat
 Bundle-Version: 0.8
 Bundle-Vendor: Georgios Gousios <gousiosg@gmail.com>

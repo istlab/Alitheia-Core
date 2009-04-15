@@ -186,8 +186,16 @@ public interface AlitheiaPlugin {
      *
      * @return the list of metric descriptors, or null if none
      */
-    List<Metric> getSupportedMetrics();
+    List<Metric> getAllSupportedMetrics();
 
+    /**
+     * Get all metrics that are bound to the provided activation type. 
+     *
+     * @return the list of metric DAOs for the provided activation type, empty
+     * if the plug-in does not support the provided activation type
+     */
+    List<Metric> getSupportedMetrics(Class<? extends DAObject> activationType);
+    
     /**
      * Generic "run plug-in" method. This method performs a measurement for
      * the given DAO, if possible. The DAO might be any one of the types

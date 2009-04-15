@@ -103,9 +103,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /**Types used to activate this metric*/
     private List<Class<? extends DAObject>> activationTypes = 
         new ArrayList<Class<? extends DAObject>>();
-    
-    /** Mnemonic names of all metrics registered by this plug-in */
-    private List<String> mnemonics = new ArrayList<String>();
+   
 
     /** Metric activation types */
     private HashMap<String, Class<? extends DAObject>> metricActTypes = 
@@ -211,13 +209,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      public Result getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
         boolean found = false;
         Result r = new Result();
-
-        if (mnemonics.isEmpty()) {
-            for (Metric nextMetric : getSupportedMetrics())
-                mnemonics.add(nextMetric.getMnemonic());
-        }
+        
         for (Metric m : l) {
-            if (!mnemonics.contains(m.getMnemonic())) {
+            if (!metricActTypes.keySet().contains(m.getMnemonic())) {
                 throw new MetricMismatchException("Metric " + m.getMnemonic()
                         + " not defined by plugin "
                         + Plugin.getPluginByHashcode(getUniqueKey()).getName());
@@ -540,7 +534,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *
      * @return the list of metric descriptors, or null if none
      */
-    public List<Metric> getSupportedMetrics() {
+    public List<Metric> getAllSupportedMetrics() {
         List<Metric> supportedMetrics = new ArrayList<Metric>();
         supportedMetrics.addAll( Plugin.getPluginByHashcode(getUniqueKey()).getSupportedMetrics() );
 
@@ -549,6 +543,25 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         } else {
             return supportedMetrics;
         }
+    }
+    
+    /** {@inheritDoc} */
+    public List<Metric> getSupportedMetrics(Class<? extends DAObject> activator) {
+        List<Metric> m = new ArrayList<Metric>();
+
+        //Query the database just once
+        List<Metric> all = getAllSupportedMetrics();
+        
+        if (all == null || all.isEmpty())
+            return m;
+        
+        for (Metric metric : all) {
+            if (getMetricActivationType(metric).equals(activator)) {
+                m.add(metric);
+            }
+        }
+        
+        return m;
     }
 
     /**

@@ -339,7 +339,7 @@ public class MetricManager extends AbstractManager {
         for (PluginInfo pluginInfo : pluginInfos) {
             currentPlugin = pluginAdmin.getPlugin(pluginInfo);
             if (currentPlugin != null) {
-                result.addAll(currentPlugin.getSupportedMetrics());
+                result.addAll(currentPlugin.getAllSupportedMetrics());
             }
         }
         return result;

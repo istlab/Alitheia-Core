@@ -33,6 +33,8 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
+import java.util.List;
+
 import org.hibernate.exception.LockAcquisitionException;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -41,6 +43,7 @@ import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.InvocationRule.ActionType;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
@@ -84,7 +87,17 @@ public class MetricActivatorJob extends Job {
         // trigger calculation of the metric
         if (ma.matchRules(metric,obj) == ActionType.EVAL) {
             try {
-                metric.getResult(obj, metric.getSupportedMetrics());
+                /*
+                 * This reduces the number of queries performed when triggering
+                 * synchronization of metrics on large databases. We trust that
+                 * if there is a value in the database for one of the metric a
+                 * plug-in provides, there will be a value for all metrics. For
+                 * example, on the size (wc) metric this will save 5-6 queries
+                 * per projectfile. If the metric syncs 20M files 
+                 * this optimisation prevents 100M queries from being executed.
+                 */
+                List<Metric> supported = metric.getSupportedMetrics(obj.getClass());
+                metric.getResult(obj, supported.subList(0, 1));
             } catch (MetricMismatchException e) {
                 logger.warn("Metric " + metric.getName() + " failed");
             } catch (AlreadyProcessingException ape) {

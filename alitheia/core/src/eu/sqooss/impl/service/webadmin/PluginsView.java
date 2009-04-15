@@ -592,7 +592,7 @@ public class PluginsView extends AbstractView{
                     b.append(sp(in++) + "<tbody>\n");
                     // Get the list of supported metrics
                     List<Metric> metrics =
-                        sobjPA.getPlugin(selPI).getSupportedMetrics();
+                        sobjPA.getPlugin(selPI).getAllSupportedMetrics();
                     if ((metrics == null) || (metrics.isEmpty())) {
                         b.append(sp(in++) + "<tr>");
                         b.append(sp(in) + "<td colspan=\"4\" class=\"noattr\">"

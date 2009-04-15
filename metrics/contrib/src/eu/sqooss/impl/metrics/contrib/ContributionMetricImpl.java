@@ -348,7 +348,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
         AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin("Wc.loc");
         
         if (plugin != null) {
-            locMetric = plugin.getSupportedMetrics();
+            locMetric = plugin.getAllSupportedMetrics();
         } else {
             err("Could not find the WC plugin", pv);
             return;

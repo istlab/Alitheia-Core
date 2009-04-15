@@ -224,7 +224,7 @@ public class QualityModelImplementation extends AbstractMetric implements Qualit
 	    }
         // Store the results
         // NOTE: Might not work...most use getMetricByMnemonic()
-        for(Metric metric : this.getSupportedMetrics() ){
+        for(Metric metric : this.getAllSupportedMetrics() ){
             result = "Good";//model.getPessimisticAssignement().toString();
             addProjectVersionMeasurement(metric,v,result);
         }
