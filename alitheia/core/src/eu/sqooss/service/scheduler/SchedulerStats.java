@@ -115,12 +115,12 @@ public class SchedulerStats {
         }
     }
  
-    public void addRunJob(String classname) {
+    public synchronized void addRunJob(String classname) {
         this.runningJobs++;
         this.runJobs.add(classname);
     }
     
-    public void removeRunJob(String classname) {
+    public synchronized void removeRunJob(String classname) {
         this.runningJobs--;
         this.runJobs.remove(classname);
     }
