@@ -773,7 +773,7 @@ public class ProjectManager extends AbstractManager {
 
         return (WSDeveloper[]) normalizeWSArrayResult(result);
     }
-
+    
     /**
      * @see eu.sqooss.service.web.services.WebServices#getFileGroupsByProjectVersionId(String, String, long)
      */
@@ -921,16 +921,14 @@ public class ProjectManager extends AbstractManager {
         WSFileModification[] result = null;
         ProjectFile pf = db.findObjectById(ProjectFile.class, projectFileId);
         if (pf != null) {
-            HashMap<Long, Long> mods = ProjectFile.getFileModifications(pf);
+            List<ProjectFile> mods = ProjectFile.getFileModifications(pf);
             if (mods.size() > 0) {
                 int index = 0;
                 result = new WSFileModification[mods.size()];
-                for (Long verTimestamp : mods.keySet()) {
-                    String verRevision = ProjectVersion.getVersionByTimestamp(
-                            pf.getProjectVersion().getProject(), verTimestamp)
-                            .getRevisionId();
+                for (ProjectFile file: mods) {
+                    String verRevision = file.getProjectVersion().getRevisionId();
                     result[index++] = new WSFileModification(
-                            verTimestamp, mods.get(verTimestamp), verRevision);
+                            file.getProjectVersion().getTimestamp(), pf.getId(), verRevision);
                 }
             }
         }
@@ -939,6 +937,41 @@ public class ProjectManager extends AbstractManager {
         return result;
     }
 
+    
+    public long getDevelopersCount(String userName, String passwd,
+            long projectId) {
+        // Log this call
+        logger.info("getEmailsCount!"
+                + " user: " + userName
+                + ";"
+                + " project id: " + projectId);
+
+        // Match against the current security policy
+        db.startDBSession();
+        if (!securityWrapper.checkProjectsReadAccess(
+                userName, passwd, new long[] {projectId})) {
+            if (db.isDBSessionActive()) {
+                db.commitDBSession();
+            }
+            throw new SecurityException(
+                    SEC_VIOLATION + "getEmailsCount!");
+        }
+        super.updateUserActivity(userName);
+
+        // Retrieve the result(s)
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("pid", projectId);
+        List<?> pvList = db.doHQL("select count(*)"
+                + " from Developer d"
+                + " where d.storedProject.id=:pid",
+                parameterMap);
+
+        long result = (pvList == null || pvList.isEmpty()) ? 0 : (Long) pvList.get(0);
+        
+        db.commitDBSession();
+        return result;
+    }
+    
     //========================================================================
     // MAIL RELATED PROJECT METHODS
     //========================================================================

@@ -892,6 +892,22 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="getDevelopersCount">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="userName" nillable="true" type="xs:string"/>
+            <xs:element name="passwd" nillable="true" type="xs:string"/>
+            <xs:element name="projectId" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getDevelopersCountResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="return" nillable="true" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="getFilesNumberByProjectVersionId">
         <xs:complexType>
           <xs:sequence>
@@ -1205,6 +1221,12 @@
   <wsdl:message name="getVersionsStatisticsResponse">
     <wsdl:part name="part1" element="ns2:getVersionsStatisticsResponse"/>
   </wsdl:message>
+  <wsdl:message name="getDevelopersCountMessage">
+    <wsdl:part name="part1" element="ns2:getDevelopersCount"/>
+  </wsdl:message>
+  <wsdl:message name="getDevelopersCountResponse">
+    <wsdl:part name="part1" element="ns2:getDevelopersCountResponse"/>
+  </wsdl:message>
   <wsdl:message name="getMetricsResultMessage">
     <wsdl:part name="part1" element="ns2:getMetricsResult"/>
   </wsdl:message>
@@ -1389,6 +1411,10 @@
     <wsdl:operation name="getVersionsStatistics">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getVersionsStatisticsMessage" wsaw:Action="urn:getVersionsStatistics"/>
       <wsdl:output message="axis2:getVersionsStatisticsResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getDevelopersCount">
+      <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:getDevelopersCountMessage" wsaw:Action="urn:getDevelopersCount"/>
+      <wsdl:output message="axis2:getDevelopersCountResponse"/>
     </wsdl:operation>
     <wsdl:operation name="initComponents">
       <wsdl:input xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" message="axis2:null" wsaw:Action="urn:initComponents"/>
@@ -1785,6 +1811,15 @@
     </wsdl:operation>
     <wsdl:operation name="getVersionsStatistics">
       <soap:operation soapAction="urn:getVersionsStatistics" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDevelopersCount">
+      <soap:operation soapAction="urn:getDevelopersCount" style="document"/>
       <wsdl:input>
         <soap:body use="literal"/>
       </wsdl:input>
@@ -2202,6 +2237,15 @@
     </wsdl:operation>
     <wsdl:operation name="getVersionsStatistics">
       <soap12:operation soapAction="urn:getVersionsStatistics" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDevelopersCount">
+      <soap12:operation soapAction="urn:getDevelopersCount" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>

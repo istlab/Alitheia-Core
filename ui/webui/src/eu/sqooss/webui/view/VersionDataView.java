@@ -395,9 +395,7 @@ public class VersionDataView extends AbstractDataView {
                         + "</td>"
                         + "</tr>\n");
 
-                Developer commiter =
-                    project.getDevelopers().getDeveloperById(
-                            version.getCommitterId());
+                Developer commiter = project.getDeveloperById(version.getCommitterId());
                 b.append(sp(in) + "<tr>"
                         + "<td><b>Commiter</b></td>"
                         + "<td>"
@@ -429,8 +427,7 @@ public class VersionDataView extends AbstractDataView {
 
             // Version commiter
             Developer commiter =
-                project.getDevelopers().getDeveloperById(
-                        selVersion.getCommitterId());
+                project.getDeveloperById(selVersion.getCommitterId());
             b.append(sp(in) + "<tr>"
                     + "<td><b>Commiter</b></td>"
                     + "<td>"

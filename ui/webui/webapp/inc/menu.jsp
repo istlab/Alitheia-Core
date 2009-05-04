@@ -23,7 +23,7 @@ if (terrier.isConnected()) {
 %>                  <ul class="l2">
                       <li><a href="/timeline.jsp" title="Project Timeline">Timeline</a></li>
                       <li><a href="/versions.jsp" title="Project Versions">Versions</a></li>
-                      <li><a href="/developers.jsp" title="Project Developers">Developers</a></li>
+                      <!-- <li><a href="/developers.jsp" title="Project Developers">Developers</a></li> -->
                       <li><a href="/files.jsp" title="Project Files">Files</a></li>
                   </ul>
 <%

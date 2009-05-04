@@ -450,14 +450,9 @@ public class ProjectFile extends DAObject{
      * @return the modifications hash map
      */
     @SuppressWarnings("unchecked")
-    public static HashMap<Long, Long> getFileModifications(ProjectFile pf) {
+    public static List<ProjectFile> getFileModifications(ProjectFile pf) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
-        HashMap<Long, Long> result = new HashMap<Long, Long>();
-
-        if (pf == null) {
-            return result;
-        }
-
+        
         String paramFile = "paramFile";
         String paramDir = "paramDir";
         String paramProject = "paramProject";
@@ -474,17 +469,7 @@ public class ProjectFile extends DAObject{
         parameters.put(paramDir, pf.getDir());
         parameters.put(paramProject, pf.getProjectVersion().getProject());
 
-        List<ProjectFile> projectFiles = 
-            (List<ProjectFile>) dbs.doHQL(query, parameters);
-
-        Iterator<ProjectFile> i = projectFiles.iterator();
-
-        while (i.hasNext()){
-            ProjectFile pf1 = i.next();
-            result.put(pf1.getProjectVersion().getTimestamp(), pf1.getId());
-        }
-
-        return result;
+        return (List<ProjectFile>) dbs.doHQL(query, parameters);
     }
     
     /**

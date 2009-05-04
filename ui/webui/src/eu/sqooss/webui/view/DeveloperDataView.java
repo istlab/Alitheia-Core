@@ -58,7 +58,7 @@ public class DeveloperDataView extends AbstractDataView {
         if (selected != null)
             for (String resource : selected) {
                 if ((selectedResources.contains(resource) == false)
-                        && (project.getDevelopers().getDeveloperByUsername(resource) != null))
+                        && (project.getDeveloperByUsername(resource) != null))
                     selectedResources.add(resource);
             }
 
@@ -75,7 +75,7 @@ public class DeveloperDataView extends AbstractDataView {
     private void loadData() {
         if ((project != null) && (project.isValid())) {
             // Pre-load the selected project developers
-            project.getDevelopers();
+            //project.getDevelopers();
 
             /*
              * Load the list of metrics that were evaluated on this resource
@@ -146,7 +146,7 @@ public class DeveloperDataView extends AbstractDataView {
             // Fill the data set
             for (String resource : selectedResources) {
                 Developer resourceObj =
-                    project.getDevelopers().getDeveloperByUsername(resource);
+                    project.getDeveloperByUsername(resource);
                 if (resourceObj != null) {
                     resourceObj.setTerrier(terrier);
                     HashMap<String, Result> verResults =
@@ -422,8 +422,7 @@ public class DeveloperDataView extends AbstractDataView {
 
         Developer highlighted = null;
         if (viewConf.getHighlightedResource() != null)
-            highlighted = project.getDevelopers().getDeveloperByUsername(
-                    viewConf.getHighlightedResource());
+            highlighted = project.getDeveloperByUsername(viewConf.getHighlightedResource());
 
         if (project.getDevelopersCount() < 1) {
             b.append(sp(in)

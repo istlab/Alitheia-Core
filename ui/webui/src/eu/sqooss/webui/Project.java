@@ -115,7 +115,7 @@ public class Project extends WebuiItem {
     /*
      * A cache for all developers that are/were working on this project.
      */
-    private DevelopersList developers = new DevelopersList();
+    //private DevelopersList developers = new DevelopersList();
 
     /*
      * A cache for all developers that have been selected for this project.
@@ -402,15 +402,16 @@ public class Project extends WebuiItem {
      * @return the list of developers working on this project, or an empty
      *   list when none are found or the project not yet initialized.
      */
-    public DevelopersList getDevelopers() {
-        if (terrier == null)
-            return developers;
-        if (isValid()) {
-            if ((developersIds != null) && (developers.isEmpty())) {
-                developers.addAll(terrier.getDevelopers(developersIds));
-            }
-        }
-        return developers;
+    
+    public Developer getDeveloperByUsername(String userName) {
+        return null;
+    }
+    
+    public Developer getDeveloperById(Long id) {
+        long[] ids = new long[1];
+        ids[0] = id;
+        List<Developer> devs = terrier.getDevelopers(ids);
+        return devs.get(0);
     }
 
     /**
@@ -419,10 +420,7 @@ public class Project extends WebuiItem {
      * @return Total number of developers in this project.
      */
     public long getDevelopersCount() {
-        if (developersIds != null)
-            return developersIds.length;
-        else
-            return 0;
+        return terrier.getDevelopersCount(this.id);
     }
 
     /**
@@ -450,7 +448,7 @@ public class Project extends WebuiItem {
         if (isValid()) {
             setTerrier(terrier);
             getEvaluatedMetrics();
-            getDevelopers();
+            //getDevelopers();
         }
         else
             terrier.addError("Invalid project!");
@@ -467,7 +465,7 @@ public class Project extends WebuiItem {
         selectedVersion = null;
         versions.clear();
         metrics.clear();
-        developers.clear();
+        //  developers.clear();
         selectedMetrics = new MetricsList();
     }
 
@@ -679,7 +677,7 @@ public class Project extends WebuiItem {
      */
     public void selectDeveloper (Long id) {
         if (id != null) {
-            Developer developer = developers.getDeveloperById(id);
+            Developer developer = getDeveloperById(id);
             if (developer != null) selectedDevelopers.add(developer);
         }
     }
@@ -692,7 +690,7 @@ public class Project extends WebuiItem {
      */
     public void deselectDeveloper (Long id) {
         if (id != null) {
-            Developer developer = developers.getDeveloperById(id);
+            Developer developer = getDeveloperById(id);
             if (developer != null) selectedDevelopers.remove(developer);
         }
     }
@@ -700,11 +698,11 @@ public class Project extends WebuiItem {
     /**
      * Adds all project developers to the list of selected developers.
      */
-    public void selectAllDevelopers () {
+    /*public void selectAllDevelopers () {
         for (Developer developer : developers)
             if (selectedDevelopers.contains(developer) == false)
                 selectedDevelopers.add(developer);
-    }
+    }*/
 
     /**
      * Cleans up the list of selected developers.

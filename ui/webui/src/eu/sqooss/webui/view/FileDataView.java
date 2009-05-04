@@ -421,8 +421,7 @@ public class FileDataView extends AbstractDataView {
             // Developer name
             Developer commiter = null;
             if (version != null)
-                commiter = project.getDevelopers().getDeveloperById(
-                        version.getCommitterId());
+                commiter = project.getDeveloperById(version.getCommitterId());
             b.append(sp(in) + "<tr>"
                     + "<td><b>Commiter</b></td>"
                     + "<td>"

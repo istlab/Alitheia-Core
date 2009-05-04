@@ -34,6 +34,9 @@
 package eu.sqooss.webui;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -47,8 +50,10 @@ public class ProjectsListView extends ListView {
 
     // Cache for all project that were retrieved during the last call to
     // the SQO-OSS framework
-    List<Project> projects = new ArrayList<Project>();
-
+    //List<Project> projects = new ArrayList<Project>();
+    HashMap<Long,Project> projects = new HashMap<Long, Project>();
+    
+    
     /**
      * Sets the current project.
      * 
@@ -78,7 +83,7 @@ public class ProjectsListView extends ListView {
             if (getProject(projectId) != null) {
                 Project project = terrier.getProject(projectId);
                 if (project != null)
-                    projects.add(project);
+                    projects.put(project.id, project);
             }
             // Retrieve the project from the cache
             setCurrentProject(getProject(projectId));
@@ -128,10 +133,7 @@ public class ProjectsListView extends ListView {
      *   the local cache, otherwise <code>null</code>.
      */
     public Project getProject (long projectId) {
-        for (Project nextPrj : projects)
-            if (nextPrj.getId() == projectId)
-                return nextPrj;
-        return null;
+        return projects.get(projectId);
     }
 
     /**
@@ -142,8 +144,12 @@ public class ProjectsListView extends ListView {
      */
     public void retrieveData (Terrier terrier) {
         this.terrier = terrier;
-        if (projects.isEmpty())
-            projects = terrier.getEvaluatedProjects();
+        if (projects.isEmpty()) {
+            List<Project> prs = terrier.getEvaluatedProjects();
+            for (Project pr : prs) {
+                projects.put(pr.id, pr);
+            }
+        }   
     }
 
     /**
@@ -151,7 +157,7 @@ public class ProjectsListView extends ListView {
      */
     public void flushData () {
         currentProject = null;
-        projects = new ArrayList<Project>();
+        projects = new HashMap<Long, Project>();
     }
 
     /* (non-Javadoc)
@@ -161,9 +167,9 @@ public class ProjectsListView extends ListView {
         StringBuilder html = new StringBuilder();
         if (projects.size() > 0) {
             html.append(sp(in++) + "<ul class=\"projectslist\">\n");
-            for (Project p: projects) {
-                p.setServletPath(getServletPath());
-                html.append(sp(in) + "<li>" + p.link() + "</li>\n");
+            for (Long id: projects.keySet()) {
+                projects.get(id).setServletPath(getServletPath());
+                html.append(sp(in) + "<li>" + projects.get(id).link() + "</li>\n");
             }
             html.append(sp(--in) + "</ul>\n");
         }
@@ -182,14 +188,23 @@ public class ProjectsListView extends ListView {
      */
     public Vector<Project> getCloudProjects(int number) {
         Vector<Project> v = new Vector<Project>(number);
-
-        for (int i = 0; (i<number) && (i<projects.size()); ++i) {
-            v.add(projects.get(i));
+        
+        List<Project> l = new ArrayList<Project>(); 
+        l.addAll(projects.values());
+        Collections.shuffle(l);
+        Iterator<Project> it = l.iterator();
+        
+        if (projects.size() <= number) {
+            while (it.hasNext())
+                v.add(it.next());
+        } else {
+            for (int i = 0; i < number; i++) {
+                v.add(it.next());
+            }
         }
-
         return v;
     }
-
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
+ 

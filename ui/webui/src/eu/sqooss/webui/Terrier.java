@@ -755,6 +755,21 @@ public class Terrier {
             addError(connection.getError());
         return result;
     }
+    
+    public Long getDevelopersCount(long projectId) {
+        if (isConnected()) {
+            try {
+                return connection.getProjectAccessor().getDevelopersCount(projectId);
+            }
+            catch (WSException e) {
+                addError("Can not retrieve the number of developers"
+                        + " for project:" + projectId);
+            }
+        }
+        else
+            addError(connection.getError());
+        return null;
+    }
 
     //========================================================================
     // SOURCE FILE RELATED SCL WRAPPER METHODS

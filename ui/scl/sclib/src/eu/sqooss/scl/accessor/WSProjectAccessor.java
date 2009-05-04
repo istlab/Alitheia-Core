@@ -436,6 +436,8 @@ public abstract class WSProjectAccessor extends WSAccessor {
      * <ul>
      */
     public abstract long getMailsCount(long projectId) throws WSException;
+    
+    public abstract long getDevelopersCount(long projectId) throws WSException;
 
     //========================================================================
     // BUG RELATED PROJECT METHODS

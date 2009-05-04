@@ -568,6 +568,11 @@ public class WebServices implements EventHandler{
                 password, developersIds);
     }
 
+    public long getDevelopersCount(String userName, String passwd, 
+            long projectId ) {
+        return projectManager.getDevelopersCount(userName, passwd, projectId);
+    }
+    
     /**
      * Returns the total number of mails that belong to the given project.
      *

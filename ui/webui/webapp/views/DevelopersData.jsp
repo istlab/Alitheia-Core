@@ -79,10 +79,10 @@ if (selectedProject.isValid()) {
                 icoShowResource.setParameter("showResource");
                 icoShowResource.setLabelText("Username: ");
                 icoShowResource.setButtonText("Show");
-                for (Developer developer : selectedProject.getDevelopers())
-                icoShowResource.addOption(
-                        developer.getUsername(),
-                        developer.getUsername());
+                //for (Developer developer : selectedProject.getDevelopers())
+                //icoShowResource.addOption(
+                //        developer.getUsername(),
+                //        developer.getUsername());
                 winInfoPanel.addToolIcon(icoShowResource);
 
                 // Construct the window's content
@@ -109,12 +109,12 @@ if (selectedProject.isValid()) {
                 icoAddResource.setParameter("addResource");
                 icoAddResource.setLabelText("Username: ");
                 icoAddResource.setButtonText("Add");
-                for (Developer developer : selectedProject.getDevelopers())
+               /* for (Developer developer : selectedProject.getDevelopers())
                     if (viewConf.isSelectedResource(
                             developer.getUsername()) == false)
                         icoAddResource.addOption(
                                 developer.getUsername(),
-                                developer.getUsername());
+                                developer.getUsername());*/
                 winControlPanel.addToolIcon(icoAddResource);
                 
                 SubmitButton icoResetResources = new SubmitButton();

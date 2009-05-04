@@ -60,7 +60,6 @@ import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
 import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
 import eu.sqooss.service.updater.UpdaterException;
-import eu.sqooss.service.updater.UpdaterService;
 
 /**
  * Bug updater. Reads data from the TDS and updates the bug metadata

@@ -6,8 +6,8 @@ if (selectedProject.isValid()) {
     // Project developers
     String devsStr = "" + selectedProject.getDevelopersCount()
             + (selectedProject.getDevelopersCount() == 1
-                    ? " developer"
-                    : " developers");
+                    ? "  member"
+                    : "  members");
     // Project versions
     String versStr = "" + selectedProject.getVersionsCount()
             + (selectedProject.getVersionsCount() == 1 

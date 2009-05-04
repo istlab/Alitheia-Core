@@ -56,6 +56,8 @@ import eu.sqooss.ws.client.ws.GetBugsCount;
 import eu.sqooss.ws.client.ws.GetBugsCountResponse;
 import eu.sqooss.ws.client.ws.GetDevelopersByIds;
 import eu.sqooss.ws.client.ws.GetDevelopersByIdsResponse;
+import eu.sqooss.ws.client.ws.GetDevelopersCount;
+import eu.sqooss.ws.client.ws.GetDevelopersCountResponse;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIds;
 import eu.sqooss.ws.client.ws.GetDirectoriesByIdsResponse;
 import eu.sqooss.ws.client.ws.GetEvaluatedProjects;
@@ -136,6 +138,8 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
         "getMailsCount";
     private static final String METHOD_NAME_GET_BUGS_COUNT =
         "getBugsCount";
+    private static final String METHOD_NAME_GET_DEVS_COUNT =
+        "getDevelopersCount";
     private static final String METHOD_NAME_GET_VERSIONS_STATISTICS =
         "getVersionsStatistics";
     private static final String METHOD_NAME_GET_FIRST_PROJECT_VERSIONS =
@@ -885,6 +889,30 @@ class WSProjectAccessorImpl extends WSProjectAccessor {
             params.setProjectId(projectId);
             try {
                 response = wsStub.getMailsCount(params);
+            } catch (Exception e) {
+                throw new WSException(e);
+            }
+        }
+        return response.get_return();
+    }
+    
+    @Override
+    public long getDevelopersCount(long projectId) throws WSException {
+        GetDevelopersCountResponse response;
+        GetDevelopersCount params;
+        if (!parameters.containsKey(METHOD_NAME_GET_DEVS_COUNT)) {
+            params = new GetDevelopersCount();
+            params.setPasswd(password);
+            params.setUserName(userName);
+            parameters.put(METHOD_NAME_GET_DEVS_COUNT, params);
+        } else {
+            params = (GetDevelopersCount) parameters.get(
+                    METHOD_NAME_GET_DEVS_COUNT);
+        }
+        synchronized (params) {
+            params.setProjectId(projectId);
+            try {
+                response = wsStub.getDevelopersCount(params);
             } catch (Exception e) {
                 throw new WSException(e);
             }

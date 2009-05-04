@@ -227,14 +227,14 @@ public class WSStoredProject {
             wsStoredProject.setName(storedProject.getName());
             wsStoredProject.setRepository(storedProject.getScmUrl());
             wsStoredProject.setWebsite(storedProject.getWebsiteUrl());
-            Set<Developer> developers = storedProject.getDevelopers();
+            /*Set<Developer> developers = storedProject.getDevelopers();
             if ((developers != null) && (developers.size() > 0)) {
                 int index = 0;
                 long[] developerIds = new long[developers.size()];
                 for (Developer developer : developers)
                     developerIds[index++] = developer.getId();
                 wsStoredProject.setDevelopers(developerIds);
-            }
+            }*/
             Set<MailingList> mailingLists = storedProject.getMailingLists();
             if ((mailingLists != null) && (mailingLists.size() > 0)) {
                 int index = 0;
