@@ -115,6 +115,7 @@
     <module>multigrep</module>
     <module>discussionheat</module>
     <module>testability</module>
+    <module>structural</module>
   </modules>
 </project>
 
