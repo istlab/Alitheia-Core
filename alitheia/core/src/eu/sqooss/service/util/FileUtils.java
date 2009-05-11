@@ -123,6 +123,24 @@ public class FileUtils {
     }
     
     /**
+     * Return the extension part from a filename.
+     * @param path The path to return the extension for
+     * @return The extension (without the preceding .) or an empty string if
+     * no extention can be found 
+     */
+    public static String extension(String path) {
+        String extension;
+        
+        String name = basename (path);
+        
+        extension = name.substring(name.lastIndexOf('.') + 1);
+        if (extension == null || extension.equalsIgnoreCase(""))
+            extension = "";
+        
+        return extension;
+    }
+    
+    /**
      * Append two repository paths making sure that there are the path 
      * seperators are OK at the merge point. 
      * 
