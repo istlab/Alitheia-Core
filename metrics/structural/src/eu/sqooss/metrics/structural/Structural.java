@@ -55,6 +55,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -95,10 +96,16 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
     protected Pattern mcSwitch = Pattern.compile("case|default");
     protected Pattern mcReturn = Pattern.compile("return");
     
+    /* Contains a regular expression that can detect with reasonable accuracy 
+     * a method declaration for the specified extention. The regular expression
+     * is expected to work in Pattern.MULTI_LINE mode.  
+     */
     private static HashMap<String, String> methodDecl = new HashMap<String, String>();
     
-    static {        
-        methodDecl.put("java", "(public|protected|private|static|\\s) +[\\w\\<\\>\\[\\]]+\\s+\\w+ *\\([^\\)]*\\)? *(\\{?|[^;])");
+    static {  
+        methodDecl.put("java", 
+                "(public|protected|private|static|\\s) +" +
+                "[\\w\\<\\>\\[\\]]+\\s+\\w+ *\\([^\\)]*\\)? *(\\{?|[^;])");
         methodDecl.put("c", "(\\w+\\s*\\*?)\\s+(\\w+)\\s*\\(.*\\)\\s*\\{");
         
     }
@@ -152,8 +159,8 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
             return;
         }
         
+        pf = db.attachObjectToDBSession(pf);
         this.pf = pf;
-        
         
         FDSService fds = AlitheiaCore.getInstance().getFDSService();
         BufferedInputStream in = new BufferedInputStream(fds.getFileContents(pf));
@@ -161,26 +168,67 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         if (in == null) {
             return;
         }
-
+        
+        /* Get the pattern for the file type. */
         String pattern = methodDecl.get(FileUtils.extension(pf.getFileName()));
    
         if (pattern == null) {
-            log.warn("StructureMetrics:Cannot process source file "
-                    + pf.getFileName() + ". No parser defined.");
             return;
         } 
-   
+
         methodMatch = Pattern.compile(pattern, Pattern.MULTILINE);
 
+        /* Read the input file and remove all comments */
         byte[] fileNoComments = stripComments(in);
+
+        /* Try to detect method/function declaration lines*/
+        String contents = new String(fileNoComments);
+        Matcher m = methodMatch.matcher(contents);
         
-        mccabe(fileNoComments);
+        List<Integer> methodStart = new ArrayList<Integer>();
+        
+        /*
+         * Since we are working on a byte array version of the file, we need to
+         * take care of CR/LF/CR+LF line endings when counting lines.
+         */
+        while (m.find()) {
+            int numLines = 1;
+            byte prev = 0;
+            for (int i = 0; i < m.end(); i++) {
+                if (fileNoComments[i] == '\r')
+                        numLines++;
+
+                if (fileNoComments[i] == '\n') {
+                    if (prev != '\r')
+                        numLines++;
+                }
+                
+                prev = fileNoComments[i];
+            }
+            
+            methodStart.add(numLines);
+        }
+
+        if (methodStart.isEmpty()) {
+            log.warn("Structural: " + pf + ". No methods identified.");
+            return;
+        }
+        
+        /* Call the metric calculation methods*/
+        mccabe(fileNoComments, methodStart);
+        halstead(fileNoComments, methodStart);
     }
     
+
     protected enum State {
         DEFAULT, MAYBECOMMENT, MULTICOMMENT, LINECOMMENT, MAYBECLOSEMULTI;
     }
 
+    /**
+     * A method that strips C/C++/Java comments from the input stream
+     * and returns the input as an array of bytes. Works as a five
+     * state state machine with predefined transitions.  
+     */
     protected byte[] stripComments(InputStream in) {
 
         try {
@@ -236,7 +284,14 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         }
     }
     
-    protected void mccabe(byte[] fileNoComments) {
+    
+    /**
+     * Calculate the McCabe complexity and McCabe extended complexity metrics.
+     * @param fileNoComments The file to run the metrics on, stripped of comments
+     * @param methodStart A list of start lines for all identified 
+     * functions/methods, ordered by line number.
+     */
+    protected void mccabe(byte[] fileNoComments, List<Integer> methodStart) {
         Pattern startBlock = Pattern.compile("\\{");
         Pattern endBlock = Pattern.compile("\\}");
         Matcher m = null;
@@ -249,21 +304,31 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
                 new ByteArrayInputStream(fileNoComments)));
         List<Integer> mcresult = new ArrayList<Integer>();
         List<Integer> extresult = new ArrayList<Integer>();
-        int numMethods = 0;
+        int numMethods = 0, linesRead = 0;
+        Iterator<Integer> nextMethod = methodStart.iterator();
+        int nextMethodLine = nextMethod.next();
         
         try {
             while ((line = lnr.readLine()) != null) {
-                if (!inFunction) {
-                    m = methodMatch.matcher(line);
+                linesRead++;
+                
+                if (nextMethodLine == linesRead) {
+                    /* The line read denotes the start of a function/method.
+                     * Start calculating.  
+                     */ 
+                    inFunction = true;
+                    numMethods++;
                     
-                    if (m.find()) {
-                        inFunction = true;
-                        numMethods++;
-                    }
-                    continue;
+                    /* Advance the next method pointer */
+                    if (nextMethod.hasNext())
+                        nextMethodLine = nextMethod.next();
                 }
-
-                if (inFunction && startBlock.matcher(line).find()) {
+                
+                if (!inFunction)
+                    continue;
+                
+                /* The method/function end is determined by */
+                if (startBlock.matcher(line).find()) {
                     blockDepth++;
                 }
 
@@ -271,6 +336,10 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
                     blockDepth--;
                 }
 
+                /* 
+                 * Method/function lines finished. Summarise results and save
+                 * them in results table. 
+                 */
                 if (blockDepth == 0) {
                     inFunction = false;
                     int result = 1;
@@ -279,24 +348,32 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
                     mcresult.add(result);
                     result += (mcResults.get("ext")==null)?0:mcResults.get("ext");
                     extresult.add(result);
-                    
+                    mcResults = new HashMap<String, Integer>();
+                    continue;
                 }
                 
-                if (inFunction) {
-                    if (mcBranch.matcher(line).find()) {
-                        incResult(mcResults, "branch");
-                    }
-                    
-                    if (mcSwitch.matcher(line).find()) {
-                        incResult(mcResults, "switch");
-                    }
+                /* Apply heuristics to calculate the McCabe metric*/
+                m = mcBranch.matcher(line);
+                while (m.find()) {
+                    incResult(mcResults, 1, "branch");
+                }
+
+                m = mcSwitch.matcher(line);
+                while (m.find()) {
+                    incResult(mcResults, 1, "switch");
+                }
+
+                m = mcExt.matcher(line);
+                while (m.find()) {
+                    incResult(mcResults, 1, "ext");
                 }
             }
         } catch (IOException ioe) {
             log.warn("StructureMetrics: Failed to process file <" + pf.getFileName() +">", ioe);
-        }
+        } 
         
-        int max = 0, avg, total = 0;
+        /*Summrize results per file*/
+        int max = 0, total = 0;
         for (Integer i : mcresult) {
             if (i > max) {
                 max = i;
@@ -308,16 +385,29 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
             return;
         }
         
-        System.out.println(MNEM_CC_AVG + ":" + (int)total/numMethods + " " 
-                + MNEM_CC_MAX + ":" + max + " " + MNEM_CC_T + ":" + total);
+        int emax = 0, etotal = 0;
+        for (Integer i : extresult) {
+            if (i > emax) {
+                emax = i;
+            }
+            etotal += i;
+        }
+        
+        /*Save them*/
+        System.out.println("MNEM_CC_AVG:" + (int)total/numMethods + " MAX:" + max + " MNEM_CC_T:" + total);
+        System.out.println("MNEM_ECC_AVG:" + (int)etotal/numMethods + " EMAX:" + emax + " MNEM_ECC_T:" + etotal);
     }
     
-    private void incResult(HashMap<String, Integer> result, String key) {
+    protected void halstead(byte[] fileNoComments, List<Integer> methodStart) {
+        
+    }
+    
+    private void incResult(HashMap<String, Integer> result, int value,  String key) {
         if (result.containsKey(key)) {
             int res = result.get(key);
-            result.put(key, res);
+            result.put(key, res + value);
         } else {
-            result.put(key, 1);
+            result.put(key, value);
         }
     }
 }
