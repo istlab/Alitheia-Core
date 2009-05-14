@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,15 +101,8 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
      * a method declaration for the specified extention. The regular expression
      * is expected to work in Pattern.MULTI_LINE mode.  
      */
-    private static HashMap<String, String> methodDecl = new HashMap<String, String>();
-    
-    static {  
-        methodDecl.put("java", 
-                "(public|protected|private|static|\\s) +" +
-                "[\\w\\<\\>\\[\\]]+\\s+\\w+ *\\([^\\)]*\\)? *(\\{?|[^;])");
-        methodDecl.put("c", "(\\w+\\s*\\*?)\\s+(\\w+)\\s*\\(.*\\)\\s*\\{");
-        
-    }
+    private HashMap<String, String> methodDecl = new HashMap<String, String>();
+    private HashMap<String, String> operators = new HashMap<String, String>();
     
     public Structural(BundleContext bc) {
         super(bc);
@@ -120,6 +114,30 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         super.addMetricActivationType(MNEM_ECC_AVG, ProjectFile.class);
         super.addMetricActivationType(MNEM_ECC_T, ProjectFile.class);
         super.addMetricActivationType(MNEM_ECC_MAX, ProjectFile.class);
+        
+        InputStream is = null;
+        Properties p = new Properties();
+        try {
+            is = bc.getBundle().getResource("eu/sqooss/metrics/structural/config.properties").openStream();
+            p.load(is);
+        } catch (Exception e) {
+          log.warn("Cannot find language configuration file");
+        } 
+        
+        String[] languages = p.getProperty("languages").split(" ");
+        
+        for (String lang : languages) {
+            String regexp = p.getProperty(lang + ".method.regexp");
+            methodDecl.put(lang, regexp);
+            
+            String[] ops = p.getProperty(lang + ".operators").split(" ");
+            StringBuilder sb = new StringBuilder();
+            for (String op : ops) {
+                sb.append(op).append("|");
+            }
+            sb.deleteCharAt(sb.lastIndexOf("|"));
+            operators.put(lang, sb.toString());
+        }
     }
     
     public boolean install() {
@@ -180,7 +198,8 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
 
         /* Read the input file and remove all comments */
         byte[] fileNoComments = stripComments(in);
-
+        fileNoComments = stripStrings(fileNoComments);
+        
         /* Try to detect method/function declaration lines*/
         String contents = new String(fileNoComments);
         Matcher m = methodMatch.matcher(contents);
@@ -215,15 +234,68 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         }
         
         /* Call the metric calculation methods*/
-        mccabe(fileNoComments, methodStart);
         halstead(fileNoComments, methodStart);
+        mccabe(fileNoComments, methodStart);
+    }
+    
+
+   protected enum StringState {
+       DEFAULT, INSTRING, INCHAR, STRINGQ, CHARQ
+   }
+    protected byte[] stripStrings(byte[] file) {
+        StringState state = StringState.DEFAULT;
+        byte[] buff = new byte[file.length];
+        int index = 0;
+        
+        for (byte b : file) {
+            switch (b) {
+            case '"':
+                if (state == StringState.DEFAULT) {
+                    state = StringState.INSTRING;
+                    buff[index++] = b;
+                }
+                else if (state == StringState.INSTRING) {
+                    state = StringState.DEFAULT;
+                }
+                break;
+            case '\\':
+                if (state == StringState.INSTRING)
+                    state = StringState.STRINGQ;
+                else if (state == StringState.INCHAR)
+                    state = StringState.CHARQ;
+                break;
+            case '\'':
+                if (state == StringState.DEFAULT) { 
+                    state = StringState.INCHAR;
+                    buff[index++] = b;
+                }
+                else if (state == StringState.INCHAR) {
+                    state = StringState.DEFAULT;
+                }
+
+                break;
+            default:
+                if (state == StringState.CHARQ)
+                    state = StringState.INCHAR;
+                else if (state == StringState.STRINGQ)
+                    state = StringState.INSTRING;
+                break;
+            }
+            
+            if (state == StringState.DEFAULT) {
+                buff[index++] = b;
+            }
+        }
+        byte[] fileNoStrings = new byte[buff.length];
+        System.arraycopy(buff, 0, fileNoStrings, 0, buff.length);
+        return fileNoStrings;
     }
     
 
     protected enum State {
         DEFAULT, MAYBECOMMENT, MULTICOMMENT, LINECOMMENT, MAYBECLOSEMULTI;
     }
-
+    
     /**
      * A method that strips C/C++/Java comments from the input stream
      * and returns the input as an array of bytes. Works as a five
@@ -372,7 +444,7 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
             log.warn("StructureMetrics: Failed to process file <" + pf.getFileName() +">", ioe);
         } 
         
-        /*Summrize results per file*/
+        /*Summarize results per file*/
         int max = 0, total = 0;
         for (Integer i : mcresult) {
             if (i > max) {
@@ -400,6 +472,14 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
     
     protected void halstead(byte[] fileNoComments, List<Integer> methodStart) {
         
+        //Remove line delimeters
+        byte prev = 0;
+        for (int i = 0; i < fileNoComments.length; i++) {
+            if (fileNoComments[i] == '\r' || fileNoComments[i] == '\n')
+                continue;
+            
+            prev = fileNoComments[i];
+        }
     }
     
     private void incResult(HashMap<String, Integer> result, int value,  String key) {
