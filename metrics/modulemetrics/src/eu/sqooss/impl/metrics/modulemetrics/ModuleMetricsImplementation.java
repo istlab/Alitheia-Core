@@ -35,6 +35,7 @@ package eu.sqooss.impl.metrics.modulemetrics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -50,6 +51,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FileTypeMatcher;
@@ -63,6 +65,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
     // Mnemonic names of all supported metrics
     private static String MET_MNOF = "MNOF";
     private static String MET_MNOL = "MNOL";
+    private static String MET_ISSRCMOD = "ISSRCMOD"; 
     private static String MET_AMS = "AMS";
 
     // Holds the instance of the Alitheia core service
@@ -82,6 +85,7 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         super.addMetricActivationType(MET_MNOF, ProjectFile.class);
         super.addMetricActivationType(MET_MNOL, ProjectFile.class);
         super.addMetricActivationType(MET_AMS, ProjectVersion.class);
+        super.addMetricActivationType(MET_ISSRCMOD, ProjectVersion.class);
         
         // Define the plug-in dependencies
         super.addDependency(DEP_WC_LOC);
@@ -101,7 +105,11 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
                     MET_MNOF,
                     MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics(
-                    "Number of Source Code Lines in Module",
+                    "Mark for modules containing source files",
+                    MET_ISSRCMOD,
+                    MetricType.Type.SOURCE_FOLDER);
+            result &= super.addSupportedMetrics(
+                    "Number of lines in module",
                     MET_MNOL,
                     MetricType.Type.SOURCE_FOLDER);
             result &= super.addSupportedMetrics(
@@ -193,8 +201,14 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
         
         //Only store results for source dirs
         if (foundSource) {
-            Metric m = Metric.getMetricByMnemonic(MET_MNOL);
-            ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf,
+            Metric m = Metric.getMetricByMnemonic(MET_ISSRCMOD);
+
+            ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf, String.valueOf(1));
+            db.addRecord(pfm);
+            markEvaluation(m, pf.getProjectVersion());
+            
+            m = Metric.getMetricByMnemonic(MET_MNOL);
+            pfm = new ProjectFileMeasurement(m, pf,
                     String.valueOf(mnol));
             db.addRecord(pfm);
             markEvaluation(m, pf.getProjectVersion());
@@ -207,53 +221,66 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
     }
 
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
-        // Get the list of folders which exist in this project version.
-        List<ProjectFile> folders = pv.allDirs();
-        FileTypeMatcher ftm = FileTypeMatcher.getInstance();
-        log.debug("ModuleMetrics: Got " + folders.size() + " directories " +
-        		"for version " + pv);
         
+        String paramIsDirectory = "is_directory";
+        String paramMNOL = "paramMNOL";
+        String paramISSRCDIR = "paramISSRCDIR";
+        String paramVersionId = "paramVersionId";
+        String paramProjectId = "paramProjectId";
+        String paramState = "paramStatus";
+
+        StringBuffer q = new StringBuffer("select pfm ");
+        q.append(" from ProjectVersion pv, ProjectVersion pv2,");
+        q.append(" ProjectVersion pv3, ProjectFile pf, ");
+        q.append(" ProjectFileMeasurement pfm ");
+        q.append(" where pv.project.id = :").append(paramProjectId);
+        q.append(" and pv.id = :").append(paramVersionId);
+        q.append(" and pv2.project.id = :").append(paramProjectId);
+        q.append(" and pv3.project.id = :").append(paramProjectId);
+        q.append(" and pf.validFrom.id = pv2.id");
+        q.append(" and pf.validUntil.id = pv3.id");
+        q.append(" and pv2.sequence <= pv.sequence");
+        q.append(" and pv3.sequence >= pv.sequence");
+        q.append(" and pf.state <> :").append(paramState);
+        q.append(" and pf.isDirectory = :").append(paramIsDirectory);
+        q.append(" and pfm.projectFile = pf");
+        q.append(" and pfm.metric = :").append(paramMNOL);
+        q.append(" and exists (select pfm1 ");
+        q.append(" from ProjectFileMeasurement pfm1 ");
+        q.append(" where pfm1.projectFile = pfm.projectFile ");
+        q.append(" and pfm1.metric = :").append(paramISSRCDIR).append(")");
+                
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put(paramProjectId, pv.getProject().getId());
+        params.put(paramVersionId, pv.getId());
+        params.put(paramState, ProjectFileState.deleted());
+        params.put(paramIsDirectory, true);
+        params.put(paramMNOL, Metric.getMetricByMnemonic(MET_MNOL));
+        params.put(paramISSRCDIR, Metric.getMetricByMnemonic(MET_ISSRCMOD));
+        
+        // Get the list of folders which exist in this project version.
+        List<ProjectFileMeasurement> srcDirs = 
+            (List<ProjectFileMeasurement>) db.doHQL(q.toString(), params);
+
         // Calculate the metric results
         int locs = 0;
-        int sourceModules = 0;
-        boolean foundSource = false, thisIsSourceDir = false; 
-        //For each directory in version
-        for (ProjectFile pf : folders) {
-            //Determine whether the directory contains source code files
-            List<ProjectFile> pfs = pf.getProjectVersion().getFiles(
-                    Directory.getDirectory(pf.getFileName(), false),
-                    ProjectVersion.MASK_FILES);
-            log.debug("ModuleMetrics: Got " + pfs.size() + " files for directory " +
-                    pf);
-            for (ProjectFile f : pfs) {
-
-                if (ftm.getFileType(f.getName()) == 
-                    FileTypeMatcher.FileType.SRC) {
-                    // Found one source file, treat the folder as a source module
-                    foundSource = true;
-                    thisIsSourceDir = true;
-                    break;
-                }
-            }
-            
-            if (thisIsSourceDir) {
-                int mnolValue = getMeasurement(MET_MNOL, pf);
-                // Try to retrieve the MNOL measurement for this folder 
-                if (mnolValue > 0)
-                    sourceModules++;
-                
+       
+        //For source directory directory
+        for (ProjectFileMeasurement pfm : srcDirs) {
+            log.debug("Reading measurement for dir " + pfm.getProjectFile().getFileName());
+            int mnolValue = Integer.parseInt(pfm.getResult());
+            // Try to retrieve the MNOL measurement for this folder
+            if (mnolValue > 0)
                 locs += mnolValue;
-            }
-            thisIsSourceDir = false;
         } 
 
-        if (foundSource) {
+        if (locs > 0) {
             // Store the "AMS" metric result
             Metric metric = Metric.getMetricByMnemonic(MET_AMS);
             ProjectVersionMeasurement ams = new ProjectVersionMeasurement(
                     metric, pv, String.valueOf(0));
-            if (sourceModules > 0)
-                ams.setResult(String.valueOf(((float) (locs / sourceModules))));
+            
+            ams.setResult(String.valueOf(((float) (locs / srcDirs.size()))));
             db.addRecord(ams);
             markEvaluation(metric, pv.getProject());
         }
