@@ -76,6 +76,13 @@
            <include>**/*.hbm.xml</include>
         </includes>
       </resource>
+      <resource>
+          <directory>${basedir}/src/eu/sqooss/metrics/structural</directory>
+          <targetPath>eu/sqooss/metrics/structural</targetPath>
+          <includes>
+              <inlude>config.properties</inlude>
+          </includes>
+      </resource>
     </resources>
     <plugins>
       <plugin>

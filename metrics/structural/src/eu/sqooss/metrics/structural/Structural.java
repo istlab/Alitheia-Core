@@ -55,9 +55,11 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,50 +72,67 @@ import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
 import eu.sqooss.service.util.FileUtils;
 
 /**
  * The Structural complexity metrics suite implement standard complexity
- * metrics such as McCabe's Cyclomatic Complexity 
- * 
+ * metrics such as McCabe's Cyclomatic Complexity and Halstead's Software
+ * science metrics.
  */ 
 public class Structural extends AbstractMetric implements ProjectFileMetric {
     protected static String MNEM_CC_T = "MCC_TOTAL";
-    protected static String MNEM_CC_AVG = "MCC_AVG";
     protected static String MNEM_CC_MAX = "MCC_MAX";
     
     protected static String MNEM_ECC_T = "EMCC_TOTAL";
-    protected static String MNEM_ECC_AVG = "EMCC_AVG";
     protected static String MNEM_ECC_MAX = "EMCC_MAX";
     
-    private ProjectFile pf;
-
-    private Pattern methodMatch;
+    protected static String MNEM_NUM_FUN = "NUMFUN";
     
-    protected Pattern mcBranch = Pattern.compile("if|while|for|catch|finally");
-    protected Pattern mcExt = Pattern.compile("&&|\\|\\|");
-    protected Pattern mcSwitch = Pattern.compile("case|default");
-    protected Pattern mcReturn = Pattern.compile("return");
+    protected static String MNEM_HN = "HN";
+    protected static String MNEM_HVS = "HVS";
+    protected static String MNEM_HV = "HV";
+    protected static String MNEM_HD = "HD";
+    protected static String MNEM_HL = "HL";
+    protected static String MNEM_HE = "HE";
+    protected static String MNEM_HT = "HT";
+    protected static String MNEM_HB = "HB";
     
+    private ThreadLocal<ProjectFile> fileDAO;
+    
+   
     /* Contains a regular expression that can detect with reasonable accuracy 
      * a method declaration for the specified extention. The regular expression
      * is expected to work in Pattern.MULTI_LINE mode.  
      */
     private HashMap<String, String> methodDecl = new HashMap<String, String>();
+    
+    /*
+     * 
+     */
     private HashMap<String, String> operators = new HashMap<String, String>();
     
     public Structural(BundleContext bc) {
         super(bc);
         super.addActivationType(ProjectFile.class);
-
-        super.addMetricActivationType(MNEM_CC_AVG, ProjectFile.class);
+        
         super.addMetricActivationType(MNEM_CC_T, ProjectFile.class);
         super.addMetricActivationType(MNEM_CC_MAX, ProjectFile.class);
-        super.addMetricActivationType(MNEM_ECC_AVG, ProjectFile.class);
         super.addMetricActivationType(MNEM_ECC_T, ProjectFile.class);
         super.addMetricActivationType(MNEM_ECC_MAX, ProjectFile.class);
+        
+        super.addMetricActivationType(MNEM_NUM_FUN, ProjectFile.class);
+        
+        super.addMetricActivationType(MNEM_HN, ProjectFile.class);
+        super.addMetricActivationType(MNEM_HVS, ProjectFile.class);
+        super.addMetricActivationType(MNEM_HV, ProjectFile.class);
+        super.addMetricActivationType(MNEM_HD, ProjectFile.class);
+        super.addMetricActivationType(MNEM_HL, ProjectFile.class);
+        super.addMetricActivationType(MNEM_HE, ProjectFile.class);
+        super.addMetricActivationType(MNEM_HT, ProjectFile.class);
+        super.addMetricActivationType(MNEM_HB, ProjectFile.class);
         
         InputStream is = null;
         Properties p = new Properties();
@@ -138,6 +157,8 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
             sb.deleteCharAt(sb.lastIndexOf("|"));
             operators.put(lang, sb.toString());
         }
+        
+        fileDAO = new ThreadLocal<ProjectFile>();
     }
     
     public boolean install() {
@@ -148,20 +169,41 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
                     "Total McCabe Cyclomatic Complexity", 
                     MNEM_CC_T, MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
-                    "Average McCabe Cyclomatic Complexity", 
-                    MNEM_CC_AVG, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
                     "Max McCabe Cyclomatic Complexity", 
                     MNEM_CC_MAX, MetricType.Type.SOURCE_CODE);
             result &= super.addSupportedMetrics(
                     "Total Extended McCabe Cyclomatic Complexity", 
-                    MNEM_ECC_T, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Average Extended McCabe Cyclomatic Complexity", 
-                    MNEM_ECC_AVG, MetricType.Type.SOURCE_CODE);
+                    MNEM_ECC_T, MetricType.Type.SOURCE_CODE);            
             result &= super.addSupportedMetrics(
                     "Max Extended McCabe Cyclomatic Complexity", 
                     MNEM_ECC_MAX, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Number of functions", 
+                    MNEM_NUM_FUN, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Halstead Length", 
+                    MNEM_HN, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Halstead vocabulary size", 
+                    MNEM_HVS, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Halstead Volume", 
+                    MNEM_HV, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Halstead Difficulty Level", 
+                    MNEM_HD, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Halstead Program Level", 
+                    MNEM_HL, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Halstead Effort", 
+                    MNEM_HE, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Halstead Time", 
+                    MNEM_HT, MetricType.Type.SOURCE_CODE);
+            result &= super.addSupportedMetrics(
+                    "Halstead Bugs Derived", 
+                    MNEM_HB, MetricType.Type.SOURCE_CODE);
         }
         return result;
     }
@@ -178,7 +220,7 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         }
         
         pf = db.attachObjectToDBSession(pf);
-        this.pf = pf;
+        this.fileDAO.set(pf);
         
         FDSService fds = AlitheiaCore.getInstance().getFDSService();
         BufferedInputStream in = new BufferedInputStream(fds.getFileContents(pf));
@@ -187,61 +229,26 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
             return;
         }
         
-        /* Get the pattern for the file type. */
-        String pattern = methodDecl.get(FileUtils.extension(pf.getFileName()));
-   
-        if (pattern == null) {
-            return;
-        } 
-
-        methodMatch = Pattern.compile(pattern, Pattern.MULTILINE);
-
         /* Read the input file and remove all comments */
-        byte[] fileNoComments = stripComments(in);
-        fileNoComments = stripStrings(fileNoComments);
+        byte[] fileContents = stripComments(in);
         
-        /* Try to detect method/function declaration lines*/
-        String contents = new String(fileNoComments);
-        Matcher m = methodMatch.matcher(contents);
-        
-        List<Integer> methodStart = new ArrayList<Integer>();
-        
-        /*
-         * Since we are working on a byte array version of the file, we need to
-         * take care of CR/LF/CR+LF line endings when counting lines.
-         */
-        while (m.find()) {
-            int numLines = 1;
-            byte prev = 0;
-            for (int i = 0; i < m.end(); i++) {
-                if (fileNoComments[i] == '\r')
-                        numLines++;
-
-                if (fileNoComments[i] == '\n') {
-                    if (prev != '\r')
-                        numLines++;
-                }
-                
-                prev = fileNoComments[i];
-            }
-            
-            methodStart.add(numLines);
-        }
-
-        if (methodStart.isEmpty()) {
-            log.warn("Structural: " + pf + ". No methods identified.");
-            return;
-        }
+        /* Remove string contents */
+        fileContents = stripStrings(fileContents);
         
         /* Call the metric calculation methods*/
-        halstead(fileNoComments, methodStart);
-        mccabe(fileNoComments, methodStart);
+        halstead(fileContents);
+        //mccabe(fileContents);
     }
     
 
    protected enum StringState {
        DEFAULT, INSTRING, INCHAR, STRINGQ, CHARQ
    }
+   
+    /**
+     * A method that shortens strings (identified by "") and chars (identified
+     * by '') by removing their content, but leaving the string delimiters.
+     */
     protected byte[] stripStrings(byte[] file) {
         StringState state = StringState.DEFAULT;
         byte[] buff = new byte[file.length];
@@ -290,9 +297,8 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         System.arraycopy(buff, 0, fileNoStrings, 0, buff.length);
         return fileNoStrings;
     }
-    
 
-    protected enum State {
+    protected enum CommentState {
         DEFAULT, MAYBECOMMENT, MULTICOMMENT, LINECOMMENT, MAYBECLOSEMULTI;
     }
     
@@ -307,40 +313,40 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
             byte[] buffer = new byte[in.available()];
             byte b;
             int counter = 0;
-            State state = State.DEFAULT;
+            CommentState state = CommentState.DEFAULT;
             while ((b = (byte) in.read()) != -1) {
                 switch (b) {
                 case '/':
-                    if (state == State.MAYBECOMMENT) {
-                        state = State.LINECOMMENT;
+                    if (state == CommentState.MAYBECOMMENT) {
+                        state = CommentState.LINECOMMENT;
                     }
-                    else if (state == State.MAYBECLOSEMULTI) {
-                        state = State.DEFAULT;
+                    else if (state == CommentState.MAYBECLOSEMULTI) {
+                        state = CommentState.DEFAULT;
                         b = '\n';
                     }
-                    else if (state == State.DEFAULT)
-                        state = State.MAYBECOMMENT;
+                    else if (state == CommentState.DEFAULT)
+                        state = CommentState.MAYBECOMMENT;
                     break;
                 case '*':
-                    if (state == State.MAYBECOMMENT)
-                        state = State.MULTICOMMENT;
-                    else if (state == State.MULTICOMMENT)
-                        state = State.MAYBECLOSEMULTI;
+                    if (state == CommentState.MAYBECOMMENT)
+                        state = CommentState.MULTICOMMENT;
+                    else if (state == CommentState.MULTICOMMENT)
+                        state = CommentState.MAYBECLOSEMULTI;
                     break;
                 case '\n':
-                    if (state == State.LINECOMMENT) {
-                        state = State.DEFAULT;
+                    if (state == CommentState.LINECOMMENT) {
+                        state = CommentState.DEFAULT;
                         b = '\n';
                     }
                     break;
                 default:
-                    if (state == State.MAYBECOMMENT)
-                        state = State.DEFAULT;
-                    else if (state == State.MAYBECLOSEMULTI)
-                        state = State.MULTICOMMENT;
+                    if (state == CommentState.MAYBECOMMENT)
+                        state = CommentState.DEFAULT;
+                    else if (state == CommentState.MAYBECLOSEMULTI)
+                        state = CommentState.MULTICOMMENT;
                 }
 
-                if (state == State.DEFAULT) {
+                if (state == CommentState.DEFAULT) {
                     buffer[counter] = b;
                     counter++;
                 }
@@ -351,11 +357,10 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
             return fileNoComments;
         } catch (IOException ioe) {
             log.warn("StructureMetrics: Failed to read file <" + 
-                    pf.getFileName() +">", ioe);
+                    fileDAO.get().getFileName() +">", ioe);
             return null;
         }
     }
-    
     
     /**
      * Calculate the McCabe complexity and McCabe extended complexity metrics.
@@ -363,14 +368,61 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
      * @param methodStart A list of start lines for all identified 
      * functions/methods, ordered by line number.
      */
-    protected void mccabe(byte[] fileNoComments, List<Integer> methodStart) {
+    protected void mccabe(byte[] fileNoComments) {
+        /*Regexps to identify various program portions*/
         Pattern startBlock = Pattern.compile("\\{");
         Pattern endBlock = Pattern.compile("\\}");
-        Matcher m = null;
-        boolean inFunction = false;
-        String line = "";
-        int blockDepth = 0;
+        Pattern mcBranch = Pattern.compile("if|while|for|catch|finally");
+        Pattern mcExt = Pattern.compile("&&|\\|\\|");
+        Pattern mcSwitch = Pattern.compile("case|default");
+        Pattern mcReturn = Pattern.compile("return");
+        
+        /*1. Constuct a list of method start locations*/
+        /* Get the pattern for the file type. */
+        String pattern = methodDecl.get(
+                FileUtils.extension(fileDAO.get().getFileName()));
+   
+        if (pattern == null) {
+            return;
+        } 
 
+        Pattern methodMatch = Pattern.compile(pattern, Pattern.MULTILINE);
+
+        /* Try to detect method/function declaration lines*/
+        String contents = new String(fileNoComments);
+        Matcher m = methodMatch.matcher(contents);
+        
+        List<Integer> methodStart = new ArrayList<Integer>();
+        
+        /*
+         * Since we are working on a byte array version of the file, we need to
+         * take care of CR/LF/CR+LF line endings when counting lines.
+         */
+        while (m.find()) {
+            int numLines = 1;
+            byte prev = 0;
+            for (int i = 0; i < m.end(); i++) {
+                if (fileNoComments[i] == '\r')
+                        numLines++;
+
+                if (fileNoComments[i] == '\n') {
+                    if (prev != '\r')
+                        numLines++;
+                }
+                
+                prev = fileNoComments[i];
+            }
+            
+            methodStart.add(numLines);
+        }
+
+        if (methodStart.isEmpty()) {
+            log.warn("Structural: " + fileDAO.get() + 
+                    ". No methods identified.");
+            return;
+        }
+        
+        /*2. Calculate*/
         HashMap<String, Integer> mcResults = new HashMap<String, Integer>();
         LineNumberReader lnr = new LineNumberReader(new InputStreamReader(
                 new ByteArrayInputStream(fileNoComments)));
@@ -379,6 +431,9 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         int numMethods = 0, linesRead = 0;
         Iterator<Integer> nextMethod = methodStart.iterator();
         int nextMethodLine = nextMethod.next();
+        boolean inFunction = false;
+        String line = "";
+        int blockDepth = 0;
         
         try {
             while ((line = lnr.readLine()) != null) {
@@ -441,7 +496,7 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
                 }
             }
         } catch (IOException ioe) {
-            log.warn("StructureMetrics: Failed to process file <" + pf.getFileName() +">", ioe);
+            log.warn("StructureMetrics: Failed to process file <" + fileDAO.get().getFileName() +">", ioe);
         } 
         
         /*Summarize results per file*/
@@ -465,21 +520,11 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
             etotal += i;
         }
         
-        /*Save them*/
-        System.out.println("MNEM_CC_AVG:" + (int)total/numMethods + " MAX:" + max + " MNEM_CC_T:" + total);
-        System.out.println("MNEM_ECC_AVG:" + (int)etotal/numMethods + " EMAX:" + emax + " MNEM_ECC_T:" + etotal);
-    }
-    
-    protected void halstead(byte[] fileNoComments, List<Integer> methodStart) {
-        
-        //Remove line delimeters
-        byte prev = 0;
-        for (int i = 0; i < fileNoComments.length; i++) {
-            if (fileNoComments[i] == '\r' || fileNoComments[i] == '\n')
-                continue;
-            
-            prev = fileNoComments[i];
-        }
+        addRecord(MNEM_CC_MAX, fileDAO.get(), String.valueOf(max));
+        addRecord(MNEM_CC_T, fileDAO.get(), String.valueOf(total));
+        addRecord(MNEM_NUM_FUN, fileDAO.get(), String.valueOf(numMethods));
+        addRecord(MNEM_ECC_MAX, fileDAO.get(), String.valueOf(emax));
+        addRecord(MNEM_ECC_T, fileDAO.get(), String.valueOf(etotal));
     }
     
     private void incResult(HashMap<String, Integer> result, int value,  String key) {
@@ -489,6 +534,137 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         } else {
             result.put(key, value);
         }
+    }
+    
+    /**
+     * Calculates Halstread's software science metrics. 
+     */
+    protected void halstead(byte[] fileNoComments) {
+        
+        byte[] fileNoNewLines = new byte[fileNoComments.length];
+        int j = 0;
+        
+        //Remove line delimeters
+        
+        for (int i = 0; i < fileNoComments.length; i++) {
+            if (fileNoComments[i] == '\r' || fileNoComments[i] == '\n')
+                continue;
+            fileNoNewLines[j] = fileNoComments[i];
+            j++;
+        }
+       
+
+        /* Convert to a string for tokenisation*/
+        String contents = new String(fileNoNewLines, 0, j);
+
+        /* Get the tokenisation regexp suitable for the processed file type*/
+        String regexp = operators.get(FileUtils.extension(fileDAO.get().getFileName()));
+        
+        if (regexp == null) {
+            return;
+        }
+        
+        Pattern tokenizer = Pattern.compile(regexp);
+         
+        Matcher m = tokenizer.matcher(contents);
+        StringBuffer toTokenize = new StringBuffer();
+        int last = 0;
+        
+        
+        List<String> operators = new ArrayList<String>();
+        List<String> operands = new ArrayList<String>();
+        /*
+         * Tokenize based on (greedy) regexp matching. Add spaces around
+         * identified language keywords to help tokenization later on.
+         */
+        while (m.find()) {
+            if (m.start() > last + 1) { 
+                toTokenize.append(contents.subSequence(last, m.start()));
+                toTokenize.append(" ");
+            }
+   
+            toTokenize.append(contents.subSequence(m.start(), m.end()));
+            toTokenize.append(" ");
+            last = m.end();
+        }
+        
+        if (last < contents.length())
+            toTokenize.append(contents.subSequence(last, contents.length() - 1));
+
+        /* Finally, tokens! */
+        String[] tokens = toTokenize.toString().split(" ");
+
+        
+        /* Split tokens in operators and operands */
+        for (String t : tokens) {
+            t = t.trim();
+            
+            if (t.length() <= 0)
+                continue;
+            
+            if (tokenizer.matcher(t).find()) {
+                operators.add(t);
+            } else {
+                operands.add(t);
+            }
+        }
+       
+        /*
+         * Halstead metric notation:
+         * N1 = the total number of operators
+         * N2 = the total number of operands
+         * n1 = the number of distinct operators
+         * n2 = the number of distinct operands
+         */
+        int N1 = operators.size();
+        int N2 = operands.size();
+        int n1 = uniq(operators).size();
+        int n2 = uniq(operands).size();
+        
+        /* Program Length*/
+        int N = N1 + N2;
+        
+        /* Program Vocabulary*/
+        int n = n1 + n2;
+        
+        /* Program Volume*/
+        double V = N * (double)(Math.log(n)/Math.log(2));
+        
+        /* Difficulty */
+        double D = (double)(n1 / 2) * (double)(N2 / n2);
+
+        /* Level */
+        double L = (double)(1 / D);
+        
+        /* Effort */
+        double E = (double)(D * V);
+        
+        /* Time to implement */
+        double T = (double)E/18;
+        
+        /* Bugs */
+        double B = (double)(( E * (double)(2/3) ) / 3000);
+        
+        addRecord(MNEM_HN, fileDAO.get(), String.valueOf(N));
+        addRecord(MNEM_HVS, fileDAO.get(), String.valueOf(n));
+        addRecord(MNEM_HV, fileDAO.get(), String.valueOf(V));
+        addRecord(MNEM_HD, fileDAO.get(), String.valueOf(D));
+        addRecord(MNEM_HL, fileDAO.get(), String.valueOf(L));
+        addRecord(MNEM_HE, fileDAO.get(), String.valueOf(E));
+        addRecord(MNEM_HT, fileDAO.get(), String.valueOf(T));
+        addRecord(MNEM_HB, fileDAO.get(), String.valueOf(B));
+    }
+    
+    private Set<String> uniq(List<String> arlList) {
+        HashSet<String> h = new HashSet<String>(arlList);
+        return h;
+    }
+    
+    private void addRecord(String mnem, ProjectFile pf, String value) {
+        Metric m = Metric.getMetricByMnemonic(mnem);
+        ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf, value);
+        db.addRecord(pfm); 
+        markEvaluation(m, pf);
     }
 }
 
