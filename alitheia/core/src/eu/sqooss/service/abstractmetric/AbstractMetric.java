@@ -970,6 +970,25 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return result;
     }
     
+    /**
+     * Convenience method to get the measurement for a single metric for a 
+     * ProjectFile.
+     */
+    protected List<ResultEntry> getResult(ProjectFile pf, Metric m, String mime) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("projectFile", pf);
+        props.put("metric", m);
+        List<ProjectFileMeasurement> pfms = dbs.findObjectsByProperties(ProjectFileMeasurement.class, props);
+        
+        if (pfms.isEmpty())
+            return null;
+        
+        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
+        result.add(new ResultEntry(Integer.parseInt(pfms.get(0).getResult()), mime, m.getMnemonic()));
+        return result;
+    }
+    
     /**{@inheritDoc}*/
     public final Class<? extends DAObject> getMetricActivationType(Metric m) {
         if (!metricActTypes.containsKey(m.getMnemonic())) {

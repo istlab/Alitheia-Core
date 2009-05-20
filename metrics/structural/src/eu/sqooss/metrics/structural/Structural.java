@@ -68,6 +68,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
@@ -102,6 +103,19 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
     
     private ThreadLocal<ProjectFile> fileDAO;
     
+    /* Helper array to tell metrics returning double from metrics returning
+     * integer values
+     */
+    private static List<String> mimeTypeDouble = new ArrayList<String>();
+    
+    static {
+        mimeTypeDouble.add(MNEM_HV);
+        mimeTypeDouble.add(MNEM_HD);
+        mimeTypeDouble.add(MNEM_HL);
+        mimeTypeDouble.add(MNEM_HE);
+        mimeTypeDouble.add(MNEM_HT);
+        mimeTypeDouble.add(MNEM_HB);
+    }
    
     /* Contains a regular expression that can detect with reasonable accuracy 
      * a method declaration for the specified extention. The regular expression
@@ -208,9 +222,11 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         return result;
     }
 
-    public List<ResultEntry> getResult(ProjectFile a, Metric m) {
+    public List<ResultEntry> getResult(ProjectFile a, Metric m) {        
+        String mime = mimeTypeDouble.contains(m.getMnemonic())?
+                ResultEntry.MIME_TYPE_TYPE_DOUBLE:ResultEntry.MIME_TYPE_TYPE_INTEGER;
         
-        return null;
+        return getResult(a, m, mime);
     }
     
     public void run(ProjectFile pf) {
