@@ -116,6 +116,7 @@
     <module>discussionheat</module>
     <module>testability</module>
     <module>structural</module>
-  </modules>
+    <module>mi</module>
+</modules>
 </project>
 
