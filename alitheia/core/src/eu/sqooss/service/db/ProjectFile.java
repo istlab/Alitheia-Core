@@ -463,7 +463,7 @@ public class ProjectFile extends DAObject{
             + " and pf.name = :" + paramFile
             + " and pf.dir = :" + paramDir
             + " and pv.project = :" + paramProject
-            + " order by pv.sequence desc";
+            + " order by pv.sequence asc";
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put(paramFile, pf.getName());
         parameters.put(paramDir, pf.getDir());

@@ -928,7 +928,7 @@ public class ProjectManager extends AbstractManager {
                 for (ProjectFile file: mods) {
                     String verRevision = file.getProjectVersion().getRevisionId();
                     result[index++] = new WSFileModification(
-                            file.getProjectVersion().getTimestamp(), pf.getId(), verRevision);
+                            file.getProjectVersion().getTimestamp(), file.getId(), verRevision);
                 }
             }
         }

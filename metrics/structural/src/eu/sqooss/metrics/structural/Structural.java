@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -70,6 +71,7 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
@@ -226,7 +228,23 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         String mime = mimeTypeDouble.contains(m.getMnemonic())?
                 ResultEntry.MIME_TYPE_TYPE_DOUBLE:ResultEntry.MIME_TYPE_TYPE_INTEGER;
         
-        return getResult(a, m, mime);
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("projectFile", a);
+        props.put("metric", m);
+        List<ProjectFileMeasurement> pfms = dbs.findObjectsByProperties(ProjectFileMeasurement.class, props);
+        
+        if (pfms.isEmpty())
+            return null;
+        
+        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
+        
+        if (mime.equals(ResultEntry.MIME_TYPE_TYPE_INTEGER))
+            result.add(new ResultEntry(Integer.parseInt(pfms.get(0).getResult()), mime, m.getMnemonic()));
+        else 
+            result.add(new ResultEntry(Double.parseDouble(pfms.get(0).getResult()), mime, m.getMnemonic()));
+        
+        return result;
     }
     
     public void run(ProjectFile pf) {
@@ -253,7 +271,7 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         
         /* Call the metric calculation methods*/
         halstead(fileContents);
-        //mccabe(fileContents);
+        mccabe(fileContents);
     }
     
 

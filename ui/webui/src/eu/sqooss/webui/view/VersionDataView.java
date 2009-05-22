@@ -436,9 +436,10 @@ public class VersionDataView extends AbstractDataView {
                     + "</tr>\n");
 
             // Version tag
-            TaggedVersion tag =
-                project.getTaggedVersions().getTaggedVersionById(
-                        selVersion.getId());
+          //  TaggedVersion tag =
+            //    project.getTaggedVersions().getTaggedVersionById(
+              //          selVersion.getId());
+            TaggedVersion tag = null;
             if (tag != null) {
                 b.append(sp(in) + "<tr>"
                         + "<td><b>Tag name</b></td>"

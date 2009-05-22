@@ -288,14 +288,14 @@ public class File extends AbstractDatatype {
          */
         ArrayList<String> missingMnemonics = new ArrayList<String>();
         missingMnemonics.addAll(mnemonics);
-        for (String mnemonic : results.keySet()) {
-            if (missingMnemonics.contains(mnemonic))
-                missingMnemonics.remove(mnemonic);
-        }
+        //for (String mnemonic : results.keySet()) {
+        //    if (missingMnemonics.contains(mnemonic))
+        //       missingMnemonics.remove(mnemonic);
+        //}
         /*
          * Construct the result request's object.
          */
-        if (missingMnemonics.size() > 0) {
+       // if (missingMnemonics.size() > 0) {
         WSMetricsResultRequest reqResults = new WSMetricsResultRequest();
         reqResults.setDaObjectId(new long[]{resourceId});
         reqResults.setProjectFile(true);
@@ -306,7 +306,7 @@ public class File extends AbstractDatatype {
          */
         for (Result nextResult : terrier.getResults(reqResults))
             results.put(nextResult.getMnemonic(), nextResult);
-        }
+        //}
         return results;
     }
 
