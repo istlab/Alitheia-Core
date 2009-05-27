@@ -52,19 +52,24 @@ import java.util.Map;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.ProjectFileMetric;
 import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FileTypeMatcher;
+import eu.sqooss.service.pa.PluginInfo;
 
 /**
  * Implements module and project wide maintainability index calculation
@@ -154,12 +159,31 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
         pf = db.attachObjectToDBSession(pf);
         
         /*MI works at the module level for src directories*/
-        if (!pf.getIsDirectory() || !isSrcDir(pf))
+        if (!pf.getIsDirectory())
             return;
         
+        AlitheiaPlugin modulemetrics = pa.getImplementingPlugin(MNEM_ISSRC);
+        Metric issrc = Metric.getMetricByMnemonic(MNEM_ISSRC);
+        Integer result = getResult(modulemetrics, issrc, pf, Integer.class);
+
+        if (result == null)
+            return;
+
+        if (result == 0)
+            return;
+
+        /* We now know that we are working with a dir*/
         List<ProjectFile> fileList = pf.getProjectVersion().getFiles(
                 Directory.getDirectory(pf.getFileName(), false), 
                 ProjectVersion.MASK_FILES);
+        
+        AlitheiaPlugin loc =  pa.getImplementingPlugin(MNEM_LOC);
+        Metric locmetric = Metric.getMetricByMnemonic(MNEM_LOC);
+        Metric locommetric = Metric.getMetricByMnemonic(MNEM_LOCOM);
+        
+        AlitheiaPlugin structure = pa.getImplementingPlugin(MNEM_HV);
+        Metric hvmetric = Metric.getMetricByMnemonic(MNEM_HV);
+        Metric eccmetric = Metric.getMetricByMnemonic(MNEM_ECC);
         
         /*Empty directory*/
         if (fileList.size() == 0)
@@ -175,7 +199,7 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
             if (f.getIsDirectory() || !ftm.isSourceFile(f.getFileName()))
                 continue;
             
-            Integer LOC = getResult(MNEM_LOC, f, Integer.class);
+            Integer LOC = getResult(loc, locmetric, f, Integer.class);
             
             if (LOC == null) {
                 log.warn("Error getting metric " + MNEM_LOC
@@ -184,7 +208,7 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
                 totalLoC += LOC;
             }
             
-            Double V = getResult(MNEM_HV, f, Double.class);
+            Double V = getResult(structure, hvmetric, f, Double.class);
             
             if (V == null) {
                 log.warn("Error getting metric " + MNEM_HV 
@@ -193,7 +217,7 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
                 totalV += V;
             }
             
-            Integer ECC_TOTAL = getResult(MNEM_ECC, f, Integer.class);
+            Integer ECC_TOTAL = getResult(structure, eccmetric, f, Integer.class);
             
             if (ECC_TOTAL == null) {
                 log.warn("Error getting metric " + MNEM_ECC 
@@ -202,7 +226,7 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
                 totalG += ECC_TOTAL;
             }
             
-            Integer LOCOM = getResult(MNEM_LOCOM, f, Integer.class);
+            Integer LOCOM = getResult(loc, locommetric , f, Integer.class);
             
             if (LOCOM == null) {
                 log.warn("Error getting metric " + MNEM_LOCOM 
@@ -211,7 +235,7 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
                 totalLoCom += LOCOM;
             }
         }
-        
+         
         /* This means that while the module is a source module
          * no parser has been defined in the Structural metrics
          * plugin to support the language this module is written into 
@@ -329,16 +353,62 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
         }
     }
     
-    private boolean isSrcDir(ProjectFile pf) throws AlreadyProcessingException {
+    
+  
+    /**
+     * Convenience method that returns the (numeric) result for a single metric
+     * for which we now the return type. This method will not trigger a metric
+     * calculation if the result in not in the DB.
+     * 
+     * @param <E> The type that the metric stores its result
+     * @param mnemonic The metric to return the result for
+     * @param c The DAObject to return the result for
+     * @param resultType The type to return
+     * 
+     * @return The metric result or null if no result is in the database.
+     */
+    private <E extends Number> E getResult(AlitheiaPlugin plugin, Metric m, 
+            DAObject c, Class<E> resultType) {
+        
+        if (plugin == null) {
+            log.error("Could not find the " + m.getMnemonic() 
+                    + " metric's plug-in");
+            return null;
+        }
 
-        Integer result = getResult(MNEM_ISSRC, pf, Integer.class);
+        List<Metric> l = new ArrayList<Metric>();
+        l.add(m);
+        try {
+            Result r = plugin.getResultIfAlreadyCalculated(c, l);
 
-        if (result == null)
-            return false;
+            if (r == null)
+                return null;
+            
+            if (!r.hasNext())
+                return null;
 
-        if (result == 0)
-            return false;
+            List<ResultEntry> resline = r.next();
 
-        return true;
-    }
+            if (!resline.iterator().hasNext())
+                return null;
+
+            String s = resline.iterator().next().toString();
+
+            if (resultType.equals(Double.class))
+                return (E) new Double(s);
+
+            if (resultType.equals(Integer.class))
+                return (E) new Integer(s);
+
+            if (resultType.equals(Float.class))
+                return (E) new Float(s);
+
+            return null;
+            
+        } catch (Exception e) {
+            log.error(this.getName() + ": Result for metric " + m.getMnemonic()
+                    + " cannot be retrieved for DAO " + c.toString());
+            return null;
+        }
+    }    
 }
