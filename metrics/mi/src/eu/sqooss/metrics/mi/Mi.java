@@ -199,22 +199,14 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
             if (f.getIsDirectory() || !ftm.isSourceFile(f.getFileName()))
                 continue;
             
-            Integer LOC = getResult(loc, locmetric, f, Integer.class);
+            Double HV = getResult(structure, hvmetric, f, Double.class);
             
-            if (LOC == null) {
-                log.warn("Error getting metric " + MNEM_LOC
-                        + " for file " + f);
-            } else {
-                totalLoC += LOC;
-            }
-            
-            Double V = getResult(structure, hvmetric, f, Double.class);
-            
-            if (V == null) {
+            if (HV == null) {
                 log.warn("Error getting metric " + MNEM_HV 
                         + " for file " + f);
+                continue;
             } else {
-                totalV += V;
+                totalV += HV;
             }
             
             Integer ECC_TOTAL = getResult(structure, eccmetric, f, Integer.class);
@@ -222,8 +214,22 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
             if (ECC_TOTAL == null) {
                 log.warn("Error getting metric " + MNEM_ECC 
                         + " for file " + f);
+                totalV -= HV;
+                continue;
             } else {
                 totalG += ECC_TOTAL;
+            }
+            
+            Integer LOC = getResult(loc, locmetric, f, Integer.class);
+            
+            if (LOC == null) {
+                log.warn("Error getting metric " + MNEM_LOC
+                        + " for file " + f);
+                totalV -= HV;
+                totalG -= ECC_TOTAL;
+                continue;
+            } else {
+                totalLoC += LOC;
             }
             
             Integer LOCOM = getResult(loc, locommetric , f, Integer.class);
@@ -231,6 +237,10 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
             if (LOCOM == null) {
                 log.warn("Error getting metric " + MNEM_LOCOM 
                         + " for file " + f);
+                totalV -= HV;
+                totalG -= ECC_TOTAL;
+                totalLoC -= LOC;
+                continue;
             } else {
                 totalLoCom += LOCOM;
             }
