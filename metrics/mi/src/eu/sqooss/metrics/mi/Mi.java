@@ -62,14 +62,12 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
-import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FileTypeMatcher;
-import eu.sqooss.service.pa.PluginInfo;
 
 /**
  * Implements module and project wide maintainability index calculation

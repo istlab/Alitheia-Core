@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Developer Metrics 
+Bundle-SymbolicName: eu.sqooss.metric.developermetrics
+Bundle-Version: 0.0.1
+Bundle-Vendor: AUEB
+Bundle-Description: Developermetrics metric
+Bundle-Activator: eu.sqooss.metrics.developermetrics.DevelopermetricsActivator
+Import-Package:  org.osgi.framework,
+    eu.sqooss.core,
+    eu.sqooss.service.abstractmetric,
+    eu.sqooss.service.db,
+    eu.sqooss.service.fds,
+    eu.sqooss.service.logging,
+    eu.sqooss.service.scheduler,
+    eu.sqooss.service.tds,
+    eu.sqooss.service.util,
+    org.apache.commons.codec.digest

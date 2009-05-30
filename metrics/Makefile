@@ -1,5 +1,5 @@
 TOP_SRCDIR=..
-SUBDIRS=clmt skeleton wc contrib quality-model simulation modulemetrics mde multigrep testability discussionheat structural mi
+SUBDIRS=clmt skeleton wc contrib quality-model simulation modulemetrics mde multigrep testability discussionheat structural mi developermetrics
 
 include $(TOP_SRCDIR)/Makefile.metrics
 

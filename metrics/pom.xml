@@ -117,6 +117,7 @@
     <module>testability</module>
     <module>structural</module>
     <module>mi</module>
+    <module>developermetrics</module>
 </modules>
 </project>
 
