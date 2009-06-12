@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 
@@ -18,6 +19,7 @@ import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
@@ -95,8 +97,27 @@ public class DiscussionHeat extends AbstractMetric implements
         List<Integer> thrDepths = (List<Integer>)db.doHQL(thrDepth, params);
         List<Long> mailsPerList = (List<Long>)db.doHQL(numMails, params);
         
-        int score = getQuartile(thrDepths, m.getThreadDepth()) 
-                + getQuartile(mailsPerList, m.getMessages().size());
+        //Get one day's worth of messages
+        List<MailMessage> msgs = m.getMessagesByArrivalOrder();
+        List<MailMessage> oneDayMsgs = new ArrayList<MailMessage>();
+        int depth = 0; MailMessage first = null;
+        
+        for (MailMessage msg : msgs) {
+            if (first != null) {
+                if (msg.getSendDate().getTime() - 
+                        first.getSendDate().getTime() < (24L * 3600 * 1000)) {
+                    oneDayMsgs.add(msg);
+                } else {
+                    break;
+                }
+            } else {
+                first = msg;
+                oneDayMsgs.add(msg);
+            }
+        }
+        
+        int score = getQuartile(thrDepths, depth) 
+                + getQuartile(mailsPerList, oneDayMsgs.size());
         
         Metric hotness = Metric.getMetricByMnemonic("HOTNESS");
         
