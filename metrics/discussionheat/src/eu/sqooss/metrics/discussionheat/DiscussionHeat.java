@@ -250,6 +250,8 @@ public class DiscussionHeat extends AbstractMetric implements
         try {
             // Get difference in number of lines for all file changes
             for (ProjectFile pf : pv.getVersionFiles()) {
+                if (pf.getIsDirectory())
+                    continue;
                 if (pf.isDeleted()) {
                     linesChanged += getLOCResult(pf.getPreviousFileVersion(),
                             plugin, locMetric);
