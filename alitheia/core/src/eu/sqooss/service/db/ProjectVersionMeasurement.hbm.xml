@@ -8,8 +8,8 @@
     <id name="id" column="PROJECT_VERSION_MEASUREMENT_ID">
       <generator class="native" />
     </id>
-    <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge" />
-    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge" />
+    <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge"  unique-key="unqmp"/>
+    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge" unique-key="unqmp" />
     <property name="result" column="RESULT" type="string" />
   </class>
 </hibernate-mapping>

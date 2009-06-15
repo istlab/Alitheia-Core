@@ -8,8 +8,8 @@
     <id name="id" column="ML_THREAD_MEASUREMENT_ID">
       <generator class="native" />
     </id>
-    <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge" />
-    <many-to-one name="thread" column="THREAD_ID" not-null="true" cascade="merge" />
+    <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge" unique-key="unqmt" />
+    <many-to-one name="thread" column="THREAD_ID" not-null="true" cascade="merge" unique-key="unqmt" />
     <property name="result" column="RESULT" type="string" />
   </class>
 </hibernate-mapping>

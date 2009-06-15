@@ -46,6 +46,8 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -226,10 +228,8 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         DBService db = AlitheiaCore.getInstance().getDBService();
         
         if (db != null && db.startDBSession()) {
-            List<?> l = db.doHQL("from StoredProject");
-
-            for (Object o : l) {
-                StoredProject p = (StoredProject) o;
+            
+            for (StoredProject p : ClusterNode.thisNode().getProjects()) {
                 addAccessor(p.getId(), p.getName(), p.getBtsUrl(), 
                         p.getMailUrl(), p.getScmUrl());
             }
