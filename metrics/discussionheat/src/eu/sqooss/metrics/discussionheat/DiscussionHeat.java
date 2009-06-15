@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 
@@ -39,13 +38,13 @@ public class DiscussionHeat extends AbstractMetric implements
     
     private static final String thrDepth = "select distinct m.depth" +
     		" from MailMessage m, MailingListThread mt " +
-    		" where mt.list.storedProject = :sp " +
+    		" where mt.list = :lst " +
     		" and m.thread = mt order by m.depth";
     
     private static final String numMails = "select distinct count(mm) " +
     		"from MailMessage mm, MailingListThread mt " +
     		"where mm.thread = mt " +
-    		"and mt.list.storedProject = :sp " +
+    		"and mt.list = :lst " +
     		"group by mt " +
     		"order by count (mm)";
     
@@ -92,7 +91,7 @@ public class DiscussionHeat extends AbstractMetric implements
     public void run(MailingListThread m) throws AlreadyProcessingException {
         
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("sp", m.getList().getStoredProject());
+        params.put("lst", m.getList());
         
         List<Integer> thrDepths = (List<Integer>)db.doHQL(thrDepth, params);
         List<Long> mailsPerList = (List<Long>)db.doHQL(numMails, params);
