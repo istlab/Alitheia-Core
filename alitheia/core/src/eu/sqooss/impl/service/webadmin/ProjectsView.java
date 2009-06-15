@@ -375,8 +375,7 @@ public class ProjectsView extends AbstractView {
         b.append(errorFieldset(e, ++in));
 
         // Get the complete list of projects stored in the SQO-OSS framework
-        List<StoredProject> projects = sobjDB.findObjectsByProperties(
-                    StoredProject.class, new HashMap<String, Object>());
+        List<StoredProject> projects = ClusterNode.thisNode().getProjects();
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
         // ===================================================================

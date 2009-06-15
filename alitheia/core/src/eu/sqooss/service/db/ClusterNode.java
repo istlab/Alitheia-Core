@@ -36,6 +36,8 @@ package eu.sqooss.service.db;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
 import eu.sqooss.core.AlitheiaCore;
 
 
@@ -66,7 +68,8 @@ public class ClusterNode extends DAObject {
         return this.name;
     }
     
-
+    
+    
     public static ClusterNode getClusteNodeByName(String name) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
@@ -76,4 +79,29 @@ public class ClusterNode extends DAObject {
         return (cnList == null || cnList.isEmpty()) ? null : cnList.get(0);
     }
     
+    public static ClusterNode thisNode() {
+        String hostname;
+        try {
+            java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
+            hostname = localMachine.getHostName();
+        }
+        catch(java.net.UnknownHostException ex) {
+            hostname = "unknown host";
+        }       
+        
+        return getClusteNodeByName(hostname);
+    }
+    
+    public List<StoredProject> getProjects() {
+        StringBuffer q = new StringBuffer("select project ");
+        q.append("from ClusterNodeProject cnp ");
+        q.append("where cnp.node =:node");
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("node", this);
+        
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        return (List<StoredProject>) dbs.doHQL(q.toString(), params);
+    }
+
 }
