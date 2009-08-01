@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="MACROMAN"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>eu</groupId>
+    <artifactId>sqooss</artifactId>
+    <version>0.9</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.sqooss</groupId>
+  <artifactId>external</artifactId>
+
+  <name></name>
+
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>org.tmatesoft.svnkit</module>
+    <module>org.apache.velocity</module>
+    <module>org.hibernate.core</module>
+    <module>javax.servlet.api</module>
+    <module>dom4j</module>
+    <module>javax.mail</module>
+    <module>commons-codec</module>
+    <module>log4j</module>
+    <module>org.eclipse.equinox.event</module>
+  </modules>
+
+</project>

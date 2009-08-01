@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.ClusterNodeProject" table="CLUSTERNODE_PROJECT">
+    <id name="id" column="ASSIGNMENT_ID">
+       <generator class="native"/>
+    </id>
+
+    <!--  http://www.hibernate.org/hib_docs/reference/en/html_single/#objectstate-transitive  -->    
+    <many-to-one name="node" column="CLUSTERNODE_ID" class="eu.sqooss.service.db.ClusterNode" not-null="true" cascade="merge"/>
+       
+    <!--  just link StoredProjects here, no other constraints due to instructions not to alter original schema -->
+    <!--  Q: 'unique' creates 2nd index in mysql (?) -->
+    <many-to-one name="project" column="PROJECT_ID" class="eu.sqooss.service.db.StoredProject" not-null="true" unique="true" cascade="merge"/>
+    
+    <!-- lock the assignment to prevent it from moving to another clusternode - default:false-->
+    <property name="locked" column="LOCKED" type="boolean"/> 
+    
+  </class>  
+</hibernate-mapping>
+

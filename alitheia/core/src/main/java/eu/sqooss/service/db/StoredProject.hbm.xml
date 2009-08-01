@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.StoredProject" table="STORED_PROJECT">
+    <id name="id" column="PROJECT_ID">
+      <generator class="native" />
+    </id>
+    <property name="name" column="PROJECT_NAME" unique="true" />
+    <list name="projectVersions" inverse="true" cascade="all-delete-orphan" lazy="extra">
+        <key column="STORED_PROJECT_ID"/>
+        <list-index column="REVISION_ID"/>
+        <one-to-many class="eu.sqooss.service.db.ProjectVersion"/>
+    </list>
+    <set name="developers" inverse="true" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.Developer"/>
+    </set>
+    <set name="mailingLists" inverse="true" cascade="all-delete-orphan">
+        <key column="PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.MailingList"/>
+    </set>
+    <set name="measurements" inverse="true" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.StoredProjectMeasurement"/>
+    </set>
+    <set name="evaluationMarks" inverse="true" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID"/>
+        <one-to-many class="eu.sqooss.service.db.EvaluationMark"/>
+    </set>
+    <set name="bugs" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID" />
+        <one-to-many class="eu.sqooss.service.db.Bug" />
+    </set>
+    
+    <set name="configOpts" table="StoredProjectConfig" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID" />
+        <many-to-many column="CONFIG_OPTION_ID" class="eu.sqooss.service.db.ConfigurationOption"/>
+    </set>
+    
+    <set name="timelineEvents" table="TimeLineEvent" cascade="all-delete-orphan">
+        <key column="STORED_PROJECT_ID" />
+        <one-to-many class="eu.sqooss.service.db.TimeLineEvent"/>
+    </set>
+  </class>
+</hibernate-mapping>

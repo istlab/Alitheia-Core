@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title>TDS Service</title>
+</head>
+<body>
+<p>
+The TDS (Thin Data Service) is a service within the Alitheia
+system that performs basic data access. It has no intelligence,
+and returns raw data retrieved from the File System or other
+storage mechanism only. The TDS should be wrapped up and
+coddled by the FDS (Fat Data Service) for intelligent use.
+</p>
+<p>
+The TDS hands out accessors to the kinds of raw data it has.
+Access is initially granted through a project accessor of
+type TDAccessor; this is tied to a specific project (by
+project ID, although an informative name may be attached to
+it as well). The TDAccessor can be used to obtain accessors
+for specific kinds of raw data. The three types currently
+supported are:
+</p>
+<ul>
+    <li>SCMAccessor, via getSCMAccessor(), for SVN data</li>
+    <li>MailAccessor, via getMailAccessor(), for mail data</li>
+    <li>BTSAccessor, via getBTSAccessor(), for bug data</li>
+</ul>
+Typical workflow will therefore be:
+<ol>
+    <li>Obtain reference to TDS</li>
+    <li>Obtain TDAccessor from TDS</li>
+    <li>Obtain raw data accessor from TDAccessor</li>
+    <li>Use the raw data accessor</li>
+</ol>
+<p>
+Note that a TDAccessor must be released back to the TDS at
+some point, for resource management (it may be impossible to
+create too many accessors for different projects). TDAccessor
+objects may be shared between different threads or metrics
+wanting access to the same raw data (although really, they should
+be going through the FDS most of the time).
+</p>
+</body>
+</html>

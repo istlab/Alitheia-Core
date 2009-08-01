@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.PluginConfiguration" table="PLUGIN_CONFIGURATION">
+    <id name="id" column="PLUGIN_CONFIGURATION_ID">
+      <generator class="native" />
+    </id>
+    <property name="name" column="NAME" type="string" />
+    <property name="value" column="VALUE" type="string"/>
+    <property name="type" column="TYPE"/>
+    <property name="msg" column="MSG" type="string" length="255"/>
+    <many-to-one name="plugin" column="PLUGIN_ID" cascade="merge" />
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,232 @@
+/* This is CSS for the web admin portion of Alitheia's core.
+   It handles all the specialised formatting for the webadmin's
+   menu system and special input boxes.
+*/
+h2 {
+    font-size: 16px;
+}
+#menu {
+	border-bottom : 1px solid #ccc;
+	margin : 0;
+	padding-bottom : 30px;
+	padding-left : 10px;
+}
+
+#menu ul, #menu li	{
+	display : inline;
+	list-style-type : none;
+	margin : 0;
+	padding : 0;
+}
+
+
+#menu a:link, #menu a:visited	{
+	background : #E8EBF0;
+	border : 1px solid #ccc;
+	color : #666;
+	float : left;
+	font-size : small;
+	font-weight : normal;
+	line-height : 25px;
+	margin-right : 8px;
+	padding : 2px 10px 2px 10px;
+	text-decoration : none;
+}
+
+#menu a:link.active, #menu a:visited.active	{
+	background : #fff;
+	border-bottom : 1px solid #fff;
+	color : #000;
+}
+
+#menu a:hover	{
+	color : #f00;
+}
+
+#menu li#nav-1 a {
+	background : #eee url(/metrics.png) 0 3px no-repeat;
+	padding-left: 25px;
+	border-bottom : 1px solid #ccc;
+}
+
+#menu li#nav-2 a {
+	background : #eee url(/logs.png) 0 3px no-repeat;
+	padding-left: 25px;
+	border-bottom : 1px solid #ccc;
+}
+
+#menu li#nav-3 a {
+	background : #eee url(/projects.png) 0 3px no-repeat;
+	padding-left: 25px;
+	border-bottom : 1px solid #ccc;
+}
+
+#menu li#nav-4 a {
+	background : #eee url(/jobs.png) 0 3px no-repeat;
+	padding-left: 25px;
+	border-bottom : 1px solid #ccc;
+}
+
+#menu li#nav-6 a {
+	background : #eee url(/add_user.png) 0 3px no-repeat;
+	padding-left: 25px;
+	border-bottom : 1px solid #ccc;
+}
+
+#menu li#nav-7 a {
+    background : #eee url(/rules.png) 0 3px no-repeat;
+    padding-left: 25px;
+    border-bottom : 1px solid #ccc;
+}
+
+body.section-1 #menu li#nav-1 a,
+body.section-2 #menu li#nav-2 a,
+body.section-3 #menu li#nav-3 a,
+body.section-4 #menu li#nav-4 a,
+body.section-5 #menu li#nav-5 a,
+body.section-6 #menu li#nav-6 a,
+body.section-7 #menu li#nav-7 a  {
+	background-color: #fff;
+	border-bottom : 1px solid #fff;
+	color : #000;
+}
+
+#menu ul a:hover {
+	color : #f00 !important;
+}
+
+/* Logs tab gets special handling inside. */
+
+#contents .logs {
+	font-family: monospace;
+}
+
+/* New project box inside the projects tab */
+
+#newproject table {
+    	border-collapse: collapse;
+	font-size: 12px;
+}
+
+#newproject td {
+    	margin: 0;
+    	padding: 4px;
+}
+
+#newproject .form {
+	width: 100%;
+	border: 1px solid #ccc;
+	background: url(/greyBack.jpg) top repeat-x;
+}
+
+#status li {
+	line-height: 1.5em;
+}
+
+#status li.uptime  {
+	list-style: none;
+	background-image: url(/uptime.png);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	padding-top: 3px;
+	padding-left: 37px;
+	padding-bottom: 10px;
+}
+
+#status li.queue  {
+	list-style: none;
+	background-image: url(/queue.png);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	padding-top: 3px;
+	padding-left: 37px;
+	padding-bottom: 10px;
+}
+
+
+/* ===[ METRICS CSS ]===================================================== */
+#table {
+    font-size: 10pt;
+}
+#table table {
+    border-collapse: collapse;
+    width: 100%;
+}
+#table td {
+    padding-left: 10px;
+}
+#table input.expand {
+    width: 100%;
+}
+#table .borderless {
+    border: 0;
+    background-color: transparent;
+}
+#table .form {
+    width: 150px;
+    border: 1px solid #ccc;
+    background: url(/greyBack.jpg) top repeat-x;
+    font-size: 8pt;
+}
+#table tr.head {
+    background-color: #CCCCFF;
+    font-weight: bold;
+}
+#table tr.subhead {
+    background-color: #CCFFCC;
+}
+#table tr.edit {
+    cursor: pointer;
+}
+#table tr.edit:hover {
+    background-color: #FFFF99;
+}
+#table tr.editMajor {
+    background-color: #EEEEEE;
+    cursor: pointer;
+    font-weight: bold;
+}
+#table tr.editMajor:hover {
+    background-color: #FFFF99;
+}
+#table tr.selected {
+    color: Green;
+    cursor: pointer;
+    background-color: #FFFF99;
+}
+#table td.head {
+    background-color: transparent;
+    text-align: left;
+}
+#table td.subhead {
+    text-align: left;
+    font-weight: lighter;
+}
+#table td.name {
+    font-weight: bold;
+}
+#table td.edit {
+    cursor: pointer;
+}
+#table td.edit:hover {
+    background-color: #FFFF99;
+}
+#table td.trans {
+    background-color: transparent;
+}
+#table td.uninstalled {
+    background-color: WhiteSmoke;
+}
+#table td.attr {
+    background-color: Bisque;
+}
+#table td.noattr {
+    background-color: Bisque;
+    font-style: italic;
+}
+#table fieldset {
+    background-color: #f6f6f6;
+    border: 1px dotted #ccc;
+    margin: 15px 0 10px 0;
+    font-size: 10pt;
+}

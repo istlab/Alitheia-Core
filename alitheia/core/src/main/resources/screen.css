@@ -1,0 +1,190 @@
+/* CSS for Alitheia's web interfaces. This is the shared portion
+   of the CSS, which defines general layout principles such as
+   body, #sidebar, #header and #footer. There shouldn't be much
+   layout specific to a particular application in here at all.
+
+   This file should be kept in-sync between the following places:
+	ui/webui/webapp/style/screen.css
+	alitheia/core/src/main/resources/screen.css
+*/
+
+body,
+html {
+	margin:0;
+	padding:0;
+	width: 100%;
+	font-family: Verdana, Helvetica, Arial;
+	color:#000;
+	background:#f6f6f6;
+}
+
+input {
+	font-size: 8pt;
+}
+
+#wrap {
+	background:#fff;
+	width: 100%;
+}
+
+#header {
+	background: #fff url(/header-repeat.png) repeat-x;
+	height: 75px;
+}
+
+#header h1 {
+	float: right;
+	padding: 10px 15px 0 0;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+#header img {
+	padding: 10px 0 0 10px;
+}
+
+#main {
+	background:#fff;
+	float:left;
+	width: 75%;
+	padding: 15px;
+}
+
+#footer {
+	background:#f6f6f6;
+	border-top: 1px solid #ccc;
+	margin-top: 10px;
+	text-align: center;
+	font-size: 0.8em;
+	clear:both;
+}
+
+#footer p {
+	padding:5px;
+	margin:0;
+}
+
+#contents {
+	background : #fff;
+	border : 1px solid #ccc;
+	border-top : none;
+	clear : both;
+	margin : 0px;
+	padding : 15px;
+	font-size: 12px;
+}
+
+#contents h1 {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	margin-bottom: 20px;
+	margin-top: 25px;
+	border-bottom: 1px dotted #000;
+}
+
+#contents h2 {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	margin-bottom: 10px;
+	margin-top: 20px;
+	border-bottom: 1px dotted #000;
+}
+
+#contents h3 {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	margin-bottom: 5px;
+	margin-top: 15px;
+	border-bottom: 1px dotted #000;
+}
+
+#contents table {
+	border-color: #c6c6c5;
+	border-width: 0 0 1px 1px;
+	border-style: solid;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+#contents thead {
+	text-align: center;
+	font-weight: bold;
+}
+
+#contents td {
+	border-color: #c6c6c5;
+	border-width: 1px 1px 0 0;
+	border-style: solid;
+	margin: 0;
+	padding: 4px;
+	background-color: #fcfbf2;
+}
+
+/* ===[ SIDEBAR ]========================================================= */
+
+#sidebar {
+	background:#fff;
+	float:right;
+	width:22%;
+}
+
+#sidebar fieldset {
+	display: inline;
+	background-color: #f6f6f6;
+	width: 89%;
+	float: left;
+	clear: left;
+	border: 1px solid #ccc;
+	margin: 15px 0px 10px 0px;
+	padding: 5px;
+	font-size: 10pt;
+}
+
+#sidebar form {
+	margin: 0px;
+	padding: 0px;
+}
+
+#sidebar table {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+}
+
+#sidebar ul {
+	margin : 0;
+	padding : 0;
+	text-align : left;
+	border : 0;
+}
+
+#sidebar .form {
+	width: 150px;
+	border: 1px solid #ccc;
+	background: url(/greyBack.jpg) top repeat-x;
+	font-size: 8pt;
+}
+
+/* ===[ MISCELANEOUS ]==================================================== */
+
+form p {
+	display: inline;
+}
+
+legend {
+	font-weight: bold;
+}
+
+tr.newgroup td {
+	margin-top: 3px;
+	padding-top: 3px;
+	border-top: 1px dotted #ccc;
+}
+
+td.number {
+	text-align: right;
+}
+

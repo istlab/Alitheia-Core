@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.ProjectVersionMeasurement" table="PROJECT_VERSION_MEASUREMENT">
+    <id name="id" column="PROJECT_VERSION_MEASUREMENT_ID">
+      <generator class="native" />
+    </id>
+    <many-to-one name="metric" column="METRIC_ID" not-null="true" cascade="merge"  unique-key="unqmp"/>
+    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge" unique-key="unqmp" />
+    <property name="result" column="RESULT" type="string" />
+  </class>
+</hibernate-mapping>

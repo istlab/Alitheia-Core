@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+  <class name="eu.sqooss.service.db.ConfigurationOption" table="CONFIG_OPTION">
+    <id name="id" column="CONFIG_OPTION_ID">
+      <generator class="native" />
+    </id>
+    <property name="key" column="CONFIG_KEY" unique="true" not-null="true" />
+    <property name="description" column="CONFIG_DESCR" not-null="true" />
+    
+    <set name="projects" table="StoredProjectConfig" cascade="all-delete-orphan">
+        <key column="CONFIG_OPTION_ID" />
+        <many-to-many column="STORED_PROJECT_ID" class="eu.sqooss.service.db.StoredProject"/>
+    </set>
+    
+  </class>
+</hibernate-mapping>

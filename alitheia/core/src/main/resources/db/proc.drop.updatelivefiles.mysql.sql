@@ -1,0 +1,5 @@
+DELIMITER $$ 
+
+DROP PROCEDURE IF EXISTS updatelivefiles$$
+
+DELIMITER ;

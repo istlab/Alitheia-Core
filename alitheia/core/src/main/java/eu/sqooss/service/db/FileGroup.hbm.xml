@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.FileGroup" table="FILE_GROUP">
+    <id name="id" column="FILE_GROUP_ID">
+      <generator class="native" />
+    </id>
+    <property name="name" column="FILE_GROUP_NAME" />
+    <property name="subPath" column="GROUP_SUBPATH" />
+    <property name="regex" column="REGEX" />
+    <property name="recalcFreq" column="RECALC_FREQ" />
+    <property name="lastUsed" column="LAST_USED" />
+    <many-to-one name="projectVersion" column="PROJECT_VERSION_ID" not-null="true" cascade="merge"/>
+    <set name="measurements" inverse="true" cascade="all-delete-orphan">
+        <key column="FILE_GROUP_ID"/>
+        <one-to-many class="eu.sqooss.service.db.FileGroupMeasurement"/>
+    </set>    
+  </class>
+</hibernate-mapping>

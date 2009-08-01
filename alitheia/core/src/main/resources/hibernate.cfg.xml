@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+        <!-- Database connection settings: all of these settings are 
+             set programmatically by initHibernate() in the DBS.
+
+             connection.driver_class
+             connection.url
+             connection.username
+             connection.password
+
+             SQL dialect is also set programmatically.
+
+             dialect
+        -->
+        <property name="hibernate.c3p0.acquire_increment">1</property> 
+        <property name="hibernate.c3p0.idle_test_period">100</property> <!-- seconds --> 
+        <property name="hibernate.c3p0.max_size">50</property> 
+        <property name="hibernate.c3p0.max_statements">100</property> 
+        <property name="hibernate.c3p0.min_size">10</property> 
+        <property name="hibernate.c3p0.timeout">100</property> <!-- seconds -->
+         
+        <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">25</property>
+
+        <!-- Read ahead size for JDBC connection -->
+        <property name="default_batch_fetch_size">30</property>
+
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">false</property>
+
+        <!-- Drop and re-create the database schema on startup -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <mapping resource="eu/sqooss/service/db/Privilege.hbm.xml"/>        
+        <mapping resource="eu/sqooss/service/db/PrivilegeValue.hbm.xml"/>        
+        <mapping resource="eu/sqooss/service/db/GroupPrivilege.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ServiceUrl.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MailMessage.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectVersionMeasurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/StoredProjectMeasurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/FileGroupMeasurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Metric.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MetricType.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Plugin.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/PluginConfiguration.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectFile.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/FileGroup.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectVersion.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Tag.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/PendingUser.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Group.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/GroupType.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/GroupUser.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Bug.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/BugReportMessage.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MailingList.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Developer.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Directory.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/EvaluationMark.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ClusterNode.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ClusterNodeProject.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/BugStatus.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/BugPriority.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/BugResolution.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/BugSeverity.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MailingListThread.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ProjectFileState.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/StoredProjectConfig.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/ConfigurationOption.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/Branch.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/DeveloperAlias.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/OhlohDeveloper.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/TimeLineEvent.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MailingListThreadMeasurement.hbm.xml"/>
+        <mapping resource="eu/sqooss/service/db/MailMessageMeasurement.hbm.xml"/>
+    </session-factory>
+
+</hibernate-configuration>

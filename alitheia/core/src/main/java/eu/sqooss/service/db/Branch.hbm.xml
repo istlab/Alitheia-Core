@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.Branch" table="BRANCH">
+    <id name="id" column="BRANCH_ID">
+      <generator class="native" />
+    </id>
+    <many-to-one name="branchVersion" column="BRANCH_VERSION" not-null="true" cascade="merge" />
+    <many-to-one name="mergeVersion" column="MERGE_VERSION" cascade="merge" />
+    <property name="name" column="BRANCH_NAME" not-null="true" />
+  </class>
+</hibernate-mapping>

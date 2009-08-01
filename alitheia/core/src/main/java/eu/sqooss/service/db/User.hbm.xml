@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.service.db.User" table="USERS">
+    <id name="id" column="USER_ID">
+      <generator class="native" />
+    </id>
+    <property name="name" column="NAME" not-null="true" unique="true" />
+    <property name="registered" column="REGISTERED" />
+    <property name="lastActivity" column="LAST_ACTIVITY" />
+    <property name="password" column="PASSWORD" not-null="true" />
+    <property name="email" column="EMAIL" not-null="true" />
+    
+    <set name="groups" table="GROUP_USER" inverse="true">
+      <key column="USER_ID"/>
+      <many-to-many class="eu.sqooss.service.db.Group" column="GROUP_ID"/>
+    </set>
+  </class>
+</hibernate-mapping>
+

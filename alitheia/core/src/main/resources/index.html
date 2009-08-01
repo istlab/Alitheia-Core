@@ -1,0 +1,13 @@
+#set($section=1)
+#parse("header.inc")
+      <div id="main">
+#parse("menu.inc")
+        <div id="contents">
+          <h2>$tr.label("plugins_mngm")</h2>
+          <div id="table">
+            $metrics.render($request)
+          </div>
+        </div>
+      </div>
+#parse("sidebar.inc")
+
