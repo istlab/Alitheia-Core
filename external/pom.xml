@@ -25,6 +25,9 @@
     <module>commons-codec</module>
     <module>log4j</module>
     <module>org.eclipse.equinox.event</module>
+    <module>mysql-connector-java</module>
+    <module>org.ops4j.pax.web.bundle</module>
+    <module>org.mortbay.jetty</module>
   </modules>
 
 </project>

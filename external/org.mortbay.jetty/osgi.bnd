@@ -7,5 +7,8 @@
 # to also inline dependencies of this artifact add Embed-Transitive: true
 #
 Embed-Dependency: *;scope=compile|runtime;type=!pom;inline=true
-Export-Package: javax.servlet.*;version=2.5
-
+Import-Package: !org.mortbay.*, com.sun.jdmk.*;resolution:=optional, javax.*;resolution:=optional, *
+Export-Package:\
+    org.mortbay.*; version="6.1.0",\
+    *
+-nouses:true
