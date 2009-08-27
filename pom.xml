@@ -64,7 +64,8 @@
            | some example Pax-Runner settings
           -->
           <provision>
-            <param>--platform=equinox</param>
+              <param>--platform=equinox</param>
+              <param>--ee=JavaSE-1.6</param>
           </provision>
         </configuration>
         <executions>
