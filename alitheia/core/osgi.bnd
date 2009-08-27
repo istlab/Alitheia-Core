@@ -5,6 +5,8 @@
 Bundle-Activator: eu.sqooss.core.CoreActivator
 Bundle-Category: core
 Bundle-Description: This bundle provides the core SQO-OSS services
-Import-Package: !eu.sqooss.*, *
+Import-Package: com.mysql.jdbc;resolution:=optional,\
+    *
 Export-Package: eu.sqooss.core, eu.sqooss.service.*
 Private-Package: eu.sqooss.impl.*
+

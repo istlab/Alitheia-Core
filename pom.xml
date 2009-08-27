@@ -37,6 +37,11 @@
   <properties>
     <org.osgi.service.http.port>8080</org.osgi.service.http.port>
     <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
+    <eu.sqooss.db.url>jdbc:mysql://localhost/alitheia?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8</eu.sqooss.db.url>
+	<eu.sqooss.db.driver>com.mysql.jdbc.Driver</eu.sqooss.db.driver>
+	<eu.sqooss.db.dialect>org.hibernate.dialect.MySQLInnoDBDialect</eu.sqooss.db.dialect>
+	<eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
+	<eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
   </properties>
 
   <packaging>pom</packaging>

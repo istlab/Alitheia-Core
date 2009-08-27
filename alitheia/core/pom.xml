@@ -21,6 +21,25 @@
 
   <packaging>bundle</packaging>
 
+  <build>
+  	<resources>
+  		<resource>
+  			<targetPath>eu/sqooss/service/db</targetPath>
+  			<directory>${basedir}/src/main/java/eu/sqooss/service/db/</directory>
+  			<includes>
+  				<include>**/*.xml</include>
+  			</includes>
+  		</resource>
+  		<resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <targetPath>.</targetPath>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+  	</resources>
+  </build>
+
   <dependencies>
     <!--
      | uncomment to add all imported (non-local) bundles to your compilation classpath
@@ -96,6 +115,16 @@
     	<groupId>org.eclipse.equinox</groupId>
     	<artifactId>event</artifactId>
     	<version>1.0.100-v20070516</version>
+    </dependency>
+    <dependency>
+    	<groupId>mysql</groupId>
+    	<artifactId>mysql-connector-java</artifactId>
+    	<version>5.1.6</version>
+    </dependency>
+    <dependency>
+    	<groupId>eu.sqooss.external</groupId>
+    	<artifactId>org.ops4j.pax.web.bundle</artifactId>
+    	<version>0.6.0-001-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

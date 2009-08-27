@@ -16,8 +16,6 @@
              connection.password
 
              SQL dialect is also set programmatically.
-
-             dialect
         -->
         <property name="hibernate.c3p0.acquire_increment">1</property> 
         <property name="hibernate.c3p0.idle_test_period">100</property> <!-- seconds --> 
