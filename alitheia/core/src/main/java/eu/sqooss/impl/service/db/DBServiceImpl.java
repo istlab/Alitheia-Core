@@ -213,7 +213,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             return;
         }
         try {
-            Configuration c = new Configuration().configure(configFileURL);
+            Configuration c = new Configuration().configure(configFileURL); 
             // c now holds the configuration from hibernate.cfg.xml, need
             // to override some of those properties.
             c.setProperty("hibernate.connection.driver_class", dbClass);
@@ -232,7 +232,9 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 if ( equinoxInstallDir.exists() && equinoxInstallDir.isDirectory() ) {
                     File[] metricsJars = equinoxInstallDir.listFiles(new FilenameFilter() {
                         public boolean accept(File dir, String name) {
-                            return name.startsWith("eu.sqooss.metrics") && name.endsWith(".jar");
+                            return 
+                            	(name.startsWith("eu.sqooss.metrics") || name.startsWith("eu.sqooss.alitheia")) 
+                            	&& name.endsWith(".jar");
                         }
                     });
                     for( File jarFile: metricsJars ) {
@@ -1198,7 +1200,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 }
                 logger.info("Caught STARTED event - Initialising Hibernate");
                 
-                initHibernate(bc.getBundle().getEntry("/hibernate.cfg.xml"), resetDatabase);
+                initHibernate(bc.getBundle().getResource("./hibernate.cfg.xml"), resetDatabase);
                 
                 isInitialised.compareAndSet(false, true);
                 

@@ -71,7 +71,7 @@ public class LogManagerImpl implements LogManager {
     	Enumeration<URL> props;
     	Properties p = new Properties();
     	try {
-    		props = getClass().getClassLoader().getResources("log4j.properties");
+    		props = getClass().getClassLoader().getResources("./log4j.properties");
 			p.load(props.nextElement().openStream());
 		} catch (Exception e) {
 			System.err.println("Logging initialisation failed, " +
