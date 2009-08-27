@@ -80,7 +80,7 @@
           <directory>${basedir}/src/eu/sqooss/metrics/structural</directory>
           <targetPath>eu/sqooss/metrics/structural</targetPath>
           <includes>
-              <inlude>config.properties</inlude>
+              <include>config.properties</include>
           </includes>
       </resource>
     </resources>
