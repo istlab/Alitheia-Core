@@ -33,6 +33,8 @@
   -->
 
   <description>Generated using Pax-Construct</description>
+  <repositories>
+  </repositories>
 
   <properties>
     <org.osgi.service.http.port>8080</org.osgi.service.http.port>
@@ -52,6 +54,14 @@
 	<module>external</module>
     <module>alitheia</module>
   </modules>
+  <developers>
+  	<developer>
+  		<id>gousiosg</id>
+  		<name>Georgios Gousios</name>
+  		<email>gousiosg@gmail.com</email>
+  		<url>http://istlab.dmst.aueb.gr/~george</url>
+  	</developer>
+  </developers>
 
   <build>
     <plugins>
