@@ -26,15 +26,7 @@
   <artifactId>sqooss</artifactId>
   <version>0.9</version>
 
-  <name>eu.sqooss (OSGi project)</name>
-
-  <!--
-   | describe your project here
-  -->
-
-  <description>Generated using Pax-Construct</description>
-  <repositories>
-  </repositories>
+  <name>The SQO-OSS project</name>
 
   <properties>
     <org.osgi.service.http.port>8080</org.osgi.service.http.port>
@@ -54,6 +46,17 @@
 	<module>external</module>
     <module>alitheia</module>
   </modules>
+  <description>
+  	Alitheia Core is a platform for conducting software engineering studies. 
+  	It integrates data from various sources such as from SVN, mailing lists and bug databases.
+
+	Being a platform, and not a concrete implementation, means that by writing the appropriate plug-ins, 
+	you can instruct Alitheia Core to produce any measurements you are interested into and maybe 
+	integrate those measurements in high level quality evaluations.
+
+	</description>
+  <url>http://www.sqo-oss.org</url>
+  <inceptionYear>2006</inceptionYear>
   <developers>
   	<developer>
   		<id>gousiosg</id>
@@ -62,6 +65,14 @@
   		<url>http://istlab.dmst.aueb.gr/~george</url>
   	</developer>
   </developers>
+  <scm>
+  	<url>http://websvn.sqo-oss.org</url>
+  	<connection>scm:svn:http://svn.sqo-oss.org/</connection>
+  </scm>
+  <organization>
+  	<name>Organisation for Free and Open Source Software Greece</name>
+  	<url>http://www.ellak.gr/</url>
+  </organization>
 
   <build>
     <plugins>
@@ -70,25 +81,11 @@
         <artifactId>maven-pax-plugin</artifactId>
         <version>1.4</version>
         <configuration>
-          <!--
-           | some example Pax-Runner settings
-          -->
           <provision>
               <param>--platform=equinox</param>
               <param>--ee=JavaSE-1.6</param>
           </provision>
         </configuration>
-        <executions>
-          <!--
-           | uncomment to auto-generate IDE files
-          <execution>
-            <id>ide-support</id>
-            <goals>
-              <goal>eclipse</goal>
-            </goals>
-          </execution>
-          -->
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -96,8 +93,7 @@
         <configuration>
           <showWarnings>true</showWarnings>
           <showDeprecation>true</showDeprecation>
-          <!--<compilerArgument>-Xlint</compilerArgument>-->
-          <source>1.5</source>
+          <source>1.6</source>
           <target>1.5</target>
         </configuration>
       </plugin>
