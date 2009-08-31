@@ -1,13 +1,67 @@
-#-----------------------------------------------------------------
-# Use this file to add customized Bnd instructions for the bundle
-#-----------------------------------------------------------------
-
 Bundle-Activator: eu.sqooss.core.CoreActivator
 Bundle-Category: core
 Bundle-Description: This bundle provides the core SQO-OSS services
-Import-Package: com.mysql.jdbc;resolution:=optional,\
-    *
-Export-Package: eu.sqooss.core, eu.sqooss.service.*
 Private-Package: eu.sqooss.impl.*
-Eclipse-RegisterBuddy: org.hibernate
+Import-Package: javax.transaction;version=1.1,\
+    org.osgi.framework,\
+    javassist.util,\
+    javassist.util.proxy,\
+    javax.servlet,\
+    javax.servlet.http,\
+    javax.mail,\
+    javax.mail.internet,\
+    com.mysql.jdbc;resolution:=optional,\
+    org.apache.commons.codec.binary,\
+    org.apache.commons.codec.digest,\
+    org.apache.commons.collections,\
+    org.apache.commons.codec.language,\
+    org.apache.derby.jdbc;resolution:=optional,\
+    org.apache.log4j,\
+    org.apache.log4j.helpers,\
+    org.apache.log4j.spi,\
+    org.apache.velocity,\
+    org.apache.velocity.app,\
+    org.apache.velocity.context,\
+    org.dom4j,\
+    org.dom4j.io,\
+    org.eclipse.osgi.framework.console,\
+    org.hibernate,\
+    org.hibernate.cfg,\
+    org.hibernate.classic,\
+    org.hibernate.proxy,\
+    org.hibernate.exception,\
+    org.hibernate.type,\
+    org.osgi.service.http,\
+    org.osgi.service.event,\
+    org.osgi.util.tracker;resolution:=optional,\
+    org.postgresql;resolution:=optional,\
+    org.tmatesoft.svn.core,\
+    org.tmatesoft.svn.core.io,\
+    org.tmatesoft.svn.core.io.diff,\
+    org.tmatesoft.svn.core.wc,\
+    org.tmatesoft.svn.core.auth,\
+    org.tmatesoft.svn.core.internal.io.dav,\
+    org.tmatesoft.svn.core.internal.io.fs,\
+    org.tmatesoft.svn.core.internal.io.svn,\
+    org.w3c.dom,\
+    org.xml.sax
+Export-Package: eu.sqooss.core,\
+    eu.sqooss.service.admin,\
+    eu.sqooss.service.abstractmetric,\
+    eu.sqooss.service.cluster,\
+    eu.sqooss.service.db,\
+    eu.sqooss.service.fds,\
+    eu.sqooss.service.logging,\
+    eu.sqooss.service.metricactivator,\
+    eu.sqooss.service.scheduler,\
+    eu.sqooss.service.security,\
+    eu.sqooss.service.tds,\
+    eu.sqooss.service.updater,\
+    eu.sqooss.service.webadmin,\
+    eu.sqooss.service.pa,\
+    eu.sqooss.service.messaging,\
+    eu.sqooss.service.messaging.sender,\
+    eu.sqooss.service.parser,\
+    eu.sqooss.service.util
+Eclipse-RegisterBuddy: org.hibernate.core
 

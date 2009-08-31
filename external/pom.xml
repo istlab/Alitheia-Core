@@ -18,7 +18,6 @@
   <modules>
     <module>org.tmatesoft.svnkit</module>
     <module>org.apache.velocity</module>
-    <module>org.hibernate.core</module>
     <module>javax.servlet.api</module>
     <module>dom4j</module>
     <module>javax.mail</module>
@@ -29,6 +28,7 @@
     <module>org.ops4j.pax.web.bundle</module>
     <module>org.mortbay.jetty</module>
     <module>c3p0</module>
+    <module>org.hibernate.core</module>
   </modules>
 
 </project>
