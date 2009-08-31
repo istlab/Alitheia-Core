@@ -34,6 +34,7 @@ Import-Package: javax.transaction;version=1.1,\
     org.osgi.service.http,\
     org.osgi.service.event,\
     org.osgi.util.tracker;resolution:=optional,\
+    org.ops4j.pax.web.service,\
     org.postgresql;resolution:=optional,\
     org.tmatesoft.svn.core,\
     org.tmatesoft.svn.core.io,\
@@ -44,7 +45,9 @@ Import-Package: javax.transaction;version=1.1,\
     org.tmatesoft.svn.core.internal.io.fs,\
     org.tmatesoft.svn.core.internal.io.svn,\
     org.w3c.dom,\
-    org.xml.sax
+    org.xml.sax, \
+    eu.sqooss.core,\
+    eu.sqooss.service.*
 Export-Package: eu.sqooss.core,\
     eu.sqooss.service.admin,\
     eu.sqooss.service.abstractmetric,\

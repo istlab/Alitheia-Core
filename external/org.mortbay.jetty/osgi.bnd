@@ -1,14 +1,4 @@
-#--------------------------------------------------------------------------
-# Use this file to add customized Bnd instructions for the wrapped library
-#--------------------------------------------------------------------------
-
-#
-# this unpacks the contents of the wrapped jar artifact inside the bundle
-# to also inline dependencies of this artifact add Embed-Transitive: true
-#
 Embed-Dependency: *;scope=compile|runtime;type=!pom;inline=true
-Import-Package: !org.mortbay.*, com.sun.jdmk.*;resolution:=optional, javax.*;resolution:=optional, *
-Export-Package:\
-    org.mortbay.*; version="6.1.0",\
-    *
+Import-Package: com.sun.jdmk.*;resolution:=optional, javax.*;resolution:=optional, *
 -nouses:true
+

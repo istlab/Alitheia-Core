@@ -74,7 +74,7 @@ public class AdminWS extends HttpServlet {
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
         long upTime = ManagementFactory.getRuntimeMXBean().getUptime();
-
+        System.err.println(request.getPathInfo());
         response.setContentType("text/plain");
         PrintWriter print = response.getWriter();
         print.println("online=true");

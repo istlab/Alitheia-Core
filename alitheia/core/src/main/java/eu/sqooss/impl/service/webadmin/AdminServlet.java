@@ -169,7 +169,6 @@ public class AdminServlet extends HttpServlet {
         
         try {
             String query = request.getPathInfo();
-
             // Add the request to the log
             //logger.debug("GET:" + query);
 

@@ -41,15 +41,6 @@
   </build>
 
   <dependencies>
-    <!--
-     | uncomment to add all imported (non-local) bundles to your compilation classpath
-    <dependency>
-      <type>pom</type>
-      <groupId>${parent.groupId}</groupId>
-      <artifactId>provision</artifactId>
-      <optional>true</optional>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>osgi_R4_core</artifactId>
@@ -117,14 +108,14 @@
     	<version>5.1.6</version>
     </dependency>
     <dependency>
-    	<groupId>eu.sqooss.external</groupId>
-    	<artifactId>org.ops4j.pax.web.bundle</artifactId>
-    	<version>0.6.0-001-SNAPSHOT</version>
-    </dependency>
-    <dependency>
     	<groupId>org.hibernate</groupId>
     	<artifactId>hibernate-core</artifactId>
     	<version>3.3.1.GA</version>
+    </dependency>
+    <dependency>
+    	<groupId>eu.sqooss.external</groupId>
+    	<artifactId>org.ops4j.pax.web.bundle</artifactId>
+    	<version>0.6.0-001-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

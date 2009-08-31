@@ -37,17 +37,20 @@ package eu.sqooss.impl.service.webadmin;
 import java.util.Hashtable;
 
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpServlet;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpService;
+import org.osgi.service.http.HttpContext;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.webadmin.WebadminService;
+
+import org.ops4j.pax.web.service.WebContainer;
 
 /**
  * This is the service which provides a web-based administration
@@ -58,9 +61,6 @@ import eu.sqooss.service.webadmin.WebadminService;
  * jobs, etc.
  */
 public class WebadminServiceImpl implements WebadminService {
-    private ServiceReference srefHTTPService    = null;
-    private HttpService sobjHTTPService         = null;
-    private AdminServlet servlet                = null;
 
     /**
      * The Velocity Engine is used to to provide services for
@@ -90,49 +90,50 @@ public class WebadminServiceImpl implements WebadminService {
                     Logger.NAME_SQOOSS_WEBADMIN);
 
         // Get a reference to the HTTPService, and then its object
-        srefHTTPService = bc.getServiceReference(
-            HttpService.class.getName());
-        if (srefHTTPService != null) {
+        //srefHTTPService = bc.getServiceReference(HttpService.class.getName());
+        
+        ServiceReference webContainerRef = bc.getServiceReference(WebContainer.class.getName());
+        if (webContainerRef == null) {
+            logger.error("Could not start the WebAdmin service");
+            return;
+        }
+
+        WebContainer webContainer = (WebContainer) bc.getService(webContainerRef);
+        HttpContext httpContext = webContainer.createDefaultHttpContext();
+
+        /*if (srefHTTPService != null) {
             sobjHTTPService = (HttpService) bc.getService(srefHTTPService);
         }
         else {
             logger.error("Could not find a HTTP service!");
-        }
+        }*/
 
         initVelocity();
         messageSender = new NotifyAdminMessageSender(messagingService, ve);
         // Register the front-end servlets
-        if (sobjHTTPService != null) {
-            servlet = new AdminServlet(bc, this, logger, ve);
+        if (webContainer != null) {
+            HttpServlet servlet = new AdminServlet(bc, this, logger, ve);
             try {
-                sobjHTTPService.registerServlet(
-                    "/",
+            	webContainer.registerServlet("/", 
                     (Servlet) servlet,
                     new Hashtable(),
-                    null);
+                    httpContext);
             }
             catch (Exception e) {
                 logger.error("AdminServlet",e);
             }
 
             try {
-                sobjHTTPService.registerServlet(
+            	webContainer.registerServlet(
                         "/ws",
                         (Servlet) new AdminWS(bc),
                         new Hashtable(),
-                        null);
+                        httpContext);
             }
             catch (Exception e) {
                 logger.error("AdmWS", e);
             }
         }
-    }
-
-    /**
-     * Performs a self-test on WebAdmin startup
-     */
-    public Object selfTest() {
-        return null;
     }
 
     /**
