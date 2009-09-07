@@ -9,16 +9,16 @@
   </parent>
 
   <properties>
-    <bundle.symbolicName>org.ops4j.pax.web.bundle</bundle.symbolicName>
-    <wrapped.groupId>org.ops4j.pax.web</wrapped.groupId>
-    <wrapped.artifactId>pax-web-bundle</wrapped.artifactId>
-    <wrapped.version>0.6.0</wrapped.version>
+    <bundle.symbolicName>org.eclipse.equinox.http</bundle.symbolicName>
+    <wrapped.groupId>org.eclipse.equinox</wrapped.groupId>
+    <wrapped.artifactId>http</wrapped.artifactId>
+    <wrapped.version>1.0.100-v20070423</wrapped.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
-  <artifactId>org.ops4j.pax.web.bundle</artifactId>
-  <version>0.6.0-001-SNAPSHOT</version>
+  <artifactId>org.eclipse.equinox.http</artifactId>
+  <version>1.0.100-v20070423-001-SNAPSHOT</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 
@@ -30,6 +30,11 @@
       <artifactId>${wrapped.artifactId}</artifactId>
       <version>${wrapped.version}</version>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+    	<groupId>org.eclipse.equinox.http</groupId>
+    	<artifactId>servlet</artifactId>
+    	<version>1.0.0-v20070606</version>
     </dependency>
   </dependencies>
 

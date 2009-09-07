@@ -1,52 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <!--
-   | put company details here
-  <organization>
-    <name>...</name>
-    <url>http://...</url>
-  </organization>
-  -->
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>eu</groupId>
+	<artifactId>sqooss</artifactId>
+	<version>0.9</version>
 
-  <!--
-   | put license details here
-  <licenses>
-    <license>
-      <name>...</name>
-      <url>http://...</url>
-      <comments>
-      </comments>
-    </license>
-  </licenses>
-  -->
-
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>eu</groupId>
-  <artifactId>sqooss</artifactId>
-  <version>0.9</version>
-
-  <name>The SQO-OSS project</name>
-
-  <properties>
-    <org.osgi.service.http.port>8080</org.osgi.service.http.port>
-    <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
-    <eu.sqooss.db.url>jdbc:mysql://localhost/alitheia?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8</eu.sqooss.db.url>
-	<eu.sqooss.db.driver>com.mysql.jdbc.Driver</eu.sqooss.db.driver>
-	<eu.sqooss.db.dialect>org.hibernate.dialect.MySQLInnoDBDialect</eu.sqooss.db.dialect>
-	<eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
-	<eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
-  </properties>
-
-  <packaging>pom</packaging>
-
-  <modules>
-    <module>poms</module>
-    <module>provision</module>
-	<module>external</module>
-    <module>alitheia</module>
-  </modules>
-  <description>
+	<name>The SQO-OSS project</name>
+	<description>
   	Alitheia Core is a platform for conducting software engineering studies. 
   	It integrates data from various sources such as from SVN, mailing lists and bug databases.
 
@@ -55,49 +18,88 @@
 	integrate those measurements in high level quality evaluations.
 
 	</description>
-  <url>http://www.sqo-oss.org</url>
-  <inceptionYear>2006</inceptionYear>
-  <developers>
-  	<developer>
-  		<id>gousiosg</id>
-  		<name>Georgios Gousios</name>
-  		<email>gousiosg@gmail.com</email>
-  		<url>http://istlab.dmst.aueb.gr/~george</url>
-  	</developer>
-  </developers>
-  <scm>
-  	<url>http://websvn.sqo-oss.org</url>
-  	<connection>scm:svn:http://svn.sqo-oss.org/</connection>
-  </scm>
-  <organization>
-  	<name>Organisation for Free and Open Source Software Greece</name>
-  	<url>http://www.ellak.gr/</url>
-  </organization>
+	<url>http://www.sqo-oss.org</url>
+	<inceptionYear>2006</inceptionYear>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.ops4j</groupId>
-        <artifactId>maven-pax-plugin</artifactId>
-        <version>1.4</version>
-        <configuration>
-          <provision>
-              <param>--platform=equinox</param>
-              <param>--ee=JavaSE-1.6</param>
-          </provision>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId> 
-        <configuration>
-          <showWarnings>true</showWarnings>
-          <showDeprecation>true</showDeprecation>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+	<organization>
+		<name>Organisation for Free and Open Source Software Greece</name>
+		<url>http://www.ellak.gr/</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>BSD 2-clause</name>
+			<url>http://en.wikipedia.org/wiki/BSD_licenses</url>
+		</license>
+	</licenses>
+
+	<properties>
+		<org.osgi.service.http.port>8080</org.osgi.service.http.port>
+		<org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
+		<eu.sqooss.db.url>jdbc:mysql://localhost/alitheia?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8</eu.sqooss.db.url>
+		<eu.sqooss.db.driver>com.mysql.jdbc.Driver</eu.sqooss.db.driver>
+		<eu.sqooss.db.dialect>org.hibernate.dialect.MySQLInnoDBDialect</eu.sqooss.db.dialect>
+		<eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
+		<eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>jboss</id>
+			<url>http://repository.jboss.org/maven2/</url>
+		</repository>
+
+		<repository>
+			<id>ops4j</id>
+			<url>http://repository.ops4j.org/maven2/</url>
+		</repository>
+	</repositories>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>poms</module>
+		<module>provision</module>
+		<module>external</module>
+		<module>alitheia</module>
+	</modules>
+
+	<developers>
+		<developer>
+			<id>gousiosg</id>
+			<name>Georgios Gousios</name>
+			<email>gousiosg@gmail.com</email>
+			<url>http://istlab.dmst.aueb.gr/~george</url>
+		</developer>
+	</developers>
+	<scm>
+		<url>http://websvn.sqo-oss.org</url>
+		<connection>scm:svn:http://svn.sqo-oss.org/</connection>
+	</scm>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.ops4j</groupId>
+				<artifactId>maven-pax-plugin</artifactId>
+				<version>1.4</version>
+				<configuration>
+					<provision>
+						<param>--platform=equinox</param>
+						<param>--ee=JavaSE-1.6</param>
+					</provision>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

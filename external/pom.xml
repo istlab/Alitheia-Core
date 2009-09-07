@@ -25,10 +25,9 @@
     <module>log4j</module>
     <module>org.eclipse.equinox.event</module>
     <module>mysql-connector-java</module>
-    <module>org.mortbay.jetty</module>
     <module>c3p0</module>
     <module>org.hibernate.core</module>
-    <module>org.ops4j.pax.web.bundle</module>
+    <module>org.eclipse.equinox.http</module>
   </modules>
 
 </project>
