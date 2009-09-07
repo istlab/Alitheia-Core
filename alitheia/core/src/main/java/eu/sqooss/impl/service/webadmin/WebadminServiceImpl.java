@@ -36,8 +36,6 @@ package eu.sqooss.impl.service.webadmin;
 
 import java.util.Hashtable;
 
-import javax.servlet.Servlet;
-
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.osgi.framework.BundleContext;
@@ -85,7 +83,7 @@ public class WebadminServiceImpl implements WebadminService {
         //Get the LogManager and Logger objects
         logger = core.getLogManager().createLogger(
                     Logger.NAME_SQOOSS_WEBADMIN);
-
+        
         // Get a reference to the HTTPService, and then its object
         HttpService sobjHTTPService = null;
         ServiceReference srefHTTPService = bc.getServiceReference(

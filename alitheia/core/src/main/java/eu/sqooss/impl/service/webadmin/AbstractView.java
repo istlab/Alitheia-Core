@@ -258,7 +258,7 @@ public abstract class AbstractView {
     // are using the new methods.
     public static ResourceBundle getLabelsBundle (Locale locale) {
         if (locale != null)
-            return ResourceBundle.getBundle(RES_LABELS_FILE, locale);
+            return ResourceBundle.getBundle("./" + RES_LABELS_FILE, locale);
         else
             return ResourceBundle.getBundle(RES_LABELS_FILE);
     }
@@ -267,7 +267,7 @@ public abstract class AbstractView {
     // are using the new methods.
     public static ResourceBundle getErrorsBundle (Locale locale) {
         if (locale != null)
-            return ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
+            return ResourceBundle.getBundle("./" + RES_ERRORS_FILE, locale);
         else
             return ResourceBundle.getBundle(RES_ERRORS_FILE);
     }
@@ -276,7 +276,7 @@ public abstract class AbstractView {
     // are using the new methods.
     public static ResourceBundle getMessagesBundle (Locale locale) {
         if (locale != null)
-            return ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);
+            return ResourceBundle.getBundle("./" + RES_MESSAGES_FILE, locale);
         else
             return ResourceBundle.getBundle(RES_MESSAGES_FILE);
     }

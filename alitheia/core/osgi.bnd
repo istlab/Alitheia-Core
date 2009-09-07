@@ -65,5 +65,5 @@ Export-Package: eu.sqooss.core,\
     eu.sqooss.service.messaging.sender,\
     eu.sqooss.service.parser,\
     eu.sqooss.service.util
-Eclipse-RegisterBuddy: org.hibernate.core
+Eclipse-RegisterBuddy: org.hibernate.core, org.apache.velocity 
 

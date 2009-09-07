@@ -47,6 +47,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import java.util.Hashtable;
+import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -112,34 +113,34 @@ public class AdminServlet extends HttpServlet {
         
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
-        addStaticContent("/screen.css", "text/css");
-        addStaticContent("/webadmin.css", "text/css");
-        addStaticContent("/sqo-oss.png", "image/x-png");
-        addStaticContent("/queue.png", "image/x-png");
-        addStaticContent("/uptime.png", "image/x-png");
-        addStaticContent("/greyBack.jpg", "image/x-jpg");
-        addStaticContent("/projects.png", "image/x-png");
-        addStaticContent("/logs.png", "image/x-png");
-        addStaticContent("/metrics.png", "image/x-png");
-        addStaticContent("/gear.png", "image/x-png");
-        addStaticContent("/header-repeat.png", "image/x-png");
-        addStaticContent("/add_user.png", "image/x-png");
-        addStaticContent("/edit.png", "image/x-png");
-        addStaticContent("/jobs.png", "image/x-png");
-        addStaticContent("/rules.png", "image/x-png");
+        addStaticContent("./screen.css", "text/css");
+        addStaticContent("./webadmin.css", "text/css");
+        addStaticContent("./sqo-oss.png", "image/x-png");
+        addStaticContent("./queue.png", "image/x-png");
+        addStaticContent("./uptime.png", "image/x-png");
+        addStaticContent("./greyBack.jpg", "image/x-jpg");
+        addStaticContent("./projects.png", "image/x-png");
+        addStaticContent("./logs.png", "image/x-png");
+        addStaticContent("./metrics.png", "image/x-png");
+        addStaticContent("./gear.png", "image/x-png");
+        addStaticContent("./header-repeat.png", "image/x-png");
+        addStaticContent("./add_user.png", "image/x-png");
+        addStaticContent("./edit.png", "image/x-png");
+        addStaticContent("./jobs.png", "image/x-png");
+        addStaticContent("./rules.png", "image/x-png");
 
         // Create the dynamic content map
         dynamicContentMap = new Hashtable<String, String>();
-        dynamicContentMap.put("/", "index.html");
-        dynamicContentMap.put("/index", "index.html");
-        dynamicContentMap.put("/projects", "projects.html");
-        dynamicContentMap.put("/projectlist", "projectslist.html");
-        dynamicContentMap.put("/logs", "logs.html");
-        dynamicContentMap.put("/jobs", "jobs.html");
-        dynamicContentMap.put("/alljobs", "alljobs.html");
-        dynamicContentMap.put("/users", "users.html");
-        dynamicContentMap.put("/rules", "rules.html");
-        dynamicContentMap.put("/jobstat", "jobstat.html");
+        dynamicContentMap.put("/", "./index.html");
+        dynamicContentMap.put("/index", "./index.html");
+        dynamicContentMap.put("/projects", "./projects.html");
+        dynamicContentMap.put("/projectlist", "./projectslist.html");
+        dynamicContentMap.put("/logs", "./logs.html");
+        dynamicContentMap.put("/jobs", "./jobs.html");
+        dynamicContentMap.put("/alljobs", "./alljobs.html");
+        dynamicContentMap.put("/users", "./users.html");
+        dynamicContentMap.put("/rules", "./rules.html");
+        dynamicContentMap.put("/jobstat", "./jobstat.html");
 
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
@@ -230,7 +231,7 @@ public class AdminServlet extends HttpServlet {
 
             if (query.startsWith("/addproject")) {
                 adminView.addProject(request);
-                sendPage(response, request, "/results.html");
+                sendPage(response, request, "./results.html");
             } else if (query.startsWith("/diraddproject")) {
                 adminView.addProjectDir(request);
                 sendPage(response, request, "/results.html");
@@ -290,7 +291,7 @@ public class AdminServlet extends HttpServlet {
         throws ServletException, IOException {
         Template t = null;
         try {
-            t = ve.getTemplate( path );
+        	t = ve.getTemplate( path );
         } catch (Exception e) {
             logger.warn("Failed to get template <" + path + ">");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -309,7 +310,7 @@ public class AdminServlet extends HttpServlet {
 
     private void createSubstitutions(HttpServletRequest request) {
         // Initialize the resource bundles with the provided locale
-        AbstractView.initResources(request.getLocale());
+        //AbstractView.initResources(new Locale("en"));
 
         // Simple string substitutions
         vc.put("APP_NAME", AbstractView.getLbl("app_name"));

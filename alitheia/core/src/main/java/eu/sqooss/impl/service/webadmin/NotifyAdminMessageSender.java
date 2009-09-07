@@ -127,7 +127,7 @@ public class NotifyAdminMessageSender implements MessageListener {
             unsuccessContext = new VelocityContext();
             try {
                 successTemplate = velocityEngine.getTemplate(
-                "/NotifyAdminSuccess.vtl");
+                "NotifyAdminSuccess.vtl");
                 unsuccessTemplate = velocityEngine.getTemplate(
                 "/NotifyAdminUnsuccess.vtl");
             } catch (Exception e) {
