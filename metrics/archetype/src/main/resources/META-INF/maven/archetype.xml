@@ -1,0 +1,7 @@
+<archetype>
+  <id>ac-plugin-archetype</id>
+  <sources>
+      <source>src/main/java/foo/metrics/bar/Skeletor.java</source>
+      <source>src/main/java/foo/metrics/bar/SkeletorActivator.java</source>
+  </sources>
+</archetype>
