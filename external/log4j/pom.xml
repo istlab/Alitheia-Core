@@ -12,13 +12,13 @@
     <bundle.symbolicName>log4j</bundle.symbolicName>
     <wrapped.groupId>log4j</wrapped.groupId>
     <wrapped.artifactId>log4j</wrapped.artifactId>
-    <wrapped.version>1.2.9</wrapped.version>
+    <wrapped.version>1.2.15</wrapped.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
   <artifactId>log4j</artifactId>
-  <version>1.2.9-001-SNAPSHOT</version>
+  <version>1.2.15-001-SNAPSHOT</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 
@@ -29,8 +29,22 @@
       <groupId>${wrapped.groupId}</groupId>
       <artifactId>${wrapped.artifactId}</artifactId>
       <version>${wrapped.version}</version>
-      <optional>true</optional>
-    </dependency>
+      <exclusions>
+          <exclusion>
+              <groupId>javax.jms</groupId>
+              <artifactId>jms</artifactId>
+          </exclusion>
+          <exclusion> 
+              <groupId>com.sun.jdmk</groupId>
+              <artifactId>jmxtools</artifactId>
+          </exclusion>
+          <exclusion>
+              <groupId>com.sun.jmx</groupId>
+              <artifactId>jmxri</artifactId>
+          </exclusion>
+
+      </exclusions>
+  </dependency>
   </dependencies>
 
 </project>

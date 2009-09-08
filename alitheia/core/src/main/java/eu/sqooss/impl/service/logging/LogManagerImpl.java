@@ -32,8 +32,6 @@
 
 package eu.sqooss.impl.service.logging;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -50,9 +48,6 @@ import eu.sqooss.service.logging.Logger;
 public class LogManagerImpl implements LogManager {
     // Our singleton manager
     public static LogManagerImpl logManager = null;
-
-    // Synchronization primitive.
-    private Object lockObject = new Object();
 
     // Our OSGi context; used to indicate initialization status.
     private BundleContext bc;
@@ -71,7 +66,7 @@ public class LogManagerImpl implements LogManager {
     	Enumeration<URL> props;
     	Properties p = new Properties();
     	try {
-    		props = getClass().getClassLoader().getResources("./log4j.properties");
+    		props = getClass().getClassLoader().getResources("log4j.properties");
 			p.load(props.nextElement().openStream());
 		} catch (Exception e) {
 			System.err.println("Logging initialisation failed, " +
@@ -129,7 +124,6 @@ public class LogManagerImpl implements LogManager {
 
     public void releaseLogger(String name) {
         LoggerImpl logger;
-        int takingsNumber;
         if (!validLoggers.containsKey(name)) {
             org.apache.log4j.Logger.getRootLogger().error("Release for bogus logger <" + name + ">");
             return;

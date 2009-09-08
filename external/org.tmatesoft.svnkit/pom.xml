@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
   <artifactId>org.tmatesoft.svnkit</artifactId>
-  <version>1.2.3.5521-001-SNAPSHOT</version>
+  <version>1.2.3.5521-SNAPSHOT</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 

@@ -778,7 +778,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 }
                 logger.info("Caught STARTED event - Initialising Hibernate");
                 
-                initHibernate(bc.getBundle().getResource("./hibernate.cfg.xml"), resetDatabase);
+                initHibernate(bc.getBundle().getResource("hibernate.cfg.xml"), resetDatabase);
                 
                 isInitialised.compareAndSet(false, true);
                 

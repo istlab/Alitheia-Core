@@ -32,7 +32,7 @@
   		</resource>
   		<resource>
         <directory>${basedir}/src/main/resources</directory>
-        <targetPath>.</targetPath>
+        <!--<targetPath>.</targetPath>-->
         <includes>
           <include>**/*</include>
         </includes>
@@ -98,11 +98,6 @@
     	<version>3.2.1</version>
     </dependency>
     <dependency>
-    	<groupId>org.eclipse.equinox</groupId>
-    	<artifactId>event</artifactId>
-    	<version>1.0.100-v20070516</version>
-    </dependency>
-    <dependency>
     	<groupId>mysql</groupId>
     	<artifactId>mysql-connector-java</artifactId>
     	<version>5.1.6</version>
@@ -111,11 +106,6 @@
     	<groupId>org.hibernate</groupId>
     	<artifactId>hibernate-core</artifactId>
     	<version>3.3.1.GA</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.eclipse.equinox</groupId>
-    	<artifactId>http</artifactId>
-    	<version>1.0.100-v20070423</version>
     </dependency>
   </dependencies>
 

@@ -300,7 +300,7 @@ public class UserManagerImpl implements UserManager {
             logger.error(e.getMessage());
         }
     }
-    	
+    
     private void sendMail(PendingUser pendingUser,
             Date expirationDate, String password) {
         StringWriter bodyWriter = new StringWriter();
