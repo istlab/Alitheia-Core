@@ -11,7 +11,7 @@
   <groupId>eu.sqooss</groupId>
   <artifactId>metrics</artifactId>
 
-  <name/>
+  <name>SQO-OSS Plug-ins</name>
 
   <packaging>pom</packaging>
 

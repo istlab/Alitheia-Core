@@ -41,7 +41,7 @@
 ** *ESSENTIAL* that the package name contain the string '.metrics.'
 ** because this is how Alitheia Core discovers the metric plug-ins. 
 */
-package foo.metrics.bar;
+package ${groupId}.${artifactId};
 
 /*
  * These are standard OSGi imports which we need for an activator.
