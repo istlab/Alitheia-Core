@@ -6,5 +6,6 @@
   </sources>
   <resources>
     <resource>src/main/resources/README.txt</resource>
+    <resource>osgi.bnd</resource>
   </resources>
 </archetype>
