@@ -17,5 +17,6 @@
 
   <modules>
     <module>archetype</module>
+    <module>wc</module>
   </modules>
 </project>

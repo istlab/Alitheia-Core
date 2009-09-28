@@ -26,6 +26,8 @@
     <module>c3p0</module>
     <module>org.hibernate.core</module>
     <module>log4j</module>
+    <module>org.osgi.compendium</module>
+    <module>org.osgi.core</module>
   </modules>
 
 </project>

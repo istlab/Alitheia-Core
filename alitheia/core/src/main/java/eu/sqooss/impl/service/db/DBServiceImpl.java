@@ -783,7 +783,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 isInitialised.compareAndSet(false, true);
                 
                 if (eaService != null) {
-                    Hashtable<String, Boolean> value = new Hashtable<String, Boolean>();
+                    HashMap<String, Boolean> value = new HashMap<String, Boolean>();
                     value.put("value", true);
                     eaService.sendEvent(new Event(DBService.EVENT_STARTED, value));
                 } else {
