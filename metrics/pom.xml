@@ -19,5 +19,6 @@
     <module>archetype</module>
     <module>wc</module>
     <module>structural</module>
+    <module>modulemetrics</module>
   </modules>
 </project>
