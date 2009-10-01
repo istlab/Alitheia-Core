@@ -1,0 +1,22 @@
+To run the deploy target against the SQO-OSS maven repository, we use 
+the webdav maven transport wagon over ssl. However, since the certificate
+we use is self signed, the JSSL library underlying the HTTP library that
+the webdav component uses, needs to be configured with a trust store. In
+short, this involves 3 steps:
+
+1. Get the client certificate
+
+You can find the certificate under misc/repo.crt. You can also get a fresh
+copy in case the certificate changes directly from the web server.
+
+2. Create the truststore
+
+keytool -v -alias mavensrv -import -file misc/repo.crt -keystore maven.jks
+
+3. Configuring maven to use it by default
+
+
+
+For more information, check the following link:
+
+http://maven.apache.org/guides/mini/guide-repository-ssl.html

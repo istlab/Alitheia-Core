@@ -35,7 +35,7 @@
     <repository>
       <id>ac-main</id>
       <name>Alitheia Core Main Repository</name>
-      <url>scpexe://www.sqo-oss.org/home/gousiosg/maven</url>
+      <url>dav:https://maven.sqo-oss.org/</url>
     </repository>
   </distributionManagement>
 
@@ -110,6 +110,12 @@
         </configuration>
       </plugin>
     </plugins>
+    <extensions>
+        <extension>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-webdav</artifactId>
+            <version>1.0-beta-2</version>
+         </extension>
+    </extensions>
   </build>
-
 </project>
