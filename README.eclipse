@@ -1,0 +1,37 @@
+Working with Eclipse
+++++++++++++++++++++
+
+Eclipse is the prefered development environment to work on Alitheia Core. 
+The following instructions have been tested and confirmed working 
+with Eclipse Ganymede (3.5) on Linux and MacOSX. The steps are:
+
+1. Install the m2 eclipse plug-in from http://m2eclipse.sonatype.org/update/
+2. Checkout the project from its repository, for example
+    
+    svn co http://anonsvn.sqo-oss.org/trunk
+
+3. Do the following 
+    mvn clean install
+    mvn -DdownloadJavadoc eclipse:eclipse
+    mvn -Ddownloadsources eclipse:eclipse
+    mvn eclipse:clean
+
+    The commands above will download sources and Javadocs for some (in fact
+    several) of the external libraries used by Alitheia Core. It will however
+    create eclipse configuration files that will treat each project module as
+    an OSGi plug-in (which will enable such support in eclipse, slowing it down
+    significantly). The last command takes care of this.
+
+4. In eclipse, choose Import->General->Maven projects. In the next dialogue,
+you enter the checkout directory and a list of project modules appears. Here
+you should select only the modules you will be working with. This is it, you
+are now ready to hack!
+
+5. To debug, you run the debug.sh script from the top-level directory. This
+will start Alitheia Core in debug mode; initialisation will stop until an
+external debug is attached. To attach the eclipse debugger, click on the
+Run menu->Debug configurations, then select the Remote Java Application from
+the list and click on the new launch configuration button. Add a name click
+debug. Eclipse will connect to the waiting virtual machine and will stop
+at any breakpoint you have set in the code.
+

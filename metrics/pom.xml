@@ -20,5 +20,6 @@
     <module>wc</module>
     <module>structural</module>
     <module>modulemetrics</module>
+    <module>testability</module>
   </modules>
 </project>
