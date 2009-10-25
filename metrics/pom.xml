@@ -21,5 +21,7 @@
     <module>structural</module>
     <module>modulemetrics</module>
     <module>testability</module>
+    <module>mi</module>
+    <module>contrib</module>
   </modules>
 </project>

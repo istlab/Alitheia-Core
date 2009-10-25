@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class name="eu.sqooss.metrics.contrib.db.ContribActionType" table="CONTRIBUTION_ACTION_TYPE">
+    <id name="id" column="CONTRIB_ACTION_TYPE_ID">
+      <generator class="native" />
+    </id>
+    <property name="actionCategory" column="ACTION_CATEGORY" not-null="true" type = "string"/>
+    <property name="actionType" column="ACTION_TYPE" not-null="true" type = "string" />
+    <property name="isPositive" column="IS_POSITIVE"  />
+  </class>
+</hibernate-mapping>

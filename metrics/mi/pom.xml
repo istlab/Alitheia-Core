@@ -8,10 +8,10 @@
     <version>0.9</version>
   </parent>
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>wc</artifactId>
+  <artifactId>mi</artifactId>
   <version>1.0</version>
   <packaging>bundle</packaging>
-  <name>Project Size Metrics</name>
+  <name>Maintainability Index</name>
   <build>
     <resources>
       <resource>
@@ -35,12 +35,12 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>eu.sqooss.metrics.wc</Export-Package>
-            <Bundle-Activator>eu.sqooss.metrics.wc.WcActivator</Bundle-Activator>
-            <Bundle-SymbolicName>eu.sqooss.metrics.wc</Bundle-SymbolicName>
+            <Export-Package>eu.sqooss.metrics.mi</Export-Package>
+            <Bundle-Activator>eu.sqooss.metrics.mi.MiActivator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.metrics.mi</Bundle-SymbolicName>
             <Bundle-Version>1.0</Bundle-Version>
             <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
-            <Bundle-Description>Project size metric</Bundle-Description>
+            <Bundle-Description>Maintainability Index</Bundle-Description>
           </instructions>
         </configuration>
       </plugin>

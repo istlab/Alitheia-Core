@@ -32,5 +32,11 @@ archetype creator does not do that for your
     should read the documentation of the maven-bundle-plugin on how
     to do it. You can find it here:
     http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html
+   
+    If your plug-in uses a custom table to store results, automatic import
+    package resolution step might not work well. You should add the following
+    line to the instuctions section
+    <Import-Package>*, eu.sqooss.metrics.db.*</Import-Package>
 
 4. That's hopefully it.
+

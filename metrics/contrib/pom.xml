@@ -8,15 +8,15 @@
     <version>0.9</version>
   </parent>
   <groupId>eu.sqooss.metrics</groupId>
-  <artifactId>wc</artifactId>
-  <version>1.0</version>
+  <artifactId>contrib</artifactId>
+  <version>0.9</version>
   <packaging>bundle</packaging>
-  <name>Project Size Metrics</name>
+  <name>Developer Contribution</name>
   <build>
     <resources>
       <resource>
         <targetPath>eu/sqooss/service/db</targetPath>
-        <directory>src/main/java/${groupId}/${artifactId}/db</directory>
+        <directory>src/main/java/eu/sqooss/metrics/contrib/db</directory>
         <includes>
           <include>**/*.xml</include>
         </includes>
@@ -35,12 +35,13 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>eu.sqooss.metrics.wc</Export-Package>
-            <Bundle-Activator>eu.sqooss.metrics.wc.WcActivator</Bundle-Activator>
-            <Bundle-SymbolicName>eu.sqooss.metrics.wc</Bundle-SymbolicName>
-            <Bundle-Version>1.0</Bundle-Version>
+            <Export-Package>eu.sqooss.metrics.contrib</Export-Package>
+            <Bundle-Activator>eu.sqooss.metrics.contrib.Activator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.metrics.contrib</Bundle-SymbolicName>
+            <Bundle-Version>0.9</Bundle-Version>
             <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
-            <Bundle-Description>Project size metric</Bundle-Description>
+            <Bundle-Description>Developer Contribution</Bundle-Description>
+            <Import-Package>*, eu.sqooss.service.db</Import-Package>
           </instructions>
         </configuration>
       </plugin>

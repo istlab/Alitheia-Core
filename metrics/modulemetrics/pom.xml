@@ -11,7 +11,7 @@
   <artifactId>modulemetrics</artifactId>
   <version>1.0</version>
   <packaging>bundle</packaging>
-  <name>eu.sqooss.metrics.modulemetrics</name>
+  <name>Module size metrics</name>
   <build>
     <resources>
       <resource>
