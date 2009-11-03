@@ -35,13 +35,15 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>eu.sqooss.metrics.contrib</Export-Package>
+            <Export-Package>eu.sqooss.metrics.contrib, eu.sqooss.metrics.contrib.db</Export-Package>
             <Bundle-Activator>eu.sqooss.metrics.contrib.Activator</Bundle-Activator>
             <Bundle-SymbolicName>eu.sqooss.metrics.contrib</Bundle-SymbolicName>
             <Bundle-Version>0.9</Bundle-Version>
             <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
             <Bundle-Description>Developer Contribution</Bundle-Description>
-            <Import-Package>*, eu.sqooss.service.db</Import-Package>
+            <Import-Package>*, eu.sqooss.service.db, org.apache.commons.codec.digest,
+                org.hibernate, org.hibernate.proxy, javassist.util, javassist.util.proxy</Import-Package>
+            <Eclipse-RegisterBuddy>org.hibernate.core</Eclipse-RegisterBuddy>
           </instructions>
         </configuration>
       </plugin>

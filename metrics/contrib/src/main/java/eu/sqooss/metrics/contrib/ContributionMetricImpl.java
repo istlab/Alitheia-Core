@@ -120,8 +120,7 @@ public class ContributionMetricImpl extends AbstractMetric implements
     public boolean remove() {
         boolean result = true;
         
-        String[] tables = {"ContribActionWeight", 
-                           "ContribAction",
+        String[] tables = { "ContribAction",
                            "ContribActionType"};
         
         for (String tablename : tables) {
