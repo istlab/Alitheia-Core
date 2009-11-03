@@ -219,10 +219,22 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 c.setProperty("hibernate.hbm2ddl.auto", "create");
             }
             
-            // Get the list of eu.sqo-oss.metrics.* jars and add them to the config
-            String equinoxInstallDirProperty = System.getProperty("osgi.install.area");
-            if ( equinoxInstallDirProperty != null ) {
-                File equinoxInstallDir = new File( URI.create(equinoxInstallDirProperty) );
+			// Get the list of eu.sqo-oss.metrics.* jars and add them to the
+			// config
+			String osgiInst = System.getProperty("osgi.install.area");
+			List<String> dirsToSearch = new ArrayList<String>();
+			if (osgiInst != null) {
+				dirsToSearch.add(osgiInst);
+				dirsToSearch.add(osgiInst + "/..");
+				dirsToSearch.add(osgiInst + "/../bundles");
+			} else {
+				logger.warn("couln't resolve OSGi install property to a " +
+						"directory on disk :" + osgiInst + ". Custom DAOs " +
+						"from metrics bundles won't be initialized.");
+			}
+            for (String dir : dirsToSearch) {
+            	logger.debug("Searching plug-ins in " + dir);
+                File equinoxInstallDir = new File( URI.create(dir) );
                 if ( equinoxInstallDir.exists() && equinoxInstallDir.isDirectory() ) {
                     File[] metricsJars = equinoxInstallDir.listFiles(new FilenameFilter() {
                         public boolean accept(File dir, String name) {
@@ -231,20 +243,13 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                     });
                     for( File jarFile: metricsJars ) {
                         logger.debug("found metric bundle \"" + jarFile.getName() + "\", examining for custom DAOs");
-                        
                         c.addJar(jarFile);
                     }
-                } else {
-                    logger.warn("couln't resolve equinox install property to a directory on disk :" + equinoxInstallDirProperty
-                                + ". Custom DAOs from metrics bundles won't be initialized.");
-                }
+                } 
             }
 
             List<AuxiliaryDatabaseObject> objs = loadDBScripts();
-            
             sessionFactory = c.buildSessionFactory();
-            
-
         } catch (Throwable e) {
             logger.error("Failed to initialize Hibernate: " + e.getMessage());
             e.printStackTrace();
