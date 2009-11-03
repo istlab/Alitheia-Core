@@ -84,6 +84,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     private PluginAdmin pa;
     private DBService db;
     private Scheduler sched;
+    private boolean fastSync = false;
 
     // Default action of the invocation rules chain
     private ActionType defaultAction = null;
@@ -128,6 +129,11 @@ public class MetricActivatorImpl  implements MetricActivator {
         this.pa = core.getPluginAdmin();
         this.db = core.getDBService();
         this.sched = core.getScheduler();
+        
+        String sync = bc.getProperty("eu.sqooss.metricactivator.sync");
+        
+        if (sync != null && sync.equalsIgnoreCase("fast"))
+        	this.fastSync = true;
     }
 
     public void initRules() {
@@ -387,7 +393,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             Class<? extends DAObject> actType, int priority) {
         try {
             sched.enqueue(new MetricActivatorJob(m, objectId, logger, actType,
-                    priority));
+                    priority, fastSync));
         } catch (SchedulerException e) {
             logger.error("Could not start job to sync metric");
         }
@@ -479,7 +485,7 @@ public class MetricActivatorImpl  implements MetricActivator {
                 
                 for (Long l : objectIDs) {
                     jobs.add(new MetricActivatorJob(metric, l, logger, c,
-                    		getNextPriority(c)));
+                    		getNextPriority(c), fastSync));
                     //schedJob(metric, l, c, getNextPriority(c));
                 }   
                 sched.enqueueNoDependencies(jobs);

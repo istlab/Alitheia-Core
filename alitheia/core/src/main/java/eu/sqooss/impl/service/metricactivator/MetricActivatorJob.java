@@ -62,9 +62,11 @@ public class MetricActivatorJob extends Job {
     private AbstractMetric metric;
     private int priority;
     Class<? extends DAObject> daoType;
+    private boolean fastSync = false; 
     
     MetricActivatorJob(AbstractMetric m, Long daoID, Logger l,
-            Class<? extends DAObject> daoType, int priority) {
+            Class<? extends DAObject> daoType, int priority, 
+            boolean fastSync) {
     	this.metric = m;
         this.logger = l;
         this.daoID = daoID;
@@ -72,6 +74,7 @@ public class MetricActivatorJob extends Job {
         this.dbs = AlitheiaCore.getInstance().getDBService();
         this.ma = AlitheiaCore.getInstance().getMetricActivator(); 
         this.priority = priority;
+        this.fastSync = fastSync;
     }
     
     @Override
@@ -87,17 +90,21 @@ public class MetricActivatorJob extends Job {
         // trigger calculation of the metric
         if (ma.matchRules(metric,obj) == ActionType.EVAL) {
             try {
-                /*
-                 * This reduces the number of queries performed when triggering
-                 * synchronization of metrics on large databases. We trust that
-                 * if there is a value in the database for one of the metric a
-                 * plug-in provides, there will be a value for all metrics. For
-                 * example, on the size (wc) metric this will save 5-6 queries
-                 * per projectfile. If the metric syncs 20M files 
-                 * this optimisation prevents 100M queries from being executed.
-                 */
-                List<Metric> supported = metric.getSupportedMetrics(obj.getClass());
-                metric.getResult(obj, supported.subList(0, 1));
+            	if (fastSync) {
+                    /*
+                     * This reduces the number of queries performed when triggering
+                     * synchronization of metrics on large databases. We trust that
+                     * if there is a value in the database for one of the metric a
+                     * plug-in provides, there will be a value for all metrics. For
+                     * example, on the size (wc) metric this will save 5-6 queries
+                     * per projectfile. If the metric syncs 20M files 
+                     * this optimisation prevents 100M queries from being executed.
+                     */
+            		List<Metric> supported = metric.getSupportedMetrics(obj.getClass());
+                	metric.getResult(obj, supported.subList(0, 1));
+            	} else {
+            		metric.getResult(obj, metric.getSupportedMetrics(obj.getClass()));
+            	}
             } catch (MetricMismatchException e) {
                 logger.warn("Metric " + metric.getName() + " failed");
             } catch (AlreadyProcessingException ape) {
