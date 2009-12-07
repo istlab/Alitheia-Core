@@ -10,7 +10,7 @@
 
   <properties>
     <bundle.symbolicName>eu.sqooss.alitheia.core</bundle.symbolicName>
-    <bundle.namespace>eu.sqooss.core</bundle.namespace>
+    <bundle.namespace>eu.sqooss.alitheia</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
