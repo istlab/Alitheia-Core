@@ -5,3 +5,5 @@ target
 bin
 META-INF
 runner
+maven-eclipse.xml
+.externalToolBuilder
