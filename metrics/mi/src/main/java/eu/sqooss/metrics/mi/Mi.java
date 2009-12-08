@@ -74,7 +74,7 @@ import eu.sqooss.service.fds.FileTypeMatcher;
  * according to the formula presented in
  * 
  * Coleman, D., Ash, D., Lowther, B., and Oman, P. (1994). Using metrics to 
- * evaluate software system maintainability. Computer, 27(8):44Ð49.
+ * evaluate software system maintainability. Computer, 27(8):44--49.
  * 
  * @author Georgios Gousios - <gousiosg@gmail.com>
  */ 
