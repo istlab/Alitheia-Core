@@ -34,6 +34,7 @@ package eu.sqooss.impl.service.webadmin;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -392,15 +393,43 @@ public class WebAdminRenderer  extends AbstractView {
                     + "<b>" + info + "</b>");
             return;
         }
-
-        if (!info.endsWith(".properties")) {
-            vc.put("RESULTS",
-                    "<p>The entered path does not include an info.txt file</p> <br/>"
-                    + "<b>" + info + "</b>");
+        
+        File infoFile = new File(info);
+        
+        if (!infoFile.exists()) {
+        	vc.put("RESULTS","<p>The entered path does exist</p> <br/>");
             return;
         }
+        
+        File f = null;
+        
+        if (infoFile.isDirectory()) {
+        	File[] contents = infoFile.listFiles(new FilenameFilter() {
+				
+				@Override
+				public boolean accept(File dir, String name) {
+					if (name.endsWith("project.properties"))
+						return true;
+					return false;
+				}
+			});
+        	
+        	if (contents.length <= 0) {
+        		vc.put("RESULTS",
+                        "<p>The entered path does not include a project.properties file</p> <br/>"
+                        + "<b>" + info + "</b>");
+                return;
+        	}
+        } else {
+        	if (!info.endsWith("project.properties")) {
+        		vc.put("RESULTS",
+        				"<p>The entered path does not include a project.properties file</p> <br/>"
+        				+ "<b>" + info + "</b>");
+        		return;
+        	}
+        }
 
-        File f = new File(info);
+
         Properties p = new Properties();
         try {
 			p.load(new FileInputStream(f));
