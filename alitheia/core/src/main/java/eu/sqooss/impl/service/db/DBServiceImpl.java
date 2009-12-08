@@ -226,7 +226,6 @@ public class DBServiceImpl implements DBService, FrameworkListener {
 			if (osgiInst != null) {
 				dirsToSearch.add(osgiInst);
 				dirsToSearch.add(osgiInst + "/..");
-				dirsToSearch.add(osgiInst + "/../bundles");
 			} else {
 				logger.warn("couln't resolve OSGi install property to a " +
 						"directory on disk :" + osgiInst + ". Custom DAOs " +
