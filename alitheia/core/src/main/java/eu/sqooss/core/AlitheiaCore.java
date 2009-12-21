@@ -32,33 +32,37 @@
 
 package eu.sqooss.core;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletException;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
+import eu.sqooss.impl.service.admin.AdminServiceImpl;
+import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
-import eu.sqooss.impl.service.messaging.MessagingServiceImpl;
 import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
 import eu.sqooss.impl.service.pa.PAServiceImpl;
-//import eu.sqooss.impl.service.parser.ParserImpl;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.security.SecurityManagerImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.parser.Parser;
@@ -66,10 +70,6 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.admin.AdminService;
-import eu.sqooss.service.cluster.ClusterNodeService;
-import eu.sqooss.impl.service.admin.AdminServiceImpl;
-import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /**
@@ -79,7 +79,7 @@ import eu.sqooss.service.webadmin.WebadminService;
  * through getInstance(); after that you can use the get*Service() methods
  * to get each of the other core components as needed.
  */
-public class AlitheiaCore {
+public class AlitheiaCore implements ServiceListener {
 
     /** The Logger component's instance. */
     private LogManagerImpl logger;
@@ -89,9 +89,6 @@ public class AlitheiaCore {
     
     /** The FDS component's instance. */
     private FDSService fds;
-    
-    /** The Messaging component's instance. */
-    private MessagingService msg;
     
     /** The Scheduler component's instance. */
     private Scheduler sched;
@@ -129,6 +126,12 @@ public class AlitheiaCore {
     /** The Core is singleton-line because it has a special instance */
     private static AlitheiaCore instance = null;
     
+    /** Classes to services to wait for prior to self initialisation*/
+    private Vector<Class<?>> srvWait;
+    
+    /** Flag set when the init routines have run*/
+    private AtomicBoolean initFlag;
+    
     /**
      * Initializes an instance of the Logger component.
      */
@@ -142,13 +145,16 @@ public class AlitheiaCore {
     private void initDB() {
         db = new DBServiceImpl(bc,
                 getLogManager().createLogger(Logger.NAME_SQOOSS_DATABASE));
+        if (!((AlitheiaCoreService)db).init()) {
+        	db = null;
+        }
     }
 
     /**
      * Initializes an instance of the WebAdmin component.
      */
     private void initWebAdmin() {
-        webadmin = new WebadminServiceImpl(bc, getMessagingService(),
+        webadmin = new WebadminServiceImpl(bc,
                 getLogManager().createLogger(Logger.NAME_SQOOSS_WEBADMIN));
     }
 
@@ -156,7 +162,7 @@ public class AlitheiaCore {
      * Initializes an instance of the Plug-in Admin component.
      */
     private void initPluginAdmin() {
-        padmin = new PAServiceImpl(bc,
+    	padmin = new PAServiceImpl(bc,
                 getLogManager().createLogger(Logger.NAME_SQOOSS_PA));
     }
     
@@ -166,22 +172,27 @@ public class AlitheiaCore {
     private void initAdminService() {
     	admin = new AdminServiceImpl(bc,
     			getLogManager().createLogger(Logger.NAME_SQOOSS_ADMINACTION));
-		
-    }
+	}
 
     /**
      * Simple constructor.
      * 
-     * @param bc The parent bunde's context object.
+     * @param bc The parent bundle's context object.
      */
     public AlitheiaCore(BundleContext bc) {
         this.bc = bc;
         if (null == instance) {
             instance = this;
-            System.out.println("Alitheia Core Instance #1 Created");
-        } else {
-            System.out.println("Alitheia Core Clone Created");
+            System.out.println("Alitheia Core: Instance Created");
         }
+        
+        initFlag = new AtomicBoolean();
+        initFlag.set(false);
+        
+        srvWait = new Vector<Class<?>>();
+        srvWait.add(HttpService.class);
+        srvWait.add(EventAdmin.class);
+        checkForServicesAndInit();
     }
 
     /**
@@ -212,7 +223,14 @@ public class AlitheiaCore {
      * </ul>
      */
     public void init() {
-        // *** NOTE: Do not change the initialization order! ***
+    	
+    	if (initFlag.get() == true) {
+    		return;
+    	}
+		System.err.println("AlitheiaCore: Required services online, initialising");
+    	initFlag.compareAndSet(false, true);
+    		
+    	// *** NOTE: Do not change the initialization order! ***
         // Create an instance of the Logger component.
         initLogger();
         // Create an instance of the DB component.
@@ -224,6 +242,10 @@ public class AlitheiaCore {
         // Create an instance of the Administration service component
         initAdminService(); 
     }
+    
+    public void shutDown() {
+    	((AlitheiaCoreService)db).shutDown();
+	}
 
     /**
      * Returns the locally stored Logger component's instance.
@@ -295,25 +317,10 @@ public class AlitheiaCore {
      */
     public FDSService getFDSService() {
         if (fds == null) {
-            fds = new FDSServiceImpl(bc,
+        	fds = new FDSServiceImpl(bc,
                     getLogManager().createLogger(Logger.NAME_SQOOSS_FDS));
         }
         return fds;
-    }
-
-    /**
-     * Returns the locally stored Messaging component's instance.
-     * <br/>
-     * <i>The instance is created when this method is called for a first
-     * time.</i>
-     * 
-     * @return The Messaging component's instance.
-     */
-    public MessagingService getMessagingService() {
-        if (msg == null) {
-            msg = new MessagingServiceImpl(bc);
-        }
-        return msg;
     }
 
     /**
@@ -326,7 +333,7 @@ public class AlitheiaCore {
      */
     public Scheduler getScheduler() {
         if (sched == null) {
-            sched = new SchedulerServiceImpl(bc,
+        	sched = new SchedulerServiceImpl(bc,
                     getLogManager().createLogger(
                             Logger.NAME_SQOOSS_SCHEDULING));
         }
@@ -343,7 +350,7 @@ public class AlitheiaCore {
      */
     public SecurityManager getSecurityManager() {
         if (sec == null) {
-            sec = new SecurityManagerImpl(bc,
+        	sec = new SecurityManagerImpl(bc,
                     getLogManager().createLogger(
                             Logger.NAME_SQOOSS_SECURITY));
         }
@@ -360,7 +367,7 @@ public class AlitheiaCore {
      */
     public TDSService getTDSService() {
         if (tds == null) {
-            tds = new TDSServiceImpl(bc, 
+        	tds = new TDSServiceImpl(bc, 
                     getLogManager().createLogger(Logger.NAME_SQOOSS_TDS));
         }
         return tds;
@@ -377,7 +384,7 @@ public class AlitheiaCore {
     public UpdaterService getUpdater() {
         if (updater == null) {
             try {
-                updater = new UpdaterServiceImpl(bc,
+            	updater = new UpdaterServiceImpl(bc,
                         getLogManager().createLogger(
                                 Logger.NAME_SQOOSS_UPDATER));
             } catch (ServletException e) {
@@ -424,7 +431,7 @@ public class AlitheiaCore {
      */
     public MetricActivator getMetricActivator() {
         if (ma == null) {
-            ma = new MetricActivatorImpl(bc,
+        	ma = new MetricActivatorImpl(bc,
                     getLogManager().createLogger(
                             Logger.NAME_SQOOSS_METRICACTIVATOR));
         }
@@ -444,115 +451,45 @@ public class AlitheiaCore {
 
         return admin;
     }
-
     
-    /**
-     * Call the selfTest method for a given object, while logging
-     * to a particular logger. The selfTest configuration options
-     * of the system as a whole (in config.ini) may be enabled
-     * through the obeyConfig parameter; if you really want to
-     * call selfTest() regardless, use false.
-     * 
-     * @param l Logger to write results to
-     * @param o Object to test
-     * @param obeyConfig If false, disregard the global configuration
-     *      options which might disable self-tests
-     * @return Object describing failures of the self-test, from
-     *      the self-test method of the object
-     */
-    public final Object selfTest(Logger l, Object o, boolean obeyConfig) {
-        String className = o.getClass().getName();
-        try {
-            Method m = o.getClass().getMethod("selfTest");
-            if (m != null) {
-                l.info("BEGIN SubTest " + className);
+	@Override
+	public synchronized void serviceChanged(ServiceEvent event) {
+		if (event.getType() == ServiceEvent.REGISTERED) {
+			if (event.getServiceReference().toString().matches(".*" 
+					+ HttpService.class.getName() + ".*")) {
+				System.err.println("AlitheiaCore: HTTP service registered");
+			}
+			
+			if (event.getServiceReference().toString().matches(".*" 
+					+ EventAdmin.class.getName() + ".*")) {
+				System.err.println("AlitheiaCore: Event service registered");
+			}
+			checkForServicesAndInit();
+		}
+	}
 
-                // Now trim down to only the class name
-                int lastDot = className.lastIndexOf('.');
-                if (lastDot > 0) {
-                    className = className.substring(lastDot + 1);
-                }
-
-                String enabled = bc.getProperty("eu.sqooss.tester.enable."
-                        + className);
-                if (obeyConfig && (enabled != null) && !Boolean.valueOf(enabled)) {
-                    l.info("SKIP  Test (disabled in configuration)");
-                    return null;
-                }
-
-                try {
-                    Object r = m.invoke(o);
-                    if (r != null) {
-                        l.info(className + "'s test failed: "
-                                + r.toString());
-                        return r;
-                    }
-                } catch (SecurityException e) {
-                    l.info("Can't access selfTest() method.");
-                } catch (IllegalAccessException e) {
-                    l.info("Failed to invoke selfTest() method: "
-                            + e.getMessage());
-                } catch (InvocationTargetException e) {
-                    l.info("Failed to invoke selfTest() on service: "
-                            + e.getMessage());
-                } catch (Exception e) {
-                    l.warn("selfTest() method failed: " + e.getMessage());
-                    e.printStackTrace();
-                }
-
-                l.info("END   SubTest " + o.getClass().getName());
-                m = null;
-            }
-        } catch (NoSuchMethodException e) {
-            l.warn("Core component " + className + " has no selfTest()");
-        }
-        return null;
-    }
-    
-    /**
-     * This is the <code>selfTest()</code> method, which is called by the
-     * system tester at startup. The method itself serves only as a dispatcher
-     * to the <code>selfTest()</code> methods of all the components, that
-     * build the SQO-OSS core. It does this much like the Tester service does
-     * i.e. uses reflection to get the <code>selfTest()</code> method.
-     * <br/>
-     * NOTE: There could be a duplicated log entries, when a failure occurs,
-     * that's logged by both this method and the calling 
-     * <code>TesterService.selfTest())</code>.
-     * 
-     * @return The object representing all of the failures of the test (we use a
-     * List of Object to collect the failures across sub-services).
-     */
-    public final Object selfTest() {
-        // We are going to push all of the test failures onto this
-        // list to dump in one go later.
-        List<Object> result = new LinkedList<Object>();
-
-        List<Object> testObjects = new LinkedList<Object>();
-        try {
-            testObjects.add(getScheduler());
-            testObjects.add(getDBService());
-            testObjects.add(getFDSService());
-            testObjects.add(getLogManager());
-            testObjects.add(getMessagingService());
-            testObjects.add(getSecurityManager());
-            testObjects.add(getTDSService());
-            testObjects.add(getUpdater());
-        } catch (Throwable t) {
-            t.printStackTrace();
-            return t.toString();
-        }
-
-        Logger l = getLogManager().createLogger(Logger.NAME_SQOOSS_TESTER);
-        
-        for (Object o : testObjects) {
-            Object r = selfTest(l,o,true);
-            if (null != r) {
-                result.add(r);
-            }
-        }
-        return result;
-    }
+	private synchronized void checkForServicesAndInit() {
+		boolean init = true;
+		
+		for (Class<?> srvClass : srvWait) {
+			ServiceReference sr  =  bc.getServiceReference(srvClass.getName());
+			if (sr == null) {
+				init = false;
+				continue;
+			}
+			
+			Object o = bc.getService(sr);
+			
+			if (o == null) {
+				init = false;
+				continue;
+			}
+		}
+		
+		if (init == true) {
+			init();
+		}
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

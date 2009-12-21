@@ -35,7 +35,6 @@ package eu.sqooss.impl.service.security;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -63,7 +62,6 @@ import eu.sqooss.service.db.Privilege;
 import eu.sqooss.service.db.ServiceUrl;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.PrivilegeManager;
 import eu.sqooss.service.security.SecurityConstants;
@@ -144,7 +142,6 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
 
         // Obtain the required core components
         this.db = sobjCore.getDBService();
-        MessagingService messaging = sobjCore.getMessagingService();
         this.logger = logger;
 
         // Instantiate a wrapper around the DB component
@@ -156,7 +153,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
         groupManager = new GroupManagerImpl(db, logger);
         privilegeManager = new PrivilegeManagerImpl(db, logger);
         serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
-        userManager = new UserManagerImpl(db, messaging, logger,
+        userManager = new UserManagerImpl(db, logger,
                 groupManager, newUsersGroup);
 
         // Check if security is enabled in the configuration file

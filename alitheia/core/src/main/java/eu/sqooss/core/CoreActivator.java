@@ -46,24 +46,19 @@ public class CoreActivator implements BundleActivator {
     /** Keeps the <code>AlitheaCore</code>'s service registration instance. */
     private ServiceRegistration sregCore;
 
-    /* (non-Javadoc)
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-     */
     public void start(BundleContext bc) throws Exception {
-        // Create an AlitheiaCore instance and register it as a service
         core = new AlitheiaCore(bc);
-        bc.registerService(AlitheiaCore.class.getName(), core, null);
-        // Initialize the AlitheiaCore instance
-        core.init();
+        bc.addServiceListener(core);
+        sregCore = bc.registerService(AlitheiaCore.class.getName(), core, null);
     }
-
-    /* (non-Javadoc)
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
+  
     public void stop(BundleContext bc) throws Exception {
-       if (sregCore != null) {
-           sregCore.unregister();
-       }
+    	core.shutDown();
+    	bc.removeServiceListener(core);
+    	if (sregCore != null) {
+    		sregCore.unregister();
+    	}
+    	core = null;
     }
 }
 

@@ -44,7 +44,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
@@ -59,15 +58,10 @@ public class AdminWS extends HttpServlet {
 
     public AdminWS( BundleContext bc ) {
         bundleContext = bc;
-        ServiceReference srefCore = 
-            bc.getServiceReference(AlitheiaCore.class.getName());
-        if (srefCore != null) {
-            AlitheiaCore core = (AlitheiaCore) bc.getService(srefCore);
-            scheduler = core.getScheduler();
-            dbservice = core.getDBService();
-        } else {
-            System.out.println("No CORE");
-        }
+
+		AlitheiaCore core = AlitheiaCore.getInstance();
+		scheduler = core.getScheduler();
+		dbservice = core.getDBService();
     }
 
     protected void doGet(HttpServletRequest request,

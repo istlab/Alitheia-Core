@@ -106,8 +106,7 @@ public class AdminServlet extends HttpServlet {
         this.ve = ve;
         this.logger = logger;
         
-        ServiceReference ref = bc.getServiceReference(AlitheiaCore.class.getName());
-        AlitheiaCore core = (AlitheiaCore) bc.getService(ref);
+        AlitheiaCore core = AlitheiaCore.getInstance();
         db = core.getDBService();
         
         // Create the static content map

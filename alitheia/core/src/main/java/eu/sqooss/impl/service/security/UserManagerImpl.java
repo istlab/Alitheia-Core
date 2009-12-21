@@ -56,8 +56,6 @@ import eu.sqooss.service.db.Group;
 import eu.sqooss.service.db.PendingUser;
 import eu.sqooss.service.db.User;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.messaging.Message;
-import eu.sqooss.service.messaging.MessagingService;
 import eu.sqooss.service.security.GroupManager;
 import eu.sqooss.service.security.UserManager;
 
@@ -71,7 +69,6 @@ public class UserManagerImpl implements UserManager {
 	private static final long EXPIRATION_PERIOD = 24*3600*1000;
 	
     private UserManagerDatabase dbWrapper;
-    private MessagingService messaging;
     private Logger logger;
     private MessageDigest messageDigest;
     private Timer pendingTimer;
@@ -80,11 +77,9 @@ public class UserManagerImpl implements UserManager {
     private String newUsersGroup;
     private GroupManager groupManager;
     
-    public UserManagerImpl(DBService db, MessagingService messaging,
-            Logger logger, GroupManager groupManager, String newUsersGroup) {
+    public UserManagerImpl(DBService db, Logger logger, GroupManager groupManager, String newUsersGroup) {
         this.newUsersGroup = newUsersGroup;
         this.dbWrapper = new UserManagerDatabase(db);
-        this.messaging = messaging;
         this.logger = logger;
         this.groupManager = groupManager;
         
@@ -327,10 +322,7 @@ public class UserManagerImpl implements UserManager {
         String protocol = null; // use default (SMTP)
         Vector<String> recipients = new Vector<String>(1);
         recipients.add(pendingUser.getEmail());
-        
-        Message newMessage = Message.getInstance(bodyWriter.toString(),
-                recipients, title, protocol);
-        messaging.sendMessage(newMessage);
+       
     }
     
     private static String getHashUrl(String hash) {

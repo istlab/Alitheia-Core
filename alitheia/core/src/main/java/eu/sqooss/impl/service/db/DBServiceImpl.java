@@ -57,12 +57,11 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;	
 import org.hibernate.mapping.AuxiliaryDatabaseObject;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
@@ -73,7 +72,7 @@ import eu.sqooss.service.logging.Logger;
  * @author Romain Pokrzywka
  * 
  */
-public class DBServiceImpl implements DBService, FrameworkListener {
+public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
     private static final String DB_DRIVER_PROPERTY = "eu.sqooss.db.driver";
     private static final String DB_CONNECTION_URL_PROPERTY = "eu.sqooss.db.url";
@@ -226,16 +225,22 @@ public class DBServiceImpl implements DBService, FrameworkListener {
 			if (osgiInst != null) {
 				dirsToSearch.add(osgiInst);
 				dirsToSearch.add(osgiInst + "/..");
+				dirsToSearch.add(osgiInst + "/../bundles");
 			} else {
 				logger.warn("couln't resolve OSGi install property to a " +
 						"directory on disk :" + osgiInst + ". Custom DAOs " +
 						"from metrics bundles won't be initialized.");
 			}
             for (String dir : dirsToSearch) {
-            	logger.debug("Searching plug-ins in " + dir);
-                File equinoxInstallDir = new File( URI.create(dir) );
-                if ( equinoxInstallDir.exists() && equinoxInstallDir.isDirectory() ) {
-                    File[] metricsJars = equinoxInstallDir.listFiles(new FilenameFilter() {
+            	File searchDir = new File(URI.create(dir));
+            	
+            	if (searchDir.getCanonicalPath().equals(osgiInst))
+            		continue; //Don't search same dir twice
+            	
+            	logger.debug("Searching for plug-ins in " + searchDir.getCanonicalPath());
+                
+                if ( searchDir.exists() && searchDir.isDirectory() ) {
+                    File[] metricsJars = searchDir.listFiles(new FilenameFilter() {
                         public boolean accept(File dir, String name) {
                             return name.startsWith("eu.sqooss.metrics")  && name.endsWith(".jar");
                         }
@@ -287,8 +292,7 @@ public class DBServiceImpl implements DBService, FrameworkListener {
                 logger.error("DB service got no JDBC connectors.");
             }
         }
-        bc.addFrameworkListener(this);
-        
+       
         ServiceReference srefEAService = bc.getServiceReference(
                 org.osgi.service.event.EventAdmin.class.getName());
         if (srefEAService != null) {
@@ -766,39 +770,6 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             return null;
         }
     }
-      
-    public void frameworkEvent(FrameworkEvent event) {
-        
-        /**
-         * Start Hibernate after all other bundles have started
-         */
-        if(event.getType() == FrameworkEvent.STARTLEVEL_CHANGED) {
-            if (dbClass != null) {
-                logger.info("Using JDBC " + dbClass);
-                boolean resetDatabase = false;
-                if (Boolean.valueOf(bc.getProperty(HIBERNATE_RESET_PROPERTY))) {
-                    resetDatabase = true;
-                }
-                logger.info("Caught STARTED event - Initialising Hibernate");
-                
-                initHibernate(bc.getBundle().getResource("hibernate.cfg.xml"), resetDatabase);
-                
-                isInitialised.compareAndSet(false, true);
-                
-                if (eaService != null) {
-                    HashMap<String, Boolean> value = new HashMap<String, Boolean>();
-                    value.put("value", true);
-                    eaService.sendEvent(new Event(DBService.EVENT_STARTED, value));
-                } else {
-                    logger.error("Cannot send the" + DBService.EVENT_STARTED + 
-                            "event");
-                }
-            } else {
-                logger.error("Hibernate could not be initialized.");
-                // TODO: Throw something to prevent the bundle from being started?
-            }
-        }
-    }
     
     public int executeUpdate(String hql, Map<String, Object> params) 
     throws QueryException {
@@ -831,6 +802,42 @@ public class DBServiceImpl implements DBService, FrameworkListener {
             logExceptionAndTerminateSession(ebis);
             throw ebis;
         }
+    }
+
+    @Override
+	public boolean init() {
+    	if (dbClass != null) {
+            logger.info("Using driver " + dbClass);
+            boolean resetDatabase = false;
+            if (Boolean.valueOf(bc.getProperty(HIBERNATE_RESET_PROPERTY))) {
+                resetDatabase = true;
+            }
+            logger.info("Initialising database service");
+            
+            initHibernate(bc.getBundle().getResource("hibernate.cfg.xml"), resetDatabase);
+            
+            isInitialised.compareAndSet(false, true);
+            
+            if (eaService != null) {
+                HashMap<String, Boolean> value = new HashMap<String, Boolean>();
+                value.put("value", true);
+                eaService.sendEvent(new Event(DBService.EVENT_STARTED, value));
+            } else {
+                logger.error("Cannot send the" + DBService.EVENT_STARTED + 
+                        "event");
+            }
+            return true;
+        } else {
+            logger.error("Hibernate could not be initialized.");
+            // TODO: Throw something to prevent the bundle from being started?
+            return false;
+        }
+	}
+    
+    @Override
+    public void shutDown() {
+    	logger.info("Shutting down database service");
+    	sessionFactory.close();
     }
 }
 
