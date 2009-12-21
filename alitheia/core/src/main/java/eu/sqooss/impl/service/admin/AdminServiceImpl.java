@@ -34,10 +34,8 @@
 package eu.sqooss.impl.service.admin;
 
 import java.io.IOException;
-import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -51,9 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
@@ -71,7 +66,7 @@ import eu.sqooss.service.logging.Logger;
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
 public final class AdminServiceImpl extends HttpServlet 
-	implements AdminService, EventHandler {
+	implements AdminService {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -93,31 +88,9 @@ public final class AdminServiceImpl extends HttpServlet
     /** An reference to a logger*/
     public Logger log;
     
-    public AdminServiceImpl(BundleContext bc, Logger l) {
-        log = l;
-        
-        /* Get a reference to the HTTP service */
-        ServiceReference serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
-        
-        if (serviceRef != null) {
-        	HttpService httpService = (HttpService) bc.getService(serviceRef);
-            try {
-				httpService.registerServlet("/admin", (Servlet) this, null, null);
-			} catch (ServletException e) {
-				e.printStackTrace();
-			} catch (NamespaceException e) {
-				e.printStackTrace();
-			}
-        } else {
-            l.error("Could not load the HTTP service.");
-        }
-        
-        Dictionary<String, String> props = new Hashtable<String, String>(1);
-        props.put(EventConstants.EVENT_TOPIC, DBService.EVENT_STARTED);
-        bc.registerService(EventHandler.class.getName(), this, props);
-        
-        log.info("Succesfully loaded the admin action service");
-    }
+    private BundleContext bc;
+    
+    public AdminServiceImpl() {}
     
     /** {@inheritDoc} */
     public boolean registerAdminAction(String name, 
@@ -222,29 +195,57 @@ public final class AdminServiceImpl extends HttpServlet
     	doGet(request, response);
     }
 
-    /* Not really interested in the DB start event, just looking for a way
-     * to register admin actions early on
-     */
-	public void handleEvent(Event e) {
-		if (!DBService.EVENT_STARTED.equals(e.getTopic())) {
-			return;
-		}
+	@Override
+	public void shutDown() {	
+	}
+	
+	@Override
+	public boolean startUp() {
+		
+        /* Get a reference to the HTTP service */
+        ServiceReference serviceRef = bc.getServiceReference("org.osgi.service.http.HttpService");
+        
+        if (serviceRef != null) {
+        	HttpService httpService = (HttpService) bc.getService(serviceRef);
+            try {
+				httpService.registerServlet("/admin", (Servlet) this, null, null);
+			} catch (ServletException e) {
+				e.printStackTrace();
+			} catch (NamespaceException e) {
+				e.printStackTrace();
+			}
+        } else {
+            log.error("Could not load the HTTP service.");
+        }
+
+        log.info("Succesfully loaded the admin action service");
 		
 		for (String action : actions) {
 			try {
 				Class<?> c = Class.forName(action);
 				AdminAction aa = (AdminAction) c.newInstance();
 				aa.registerWith(this);
+				
 			} catch (ClassNotFoundException e1) {
 				log.error("Error registering action class: " + action + 
 						", error was: " + e1.getMessage());
+				return false;
 			} catch (InstantiationException ie) {
 				log.error("Error registering action class: " + action + 
 						", error was: " + ie.getMessage());
+				return false;
 			} catch (IllegalAccessException iae) {
 				log.error("Error registering action class: " + action + 
 						", error was: " + iae.getMessage());
+				return false;
 			}
 		}
+		return true;
+	}
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+		this.bc = bc;
+		this.log = l;
 	}
 }

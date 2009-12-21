@@ -34,7 +34,6 @@ package eu.sqooss.impl.service.security;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,9 +47,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -69,7 +65,7 @@ import eu.sqooss.service.security.SecurityManager;
 import eu.sqooss.service.security.ServiceUrlManager;
 import eu.sqooss.service.security.UserManager;
 
-public class SecurityManagerImpl implements SecurityManager, SecurityConstants, EventHandler {
+public class SecurityManagerImpl implements SecurityManager, SecurityConstants {
 
     private static final String PROPERTY_DEFAULT_USER_NAME     = "eu.sqooss.security.user.name";
     private static final String PROPERTY_DEFAULT_USER_PASSWORD = "eu.sqooss.security.user.password";
@@ -132,63 +128,7 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
         }
     }
 
-    public SecurityManagerImpl(BundleContext bc, Logger logger) {
-        this.bc = bc;
-
-        // Get the AlitheaCore's object
-        ServiceReference srefCore = null;
-        srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
-        AlitheiaCore sobjCore = (AlitheiaCore) bc.getService(srefCore);
-
-        // Obtain the required core components
-        this.db = sobjCore.getDBService();
-        this.logger = logger;
-
-        // Instantiate a wrapper around the DB component
-        this.dbWrapper = new SecurityManagerDatabase(sobjCore.getDBService());
-
-        newUsersGroup = System.getProperty(PROPERTY_NEW_USERS_GROUP); 
-        
-        // Instantiate the various security managers
-        groupManager = new GroupManagerImpl(db, logger);
-        privilegeManager = new PrivilegeManagerImpl(db, logger);
-        serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
-        userManager = new UserManagerImpl(db, logger,
-                groupManager, newUsersGroup);
-
-        // Check if security is enabled in the configuration file
-        isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
-        
-        Dictionary<String, String> props = new Hashtable<String, String>(1);
-        props.put(EventConstants.EVENT_TOPIC, DBService.EVENT_STARTED);
-        bc.registerService(EventHandler.class.getName(), this, props);
-        
-        // Get a reference to the HTTPService, and its object
-        srefHttpService = bc.getServiceReference(HttpService.class.getName());
-        if (srefHttpService != null) {
-            sobjHttpService = (HttpService) bc.getService(srefHttpService);
-            if (sobjHttpService != null) {
-                try {
-                    // Register the user's confirmation servlet
-                    sobjHttpService.registerServlet(
-                        "/confirmRegistration",
-                        new ConfirmationServlet(db),
-                        new Hashtable<String, String>(),
-                        null);
-                }
-                catch (Exception e) {
-                    logger.error(ConfirmationServlet.class
-                            + " registration has failed with: " + e);
-                }
-            }
-            else {
-                logger.error("Unable to obtain a HttpService object!");
-            }
-        }
-        else {
-            logger.error("Unable to obtain a HttpService reference!");
-        }
-    }
+    public SecurityManagerImpl() {  }
 
     /**
      * @see eu.sqooss.service.security.SecurityManager#checkPermission(java.lang.String, java.lang.String, java.lang.String)
@@ -502,11 +442,6 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
         serviceUrlManager.createServiceUrl(URL_SQOOSS);
     }
     
-    public Object selfTest() {
-        SelfTester tester = new SelfTester(this, db);
-        return tester.test();
-    }
-
     /**
      * @see eu.sqooss.service.security.SecurityManager#getSystemGroup()
      */
@@ -527,18 +462,78 @@ public class SecurityManagerImpl implements SecurityManager, SecurityConstants, 
     public String getNewUsersGroup() {
         return newUsersGroup;
     }
+   
+	@Override
+	public void shutDown() {}
 
-    public void handleEvent(Event e) {
-        if (DBService.EVENT_STARTED.equals(e.getTopic())) {
-            logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
-            // Create the unprivileged SQO-OSS user
-            db.startDBSession();
-            initNewUsersGroup();
-            initDefaultUser();
-            storeConstantsInDB();
-            db.commitDBSession();
+	@Override
+	public boolean startUp() {
+
+        // Get the AlitheaCore's object
+        ServiceReference srefCore = null;
+        srefCore = bc.getServiceReference(AlitheiaCore.class.getName());
+        AlitheiaCore sobjCore = (AlitheiaCore) bc.getService(srefCore);
+
+        // Obtain the required core components
+        this.db = sobjCore.getDBService();
+       
+
+        // Instantiate a wrapper around the DB component
+        this.dbWrapper = new SecurityManagerDatabase(sobjCore.getDBService());
+
+        newUsersGroup = System.getProperty(PROPERTY_NEW_USERS_GROUP); 
+        
+        // Instantiate the various security managers
+        groupManager = new GroupManagerImpl(db, logger);
+        privilegeManager = new PrivilegeManagerImpl(db, logger);
+        serviceUrlManager = new ServiceUrlManagerImpl(db, logger);
+        userManager = new UserManagerImpl(db, logger,
+                groupManager, newUsersGroup);
+
+        // Check if security is enabled in the configuration file
+        isEnable = Boolean.valueOf(System.getProperty(PROPERTY_ENABLE, "true"));
+        
+       // Get a reference to the HTTPService, and its object
+        srefHttpService = bc.getServiceReference(HttpService.class.getName());
+        if (srefHttpService != null) {
+            sobjHttpService = (HttpService) bc.getService(srefHttpService);
+            if (sobjHttpService != null) {
+                try {
+                    // Register the user's confirmation servlet
+                    sobjHttpService.registerServlet(
+                        "/confirmRegistration",
+                        new ConfirmationServlet(db),
+                        new Hashtable<String, String>(),
+                        null);
+                }
+                catch (Exception e) {
+                    logger.error(ConfirmationServlet.class
+                            + " registration has failed with: " + e);
+                }
+            }
+            else {
+                logger.error("Unable to obtain a HttpService object!");
+            }
         }
-    }
+        else {
+            logger.error("Unable to obtain a HttpService reference!");
+        }
+	    
+		 logger.debug("Initialising the Security Manager");
+         // Create the unprivileged SQO-OSS user
+         db.startDBSession();
+         initNewUsersGroup();
+         initDefaultUser();
+         storeConstantsInDB();
+         db.commitDBSession();
+         return true;
+	}
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+	    this.logger = l;
+	    this.bc = bc;
+	} 
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

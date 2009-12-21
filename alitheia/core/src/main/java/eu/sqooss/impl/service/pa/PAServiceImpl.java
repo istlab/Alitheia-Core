@@ -52,9 +52,9 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -68,7 +68,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 
-public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler  {
+public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /* ===[ Constants: Service search filters ]=========================== */
 
@@ -107,59 +107,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
     private ConcurrentHashMap<String, PluginInfo> registeredPlugins =
         new ConcurrentHashMap<String, PluginInfo>();
 
-    /**
-     * Instantiates a new <code>PluginAdmin</code>.
-     *
-     * @param bc - the parent bundle's context object
-     * @param logger - the Logger component's instance
-     */
-    public PAServiceImpl (BundleContext bc, Logger logger) {
-        this.bc = bc;
-
-        // Store the Logger instance
-        this.logger = logger;
-        logger.info("Starting the PluginAdmin component.");
-
-        // Get the AlitheiaCore's object
-        sobjCore = AlitheiaCore.getInstance();
-
-        if (sobjCore != null) {
-            // Obtain the required core components
-            sobjDB = sobjCore.getDBService();
-            if (sobjDB == null) {
-                logger.error("Can not obtain the DB object!");
-            }
-
-            // Attach this object as a listener for metric services
-            try {
-                bc.addServiceListener(this, SREF_FILTER_PLUGIN);
-            } catch (InvalidSyntaxException e) {
-                logger.error(INVALID_FILTER_SYNTAX);
-            }
-
-            // Register an extension to the Equinox console, in order to
-            // provide commands for managing plug-in's services
-            /*bc.registerService(
-                    CommandProvider.class.getName(),
-                    new PACommandProvider(this, sobjDB) ,
-                    null);*/
-
-            //Register an event handler for DB init events
-            final String[] topics = new String[] {
-                    DBService.EVENT_STARTED
-            };
-
-            Dictionary<String, String[]> d = new Hashtable<String, String[]>();
-            d.put(EventConstants.EVENT_TOPIC, topics );
-
-            bc.registerService(EventHandler.class.getName(), this, d);
-
-            logger.debug("The PluginAdmin component was successfully started.");
-        }
-        else {
-            logger.error("Can not obtain the Core object!");
-        }
-    }
+    public PAServiceImpl () { }
 
     /**
      * Retrieves the service Id of the specified service reference.
@@ -684,16 +632,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
         // No plug-ins found
         return null;
     }
-
-    public void handleEvent(Event e) {
-        logger.info("Caught EVENT type=" + e.getPropertyNames().toString());
-        if (DBService.EVENT_STARTED.equals(e.getTopic())) {
-            //Fire up queued service events after the DB service is inited
-            while (initEventQueue.size() > 0) {
-                serviceChanged(initEventQueue.remove());
-            }
-        }
-    }
     
     private class PluginUninstallJob extends Job {
 
@@ -762,6 +700,40 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener, EventHandler
             return "PluginUninstallJob - ServiceID:{" + serviceID + "}" ;
         }
     }
+
+	@Override
+	public boolean startUp() {
+	    logger.info("Starting the PluginAdmin component.");
+
+        // Get the AlitheiaCore's object
+        sobjCore = AlitheiaCore.getInstance();
+
+        if (sobjCore != null) {
+            // Obtain the required core components
+            sobjDB = sobjCore.getDBService();
+            if (sobjDB == null) {
+                logger.error("Can not obtain the DB object!");
+            }
+
+            bc.addServiceListener(this);
+            logger.debug("The PluginAdmin component was successfully started.");
+        }
+        else {
+            logger.error("Can not obtain the Core object!");
+        }
+		return true;
+	}
+
+	@Override
+	public void shutDown() {
+		return ;
+	}
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+	    this.bc = bc;
+        this.logger = l;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

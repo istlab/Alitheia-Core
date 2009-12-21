@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.db;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.DAObject;
 
 import java.sql.SQLException;
@@ -78,13 +79,7 @@ import org.hibernate.QueryException;
  * @author Romain Pokrzywka
  *
  */
-public interface DBService {
-    
-    /**
-     * Event denoting that the hibernate subsystem has been succesfully 
-     * initialised
-     */
-    public static final String EVENT_STARTED = "db/hibernate/STARTED";    
+public interface DBService extends AlitheiaCoreService {
     
     /**
      * Starts a new work session with the DBService for the current thread.

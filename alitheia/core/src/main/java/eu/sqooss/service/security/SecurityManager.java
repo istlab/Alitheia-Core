@@ -34,6 +34,7 @@ package eu.sqooss.service.security;
 
 import java.util.Map;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.GroupType;
 
 /**
@@ -41,7 +42,7 @@ import eu.sqooss.service.db.GroupType;
  * to resources, and provides methods for creation and management of access
  * models.
  */
-public interface SecurityManager {
+public interface SecurityManager extends AlitheiaCoreService {
 
     /**
      * Validates the access to a SQO-OSS resources identified by the given

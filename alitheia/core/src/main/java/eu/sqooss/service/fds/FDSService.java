@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.regex.Pattern;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -69,7 +70,7 @@ import eu.sqooss.service.db.StoredProject;
  * 
  * 
  */
-public interface FDSService {
+public interface FDSService extends AlitheiaCoreService {
     /**
      * Maintains (and caches) a checkout of a given project in a
      * given revision. The checkout must be released after the client is done 

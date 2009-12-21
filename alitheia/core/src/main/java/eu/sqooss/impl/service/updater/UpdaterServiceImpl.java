@@ -91,42 +91,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
      */
     private Map<UpdateTarget, Class<? extends UpdaterBaseJob>> availUpdaters;
     
-    public UpdaterServiceImpl(BundleContext bc, Logger logger) throws ServletException,
-            NamespaceException {
-        this.context = bc;
-        this.logger = logger;
-        /* Get a reference to the core service*/
-        ServiceReference serviceRef = null;
-        serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
-        core = (AlitheiaCore) context.getService(serviceRef);
-        if (logger != null) {
-            logger.info("Got a valid reference to the logger");
-        } else {
-            System.out.println("ERROR: Updater got no logger");
-        }
-
-        /* Get a reference to the HTTP service */
-        serviceRef = context.getServiceReference("org.osgi.service.http.HttpService");
-        if (serviceRef != null) {
-            httpService = (HttpService) context.getService(serviceRef);
-            httpService.registerServlet("/updater", (Servlet) this, null, null);
-        } else {
-            logger.error("Could not load the HTTP service.");
-        }
-        dbs = core.getDBService();
-
-        jobsPerProject = new ConcurrentHashMap<Job, Long>();
-        scheduledUpdates = new ConcurrentHashMap<Long,Map<UpdateTarget, Job>>(); 
-        
-        availUpdaters = new HashMap<UpdateTarget, Class<? extends UpdaterBaseJob>>();
-        availUpdaters.put(UpdateTarget.CODE, SourceUpdater.class);
-        availUpdaters.put(UpdateTarget.MAIL, MailUpdater.class);
-        availUpdaters.put(UpdateTarget.BUGS, BugUpdater.class);
-        availUpdaters.put(UpdateTarget.OHLOH, OhlohUpdater.class);
-        availUpdaters.put(UpdateTarget.DEVS, DeveloperMatcher.class);
-        
-        logger.info("Succesfully started updater service");
-    }
+    public UpdaterServiceImpl() {  }
 
     /** {@inheritDoc}}*/
     public synchronized boolean isUpdateRunning(StoredProject p, UpdateTarget t) {
@@ -433,14 +398,61 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         }
         dbs.commitDBSession();
     }
+  
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+        this.context = bc;
+        this.logger = l;
+	}
 
-    public Object selfTest() {
-        if (logger == null) {
-            return new String("No logger available.");
+	@Override
+	public void shutDown() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public boolean startUp() {
+	   
+        /* Get a reference to the core service*/
+        ServiceReference serviceRef = null;
+        serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
+        core = (AlitheiaCore) context.getService(serviceRef);
+        if (logger != null) {
+            logger.info("Got a valid reference to the logger");
+        } else {
+            System.out.println("ERROR: Updater got no logger");
         }
 
-        // There isn't really much to test here that doesn't affect the
-        // state of the system in an undesirable way.
-        return null;
-    }
+        /* Get a reference to the HTTP service */
+        serviceRef = context.getServiceReference("org.osgi.service.http.HttpService");
+        if (serviceRef != null) {
+            httpService = (HttpService) context.getService(serviceRef);
+            try {
+                httpService.registerServlet("/updater", (Servlet) this, null, null);
+            } catch (ServletException e) {
+                logger.error("Cannot register servlet to path /updater");
+                return false;
+            } catch (NamespaceException e) {
+                logger.error("Duplicate registration at path /updater");
+                return false;
+            }
+        } else {
+            logger.error("Could not load the HTTP service.");
+            return false;
+        }
+        dbs = core.getDBService();
+
+        jobsPerProject = new ConcurrentHashMap<Job, Long>();
+        scheduledUpdates = new ConcurrentHashMap<Long,Map<UpdateTarget, Job>>(); 
+        
+        availUpdaters = new HashMap<UpdateTarget, Class<? extends UpdaterBaseJob>>();
+        availUpdaters.put(UpdateTarget.CODE, SourceUpdater.class);
+        availUpdaters.put(UpdateTarget.MAIL, MailUpdater.class);
+        availUpdaters.put(UpdateTarget.BUGS, BugUpdater.class);
+        availUpdaters.put(UpdateTarget.OHLOH, OhlohUpdater.class);
+        availUpdaters.put(UpdateTarget.DEVS, DeveloperMatcher.class);
+        
+        logger.info("Succesfully started updater service");
+        return true;
+	}
 }

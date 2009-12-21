@@ -141,59 +141,6 @@ public final class DiskUtil {
      * createTestFiles() code to work properly.
      */
     private static final int STARTING_MAX_FILES = 16;
-    /**
-     * Perform a self-test on the diskutils class by creating
-     * a bunch of directories and then deleting them again
-     * with the rm*() methods.
-     *
-     * @param logger the logger to which test results are printed.
-     */
-    public static void selfTest(final Logger logger) {
-        logger.info("Self-test for class DiskUtil.");
-        logger.info("Creating test directories ...");
-
-        /* We are going to create at most maxfiles files and
-         * maxsubdirs sub-directories at this level. These numbers
-         * are halved at each descent, so it terminates.
-         */
-        final File toplevel = new File("/tmp/DiskUtilsTest");
-        if (!toplevel.mkdirs()) {
-            logger.warn("Could not create self-test toplevel.");
-            return;
-        }
-
-        int total = createTestFiles(toplevel,
-            STARTING_MAX_SUBDIRS, STARTING_MAX_FILES);
-        try {
-            // This just ensures that there is at least one file
-            if (new File(toplevel, "README").createNewFile()) {
-                ++total;
-            }
-        } catch (IOException e) {
-            // Just ignore it
-            total += 0;
-        }
-
-        logger.info("Created " + total + " files and directories for test.");
-
-        rmStar(toplevel);
-        // Now there should be no files left in there
-        File[] files = toplevel.listFiles();
-        for (File f : files) {
-            if (f.isFile()) {
-                logger.warn("Failed to remove " + f);
-            }
-        }
-
-        rmRf(toplevel);
-        if (toplevel.exists()) {
-            logger.warn("Failed to rm -rf " + toplevel);
-        } else {
-            logger.info("Successfully removed " + toplevel);
-        }
-
-        logger.info("End self-test for class DiskUtil.");
-    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -31,6 +31,7 @@ package eu.sqooss.service.parser;
 
 import org.w3c.dom.Document;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 
@@ -49,7 +50,7 @@ import eu.sqooss.service.db.ProjectVersion;
  *
  * @author Vassilios Karakoidas (bkarak@aueb.gr)
  */
-public interface Parser {
+public interface Parser extends AlitheiaCoreService {
 	/**
 	 * Parse a specified ProjectFile
 	 * 

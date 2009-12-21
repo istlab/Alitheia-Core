@@ -32,6 +32,8 @@
 
 package eu.sqooss.service.logging;
 
+import eu.sqooss.core.AlitheiaCoreService;
+
 /**
  * The <code>LogManager</code> creates and releases the loggers. When the
  * system starts up, there are no loggers in use. Use the LogManager to create
@@ -42,7 +44,7 @@ package eu.sqooss.service.logging;
  *  and 7 for a list of which names are valid. Or look at LogManagerConstants,
  *  which is part of the implementation.
  */
-public interface LogManager {
+public interface LogManager extends AlitheiaCoreService {
     /**
     * Creates a new logger if doesn't exist, otherwise returns a existent logger.
     * @param name the name of the logger

@@ -96,45 +96,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     private HashMap<Class<? extends DAObject>, Integer> maxPriority;
     private HashMap<Class<? extends DAObject>, Integer> currentPriorities;
      
-    public MetricActivatorImpl(BundleContext bc, Logger logger) {
-        this.bc=bc;
-
-        ServiceReference serviceRef = null;
-        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        core = (AlitheiaCore) bc.getService(serviceRef);
-
-        currentPriorities = new HashMap<Class<? extends DAObject>, Integer>();
-        
-        defaultPriority = new HashMap<Class<? extends DAObject>, Integer>();
-        defaultPriority.put(ProjectFile.class, 0x1000000);
-        defaultPriority.put(MailMessage.class, 0x1000000);
-        defaultPriority.put(Bug.class, 0x1000000);
-        defaultPriority.put(ProjectVersion.class, 0x8000000);
-        defaultPriority.put(MailingList.class, 0x8000000);
-        defaultPriority.put(Developer.class, 0xf000000);
-        defaultPriority.put(MailingListThread.class, 0xf000000);
-        defaultPriority.put(StoredProject.class, 0x1E000000);
-        
-        maxPriority = new HashMap<Class<? extends DAObject>, Integer>();
-        maxPriority.put(ProjectFile.class, defaultPriority.get(ProjectVersion.class));
-        maxPriority.put(MailMessage.class, defaultPriority.get(MailingList.class));
-        maxPriority.put(Bug.class, defaultPriority.get(Developer.class));
-        maxPriority.put(ProjectVersion.class, defaultPriority.get(StoredProject.class));
-        maxPriority.put(MailingList.class, defaultPriority.get(StoredProject.class));
-        maxPriority.put(Developer.class, defaultPriority.get(StoredProject.class));
-        maxPriority.put(MailingListThread.class, defaultPriority.get(StoredProject.class));
-        maxPriority.put(StoredProject.class, 0x1E000000);
-        
-        this.logger = logger;
-        this.pa = core.getPluginAdmin();
-        this.db = core.getDBService();
-        this.sched = core.getScheduler();
-        
-        String sync = bc.getProperty("eu.sqooss.metricactivator.sync");
-        
-        if (sync != null && sync.equalsIgnoreCase("fast"))
-        	this.fastSync = true;
-    }
+    public MetricActivatorImpl() { }
 
     public void initRules() {
         // Load all defined invocation rules
@@ -498,6 +460,57 @@ public class MetricActivatorImpl  implements MetricActivator {
             return "MetricSchedulerJob - Project:{" + sp + "}" ;
         }
     }
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+		this.bc = bc;
+		this.logger = l;
+		
+		defaultPriority = new HashMap<Class<? extends DAObject>, Integer>();
+        defaultPriority.put(ProjectFile.class, 0x1000000);
+        defaultPriority.put(MailMessage.class, 0x1000000);
+        defaultPriority.put(Bug.class, 0x1000000);
+        defaultPriority.put(ProjectVersion.class, 0x8000000);
+        defaultPriority.put(MailingList.class, 0x8000000);
+        defaultPriority.put(Developer.class, 0xf000000);
+        defaultPriority.put(MailingListThread.class, 0xf000000);
+        defaultPriority.put(StoredProject.class, 0x1E000000);
+        
+        maxPriority = new HashMap<Class<? extends DAObject>, Integer>();
+        maxPriority.put(ProjectFile.class, defaultPriority.get(ProjectVersion.class));
+        maxPriority.put(MailMessage.class, defaultPriority.get(MailingList.class));
+        maxPriority.put(Bug.class, defaultPriority.get(Developer.class));
+        maxPriority.put(ProjectVersion.class, defaultPriority.get(StoredProject.class));
+        maxPriority.put(MailingList.class, defaultPriority.get(StoredProject.class));
+        maxPriority.put(Developer.class, defaultPriority.get(StoredProject.class));
+        maxPriority.put(MailingListThread.class, defaultPriority.get(StoredProject.class));
+        maxPriority.put(StoredProject.class, 0x1E000000);
+	}
+
+	@Override
+	public void shutDown() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public boolean startUp() {
+	    ServiceReference serviceRef = null;
+        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
+        core = (AlitheiaCore) bc.getService(serviceRef);
+
+        currentPriorities = new HashMap<Class<? extends DAObject>, Integer>();
+        
+        this.pa = core.getPluginAdmin();
+        this.db = core.getDBService();
+        this.sched = core.getScheduler();
+        
+        String sync = bc.getProperty("eu.sqooss.metricactivator.sync");
+        
+        if (sync != null && sync.equalsIgnoreCase("fast"))
+            this.fastSync = true;
+	
+        return true;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

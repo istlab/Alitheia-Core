@@ -34,6 +34,7 @@ package eu.sqooss.service.pa;
 import java.util.Collection;
 import java.util.List;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 
@@ -45,7 +46,7 @@ import eu.sqooss.service.db.DAObject;
  * plug-in's information objects of type {@link PluginInfo}, describing the
  * available metric plug-ins, and indexed by a unique hash value.<br/>
  */
-public interface PluginAdmin {
+public interface PluginAdmin extends AlitheiaCoreService {
 
     /**
      * The constant <code>PLUGINS_CLASS</code> represents a filter, that can

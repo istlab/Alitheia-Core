@@ -36,12 +36,14 @@ package eu.sqooss.service.scheduler;
 
 import java.util.Set;
 
+import eu.sqooss.core.AlitheiaCoreService;
+
 /**
  * Interface for the scheduler.
  *
  * @author Mirko Boehm
  */
-public interface Scheduler {
+public interface Scheduler extends AlitheiaCoreService {
 
     /**
      * Queue a job.

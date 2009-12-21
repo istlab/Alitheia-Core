@@ -33,63 +33,25 @@
 package eu.sqooss.impl.service.tds;
 
 import java.net.URI;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.ClusterNode;
-import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
 
-public class TDSServiceImpl implements TDSService, EventHandler {
+public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
     private Logger logger = null;
     private ConcurrentHashMap<Long, ProjectDataAccessorImpl> accessorPool;
     private ConcurrentHashMap<ProjectDataAccessorImpl, Integer> accessorClaims;
     
-    public TDSServiceImpl(BundleContext bc, Logger l)  {
-        logger = l;
-        ProjectDataAccessorImpl.logger = logger;
-
-        //Wake up the DataAccessorFactory
-        new DataAccessorFactory(l);
-        DataAccessorFactory.addImplementation(URI.create("bugzilla-xml://www.sqo-oss.org"),
-                BugzillaXMLParser.class);
-        DataAccessorFactory.addImplementation(URI.create("maildir://www.sqo-oss.org"),
-                MailDirAccessor.class);
-        DataAccessorFactory.addImplementation(URI.create("svn://www.sqo-oss.org"),
-                SVNAccessorImpl.class);
-        DataAccessorFactory.addImplementation(URI.create("svn-http://www.sqo-oss.org"),
-                SVNAccessorImpl.class);
-        DataAccessorFactory.addImplementation(URI.create("svn-file://www.sqo-oss.org"),
-                SVNAccessorImpl.class);
-        //Init accessor store
-        accessorPool = new ConcurrentHashMap<Long,ProjectDataAccessorImpl>();
-        accessorClaims = new ConcurrentHashMap<ProjectDataAccessorImpl, Integer>();
-        //Register an event handler for hibernate events
-        final String[] topics = new String[] {
-                DBService.EVENT_STARTED
-        };
-            
-        Dictionary<String, String[]> d = new Hashtable<String, String[]>(); 
-        d.put(EventConstants.EVENT_TOPIC, topics ); 
-        
-        bc.registerService(EventHandler.class.getName(), this, d); 
-        logger.info("TDS service created.");
-        
-    }
+    public TDSServiceImpl() {}
 
     // Interface methods
 
@@ -171,54 +133,6 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         
         return supported;
     }
-
-    public Object selfTest() {
-        bogusStuffer();
-        // Fail if certain required data structures are not initialized
-        if (logger == null) {
-            return new String("No logger available.");
-        }
-        if (accessorPool == null) {
-            return new String("No accessor pool available.");
-        }
-
-        // Add an accessor for testing purposes when none was there.
-        boolean addedAccessor = false;
-        final int TEST_PROJECT_ID = 1337;
-        if (accessorPool.isEmpty()) {
-            logger.info("Adding bogus project to empty accessor pool.");
-            addAccessor(TEST_PROJECT_ID, "KPilot", "", null,
-                    "http://cvs.codeyard.net/svn/kpilot/");
-            addedAccessor = true;
-        }
-
-        Set<Long> accessorKeys = accessorPool.keySet();
-        Iterator<Long> i = accessorKeys.iterator();
-        if (!i.hasNext()) {
-            // we added an accessor before, so it should be here...
-            if (addedAccessor) {
-                accessorPool.clear();
-            }
-            return new String("No projects to check against.");
-        }
-
-        // Check consistency of accessor retrieval
-        ProjectDataAccessorImpl accessor = accessorPool.get(i.next());
-        long id = accessor.getId();
-        logger.debug("Checking project " + id + " <" + accessor.getName() + ">");
-        if (accessor != getAccessor(id)) {
-            if (addedAccessor) {
-                accessorPool.clear();
-            }
-            return new String("Request for project " + i + " got someone else.");
-        }
-
-        if (addedAccessor) {
-            accessorPool.clear();
-        }
-        // Everything is ok
-        return null;
-    }
     
     /**
      * Tell the TDS which projects are installed.
@@ -239,23 +153,41 @@ public class TDSServiceImpl implements TDSService, EventHandler {
         logger.info("TDS Stuffer is finished.");
     }
 
-    private void bogusStuffer() {
-        logger.debug("Stuffing bogus project into TDS");
-        // Some dorky default project so the TDS is not empty
-        // for the test later.
-        addAccessor(1, "KPilot", "", "",
-            "http://cvs.codeyard.net/svn/kpilot/" );
-    }
+	@Override
+	public void shutDown() {
+		
+	}
 
-    /**
-     * Fill in the TDS with project info immediately after starting hibernate
-     */
-    public void handleEvent(Event e) {
-        logger.debug("Caught EVENT type=" + e.getPropertyNames().toString());
-        if (e.getTopic() == DBService.EVENT_STARTED) {
-            stuffer();           
-        }
-    }
+	@Override
+	public boolean startUp() {
+        ProjectDataAccessorImpl.logger = logger;
+
+        //Wake up the DataAccessorFactory
+        new DataAccessorFactory(logger);
+        DataAccessorFactory.addImplementation(URI.create("bugzilla-xml://www.sqo-oss.org"),
+                BugzillaXMLParser.class);
+        DataAccessorFactory.addImplementation(URI.create("maildir://www.sqo-oss.org"),
+                MailDirAccessor.class);
+        DataAccessorFactory.addImplementation(URI.create("svn://www.sqo-oss.org"),
+                SVNAccessorImpl.class);
+        DataAccessorFactory.addImplementation(URI.create("svn-http://www.sqo-oss.org"),
+                SVNAccessorImpl.class);
+        DataAccessorFactory.addImplementation(URI.create("svn-file://www.sqo-oss.org"),
+                SVNAccessorImpl.class);
+        //Init accessor store
+        accessorPool = new ConcurrentHashMap<Long,ProjectDataAccessorImpl>();
+        accessorClaims = new ConcurrentHashMap<ProjectDataAccessorImpl, Integer>();
+       
+        logger.info("TDS service created.");
+        
+		stuffer();
+		return true;
+	}
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+	    this.logger = l;
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

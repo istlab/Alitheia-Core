@@ -34,6 +34,7 @@
 package eu.sqooss.service.cluster;
 
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.ClusterNode;
 
@@ -58,7 +59,7 @@ import eu.sqooss.service.db.ClusterNode;
  * of the system to call the clusternode, as it is intended as a way to poke
  * the system from the outside.
  */
-public interface ClusterNodeService {
+public interface ClusterNodeService extends AlitheiaCoreService {
 
     /**
      * Targets for an action over a ClusterNode. 

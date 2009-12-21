@@ -34,7 +34,9 @@
 
 package eu.sqooss.service.webadmin;
 
-public interface WebadminService {
+import eu.sqooss.core.AlitheiaCoreService;
+
+public interface WebadminService extends AlitheiaCoreService {
     public String getMessageOfTheDay();
     public void setMessageOfTheDay(String s);
 }

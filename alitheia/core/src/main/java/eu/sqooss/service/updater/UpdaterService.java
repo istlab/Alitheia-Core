@@ -32,6 +32,7 @@
  */
 package eu.sqooss.service.updater;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.StoredProject;
 
 /**
@@ -57,7 +58,7 @@ import eu.sqooss.service.db.StoredProject;
  * of the system to call the updater, as it is intended as a way to poke
  * the system from the outside.
  */
-public interface UpdaterService {
+public interface UpdaterService extends AlitheiaCoreService {
 
     /**
      * Targets for an update request. These names are used in the updater

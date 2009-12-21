@@ -34,13 +34,9 @@
 package eu.sqooss.impl.service.cluster;
 
 import java.io.IOException;
-
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
 import java.util.List;
-
+import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -54,18 +50,13 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ClusterNodeProject;
-
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 
@@ -73,7 +64,7 @@ import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
  * @author George M. Zouganelis
  *
  */
-public class ClusterNodeServiceImpl extends HttpServlet implements EventHandler, ClusterNodeService {
+public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeService {
     private static final long serialVersionUID = 1L;
 	static final String localServerName;
 	static{
@@ -99,71 +90,8 @@ public class ClusterNodeServiceImpl extends HttpServlet implements EventHandler,
     
     private ClusterNode thisNode = null;
 
-    public ClusterNodeServiceImpl(BundleContext bc, Logger logger) throws ServletException,
-            NamespaceException {
-        this.context = bc;
-        this.logger = logger;
-        /* Get a reference to the core service*/
-        ServiceReference serviceRef = null;
-        serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
-        core = (AlitheiaCore) context.getService(serviceRef);
-        dbs = core.getDBService();
-        upds = core.getUpdater();
-        if (logger != null) {
-            logger.info("Got a valid reference to the logger");
-        } else {
-            System.out.println("ERROR: ClusteNodeService got no logger");
-        }
-
-        /* Get a reference to the HTTP service */
-        serviceRef = context.getServiceReference("org.osgi.service.http.HttpService");
-        if (serviceRef != null) {
-            httpService = (HttpService) context.getService(serviceRef);
-           	httpService.registerServlet("/clusternode", (Servlet) this, null, null);
-        } else {
-            logger.error("Could not load the HTTP service.");
-        }
-            
-        Dictionary<String, String> props = new Hashtable<String, String>(1);
-        props.put(EventConstants.EVENT_TOPIC, DBService.EVENT_STARTED);
-        bc.registerService(EventHandler.class.getName(), this, props);
-       
-        
-        logger.info("Succesfully started clusternode service");
-
-    }
+    public ClusterNodeServiceImpl() {}
     
-    public void handleEvent(Event e) {
-        if (DBService.EVENT_STARTED.equals(e.getTopic())) {
-           // At this point, this ClusterNode has not been registered to the database yet, so do it!
-     	   if (thisNode == null) { // paranoia check
-     	       dbs.startDBSession();
-     	       // Check if previously registered in DB
-     	       Map<String, Object> serverProps = new HashMap<String, Object>(1);
-     	       serverProps.put("name", localServerName);        
-     	       List<ClusterNode> s = dbs.findObjectsByProperties(ClusterNode.class, serverProps);
-     	       
-     	       if (s.isEmpty()) { 
-         	       // not registered yet, create a record in DB
-     	       	   thisNode = new ClusterNode();
-     	       	   thisNode.setName(localServerName);
-     	       	   if ( !dbs.addRecord(thisNode) ){
-     	       	      logger.error("Failed to register ClusterNode <" + localServerName + ">");
-                      dbs.rollbackDBSession();
-     	       	   } else {
-                      dbs.commitDBSession();
-     	         	  logger.info("ClusterNode <" + localServerName + "> registered succesfully.");
-     	       	   }
-     	       } else {
-     	    	   // already registered, keep the record from DB
-                   dbs.rollbackDBSession();
-     	           thisNode = s.get(0);
-  	         	   logger.info("ClusterNode <" + localServerName + "> registered succesfully.");
-     	       }
-     	   }
-        }
-    }
-
     public String getClusterNodeName(){
 	   return thisNode.getName();
     }
@@ -489,13 +417,84 @@ public class ClusterNodeServiceImpl extends HttpServlet implements EventHandler,
         	 // you shouldn't be here! - implement missing actions!
         	 
         }
-    
-        
-        
-        
     }
 
-    public Object selfTest() {
-        return null;
-    }
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+		this.context = bc;
+		this.logger = l;
+	}
+
+	@Override
+	public void shutDown() {}
+
+	@Override
+	public boolean startUp() {
+		
+		/* Get a reference to the core service*/
+        ServiceReference serviceRef = null;
+      
+        core = AlitheiaCore.getInstance();
+        dbs = core.getDBService();
+        upds = core.getUpdater();
+        if (logger != null) {
+            logger.info("Got a valid reference to the logger");
+        } else {
+            System.out.println("ERROR: ClusteNodeService got no logger");
+        }
+
+        /* Get a reference to the HTTP service */
+        serviceRef = context.getServiceReference("org.osgi.service.http.HttpService");
+        if (serviceRef != null) {
+            httpService = (HttpService) context.getService(serviceRef);
+           	try {
+				httpService.registerServlet("/clusternode", (Servlet) this, null, null);
+			} catch (ServletException e) {
+				logger.error("Cannot register servlet to path /clusternode");
+				return false;
+			} catch (NamespaceException e) {
+				logger.error("Duplicate registration at path /clusternode");
+				return false;
+			}
+        } else {
+            logger.error("Could not load the HTTP service.");
+        }
+        logger.info("Succesfully started clusternode service");
+
+		
+		// At this point, this ClusterNode has not been registered to the
+		// database yet, so do it!
+		if (thisNode == null) { // paranoia check
+			dbs.startDBSession();
+			// Check if previously registered in DB
+			Map<String, Object> serverProps = new HashMap<String, Object>(1);
+			serverProps.put("name", localServerName);
+			List<ClusterNode> s = dbs.findObjectsByProperties(
+					ClusterNode.class, serverProps);
+
+			if (s.isEmpty()) {
+				// not registered yet, create a record in DB
+				thisNode = new ClusterNode();
+				thisNode.setName(localServerName);
+				if (!dbs.addRecord(thisNode)) {
+					logger.error("Failed to register ClusterNode <"
+							+ localServerName + ">");
+					dbs.rollbackDBSession();
+					return false;
+				} else {
+					dbs.commitDBSession();
+					logger.info("ClusterNode <" + localServerName
+							+ "> registered succesfully.");
+					return true;
+				}
+			} else {
+				// already registered, keep the record from DB
+				dbs.rollbackDBSession();
+				thisNode = s.get(0);
+				logger.info("ClusterNode <" + localServerName
+						+ "> registered succesfully.");
+			}
+		}
+		return true;
+	}
 }

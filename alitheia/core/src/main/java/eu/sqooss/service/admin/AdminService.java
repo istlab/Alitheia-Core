@@ -35,6 +35,7 @@ package eu.sqooss.service.admin;
 
 import java.util.Set;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.impl.service.admin.ActionBase;
 
 /**
@@ -59,7 +60,7 @@ import eu.sqooss.impl.service.admin.ActionBase;
  * @see AdminAction
  * @see ActionBase
  */
-public interface AdminService {
+public interface AdminService extends AlitheiaCoreService {
     /**
      * Used by subsystem implementations to register shared administrative 
      * actions. 

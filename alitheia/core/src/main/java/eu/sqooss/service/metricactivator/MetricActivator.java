@@ -34,6 +34,7 @@ package eu.sqooss.service.metricactivator;
 
 import java.util.Set;
 
+import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.StoredProject;
@@ -43,7 +44,7 @@ import eu.sqooss.service.db.InvocationRule.ActionType;
  * The MetricActivator service is responsible for kickstarting metric jobs
  * either after project metadata updates or
  */
-public interface MetricActivator {
+public interface MetricActivator extends AlitheiaCoreService {
 
     /**
      * Runs all metrics that support the given project's resource type,

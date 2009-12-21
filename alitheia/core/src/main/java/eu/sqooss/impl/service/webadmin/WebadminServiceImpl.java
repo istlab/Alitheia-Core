@@ -73,52 +73,9 @@ public class WebadminServiceImpl implements WebadminService {
      */
     private String messageOfTheDay = null;
 
-    public WebadminServiceImpl(BundleContext bc, Logger logger) {
-        AlitheiaCore core = AlitheiaCore.getInstance();
+    private BundleContext bc;
 
-        //Get the LogManager and Logger objects
-        logger = core.getLogManager().createLogger(
-                    Logger.NAME_SQOOSS_WEBADMIN);
-        
-        // Get a reference to the HTTPService, and then its object
-        HttpService sobjHTTPService = null;
-        ServiceReference srefHTTPService = bc.getServiceReference(
-            HttpService.class.getName());
-        
-		if (srefHTTPService != null) {
-            sobjHTTPService = (HttpService) bc.getService(srefHTTPService);
-        }
-        else {
-            logger.error("Could not find a HTTP service!");
-        }
-
-        initVelocity();
-        
-        // Register the front-end servlets
-        if (sobjHTTPService != null) {
-            try {
-                sobjHTTPService.registerServlet(
-                    "/",
-                    new AdminServlet(bc, this, logger, ve),
-                    new Hashtable(),
-                    null);
-            }
-            catch (Exception e) {
-                logger.error("AdminServlet",e);
-            }
-
-            try {
-                sobjHTTPService.registerServlet(
-                        "/ws",
-                        new AdminWS(bc),
-                        new Hashtable(),
-                        null);
-            }
-            catch (Exception e) {
-                logger.error("AdmWS", e);
-            }
-        }
-    }
+    public WebadminServiceImpl() { }
 
     /**
      * Retrieves the "message of the day" String
@@ -157,6 +114,64 @@ public class WebadminServiceImpl implements WebadminService {
             logger.error("Velocity initialization",e);
         }
     }
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+		this.logger = l;
+		this.bc = bc;
+	}
+
+	@Override
+	public void shutDown() {
+	}
+
+	@Override
+	public boolean startUp() {
+	    AlitheiaCore core = AlitheiaCore.getInstance();
+        
+        // Get a reference to the HTTPService, and then its object
+        HttpService sobjHTTPService = null;
+        ServiceReference srefHTTPService = bc.getServiceReference(
+            HttpService.class.getName());
+        
+        if (srefHTTPService != null) {
+            sobjHTTPService = (HttpService) bc.getService(srefHTTPService);
+        }
+        else {
+            logger.error("Could not find a HTTP service!");
+            return false;
+        }
+
+        initVelocity();
+        
+        // Register the front-end servlets
+        if (sobjHTTPService != null) {
+            try {
+                sobjHTTPService.registerServlet(
+                    "/",
+                    new AdminServlet(bc, this, logger, ve),
+                    new Hashtable(),
+                    null);
+            }
+            catch (Exception e) {
+                logger.error("AdminServlet",e);
+                return false;
+            }
+
+            try {
+                sobjHTTPService.registerServlet(
+                        "/ws",
+                        new AdminWS(bc),
+                        new Hashtable(),
+                        null);
+            }
+            catch (Exception e) {
+                logger.error("AdmWS", e);
+                return false;
+            }
+        }
+        return true;
+	}
 }
 
 

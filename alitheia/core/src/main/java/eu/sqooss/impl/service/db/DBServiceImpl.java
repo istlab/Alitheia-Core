@@ -57,9 +57,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;	
 import org.hibernate.mapping.AuxiliaryDatabaseObject;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 
 import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.DAObject;
@@ -88,7 +85,6 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     private String dbClass, dbURL, dbDialect, dbUserName, dbPasswd;
     private SessionFactory sessionFactory = null;
     private BundleContext bc = null;
-    private EventAdmin eaService = null;
     private AtomicBoolean isInitialised = new AtomicBoolean(false);
     
     private void logSQLException(SQLException e) {
@@ -231,11 +227,11 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 						"directory on disk :" + osgiInst + ". Custom DAOs " +
 						"from metrics bundles won't be initialized.");
 			}
+			
+			List<String> inited = new ArrayList<String>();
+			
             for (String dir : dirsToSearch) {
             	File searchDir = new File(URI.create(dir));
-            	
-            	if (searchDir.getCanonicalPath().equals(osgiInst))
-            		continue; //Don't search same dir twice
             	
             	logger.debug("Searching for plug-ins in " + searchDir.getCanonicalPath());
                 
@@ -247,7 +243,14 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
                     });
                     for( File jarFile: metricsJars ) {
                         logger.debug("found metric bundle \"" + jarFile.getName() + "\", examining for custom DAOs");
+                        
+                        if (inited.contains(jarFile.getName())) {
+                        	logger.debug("Skipping already initialised plug-in " + jarFile.getName());
+                        	continue;
+                        }
+                        
                         c.addJar(jarFile);
+                        inited.add(jarFile.getName());
                     }
                 } 
             }
@@ -266,42 +269,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     	return null;
     }
 
-    /**
-     * Constructor for creating a DBServiceImpl inside the SQO-OSS system.
-     * 
-     * @param bc The current BundleContext
-     * @param l The current Logger
-     */
-    public DBServiceImpl(BundleContext bc, Logger l) {
-        this.bc = bc;
-        logger = l;
-
-        dbURL = null;
-        dbClass = null;
-        dbDialect = null;
-        dbUserName = null;
-        dbPasswd = null;
-        if (!getJDBCConnection(bc.getProperty(DB_DRIVER_PROPERTY),
-                bc.getProperty(DB_CONNECTION_URL_PROPERTY),
-                bc.getProperty(DB_DIALECT_PROPERTY),
-                bc.getProperty(DB_USERNAME_PROPERTY),
-                bc.getProperty(DB_PASSWORD_PROPERTY))) {
-            if (!Boolean
-                    .valueOf(bc.getProperty("eu.sqooss.db.fallback.enable"))
-                    || !getDerbyJDBC()) {
-                logger.error("DB service got no JDBC connectors.");
-            }
-        }
-       
-        ServiceReference srefEAService = bc.getServiceReference(
-                org.osgi.service.event.EventAdmin.class.getName());
-        if (srefEAService != null) {
-            eaService = (EventAdmin) bc.getService(srefEAService);
-        }
-        else {
-            System.err.println("Could not find a Event Admin service!");
-        }
-    }
+    public DBServiceImpl() { }
 
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
         return doFindObjectById(daoClass, id, false);
@@ -805,40 +773,54 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     }
 
     @Override
-	public boolean init() {
-    	if (dbClass != null) {
+    public boolean startUp() {
+        dbURL = null;
+        dbClass = null;
+        dbDialect = null;
+        dbUserName = null;
+        dbPasswd = null;
+        if (!getJDBCConnection(bc.getProperty(DB_DRIVER_PROPERTY), bc
+                .getProperty(DB_CONNECTION_URL_PROPERTY), bc
+                .getProperty(DB_DIALECT_PROPERTY), bc
+                .getProperty(DB_USERNAME_PROPERTY), bc
+                .getProperty(DB_PASSWORD_PROPERTY))) {
+            if (!Boolean
+                    .valueOf(bc.getProperty("eu.sqooss.db.fallback.enable"))
+                    || !getDerbyJDBC()) {
+                logger.error("DB service got no JDBC connectors.");
+            }
+        }
+
+        if (dbClass != null) {
             logger.info("Using driver " + dbClass);
             boolean resetDatabase = false;
             if (Boolean.valueOf(bc.getProperty(HIBERNATE_RESET_PROPERTY))) {
                 resetDatabase = true;
             }
             logger.info("Initialising database service");
-            
-            initHibernate(bc.getBundle().getResource("hibernate.cfg.xml"), resetDatabase);
-            
+
+            initHibernate(bc.getBundle().getResource("hibernate.cfg.xml"),
+                    resetDatabase);
+
             isInitialised.compareAndSet(false, true);
-            
-            if (eaService != null) {
-                HashMap<String, Boolean> value = new HashMap<String, Boolean>();
-                value.put("value", true);
-                eaService.sendEvent(new Event(DBService.EVENT_STARTED, value));
-            } else {
-                logger.error("Cannot send the" + DBService.EVENT_STARTED + 
-                        "event");
-            }
             return true;
         } else {
             logger.error("Hibernate could not be initialized.");
-            // TODO: Throw something to prevent the bundle from being started?
             return false;
         }
-	}
+    }
     
     @Override
     public void shutDown() {
     	logger.info("Shutting down database service");
     	sessionFactory.close();
     }
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+		this.bc = bc;
+        this.logger = l;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

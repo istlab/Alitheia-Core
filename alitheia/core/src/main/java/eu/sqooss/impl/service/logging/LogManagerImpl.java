@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.logging;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.PatternLayout;
@@ -53,95 +54,42 @@ public class LogManagerImpl implements LogManager {
     private BundleContext bc;
 
     // This map stores all of the valid and active loggers in the system.
-    private HashMap<String,LoggerImpl> validLoggers = null;
+    private Map<String,LoggerImpl> loggers = null;
 
     private CyclicLogger cyclicLogger = null;
 
-    public LogManagerImpl( BundleContext bc ) {
-        // The configuration is read automatically from the file log4j.properties
-        // in the bundle .jar ; this is much like calling:
-        //     PropertyConfigurator.configure("/log4j.properties");
-        // The default configuration will suppress this info message:
-    	
-    	Enumeration<URL> props;
-    	Properties p = new Properties();
-    	try {
-    		props = getClass().getClassLoader().getResources("log4j.properties");
-			p.load(props.nextElement().openStream());
-		} catch (Exception e) {
-			System.err.println("Logging initialisation failed, " +
-					"cannot find log4j.properties file:" + e);
-		}
-    	PropertyConfigurator.configure(p);
-        org.apache.log4j.Logger.getRootLogger().info("Logging initialized.");
-        CyclicLogger l = new CyclicLogger();
-        String pattern = bc.getProperty("eu.sqooss.logbuffer.pattern");
-        if (pattern != null) {
-            org.apache.log4j.Logger.getRootLogger().info("Logging to buffer with pattern <" + pattern + ">");
-            l.setLayout(new PatternLayout(pattern));
-        } else {
-            org.apache.log4j.Logger.getRootLogger().info("Logging to buffer with simple layout.");
-            l.setLayout(new SimpleLayout());
-        }
-        l.setThreshold(org.apache.log4j.Level.WARN);
-        org.apache.log4j.Logger.getRootLogger().addAppender(l);
-        cyclicLogger = l;
-
-        validLoggers = new HashMap<String,LoggerImpl>(
-            LogManagerConstants.loggerNames.length);
-        for (String s : LogManagerConstants.loggerNames) {
-            if (s != null) {
-                validLoggers.put(s,null);
-            }
-        }
-
-        logManager = this;
-    }
+    public LogManagerImpl() {}
 
     public Logger createLogger(String name) {
         LoggerImpl logger = null;
-        if (!LogManagerConstants.loggerValid(name)) {
-            org.apache.log4j.Logger.getRootLogger().error("Request for logger <" + name + ">");
-            throw new IllegalArgumentException("The logger name <" + name + "> is not valid!");
-        }
-        // From here, logger name is valid.
 
-        org.apache.log4j.Logger.getRootLogger().info("Creating logger <" + name + ">");
-        if (validLoggers.containsKey(name)) {
-            // logger may stil	l be null, if it's a pre-defined name.
-            // Their keys are inserted into the map without allocating
-            // a logger for them.
-            logger = validLoggers.get(name);
-        }
-        if (logger == null) {
-            // Must have been a pre-defined one or a new metric logger.
-            logger = new LoggerImpl(name);
-            validLoggers.put(name,logger);
-        }
+        org.apache.log4j.Logger.getRootLogger().info(
+                "Creating logger <" + name + ">");
+        logger = new LoggerImpl(name);
+        loggers.put(name, logger);
+
         logger.get();
-        return logger;
+   return logger;
     }
 
     public void releaseLogger(String name) {
         LoggerImpl logger;
-        if (!validLoggers.containsKey(name)) {
+        if (!loggers.containsKey(name)) {
             org.apache.log4j.Logger.getRootLogger().error("Release for bogus logger <" + name + ">");
             return;
         }
 
-        logger = validLoggers.get(name);
+        logger = loggers.get(name);
         if (logger == null) {
             org.apache.log4j.Logger.getRootLogger().error("Release on unallocated logger <" + name + ">");
             return;
         }
 
         if (logger.unget() == 0) {
-            org.apache.log4j.Logger.getRootLogger().info("Released last logger for <" + name + ">");
-            if (LogManagerConstants.loggerIsPluginLogger(name)) {
-                validLoggers.remove(name);
-            } else {
-                validLoggers.put(name,null);
-            }
+            org.apache.log4j.Logger.getRootLogger().info(
+                    "Released last logger for <" + name + ">");
+
+            loggers.put(name, null);
         }
     }
 
@@ -157,11 +105,51 @@ public class LogManagerImpl implements LogManager {
         return this.bc;
     }
 
-    public Object selfTest() {
-        // We don't know if logging has been initialized, so we shouldn't
-        // try logging anything either; just assume things are ok.
-        return null;
-    }
+    @Override
+	public void setInitParams(BundleContext bc, Logger l) {
+		this.bc = bc;
+	}
+
+	@Override
+	public void shutDown() {
+	    
+	}
+
+	@Override
+	public boolean startUp() {
+	    loggers = new HashMap<String, LoggerImpl>();
+		// The configuration is read automatically from the file log4j.properties
+        // in the bundle .jar ; this is much like calling:
+        //     PropertyConfigurator.configure("/log4j.properties");
+        // The default configuration will suppress this info message:
+        
+        Enumeration<URL> props;
+        Properties p = new Properties();
+        try {
+            props = getClass().getClassLoader().getResources("log4j.properties");
+            p.load(props.nextElement().openStream());
+        } catch (Exception e) {
+            System.err.println("Logging initialisation failed, " +
+                    "cannot find log4j.properties file:" + e);
+        }
+        PropertyConfigurator.configure(p);
+        org.apache.log4j.Logger.getRootLogger().info("Logging initialized.");
+        CyclicLogger l = new CyclicLogger();
+        String pattern = bc.getProperty("eu.sqooss.logbuffer.pattern");
+        if (pattern != null) {
+            org.apache.log4j.Logger.getRootLogger().info("Logging to buffer with pattern <" + pattern + ">");
+            l.setLayout(new PatternLayout(pattern));
+        } else {
+            org.apache.log4j.Logger.getRootLogger().info("Logging to buffer with simple layout.");
+            l.setLayout(new SimpleLayout());
+        }
+        l.setThreshold(org.apache.log4j.Level.WARN);
+        org.apache.log4j.Logger.getRootLogger().addAppender(l);
+        cyclicLogger = l;
+
+        logManager = this;
+        return true;
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

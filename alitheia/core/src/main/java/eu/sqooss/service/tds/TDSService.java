@@ -33,6 +33,8 @@
 
 package eu.sqooss.service.tds;
 
+import eu.sqooss.core.AlitheiaCoreService;
+
 /**
  * The TDS service interface provides a way to retrieve and configure project
  * data access objects. The TDS is organised around project accessors: a project
@@ -75,7 +77,7 @@ package eu.sqooss.service.tds;
  * @see ProjectAccessor
  */
 
-public interface TDSService {
+public interface TDSService extends AlitheiaCoreService {
     /**
      * Check that the given project exists in the TDS.
      * @param id project to check for
