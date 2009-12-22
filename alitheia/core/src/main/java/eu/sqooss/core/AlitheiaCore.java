@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
@@ -203,6 +202,7 @@ public class AlitheiaCore implements ServiceListener {
         if (!logger.startUp()) {
             err("Cannot start the log service, aborting");
         }
+        instances.put(LogManager.class, logger);
 
         for (Class<? extends AlitheiaCoreService> s : services) {
             Class<?> impl = implementations.get(s);
