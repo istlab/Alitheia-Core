@@ -3,9 +3,11 @@ Creating a new plug-in
 
 1. Use the provided maven archetype
 
-mvn archetype:create  
+mvn archetype:generate 
     -DgroupId=your.package
     -DartifactId=pluginname
+    -Dversion=0.x   (replace x with your plug-in's version)
+    -Dpackage=your.package.pluginname 
     -DarchetypeGroupId=eu.sqooss.metrics 
     -DarchetypeArtifactId=archetype 
     -DarchetypeVersion=1.0
@@ -28,14 +30,43 @@ archetype creator does not do that for your
     bundle's activator class, otherwise the plug-in will fail to
     start. 
 
-    If your bundle must include an external library, then you 
+3.4 If your bundle must include an external library, then you 
     should read the documentation of the maven-bundle-plugin on how
     to do it. You can find it here:
     http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html
    
-    If your plug-in uses a custom table to store results, automatic import
-    package resolution step might not work well. You should add the following
-    line to the instuctions section
+3.5 If your plug-in uses a custom table to store results.
+
+    Hibernate mapping files are called *.hbm.xml and by convention live
+    next to the Java files they belong to; we have the additional
+    convention that the private database table sources (Java and
+    Hibernate) live in a package named db, so we get
+
+    src/eu/sqooss/metrics/<foo>/db 
+
+    To include Hibernate mapping files in the generated bundle,
+    include the following extract in the <plugins>....</plugins>
+    section of the generated pom.xml file.
+
+    <resources>
+      <resource>
+        <targetPath>eu/sqooss/service/db</targetPath>
+        <directory>src/main/java/${groupId}/${artifactId}/db</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+    </resources>
+
+    Also, automatic import package resolution step might not work well. 
+    You should add the following line to the <instuctions> section
+
     <Import-Package>*, eu.sqooss.metrics.db.*</Import-Package>
 
 4. That's hopefully it.

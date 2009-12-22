@@ -1,19 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-#if( !$symbolicName )
-#set( $symbolicName = "${groupId}.${artifactId}" )
-#end
-#set( $dollar = "$" )
+  <parent>
+	<groupId>eu.sqooss</groupId>
+	<artifactId>metrics</artifactId>
+	<version>0.9</version>
+  </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
-  <version>${version}</version>
-  
+  <version>${version}</version>  
   <packaging>bundle</packaging>
-  
-  <name> ${symbolicName} plugin (${version})</name>
+
+  <name> ${groupId}.${artifactId} plugin (${version})</name>
   
   <dependencies>
     <dependency>
@@ -50,39 +50,14 @@
         <configuration>
           <instructions>
             <Export-Package>${groupId}.${artifactId}</Export-Package>
-            <Bundle-Activator>${groupId}.${artifactId}.Activator</Bundle-Activator>
-            <Bundle-SymbolicName>${symbolicName}</Bundle-SymbolicName>
+            <Bundle-Activator>${groupId}.${artifactId}.SkeletonActivator</Bundle-Activator>
+            <Bundle-SymbolicName>${groupId}.${artifactId}</Bundle-SymbolicName>
             <Bundle-Version>${version}</Bundle-Version>
             <Bundle-Vendor>${groupId}</Bundle-Vendor>
-            <Bundle-Description>${symbolicName} SQO-OSS plugin</Bundle-Description>
+            <Bundle-Description>${groupId}.${artifactId} SQO-OSS plugin</Bundle-Description>
           </instructions>
         </configuration>
       </plugin>
-    </plugins>
-
-  <!--
-    Hibernate mapping files are called *.hbm.xml and by convention live
-    next to the Java files they belong to; we have the additional
-    convention that the private database table sources (Java and
-    Hibernate) live in a subdirectory and sub-package db, so we get
-
-    src/eu/sqooss/metrics/<foo>/db 
-    You might want to lay things out differently.
-  -->
-    <resources>
-      <resource>
-        <targetPath>eu/sqooss/service/db</targetPath>
-        <directory>src/main/java/${dollar}{groupId}/${dollar}{artifactId}/db</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </resource>
-    </resources>
+    </plugins> 
   </build>
 </project>
