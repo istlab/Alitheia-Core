@@ -408,18 +408,21 @@ public class WebAdminRenderer  extends AbstractView {
 				
 				@Override
 				public boolean accept(File dir, String name) {
-					if (name.endsWith("project.properties"))
+					if (name.contentEquals("project.properties"))
 						return true;
 					return false;
 				}
 			});
-        	
+        
         	if (contents.length <= 0) {
         		vc.put("RESULTS",
                         "<p>The entered path does not include a project.properties file</p> <br/>"
                         + "<b>" + info + "</b>");
                 return;
         	}
+        	
+        	f = contents[0];
+        	
         } else {
         	if (!info.endsWith("project.properties")) {
         		vc.put("RESULTS",
@@ -427,6 +430,7 @@ public class WebAdminRenderer  extends AbstractView {
         				+ "<b>" + info + "</b>");
         		return;
         	}
+        	f = infoFile;
         }
 
 

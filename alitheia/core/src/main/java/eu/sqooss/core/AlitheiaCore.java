@@ -119,13 +119,13 @@ public class AlitheiaCore implements ServiceListener {
     	services.add(DBService.class);	
     	//All services after this point are guaranteed to have access to the DB 
     	services.add(PluginAdmin.class);
+    	services.add(Scheduler.class);
     	services.add(TDSService.class);
     	services.add(AdminService.class);
     	services.add(ClusterNodeService.class);
     	services.add(FDSService.class);
     	services.add(MetricActivator.class);
     	//services.add(Parser.class);
-    	services.add(Scheduler.class);
     	services.add(SecurityManager.class);
     	services.add(UpdaterService.class);
     	services.add(WebadminService.class);
@@ -133,13 +133,13 @@ public class AlitheiaCore implements ServiceListener {
     	implementations.put(LogManager.class, LogManagerImpl.class);
     	implementations.put(DBService.class, DBServiceImpl.class);	 
     	implementations.put(PluginAdmin.class, PAServiceImpl.class);
+    	implementations.put(Scheduler.class, SchedulerServiceImpl.class);
     	implementations.put(TDSService.class, TDSServiceImpl.class);
     	implementations.put(AdminService.class, AdminServiceImpl.class);
     	implementations.put(ClusterNodeService.class, ClusterNodeServiceImpl.class);
     	implementations.put(FDSService.class, FDSServiceImpl.class);
     	implementations.put(MetricActivator.class, MetricActivatorImpl.class);
     	//implementations.put(Parser.class, Parse);
-    	implementations.put(Scheduler.class, SchedulerServiceImpl.class);
     	implementations.put(SecurityManager.class, SecurityManagerImpl.class);
     	implementations.put(UpdaterService.class, UpdaterServiceImpl.class);
     	implementations.put(WebadminService.class, WebadminServiceImpl.class);
@@ -185,8 +185,8 @@ public class AlitheiaCore implements ServiceListener {
      * method on their service interface. After all services have been 
      * instantiated (failures are reported but do not block the instatiation
      * process), the system initialises the metric bundles. To do so, it 
-     * queries all bundles for those that contain the <code>*.metrics.*</code>
-     * 
+     * queries all bundles for those that contain a <code>*.metrics.*</code>
+     * portion in their symbolic path and starts those that do. 
      */
     public void init() {
     	
