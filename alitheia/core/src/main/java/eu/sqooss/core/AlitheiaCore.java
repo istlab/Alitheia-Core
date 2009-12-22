@@ -40,12 +40,16 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
+
+import sun.nio.cs.ext.EUC_CN;
 
 import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
@@ -177,17 +181,12 @@ public class AlitheiaCore implements ServiceListener {
     
     /**
      * This method performs initialization of the <code>AlitheiaCore</code>
-     * object by instantiating some of the core components, that are
-     * either used by this object, or have to be created before any other
-     * component is initialized or any metric plug-in service started.
-     * <br/>
-     * The list of created <i>(in this order)</i> instances include:
-     * <ul>
-     *   <li> Logger component
-     *   <li> DB component
-     *   <li> Plug-in Admin component
-     *   <li> WebAdmin component
-     * </ul>
+     * object by instantiating the core components, by calling the 
+     * method on their service interface. After all services have been 
+     * instantiated (failures are reported but do not block the instatiation
+     * process), the system initialises the metric bundles. To do so, it 
+     * queries all bundles for those that contain the <code>*.metrics.*</code>
+     * 
      */
     public void init() {
     	
@@ -229,6 +228,19 @@ public class AlitheiaCore implements ServiceListener {
                 instances.put(s, s.cast(o));
                 err("Service " + impl.getName() + " started");
             } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        err("Initialising metric bundles");
+        for (Bundle b : bc.getBundles()) {
+            if (!b.getSymbolicName().contains(".metrics."))
+                continue; //Not a metrics bundle
+            
+            try {
+                b.start();
+                err("Starting " + b.getSymbolicName());
+            } catch (BundleException e) {
+                err("Failed to start " + b.getSymbolicName());
                 e.printStackTrace();
             }
         }

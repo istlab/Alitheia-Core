@@ -33,28 +33,20 @@ package eu.sqooss.impl.service.pa;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-//import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -98,8 +90,6 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private DBService sobjDB = null;
     private AlitheiaCore sobjCore = null;
     
-    private Queue<ServiceEvent> initEventQueue = new LinkedList<ServiceEvent>();
-
     /**
      * Keeps a list of registered metric plug-in's services, indexed by the
      * plugin's hash code (stored in the database).
@@ -405,15 +395,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Get a reference to the affected service
         ServiceReference affectedService = event.getServiceReference();
 
-        /*
-         * If the DB session failed to initialise store the event
-         * for later processing
-         */
-        if (!sobjDB.startDBSession()) {
-            initEventQueue.add(event);
-            return;
-        }
-
+        sobjDB.startDBSession();
+        
         // Find out what happened to the service
         switch (event.getType()) {
         // New service was registered
@@ -715,7 +698,12 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 logger.error("Can not obtain the DB object!");
             }
 
-            bc.addServiceListener(this);
+            try {
+                bc.addServiceListener(this, SREF_FILTER_PLUGIN);
+            } catch (InvalidSyntaxException e) {
+                logger.error("Invalid filter syntax ", e);
+            }
+            
             logger.debug("The PluginAdmin component was successfully started.");
         }
         else {

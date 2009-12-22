@@ -123,22 +123,19 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     protected AbstractMetric(BundleContext bc) {
 
         this.bc = bc;
-        ServiceReference serviceRef = null;
-        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-
-        log = ((AlitheiaCore) bc.getService(serviceRef)).
-                getLogManager().createLogger(Logger.NAME_SQOOSS_METRIC);
+       
+        log = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_METRIC);
 
         if (log == null) {
             System.out.println("ERROR: Got no logger");
         }
 
-        db = ((AlitheiaCore) bc.getService(serviceRef)).getDBService();
+        db = AlitheiaCore.getInstance().getDBService();
 
         if(db == null)
             log.error("Could not get a reference to the DB service");
 
-        pa = ((AlitheiaCore) bc.getService(serviceRef)).getPluginAdmin();
+        pa = AlitheiaCore.getInstance().getPluginAdmin();
 
         if(pa == null)
             log.error("Could not get a reference to the Plugin Administation "
