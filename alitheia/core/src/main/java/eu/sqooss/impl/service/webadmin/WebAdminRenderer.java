@@ -35,6 +35,8 @@ package eu.sqooss.impl.service.webadmin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -448,14 +450,25 @@ public class WebAdminRenderer  extends AbstractView {
 			p.setProperty(ConfigOption.PROJECT_NAME.getName(), 
 					f.getParentFile().getName());
 		
-        p.setProperty(ConfigOption.PROJECT_BTS_URL.getName(),
-        		"bugzilla-xml://" + f.getParentFile().getAbsolutePath() + "/bugs");
-        p.setProperty(ConfigOption.PROJECT_ML_URL.getName(), 
-        		"maildir://" + f.getParentFile().getAbsolutePath() + "/mail");
-        p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(),
-        		"svn-file://" + f.getParentFile().getAbsolutePath() + "/svn");
-        
-        addProject(p);
+		String parent = f.getParentFile().getAbsolutePath();
+		parent = parent.replace('\\', '/'); //Hack for windows paths
+		
+		try {
+			URI scm = new URI("svn-file", "//" + parent + "/svn", null );
+			URI bugs = new URI("bugzilla-xml", "//" + parent + "/bugs", null);
+			URI mail = new URI("maildir", "//" + parent + "/mail", null);
+
+			p.setProperty(ConfigOption.PROJECT_BTS_URL.getName(), 
+					bugs.toString());
+			p.setProperty(ConfigOption.PROJECT_ML_URL.getName(), 
+					mail.toString());
+			p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(), 
+					scm.toString());
+			
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		addProject(p);
     }
 
     /**

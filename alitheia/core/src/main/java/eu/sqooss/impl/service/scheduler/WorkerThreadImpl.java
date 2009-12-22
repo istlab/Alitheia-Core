@@ -60,7 +60,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread
      * @param s the schedule being asked for jobs.
      */
     public WorkerThreadImpl(Scheduler s) {
-    	super(null, null, "Scheduler Worker Thread");
+    	super(null, null, "Worker Thread");
         m_scheduler = s;
     }
 
@@ -69,7 +69,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread
      * @param s the schedule being asked for jobs.
      */
     public WorkerThreadImpl(Scheduler s, boolean oneshot) {
-    	super(null, null, "Scheduler Worker Thread");
+    	super(null, null, "OneShot Worker Thread");
         m_scheduler = s;
     }
 
