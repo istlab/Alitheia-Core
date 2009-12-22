@@ -23,5 +23,6 @@
     <module>testability</module>
     <module>mi</module>
     <module>contrib</module>
+    <module>discussionheat</module>
   </modules>
 </project>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>metrics</artifactId>
+    <groupId>eu.sqooss</groupId>
+    <version>0.9</version>
+  </parent>
+  <groupId>eu.sqooss.metrics</groupId>
+  <artifactId>discussionheat</artifactId>
+  <version>1.0</version>
+  <packaging>bundle</packaging>
+  <name>Discussion Heat Metric</name>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Export-Package>eu.sqooss.metrics.discussionheat</Export-Package>
+            <Bundle-Activator>eu.sqooss.metrics.discussionheat.DiscussionHeatActivator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.metrics.discussionheat</Bundle-SymbolicName>
+            <Bundle-Version>1.0</Bundle-Version>
+            <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
+            <Bundle-Description>Discussion Heat Metric</Bundle-Description>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>
