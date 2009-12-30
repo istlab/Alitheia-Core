@@ -2,20 +2,40 @@ To run the deploy target against the SQO-OSS maven repository, we use
 the webdav maven transport wagon over ssl. However, since the certificate
 we use is self signed, the JSSL library underlying the HTTP library that
 the webdav component uses, needs to be configured with a trust store. In
-short, this involves 3 steps:
+short, this involves 4 steps:
 
-1. Get the client certificate
+1. Get the required certificates
 
-You can find the certificate under misc/repo.crt. You can also get a fresh
-copy in case the certificate changes directly from the web server.
+Maven repository certificate: You can find the certificate under misc/repo.crt.
+You can also get a fresh copy in case the certificate changes directly from the
+web server.
 
 2. Create the truststore
 
-keytool -v -alias mavensrv -import -file misc/repo.crt -keystore maven.jks
+keytool -v -alias mavensrv -import -file misc/maven.crt -keystore maven.jks
 
-3. Configuring maven to use it by default
+3. Configure maven to use it by default
 
+export MAVEN_OPTS="-Djavax.net.ssl.trustStore=maven.jks
+-Djavax.net.ssl.trustStorePassword=XXXXXX -Djavax.net.ssl.keyStore=maven.jks
+-Djavax.net.ssl.keyStoreType=jks -Djavax.net.ssl.keyStorePassword=XXXXXX"
 
+Replace XXXXX with the password you used to create the truststore above.
+
+4. Tell maven about your login credentials to the webdav server
+
+To do so, you need to edit the ~/.m2/settings.xml file and add the server. The
+file should look like this after editing it
+
+<settings>
+  <servers>
+    <server>
+      <id>ac-main</id>
+      <username>YOUR-SQOOSS-USERNAME</username>
+      <password>YOUR-SQOOSS-PASSWORD</password>
+    </server>
+  </servers>
+</settings>
 
 For more information, check the following link:
 

@@ -86,7 +86,7 @@
 
   <scm>
     <url>http://websvn.sqo-oss.org</url>
-    <connection>scm:svn:http://svn.sqo-oss.org/</connection>
+    <connection>scm:svn:http://anonsvn.sqo-oss.org/</connection>
   </scm>
 
   <build>
