@@ -121,4 +121,17 @@
          </extension>
     </extensions>
   </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+          <destDir>api</destDir>
+          <excludePackageNames>eu.sqooss.impl.*</excludePackageNames> 
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
