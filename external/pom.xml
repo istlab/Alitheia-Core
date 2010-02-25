@@ -28,4 +28,32 @@
     <module>log4j</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+            <Bundle-Version>${wrapped.version}</Bundle-Version>
+            <_exportcontents>*</_exportcontents>
+            <Private-Package>!*</Private-Package>
+            <_include>osgi.bnd</_include>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

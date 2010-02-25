@@ -2,12 +2,12 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <relativePath>../../poms/wrappers/</relativePath>
-    <groupId>eu.sqooss.build</groupId>
-    <artifactId>wrapper-bundle-settings</artifactId>
+    <relativePath>../pom.xml</relativePath>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>external</artifactId>
     <version>0.9</version>
   </parent>
-
+  
   <properties>
     <bundle.symbolicName>dom4j</bundle.symbolicName>
     <wrapped.groupId>dom4j</wrapped.groupId>

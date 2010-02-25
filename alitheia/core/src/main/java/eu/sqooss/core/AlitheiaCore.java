@@ -49,8 +49,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 
-import sun.nio.cs.ext.EUC_CN;
-
 import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.impl.service.db.DBServiceImpl;
