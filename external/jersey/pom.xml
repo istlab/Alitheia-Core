@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+  <parent>
+    <relativePath>../pom.xml</relativePath>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>external</artifactId>
+    <version>0.9</version>
+  </parent>
+
+  <properties>
+    <bundle.symbolicName>jersey</bundle.symbolicName>
+    <wrapped.groupId>com.sun.jersey</wrapped.groupId>
+    <wrapped.artifactId>jersey-server</wrapped.artifactId>
+    <wrapped.version>1.1.5</wrapped.version>
+  </properties>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.sqooss.external</groupId>
+  <artifactId>jersey</artifactId>
+  <version>1.1.5-SNAPSHOT</version>
+
+  <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
+
+  <packaging>bundle</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>${wrapped.groupId}</groupId>
+      <artifactId>${wrapped.artifactId}</artifactId>
+      <version>${wrapped.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-json</artifactId>
+      <version>1.1.5</version>
+    </dependency>
+  </dependencies>
+</project>

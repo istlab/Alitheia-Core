@@ -33,14 +33,39 @@
 
 package eu.sqooss.rest;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
+import javax.servlet.Servlet;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
+
+import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 
 public class RestActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
+    	// Get a reference to the HTTPService, and then its object
+        HttpService httpService = null;
+        ServiceReference srefHTTPService = bc.getServiceReference(
+            HttpService.class.getName());
+        
+        if (srefHTTPService != null) {
+        	httpService = (HttpService) bc.getService(srefHTTPService);
+        }
+        else {
+            //logger.error("Could not find a HTTP service!");
+            
+        }
+
+    	Dictionary<String, String> initParams = new Hashtable<String, String>();
+
+    	Servlet jerseyServlet = new ServletContainer(new RestServiceApp());
+    	httpService.registerServlet("/api", jerseyServlet, initParams, null);
     }
   
     public void stop(BundleContext bc) throws Exception {
