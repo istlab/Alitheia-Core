@@ -1,5 +1,8 @@
 /*
- * Copyright 2008 - Organization for Free and Open Source Software,
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 package eu.sqooss.service.parser;
 
 import org.w3c.dom.Document;

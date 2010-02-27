@@ -2,7 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007-2008 by the SQO-OSS consortium members <info@sqo-oss.eu>
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,7 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import eu.sqooss.service.db.MetricType.Type;
