@@ -72,7 +72,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>poms</module>
     <module>provision</module>
     <module>external</module>
     <module>alitheia</module>
