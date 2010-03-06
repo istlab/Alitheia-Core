@@ -10,7 +10,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>eu.sqooss</groupId>
+  <groupId>eu.sqooss.alitheia</groupId>
   <artifactId>rest</artifactId>
   <name>Alitheia Core Rest API service</name>
 
