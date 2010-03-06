@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
   <artifactId>javax.mail</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 

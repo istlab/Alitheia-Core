@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
   <artifactId>log4j</artifactId>
-  <version>1.2.15-001-SNAPSHOT</version>
+  <version>1.2.15-001</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 

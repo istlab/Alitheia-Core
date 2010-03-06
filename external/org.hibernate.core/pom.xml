@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
   <artifactId>org.hibernate.core</artifactId>
-  <version>3.3.1.GA-SNAPSHOT</version>
+  <version>3.3.1.GA</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 

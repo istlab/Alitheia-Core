@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
   <artifactId>org.apache.velocity</artifactId>
-  <version>1.6-SNAPSHOT</version>
+  <version>1.6</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 

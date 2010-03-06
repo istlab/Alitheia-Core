@@ -26,7 +26,6 @@
     <module>c3p0</module>
     <module>org.hibernate.core</module>
     <module>log4j</module>
-    <module>jersey</module>
   </modules>
 
   <build>

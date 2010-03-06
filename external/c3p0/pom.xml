@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
   <artifactId>c3p0</artifactId>
-  <version>0.9.1.2-SNAPSHOT</version>
+  <version>0.9.1.2</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 
