@@ -88,8 +88,9 @@
   </developers>
 
   <scm>
-    <url>http://websvn.sqo-oss.org/tags/0.9</url>
-    <connection>scm:svn:http://anonsvn.sqo-oss.org/tags/0.9</connection>
+    <url>http://websvn.sqo-oss.org/</url>
+    <connection>scm:svn:https://svn.sqo-oss.org/</connection>
+    <developerConnection>scm:svn:https://svn.sqo-oss.org/branches/mavenize</developerConnection>
   </scm>
 
   <build>
@@ -113,6 +114,14 @@
           <showDeprecation>true</showDeprecation>
           <source>1.6</source>
           <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <tagBase>https://svn.sqo-oss.org/tags</tagBase>
         </configuration>
       </plugin>
     </plugins>
