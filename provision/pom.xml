@@ -6,7 +6,7 @@
     <version>0.95</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>eu.sqooss.build</groupId>
+  <groupId>eu.sqooss</groupId>
   <artifactId>provision</artifactId>
   <name>sqo-oss - imported bundles</name>
   <packaging>pom</packaging>

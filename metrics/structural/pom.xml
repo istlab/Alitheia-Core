@@ -4,7 +4,7 @@
   <parent>
     <artifactId>metrics</artifactId>
     <groupId>eu.sqooss</groupId>
-    <version>0.9</version>
+    <version>0.95</version>
   </parent>
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>structural</artifactId>
