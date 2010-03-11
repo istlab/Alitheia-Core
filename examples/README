@@ -1,6 +1,0 @@
-This directory contains example code and an example database.
-
-db.sql - example database
-	This is actually a SQL script to populate the Derby database
-	with some entries for testing.
-

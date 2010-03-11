@@ -1,141 +1,149 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+  <modelVersion>4.0.0</modelVersion>
   <groupId>eu</groupId>
   <artifactId>sqooss</artifactId>
-  <version>0.8.0</version>
-  <packaging>pom</packaging>
+  <version>0.95</version>
 
-  <name>Alitheia</name>
+  <name>The SQO-OSS project</name>
+
+  <description>Alitheia Core is a platform for conducting software engineering studies. 
+  	It integrates data from various sources such as from SVN, mailing lists and bug databases.
+
+	Being a platform, and not a concrete implementation, means that by writing the appropriate plug-ins, 
+	you can instruct Alitheia Core to produce any measurements you are interested into and maybe 
+	integrate those measurements in high level quality evaluations.</description>
+
+  <url>http://www.sqo-oss.org</url>
+
+  <inceptionYear>2006</inceptionYear>
+
+  <organization>
+    <name>Organisation for Free and Open Source Software Greece</name>
+    <url>http://www.ellak.gr/</url>
+  </organization>
 
   <licenses>
     <license>
-      <name>2-Clause BSD License</name>
-      <url>http://www.gnu.org/licenses/info/BSD_2Clause.html</url>
-      <distribution>repo</distribution>
+      <name>BSD 2-clause</name>
+      <url>http://en.wikipedia.org/wiki/BSD_licenses</url>
     </license>
   </licenses>
 
-  <organization>
-    <name>SQO-OSS</name>
-    <url>http://www.sqo-oss.eu/</url>
-  </organization>
+  <distributionManagement>
+    <repository>
+      <id>ac-main</id>
+      <name>Alitheia Core Main Repository</name>
+      <url>dav:https://maven.sqo-oss.org/</url>
+    </repository>
+  </distributionManagement>
 
+  <properties>
+    <org.osgi.service.http.port>8080</org.osgi.service.http.port>
+    <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
+    <eu.sqooss.db.url>jdbc:mysql://localhost/alitheia?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8</eu.sqooss.db.url>
+    <eu.sqooss.db.driver>com.mysql.jdbc.Driver</eu.sqooss.db.driver>
+    <eu.sqooss.db.dialect>org.hibernate.dialect.MySQLInnoDBDialect</eu.sqooss.db.dialect>
+    <eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
+    <eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
+    <eu.sqooss.updater.svn.ommitfileless>true</eu.sqooss.updater.svn.ommitfileless>
+    <eu.sqooss.updater.svn.handlecopies>branches</eu.sqooss.updater.svn.handlecopies>
+    <!-- If fast, only one randomly chosen metric per plug-in will be queried
+    to determine whether recalculation is necessary. Slow is safer, but, well, slower-->
+    <eu.sqooss.metricactivator.sync>slow</eu.sqooss.metricactivator.sync>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>jboss</id>
+      <url>http://repository.jboss.org/maven2/</url>
+    </repository>
+    <repository>
+      <id>ops4j</id>
+      <url>http://repository.ops4j.org/maven2/</url>
+    </repository>
+    <repository>
+      <id>java.net</id>
+      <url>http://download.java.net/maven/2/</url>
+    </repository>
+  </repositories>
+
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>provision</module>
+    <module>external</module>
+    <module>alitheia</module>
+    <module>metrics</module>
+  </modules>
 
   <developers>
-    <developer>
-      <id>e_grigorov</id>
-      <name>Evgeni Grigorov</name>
-      <email>e.grigorov@prosyst.com</email>
-      <organization>ProSyst Software GmbH</organization>
-      <timezone>+2</timezone>
-    </developer>
-    <developer>
-      <id>byotov</id>
-      <name>Boryan Yotov</name>
-      <email>b.yotov@prosyst.com</email>
-      <organization>ProSyst Software GmbH</organization>
-      <timezone>+2</timezone>
-    </developer>
     <developer>
       <id>gousiosg</id>
       <name>Georgios Gousios</name>
       <email>gousiosg@gmail.com</email>
-      <organization>AUEB</organization>
-      <timezone>+2</timezone>
+      <url>http://istlab.dmst.aueb.gr/~george</url>
     </developer>
-    <developer>
-      <id>adriaan</id>
-      <name>Adriaan de Groot</name>
-      <email>groot@kde.org</email>
-      <organization>KDE</organization>
-      <timezone>+1</timezone>
-    </developer>  
   </developers>
 
-  <!-- The remainder has default configurations for many Maven plugins
-       while building Alitheia parts. This includes external repositories
-       (well, the repo included with an Alitheia checkout).
-    -->
+  <scm>
+    <url>http://websvn.sqo-oss.org/</url>
+    <connection>scm:svn:https://svn.sqo-oss.org/</connection>
+    <developerConnection>scm:svn:https://svn.sqo-oss.org/branches/mavenize</developerConnection>
+  </scm>
+
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId> 
+        <groupId>org.ops4j</groupId>
+        <artifactId>maven-pax-plugin</artifactId>
+        <version>1.4</version>
         <configuration>
-          <showWarnings>true</showWarnings>
-          <showDeprecation>true</showDeprecation>
-          <compilerArgument>-Xlint</compilerArgument>
-          <source>1.5</source>
-          <target>1.5</target>
+          <provision>
+            <param>--platform=equinox</param>
+            <param>--ee=JavaSE-1.6</param>
+          </provision>
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.1</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <outputDirectory>${basedir}</outputDirectory>
-          <finalName>equinox</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-          <descriptors>
-            <descriptor>assembly.xml</descriptor>
-          </descriptors>
-          <executions>
-            <execution>
-              <id>${artifactId}</id>
-              <phase>package</phase>
-              <goals>
-                <goal>directory-inline</goal>
-              </goals>
-            </execution>
-          </executions>
+          <showWarnings>true</showWarnings>
+          <showDeprecation>true</showDeprecation>
+          <source>1.6</source>
+          <target>1.6</target>
         </configuration>
       </plugin>
-     <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <tagBase>https://svn.sqo-oss.org/tags</tagBase>
+        </configuration>
       </plugin>
-
     </plugins>
+    <extensions>
+        <extension>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-webdav</artifactId>
+            <version>1.0-beta-2</version>
+         </extension>
+    </extensions>
   </build>
-  
   <reporting>
     <plugins>
-      <plugin> 
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId> 
+        <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <aggregate>true</aggregate>
-          <excludePackageNames>eu.sqooss.impl.*:eu.sqooss.metrics.*:eu.sqooss.test.*:org.*</excludePackageNames>
-        </configuration> 
+          <destDir>api</destDir>
+          <excludePackageNames>eu.sqooss.impl.*</excludePackageNames> 
+        </configuration>
       </plugin>
     </plugins>
   </reporting>
-
-  <repositories>
-    <repository>
-      <id>sqoossrepo</id>
-      <name>SQO-OSS Local Maven Repository</name>
-      <url>file://${basedir}/sqoossrepo</url>
-    </repository>
-  </repositories>
-
-  <distributionManagement>
-    <repository>
-      <id>sqoossdeploy</id>
-      <name>SQO-OSS Deployment Directory</name>
-      <url>file://${basedir}/equinox</url>
-    </repository>
-  </distributionManagement>
-
-  <modules>
-    <module>alitheia</module>
-    <module>metrics</module>
-    <module>ui</module>
-    <module>specs</module>
-  </modules>
 </project>
-

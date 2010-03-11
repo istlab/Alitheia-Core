@@ -1,6 +1,0 @@
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.equinox</groupId>
-  <artifactId>osgi</artifactId>
-  <version>3.3.0</version>
-</project>

@@ -1,2 +1,0 @@
-Class-Path: client/client-0.0.1.jar
-

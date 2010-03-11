@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype>
+  <id>ac-plugin-archetype</id>
+  <sources>
+      <source>src/main/java/Skeleton.java</source>
+      <source>src/main/java/SkeletonActivator.java</source>
+  </sources>
+  <resources>
+    <resource>src/main/resources/README.txt</resource>
+  </resources>
+</archetype>

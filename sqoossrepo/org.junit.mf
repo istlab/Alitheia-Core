@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Vendor: MetaStuff Ltd.
-Bundle-Name: junit
-Bundle-Version: 4.4
-Bundle-SymbolicName: org.junit
-Bundle-ClassPath: org.junit-4.4.jar
-Export-Package: org.junit;version="4.4"

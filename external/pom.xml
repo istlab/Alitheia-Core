@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="MACROMAN"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>eu</groupId>
+    <artifactId>sqooss</artifactId>
+    <version>0.95</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.sqooss</groupId>
+  <artifactId>external</artifactId>
+
+  <name />
+
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>org.tmatesoft.svnkit</module>
+    <module>org.apache.velocity</module>
+    <module>javax.servlet.api</module>
+    <module>dom4j</module>
+    <module>javax.mail</module>
+    <module>commons-codec</module>
+    <module>mysql-connector-java</module>
+    <module>c3p0</module>
+    <module>org.hibernate.core</module>
+    <module>log4j</module>
+  </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
+            <Bundle-Version>${wrapped.version}</Bundle-Version>
+            <_exportcontents>*</_exportcontents>
+            <Private-Package>!*</Private-Package>
+            <_include>osgi.bnd</_include>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -1,8 +1,0 @@
-# bugripper home
-bug_home="/home/sgrig/bugripper"
-# data_path Directory of the Projects
-data_path="/home/data"
-#Current History depth. It is safe to cron the scripts every days_ago
-days_ago=7
-#Zero Point Date
-start_date=$(date --date='2008/09/08' +%s)

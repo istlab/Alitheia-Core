@@ -1,95 +1,76 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
-    <groupId>eu.sqooss</groupId>
     <artifactId>metrics</artifactId>
-    <version>0.8.0</version>
+    <groupId>eu.sqooss</groupId>
+    <version>0.9</version>
   </parent>
-
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>contrib</artifactId>
-  <version>0.8.0</version>
-  <packaging>jar</packaging>
-
-  <name>Alitheia Plug-in 'Contribution'</name>
-  <url>http://ikaria.dmst.aueb.gr/metrics/contrib</url>
-  <inceptionYear>2006</inceptionYear>
-  <description>
-    Research plugin that attempts to quantify how much do developers
-    contribute to the software and community development of a project.
-    research done by Georgios Gousios.
-  </description>
-
-  <scm>
-    <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/contrib
-    </connection>
-    <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/contrib
-    </developerConnection>
-  </scm>
-
+  <version>0.9</version>
+  <packaging>bundle</packaging>
+  <name>Developer Contribution</name>
   <build>
-    <defaultGoal>deploy:deploy</defaultGoal>
-    <sourceDirectory>${basedir}/src</sourceDirectory>
-    <outputDirectory>${basedir}/build</outputDirectory>
     <resources>
-     <resource>
-        <directory>${basedir}/src/eu/sqooss/metrics/contrib/db/</directory>
-        <targetPath>eu/sqooss/metrics/contrib/db</targetPath>
+      <resource>
+        <targetPath>eu/sqooss/service/db</targetPath>
+        <directory>src/main/java/eu/sqooss/metrics/contrib/db</directory>
         <includes>
-          <include>**/*.hbm.xml</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
         </includes>
       </resource>
     </resources>
     <plugins>
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
         <configuration>
-          <finalName>${groupId}.${artifactId}-${version}</finalName>
-          <archive>
-            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
-            <addMavenDescriptor>false</addMavenDescriptor>
-          </archive>
-        </configuration> 
-      </plugin>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <generatePom>false</generatePom>
+          <instructions>
+            <Export-Package>eu.sqooss.metrics.contrib, eu.sqooss.metrics.contrib.db</Export-Package>
+            <Bundle-Activator>eu.sqooss.metrics.contrib.Activator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.metrics.contrib</Bundle-SymbolicName>
+            <Bundle-Version>0.9</Bundle-Version>
+            <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
+            <Bundle-Description>Developer Contribution</Bundle-Description>
+            <Import-Package>*, eu.sqooss.service.db, org.apache.commons.codec.digest,
+                org.hibernate, org.hibernate.proxy, javassist.util, javassist.util.proxy</Import-Package>
+            <Eclipse-RegisterBuddy>org.hibernate.core</Eclipse-RegisterBuddy>
+          </instructions>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
-  <repositories>
-    <repository>
-      <id>sqoossrepo</id>
-      <name>SQO-OSS Local Maven Repository</name>
-      <url>file://${basedir}/../../sqoossrepo</url>
-    </repository>
-  </repositories>
-
-  <distributionManagement>
-    <repository>
-      <id>sqoossdeploy</id>
-      <name>SQO-OSS Deployment Directory</name>
-      <url>file://${basedir}/../../equinox</url>
-    </repository>
-  </distributionManagement>
-
   <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
-      <version>[0.8.0,0.8.9)</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <version>0.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 </project>
-

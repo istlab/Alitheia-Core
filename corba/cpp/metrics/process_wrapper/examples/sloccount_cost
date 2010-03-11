@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# Prints the "Total Estimated Cost to Develop"
-# Our first parameter is the directory to run sloccount on
-#
-# Usage:
-# ../process_wrapper --type ProjectVersion --metric COST ./sloccount_cost
-
-sloccount $1 | sed -ne 's,^.*\(\$ *[^ ]*\)$,\1,p'

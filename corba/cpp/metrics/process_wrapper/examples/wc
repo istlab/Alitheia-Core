@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# Prints the Number of lines per file
-# The command reads the file from the standard input
-#
-# Usage:
-# ../process_wrapper --type ProjectFile --result-type type/integer --metric LOC ./wc
-
-wc -l

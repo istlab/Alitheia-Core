@@ -1,62 +1,73 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
-    <groupId>eu.sqooss</groupId>
     <artifactId>metrics</artifactId>
-    <version>0.8.0</version>
+    <groupId>eu.sqooss</groupId>
+    <version>0.9</version>
   </parent>
-
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>wc</artifactId>
-  <version>0.8.0</version>
-  <packaging>jar</packaging>
-
-  <name>Alitheia Plug-in 'wc'</name>
-  <url>http://ikaria.dmst.aueb.gr/metrics/wc</url>
-  <inceptionYear>2006</inceptionYear>
-  <description>
-    This metric is an unfaithful implementation of 'wc -l' as a plugin
-    to the Alitheia platform. Its one redeeming feature is that it is
-    easy to explain and can be used to show some graphic about a project's
-    growth.
-  </description>
-
-  <scm>
-    <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/wc
-    </connection>
-    <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/metrics/wc
-    </developerConnection>
-  </scm>
-
+  <version>1.0</version>
+  <packaging>bundle</packaging>
+  <name>Project Size Metrics</name>
   <build>
-    <defaultGoal>package</defaultGoal>
-    <sourceDirectory>${basedir}/src</sourceDirectory>
-    <outputDirectory>${basedir}/build</outputDirectory>
+    <resources>
+      <resource>
+        <targetPath>eu/sqooss/service/db</targetPath>
+        <directory>src/main/java/${groupId}/${artifactId}/db</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
         <configuration>
-          <finalName>${groupId}.${artifactId}-${version}</finalName>
-          <archive>
-            <manifestFile>${basedir}/manifest/manifest.mf</manifestFile>
-            <addMavenDescriptor>false</addMavenDescriptor>
-          </archive>
-        </configuration> 
-      </plugin>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <generatePom>false</generatePom>
+          <instructions>
+            <Export-Package>eu.sqooss.metrics.wc</Export-Package>
+            <Bundle-Activator>eu.sqooss.metrics.wc.WcActivator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.metrics.wc</Bundle-SymbolicName>
+            <Bundle-Version>1.0</Bundle-Version>
+            <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
+            <Bundle-Description>Project size metric</Bundle-Description>
+          </instructions>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
 </project>
-

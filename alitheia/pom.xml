@@ -1,73 +1,23 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>eu</groupId>
     <artifactId>sqooss</artifactId>
-    <version>0.8.0</version>
+    <version>0.95</version>
   </parent>
 
+  <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss</groupId>
   <artifactId>alitheia</artifactId>
-  <version>0.8.0</version>
+
+  <name />
+
   <packaging>pom</packaging>
-
-  <name>Alitheia Core</name>
-  <url>http://ikaria.dmst.aueb.gr/alitheia</url>
-  <inceptionYear>2006</inceptionYear>
-  <description>
-    This is the core platform of the Alitheia system. It is based
-    around OSGi and consists of a Core bundle that performs basic
-    system services such as logging and data access, a web-services
-    bundle for access to the core, and a testing bundle that drives
-    the system self-test.
-  </description>
-
-  <scm>
-    <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia
-    </connection>
-    <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia
-    </developerConnection>
-  </scm>
-
-  <build>
-    <defaultGoal>deploy:deploy</defaultGoal>
-    <outputDirectory>${basedir}/build</outputDirectory>
-    <plugins>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <generatePom>false</generatePom>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
-  <repositories>
-    <repository>
-      <id>sqoossrepo</id>
-      <name>SQO-OSS Local Maven Repository</name>
-      <url>file://${basedir}/../sqoossrepo</url>
-    </repository>
-  </repositories>
-
-  <distributionManagement>
-    <repository>
-      <id>sqoossdeploy</id>
-      <name>SQO-OSS Deployment Directory</name>
-      <url>file://${basedir}/../equinox</url>
-    </repository>
-  </distributionManagement>
 
   <modules>
     <module>core</module>
-    <module>tester</module>
-    <module>web-services</module>
+    <module>restservice</module>
   </modules>
-</project>
 
+</project>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <relativePath>../pom.xml</relativePath>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>external</artifactId>
+    <version>0.9</version>
+  </parent>
+  
+  <properties>
+    <bundle.symbolicName>javax.mail</bundle.symbolicName>
+    <wrapped.groupId>javax.mail</wrapped.groupId>
+    <wrapped.artifactId>mail</wrapped.artifactId>
+    <wrapped.version>1.4</wrapped.version>
+  </properties>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.sqooss.external</groupId>
+  <artifactId>javax.mail</artifactId>
+  <version>1.4</version>
+
+  <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
+
+  <packaging>bundle</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>${wrapped.groupId}</groupId>
+      <artifactId>${wrapped.artifactId}</artifactId>
+      <version>${wrapped.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+    	<groupId>javax.activation</groupId>
+    	<artifactId>activation</artifactId>
+    	<version>1.1</version>
+    </dependency>
+  </dependencies>
+
+</project>

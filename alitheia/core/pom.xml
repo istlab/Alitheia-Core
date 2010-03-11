@@ -1,195 +1,151 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <groupId>eu.sqooss</groupId>
     <artifactId>alitheia</artifactId>
-    <version>0.8.0</version>
+    <groupId>eu.sqooss</groupId>
+    <version>0.95</version>
   </parent>
 
+  <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.alitheia</groupId>
   <artifactId>core</artifactId>
-  <version>0.8.0</version>
-  <packaging>jar</packaging>
+  <name>Alitheia Core</name>
 
-  <name>Alitheia Core Platform</name>
-  <url>http://ikaria.dmst.aueb.gr/alitheia/core</url>
-  <inceptionYear>2006</inceptionYear>
-  <description>
-    This is the core bundle for the Alitheia platform. It contains
-    the basic system services for the platform - data access, metric
-    support, job handling. It is a single OSGi bundle and is not
-    expected to be field-upgradable.
-  </description>
-
-  <scm>
-    <connection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia/core
-    </connection>
-    <developerConnection>
-      scm:svn:https://svn.sqo-oss.eu/devel/trunk/alitheia/core
-    </developerConnection>
-  </scm>
+  <packaging>bundle</packaging>
 
   <build>
-    <defaultGoal>deploy:deploy</defaultGoal>
-    <sourceDirectory>${basedir}/src</sourceDirectory>
-    <outputDirectory>${basedir}/build</outputDirectory>
-    <plugins>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <finalName>${groupId}.${artifactId}-${version}</finalName>
-          <archive>
-            <manifestFile>${basedir}/manifest/core.mf</manifestFile>
-            <addMavenDescriptor>false</addMavenDescriptor>
-          </archive>
-        </configuration> 
-      </plugin>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <generatePom>false</generatePom>
-        </configuration>
-      </plugin>
-    </plugins>
     <resources>
       <resource>
-        <directory>${basedir}/src/eu/sqooss/service/db</directory>
         <targetPath>eu/sqooss/service/db</targetPath>
+        <directory>${basedir}/src/main/java/eu/sqooss/service/db/</directory>
         <includes>
           <include>**/*.xml</include>
         </includes>
       </resource>
       <resource>
         <directory>${basedir}/src/main/resources</directory>
-        <targetPath>.</targetPath>
         <includes>
           <include>**/*</include>
         </includes>
       </resource>
     </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Export-Package>
+              eu.sqooss.core, eu.sqooss.service.*
+            </Export-Package>
+            <Import-Package>
+              com.mysql.jdbc;resolution:=optional, javassist.util, javassist.util.proxy,
+              org.hibernate, org.hibernate.cfg, org.hibernate.classic, org.hibernate.exception,
+              org.hibernate.proxy, org.hibernate.type, *
+            </Import-Package>
+            <Bundle-Activator>eu.sqooss.core.CoreActivator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.alitheia.core</Bundle-SymbolicName>
+            <Bundle-Version>1.0</Bundle-Version>
+            <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
+            <Bundle-Description>The Alitheia Core Platform</Bundle-Description>
+            <Eclipse-RegisterBuddy>org.hibernate.core, org.apache.velocity</Eclipse-RegisterBuddy>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
-  <repositories>
-    <repository>
-      <id>sqoossrepo</id>
-      <name>SQO-OSS Local Maven Repository</name>
-      <url>file://${basedir}/../../sqoossrepo</url>
-    </repository>
-  </repositories>
-
-  <distributionManagement>
-    <repository>
-      <id>sqoossdeploy</id>
-      <name>SQO-OSS Deployment Directory</name>
-      <url>file://${basedir}/../../equinox</url>
-    </repository>
-  </distributionManagement>
-
   <dependencies>
-    <!-- ======== Third-party libraries ========================== -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>codec</artifactId>
-      <version>1.3.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.tmatesoft</groupId>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.6</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.tmatesoft.svnkit</groupId>
       <artifactId>svnkit</artifactId>
-      <version>1.2.2</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <version>1.2.3.5521</version>
     </dependency>
     <dependency>
-      <groupId>javax</groupId>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
       <version>1.4</version>
-      <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>javax</groupId>
-      <artifactId>servlet</artifactId>
-      <version>2.4.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.3</version>
     </dependency>
     <dependency>
-      <groupId>org.apache</groupId>
+      <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.15</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <version>1.2.9</version>
     </dependency>
     <dependency>
-      <groupId>org.apache</groupId>
-      <artifactId>velocity</artifactId>
-      <version>1.5</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org</groupId>
-      <artifactId>dom4j</artifactId>
-      <version>1.6.1</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>3.2.5</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org</groupId>
+      <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.4</version>
-      <type>jar</type>
+      <version>4.6</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.equinox</groupId>
-      <artifactId>osgi</artifactId>
-      <version>3.3.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2.1</version>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.osgi</groupId>
-      <artifactId>services</artifactId>
-      <version>3.1.100.v20060918</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.6</version>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.osgi</groupId>
-      <artifactId>util</artifactId>
-      <version>3.1.100.v20060918</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>3.3.1.GA</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>collections</artifactId>
-      <version>2.1.1</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.webconsole</artifactId>
+      <version>1.2.8</version>
     </dependency>
     <dependency>
-      <groupId>org</groupId>
-      <artifactId>clmt</artifactId>
-      <version>0.9.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr</artifactId>
+      <version>1.0.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.http.jetty</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.eventadmin</artifactId>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
-</project>
 
+</project>

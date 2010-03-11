@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Vendor: MetaStuff Ltd.
-Bundle-Name: dom4j : XML framework for Java
-Bundle-Version: 1.6.1
-Bundle-SymbolicName: org.dom4j
-Bundle-ClassPath: org.dom4j-1.6.1.jar
-Export-Package: org.dom4j;version="1.6.1",
-    org.dom4j.io;version="1.6.1"

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <artifactId>alitheia</artifactId>
+    <groupId>eu.sqooss</groupId>
+    <version>0.9</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.sqooss.alitheia</groupId>
+  <artifactId>rest</artifactId>
+  <name>Alitheia Core Rest API service</name>
+
+  <packaging>bundle</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Export-Package>
+				eu.sqooss.rest
+            </Export-Package>
+            <Import-Package>
+                com.sun.jersey.spi.container.servlet,*
+            </Import-Package>
+            <Bundle-Activator>eu.sqooss.rest.RestActivator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.rest</Bundle-SymbolicName>
+            <Bundle-Version>1.0</Bundle-Version>
+            <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
+            <Bundle-Description>The Alitheia Core Platform Rest API</Bundle-Description>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.6</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+    	<groupId>javax.ws.rs</groupId>
+    	<artifactId>jsr311-api</artifactId>
+    	<version>1.1.1</version>
+    	<type>jar</type>
+    </dependency>
+    <dependency>
+    	<groupId>eu.sqooss.alitheia</groupId>
+    	<artifactId>core</artifactId>
+    	<version>0.9</version>
+    </dependency>
+    <dependency>
+    	<groupId>com.sun.jersey</groupId>
+    	<artifactId>jersey-server</artifactId>
+    	<version>1.1.5</version>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+    	<groupId>com.sun.jersey</groupId>
+    	<artifactId>jersey-json</artifactId>
+    	<version>1.1.5</version>
+        <type>jar</type>
+    </dependency>
+  </dependencies>
+</project>
