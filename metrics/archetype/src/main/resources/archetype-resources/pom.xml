@@ -25,7 +25,7 @@
     <dependency>
       <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
-      <version>0.9</version>
+      <version>0.95</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
