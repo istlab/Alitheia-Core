@@ -26,10 +26,6 @@
         <key column="STORED_PROJECT_ID"/>
         <one-to-many class="eu.sqooss.service.db.StoredProjectMeasurement"/>
     </set>
-    <set name="evaluationMarks" inverse="true" cascade="all-delete-orphan">
-        <key column="STORED_PROJECT_ID"/>
-        <one-to-many class="eu.sqooss.service.db.EvaluationMark"/>
-    </set>
     <set name="bugs" cascade="all-delete-orphan">
         <key column="STORED_PROJECT_ID" />
         <one-to-many class="eu.sqooss.service.db.Bug" />

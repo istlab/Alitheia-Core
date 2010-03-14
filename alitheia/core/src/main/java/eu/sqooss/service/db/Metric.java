@@ -39,196 +39,236 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.MetricType.Type;
 
 /**
- * Instances of this object type represent the basic information on
- * Metrics stored in the database 
+ * Instances of this object type represent the basic information on Metrics
+ * stored in the database
  * 
  * @assoc 1 - n MetricMeasurement
- * @assoc 1 - n EvaluationMark
  * @assoc 1 - n ProjectVersionMeasurement
  * @assoc 1 - n StoredProjectMeasurement
  * @assoc 1 - n ProjectFileMeasurement
  * @assoc 1 - n FileGroupMeasurement
  * 
  */
-public class Metric extends DAObject{
-    /**
-     * the Alitheia Core plugin providing the functionality for this
-     * metric
-     */
-    private Plugin plugin; 
+public class Metric extends DAObject {
+	/**
+	 * the Alitheia Core plugin providing the functionality for this metric
+	 */
+	private Plugin plugin;
 
-    /**
-     * A representation of the type of metric:
-     * SOURCE_CODE - Relating to SVN source files
-     * SOURCE_FOLDER - Relating to SVN source folders
-     * MAILING_LIST - Relating to email data
-     * BUG_DATABASE - Relating to BTS data
-     * PROJECT_WIDE - Relating to all available project data
-     */
-    private MetricType metricType;
+	/**
+	 * A representation of the type of metric: SOURCE_CODE - Relating to SVN
+	 * source files SOURCE_FOLDER - Relating to SVN source folders MAILING_LIST
+	 * - Relating to email data BUG_DATABASE - Relating to BTS data PROJECT_WIDE
+	 * - Relating to all available project data
+	 */
+	private MetricType metricType;
 
-    /**
-     * The short form of the metric's name
-     */
-    private String mnemonic; 
+	/**
+	 * The short form of the metric's name
+	 */
+	private String mnemonic;
 
-    /**
-     * A description of the work performed by this metric
-     */
-    private String description;
-    
-    /**
-     * A list of evaluation marks for this metric
-     */
-    private Set<EvaluationMark> evaluationMarks;
-    
-    /**
-     * A list of project-wide measurements for this metric
-     */
-    private Set<StoredProjectMeasurement> projectMeasurements;
-    
-    /**
-     * A list of project-version-wide measurements for this metric
-     */
-    private Set<ProjectVersionMeasurement> versionMeasurements;
-    
-    /**
-     * A list of project-file-wide measurements for this metric
-     */
-    private Set<ProjectFileMeasurement> fileMeasurements;
-    
-    /**
-     * A list of project-file-group-wide measurements for this metric
-     */
-    private Set<FileGroupMeasurement> fileGroupMeasurements;
-    
-    public Metric() {
-        //Nothing to do here
-    }
-    
-    public MetricType getMetricType() {
-        return metricType;
-    }
+	/**
+	 * A description of the work performed by this metric
+	 */
+	private String description;
 
-    public void setMetricType(MetricType metricType) {
-        this.metricType = metricType;
-    }
+	/**
+	 * A list of project-wide measurements for this metric
+	 */
+	private Set<StoredProjectMeasurement> projectMeasurements;
 
-    public String getDescription() {
-        return description;
-    }
+	/**
+	 * A list of project-version-wide measurements for this metric
+	 */
+	private Set<ProjectVersionMeasurement> versionMeasurements;
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	/**
+	 * A list of project-file-wide measurements for this metric
+	 */
+	private Set<ProjectFileMeasurement> fileMeasurements;
 
-    public Plugin getPlugin() {
-        return plugin;
-    }
+	/**
+	 * A list of project-file-group-wide measurements for this metric
+	 */
+	private Set<FileGroupMeasurement> fileGroupMeasurements;
 
-    public void setPlugin(Plugin plugin) {
-        this.plugin = plugin;
-    }
+	public Metric() {
+		// Nothing to do here
+	}
 
-    public String getMnemonic() {
-        return mnemonic;
-    }
+	public MetricType getMetricType() {
+		return metricType;
+	}
 
-    public void setMnemonic(String mnemonic) {
-        this.mnemonic = mnemonic;
-    }
+	public void setMetricType(MetricType metricType) {
+		this.metricType = metricType;
+	}
 
-    public Set<EvaluationMark> getEvaluationMarks() {
-        return evaluationMarks;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public void setEvaluationMarks(Set<EvaluationMark> evaluationMarks) {
-        this.evaluationMarks = evaluationMarks;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    public Set<StoredProjectMeasurement> getProjectMeasurements() {
-        return projectMeasurements;
-    }
+	public Plugin getPlugin() {
+		return plugin;
+	}
 
-    public void setProjectMeasurements(
-            Set<StoredProjectMeasurement> projectMeasurements) {
-        this.projectMeasurements = projectMeasurements;
-    }
+	public void setPlugin(Plugin plugin) {
+		this.plugin = plugin;
+	}
 
-    public Set<ProjectVersionMeasurement> getVersionMeasurements() {
-        return versionMeasurements;
-    }
+	public String getMnemonic() {
+		return mnemonic;
+	}
 
-    public void setVersionMeasurements(
-            Set<ProjectVersionMeasurement> versionMeasurements) {
-        this.versionMeasurements = versionMeasurements;
-    }
+	public void setMnemonic(String mnemonic) {
+		this.mnemonic = mnemonic;
+	}
 
-    public Set<ProjectFileMeasurement> getFileMeasurements() {
-        return fileMeasurements;
-    }
+	public Set<StoredProjectMeasurement> getProjectMeasurements() {
+		return projectMeasurements;
+	}
 
-    public void setFileMeasurements(Set<ProjectFileMeasurement> fileMeasurements) {
-        this.fileMeasurements = fileMeasurements;
-    }
+	public void setProjectMeasurements(
+			Set<StoredProjectMeasurement> projectMeasurements) {
+		this.projectMeasurements = projectMeasurements;
+	}
 
-    public Set<FileGroupMeasurement> getFileGroupMeasurements() {
-        return fileGroupMeasurements;
-    }
+	public Set<ProjectVersionMeasurement> getVersionMeasurements() {
+		return versionMeasurements;
+	}
 
-    public void setFileGroupMeasurements(
-            Set<FileGroupMeasurement> fileGroupMeasurements) {
-        this.fileGroupMeasurements = fileGroupMeasurements;
-    }
+	public void setVersionMeasurements(
+			Set<ProjectVersionMeasurement> versionMeasurements) {
+		this.versionMeasurements = versionMeasurements;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if ((obj == null) || (!(obj instanceof Metric))) {
-            return false;
-        }
-        Metric anotherMetric = (Metric) obj;
-        if (mnemonic == null) {
-            return this.getId() == anotherMetric.getId(); 
-        } else {
-            return (this.mnemonic.equals(anotherMetric.getMnemonic()));
-        }
-    }
+	public Set<ProjectFileMeasurement> getFileMeasurements() {
+		return fileMeasurements;
+	}
 
-    @Override
-    public int hashCode() {
-        if (mnemonic != null) {
-            return mnemonic.hashCode(); 
-        } else {
-            return Long.valueOf(this.getId()).hashCode();
-        }
-    }   
+	public void setFileMeasurements(Set<ProjectFileMeasurement> fileMeasurements) {
+		this.fileMeasurements = fileMeasurements;
+	}
 
-    public String toString() {
-        return "Metric(" + getId() + ",\"" + getMnemonic() + "\")";
-    }
-    
-    /**
-     * Get a metric from its mnemonic name
-     * @param mnem - The metric mnemonic name to search for
-     * @return A Metric object or null when no metric can be found for the 
-     * provided mnemonic
-     */
-    public static Metric getMetricByMnemonic(String mnem) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("mnemonic", mnem);
-        
-        List<Metric> result = dbs.findObjectsByProperties(Metric.class, properties);
-        
-        if (result.size() <= 0)
-            return null;
-            
-        return result.get(0);
-    }
+	public Set<FileGroupMeasurement> getFileGroupMeasurements() {
+		return fileGroupMeasurements;
+	}
+
+	public void setFileGroupMeasurements(
+			Set<FileGroupMeasurement> fileGroupMeasurements) {
+		this.fileGroupMeasurements = fileGroupMeasurements;
+	}
+
+	/**
+	 * Check whether the metric was ever run on the provided project.
+	 */
+	public boolean isEvaluated (StoredProject p) {
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		StringBuffer query = new StringBuffer();
+
+		switch (metricType.getEnumType()) {
+		case PROJECT_WIDE:
+			query.append("select pvm from ProjectVersionMeasurement pvm ")
+				 .append("where pvm.metric=:metric and pvm.projectVersion.project=:project");
+			break;
+		case SOURCE_CODE:
+		case SOURCE_FOLDER:
+			query.append("select pfm from ProjectFileMeasurement pfm ")
+				 .append("where pfm.metric=:metric ")
+				 .append("and pfm.projectFile.projectVersion.project=:project");
+			break;
+		case THREAD:
+			query.append("select mltm from MailingListThreadMeasurement mltm ")
+				 .append("where mltm.metric=:metric ")
+				 .append("and mltm.thread.list.storedProject=:project");
+			break;
+		case MAILMESSAGE:
+			query.append("select mmm from MailMessageMeasurement mmm ")
+				.append("where mmm.metric=:metric")
+				.append("and mmm.mail.list.storedProject=:project");
+			break;
+		case BUG_DATABASE:
+		case MAILING_LIST:
+			return false; //No DAOs have been created for those types yet
+		}
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("project", p);
+		params.put("metric", this);
+		
+		if (dbs.doHQL(query.toString(), params, 1).size() >= 1)
+			return true;
+		
+		return false;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ((obj == null) || (!(obj instanceof Metric))) {
+			return false;
+		}
+		Metric anotherMetric = (Metric) obj;
+		if (mnemonic == null) {
+			return this.getId() == anotherMetric.getId();
+		} else {
+			return (this.mnemonic.equals(anotherMetric.getMnemonic()));
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		if (mnemonic != null) {
+			return mnemonic.hashCode();
+		} else {
+			return Long.valueOf(this.getId()).hashCode();
+		}
+	}
+
+	public String toString() {
+		return "Metric(" + getId() + ",\"" + getMnemonic() + "\")";
+	}
+
+	/**
+	 * Get a metric from its mnemonic name
+	 * 
+	 * @param mnem
+	 *            - The metric mnemonic name to search for
+	 * @return A Metric object or null when no metric can be found for the
+	 *         provided mnemonic
+	 */
+	public static Metric getMetricByMnemonic(String mnem) {
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("mnemonic", mnem);
+
+		List<Metric> result = dbs.findObjectsByProperties(Metric.class,
+				properties);
+
+		if (result.size() <= 0)
+			return null;
+
+		return result.get(0);
+	}
+
+	/**
+	 * Get a list of all installed metrics.
+	 * 
+	 * @return A list of all installed metrics, which might be empty if no
+	 *         metric is installed.
+	 */
+	public static List<Metric> getAllMetrics() {
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		return (List<Metric>) dbs.doHQL("from Metric");
+	}
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
-
+// vi: ai nosi sw=4 ts=4 expandtab

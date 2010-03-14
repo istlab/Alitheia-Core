@@ -38,22 +38,16 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.service.db.EvaluationMark;
-import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.scheduler.Job;
@@ -354,18 +348,7 @@ public class WebAdminRenderer  extends AbstractView {
         			sp.addConfig(co, subopt.trim());
         	}
         }
-        
-        // Setup the evaluation marks for all installed metrics
-        Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
-        Map<String,Object> noProps = Collections.emptyMap();
-        for( Metric m : sobjDB.findObjectsByProperties(Metric.class, noProps) ) {
-            EvaluationMark em = new EvaluationMark();
-            em.setMetric(m);
-            em.setStoredProject(sp);
-            marks.add(em);
-        }
-        sp.setEvaluationMarks(marks);
-
+       
         sobjTDS.addAccessor(sp.getId(), sp.getName(), sp.getBtsUrl(), sp.getMailUrl(), 
                 sp.getScmUrl());
         

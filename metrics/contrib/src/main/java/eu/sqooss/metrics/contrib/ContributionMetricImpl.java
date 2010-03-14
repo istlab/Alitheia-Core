@@ -269,7 +269,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
     public void run(Developer v) throws AlreadyProcessingException {}
     
     public void run(Bug b) throws AlreadyProcessingException {
-        Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
         updateField(b, b.getReporter(), ActionType.BRP, true, 1);
         
         if (b.getResolution().equals(BugResolution.Resolution.DUPLICATE))
@@ -278,8 +277,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
         for(BugReportMessage brm : b.getReportMessages()) {
             updateField(b, brm.getReporter(), ActionType.BCC, true, 1);
         }
-        
-        markEvaluation(contrib, b.getProject());
     }
 
     public void run(MailingListThread t) throws AlreadyProcessingException {
@@ -335,7 +332,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
             
             //updateField(mm, mm.getSender(), ActionType.MSE, true, 1);
         }
-        markEvaluation(contrib, t.getList().getStoredProject());
     }
     
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
@@ -508,8 +504,6 @@ public class ContributionMetricImpl extends AbstractMetric implements
 				}
             }
         }
-
-        markEvaluation(Metric.getMetricByMnemonic("CONTRIB"), pv);
     }
 
     private int getLOCResult(ProjectFile pf, AlitheiaPlugin plugin, 

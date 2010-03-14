@@ -69,7 +69,6 @@
         <mapping resource="eu/sqooss/service/db/Developer.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Directory.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/EvaluationMark.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ClusterNode.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ClusterNodeProject.hbm.xml"/>

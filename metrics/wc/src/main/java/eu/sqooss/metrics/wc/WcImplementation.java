@@ -303,9 +303,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
                 metric,pf,String.valueOf(results[3]));
         db.addRecord(words_measure);
         toUpdate.add(metric);
-        
-        markEvaluation(toUpdate, pf.getProjectVersion().getProject(),
-                pf.getProjectVersion());
     }
 
     /**
@@ -549,8 +546,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
         toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLDOC, v, totalLocDoc));
         toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLOC, v, totalLoC));
         toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLOCOM, v, totalLoComm));
-        
-        markEvaluation(toUpdate, v.getProject(), v);
     }
     
     private Metric addPVMeasurement(String s, ProjectVersion pv, int value) {

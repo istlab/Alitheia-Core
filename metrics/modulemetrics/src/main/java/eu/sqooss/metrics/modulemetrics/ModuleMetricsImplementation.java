@@ -205,18 +205,17 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
 
             ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf, String.valueOf(1));
             db.addRecord(pfm);
-            markEvaluation(m, pf.getProjectVersion());
             
             m = Metric.getMetricByMnemonic(MET_MNOL);
             pfm = new ProjectFileMeasurement(m, pf,
                     String.valueOf(mnol));
             db.addRecord(pfm);
-            markEvaluation(m, pf.getProjectVersion());
+            
             m = Metric.getMetricByMnemonic(MET_MNOF);
             pfm = new ProjectFileMeasurement(m, pf,
                     String.valueOf(mnof));
             db.addRecord(pfm);
-            markEvaluation(m, pf.getProjectVersion());
+
         }
     }
 
@@ -282,7 +281,6 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
             
             ams.setResult(String.valueOf(((float) (locs / srcDirs.size()))));
             db.addRecord(ams);
-            markEvaluation(metric, pv.getProject());
         }
     }
     

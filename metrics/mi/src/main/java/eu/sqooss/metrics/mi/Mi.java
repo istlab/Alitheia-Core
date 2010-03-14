@@ -267,8 +267,6 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
         ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf, 
                 String.valueOf(MI));
         db.addRecord(pfm);
-        markEvaluation(m, pf);
-        
     }
 
     public List<ResultEntry> getResult(ProjectVersion pv, Metric m) {
@@ -357,7 +355,6 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
             
             ams.setResult(String.valueOf(((float) (miTotal / srcDirs.size()))));
             db.addRecord(ams);
-            markEvaluation(metric, pv.getProject());
         }
     }
     

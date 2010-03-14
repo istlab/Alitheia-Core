@@ -125,9 +125,6 @@ public class DiscussionHeat extends AbstractMetric implements
         
         dbs.addRecord(mm);
         
-        markEvaluation(Metric.getMetricByMnemonic("HOTNESS"),
-                m.getList().getStoredProject());
-        
         if (score < 6)
             return;
         
@@ -145,9 +142,6 @@ public class DiscussionHeat extends AbstractMetric implements
                 hoteffect, m, String.valueOf(result));
         
         dbs.addRecord(mltm);
-        
-        markEvaluation(Metric.getMetricByMnemonic("HOTEFFECT"),
-                m.getList().getStoredProject());
     }
     
     private int getLocsForVersions(List<ProjectVersion> versions) throws AlreadyProcessingException {
@@ -276,7 +270,6 @@ public class DiscussionHeat extends AbstractMetric implements
                 String.valueOf(linesChanged));
 
         dbs.addRecord(pvm);
-        markEvaluation(Metric.getMetricByMnemonic("VERLOC"), pv.getProject());
     }
     
     private int getLOCResult(ProjectFile pf, AlitheiaPlugin plugin, 

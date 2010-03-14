@@ -53,7 +53,6 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailMessageMeasurement;
 import eu.sqooss.service.db.MailingListThread;
@@ -511,17 +510,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         m.setMnemonic(mnemonic);
         m.setMetricType(MetricType.getMetricType(type));
         m.setPlugin(p);
-        // Setup the evaluation marks for all existing projects
-        Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
-        Map<String,Object> noProps = Collections.emptyMap();
-        for( StoredProject sp : db.findObjectsByProperties(StoredProject.class, noProps) ) {
-            EvaluationMark em = new EvaluationMark();
-            em.setMetric(m);
-            em.setStoredProject(sp);
-            marks.add(em);
-        }
-        m.setEvaluationMarks(marks);
-        
+                
         return p.getSupportedMetrics().add(m);
     }
 
@@ -560,97 +549,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         
         return m;
     }
-
-    /**
-     * Creates a record in the database, when the specified metric has been
-     * evaluated for a first time in the scope of the selected project.
-     * This is a private method, and should be called with consistent
-     * parameters for project and project versions; the project may be
-     * null if the version is not, because project can be derived from version.
-     *
-     * @param me Evaluated metric
-     * @param p  Evaluated project
-     * @param pv Evaluated project version
-     */
-    protected void markEvaluation (List<Metric> me, StoredProject p, ProjectVersion pv) {
-        // Possibly we should check and log if p and pv are both set
-        // and inconsistent, but for now let us assume that the methods
-        // in Abstract metric calling this do the right thing.
-        StoredProject theProject = p;
-        if (null == theProject) {
-            theProject = pv.getProject();
-        }
-    	
-    	// Search for a previous evaluation of this metric on this project
-    	HashMap<String, Object> filter = new HashMap<String, Object>();
-    	filter.put("storedProject", theProject);
-
-    	StringBuffer metricIds = new StringBuffer("(");
-    	for (Metric m : me) {
-    	    metricIds.append(m.getId()).append(",");
-    	}
-    	metricIds.deleteCharAt(metricIds.length() - 1);
-    	metricIds.append(")");
-    	
-    	StringBuffer q = new StringBuffer("from EvaluationMark as foo ");
-    	q.append(" where storedProject = :").append("storedProject");
-    	q.append(" and metric.id in ").append(metricIds);
-    	
-    	List<EvaluationMark> em = (List<EvaluationMark>)db.doHQL(q.toString(), filter, true);
-    	
-    	if (em.isEmpty()) {
-            log.error("Couldn't retrieve the evaluation mark record for metrics: "
-                            + me + ". Try reinstalling the plugin.");
-            return;
-        }
-    	
-    	for (EvaluationMark m : em) {
-    	    m.updateWhenRunToNow();
-            if (null != pv) {
-                m.setVersion(pv);
-            }
-    	}
-    }
-
-    /**
-     * Convenience method for marking a project as evaluated; use
-     * the project stored in the project file to do so.
-     * 
-     * @param me Metric that is done the evaluation
-     * @param pf Project File that was evaluated
-     */
-    public void markEvaluation (Metric me, ProjectFile pf) {
-        List<Metric> metrics = new ArrayList<Metric>();
-        metrics.add(me);
-        markEvaluation(metrics, pf.getProjectVersion().getProject(), null);
-    }
-    
-    /**
-     * Convenience method for marking a project as evaluated.
-     * Uses a specific version of the project, which is assumed
-     * to be evaluated as well.
-     * 
-     * @param me Metric that is done the evaluation
-     * @param pv Project version that was evaluated
-     */
-    public void markEvaluation (Metric me, ProjectVersion pv) {
-        List<Metric> metrics = new ArrayList<Metric>();
-        metrics.add(me);
-        markEvaluation(metrics,null,pv);
-    }
-    
-    /**
-     * Convenience method for marking a project as evaluated.
-     * 
-     * @param me Metric that is done the evaluation
-     * @param pf Project that was evaluated
-     */
-    public void markEvaluation (Metric me, StoredProject pf) {
-        List<Metric> metrics = new ArrayList<Metric>();
-        metrics.add(me);
-        markEvaluation(metrics, pf, null);
-    }
-    
+   
     /**
      * Register the metric to the DB. Subclasses can run their custom
      * initialization routines (i.e. registering DAOs or tables) after calling

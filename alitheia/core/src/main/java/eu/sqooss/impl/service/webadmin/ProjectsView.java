@@ -34,12 +34,8 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,10 +46,8 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ClusterNodeProject;
-import eu.sqooss.service.db.EvaluationMark;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
-import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
@@ -232,18 +226,7 @@ public class ProjectsView extends AbstractView {
 				p.setBtsUrl(reqValPrjBug);
 				p.setMailUrl(reqValPrjMail);
 				p.setScmUrl(reqValPrjCode);
-				// Setup the evaluation marks for all installed metrics
-				Set<EvaluationMark> marks = new HashSet<EvaluationMark>();
-				Map<String, Object> noProps = Collections.emptyMap();
-				for (Metric m : sobjDB.findObjectsByProperties(Metric.class,
-						noProps)) {
-					EvaluationMark em = new EvaluationMark();
-					em.setMetric(m);
-					em.setStoredProject(p);
-					marks.add(em);
-				}
-				p.setEvaluationMarks(marks);
-
+				
 				// Try to add the DAO to the DB
 				if (sobjDB.addRecord(p) == true) {
 					// register the new project in the TDS
@@ -601,13 +584,8 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Evaluation state
                     String evalState = getLbl("project_not_evaluated");
-                    if (nextPrj.getEvaluationMarks() != null) {
-                        for( EvaluationMark mark : nextPrj.getEvaluationMarks()) {
-                            if ( mark.getWhenRun() != null ) {
-                                evalState = getLbl("project_is_evaluated");
-                                break;
-                            }
-                        }
+                    if (nextPrj.isEvaluated()) {
+                    	evalState = getLbl("project_is_evaluated");
                     }
                     b.append(sp(in) + "<td class=\"trans\">"
                             + evalState

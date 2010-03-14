@@ -177,7 +177,6 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
             ProjectFileMeasurement ncases = new ProjectFileMeasurement(
                     metric,pf,String.valueOf(numTestCases));
             db.addRecord(ncases);
-            markEvaluation(metric, pf);
         } catch (IOException e) {
             log.error(this.getClass().getName() + " IO Error <" + e
                     + "> while measuring: " + pf.getFileName());

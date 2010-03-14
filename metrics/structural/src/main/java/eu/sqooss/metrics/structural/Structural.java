@@ -697,7 +697,6 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         Metric m = Metric.getMetricByMnemonic(mnem);
         ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf, value);
         db.addRecord(pfm); 
-        markEvaluation(m, pf);
     }
 }
 

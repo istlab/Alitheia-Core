@@ -53,7 +53,6 @@ import eu.sqooss.service.db.BugStatus.Status;
  * @assoc 1 - n StoredProjectConfig
  * @assoc 1 - n MailingList
  * @assoc 1 - n ProjectVersion
- * @assoc 1 - n EvaluationMark
  * @assoc 1 - n StoredProjectMeasurement
  * @assoc 1 - n Developer
  * @assoc 1 - n ClusterNodeProject
@@ -163,7 +162,6 @@ public class StoredProject extends DAObject {
     private Set<Developer> developers;
     private Set<MailingList> mailingLists;
     private Set<StoredProjectMeasurement> measurements;
-    private Set<EvaluationMark> evaluationMarks;
     private Set<Bug> bugs;
     private Set<ConfigurationOption> configOpts;
     private Set<TimeLineEvent> timelineEvents;
@@ -276,38 +274,6 @@ public class StoredProject extends DAObject {
         this.configOpts = configOpts;
     }
 
-    
-    /**
-     * Get the evaluation marks for this project; this includes
-     * all of the plugins that have ectually stored any results
-     * related to the project.
-     * 
-     * @return set of evaluation marks
-     */
-    public Set<EvaluationMark> getEvaluationMarks() {
-        return evaluationMarks;
-    }
-
-    public void setEvaluationMarks(Set<EvaluationMark> evaluationMarks) {
-        this.evaluationMarks = evaluationMarks;
-    }
-
-    /**
-     * Is the project evaluated? A project is considered evaluated if
-     * at least one metric has stored at least one measurement; metric
-     * plug-ins are expected to explicitly flag that they have stored a 
-     * result by storing an evaluation mark as well.
-     * 
-     * @return is the project evaluated?
-     */
-    public boolean isEvaluated() {
-        Set<EvaluationMark> marks = getEvaluationMarks();
-        if ((marks != null) && (marks.size() > 0))
-            for (EvaluationMark nextMark : marks)
-                if (nextMark.getWhenRun() != null)
-                    return true;
-        return false;
-    }
     
     /**
      * Get the first (in an arbitrary definition of order) value for
@@ -468,11 +434,11 @@ public class StoredProject extends DAObject {
      *
      * @return The total number of version for that project.
      */
-    public static long getVersionsCount(Long projectId) {
+    public long getVersionsCount() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", projectId);
+        parameterMap.put("pid", this.getId());
         List<?> pvList = dbs.doHQL("select count(*)"
                 + " from ProjectVersion pv"
                 + " where pv.project.id=:pid",
@@ -489,11 +455,11 @@ public class StoredProject extends DAObject {
      *
      * @return The total number of mails associated with that project.
      */
-    public static long getMailsCount(Long projectId) {
+    public long getMailsCount() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", projectId);
+        parameterMap.put("pid", this.getId());
         List<?> res = dbs.doHQL("select count(*)"
                 + " from MailMessage mm, MailingList ml"
                 + " where ml.storedProject.id=:pid"
@@ -507,15 +473,13 @@ public class StoredProject extends DAObject {
      * Returns the total number of bugs which belong to the project with the
      * given Id.
      *
-     * @param projectId - the project's identifier
-     *
      * @return The total number of bugs associated with that project.
      */
-    public static long getBugsCount(Long projectId) {
+    public long getBugsCount() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", projectId);
+        parameterMap.put("pid", this.getId());
         List<?> res = dbs.doHQL("select count(*)"
                 + " from Bug bg"
                 + " where bg.project.id=:pid"
@@ -524,7 +488,20 @@ public class StoredProject extends DAObject {
 
         return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
     }
-
+    
+    /**
+     * Check whether any metric has run on the given project.
+     * @return
+     */
+    public boolean isEvaluated() {
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	for (Metric m : Metric.getAllMetrics()) {
+    		if (m.isEvaluated(this))
+    			return true;
+    	}
+    	return false;
+    }
+    
     public Set<Bug> getBugs() {
         return bugs;
     }
