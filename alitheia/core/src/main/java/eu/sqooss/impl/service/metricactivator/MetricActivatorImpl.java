@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -58,6 +59,7 @@ import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
@@ -95,7 +97,9 @@ public class MetricActivatorImpl  implements MetricActivator {
     private HashMap<Class<? extends DAObject>, Integer> defaultPriority;
     private HashMap<Class<? extends DAObject>, Integer> maxPriority;
     private HashMap<Class<? extends DAObject>, Integer> currentPriorities;
-     
+
+    private HashMap<MetricType.Type, Class<? extends DAObject>> metricTypesToActivators;
+    
     public MetricActivatorImpl() { }
 
     public void initRules() {
@@ -395,12 +399,9 @@ public class MetricActivatorImpl  implements MetricActivator {
                             " has no activation types");
                 return;
             }
+
             
-            String query = "" , paramSp = "paramSp";
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put(paramSp, sp);
-            
-            for (Class<? extends DAObject> c : actTypes) {
+            /*for (Class<? extends DAObject> c : actTypes) {
                 if(c.equals(ProjectFile.class)) {
                     query = "select pf.id " +
                     " from ProjectVersion pv, ProjectFile pf " +
@@ -451,7 +452,82 @@ public class MetricActivatorImpl  implements MetricActivator {
                     //schedJob(metric, l, c, getNextPriority(c));
                 }   
                 sched.enqueueNoDependencies(jobs);
+            }*/
+            
+            List<Metric> metrics = pa.getPlugin(mi).getAllSupportedMetrics();
+            
+            Map<MetricType.Type, TreeSet<Long>> objectIds = new HashMap<MetricType.Type, TreeSet<Long>>();
+            MetricType.Type activationType = null;
+            
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("project", sp);
+            
+            for (Metric m : metrics) {
+            	StringBuffer q = new StringBuffer();
+            	if (m.getMetricType().equals(MetricType.getMetricType(Type.PROJECT_WIDE))) {
+            		q.append("select pv.id ") 
+            		.append("from ProjectVersion pv ")
+            		.append("where pv.project = :project ") 
+            		.append("and not exists( ")
+            		.append("select pvm.projectVersion ")
+            		.append("from ProjectVersionMeasurement pvm ")
+            		.append("where pvm.projectVersion.id = pv.id and pvm.metric.id = :metric) ") 
+            		.append("order by pv.sequence asc");
+            		activationType = MetricType.Type.PROJECT_WIDE;
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.SOURCE_CODE))) {
+            		q.append("select pf.id") 
+            		.append(" from ProjectVersion pv, ProjectFile pf")
+            		.append(" where pf.projectVersion=pv and pv.project = :project") 
+            		.append(" and not exists (")
+            		.append("  select pfm.projectFile ")
+            		.append("  from ProjectFileMeasurement pfm") 
+            		.append("  where pfm.projectFile.id = pf.id and pfm.metric.id = :metric)")
+            		.append(" and pf.isDirectory = false")  
+            		.append(" order by pv.sequence asc" );
+            		activationType = MetricType.Type.SOURCE_CODE;
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(MetricType.Type.SOURCE_FOLDER))) {
+            		q.append("select pf.id") 
+            		.append(" from ProjectVersion pv, ProjectFile pf")
+            		.append(" where pf.projectVersion=pv and pv.project = :project") 
+            		.append(" and not exists (")
+            		.append("  select pfm.projectFile ")
+            		.append("  from ProjectFileMeasurement pfm") 
+            		.append("  where pfm.projectFile.id = pf.id and pfm.metric.id = :metric)")
+            		.append(" and pf.isDirectory = true")  
+            		.append(" order by pv.sequence asc" );
+            		activationType = MetricType.Type.SOURCE_FOLDER;
+            	} else if (m.getMetricType().equals(MetricType.Type.MAILING_LIST)) {
+
+            	} else if (m.getMetricType().equals(MetricType.Type.MAILMESSAGE)) {
+
+            	} else if (m.getMetricType().equals(MetricType.Type.THREAD)) {
+
+            	} else if (m.getMetricType().equals(MetricType.Type.BUG_DATABASE)) {
+
+            	}
+                params.put("metric", m.getId());
+                List<Long> objects = (List<Long>) db.doHQL(q.toString(), params);
+                
+                if (objectIds.get(activationType) == null) {
+                	objectIds.put(activationType, new TreeSet<Long>());	
+                }
+                
+                objectIds.get(activationType).addAll(objects);
             }
+            
+            AbstractMetric metric = 
+                (AbstractMetric) bc.getService(mi.getServiceRef());
+            HashSet<Job> jobs = new HashSet<Job>();
+            
+            for (MetricType.Type actType : objectIds.keySet()) {
+            	for (Long l : objectIds.get(actType)) {
+            		jobs.add(new MetricActivatorJob(metric, l, logger, 
+            			metricTypesToActivators.get(actType),
+            			getNextPriority(metricTypesToActivators.get(actType)),
+            			fastSync));
+            	}
+            }
+            sched.enqueueNoDependencies(jobs);
             dbs.commitDBSession();
         }
         
@@ -485,6 +561,15 @@ public class MetricActivatorImpl  implements MetricActivator {
         maxPriority.put(Developer.class, defaultPriority.get(StoredProject.class));
         maxPriority.put(MailingListThread.class, defaultPriority.get(StoredProject.class));
         maxPriority.put(StoredProject.class, 0x1E000000);
+        
+        metricTypesToActivators = new HashMap<Type, Class<? extends DAObject>>();
+        metricTypesToActivators.put(Type.SOURCE_FOLDER, ProjectFile.class);
+        metricTypesToActivators.put(Type.SOURCE_CODE, ProjectFile.class);
+        metricTypesToActivators.put(Type.BUG_DATABASE, Bug.class);
+        metricTypesToActivators.put(Type.PROJECT_WIDE, ProjectVersion.class);
+        metricTypesToActivators.put(Type.MAILING_LIST, MailingList.class);
+        metricTypesToActivators.put(Type.MAILMESSAGE, MailMessage.class);
+        metricTypesToActivators.put(Type.THREAD, MailingListThread.class);
 	}
 
 	@Override
