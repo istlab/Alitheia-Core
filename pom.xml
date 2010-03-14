@@ -56,14 +56,6 @@
 
   <repositories>
     <repository>
-      <id>jboss</id>
-      <url>http://repository.jboss.org/maven2/</url>
-    </repository>
-    <repository>
-      <id>ops4j</id>
-      <url>http://repository.ops4j.org/maven2/</url>
-    </repository>
-    <repository>
       <id>java.net</id>
       <url>http://download.java.net/maven/2/</url>
     </repository>
