@@ -400,60 +400,6 @@ public class MetricActivatorImpl  implements MetricActivator {
                 return;
             }
 
-            
-            /*for (Class<? extends DAObject> c : actTypes) {
-                if(c.equals(ProjectFile.class)) {
-                    query = "select pf.id " +
-                    " from ProjectVersion pv, ProjectFile pf " +
-                    " where pf.projectVersion=pv and pv.project = :" + paramSp +
-                    " order by pv.sequence asc";
-                } else if (c.equals(ProjectVersion.class)) {
-                    query = "select pv.id from ProjectVersion pv " +
-                    " where pv.project = :" + paramSp + 
-                    " order by pv.sequence asc ";
-                } else if (c.equals(StoredProject.class)) {
-                    query = "select distinct sp.id from StoredProject sp where sp = :" 
-                        + paramSp;
-                } else if (c.equals(MailMessage.class)) { 
-                    query = "select distinct mm.id " +
-                            "from StoredProject sp, MailingList ml, MailMessage mm " +
-                            "where mm.list = ml and " +
-                            "ml.storedProject = :" + paramSp + 
-                            " order by mm.arrivalDate asc";
-                } else if (c.equals(MailingList.class)) { 
-                    query = "select distinct ml.id from StoredProject sp, MailingList ml " +
-                            "where ml.storedProject = :" + paramSp;
-                } else if (c.equals(Developer.class)) { 
-                    query = "select distinct d.id from Developer d " +
-                            "where d.storedProject = :" + paramSp;
-                } else if (c.equals(Bug.class)){
-                    query = "select distinct b.id from Bug b " +
-                            " where b.project = :" + paramSp + 
-                            " order by b.deltaTS asc";
-                } else if (c.equals(MailingListThread.class)) {
-                    query = "select distinct mlt.id " +
-                            "from MailingListThread mlt, MailingList ml " +
-                            " where mlt.list = ml " +
-                            " and ml.storedProject = :" + paramSp + 
-                            " order by mlt.lastUpdated asc";
-                } else {
-                    logger.error("Unknown activation type " + c.getName());
-                    return;
-                }
-
-                List<Long> objectIDs = (List<Long>) db.doHQL(query, params);
-                AbstractMetric metric = 
-                    (AbstractMetric) bc.getService(mi.getServiceRef());
-                HashSet<Job> jobs = new HashSet<Job>(objectIDs.size());
-                
-                for (Long l : objectIDs) {
-                    jobs.add(new MetricActivatorJob(metric, l, logger, c,
-                    		getNextPriority(c), fastSync));
-                    //schedJob(metric, l, c, getNextPriority(c));
-                }   
-                sched.enqueueNoDependencies(jobs);
-            }*/
-            
             List<Metric> metrics = pa.getPlugin(mi).getAllSupportedMetrics();
             
             Map<MetricType.Type, TreeSet<Long>> objectIds = new HashMap<MetricType.Type, TreeSet<Long>>();
@@ -496,13 +442,27 @@ public class MetricActivatorImpl  implements MetricActivator {
             		.append(" and pf.isDirectory = true")  
             		.append(" order by pv.sequence asc" );
             		activationType = MetricType.Type.SOURCE_FOLDER;
-            	} else if (m.getMetricType().equals(MetricType.Type.MAILING_LIST)) {
-
-            	} else if (m.getMetricType().equals(MetricType.Type.MAILMESSAGE)) {
-
-            	} else if (m.getMetricType().equals(MetricType.Type.THREAD)) {
-
-            	} else if (m.getMetricType().equals(MetricType.Type.BUG_DATABASE)) {
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILING_LIST))) {
+            		
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILMESSAGE))) {
+            		q.append("select mm.id")
+            		.append(" from MailMessage mm ")
+            		.append(" where mm.list.storedProject = :project ")
+            		.append(" and mm.id not in (")
+					.append(" select mmm.mail.id ")
+					.append(" from MailMessageMeasurement mmm")
+					.append(" where mmm.metric.id =:metric")
+					.append(" and mmm.mail.id = mm.id))");
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(MetricType.Type.THREAD))) {
+            		q.append("select mlt.id ")
+            		.append("from MailingListThread mlt ") 
+            		.append("where mlt.list.storedProject = :project ") 
+            		.append("and mlt.id not in ( ")
+            		.append("select mltm.thread.id ")
+            		.append("from MailingListThreadMeasurement mltm ")
+            		.append("where mltm.metric.id =:metric ")
+            		.append("and mltm.thread.id = mlt.id)" );
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(MetricType.Type.BUG_DATABASE))) {
 
             	}
                 params.put("metric", m.getId());
