@@ -60,14 +60,14 @@
       <url>http://download.java.net/maven/2/</url>
     </repository>
   </repositories>
-
+  
   <packaging>pom</packaging>
 
   <modules>
     <module>provision</module>
-    <module>external</module>
     <module>alitheia</module>
     <module>metrics</module>
+    <module>external</module>
   </modules>
 
   <developers>

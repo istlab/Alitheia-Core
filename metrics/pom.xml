@@ -25,4 +25,21 @@
     <module>contrib</module>
     <module>discussionheat</module>
   </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <compilerArguments>
+            <!-- Dependency to this class is declared in the -->
+            <processor>eu.sqooss.service.abstractmetric.PluginAnnotationProcessor</processor>
+          </compilerArguments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

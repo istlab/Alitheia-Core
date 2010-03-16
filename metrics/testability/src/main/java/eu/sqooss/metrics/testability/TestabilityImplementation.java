@@ -47,17 +47,21 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.metrics.testability.Testability;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.MetricDecl;
+import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
-public class TestabilityImplementation extends AbstractMetric implements Testability {
+@MetricDeclarations(metrics = {
+	@MetricDecl(mnemonic="TEST", activator=ProjectFile.class)
+}
+)
+public class TestabilityImplementation extends AbstractMetric {
 
     private FDSService fds;
 
@@ -67,10 +71,10 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
         super(bc);
 
         // Tells the metric activator when to call this metric
-        super.addActivationType(ProjectFile.class);
+        //super.addActivationType(ProjectFile.class);
 
         // Tells the UI what metric this is calculated against
-        super.addMetricActivationType(MNEMONIC_NCASES, ProjectFile.class);
+        //super.addMetricActivationType(MNEMONIC_NCASES, ProjectFile.class);
 
         // Obtain file descriptors
         ServiceReference serviceRef = null;
@@ -82,12 +86,12 @@ public class TestabilityImplementation extends AbstractMetric implements Testabi
 
     public boolean install() {
         boolean result = super.install();
-        if (result) {
-            result &= super.addSupportedMetrics(
-                    this.getDescription(),
-                    MNEMONIC_NCASES,
-                    MetricType.Type.SOURCE_CODE);
-        }
+        //if (result) {
+        //    result &= super.addSupportedMetrics(
+        //            this.getDescription(),
+        //            MNEMONIC_NCASES,
+        //            MetricType.Type.SOURCE_CODE);
+        //}
         return result;
     }
 
