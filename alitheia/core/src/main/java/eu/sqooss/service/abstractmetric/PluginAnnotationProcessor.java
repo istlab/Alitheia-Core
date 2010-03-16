@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ * Copyright 2010 - Organization for Free and Open Source Software,  
  *                 Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,9 @@
  */
 package eu.sqooss.service.abstractmetric;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -40,8 +43,12 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+
+import eu.sqooss.service.db.DAObject;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("eu.sqooss.service.abstractmetric.*")
@@ -50,18 +57,39 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnvironment) {
+		
+		Set<Class<? extends DAObject>> declActivators = 
+			new HashSet<Class<? extends DAObject>>();
+		
 		for (Element e : roundEnvironment.getRootElements()) {
-			for (TypeElement element : annotations) {
-				element.getAnnotationMirrors();
-			}
 			for (AnnotationMirror mirror : e.getAnnotationMirrors()) {
 				String annotationType = mirror.getAnnotationType().toString();
 
-				if (annotationType.equals(eu.sqooss.service.abstractmetric.MetricDeclarations.class.getName())) {
-					System.err.println("found annotation type:" + annotationType);
+				if (annotationType.equals(MetricDeclarations.class.getName())) {
+					System.err.println("found annotation:" + annotationType);
+
+					Map<? extends ExecutableElement, ? extends AnnotationValue> values = 
+						mirror.getElementValues();
+
+					for (ExecutableElement mirrorKey : values.keySet()) {
+						AnnotationValue mirrorEntry = values.get(mirrorKey);
+						List<? extends AnnotationValue> subAnnotations = 
+							(List<? extends AnnotationValue>) mirrorEntry.getValue();
+						for (AnnotationValue subAnnotation : subAnnotations) {
+							System.err.println("found subannotation:" + subAnnotation);
+							AnnotationMirror am = (AnnotationMirror) subAnnotation.getValue();
+							for (ExecutableElement paramKey : am.getElementValues().keySet()) {
+								//System.err.println("found param:" + paramKey.getAnnotation(annotationType));
+							}
+						}
+					}
 				}
 			}
 		}
 		return true;
+	}
+
+	private void processMirror(AnnotationMirror mirror) {
+		
 	}
 }
