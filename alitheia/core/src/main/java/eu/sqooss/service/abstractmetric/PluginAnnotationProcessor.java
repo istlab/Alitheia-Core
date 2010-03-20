@@ -32,6 +32,14 @@
  */
 package eu.sqooss.service.abstractmetric;
 
+import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.VariableTree;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+import com.sun.source.util.Trees;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +47,7 @@ import java.util.Set;
 
 import javax.tools.Diagnostic.Kind;
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -55,9 +64,19 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
 	Set<String> declActivators = new HashSet<String>();
 	
+	private Trees trees;
+
+	@Override
+    public void init(ProcessingEnvironment pe) {
+        super.init(pe);
+        trees = Trees.instance(pe);
+    }
+	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnvironment) {
+		
+		MethodVisitor mv = new MethodVisitor();
 		
 		for (Element e : roundEnvironment.getRootElements()) {
 			for (AnnotationMirror mirror : e.getAnnotationMirrors()) {
@@ -68,9 +87,12 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 				} else if (annotationType.equals(MetricDecl.class.getName())) {
 					processingEnv.getMessager().printMessage(Kind.ERROR, 
 							"The @MetricDecl annotation is only allowed " +
-							"as a the context of @MetricDeclarations");
+							"as a child of @MetricDeclarations");
 				}
 			}
+
+			TreePath tp = trees.getPath(e);
+			mv.scan(tp, trees);
 		}
 		
 		
@@ -138,5 +160,45 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 					+ mnemonic);
 		
 		declActivators.add(act);
+	}
+	
+	/*
+	 * A simple visitor that records method objects for methods that comply with
+	 * the Alitheia Core plug-in interface requirements.
+	 */
+	private class MethodVisitor extends TreePathScanner<Object, Trees> {
+		
+		List<MethodTree> methods = new ArrayList<MethodTree>();
+		
+	    @Override
+		public Object visitMethod(MethodTree methodTree, Trees trees) {
+			String name = methodTree.getName().toString();
+
+			if (name.equals("run")) {
+				if (!methodTree.getReturnType().toString().equals("void"))
+					return super.visitMethod(methodTree, trees);
+
+				List<? extends VariableTree> params = methodTree.getParameters();
+				
+				// The run method has exactly 1 argument
+				if (params.size() != 1)
+					return super.visitMethod(methodTree, trees);
+
+				String paramType = params.get(0).getType().toString();
+				
+				if (paramType.startsWith("eu.sqooss.service.db")) 
+					methods.add(methodTree);
+			}
+
+			if (name.equals("getResult")) {
+				methods.add(methodTree);
+			}
+
+			return super.visitMethod(methodTree, trees);
+		}
+
+	    public List<MethodTree> getMethodList() {
+	    	return methods;
+	    }
 	}
 }
