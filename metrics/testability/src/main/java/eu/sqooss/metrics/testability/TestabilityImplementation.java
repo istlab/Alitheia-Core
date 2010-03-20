@@ -54,15 +54,13 @@ import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
+
 @MetricDeclarations(metrics = {
-	@MetricDecl(mnemonic="TEST", activator=ProjectFile.class),
-	@MetricDecl(mnemonic="Test2", activator=ProjectVersion.class)
-}
-)
+	@MetricDecl(mnemonic="TEST", descr="", activator=ProjectFile.class)
+})
 public class TestabilityImplementation extends AbstractMetric {
 
     private FDSService fds;

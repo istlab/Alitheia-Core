@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.tools.Diagnostic.Kind;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -48,48 +49,94 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
-import eu.sqooss.service.db.DAObject;
-
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationTypes("eu.sqooss.service.abstractmetric.*")
 public class PluginAnnotationProcessor extends AbstractProcessor {
 
+	Set<String> declActivators = new HashSet<String>();
+	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnvironment) {
-		
-		Set<Class<? extends DAObject>> declActivators = 
-			new HashSet<Class<? extends DAObject>>();
 		
 		for (Element e : roundEnvironment.getRootElements()) {
 			for (AnnotationMirror mirror : e.getAnnotationMirrors()) {
 				String annotationType = mirror.getAnnotationType().toString();
 
 				if (annotationType.equals(MetricDeclarations.class.getName())) {
-					System.err.println("found annotation:" + annotationType);
-
-					Map<? extends ExecutableElement, ? extends AnnotationValue> values = 
-						mirror.getElementValues();
-
-					for (ExecutableElement mirrorKey : values.keySet()) {
-						AnnotationValue mirrorEntry = values.get(mirrorKey);
-						List<? extends AnnotationValue> subAnnotations = 
-							(List<? extends AnnotationValue>) mirrorEntry.getValue();
-						for (AnnotationValue subAnnotation : subAnnotations) {
-							System.err.println("found subannotation:" + subAnnotation);
-							AnnotationMirror am = (AnnotationMirror) subAnnotation.getValue();
-							for (ExecutableElement paramKey : am.getElementValues().keySet()) {
-								//System.err.println("found param:" + paramKey.getAnnotation(annotationType));
-							}
-						}
-					}
+					processMetricDeclarations(mirror);
+				} else if (annotationType.equals(MetricDecl.class.getName())) {
+					processingEnv.getMessager().printMessage(Kind.ERROR, 
+							"The @MetricDecl annotation is only allowed " +
+							"as a the context of @MetricDeclarations");
 				}
 			}
 		}
+		
+		
+		
 		return true;
 	}
 
-	private void processMirror(AnnotationMirror mirror) {
+	private void processMetricDeclarations(AnnotationMirror aMirror) {
+		try {
+			Map<? extends ExecutableElement, ? extends AnnotationValue> mirrorMap = aMirror.getElementValues();
+
+			for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> mirrorEntry : mirrorMap.entrySet()) {
+				final String mirrorKey = mirrorEntry.getKey().toString();
+
+				if (mirrorKey.equals("metrics()")) {
+					List<? extends AnnotationValue> anns = extractMetricDecl(mirrorEntry.getValue());
+					for (AnnotationValue annVal : anns) {
+						extractMetricDeclParams(annVal);
+					}
+				}
+			}
+		} catch (Exception ex) {
+			processingEnv.getMessager().printMessage(Kind.ERROR,
+					"processMetricDeclarations: " + ex.getMessage());
+		}
+	}
+
+	private List<? extends AnnotationValue> extractMetricDecl(
+			AnnotationValue aAnnotationValue) {
+		return (List<? extends AnnotationValue>) aAnnotationValue.getValue();
+	}
+	
+	private void extractMetricDeclParams(AnnotationValue aAnnotationValue) {
+
+		AnnotationMirror am = (AnnotationMirror) aAnnotationValue;
+		Map<? extends ExecutableElement, ? extends AnnotationValue> amMap = am
+				.getElementValues();
+		String mnemonic = "", descr = "", act = "";
+		for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> amMirrorEntry : amMap.entrySet()) {
+			String amMirrorKey = amMirrorEntry.getKey().toString();
+			
+			
+			if (amMirrorKey.equals("mnemonic()")) {
+				mnemonic = amMirrorEntry.getValue().toString();
+				mnemonic = mnemonic.substring(1, mnemonic.length() - 1);
+			} else if (amMirrorKey.equals("descr()")) {
+				descr = amMirrorEntry.getValue().toString();
+			} else if (amMirrorKey.equals("activator()")) {
+				act = amMirrorEntry.getValue().toString();
+			}
+		}
 		
+		if (mnemonic.length() > 10)
+			processingEnv.getMessager().printMessage(Kind.ERROR, 
+					"Mnemonic " + mnemonic + " is too long. " +
+					"A metric mnemonic can only be < 10 chars long");
+		
+		if (mnemonic.equals(""))
+			processingEnv.getMessager().printMessage(Kind.ERROR, 
+					"Metric mnemonic is an empty String");
+		
+		if (descr == null || descr.length() <= 0)
+			processingEnv.getMessager().printMessage(Kind.WARNING, 
+					"A valid description should be specified with metric " 
+					+ mnemonic);
+		
+		declActivators.add(act);
 	}
 }

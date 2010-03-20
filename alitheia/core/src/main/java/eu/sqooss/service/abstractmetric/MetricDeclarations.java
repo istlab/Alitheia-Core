@@ -37,9 +37,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 
+ * A container type for metric declarations.
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
+ * @see  eu.sqooss.service.abstractmetric.MetricDecl
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface MetricDeclarations {
 
+	/**
+	 * List of declared metrics.
+	 */
 	MetricDecl[] metrics();
 }

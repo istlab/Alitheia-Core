@@ -32,11 +32,39 @@
  */
 package eu.sqooss.service.abstractmetric;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import eu.sqooss.service.db.DAObject;
 
+/**
+ * Declares a new Metric along with an activation type and a short description.
+ * At compile time, the annotation is used to check whether a run() and
+ * getResult() methods have been defined for each different activation type. At
+ * runtime, it is used to automatically get metric declarations from the
+ * annotated plugin. 
+ *  
+ * @author Georgios Gousios <gousiosg@gmail.com>
+ * @see eu.sqooss.service.abstractmetric.MetricDeclarations
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
 public @interface MetricDecl {
 
+	/**
+	 * The metric mnemonic, an (up to) 10 char String.
+	 */
 	String mnemonic();
-	String descr() default "";
+	
+	/**
+	 * The metric description, a free form String.
+	 */
+	String descr();
+	
+	/**
+	 * The object type that activates the metric.
+	 */
 	Class<? extends DAObject> activator();
 }
