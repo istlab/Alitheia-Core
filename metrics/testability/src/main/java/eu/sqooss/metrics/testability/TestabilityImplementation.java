@@ -70,29 +70,12 @@ public class TestabilityImplementation extends AbstractMetric {
     public TestabilityImplementation(BundleContext bc) {
         super(bc);
 
-        // Tells the metric activator when to call this metric
-        //super.addActivationType(ProjectFile.class);
-
-        // Tells the UI what metric this is calculated against
-        //super.addMetricActivationType(MNEMONIC_NCASES, ProjectFile.class);
-
         // Obtain file descriptors
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
 
 
         fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
-    }
-
-    public boolean install() {
-        boolean result = super.install();
-        //if (result) {
-        //    result &= super.addSupportedMetrics(
-        //            this.getDescription(),
-        //            MNEMONIC_NCASES,
-        //            MetricType.Type.SOURCE_CODE);
-        //}
-        return result;
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {

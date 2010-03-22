@@ -268,9 +268,9 @@ public interface AlitheiaPlugin {
      * {@link AlitheiaPlugin.getResult()}} methods to trigger metric
      * calculation and result retrieval.
      *
-     * @return A list of DAObject subclasses
+     * @return A set of DAObject subclasses
      */
-    List<Class<? extends DAObject>> getActivationTypes();
+    Set<Class<? extends DAObject>> getActivationTypes();
 
     /**
      * Get the activation type that corresponds to the activation type which 
@@ -288,7 +288,7 @@ public interface AlitheiaPlugin {
      * <code>addConfigEntry</code> and <code>removeConfigEntry</code> methods
      * to manage their own configuration schema.
      *
-     * @return The list of the existing configuration properties for
+     * @return The set of the existing configuration properties for
      *   this plug-in. This may be an empty list if no configuration is
      *   needed or if the plug-in is not active.
      */
@@ -298,7 +298,7 @@ public interface AlitheiaPlugin {
      * Metric mnemonics for the metrics required to be present for this 
      * plugin to operate. 
      * 
-     * @return A, possibly empty, list of metric mnemonics. 
+     * @return A, possibly empty, set of metric mnemonics. 
      */
-    List<String> getDependencies();
+    Set<String> getDependencies();
 }

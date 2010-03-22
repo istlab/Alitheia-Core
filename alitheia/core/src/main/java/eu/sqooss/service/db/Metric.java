@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.MetricType.Type;
 
 /**
  * Instances of this object type represent the basic information on Metrics

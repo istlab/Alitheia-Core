@@ -392,7 +392,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             dbs.startDBSession();
             sp = DAObject.loadDAObyId(sp.getId(), StoredProject.class);
             PluginInfo mi = pa.getPluginInfo(m);
-            List<Class<? extends DAObject>> actTypes = mi.getActivationTypes();
+            Set<Class<? extends DAObject>> actTypes = mi.getActivationTypes();
             
             if ((actTypes == null) || actTypes.isEmpty()) {
                 logger.error("Plugin " + mi.getPluginName() +

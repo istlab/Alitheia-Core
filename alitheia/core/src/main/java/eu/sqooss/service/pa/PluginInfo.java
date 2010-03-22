@@ -33,16 +33,18 @@
 
 package eu.sqooss.service.pa;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.FileGroupMetric;
+import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+import eu.sqooss.service.abstractmetric.StoredProjectMetric;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
@@ -121,8 +123,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   <li>{@link FileGroupMetric}</li>
      * </ul>
      */
-    List<Class<? extends DAObject>> activationTypes =
-        new ArrayList<Class<? extends DAObject>>();
+    Set<Class<? extends DAObject>> activationTypes =
+        new HashSet<Class<? extends DAObject>>();
 
     /**
      * The hash code's value of the associated metric metric plug-in.
@@ -480,7 +482,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @param l - the list of supported activation interfaces
      */
-    public void setActivationTypes(List<Class<? extends DAObject>> l) {
+    public void setActivationTypes(Set<Class<? extends DAObject>> l) {
         this.activationTypes = l;
     }
 
@@ -490,7 +492,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @return - the list of supported activation interfaces
      */
-    public List<Class<? extends DAObject>> getActivationTypes() {
+    public Set<Class<? extends DAObject>> getActivationTypes() {
         return this.activationTypes;
     }
 

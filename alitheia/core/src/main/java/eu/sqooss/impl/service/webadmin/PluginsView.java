@@ -962,7 +962,7 @@ public class PluginsView extends AbstractView{
         }
         // List the metric plug-in's activator types
         if (showActivators) {
-            List<Class<? extends DAObject>> activators =
+            Set<Class<? extends DAObject>> activators =
                 pluginInfo.getActivationTypes();
             // Skip if this plug-ins has no activators
             if (activators != null) {

@@ -51,5 +51,5 @@ public @interface MetricDeclarations {
 	/**
 	 * List of declared metrics.
 	 */
-	MetricDecl[] metrics();
+	MetricDecl[] metrics() default {};
 }

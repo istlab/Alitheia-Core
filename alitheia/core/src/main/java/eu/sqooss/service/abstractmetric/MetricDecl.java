@@ -67,4 +67,9 @@ public @interface MetricDecl {
 	 * The object type that activates the metric.
 	 */
 	Class<? extends DAObject> activator();
+	
+	/**
+	 * A list of metrics that this metric depends upon.
+	 */
+	String[] dependencies() default {};
 }
