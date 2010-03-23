@@ -1,3 +1,34 @@
+/*
+ * This file is part of the Alitheia system.
+ *
+ * Copyright 2009 - 2010 - Organization for Free and Open Source Software,  
+ * *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package eu.sqooss.metrics.discussionheat;
 
 import java.util.ArrayList;
@@ -12,9 +43,9 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
-import eu.sqooss.service.abstractmetric.MailingListThreadMetric;
+import eu.sqooss.service.abstractmetric.MetricDecl;
+import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
-import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DBService;
@@ -22,7 +53,6 @@ import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
@@ -33,8 +63,12 @@ import eu.sqooss.service.db.StoredProject;
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */ 
-public class DiscussionHeat extends AbstractMetric implements 
-    MailingListThreadMetric, ProjectVersionMetric {
+@MetricDeclarations(metrics={
+    @MetricDecl(mnemonic="VERLOC", activators={ProjectVersion.class}, descr="Locs changed in version", dependencies={"Wc.loc"}),
+    @MetricDecl(mnemonic="HOTNESS", activators={MailingListThread.class}, descr="Hotness level"),
+    @MetricDecl(mnemonic="HOTEFFECT", activators={MailingListThread.class}, descr="+/- loc change rate due to hot discussion")
+})
+public class DiscussionHeat extends AbstractMetric {
     
     private static final String thrDepth = "select distinct m.depth" +
     		" from MailMessage m, MailingListThread mt " +
@@ -58,26 +92,7 @@ public class DiscussionHeat extends AbstractMetric implements
     
     public DiscussionHeat(BundleContext bc) {
         super(bc);        
- 
-        super.addActivationType(MailingListThread.class);
-        super.addActivationType(ProjectVersion.class);
-        
-        super.addMetricActivationType("VERLOC", ProjectVersion.class);
-        super.addMetricActivationType("HOTNESS", MailingListThread.class);
-        super.addMetricActivationType("HOTEFFECT", MailingListThread.class);
         dbs = AlitheiaCore.getInstance().getDBService();
-    }
-    
-    public boolean install() {
-        boolean result = super.install();
-
-        result &= super.addSupportedMetrics("Hotness level",
-                "HOTNESS", MetricType.Type.THREAD);
-        result &= super.addSupportedMetrics("Locs changed in version",
-                "VERLOC", MetricType.Type.PROJECT_WIDE);
-        result &= super.addSupportedMetrics("+/- loc change rate due to hot discussion ",
-                "HOTEFFECT", MetricType.Type.THREAD);
-        return result;
     }
 
     public List<ResultEntry> getResult(MailingListThread mt, Metric m) {

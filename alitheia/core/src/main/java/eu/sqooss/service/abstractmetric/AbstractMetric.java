@@ -96,27 +96,19 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * metric jobs 
      */
     protected PluginAdmin pa;
-    
-    /** Metric dependencies */
-    private Set<String> metricDependencies = new HashSet<String>();
 
-    /**Types used to activate this metric*/
-    private Set<Class<? extends DAObject>> activationTypes = 
-        new HashSet<Class<? extends DAObject>>();
-   
-    /** Metric activation types */
-    private HashMap<String, Class<? extends DAObject>> metricActTypes = 
-        new HashMap<String, Class<? extends DAObject>>();
-   
-   /** Metric descriptions */
-   private HashMap<String,String> metricDescr = 
-	   new HashMap<String, String>();
-    
     /** 
      * Metric mnemonics for the metrics required to be present for this 
      * metric to operate.
      */
     private Set<String> dependencies = new HashSet<String>();
+    
+    /** Set of declared metrics indexed by their mnemonic*/
+    private Map<String, Metric> metrics = new HashMap<String, Metric>();
+    
+    /** The list of this plug-in's activators*/
+    private Set<Class<? extends DAObject>> activators = 
+        new HashSet<Class<? extends DAObject>>();
     
     /**
      * Init basic services common to all implementing classes
@@ -144,21 +136,29 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             log.error("Could not get a reference to the Plugin Administation "
                     + "service");
         
-        /*Descover the declared metrics*/
+        /*Discover the declared metrics*/
         MetricDeclarations md = this.getClass().getAnnotation(MetricDeclarations.class);
 
 		if (md != null && md.metrics().length > 0) {
 			for (MetricDecl metric : md.metrics()) {
-				log.debug("Found metric: " + metric.mnemonic() + "<"
-						+ metric.activator() + ">");
+				log.debug("Found metric: " + metric.mnemonic() + " with "
+						+ metric.activators().length + " activators");
 
-				metricActTypes.put(metric.mnemonic(), metric.activator());
-				activationTypes.add(metric.activator());
-
+				if (metrics.containsKey(metric.mnemonic())) {
+				    log.error("Duplicate metric mnemonic " + metric.mnemonic());
+				    continue;
+				}
+				
+				Metric m = new Metric();
+				m.setDescription(metric.descr());
+				m.setMnemonic(metric.mnemonic());
+				m.setMetricType(new MetricType(MetricType.fromActivator(metric.activators()[0])));
+			
+				activators.addAll(Arrays.asList(metric.activators()));
+				
+				metrics.put(m.getMnemonic(), m);
 				if (metric.dependencies().length > 0)
 					dependencies.addAll(Arrays.asList(metric.dependencies()));
-
-				metricDescr.put(metric.mnemonic(), metric.descr());
 			}
 		} else {
 			log.warn("Plug-in " + getName() + " declares no metrics");
@@ -231,7 +231,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         Result r = new Result();
         
         for (Metric m : l) {
-            if (!metricActTypes.keySet().contains(m.getMnemonic())) {
+            if (!metrics.containsKey(m.getMnemonic())) {
                 throw new MetricMismatchException("Metric " + m.getMnemonic()
                         + " not defined by plugin "
                         + Plugin.getPluginByHashcode(getUniqueKey()).getName());
@@ -598,7 +598,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
 
         /*Check if the metric has unsatisfied dependencies*/
-        for(String dep : metricDependencies) {
+        for(String dep : dependencies) {
             if (pa.getImplementingPlugin(dep) == null) {
                 log.error("No plug-in installed that implements the " + dep
                         + " metric");
@@ -616,7 +616,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         boolean result =  db.addRecord(p);
         
         //3. Add the metrics
-        for (String mnem : metricActTypes.keySet()) {
+        for (String mnem :metrics.keySet()) {
         	//addSupportedMetrics(desc, mnemonic, type)
         }
         
@@ -663,27 +663,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /**{@inheritDoc}*/
     public final Set<Class<? extends DAObject>> getActivationTypes() {
-        return activationTypes;
-    }
-
-    /**
-     * Add an activation type for the plug-in. Plug-ins can have multiple
-     * activation types, depending on which project resource they are 
-     * interested in. 
-     * 
-     * The activation types are not persisted across restarts, so this list
-     * must be instantiated in the metric's constructor. The order 
-     * at which activation types are added to the list corresponds to the order
-     * at which the metric is called on updates. 
-     *  
-     * @param c The activation type to register for the plug-in
-     */
-    protected final void addActivationType(Class<? extends DAObject> c) {
-        activationTypes.add(c);
-        // Call the Plug-in Admin only on started metric bundles
-        if (bc.getBundle().getState() == Bundle.ACTIVE) {
-            pa.pluginUpdated(this);
+        Set<Class<? extends DAObject>> activators = new HashSet<Class<? extends DAObject>>();
+        
+        for(Metric m : metrics.values()) {
+            activators.add(m.getMetricType().toActivator());
         }
+        
+        return activators;
     }
 
     /**
@@ -919,34 +905,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     
     /**{@inheritDoc}*/
     public final Class<? extends DAObject> getMetricActivationType(Metric m) {
-        if (!metricActTypes.containsKey(m.getMnemonic())) {
-            return null;
-        }
-        return metricActTypes.get(m.getMnemonic());
+        return metrics.get(m.getMnemonic()).getMetricType().toActivator();
     }
     
-    /**
-     * Update the mappings between metric and project resources against which
-     * metric results are stored against
-     * 
-     * @param mnemonic The metric mnemonic to update
-     * @param c The activation type for the provided mnemonic
-     */
-    public final void addMetricActivationType(String mnemonic, 
-            Class<? extends DAObject> c) {
-        if (!metricActTypes.containsKey(mnemonic)) {
-            metricActTypes.put(mnemonic, c);
-        }
-    }
-    
-    /**
-     * Add a dependency to another plug-in
-     * @param mnemonic The mnemonic of the metric this metric depends on
-     */
-    public final void addDependency(String mnemonic) {
-    	dependencies.add(mnemonic);
-    }
-
     /**
      * Check if the plug-in dependencies are satisfied
      */

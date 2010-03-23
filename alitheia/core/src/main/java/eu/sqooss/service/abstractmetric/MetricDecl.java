@@ -63,10 +63,12 @@ public @interface MetricDecl {
 	 */
 	String descr();
 	
-	/**
-	 * The object type that activates the metric.
-	 */
-	Class<? extends DAObject> activator();
+    /**
+     * A list of object types whose changes can activate the metric. By
+     * convention, the first entry is the entity to which the metric results are
+     * bound to.
+     */
+    Class<? extends DAObject>[] activators();
 	
 	/**
 	 * A list of metrics that this metric depends upon.

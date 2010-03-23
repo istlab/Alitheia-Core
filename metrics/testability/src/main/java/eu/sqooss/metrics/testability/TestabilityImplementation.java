@@ -3,7 +3,7 @@
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  * Written by Diomidis Spinellis.
  *
- * Copyright 2008 - Organization for Free and Open Source Software,
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,13 +59,13 @@ import eu.sqooss.service.fds.FileTypeMatcher;
 
 
 @MetricDeclarations(metrics = {
-	@MetricDecl(mnemonic="TEST", descr="", activator=ProjectFile.class)
+	@MetricDecl(mnemonic="TEST", descr="", activators={ProjectFile.class})
 })
 public class TestabilityImplementation extends AbstractMetric {
 
     private FDSService fds;
 
-    private static final String MNEMONIC_NCASES   = "Tst.n";
+    private static final String MNEMONIC_NCASES   = "TEST";
 
     public TestabilityImplementation(BundleContext bc) {
         super(bc);
@@ -73,7 +73,6 @@ public class TestabilityImplementation extends AbstractMetric {
         // Obtain file descriptors
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-
 
         fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
     }

@@ -2,7 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2008 - Organization for Free and Open Source Software,  *                Athens, Greece.
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ * *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -41,14 +42,15 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.metrics.modulemetrics.ModuleMetrics;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
+import eu.sqooss.service.abstractmetric.MetricDecl;
+import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.ProjectDirectory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFileState;
@@ -56,8 +58,14 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
-public class ModuleMetricsImplementation extends AbstractMetric implements
-        ModuleMetrics {
+@MetricDeclarations(metrics = {
+    @MetricDecl(mnemonic="MNOF", activators={ProjectDirectory.class, ProjectVersion.class}, descr="Number of Source Code Files in Module"),
+    @MetricDecl(mnemonic="MNOL", activators={ProjectDirectory.class, ProjectVersion.class}, descr="Number of lines in module", dependencies={"Wc.loc"}),
+    @MetricDecl(mnemonic="AMS", activators={ProjectVersion.class}, descr="Average Module Size"),
+    @MetricDecl(mnemonic="ISSRCMOD", activators={ProjectDirectory.class}, descr="Mark for modules containing source files")
+})
+
+public class ModuleMetricsImplementation extends AbstractMetric {
 
     // Mnemonic names of all metric dependencies
     private static String DEP_WC_LOC = "Wc.loc";
@@ -79,45 +87,11 @@ public class ModuleMetricsImplementation extends AbstractMetric implements
     public ModuleMetricsImplementation(BundleContext bc) {
         super(bc);
 
-        super.addActivationType(ProjectFile.class);
-        super.addActivationType(ProjectVersion.class);
-
-        super.addMetricActivationType(MET_MNOF, ProjectFile.class);
-        super.addMetricActivationType(MET_MNOL, ProjectFile.class);
-        super.addMetricActivationType(MET_AMS, ProjectVersion.class);
-        super.addMetricActivationType(MET_ISSRCMOD, ProjectVersion.class);
-        
-        // Define the plug-in dependencies
-        super.addDependency(DEP_WC_LOC);
-
         // Retrieve the instance of the Alitheia core service
         ServiceReference serviceRef = bc.getServiceReference(
                 AlitheiaCore.class.getName());
         if (serviceRef != null)
             core = (AlitheiaCore) bc.getService(serviceRef);
-    }
-
-    public boolean install() {
-        boolean result = super.install();
-        if (result) {
-            result &= super.addSupportedMetrics(
-                    "Number of Source Code Files in Module",
-                    MET_MNOF,
-                    MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics(
-                    "Mark for modules containing source files",
-                    MET_ISSRCMOD,
-                    MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics(
-                    "Number of lines in module",
-                    MET_MNOL,
-                    MetricType.Type.SOURCE_FOLDER);
-            result &= super.addSupportedMetrics(
-                    "Average Module Size",
-                    MET_AMS,
-                    MetricType.Type.PROJECT_WIDE);
-        }
-        return result;
     }
 
     public List<ResultEntry> getResult(ProjectFile pf, Metric m) {

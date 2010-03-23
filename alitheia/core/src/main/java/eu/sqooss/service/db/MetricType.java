@@ -58,37 +58,33 @@ public class MetricType extends DAObject {
     private Set<Metric> metrics;
 
 /**
- * An enumeration of the metric types:
- * <ul>
- * <li>SOURCE_CODE - Relates to SVN source files</li>
- * <li>SOURCE_FOLDER - Relates to SVN source folders</li>
- * <li>MAILING_LIST - Relates to email data</li>
- * <li>THREAD - Relates to email thread data</li>
- * <li>MAILMESSAGE - Relates to a signle email</li>
- * <li>BUG_DATABASE - Relates to BTS data</li>
- * <li>PROJECT_WIDE - Relates to all available data</li>
- *</ul>
+ * An enumeration of all possible metric types. Metric types map 
+ * to activation types, but not necessarily on a 1-1 basis.
  */
     public enum Type {
 
-        SOURCE_CODE, SOURCE_FOLDER, MAILING_LIST, BUG_DATABASE, PROJECT_WIDE,
-        THREAD, MAILMESSAGE;
+        PROJECT,
+        SOURCE_FILE,
+        SOURCE_DIRECTORY, 
+        MAILING_LIST,
+        BUG, PROJECT_VERSION,
+        MAILTHREAD, MAILMESSAGE;
 
         public static Type fromString(String s) {
-            if ("SOURCE_CODE".equals(s))
-                return Type.SOURCE_CODE;
-            if ("SOURCE_FOLDER".equals(s))
-                return Type.SOURCE_FOLDER;
+            if ("SOURCE_CODE".equals(s) || "SOURCE_FILE".equals(s))
+                return Type.SOURCE_FILE;
+            if ("SOURCE_FOLDER".equals(s) || "SOURCE_DIRECTORY".equals(s))
+                return Type.SOURCE_DIRECTORY;
             else if ("MAILING_LIST".equals(s))
                 return Type.MAILING_LIST;
-            else if ("BUG_DATABASE".equals(s))
-                return Type.BUG_DATABASE;
-            else if ("THREAD".equals(s))
-                return Type.THREAD;
+            else if ("BUG_DATABASE".equals(s) || "BUG".equals(s))
+                return Type.BUG;
+            else if ("THREAD".equals(s) || "MAILTHREAD".equals(s))
+                return Type.MAILTHREAD;
             else if ("MAILMESSAGE".equals(s))
                 return Type.MAILMESSAGE;
             else if ("PROJECT_WIDE".equals(s))
-                return Type.PROJECT_WIDE;
+                return Type.PROJECT_VERSION;
             else
                 return null;
         }
@@ -127,8 +123,8 @@ public class MetricType extends DAObject {
     }
 
     /**
-     * Get the corresponding DAO for the provided metric type
-     * @param t
+     * Get the corresponding DAO for the provided metric type.
+     * 
      * @return A MetricType DAO representing the metric type
      */
     public static MetricType getMetricType(Type t) {
@@ -143,6 +139,53 @@ public class MetricType extends DAObject {
             return result.get(0);
         }
     }
+
+    /**
+     * Single point of truth for conversions between the activation types 
+     * known to plug-ins and metric types used internally.
+     */
+	public static MetricType.Type fromActivator(Class<? extends DAObject> activator) {
+	    
+	   if (activator.equals(ProjectFile.class))
+	       return Type.SOURCE_FILE;
+	   if (activator.equals(ProjectDirectory.class))
+           return Type.SOURCE_DIRECTORY;
+	   if (activator.equals(ProjectVersion.class))
+	       return Type.PROJECT_VERSION;
+	   if (activator.equals(StoredProject.class))
+	       return Type.PROJECT;
+	   if (activator.equals(MailingList.class))
+	       return Type.MAILING_LIST;
+	   if (activator.equals(MailMessage.class))
+	       return Type.MAILMESSAGE;
+	   if (activator.equals(MailingListThread.class))
+	       return Type.MAILTHREAD;
+	   if (activator.equals(Bug.class))
+	       return Type.BUG;
+	   return null;
+	}
+	
+	public Class<? extends DAObject> toActivator() {
+	    switch(Type.fromString(this.type)) {
+	        case SOURCE_DIRECTORY:
+	            return ProjectDirectory.class;
+	        case SOURCE_FILE:
+	            return ProjectFile.class;
+	        case PROJECT_VERSION:
+	            return ProjectVersion.class;
+	        case PROJECT:
+	            return StoredProject.class;
+	        case MAILMESSAGE:
+	            return MailMessage.class;
+	        case MAILING_LIST:
+	            return MailingList.class;
+	        case MAILTHREAD:
+	            return MailingListThread.class;
+	        case BUG:
+	            return Bug.class;
+	    }
+	    return null;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

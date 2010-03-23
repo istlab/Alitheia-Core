@@ -197,9 +197,9 @@ public class MetricActivatorImpl  implements MetricActivator {
                 }
                 // Skip on a metric type which can not evaluate that resource
                 if ((metricType != null)
-                        && (metricType != Type.SOURCE_CODE)
-                        && (metricType != Type.SOURCE_FOLDER)
-                        && (metricType != Type.PROJECT_WIDE)){
+                        && (metricType != Type.SOURCE_FILE)
+                        && (metricType != Type.SOURCE_DIRECTORY)
+                        && (metricType != Type.PROJECT_VERSION)){
                     rule = rules.get(rule.getNextRule());
                     continue;
                 }
@@ -410,7 +410,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             
             for (Metric m : metrics) {
             	StringBuffer q = new StringBuffer();
-            	if (m.getMetricType().equals(MetricType.getMetricType(Type.PROJECT_WIDE))) {
+            	if (m.getMetricType().equals(MetricType.getMetricType(Type.PROJECT_VERSION))) {
             		q.append("select pv.id ") 
             		.append("from ProjectVersion pv ")
             		.append("where pv.project = :project ") 
@@ -419,8 +419,8 @@ public class MetricActivatorImpl  implements MetricActivator {
             		.append("from ProjectVersionMeasurement pvm ")
             		.append("where pvm.projectVersion.id = pv.id and pvm.metric.id = :metric) ") 
             		.append("order by pv.sequence asc");
-            		activationType = MetricType.Type.PROJECT_WIDE;
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.SOURCE_CODE))) {
+            		activationType = Type.PROJECT_VERSION;
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.SOURCE_FILE))) {
             		q.append("select pf.id") 
             		.append(" from ProjectVersion pv, ProjectFile pf")
             		.append(" where pf.projectVersion=pv and pv.project = :project") 
@@ -430,8 +430,8 @@ public class MetricActivatorImpl  implements MetricActivator {
             		.append("  where pfm.projectFile.id = pf.id and pfm.metric.id = :metric)")
             		.append(" and pf.isDirectory = false")  
             		.append(" order by pv.sequence asc" );
-            		activationType = MetricType.Type.SOURCE_CODE;
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(MetricType.Type.SOURCE_FOLDER))) {
+            		activationType = Type.SOURCE_FILE;
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.SOURCE_DIRECTORY))) {
             		q.append("select pf.id") 
             		.append(" from ProjectVersion pv, ProjectFile pf")
             		.append(" where pf.projectVersion=pv and pv.project = :project") 
@@ -441,7 +441,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             		.append("  where pfm.projectFile.id = pf.id and pfm.metric.id = :metric)")
             		.append(" and pf.isDirectory = true")  
             		.append(" order by pv.sequence asc" );
-            		activationType = MetricType.Type.SOURCE_FOLDER;
+            		activationType = Type.SOURCE_DIRECTORY;
             	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILING_LIST))) {
             		
             	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILMESSAGE))) {
@@ -453,7 +453,7 @@ public class MetricActivatorImpl  implements MetricActivator {
 					.append(" from MailMessageMeasurement mmm")
 					.append(" where mmm.metric.id =:metric")
 					.append(" and mmm.mail.id = mm.id))");
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(MetricType.Type.THREAD))) {
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILTHREAD))) {
             		q.append("select mlt.id ")
             		.append("from MailingListThread mlt ") 
             		.append("where mlt.list.storedProject = :project ") 
@@ -462,7 +462,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             		.append("from MailingListThreadMeasurement mltm ")
             		.append("where mltm.metric.id =:metric ")
             		.append("and mltm.thread.id = mlt.id)" );
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(MetricType.Type.BUG_DATABASE))) {
+            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.BUG))) {
 
             	}
                 params.put("metric", m.getId());
@@ -523,13 +523,13 @@ public class MetricActivatorImpl  implements MetricActivator {
         maxPriority.put(StoredProject.class, 0x1E000000);
         
         metricTypesToActivators = new HashMap<Type, Class<? extends DAObject>>();
-        metricTypesToActivators.put(Type.SOURCE_FOLDER, ProjectFile.class);
-        metricTypesToActivators.put(Type.SOURCE_CODE, ProjectFile.class);
-        metricTypesToActivators.put(Type.BUG_DATABASE, Bug.class);
-        metricTypesToActivators.put(Type.PROJECT_WIDE, ProjectVersion.class);
+        metricTypesToActivators.put(Type.SOURCE_DIRECTORY, ProjectFile.class);
+        metricTypesToActivators.put(Type.SOURCE_FILE, ProjectFile.class);
+        metricTypesToActivators.put(Type.BUG, Bug.class);
+        metricTypesToActivators.put(Type.PROJECT_VERSION, ProjectVersion.class);
         metricTypesToActivators.put(Type.MAILING_LIST, MailingList.class);
         metricTypesToActivators.put(Type.MAILMESSAGE, MailMessage.class);
-        metricTypesToActivators.put(Type.THREAD, MailingListThread.class);
+        metricTypesToActivators.put(Type.MAILTHREAD, MailingListThread.class);
 	}
 
 	@Override

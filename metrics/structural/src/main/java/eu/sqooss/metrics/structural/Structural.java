@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2009 - Organization for Free and Open Source Software,  
+ * Copyright 2009 - 2010 - Organization for Free and Open Source Software,  
  * *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,20 +31,6 @@
  *
  */
 
-/*
-** That copyright notice makes sense for SQO-OSS paricipants but
-** not for everyone. For the Squeleton plug-in only, the Copyright
-** notice may be removed and replaced by a statement of your own
-** with (compatible) license terms as you see fit; the Squeleton
-** plug-in itself is insufficiently a creative work to be protected
-** by Copyright.
-*/
-
-/* This is the package for this particular plug-in. Third-party
-** applications will want a different package name, but it is
-** *ESSENTIAL* that the package name contain the string 'metrics'
-** because this is hard-coded in parts of the Alitheia core.
-*/
 package eu.sqooss.metrics.structural;
 
 import java.io.BufferedInputStream;
@@ -68,11 +54,11 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.MetricDecl;
+import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.fds.FDSService;
@@ -83,8 +69,27 @@ import eu.sqooss.service.util.FileUtils;
  * The Structural complexity metrics suite implement standard complexity
  * metrics such as McCabe's Cyclomatic Complexity and Halstead's Software
  * science metrics.
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
  */ 
-public class Structural extends AbstractMetric implements ProjectFileMetric {
+
+@MetricDeclarations( metrics={
+    @MetricDecl(mnemonic="MCC_TOTAL", activators={ProjectFile.class}, descr="Total McCabe Cyclomatic Complexity"),
+    @MetricDecl(mnemonic="MCC_MAX", activators={ProjectFile.class}, descr="Max McCabe Cyclomatic Complexity"),
+    @MetricDecl(mnemonic="EMCC_TOTAL", activators={ProjectFile.class}, descr="Total Extended McCabe Cyclomatic Complexity"),
+    @MetricDecl(mnemonic="EMCC_MAX", activators={ProjectFile.class}, descr="Max Extended McCabe Cyclomatic Complexity"),
+    @MetricDecl(mnemonic="NUMFUN", activators={ProjectFile.class}, descr="Number of functions"),
+    @MetricDecl(mnemonic="HN", activators={ProjectFile.class}, descr="Halstead Length"),
+    @MetricDecl(mnemonic="HVS", activators={ProjectFile.class}, descr="Halstead vocabulary size"),
+    @MetricDecl(mnemonic="HV", activators={ProjectFile.class}, descr="Halstead Volume"),
+    @MetricDecl(mnemonic="HD", activators={ProjectFile.class}, descr="Halstead Difficulty Level"),
+    @MetricDecl(mnemonic="HL", activators={ProjectFile.class}, descr="Halstead Program Level"),
+    @MetricDecl(mnemonic="HE", activators={ProjectFile.class}, descr="Halstead Effort"),
+    @MetricDecl(mnemonic="HT", activators={ProjectFile.class}, descr="Halstead Time"),
+    @MetricDecl(mnemonic="HB", activators={ProjectFile.class}, descr="Halstead Bugs Derived")
+})
+public class Structural extends AbstractMetric {
+    
     protected static String MNEM_CC_T = "MCC_TOTAL";
     protected static String MNEM_CC_MAX = "MCC_MAX";
     
@@ -131,23 +136,6 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
     
     public Structural(BundleContext bc) {
         super(bc);
-        super.addActivationType(ProjectFile.class);
-        
-        super.addMetricActivationType(MNEM_CC_T, ProjectFile.class);
-        super.addMetricActivationType(MNEM_CC_MAX, ProjectFile.class);
-        super.addMetricActivationType(MNEM_ECC_T, ProjectFile.class);
-        super.addMetricActivationType(MNEM_ECC_MAX, ProjectFile.class);
-        
-        super.addMetricActivationType(MNEM_NUM_FUN, ProjectFile.class);
-        
-        super.addMetricActivationType(MNEM_HN, ProjectFile.class);
-        super.addMetricActivationType(MNEM_HVS, ProjectFile.class);
-        super.addMetricActivationType(MNEM_HV, ProjectFile.class);
-        super.addMetricActivationType(MNEM_HD, ProjectFile.class);
-        super.addMetricActivationType(MNEM_HL, ProjectFile.class);
-        super.addMetricActivationType(MNEM_HE, ProjectFile.class);
-        super.addMetricActivationType(MNEM_HT, ProjectFile.class);
-        super.addMetricActivationType(MNEM_HB, ProjectFile.class);
         
         InputStream is = null;
         Properties p = new Properties();
@@ -174,53 +162,6 @@ public class Structural extends AbstractMetric implements ProjectFileMetric {
         }
         
         fileDAO = new ThreadLocal<ProjectFile>();
-    }
-    
-    public boolean install() {
-        boolean result = super.install();
-        
-        if (result) {
-            result &= super.addSupportedMetrics(
-                    "Total McCabe Cyclomatic Complexity", 
-                    MNEM_CC_T, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Max McCabe Cyclomatic Complexity", 
-                    MNEM_CC_MAX, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Total Extended McCabe Cyclomatic Complexity", 
-                    MNEM_ECC_T, MetricType.Type.SOURCE_CODE);            
-            result &= super.addSupportedMetrics(
-                    "Max Extended McCabe Cyclomatic Complexity", 
-                    MNEM_ECC_MAX, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Number of functions", 
-                    MNEM_NUM_FUN, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Halstead Length", 
-                    MNEM_HN, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Halstead vocabulary size", 
-                    MNEM_HVS, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Halstead Volume", 
-                    MNEM_HV, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Halstead Difficulty Level", 
-                    MNEM_HD, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Halstead Program Level", 
-                    MNEM_HL, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Halstead Effort", 
-                    MNEM_HE, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Halstead Time", 
-                    MNEM_HT, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics(
-                    "Halstead Bugs Derived", 
-                    MNEM_HB, MetricType.Type.SOURCE_CODE);
-        }
-        return result;
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {        

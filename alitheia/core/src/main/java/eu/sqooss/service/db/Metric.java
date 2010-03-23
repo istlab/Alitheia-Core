@@ -174,17 +174,17 @@ public class Metric extends DAObject {
 		StringBuffer query = new StringBuffer();
 
 		switch (metricType.getEnumType()) {
-		case PROJECT_WIDE:
+		case PROJECT_VERSION:
 			query.append("select pvm from ProjectVersionMeasurement pvm ")
 				 .append("where pvm.metric=:metric and pvm.projectVersion.project=:project");
 			break;
-		case SOURCE_CODE:
-		case SOURCE_FOLDER:
+		case SOURCE_FILE:
+		case SOURCE_DIRECTORY:
 			query.append("select pfm from ProjectFileMeasurement pfm ")
 				 .append("where pfm.metric=:metric ")
 				 .append("and pfm.projectFile.projectVersion.project=:project");
 			break;
-		case THREAD:
+		case MAILTHREAD:
 			query.append("select mltm from MailingListThreadMeasurement mltm ")
 				 .append("where mltm.metric=:metric ")
 				 .append("and mltm.thread.list.storedProject=:project");
@@ -194,7 +194,7 @@ public class Metric extends DAObject {
 				.append("where mmm.metric=:metric")
 				.append("and mmm.mail.list.storedProject=:project");
 			break;
-		case BUG_DATABASE:
+		case BUG:
 		case MAILING_LIST:
 			return false; //No DAOs have been created for those types yet
 		}

@@ -374,9 +374,9 @@ public class InvocationRule extends DAObject {
     private static boolean isSingleScope(String value, Type type) {
         if (value != null) {
             switch (type) {
-            case PROJECT_WIDE:
-            case SOURCE_CODE:
-            case SOURCE_FOLDER:
+            case PROJECT_VERSION:
+            case SOURCE_FILE:
+            case SOURCE_DIRECTORY:
                 try {
                     new Long(value); return true;
                 }
@@ -408,9 +408,9 @@ public class InvocationRule extends DAObject {
     private static boolean isRangeScope(String value, Type type) {
         if (value != null) {
             switch (type) {
-            case PROJECT_WIDE:
-            case SOURCE_CODE:
-            case SOURCE_FOLDER:
+            case PROJECT_VERSION:
+            case SOURCE_FILE:
+            case SOURCE_DIRECTORY:
                 String[] values = value.split("-");
                 if (values.length == 2) {
                     for (String nextVal : values) {
@@ -449,9 +449,9 @@ public class InvocationRule extends DAObject {
     private static boolean isListScope(String value, Type type) {
         if (value != null) {
             switch (type) {
-            case PROJECT_WIDE:
-            case SOURCE_CODE:
-            case SOURCE_FOLDER:
+            case PROJECT_VERSION:
+            case SOURCE_FILE:
+            case SOURCE_DIRECTORY:
                 String[] values = value.split(",");
                 if (values.length > 1) {
                     for (String nextVal : values) {

@@ -49,12 +49,13 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.contrib.ContributionActions.ActionCategory;
 import eu.sqooss.metrics.contrib.ContributionActions.ActionType;
-import eu.sqooss.metrics.contrib.ContributionMetric;
 import eu.sqooss.metrics.contrib.db.ContribAction;
 import eu.sqooss.metrics.contrib.db.ContribActionType;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
+import eu.sqooss.service.abstractmetric.MetricDecl;
+import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
@@ -79,8 +80,13 @@ import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffChunk;
 import eu.sqooss.service.tds.SCMAccessor;
 
-public class ContributionMetricImpl extends AbstractMetric implements
-        ContributionMetric {
+@MetricDeclarations(metrics={
+    @MetricDecl(mnemonic="CONTRIB", descr="Developer Contribution Metric",
+            dependencies={"Wc.loc"}, 
+            activators={Developer.class, ProjectVersion.class, 
+                        MailingListThread.class, Bug.class})
+})
+public class ContributionMetricImpl extends AbstractMetric {
 
      /** Number of files after which a commit is considered too big */
     public static final String CONFIG_CMF_THRES = "CMF_threshold";
@@ -90,24 +96,11 @@ public class ContributionMetricImpl extends AbstractMetric implements
     
     public ContributionMetricImpl(BundleContext bc) {
         super(bc);
-        super.addActivationType(ProjectVersion.class);
-        super.addActivationType(Developer.class);
-        super.addActivationType(MailingListThread.class);
-        super.addActivationType(Bug.class);
-        
-        super.addMetricActivationType("CONTRIB", Developer.class);
-        
-        super.addDependency("Wc.loc");   
     }
     
     public boolean install() {
     	 boolean result = super.install();
          if (result) {
-             result &= super.addSupportedMetrics(
-                     "Developer Contribution Metric",
-                     METRIC_CONTRIB,
-                     MetricType.Type.PROJECT_WIDE);
-         
              addConfigEntry(CONFIG_CMF_THRES, 
                  "5" , 
                  "Number of committed files above which the developer is " +

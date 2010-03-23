@@ -2,7 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2008 - Organization for Free and Open Source Software,  *                Athens, Greece.
+ * Copyright 2010 - Organization for Free and Open Source Software,  
+ *                 Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -29,12 +30,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+package eu.sqooss.service.db;
 
-package eu.sqooss.metrics.wc;
+/**
+ * A DAO that does not map to the database, only used as an activator type.
+ * Use {@link ProjectFile} instead for real implementations.
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
+ *
+ */
+public class ProjectDirectory extends ProjectFile {
 
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
-import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
-
-public interface Wc extends ProjectFileMetric, ProjectVersionMetric {
-    
 }

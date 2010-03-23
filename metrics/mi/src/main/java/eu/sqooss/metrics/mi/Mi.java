@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 - Organization for Free and Open Source Software,  
+ * Copyright 2009 - 2010 - Organization for Free and Open Source Software,  
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,20 +28,6 @@
  *
  */
 
-/*
-** That copyright notice makes sense for SQO-OSS paricipants but
-** not for everyone. For the Squeleton plug-in only, the Copyright
-** notice may be removed and replaced by a statement of your own
-** with (compatible) license terms as you see fit; the Squeleton
-** plug-in itself is insufficiently a creative work to be protected
-** by Copyright.
-*/
-
-/* This is the package for this particular plug-in. Third-party
-** applications will want a different package name, but it is
-** *ESSENTIAL* that the package name contain the string 'metrics'
-** because this is hard-coded in parts of the Alitheia core.
-*/
 package eu.sqooss.metrics.mi;
 
 import java.util.ArrayList;
@@ -54,14 +40,14 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
-import eu.sqooss.service.abstractmetric.ProjectVersionMetric;
+import eu.sqooss.service.abstractmetric.MetricDecl;
+import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.ProjectDirectory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFileState;
@@ -78,8 +64,14 @@ import eu.sqooss.service.fds.FileTypeMatcher;
  * 
  * @author Georgios Gousios - <gousiosg@gmail.com>
  */ 
-public class Mi extends AbstractMetric implements ProjectFileMetric, 
-    ProjectVersionMetric {
+@MetricDeclarations(metrics={
+    @MetricDecl(mnemonic="MI", activators={ProjectVersion.class}, 
+            dependencies={"MODMI"}, descr="Maintainability Index for the project"),
+    @MetricDecl(mnemonic="MODMI", activators={ProjectDirectory.class}, 
+            dependencies={"Wc.loc", "Wc.locom", "EMCC_TOTAL", "HV", "ISSRCMOD"}, 
+            descr="Maintainability Index for a module")
+})
+public class Mi extends AbstractMetric {
     
     /*Metrics defined*/
     private static String MNEMONIC_MI = "MI";
@@ -94,37 +86,8 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
         
     public Mi(BundleContext bc) {
         super(bc);        
- 
-        super.addActivationType(ProjectFile.class);
-        super.addActivationType(ProjectVersion.class);
-        
-        super.addMetricActivationType(MNEMONIC_MI, ProjectVersion.class);
-        super.addMetricActivationType(MNEMONIC_MODMI, ProjectFile.class);
-        
-        super.addDependency(MNEM_LOCOM);
-        super.addDependency(MNEM_ECC);
-        super.addDependency(MNEM_HV);
-        super.addDependency(MNEM_ISSRC);
-        super.addDependency(MNEM_LOC);
     }
     
-    public boolean install() {
-        //This should always be called to run various init tasks
-        boolean result = super.install();
-        
-        if (result) {
-            result &= super.addSupportedMetrics(
-                    "Maintainability Index for the project",
-                    MNEMONIC_MI,
-                    MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics(
-                    "Maintainability Index for a module",
-                    MNEMONIC_MODMI,
-                    MetricType.Type.SOURCE_FOLDER);
-        }
-        return result;
-    }
-
     public List<ResultEntry> getResult(ProjectFile pf, Metric m) {
         // Prepare an array for storing the retrieved measurement results
         ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
@@ -164,10 +127,7 @@ public class Mi extends AbstractMetric implements ProjectFileMetric,
         Metric issrc = Metric.getMetricByMnemonic(MNEM_ISSRC);
         Integer result = getResult(modulemetrics, issrc, pf, Integer.class);
 
-        if (result == null)
-            return;
-
-        if (result == 0)
+        if (result == null || result == 0)
             return;
 
         /* We now know that we are working with a dir*/

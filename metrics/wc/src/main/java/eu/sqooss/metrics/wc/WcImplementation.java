@@ -2,7 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2008 - Organization for Free and Open Source Software,  *                Athens, Greece.
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ *                  Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -29,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 package eu.sqooss.metrics.wc;
 
 import java.io.File;
@@ -50,12 +50,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.metrics.wc.Wc;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
+import eu.sqooss.service.abstractmetric.MetricDecl;
+import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectFileState;
@@ -64,7 +64,20 @@ import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
-public class WcImplementation extends AbstractMetric implements Wc {
+@MetricDeclarations(metrics= {
+	@MetricDecl(mnemonic="Wc.loc", activators={ProjectFile.class}, descr="Total lines"),
+	@MetricDecl(mnemonic="Wc.locom", activators={ProjectFile.class}, descr="Comment lines"),
+	@MetricDecl(mnemonic="Wc.lonb", activators={ProjectFile.class}, descr="Non-blank lines"),
+	@MetricDecl(mnemonic="Wc.words", activators={ProjectFile.class}, descr="Total words"),
+	@MetricDecl(mnemonic="NOF", activators={ProjectVersion.class}, descr="Number of Files"),
+	@MetricDecl(mnemonic="NOSF", activators={ProjectVersion.class}, descr="Number of Source Code Files"),
+	@MetricDecl(mnemonic="NODF", activators={ProjectVersion.class}, descr="Number of Documentation Files"),
+	@MetricDecl(mnemonic="TL", activators={ProjectVersion.class}, descr="Total Number of Lines"),
+	@MetricDecl(mnemonic="TLOC", activators={ProjectVersion.class}, descr="Total Lines of Code"),
+	@MetricDecl(mnemonic="TLOCOM", activators={ProjectVersion.class}, descr="Total Lines of Comments"),
+	@MetricDecl(mnemonic="TLDOC", activators={ProjectVersion.class}, descr="Total Number of Documentation Lines")
+})
+public class WcImplementation extends AbstractMetric {
     
     private FDSService fds;
     private FileTypeMatcher ftm = FileTypeMatcher.getInstance();
@@ -87,21 +100,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
     /*Implements Ohloh in 500 lines*/
     public WcImplementation(BundleContext bc) {
         super(bc);
-        super.addActivationType(ProjectFile.class);
-        super.addActivationType(ProjectVersion.class);
-        
-        super.addMetricActivationType(MNEMONIC_WC_PV_NOF, ProjectVersion.class);
-        super.addMetricActivationType(MNEMONIC_WC_PV_NOSF, ProjectVersion.class);
-        super.addMetricActivationType(MNEMONIC_WC_PV_NODF, ProjectVersion.class);
-        super.addMetricActivationType(MNEMONIC_WC_PV_TL, ProjectVersion.class);
-        super.addMetricActivationType(MNEMONIC_WC_PV_TLOC, ProjectVersion.class);
-        super.addMetricActivationType(MNEMONIC_WC_PV_TLOCOM, ProjectVersion.class);
-        super.addMetricActivationType(MNEMONIC_WC_PV_TLDOC, ProjectVersion.class);
-        
-        super.addMetricActivationType(MNEMONIC_WC_LOC, ProjectFile.class);
-        super.addMetricActivationType(MNEMONIC_WC_LOCOM, ProjectFile.class);
-        super.addMetricActivationType(MNEMONIC_WC_LONB, ProjectFile.class);
-        super.addMetricActivationType(MNEMONIC_WC_WORDS, ProjectFile.class);
         
         ServiceReference serviceRef = null;
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
@@ -114,37 +112,6 @@ public class WcImplementation extends AbstractMetric implements Wc {
         addCommentDelimiters("c",new String[]{null,"/\\*","\\*/"});
         addCommentDelimiters("py|sh|pl|rb",new String[]{"#",null,null});
         addCommentDelimiters("html|xml|xsl",new String[]{null,"<!--","-->"});
-    }
-
-    public boolean install() {
-        boolean result = super.install();
-        if (result) {
-            result &= super.addSupportedMetrics("Total lines",
-                    MNEMONIC_WC_LOC, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Comment lines",
-                    MNEMONIC_WC_LOCOM, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Non-blank lines", 
-                    MNEMONIC_WC_LONB, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Total words", 
-                    MNEMONIC_WC_WORDS, MetricType.Type.SOURCE_CODE);
-            result &= super.addSupportedMetrics("Number of Files", 
-                    MNEMONIC_WC_PV_NOF, MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Number of Source Code Files",
-                    MNEMONIC_WC_PV_NOSF, MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics(
-                    "Number of Documentation Files", 
-                    MNEMONIC_WC_PV_NODF,MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Total Number of Lines", 
-                    MNEMONIC_WC_PV_TL, MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics(
-                    "Total Number of Documentation Lines", 
-                    MNEMONIC_WC_PV_TLDOC, MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Total Lines of Code", 
-                    MNEMONIC_WC_PV_TLOC, MetricType.Type.PROJECT_WIDE);
-            result &= super.addSupportedMetrics("Total Lines of Comments", 
-                    MNEMONIC_WC_PV_TLOCOM, MetricType.Type.PROJECT_WIDE);
-        }
-        return result;
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
