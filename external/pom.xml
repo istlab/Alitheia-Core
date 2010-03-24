@@ -26,6 +26,7 @@
     <module>c3p0</module>
     <module>org.hibernate.core</module>
     <module>log4j</module>
+    <module>org.jboss.resteasy</module>
   </modules>
 
   <build>
