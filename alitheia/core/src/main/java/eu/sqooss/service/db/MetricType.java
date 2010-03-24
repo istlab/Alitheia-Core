@@ -68,7 +68,8 @@ public class MetricType extends DAObject {
         SOURCE_DIRECTORY, 
         MAILING_LIST,
         BUG, PROJECT_VERSION,
-        MAILTHREAD, MAILMESSAGE;
+        MAILTHREAD, MAILMESSAGE,
+        DEVELOPER;
 
         public static Type fromString(String s) {
             if ("SOURCE_CODE".equals(s) || "SOURCE_FILE".equals(s))
@@ -83,8 +84,10 @@ public class MetricType extends DAObject {
                 return Type.MAILTHREAD;
             else if ("MAILMESSAGE".equals(s))
                 return Type.MAILMESSAGE;
-            else if ("PROJECT_WIDE".equals(s))
+            else if ("PROJECT_WIDE".equals(s) || "PROJECT_VERSION".equals(s))
                 return Type.PROJECT_VERSION;
+            else if ("DEVELOPER".equals(s))
+            	return Type.DEVELOPER;
             else
                 return null;
         }
@@ -162,6 +165,8 @@ public class MetricType extends DAObject {
 	       return Type.MAILTHREAD;
 	   if (activator.equals(Bug.class))
 	       return Type.BUG;
+	   if (activator.equals(Developer.class))
+		   return Type.DEVELOPER;
 	   return null;
 	}
 	
@@ -183,6 +188,8 @@ public class MetricType extends DAObject {
 	            return MailingListThread.class;
 	        case BUG:
 	            return Bug.class;
+	        case DEVELOPER:
+	        	return Developer.class;
 	    }
 	    return null;
 	}

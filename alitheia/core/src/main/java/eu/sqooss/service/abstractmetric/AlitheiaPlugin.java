@@ -89,24 +89,6 @@ import eu.sqooss.service.db.PluginConfiguration;
  *   <li>Developer</li>
  *  </ul>
  *
- * As a result, all metric plug-in implementations must implement at least two
- * interfaces:
- *  <ul>
- *      <li>This interface</li>
- *      <li>One or more of the following interfaces, depending on the type of
- *      the resource the metric plug-in is bound to</li>
- *      <ul>
- *          <li>{@link StoredProjectMetric}</li>
- *          <li>{@link ProjectVersionMetric}</li>
- *          <li>{@link ProjectFileMetric}</li>
- *          <li>{@link FileGroupMetric}</li>
- *          <li>{@link MailingListMetric}</li>
- *          <li>{@link MailMetric}</li>
- *          <li>{@link BugMetric}</li>
- *          <li>{@link DeveloperMetric}</li>
- *      </ul>
- *  </ul>
- *
  */
 public interface AlitheiaPlugin {
 

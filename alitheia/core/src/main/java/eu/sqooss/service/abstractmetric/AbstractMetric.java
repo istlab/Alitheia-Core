@@ -34,6 +34,9 @@ package eu.sqooss.service.abstractmetric;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +49,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -67,6 +69,7 @@ import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
@@ -507,46 +510,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 "\nReason:" + e.getCause().getMessage(), e);
     }
 
-    /**
-     * Add a supported metric description to the database. The mnemonic of
-     * the metric must be unique -- this is enforced by the code. It is 
-     * therefore a good idea to namespace your metric mnemonics in some way.
-     *
-     * @param desc String description of the metric
-     * @param mnemonic Mnemonic string name of the metric
-     * @param type The metric type of the supported metric
-     * @return True if the operation succeeds, false otherwise (e.g. duplicate
-     *         mnemonic or bad metric type)
-     */
-    protected final boolean addSupportedMetrics(String desc, String mnemonic,
-            MetricType.Type type) {
-        /* NOTE: In its current status the DB doesn't provide predefined
-         *       metric type records. Therefore the following block is
-         *       used to create them explicitly when required.
-         */
-        if (MetricType.getMetricType(type) == null) {
-            MetricType newType = new MetricType(type);
-            db.addRecord(newType);
-        }
-        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
-        Metric m = new Metric();
-        m.setDescription(desc);
-        m.setMnemonic(mnemonic);
-        m.setMetricType(MetricType.getMetricType(type));
-        m.setPlugin(p);
-                
-        return p.getSupportedMetrics().add(m);
-    }
 
-    /**
-     * Get the description objects for all metrics supported by this plug-in
-     * as found in the database.
-     *
-     * @return the list of metric descriptors, or null if none
-     */
+    /** {@inheritDoc} */
     public List<Metric> getAllSupportedMetrics() {
         List<Metric> supportedMetrics = new ArrayList<Metric>();
-        supportedMetrics.addAll( Plugin.getPluginByHashcode(getUniqueKey()).getSupportedMetrics() );
+        supportedMetrics.addAll(
+        		Plugin.getPluginByHashcode(getUniqueKey()).getSupportedMetrics());
 
         if (supportedMetrics.isEmpty()) {
             return null;
@@ -617,7 +586,18 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         
         //3. Add the metrics
         for (String mnem :metrics.keySet()) {
-        	//addSupportedMetrics(desc, mnemonic, type)
+        	Metric m = metrics.get(mnem);
+        	Type type = Type.fromString(m.getMetricType().getType());
+        	MetricType newType = MetricType.getMetricType(type);
+        	if (newType == null) {
+                newType = new MetricType(type);
+                db.addRecord(newType);
+                m.setMetricType(newType);
+            }
+        	
+        	m.setMetricType(newType);
+        	m.setPlugin(p);
+        	db.addRecord(m);
         }
         
         return result;
@@ -662,13 +642,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
 
     /**{@inheritDoc}*/
-    public final Set<Class<? extends DAObject>> getActivationTypes() {
-        Set<Class<? extends DAObject>> activators = new HashSet<Class<? extends DAObject>>();
-        
-        for(Metric m : metrics.values()) {
-            activators.add(m.getMetricType().toActivator());
-        }
-        
+    public final Set<Class<? extends DAObject>> getActivationTypes() {    
         return activators;
     }
 
@@ -676,7 +650,18 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Return an MD5 hex key uniquely identifying the plug-in
      */
     public final String getUniqueKey() {
-        return DigestUtils.md5Hex(this.getClass().getCanonicalName());
+    	MessageDigest m = null;
+		try {
+			m = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			log.error("Cannot find a valid implementation of the MD5 " +
+					"hash algorithm");
+		}
+    	String name = this.getClass().getCanonicalName();
+		byte[] data = name.getBytes(); 
+		m.update(data,0,data.length);
+		BigInteger i = new BigInteger(1,m.digest());
+		return String.format("%1$032X", i);
     }
 
     /** {@inheritDoc} */
