@@ -22,11 +22,12 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Embed-Dependency>*;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium|servlet-api|junit</Embed-Dependency>
             <Export-Package>
 				eu.sqooss.rest
             </Export-Package>
             <Import-Package>
-                *
+                *;resolution:=optional
             </Import-Package>
             <Bundle-Activator>eu.sqooss.rest.Activator</Bundle-Activator>
             <Bundle-SymbolicName>eu.sqooss.rest</Bundle-SymbolicName>
@@ -63,30 +64,36 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.6</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.5</version>
-      <type>jar</type>
     </dependency>
-    <dependency>
-     <groupId>javax.ws.rs</groupId>
-     <artifactId>jsr311-api</artifactId>
-     <version>1.1.1</version>
-     <type>jar</type>
-    </dependency>   
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jaxrs</artifactId>
       <version>1.2.1.GA</version>
-      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxb-provider</artifactId>
+      <version>1.2.GA</version>
    </dependency>
     <dependency>
-    	<groupId>eu.sqooss.alitheia</groupId>
-    	<artifactId>core</artifactId>
-    	<version>0.95</version>
+      <groupId>org.scannotation</groupId>
+      <artifactId>scannotation</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>jsr311-api</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.95</version>
     </dependency>
   </dependencies>
 </project>

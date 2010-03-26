@@ -15,16 +15,14 @@ import eu.sqooss.service.logging.Logger;
 
 public class Activator implements BundleActivator {
 
-	private Logger log = AlitheiaCore.getInstance().getLogManager().createLogger("rest");
-	
 	private ServiceTracker osgiServiceTracker;
-	
-	private static ResteasyServlet bridge = null;
 	
 	@SuppressWarnings("unchecked")
 	public void start(BundleContext bc) throws Exception {
+	   
+	    Logger log = AlitheiaCore.getInstance().getLogManager().createLogger("rest");
 		log.info("Starting bundle " + bc.getBundle().getSymbolicName() 
-				+ " [" + bc.getBundle().getVersion() + "]");
+				+ " [" + bc.getBundle() + "]");
 		
 		HttpService http = null;
 		ServiceReference httpRef = bc.getServiceReference(
@@ -36,9 +34,10 @@ public class Activator implements BundleActivator {
 			log.error("Could not find a HTTP service!");
 			return;
 		}
-
+		
+		ResteasyServlet bridge = new ResteasyServlet();
 		try {
-			http.registerServlet("/api", new ResteasyServlet(),
+			http.registerServlet("/api", bridge,
 					new Hashtable(), null);
 		} catch (Exception e) {
 			log.error("Error registering ResteasyServlet", e);
@@ -54,11 +53,11 @@ public class Activator implements BundleActivator {
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		log.info("Stopping bundle " + context.getBundle().getSymbolicName() + " [" + context.getBundle().getVersion() + "]");
+		//log.info("Stopping bundle " + context.getBundle().getSymbolicName() + " [" + context.getBundle() + "]");
 		
 		osgiServiceTracker.close();
 		osgiServiceTracker = null;
 		
-		log.info("Bundle stopped sucessfully");
+		//log.info("Bundle stopped sucessfully");
 	}
 }

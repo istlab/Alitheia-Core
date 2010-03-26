@@ -52,6 +52,7 @@
     <!-- If fast, only one randomly chosen metric per plug-in will be queried
     to determine whether recalculation is necessary. Slow is safer, but, well, slower-->
     <eu.sqooss.metricactivator.sync>slow</eu.sqooss.metricactivator.sync>
+    <javax.ws.rs.ext.RuntimeDelegate>org.jboss.resteasy.spi.ResteasyProviderFactory</javax.ws.rs.ext.RuntimeDelegate>
   </properties>
   
   <packaging>pom</packaging>
