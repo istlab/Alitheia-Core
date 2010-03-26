@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.rest;
+package eu.sqooss.rest.api;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -48,15 +48,15 @@ public class RestServiceApp extends Application {
 	}
 	
 	public static void addServiceObject(Class<?> object) {
-		if (! serviceObjects.contains(object))
-			serviceObjects.add(object);
+		serviceObjects.add(object);
 	}
 	
 	@Override
 	public Set<Class<?>> getClasses() {
 		return serviceObjects;
-	} 
+	}
 	
+	@Override
 	public Set<Object> getSingletons() {
 		return null;
 	}

@@ -1,8 +1,5 @@
 package eu.sqooss.rest;
 
-import eu.sqooss.rest.impl.ResteasyServiceImpl;
-
-
 public interface ResteasyService {
 	
 	/**

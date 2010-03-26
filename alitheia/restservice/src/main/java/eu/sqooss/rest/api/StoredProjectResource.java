@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.rest;
+package eu.sqooss.rest.api;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,6 +55,7 @@ public class StoredProjectResource {
 	
 	@GET
 	@Produces("application/xml")
+	@Path("*")
 	public List<StoredProject> getProjects() {
 		return Collections.EMPTY_LIST;
 	}

@@ -1,6 +1,7 @@
 package eu.sqooss.rest.impl;
 
 import javax.servlet.ServletContext;
+import javax.ws.rs.core.Application;
 
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.spi.Registry;
@@ -8,10 +9,6 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import eu.sqooss.rest.ResteasyService;
 
-/**
- * ResteasyService provides interface to the internal RESTEasy implementation.
- * @author <a href="mailto:baldin@gmail.com">Davi Baldin H. Tavares</a> 
- */
 public class ResteasyServiceImpl implements ResteasyService {
 	
 	private ServletContext context;
@@ -54,4 +51,6 @@ public class ResteasyServiceImpl implements ResteasyService {
 		getRegistry().removeRegistrations(clazz);
 	}
 	
+	public void addApplication(Application a) {
+	}
 }
