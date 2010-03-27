@@ -33,7 +33,9 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.mortbay.log.Log;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -75,6 +78,7 @@ import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.util.Pair;
 
 public class MetricActivatorImpl  implements MetricActivator {
 
@@ -313,9 +317,29 @@ public class MetricActivatorImpl  implements MetricActivator {
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
         if (!canRunOnHost(sp))
             return;
+        Set<AlitheiaPlugin> deps = new HashSet<AlitheiaPlugin>();
+        deps.add(m);
+        
+        for (String s: m.getDependencies()) {
+        	deps.add(pa.getImplementingPlugin(s));
+        }
+        
+        List<AlitheiaPlugin> toExec = getExcecutionOrder(deps);
         
         try {
-            sched.enqueue(new MetricSchedulerJob(m, sp));
+        	Collections.reverse(toExec);
+        	List<Job> jobs = new ArrayList<Job>();
+        	Job old = null;
+        	for (AlitheiaPlugin a : toExec) {
+        		Job j = new MetricSchedulerJob(m, sp);
+        		if (old != null) {
+        			old.dependsOn(j);
+        			old = j;
+        		}
+        	}
+        	for (Job j : jobs) {
+        		sched.enqueue(j);
+        	}
         } catch (SchedulerException e) {
             logger.error("Could not start metric scheduler job");
         }
@@ -376,6 +400,69 @@ public class MetricActivatorImpl  implements MetricActivator {
         return priority;
     }
     
+    private List<AlitheiaPlugin> getExcecutionOrder(Set<AlitheiaPlugin> unordered) {
+    	Map<AlitheiaPlugin, Integer> idx = new HashMap<AlitheiaPlugin, Integer>();
+    	Map<Integer, AlitheiaPlugin> invidx = new HashMap<Integer, AlitheiaPlugin>();
+    	
+    	GraphTS graph = new GraphTS();
+    	
+    	//Build the adjacency matrix
+    	for (AlitheiaPlugin p : unordered) {
+    		if (!idx.containsKey(p)) {
+        		int n = graph.addVertex(p);
+	    		idx.put(p, n);
+	    		invidx.put(n, p);
+	    	}
+    		
+    	    Set<String> deps = p.getDependencies();
+    	    for (String metric : deps) {
+    	    	AlitheiaPlugin dep = pa.getImplementingPlugin(metric);
+    	    	if (!idx.containsKey(dep)) {
+    	    		int n = graph.addVertex(p);
+    	    		idx.put(dep, n);
+    	    		invidx.put(n, dep);
+    	    	}
+    	    	graph.addEdge(idx.get(p), idx.get(dep));
+    	    }
+    	}
+    	
+    	AlitheiaPlugin[] sorted = graph.topo();
+    	/*
+    	logger.debug("Calculated adjacency matrix:");
+    	for (int i = 0; i < mtxCounter; i++) {
+    		logger.debug("  " + invidx.get(adjMatrix[i][0]) + "->" + 
+    				invidx.get(adjMatrix[i][1]));
+    	}
+    	
+    	//Get nodes with no outgoing links (no dependencies)
+    	boolean found = false;
+    	int[] nodepstmp = new int[invidx.keySet().size()];
+    	int nodepsct = 0;
+    	for (int j : invidx.keySet()) {
+    		for (int i = 0; i < mtxCounter; i++) {
+    			if (adjMatrix[i][0] == j) {
+    				found = true;
+    				break;
+    			}
+    		}
+    		if (!found) {
+    			nodepstmp[nodepsct] = j;
+    			nodepsct++;
+    		}
+    		found = false;
+    	}
+    	
+    	//Init topological sort arrays
+    	Set<Integer> nodeps = new HashSet<Integer>();
+    	System.arraycopy(nodepstmp, 0, nodeps, 0, nodepsct);
+    	List<Integer> sorted = new ArrayList<Integer>();
+    	
+    	while (!nodeps.isEmpty()) {
+    		//int i = nodeps.
+    	}*/
+    	
+    	return Collections.EMPTY_LIST;
+    }
     
     /**
      * Job that creates metric jobs. Used to avoid blocking the UI or user
@@ -455,7 +542,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             		.append(" order by pv.sequence asc" );
             		activationType = Type.SOURCE_DIRECTORY;
             	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILING_LIST))) {
-            		
+            		throw new Exception("Metric synchronisation with MAILING_LIST objects not implemented");
             	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILMESSAGE))) {
             		q.append("select mm.id")
             		.append(" from MailMessage mm ")
@@ -475,7 +562,9 @@ public class MetricActivatorImpl  implements MetricActivator {
             		.append("where mltm.metric.id =:metric ")
             		.append("and mltm.thread.id = mlt.id)" );
             	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.BUG))) {
-
+            		throw new Exception("Metric synchronisation with BUG objects not implemented");
+            	} else {
+            		throw new Exception("Metric synchronisation with GENERIC objects not implemented");
             	}
                 params.put("metric", m.getId());
                 List<Long> objects = (List<Long>) db.doHQL(q.toString(), params);
@@ -546,7 +635,6 @@ public class MetricActivatorImpl  implements MetricActivator {
 
 	@Override
 	public void shutDown() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override

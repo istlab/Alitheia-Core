@@ -564,14 +564,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             return false;
         }
 
-        /*Check if the metric has unsatisfied dependencies*/
-        for(String dep : dependencies) {
-            if (pa.getImplementingPlugin(dep) == null) {
-                log.error("No plug-in installed that implements the " + dep
-                        + " metric");
-                return false;
-            }
-        }
 
         //2. Add the plug-in
         Plugin p = new Plugin();
@@ -896,6 +888,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     private boolean checkDependencies() {
         for (String mnemonic : dependencies) {
+        	//Check thyself first
+        	if (metrics.containsKey(mnemonic))
+        		continue;
+        	
             if (pa.getImplementingPlugin(mnemonic) == null) {
                 log.error("No plug-in implements metric "  + mnemonic + 
                         " which is required by " + getName());
