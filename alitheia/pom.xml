@@ -17,7 +17,6 @@
 
   <modules>
     <module>core</module>
-    <module>restservice</module>
   </modules>
 
 </project>

@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.metricactivator;
 
-import java.util.Set;
-
 import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
@@ -47,22 +45,31 @@ import eu.sqooss.service.db.InvocationRule.ActionType;
  */
 public interface MetricActivator extends AlitheiaCoreService {
 
+	/**
+	 * Run a metric plug-in on a single resource object. Will not schedule
+	 * a job if the metric is not of the same activation type as
+	 * the DAO object
+	 * 
+	 * @param <T> The resource to run the metric on
+	 * @param ap The plug-in to execute
+	 */
+	public <T extends DAObject> void runMetric(T resource, AlitheiaPlugin ap);
+	
     /**
-     * Runs all metrics that support the given project's resource type,
-     * on all project resources (of the same resource type) pointed
-     * by the specified objects.
+     * Runs all metrics that support the given activation type, on the
+     * given project.
      *
-     * @param daoIDs resource IDs list
+     * @param sp The project on whose data the metric sync will be schedule
      * @param clazz resource type
      */
-    public void runMetrics(Set<Long> daoIDs, Class<? extends DAObject> clazz);
+    public void syncMetrics(StoredProject sp, Class<? extends DAObject> clazz);
 
     /**
      * Run all plug-ins on the provided stored project
      *
      * @param sp The stored project to run the metrics on
      */
-    public <T extends DAObject> void syncMetrics(StoredProject sp);
+    public void syncMetrics(StoredProject sp);
 
     /**
      * Run the provided plug-in over all projects 

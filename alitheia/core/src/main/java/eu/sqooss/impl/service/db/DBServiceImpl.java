@@ -406,7 +406,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 			throw e;
 		} catch (HibernateException e) {
 			logExceptionAndTerminateSession(e);
-			return -1;
+			throw e;
 		}
 	}
     

@@ -422,9 +422,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     throw new AlreadyProcessingException();
                 } finally {
                     MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
-                    HashSet<Long> s = new HashSet<Long>();
-                    s.add(o.getId());
-                    ma.runMetrics(s, o.getClass());
+                    ma.runMetric(o, this);
                 }
             }
             p.second = p.second + 1;

@@ -36,8 +36,6 @@ package eu.sqooss.impl.service.updater;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.mail.internet.MimeMessage;
 
@@ -66,9 +64,7 @@ public class MailThreadUpdater extends Job {
     private Logger logger;
     private DBService dbs;
     private MailAccessor mailAccessor;
-    
-    private Set<Long> updMailThreads = new TreeSet<Long>(); 
-    
+       
     public MailThreadUpdater(MailingList ml, Logger l)
             throws UpdaterException {
         this.ml = ml;
@@ -185,7 +181,6 @@ public class MailThreadUpdater extends Job {
                     mail.setThread(parentMail.getThread());
                     parentMail.getThread().setLastUpdated(mail.getSendDate());
                     debug("Updating thread " + parentMail.getThread().getId());
-                    updMailThreads.add(parentMail.getThread().getId());
                     updatedThreads++;
                 }
             }
@@ -245,7 +240,6 @@ public class MailThreadUpdater extends Job {
                         for (MailMessage msg : thr.getMessages()) {
                             msg.setDepth(msg.getDepth() + 1);
                         }
-                        updMailThreads.add(thr.getId());
                         updatedThreads++;
                     }
                 }
@@ -259,7 +253,6 @@ public class MailThreadUpdater extends Job {
                 mail.setThread(mlt);
                 mail.setDepth(0);
                 debug("Adding new thread " + mlt.getId());
-                updMailThreads.add(mlt.getId());
                 newThreads++;
             }
             if (mail.getThread() == null) 
@@ -271,7 +264,8 @@ public class MailThreadUpdater extends Job {
         info("Mail thread updater - " + ml 
                 + " " + newThreads + " new threads, " + updatedThreads 
                 + " thread updates" );
-        AlitheiaCore.getInstance().getMetricActivator().runMetrics(updMailThreads, MailingListThread.class);
+        AlitheiaCore.getInstance().getMetricActivator()
+        	.syncMetrics(ml.getStoredProject(), MailingListThread.class);
         if (dbs.isDBSessionActive()) dbs.commitDBSession();
     }   
     

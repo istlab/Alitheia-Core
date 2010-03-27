@@ -68,10 +68,6 @@ import eu.sqooss.service.updater.UpdaterException;
 public class BugUpdater extends UpdaterBaseJob {
 
     private BTSAccessor bts;
-
-    /*Cache bug ids to call the metric activator with them*/
-    private Set<Long> updBugs = new TreeSet<Long>();
-    private Set<Long> updDevs = new TreeSet<Long>();
     
     public BugUpdater() throws UpdaterException {}
 
@@ -132,17 +128,13 @@ public class BugUpdater extends UpdaterBaseJob {
             }
 
             dbs.addRecord(bug);
-            updBugs.add(bug.getId());
             logger.debug(project.getName() + ": Added bug " + bugID);
             dbs.commitDBSession();
         }
 
-        if (!updBugs.isEmpty()) {
-            MetricActivator ma = AlitheiaCore.getInstance()
-                    .getMetricActivator();
-            ma.runMetrics(updBugs, Bug.class);
-            ma.runMetrics(updDevs, Developer.class);
-        }
+		MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
+		ma.syncMetrics(project, Bug.class);
+		ma.syncMetrics(project, Developer.class);
         if (dbs.isDBSessionActive())
             dbs.commitDBSession();
     }
@@ -214,11 +206,6 @@ public class BugUpdater extends UpdaterBaseJob {
         } else {
             d = Developer.getDeveloperByUsername(name, project);
         }
-        
-        if (!updDevs.contains(d.getId())) {
-            updDevs.add(d.getId());
-        }
-        
         return d;
     }
     

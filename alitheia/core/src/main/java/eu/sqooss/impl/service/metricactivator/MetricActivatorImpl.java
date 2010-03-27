@@ -246,7 +246,23 @@ public class MetricActivatorImpl  implements MetricActivator {
         return defaultAction;
     }
 
-    public void runMetrics(Set<Long> daoIDs, Class<? extends DAObject> actType) {
+    @Override
+	public <T extends DAObject> void runMetric(T resource, AlitheiaPlugin ap) {
+    	Class<? extends DAObject> activator = resource.getClass();
+    	Job j = new MetricActivatorJob((AbstractMetric)ap, resource.getId(), logger, 
+    			metricTypesToActivators.get(activator),
+    			getNextPriority(metricTypesToActivators.get(activator)),
+    			fastSync);
+    	try {
+            sched.enqueue(j);
+        } catch (SchedulerException e) {
+            logger.error("Could not start metric scheduler job");
+        }
+	}
+    
+    /**{@inheritDoc}*/
+    @Override
+    public void syncMetrics(StoredProject sp, Class<? extends DAObject> actType) {
         //TODO: Check if the project is assigned to this host
         
         List<PluginInfo> plugins = pa.listPluginProviders(actType);
@@ -259,15 +275,18 @@ public class MetricActivatorImpl  implements MetricActivator {
         
         /* Fire up plug-ins */
         for (PluginInfo pi : plugins) {
-            AbstractMetric metric = (AbstractMetric) bc.getService(pi.getServiceRef());
-            for(Long l : daoIDs) {
-                schedJob(metric, l, actType, getNextPriority(actType));
-            }
+           AbstractMetric m = (AbstractMetric) bc.getService(pi.getServiceRef());
+           try {
+               sched.enqueue(new MetricSchedulerJob(m, sp));
+           } catch (SchedulerException e) {
+               logger.error("Could not start metric scheduler job");
+           }
         }
     }
 
     /**{@inheritDoc}*/
     @SuppressWarnings("unchecked")
+    @Override
     public void syncMetrics(AlitheiaPlugin ap) {
         List<StoredProject> lp = 
             (List<StoredProject>) db.doHQL("from StoredProject");
@@ -278,7 +297,8 @@ public class MetricActivatorImpl  implements MetricActivator {
     }
     
     /**{@inheritDoc}*/
-    public <T extends DAObject> void syncMetrics(StoredProject sp) {
+    @Override
+    public void syncMetrics(StoredProject sp) {
         Collection<PluginInfo> plugins = pa.listPlugins();
         
         for(PluginInfo p : plugins) {
@@ -289,6 +309,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     }
  
     /**{@inheritDoc}*/
+    @Override
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
         if (!canRunOnHost(sp))
             return;
@@ -355,15 +376,6 @@ public class MetricActivatorImpl  implements MetricActivator {
         return priority;
     }
     
-    private void schedJob(AbstractMetric m, long objectId, 
-            Class<? extends DAObject> actType, int priority) {
-        try {
-            sched.enqueue(new MetricActivatorJob(m, objectId, logger, actType,
-                    priority, fastSync));
-        } catch (SchedulerException e) {
-            logger.error("Could not start job to sync metric");
-        }
-    }
     
     /**
      * Job that creates metric jobs. Used to avoid blocking the UI or user

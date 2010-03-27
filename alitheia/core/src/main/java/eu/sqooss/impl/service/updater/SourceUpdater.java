@@ -39,8 +39,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.collections.LRUMap;
 import org.hibernate.QueryException;
@@ -103,16 +101,6 @@ final class SourceUpdater extends UpdaterBaseJob {
     private boolean supportStoredProcedureUpdates;
     
     private boolean ommitFileless = false;
-    
-    /*
-     * Hold project version and project file IDs for kick-starting
-     * metric update jobs after the metadata update. This is done
-     * to avoid holding references to huge data graphs during large
-     * updates.
-     */
-    private Set<Long> updProjectVersions = new TreeSet<Long>();
-    private Set<Long> updFiles = new TreeSet<Long>();
-    private Set<Long> updDevs = new TreeSet<Long>();
     
     /* Avoid Hibernate thrashing by caching frequently accessed directories */
     private LRUMap dirCache = new LRUMap(200);
@@ -283,8 +271,6 @@ final class SourceUpdater extends UpdaterBaseJob {
                 				"Not removing");
                 	} else {
                 		debug(msg + ". Removing");
-                		updProjectVersions.remove(curVersion.getId());
-                		updDevs.remove(curVersion.getCommitter().getId());
                 		dbs.deleteRecord(curVersion);
                 		dbs.rollbackDBSession();
                         dbs.startDBSession();
@@ -296,10 +282,7 @@ final class SourceUpdater extends UpdaterBaseJob {
                  * Add files to the database 
                  */
                 dbs.addRecords(versionFiles);
-                for (ProjectFile pf : versionFiles) {
-                	updFiles.add(pf.getId());
-                }
-
+               
                 /*
                  * Update the list of live files in this revision. 
                  */
@@ -329,9 +312,9 @@ final class SourceUpdater extends UpdaterBaseJob {
             
             //Run the metrics even if the update fails, to ensure that 
             //the versions that were processed correctly will be measured
-            ma.runMetrics(updFiles, ProjectFile.class);
-            ma.runMetrics(updProjectVersions, ProjectVersion.class);
-            ma.runMetrics(updDevs, Developer.class);
+            ma.syncMetrics(project, ProjectFile.class);
+            ma.syncMetrics(project, ProjectVersion.class);
+            ma.syncMetrics(project, Developer.class);
         }
         dbs.commitDBSession();
     }
@@ -414,9 +397,7 @@ final class SourceUpdater extends UpdaterBaseJob {
         curVersion.setTimestamp(entry.getDate().getTime());
 
         Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
-        if (!updDevs.contains(d.getId())) {
-            updDevs.add(d.getId());
-        }
+       
         curVersion.setCommitter(d);
 
         /* TODO: get column length info from Hibernate */
@@ -431,7 +412,6 @@ final class SourceUpdater extends UpdaterBaseJob {
         
         ProjectVersion prev = curVersion.getPreviousVersion();
         curVersion.setSequence(prev.getSequence() + 1);
-        updProjectVersions.add(curVersion.getId());
         debug("Got version " + curVersion.getRevisionId() + 
                 " ID " + curVersion.getId());
         

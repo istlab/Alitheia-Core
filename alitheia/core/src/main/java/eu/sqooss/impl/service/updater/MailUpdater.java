@@ -43,8 +43,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -67,11 +65,7 @@ import eu.sqooss.service.updater.UpdaterException;
  * Synchronises raw mails with the database.
  */
 class MailUpdater extends UpdaterBaseJob {
-    
-    
-    /*Cache mailinglist ids to call the metric activator with them*/
-    private Set<Long> updMailingLists = new TreeSet<Long>();
-    
+       
     private static String[] dateFmts = {
         "EEE MMM d HH:mm:ss yyyy",  //Fri Dec  5 12:50:00 2003
         "d MMM yyyy HH:mm:ss Z",    //28 Nov 2000 18:26:25 -0500
@@ -98,9 +92,7 @@ class MailUpdater extends UpdaterBaseJob {
             dbs.startDBSession();
             listIds = processMailingLists(mailAccessor);
             
-            if (!updMailingLists.isEmpty()) {
-                ma.runMetrics(updMailingLists, MailingList.class);
-            }
+            ma.syncMetrics(project, MailingList.class);
             
             dbs.commitDBSession();
             
@@ -140,7 +132,6 @@ class MailUpdater extends UpdaterBaseJob {
                 nml.setListId(listId);
                 nml.setStoredProject(project);
                 dbs.addRecord(nml);
-                updMailingLists.add(nml.getId());
             }
         }
         List<Long> listIds = new ArrayList<Long>();
@@ -173,12 +164,8 @@ class MailUpdater extends UpdaterBaseJob {
     private class ListUpdaterJob extends Job {
 
         long listid;
-        long projectid;
-        
-        /*Cache mail ids to call the metric activator with them*/
-        private Set<Long> updMails = new TreeSet<Long>();
-        private Set<Long> updDevs = new TreeSet<Long>();
-        
+        long projectid;       
+
         public ListUpdaterJob(long projectid, long listid) {
             this.projectid = projectid;
             this.listid = listid;
@@ -209,10 +196,9 @@ class MailUpdater extends UpdaterBaseJob {
             AlitheiaCore.getInstance().getScheduler().enqueue(mtu);
             info("Added thread update job for " + ml);
 
-            if (!updMails.isEmpty()) {
-                ma.runMetrics(updMails, MailMessage.class);
-                ma.runMetrics(updDevs, Developer.class);
-            }
+            ma.syncMetrics(project, MailMessage.class);
+            ma.syncMetrics(project, Developer.class);
+            
             dbs.commitDBSession();
         }
         
@@ -311,10 +297,6 @@ class MailUpdater extends UpdaterBaseJob {
                     continue;
                 }
 
-                if (!updDevs.contains(sender.getId())) {
-                    updDevs.add(sender.getId());
-                }
-
                 MailMessage mmsg = MailMessage.getMessageById(fileName);
                 if (mmsg == null) {
                     // if the message does not exist in the database, then
@@ -347,7 +329,6 @@ class MailUpdater extends UpdaterBaseJob {
                     dbs.addRecord(mmsg);
                     debug("Adding message " + mm.getMessageID());
 
-                    updMails.add(mmsg.getId());
                     if (dbs.commitDBSession()) {
                         if (!mailAccessor.markMessageAsSeen(mllist.getListId(),
                                 fileName))
