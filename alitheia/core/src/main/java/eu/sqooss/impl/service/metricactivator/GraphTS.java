@@ -36,15 +36,14 @@ package eu.sqooss.impl.service.metricactivator;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 
 /**
- * Topological sorting for Alitheia Core plugin invocations.
+ * Topological sorting for Alitheia Core plugin invocations. Based on code
+ * distributed in the public domain by http://www.algorithm-code.com
  * 
- * @author Georgios Gousios <gousiosg@aueb.gr> 
- * based on code distributed in the public domain by
- * http://www.algorithm-code.com 
- *
+ * @author Georgios Gousios <gousiosg@aueb.gr>
+ * 
  */
 public class GraphTS {
-	private final int MAX_VERTS = 20;
+	private int MAX_VERTS = 20;
 
 	private Vertex vertexList[]; // list of vertices
 
@@ -54,7 +53,8 @@ public class GraphTS {
 
 	private AlitheiaPlugin sortedArray[];
 
-	public GraphTS() {
+	public GraphTS(int numvertices) {
+	    MAX_VERTS = numvertices;
 		vertexList = new Vertex[MAX_VERTS];
 		matrix = new int[MAX_VERTS][MAX_VERTS];
 		numVerts = 0;
@@ -70,7 +70,7 @@ public class GraphTS {
 	}
 
 	public void addEdge(int start, int end) {
-		matrix[start][end] = 1;
+		matrix[start - 1][end - 1] = 1;
 	}
 
 	public void displayVertex(int v) {
@@ -95,11 +95,6 @@ public class GraphTS {
 			deleteVertex(currentVertex); // delete vertex
 		}
 
-		// vertices all gone; display sortedArray
-		System.out.print("Topologically sorted order: ");
-		for (int j = 0; j < orig_nVerts; j++)
-			System.out.print(sortedArray[j]);
-		System.out.println("");
 		return sortedArray;
 	}
 
@@ -147,6 +142,19 @@ public class GraphTS {
 	private void moveColLeft(int col, int length) {
 		for (int row = 0; row < length; row++)
 			matrix[row][col] = matrix[row][col + 1];
+	}
+	
+	@Override
+	public String toString() {
+	    String result = "";
+	    for(int i = 0; i < numVerts; i++){
+	        result = result + vertexList[i].label + "[";
+	        for (int j = 0; j < numVerts; j++)
+	            result = result + matrix[i][j] + ",";
+	        result += "]\n";
+	    }
+	    return result;
+	            
 	}
 
 }

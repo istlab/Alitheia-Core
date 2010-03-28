@@ -34,6 +34,7 @@
 package eu.sqooss.impl.service.metricactivator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -327,15 +328,16 @@ public class MetricActivatorImpl  implements MetricActivator {
         List<AlitheiaPlugin> toExec = getExcecutionOrder(deps);
         
         try {
-        	Collections.reverse(toExec);
+            Collections.reverse(toExec);
         	List<Job> jobs = new ArrayList<Job>();
         	Job old = null;
         	for (AlitheiaPlugin a : toExec) {
-        		Job j = new MetricSchedulerJob(m, sp);
+        		Job j = new MetricSchedulerJob(a, sp);
+        		jobs.add(j);
         		if (old != null) {
-        			old.dependsOn(j);
-        			old = j;
+        			old.addDependency(j);
         		}
+        		old = j;
         	}
         	for (Job j : jobs) {
         		sched.enqueue(j);
@@ -404,7 +406,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     	Map<AlitheiaPlugin, Integer> idx = new HashMap<AlitheiaPlugin, Integer>();
     	Map<Integer, AlitheiaPlugin> invidx = new HashMap<Integer, AlitheiaPlugin>();
     	
-    	GraphTS graph = new GraphTS();
+    	GraphTS graph = new GraphTS(unordered.size());
     	
     	//Build the adjacency matrix
     	for (AlitheiaPlugin p : unordered) {
@@ -417,8 +419,14 @@ public class MetricActivatorImpl  implements MetricActivator {
     	    Set<String> deps = p.getDependencies();
     	    for (String metric : deps) {
     	    	AlitheiaPlugin dep = pa.getImplementingPlugin(metric);
+    	    	
+    	    	//Metrics are allowed to introduce self depedencies
+    	    	if (p.equals(dep)) {
+    	    	    continue;
+    	    	}
+    	    	
     	    	if (!idx.containsKey(dep)) {
-    	    		int n = graph.addVertex(p);
+    	    		int n = graph.addVertex(dep);
     	    		idx.put(dep, n);
     	    		invidx.put(n, dep);
     	    	}
@@ -427,41 +435,10 @@ public class MetricActivatorImpl  implements MetricActivator {
     	}
     	
     	AlitheiaPlugin[] sorted = graph.topo();
-    	/*
-    	logger.debug("Calculated adjacency matrix:");
-    	for (int i = 0; i < mtxCounter; i++) {
-    		logger.debug("  " + invidx.get(adjMatrix[i][0]) + "->" + 
-    				invidx.get(adjMatrix[i][1]));
-    	}
+    	List<AlitheiaPlugin> result = Arrays.asList(sorted);
+    	Collections.reverse(result); //
     	
-    	//Get nodes with no outgoing links (no dependencies)
-    	boolean found = false;
-    	int[] nodepstmp = new int[invidx.keySet().size()];
-    	int nodepsct = 0;
-    	for (int j : invidx.keySet()) {
-    		for (int i = 0; i < mtxCounter; i++) {
-    			if (adjMatrix[i][0] == j) {
-    				found = true;
-    				break;
-    			}
-    		}
-    		if (!found) {
-    			nodepstmp[nodepsct] = j;
-    			nodepsct++;
-    		}
-    		found = false;
-    	}
-    	
-    	//Init topological sort arrays
-    	Set<Integer> nodeps = new HashSet<Integer>();
-    	System.arraycopy(nodepstmp, 0, nodeps, 0, nodepsct);
-    	List<Integer> sorted = new ArrayList<Integer>();
-    	
-    	while (!nodeps.isEmpty()) {
-    		//int i = nodeps.
-    	}*/
-    	
-    	return Collections.EMPTY_LIST;
+    	return result;
     }
     
     /**
