@@ -240,43 +240,46 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                         + Plugin.getPluginByHashcode(getUniqueKey()).getName());
             }
             List<ResultEntry> re = null;
-            for (Class<? extends DAObject> c : getActivationTypes()) {
-                if (c.isInstance(o) || c.getSuperclass().isInstance(o)) {
-                    found = true;
-                    try {
-                        Method method = getClass().getMethod("getResult", c, Metric.class);
-                        if (method == null) {
-                        	method = getClass().getMethod("getResult", c.getSuperclass(), Metric.class);
-                        	re =  (List<ResultEntry>) method.invoke(this, c.getSuperclass().cast(o), m);
-                        } else {
-                        	re =  (List<ResultEntry>) method.invoke(this, o, m);
-                        }
-                    } catch (SecurityException e) {
-                        logErr("getResult", o, e);
-                    } catch (NoSuchMethodException e) {
-                        log.error("No method getResult(" + c.getName()
-                                + ") for type " + this.getClass().getName());
-                    } catch (IllegalArgumentException e) {
-                        logErr("getResult", o, e);
-                    } catch (IllegalAccessException e) {
-                        logErr("getResult", o, e);
-                    } catch (InvocationTargetException e) {
-                        logErr("getResult", o, e);
-                    }
-                }
+            try {
+                Method method = findGetResultMethod(m.getMetricType().toActivator());
+                re = (List<ResultEntry>) method.invoke(this, o, m);
+            } catch (SecurityException e) {
+                logErr("getResult", o, e);
+            } catch (NoSuchMethodException e) {
+                log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type "
+                        + this.getClass().getName());
+            } catch (IllegalArgumentException e) {
+                logErr("getResult", o, e);
+            } catch (IllegalAccessException e) {
+                logErr("getResult", o, e);
+            } catch (InvocationTargetException e) {
+                logErr("getResult", o, e);
             }
-            if (!found) {
-                throw new MetricMismatchException(o);
-            }
-
             if (re != null) {
-                r.addResultRow(new ArrayList<ResultEntry> (re));
+                r.addResultRow(new ArrayList<ResultEntry>(re));
             }
         }
 
         return r;
     }
 
+     private Method findGetResultMethod(Class<?> clazz) 
+     throws NoSuchMethodException {
+     Method m = null;
+     
+     try {
+         m = this.getClass().getMethod("getResult", clazz, Metric.class);                
+     } catch (NoSuchMethodException nsme) {
+         try {
+             m = this.getClass().getMethod("getResult", clazz.getSuperclass(), Metric.class);
+         } catch (NoSuchMethodException nsme1) {
+             throw nsme;
+         }
+     }
+    
+     return m;
+ }
+     
      /**
       * Convert a list of ProjectFileMeasurements to the (less-well-typed) list
       * of ResultEntries; this just extracts the single integer value stored as the
@@ -465,47 +468,46 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             log.error("Plug-in dependency check failed");
             return;
         }
-        
-        boolean found = false;
-        Iterator<Class<? extends DAObject>> i = getActivationTypes().iterator();
 
-        while(i.hasNext()) {
-            Class<? extends DAObject> c = i.next();
-            if (c.isInstance(o) || c.getSuperclass().isInstance(o)) {
-                found = true;
-                try {
-                    Method m = this.getClass().getMethod("run", c);
-                    if (m == null) {
-                    	m = this.getClass().getMethod("run", c);
-                    	m.invoke(this, c.getSuperclass().cast(o));
-                    } else {
-                    	m.invoke(this, o);
-                    }
-                } catch (SecurityException e) {
+        try {
+            Method m = findRunMethod("run", o.getClass());
+            m.invoke(this, o);
+        } catch (SecurityException e) {
+            logErr("run", o, e);
+        } catch (NoSuchMethodException e) {
+            logErr("run", o, e);
+        } catch (IllegalArgumentException e) {
+            logErr("run", o, e);
+        } catch (IllegalAccessException e) {
+            logErr("run", o, e);
+        } catch (InvocationTargetException e) {
+            // Forward exception to metric job exception handler
+            if (e.getCause() instanceof AlreadyProcessingException) {
+                throw (AlreadyProcessingException) e.getCause();
+            } else {
+                if (e != null && e.getCause() != null) {
                     logErr("run", o, e);
-                } catch (NoSuchMethodException e) {
-                    logErr("run", o, e);
-                } catch (IllegalArgumentException e) {
-                    logErr("run", o, e);
-                } catch (IllegalAccessException e) {
-                    logErr("run", o, e);
-                } catch (InvocationTargetException e) {
-                    //Forward exception to metric job exception handler
-                    if (e.getCause() instanceof AlreadyProcessingException) { 
-                        throw (AlreadyProcessingException) e.getCause();
-                    }
-                    else {
-                        if (e != null && e.getCause() != null) {
-                            logErr("run", o, e);
-                            throw new Exception(e.getCause());
-                        }
-                    }
-                } 
+                    throw new Exception(e.getCause());
+                }
             }
         }
-        if(!found) {
-            throw new MetricMismatchException(o);
+    }
+    
+    private Method findRunMethod(String name, Class<?> clazz) 
+        throws NoSuchMethodException {
+        Method m = null;
+        
+        try {
+            m = this.getClass().getMethod(name, clazz);                
+        } catch (NoSuchMethodException nsme) {
+            try {
+                m = this.getClass().getMethod(name, clazz.getSuperclass());
+            } catch (NoSuchMethodException nsme1) {
+                throw nsme;
+            }
         }
+       
+        return m;
     }
     
     private void logErr(String method, DAObject o, Exception e) {
@@ -515,7 +517,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 "\nUnable to invoke " + method + " method." +
                 "\nException:" + e.getClass().getName() +
                 "\nError:" + e.getMessage() + 
-                "\nReason:" + e.getCause().getMessage(), e);
+                "\nReason:" + e.getCause(), e);
     }
 
 
