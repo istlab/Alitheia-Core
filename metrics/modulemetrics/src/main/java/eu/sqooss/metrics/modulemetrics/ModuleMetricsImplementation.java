@@ -59,12 +59,11 @@ import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
 @MetricDeclarations(metrics = {
-    @MetricDecl(mnemonic="MNOF", activators={ProjectDirectory.class, ProjectVersion.class}, descr="Number of Source Code Files in Module"),
-    @MetricDecl(mnemonic="MNOL", activators={ProjectDirectory.class, ProjectVersion.class}, descr="Number of lines in module", dependencies={"Wc.loc"}),
+    @MetricDecl(mnemonic="MNOF", activators={ProjectDirectory.class}, descr="Number of Source Code Files in Module"),
+    @MetricDecl(mnemonic="MNOL", activators={ProjectDirectory.class}, descr="Number of lines in module", dependencies={"Wc.loc"}),
     @MetricDecl(mnemonic="AMS", activators={ProjectVersion.class}, descr="Average Module Size"),
     @MetricDecl(mnemonic="ISSRCMOD", activators={ProjectDirectory.class}, descr="Mark for modules containing source files")
 })
-
 public class ModuleMetricsImplementation extends AbstractMetric {
 
     // Mnemonic names of all metric dependencies

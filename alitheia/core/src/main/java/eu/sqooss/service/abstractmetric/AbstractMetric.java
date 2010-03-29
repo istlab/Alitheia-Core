@@ -112,7 +112,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** The list of this plug-in's activators*/
     private Set<Class<? extends DAObject>> activators = 
         new HashSet<Class<? extends DAObject>>();
-    
+        
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -241,11 +241,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             }
             List<ResultEntry> re = null;
             for (Class<? extends DAObject> c : getActivationTypes()) {
-                if (c.isInstance(o)) {
+                if (c.isInstance(o) || c.getSuperclass().isInstance(o)) {
                     found = true;
                     try {
-                        Method method = this.getClass().getMethod("getResult", c, Metric.class);
-                        re =  (List<ResultEntry>) method.invoke(this, o, m);
+                        Method method = getClass().getMethod("getResult", c, Metric.class);
+                        if (method == null) {
+                        	method = getClass().getMethod("getResult", c.getSuperclass(), Metric.class);
+                        	re =  (List<ResultEntry>) method.invoke(this, c.getSuperclass().cast(o), m);
+                        } else {
+                        	re =  (List<ResultEntry>) method.invoke(this, o, m);
+                        }
                     } catch (SecurityException e) {
                         logErr("getResult", o, e);
                     } catch (NoSuchMethodException e) {
@@ -466,11 +471,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
         while(i.hasNext()) {
             Class<? extends DAObject> c = i.next();
-            if (c.isInstance(o)) {
+            if (c.isInstance(o) || c.getSuperclass().isInstance(o)) {
                 found = true;
                 try {
                     Method m = this.getClass().getMethod("run", c);
-                    m.invoke(this, o);
+                    if (m == null) {
+                    	m = this.getClass().getMethod("run", c);
+                    	m.invoke(this, c.getSuperclass().cast(o));
+                    } else {
+                    	m.invoke(this, o);
+                    }
                 } catch (SecurityException e) {
                     logErr("run", o, e);
                 } catch (NoSuchMethodException e) {

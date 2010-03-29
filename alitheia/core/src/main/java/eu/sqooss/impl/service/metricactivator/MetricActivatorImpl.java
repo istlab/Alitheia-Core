@@ -43,21 +43,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mortbay.log.Log;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.SchedulerHints;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
@@ -79,7 +79,6 @@ import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
-import eu.sqooss.service.util.Pair;
 
 public class MetricActivatorImpl  implements MetricActivator {
 
@@ -99,10 +98,8 @@ public class MetricActivatorImpl  implements MetricActivator {
     private Long firstRuleId = null;
     private HashMap<Long,InvocationRule> rules = null;
 
-    private HashMap<Class<? extends DAObject>, Integer> defaultPriority;
-    private HashMap<Class<? extends DAObject>, Integer> maxPriority;
-    private HashMap<Class<? extends DAObject>, Integer> currentPriorities;
-
+    private AtomicInteger priority;
+    
     private HashMap<MetricType.Type, Class<? extends DAObject>> metricTypesToActivators;
     
     public MetricActivatorImpl() { }
@@ -256,7 +253,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     	Class<? extends DAObject> activator = resource.getClass();
     	Job j = new MetricActivatorJob((AbstractMetric)ap, resource.getId(), logger, 
     			metricTypesToActivators.get(activator),
-    			getNextPriority(metricTypesToActivators.get(activator)),
+    			priority.incrementAndGet(),
     			fastSync);
     	try {
             sched.enqueue(j);
@@ -264,11 +261,12 @@ public class MetricActivatorImpl  implements MetricActivator {
             logger.error("Could not start metric scheduler job");
         }
 	}
-    
+
     /**{@inheritDoc}*/
     @Override
     public void syncMetrics(StoredProject sp, Class<? extends DAObject> actType) {
-        //TODO: Check if the project is assigned to this host
+    	if (!canRunOnHost(sp))
+            return;
         
         List<PluginInfo> plugins = pa.listPluginProviders(actType);
         
@@ -300,7 +298,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             syncMetric(ap, sp);
         }
     }
-    
+
     /**{@inheritDoc}*/
     @Override
     public void syncMetrics(StoredProject sp) {
@@ -312,7 +310,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             syncMetric(ap, sp);
         }
     }
- 
+
     /**{@inheritDoc}*/
     @Override
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
@@ -382,26 +380,6 @@ public class MetricActivatorImpl  implements MetricActivator {
         return true;
     }
     
-    private synchronized int getNextPriority(Class<? extends DAObject> actType) {
-        Integer priority = currentPriorities.get(actType);
-        
-        if (priority == null) {
-            priority = defaultPriority.get(actType);
-            currentPriorities.put(actType, priority);
-            return priority;
-        }
-        
-        priority = priority + 1;
-        
-        if (priority >= maxPriority.get(actType)) {
-            priority = defaultPriority.get(actType);
-        }
-        
-        currentPriorities.put(actType, priority);
-        
-        return priority;
-    }
-    
     private List<AlitheiaPlugin> getExcecutionOrder(Set<AlitheiaPlugin> unordered) {
     	Map<AlitheiaPlugin, Integer> idx = new HashMap<AlitheiaPlugin, Integer>();
     	Map<Integer, AlitheiaPlugin> invidx = new HashMap<Integer, AlitheiaPlugin>();
@@ -437,6 +415,12 @@ public class MetricActivatorImpl  implements MetricActivator {
     	AlitheiaPlugin[] sorted = graph.topo();
     	List<AlitheiaPlugin> result = Arrays.asList(sorted);
     	Collections.reverse(result); //
+    	
+    	logger.debug("Calculated metric order:");
+    	for (AlitheiaPlugin p : result) {
+    		logger.debug("  " + p.getName());
+    	}
+    		
     	
     	return result;
     }
@@ -557,11 +541,29 @@ public class MetricActivatorImpl  implements MetricActivator {
                 (AbstractMetric) bc.getService(mi.getServiceRef());
             HashSet<Job> jobs = new HashSet<Job>();
             
-            for (MetricType.Type actType : objectIds.keySet()) {
+            /*Check what is the default activation ordering as suggested by the metric*/
+            Class<? extends DAObject>[] order;
+            SchedulerHints hints = metric.getClass().getAnnotation(SchedulerHints.class);
+            
+            if (hints == null)
+            	order = (Class<? extends DAObject>[]) 
+            		SchedulerHints.class.getMethod("activationOrder").getDefaultValue();
+            else 
+            	order = hints.activationOrder();
+            
+			/*
+			 * Iterate over all activation types but only create a job when
+			 * there exists stuff to recalculate the metric on.
+			 */
+            for (Class<? extends DAObject> activator : order) {
+            	MetricType.Type actType = MetricType.fromActivator(activator);
+            	if (!objectIds.keySet().contains(actType))
+            		continue;
+            	
             	for (Long l : objectIds.get(actType)) {
             		jobs.add(new MetricActivatorJob(metric, l, logger, 
             			metricTypesToActivators.get(actType),
-            			getNextPriority(metricTypesToActivators.get(actType)),
+            			priority.incrementAndGet(),
             			fastSync));
             	}
             }
@@ -571,7 +573,7 @@ public class MetricActivatorImpl  implements MetricActivator {
         
         @Override
         public String toString() {
-            return "MetricSchedulerJob - Project:{" + sp + "}" ;
+            return "MetricSchedulerJob - Project:{" + sp + "} Metric:{" + m + "}";
         }
     }
 
@@ -580,25 +582,6 @@ public class MetricActivatorImpl  implements MetricActivator {
 		this.bc = bc;
 		this.logger = l;
 		
-		defaultPriority = new HashMap<Class<? extends DAObject>, Integer>();
-        defaultPriority.put(ProjectFile.class, 0x1000000);
-        defaultPriority.put(MailMessage.class, 0x1000000);
-        defaultPriority.put(Bug.class, 0x1000000);
-        defaultPriority.put(ProjectVersion.class, 0x8000000);
-        defaultPriority.put(MailingList.class, 0x8000000);
-        defaultPriority.put(Developer.class, 0xf000000);
-        defaultPriority.put(MailingListThread.class, 0xf000000);
-        defaultPriority.put(StoredProject.class, 0x1E000000);
-        
-        maxPriority = new HashMap<Class<? extends DAObject>, Integer>();
-        maxPriority.put(ProjectFile.class, defaultPriority.get(ProjectVersion.class));
-        maxPriority.put(MailMessage.class, defaultPriority.get(MailingList.class));
-        maxPriority.put(Bug.class, defaultPriority.get(Developer.class));
-        maxPriority.put(ProjectVersion.class, defaultPriority.get(StoredProject.class));
-        maxPriority.put(MailingList.class, defaultPriority.get(StoredProject.class));
-        maxPriority.put(Developer.class, defaultPriority.get(StoredProject.class));
-        maxPriority.put(MailingListThread.class, defaultPriority.get(StoredProject.class));
-        maxPriority.put(StoredProject.class, 0x1E000000);
         
         metricTypesToActivators = new HashMap<Type, Class<? extends DAObject>>();
         metricTypesToActivators.put(Type.SOURCE_DIRECTORY, ProjectFile.class);
@@ -620,7 +603,8 @@ public class MetricActivatorImpl  implements MetricActivator {
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
 
-        currentPriorities = new HashMap<Class<? extends DAObject>, Integer>();
+        priority = new AtomicInteger();
+        priority.set(0x1000);
         
         this.pa = core.getPluginAdmin();
         this.db = core.getDBService();
