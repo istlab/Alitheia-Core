@@ -2,7 +2,6 @@ package eu.sqooss.rest;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -42,7 +41,7 @@ public class Activator implements BundleActivator {
 		
 		ResteasyServlet bridge = new ResteasyServlet();
 		try {
-			http.registerServlet("/api/*", bridge, params, null);
+			http.registerServlet("/api", bridge, params, null);
 		} catch (Exception e) {
 			log.error("Error registering ResteasyServlet", e);
 		}

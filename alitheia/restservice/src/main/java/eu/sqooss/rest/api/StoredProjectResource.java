@@ -33,7 +33,6 @@
 
 package eu.sqooss.rest.api;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -46,7 +45,7 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 
-@Path("/projects")
+@Path("/")
 public class StoredProjectResource {
 
 	static {
@@ -54,15 +53,20 @@ public class StoredProjectResource {
 	}
 	
 	@GET
-	@Produces("application/xml")
-	@Path("*")
+	//@Produces("application/xml")
+	@Path("/projects/")
 	public List<StoredProject> getProjects() {
-		return Collections.EMPTY_LIST;
+		DBService db = AlitheiaCore.getInstance().getDBService();
+		String q = " from StoredProject";
+		db.startDBSession();
+		List<StoredProject> sp = (List<StoredProject>) db.doHQL(q);
+		db.commitDBSession();
+		return sp;
 	}
-	
-	@Path("{id}")
+
+	@Path("/projects/{id}")
 	@GET
-	@Produces("appication/xml")
+	//@Produces("appication/xml")
 	public StoredProject getProject(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();
