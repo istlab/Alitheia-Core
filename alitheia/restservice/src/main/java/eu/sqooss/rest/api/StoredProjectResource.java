@@ -45,15 +45,13 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 
-@Path("/")
+@Path("/api")
 public class StoredProjectResource {
 
-	static {
-		RestServiceApp.addServiceObject(StoredProjectResource.class);
-	}
+	public StoredProjectResource() {}
 	
 	@GET
-	//@Produces("application/xml")
+	@Produces("application/xml")
 	@Path("/projects/")
 	public List<StoredProject> getProjects() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
@@ -66,7 +64,7 @@ public class StoredProjectResource {
 
 	@Path("/projects/{id}")
 	@GET
-	//@Produces("appication/xml")
+	@Produces("appication/xml")
 	public StoredProject getProject(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();

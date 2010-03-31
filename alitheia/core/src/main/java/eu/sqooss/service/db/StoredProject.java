@@ -40,6 +40,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.BugStatus.Status;
 
@@ -59,6 +63,7 @@ import eu.sqooss.service.db.BugStatus.Status;
  * @assoc 1 - n TimeLineEvent
  * 
  */
+@XmlRootElement(name="project")
 public class StoredProject extends DAObject {
 	
 	/**
@@ -151,20 +156,19 @@ public class StoredProject extends DAObject {
 			this.desc = desc;
 		}
 	}
-	
+	@XmlElement
 	private String name;
 	
     /**
      * The versions that this project contains
      */
     private List<ProjectVersion> projectVersions;
-    
     private Set<Developer> developers;
     private Set<MailingList> mailingLists;
     private Set<StoredProjectMeasurement> measurements;
-    private Set<Bug> bugs;
-    private Set<ConfigurationOption> configOpts;
-    private Set<TimeLineEvent> timelineEvents;
+	private Set<Bug> bugs;
+	private Set<ConfigurationOption> configOpts;
+	private Set<TimeLineEvent> timelineEvents;
 	
     public Set<TimeLineEvent> getTimelineEvents() {
         return timelineEvents;
