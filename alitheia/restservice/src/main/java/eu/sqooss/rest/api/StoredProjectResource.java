@@ -64,7 +64,7 @@ public class StoredProjectResource {
 
 	@Path("/projects/{id}")
 	@GET
-	@Produces("appication/xml")
+	//@Produces("appication/xml")
 	public StoredProject getProject(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();

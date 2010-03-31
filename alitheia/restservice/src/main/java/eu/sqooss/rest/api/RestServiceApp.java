@@ -33,8 +33,8 @@
 
 package eu.sqooss.rest.api;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.ws.rs.core.Application;
 
@@ -43,8 +43,9 @@ public class RestServiceApp extends Application {
 	private static final Set<Class<?>> serviceObjects;
 	
 	static {
-		serviceObjects = new TreeSet<Class<?>>();
+		serviceObjects = new HashSet<Class<?>>();
 		serviceObjects.add(StoredProjectResource.class);
+		serviceObjects.add(MetricsResource.class);
 	}
 	
 	public static void addServiceObject(Class<?> object) {

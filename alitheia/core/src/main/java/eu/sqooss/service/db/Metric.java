@@ -38,6 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -51,6 +54,7 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n FileGroupMeasurement
  * 
  */
+@XmlRootElement(name="metric")
 public class Metric extends DAObject {
 	/**
 	 * the Alitheia Core plugin providing the functionality for this metric
@@ -63,16 +67,19 @@ public class Metric extends DAObject {
 	 * - Relating to email data BUG_DATABASE - Relating to BTS data PROJECT_WIDE
 	 * - Relating to all available project data
 	 */
+	@XmlElement
 	private MetricType metricType;
 
 	/**
 	 * The short form of the metric's name
 	 */
+	@XmlElement
 	private String mnemonic;
 
 	/**
 	 * A description of the work performed by this metric
 	 */
+	@XmlElement
 	private String description;
 
 	/**
