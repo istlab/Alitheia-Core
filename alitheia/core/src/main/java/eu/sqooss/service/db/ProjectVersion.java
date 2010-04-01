@@ -43,6 +43,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -52,6 +55,7 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n ProjectFile
  * @assoc 1 - n ProjectVersionMeasurement
  */
+@XmlRootElement(name="version")
 public class ProjectVersion extends DAObject {
     /**
      * The project to which this object relates
@@ -61,22 +65,26 @@ public class ProjectVersion extends DAObject {
     /**
      * The SCM version identifier to which this object relates
      */
+    @XmlElement
     private String revisionId;
 
     /**
      * The date/time at which this version occurs, in milliseconds
      * since the epoch. @see getTimestamp(), getDate()
      */
+    @XmlElement
     private long timestamp;
 
     /**
      * The developer causing this revision of the project
      */
+    @XmlElement
     private Developer committer;
 
     /**
      * The commit message provided by the developer as the revision was made
      */
+    @XmlElement
     private String commitMsg;
 
     /**

@@ -34,14 +34,21 @@
 
 package eu.sqooss.service.db;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * An alternate developer identity.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
+@XmlRootElement
 public class DeveloperAlias extends DAObject {
+	@XmlElement
     private String email;
+	
+	@XmlElement
     private Developer developer;
 
     public DeveloperAlias() {}

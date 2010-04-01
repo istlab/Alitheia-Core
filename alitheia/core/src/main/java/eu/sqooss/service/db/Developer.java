@@ -38,6 +38,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.commons.codec.digest.DigestUtils;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -51,20 +54,24 @@ import eu.sqooss.service.db.DAObject;
  * @assoc 1 - n MailMessage
  * @assoc 1 - n BugReportMessage
  */
+@XmlRootElement
 public class Developer extends DAObject{
     /**
      * The developer's name
      */
+	@XmlElement
     private String name;
 
     /**
      * The developer's username
      */
+	@XmlElement
     private String username = "";
 
     /**
      * The list of developer emails
      */
+	@XmlElement
     private Set<DeveloperAlias> aliases;
     
     /**
