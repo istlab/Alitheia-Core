@@ -62,6 +62,7 @@
     <module>alitheia</module>
     <module>metrics</module>
     <module>external</module>
+    <module>web</module>
   </modules>
 
   <developers>
