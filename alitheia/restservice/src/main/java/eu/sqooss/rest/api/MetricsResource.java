@@ -18,7 +18,7 @@ public class MetricsResource {
 	public MetricsResource() {}
 
 	@GET
-	@Produces("application/xml")
+    @Produces({"appication/xml", "application/json"})
 	@Path("/metrics/")
 	public List<Metric> getMetrics() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
@@ -31,7 +31,7 @@ public class MetricsResource {
 
 	@Path("/metrics/{id}")
 	@GET
-	//@Produces("appication/xml")
+    @Produces({"appication/xml", "application/json"})
 	public Metric getProject(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();

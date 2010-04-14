@@ -42,8 +42,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import org.apache.commons.collections.map.HashedMap;
-
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -56,7 +54,7 @@ public class StoredProjectResource {
 	public StoredProjectResource() {}
 	
 	@GET
-	@Produces("application/xml")
+	@Produces({"application/xml", "application/json"})
 	@Path("/projects/")
 	public List<StoredProject> getProjects() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
@@ -69,7 +67,7 @@ public class StoredProjectResource {
 
 	@Path("/projects/{id}")
 	@GET
-	//@Produces("appication/xml")
+    @Produces({"application/xml", "application/json"})
 	public StoredProject getProject(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();
@@ -80,7 +78,7 @@ public class StoredProjectResource {
 	
 	@Path("/projects/{id}/versions")
 	@GET
-	//@Produces("appication/xml")
+	@Produces({"appication/xml", "application/json"})
 	public List<ProjectVersion> getVersions(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();
@@ -95,14 +93,13 @@ public class StoredProjectResource {
 	
 	@Path("/projects/{id}/versions/{vid}")
 	@GET
-	//@Produces("appication/xml")
+	@Produces({"appication/xml", "application/json"})
 	public ProjectVersion getVersion(@PathParam("id") Long prid,
 			@PathParam("vid") Long verid) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();
 		String q = "from ProjectVersion v where v.id = :id";
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("pr", prid);
 		params.put("id", verid);
 		List<ProjectVersion> versions = (List<ProjectVersion>)db.doHQL(q, params);
 		db.commitDBSession();
