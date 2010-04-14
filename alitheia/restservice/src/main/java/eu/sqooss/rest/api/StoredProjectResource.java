@@ -95,10 +95,10 @@ public class StoredProjectResource {
 	@GET
 	@Produces({"appication/xml", "application/json"})
 	public ProjectVersion getVersion(@PathParam("id") Long prid,
-			@PathParam("vid") Long verid) {
+			@PathParam("vid") String verid) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();
-		String q = "from ProjectVersion v where v.id = :id";
+		String q = "from ProjectVersion v where v.revisionId = :id";
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("id", verid);
 		List<ProjectVersion> versions = (List<ProjectVersion>)db.doHQL(q, params);
