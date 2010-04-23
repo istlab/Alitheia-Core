@@ -78,7 +78,7 @@ public class StoredProjectResource {
 	
 	@Path("/projects/{id}/versions")
 	@GET
-	@Produces({"appication/xml", "application/json"})
+	@Produces({"application/xml", "application/json"})
 	public List<ProjectVersion> getVersions(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		db.startDBSession();
@@ -93,7 +93,7 @@ public class StoredProjectResource {
 	
 	@Path("/projects/{id}/versions/{vid}")
 	@GET
-	@Produces({"appication/xml", "application/json"})
+	@Produces({"application/xml", "application/json"})
 	public ProjectVersion getVersion(@PathParam("id") Long prid,
 			@PathParam("vid") String verid) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
