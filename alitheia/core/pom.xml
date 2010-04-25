@@ -123,28 +123,8 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <version>3.3.1.GA</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.webconsole</artifactId>
-      <version>1.2.8</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.scr</artifactId>
-      <version>1.0.8</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.http.jetty</artifactId>
-      <version>1.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.eventadmin</artifactId>
-      <version>1.0.0</version>
+      <artifactId>hibernate-annotations</artifactId>
+      <version>3.5.1-Final</version>
     </dependency>
   </dependencies>
     

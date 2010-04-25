@@ -35,29 +35,55 @@ package eu.sqooss.service.db;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import eu.sqooss.service.db.DAObject;
 
 /**
  * This class represents the primary data associated with a bug report
  */
+@Entity
+@Table(name="BUG_REPORT_MESSAGE")
 public class BugReportMessage extends DAObject {
-    /**
+    
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="BUG_REPORT_MESSAGE_ID")
+	private long id;
+
+	/**
      * The bug with which the message is associated
      */
+	@ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
+	@JoinColumn(name="BUG_ID")
     private Bug bug;
+	
     /**
      * The original reporter of the bug
      */
+	@ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
+	@JoinColumn(name="DEVELOPER_ID")
     private Developer reporter;
     
     /**
      * The date this message was written
      */
+	@Column(name="timestamp")
     private Date timestamp;
     
     /**
      * Message text
      */
+	@Column(name="text")
     private String text;
     
     public BugReportMessage() {
@@ -67,6 +93,14 @@ public class BugReportMessage extends DAObject {
     public BugReportMessage(Bug b) {
         this.bug = b;
     }
+    
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     public Bug getBug() {
         return bug;

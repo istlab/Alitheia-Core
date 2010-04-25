@@ -36,6 +36,15 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -44,11 +53,23 @@ import eu.sqooss.core.AlitheiaCore;
  * 
  * @assoc 1 - n Bug
  */
+@Entity
+@Table(name="BUG_PRIORITY")
 public class BugPriority extends DAObject {
     
-    /** The bug priority */
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="BUG_PRIORITY_ID")
+	private long id; 
+	
+	/** The bug priority */
+	@Column(name="PRIORITY")
     private String priority;
 
+	/**Bugs with this priority*/
+	@OneToMany(mappedBy="priority", orphanRemoval=true)
+	private Set<Bug> bugs;
+	
     public String getPriority() {
         return priority;
     }
@@ -64,6 +85,18 @@ public class BugPriority extends DAObject {
     public void setBugPriority(Priority s) {
         this.priority = s.toString();
     }
+    
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
     
     /**
      * Encapsulates all available priority states a bug can be in with a 
@@ -153,4 +186,12 @@ public class BugPriority extends DAObject {
         
         return bs;
     }
+
+	public void setBugs(Set<Bug> bugs) {
+		this.bugs = bugs;
+	}
+
+	public Set<Bug> getBugs() {
+		return bugs;
+	}
 }

@@ -56,6 +56,7 @@ import org.hibernate.JDBCException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;	
 import org.hibernate.mapping.AuxiliaryDatabaseObject;
 import org.osgi.framework.BundleContext;
@@ -204,7 +205,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
             return;
         }
         try {
-            Configuration c = new Configuration().configure(configFileURL); 
+            Configuration c = new AnnotationConfiguration().configure(configFileURL); 
             // c now holds the configuration from hibernate.cfg.xml, need
             // to override some of those properties.
             c.setProperty("hibernate.connection.driver_class", dbClass);

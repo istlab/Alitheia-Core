@@ -36,6 +36,15 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -44,11 +53,23 @@ import eu.sqooss.core.AlitheiaCore;
  * 
  *  @assoc 1 - n Bug
  */
+@Entity
+@Table(name="BUG_RESOLUTION")
 public class BugResolution extends DAObject {
     
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="BUG_RESOLUTION_ID")
+	private long id; 
+	
     /** The bug resolution */
+	@Column(name="RESOLUTION")
     private String resolution;
 
+	/** Bugs in this resolution state*/
+	@OneToMany(mappedBy="resolution", orphanRemoval=true)
+    private Set<Bug> bugs;
+    
     public String getResolution() {
         return resolution;
     }
@@ -64,6 +85,14 @@ public class BugResolution extends DAObject {
     public void setBugResolution(Resolution s) {
         this.resolution = s.toString();
     }
+    
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     /**
      * Encapsulates all available resolution states a bug can be in with a 
@@ -160,4 +189,12 @@ public class BugResolution extends DAObject {
         
         return bs;
     }
+
+	public void setBugs(Set<Bug> bugs) {
+		this.bugs = bugs;
+	}
+
+	public Set<Bug> getBugs() {
+		return bugs;
+	}
 }

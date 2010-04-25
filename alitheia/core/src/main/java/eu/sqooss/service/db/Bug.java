@@ -39,6 +39,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.OneToMany;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -48,47 +60,80 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n Developer
  *  
  */
+@Entity
+@Table(name="BUG")
 public class Bug extends DAObject {
-    
-    /** The project this bug belongs to */
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="BUG_ID")
+	private long id; 
+
+	/** The project this bug belongs to */
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="STORED_PROJECT_ID")
     private StoredProject project;
     
-    /** When this bug was last touched from the updater */
+    /** When this bug was last touched by the updater */
+	@Column(name="UPDATE_RUN")
     private Date updateRun;
     
     /**
      * The bugID in the original bug tracking system. Used to correlate
      * entries to filesystem/other database bug reports.
      */
+	@Column(name="BUG_EXTERNAL_ID")
     private String bugID;
     
     /** The bug resolution status. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="BUG_STATUS_ID")
     private BugStatus status;
     
     /** Creation timestamp. */
+    @Column(name="CREATION_TS")
     private Date creationTS;
     
     /** The timestamp of the last update. */
+    @Column(name="DELTA_TS")
     private Date deltaTS;
     
     /** The user who reported this. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="REPORTER_ID")
     private Developer reporter;
     
     /** The bug's resolution status. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="BUG_RESOLUTION_ID")
     private BugResolution resolution;
     
     /** The bug's resolution priority*/
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="BUG_PRIORITY_ID")
     private BugPriority priority;
     
     /** The bug's severity.*/
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="BUG_SEVERITY_ID")
     private BugSeverity severity;
     
     /** A short description of the bug. */
+    @Column(name="SHORT_DESC")
     private String shortDesc;
     
     /** The list of messages associated to this bug */
+    @OneToMany(mappedBy="bug", cascade=CascadeType.ALL, orphanRemoval=true)
     private Set<BugReportMessage> reportMessages;
 
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public String getBugID() {
         return bugID;
     }

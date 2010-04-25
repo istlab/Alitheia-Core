@@ -11,14 +11,14 @@
   <properties>
     <bundle.symbolicName>org.hibernate.core</bundle.symbolicName>
     <wrapped.groupId>org.hibernate</wrapped.groupId>
-    <wrapped.artifactId>hibernate-core</wrapped.artifactId>
-    <wrapped.version>3.3.1.GA</wrapped.version>
+    <wrapped.artifactId>hibernate-annotations</wrapped.artifactId>
+    <wrapped.version>3.5.1-Final</wrapped.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
-  <artifactId>org.hibernate.core</artifactId>
-  <version>3.3.1.GA</version>
+  <artifactId>org.hibernate</artifactId>
+  <version>3.5.1-Final</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 
@@ -47,11 +47,6 @@
     	<version>3.4.GA</version>
     </dependency>
     <dependency>
-    	<groupId>javax.transaction</groupId>
-    	<artifactId>jta</artifactId>
-    	<version>1.1</version>
-    </dependency>
-    <dependency>
     	<groupId>dom4j</groupId>
     	<artifactId>dom4j</artifactId>
     	<version>1.6</version>
@@ -67,5 +62,4 @@
       <version>1.5.8</version>
     </dependency>
   </dependencies>
-
 </project>
