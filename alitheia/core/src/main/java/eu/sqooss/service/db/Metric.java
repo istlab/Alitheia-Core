@@ -67,7 +67,7 @@ public class Metric extends DAObject {
 	 * - Relating to email data BUG_DATABASE - Relating to BTS data PROJECT_WIDE
 	 * - Relating to all available project data
 	 */
-	@XmlElement
+	@XmlElement(name="metrictype")
 	private MetricType metricType;
 
 	/**

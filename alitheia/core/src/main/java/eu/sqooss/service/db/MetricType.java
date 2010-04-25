@@ -37,6 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
@@ -46,10 +49,12 @@ import eu.sqooss.service.db.DAObject;
  * 
  * @assoc 1 - n Metric
  */
+@XmlRootElement(name="metrictype")
 public class MetricType extends DAObject {
     /**
      * A string representation of the type of metric
      */
+	@XmlElement
     private String type;
     
     /**

@@ -9,7 +9,7 @@
       <generator class="native" />
     </id>
     <property name="type" column="TYPE" not-null="true" />
-    <set name="metrics" inverse="true">
+    <set name="metrics">
         <key column="METRIC_TYPE"/>
         <one-to-many class="eu.sqooss.service.db.Metric"/>
     </set>
