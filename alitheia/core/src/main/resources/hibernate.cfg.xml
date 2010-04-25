@@ -45,7 +45,6 @@
         <mapping resource="eu/sqooss/service/db/PrivilegeValue.hbm.xml"/>        
         <mapping resource="eu/sqooss/service/db/GroupPrivilege.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ServiceUrl.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/MailMessage.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectVersionMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/StoredProjectMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/FileGroupMeasurement.hbm.xml"/>
@@ -63,14 +62,12 @@
         <mapping resource="eu/sqooss/service/db/Group.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/GroupType.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/GroupUser.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/MailingList.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Developer.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Directory.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ClusterNode.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ClusterNodeProject.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/MailingListThread.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectFileState.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/StoredProjectConfig.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ConfigurationOption.hbm.xml"/>
@@ -87,7 +84,10 @@
         <mapping class="eu.sqooss.service.db.BugSeverity" />
         <mapping class="eu.sqooss.service.db.BugPriority" />
         <mapping class="eu.sqooss.service.db.BugResolution" />
-        
+        <mapping class="eu.sqooss.service.db.MailingList" />
+        <mapping class="eu.sqooss.service.db.MailMessage" />
+        <mapping class="eu.sqooss.service.db.MailingListThread" />
+
     </session-factory>
 
 </hibernate-configuration>

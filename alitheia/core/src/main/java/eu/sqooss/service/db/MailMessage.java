@@ -38,59 +38,98 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
  * DAO Object for the MailMessage database table
  * @assoc 1 - n MailMessageMeasurement
  */
+@Entity
+@Table(name="MAILMESSAGE")
 public class MailMessage extends DAObject {
-    /**
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="MAILMESSAGE_ID")
+	private long id; 
+	
+	/**
      * the sender of the email
      */
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="SENDER_ID")
     Developer sender;
 
     /**
      * The list to which the email was originally sent
      */
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="MLIST_ID")
     MailingList list;
 
     /**
      * Unique ID for this message in the database
      */
+	@Column(name="MESSAGEID")
     String messageId;
 
     /**
      * The subject of the email
      */
+	@Column(name="SUBJECT")
     String subject;
 
     /**
      * The date on which the email was originally sent
      */
+	@Column(name="SEND_DATE")
     Date sendDate;
     
     /**
      * Message file name, to connect to the actual file.
      */
+	@Column(name="FILE_NAME")
     String fileName;
     
     /**
      * The thread this mail message belongs to.
      */
+    @ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="THREAD_ID")
     MailingListThread thread;
     
     /**
      * The message's nesting level in the thread it belongs to
      */
+    @Column(name="DEPTH")
     int depth;
     
     /**
      * The message that is the immediate parent to this email in the
      * thread they belong to.
      */
+    @ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="PARENT_ID")
     MailMessage parent;
    
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
     
     public MailingListThread getThread() {
         return thread;

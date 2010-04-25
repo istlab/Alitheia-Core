@@ -40,39 +40,71 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
- * Instances of this class represent t=he basic details of a project
+ * Instances of this class represent the basic details of a project
  * mailing list stored in the database
  * 
  * @assoc 1 - n MailMessage
  * @assoc 1 - n MailingListThread
  * 
  */
+@Entity
+@Table(name="MAILINGLIST")
 public class MailingList extends DAObject {
-    /**
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="MLIST_ID")
+	private long id; 
+	
+	/**
      * List unique ID within the database
      */
+	@Column(name="MLIST_LISTID")
     private String listId;
 
     /**
      * The project to which this list is related
      */
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="PROJECT_ID")
     private StoredProject storedProject;
 
     /**
      * The set of available messages in this list
      */
+	@OneToMany(mappedBy="list", orphanRemoval=true)
     private Set<MailMessage> messages;
 
     /**
      * The set of threaded discussions in this list
      */
+	@OneToMany(mappedBy="list", orphanRemoval=true)
     private Set<MailingListThread> threads; 
     
     public MailingList() {}
 
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public String getListId() {
         return listId;
     }

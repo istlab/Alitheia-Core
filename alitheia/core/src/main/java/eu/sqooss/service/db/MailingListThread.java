@@ -40,6 +40,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -50,23 +61,35 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n MailMessage
  * @assoc 1 - n MailingListThreadMeasurement
  */
+@Entity
+@Table(name="MAILINGLIST_THREAD")
 public class MailingListThread extends DAObject {
 
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="MLTHREAD_ID")
+	private long id;
+	
     /** The mailing list this thread belongs to */
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="MAILING_LIST_ID")
     private MailingList list;
 
     /** Flag to identify a thread as a flamewar */
-    private boolean isFlameWar;
+	@Column(name="IS_FLAME")
+	private boolean isFlameWar;
     
     /**
      * Get the last date this thread was updated, by convention the arrival date
      * of the last email that arrived on this thread
      */
+	@Column(name="LAST_UPDATED")
     private Date lastUpdated;
-    
+
     /**
      * A set containing the messages that belong to this thread
      */
+	@OneToMany(mappedBy="thread", orphanRemoval=true)
     private Set<MailMessage> messages;
     
     public Set<MailMessage> getMessages() {
@@ -100,6 +123,18 @@ public class MailingListThread extends DAObject {
     public void setIsFlameWar(boolean isFlameWar) {
         this.isFlameWar = isFlameWar;
     }
+    
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public void setFlameWar(boolean isFlameWar) {
+		this.isFlameWar = isFlameWar;
+	}
     
     public Date getLastUpdated() {
         return lastUpdated;
