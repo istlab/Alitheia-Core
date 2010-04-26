@@ -38,6 +38,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -55,23 +63,34 @@ import eu.sqooss.service.db.DAObject;
  * @assoc 1 - n BugReportMessage
  */
 @XmlRootElement
-public class Developer extends DAObject{
-    /**
+@Entity
+@Table(name="DEVELOPER")
+public class Developer extends DAObject {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="DEVELOPER_ID")
+	private long id; 
+
+	/**
      * The developer's name
      */
 	@XmlElement
+	@Column(name="NAME")
     private String name;
 
     /**
      * The developer's username
      */
 	@XmlElement
+	@Column(name="USERNAME")
     private String username = "";
 
     /**
      * The list of developer emails
      */
 	@XmlElement
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="developer", orphanRemoval=true)
     private Set<DeveloperAlias> aliases;
     
     /**
@@ -82,18 +101,28 @@ public class Developer extends DAObject{
     /**
      * The list of commits from this developer
      */
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="committer", orphanRemoval=true)
     private Set<ProjectVersion> commits;
 	
     /**
      * The list of mails sent by this developer
      */
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="sender", orphanRemoval=true)
     private Set<MailMessage> mails;
 	
     /**
      * The list of bug report messages sent by this developer
      */
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="reporter", orphanRemoval=true)
     private Set<BugReportMessage> bugReportMessages;
 
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     public void setName(String name) {
         this.name = name;

@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 package eu.sqooss.service.db;
 
 import java.util.ArrayList;
@@ -43,6 +42,15 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -56,8 +64,16 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n ProjectVersionMeasurement
  */
 @XmlRootElement(name="version")
+@Entity
+@Table(name="PROJECT_VERSION")
 public class ProjectVersion extends DAObject {
-    /**
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PROJECT_FILE_ID")
+	private long id; 
+
+	/**
      * The project to which this object relates
      */
     private StoredProject project;
@@ -66,6 +82,7 @@ public class ProjectVersion extends DAObject {
      * The SCM version identifier to which this object relates
      */
     @XmlElement
+    @Column(name="REVISION_ID")
     private String revisionId;
 
     /**
@@ -73,29 +90,35 @@ public class ProjectVersion extends DAObject {
      * since the epoch. @see getTimestamp(), getDate()
      */
     @XmlElement
+    @Column(name="TIMESTAMP")
     private long timestamp;
 
     /**
      * The developer causing this revision of the project
      */
     @XmlElement
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="COMMITTER_ID")
     private Developer committer;
 
     /**
      * The commit message provided by the developer as the revision was made
      */
     @XmlElement
+    @Column(name="COMMIT_MESSAGE", length=512)
     private String commitMsg;
 
     /**
      * SCM properties associated with this version. For future use.
      */
+    @Column(name="PROPERTIES", length=512)
     private String properties;
     
     /**
      * The order of this version. The ordering of revisions depends on
      * the project's SCM.  
      */
+    @Column(name="PROPERTIES", length=512)
     private long sequence;
     
     /**
@@ -145,6 +168,13 @@ public class ProjectVersion extends DAObject {
     public ProjectVersion(StoredProject project) {
         this.project = project;
     }
+    
+    public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
 
     public StoredProject getProject() {
         return project;

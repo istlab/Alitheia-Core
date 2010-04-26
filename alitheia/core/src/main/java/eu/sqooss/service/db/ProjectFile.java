@@ -39,6 +39,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.FileUtils;
 
@@ -49,12 +56,20 @@ import eu.sqooss.service.util.FileUtils;
  * @assoc 1 - n ProjectFileMeasurement
  * 
  */
+@Entity
+@Table(name="PROJECT_FILE")
 public class ProjectFile extends DAObject{
    
-    /**
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PROJECT_FILE_ID")
+	private long id; 
+	
+	/**
      * The filename (name without a directory for files, the directory
      * name for directories)
      */
+	@Column(name="FILE_NAME")
     private String name;
 
     /**
@@ -70,6 +85,7 @@ public class ProjectFile extends DAObject{
     /**
      * If this "file" is actually a directory then this is set to true
      */
+    @Column(name="IS_DIRECTORY")
     private boolean isDirectory;
 
     /**
@@ -192,6 +208,18 @@ public class ProjectFile extends DAObject{
     public boolean getIsDirectory() {
         return isDirectory;
     }
+
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public void setDirectory(boolean isDirectory) {
+		this.isDirectory = isDirectory;
+	}
 
     public void setIsDirectory(boolean isDirectory) {
         this.isDirectory = isDirectory;

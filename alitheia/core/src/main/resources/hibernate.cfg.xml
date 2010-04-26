@@ -87,6 +87,8 @@
         <mapping class="eu.sqooss.service.db.MailingList" />
         <mapping class="eu.sqooss.service.db.MailMessage" />
         <mapping class="eu.sqooss.service.db.MailingListThread" />
+        <mapping class="eu.sqooss.service.db.ProjectVersion" />
+        <mapping class="eu.sqooss.service.db.ProjectFile" />
 
     </session-factory>
 

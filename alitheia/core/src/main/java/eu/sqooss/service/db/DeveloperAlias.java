@@ -31,9 +31,17 @@
  *
  */
 
-
 package eu.sqooss.service.db;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -44,11 +52,22 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement
+@Entity
+@Table(name="DEVELOPER_ALIAS")
 public class DeveloperAlias extends DAObject {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="DEVELOPER_ID")
+	private long id; 
+	
 	@XmlElement
+	@Column(name="EMAIL")
     private String email;
 	
 	@XmlElement
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="DEVELOPER_ID")
     private Developer developer;
 
     public DeveloperAlias() {}
@@ -57,6 +76,14 @@ public class DeveloperAlias extends DAObject {
         this.email = email; 
         this.developer = d;
     }
+    
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     public String getEmail() {
         return email;
