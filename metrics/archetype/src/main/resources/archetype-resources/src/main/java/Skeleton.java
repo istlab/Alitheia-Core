@@ -54,7 +54,8 @@ import org.osgi.framework.BundleContext;
 ** DAO types from the database service.
 */
 import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.ProjectFileMetric;
+import eu.sqooss.service.abstractmetric.MetricDecl;
+import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
@@ -72,42 +73,14 @@ import eu.sqooss.service.db.ProjectFile;
  * respond to changes in files in project revisions (i.e. it will do a
  * computation for each file changed in each SVN revision). 
  */ 
-public class Skeleton extends AbstractMetric implements ProjectFileMetric {
-    private static String MNEMONIC_METRIC = "SKEL";
-    private static String METRIC_DEPENDENCY_MNEMONIC = "Wc.loc";
+@MetricDeclarations(metrics= {
+	@MetricDecl(mnemonic="SKEL", activators={ProjectFile.class}, 
+			descr="Skeleton Metric", dependencies={"Wc.loc"})
+})
+public class Skeleton extends AbstractMetric {
     
     public Skeleton(BundleContext bc) {
         super(bc);        
- 
-        // Tells Alitheia Core when to call this plug-in; this
-        // should be called for each activation type we support, so
-        // for each *Metric interface we implement.
-        super.addActivationType(ProjectFile.class);
-        
-        // Tells the UI what this metric is calculated against. This
-        // should be called for each (sub)metric in the plug-in.
-        // Squeleton has only one metric. The class should be the
-        // DAO that activates the specific metric.
-        super.addMetricActivationType(MNEMONIC_METRIC, ProjectFile.class);
-        
-        // Add a dependency to another plug-in. If this depencency is not
-        // satisfied (i.e. there is no installed plug-in that exports
-        // the provided mnemonic), then the metric will fail to 
-        // install and run.
-        super.addDependency(METRIC_DEPENDENCY_MNEMONIC);
-    }
-    
-    public boolean install() {
-        //This should always be called to run various init tasks
-        boolean result = super.install();
-        
-        if (result) {
-            result &= super.addSupportedMetrics(
-                    this.getDescription(),
-                    MNEMONIC_METRIC,
-                    MetricType.Type.SOURCE_CODE);
-        }
-        return result;
     }
 
     public List<ResultEntry> getResult(ProjectFile a, Metric m) {
@@ -125,4 +98,3 @@ public class Skeleton extends AbstractMetric implements ProjectFileMetric {
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-
