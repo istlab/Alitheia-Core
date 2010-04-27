@@ -23,7 +23,6 @@
     <module>javax.mail</module>
     <module>commons-codec</module>
     <module>mysql-connector-java</module>
-    <module>c3p0</module>
     <module>org.hibernate.core</module>
     <module>log4j</module>
   </modules>
