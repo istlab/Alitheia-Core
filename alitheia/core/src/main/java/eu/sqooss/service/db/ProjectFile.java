@@ -41,10 +41,15 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlElement;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.FileUtils;
@@ -63,6 +68,7 @@ public class ProjectFile extends DAObject{
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="PROJECT_FILE_ID")
+	@XmlElement
 	private long id; 
 	
 	/**
@@ -75,11 +81,15 @@ public class ProjectFile extends DAObject{
     /**
      * the version of the project to which this file relates
      */
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="PROJECT_VERSION_ID")
     private ProjectVersion projectVersion;
 
     /**
      * The file's status in this revision 
      */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="STATE_ID")
     private ProjectFileState state;
 
     /**
@@ -91,28 +101,37 @@ public class ProjectFile extends DAObject{
     /**
      * The SVN directory for which this file can be found
      */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="DIRECTORY_ID")
     private Directory dir;
     
     /**
      * The start revision a file has been valid from (the 
      * addition/copy revision)
      */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="VALID_FROM_ID")
     private ProjectVersion validFrom;
     
     /**
      * The revision this file version stopped being 
      */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="VALID_TO_ID")
     private ProjectVersion validUntil;
 
     /**
      * The ProjectFile this file was copied from. Only gets a value 
      * for file copy operations
      */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="COPY_FROM_ID")
     private ProjectFile copyFrom;
     
     /**
      * File measurements for this file
      */
+    @Transient
     private Set<ProjectFileMeasurement> measurements;
     
     public ProjectFile() {

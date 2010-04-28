@@ -37,6 +37,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
@@ -46,25 +57,45 @@ import eu.sqooss.service.db.DAObject;
  * 
  * @assoc 1 - 1 ProjectVersion
  */
+@Entity
+@Table(name="TAG")
 public class Tag extends DAObject {
-    /**
+    
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PROJECT_FILE_ID")
+	@XmlElement
+	private long id;
+
+	/**
      * The version of the project to which this tag relates
      */
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="TAG_VERSION")
     private ProjectVersion projectVersion;
 
     /**
-     * The name of the tag provided at the time it was commited by the
+     * The name of the tag provided at the time it was committed by the
      * developer
      */
+	@Column(name="TAG_NAME")
     private String name;
 
     public Tag() {
         // Nothing to do
     }
+    
     public Tag(ProjectVersion pv) {
         this.projectVersion = pv;
     }
 
+    public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public ProjectVersion getProjectVersion() {
         return projectVersion;
     }

@@ -33,48 +33,90 @@
 
 package eu.sqooss.service.db;
 
-import java.sql.Time;
+import java.util.Date;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * This class represents a FileGroup in the database. FileGroups are
  * cool, you should try them some day.
  */
-public class FileGroup extends DAObject{
-    /**
+@Entity
+@Table(name="FILE_GROUP")
+public class FileGroup extends DAObject {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PROJECT_FILE_ID")
+	@XmlElement
+	private long id;
+	
+	/**
      * The FileGroup name
      */
+	@Column(name="FILE_GROUP_NAME")
     private String name;
+    
     /**
      * The FileGroup path (on the local file store?)
      */
+	@Column(name="GROUP_SUBPATH")
     private String subPath;
+    
     /**
      * A regular expression. Why not?
      */
+	@Column(name="REGEX")
     private String regex;
+    
     /**
      * The frequency of recaluation: daily, 4-daily etc.
      */
+	@Column(name="RECALC_FREQ")
     private int recalcFreq;
+    
     /**
      * The date on which the FileGroup was last accessed by a metric
      */
-    private Time lastUsed;
+	@Column(name="LAST_USED")
+    private Date lastUsed;
+    
     /**
      * The ProjectVersion where this FG was created
      */
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="PROJECT_VERSION_ID")
     private ProjectVersion projectVersion;
     
     /**
      * The measurements for this file group
      */
+	@Transient
     private Set<FileGroupMeasurement> measurements;
 
     public FileGroup() {
         // Nothing to do
     }
 
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public String getName() {
         return name;
     }
@@ -107,11 +149,11 @@ public class FileGroup extends DAObject{
         this.recalcFreq = recalcFreq;
     }
 
-    public Time getLastUsed() {
+    public Date getLastUsed() {
         return lastUsed;
     }
 
-    public void setLastUsed(Time lastUsed) {
+    public void setLastUsed(Date lastUsed) {
         this.lastUsed = lastUsed;
     }
 
@@ -133,4 +175,3 @@ public class FileGroup extends DAObject{
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
-

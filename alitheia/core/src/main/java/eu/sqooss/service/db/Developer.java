@@ -70,6 +70,7 @@ public class Developer extends DAObject {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="DEVELOPER_ID")
+	@XmlElement
 	private long id; 
 
 	/**
@@ -84,7 +85,7 @@ public class Developer extends DAObject {
      */
 	@XmlElement
 	@Column(name="USERNAME")
-    private String username = "";
+    private String username;
 
     /**
      * The list of developer emails

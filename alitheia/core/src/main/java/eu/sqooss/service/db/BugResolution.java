@@ -45,6 +45,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -60,6 +61,7 @@ public class BugResolution extends DAObject {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="BUG_RESOLUTION_ID")
+	@XmlElement
 	private long id; 
 	
     /** The bug resolution */

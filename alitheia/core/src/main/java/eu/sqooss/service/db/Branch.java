@@ -37,6 +37,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -45,9 +56,25 @@ import eu.sqooss.core.AlitheiaCore;
  * @author Georgios Gousios <gousiosg@gmail.com>
  * @assoc 1 - 1 ProjectVersion
  */
+@Entity
+@Table(name="BRANCH")
 public class Branch extends DAObject {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PROJECT_FILE_ID")
+	@XmlElement
+	private long id;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="BRANCH_VERSION")
 	private ProjectVersion branchVersion;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="MERGE_VERSION")
 	private ProjectVersion mergeVersion;
+	
+	@Column(name="BRANCH_NAME")
 	private String name;
 	
 	public Branch() {}
@@ -56,6 +83,14 @@ public class Branch extends DAObject {
 		this.branchVersion = branch;
 		this.name = name;
 		this.mergeVersion = merge;
+	}
+	
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 	
 	public ProjectVersion getBranchVersion() {

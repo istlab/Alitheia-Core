@@ -38,6 +38,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -53,16 +62,25 @@ import eu.sqooss.core.AlitheiaCore;
  * 
  * @assoc 1 - n ProjectFile
  */
+@Entity
+@Table(name="PROJECT_FILE_STATE")
 public class ProjectFileState extends DAObject {
     
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PROJECT_FILE_ID")
+	private long id; 
+	
     // File status constants
     public static final int STATE_ADDED = 0x1;
     public static final int STATE_MODIFIED = 0x2;
     public static final int STATE_DELETED  = 0x4;
     public static final int STATE_REPLACED  = 0x8;
     
+    @Column(name="STATUS")
     private int status;
     
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval=true, mappedBy="state")
     private Set<ProjectFile> files;
     
     public String toString() {
@@ -132,4 +150,12 @@ public class ProjectFileState extends DAObject {
     public void setFiles(Set<ProjectFile> files) {
         this.files = files;
     }
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 }

@@ -35,7 +35,6 @@ package eu.sqooss.service.db;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -47,7 +46,6 @@ public class DAObject {
     /**
      * The DAO instance ID, required by Hibernate
      */
-	@XmlElement
     private long id;
 
     /**

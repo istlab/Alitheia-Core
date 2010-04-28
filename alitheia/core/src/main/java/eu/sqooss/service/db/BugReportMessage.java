@@ -45,6 +45,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
 
 import eu.sqooss.service.db.DAObject;
 
@@ -58,6 +59,7 @@ public class BugReportMessage extends DAObject {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="BUG_REPORT_MESSAGE_ID")
+	@XmlElement
 	private long id;
 
 	/**

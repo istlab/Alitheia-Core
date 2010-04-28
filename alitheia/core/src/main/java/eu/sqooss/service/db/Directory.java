@@ -38,6 +38,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -46,22 +57,41 @@ import eu.sqooss.core.AlitheiaCore;
  * 
  * @assoc 1 - n ProjectFile
  */
+@XmlRootElement(name="dir")
+@Entity
+@Table(name="DIRECTORY")
 public class Directory extends DAObject {
     /**
      * Semi-fake representation of a SVN root
      */
     public static String SCM_ROOT = "/";
 
-    /**
+    @Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="DIRECTORY_ID")
+	@XmlElement
+	private long id; 
+    
+	/**
      * The path within the SVN repo
      */
+    @Column(name="PATH")
     private String path;
     
     /**
      * A set representing the files within this path
      */
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "dir")
     private Set<ProjectFile> files;
 
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public String getPath() {
         return path;
     }

@@ -50,6 +50,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlElement;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -67,6 +68,7 @@ public class Bug extends DAObject {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="BUG_ID")
+	@XmlElement
 	private long id; 
 
 	/** The project this bug belongs to */

@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -50,7 +51,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -67,15 +70,18 @@ import eu.sqooss.core.AlitheiaCore;
 @Entity
 @Table(name="PROJECT_VERSION")
 public class ProjectVersion extends DAObject {
-	
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="PROJECT_FILE_ID")
-	private long id; 
+	@Column(name="PROJECT_VERSION_ID")
+	@XmlElement
+	private long id;
 
 	/**
      * The project to which this object relates
      */
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="STORED_PROJECT_ID")
     private StoredProject project;
 
     /**
@@ -118,31 +124,45 @@ public class ProjectVersion extends DAObject {
      * The order of this version. The ordering of revisions depends on
      * the project's SCM.  
      */
-    @Column(name="PROPERTIES", length=512)
+    @XmlElement
+    @Column(name="VERSION_SEQUENCE")
     private long sequence;
     
     /**
      * The files changed in this version
      */
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="projectVersion", orphanRemoval=true, cascade=CascadeType.ALL)
     private Set<ProjectFile> versionFiles;
     
     /**
      * The file groups contained in that version
      */
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="projectVersion", orphanRemoval=true, cascade=CascadeType.ALL)
     private Set<FileGroup> fileGroups;
+    
     /**
      * The set of known tags in this version of the project
      */
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="projectVersion", orphanRemoval=true, cascade=CascadeType.ALL)
     private Set<Tag> tags;
     
     /**
-     * The set of known branches in this version of the project
+     * The set of branches that were branched in this version of the project
      */
-    private Set<Branch> branches;
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="branchVersion", orphanRemoval=true, cascade=CascadeType.ALL)
+    private Set<Branch> branched;
     
+	/**
+     * The set of branches that were merged in this version of the project
+     */
+    @OneToMany(mappedBy="mergeVersion", orphanRemoval=true, cascade=CascadeType.ALL)
+    private Set<Branch> merged;
+    
+   
     /**
      * The set of measurements available for the given version of the project
      */
+    @Transient
     private Set<ProjectVersionMeasurement> measurements;
     
     /**
@@ -155,30 +175,48 @@ public class ProjectVersion extends DAObject {
 	 * Mask used to select files
 	 */
 	public static final int MASK_FILES = 0x1;
-	
+
 	/**
 	 * Mask used to select both files and directories
 	 */
 	public static final int MASK_ALL = MASK_FILES | MASK_DIRECTORIES;
 
 
-    public ProjectVersion() {
-        // Nothing to do
-    }
-    public ProjectVersion(StoredProject project) {
-        this.project = project;
-    }
-    
-    public long getId() {
+	public ProjectVersion() {
+		// Nothing to do
+	}
+
+	public ProjectVersion(StoredProject project) {
+		this.project = project;
+	}
+
+	public long getId() {
 		return id;
 	}
+
 	public void setId(long id) {
 		this.id = id;
 	}
 
-    public StoredProject getProject() {
-        return project;
-    }
+	public Set<Branch> getBranched() {
+		return branched;
+	}
+
+	public void setBranched(Set<Branch> branched) {
+		this.branched = branched;
+	}
+
+	public Set<Branch> getMerged() {
+		return merged;
+	}
+
+	public void setMerged(Set<Branch> merged) {
+		this.merged = merged;
+	}
+
+	public StoredProject getProject() {
+		return project;
+	}
 
     public void setProject(StoredProject project) {
         this.project = project;
@@ -284,14 +322,6 @@ public class ProjectVersion extends DAObject {
     
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
-    }
-    
-    public Set<Branch> getBranches() {
-        return branches;
-    }
-    
-    public void setBranches(Set<Branch> branches) {
-        this.branches = branches;
     }
         
     /**

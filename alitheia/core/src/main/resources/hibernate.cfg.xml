@@ -52,11 +52,7 @@
         <mapping resource="eu/sqooss/service/db/MetricType.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Plugin.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/PluginConfiguration.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ProjectFile.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/FileGroup.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ProjectVersion.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/StoredProject.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/Tag.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/PendingUser.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Group.hbm.xml"/>
@@ -64,11 +60,9 @@
         <mapping resource="eu/sqooss/service/db/GroupUser.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Developer.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/Directory.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ClusterNode.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ClusterNodeProject.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ProjectFileState.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/StoredProjectConfig.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ConfigurationOption.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Branch.hbm.xml"/>
@@ -89,7 +83,10 @@
         <mapping class="eu.sqooss.service.db.MailingListThread" />
         <mapping class="eu.sqooss.service.db.ProjectVersion" />
         <mapping class="eu.sqooss.service.db.ProjectFile" />
-
+        <mapping class="eu.sqooss.service.db.ProjectFileState"/>
+        <mapping class="eu.sqooss.service.db.Directory" />
+        <mapping class="eu.sqooss.service.db.Tag" />
+        <mapping class="eu.sqooss.service.db.FileGroup"/>
     </session-factory>
 
 </hibernate-configuration>
