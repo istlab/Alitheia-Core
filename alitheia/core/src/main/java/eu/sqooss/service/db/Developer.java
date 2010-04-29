@@ -44,6 +44,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
@@ -97,6 +99,8 @@ public class Developer extends DAObject {
     /**
      * The project this developer belongs to
      */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="STORED_PROJECT_ID")
     private StoredProject storedProject;
 	
     /**

@@ -44,6 +44,10 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -165,6 +169,12 @@ public class StoredProject extends DAObject {
 		}
 	}
 	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PROJECT_ID")
+	@XmlElement
+	private long id;
+
 	@XmlElement
 	@Column(name="PROJECT_NAME")
 	private String name;
@@ -186,8 +196,9 @@ public class StoredProject extends DAObject {
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", orphanRemoval=true, cascade=CascadeType.ALL)
 	private Set<Bug> bugs;
-    
-    @Transient
+
+    @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, 
+    		mappedBy="projects", targetEntity=ConfigurationOption.class)
 	private Set<ConfigurationOption> configOpts;
     
     @Transient
@@ -201,14 +212,20 @@ public class StoredProject extends DAObject {
         this.timelineEvents = timelineEvents;
     }
 
-    public StoredProject() {
-		
-	}
-	
+    public StoredProject() {}
+    
     public StoredProject(String name) {
         this.name = name;
     }
+    
+    public long getId() {
+		return id;
+	}
 
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public String getName() {
         return name;
     }

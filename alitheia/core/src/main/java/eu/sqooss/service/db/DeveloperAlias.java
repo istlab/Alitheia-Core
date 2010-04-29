@@ -58,7 +58,7 @@ public class DeveloperAlias extends DAObject {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="DEVELOPER_ID")
+	@Column(name="DEVELOPER_ALIAS_ID")
 	@XmlElement
 	private long id; 
 	

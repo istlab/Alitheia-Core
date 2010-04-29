@@ -38,6 +38,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -49,11 +61,26 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n StoredProjectConfig
  *
  */
+@XmlRootElement(name="config-option")
+@Entity
+@Table(name="CONFIG_OPTION")
 public class ConfigurationOption extends DAObject {
-	private String key;
-	private String description;
-	private Set<StoredProject> projects;
 	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="STORED_PROJECT_CONFIG_ID")
+	private long id;
+	
+	@Column(name="CONFIG_KEY")
+	@XmlElement
+	private String key;
+	
+	@Column(name="CONFIG_DESCR")
+	@XmlElement
+	private String description;
+	
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="configOpts", orphanRemoval=true, cascade=CascadeType.ALL)
+	private Set<StoredProject> projects;
 	
     public ConfigurationOption() {}
 	
@@ -86,6 +113,14 @@ public class ConfigurationOption extends DAObject {
         this.projects = projects;
     }
 	
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+    
 	/**
 	 * 
 	 * @param sp

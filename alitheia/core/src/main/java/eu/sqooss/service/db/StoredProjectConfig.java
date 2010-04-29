@@ -37,14 +37,42 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.core.AlitheiaCore;
 
+@XmlRootElement(name="project-config")
+@Entity
+@Table(name="STORED_PROJECT_CONFIG")
 public class StoredProjectConfig extends DAObject {
 
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="STORED_PROJECT_CONFIG_ID")
+	private long id;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="CONFIG_OPTION_ID")
 	private ConfigurationOption confOpt;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="STORED_PROJECT_ID")
 	private StoredProject project;
+
+	@Column(name="VALUE")
+	@XmlElement(name="value")
 	private String value;
-	
+
 	public StoredProjectConfig() {}
 	
 	public StoredProjectConfig(ConfigurationOption co, String value, 
@@ -52,6 +80,14 @@ public class StoredProjectConfig extends DAObject {
 		this.confOpt = co;
 		this.value = value;
 		this.project = sp;
+	}
+	
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 	
 	public ConfigurationOption getConfOpt() {
