@@ -40,6 +40,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -63,8 +70,10 @@ import eu.sqooss.service.db.BugStatus.Status;
  * 
  */
 @XmlRootElement(name="project")
+@Entity
+@Table(name="STORED_PROJECT")
 public class StoredProject extends DAObject {
-	
+
 	/**
 	 * Stores all standard project-wide configuration options that
 	 * the system actually knows about.  
@@ -155,18 +164,33 @@ public class StoredProject extends DAObject {
 			this.desc = desc;
 		}
 	}
+	
 	@XmlElement
+	@Column(name="PROJECT_NAME")
 	private String name;
 	
     /**
      * The versions that this project contains
      */
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="project", orphanRemoval=true, cascade=CascadeType.ALL)
     private List<ProjectVersion> projectVersions;
+    
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", orphanRemoval=true, cascade=CascadeType.ALL)
     private Set<Developer> developers;
+    
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", orphanRemoval=true, cascade=CascadeType.ALL)
     private Set<MailingList> mailingLists;
+    
+    @Transient
     private Set<StoredProjectMeasurement> measurements;
+    
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="project", orphanRemoval=true, cascade=CascadeType.ALL)
 	private Set<Bug> bugs;
+    
+    @Transient
 	private Set<ConfigurationOption> configOpts;
+    
+    @Transient
 	private Set<TimeLineEvent> timelineEvents;
 	
     public Set<TimeLineEvent> getTimelineEvents() {
