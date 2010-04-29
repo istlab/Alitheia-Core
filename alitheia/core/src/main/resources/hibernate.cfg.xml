@@ -17,6 +17,7 @@
 
              SQL dialect is also set programmatically.
         -->
+        <property name="connection.provider_class">org.hibernate.connection.C3POConnectionProvider</property>
         <property name="c3p0.acquire_increment">1</property> 
         <property name="c3p0.idle_test_period">100</property> <!-- seconds --> 
         <property name="c3p0.max_size">100</property> 
@@ -34,13 +35,17 @@
 
         <!-- Disable the second-level cache  -->
         <!--<property name="cache.provider_class">org.hibernate.cache.EHCacheProvider</property>-->
+        <!-- <property name="hibernate.cache.use_query_cache">true</property> -->
 
         <!-- Echo all executed SQL to stdout -->
-        <property name="show_sql">true</property>
+        <property name="show_sql">false</property>
 
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">update</property>
-
+        
+        <!-- Make sure that the language used in custom queries is 100% QL compatible -->
+        <property name="query.jpaql_strict_compliance">true</property>
+        
         <mapping resource="eu/sqooss/service/db/Privilege.hbm.xml"/>        
         <mapping resource="eu/sqooss/service/db/PrivilegeValue.hbm.xml"/>        
         <mapping resource="eu/sqooss/service/db/GroupPrivilege.hbm.xml"/>
