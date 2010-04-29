@@ -36,7 +36,7 @@
         <!--<property name="cache.provider_class">org.hibernate.cache.EHCacheProvider</property>-->
 
         <!-- Echo all executed SQL to stdout -->
-        <property name="show_sql">false</property>
+        <property name="show_sql">true</property>
 
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">update</property>
@@ -59,8 +59,6 @@
         <mapping resource="eu/sqooss/service/db/GroupUser.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ClusterNode.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ClusterNodeProject.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/OhlohDeveloper.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MailingListThreadMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MailMessageMeasurement.hbm.xml"/>
@@ -87,7 +85,8 @@
         <mapping class="eu.sqooss.service.db.StoredProject"/>
         <mapping class="eu.sqooss.service.db.StoredProjectConfig"/>
         <mapping class="eu.sqooss.service.db.ConfigurationOption"/>
-        
+        <mapping class="eu.sqooss.service.db.ClusterNode"/>
+        <mapping class="eu.sqooss.service.db.ClusterNodeProject"/>
     </session-factory>
 
 </hibernate-configuration>

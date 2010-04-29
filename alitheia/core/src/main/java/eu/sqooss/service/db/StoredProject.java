@@ -197,9 +197,11 @@ public class StoredProject extends DAObject {
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", orphanRemoval=true, cascade=CascadeType.ALL)
 	private Set<Bug> bugs;
 
-    @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, 
-    		mappedBy="projects", targetEntity=ConfigurationOption.class)
+    @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="projects")
 	private Set<ConfigurationOption> configOpts;
+   
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
+    private Set<ClusterNodeProject> assignments;
     
     @Transient
 	private Set<TimeLineEvent> timelineEvents;
@@ -317,7 +319,14 @@ public class StoredProject extends DAObject {
     public void setConfigOpts(Set<ConfigurationOption> configOpts) {
         this.configOpts = configOpts;
     }
+    
+    public Set<ClusterNodeProject> getAssignments() {
+        return assignments;
+    }
 
+    public void setAssignments(Set<ClusterNodeProject> assignments) {
+        this.assignments = assignments;
+    }
     
     /**
      * Get the first (in an arbitrary definition of order) value for

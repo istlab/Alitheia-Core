@@ -36,10 +36,21 @@ package eu.sqooss.service.db;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
-
-
 import eu.sqooss.service.db.DAObject;
 
 /**
@@ -47,17 +58,30 @@ import eu.sqooss.service.db.DAObject;
  * 
  * @assoc 1 - n ClusterNodeProject
  */
+@XmlRootElement(name="clusternode")
+@Entity
+@Table(name="CLUSTERNODE")
 public class ClusterNode extends DAObject {
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="CLUSTERNODE_ID")
+    @XmlElement
+    private long id;
+  
+    @Column(name="CLUSTERNODE_NAME")
+    @XmlElement
     private String name;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ClusterNodeProject> assignments;
+    
     // Nothing to do here
     public ClusterNode(){}
     
     public ClusterNode(String servername){ 
     	setName(servername);
     }
-
 
     public void setName(String name) {
         this.name = name;
@@ -68,6 +92,21 @@ public class ClusterNode extends DAObject {
     }
     
     
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+    
+    public Set<ClusterNodeProject> getAssignments() {
+        return assignments;
+    }
+
+    public void setAssignments(Set<ClusterNodeProject> assignments) {
+        this.assignments = assignments;
+    }
     
     public static ClusterNode getClusteNodeByName(String name) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();

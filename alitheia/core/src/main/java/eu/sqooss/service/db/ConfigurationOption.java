@@ -38,14 +38,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -68,7 +66,7 @@ public class ConfigurationOption extends DAObject {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="STORED_PROJECT_CONFIG_ID")
+	@Column(name="CONFIG_OPTION_ID")
 	private long id;
 	
 	@Column(name="CONFIG_KEY")
@@ -79,7 +77,7 @@ public class ConfigurationOption extends DAObject {
 	@XmlElement
 	private String description;
 	
-	@OneToMany(fetch=FetchType.LAZY, mappedBy="configOpts", orphanRemoval=true, cascade=CascadeType.ALL)
+	@ManyToMany
 	private Set<StoredProject> projects;
 	
     public ConfigurationOption() {}

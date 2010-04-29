@@ -37,16 +37,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Object that encapsulates project assignments to cluster nodes. 
  *
  */
+@Entity
+@Table(name="CLUSTERNODE_PROJECT")
 public class ClusterNodeProject extends DAObject {
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="ASSIGNMENT_ID")
+    private long id;
+    
+    @ManyToOne
+    @JoinColumn(name="CLUSTERNODE_ID")
     private ClusterNode node;
+    
+    @ManyToOne
+    @JoinColumn(name="PROJECT_ID")
     private StoredProject project;
+    
+    @Column(name="LOCKED")
     private boolean locked;
 
 
@@ -88,6 +111,14 @@ public class ClusterNodeProject extends DAObject {
         this.locked = locked;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+    
     /**
      * Get the ClusterNodeProject assignment record for a specific Project
      * 

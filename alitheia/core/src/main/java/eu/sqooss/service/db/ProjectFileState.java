@@ -46,6 +46,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -68,7 +69,7 @@ public class ProjectFileState extends DAObject {
     
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="PROJECT_FILE_ID")
+	@Column(name="PROJECT_FILE_STATE_ID")
 	private long id; 
 	
     // File status constants
@@ -78,6 +79,7 @@ public class ProjectFileState extends DAObject {
     public static final int STATE_REPLACED  = 0x8;
     
     @Column(name="STATUS")
+    @XmlElement
     private int status;
     
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval=true, mappedBy="state")

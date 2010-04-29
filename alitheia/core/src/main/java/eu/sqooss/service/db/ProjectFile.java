@@ -50,6 +50,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.FileUtils;
@@ -63,6 +64,7 @@ import eu.sqooss.service.util.FileUtils;
  */
 @Entity
 @Table(name="PROJECT_FILE")
+@XmlRootElement(name="file")
 public class ProjectFile extends DAObject{
    
 	@Id
@@ -76,6 +78,7 @@ public class ProjectFile extends DAObject{
      * name for directories)
      */
 	@Column(name="FILE_NAME")
+	@XmlElement
     private String name;
 
     /**
@@ -88,8 +91,9 @@ public class ProjectFile extends DAObject{
     /**
      * The file's status in this revision 
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="STATE_ID")
+    @XmlElement
     private ProjectFileState state;
 
     /**

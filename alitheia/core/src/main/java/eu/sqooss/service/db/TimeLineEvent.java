@@ -38,6 +38,7 @@ import java.util.Date;
 /**
  * An event in a project's time line.
  */
+
 public class TimeLineEvent extends DAObject {
     
     private long sequenceNum;
