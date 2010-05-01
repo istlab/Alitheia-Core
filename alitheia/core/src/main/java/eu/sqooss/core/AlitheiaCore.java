@@ -221,8 +221,10 @@ public class AlitheiaCore implements ServiceListener {
                 s.cast(o).setInitParams(bc,
                         logger.createLogger("sqooss." + paths[3]));
 
-                if (!s.cast(o).startUp())
+                if (!s.cast(o).startUp()) {
                     err("Service " + s + " could not be started");
+                    return;
+                }
                 
                 instances.put(s, s.cast(o));
                 err("Service " + impl.getName() + " started");

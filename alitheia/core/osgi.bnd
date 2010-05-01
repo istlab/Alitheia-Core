@@ -11,6 +11,7 @@ Import-Package: javax.transaction;version=1.1,\
     javax.mail,\
     javax.mail.internet,\
     com.mysql.jdbc;resolution:=optional,\
+    org.hsqldb;resolution:=optional,\
     com.sun.source.*;resolution:=optional,\
     org.apache.commons.codec.binary,\
     org.apache.commons.codec.digest,\

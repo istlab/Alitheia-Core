@@ -44,7 +44,7 @@
               com.mysql.jdbc;resolution:=optional, javassist.util, javassist.util.proxy,
               org.hibernate, org.hibernate.cfg, org.hibernate.classic, org.hibernate.exception,
               org.hibernate.proxy, org.hibernate.type, org.hibernate.connection,
-              org.hibernate.cache,
+              org.hibernate.cache, org.hsqldb;resolution:=optional, 
               com.sun.source.*;resolution:=optional, *
             </Import-Package>
             <Bundle-Activator>eu.sqooss.core.CoreActivator</Bundle-Activator>
@@ -117,11 +117,6 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.6</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>

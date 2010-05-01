@@ -39,6 +39,7 @@ import java.io.FilenameFilter;
 import java.net.URL;
 import java.net.URI;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hibernate.HibernateException;
@@ -58,7 +60,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;	
-import org.hibernate.mapping.AuxiliaryDatabaseObject;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCoreService;
@@ -69,26 +70,54 @@ import eu.sqooss.service.logging.Logger;
 /**
  * Implementation of the Database service, using Hibernate's Thread-based session handling
  * 
- * @author Romain Pokrzywka
+ * @author Romain Pokrzywka, Georgios Gousios
  * 
  */
 public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
-    private static final String DB_DRIVER_PROPERTY = "eu.sqooss.db.driver";
-    private static final String DB_CONNECTION_URL_PROPERTY = "eu.sqooss.db.url";
-    private static final String DB_DIALECT_PROPERTY = "eu.sqooss.db.dialect";
-    private static final String DB_USERNAME_PROPERTY = "eu.sqooss.db.user";
-    private static final String DB_PASSWORD_PROPERTY = "eu.sqooss.db.passwd";
-    private static final String HIBERNATE_CONFIG_PROPERTY = "eu.sqooss.hibernate.config";
-    private static final String HIBERNATE_RESET_PROPERTY = "eu.sqooss.hibernate.reset";
+    public static Map<String, String> drivers = new HashMap<String, String>();
+    
+    static {
+        drivers.put("mysql", "com.mysql.jdbc.Driver");
+        drivers.put("hsqldb", "org.hsqldb.jdbcDriver");
+        drivers.put("postgres", "org.postgresql.Driver");
+    }
+    
+    public static Map<String, String> connString = new HashMap<String, String>();
+    
+    static {
+        connString.put("mysql", "jdbc:mysql://<HOST>/<SCHEMA>?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8");
+        connString.put("hsqldb", "jdbc:hsqldb:file:<SCHEMA>");
+        connString.put("postgres", "jdbc:postgresql://<HOST>/<SCHEMA>");
+    }
+    
+    public static Map<String, String> hbmDialects = new HashMap<String, String>();
+    
+    static {
+        hbmDialects.put("mysql", "org.hibernate.dialect.MySQLInnoDBDialect");
+        hbmDialects.put("hsqldb", "org.hibernate.dialect.HSQLDialect");
+        hbmDialects.put("postgres", "org.hibernate.dialect.PostgreSQLDialect");
+    }
+    
+    public static Map<String, String> conPools = new HashMap<String, String>();
+    
+    static {
+        conPools.put("default", "org.hibernate.connection.DriverManagerConnectionProvider");
+        conPools.put("c3p0", "org.hibernate.connection.C3P0ConnectionProvider");
+    }
+    
+    private static final String DB = "eu.sqooss.db";
+    private static final String DB_HOST = "eu.sqooss.db.host";
+    private static final String DB_SCHEMA = "eu.sqooss.db.schema";
+    private static final String DB_USERNAME = "eu.sqooss.db.user";
+    private static final String DB_PASSWORD = "eu.sqooss.db.passwd";
+    private static final String DB_CONPOOL = "eu.sqooss.db.conpool";
     
     private Logger logger = null;
-    // Store the class and URL of the database to hand off to
-    // Hibernate so that it obeys the fallback from Postgres to Derby as well.
-    private String dbClass, dbURL, dbDialect, dbUserName, dbPasswd;
     private SessionFactory sessionFactory = null;
     private BundleContext bc = null;
     private AtomicBoolean isInitialised = new AtomicBoolean(false);
+    private Properties conProp = new Properties();
     
     private void logSQLException(SQLException e) {
 
@@ -136,85 +165,57 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         return true;
     }
     
-    private boolean getJDBCConnection(String driver, String url, String dialect, 
-            String username, String passwd) {
-        
-        if ((driver == null) || (url == null) || (dialect == null) || (username == null) || (passwd == null)) {
-            dbClass = null;
-            dbURL = null;
-            dbDialect = null;
-            dbUserName = null;
-            dbPasswd = null;
-            return false;
-        }
-        
+    private boolean getJDBCConnection() {
+        String driver = conProp.getProperty("hibernate.connection.driver_class");
         try {
-            Class.forName(driver).newInstance();
-            logger.info("Created instance of " + driver);
+            Driver d = (Driver)Class.forName(driver).newInstance();
+            DriverManager.registerDriver(d);
+            logger.info("Created instance of JDBC driver " + driver);
         } catch (InstantiationException e) {
             logger.error("Unable to instantiate the JDBC driver " + driver
                     + " : " + e.getMessage());
             return false;
         } catch (ClassNotFoundException e) {
-            System.err.println("Unable to load the JDBC driver");
+            logger.error("Unable to find JDBC driver " + driver);
             return false;
         } catch (IllegalAccessException e) {
-            System.err.println("Not allowed to access the JDBC driver");
+            logger.error("Not allowed to access the JDBC driver " + driver);
+            return false;
+        } catch (SQLException e) {
+            logger.error("Failed to register driver " + driver);
+            logSQLException(e);
             return false;
         }
         
         try {
-            Connection c = DriverManager.getConnection(url, username, passwd);
+            Connection c = DriverManager.getConnection(
+                    conProp.getProperty("hibernate.connection.url"),
+                    conProp.getProperty("hibernate.connection.username"),
+                    conProp.getProperty("hibernate.connection.password"));
             c.setAutoCommit(false);
-            dbClass = driver;
-            dbURL = url;
-            dbDialect = dialect;
-            dbUserName = username;
-            dbPasswd = passwd;
             c.close();
             return true;
         } catch (SQLException e) {
+            logger.error("Unable to connect to DB URL " +
+                    conProp.getProperty("hibernate.connection.url"));
             logSQLException(e);
+            return false;
         }
-
-        dbClass = null;
-        dbURL = null;
-        dbDialect = null;
-        return false;
     }
 
-    /**
-     * Attempt to get the Derby JDBC connector and initialize a connection to
-     * the Derby instance -- this is intended to be a debug fallback routine
-     * during development.
-     * 
-     * @return
-     * @c true on success
-     */
-    private boolean getDerbyJDBC() {
-        return getJDBCConnection("org.apache.derby.jdbc.EmbeddedDriver",
-                "jdbc:derby:derbyDB;create=true",
-                "org.hibernate.dialect.DerbyDialect", "", "");
-    }
-
-    private void initHibernate(URL configFileURL, boolean resetDatabase) {
+    private boolean initHibernate(URL configFileURL) {
         
         logger.info("Initializing Hibernate with URL <" + configFileURL + ">");
         if (configFileURL == null) {
             logger.warn("Ignoring null URL.");
-            return;
+            return false;
         }
         try {
             Configuration c = new AnnotationConfiguration().configure(configFileURL); 
             // c now holds the configuration from hibernate.cfg.xml, need
-            // to override some of those properties.
-            c.setProperty("hibernate.connection.driver_class", dbClass);
-            c.setProperty("hibernate.connection.url", dbURL);
-            c.setProperty("hibernate.connection.username", dbUserName);
-            c.setProperty("hibernate.connection.password", dbPasswd);
-            c.setProperty("hibernate.connection.dialect", dbDialect);
-            if (resetDatabase) {
-                c.setProperty("hibernate.hbm2ddl.auto", "create");
+            // to override some of those properties.            
+            for(Object s : conProp.keySet()) {
+                c.setProperty(s.toString(), conProp.getProperty(s.toString()));
             }
             
 			// Get the list of eu.sqo-oss.metrics.* jars and add them to the
@@ -257,21 +258,18 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
                     }
                 } 
             }
-
-            List<AuxiliaryDatabaseObject> objs = loadDBScripts();
             sessionFactory = c.buildSessionFactory();
+            
+            if (sessionFactory == null)
+                return false;
         } catch (Throwable e) {
             logger.error("Failed to initialize Hibernate: " + e.getMessage());
             e.printStackTrace();
-            throw new ExceptionInInitializerError(e);
+            return false;
         }
+        return true;
     }
     
-    private List<AuxiliaryDatabaseObject> loadDBScripts() {
-    	
-    	return null;
-    }
-
     public DBServiceImpl() { }
 
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
@@ -777,42 +775,30 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
     @Override
     public boolean startUp() {
-        dbURL = null;
-        dbClass = null;
-        dbDialect = null;
-        dbUserName = null;
-        dbPasswd = null;
-        if (!getJDBCConnection(bc.getProperty(DB_DRIVER_PROPERTY), bc
-                .getProperty(DB_CONNECTION_URL_PROPERTY), bc
-                .getProperty(DB_DIALECT_PROPERTY), bc
-                .getProperty(DB_USERNAME_PROPERTY), bc
-                .getProperty(DB_PASSWORD_PROPERTY))) {
-            if (!Boolean
-                    .valueOf(bc.getProperty("eu.sqooss.db.fallback.enable"))
-                    || !getDerbyJDBC()) {
-                logger.error("DB service got no JDBC connectors.");
-            }
-        }
-
-        if (dbClass != null) {
-            logger.info("Using driver " + dbClass);
-            boolean resetDatabase = false;
-            if (Boolean.valueOf(bc.getProperty(HIBERNATE_RESET_PROPERTY))) {
-                resetDatabase = true;
-            }
-            logger.info("Initialising database service");
-
-            initHibernate(bc.getBundle().getResource("hibernate.cfg.xml"),
-                    resetDatabase);
-
-            isInitialised.compareAndSet(false, true);
-            return true;
-        } else {
-            logger.error("Hibernate could not be initialized.");
+        String db  = bc.getProperty(DB).toLowerCase();
+        String cs = connString.get(db);
+        cs = cs.replaceAll("<HOST>", bc.getProperty(DB_HOST));
+        cs = cs.replaceAll("<SCHEMA>", bc.getProperty(DB_SCHEMA));
+            
+        conProp.setProperty("hibernate.connection.driver_class",  drivers.get(db));
+        conProp.setProperty("hibernate.connection.url", cs);
+        conProp.setProperty("hibernate.connection.username", bc.getProperty(DB_USERNAME));
+        conProp.setProperty("hibernate.connection.password", bc.getProperty(DB_PASSWORD));
+        conProp.setProperty("hibernate.connection.dialect",  hbmDialects.get(db));
+        conProp.setProperty("hibernate.connection.provider_class", conPools.get(bc.getProperty(DB_CONPOOL)));
+        
+        if (!getJDBCConnection()) {
+            logger.error("DB service got no JDBC connectors.");
             return false;
         }
+        
+        if(!initHibernate(bc.getBundle().getResource("hibernate.cfg.xml")))
+            return false;
+        
+        isInitialised.compareAndSet(false, true);
+        return true; 
     }
-    
+
     @Override
     public void shutDown() {
     	logger.info("Shutting down database service");
@@ -827,4 +813,3 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
-
