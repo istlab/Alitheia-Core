@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -53,6 +54,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.BugStatus.Status;
@@ -76,6 +80,8 @@ import eu.sqooss.service.db.BugStatus.Status;
 @XmlRootElement(name="project")
 @Entity
 @Table(name="STORED_PROJECT")
+//@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+@Cacheable
 public class StoredProject extends DAObject {
 
 	/**

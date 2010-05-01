@@ -43,7 +43,9 @@
             <Import-Package>
               com.mysql.jdbc;resolution:=optional, javassist.util, javassist.util.proxy,
               org.hibernate, org.hibernate.cfg, org.hibernate.classic, org.hibernate.exception,
-              org.hibernate.proxy, org.hibernate.type, com.sun.source.*;resolution:=optional, *
+              org.hibernate.proxy, org.hibernate.type, org.hibernate.connection,
+              org.hibernate.cache,
+              com.sun.source.*;resolution:=optional, *
             </Import-Package>
             <Bundle-Activator>eu.sqooss.core.CoreActivator</Bundle-Activator>
             <Bundle-SymbolicName>eu.sqooss.alitheia.core</Bundle-SymbolicName>
