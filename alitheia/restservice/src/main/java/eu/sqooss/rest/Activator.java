@@ -67,9 +67,7 @@ public class Activator implements BundleActivator {
 		Dictionary<String, String> params = new Hashtable<String, String>();
 		params.put("resteasy.scan", "false");
 		params.put("javax.ws.rs.Application", "eu.sqooss.rest.api.RestServiceApp");
-		params.put("resteasy.interceptor.before.precedence", "SECURITY : BEGIN");
-		params.put("resteasy.append.interceptor.precedence", "END");
-		
+			
 		ResteasyServlet bridge = new ResteasyServlet();
 		try {
 			http.registerServlet("/api", bridge, params, null);

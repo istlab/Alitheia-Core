@@ -29,9 +29,34 @@
  */
 package eu.sqooss.rest.impl;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
 
 public class ResteasyServlet extends HttpServletDispatcher {
 
 	private static final long serialVersionUID = 5968966644419029725L;
+	
+	@Override
+	protected void service(HttpServletRequest httpServletRequest,
+	        HttpServletResponse httpServletResponse) throws ServletException,
+	        IOException {
+	    
+	    DBService db = AlitheiaCore.getInstance().getDBService();
+	    
+	    if (!db.isDBSessionActive())
+	        db.startDBSession();
+	    
+	    super.service(httpServletRequest, httpServletResponse);
+	    
+	    if (db.isDBSessionActive())
+	        db.commitDBSession();
+	}
 }

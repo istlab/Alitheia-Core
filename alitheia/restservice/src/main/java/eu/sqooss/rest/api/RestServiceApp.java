@@ -38,9 +38,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import eu.sqooss.rest.impl.DBSessionEnd;
-import eu.sqooss.rest.impl.DBSessionStart;
-
 public class RestServiceApp extends Application {
 
 	private static final Set<Class<?>> serviceObjects;
@@ -49,8 +46,6 @@ public class RestServiceApp extends Application {
 		serviceObjects = new HashSet<Class<?>>();
 		serviceObjects.add(StoredProjectResource.class);
 		serviceObjects.add(MetricsResource.class);
-		serviceObjects.add(DBSessionStart.class);
-		serviceObjects.add(DBSessionEnd.class);
 	}
 	
 	public static void addServiceObject(Class<?> object) {
