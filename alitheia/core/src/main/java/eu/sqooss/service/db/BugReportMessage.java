@@ -79,13 +79,13 @@ public class BugReportMessage extends DAObject {
     /**
      * The date this message was written
      */
-	@Column(name="timestamp")
+	@Column(name="TIMESTAMP")
     private Date timestamp;
     
     /**
      * Message text
      */
-	@Column(name="text")
+	@Column(name="TEXT", length=255)
     private String text;
     
     public BugReportMessage() {

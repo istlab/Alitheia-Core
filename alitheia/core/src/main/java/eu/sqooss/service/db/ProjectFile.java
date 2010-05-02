@@ -107,6 +107,7 @@ public class ProjectFile extends DAObject{
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="DIRECTORY_ID")
+    @XmlElement
     private Directory dir;
     
     /**

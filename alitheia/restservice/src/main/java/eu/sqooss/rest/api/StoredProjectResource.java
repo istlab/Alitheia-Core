@@ -33,9 +33,11 @@
 
 package eu.sqooss.rest.api;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -45,6 +47,7 @@ import javax.ws.rs.Produces;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
@@ -53,15 +56,15 @@ public class StoredProjectResource {
 
 	public StoredProjectResource() {}
 	
+	
+	
 	@GET
 	@Produces({"application/xml", "application/json"})
 	@Path("/projects/")
 	public List<StoredProject> getProjects() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from StoredProject";
-		db.startDBSession();
 		List<StoredProject> sp = (List<StoredProject>) db.doHQL(q);
-		db.commitDBSession();
 		return sp;
 	}
 
@@ -70,9 +73,7 @@ public class StoredProjectResource {
     @Produces({"application/xml", "application/json"})
 	public StoredProject getProject(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
-		db.startDBSession();
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
-		db.commitDBSession();
 		return sp;
 	}
 	
@@ -81,28 +82,44 @@ public class StoredProjectResource {
 	@Produces({"application/xml", "application/json"})
 	public List<ProjectVersion> getVersions(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
-		db.startDBSession();
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
-		String q = "from ProjectVersion where project =:pr";
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("pr", sp);
-		List<ProjectVersion> versions = (List<ProjectVersion>)db.doHQL(q, params);
-		db.commitDBSession();
-		return versions;
-	}
 	
+		return sp.getProjectVersions();
+	}
+
 	@Path("/projects/{id}/versions/{vid}")
 	@GET
 	@Produces({"application/xml", "application/json"})
 	public ProjectVersion getVersion(@PathParam("id") Long prid,
 			@PathParam("vid") String verid) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-		db.startDBSession();
-		String q = "from ProjectVersion v where v.revisionId = :id";
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("id", verid);
-		List<ProjectVersion> versions = (List<ProjectVersion>)db.doHQL(q, params);
-		db.commitDBSession();
-		return versions.get(0);
+		
+		return ProjectVersion.getVersionByRevision(
+		        DAObject.loadDAObyId(prid, StoredProject.class), verid);
 	}
+	
+	@Path("/projects/{id}/versions/{vid}/files")
+    @GET
+    @Produces({"application/xml", "application/json"})
+    public List<ProjectFile> getFiles(@PathParam("id") Long prid,
+            @PathParam("vid") String verid) {
+        
+	    ProjectVersion pv = getVersion(prid, verid);
+	    if (pv == null)
+	        return Collections.EMPTY_LIST;
+	        
+        return pv.getFiles();
+    }
+	
+	@Path("/projects/{id}/versions/{vid}/files/changed")
+    @GET
+    @Produces({"application/xml", "application/json"})
+    public Set<ProjectFile> getChangedFiles(@PathParam("id") Long prid,
+            @PathParam("vid") String verid) {
+        
+	    ProjectVersion pv = getVersion(prid, verid);
+        if (pv == null)
+            return Collections.EMPTY_SET;
+        
+        return pv.getVersionFiles();
+    }
 }

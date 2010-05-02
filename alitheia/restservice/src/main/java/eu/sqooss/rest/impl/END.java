@@ -1,9 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2008 - Organization for Free and Open Source Software,  
- *                Athens, Greece.
+ * Copyright 2010 - Organization for Free and Open Source Software,  
+ *                 Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,40 +27,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+package eu.sqooss.rest.impl;
 
-package eu.sqooss.rest.api;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.jboss.resteasy.annotations.interception.Precedence;
 
-import javax.ws.rs.core.Application;
 
-import eu.sqooss.rest.impl.DBSessionEnd;
-import eu.sqooss.rest.impl.DBSessionStart;
-
-public class RestServiceApp extends Application {
-
-	private static final Set<Class<?>> serviceObjects;
-	
-	static {
-		serviceObjects = new HashSet<Class<?>>();
-		serviceObjects.add(StoredProjectResource.class);
-		serviceObjects.add(MetricsResource.class);
-		serviceObjects.add(DBSessionStart.class);
-		serviceObjects.add(DBSessionEnd.class);
-	}
-	
-	public static void addServiceObject(Class<?> object) {
-		serviceObjects.add(object);
-	}
-	
-	@Override
-	public Set<Class<?>> getClasses() {
-		return serviceObjects;
-	}
-	
-	@Override
-	public Set<Object> getSingletons() {
-		return null;
-	}
+/**
+ * Interceptor invoked at the end of the processing chain.
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
+ */
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Precedence("END")
+public @interface END {
+    public static final String PRECEDENCE_STRING = "END";
 }

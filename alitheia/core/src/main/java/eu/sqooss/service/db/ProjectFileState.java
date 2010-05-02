@@ -47,6 +47,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -65,6 +66,7 @@ import eu.sqooss.core.AlitheiaCore;
  */
 @Entity
 @Table(name="PROJECT_FILE_STATE")
+@XmlRootElement
 public class ProjectFileState extends DAObject {
     
 	@Id
@@ -117,23 +119,24 @@ public class ProjectFileState extends DAObject {
     
     public static ProjectFileState fromStatus(int status) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-	if (!dbs.isDBSessionActive())
+
+        if (!dbs.isDBSessionActive())
             return null;
 
-	Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("status", status);
-        List<ProjectFileState> pfs = dbs.findObjectsByProperties(ProjectFileState.class, params);
-        
-        if (!pfs.isEmpty()) {            
+        List<ProjectFileState> pfs = dbs.findObjectsByProperties(
+                ProjectFileState.class, params);
+
+        if (!pfs.isEmpty()) {
             return pfs.get(0);
         }
-       	
+
         ProjectFileState state = new ProjectFileState();
         state.setStatus(status);
-        
+
         dbs.addRecord(state);
-        
+
         return fromStatus(status);
     }
 
