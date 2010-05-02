@@ -1,25 +1,52 @@
 var prefix = "/web";
 
+var state = {
+    prid : '',
+    verLatest : '',
+    verFirst : ''
+}
+
 $(document).ready(function() {
   
-    getMetricTypes();
-  
-    $("#metricTypeSelect").change(function(){
-      getMetrics($("#metricTypeSelect :selected").text());
-    });
+    getProjects();
+    $("#projectSelect").change(projectSelected);
     
-    $("#versionrange").slider({
-      range: true,
-      min: 0,
-      max: 0,
-      values: [0, 0],
-      slide: function(event, ui) {
-        $("#versionlbl").val(ui.values[0] + '-' + ui.values[1]);
-      }
-    });
-    $("#versionlbl").val("Select a project please");
+    $.jqplot('verplot1plot',  [[[1, 2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]);
+    $.jqplot('verplot2plot',  [[[1, 2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]);
+   
 });
 
+function projectSelected() {
+  state.prid = $("#projectSelect option:selected").val();
+  
+  if (state.prid == "-")
+    return;
+
+  $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/latest",
+      gotLatestVersion);
+}
+
+function gotLatestVersion (data) {
+  state.verLatest = data;
+  $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/first", 
+      gotFirstVersion);
+}
+
+function gotFirstVersion (data) {
+  state.verFirst = data;
+  
+  $("#versionrange").slider({
+    range: true,
+    min: state.verFirst.version.revisionId,
+    max: state.verLatest.version.revisionId,
+    values: [0, 0],
+    slide: function(event, ui) {
+      $("#versionlbl").val(ui.values[0] + '-' + ui.values[1]);
+    }
+  });
+  
+  $("#verrngcont").toggleClass("hidden");
+}
 
 function getProjects() {
   $.ajax( {
@@ -39,9 +66,8 @@ function getProjects() {
   }); 
 }
 
-
 function getMetricTypes() {
-  
+
   $.ajax({
     url : prefix + "/proxy/metrics/types",
     dataType : 'json',

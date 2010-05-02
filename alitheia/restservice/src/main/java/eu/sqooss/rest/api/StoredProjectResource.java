@@ -34,9 +34,7 @@
 package eu.sqooss.rest.api;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -47,6 +45,7 @@ import javax.ws.rs.Produces;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -55,8 +54,6 @@ import eu.sqooss.service.db.StoredProject;
 public class StoredProjectResource {
 
 	public StoredProjectResource() {}
-	
-	
 	
 	@GET
 	@Produces({"application/xml", "application/json"})
@@ -72,7 +69,6 @@ public class StoredProjectResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public StoredProject getProject(@PathParam("id") Long id) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
 		return sp;
 	}
@@ -81,7 +77,6 @@ public class StoredProjectResource {
 	@GET
 	@Produces({"application/xml", "application/json"})
 	public List<ProjectVersion> getVersions(@PathParam("id") Long id) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
 	
 		return sp.getProjectVersions();
@@ -93,6 +88,15 @@ public class StoredProjectResource {
 	public ProjectVersion getVersion(@PathParam("id") Long prid,
 			@PathParam("vid") String verid) {
 		
+	    if (verid.equals("first")) 
+	        return ProjectVersion.getFirstProjectVersion(
+	                DAObject.loadDAObyId(prid, StoredProject.class));
+	    
+	    if (verid.equals("latest"))
+	        return ProjectVersion.getLastMeasuredVersion (
+	                Metric.getMetricByMnemonic("TLOC"), //This can break, FIXME
+	                DAObject.loadDAObyId(prid, StoredProject.class));
+	    
 		return ProjectVersion.getVersionByRevision(
 		        DAObject.loadDAObyId(prid, StoredProject.class), verid);
 	}

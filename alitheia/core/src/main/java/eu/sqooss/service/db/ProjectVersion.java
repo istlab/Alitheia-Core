@@ -589,7 +589,7 @@ public class ProjectVersion extends DAObject {
      * @return Last version measured, or revision 0.
      */
     public static ProjectVersion getLastMeasuredVersion(Metric m, StoredProject p) {
-        String query = "select pvm from ProjectVersionMeasurement pvm, ProjectVersion pv" +
+        String query = "select pv from ProjectVersionMeasurement pvm, ProjectVersion pv" +
            " where pvm.projectVersion = pv" +
            " and pvm.metric = :metric and pv.project = :project" +
            " order by pv.sequence desc";
@@ -597,12 +597,13 @@ public class ProjectVersion extends DAObject {
         HashMap<String, Object> params = new HashMap<String, Object>(4);
         params.put("metric", m);
         params.put("project", p);
-        List<?> pvmList = AlitheiaCore.getInstance().getDBService().doHQL( query, params, 1);
+        List<ProjectVersion> pv = (List<ProjectVersion>) 
+            AlitheiaCore.getInstance().getDBService().doHQL( query, params, 1);
 	    
-        ProjectVersion previous = pvmList.isEmpty() ? 
-                null :
-                ((ProjectVersionMeasurement) pvmList.get(0)).getProjectVersion();
-        return previous;
+        if (pv.isEmpty())
+            return null;
+        
+        return pv.get(0);
     }
 
     /**

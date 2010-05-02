@@ -60,9 +60,7 @@ public class MetricsResource {
 	public List<Metric> getMetrics() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from Metric";
-		db.startDBSession();
 		List<Metric> sp = (List<Metric>) db.doHQL(q);
-		db.commitDBSession();
 		return sp;
 	}
 	
@@ -72,9 +70,7 @@ public class MetricsResource {
 	public List<MetricType> getMetricTypes() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from MetricType";
-		db.startDBSession();
 		List<MetricType> sp = (List<MetricType>) db.doHQL(q);
-		db.commitDBSession();
 		return sp;
 	}
 
@@ -83,9 +79,7 @@ public class MetricsResource {
     @Produces({"application/xml", "application/json"})
 	public Metric getMetricById(@PathParam("id") Long id) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
-		db.startDBSession();
 		Metric sp = DAObject.loadDAObyId(id, Metric.class);
-		db.commitDBSession();
 		return sp;
 	}
 	
@@ -94,9 +88,7 @@ public class MetricsResource {
     @Produces({"application/xml", "application/json"})
 	public Metric getMetricByMnem(@PathParam("mnem") String name) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
-		db.startDBSession();
 		Metric m = Metric.getMetricByMnemonic(name);
-		db.commitDBSession();
 		return m;
 	}
 	
@@ -105,13 +97,10 @@ public class MetricsResource {
     @Produces({"application/xml", "application/json"})
 	public Set<Metric> getProject(@PathParam("type") String type) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
-		db.startDBSession();
 		Set<Metric> metrics = Collections.EMPTY_SET;
 		
 		MetricType mt = MetricType.getMetricType(Type.fromString(type));
 		metrics = mt.getMetrics();
-		
-		db.commitDBSession();
 		return metrics;
 	}
 }

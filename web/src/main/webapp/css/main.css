@@ -1,1 +1,16 @@
 @CHARSET "UTF-8";
+
+body {
+	margin: 0 auto;
+	width: 900px;
+}
+
+#verrngcont {
+	width: 25em;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.hidden {
+	display: none;
+}

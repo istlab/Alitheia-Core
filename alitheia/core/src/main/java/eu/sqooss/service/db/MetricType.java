@@ -37,6 +37,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -51,6 +55,10 @@ import eu.sqooss.service.db.DAObject;
  */
 @XmlRootElement(name="metrictype")
 public class MetricType extends DAObject {
+    
+    @XmlElement
+    private long id; 
+    
     /**
      * A string representation of the type of metric
      */
@@ -106,6 +114,14 @@ public class MetricType extends DAObject {
         type = t.toString();
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+    
     public Type getEnumType() {
         return Type.fromString(type);
     }
