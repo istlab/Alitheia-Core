@@ -203,7 +203,8 @@ public class Metric extends DAObject {
 			break;
 		case BUG:
 		case MAILING_LIST:
-			return false; //No DAOs have been created for those types yet
+		case DEVELOPER:
+			return false; //No DAO result types for those types yet
 		}
 		
 		Map<String, Object> params = new HashMap<String, Object>();

@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -463,78 +464,18 @@ public class MetricActivatorImpl  implements MetricActivator {
             List<Metric> metrics = pa.getPlugin(mi).getAllSupportedMetrics();
             
             Map<MetricType.Type, TreeSet<Long>> objectIds = new HashMap<MetricType.Type, TreeSet<Long>>();
-            MetricType.Type activationType = null;
-            
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("project", sp);
-            
+
             for (Metric m : metrics) {
-            	StringBuffer q = new StringBuffer();
-            	if (m.getMetricType().equals(MetricType.getMetricType(Type.PROJECT_VERSION))) {
-            		q.append("select pv.id ") 
-            		.append("from ProjectVersion pv ")
-            		.append("where pv.project = :project ") 
-            		.append("and not exists( ")
-            		.append("select pvm.projectVersion ")
-            		.append("from ProjectVersionMeasurement pvm ")
-            		.append("where pvm.projectVersion.id = pv.id and pvm.metric.id = :metric) ") 
-            		.append("order by pv.sequence asc");
-            		activationType = Type.PROJECT_VERSION;
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.SOURCE_FILE))) {
-            		q.append("select pf.id") 
-            		.append(" from ProjectVersion pv, ProjectFile pf")
-            		.append(" where pf.projectVersion=pv and pv.project = :project") 
-            		.append(" and not exists (")
-            		.append("  select pfm.projectFile ")
-            		.append("  from ProjectFileMeasurement pfm") 
-            		.append("  where pfm.projectFile.id = pf.id and pfm.metric.id = :metric)")
-            		.append(" and pf.isDirectory = false")  
-            		.append(" order by pv.sequence asc" );
-            		activationType = Type.SOURCE_FILE;
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.SOURCE_DIRECTORY))) {
-            		q.append("select pf.id") 
-            		.append(" from ProjectVersion pv, ProjectFile pf")
-            		.append(" where pf.projectVersion=pv and pv.project = :project") 
-            		.append(" and not exists (")
-            		.append("  select pfm.projectFile ")
-            		.append("  from ProjectFileMeasurement pfm") 
-            		.append("  where pfm.projectFile.id = pf.id and pfm.metric.id = :metric)")
-            		.append(" and pf.isDirectory = true")  
-            		.append(" order by pv.sequence asc" );
-            		activationType = Type.SOURCE_DIRECTORY;
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILING_LIST))) {
-            		throw new Exception("Metric synchronisation with MAILING_LIST objects not implemented");
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILMESSAGE))) {
-            		q.append("select mm.id")
-            		.append(" from MailMessage mm ")
-            		.append(" where mm.list.storedProject = :project ")
-            		.append(" and mm.id not in (")
-					.append(" select mmm.mail.id ")
-					.append(" from MailMessageMeasurement mmm")
-					.append(" where mmm.metric.id =:metric")
-					.append(" and mmm.mail.id = mm.id))");
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.MAILTHREAD))) {
-            		q.append("select mlt.id ")
-            		.append("from MailingListThread mlt ") 
-            		.append("where mlt.list.storedProject = :project ") 
-            		.append("and mlt.id not in ( ")
-            		.append("select mltm.thread.id ")
-            		.append("from MailingListThreadMeasurement mltm ")
-            		.append("where mltm.metric.id =:metric ")
-            		.append("and mltm.thread.id = mlt.id)" );
-            	} else if (m.getMetricType().equals(MetricType.getMetricType(Type.BUG))) {
-            		throw new Exception("Metric synchronisation with BUG objects not implemented");
-            	} else {
-            		throw new Exception("Metric synchronisation with GENERIC objects not implemented");
+            	Map<MetricType.Type, SortedSet<Long>> IDs = 
+            		pa.getImplementingPlugin(m.getMnemonic()).getObjectIdsToSync(sp, m);
+            	for (MetricType.Type t : IDs.keySet()) {
+            		
+            		if (objectIds.get(t) == null) {
+                    	objectIds.put(t, new TreeSet<Long>());	
+                    }
+                    
+                    objectIds.get(t).addAll(IDs.get(t));
             	}
-                params.put("metric", m.getId());
-                List<Long> objects = (List<Long>) db.doHQL(q.toString(), params);
-                
-                if (objectIds.get(activationType) == null) {
-                	objectIds.put(activationType, new TreeSet<Long>());	
-                }
-                
-                objectIds.get(activationType).addAll(objects);
             }
             
             AbstractMetric metric = 

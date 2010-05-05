@@ -47,6 +47,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Bundle;
@@ -61,6 +63,7 @@ import eu.sqooss.service.db.MailMessageMeasurement;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricMeasurement;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -71,6 +74,7 @@ import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivationException;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
@@ -112,7 +116,57 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** The list of this plug-in's activators*/
     private Set<Class<? extends DAObject>> activators = 
         new HashSet<Class<? extends DAObject>>();
-        
+    
+    private Map<Metric, List<Class<? extends DAObject>>> metricActType =
+    	new HashMap<Metric, List<Class<? extends DAObject>>>();
+    
+    protected static final String QRY_SYNC_PV = "select pv.id from ProjectVersion pv " +
+    		"where pv.project = :project and not exists(" +
+    		"	select pvm.projectVersion from ProjectVersionMeasurement pvm " +
+    		"	where pvm.projectVersion.id = pv.id and pvm.metric.id = :metric) " +
+    		"order by pv.sequence asc";
+    
+    protected static final String QRY_SYNC_PF = "select pf.id " +
+    		"from ProjectVersion pv, ProjectFile pf " +
+    		"where pf.projectVersion=pv and pv.project = :project " +
+    		"and not exists (" +
+    		"	select pfm.projectFile " +
+    		"	from ProjectFileMeasurement pfm " +
+    		"	where pfm.projectFile.id = pf.id " +
+    		"	and pfm.metric.id = :metric) " +
+    		"	and pf.isDirectory = false)  " +
+    		"order by pv.sequence asc";
+    
+    protected static final String QRY_SYNC_PD = "select pf.id " +
+		"from ProjectVersion pv, ProjectFile pf " +
+		"where pf.projectVersion=pv and pv.project = :project " +
+		"and not exists (" +
+		"	select pfm.projectFile " +
+		"	from ProjectFileMeasurement pfm " +
+		"	where pfm.projectFile.id = pf.id " +
+		"	and pfm.metric.id = :metric) " +
+		"	and pf.isDirectory = true)  " +
+		"order by pv.sequence asc";
+    
+    protected static final String QRY_SYNC_MM = "select mm.id " +
+    		"from MailMessage mm " +
+    		"where mm.list.storedProject = :project " +
+    		"and mm.id not in (" +
+    		"	select mmm.mail.id " +
+    		"	from MailMessageMeasurement mmm " +
+    		"	where mmm.metric.id =:metric and mmm.mail.id = mm.id))";
+    
+    protected static final String QRY_SYNC_MT = "select mlt.id " +
+    		"from MailingListThread mlt " +
+    		"where mlt.list.storedProject = :project " +
+    		"and mlt.id not in (" +
+    		"	select mltm.thread.id " +
+    		"	from MailingListThreadMeasurement mltm " +
+    		"	where mltm.metric.id =:metric and mltm.thread.id = mlt.id)";
+    
+    protected static final String QRY_SYNC_DEV = "select d.id " +
+    		"from Developer d " +
+    		"where d.storedProject = :project";
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -157,6 +211,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 				m.setMnemonic(metric.mnemonic());
 				m.setMetricType(new MetricType(MetricType.fromActivator(metric.activators()[0])));
 			
+				List<Class<? extends DAObject>> activs = new ArrayList<Class<? extends DAObject>>();				
+				for (Class<? extends DAObject> o : metric.activators()) {
+					activs.add(o);
+				}
+				
+				metricActType.put(m, activs);
+				
 				activators.addAll(Arrays.asList(metric.activators()));
 				
 				metrics.put(m.getMnemonic(), m);
@@ -545,7 +606,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             return m;
         
         for (Metric metric : all) {
-            if (getMetricActivationType(metric).equals(activator)) {
+            if (getMetricActivationTypes(metric).contains(activator)) {
                 m.add(metric);
             }
         }
@@ -891,8 +952,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
     
     /**{@inheritDoc}*/
-    public final Class<? extends DAObject> getMetricActivationType(Metric m) {
-        return metrics.get(m.getMnemonic()).getMetricType().toActivator();
+    @Override
+    public final List<Class<? extends DAObject>> getMetricActivationTypes (Metric m) {
+        return metricActType.get(m);
     }
     
     /**
@@ -916,5 +978,47 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** {@inheritDoc} */
     public Set<String> getDependencies() {
         return dependencies;
+    }
+
+    @Override
+    public Map<MetricType.Type, SortedSet<Long>> getObjectIdsToSync(StoredProject sp, Metric m) 
+    throws MetricActivationException {
+
+    	Map<MetricType.Type, SortedSet<Long>> IDs = new HashMap<Type, SortedSet<Long>>();
+    	
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("project", sp);
+        params.put("metric", m.getId());
+
+    	String q = null;
+    	
+    	for (Class<? extends DAObject> at : getMetricActivationTypes(m)) {
+    	
+	    	if (MetricType.fromActivator(at) == Type.PROJECT_VERSION) {
+	    		q = QRY_SYNC_PV;
+	    	} else if (MetricType.fromActivator(at) == Type.SOURCE_FILE) {
+	    		q = QRY_SYNC_PF;
+	    	} else if (MetricType.fromActivator(at) == Type.SOURCE_DIRECTORY) {
+	    		q = QRY_SYNC_PD;
+	     	} else if (MetricType.fromActivator(at) == Type.MAILING_LIST) {
+	    		throw new MetricActivationException("Metric synchronisation with MAILING_LIST objects not implemented");
+	    	} else if (MetricType.fromActivator(at) == Type.MAILMESSAGE) {
+	    		q = QRY_SYNC_MM;
+	    	} else if (MetricType.fromActivator(at) == Type.MAILTHREAD) {
+	    		q = QRY_SYNC_MT;
+	    	} else if (MetricType.fromActivator(at) == Type.BUG) {
+	    		throw new MetricActivationException("Metric synchronisation with BUG objects not implemented");
+	    	} else if (MetricType.fromActivator(at) == Type.DEVELOPER) {
+	    		q = QRY_SYNC_DEV;
+	    	} else {
+	    		throw new MetricActivationException("Metric synchronisation with GENERIC objects not implemented");
+	    	}
+	    	
+	    	List<Long> objectIds = (List<Long>) db.doHQL(q, params);
+	    	TreeSet<Long> ids = new TreeSet<Long>();
+	    	ids.addAll(objectIds);
+	    	IDs.put(MetricType.fromActivator(at), ids);
+    	}
+    	return IDs;
     }
 }

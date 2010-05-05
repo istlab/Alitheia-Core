@@ -41,6 +41,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,7 +76,9 @@ import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.fds.FileTypeMatcher;
+import eu.sqooss.service.metricactivator.MetricActivationException;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffChunk;
@@ -167,6 +171,34 @@ public class ContributionMetricImpl extends AbstractMetric {
         return result;
     }
 
+    @Override
+    public Map<MetricType.Type, SortedSet<Long>> getObjectIdsToSync(StoredProject sp, Metric m) 
+    	throws MetricActivationException {
+    	Map<MetricType.Type, SortedSet<Long>> IDs = new HashMap<Type, SortedSet<Long>>();
+    	Map<String, Object> params = new HashMap<String, Object>();
+    	params.put("sp", sp);
+    	
+    	String qVersionIDs = "select pv.id from ProjectVersion pv where pv.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='C') and pv.project = :sp order by pv.sequence";
+    	List<Long> objectIds = (List<Long>) db.doHQL(qVersionIDs, params);
+    	TreeSet<Long> ids = new TreeSet<Long>();
+    	ids.addAll(objectIds);
+    	IDs.put(MetricType.Type.PROJECT_VERSION, ids);
+    	
+    	String qThreadIDs = "select mlt.id from MailingListThread mlt where mlt.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='M') and mlt.list.storedProject = :sp order by mlt.lastUpdated";
+    	objectIds = (List<Long>) db.doHQL(qThreadIDs, params);
+    	ids = new TreeSet<Long>();
+    	ids.addAll(objectIds);
+    	IDs.put(MetricType.Type.MAILTHREAD, ids);
+    	
+    	String qBugIDs = "select b.id from Bug b where b.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='B') and b.project = :sp order by b.updateRun";
+    	objectIds = (List<Long>) db.doHQL(qBugIDs, params);
+    	ids = new TreeSet<Long>();
+    	ids.addAll(objectIds);
+    	IDs.put(MetricType.Type.BUG, ids);
+    	
+    	return IDs;
+    }
+    
     /*
      * The following methods are dummy implementations that just
      * check if a result has been calculated for the provided

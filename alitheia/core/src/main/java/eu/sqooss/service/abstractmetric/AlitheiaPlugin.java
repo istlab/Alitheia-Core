@@ -35,11 +35,16 @@ package eu.sqooss.service.abstractmetric;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.metricactivator.MetricActivationException;
 
 /**
  * This interface defines the common metric plug-in related functionality.
@@ -259,9 +264,9 @@ public interface AlitheiaPlugin {
      * the metric result is stored. 
      * 
      * @param m - The metric for which to search for an activation type
-     * @return A subclass of DAObject (a.k.a activation type)
+     * @return A list of subclasses of DAObject (a.k.a activation types).
      */
-    Class<? extends DAObject> getMetricActivationType(Metric m);
+    List<Class<? extends DAObject>> getMetricActivationTypes (Metric m);
     
     /**
      * Retrieves the list of configuration properties for this plug-in.
@@ -283,4 +288,14 @@ public interface AlitheiaPlugin {
      * @return A, possibly empty, set of metric mnemonics. 
      */
     Set<String> getDependencies();
+    
+    /**
+     * Get a list of object ids for the database entities to run the metric
+     * on, ordered by activation type. This method essentially allows the plugin
+     * to specify a custom processing order for metadata entities to be processed
+     * by metrics. The default execution order is specified 
+     * 
+     */
+    Map<MetricType.Type, SortedSet<Long>> getObjectIdsToSync(StoredProject sp, Metric m) 
+    	throws MetricActivationException;
 }

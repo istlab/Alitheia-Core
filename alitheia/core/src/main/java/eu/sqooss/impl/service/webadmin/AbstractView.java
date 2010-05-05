@@ -257,29 +257,23 @@ public abstract class AbstractView {
 
     // TODO: Move this method's logic in the initResources() once all views
     // are using the new methods.
-    public static ResourceBundle getLabelsBundle (Locale locale) {
-        if (locale != null)
-            return ResourceBundle.getBundle(RES_LABELS_FILE, locale);
-        else
-            return ResourceBundle.getBundle(RES_LABELS_FILE);
-    }
+	public static ResourceBundle getLabelsBundle(Locale locale) {
+		locale = Locale.ENGLISH;
+		return ResourceBundle.getBundle(RES_LABELS_FILE, locale);
+	}
 
     // TODO: Move this method's logic in the initResources() once all views
     // are using the new methods.
-    public static ResourceBundle getErrorsBundle (Locale locale) {
-        if (locale != null)
-            return ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
-        else
-            return ResourceBundle.getBundle(RES_ERRORS_FILE);
-    }
+	public static ResourceBundle getErrorsBundle(Locale locale) {
+		locale = Locale.ENGLISH;
+		return ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
+	}
 
     // TODO: Move this method's logic in the initResources() once all views
     // are using the new methods.
     public static ResourceBundle getMessagesBundle (Locale locale) {
-        if (locale != null)
-            return ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);
-        else
-            return ResourceBundle.getBundle(RES_MESSAGES_FILE);
+    	locale = Locale.ENGLISH;
+    	return ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);
     }
 
     /**

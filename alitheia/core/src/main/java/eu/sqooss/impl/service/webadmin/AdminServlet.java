@@ -46,6 +46,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import java.util.Hashtable;
+import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -303,7 +304,7 @@ public class AdminServlet extends HttpServlet {
 
     private void createSubstitutions(HttpServletRequest request) {
         // Initialize the resource bundles with the provided locale
-        AbstractView.initResources(request.getLocale());
+        AbstractView.initResources(Locale.ENGLISH);
 
         // Simple string substitutions
         vc.put("APP_NAME", AbstractView.getLbl("app_name"));
