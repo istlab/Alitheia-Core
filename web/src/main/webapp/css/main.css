@@ -1,8 +1,29 @@
 @CHARSET "UTF-8";
 
 body {
-	margin: 0 auto;
-	width: 900px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 1000px;
+	font-family: Lucida Sans, Arial, Helvetica, sans-serif;
+	font-size: 0.9em;
+}
+
+#prSelector {
+	width: 25em;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#projectName {
+	font-size: 1.2em;
+	color: #BDBDBD;
+	
+}
+
+.secheader {
+	font-size: 1.1em;
+	color: #BDBDBD;
+	
 }
 
 #verrngcont {
@@ -13,4 +34,16 @@ body {
 
 .hidden {
 	display: none;
+}
+
+.jqplot-axis {
+	font-size: 0.8em;
+	padding: 10px;
+}
+
+.plotcontainer {
+	padding: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 400px
 }

@@ -12,33 +12,53 @@
 </head>
 <body>
 
+<div id="prSelector">
 <label for="projectSelect">Select a project</label> 
-<select style="width: 300px;" id="projectSelect"><option selected="selected">-</option></select>
+<select style="width: 200px" id="projectSelect">
+  <option selected="selected">-</option>
+</select>
+</div>
+
+<div id="projectName"></div>
+<hr/>
+
+<div id="versions">
+<div class="secheader">Versions</div>
 
 <div id="versionplot" style="margin: 0 auto; width: 840px">
-	<div id="verplot1" style="float: left">
+	<div id="verplot1" class="plotcontainer" style="float: left">
 		<div id="verplot1plot" style="height: 250px; width: 400px;"></div>
-		<select name="verplot1metr" style="width: 400px;"></select>
+		<select name="verplot1metr">
+          <option selected="selected">--Select a metric --</option>
+        </select>
 	</div>
-	<div id="verplot2" style="float: left">
+	<div id="verplot2" class="plotcontainer" style="float: right">
 		<div id="verplot2plot" style="height: 250px; width: 400px;"></div>
-		<select name="verplot2metr" style="width: 400px;"></select>
+		<select name="verplot2metr">
+          <option selected="selected">--Select a metric --</option>
+        </select>
 	</div>
 </div>
 
 <div id="verrngcont" class="hidden">
-<div id="versionrange"></div>
+
 <label for="versionlbl">Version range:</label>
 <input type="text" id="versionlbl" style="border:0; color:#f6931f; font-weight:bold;"/>
-
+<div id="versionrange"></div>
+</div>
 </div>
 
+<hr/>
 <div id="files">
-	
+<div class="secheader">Files</div>
+<label for="verTxt">Enter a version number</label>
+<input type="text" id="verTxt" size="5"/>
 </div>
 
+<hr/>
 <div id="developers">
-	
+<div class="secheader">Developers</div>
+  
 </div>
 
 </body>
