@@ -62,7 +62,7 @@ public class Branch extends DAObject {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="PROJECT_FILE_ID")
+	@Column(name="BRANCH_ID")
 	@XmlElement
 	private long id;
 	
