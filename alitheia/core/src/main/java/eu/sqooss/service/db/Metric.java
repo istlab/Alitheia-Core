@@ -56,6 +56,10 @@ import eu.sqooss.core.AlitheiaCore;
  */
 @XmlRootElement(name="metric")
 public class Metric extends DAObject {
+
+	@XmlElement(name="id")
+	private long id; 
+	
 	/**
 	 * the Alitheia Core plugin providing the functionality for this metric
 	 */
@@ -106,6 +110,14 @@ public class Metric extends DAObject {
 		// Nothing to do here
 	}
 
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+	
 	public MetricType getMetricType() {
 		return metricType;
 	}
