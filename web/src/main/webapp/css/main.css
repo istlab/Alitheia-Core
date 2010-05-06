@@ -26,6 +26,16 @@ body {
 	
 }
 
+.dir {
+	background-image: url('/web/img/folder.png');
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+
+.fileover {
+	background-color: highlight;
+}
+
 #verrngcont {
 	width: 25em;
 	margin-left: auto;

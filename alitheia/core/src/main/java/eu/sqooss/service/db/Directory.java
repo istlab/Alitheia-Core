@@ -69,13 +69,14 @@ public class Directory extends DAObject {
     @Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="DIRECTORY_ID")
+	@XmlElement
 	private long id; 
     
 	/**
      * The path within the SVN repo
      */
     @Column(name="PATH")
-    @XmlElement(name="PATH")
+    @XmlElement
     private String path;
     
     /**

@@ -100,12 +100,13 @@ public class ProjectFile extends DAObject{
      * If this "file" is actually a directory then this is set to true
      */
     @Column(name="IS_DIRECTORY")
+    @XmlElement(name = "isdir")
     private boolean isDirectory;
 
     /**
      * The SVN directory for which this file can be found
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="DIRECTORY_ID")
     @XmlElement
     private Directory dir;
