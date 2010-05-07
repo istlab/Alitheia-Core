@@ -32,7 +32,7 @@
         <property name="hbm2ddl.auto">update</property>
         
         <!-- Make sure that the language used in custom queries is 100% QL compatible -->
-        <property name="query.jpaql_strict_compliance">true</property>
+        <property name="query.jpaql_strict_compliance">false</property>
         
         <mapping resource="eu/sqooss/service/db/Privilege.hbm.xml"/>        
         <mapping resource="eu/sqooss/service/db/PrivilegeValue.hbm.xml"/>        

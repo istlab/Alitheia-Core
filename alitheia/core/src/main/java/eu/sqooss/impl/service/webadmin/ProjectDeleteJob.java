@@ -93,10 +93,10 @@ public class ProjectDeleteJob extends Job {
         
         boolean success = true;
         // Delete project's cluster node assignments
-        ClusterNodeProject cnp = ClusterNodeProject.getProjectAssignment(sp);
-        if (cnp != null) {
-            success &= dbs.deleteRecord(cnp);
-        }
+        //ClusterNodeProject cnp = ClusterNodeProject.getProjectAssignment(sp);
+        //if (cnp != null) {
+        //    success &= dbs.deleteRecord(cnp);
+       // }
         
         //Delete the project's config options
         List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(sp);

@@ -30,7 +30,7 @@ function projectSelected() {
   if (state.prid == "-")
     return;
 
-  $("#projectName").text($("#projectSelect").text());
+  $("#projectName").text($("#projectSelect option:selected").text());
   
   $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/latest",
       gotLatestVersion);
