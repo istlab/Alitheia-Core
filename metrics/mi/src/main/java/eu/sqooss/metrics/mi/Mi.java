@@ -43,7 +43,6 @@ import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
@@ -88,31 +87,14 @@ public class Mi extends AbstractMetric {
         super(bc);        
     }
     
-    public List<ResultEntry> getResult(ProjectFile pf, Metric m) {
+    public List<Result> getResult(ProjectFile pf, Metric m) {
         // Prepare an array for storing the retrieved measurement results
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        ArrayList<Result> results = new ArrayList<Result>();
 
         if (!pf.getIsDirectory())
             return null;
 
-        // Search for a matching measurement results
-        List<ProjectFileMeasurement> measurement = null;
-        HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("projectFile", pf);
-        filter.put("metric", m);
-        measurement = db.findObjectsByProperties(
-                ProjectFileMeasurement.class, filter);
-
-        // Convert the measurement into a result object
-        if (!measurement.isEmpty()) {
-            results.add(new ResultEntry(
-                    Double.parseDouble(measurement.get(0).getResult()),
-                    ResultEntry.MIME_TYPE_TYPE_DOUBLE,
-                    m.getMnemonic()));
-        }
-
-        return results.isEmpty() ? null : results;
-        
+        return getResult(pf, ProjectFileMeasurement.class, m, Result.ResultType.DOUBLE);
     }
     
     public void run(ProjectFile pf) throws AlreadyProcessingException {
@@ -229,28 +211,8 @@ public class Mi extends AbstractMetric {
         db.addRecord(pfm);
     }
 
-    public List<ResultEntry> getResult(ProjectVersion pv, Metric m) {
-        
-     // Prepare an array for storing the retrieved measurement results
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-
-        // Search for a matching measurement results
-        List<ProjectVersionMeasurement> measurement = null;
-        HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("projectVersion", pv);
-        filter.put("metric", m);
-        measurement = db.findObjectsByProperties(
-                ProjectVersionMeasurement.class, filter);
-
-        // Convert the measurement into a result object
-        if (!measurement.isEmpty()) {
-            results.add(new ResultEntry(
-                    Double.parseDouble(measurement.get(0).getResult()),
-                    ResultEntry.MIME_TYPE_TYPE_DOUBLE,
-                    m.getMnemonic()));
-        }
-
-        return results.isEmpty() ? null : results;
+    public List<Result> getResult(ProjectVersion pv, Metric m) {
+        return getResult(pv, ProjectVersionMeasurement.class, m, Result.ResultType.DOUBLE);
     }
 
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
@@ -344,31 +306,12 @@ public class Mi extends AbstractMetric {
         List<Metric> l = new ArrayList<Metric>();
         l.add(m);
         try {
-            Result r = plugin.getResultIfAlreadyCalculated(c, l);
-
-            if (r == null)
-                return null;
+            List<Result> r = plugin.getResultIfAlreadyCalculated(c, l);
             
-            if (!r.hasNext())
+            if (r == null || r.isEmpty())
                 return null;
 
-            List<ResultEntry> resline = r.next();
-
-            if (!resline.iterator().hasNext())
-                return null;
-
-            String s = resline.iterator().next().toString();
-
-            if (resultType.equals(Double.class))
-                return (E) new Double(s);
-
-            if (resultType.equals(Integer.class))
-                return (E) new Integer(s);
-
-            if (resultType.equals(Float.class))
-                return (E) new Float(s);
-
-            return null;
+            return (E) r.get(0).getResult();
             
         } catch (Exception e) {
             log.error(this.getName() + ": Result for metric " + m.getMnemonic()

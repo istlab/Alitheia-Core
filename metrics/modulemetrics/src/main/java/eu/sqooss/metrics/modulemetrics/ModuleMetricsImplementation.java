@@ -47,7 +47,7 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
-import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectDirectory;
@@ -93,53 +93,12 @@ public class ModuleMetricsImplementation extends AbstractMetric {
             core = (AlitheiaCore) bc.getService(serviceRef);
     }
 
-    public List<ResultEntry> getResult(ProjectFile pf, Metric m) {
-        // Prepare an array for storing the retrieved measurement results
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-
-        if (!pf.getIsDirectory())
-            return null;
-
-        // Search for a matching measurement results
-        List<ProjectFileMeasurement> measurement = null;
-        HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("projectFile", pf);
-        filter.put("metric", m);
-        measurement = db.findObjectsByProperties(
-                ProjectFileMeasurement.class, filter);
-
-        // Convert the measurement into a result object
-        if (!measurement.isEmpty()) {
-            results.add(new ResultEntry(
-                    Integer.parseInt(measurement.get(0).getResult()),
-                    ResultEntry.MIME_TYPE_TYPE_INTEGER,
-                    m.getMnemonic()));
-        }
-
-        return results.isEmpty() ? null : results;
+    public List<Result> getResult(ProjectFile pf, Metric m) {
+        return getResult(pf, ProjectFileMeasurement.class, m, Result.ResultType.INTEGER);
     }
  
-    public List<ResultEntry> getResult(ProjectVersion pv, Metric m) {
-        // Prepare an array for storing the retrieved measurement results
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-
-        // Search for a matching measurement results
-        List<ProjectVersionMeasurement> measurement = null;
-        HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("projectVersion", pv);
-        filter.put("metric", m);
-        measurement = db.findObjectsByProperties(
-                ProjectVersionMeasurement.class, filter);
-
-        // Convert the measurement into a result object
-        if (!measurement.isEmpty()) {
-            results.add(new ResultEntry(
-                    Float.parseFloat(measurement.get(0).getResult()),
-                    ResultEntry.MIME_TYPE_TYPE_FLOAT,
-                    m.getMnemonic()));
-        }
-
-        return results.isEmpty() ? null : results;
+    public List<Result> getResult(ProjectVersion pv, Metric m) {
+        return getResult(pv, ProjectVersionMeasurement.class, m, Result.ResultType.FLOAT);
     }
 
     public void run(ProjectFile pf) throws AlreadyProcessingException {
@@ -267,7 +226,7 @@ public class ModuleMetricsImplementation extends AbstractMetric {
         metric.add(Metric.getMetricByMnemonic(mnemonic));
         
         try {
-            return plugin.getResult(f, metric).getRow(0).get(0).getInteger();
+            return Integer.parseInt(plugin.getResult(f, metric).get(0).getResult().toString());
         } catch (AlreadyProcessingException ape) {
             throw ape;
         } catch (NumberFormatException ex) {

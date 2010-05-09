@@ -60,7 +60,7 @@ import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.abstractmetric.Result.ResultType;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.BugReportMessage;
 import eu.sqooss.service.db.BugResolution;
@@ -204,29 +204,28 @@ public class ContributionMetricImpl extends AbstractMetric {
      * check if a result has been calculated for the provided
      * DAO or not. 
      */
-    public List<ResultEntry> getResult(ProjectVersion a, Metric m) {
+    public List<Result> getResult(ProjectVersion a, Metric m) {
        return checkResult(a, ActionCategory.C, m);
     }
     
-    public List<ResultEntry> getResult(MailingListThread mm, Metric m) {
+    public List<Result> getResult(MailingListThread mm, Metric m) {
         return checkResult(mm, ActionCategory.M, m);
     }
     
-    public List<ResultEntry> getResult(Bug b, Metric m) {
+    public List<Result> getResult(Bug b, Metric m) {
         return checkResult(b, ActionCategory.B, m);
     }
     
-    private List<ResultEntry> checkResult(DAObject o, ActionCategory ac, 
+    private List<Result> checkResult(DAObject o, ActionCategory ac, 
             Metric m) {
-        ArrayList<ResultEntry> res = new ArrayList<ResultEntry>();
+        ArrayList<Result> res = new ArrayList<Result>();
         
         if (getResult(o) == null)
             return null;
 
-        //Return a fixed result to indicate successful run on this 
+        //Return a dummy result to indicate successful run on this 
         //project resource
-        res.add(new ResultEntry(1, ResultEntry.MIME_TYPE_TYPE_INTEGER, 
-                m.getMnemonic()));
+        res.add(new Result(o, m, "1", ResultType.INTEGER));
         return res;
     }
 
@@ -263,8 +262,8 @@ public class ContributionMetricImpl extends AbstractMetric {
     /*
      * This plug-in's result is only returned per developer. 
      */
-    public List<ResultEntry> getResult(Developer d, Metric m) {
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+    public List<Result> getResult(Developer d, Metric m) {
+        ArrayList<Result> results = new ArrayList<Result>();
         ProjectVersion newestPV = ProjectVersion.getLastProjectVersion(d.getStoredProject());
         
         double result = 0;
@@ -284,8 +283,8 @@ public class ContributionMetricImpl extends AbstractMetric {
                 }
             }
         }
-        ResultEntry re = new ResultEntry(new Double(result), 
-                ResultEntry.MIME_TYPE_TYPE_DOUBLE, m.getMnemonic());
+
+        Result re = new Result(d, m, result, Result.ResultType.DOUBLE);
         results.add(re);
         
         return results;
@@ -368,7 +367,7 @@ public class ContributionMetricImpl extends AbstractMetric {
         AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin("Wc.loc");
         
         if (plugin != null) {
-            locMetric = plugin.getAllSupportedMetrics();
+            locMetric.add(Metric.getMetricByMnemonic("Wc.loc"));
         } else {
             err("Could not find the WC plugin", pv);
             return;
@@ -535,9 +534,9 @@ public class ContributionMetricImpl extends AbstractMetric {
             List<Metric> locMetric) 
         throws MetricMismatchException, AlreadyProcessingException, Exception {
       //Get lines of current version of the file from the wc metric
-        Result r = plugin.getResult(pf, locMetric);
-        if (r != null && r.hasNext()) {
-            return r.getRow(0).get(0).getInteger();
+        List<Result> r = plugin.getResult(pf, locMetric);
+        if (r != null && !r.isEmpty()) {
+            return Integer.parseInt(r.get(0).getResult().toString());
         }
         else { 
             warn("Plugin <" + plugin.getName() + "> did" +

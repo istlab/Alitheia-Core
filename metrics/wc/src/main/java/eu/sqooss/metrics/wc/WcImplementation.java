@@ -54,7 +54,7 @@ import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
-import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
@@ -114,16 +114,20 @@ public class WcImplementation extends AbstractMetric {
         addCommentDelimiters("html|xml|xsl",new String[]{null,"<!--","-->"});
     }
 
-    public List<ResultEntry> getResult(ProjectFile a, Metric m) {
+    public List<Result> getResult(ProjectFile a, Metric m) {
         
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+        List<Result> results = new ArrayList<Result>();
         // Search for a matching project file measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectFile", a);
         filter.put("metric", m);
         List<ProjectFileMeasurement> measurement =
             db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
-    	return convertFileMeasurements(measurement,m.getMnemonic());
+        
+        for (ProjectFileMeasurement pfm : measurement) 
+            results.add(new Result(a, m, pfm.getResult(), Result.ResultType.INTEGER));
+        
+    	return results;
     }
 
     /**
@@ -297,49 +301,6 @@ public class WcImplementation extends AbstractMetric {
     }
 
     /**
-     * Self-test the wc plug-in by processing several files; these
-     * files live in /tmp/wc, which must be populated. There isn't
-     * really any self-*testing* in this method, but the code-paths
-     * are exercised as well as possible. By putting a suitable
-     * selection of files into /tmp/wc, you can read the output
-     * and validate the wc plug-in and its results.
-     * 
-     * @return null -- this selfTest() cannot fail
-     */
-    public Object selfTest() {
-        log.info("Self-test for Wc plug-in in progress");
-        File dir = new File("/tmp/wc");
-        File[] files = dir.listFiles();
-        if (null == files) {
-            log.warn("No files to use in /tmp/wc for self-test");
-        } else {
-            for (File f : files) {
-                InputStream foo = null;
-                try {
-                    foo = new FileInputStream(f);
-                    int[] result = processStream(
-                            FileTypeMatcher.getFileExtension(f.getName()),foo);
-                    log.info("Read file <" + f.getName() + ">," +
-                            " loc=" + result[0] + 
-                            " locom=" + result[1] + 
-                            " lonb=" + result[2] +
-                            " words=" + result[3]);
-                    System.out.println("Read file <" + f.getName() + ">");
-                    System.out.println("\tloc=" + result[0] + 
-                            " locom=" + result[1] + 
-                            " lonb=" + result[2] +
-                            " words=" + result[3]);
-                } catch(IOException e) {
-                    // Failed to create reader, skip
-                    log.warn("Could not read self-test file",e);
-                }
-            }
-        }
-        
-        return null;
-    }
-
-    /**
      * This is a very simple finite state machine that tracks
      * multi-line comments; the machine is either inside or
      * outside a multi-line comment, and it processes input line-by-line
@@ -424,15 +385,19 @@ public class WcImplementation extends AbstractMetric {
         }
     }
 
-    public List<ResultEntry> getResult(ProjectVersion p, Metric m) {
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
+    public List<Result> getResult(ProjectVersion p, Metric m) {
+        ArrayList<Result> results = new ArrayList<Result>();
         // Search for a matching project version measurement
         HashMap<String, Object> filter = new HashMap<String, Object>();
         filter.put("projectVersion", p);
         filter.put("metric", m);
         List<ProjectVersionMeasurement> measurement =
             db.findObjectsByProperties(ProjectVersionMeasurement.class, filter);
-        return convertVersionMeasurements(measurement,m.getMnemonic());
+        
+        for (ProjectVersionMeasurement pfm : measurement) 
+            results.add(new Result(p, m, pfm.getResult(), Result.ResultType.INTEGER));
+        
+        return results;
     }
 
     public void run(ProjectVersion v) throws AlreadyProcessingException {

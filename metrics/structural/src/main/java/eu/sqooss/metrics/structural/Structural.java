@@ -56,7 +56,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
-import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
@@ -164,27 +164,11 @@ public class Structural extends AbstractMetric {
         fileDAO = new ThreadLocal<ProjectFile>();
     }
 
-    public List<ResultEntry> getResult(ProjectFile a, Metric m) {        
-        String mime = mimeTypeDouble.contains(m.getMnemonic())?
-                ResultEntry.MIME_TYPE_TYPE_DOUBLE:ResultEntry.MIME_TYPE_TYPE_INTEGER;
+    public List<Result> getResult(ProjectFile a, Metric m) {        
+        Result.ResultType type = mimeTypeDouble.contains(m.getMnemonic())?
+                Result.ResultType.DOUBLE: Result.ResultType.INTEGER;
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put("projectFile", a);
-        props.put("metric", m);
-        List<ProjectFileMeasurement> pfms = dbs.findObjectsByProperties(ProjectFileMeasurement.class, props);
-        
-        if (pfms.isEmpty())
-            return null;
-        
-        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
-        
-        if (mime.equals(ResultEntry.MIME_TYPE_TYPE_INTEGER))
-            result.add(new ResultEntry(Integer.parseInt(pfms.get(0).getResult()), mime, m.getMnemonic()));
-        else 
-            result.add(new ResultEntry(Double.parseDouble(pfms.get(0).getResult()), mime, m.getMnemonic()));
-        
-        return result;
+        return getResult(a, ProjectFileMeasurement.class, m, type);
     }
     
     public void run(ProjectFile pf) {

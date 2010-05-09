@@ -58,20 +58,17 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailMessageMeasurement;
-import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricMeasurement;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
-import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
-import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.StoredProjectMeasurement;
 import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivationException;
@@ -290,9 +287,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *      not supported by this metric.
      */
      @SuppressWarnings("unchecked")
-     public Result getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
-        boolean found = false;
-        Result r = new Result();
+     public List<Result> getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
+        boolean found = false;        
+        List<Result> result = new ArrayList<Result>();
         
         for (Metric m : l) {
             if (!metrics.containsKey(m.getMnemonic())) {
@@ -300,10 +297,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                         + " not defined by plugin "
                         + Plugin.getPluginByHashcode(getUniqueKey()).getName());
             }
-            List<ResultEntry> re = null;
+            List<Result> re = null;
             try {
-                Method method = findGetResultMethod(m.getMetricType().toActivator());
-                re = (List<ResultEntry>) method.invoke(this, o, m);
+                Method method = findGetResultMethod(o.getClass());
+                re = (List<Result>) method.invoke(this, o, m);
             } catch (SecurityException e) {
                 logErr("getResult", o, e);
             } catch (NoSuchMethodException e) {
@@ -316,12 +313,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             } catch (InvocationTargetException e) {
                 logErr("getResult", o, e);
             }
-            if (re != null) {
-                r.addResultRow(new ArrayList<ResultEntry>(re));
+            if (re != null && !re.isEmpty()) {
+                result.addAll(re);
             }
         }
 
-        return r;
+        return result;
     }
 
      private Method findGetResultMethod(Class<?> clazz) 
@@ -337,86 +334,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
              throw nsme;
          }
      }
-    
+
      return m;
- }
+     }
      
-     /**
-      * Convert a list of ProjectFileMeasurements to the (less-well-typed) list
-      * of ResultEntries; this just extracts the single integer value stored as the
-      * result in each ProjectFileMeasurement. The metric mnemonic may be provided
-      * as a label for the measurement.
-      * 
-      * @param l List of measurements to convert
-      * @param label Metric mnemonic label
-      * @return null if there are no measurements; otherwise a list of ResultEntries
-      */
-     static public List<ResultEntry> convertFileMeasurements(List<ProjectFileMeasurement> l,String label) {
-    	 // "No result" is null, not an empty list of results
-    	 if (null == l) {
-    		 return null;
-    	 }
-    	 if (l.isEmpty()) {
-    		 return null;
-    	 }
-
-    	 List<ResultEntry> results = new ArrayList<ResultEntry>();
-    	 for(ProjectFileMeasurement r : l) {
-    	     // There is only one measurement per metric and project file
-            Integer value = Integer.parseInt(r.getResult());
-            // ... and therefore only one result entry
-            ResultEntry entry = new ResultEntry(value,
-                    ResultEntry.MIME_TYPE_TYPE_INTEGER, label);
-            results.add(entry);
-    	 }
-    	 return results;
-     }
-
-     /**
-      * Convert a list of ProjectVersionMeasurements to the (less-well-typed) list
-      * of ResultEntries; this just extracts the single integer value stored as the
-      * result in each ProjectVersionMeasurement. The metric mnemonic may be provided
-      * as a label for the measurement.
-      * 
-      * @param l List of measurements to convert
-      * @param label Metric mnemonic label
-      * @return null if there are no measurements; otherwise a list of ResultEntries
-      */
-     static public List<ResultEntry> convertVersionMeasurements(List<ProjectVersionMeasurement> l,String label) {
-    	 // "No result" is null, not an empty list of results
-    	 if (null == l) {
-    		 return null;
-    	 }
-    	 if (l.isEmpty()) {
-    		 return null;
-    	 }
-
-    	 List<ResultEntry> results = new ArrayList<ResultEntry>();
-    	 for(ProjectVersionMeasurement r : l) {
-    		 // There is only one measurement per metric and project file
-    		 Integer value = Integer.parseInt(r.getResult());
-    		 // ... and therefore only one result entry
-    		 ResultEntry entry = 
-    			 new ResultEntry(value, ResultEntry.MIME_TYPE_TYPE_INTEGER, label);
-    		 results.add(entry);
-    	 }
-    	 return results;
-     }
-
-     /**
-      * Convenience method to convert a single measurement to a list of
-      * result entries; like calling convertVersionMeasurements() with
-      * a singleton list.
-      * @param v Single measurement to convert
-      * @param label Metric mnemonic label
-      * @return Singleton list of results for the measurement
-      */
-     static public List<ResultEntry> convertVersionMeasurement(ProjectVersionMeasurement v, String label) {
-         List<ResultEntry> results = new ArrayList<ResultEntry>(1);
-         results.add(new ResultEntry(Integer.parseInt(v.getResult()), ResultEntry.MIME_TYPE_TYPE_INTEGER, label));
-         return results;
-     }
-
     /**
      * Call the appropriate getResult() method according to
      * the type of the entity that is measured.
@@ -434,12 +355,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      *      not supported by this metric.
      * @throws AlreadyProcessingException 
      */
-    public Result getResult(DAObject o, List<Metric> l) 
+    public List<Result> getResult(DAObject o, List<Metric> l) 
     throws MetricMismatchException, AlreadyProcessingException, Exception {
-        Result r = getResultIfAlreadyCalculated(o, l);
+        List<Result> r = getResultIfAlreadyCalculated(o, l);
 
         // the result hasn't been calculated yet. Do so.
-        if (r == null || r.getRowCount() == 0) {
+        if (r == null || r.size() == 0) {
            /*
              * To ensure that no two instances of the metric operate on the same
              * DAO lock on the DAO. Working on the same DAO can happen often
@@ -453,7 +374,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     run(o);
                     
                     r = getResultIfAlreadyCalculated(o, l);
-                    if (r == null || r.getRowCount() == 0) {
+                    if (r == null || r.size() == 0) {
                         log.debug("Metric " + getClass() + " didn't return"
                                 + "a result even after running it. DAO: "
                                 + o.getId());
@@ -856,99 +777,36 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return null;
     }
     
-    /**
-     * Convenience method to get the measurement for a single metric for a 
-     * StoredProject.
-     */
-    protected List<ResultEntry> getResult(StoredProject s, Metric m, String mime) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put("storedProject", s);
-        props.put("metric", m);
-        List<StoredProject> mmsgs = dbs.findObjectsByProperties(StoredProject.class, props);
-        
-        if (mmsgs.isEmpty())
-            return null;
-        
-        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
-        result.add(new ResultEntry(mmsgs.get(0), mime, m.getMnemonic()));
-        return result;
+    private static Map<Class<? extends MetricMeasurement>, String> resultFieldNames = 
+        new HashMap<Class<? extends MetricMeasurement>, String>();
+    
+    static {
+        resultFieldNames.put(StoredProjectMeasurement.class, "storedProject");
+        resultFieldNames.put(ProjectVersionMeasurement.class, "projectVersion");
+        resultFieldNames.put(ProjectFileMeasurement.class, "projectFile");
+        resultFieldNames.put(MailMessageMeasurement.class, "mail");
+        resultFieldNames.put(MailingListThreadMeasurement.class, "thread");
     }
     
     /**
-     * Convenience method to get the measurement for a single metric for a 
-     * MailMessage.
+     * Convenience method to get the measurement for a single metric.
      */
-    protected List<ResultEntry> getResult(MailMessage mm, Metric m, String mime) {
+    protected List<Result> getResult(DAObject o, Class<? extends MetricMeasurement> clazz, 
+            Metric m, Result.ResultType type) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put("mail", mm);
+        
+        props.put(resultFieldNames.get(clazz), o);
         props.put("metric", m);
-        List<MailMessageMeasurement> mmsgs = dbs.findObjectsByProperties(MailMessageMeasurement.class, props);
+        List resultat = dbs.findObjectsByProperties(clazz, props);
         
-        if (mmsgs.isEmpty())
-            return null;
+        if (resultat.isEmpty())
+            return Collections.EMPTY_LIST;
         
-        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
-        result.add(new ResultEntry(mmsgs.get(0), mime, m.getMnemonic()));
+        ArrayList<Result> result = new ArrayList<Result>();
+        result.add(new Result(o, m, resultat.get(0), type));
         return result;
-    }
-    
-    /**
-     * Convenience method to get the measurement for a single metric for a 
-     * MailingListThread.
-     */
-    protected List<ResultEntry> getResult(MailingListThread mt, Metric m, String mime) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put("thread", mt);
-        props.put("metric", m);
-        List<MailingListThreadMeasurement> mmsgs = dbs.findObjectsByProperties(MailingListThreadMeasurement.class, props);
         
-        if (mmsgs.isEmpty())
-            return null;
-        
-        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
-        result.add(new ResultEntry(Integer.parseInt(mmsgs.get(0).getResult()), mime, m.getMnemonic()));
-        return result;
-    }
-    
-    /**
-     * Convenience method to get the measurement for a single metric for a 
-     * ProjectVersion.
-     */
-    protected List<ResultEntry> getResult(ProjectVersion pv, Metric m, String mime) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put("projectVersion", pv);
-        props.put("metric", m);
-        List<ProjectVersionMeasurement> pvms = dbs.findObjectsByProperties(ProjectVersionMeasurement.class, props);
-        
-        if (pvms.isEmpty())
-            return null;
-        
-        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
-        result.add(new ResultEntry(Integer.parseInt(pvms.get(0).getResult()), mime, m.getMnemonic()));
-        return result;
-    }
-    
-    /**
-     * Convenience method to get the measurement for a single metric for a 
-     * ProjectFile.
-     */
-    protected List<ResultEntry> getResult(ProjectFile pf, Metric m, String mime) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put("projectFile", pf);
-        props.put("metric", m);
-        List<ProjectFileMeasurement> pfms = dbs.findObjectsByProperties(ProjectFileMeasurement.class, props);
-        
-        if (pfms.isEmpty())
-            return null;
-        
-        ArrayList<ResultEntry> result = new ArrayList<ResultEntry>();
-        result.add(new ResultEntry(Integer.parseInt(pfms.get(0).getResult()), mime, m.getMnemonic()));
-        return result;
     }
     
     /**{@inheritDoc}*/

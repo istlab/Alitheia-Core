@@ -50,13 +50,12 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
-import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
-
 
 @MetricDeclarations(metrics = {
 	@MetricDecl(mnemonic="TEST", descr="", activators={ProjectFile.class})
@@ -77,18 +76,8 @@ public class TestabilityImplementation extends AbstractMetric {
         fds = ((AlitheiaCore)bc.getService(serviceRef)).getFDSService();
     }
 
-    public List<ResultEntry> getResult(ProjectFile a, Metric m) {
-        //Return a list of ResultEntries by querying the DB for the measurements
-        //implement by the supported metric and calculated for the specific
-        //project file
-        ArrayList<ResultEntry> results = new ArrayList<ResultEntry>();
-        // Search for a matching project file measurement
-        HashMap<String, Object> filter = new HashMap<String, Object>();
-        filter.put("projectFile", a);
-        filter.put("metric", m);
-        List<ProjectFileMeasurement> measurement =
-            db.findObjectsByProperties(ProjectFileMeasurement.class, filter);
-    	return convertFileMeasurements(measurement,m.getMnemonic());
+    public List<Result> getResult(ProjectFile a, Metric m) {
+        return getResult(a, ProjectFileMeasurement.class, m, Result.ResultType.INTEGER);
     }
 
     /** Concrete testability scanners that we support. */

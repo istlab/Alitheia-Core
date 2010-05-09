@@ -133,7 +133,8 @@ public interface AlitheiaPlugin {
     String getDescription();
 
     /**
-     * Generic "get results" method, it is specialized by sub-interfaces.
+     * Get the metric result, without triggering a metric recalculation if
+     * the result is not present.
      * If the result was not calculated yet, the result set is empty. If you
      * want to trigger the calculation to get a result, use getResult() instead.
      *
@@ -144,12 +145,13 @@ public interface AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO type is one not supported by
      *          this metric.
      */
-    Result getResultIfAlreadyCalculated(DAObject o, List<Metric> l)
+    List<Result> getResultIfAlreadyCalculated(DAObject o, List<Metric> l)
     	throws MetricMismatchException;
 
     /**
-     * Generic "get results" method, it is specialized by sub-interfaces.
-     * If the result was not calculated yet, the plugin's run method is called.
+     * Get a metric result. 
+     * If the result was not calculated yet, the plugin's run method is called,
+     * and the request waits until the run method returns.
      * If you don't want this behavior, use getResultIfAlreadyCalculated()
      * instead.
      *
@@ -164,7 +166,7 @@ public interface AlitheiaPlugin {
      * @throws Exception All exceptions initiated by the errors in code 
      * included in implemenations of those classes.           
      */
-    Result getResult(DAObject o, List<Metric> l)
+    List<Result> getResult(DAObject o, List<Metric> l)
         throws MetricMismatchException, AlreadyProcessingException, Exception;
 
     /**
@@ -184,7 +186,7 @@ public interface AlitheiaPlugin {
     List<Metric> getSupportedMetrics(Class<? extends DAObject> activationType);
     
     /**
-     * Generic "run plug-in" method. This method performs a measurement for
+     * This method performs a measurement for
      * the given DAO, if possible. The DAO might be any one of the types
      * that make sense for measurements -- ProjectVersion, projectFile,
      * some others. If a DAO of a type that the metric doesn't support

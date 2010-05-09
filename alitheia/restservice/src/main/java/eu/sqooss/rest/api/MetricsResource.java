@@ -29,7 +29,7 @@
  */
 package eu.sqooss.rest.api;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +39,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
@@ -78,29 +79,50 @@ public class MetricsResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Metric getMetricById(@PathParam("id") Long id) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-		Metric sp = DAObject.loadDAObyId(id, Metric.class);
-		return sp;
+		return DAObject.loadDAObyId(id, Metric.class);
 	}
+	
+	@Path("/metrics/by-id/{id}/{rid: .+}")
+    @GET
+    @Produces({"application/xml", "application/json"})
+    public Metric getMetricResult(@PathParam("id") Long id,
+            @PathParam("rid") String resourceIds) {
+	    
+	    List<Long>  ids = new ArrayList<Long>();
+	    int count = 0;
+	    for (String resourceId : resourceIds.split(",")) {
+	        try {
+	            Long l = Long.parseLong(resourceId);
+	            ids.add(l);
+	        } catch (NumberFormatException nfe) {}
+	        
+	        count++;
+	        if (count >=64) {
+	            break;
+	        }
+	    }
+	    
+	    Metric m = DAObject.loadDAObyId(id, Metric.class);
+	    AlitheiaPlugin ap = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin(m.getMnemonic());
+	    Class<? extends DAObject> clazz = m.getMetricType().toActivator();
+	    
+	    
+        return null; 
+    }
+    
 	
 	@Path("/metrics/by-mnem/{mnem}")
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Metric getMetricByMnem(@PathParam("mnem") String name) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-		Metric m = Metric.getMetricByMnemonic(name);
-		return m;
+		return Metric.getMetricByMnemonic(name);
 	}
 	
 	@Path("/metrics/by-type/{type}")
 	@GET
     @Produces({"application/xml", "application/json"})
-	public Set<Metric> getProject(@PathParam("type") String type) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-		Set<Metric> metrics = Collections.EMPTY_SET;
-		
+	public Set<Metric> getMetricByType(@PathParam("type") String type) {
 		MetricType mt = MetricType.getMetricType(Type.fromString(type));
-		metrics = mt.getMetrics();
-		return metrics;
+		return mt.getMetrics();
 	}
 }

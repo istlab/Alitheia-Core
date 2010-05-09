@@ -47,7 +47,6 @@ import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.abstractmetric.ResultEntry;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingListThread;
@@ -95,12 +94,12 @@ public class DiscussionHeat extends AbstractMetric {
         dbs = AlitheiaCore.getInstance().getDBService();
     }
 
-    public List<ResultEntry> getResult(MailingListThread mt, Metric m) {
-        return getResult(mt, m, ResultEntry.MIME_TYPE_TYPE_INTEGER);
+    public List<Result> getResult(MailingListThread mt, Metric m) {
+        return getResult(mt, MailingListThreadMeasurement.class, m, Result.ResultType.INTEGER);
     }
     
-    public List<ResultEntry> getResult(ProjectVersion pv, Metric m) {
-        return getResult(pv, m, ResultEntry.MIME_TYPE_TYPE_INTEGER);
+    public List<Result> getResult(ProjectVersion pv, Metric m) {
+        return getResult(pv, ProjectVersionMeasurement.class, m, Result.ResultType.INTEGER);
     }
     
     public void run(MailingListThread m) throws AlreadyProcessingException {
@@ -166,9 +165,9 @@ public class DiscussionHeat extends AbstractMetric {
         int result = 0;
         try {
             for (ProjectVersion version : versions) {
-                Result r = getResult(version, metricList);
-                if (r != null) {
-                    result += r.getRow(0).get(0).getInteger();
+                List<Result> r = getResult(version, metricList);
+                if (r != null && !r.isEmpty()) {
+                    result += (Integer)r.get(0).getResult();
                 }
             }
         } catch (MetricMismatchException e) {
@@ -291,9 +290,9 @@ public class DiscussionHeat extends AbstractMetric {
             List<Metric> locMetric) 
         throws MetricMismatchException, AlreadyProcessingException, Exception {
       //Get lines of current version of the file from the wc metric
-        Result r = plugin.getResult(pf, locMetric);
-        if (r != null && r.hasNext()) {
-            return r.getRow(0).get(0).getInteger();
+        List<Result> r = plugin.getResult(pf, locMetric);
+        if (r != null && !r.isEmpty()) {
+            return Integer.parseInt(r.get(0).getResult().toString());
         }
         else {
             return 0;
