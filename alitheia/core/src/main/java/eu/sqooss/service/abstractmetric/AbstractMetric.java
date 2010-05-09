@@ -804,7 +804,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             return Collections.EMPTY_LIST;
         
         ArrayList<Result> result = new ArrayList<Result>();
-        result.add(new Result(o, m, resultat.get(0), type));
+        result.add(new Result(o, m, ((MetricMeasurement)resultat.get(0)).getResult(), type));
         return result;
         
     }

@@ -311,8 +311,16 @@ public class Mi extends AbstractMetric {
             if (r == null || r.isEmpty())
                 return null;
 
-            return (E) r.get(0).getResult();
+            if (resultType.equals(Double.class))
+                return (E) new Double(r.get(0).getResult().toString());
+
+            if (resultType.equals(Integer.class))
+                return (E) new Integer(r.get(0).getResult().toString());
+
+            if (resultType.equals(Float.class))
+                return (E) new Float(r.get(0).getResult().toString());
             
+            return null;
         } catch (Exception e) {
             log.error(this.getName() + ": Result for metric " + m.getMnemonic()
                     + " cannot be retrieved for DAO " + c.toString());

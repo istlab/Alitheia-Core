@@ -30,6 +30,8 @@
 package eu.sqooss.rest.api;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +42,8 @@ import javax.ws.rs.Produces;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.MetricMismatchException;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
@@ -82,13 +86,13 @@ public class MetricsResource {
 		return DAObject.loadDAObyId(id, Metric.class);
 	}
 	
-	@Path("/metrics/by-id/{id}/{rid: .+}")
+	@Path("/metrics/by-id/{id}/result/{rid: .+}")
     @GET
     @Produces({"application/xml", "application/json"})
-    public Metric getMetricResult(@PathParam("id") Long id,
+    public List<Result> getMetricResult(@PathParam("id") Long id,
             @PathParam("rid") String resourceIds) {
 	    
-	    List<Long>  ids = new ArrayList<Long>();
+	    Set<Long>  ids = new HashSet<Long>();
 	    int count = 0;
 	    for (String resourceId : resourceIds.split(",")) {
 	        try {
@@ -103,11 +107,43 @@ public class MetricsResource {
 	    }
 	    
 	    Metric m = DAObject.loadDAObyId(id, Metric.class);
+	    
+	    if (m == null)
+	        return Collections.EMPTY_LIST;  
+	    
+	    List<Metric> metricList = new ArrayList<Metric>();
+	    metricList.add(m);
+	    
 	    AlitheiaPlugin ap = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin(m.getMnemonic());
+	    
+	    if (ap == null)
+	        return Collections.EMPTY_LIST;
+	    
 	    Class<? extends DAObject> clazz = m.getMetricType().toActivator();
 	    
+	    if (clazz == null)
+	        return Collections.EMPTY_LIST;
 	    
-        return null; 
+	    List<Result> result = new ArrayList<Result>();
+	    
+	    for (Long daoId : ids) {
+	        try {
+	            DAObject dao = DAObject.loadDAObyId(daoId, clazz);
+	            
+	            if (dao == null)
+	                continue;
+	            
+                List<Result> r = ap.getResultIfAlreadyCalculated(dao, metricList);
+                result.addAll(r);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+	    }
+	    
+	    if (result.isEmpty())
+	        return Collections.EMPTY_LIST;
+	    
+        return result; 
     }
     
 	

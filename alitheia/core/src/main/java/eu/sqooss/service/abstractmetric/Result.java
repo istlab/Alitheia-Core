@@ -1,8 +1,15 @@
 package eu.sqooss.service.abstractmetric;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 
+@XmlRootElement(name="r")
+@XmlAccessorType(XmlAccessType.NONE)
 public class Result {
 
     public enum ResultType {
@@ -12,9 +19,16 @@ public class Result {
         DOUBLE
     }
     
+    @XmlElement
     private Long artifactId;
+    
+    @XmlElement
     private Long metricId;
+    
+    @XmlElement(type=String.class)
     private Object result;
+    
+    @XmlElement
     private ResultType type;
 
     public Result() {}
