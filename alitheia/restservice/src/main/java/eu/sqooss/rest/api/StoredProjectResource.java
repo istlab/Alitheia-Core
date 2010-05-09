@@ -45,6 +45,7 @@ import javax.ws.rs.Produces;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
@@ -100,18 +101,36 @@ public class StoredProjectResource {
 		return ProjectVersion.getVersionByRevision(
 		        DAObject.loadDAObyId(prid, StoredProject.class), verid);
 	}
-	
-	@Path("/projects/{id}/versions/{vid}/files")
+
+	@Path("/projects/{id}/versions/{vid}/files/")
     @GET
     @Produces({"application/xml", "application/json"})
-    public List<ProjectFile> getFiles(@PathParam("id") Long prid,
+    public List<ProjectFile> getAllFiles(@PathParam("id") Long prid,
             @PathParam("vid") String verid) {
         
 	    ProjectVersion pv = getVersion(prid, verid);
 	    if (pv == null)
 	        return Collections.EMPTY_LIST;
 	        
-        return pv.getFiles();
+        return pv.getFiles(null, ProjectVersion.MASK_FILES);
+    }
+	
+	@Path("/projects/{id}/versions/{vid}/files/{dir: .+}")
+    @GET
+    @Produces({"application/xml", "application/json"})
+    public List<ProjectFile> getFilesInDir(@PathParam("id") Long prid,
+            @PathParam("vid") String verid,
+            @PathParam("dir") String path) {
+        
+        ProjectVersion pv = getVersion(prid, verid);
+        if (pv == null)
+            return Collections.EMPTY_LIST;
+        
+        if (!path.startsWith("/"))
+            path = "/" + path;
+        
+        return pv.getFiles(Directory.getDirectory(path, false), 
+                ProjectVersion.MASK_FILES);
     }
 	
 	@Path("/projects/{id}/versions/{vid}/files/changed")
@@ -120,10 +139,42 @@ public class StoredProjectResource {
     public Set<ProjectFile> getChangedFiles(@PathParam("id") Long prid,
             @PathParam("vid") String verid) {
         
-	    ProjectVersion pv = getVersion(prid, verid);
+        ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
             return Collections.EMPTY_SET;
         
         return pv.getVersionFiles();
     }
+	
+	@Path("/projects/{id}/versions/{vid}/dirs/")
+    @GET
+    @Produces({"application/xml", "application/json"})
+    public List<ProjectFile> getDirs(@PathParam("id") Long prid,
+            @PathParam("vid") String verid) {
+        
+	    ProjectVersion pv = getVersion(prid, verid);
+        if (pv == null)
+            return Collections.EMPTY_LIST;
+ 
+        return pv.getFiles(null, 
+                ProjectVersion.MASK_DIRECTORIES);
+	}
+	
+	@Path("/projects/{id}/versions/{vid}/dirs/{dir: .+}")
+    @GET
+    @Produces({"application/xml", "application/json"})
+    public List<ProjectFile> getDirs(@PathParam("id") Long prid,
+            @PathParam("vid") String verid,
+            @PathParam("dir") String path) {
+        
+        ProjectVersion pv = getVersion(prid, verid);
+        if (pv == null)
+            return Collections.EMPTY_LIST;
+        
+        if (!path.startsWith("/"))
+            path = "/" + path;
+        
+        return pv.getFiles(Directory.getDirectory(path, false), 
+                ProjectVersion.MASK_DIRECTORIES);
+	}
 }

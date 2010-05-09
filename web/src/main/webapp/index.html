@@ -22,7 +22,7 @@
 <div id="projectName"></div>
 <hr/>
 
-<div id="versions">
+<div id="versionpane">
 <div class="secheader">Versions</div>
 
 <div id="versionplot" style="margin: 0 auto; width: 840px">
@@ -49,28 +49,53 @@
 </div>
 
 <hr/>
-<div id="files">
+<div id="filepane">
 <div class="secheader">Files</div>
+<div>
 <label for="verTxt">Enter a revision number</label>
 <input type="text" id="verTxt" size="5"/>
+</div>
 
-<!-- Placeholder for files and file metrics -->
-<table id="filelist">
+<!-- Placeholder for directories and dir metrics -->
+<div id="dirlist">
+<table id="dirs">
 	<thead>
-	  <tr id="header">
+	  <tr class="header">
       </tr>
 	</thead>
 	<tbody>
 	</tbody>
 </table>
-
 </div>
 
+<!-- Placeholder for files and file metrics -->
+<div id="filelist">
+<table id="files">
+	<thead>
+	  <tr class="header">
+	  	<td></td>
+      </tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+</div>
+
+<div class="clear"></div>
+</div>
+
+<div id="footer">
 <hr/>
-<div id="developers">
-<div class="secheader">Developers</div>
-  
+<center>
+  <small><a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
+	<img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a>
+	<br />This work is licensed under a 
+	<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
+		Creative Commons Attribution-Noncommercial 3.0 Unported License
+	</a>. <br/>
+	&copy; 2010 <a href="http://www.sqo-oss.org">The SQO-OSS project</a>
+</small>
+</center>
 </div>
-
 </body>
 </html>

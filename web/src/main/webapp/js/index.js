@@ -6,7 +6,6 @@ var state = {
     verFirst : '',
     metrics: '',
     selVersion: '',
-    verFiles: '',
     dirs: '',
     files: ''
 }
@@ -18,7 +17,7 @@ $(document).ready(function() {
     $("#projectSelect").change(projectSelected);
     getMetrics('SOURCE_FILE');
     getMetrics('SOURCE_DIRECTORY');
-	getMetrics('PROJECT_VERSION');
+    getMetrics('PROJECT_VERSION');
     
     //$.jqplot('verplot1plot',  [[[1, 2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]);
     //$.jqplot('verplot2plot',  [[[1, 2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]);
@@ -47,7 +46,7 @@ function gotLatestVersion (data) {
   state.verLatest = data;
   $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/first", 
       gotFirstVersion);
-  getFiles(state.verLatest, displayFiles);
+  getDirs(state.verLatest, displayDirs);
 }
 
 function gotFirstVersion (data) {
@@ -102,8 +101,8 @@ function getMetricTypes() {
   });
 }
 
-function getFiles(version, callback) {
-	if ( state.selVersion != '' &&
+function getDirs(version, callback) {
+	if (state.selVersion != '' &&
 			state.selVersion.version.id == version.version.id) {
 		if (callback != null) callback();
 		return;
@@ -112,57 +111,117 @@ function getFiles(version, callback) {
 	$.ajax({
 		url : prefix + "/proxy/projects/" 
 			+ state.prid + "/versions/" 
-			+ state.verLatest.version.revisionId + "/files",
+			+ version.version.revisionId + "/dirs/",
 	    dataType : 'json',
 	    type : 'GET',
 	    success : function(data) {
 			state.verFiles = data;
 			state.dirs = new Array(); state.files = new Array();
 			
-			state.verFiles.forEach(function(f) {
-				if (f.file.isdir == true)
-					state.dirs[f.file.dir.id] = f.file;
-				else {
-					if (files[f.file.dir.id] == null)
-						state.files[f.file.dir.id] = new Array();
-					state.files[f.file.dir.id].push(f.file);
-				}
-			});
-			state.selVersion = version;
-			if (callback != null) callback();
+			  //Index dirs by path
+		    data.forEach(function(f) {
+		      var fullpath = f.file.dir.path + "/" + f.file.name;
+		      state.dirs[fullpath] = f.file;
+		    });
+		    
+		    state.selVersion = version;
+		    if (callback != null) callback();
 	    },
 	    error : function(xhr, status, error) {
-	    	alert("No files found for version: " + version);
+	    	alert("No directories found for version: " + version);
 	    }
 	});
 }
 
-function displayFiles() {
-	$("#filelist thead tr").empty();
-	$("#filelist tbody").empty();
+function displayDirs() {
+  //Clean up old table contents
+	$("#dirs thead tr").empty();
+	$("#dirs tbody").empty();
 	
 	//Print the headers
-	$("#filelist thead tr").append("<td>Files</td>");
+	$("#dirs thead tr").append("<td>Directories</td>");
 	$.each(state.metrics['SOURCE_DIRECTORY'], function(i, obj) {
-		$("#filelist thead tr").append("<td>" + obj.metric.mnemonic + "</td>");
+		$("#dirs thead tr").append("<td>" + obj.metric.mnemonic + "</td>");
 	});
 	
-	//Print the files
+	//Print the directories
 	for (var i in state.dirs) {
-		$("#filelist tbody").append($("<tr/>").attr("id", state.dirs[i].id));
-		$("#filelist tr[id=" + state.dirs[i].id + "]").append("<td class=\"dir\">" + state.dirs[i].dir.path +"/" + state.dirs[i].name + "</td>");
+		$("#dirs tbody").append($("<tr/>").attr("id", i));
+		$("#dirs tr[id="+ i + "]").append("<td class=\"dir\">" + i + "</td>");
 		
+		//Placeholders for metrics
 		$.each(state.metrics['SOURCE_DIRECTORY'], function(j, obj) {
-			$("#filelist tr[id=" + state.dirs[i].id + "]").append("<td></td>");
+			$("#dirs tr[id=" + i + "]").append("<td></td>");
 		});
 	}
 	
 	//Add a mouse over effect
-	$("#filelist tr").mouseover(function(){
+	$("#dirs tbody tr td").mouseover(function(){
 		$(this).addClass("fileover");
 	}).mouseout(function(){
 		$(this).removeClass("fileover");
 	});
+	
+	//Add a click event, show the files
+  $("#dirs .dir").click(function(){
+    $(".dirclicked").removeClass("dirclicked");
+    $(this).parent().addClass("dirclicked");
+    getFiles($(this).parent().attr("id"), displayFiles);
+  });
+}
+
+/* Retrieve files for a dir, cache them and call a function if successful*/
+function getFiles(dir, callback) {
+  
+  if (state.files[dir] != null 
+      && state.files[dir].length > 0) {
+    if (callback != null) callback(dir);
+    return;
+  }
+  
+  $.ajax({
+    url : prefix + "/proxy/projects/" 
+      + state.prid + "/versions/" 
+      + state.selVersion.version.revisionId + "/files" + dir,
+      dataType : 'json',
+      type : 'GET',
+      success : function(data) {
+        //Index files by including dir path
+        data.forEach(function(f) {
+          if (state.files[dir] == null)
+            state.files[dir] = new Array();
+          
+          state.files[dir].push(f.file);
+        });
+        
+        if (callback != null) callback(dir);
+      },
+      error : function(xhr, status, error) {
+        alert("No files found for version: " + version);
+      }
+  });
+}
+
+function displayFiles(dir) {
+//Clean up old table contents
+  $("#files thead tr").empty();
+  $("#files tbody").empty();
+  
+  //Print the headers
+  $("#files thead tr").append("<td>Files</td>");
+  $.each(state.metrics['SOURCE_FILE'], function(i, obj) {
+    $("#files thead tr").append("<td>" + obj.metric.mnemonic + "</td>");
+  });
+
+  for (var i in state.files[dir]) {
+    $("#files tbody").append($("<tr/>").attr("id", i));
+    $("#files tr[id="+ i + "]").append("<td class=\"file\">" + state.files[dir][i].name + "</td>");
+    
+    //Placeholders for metrics
+    $.each(state.metrics['SOURCE_DIRECTORY'], function(j, obj) {
+      $("#dirs tr[id=" + i + "]").append("<td></td>");
+    });
+  }
 }
 
 function getMetrics(type) {
