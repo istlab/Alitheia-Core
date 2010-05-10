@@ -83,7 +83,7 @@ public class Skeleton extends AbstractMetric {
         super(bc);        
     }
 
-    public List<ResultEntry> getResult(ProjectFile a, Metric m) {
+    public List<Result> getResult(ProjectFile a, Metric m) {
         // Return a list of ResultEntries by querying the DB for the 
         // measurements implement by the supported metric and calculated 
         // for the specific project file.

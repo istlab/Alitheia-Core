@@ -1,5 +1,6 @@
 var prefix = "/web";
 
+/* Local object cache, gets built gradually as AJAX requests return*/
 var state = {
     prid : '',
     verLatest : '',
@@ -7,9 +8,11 @@ var state = {
     metrics: '',
     selVersion: '',
     dirs: '',
-    files: ''
+    files: '',
+    results: ''
 }
 
+//Javascript entry point
 $(document).ready(function() {
 
     getProjects();
@@ -18,52 +21,7 @@ $(document).ready(function() {
     getMetrics('SOURCE_FILE');
     getMetrics('SOURCE_DIRECTORY');
     getMetrics('PROJECT_VERSION');
-    
-    //$.jqplot('verplot1plot',  [[[1, 2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]);
-    //$.jqplot('verplot2plot',  [[[1, 2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]);
 });
-
-function projectSelected() {
-  state.prid = $("#projectSelect option:selected").val();
-  
-  if (state.prid == "-")
-    return;
-
-  $("#projectName").text($("#projectSelect option:selected").text());
-  
-  $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/latest",
-      gotLatestVersion);
-  
-  $.each(state.metrics['PROJECT_VERSION'], function(i, obj){
-	  $("<option/>").attr("value", obj.metric.id).text(obj.metric.mnemonic 
-			  + " | " + obj.metric.description).appendTo("#verplot2metr");
-	  $("<option/>").attr("value", obj.metric.id).text(obj.metric.mnemonic 
-			  + " | " + obj.metric.description).appendTo("#verplot1metr");
-  });
-}
-
-function gotLatestVersion (data) {
-  state.verLatest = data;
-  $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/first", 
-      gotFirstVersion);
-  getDirs(state.verLatest, displayDirs);
-}
-
-function gotFirstVersion (data) {
-  state.verFirst = data;
-  
-  $("#versionrange").slider({
-    range: true,
-    min: state.verFirst.version.revisionId,
-    max: state.verLatest.version.revisionId,
-    values: [0, 0],
-    slide: function(event, ui) {
-      $("#versionlbl").val(ui.values[0] + '-' + ui.values[1]);
-    }
-  });
-  
-  $("#verrngcont").removeClass("hidden");
-}
 
 function getProjects() {
   $.ajax( {
@@ -82,25 +40,221 @@ function getProjects() {
   }); 
 }
 
-function getMetricTypes() {
+function projectSelected() {
+  cleanup();
+  state.prid = $("#projectSelect option:selected").val();
+  
+  if (state.prid == "-")
+    return;
 
-  $.ajax({
-    url : prefix + "/proxy/metrics/types",
-    dataType : 'json',
-    type : 'GET',
-    success : function(data) {
-      $.each(data, function(i, obj) {
-        $("<option/>").attr("value", obj.metrictype.id)
-            .text(obj.metrictype.type)
-            .appendTo("#metricTypeSelect");
-      });
-    },
-    error : function(xhr, status, error) {
-      alert("No metric types found");
+  $("#projectName").text($("#projectSelect option:selected").text());
+  
+  $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/latest",
+      gotLatestVersion);
+}
+
+function gotLatestVersion (data) {
+  state.verLatest = data;
+  getDirs(state.verLatest, displayDirs);
+  $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/first", 
+      gotFirstVersion);
+}
+
+function gotFirstVersion (data) {
+  state.verFirst = data;
+  displayVersions();
+}
+
+function cleanup() {
+  $("#verplot2metr").empty();
+  $("#verplot1metr").empty();
+  $('#verplot1plot').empty();
+  $('#verplot2plot').empty();
+  $("#dirs thead tr").empty();
+  $("#dirs tbody").empty();
+  $("#files thead tr").empty();
+  $("#files tbody").empty();
+}
+
+function displayVersions() {
+  //Fill in metric selectors
+  $.each(state.metrics['PROJECT_VERSION'], function(i, obj){
+    $("<option/>").attr("value", obj.metric.id).text(obj.metric.mnemonic 
+        + " | " + obj.metric.description).appendTo("#verplot2metr");
+    $("<option/>").attr("value", obj.metric.id).text(obj.metric.mnemonic 
+        + " | " + obj.metric.description).appendTo("#verplot1metr");
+  });
+  
+  //Setup triggers for metric selectors
+  $("#verplot1metr").change(loadVerPlot1);
+  $("#verplot2metr").change(loadVerPlot2);
+  
+  //Trigger metric a metric selection, to start metric results download
+  verReplot();
+  
+  //Setup version slider
+  $("#versionrange").slider({
+    range: true,
+    min: state.verFirst.version.revisionId,
+    max: state.verLatest.version.revisionId,
+    values: [0, state.verLatest.version.revisionId],
+    slide: function(event, ui) {
+      $("#versionlbl").val(ui.values[0] + '-' + ui.values[1]);
+      verReplot();
+    }
+  });
+  $("#versionlbl").val($("#versionrange").slider("values", 0) + ' - ' 
+      + $("#versionrange").slider("values", 1));
+  
+  //Setup the sample size label
+  $("#samplesize").slider({
+    min: 0,
+    max: 50,
+    values: [32],
+    slide: function(event, ui) {
+      $("#smpllbl").val(ui.values[0]);
+      verReplot();
+    }
+  });
+  $("#smpllbl").val($("#samplesize").slider("values", 0));
+  
+  //Show the version pane
+  if ($("#versionpane").is(":visible") == false)
+    $("#versionpane").show('clip', null, 500);
+}
+
+function verReplot() {
+  
+}
+
+function loadVerPlot1(e) {
+  $('#verplot1plot').empty();
+  
+  var revs = getVersionNumbers(
+      $("#samplesize").slider("values", 0),
+      state.verFirst.version.revisionId, 
+      state.verLatest.version.revisionId);
+  
+  getResults(revs, $('#verplot1metr').val(), plotVerPlot, 
+      {plot: 'verplot1plot', ylabel: $('#verplot1metr :selected').text()});
+}
+
+function loadVerPlot2(e) {
+  $('#verplot2plot').empty();
+  
+  var revs = getVersionNumbers(
+      $("#samplesize").slider("values", 0),
+      state.verFirst.version.revisionId, 
+      state.verLatest.version.revisionId);
+  
+  getResults(revs, $('#verplot2metr').val(), plotVerPlot, 
+      {plot: 'verplot2plot', ylabel: $('#verplot2metr :selected').text()});
+}
+
+//Plot a project version metric
+function plotVerPlot(metric, args) {
+  var points = [];
+  $.each(state.byMetricCache[metric], function(i, data) {
+    points.push([data.r.artifactId, data.r.result]);
+  });
+  
+  $.jqplot(args.plot, [points],  {
+    axes:{
+      xaxis:{
+        label:'Version',
+        min: 0
+      },
+      yaxis:{
+        label: args.ylabel,
+        autoscale: true,
+        min: 0
+      }
     }
   });
 }
 
+/*Metrics helpers*/
+/*Get and cache a list of metrics by type*/
+function getMetrics(type) {
+  $.ajax({
+    url : prefix + "/proxy/metrics/by-type/" + type,
+      dataType : 'json',
+      type : 'GET',
+      success : function(data) {
+        state.metrics[type] = data;
+      },
+      error : function(xhr, status, error) {
+        //alert("No metrics of type " + type);
+      }
+  });
+}
+
+/*Get and cache metric results by resource and metric id*/
+function getResults(resourceIds, metricId, callback, callbackargs) {
+  var resources = new String();
+ // var  
+  
+  if (resourceIds instanceof Array) {
+    $.each(resourceIds, function(i, val) {
+      resources = resources + val + ",";
+    });
+  } else { 
+    resources = resourceIds;
+  }
+  
+  $.ajax({
+    url : prefix + "/proxy/metrics/by-id/" + metricId 
+      + "/result/" + resources,
+      dataType : 'json',
+      type : 'GET',
+      success : function(data) {
+        if (state.byMetricCache == null)
+          state.byMetricCache = new Array();
+        if (state.byResourceCache == null)
+          state.byResourceCache = new Array();
+        
+        $.each(data, function(i, val) {
+          if (state.byMetricCache[metricId] == null)
+            state.byMetricCache[metricId] = new Array();
+          state.byMetricCache[metricId].push(val);
+          
+          if (state.byResourceCache[val.r.resourceId] == null)
+            state.byResourceCache[val.r.resourceId] = new Array();
+          
+          state.byResourceCache[val.r.resourceId].push(val);
+        });
+        if (callback != null) callback(metricId, callbackargs);
+      },
+      error : function(xhr, status, error) {
+        alert("No metrics found " + error);
+      }
+  });
+}
+
+/*Get an array of a maximum num evenly distributed numbers between min and max*/
+function getVersionNumbers(num, min, max) {
+  var result = new Array();
+  
+  if (max - min <= num) {
+    var i;
+    for (i = min; i <= max; i++)
+      result.push(i);
+    return result;
+  }
+  
+  if (max - min <= 0)
+    return result;
+  
+  var incr = (max - min)/num;
+  
+  for (i = min; i <= max; i += incr)
+    result.push(Math.floor(i));
+  
+  return result;
+}
+
+/*File view*/
+/*Get a list of all directories and cache them locally*/
 function getDirs(version, callback) {
 	if (state.selVersion != '' &&
 			state.selVersion.version.id == version.version.id) {
@@ -115,13 +269,11 @@ function getDirs(version, callback) {
 	    dataType : 'json',
 	    type : 'GET',
 	    success : function(data) {
-			state.verFiles = data;
-			state.dirs = new Array(); state.files = new Array();
+	      state.dirs = new Array(); state.files = new Array();
 			
 			  //Index dirs by path
 		    data.forEach(function(f) {
-		      var fullpath = f.file.dir.path + "/" + f.file.name;
-		      state.dirs[fullpath] = f.file;
+		      state.dirs.push(f.file);
 		    });
 		    
 		    state.selVersion = version;
@@ -145,15 +297,16 @@ function displayDirs() {
 	});
 	
 	//Print the directories
-	for (var i in state.dirs) {
-		$("#dirs tbody").append($("<tr/>").attr("id", i));
-		$("#dirs tr[id="+ i + "]").append("<td class=\"dir\">" + i + "</td>");
+	$.each(state.dirs, function(i, file) {
+	  var name = getFilePath(file);
+		$("#dirs tbody").append($("<tr/>").attr("id", name));
+		$("#dirs tr[id="+ name + "]").append("<td class=\"dir\">" + name + "</td>");
 		
 		//Placeholders for metrics
 		$.each(state.metrics['SOURCE_DIRECTORY'], function(j, obj) {
-			$("#dirs tr[id=" + i + "]").append("<td></td>");
+			$("#dirs tr[id=" + name + "]").append("<td></td>");
 		});
-	}
+	});
 	
 	//Add a mouse over effect
 	$("#dirs tbody tr td").mouseover(function(){
@@ -168,6 +321,15 @@ function displayDirs() {
     $(this).parent().addClass("dirclicked");
     getFiles($(this).parent().attr("id"), displayFiles);
   });
+  
+  if ($("#filepane").is(":visible") == false)
+    $("#filepane").show('clip', null, 500);
+}
+
+function getFilePath(file) {
+  if (file.dir.path == "/")
+    return "/" + file.name;
+  return file.dir.path + "/" + file.name;
 }
 
 /* Retrieve files for a dir, cache them and call a function if successful*/
@@ -197,7 +359,7 @@ function getFiles(dir, callback) {
         if (callback != null) callback(dir);
       },
       error : function(xhr, status, error) {
-        alert("No files found for version: " + version);
+        alert("No files found for dir: " + dir);
       }
   });
 }
@@ -222,18 +384,4 @@ function displayFiles(dir) {
       $("#dirs tr[id=" + i + "]").append("<td></td>");
     });
   }
-}
-
-function getMetrics(type) {
-  $.ajax({
-	  url : prefix + "/proxy/metrics/by-type/" + type,
-      dataType : 'json',
-      type : 'GET',
-      success : function(data) {
-	  	state.metrics[type] = data;
-      },
-      error : function(xhr, status, error) {
-        //alert("No metrics of type " + type);
-      }
-  });
 }

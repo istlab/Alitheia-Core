@@ -20,15 +20,16 @@
 </div>
 
 <div id="projectName"></div>
+
+<div id="versionpane" style="display: none">
 <hr/>
 
-<div id="versionpane">
 <div class="secheader">Versions</div>
 
 <div id="versionplot" style="margin: 0 auto; width: 840px">
 	<div id="verplot1" class="plotcontainer" style="float: left">
 		<div id="verplot1plot" style="width: 400px;"></div>
-		<select id="verplot1metr">
+		<select id="verplot1metr" name="verplot1metr">
           <option selected="selected">--Select a metric --</option>
         </select>
 	</div>
@@ -40,16 +41,18 @@
 	</div>
 </div>
 
-<div id="verrngcont" class="hidden">
-
+<div id="verrngcont">
 <label for="versionlbl">Version range:</label>
 <input type="text" id="versionlbl" style="border:0; color:#f6931f; font-weight:bold;"/>
 <div id="versionrange"></div>
+<label for="smpllbl">Sample size:</label>
+<input type="text" id="smpllbl" style="border:0; color:#f6931f; font-weight:bold;"/>
+<div id="samplesize"></div>
 </div>
 </div>
 
+<div id="filepane" style="display: none">
 <hr/>
-<div id="filepane">
 <div class="secheader">Files</div>
 <div>
 <label for="verTxt">Enter a revision number</label>
@@ -87,8 +90,8 @@
 <div id="footer">
 <hr/>
 <center>
-  <small><a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
-	<img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a>
+  <small><!--<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
+	 <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a> -->
 	<br />This work is licensed under a 
 	<a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">
 		Creative Commons Attribution-Noncommercial 3.0 Unported License
