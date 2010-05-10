@@ -51,6 +51,7 @@ function projectSelected() {
   
   $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/latest",
       gotLatestVersion);
+  //getVersion("latest", gotLatestVersion);
 }
 
 function gotLatestVersion (data) {
@@ -65,9 +66,12 @@ function gotFirstVersion (data) {
   displayVersions();
 }
 
+//Cleanup and re-initialise controls
 function cleanup() {
   $("#verplot2metr").empty();
   $("#verplot1metr").empty();
+  $("<option/>").text("-- Select a metric --").appendTo("#verplot2metr");
+  $("<option/>").text("-- Select a metric --").appendTo("#verplot1metr");
   $('#verplot1plot').empty();
   $('#verplot2plot').empty();
   $("#dirs thead tr").empty();
@@ -90,7 +94,7 @@ function displayVersions() {
   $("#verplot2metr").change(loadVerPlot2);
   
   //Trigger metric a metric selection, to start metric results download
-  verReplot();
+  //verReplot();
   
   //Setup version slider
   $("#versionrange").slider({
@@ -98,9 +102,11 @@ function displayVersions() {
     min: state.verFirst.version.revisionId,
     max: state.verLatest.version.revisionId,
     values: [0, state.verLatest.version.revisionId],
-    slide: function(event, ui) {
+    stop: function(event, ui) {
       $("#versionlbl").val(ui.values[0] + '-' + ui.values[1]);
       verReplot();
+      state.selVersion =  ui.values[1];
+      getDirs(state.selVersion, displayDirs);
     }
   });
   $("#versionlbl").val($("#versionrange").slider("values", 0) + ' - ' 
@@ -110,8 +116,8 @@ function displayVersions() {
   $("#samplesize").slider({
     min: 0,
     max: 50,
-    values: [32],
-    slide: function(event, ui) {
+    values: [25],
+    stop: function(event, ui) {
       $("#smpllbl").val(ui.values[0]);
       verReplot();
     }
@@ -124,7 +130,14 @@ function displayVersions() {
 }
 
 function verReplot() {
+  if($('#verplot1plot').val() == null)
+    $('#verplot1plot').val(2);
   
+  if($('#verplot1plot').val() == null)
+    $('#verplot1plot').val(2);
+  
+  loadVerPlot1();
+  loadVerPlot2();
 }
 
 function loadVerPlot1(e) {
@@ -251,6 +264,28 @@ function getVersionNumbers(num, min, max) {
     result.push(Math.floor(i));
   
   return result;
+}
+
+function getVersion(version, callback) {
+  
+  var ver;
+  //while (ver == null) {
+    $.ajax({
+      url: prefix + '/proxy/projects/' + state.prid + "/versions/" + version,
+      dataType : 'json',
+      type : 'GET',
+      success: function (data) {
+        ver = data;
+      },
+      error : function(xhr, status, error) {
+          alert("No version found: " + version);
+        }
+    });
+    
+  //  version ++;
+  //}
+  
+  if (callback != null) callback(ver);
 }
 
 /*File view*/
