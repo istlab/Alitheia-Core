@@ -59,7 +59,7 @@ function projectSelected() {
 
 function gotLatestVersion (data) {
   state.verLatest = data;
-  getDirs(state.verLatest, displayDirs);
+  getDirs(state.verLatest.version.revisionId, displayDirs);
   $.getJSON(prefix + '/proxy/project/' + state.prid + "/version/first", 
       gotFirstVersion);
 }
@@ -75,8 +75,8 @@ function cleanup() {
   $("#verplot1metr").empty();
   $('#verplot1plot').empty();
   $('#verplot2plot').empty();
-  $("#verplot1metr").change();
-  $("#verplot2metr").change();
+  $("#verplot1metr").unbind('change');
+  $("#verplot2metr").unbind('change');
   $("#dirs thead tr").empty();
   $("#dirs tbody").empty();
   $("#files thead tr").empty();
@@ -112,6 +112,8 @@ function displayVersions() {
     }
   });
   $("#versionlbl").val(state.verFirst.version.revisionId + ' - ' + state.verLatest.version.revisionId);
+  state.minVer = state.verFirst.version.revisionId;
+  state.maxVer = state.verLatest.version.revisionId;
   
   //Setup the sample size label
   $("#samplesize").slider({
@@ -145,8 +147,8 @@ function loadVerPlot1() {
   
   var revs = getVersionNumbers(
       state.smplsize,
-      state.verFirst.version.revisionId, 
-      state.verLatest.version.revisionId);
+      state.minVer, 
+      state.maxVer);
   
   getVersions(revs, ver1Plot);
  }
@@ -167,8 +169,8 @@ function loadVerPlot2() {
   
   var revs = getVersionNumbers(
       state.smplsize,
-      state.verFirst.version.revisionId, 
-      state.verLatest.version.revisionId);
+      state.minVer, 
+      state.maxVer);
   
   getVersions(revs, ver2Plot); 
 }
@@ -220,7 +222,7 @@ function getResultFromCache(resourceId, metricId) {
   if (state.versionsCache[resourceId] == null)
     return null;
   
-  var list = state.byResourceCache[resourceId];
+  var list = state.byResourceCache[state.versionsCache[resourceId].id];
   
   if (list == null)
     return null;
@@ -253,8 +255,6 @@ function getMetrics(type) {
 function getResults(resourceIds, metricId, callback, callbackargs) {
   var resources = new String();
   
-  if (state.byMetricCache == null)
-    state.byMetricCache = new Array();
   if (state.byResourceCache == null)
     state.byResourceCache = new Array();
  
@@ -266,7 +266,7 @@ function getResults(resourceIds, metricId, callback, callbackargs) {
    });
  
    if (resources == "") {
-     if (callback != null) callback();
+     if (callback != null) callback(callbackargs);
      return;
    }
    
@@ -276,12 +276,7 @@ function getResults(resourceIds, metricId, callback, callbackargs) {
       dataType : 'json',
       type : 'GET',
       success : function(data) {
-       
         $.each(data, function(i, val) {
-          if (state.byMetricCache[metricId] == null)
-            state.byMetricCache[metricId] = new Array();
-          state.byMetricCache[metricId].push(val);
-          
           if (state.byResourceCache[val.r.artifactId] == null)
             state.byResourceCache[val.r.artifactId] = new Array();
           
@@ -354,16 +349,10 @@ function getVersions(versions, callback) {
 /*File view*/
 /*Get a list of all directories and cache them locally*/
 function getDirs(version, callback) {
-	if (state.selVersion != '' &&
-			state.selVersion.version.id == version.version.id) {
-		if (callback != null) callback();
-		return;
-	}
-	
 	$.ajax({
 		url : prefix + "/proxy/project/" 
 			+ state.prid + "/version/" 
-			+ version.version.revisionId + "/dirs/",
+			+ version + "/dirs/",
 	    dataType : 'json',
 	    type : 'GET',
 	    success : function(data) {
@@ -374,7 +363,6 @@ function getDirs(version, callback) {
 		      state.dirs.push(f.file);
 		    });
 		    
-		    state.selVersion = version;
 		    if (callback != null) callback();
 	    },
 	    error : function(xhr, status, error) {
