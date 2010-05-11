@@ -33,7 +33,9 @@
 
 package eu.sqooss.rest.api;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -58,7 +60,7 @@ public class StoredProjectResource {
 	
 	@GET
 	@Produces({"application/xml", "application/json"})
-	@Path("/projects/")
+	@Path("/project/")
 	public List<StoredProject> getProjects() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from StoredProject";
@@ -66,7 +68,7 @@ public class StoredProjectResource {
 		return sp;
 	}
 
-	@Path("/projects/{id}")
+	@Path("/project/{id}")
 	@GET
     @Produces({"application/xml", "application/json"})
 	public StoredProject getProject(@PathParam("id") Long id) {
@@ -74,16 +76,47 @@ public class StoredProjectResource {
 		return sp;
 	}
 	
-	@Path("/projects/{id}/versions")
+	@Path("/project/{id}/versions")
 	@GET
 	@Produces({"application/xml", "application/json"})
-	public List<ProjectVersion> getVersions(@PathParam("id") Long id) {
+	public List<ProjectVersion> getAllVersions(@PathParam("id") Long id) {
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
 	
 		return sp.getProjectVersions();
 	}
+	
+	@Path("/project/{id}/versions/{vid: .+}")
+	@GET
+	@Produces({"application/xml", "application/json"})
+	public List<ProjectVersion> getVersions(@PathParam("id") Long id,
+			@PathParam("vid") String vid) {
+		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
+	
+		if (sp == null)
+			return Collections.EMPTY_LIST;
+		
+		Set<String>  ids = new HashSet<String>();
+	    int count = 0;
+	    for (String resourceId : vid.split(",")) {
+	        ids.add(resourceId);
+	        count++;
+	        if (count >=64) {
+	            break;
+	        }
+	    }
+		
+	    List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+	    
+	    for (String verid : ids) {
+	    	ProjectVersion pv = ProjectVersion.getVersionByRevision(sp, verid);
+	    	if (pv != null)
+	    	    versions.add(pv);
+	    }
+	    
+		return versions;
+	}
 
-	@Path("/projects/{id}/versions/{vid}")
+	@Path("/project/{id}/version/{vid}")
 	@GET
 	@Produces({"application/xml", "application/json"})
 	public ProjectVersion getVersion(@PathParam("id") Long prid,
@@ -102,7 +135,7 @@ public class StoredProjectResource {
 		        DAObject.loadDAObyId(prid, StoredProject.class), verid);
 	}
 
-	@Path("/projects/{id}/versions/{vid}/files/")
+	@Path("/project/{id}/version/{vid}/files/")
     @GET
     @Produces({"application/xml", "application/json"})
     public List<ProjectFile> getAllFiles(@PathParam("id") Long prid,
@@ -114,8 +147,8 @@ public class StoredProjectResource {
 	        
         return pv.getFiles(null, ProjectVersion.MASK_FILES);
     }
-	
-	@Path("/projects/{id}/versions/{vid}/files/{dir: .+}")
+
+	@Path("/project/{id}/version/{vid}/files/{dir: .+}")
     @GET
     @Produces({"application/xml", "application/json"})
     public List<ProjectFile> getFilesInDir(@PathParam("id") Long prid,
@@ -132,8 +165,8 @@ public class StoredProjectResource {
         return pv.getFiles(Directory.getDirectory(path, false), 
                 ProjectVersion.MASK_FILES);
     }
-	
-	@Path("/projects/{id}/versions/{vid}/files/changed")
+
+	@Path("/project/{id}/version/{vid}/files/changed")
     @GET
     @Produces({"application/xml", "application/json"})
     public Set<ProjectFile> getChangedFiles(@PathParam("id") Long prid,
@@ -145,8 +178,8 @@ public class StoredProjectResource {
         
         return pv.getVersionFiles();
     }
-	
-	@Path("/projects/{id}/versions/{vid}/dirs/")
+
+	@Path("/project/{id}/version/{vid}/dirs/")
     @GET
     @Produces({"application/xml", "application/json"})
     public List<ProjectFile> getDirs(@PathParam("id") Long prid,
@@ -159,8 +192,8 @@ public class StoredProjectResource {
         return pv.getFiles(null, 
                 ProjectVersion.MASK_DIRECTORIES);
 	}
-	
-	@Path("/projects/{id}/versions/{vid}/dirs/{dir: .+}")
+
+	@Path("/project/{id}/version/{vid}/dirs/{dir: .+}")
     @GET
     @Produces({"application/xml", "application/json"})
     public List<ProjectFile> getDirs(@PathParam("id") Long prid,

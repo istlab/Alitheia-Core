@@ -2,22 +2,14 @@ var prefix = "/web";
 
 /* Local object cache, gets built gradually as AJAX requests return*/
 var state = {
-    prid : '',
-    verLatest : '',
-    verFirst : '',
-    metrics: '',
-    selVersion: '',
-    dirs: '',
-    files: '',
-    results: ''
-}
+    metrics : ''
+};
 
 //Javascript entry point
 $(document).ready(function() {
-
     getProjects();
-    state.metrics = new Array();
     $("#projectSelect").change(projectSelected);
+    state.metrics = new Array();
     getMetrics('SOURCE_FILE');
     getMetrics('SOURCE_DIRECTORY');
     getMetrics('PROJECT_VERSION');
@@ -25,7 +17,7 @@ $(document).ready(function() {
 
 function getProjects() {
   $.ajax( {
-    url : prefix + "/proxy/projects",
+    url : prefix + "/proxy/project",
     dataType : 'json',
     type : 'GET',
     success : function(data) {
@@ -42,6 +34,18 @@ function getProjects() {
 
 function projectSelected() {
   cleanup();
+  state.smplsize = '';
+  state.prid = '';
+  state.minVer = '';
+  state.maxVer = '';
+  state.verLatest = '';
+  state.verFirst = '';
+  state.selVersion = '';
+  state.dirs = '';
+  state.files = '';
+  state.results = '';
+  state.versionsCache = '';
+  
   state.prid = $("#projectSelect option:selected").val();
   
   if (state.prid == "-")
@@ -49,15 +53,14 @@ function projectSelected() {
 
   $("#projectName").text($("#projectSelect option:selected").text());
   
-  $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/latest",
+  $.getJSON(prefix + '/proxy/project/' + state.prid + "/version/latest",
       gotLatestVersion);
-  //getVersion("latest", gotLatestVersion);
 }
 
 function gotLatestVersion (data) {
   state.verLatest = data;
   getDirs(state.verLatest, displayDirs);
-  $.getJSON(prefix + '/proxy/projects/' + state.prid + "/versions/first", 
+  $.getJSON(prefix + '/proxy/project/' + state.prid + "/version/first", 
       gotFirstVersion);
 }
 
@@ -70,10 +73,10 @@ function gotFirstVersion (data) {
 function cleanup() {
   $("#verplot2metr").empty();
   $("#verplot1metr").empty();
-  $("<option/>").text("-- Select a metric --").appendTo("#verplot2metr");
-  $("<option/>").text("-- Select a metric --").appendTo("#verplot1metr");
   $('#verplot1plot').empty();
   $('#verplot2plot').empty();
+  $("#verplot1metr").change();
+  $("#verplot2metr").change();
   $("#dirs thead tr").empty();
   $("#dirs tbody").empty();
   $("#files thead tr").empty();
@@ -92,10 +95,7 @@ function displayVersions() {
   //Setup triggers for metric selectors
   $("#verplot1metr").change(loadVerPlot1);
   $("#verplot2metr").change(loadVerPlot2);
-  
-  //Trigger metric a metric selection, to start metric results download
-  //verReplot();
-  
+
   //Setup version slider
   $("#versionrange").slider({
     range: true,
@@ -104,13 +104,14 @@ function displayVersions() {
     values: [0, state.verLatest.version.revisionId],
     stop: function(event, ui) {
       $("#versionlbl").val(ui.values[0] + '-' + ui.values[1]);
+      state.minVer = ui.values[0];
+      state.maxVer = ui.values[1];
+      state.selVersion =  state.maxVer;
       verReplot();
-      state.selVersion =  ui.values[1];
       getDirs(state.selVersion, displayDirs);
     }
   });
-  $("#versionlbl").val($("#versionrange").slider("values", 0) + ' - ' 
-      + $("#versionrange").slider("values", 1));
+  $("#versionlbl").val(state.verFirst.version.revisionId + ' - ' + state.verLatest.version.revisionId);
   
   //Setup the sample size label
   $("#samplesize").slider({
@@ -119,58 +120,86 @@ function displayVersions() {
     values: [25],
     stop: function(event, ui) {
       $("#smpllbl").val(ui.values[0]);
+      state.smplsize = ui.values[0];
       verReplot();
     }
   });
   $("#smpllbl").val($("#samplesize").slider("values", 0));
+  state.smplsize = $("#samplesize").slider("values", 0);
   
   //Show the version pane
   if ($("#versionpane").is(":visible") == false)
     $("#versionpane").show('clip', null, 500);
+  
+  //Trigger metric a metric selection, to start metric results download
+  verReplot();
 }
 
 function verReplot() {
-  if($('#verplot1plot').val() == null)
-    $('#verplot1plot').val(2);
-  
-  if($('#verplot1plot').val() == null)
-    $('#verplot1plot').val(2);
-  
   loadVerPlot1();
   loadVerPlot2();
 }
 
-function loadVerPlot1(e) {
+function loadVerPlot1() {
   $('#verplot1plot').empty();
   
   var revs = getVersionNumbers(
-      $("#samplesize").slider("values", 0),
+      state.smplsize,
       state.verFirst.version.revisionId, 
       state.verLatest.version.revisionId);
   
-  getResults(revs, $('#verplot1metr').val(), plotVerPlot, 
-      {plot: 'verplot1plot', ylabel: $('#verplot1metr :selected').text()});
+  getVersions(revs, ver1Plot);
+ }
+
+function ver1Plot(revs) {
+  var versions = new Array();
+  $.each(revs, function(i, rev) { 
+    if (versionIdFromRevision (rev) != null)
+      versions.push(versionIdFromRevision (rev));
+  });
+  
+  getResults(versions, $('#verplot1metr').val(), plotVerPlot, 
+      {plot: 'verplot1plot', ylabel: $('#verplot1metr :selected').text(), revisionIds: revs});
 }
 
-function loadVerPlot2(e) {
+function loadVerPlot2() {
   $('#verplot2plot').empty();
   
   var revs = getVersionNumbers(
-      $("#samplesize").slider("values", 0),
+      state.smplsize,
       state.verFirst.version.revisionId, 
       state.verLatest.version.revisionId);
   
-  getResults(revs, $('#verplot2metr').val(), plotVerPlot, 
-      {plot: 'verplot2plot', ylabel: $('#verplot2metr :selected').text()});
+  getVersions(revs, ver2Plot); 
+}
+
+function ver2Plot(revs) {
+  var versions = new Array();
+  $.each(revs, function(i, rev) { 
+    if (versionIdFromRevision (rev) != null)
+      versions.push(versionIdFromRevision (rev));
+  });
+  
+  getResults(versions, $('#verplot2metr').val(), plotVerPlot, 
+      {plot: 'verplot2plot', ylabel: $('#verplot2metr :selected').text(), revisionIds: revs});
+}
+
+function versionIdFromRevision (rev) {
+  if (state.versionsCache[rev] == null)
+    return null;
+  
+  return state.versionsCache[rev].id;
 }
 
 //Plot a project version metric
 function plotVerPlot(metric, args) {
   var points = [];
-  $.each(state.byMetricCache[metric], function(i, data) {
-    points.push([data.r.artifactId, data.r.result]);
+  $.each(args.revisionIds, function(i, data) {
+    var result = getResultFromCache(data, metric);
+    if (result != null)
+      points.push([data, result.result]);
   });
-  
+
   $.jqplot(args.plot, [points],  {
     axes:{
       xaxis:{
@@ -184,6 +213,24 @@ function plotVerPlot(metric, args) {
       }
     }
   });
+}
+
+function getResultFromCache(resourceId, metricId) {
+  
+  if (state.versionsCache[resourceId] == null)
+    return null;
+  
+  var list = state.byResourceCache[resourceId];
+  
+  if (list == null)
+    return null;
+  
+  var result = null;
+  $.each(list, function(i, data){
+    if (data.r.metricId == metricId)
+      result = data.r;
+  });
+  return result;
 }
 
 /*Metrics helpers*/
@@ -205,36 +252,40 @@ function getMetrics(type) {
 /*Get and cache metric results by resource and metric id*/
 function getResults(resourceIds, metricId, callback, callbackargs) {
   var resources = new String();
- // var  
   
-  if (resourceIds instanceof Array) {
-    $.each(resourceIds, function(i, val) {
-      resources = resources + val + ",";
-    });
-  } else { 
-    resources = resourceIds;
-  }
-  
+  if (state.byMetricCache == null)
+    state.byMetricCache = new Array();
+  if (state.byResourceCache == null)
+    state.byResourceCache = new Array();
+ 
+   $.each(resourceIds, function(i, val) {
+     //Don't retrieve stuff that is cached
+     if (getResultFromCache(val, metricId) == null) {
+       resources = resources + val + ",";
+     }
+   });
+ 
+   if (resources == "") {
+     if (callback != null) callback();
+     return;
+   }
+   
   $.ajax({
     url : prefix + "/proxy/metrics/by-id/" + metricId 
       + "/result/" + resources,
       dataType : 'json',
       type : 'GET',
       success : function(data) {
-        if (state.byMetricCache == null)
-          state.byMetricCache = new Array();
-        if (state.byResourceCache == null)
-          state.byResourceCache = new Array();
-        
+       
         $.each(data, function(i, val) {
           if (state.byMetricCache[metricId] == null)
             state.byMetricCache[metricId] = new Array();
           state.byMetricCache[metricId].push(val);
           
-          if (state.byResourceCache[val.r.resourceId] == null)
-            state.byResourceCache[val.r.resourceId] = new Array();
+          if (state.byResourceCache[val.r.artifactId] == null)
+            state.byResourceCache[val.r.artifactId] = new Array();
           
-          state.byResourceCache[val.r.resourceId].push(val);
+          state.byResourceCache[val.r.artifactId].push(val);
         });
         if (callback != null) callback(metricId, callbackargs);
       },
@@ -266,26 +317,38 @@ function getVersionNumbers(num, min, max) {
   return result;
 }
 
-function getVersion(version, callback) {
+function getVersions(versions, callback) {
+  var resources = "";
   
-  var ver;
-  //while (ver == null) {
-    $.ajax({
-      url: prefix + '/proxy/projects/' + state.prid + "/versions/" + version,
+  if (state.versionsCache == '')
+    state.versionsCache = new Array();
+
+  $.each(versions, function(i, val) {
+    //Don't retrieve stuff that is cached
+    if (state.versionsCache[val] == null) 
+      resources = resources + val + ",";
+  });
+
+  if (resources == "") {
+    if (callback != null) callback(versions);
+    return;
+  }
+  
+  $.ajax({
+    url : prefix + "/proxy/project/" 
+      + state.prid + "/versions/" + resources,
       dataType : 'json',
       type : 'GET',
-      success: function (data) {
-        ver = data;
+      success : function(data) {
+        $.each(data, function(i, val) {
+          state.versionsCache[val.version.revisionId] = val.version;
+        });
+        if (callback != null) callback(versions);
       },
       error : function(xhr, status, error) {
-          alert("No version found: " + version);
-        }
-    });
-    
-  //  version ++;
-  //}
-  
-  if (callback != null) callback(ver);
+        alert("No metrics found " + error);
+      }
+  }); 
 }
 
 /*File view*/
@@ -298,8 +361,8 @@ function getDirs(version, callback) {
 	}
 	
 	$.ajax({
-		url : prefix + "/proxy/projects/" 
-			+ state.prid + "/versions/" 
+		url : prefix + "/proxy/project/" 
+			+ state.prid + "/version/" 
 			+ version.version.revisionId + "/dirs/",
 	    dataType : 'json',
 	    type : 'GET',
@@ -377,7 +440,7 @@ function getFiles(dir, callback) {
   }
   
   $.ajax({
-    url : prefix + "/proxy/projects/" 
+    url : prefix + "/proxy/project/" 
       + state.prid + "/versions/" 
       + state.selVersion.version.revisionId + "/files" + dir,
       dataType : 'json',
