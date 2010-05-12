@@ -12,7 +12,7 @@ $(document).ready(function() {
     state.metrics = new Array();
     getMetrics('SOURCE_FILE');
     getMetrics('SOURCE_DIRECTORY');
-    getMetrics('PROJECT_VERSION');
+    getMetrics('PROJECT_VERSION'); 
 });
 
 function getProjects() {
@@ -114,6 +114,7 @@ function displayVersions() {
   $("#versionlbl").val(state.verFirst.version.revisionId + ' - ' + state.verLatest.version.revisionId);
   state.minVer = state.verFirst.version.revisionId;
   state.maxVer = state.verLatest.version.revisionId;
+  state.selVersion =  state.maxVer;
   
   //Setup the sample size label
   $("#samplesize").slider({
@@ -358,7 +359,6 @@ function getDirs(version, callback) {
 	    success : function(data) {
 	      state.dirs = new Array(); state.files = new Array();
 			
-			  //Index dirs by path
 		    data.forEach(function(f) {
 		      state.dirs.push(f.file);
 		    });
@@ -378,20 +378,14 @@ function displayDirs() {
 	
 	//Print the headers
 	$("#dirs thead tr").append("<td>Directories</td>");
-	$.each(state.metrics['SOURCE_DIRECTORY'], function(i, obj) {
-		$("#dirs thead tr").append("<td>" + obj.metric.mnemonic + "</td>");
-	});
+	
+	state.dirs.sort(sortFiles);
 	
 	//Print the directories
 	$.each(state.dirs, function(i, file) {
 	  var name = getFilePath(file);
 		$("#dirs tbody").append($("<tr/>").attr("id", name));
 		$("#dirs tr[id="+ name + "]").append("<td class=\"dir\">" + name + "</td>");
-		
-		//Placeholders for metrics
-		$.each(state.metrics['SOURCE_DIRECTORY'], function(j, obj) {
-			$("#dirs tr[id=" + name + "]").append("<td></td>");
-		});
 	});
 	
 	//Add a mouse over effect
@@ -429,8 +423,8 @@ function getFiles(dir, callback) {
   
   $.ajax({
     url : prefix + "/proxy/project/" 
-      + state.prid + "/versions/" 
-      + state.selVersion.version.revisionId + "/files" + dir,
+      + state.prid + "/version/" 
+      + state.selVersion + "/files" + dir,
       dataType : 'json',
       type : 'GET',
       success : function(data) {
@@ -457,17 +451,71 @@ function displayFiles(dir) {
   
   //Print the headers
   $("#files thead tr").append("<td>Files</td>");
-  $.each(state.metrics['SOURCE_FILE'], function(i, obj) {
-    $("#files thead tr").append("<td>" + obj.metric.mnemonic + "</td>");
-  });
 
+  if (state.files[dir] != null)
+    state.files[dir].sort(sortFiles);
+  
+  var fileids = "";
+  
   for (var i in state.files[dir]) {
-    $("#files tbody").append($("<tr/>").attr("id", i));
-    $("#files tr[id="+ i + "]").append("<td class=\"file\">" + state.files[dir][i].name + "</td>");
-    
-    //Placeholders for metrics
-    $.each(state.metrics['SOURCE_DIRECTORY'], function(j, obj) {
-      $("#dirs tr[id=" + i + "]").append("<td></td>");
-    });
+    var name = getFilePath(state.files[dir][i]);
+    $("#files tbody").append($("<tr/>").attr("id", name));
+    $("#files tr[id="+ name + "]").append('<td class="file">' + state.files[dir][i].name + 
+        '<span id="' + state.files[dir][i].id + '" class="filemetrics"></span></td>');
+    fileids= fileids + state.files[dir][i].id + ",";
   }
+  
+  getFileMetrics("Wc.loc", "lines", fileids);
+  getFileMetrics("NUMFUN", "func/meth", fileids);
+  getFileMetrics("EMCC_MAX", "max complx", fileids, assessComplexity);
+}
+
+function assessComplexity(result) {
+  if (result < 10)
+    return '<span style="color: green">' + result + '</span>';
+  
+  if (result > 10 && result < 20)
+    return '<span style="color: orange">' + result + '</span>';
+  
+  if (result > 20)
+    return '<span style="color: red">' + result + '</span>';
+}
+
+function getFileMetrics(metric, property, fileids, assesment) {
+  $.ajax({
+    url : prefix + "/proxy/metrics/by-mnem/" + metric + "/result/" + fileids,
+      dataType : 'json',
+      type : 'GET',
+      success : function(data) {
+        $.each(data, function(i, result) {
+          //var text = $("#files .file span[id=" + result.r.artifactId +"]");
+          
+          //if (text != null)
+            //text = ", " + text;
+          
+          var r = result.r.result;
+          if (assesment != null) {
+            $("#files .file span[id=" + result.r.artifactId +"]").append("<span>" + assesment(r) + " " + property + " </span>");
+          } else {
+            $("#files .file span[id=" + result.r.artifactId +"]").append("<span>" + r + " " + property + " </span>");
+          }
+        });
+      },
+      error : function(xhr, status, error) {
+        alert("No such metric: " + m);
+      }
+  });
+}
+
+function sortFiles(a, b) {    
+  var f1 = getFilePath(a);
+  var f2 = getFilePath(b);
+  
+  if (f1 > f2)
+    return 1;
+  
+  if (f2 > f1)
+    return -1;
+  
+  return 0;
 }

@@ -30,7 +30,7 @@ body {
 	background-image: url('/web/img/folder.png');
 	background-repeat: no-repeat;
 	padding-left: 20px;
-	max-width: 300px;
+	width: 450px;
 }
 
 .dirclicked {
@@ -48,18 +48,11 @@ body {
 	background-image: url('/web/img/file.png');
 	background-repeat: no-repeat;
 	padding-left: 20px;
-	max-width: 150px;
+	width: 450px;
 }
 
 #dirlist {
 	float: left;
-	border: thin;
-}
-
-.spacer {
-	background-color: #A9D0F5;
-	display: none;
-	font-size: 2.5em;
 }
 
 .spacerActive {
@@ -116,6 +109,9 @@ a:VISITED {
 	width: 400px
 }
 
-#footer {
-	
+.filemetrics {
+	padding-left: 20px;
+	font-size: 0.8em;
+	font-style: oblique;
+	color: gray;
 }

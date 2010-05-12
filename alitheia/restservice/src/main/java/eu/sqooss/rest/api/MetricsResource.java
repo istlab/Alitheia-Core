@@ -91,67 +91,84 @@ public class MetricsResource {
     public List<Result> getMetricResult(@PathParam("id") Long id,
             @PathParam("rid") String resourceIds) {
 	    
-	    Set<Long>  ids = new HashSet<Long>();
-	    int count = 0;
-	    for (String resourceId : resourceIds.split(",")) {
-	        try {
-	            Long l = Long.parseLong(resourceId);
-	            ids.add(l);
-	        } catch (NumberFormatException nfe) {}
-	        
-	        count++;
-	        if (count >=64) {
-	            break;
-	        }
-	    }
-	    
 	    Metric m = DAObject.loadDAObyId(id, Metric.class);
 	    
 	    if (m == null)
 	        return Collections.EMPTY_LIST;  
 	    
-	    List<Metric> metricList = new ArrayList<Metric>();
-	    metricList.add(m);
-	    
-	    AlitheiaPlugin ap = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin(m.getMnemonic());
-	    
-	    if (ap == null)
-	        return Collections.EMPTY_LIST;
-	    
-	    Class<? extends DAObject> clazz = m.getMetricType().toActivator();
-	    
-	    if (clazz == null)
-	        return Collections.EMPTY_LIST;
-	    
-	    List<Result> result = new ArrayList<Result>();
-	    
-	    for (Long daoId : ids) {
-	        try {
-	            DAObject dao = DAObject.loadDAObyId(daoId, clazz);
-	            
-	            if (dao == null)
-	                continue;
-	            
+	   return getResult(m, resourceIds);
+    }
+	
+	public List<Result> getResult(Metric m, String resourceIds) {
+	    Set<Long>  ids = new HashSet<Long>();
+        int count = 0;
+        for (String resourceId : resourceIds.split(",")) {
+            try {
+                Long l = Long.parseLong(resourceId);
+                ids.add(l);
+            } catch (NumberFormatException nfe) {}
+            
+            count++;
+            if (count >=64) {
+                break;
+            }
+        }
+        
+        List<Metric> metricList = new ArrayList<Metric>();
+        metricList.add(m);
+        
+        AlitheiaPlugin ap = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin(m.getMnemonic());
+        
+        if (ap == null)
+            return Collections.EMPTY_LIST;
+        
+        Class<? extends DAObject> clazz = m.getMetricType().toActivator();
+        
+        if (clazz == null)
+            return Collections.EMPTY_LIST;
+        
+        List<Result> result = new ArrayList<Result>();
+        
+        for (Long daoId : ids) {
+            try {
+                DAObject dao = DAObject.loadDAObyId(daoId, clazz);
+                
+                if (dao == null)
+                    continue;
+                
                 List<Result> r = ap.getResultIfAlreadyCalculated(dao, metricList);
                 result.addAll(r);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-	    }
-	    
-	    if (result.isEmpty())
-	        return Collections.EMPTY_LIST;
-	    
+        }
+        
+        if (result.isEmpty())
+            return Collections.EMPTY_LIST;
+        
         return result; 
-    }
+	}
     
-	
 	@Path("/metrics/by-mnem/{mnem}")
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Metric getMetricByMnem(@PathParam("mnem") String name) {
 		return Metric.getMetricByMnemonic(name);
 	}
+	
+	@Path("/metrics/by-mnem/{mnem}/result/{rid: .+}")
+    @GET
+    @Produces({"application/xml", "application/json"})
+    public List<Result> getMetricResultByMnem(@PathParam("mnem") String name,
+            @PathParam("rid") String resourceIds) {
+        
+        Metric m = Metric.getMetricByMnemonic(name);
+        
+        if (m == null)
+            return Collections.EMPTY_LIST;  
+        
+       return getResult(m, resourceIds);
+    }
 	
 	@Path("/metrics/by-type/{type}")
 	@GET
