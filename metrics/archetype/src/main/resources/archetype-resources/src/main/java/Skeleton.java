@@ -56,22 +56,15 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
-import eu.sqooss.service.abstractmetric.ResultEntry;
+import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.ProjectFile;
 
 /**
  * The Skeleton class is the bit that actually implements the metrics in this
  * plug-in. It must extend AbstractMetric (so that it can be called by the
- * various metrics drivers) and implement at least one of the 
- * <tt>eu.sqooss.service.abstractmetric.*Metric</tt>
- * interfaces; by doing so it registers itself as willing to respond to changes
- * of the type corresponding to the *Metric interfaces it implements.
- * 
- * The Skeleton example class implements ProjectFileMetric, which means it will
- * respond to changes in files in project revisions (i.e. it will do a
- * computation for each file changed in each SVN revision). 
+ * various metrics drivers).
+ *  
  */ 
 @MetricDeclarations(metrics= {
 	@MetricDecl(mnemonic="SKEL", activators={ProjectFile.class}, 
