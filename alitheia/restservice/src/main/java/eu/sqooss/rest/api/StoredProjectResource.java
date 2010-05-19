@@ -71,8 +71,13 @@ public class StoredProjectResource {
 	@Path("/project/{id}")
 	@GET
     @Produces({"application/xml", "application/json"})
-	public StoredProject getProject(@PathParam("id") Long id) {
-		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
+	public StoredProject getProject(@PathParam("id") String id) {
+		
+		StoredProject sp = null;
+		if (id.matches("^[0-9]*$")) //numeric id
+			sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
+		else 
+			sp = StoredProject.getProjectByName(id);
 		return sp;
 	}
 	
@@ -119,26 +124,24 @@ public class StoredProjectResource {
 	@Path("/project/{id}/version/{vid}")
 	@GET
 	@Produces({"application/xml", "application/json"})
-	public ProjectVersion getVersion(@PathParam("id") Long prid,
+	public ProjectVersion getVersion(@PathParam("id") String prid,
 			@PathParam("vid") String verid) {
 		
 	    if (verid.equals("first")) 
-	        return ProjectVersion.getFirstProjectVersion(
-	                DAObject.loadDAObyId(prid, StoredProject.class));
+	        return ProjectVersion.getFirstProjectVersion(getProject(prid));
 	    
 	    if (verid.equals("latest"))
 	        return ProjectVersion.getLastMeasuredVersion (
 	                Metric.getMetricByMnemonic("TLOC"), //This can break, FIXME
-	                DAObject.loadDAObyId(prid, StoredProject.class));
+	                getProject(prid));
 	    
-		return ProjectVersion.getVersionByRevision(
-		        DAObject.loadDAObyId(prid, StoredProject.class), verid);
+		return ProjectVersion.getVersionByRevision(getProject(prid), verid);
 	}
 
 	@Path("/project/{id}/version/{vid}/files/")
     @GET
     @Produces({"application/xml", "application/json"})
-    public List<ProjectFile> getAllFiles(@PathParam("id") Long prid,
+    public List<ProjectFile> getAllFiles(@PathParam("id") String prid,
             @PathParam("vid") String verid) {
         
 	    ProjectVersion pv = getVersion(prid, verid);
@@ -151,7 +154,7 @@ public class StoredProjectResource {
 	@Path("/project/{id}/version/{vid}/files/{dir: .+}")
     @GET
     @Produces({"application/xml", "application/json"})
-    public List<ProjectFile> getFilesInDir(@PathParam("id") Long prid,
+    public List<ProjectFile> getFilesInDir(@PathParam("id") String prid,
             @PathParam("vid") String verid,
             @PathParam("dir") String path) {
         
@@ -169,7 +172,7 @@ public class StoredProjectResource {
 	@Path("/project/{id}/version/{vid}/files/changed")
     @GET
     @Produces({"application/xml", "application/json"})
-    public Set<ProjectFile> getChangedFiles(@PathParam("id") Long prid,
+    public Set<ProjectFile> getChangedFiles(@PathParam("id") String prid,
             @PathParam("vid") String verid) {
         
         ProjectVersion pv = getVersion(prid, verid);
@@ -182,7 +185,7 @@ public class StoredProjectResource {
 	@Path("/project/{id}/version/{vid}/dirs/")
     @GET
     @Produces({"application/xml", "application/json"})
-    public List<ProjectFile> getDirs(@PathParam("id") Long prid,
+    public List<ProjectFile> getDirs(@PathParam("id") String prid,
             @PathParam("vid") String verid) {
         
 	    ProjectVersion pv = getVersion(prid, verid);
@@ -196,7 +199,7 @@ public class StoredProjectResource {
 	@Path("/project/{id}/version/{vid}/dirs/{dir: .+}")
     @GET
     @Produces({"application/xml", "application/json"})
-    public List<ProjectFile> getDirs(@PathParam("id") Long prid,
+    public List<ProjectFile> getDirs(@PathParam("id") String prid,
             @PathParam("vid") String verid,
             @PathParam("dir") String path) {
         
