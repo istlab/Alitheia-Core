@@ -103,7 +103,7 @@ public class ProjectVersion extends DAObject {
      * The developer causing this revision of the project
      */
     @XmlElement
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="COMMITTER_ID")
     private Developer committer;
 

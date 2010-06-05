@@ -468,6 +468,7 @@ function displayFiles(dir) {
   getFileMetrics("Wc.loc", "lines", fileids);
   getFileMetrics("NUMFUN", "func/meth", fileids);
   getFileMetrics("EMCC_MAX", "max complx", fileids, assessComplexity);
+  getFileMetrics("EYBALL", "eyeballs", fileids);
 }
 
 function assessComplexity(result) {

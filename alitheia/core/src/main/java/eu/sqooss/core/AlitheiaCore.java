@@ -50,7 +50,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 
-import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
@@ -62,7 +61,6 @@ import eu.sqooss.impl.service.security.SecurityManagerImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
-import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
@@ -120,7 +118,6 @@ public class AlitheiaCore implements ServiceListener {
     	services.add(PluginAdmin.class);
     	services.add(Scheduler.class);
     	services.add(TDSService.class);
-    	services.add(AdminService.class);
     	services.add(ClusterNodeService.class);
     	services.add(FDSService.class);
     	services.add(MetricActivator.class);
@@ -134,7 +131,6 @@ public class AlitheiaCore implements ServiceListener {
     	implementations.put(PluginAdmin.class, PAServiceImpl.class);
     	implementations.put(Scheduler.class, SchedulerServiceImpl.class);
     	implementations.put(TDSService.class, TDSServiceImpl.class);
-    	implementations.put(AdminService.class, AdminServiceImpl.class);
     	implementations.put(ClusterNodeService.class, ClusterNodeServiceImpl.class);
     	implementations.put(FDSService.class, FDSServiceImpl.class);
     	implementations.put(MetricActivator.class, MetricActivatorImpl.class);
@@ -407,16 +403,6 @@ public class AlitheiaCore implements ServiceListener {
      */
     public MetricActivator getMetricActivator() {
     	return (MetricActivator)instances.get(MetricActivator.class);
-    }
-    
-    /**
-     * Returns an instance to the administration service.
-     * 
-     * @return A reference to the administration service or null if the
-     *  service cannot be instantiated.
-     */
-    public AdminService getAdminService() {
-    	return (AdminService)instances.get(AdminService.class);
     }
     
 	@Override

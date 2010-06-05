@@ -29,57 +29,76 @@
  */
 package eu.sqooss.rest.impl;
 
-import javax.servlet.ServletContext;
-import javax.ws.rs.core.Application;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
-import org.jboss.resteasy.core.Dispatcher;
-import org.jboss.resteasy.spi.Registry;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
 
-import eu.sqooss.rest.ResteasyService;
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.rest.RestService;
+import eu.sqooss.service.logging.Logger;
 
-public class ResteasyServiceImpl implements ResteasyService {
-	
-	private ServletContext context;
-	
-	public ResteasyServiceImpl(ServletContext context) {
-		this.context = context;
+public class ResteasyServiceImpl implements RestService {
+
+	private BundleContext bc;
+    private Logger log ;
+    
+	public ResteasyServiceImpl(BundleContext bc) {
+		this.bc = bc;
+		log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.rest");
+	}
+
+	@Override
+	public void addResource(Class<?> resource) {
+		unregisterApp();
+		RestServiceRegistry.getInstance().add(resource);
+		registerApp();
+	}
+
+	@Override
+	public void removeResource(Class<?> resource) {
+		unregisterApp();
+		RestServiceRegistry.getInstance().remove(resource);
+		registerApp();
 	}
 	
-	public ResteasyProviderFactory getResteasyProviderFactory() {
-		if (context != null) {
-			return (ResteasyProviderFactory) context.getAttribute(ResteasyProviderFactory.class.getName());
-		}else{
-			return null;
+	private void registerApp() {
+		HttpService http = getHttpService();
+
+		Dictionary<String, String> params = new Hashtable<String, String>();
+		params.put("resteasy.scan", "false");
+		params.put("javax.ws.rs.Application", "eu.sqooss.rest.RestServiceApp");
+
+		ResteasyServlet bridge = new ResteasyServlet();
+		try {
+			http.registerServlet("/api", bridge, params, null);
+		} catch (Exception e) {
+			log.error("Error registering ResteasyServlet", e);
 		}
 	}
-	
-	public Dispatcher getDispatcher() {
-		if (context != null) {
-			return (Dispatcher) context.getAttribute(Dispatcher.class.getName());
-		}else{
-			return null;
-		}
 
+	private void unregisterApp() {
+		HttpService http = getHttpService();
+		http.unregister("/api");
 	}
 	
-	public Registry getRegistry() {
-		if (context != null) {
-			return (Registry) context.getAttribute(Registry.class.getName());
-		}else{
-			return null;
+	private HttpService getHttpService() {
+		HttpService http = null;
+		ServiceReference httpRef = bc.getServiceReference(
+				HttpService.class.getName());
+
+		if (httpRef != null) {
+			http = (HttpService) bc.getService(httpRef);
+		} else {
+			log.error("Could not find a HTTP service!");
 		}
+		
+		return http;
 	}
-	
-	public void addSingletonResource(Object resource) {
-		getRegistry().addSingletonResource(resource);
-	}
-	
-	
-	public void removeSingletonResource(Class<?> clazz) {
-		getRegistry().removeRegistrations(clazz);
-	}
-	
-	public void addApplication(Application a) {
+
+	public void stop() {
+		unregisterApp();
 	}
 }

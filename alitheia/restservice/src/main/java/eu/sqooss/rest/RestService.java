@@ -29,23 +29,33 @@
  */
 package eu.sqooss.rest;
 
-public interface ResteasyService {
+/**
+ * Alitheia Core REST API service. Allows custom paths to be registered under 
+ * the /api namespace.  
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
+ *
+ */
+public interface RestService {
 	
 	/**
 	 * Service name inside OSGi namespace service registration.
 	 */
-	public static final String SERVICE_NAME = ResteasyService.class.getName();
+	public static final String SERVICE_NAME = RestService.class.getName();
 
 	/**
-	 * Add a SingletonResource.
-	 * @param resource
+	 * Add a resource to the registry. A resource is a JAX-RS annotated POJO.
+	 * The class-level path annotation must always be equal to <code>/api</code>
+	 * (i.e. <code>@Path("/api")</code>), otherwise the resource will not be
+	 * accessible.
+	 * 
+	 * @param resource The resource to add.
 	 */
-	public void addSingletonResource(Object resource);
+	public void addResource(Class<?> resource);
 	
 	/**
-	 * Remove a SingletonResource.
-	 * @param clazz
+	 * Remove a resource from the resource registry.
+	 * @param resource  The resource to remove.
 	 */
-	//public void removeSingletonResource(Class<?> clazz);
-
+	public void removeResource(Class<?> resource);	
 }
