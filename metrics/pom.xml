@@ -24,6 +24,7 @@
     <module>mi</module>
     <module>contrib</module>
     <module>discussionheat</module>
+    <module>developermetrics</module>
   </modules>
 
   <build>
