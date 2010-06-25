@@ -41,10 +41,6 @@
         <mapping resource="eu/sqooss/service/db/ProjectVersionMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/StoredProjectMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/FileGroupMeasurement.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/Metric.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/MetricType.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/Plugin.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/PluginConfiguration.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/PendingUser.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/Group.hbm.xml"/>
@@ -80,6 +76,11 @@
         <mapping class="eu.sqooss.service.db.ConfigurationOption"/>
         <mapping class="eu.sqooss.service.db.ClusterNode"/>
         <mapping class="eu.sqooss.service.db.ClusterNodeProject"/>
+        <mapping class="eu.sqooss.service.db.Plugin"/>
+        <mapping class="eu.sqooss.service.db.PluginConfiguration"/>
+        <mapping class="eu.sqooss.service.db.Metric"/>
+        <mapping class="eu.sqooss.service.db.MetricType"/>
+        <mapping class="eu.sqooss.service.db.StoredProjectMeasurement"/>
     </session-factory>
 
 </hibernate-configuration>

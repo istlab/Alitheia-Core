@@ -38,14 +38,16 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DAObject;
 
 /**
  * Instances of this class represent to what forms of data a metric
@@ -53,27 +55,34 @@ import eu.sqooss.service.db.DAObject;
  * 
  * @assoc 1 - n Metric
  */
+@Entity
+@Table(name="METRIC_TYPE")
 @XmlRootElement(name="metrictype")
 public class MetricType extends DAObject {
-    
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="METRIC_TYPE_ID")
     @XmlElement
     private long id; 
-    
+
     /**
      * A string representation of the type of metric
      */
 	@XmlElement
+	@Column(name="type")
     private String type;
-    
+
     /**
      * A list of all metrics of this type
      */
+	@OneToMany(mappedBy="metricType")
     private Set<Metric> metrics;
 
-/**
- * An enumeration of all possible metric types. Metric types map 
- * to activation types, but not necessarily on a 1-1 basis.
- */
+	/**
+	 * An enumeration of all possible metric types. Metric types map to
+	 * activation types, but not necessarily on a 1-1 basis.
+	 */
     public enum Type {
 
         PROJECT,

@@ -38,6 +38,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -54,15 +66,22 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n FileGroupMeasurement
  * 
  */
+@Entity
+@Table(name="METRIC")
 @XmlRootElement(name="metric")
 public class Metric extends DAObject {
 
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="METRIC_ID")
 	@XmlElement(name="id")
 	private long id; 
-	
+
 	/**
 	 * the Alitheia Core plugin providing the functionality for this metric
 	 */
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name="PLUGIN_ID", referencedColumnName="PLUGIN_ID")
 	private Plugin plugin;
 
 	/**
@@ -71,6 +90,8 @@ public class Metric extends DAObject {
 	 * - Relating to email data BUG_DATABASE - Relating to BTS data PROJECT_WIDE
 	 * - Relating to all available project data
 	 */
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name="METRIC_TYPE", referencedColumnName="METRIC_TYPE_ID")
 	@XmlElement(name="metrictype")
 	private MetricType metricType;
 
@@ -78,32 +99,38 @@ public class Metric extends DAObject {
 	 * The short form of the metric's name
 	 */
 	@XmlElement
+	@Column(name="MNEMONIC")
 	private String mnemonic;
 
 	/**
 	 * A description of the work performed by this metric
 	 */
 	@XmlElement
+	@Column(name="DESCRIPTION")
 	private String description;
 
 	/**
 	 * A list of project-wide measurements for this metric
 	 */
+	@OneToMany(mappedBy="storedProject")
 	private Set<StoredProjectMeasurement> projectMeasurements;
 
 	/**
 	 * A list of project-version-wide measurements for this metric
 	 */
+	@Transient
 	private Set<ProjectVersionMeasurement> versionMeasurements;
 
 	/**
 	 * A list of project-file-wide measurements for this metric
 	 */
+	@Transient
 	private Set<ProjectFileMeasurement> fileMeasurements;
 
 	/**
 	 * A list of project-file-group-wide measurements for this metric
 	 */
+	@Transient
 	private Set<FileGroupMeasurement> fileGroupMeasurements;
 
 	public Metric() {

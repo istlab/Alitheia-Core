@@ -33,6 +33,12 @@
 
 package eu.sqooss.service.db;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
 /**
  * Instances of this class represent the result of a metric
  * calculation as stored in the database. This class is extended by
@@ -40,14 +46,18 @@ package eu.sqooss.service.db;
  * files etc.
  */
 public class MetricMeasurement extends DAObject {
+	
     /**
      * The metric to which this result belongs
      */
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
     private Metric metric;
 
     /**
      * A representation of the calculation result
      */
+    @Column(name="RESULT")
     private String result;
     
     /**

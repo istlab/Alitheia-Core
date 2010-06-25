@@ -39,6 +39,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -48,48 +56,72 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n PluginConfiguration
  * @assoc 1 - n Metric
  */
-public class Plugin extends DAObject{
-    /**
+@Entity
+@Table(name="PLUGIN")
+public class Plugin extends DAObject {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PLUGIN_ID")
+	private long id; 
+
+	/**
      * the name of the plugin
      */
+	@Column(name="NAME")
     private String name; 
 
     /**
      * A representation of date on which the plugin was installed into
      * the ALitheia Core
      */
+	@Column(name="INSTALL_DATE")
     private Date installdate; 
     
     /**
      * The version number of this plugin
      */
+	@Column(name="VERSION")
     private String version; 
 
     /**
      * A description of the plugin and the metrics provided
      */
+	@Column(name="DESCRIPTION")
     private String description; 
 
     /**
      * Denotes if the metric is active as well as being installed
      */
+	@Column(name="IS_ACTIVE")
     private boolean active;
 
     /**
      * A hashcode representing the plugin bundle to ensure a unique
      * identifier
      */
+	@Column(name="HASHCODE")
     private String hashcode;
 
     /**
      * A list of all configuration entries for this plugin
      */
+	@OneToMany(mappedBy="plugin")
     private Set<PluginConfiguration> configurations = new HashSet<PluginConfiguration>();
     
     /**
      * A list of all supported metrics for this plugin
      */
+	@OneToMany(mappedBy="plugin")
     private Set<Metric> supportedMetrics = new HashSet<Metric>();
+    
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     public String getName() {
         return name;
@@ -161,7 +193,7 @@ public class Plugin extends DAObject{
         s.put("name", name);
         return db.findObjectsByProperties(Plugin.class, s);
     }
-    
+        
     /**
      * Get Plugin by hashcode
      * 

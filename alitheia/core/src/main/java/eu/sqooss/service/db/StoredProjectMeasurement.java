@@ -34,14 +34,37 @@
 
 package eu.sqooss.service.db;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+
 /**
  * Instances of this class represent a measurement made against a
  * StoredProject, as stored in the database
  */
+@Entity
+@Table(name="STORED_PROJECT_MEASUREMENT")
 public class StoredProjectMeasurement extends MetricMeasurement {
-    /**
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="STORED_PROJECT_MEASUREMENT_ID")
+	@XmlElement(name="id")
+	private long id; 
+	
+	/**
      * The StoredPRoject to which this measurement relates
      */
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name="STORED_PROJECT_ID", referencedColumnName="PROJECT_ID")
     private StoredProject storedProject;
 
     /**
@@ -58,6 +81,13 @@ public class StoredProjectMeasurement extends MetricMeasurement {
         this.storedProject = storedProject;
     }
     
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

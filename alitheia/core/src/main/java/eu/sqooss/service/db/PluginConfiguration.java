@@ -36,14 +36,51 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import eu.sqooss.core.AlitheiaCore;
 
+@Entity
+@Table(name="PLUGIN_CONFIGURATION")
 public class PluginConfiguration extends DAObject {
-    private String name;
+	
+    @Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PLUGIN_CONFIGURATION_ID")
+	private long id;
+
+	@Column(name="NAME")
+	private String name;
+	
+	@Column(name="VALUE")
     private String value;
+	
+	@Column(name="TYPE")
     private String type;
+	
+	@Column(name="MSG")
     private String msg;
+
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name="PLUGIN_ID", referencedColumnName="PLUGIN_ID")
     private Plugin plugin;
+
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     public String getValue() {
         return value;
