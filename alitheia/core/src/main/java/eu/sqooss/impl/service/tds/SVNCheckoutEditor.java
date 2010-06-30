@@ -122,7 +122,7 @@ public class SVNCheckoutEditor implements ISVNEditor {
         throws SVNException {
         if (localPath != null ) {
             repoFilePathName = normalisePath(path);
-            deltaProcessor.applyTextDelta(null,new File(localPath,repoFilePathName), false);
+            deltaProcessor.applyTextDelta((File)null,new File(localPath,repoFilePathName), false);
         } else {
             logger.error("Tried to checkout to nowhere...");
         }
