@@ -39,7 +39,6 @@
         <mapping resource="eu/sqooss/service/db/GroupPrivilege.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ServiceUrl.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/ProjectVersionMeasurement.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/StoredProjectMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/FileGroupMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/PendingUser.hbm.xml"/>
