@@ -187,8 +187,10 @@ public class BugUpdater extends UpdaterBaseJob {
             BugReportMessage bugmessage = new BugReportMessage(bug);
             bugmessage.setReporter(getDeveloper(c.commentAuthor));
             bugmessage.setTimestamp(c.commentTS);
-            bugmessage.setText(c.comment);
-            
+            if (c.comment.length() > 255)
+            	bugmessage.setText(c.comment.substring(0, 254));
+            else 
+            	bugmessage.setText(c.comment);
             commentList.add(bugmessage);
         }
         bug.setReportMessages(commentList);

@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.webadmin;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,8 +51,14 @@ import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.tds.BTSAccessor;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.MailAccessor;
+import eu.sqooss.service.tds.ProjectAccessor;
+import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 
 public class ProjectsView extends AbstractView {
@@ -165,84 +172,119 @@ public class ProjectsView extends AbstractView {
     // Add project
     // ---------------------------------------------------------------
     private static StoredProject addProject(StringBuilder e, HttpServletRequest req, int indent) {
+    	String name =  req.getParameter(REQ_PAR_PRJ_NAME);
+        String bts = req.getParameter(REQ_PAR_PRJ_BUG);
+        String mail = req.getParameter(REQ_PAR_PRJ_MAIL);
+        String scm = req.getParameter(REQ_PAR_PRJ_CODE);
+        
+        Properties p = new Properties();
+        p.put(ConfigOption.PROJECT_NAME.toString(), req.getParameter(REQ_PAR_PRJ_NAME));
+        p.put(ConfigOption.PROJECT_WEBSITE.toString(), req.getParameter(REQ_PAR_PRJ_WEB));
+        p.put(ConfigOption.PROJECT_CONTACT.toString(), req.getParameter(REQ_PAR_PRJ_CONT));
+        p.put(ConfigOption.PROJECT_BTS_URL.toString(), req.getParameter(REQ_PAR_PRJ_BUG));
+        p.put(ConfigOption.PROJECT_ML_URL.toString(), req.getParameter(REQ_PAR_PRJ_MAIL));
+        p.put(ConfigOption.PROJECT_SCM_URL.toString(), req.getParameter(REQ_PAR_PRJ_CODE));
+    
+     // Avoid missing-entirely kinds of parameters.
+        if ( (name == null) || (bts == null) || 
+             (mail == null) || (scm == null) ) {
+            e.append(sp(indent)).append("Add project failed because some of the required information was missing.<br/>\n");
+            return null;
+        }
 
-    	// Retrieve the specified project properties
-		String reqValPrjName = req.getParameter(REQ_PAR_PRJ_NAME);
-		String reqValPrjWeb = req.getParameter(REQ_PAR_PRJ_WEB);
-		String reqValPrjContact = req.getParameter(REQ_PAR_PRJ_CONT);
-		String reqValPrjBug = req.getParameter(REQ_PAR_PRJ_BUG);
-		String reqValPrjMail = req.getParameter(REQ_PAR_PRJ_MAIL);
-		String reqValPrjCode = req.getParameter(REQ_PAR_PRJ_CODE);
-		// Checks the validity of the project properties
-		boolean valid = true;
-		if (checkProjectName(reqValPrjName) == false) {
-			valid = false;
-			e.append(sp(indent)).append("Invalid project name!<br/>\n");
-		}
-		if (checkEmail(reqValPrjContact) == false) {
-			valid = false;
-			e.append(sp(indent)).append("Invalid contact e-mail!<br/>\n");
-		}
-		if (checkUrl(reqValPrjWeb, "http,https") == false) {
-			valid = false;
-			e.append(sp(indent)).append("Invalid homepage URL!<br/>\n");
-		}
-		if ((reqValPrjBug != null) && (reqValPrjBug.length() > 0)) {
-			if (checkTDSUrl(reqValPrjBug) == false) {
-				valid = false;
-				e.append(sp(indent)).append("Invalid bug database URL!<br/>\n");
-			}
-		} else if ((reqValPrjMail != null) && (reqValPrjMail.length() > 0)) {
-			if (checkTDSUrl(reqValPrjMail) == false) {
-				valid = false;
-				e.append(sp(indent)).append("Invalid mailing list URL!<br/>\n");
-			}
-		} else if ((reqValPrjCode != null) && (reqValPrjCode.length() > 0)) {
-			if (checkTDSUrl(reqValPrjCode) == false) {
-				valid = false;
-				e.append(sp(indent)).append("Invalid source code URL!<br/>\n");
-			}
-		} else {
-			valid = false;
-			e.append(sp(indent))
-				.append("At least one resource source must be specified!")
-				.append("<br/>\n");
-		}
-		StoredProject p = null;
-		// Proceed upon valid project properties
-		if (valid) {
-			// Check if a project with the same name already exists
-			HashMap<String, Object> params = new HashMap<String, Object>();
-			params.put("name", reqValPrjName);
-			if (sobjDB.findObjectsByProperties(StoredProject.class, params).size() > 1) {
-				e.append(sp(indent) + getErr("prj_exists") + "<br/>\n");
-			}
-			// Create the new project's DAO
-			else {
-				p = new StoredProject();
-				p.setName(reqValPrjName);
-				p.setWebsiteUrl(reqValPrjWeb);
-				p.setContactUrl(reqValPrjContact);
-				p.setBtsUrl(reqValPrjBug);
-				p.setMailUrl(reqValPrjMail);
-				p.setScmUrl(reqValPrjCode);
-				
-				// Try to add the DAO to the DB
-				if (sobjDB.addRecord(p) == true) {
-					// register the new project in the TDS
-					sobjTDS.addAccessor(p.getId(), p.getName(), p.getBtsUrl(),
-							p.getMailUrl(), p.getScmUrl());
-				} else {
-					e.append(sp(indent)).append(getErr("prj_add_failed"))
-					 .append(getMsg("m0001")).append("<br/>\n");
-				}
-			}
-		}
-		return p;
-		// Return to the "Add project" view upon failure
-		//if (e.length() > 0) {
-			//reqValAction = ACT_REQ_ADD_PROJECT;
-		//}
+        // Avoid adding projects with empty names or SVN.
+        if (name.trim().length() == 0 || scm.trim().length() == 0) {
+        	 e.append(sp(indent)).append("Add project failed because the project name or repository URL were missing.");
+            return null;
+        }
+
+        /* Run a few checks before actually storing the project */
+        // 1. Duplicate project
+        HashMap<String, Object> props = new HashMap<String, Object>();
+        props.put("name",  name);
+        if (!sobjDB.findObjectsByProperties(StoredProject.class, props).isEmpty()) {
+        	 e.append(sp(indent)).append("A project with the same name already exists");
+            return null;
+        }
+
+        // 2. Check for data handlers Add accessor and try to access project resources
+        if (!sobjTDS.isURLSupported(scm)) {
+        	 e.append(sp(indent)).append("No appropriate accessor for repository URI: &lt;"
+                    + scm + "&gt;");
+            return null;
+        }
+        
+        if (!sobjTDS.isURLSupported(mail)) {
+        	 e.append(sp(indent)).append("No appropriate accessor for URI: &lt;"
+                    + mail + "&gt;");
+            return null;
+        }
+        
+        if (!sobjTDS.isURLSupported(bts)) {
+        	 e.append(sp(indent)).append("No appropriate accessor for bug data URI: &lt;"
+                    + bts + "&gt;");
+            return null;
+        }
+
+        sobjTDS.addAccessor(Integer.MAX_VALUE, name, bts, mail, scm);
+        ProjectAccessor a = sobjTDS.getAccessor(Integer.MAX_VALUE);
+        
+        try{
+            a.getSCMAccessor().getHeadRevision();
+            BTSAccessor ba = a.getBTSAccessor(); 
+            if (ba == null) {
+            	 e.append(sp(indent)).append(
+                    "Bug Accessor failed initialization for URI: &lt;"
+                            + bts + "&gt;");
+            	return null;
+            }
+        
+            MailAccessor ma = a.getMailAccessor();
+            if (ma == null) {
+            	 e.append(sp(indent)).append(
+            			"Mailing lists accessor failed initialization for URI: &lt;"
+            			+ mail + "&gt;");
+            return null;
+            }
+        } catch (InvalidRepositoryException ire) {
+        	 e.append(sp(indent)).append("SCM accessor failed initialization for repository URI: &lt;"
+                    + scm + "&gt;");
+            return null;
+        } catch (Exception ex) {
+        	 e.append(sp(indent)).append("Accessor failed: " + ex.getMessage()); 
+        	return null;
+        } finally {
+        	sobjTDS.releaseAccessor(a);
+        }
+        
+        StoredProject sp = new StoredProject(name);
+        //The project is now ready to be added 
+        sobjDB.addRecord(sp);
+        
+        //Store all known properties to the database
+        for (ConfigOption co : ConfigOption.values()) {
+        	String s = p.getProperty(co.toString());
+        	
+        	if (s == null)
+        		continue;
+        	
+        	String[] subopts = s.split(" ");
+        	
+        	for (String subopt : subopts) {
+        		if (subopt.trim().length() > 0)
+        			sp.addConfig(co, subopt.trim());
+        	}
+        }
+       
+        sobjTDS.addAccessor(sp.getId(), sp.getName(), sp.getBtsUrl(), sp.getMailUrl(), 
+                sp.getScmUrl());
+        
+        sobjLogger.info("Added a new project <" + name + "> with ID "
+                + sp.getId());
+        
+        sobjUpdater.update(sp, UpdaterService.UpdateTarget.ALL);
+        
+        return sp;
     }
     
     // ---------------------------------------------------------------

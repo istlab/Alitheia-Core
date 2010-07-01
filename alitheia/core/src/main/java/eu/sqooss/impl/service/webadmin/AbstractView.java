@@ -79,6 +79,7 @@ public abstract class AbstractView {
 
     // Velocity stuff
     protected VelocityContext vc = null;
+    protected BundleContext bc = null;
 
     // Names of the various resource files
     private static String RES_LABELS_FILE   = "ResourceLabels";
@@ -105,6 +106,7 @@ public abstract class AbstractView {
     public AbstractView(BundleContext bundlecontext, VelocityContext vc) {
         // Keep the Velocity context instance
         this.vc = vc;
+        this.bc = bundlecontext;
 
         // Retrieve the SQO-OSS core service's object
         srefCore = bundlecontext.getServiceReference(

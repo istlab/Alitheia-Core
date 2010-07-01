@@ -55,9 +55,6 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.BugStatus.Status;
 
@@ -158,11 +155,11 @@ public class StoredProject extends DAObject {
 		 */
 		PROJECT_SCM_PATHS_TAG("eu.sqooss.project.path.tag", "The project's tag path");
 		
-		private final String name;
+		private final String propname;
 		private final String desc;
 		
 		public String getName() {
-			return name;
+			return propname;
 		}
 
 		public String getDesc() {
@@ -170,7 +167,7 @@ public class StoredProject extends DAObject {
 		}
 
 		private ConfigOption(String name, String desc) {
-			this.name = name;
+			this.propname = name;
 			this.desc = desc;
 		}
 	}
@@ -188,19 +185,19 @@ public class StoredProject extends DAObject {
     /**
      * The versions that this project contains
      */
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="project", orphanRemoval=true, cascade=CascadeType.ALL)
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
     private List<ProjectVersion> projectVersions;
     
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", orphanRemoval=true, cascade=CascadeType.ALL)
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
     private Set<Developer> developers;
     
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", orphanRemoval=true, cascade=CascadeType.ALL)
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
     private Set<MailingList> mailingLists;
     
     @Transient
     private Set<StoredProjectMeasurement> measurements;
     
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="project", orphanRemoval=true, cascade=CascadeType.ALL)
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
 	private Set<Bug> bugs;
 
     @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="projects")

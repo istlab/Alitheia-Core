@@ -249,7 +249,7 @@ public class WebAdminRenderer  extends AbstractView {
         addProject(p);
     }
 
-    private void addProject(Properties p) {
+    public void addProject(Properties p) {
         final String returnToList = "<p><a href=\"/projects\">Try again</a>.</p>";
         
         String name = p.getProperty(ConfigOption.PROJECT_NAME.getName());
