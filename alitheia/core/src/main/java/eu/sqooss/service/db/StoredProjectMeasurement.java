@@ -45,6 +45,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Instances of this class represent a measurement made against a
@@ -52,13 +53,27 @@ import javax.xml.bind.annotation.XmlElement;
  */
 @Entity
 @Table(name="STORED_PROJECT_MEASUREMENT")
+@XmlRootElement(name="project-measurement")
 public class StoredProjectMeasurement extends MetricMeasurement {
-	
-	@Id
+
+    @Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="STORED_PROJECT_MEASUREMENT_ID")
 	@XmlElement(name="id")
 	private long id; 
+	
+    /**
+     * The metric to which this result belongs
+     */
+    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
+    private Metric metric;
+
+    /**
+     * A representation of the calculation result
+     */
+    @Column(name="RESULT")
+    private String result;
 	
 	/**
      * The StoredPRoject to which this measurement relates
@@ -88,6 +103,24 @@ public class StoredProjectMeasurement extends MetricMeasurement {
 	public void setId(long id) {
 		this.id = id;
 	}
+	
+	   
+    public Metric getMetric() {
+        return metric;
+    }
+
+    public void setMetric(Metric metric) {
+        this.metric = metric;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

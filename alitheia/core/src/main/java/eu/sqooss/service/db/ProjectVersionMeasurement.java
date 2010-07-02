@@ -33,14 +33,52 @@
 
 package eu.sqooss.service.db;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Instances of this class represent the result of measurements made
  * against ProjectVersions as stored in the database
  */
+@Entity
+@Table(name="PROJECT_VERSION_MEASUREMENT")
+@XmlRootElement(name="version-measurement")
 public class ProjectVersionMeasurement extends MetricMeasurement {
+	
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "PROJECT_VERSION_MEASUREMENT_ID")
+    @XmlElement(name = "id")
+	private long id; 
+	
     /**
+     * The metric to which this result belongs
+     */
+    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
+    private Metric metric;
+
+    /**
+     * A representation of the calculation result
+     */
+    @Column(name="RESULT")
+    private String result;
+    
+	/**
      * The ProjectVersion to which the instance relates
      */
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "PROJECT_VERSION_ID", referencedColumnName = "PROJECT_VERSION_ID")
     private ProjectVersion projectVersion;
 
     public ProjectVersionMeasurement() {
@@ -61,6 +99,14 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
         setResult(v);
     }
     
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public ProjectVersion getProjectVersion() {
         return projectVersion;
     }
@@ -68,7 +114,34 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
     public void setProjectVersion(ProjectVersion projectVersion) {
         this.projectVersion = projectVersion;
     }
+    
+    /**
+     * @return the metric
+     */
+    public Metric getMetric() {
+        return metric;
+    }
+    
+    /**
+     * @param metric the metric to set
+     */
+    public void setMetric(Metric metric) {
+        this.metric = metric;
+    }
+    
+    /**
+     * @return the result
+     */
+    public String getResult() {
+        return result;
+    }
+    
+    /**
+     * @param result the result to set
+     */
+    public void setResult(String result) {
+        this.result = result;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
-

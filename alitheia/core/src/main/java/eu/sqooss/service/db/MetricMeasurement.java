@@ -33,61 +33,15 @@
 
 package eu.sqooss.service.db;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
 /**
  * Instances of this class represent the result of a metric
  * calculation as stored in the database. This class is extended by
  * other DAO to show results related to specific entities: project,
  * files etc.
  */
-public class MetricMeasurement extends DAObject {
-	
-    /**
-     * The metric to which this result belongs
-     */
-	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
-    private Metric metric;
+public abstract class MetricMeasurement extends DAObject {
 
-    /**
-     * A representation of the calculation result
-     */
-    @Column(name="RESULT")
-    private String result;
-    
-    /**
-     * @return the metric
-     */
-    public Metric getMetric() {
-        return metric;
-    }
-    
-    /**
-     * @param metric the metric to set
-     */
-    public void setMetric(Metric metric) {
-        this.metric = metric;
-    }
-    
-    /**
-     * @return the result
-     */
-    public String getResult() {
-        return result;
-    }
-    
-    /**
-     * @param result the result to set
-     */
-    public void setResult(String result) {
-        this.result = result;
-    }
-    
+    public abstract String getResult();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

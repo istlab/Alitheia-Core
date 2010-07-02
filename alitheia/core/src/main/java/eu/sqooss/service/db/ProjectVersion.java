@@ -133,13 +133,7 @@ public class ProjectVersion extends DAObject {
      */
     @OneToMany(fetch=FetchType.LAZY, mappedBy="projectVersion", orphanRemoval=true, cascade=CascadeType.ALL)
     private Set<ProjectFile> versionFiles;
-    
-    /**
-     * The file groups contained in that version
-     */
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="projectVersion", orphanRemoval=true, cascade=CascadeType.ALL)
-    private Set<FileGroup> fileGroups;
-    
+
     /**
      * The set of known tags in this version of the project
      */
@@ -162,7 +156,7 @@ public class ProjectVersion extends DAObject {
     /**
      * The set of measurements available for the given version of the project
      */
-    @Transient
+    @OneToMany(mappedBy="projectVersion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ProjectVersionMeasurement> measurements;
     
     /**
@@ -302,17 +296,6 @@ public class ProjectVersion extends DAObject {
         this.versionFiles = versionFiles;
     }
   
-    /**
-     * Return the file groups that were changed in this version
-     */
-    public Set<FileGroup> getFileGroups() {
-        return fileGroups;
-    }
-    
-    public void setFileGroups(Set<FileGroup> fileGroups) {
-        this.fileGroups = fileGroups;
-    }
-    
     /**
      * If this version has an associated tag, return it. 
      */

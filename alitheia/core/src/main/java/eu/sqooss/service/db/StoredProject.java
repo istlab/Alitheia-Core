@@ -194,7 +194,7 @@ public class StoredProject extends DAObject {
     @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
     private Set<MailingList> mailingLists;
     
-    @Transient
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
     private Set<StoredProjectMeasurement> measurements;
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)

@@ -127,12 +127,6 @@ public class Metric extends DAObject {
 	@Transient
 	private Set<ProjectFileMeasurement> fileMeasurements;
 
-	/**
-	 * A list of project-file-group-wide measurements for this metric
-	 */
-	@Transient
-	private Set<FileGroupMeasurement> fileGroupMeasurements;
-
 	public Metric() {
 		// Nothing to do here
 	}
@@ -201,15 +195,6 @@ public class Metric extends DAObject {
 
 	public void setFileMeasurements(Set<ProjectFileMeasurement> fileMeasurements) {
 		this.fileMeasurements = fileMeasurements;
-	}
-
-	public Set<FileGroupMeasurement> getFileGroupMeasurements() {
-		return fileGroupMeasurements;
-	}
-
-	public void setFileGroupMeasurements(
-			Set<FileGroupMeasurement> fileGroupMeasurements) {
-		this.fileGroupMeasurements = fileGroupMeasurements;
 	}
 
 	/**

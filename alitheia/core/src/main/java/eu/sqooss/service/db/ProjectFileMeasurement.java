@@ -33,14 +33,52 @@
 
 package eu.sqooss.service.db;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Instances of this class represent a measurement made against a
  * specific file, as stored in the database
  */
+@Entity
+@Table(name="PROJECT_FILE_MEASUREMENT")
+@XmlRootElement(name="file-measurement")
 public class ProjectFileMeasurement extends MetricMeasurement {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "PROJECT_FILE_MEASUREMENT_ID")
+    @XmlElement(name = "id")
+    private long id; 
+    
+    /**
+     * The metric to which this result belongs
+     */
+    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
+    private Metric metric;
+
+    /**
+     * A representation of the calculation result
+     */
+    @Column(name="RESULT")
+    private String result;
+    
     /**
      * The file against which the measurement was made
      */ 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "PROJECT_FILE_ID", referencedColumnName = "PROJECT_FILE_ID")
     private ProjectFile projectFile;
 
     public ProjectFileMeasurement() {
@@ -63,6 +101,15 @@ public class ProjectFileMeasurement extends MetricMeasurement {
         setResult(value);
     }
     
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    
     public ProjectFile getProjectFile() {
         return projectFile;
     }
@@ -70,7 +117,22 @@ public class ProjectFileMeasurement extends MetricMeasurement {
     public void setProjectFile(ProjectFile pf) {
         this.projectFile = pf;
     }
+    
+    public Metric getMetric() {
+        return metric;
+    }
 
+    public void setMetric(Metric metric) {
+        this.metric = metric;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

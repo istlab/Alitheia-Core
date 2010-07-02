@@ -34,18 +34,6 @@
         <!-- Make sure that the language used in custom queries is 100% QL compatible -->
         <property name="query.jpaql_strict_compliance">false</property>
         
-        <mapping resource="eu/sqooss/service/db/Privilege.hbm.xml"/>        
-        <mapping resource="eu/sqooss/service/db/PrivilegeValue.hbm.xml"/>        
-        <mapping resource="eu/sqooss/service/db/GroupPrivilege.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ServiceUrl.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ProjectVersionMeasurement.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/FileGroupMeasurement.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/User.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/PendingUser.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/Group.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/GroupType.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/GroupUser.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/ProjectFileMeasurement.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/OhlohDeveloper.hbm.xml"/>
         <mapping resource="eu/sqooss/service/db/MailingListThreadMeasurement.hbm.xml"/>
@@ -69,7 +57,6 @@
         <mapping class="eu.sqooss.service.db.Directory" />
         <mapping class="eu.sqooss.service.db.Tag" />
         <mapping class="eu.sqooss.service.db.Branch"/>
-        <mapping class="eu.sqooss.service.db.FileGroup"/>
         <mapping class="eu.sqooss.service.db.StoredProject"/>
         <mapping class="eu.sqooss.service.db.StoredProjectConfig"/>
         <mapping class="eu.sqooss.service.db.ConfigurationOption"/>
@@ -80,6 +67,8 @@
         <mapping class="eu.sqooss.service.db.Metric"/>
         <mapping class="eu.sqooss.service.db.MetricType"/>
         <mapping class="eu.sqooss.service.db.StoredProjectMeasurement"/>
+        <mapping class="eu.sqooss.service.db.ProjectVersionMeasurement"/>
+        <mapping class="eu.sqooss.service.db.ProjectFileMeasurement"/>
     </session-factory>
 
 </hibernate-configuration>

@@ -33,6 +33,12 @@
 
 package eu.sqooss.service.db;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
 /**
  * Instances of this class represent a measurement made against a
  * specific mail message, as stored in the database
@@ -46,6 +52,19 @@ public class MailMessageMeasurement extends MetricMeasurement {
     public MailMessageMeasurement() {
         super();
     }
+    
+    /**
+     * The metric to which this result belongs
+     */
+    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
+    private Metric metric;
+
+    /**
+     * A representation of the calculation result
+     */
+    @Column(name="RESULT")
+    private String result;
 
     /**
      * Convenience constructor to avoid having to call three methods
@@ -70,5 +89,19 @@ public class MailMessageMeasurement extends MetricMeasurement {
         this.mail = mail;
     }
     
-   
+    public Metric getMetric() {
+        return metric;
+    }
+
+    public void setMetric(Metric metric) {
+        this.metric = metric;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
 }
