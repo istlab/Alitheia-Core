@@ -74,11 +74,9 @@ public interface UpdaterService extends AlitheiaCoreService {
         /** Request to update bug metadata */
         BUGS,
         /** Meta-target to update all metadata */
-        ALL, 
-        /** Request to update Developer alias mappings */
-        DEVS,
-        /** Request to update Ohloh metadata */
-        OHLOH;
+        ALL,
+        /** Meta data inference stage*/
+        INFERENCE;
         
         public static String[] toStringArray() {
             String[] targets = new String[6];
@@ -86,12 +84,31 @@ public interface UpdaterService extends AlitheiaCoreService {
             targets[1] = "MAIL";
             targets[2] = "BUGS";
             targets[3] = "ALL";
-            targets[4] = "DEVS";
-            targets[5] = "OHLOH";
+            targets[4] = "INFERENCE";
             return targets;
         }
     }
-
+    
+    public enum UpdaterStage {
+        /** Raw data to metadata (DB) stage*/
+        IMPORT,
+        
+        /** Metadata relationship inference stage*/
+        INFERENCE
+    }
+    
+    /**
+     * Register a new metadata updater. 
+     */
+    void registerUpdaterService(String[] protocols, UpdaterStage[] stage, Class<?> clazz);
+    
+    /**
+     * Unregister an updater class.
+     * 
+     * @param clazz The updater to unregister
+     */
+    void unregisterUpdaterService(Class<?> clazz);
+    
     /**
      * Inform the updater service that project data has changed. The
      * given project is queried for the new data; which new data is

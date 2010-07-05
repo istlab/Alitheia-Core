@@ -43,6 +43,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.DeveloperAlias;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.util.Pair;
 
 import org.apache.commons.codec.language.DoubleMetaphone;

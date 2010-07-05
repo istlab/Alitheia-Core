@@ -59,6 +59,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
 import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
+import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.updater.UpdaterException;
 
 /**

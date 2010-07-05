@@ -35,7 +35,9 @@ package eu.sqooss.impl.service.updater;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,8 +62,10 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.JobStateListener;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.scheduler.Job.State;
-import eu.sqooss.service.updater.UpdaterJob;
+import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
@@ -90,6 +94,16 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
      * Updater handlers for each update target 
      */
     private Map<UpdateTarget, Class<? extends UpdaterBaseJob>> availUpdaters;
+    
+    /*
+     * List of updaters indexed by protocol
+     */
+    private Map<String, List<Class<?>>> updaters;
+    
+    /*
+     * List of updaters indexed by updater stage
+     */
+    private Map<UpdaterStage, List<Class<?>>> updForStage;
     
     public UpdaterServiceImpl() {  }
 
@@ -141,7 +155,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         boolean queued_successfully = false;
         try {
             //Create update job
-            UpdaterJob job = (UpdaterJob) updater.newInstance();
+            MetadataUpdater job = (MetadataUpdater) updater.newInstance();
             job.setUpdateParams(project, logger);
             //Add it to the current update queue
             Map<UpdateTarget, Job> m = scheduledUpdates.get(project.getId());
@@ -306,6 +320,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             addUpdate(project, UpdateTarget.MAIL);
             addUpdate(project, UpdateTarget.CODE);
             addUpdate(project, UpdateTarget.BUGS);
+            addUpdate(project, UpdateTarget.INFERENCE);
         } else {
             addUpdate(project, target);
         }
@@ -446,13 +461,32 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         scheduledUpdates = new ConcurrentHashMap<Long,Map<UpdateTarget, Job>>(); 
         
         availUpdaters = new HashMap<UpdateTarget, Class<? extends UpdaterBaseJob>>();
-        availUpdaters.put(UpdateTarget.CODE, SourceUpdater.class);
+        //availUpdaters.put(UpdateTarget.CODE, SourceUpdater.class);
         availUpdaters.put(UpdateTarget.MAIL, MailUpdater.class);
         availUpdaters.put(UpdateTarget.BUGS, BugUpdater.class);
-        availUpdaters.put(UpdateTarget.OHLOH, OhlohUpdater.class);
-        availUpdaters.put(UpdateTarget.DEVS, DeveloperMatcher.class);
+       // availUpdaters.put(UpdateTarget.OHLOH, OhlohUpdater.class);
+       // availUpdaters.put(UpdateTarget.DEVS, DeveloperMatcher.class);
+        
+        updaters = new HashMap<String, List<Class<?>>>();
+        List<Class<?>> mailupd = new ArrayList<Class<?>>();
+        mailupd.add(MailUpdater.class);
+        updaters.put("maildir", mailupd);
+        
+        updForStage = new HashMap<UpdaterService.UpdaterStage, List<Class<?>>>();
+        
         
         logger.info("Succesfully started updater service");
         return true;
 	}
+
+    @Override
+    public void registerUpdaterService(String[] protocols, UpdaterStage[] stage, Class<?> clazz) {
+        
+    }
+
+    @Override
+    public void unregisterUpdaterService(Class<?> clazz) {
+        // TODO Auto-generated method stub
+        
+    }
 }

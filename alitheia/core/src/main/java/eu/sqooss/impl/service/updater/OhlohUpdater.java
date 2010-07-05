@@ -51,6 +51,7 @@ import org.xml.sax.InputSource;
 
 import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.util.FileUtils;
 
 /**

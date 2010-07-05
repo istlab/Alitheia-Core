@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service.updater;
+package eu.sqooss.plugins.svn;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,12 +44,15 @@ import org.apache.commons.collections.LRUMap;
 import org.hibernate.QueryException;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.db.Branch;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.metricactivator.MetricActivator;
@@ -68,7 +71,9 @@ import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.util.FileUtils;
 
-final class SourceUpdater extends UpdaterBaseJob {
+public class SVNUpdater extends UpdaterBaseJob {
+    
+    private StoredProject project;
     
     private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.svn.handlecopies";
     private static final String OMMIT_NO_FILES_VERSIONS = "eu.sqooss.updater.svn.ommitfileless";
@@ -77,8 +82,10 @@ final class SourceUpdater extends UpdaterBaseJob {
         TRUNK, BRANCHES, TAGS
     }
     
+    /* References to Alitheia Core services*/
     private TDSService tds;
     private MetricActivator ma;
+    private DBService dbs;
     
     /* Flag set on start up */
     private HandleCopies hc = HandleCopies.BRANCHES;
@@ -148,15 +155,12 @@ final class SourceUpdater extends UpdaterBaseJob {
      * repository.
      *  
      * @param project The project to perform an update on
-     * @param updater The updater instance that runs the update
-     * @param core A reference to the core service
-     * @param logger A preconfigured logger, common to all updaters
+     * 
      * @throws UpdaterException When things go wrong
      */
-    public SourceUpdater() throws UpdaterException {
-        AlitheiaCore core = AlitheiaCore.getInstance();
-        this.tds = core.getTDSService();
-        this.ma = core.getMetricActivator();
+    public SVNUpdater(StoredProject project) throws UpdaterException {
+        this.tds = AlitheiaCore.getInstance().getTDSService();
+        this.ma = AlitheiaCore.getInstance().getMetricActivator();
     }
 
     public int priority() {
@@ -1086,13 +1090,14 @@ final class SourceUpdater extends UpdaterBaseJob {
     }
     
     @Override
-    public Job getJob() {
-        return this;
-    }
-    
-    @Override
     public String toString() {
         return "SourceUpdaterJob - Project:{" + project +"}";
+    }
+
+    @Override
+    public Job getJob() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
 

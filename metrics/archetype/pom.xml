@@ -9,7 +9,7 @@
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>archetype</artifactId>
   <version>1.0</version>
-  <name>Alitheia Core plug-in archetype</name>
+  <name>Alitheia Core metric archetype</name>
   <url>http://www.sqo-oss.org</url>
   
 </project>

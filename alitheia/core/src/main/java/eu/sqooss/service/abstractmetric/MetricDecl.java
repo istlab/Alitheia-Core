@@ -44,7 +44,7 @@ import eu.sqooss.service.db.DAObject;
  * At compile time, the annotation is used to check whether a run() and
  * getResult() methods have been defined for each different activation type. At
  * runtime, it is used to automatically get metric declarations from the
- * annotated plugin. 
+ * annotated metric plug-in. 
  *  
  * @author Georgios Gousios <gousiosg@gmail.com>
  * @see eu.sqooss.service.abstractmetric.MetricDeclarations

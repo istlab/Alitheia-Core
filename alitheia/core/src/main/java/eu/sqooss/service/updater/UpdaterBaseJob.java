@@ -31,14 +31,14 @@
  *
  */
 
-package eu.sqooss.impl.service.updater;
+package eu.sqooss.service.updater;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.updater.UpdaterJob;
 
 /**
  * A base class for all updater jobs. Just a placeholder for some variables
@@ -47,7 +47,7 @@ import eu.sqooss.service.updater.UpdaterJob;
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
-public abstract class UpdaterBaseJob extends Job implements UpdaterJob {
+public abstract class UpdaterBaseJob extends Job implements MetadataUpdater {
 
     protected Logger logger;
     protected DBService dbs;

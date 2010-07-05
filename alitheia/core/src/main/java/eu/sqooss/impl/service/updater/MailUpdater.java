@@ -59,6 +59,7 @@ import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
+import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.updater.UpdaterException;
 
 /**

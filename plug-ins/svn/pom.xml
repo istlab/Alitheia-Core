@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>plugins</artifactId>
+    <groupId>eu.sqooss</groupId>
+    <version>0.95</version>
+  </parent>
+  <groupId>eu.sqooss.plugins</groupId>
+  <artifactId>svn</artifactId>
+  <version>0.95</version>
+  <packaging>bundle</packaging>
+  <name>Alitheia Core Subversion plugin</name>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Export-Package>eu.sqooss.plugins.svn</Export-Package>
+            <Bundle-Activator>eu.sqooss.plugins.svn.Activator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.plugins.svn</Bundle-SymbolicName>
+            <Bundle-Version>1.0</Bundle-Version>
+            <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
+            <Bundle-Description>Alitheia Core Subversion Plug-in</Bundle-Description>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.95</version>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>

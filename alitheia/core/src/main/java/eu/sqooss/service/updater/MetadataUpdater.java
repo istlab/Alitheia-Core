@@ -42,13 +42,13 @@ import eu.sqooss.service.scheduler.Job;
  *  
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
-public interface UpdaterJob {
+public interface MetadataUpdater {
     /**
      * Updater jobs are by convention initialized with an empty constructor.
      * This method sets the parameters to be used by the job. 
      */
     public void setUpdateParams(StoredProject sp, Logger l);
-    
+
     /**
      * Get a Job compatible object to use for scheduling. Usually, the 
      * implementations of this interface will just <code>return this;</code>
