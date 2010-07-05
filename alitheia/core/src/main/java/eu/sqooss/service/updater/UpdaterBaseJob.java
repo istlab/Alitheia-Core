@@ -47,7 +47,7 @@ import eu.sqooss.service.scheduler.Job;
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
-public abstract class UpdaterBaseJob extends Job implements MetadataUpdater {
+public abstract class UpdaterBaseJob extends Job {
 
     protected Logger logger;
     protected DBService dbs;

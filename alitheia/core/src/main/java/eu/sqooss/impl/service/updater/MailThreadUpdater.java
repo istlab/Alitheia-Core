@@ -48,7 +48,6 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.MailAccessor;
-import eu.sqooss.service.updater.UpdaterException;
 
 /**
  * Job that organises emails in threads. Should be started each time a 
@@ -65,8 +64,7 @@ public class MailThreadUpdater extends Job {
     private DBService dbs;
     private MailAccessor mailAccessor;
        
-    public MailThreadUpdater(MailingList ml, Logger l)
-            throws UpdaterException {
+    public MailThreadUpdater(MailingList ml, Logger l) {
         this.ml = ml;
         this.logger = l;
         this.projectName = ml.getStoredProject().getName();

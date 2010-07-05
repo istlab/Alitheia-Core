@@ -60,7 +60,6 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.updater.UpdaterBaseJob;
-import eu.sqooss.service.updater.UpdaterException;
 
 /**
  * Synchronises raw mails with the database.
@@ -74,7 +73,7 @@ class MailUpdater extends UpdaterBaseJob {
         "d MMM yyyy HH:mm"          //16 March 1998 20:10
     };
     
-    public MailUpdater() throws UpdaterException {
+    public MailUpdater() {
 
     }
 

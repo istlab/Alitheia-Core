@@ -35,7 +35,6 @@ package eu.sqooss.service.updater;
 
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.scheduler.Job;
 
 /**
  * Interface that all jobs managed by the updater service must implement.
@@ -49,10 +48,8 @@ public interface MetadataUpdater {
      */
     public void setUpdateParams(StoredProject sp, Logger l);
 
-    /**
-     * Get a Job compatible object to use for scheduling. Usually, the 
-     * implementations of this interface will just <code>return this;</code>
-     * but this might not be true in certain cases. 
+    /** 
+     * Excecute the update method to perform metadata synchronisation.
      */
-    public Job getJob();
+    public void update() throws Exception;
 }

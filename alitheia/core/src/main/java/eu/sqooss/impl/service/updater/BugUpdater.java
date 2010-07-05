@@ -60,7 +60,6 @@ import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
 import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
 import eu.sqooss.service.updater.UpdaterBaseJob;
-import eu.sqooss.service.updater.UpdaterException;
 
 /**
  * Bug updater. Reads data from the TDS and updates the bug metadata
@@ -70,7 +69,7 @@ public class BugUpdater extends UpdaterBaseJob {
 
     private BTSAccessor bts;
     
-    public BugUpdater() throws UpdaterException {}
+    public BugUpdater() {}
 
     public int priority() {
         return 0x1;

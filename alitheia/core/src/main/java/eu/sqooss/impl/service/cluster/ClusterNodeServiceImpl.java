@@ -379,17 +379,6 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
 
                      // check if project is currently being updated
                      // yes/no/unknown, (unknown means that this project is assigned to another clusternode instance)                    
-                     bcontent.append(" isUpdating=\"");
-                     if (node.getId()==thisNode.getId()) {
-                         if (upds.isUpdateRunning(project, UpdateTarget.ALL)) {
-                             bcontent.append("yes\"");
-                         } else {
-                             bcontent.append("no\"");
-                         }
-                     } else {
-                         bcontent.append("unknown\""); 
-                     }
-                     
                      bcontent.append(">" + project.getName() + "</project>\n");
                  }
              }

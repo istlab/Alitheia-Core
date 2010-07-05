@@ -708,20 +708,16 @@ public class ProjectsView extends AbstractView {
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0059") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_REM_PROJECT + "';" + SUBMIT + "\"" + ((selProject != null) ? "" : " disabled") + ">");
         b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
         // Trigger source update
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0061") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_CODE + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
-                selProject, UpdateTarget.CODE) == false))
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0061") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_CODE + "';" + SUBMIT + "\"" + (((selProject != null))
                 ? "" : " disabled") + ">\n");
         // Trigger mailing list update
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0062") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_MAIL + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
-                selProject, UpdateTarget.MAIL) == false))
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0062") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_MAIL + "';" + SUBMIT + "\"" + (((selProject != null))
                 ? "" : " disabled") + ">\n");
         // Trigger bugs list update
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0063") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_BUGS + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
-                selProject, UpdateTarget.BUGS) == false))
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0063") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_BUGS + "';" + SUBMIT + "\"" + (((selProject != null))
                 ? "" : " disabled") + ">\n");
         // Trigger all updates
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0064") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null) && (sobjUpdater.isUpdateRunning(
-                selProject, UpdateTarget.ALL) == false))
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0064") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null))
                 ? "" : " disabled") + ">\n");
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "<td colspan=\"2\" align=\"right\">\n");

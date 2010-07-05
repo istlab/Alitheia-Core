@@ -34,14 +34,11 @@
 package eu.sqooss.impl.service.updater;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -55,23 +52,17 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.cluster.ClusterNodeActionException;
+import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.JobStateListener;
 import eu.sqooss.service.scheduler.SchedulerException;
-import eu.sqooss.service.scheduler.Job.State;
 import eu.sqooss.service.updater.MetadataUpdater;
-import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
-import eu.sqooss.service.db.ClusterNodeProject;
-import eu.sqooss.service.cluster.ClusterNodeActionException;
-import eu.sqooss.service.cluster.ClusterNodeService;
-
-public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, JobStateListener {
+public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
     private static final long serialVersionUID = 1L;
     private Logger logger = null;
@@ -79,21 +70,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
     private HttpService httpService = null;
     private BundleContext context;
     private DBService dbs = null;
-    
-    /* Maps project-ids to the jobs that have been scheduled for 
-     * each update target*/
-    private ConcurrentMap<Long,Map<UpdateTarget, Job>> scheduledUpdates;
-    
-    /*
-     * Index to speed up searching for entries in the scheduledUpdates
-     * structure when a jobStateChanged event was fired.
-     */
-    private ConcurrentMap<Job, Long> jobsPerProject; 
-    
-    /*
-     * Updater handlers for each update target 
-     */
-    private Map<UpdateTarget, Class<? extends UpdaterBaseJob>> availUpdaters;
     
     /*
      * List of updaters indexed by protocol
@@ -106,23 +82,22 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
     private Map<UpdaterStage, List<Class<?>>> updForStage;
     
     public UpdaterServiceImpl() {  }
-
-    /** {@inheritDoc}}*/
-    public synchronized boolean isUpdateRunning(StoredProject p, UpdateTarget t) {
-        Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());
-        if (m == null) {
-            // Nothing in progress
-            return false;
-        }
+    
+    private List<Class<?>> updTargetToUpdater(StoredProject project, UpdateTarget t) {
+        List<Class<?>> updaters = new ArrayList<Class<?>>();
+        
         if (t == UpdateTarget.ALL) {
-            return !m.keySet().isEmpty();
+            addUpdate(project, UpdateTarget.MAIL);
+            addUpdate(project, UpdateTarget.CODE);
+            addUpdate(project, UpdateTarget.BUGS);
+            addUpdate(project, UpdateTarget.INFERENCE);
+        } else {
+            addUpdate(project, t);
         }
-        if (m.keySet().contains(t)) {
-            return true;
-        }
-        return false;
+        
+        return updaters;
     }
-
+    
     /**
      * Add an update job of the given type for the project. You may not claim
      * ALL as a type of update -- use the individual types.
@@ -139,116 +114,37 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             return false;
         }
         
-        if (t == UpdateTarget.ALL)
-            return false;
-        
-        if (isUpdateRunning(project, t))
-            return true;
-        
-        Class<? extends Job> updater = availUpdaters.get(t);
-        
-        if (updater == null) {
+       List<Class<?>> updaters = updTargetToUpdater(project, t);
+
+        if (updaters.isEmpty()) {
             logger.warn("No updater registered for update target:" + t);
             return false;
         }
         
-        boolean queued_successfully = false;
-        try {
-            //Create update job
-            MetadataUpdater job = (MetadataUpdater) updater.newInstance();
-            job.setUpdateParams(project, logger);
-            //Add it to the current update queue
-            Map<UpdateTarget, Job> m = scheduledUpdates.get(project.getId());
-            
-            if (m == null) {
-                m = new HashMap<UpdateTarget, Job>();
-                scheduledUpdates.put(project.getId(), m);
-            } 
-            m.put(t, job.getJob());
-            jobsPerProject.put(job.getJob(), project.getId());
-            job.getJob().addJobStateListener(this);
-            //Add it to the scheduler queue
-            core.getScheduler().enqueue(job.getJob());
-            queued_successfully = true;
-        } catch (SchedulerException e) {
-            logger.error("The Updater failed to update the repository"
-                    + " metadata for project " + project.getName()
-                    + " Scheduler error: " + e.getMessage());
-        } catch (InstantiationException e) {
-            logger.error("Failed to add update job: " + e.getMessage());
-        } catch (IllegalAccessException e) {
-            logger.error("Failed to add update job: " + e.getMessage());
-        } finally {
-            if (!queued_successfully) {
-                removeUpdater(project, UpdateTarget.CODE);
+        for (Class<?> updater : updaters) {
+            try {
+                // Create update job
+                MetadataUpdater upd = (MetadataUpdater) updater.newInstance();
+                upd.setUpdateParams(project, logger);
+
+                UpdaterJob uj = new UpdaterJob(upd);
+
+                // Add it to the scheduler queue
+                core.getScheduler().enqueue(uj);
+            } catch (SchedulerException e) {
+                logger.error("The Updater failed to update the repository"
+                        + " metadata for project " + project.getName()
+                        + " Scheduler error: " + e.getMessage());
+            } catch (InstantiationException e) {
+                logger.error("Failed to add update job: " + e.getMessage());
+            } catch (IllegalAccessException e) {
+                logger.error("Failed to add update job: " + e.getMessage());
             }
         }
-     
         return true;
     }
-
-    /**
-     * Removes an earlier jobs scheduled through addUpdate(). Multiple calls are
-     * made to release all the claims in the set.
-     * 
-     * @param p project to release claims for
-     * @param t set of targets to release
-     */
-    public synchronized void removeUpdater(StoredProject p, UpdateTarget t) {
-        
-        if (p == null) {
-            logger.warn("Cannot remove an update job for a null project");
-            return;
-        }
-        
-        if (t == UpdateTarget.ALL) {
-            logger.warn("Removing update target ALL is bogus.");
-            return;
-        }
-
-        Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());
-        if (m != null) {
-            Job j = m.remove(t);
-            jobsPerProject.remove(j);
-        }
-    }
     
-    /** 
-     * {@inheritDoc}}
-     * Does some clean up when a job has finished (either by error or normally) 
-     */
-    public synchronized void jobStateChanged(Job j, State newState) {
-        
-        Long projectId = jobsPerProject.get(j);
-        Map<UpdateTarget, Job> updates = scheduledUpdates.get(projectId);
-        UpdateTarget ut = null;
-        for (UpdateTarget t : updates.keySet()) {
-            if (updates.get(t).equals(j)) {
-                ut = t;
-                break;
-            }
-        }
-        
-        if (newState.equals(State.Error) || newState.equals(State.Finished)) {
-            if (ut == null) {
-                logger.error("Update job finished with state "  + newState + 
-                		" but was not scheduled. That's weird...");
-                return;
-            }
-                
-            if (!dbs.isDBSessionActive()) dbs.startDBSession();
-            StoredProject sp = StoredProject.loadDAObyId(projectId, StoredProject.class);
-            removeUpdater(sp, ut);
-            
-            if (newState.equals(State.Error)) {
-                logger.warn(ut + " updater job for project " + sp + 
-                        " did not finish properly");
-            }
-            dbs.commitDBSession();
-        }
-    }
-
-    /**
+   /**
      * Produce a string representation of the set of update targets.
      * @param s set to convert to string
      * @return human-readable string representation
@@ -265,7 +161,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         return msg.trim();
     }
 
-    /** {@inheritDoc}}*/
+    /** {@inheritDoc}*/
     public boolean update(StoredProject project, UpdateTarget target) {
         ClusterNodeService cns = null;
         ClusterNodeProject cnp = null;
@@ -306,25 +202,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
        
     	logger.info("Request to update project:" + project.getName() + " for target: "
                 + target);
-
-        Map<UpdateTarget, Job> m = scheduledUpdates.get(project.getId());
-        if (m != null) {
-            logger.info("Update set is:" + explain(m.keySet()));
-        }
-
-        if (isUpdateRunning(project, target)) {
-            return false;
-        }
-        
-        if (target == UpdateTarget.ALL) {
-            addUpdate(project, UpdateTarget.MAIL);
-            addUpdate(project, UpdateTarget.CODE);
-            addUpdate(project, UpdateTarget.BUGS);
-            addUpdate(project, UpdateTarget.INFERENCE);
-        } else {
-            addUpdate(project, target);
-        }
-
+    
+    	addUpdate(project, target);
+       
         return true;
     }
 
@@ -403,11 +283,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             response.getWriter().println("<updater>");
             response.getWriter().println("<project-id>" + project.getId() + "</project-id>");
             response.getWriter().println("<status>Jobs scheduled</status>");
-            response.getWriter().println("<targets>");
-            for (UpdateTarget i : scheduledUpdates.get(project.getId()).keySet()) {
-                response.getWriter().println("<target>" + i + "</target>");
-            }
-            response.getWriter().println("</targets>");
             response.getWriter().println("</updater>");
             response.getWriter().flush();
         }
@@ -456,37 +331,56 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             return false;
         }
         dbs = core.getDBService();
-
-        jobsPerProject = new ConcurrentHashMap<Job, Long>();
-        scheduledUpdates = new ConcurrentHashMap<Long,Map<UpdateTarget, Job>>(); 
-        
-        availUpdaters = new HashMap<UpdateTarget, Class<? extends UpdaterBaseJob>>();
-        //availUpdaters.put(UpdateTarget.CODE, SourceUpdater.class);
-        availUpdaters.put(UpdateTarget.MAIL, MailUpdater.class);
-        availUpdaters.put(UpdateTarget.BUGS, BugUpdater.class);
-       // availUpdaters.put(UpdateTarget.OHLOH, OhlohUpdater.class);
-       // availUpdaters.put(UpdateTarget.DEVS, DeveloperMatcher.class);
         
         updaters = new HashMap<String, List<Class<?>>>();
-        List<Class<?>> mailupd = new ArrayList<Class<?>>();
-        mailupd.add(MailUpdater.class);
-        updaters.put("maildir", mailupd);
-        
         updForStage = new HashMap<UpdaterService.UpdaterStage, List<Class<?>>>();
-        
-        
+
         logger.info("Succesfully started updater service");
         return true;
 	}
 
+    /** {@inheritDoc} */
     @Override
-    public void registerUpdaterService(String[] protocols, UpdaterStage[] stage, Class<?> clazz) {
+    public void registerUpdaterService(String[] protocols,
+            UpdaterStage[] stages, Class<? extends MetadataUpdater> clazz) {
         
+        String prots = "", stgs = "";
+        
+        for (String proto : protocols) {
+            prots += proto + " ";
+            if (updaters.get(proto) == null)
+                updaters.put(proto, new ArrayList<Class<?>>());
+            updaters.get(proto).add(clazz);
+        }
+        
+        for (UpdaterStage us : stages) {
+            stgs += us + " ";
+            if (updForStage.get(us) == null)
+                updForStage.put(us, new ArrayList<Class<?>>());
+            updForStage.get(us).add(clazz);
+        }
+        logger.info("Registering updater class " + clazz.getCanonicalName() + 
+                " for protocols (" + prots + ") and stages (" + stgs + ")");
     }
 
+    /** {@inheritDoc} */
     @Override
-    public void unregisterUpdaterService(Class<?> clazz) {
-        // TODO Auto-generated method stub
+    public void unregisterUpdaterService(Class<? extends MetadataUpdater> clazz) {
+        for (String proto : updaters.keySet()) {
+            if (updaters.get(proto).contains(clazz)) {
+                updaters.get(proto).remove(clazz);
+                if (updaters.get(proto).size() <= 0)
+                    updaters.remove(proto);
+                break;
+            }
+        }
         
+        for (UpdaterStage us : updForStage.keySet()) {
+            if (updForStage.get(us).contains(clazz)) {
+                updForStage.get(us).remove(clazz);
+                break;
+            }
+        }
+        logger.info("Unregistering updater class " + clazz.getCanonicalName());
     }
 }

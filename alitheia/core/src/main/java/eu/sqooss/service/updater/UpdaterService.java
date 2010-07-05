@@ -35,36 +35,43 @@ package eu.sqooss.service.updater;
 
 import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.tds.TDSService;
 
 /**
- * The updater service is the gateway in Alitheia to tell the system
- * that the raw data available to the system has changed; usually this
- * means new source code revisions, new email messages or new bug reports.
- * The updater offers an HTTP interface to prompt the system. The URL
- * supported by the updater service lives underneath the web administration
- * site (which is localhost:8088 in the default Alitheia installation)
- * as /updater. Which data is updated depends on the value of the GET
- * parameter target; the project name is passed as GET parameter project.
- * The acceptable values of target are taken from the UpdateTarget enum.
- * Sample updater URLs are:
- *
- *  http://localhost:8088/updater?target=ALL&project=kde
- *  http://localhost:8088/updater?target=code&project=postgres
- *
- * Note that target values are not case-sensitive (but they must match the
- * enum names exactly).
- *
- * The rest of the interface contains implementation parts which typically
- * won't be called from code; it would be unusual for an internal part
- * of the system to call the updater, as it is intended as a way to poke
- * the system from the outside.
+ * The updater service is the gateway in Alitheia to tell the system that the
+ * raw data available to the system has changed; usually this means new source
+ * code revisions, new email messages or new bug reports. Updating the metadata
+ * is a two stage process: in the first stage, raw data is parsed and inserted
+ * into the database while in the second stage the metadata is examined to infer
+ * relationships between them.
+ * 
+ * The updater service acts as a registry of available updaters and knows what
+ * updater to call based on the underlying metadata. The service is registration
+ * based, so interested plug-ins must register {@link MetadataUpdater}
+ * implementations for a set of protocols that the updater is capable of
+ * processing. The protocol descriptions must match those exported to the
+ * {@link TDSService}.
+ * 
+ * The updater service can be triggered either through this interface or via a
+ * URL. The URL supported by the updater service lives underneath the web
+ * administration site (which is localhost:8088 in the default Alitheia
+ * installation) as /updater. Which data is updated depends on the value of the
+ * GET parameter target; the project name is passed as GET parameter project.
+ * The acceptable values of target are taken from the UpdateTarget enum. Sample
+ * updater URLs are:
+ * 
+ * http://localhost:8088/updater?target=ALL&project=kde
+ * http://localhost:8088/updater?target=code&project=postgres
+ * 
+ * Note that target values are not case-sensitive (but they must match the enum
+ * names exactly).
+ * 
  */
 public interface UpdaterService extends AlitheiaCoreService {
 
     /**
      * Targets for an update request. These names are used in the updater
      * URLs (case-insensitive) and in the rest of the system code.
-     *
      */
     public enum UpdateTarget {
         /** Request to update source code metadata */
@@ -73,7 +80,7 @@ public interface UpdaterService extends AlitheiaCoreService {
         MAIL,
         /** Request to update bug metadata */
         BUGS,
-        /** Meta-target to update all metadata */
+        /** Meta-target to update all raw metadata */
         ALL,
         /** Meta data inference stage*/
         INFERENCE;
@@ -83,12 +90,15 @@ public interface UpdaterService extends AlitheiaCoreService {
             targets[0] = "CODE";
             targets[1] = "MAIL";
             targets[2] = "BUGS";
-            targets[3] = "ALL";
-            targets[4] = "INFERENCE";
+            targets[3] = "STAGE1";
+            targets[4] = "STAGE2";
             return targets;
         }
     }
     
+    /**
+     * Enum that puts a name on the various updater services.
+     */
     public enum UpdaterStage {
         /** Raw data to metadata (DB) stage*/
         IMPORT,
@@ -98,16 +108,25 @@ public interface UpdaterService extends AlitheiaCoreService {
     }
     
     /**
-     * Register a new metadata updater. 
+     * Register a new metadata updater.
+     * 
+     * @param protocols
+     *            The URL protocols this updater can process, e.g. svn-http,
+     *            git-file
+     * @param stage
+     *            The stages this updater can be activated at.
+     * @param clazz
+     *           The implementation of the updater.
      */
-    void registerUpdaterService(String[] protocols, UpdaterStage[] stage, Class<?> clazz);
+    void registerUpdaterService(String[] protocols, UpdaterStage[] stage, 
+            Class<? extends MetadataUpdater> clazz);
     
     /**
      * Unregister an updater class.
      * 
      * @param clazz The updater to unregister
      */
-    void unregisterUpdaterService(Class<?> clazz);
+    void unregisterUpdaterService(Class<? extends MetadataUpdater> clazz);
     
     /**
      * Inform the updater service that project data has changed. The
@@ -126,16 +145,4 @@ public interface UpdaterService extends AlitheiaCoreService {
      *          as they run asynchronously.
      */
     boolean update(StoredProject project, UpdateTarget target);
-
-    /**
-     * Checks if an update is running for the specified project
-     * on the given resource target.
-     * 
-     * @param project the project DAO
-     * @param target the resource target
-     * 
-     * @return <code>true</code>, if an update is currently running,
-     *   or <code>false</code> otherwise.
-     */
-    boolean isUpdateRunning (StoredProject project, UpdateTarget target);
 }

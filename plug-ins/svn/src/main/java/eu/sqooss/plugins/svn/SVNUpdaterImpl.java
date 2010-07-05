@@ -44,7 +44,6 @@ import org.apache.commons.collections.LRUMap;
 import org.hibernate.QueryException;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
@@ -53,10 +52,10 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.db.StoredProject.ConfigOption;
+import eu.sqooss.service.db.Tag;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
@@ -68,10 +67,16 @@ import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.util.FileUtils;
 
-public class SVNUpdater extends UpdaterBaseJob {
+/**
+ * Update SVN metadata by synchronizing the latest version available to
+ * the metadata database with the latest version available to the 
+ * repository.
+ */
+public class SVNUpdaterImpl implements MetadataUpdater {
     
     private StoredProject project;
     
@@ -86,6 +91,7 @@ public class SVNUpdater extends UpdaterBaseJob {
     private TDSService tds;
     private MetricActivator ma;
     private DBService dbs;
+    private Logger logger;
     
     /* Flag set on start up */
     private HandleCopies hc = HandleCopies.BRANCHES;
@@ -147,32 +153,18 @@ public class SVNUpdater extends UpdaterBaseJob {
         SCMStatusIDs.put("DELETED", ProjectFileState.STATE_DELETED);
         SCMStatusIDs.put("REPLACED", ProjectFileState.STATE_REPLACED);
     }
-    
-    
-    /**
-     * Update SVN metadata by synchronizing the latest version available to
-     * the metadata database with the latest version available to the 
-     * repository.
-     *  
-     * @param project The project to perform an update on
-     * 
-     * @throws UpdaterException When things go wrong
-     */
-    public SVNUpdater(StoredProject project) throws UpdaterException {
+
+    public SVNUpdaterImpl() throws UpdaterException {
         this.tds = AlitheiaCore.getInstance().getTDSService();
         this.ma = AlitheiaCore.getInstance().getMetricActivator();
     }
-
-    public int priority() {
-        return 0x1;
+    
+    public void setUpdateParams(StoredProject sp, Logger l) {
+        this.project = sp;
+        this.logger = l;
     }
 
-    /**
-     * @see eu.sqooss.service.scheduler.Job#run()
-     *
-     * @throws Exception as per the general contract of Job.run()
-     */
-    protected void run() throws Exception {
+    public void update() throws Exception {
         
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
@@ -299,8 +291,8 @@ public class SVNUpdater extends UpdaterBaseJob {
                 dirCache.clear();
 
                 if (!dbs.commitDBSession()) {
-                    warn("Intermediate commit failed, restarting update");
-                    restart();
+                    warn("Intermediate commit failed, failing update");
+                    //restart();
                     return;
                 }
                 dbs.startDBSession();
@@ -947,9 +939,9 @@ public class SVNUpdater extends UpdaterBaseJob {
      	try {
 			dbs.callProcedure("updatelivefiles", arglist, params);
 		} catch (QueryException e) {
-			logger.error("Error calling");
+			err("Error calling stored procedure 'updatelivefiles'");
 		} catch (SQLException e) {
-			logger.error("Error in stored procedure 'updatelivefiles'");
+			err("Error in stored procedure 'updatelivefiles'");
 			e.printStackTrace();
 		}
     }
@@ -1091,13 +1083,27 @@ public class SVNUpdater extends UpdaterBaseJob {
     
     @Override
     public String toString() {
-        return "SourceUpdaterJob - Project:{" + project +"}";
+        return "SVNUpdater - Project:{" + project +"}";
     }
-
-    @Override
-    public Job getJob() {
-        // TODO Auto-generated method stub
-        return null;
+    
+    /** Convenience method to write warning messages per project */
+    protected void warn(String message) {
+        logger.warn(project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write error messages per project */
+    protected void err(String message) {
+        logger.error(project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write info messages per project */
+    protected void info(String message) {
+        logger.info(project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write debug messages per project */
+    protected void debug(String message) {
+        logger.debug(project.getName() + ":" + message);
     }
 }
 
