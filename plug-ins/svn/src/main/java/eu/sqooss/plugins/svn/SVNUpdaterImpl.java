@@ -68,7 +68,6 @@ import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
-import eu.sqooss.service.updater.UpdaterException;
 import eu.sqooss.service.util.FileUtils;
 
 /**
@@ -154,12 +153,11 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         SCMStatusIDs.put("REPLACED", ProjectFileState.STATE_REPLACED);
     }
 
-    public SVNUpdaterImpl() throws UpdaterException {
-        this.tds = AlitheiaCore.getInstance().getTDSService();
-        this.ma = AlitheiaCore.getInstance().getMetricActivator();
-    }
+    public SVNUpdaterImpl() { }
     
     public void setUpdateParams(StoredProject sp, Logger l) {
+        this.tds = AlitheiaCore.getInstance().getTDSService();
+        this.ma = AlitheiaCore.getInstance().getMetricActivator();
         this.project = sp;
         this.logger = l;
     }

@@ -357,7 +357,7 @@ public class WebAdminRenderer  extends AbstractView {
         vc.put("RESULTS", "<p>New project added successfully.</p>"
                 + returnToList);
         
-        sobjUpdater.update(sp, UpdaterService.UpdateTarget.ALL);
+        sobjUpdater.update(sp, UpdaterService.UpdateTarget.STAGE1);
     }
     
     private void projectFailed (String project, String error, String reason) {

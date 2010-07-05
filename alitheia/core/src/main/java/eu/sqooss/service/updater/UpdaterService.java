@@ -81,9 +81,9 @@ public interface UpdaterService extends AlitheiaCoreService {
         /** Request to update bug metadata */
         BUGS,
         /** Meta-target to update all raw metadata */
-        ALL,
+        STAGE1,
         /** Meta data inference stage*/
-        INFERENCE;
+        STAGE2;
         
         public static String[] toStringArray() {
             String[] targets = new String[6];

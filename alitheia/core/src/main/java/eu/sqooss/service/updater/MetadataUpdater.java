@@ -38,7 +38,8 @@ import eu.sqooss.service.logging.Logger;
 
 /**
  * Interface that all jobs managed by the updater service must implement.
- *  
+ * Classes implementing this interface much include a no parameter constructor.
+ * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
 public interface MetadataUpdater {

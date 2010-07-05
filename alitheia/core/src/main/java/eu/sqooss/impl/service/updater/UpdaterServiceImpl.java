@@ -34,6 +34,7 @@
 package eu.sqooss.impl.service.updater;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,9 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.tds.InvalidAccessorException;
+import eu.sqooss.service.tds.ProjectAccessor;
+import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.UpdaterService;
 
@@ -81,21 +85,35 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
      */
     private Map<UpdaterStage, List<Class<?>>> updForStage;
     
-    public UpdaterServiceImpl() {  }
-    
     private List<Class<?>> updTargetToUpdater(StoredProject project, UpdateTarget t) {
-        List<Class<?>> updaters = new ArrayList<Class<?>>();
+        List<Class<?>> upds = new ArrayList<Class<?>>();
+        TDSService tds = AlitheiaCore.getInstance().getTDSService();
+        ProjectAccessor pa = tds.getAccessor(project.getId());
         
-        if (t == UpdateTarget.ALL) {
-            addUpdate(project, UpdateTarget.MAIL);
-            addUpdate(project, UpdateTarget.CODE);
-            addUpdate(project, UpdateTarget.BUGS);
-            addUpdate(project, UpdateTarget.INFERENCE);
-        } else {
-            addUpdate(project, t);
+        if (t.equals(UpdateTarget.BUGS) || t.equals(UpdateTarget.STAGE1)) {
+            try {
+                List<URI> schemes = pa.getBTSAccessor().getSupportedURLSchemes();
+                for (URI uri : schemes) {
+                    if (updaters.containsKey(uri.getScheme()) ||
+                            updaters.containsKey(uri.getScheme().substring(
+                                    0, uri.getScheme().indexOf(':')))){
+                        upds.addAll(updaters.get(uri.getScheme()));
+                    }
+                }
+                
+            } catch (InvalidAccessorException e) {
+                logger.warn("Project " + project + 
+                        " does not include a BTS accessor: " + e.getMessage());
+            }
+        } else if (t.equals(UpdateTarget.MAIL) || t.equals(UpdateTarget.STAGE1)) {
+            
+        } else if (t.equals(UpdateTarget.CODE) || t.equals(UpdateTarget.STAGE1)) {
+        
+        } else if (t.equals(UpdateTarget.STAGE2)) {
+            
         }
         
-        return updaters;
+        return upds;
     }
     
     /**
@@ -107,7 +125,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
      * @return true if the claim succeeds or if an update is already running 
      * for this update target, false otherwise
      */
-    private synchronized boolean addUpdate(StoredProject project, UpdateTarget t) {
+    private boolean addUpdate(StoredProject project, UpdateTarget t) {
         
         if (t == null) {
             logger.warn("Updater target is null");
@@ -140,6 +158,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             } catch (IllegalAccessException e) {
                 logger.error("Failed to add update job: " + e.getMessage());
             }
+            logger.debug("");
         }
         return true;
     }

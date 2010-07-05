@@ -282,7 +282,7 @@ public class ProjectsView extends AbstractView {
         sobjLogger.info("Added a new project <" + name + "> with ID "
                 + sp.getId());
         
-        sobjUpdater.update(sp, UpdaterService.UpdateTarget.ALL);
+        sobjUpdater.update(sp, UpdaterService.UpdateTarget.STAGE1);
         
         return sp;
     }
@@ -345,7 +345,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, UpdateTarget.ALL) == false) {
+		if (sobjUpdater.update(selProject, UpdateTarget.STAGE1) == false) {
 			e.append(sp(indent)).append(getErr("e0036 ")).append(
 					getMsg("try_again")).append("<br/>\n");
 		}
