@@ -51,13 +51,13 @@ import javax.xml.bind.annotation.XmlRootElement;
  * specific mail message, as stored in the database
  */
 @Entity
-@Table(name="MAILMESSAGE")
+@Table(name="MAILMESSAGE_MEASUREMENT")
 @XmlRootElement(name="mlmsg-measurement")
 public class MailMessageMeasurement extends MetricMeasurement {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "ML_THREAD_MEASUREMENT_ID")
+    @Column(name = "MAILMESSAGE_MEASUREMENT_ID")
     @XmlElement(name = "id")
 	private long id; 
 	

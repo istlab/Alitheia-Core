@@ -65,7 +65,7 @@ public class MailingListThreadMeasurement extends MetricMeasurement {
      * The thread against which the measurement was made
      */
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "THREAD_ID", referencedColumnName = "MAILING_LIST_ID")
+    @JoinColumn(name = "THREAD_ID", referencedColumnName = "MLTHREAD_ID")
     private MailingListThread thread;
 
     public MailingListThreadMeasurement() {

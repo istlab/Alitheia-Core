@@ -112,8 +112,7 @@ public class SVNAccessorImpl implements SCMAccessor {
     }
     
     public List<URI> getSupportedURLSchemes() {
-        return null;
-       // return supportedSchemes;
+        return supportedSchemes;
     }
 
     public void init(URI dataURL, String name) throws AccessorException {

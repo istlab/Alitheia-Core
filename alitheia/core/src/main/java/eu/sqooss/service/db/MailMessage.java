@@ -110,7 +110,7 @@ public class MailMessage extends DAObject {
      * The thread this mail message belongs to.
      */
     @ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="THREAD_ID")
+	@JoinColumn(name="THREAD_ID", referencedColumnName="MLTHREAD_ID")
     private MailingListThread thread;
     
     /**

@@ -156,6 +156,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     public SVNUpdaterImpl() { }
     
     public void setUpdateParams(StoredProject sp, Logger l) {
+        this.dbs = AlitheiaCore.getInstance().getDBService();
         this.tds = AlitheiaCore.getInstance().getTDSService();
         this.ma = AlitheiaCore.getInstance().getMetricActivator();
         this.project = sp;

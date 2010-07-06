@@ -35,8 +35,9 @@ package eu.sqooss.impl.service.updater;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,56 +79,57 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     /*
      * List of updaters indexed by protocol
      */
-    private Map<String, List<Class<?>>> updaters;
+    private Map<String, Set<Class<?>>> updaters;
     
     /*
      * List of updaters indexed by updater stage
      */
-    private Map<UpdaterStage, List<Class<?>>> updForStage;
+    private Map<UpdaterStage, Set<Class<?>>> updForStage;
     
     /**
      * Resolves the updaters to run for a specific project given the update target
      * and the project configuration.
      */
-    private List<Class<?>> updTargetToUpdater(StoredProject project, UpdateTarget t) {
-        List<Class<?>> upds = new ArrayList<Class<?>>();
+    private Set<Class<?>> updTargetToUpdater(StoredProject project, UpdateTarget t) {
+        Set<Class<?>> upds = new HashSet<Class<?>>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
+        Set<URI> schemes = Collections.EMPTY_SET;
         
         if (t.equals(UpdateTarget.BUGS) || t.equals(UpdateTarget.STAGE1)) {
             try {
-                List<URI> schemes = pa.getBTSAccessor().getSupportedURLSchemes();
-                for (URI uri : schemes) {
-                    if (updaters.containsKey(uri.getScheme())) {
-                        upds.addAll(updaters.get(uri.getScheme()));
-                    }
-                }
-                
+                schemes = new HashSet<URI>(pa.getBTSAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
                 logger.warn("Project " + project + 
                         " does not include a BTS accessor: " + e.getMessage());
             }
         } else if (t.equals(UpdateTarget.MAIL) || t.equals(UpdateTarget.STAGE1)) {
-            
+            try {
+                schemes = new HashSet<URI>(pa.getMailAccessor().getSupportedURLSchemes());
+            } catch (InvalidAccessorException e) {
+                logger.warn("Project " + project + 
+                        " does not include a Mail accessor: " + e.getMessage());
+            }
         } else if (t.equals(UpdateTarget.SCM) || t.equals(UpdateTarget.STAGE1)) {
         	try {
-                List<URI> schemes = pa.getSCMAccessor().getSupportedURLSchemes();
-                for (URI uri : schemes) {
-                    if (updaters.containsKey(uri.getScheme())){
-                        upds.addAll(updaters.get(uri.getScheme()));
-                    }
-                }
+                schemes = new HashSet<URI>(pa.getSCMAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
                 logger.warn("Project " + project + 
                         " does not include a SCM accessor: " + e.getMessage());
             }
         } else if (t.equals(UpdateTarget.STAGE2)) {
-            
+            return updForStage.get(UpdateTarget.STAGE2);
+        }
+        
+        for (URI uri : schemes) {
+            if (updaters.containsKey(uri.getScheme())){
+                upds.addAll(updaters.get(uri.getScheme()));
+            }
         }
         
         return upds;
     }
-    
+
     /**
      * Add an update job of the given type for the project. You may not claim
      * ALL as a type of update -- use the individual types.
@@ -144,7 +146,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             return false;
         }
         
-       List<Class<?>> updaters = updTargetToUpdater(project, t);
+       Set<Class<?>> updaters = updTargetToUpdater(project, t);
 
         if (updaters.isEmpty()) {
             logger.warn("No updater registered for update target:" + t);
@@ -175,23 +177,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         return true;
     }
     
-   /**
-     * Produce a string representation of the set of update targets.
-     * @param s set to convert to string
-     * @return human-readable string representation
-     */
-    private String explain(Set<UpdateTarget> s) {
-        if ((s==null) || s.isEmpty()) {
-            return "empty";
-        }
-
-        String msg = "";
-        for (UpdateTarget u : s) {
-            msg = msg + u.toString() + " ";
-        }
-        return msg.trim();
-    }
-
     /** {@inheritDoc}*/
     public boolean update(StoredProject project, UpdateTarget target) {
         ClusterNodeService cns = null;
@@ -363,8 +348,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         }
         dbs = core.getDBService();
         
-        updaters = new HashMap<String, List<Class<?>>>();
-        updForStage = new HashMap<UpdaterService.UpdaterStage, List<Class<?>>>();
+        updaters = new HashMap<String, Set<Class<?>>>();
+        updForStage = new HashMap<UpdaterService.UpdaterStage, Set<Class<?>>>();
 
         logger.info("Succesfully started updater service");
         return true;
@@ -379,12 +364,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         
         for (String proto : protocols) {
             prots += proto + " ";
-
-            if (!proto.contains("://"))
-            	proto += "://";
             
             if (updaters.get(proto) == null)
-                updaters.put(proto, new ArrayList<Class<?>>());
+                updaters.put(proto, new HashSet<Class<?>>());
             	
             updaters.get(proto).add(clazz);
         }
@@ -392,7 +374,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         for (UpdaterStage us : stages) {
             stgs += us + " ";
             if (updForStage.get(us) == null)
-                updForStage.put(us, new ArrayList<Class<?>>());
+                updForStage.put(us, new HashSet<Class<?>>());
             updForStage.get(us).add(clazz);
         }
         logger.info("Registering updater class " + clazz.getCanonicalName() + 

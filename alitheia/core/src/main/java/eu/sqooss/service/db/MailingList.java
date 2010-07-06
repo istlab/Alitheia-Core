@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -86,13 +87,13 @@ public class MailingList extends DAObject {
     /**
      * The set of available messages in this list
      */
-	@OneToMany(mappedBy="list", orphanRemoval=true)
+	@OneToMany(mappedBy="list", orphanRemoval=true, cascade = CascadeType.ALL)
     private Set<MailMessage> messages;
 
     /**
      * The set of threaded discussions in this list
      */
-	@OneToMany(mappedBy="list", orphanRemoval=true)
+	@OneToMany(mappedBy="list", orphanRemoval=true, cascade = CascadeType.ALL)
     private Set<MailingListThread> threads; 
     
     public MailingList() {}

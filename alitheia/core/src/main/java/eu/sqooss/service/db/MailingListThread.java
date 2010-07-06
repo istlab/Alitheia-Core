@@ -75,7 +75,7 @@ public class MailingListThread extends DAObject {
 	
     /** The mailing list this thread belongs to */
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="MAILING_LIST_ID")
+	@JoinColumn(name="MAILING_LIST_ID", referencedColumnName = "MLIST_ID")
     private MailingList list;
 
     /** Flag to identify a thread as a flamewar */
@@ -94,10 +94,7 @@ public class MailingListThread extends DAObject {
      */
 	@OneToMany(mappedBy="thread", orphanRemoval=true)
     private Set<MailMessage> messages;
-    
-	/**
-     * The files changed in this version
-     */
+   
     @OneToMany(fetch=FetchType.LAZY, mappedBy="thread", cascade=CascadeType.ALL)
     private Set<MailingListThreadMeasurement> measurements;
 	
