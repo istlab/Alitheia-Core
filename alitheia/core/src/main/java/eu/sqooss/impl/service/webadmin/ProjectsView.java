@@ -312,7 +312,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerCodeUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, UpdateTarget.CODE) == false) {
+		if (sobjUpdater.update(selProject, UpdateTarget.SCM) == false) {
 			e.append(sp(indent)).append(getErr("e0035")).append(
 					getMsg("try_again")).append("<br/>\n");
 		}

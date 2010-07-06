@@ -138,7 +138,7 @@ public class ProjectFile extends DAObject{
     /**
      * File measurements for this file
      */
-    @OneToMany(mappedBy = "projectFile", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "projectFile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProjectFileMeasurement> measurements;
     
     public ProjectFile() {

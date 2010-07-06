@@ -85,6 +85,10 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
      */
     private Map<UpdaterStage, List<Class<?>>> updForStage;
     
+    /**
+     * Resolves the updaters to run for a specific project given the update target
+     * and the project configuration.
+     */
     private List<Class<?>> updTargetToUpdater(StoredProject project, UpdateTarget t) {
         List<Class<?>> upds = new ArrayList<Class<?>>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
@@ -94,9 +98,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             try {
                 List<URI> schemes = pa.getBTSAccessor().getSupportedURLSchemes();
                 for (URI uri : schemes) {
-                    if (updaters.containsKey(uri.getScheme()) ||
-                            updaters.containsKey(uri.getScheme().substring(
-                                    0, uri.getScheme().indexOf(':')))){
+                    if (updaters.containsKey(uri.getScheme())) {
                         upds.addAll(updaters.get(uri.getScheme()));
                     }
                 }
@@ -107,8 +109,18 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             }
         } else if (t.equals(UpdateTarget.MAIL) || t.equals(UpdateTarget.STAGE1)) {
             
-        } else if (t.equals(UpdateTarget.CODE) || t.equals(UpdateTarget.STAGE1)) {
-        
+        } else if (t.equals(UpdateTarget.SCM) || t.equals(UpdateTarget.STAGE1)) {
+        	try {
+                List<URI> schemes = pa.getSCMAccessor().getSupportedURLSchemes();
+                for (URI uri : schemes) {
+                    if (updaters.containsKey(uri.getScheme())){
+                        upds.addAll(updaters.get(uri.getScheme()));
+                    }
+                }
+            } catch (InvalidAccessorException e) {
+                logger.warn("Project " + project + 
+                        " does not include a SCM accessor: " + e.getMessage());
+            }
         } else if (t.equals(UpdateTarget.STAGE2)) {
             
         }
@@ -367,8 +379,13 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         
         for (String proto : protocols) {
             prots += proto + " ";
+
+            if (!proto.contains("://"))
+            	proto += "://";
+            
             if (updaters.get(proto) == null)
                 updaters.put(proto, new ArrayList<Class<?>>());
+            	
             updaters.get(proto).add(clazz);
         }
         

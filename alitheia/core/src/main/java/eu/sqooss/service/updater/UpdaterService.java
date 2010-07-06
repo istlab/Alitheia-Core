@@ -75,7 +75,7 @@ public interface UpdaterService extends AlitheiaCoreService {
      */
     public enum UpdateTarget {
         /** Request to update source code metadata */
-        CODE,
+        SCM,
         /** Request to update mailing list metadata */
         MAIL,
         /** Request to update bug metadata */

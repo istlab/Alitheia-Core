@@ -150,12 +150,11 @@ public class ProjectVersion extends DAObject {
      */
     @OneToMany(mappedBy="mergeVersion", orphanRemoval=true, cascade=CascadeType.ALL)
     private Set<Branch> merged;
-    
    
     /**
      * The set of measurements available for the given version of the project
      */
-    @OneToMany(mappedBy="projectVersion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="projectVersion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProjectVersionMeasurement> measurements;
     
     /**

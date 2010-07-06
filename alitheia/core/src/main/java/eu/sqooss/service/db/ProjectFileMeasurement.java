@@ -64,7 +64,7 @@ public class ProjectFileMeasurement extends MetricMeasurement {
     /**
      * The metric to which this result belongs
      */
-    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
     private Metric metric;
 
@@ -77,7 +77,7 @@ public class ProjectFileMeasurement extends MetricMeasurement {
     /**
      * The file against which the measurement was made
      */ 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROJECT_FILE_ID", referencedColumnName = "PROJECT_FILE_ID")
     private ProjectFile projectFile;
 

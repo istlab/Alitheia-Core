@@ -33,7 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -60,11 +59,11 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
     @Column(name = "PROJECT_VERSION_MEASUREMENT_ID")
     @XmlElement(name = "id")
 	private long id; 
-	
+
     /**
      * The metric to which this result belongs
      */
-    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
     private Metric metric;
 
@@ -73,12 +72,12 @@ public class ProjectVersionMeasurement extends MetricMeasurement {
      */
     @Column(name="RESULT")
     private String result;
-    
+
 	/**
      * The ProjectVersion to which the instance relates
      */
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "PROJECT_VERSION_ID", referencedColumnName = "PROJECT_VERSION_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROJECT_VERSION_ID")
     private ProjectVersion projectVersion;
 
     public ProjectVersionMeasurement() {
