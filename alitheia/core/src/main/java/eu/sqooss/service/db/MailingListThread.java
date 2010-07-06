@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -50,6 +51,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -63,6 +65,7 @@ import eu.sqooss.core.AlitheiaCore;
  */
 @Entity
 @Table(name="MAILINGLIST_THREAD")
+@XmlRootElement(name="mlthread")
 public class MailingListThread extends DAObject {
 
 	@Id
@@ -92,6 +95,12 @@ public class MailingListThread extends DAObject {
 	@OneToMany(mappedBy="thread", orphanRemoval=true)
     private Set<MailMessage> messages;
     
+	/**
+     * The files changed in this version
+     */
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="thread", cascade=CascadeType.ALL)
+    private Set<MailingListThreadMeasurement> measurements;
+	
     public Set<MailMessage> getMessages() {
         return messages;
     }
@@ -244,4 +253,12 @@ public class MailingListThread extends DAObject {
         
         return mm;
     }
+
+	public void setMeasurements(Set<MailingListThreadMeasurement> measurements) {
+		this.measurements = measurements;
+	}
+
+	public Set<MailingListThreadMeasurement> getMeasurements() {
+		return measurements;
+	}
 }

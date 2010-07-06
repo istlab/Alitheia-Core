@@ -35,24 +35,43 @@ package eu.sqooss.service.db;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Instances of this class represent a measurement made against a
  * specific mailing list thread, as stored in the database
  */
+@Entity
+@Table(name="ML_THREAD_MEASUREMENT")
+@XmlRootElement(name="mlthread-measurement")
 public class MailingListThreadMeasurement extends MetricMeasurement {
-    /**
+
+	@Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ML_THREAD_MEASUREMENT_ID")
+    @XmlElement(name = "id")
+	private long id; 
+
+	/**
      * The thread against which the measurement was made
-     */ 
+     */
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "THREAD_ID", referencedColumnName = "MAILING_LIST_ID")
     private MailingListThread thread;
-    
+
     public MailingListThreadMeasurement() {
         super();
     }
-    
+
     /**
      * The metric to which this result belongs
      */
@@ -65,7 +84,6 @@ public class MailingListThreadMeasurement extends MetricMeasurement {
      */
     @Column(name="RESULT")
     private String result;
-
    
     /**
      * Convenience constructor to avoid having to call three methods
@@ -81,6 +99,14 @@ public class MailingListThreadMeasurement extends MetricMeasurement {
         setThread(mt);
         setResult(value);
     }
+    
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     public MailingListThread getThread() {
         return thread;
@@ -105,5 +131,4 @@ public class MailingListThreadMeasurement extends MetricMeasurement {
     public void setResult(String result) {
         this.result = result;
     }
-
 }

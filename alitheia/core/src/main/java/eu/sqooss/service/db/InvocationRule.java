@@ -35,21 +35,67 @@ package eu.sqooss.service.db;
 
 import java.util.HashMap;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.metricactivator.MetricActivator;
 
+@Entity
+@Table(name="INVOCATION_RULE")
+@XmlRootElement(name="invrule")
 public class InvocationRule extends DAObject {
     private static String DEFAULT_SCOPE = "DEFAULT";
     private static String DEFAULT_ACTION = ActionType.EVAL.toString();
 
-    private Long prevRule = null;
-    private Long nextRule = null;
-    private String scope = null;
-    private String value = null;
-    private String action = null;
-    private StoredProject project = null;
-    private Plugin plugin = null;
-    private MetricType metricType = null;
+    @Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="INVOCATION_RULE_ID")
+	@XmlElement
+	private long id;
+
+	@XmlElement
+	@Column(name="PREV_RULE")
+    private Long prevRule;
+	
+	@XmlElement
+	@Column(name="NEXT_RULE")
+    private Long nextRule;
+	
+	@XmlElement
+	@Column(name="SCOPE")
+    private String scope;
+	
+	@XmlElement
+	@Column(name="VALUE")
+    private String value;
+	
+	@XmlElement
+	@Column(name="ACTION")
+    private String action;
+	
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name="STORED_PROJECT_ID", nullable = true)
+    private StoredProject project;
+	
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name="PLUGIN_ID", nullable = true)
+    private Plugin plugin;
+	
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name="METRIC_TYPE_ID", nullable = true)
+    private MetricType metricType;
 
     public enum ActionType {
         EVAL,
@@ -93,7 +139,15 @@ public class InvocationRule extends DAObject {
                 return null;
         }
     };
+    
+	public long getId() {
+		return id;
+	}
 
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public Long getPrevRule() {
         return prevRule;
     }

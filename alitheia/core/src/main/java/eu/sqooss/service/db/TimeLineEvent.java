@@ -35,17 +35,63 @@ package eu.sqooss.service.db;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * An event in a project's time line.
  */
-
+@Entity
+@Table(name="TIMELINE")
+@XmlRootElement(name="timeline")
 public class TimeLineEvent extends DAObject {
     
+	public enum TimeLineEventType {
+	    BUG, MAIL, SRC;
+	}
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="INVOCATION_RULE_ID")
+	@XmlElement
+	private long id;
+
+	@XmlElement
+	@Column(name="SEQ_NUM")
     private long sequenceNum;
+
+	@XmlElement
+	@Column(name="TIMESTAMP")
     private Date timestamp;
+    
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="STORED_PROJECT_ID")
     private StoredProject project;
+
+	@XmlElement
+	@Column(name="EVENT_ID")
     private long eventId;
+    
+	@XmlElement
+	@Column(name="EVENT_TYPE")
     private TimeLineEventType type;
+    
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     public long getEventId() {
         return eventId;

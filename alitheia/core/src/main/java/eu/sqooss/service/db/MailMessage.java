@@ -37,7 +37,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -46,7 +48,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -56,6 +60,7 @@ import eu.sqooss.core.AlitheiaCore;
  */
 @Entity
 @Table(name="MAILMESSAGE")
+@XmlRootElement(name="mlmsg")
 public class MailMessage extends DAObject {
 	
 	@Id
@@ -68,51 +73,51 @@ public class MailMessage extends DAObject {
      */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="SENDER_ID")
-    Developer sender;
+    private Developer sender;
 
     /**
      * The list to which the email was originally sent
      */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="MLIST_ID")
-    MailingList list;
+    private MailingList list;
 
     /**
      * Unique ID for this message in the database
      */
 	@Column(name="MESSAGEID")
-    String messageId;
+    private String messageId;
 
     /**
      * The subject of the email
      */
 	@Column(name="SUBJECT")
-    String subject;
+    private String subject;
 
     /**
      * The date on which the email was originally sent
      */
 	@Column(name="SEND_DATE")
-    Date sendDate;
+    private Date sendDate;
     
     /**
      * Message file name, to connect to the actual file.
      */
 	@Column(name="FILE_NAME")
-    String fileName;
+    private String fileName;
     
     /**
      * The thread this mail message belongs to.
      */
     @ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="THREAD_ID")
-    MailingListThread thread;
+    private MailingListThread thread;
     
     /**
      * The message's nesting level in the thread it belongs to
      */
     @Column(name="DEPTH")
-    int depth;
+    private int depth;
     
     /**
      * The message that is the immediate parent to this email in the
@@ -120,8 +125,11 @@ public class MailMessage extends DAObject {
      */
     @ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="PARENT_ID")
-    MailMessage parent;
+    private MailMessage parent;
    
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="mail", cascade=CascadeType.ALL)
+    private Set<MailMessageMeasurement> measurements;
+    
     public long getId() {
 		return id;
 	}
@@ -210,6 +218,14 @@ public class MailMessage extends DAObject {
     public void setParent(MailMessage parent) {
         this.parent = parent;
     }
+    
+    public void setMeasurements(Set<MailMessageMeasurement> measurements) {
+		this.measurements = measurements;
+	}
+
+	public Set<MailMessageMeasurement> getMeasurements() {
+		return measurements;
+	}
     
     /**
      * Return a stored mail message based on messageId

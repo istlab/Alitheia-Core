@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -51,7 +50,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -77,8 +75,6 @@ import eu.sqooss.service.db.BugStatus.Status;
 @XmlRootElement(name="project")
 @Entity
 @Table(name="STORED_PROJECT")
-//@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Cacheable
 public class StoredProject extends DAObject {
 
 	/**
@@ -205,8 +201,8 @@ public class StoredProject extends DAObject {
    
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
     private Set<ClusterNodeProject> assignments;
-    
-    @Transient
+
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
 	private Set<TimeLineEvent> timelineEvents;
 	
     public Set<TimeLineEvent> getTimelineEvents() {

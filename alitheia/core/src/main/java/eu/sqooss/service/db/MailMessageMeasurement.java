@@ -35,18 +35,37 @@ package eu.sqooss.service.db;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Instances of this class represent a measurement made against a
  * specific mail message, as stored in the database
  */
+@Entity
+@Table(name="MAILMESSAGE")
+@XmlRootElement(name="mlmsg-measurement")
 public class MailMessageMeasurement extends MetricMeasurement {
-    /**
+	
+	@Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ML_THREAD_MEASUREMENT_ID")
+    @XmlElement(name = "id")
+	private long id; 
+	
+	/**
      * The thread against which the measurement was made
      */ 
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "MAILMESSAGE_ID", referencedColumnName = "MAILMESSAGE_ID")
     private MailMessage mail;
     
     public MailMessageMeasurement() {
@@ -81,6 +100,14 @@ public class MailMessageMeasurement extends MetricMeasurement {
         setResult(value);
     }
 
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public MailMessage getMail() {
         return mail;
     }

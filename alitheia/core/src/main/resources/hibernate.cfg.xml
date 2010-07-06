@@ -33,13 +33,7 @@
         
         <!-- Make sure that the language used in custom queries is 100% QL compatible -->
         <property name="query.jpaql_strict_compliance">false</property>
-        
-        <mapping resource="eu/sqooss/service/db/InvocationRule.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/OhlohDeveloper.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/MailingListThreadMeasurement.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/MailMessageMeasurement.hbm.xml"/>
-        <mapping resource="eu/sqooss/service/db/TimeLineEvent.hbm.xml"/>
-
+       
         <mapping class="eu.sqooss.service.db.Bug" />
         <mapping class="eu.sqooss.service.db.BugStatus" />
         <mapping class="eu.sqooss.service.db.BugReportMessage" />
@@ -69,6 +63,11 @@
         <mapping class="eu.sqooss.service.db.StoredProjectMeasurement"/>
         <mapping class="eu.sqooss.service.db.ProjectVersionMeasurement"/>
         <mapping class="eu.sqooss.service.db.ProjectFileMeasurement"/>
+        <mapping class="eu.sqooss.service.db.MailingListThreadMeasurement"/>
+        <mapping class="eu.sqooss.service.db.MailMessageMeasurement"/>
+        <mapping class="eu.sqooss.service.db.InvocationRule"/>
+        <mapping class="eu.sqooss.service.db.OhlohDeveloper"/>
+        <mapping class="eu.sqooss.service.db.TimeLineEvent"/>
     </session-factory>
 
 </hibernate-configuration>

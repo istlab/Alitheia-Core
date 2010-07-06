@@ -38,6 +38,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -46,18 +55,34 @@ import eu.sqooss.core.AlitheiaCore;
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
+@Entity
+@Table(name="OHLOH_DEVELOPER")
+@XmlRootElement(name="ohdev")
 public class OhlohDeveloper extends DAObject {
-
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="OHLOH_DEV_ID")
+	private long id;
+	
     /** The developer's user name */
+	@XmlElement
+	@Column(name="USERNAME")
     private String uname;
     
     /** A SHA-1 hash of the email the developer registered with*/
+	@XmlElement
+	@Column(name="EMAIL_HASH")
     private String emailHash;
     
     /** The developer's ID in Ohloh*/
+	@XmlElement
+	@Column(name="OHLOH_ID")
     private String ohlohId;
     
     /** The latest update timestamp for this account*/
+	@XmlElement
+	@Column(name="UPDATE_TIMESTAMP")
     private Date timestamp;
 
     public OhlohDeveloper() {}
@@ -69,6 +94,14 @@ public class OhlohDeveloper extends DAObject {
         this.ohlohId = ohlohId;
         this.timestamp = new Date();
     }
+    
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
     
     public Date getTimestamp() {
         return timestamp;
