@@ -63,16 +63,38 @@ public class DataAccessorFactory {
      * @param scheme The URL scheme this implementation supports
      * @param impl The implementing class
      */
-    public synchronized static void addImplementation(URI scheme, Class<?> impl) {
+    public synchronized static void addImplementation(String scheme, 
+            Class<? extends DataAccessor> impl) {
         if (implementations.containsKey(scheme)) {
             log.warn("Overwriting implementation class " 
                     + implementations.get(scheme) + " for scheme " + scheme);
         }
         log.info("Adding handler class " + impl.getName() + " for scheme "
-                + scheme.getScheme());
-        implementations.put(scheme.getScheme(), impl);
+                + scheme);
+        implementations.put(scheme, impl);
     }
     
+    /**
+     * Unregister a TDS implementation class.
+     * @param impl
+     */
+    public synchronized static void removeImplementation(Class<? extends DataAccessor> impl) {
+        String foundKey = null;
+        
+        for (String protocol : implementations.keySet()) {
+            if (implementations.get(protocol).equals(impl)) {
+                foundKey = protocol;
+                break;
+            }
+        }
+        
+        if (foundKey != null) {
+            implementations.remove(foundKey);
+            log.info("Removing handler class " + impl.getName() + " for scheme "
+                    + foundKey);
+        }
+    }
+     
     /**
      * Get a list of all supported URI schemes.
      * @return A, possibly empty, Set of supported URI schemes.

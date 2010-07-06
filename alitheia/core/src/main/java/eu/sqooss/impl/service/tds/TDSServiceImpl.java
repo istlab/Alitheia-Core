@@ -44,6 +44,7 @@ import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.DataAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
 
@@ -165,16 +166,11 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
 
         //Wake up the DataAccessorFactory
         new DataAccessorFactory(logger);
-        DataAccessorFactory.addImplementation(URI.create("bugzilla-xml://www.sqo-oss.org"),
+        DataAccessorFactory.addImplementation("bugzilla-xml",
                 BugzillaXMLParser.class);
-        DataAccessorFactory.addImplementation(URI.create("maildir://www.sqo-oss.org"),
+        DataAccessorFactory.addImplementation("maildir",
                 MailDirAccessor.class);
-        DataAccessorFactory.addImplementation(URI.create("svn://www.sqo-oss.org"),
-                SVNAccessorImpl.class);
-        DataAccessorFactory.addImplementation(URI.create("svn-http://www.sqo-oss.org"),
-                SVNAccessorImpl.class);
-        DataAccessorFactory.addImplementation(URI.create("svn-file://www.sqo-oss.org"),
-                SVNAccessorImpl.class);
+
         //Init accessor store
         accessorPool = new ConcurrentHashMap<Long,ProjectDataAccessorImpl>();
         accessorClaims = new ConcurrentHashMap<ProjectDataAccessorImpl, Integer>();
@@ -189,6 +185,18 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
 	public void setInitParams(BundleContext bc, Logger l) {
 	    this.logger = l;
 	}
+
+    @Override
+    public void registerPlugin(String[] protocols, Class<? extends DataAccessor> clazz) {
+        for (String protocol : protocols) {
+            DataAccessorFactory.addImplementation(protocol, clazz);
+        }
+    }
+
+    @Override
+    public void unregisterPlugin(Class<? extends DataAccessor> clazz) {
+        DataAccessorFactory.removeImplementation(clazz);
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

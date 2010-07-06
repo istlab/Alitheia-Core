@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.plugins.svn;
+package eu.sqooss.plugins.updater.svn;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

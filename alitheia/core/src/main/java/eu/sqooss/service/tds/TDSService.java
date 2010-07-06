@@ -34,6 +34,7 @@
 package eu.sqooss.service.tds;
 
 import eu.sqooss.core.AlitheiaCoreService;
+import eu.sqooss.service.tds.DataAccessor;
 
 /**
  * The TDS service interface provides a way to retrieve and configure project
@@ -133,6 +134,22 @@ public interface TDSService extends AlitheiaCoreService {
      * false otherwise.
      */
     public boolean isURLSupported(String URL);
+    
+    /**
+     * Register a DataAccessor plug-in class. After registration the class 
+     * becomes immediately available to the running system. Plug-ins can
+     * thus register dynamically.
+     * 
+     * @param protocols The protocol that the plug-in supports
+     * @param clazz The class that implements the DataAccessor plug-in
+     */
+    public void registerPlugin(String[] protocols, Class<? extends DataAccessor> clazz);
+    
+    /**
+     * Unregister a previously registered DataAccessor plug-in.
+     * @param clazz
+     */
+    public void unregisterPlugin(Class<? extends DataAccessor> clazz);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

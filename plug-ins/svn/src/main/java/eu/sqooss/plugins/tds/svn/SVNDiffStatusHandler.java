@@ -31,19 +31,19 @@
  *
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.plugins.tds.svn;
 
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.wc.ISVNDiffStatusHandler;
 import org.tmatesoft.svn.core.wc.SVNDiffStatus;
 import org.tmatesoft.svn.core.wc.SVNStatusType;
 
-import eu.sqooss.impl.service.tds.diff.UnifiedDiffParser;
+import eu.sqooss.service.tds.Diff;
 
 public class SVNDiffStatusHandler implements ISVNDiffStatusHandler {
-    private UnifiedDiffParser theDiff;
+    private Diff theDiff;
 
-    public SVNDiffStatusHandler(UnifiedDiffParser d) {
+    public SVNDiffStatusHandler(Diff d) {
         theDiff = d;
     }
 

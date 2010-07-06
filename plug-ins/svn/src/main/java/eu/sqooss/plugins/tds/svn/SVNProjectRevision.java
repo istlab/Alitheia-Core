@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.plugins.tds.svn;
 
 import java.util.Date;
 

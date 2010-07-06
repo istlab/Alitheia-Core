@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.plugins.tds.svn;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -71,13 +71,14 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.tds.diff.UnifiedDiffParser;
+//import eu.sqooss.impl.service.tds.diff.UnifiedDiffParser;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
+import eu.sqooss.service.tds.DiffFactory;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
@@ -766,15 +767,9 @@ public class SVNAccessorImpl implements SCMAccessor {
                 false,
                 diff);
             // Store the diff
-            UnifiedDiffParser theDiff = new UnifiedDiffParser((SVNProjectRevision)r1, 
+            Diff theDiff = DiffFactory.getInstance().doUnifiedDiff((SVNProjectRevision)r1, 
             		(SVNProjectRevision)r2, FileUtils.dirname(repoPath), diff.toString());
-            
-            if (!theDiff.parseDiff()) {
-            	logger.error("Error generating diff: " 
-            			+ theDiff.getError());
-            	return null;
-            }
-
+           
             return theDiff;
         } catch (SVNException e) {
             logger.warn(e.getMessage());
