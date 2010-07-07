@@ -393,6 +393,10 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         String prots = "", stgs = "";
         
         for (String proto : protocols) {
+            //If a plug-in registers its URL scheme with separators
+            if (proto.contains("://"))
+                proto = proto.substring(0, proto.indexOf(":") - 1); 
+                    
             prots += proto + " ";
             
             if (updaters.get(proto) == null)
@@ -457,7 +461,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             jobsPerProject.remove(j);
         }
     }
-    
+
     /** 
      * {@inheritDoc}}
      * Does some clean up when a job has finished (either by error or normally) 
@@ -492,7 +496,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             dbs.commitDBSession();
         }
     }
-    
+
     /** {@inheritDoc}}*/
     public synchronized boolean isUpdateRunning(StoredProject p, UpdateTarget t) {
         Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());

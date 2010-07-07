@@ -13,15 +13,9 @@
   <version>${version}</version>  
   <packaging>bundle</packaging>
 
-  <name> ${groupId}.${artifactId} plugin (${version})</name>
+  <name> ${groupId}.${artifactId} metric (${version})</name>
   
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
@@ -54,7 +48,7 @@
             <Bundle-SymbolicName>${groupId}.${artifactId}</Bundle-SymbolicName>
             <Bundle-Version>${version}</Bundle-Version>
             <Bundle-Vendor>${groupId}</Bundle-Vendor>
-            <Bundle-Description>${groupId}.${artifactId} SQO-OSS plugin</Bundle-Description>
+            <Bundle-Description>${groupId}.${artifactId} Alitheia Core metric</Bundle-Description>
           </instructions>
         </configuration>
       </plugin>

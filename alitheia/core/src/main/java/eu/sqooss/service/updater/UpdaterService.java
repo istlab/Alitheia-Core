@@ -145,4 +145,16 @@ public interface UpdaterService extends AlitheiaCoreService {
      *          as they run asynchronously.
      */
     boolean update(StoredProject project, UpdateTarget target);
+    
+    /**
+     * Checks if an update is running for the specified project
+     * on the given resource target.
+     * 
+     * @param project the project DAO
+     * @param target the resource target
+     * 
+     * @return <code>true</code>, if an update is currently running,
+     *   or <code>false</code> otherwise.
+     */
+    boolean isUpdateRunning(StoredProject p, UpdateTarget t);
 }
