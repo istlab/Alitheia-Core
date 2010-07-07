@@ -38,9 +38,10 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -60,6 +61,9 @@ import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Job.State;
+import eu.sqooss.service.scheduler.JobStateListener;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.ProjectAccessor;
@@ -67,7 +71,7 @@ import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.UpdaterService;
 
-public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
+public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, JobStateListener {
 
     private static final long serialVersionUID = 1L;
     private Logger logger = null;
@@ -84,7 +88,17 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
     /*
      * List of updaters indexed by updater stage
      */
-    private Map<UpdaterStage, Set<Class<?>>> updForStage;
+    private Map<UpdaterStage, Set<Class<?>>> updForStage;    
+    
+    /* Maps project-ids to the jobs that have been scheduled for 
+     * each update target*/
+    private ConcurrentMap<Long,Map<UpdateTarget, Job>> scheduledUpdates;
+    
+    /*
+     * Index to speed up searching for entries in the scheduledUpdates
+     * structure when a jobStateChanged event was fired.
+     */
+    private ConcurrentMap<Job, Long> jobsPerProject; 
     
     /**
      * Resolves the updaters to run for a specific project given the update target
@@ -146,6 +160,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             return false;
         }
         
+        if (isUpdateRunning(project, t))
+            return true;
+        
        Set<Class<?>> updaters = updTargetToUpdater(project, t);
 
         if (updaters.isEmpty()) {
@@ -160,7 +177,18 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
                 upd.setUpdateParams(project, logger);
 
                 UpdaterJob uj = new UpdaterJob(upd);
-
+                uj.addJobStateListener(this);
+                
+                // Add it to the list of running jobs per project
+                Map<UpdateTarget, Job> m = scheduledUpdates.get(project.getId());
+                
+                if (m == null) {
+                    m = new HashMap<UpdateTarget, Job>();
+                    scheduledUpdates.put(project.getId(), m);
+                } 
+                m.put(t, uj);
+                jobsPerProject.put(uj, project.getId());
+                
                 // Add it to the scheduler queue
                 core.getScheduler().enqueue(uj);
             } catch (SchedulerException e) {
@@ -218,7 +246,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
        
     	logger.info("Request to update project:" + project.getName() + " for target: "
                 + target);
-    
+
     	addUpdate(project, target);
        
         return true;
@@ -313,7 +341,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
 
 	@Override
 	public void shutDown() {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -350,7 +378,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
         
         updaters = new HashMap<String, Set<Class<?>>>();
         updForStage = new HashMap<UpdaterService.UpdaterStage, Set<Class<?>>>();
-
+        scheduledUpdates = new ConcurrentHashMap<Long, Map<UpdateTarget,Job>>();
+        jobsPerProject = new ConcurrentHashMap<Job, Long>(); 
+        
         logger.info("Succesfully started updater service");
         return true;
 	}
@@ -400,5 +430,82 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService {
             }
         }
         logger.info("Unregistering updater class " + clazz.getCanonicalName());
+    }
+
+    /**
+     * Removes an earlier jobs scheduled through addUpdate(). Multiple calls are
+     * made to release all the claims in the set.
+     * 
+     * @param p project to release claims for
+     * @param t set of targets to release
+     */
+    public synchronized void removeUpdater(StoredProject p, UpdateTarget t) {
+        
+        if (p == null) {
+            logger.warn("Cannot remove an update job for a null project");
+            return;
+        }
+        
+        if (t == UpdateTarget.STAGE1) {
+            logger.warn("Removing update target STAGE1 is bogus.");
+            return;
+        }
+
+        Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());
+        if (m != null) {
+            Job j = m.remove(t);
+            jobsPerProject.remove(j);
+        }
+    }
+    
+    /** 
+     * {@inheritDoc}}
+     * Does some clean up when a job has finished (either by error or normally) 
+     */
+    public synchronized void jobStateChanged(Job j, State newState) {
+        
+        Long projectId = jobsPerProject.get(j);
+        Map<UpdateTarget, Job> updates = scheduledUpdates.get(projectId);
+        UpdateTarget ut = null;
+        for (UpdateTarget t : updates.keySet()) {
+            if (updates.get(t).equals(j)) {
+                ut = t;
+                break;
+            }
+        }
+        
+        if (newState.equals(State.Error) || newState.equals(State.Finished)) {
+            if (ut == null) {
+                logger.error("Update job finished with state "  + newState + 
+                        " but was not scheduled. That's weird...");
+                return;
+            }
+                
+            if (!dbs.isDBSessionActive()) dbs.startDBSession();
+            StoredProject sp = StoredProject.loadDAObyId(projectId, StoredProject.class);
+            removeUpdater(sp, ut);
+            
+            if (newState.equals(State.Error)) {
+                logger.warn(ut + " updater job for project " + sp + 
+                        " did not finish properly");
+            }
+            dbs.commitDBSession();
+        }
+    }
+    
+    /** {@inheritDoc}}*/
+    public synchronized boolean isUpdateRunning(StoredProject p, UpdateTarget t) {
+        Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());
+        if (m == null) {
+            // Nothing in progress
+            return false;
+        }
+        if (t == UpdateTarget.STAGE1) {
+            return !m.keySet().isEmpty();
+        }
+        if (m.keySet().contains(t)) {
+            return true;
+        }
+        return false;
     }
 }
