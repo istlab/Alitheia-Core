@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype>
+  <id>ac-plugin-archetype</id>
+  <sources>
+      <source>src/main/java/SkelAccessor.java</source>
+      <source>src/main/java/SkelUpdater.java</source>
+      <source>src/main/java/Activator.java</source>
+  </sources>
+  <resources>
+    
+  </resources>
+</archetype>

@@ -17,6 +17,7 @@
 
   <modules>
     <module>svn</module>
+    <module>archetype</module>
   </modules>
 
 </project>
