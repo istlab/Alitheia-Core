@@ -1,12 +1,12 @@
-Creating a new plug-in
------------------------
+Creating a new metric 
+---------------------
 
 1. Use the provided maven archetype
 
 mvn archetype:generate 
     -DgroupId=your.package
-    -DartifactId=pluginname
-    -Dversion=0.x   (replace x with your plug-in's version)
+    -DartifactId=metricname
+    -Dversion=0.x   (replace x with your metrics version)
     -Dpackage=your.package.pluginname 
     -DarchetypeGroupId=eu.sqooss.metrics 
     -DarchetypeArtifactId=archetype 

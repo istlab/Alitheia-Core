@@ -9,8 +9,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.plugins.SkelAccessor;
-import eu.sqooss.plugins.SkelUpdater;
+import ${groupId}.${artifactId}.SkelAccessor;
+import ${groupId}.${artifactId}.SkelUpdater;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;

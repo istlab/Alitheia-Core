@@ -8,11 +8,13 @@ package ${groupId}.${artifactId};
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
 
+import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
@@ -44,6 +46,19 @@ import eu.sqooss.service.tds.SCMNodeType;
  */ 
 public class SkelAccessor implements SCMAccessor {
     
+	@Override
+	public String getName() {
+		return null;
+	}
+
+	@Override
+	public List<URI> getSupportedURLSchemes() {
+		return null;
+	}
+
+	@Override
+	public void init(URI dataURL, String projectName) throws AccessorException {}		
+	
     public Revision newRevision(Date d) {return null;}
     
     public Revision newRevision(String uniqueId) {return null;}
