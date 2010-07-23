@@ -19,6 +19,8 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Embed-Dependency>*;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium</Embed-Dependency>
+            <Import-Package>*;resolution:=optional</Import-Package>
             <Export-Package>eu.sqooss.plugins.tds.svn, eu.sqooss.plugins.updater.svn</Export-Package>
             <Bundle-Activator>eu.sqooss.plugins.svn.Activator</Bundle-Activator>
             <Bundle-SymbolicName>eu.sqooss.plugins.svn</Bundle-SymbolicName>

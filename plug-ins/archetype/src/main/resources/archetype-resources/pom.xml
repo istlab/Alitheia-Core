@@ -43,6 +43,8 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Embed-Dependency>*;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium</Embed-Dependency>
++           <Import-Package>*;resolution:=optional</Import-Package>
             <Export-Package>${groupId}.${artifactId}</Export-Package>
             <Bundle-Activator>${groupId}.${artifactId}.Activator</Bundle-Activator>
             <Bundle-SymbolicName>${groupId}.${artifactId}</Bundle-SymbolicName>

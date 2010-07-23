@@ -16,7 +16,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>org.tmatesoft.svnkit</module>
+    <!--<module>org.tmatesoft.svnkit</module>-->
     <module>org.apache.velocity</module>
     <module>javax.servlet.api</module>
     <module>dom4j</module>
