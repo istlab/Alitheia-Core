@@ -19,13 +19,13 @@
     <!--<module>org.tmatesoft.svnkit</module>-->
     <module>org.apache.velocity</module>
     <module>javax.servlet.api</module>
-    <module>dom4j</module>
     <module>javax.mail</module>
     <module>commons-codec</module>
     <module>mysql-connector-java</module>
     <module>org.hibernate.core</module>
     <module>log4j</module>
     <module>hsqldb</module>
+    <module>dom4j</module>
   </modules>
 
   <build>

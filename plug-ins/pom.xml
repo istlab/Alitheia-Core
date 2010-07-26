@@ -18,6 +18,7 @@
   <modules>
     <module>svn</module>
     <module>archetype</module>
+    <module>bugzilla</module>
   </modules>
 
 </project>

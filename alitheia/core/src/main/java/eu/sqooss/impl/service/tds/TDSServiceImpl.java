@@ -166,8 +166,6 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
 
         //Wake up the DataAccessorFactory
         new DataAccessorFactory(logger);
-        DataAccessorFactory.addImplementation("bugzilla-xml",
-                BugzillaXMLParser.class);
         DataAccessorFactory.addImplementation("maildir",
                 MailDirAccessor.class);
 

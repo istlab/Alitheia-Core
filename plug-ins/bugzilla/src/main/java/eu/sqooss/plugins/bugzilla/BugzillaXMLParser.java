@@ -31,7 +31,7 @@
  * 
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.plugins.bugzilla;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -81,7 +81,7 @@ public class BugzillaXMLParser implements BTSAccessor {
     
     static {
         supportedSchemes = new ArrayList<URI>();
-        supportedSchemes.add(URI.create("bugzillaxml://www.sqo-oss.org"));
+        supportedSchemes.add(URI.create("bugzilla-xml://www.sqo-oss.org"));
     }
     
     /** {@inheritDoc} */

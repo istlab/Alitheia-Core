@@ -15,7 +15,6 @@ Import-Package: javax.transaction;version=1.1,\
     com.sun.source.*;resolution:=optional,\
     org.apache.commons.codec.binary,\
     org.apache.commons.codec.digest,\
-    org.apache.commons.collections,\
     org.apache.commons.codec.language,\
     org.apache.derby.jdbc;resolution:=optional,\
     org.apache.log4j,\

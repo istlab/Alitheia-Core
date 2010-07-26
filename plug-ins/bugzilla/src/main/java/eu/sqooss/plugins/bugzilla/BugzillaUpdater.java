@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service.updater;
+package eu.sqooss.plugins.bugzilla;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -39,7 +39,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
@@ -48,34 +47,42 @@ import eu.sqooss.service.db.BugReportMessage;
 import eu.sqooss.service.db.BugResolution;
 import eu.sqooss.service.db.BugSeverity;
 import eu.sqooss.service.db.BugStatus;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.BugPriority.Priority;
 import eu.sqooss.service.db.BugResolution.Resolution;
 import eu.sqooss.service.db.BugSeverity.Severity;
 import eu.sqooss.service.db.BugStatus.Status;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
 import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
-import eu.sqooss.service.updater.UpdaterBaseJob;
+import eu.sqooss.service.updater.MetadataUpdater;
 
 /**
  * Bug updater. Reads data from the TDS and updates the bug metadata
  * database. 
  */
-public class BugUpdater extends UpdaterBaseJob {
+public class BugzillaUpdater implements MetadataUpdater {
 
     private BTSAccessor bts;
+    private StoredProject project;
+    private Logger logger;
+    private DBService dbs;
     
-    public BugUpdater() {}
+    public BugzillaUpdater() {}
 
-    public int priority() {
-        return 0x1;
-    }
+	@Override
+	public void setUpdateParams(StoredProject project, Logger log) {
+		this.project = project;
+		this.logger = log;
+		this.dbs = AlitheiaCore.getInstance().getDBService();
+	}
 
-    protected void run() throws Exception {
+	@Override
+    public void update() throws Exception {
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
         //Get latest updated date
@@ -228,12 +235,7 @@ public class BugUpdater extends UpdaterBaseJob {
     }
     
     @Override
-    public Job getJob() {
-        return this;
-    }
-    
-    @Override
     public String toString() {
-        return "BugUpdaterJob - Project:{" + project +"}";
+        return "BugzilaUpdater - Project:{" + project +"}";
     }
 }
