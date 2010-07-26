@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service.tds;
+package eu.sqooss.plugins.maildir;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -110,8 +110,7 @@ public class MailDirAccessor implements MailAccessor {
         supportedSchemes.add(URI.create("maildir://www.sqo-oss.org"));
     }
     
-    MailDirAccessor() {
-    }
+    public MailDirAccessor() {}
 
     public List<URI> getSupportedURLSchemes() {
         return supportedSchemes;

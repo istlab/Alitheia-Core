@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service.updater;
+package eu.sqooss.plugins.maildir;
 
 import java.io.FileNotFoundException;
 import java.text.DateFormat;
@@ -51,21 +51,27 @@ import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
-import eu.sqooss.service.updater.UpdaterBaseJob;
+import eu.sqooss.service.updater.MetadataUpdater;
 
 /**
  * Synchronises raw mails with the database.
  */
-class MailUpdater extends UpdaterBaseJob {
-       
+public class MailDirUpdater implements MetadataUpdater {
+
+	private DBService dbs;
+	private StoredProject project;
+	private Logger logger;
+	
     private static String[] dateFmts = {
         "EEE MMM d HH:mm:ss yyyy",  //Fri Dec  5 12:50:00 2003
         "d MMM yyyy HH:mm:ss Z",    //28 Nov 2000 18:26:25 -0500
@@ -73,15 +79,17 @@ class MailUpdater extends UpdaterBaseJob {
         "d MMM yyyy HH:mm"          //16 March 1998 20:10
     };
     
-    public MailUpdater() {
+    public MailDirUpdater() {}
+    
+    @Override
+	public void setUpdateParams(StoredProject arg0, Logger arg1) {
+    	project = arg0;
+    	logger = arg1;
+		this.dbs = AlitheiaCore.getInstance().getDBService();	
+	}
 
-    }
-
-    public int priority() {
-        return 0x1;
-    }
-
-    protected void run() throws Exception {
+	@Override
+	public void update() throws Exception {
 
         ProjectAccessor spAccessor = AlitheiaCore.getInstance().getTDSService().getAccessor(project.getId());
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
@@ -151,11 +159,6 @@ class MailUpdater extends UpdaterBaseJob {
     }
     
     @Override
-    public Job getJob() {
-        return this;
-    }
-    
-    @Override
     public String toString() {
         return "MailUpdaterJob - Project:{" + project + "}";
     }
@@ -192,9 +195,9 @@ class MailUpdater extends UpdaterBaseJob {
             processList(mailAccessor, ml);
             dbs.startDBSession();
             ml = dbs.attachObjectToDBSession(ml);
-            MailThreadUpdater mtu = new MailThreadUpdater(ml, logger);
-            AlitheiaCore.getInstance().getScheduler().enqueue(mtu);
-            info("Added thread update job for " + ml);
+            //MailThreadUpdater mtu = new MailThreadUpdater(ml, logger);
+            //AlitheiaCore.getInstance().getScheduler().enqueue(mtu);
+            //info("Added thread update job for " + ml);
 
             ma.syncMetrics(project, MailMessage.class);
             ma.syncMetrics(project, Developer.class);
@@ -381,6 +384,26 @@ class MailUpdater extends UpdaterBaseJob {
             }
             return d;
         }
+    }
+    
+    /** Convenience method to write warning messages per project */
+    protected void warn(String message) {
+        logger.warn(project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write error messages per project */
+    protected void err(String message) {
+        logger.error(project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write info messages per project */
+    protected void info(String message) {
+        logger.info(project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write debug messages per project */
+    protected void debug(String message) {
+        logger.debug(project.getName() + ":" + message);
     }
 }
 
