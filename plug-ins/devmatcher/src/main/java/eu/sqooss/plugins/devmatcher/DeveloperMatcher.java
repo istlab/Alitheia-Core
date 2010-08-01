@@ -1,7 +1,4 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
  * Copyright 2009 - 2010 - Organization for Free and Open Source Software,  
  *                 Athens, Greece.
  *
@@ -30,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.impl.service.updater;
+package eu.sqooss.plugins.devmatcher;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +39,10 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.DeveloperAlias;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.util.Pair;
 
@@ -56,9 +56,12 @@ import org.apache.commons.codec.language.DoubleMetaphone;
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
-public class DeveloperMatcher extends UpdaterBaseJob {
+public class DeveloperMatcher implements MetadataUpdater {
 
+    private StoredProject project;
     private DBService dbs;
+    private Logger logger;
+    private float progress;
     
     private Map<String, Developer> emailToDev = new TreeMap<String, Developer>();
     private Map<String, Developer> unameToDev = new TreeMap<String, Developer>();
@@ -74,12 +77,18 @@ public class DeveloperMatcher extends UpdaterBaseJob {
     }
     
     @Override
-    public int priority() {
-        return 3;
+    public int progress() {
+        return (int) progress;
     }
 
     @Override
-    protected void run() throws Exception {
+    public void setUpdateParams(StoredProject arg0, Logger arg1) {
+        this.project = arg0;
+        this.logger = arg1;
+    }
+
+    @Override
+    public void update() throws Exception {
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
         DoubleMetaphone dm = new DoubleMetaphone();
@@ -106,7 +115,7 @@ public class DeveloperMatcher extends UpdaterBaseJob {
                 nameToDev.put(d.getName().toLowerCase(), d);
             }
         }
-        
+        progress = 30;
         for (String name : nameToDev.keySet()) {
             List<String> usernames = getPossibleUnames(name);
             for (String uname : usernames) {
@@ -152,7 +161,7 @@ public class DeveloperMatcher extends UpdaterBaseJob {
                 }*/
             }
         }
-        
+        progress = 60;
         List<String> updates = new ArrayList<String>(); 
         updates.add("update ProjectVersion set committer = :new where committer = :old");
         updates.add("update MailMessage set sender = :new where sender = :old");
@@ -201,6 +210,7 @@ public class DeveloperMatcher extends UpdaterBaseJob {
         info("Matched " + matches.size() + " developers in " 
                 + (System.currentTimeMillis() - ts) + "ms");
         dbs.commitDBSession();
+        progress = 100;
     }
     
     /*
@@ -392,12 +402,17 @@ public class DeveloperMatcher extends UpdaterBaseJob {
     }
     
     @Override
-    public Job getJob() {
-        return this;
-    }
-    
-    @Override
     public String toString() {
         return "Developer Updater - Project:" + project;
+    }
+    
+    /** Convenience method to write info messages per project */
+    protected void info(String message) {
+        logger.info(project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write debug messages per project */
+    protected void debug(String message) {
+        logger.debug(project.getName() + ":" + message);
     }
 }

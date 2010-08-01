@@ -21,6 +21,7 @@
     <module>bugzilla</module>
     <module>maildir</module>
     <module>mailthreadresolver</module>
+    <module>devmatcher</module>
   </modules>
 
 </project>

@@ -41,6 +41,14 @@ public class SkelUpdater implements MetadataUpdater {
     public void update() throws Exception {
         
     }
+    
+    /**
+     * This method should return a sensible representation of progress. 
+     */
+    @Override
+    public int progress() {
+        return 0;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
