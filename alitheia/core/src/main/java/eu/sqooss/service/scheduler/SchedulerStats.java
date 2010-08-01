@@ -33,9 +33,12 @@
 
 package eu.sqooss.service.scheduler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
+
+import org.apache.commons.collections.list.SynchronizedList;
 
 public class SchedulerStats {
     // the number of jobs currently in the scheduler
@@ -57,7 +60,7 @@ public class SchedulerStats {
     //Classname->Num jobs waiting
     private HashMap<String, Integer> waitingJobTypes = new HashMap<String, Integer>();
     //Running jobs
-    private List<String> runJobs = new Vector<String>();
+    private List<Job> runJobs = new Vector<Job>();
     
     public synchronized void incTotalJobs() {
         totalJobs++;
@@ -115,14 +118,14 @@ public class SchedulerStats {
         }
     }
  
-    public synchronized void addRunJob(String classname) {
+    public synchronized void addRunJob(Job j) {
         this.runningJobs++;
-        this.runJobs.add(classname);
+        this.runJobs.add(j);
     }
     
-    public synchronized void removeRunJob(String classname) {
+    public synchronized void removeRunJob(Job j) {
         this.runningJobs--;
-        this.runJobs.remove(classname);
+        this.runJobs.remove(j);
     }
     
     public long getTotalJobs() {
@@ -161,7 +164,13 @@ public class SchedulerStats {
         return waitingJobTypes;
     }
     
-    public List<String> getRunJobs() {
-        return runJobs;
+    public synchronized List<String> getRunJobs() {
+        Job[] jobs = new Job[runJobs.size()];
+        runJobs.toArray(jobs);
+        List<String> jobDescr = new ArrayList<String>();
+        for (Job j : jobs) {
+            jobDescr.add(j.toString());
+        }
+        return jobDescr;
     }
 }

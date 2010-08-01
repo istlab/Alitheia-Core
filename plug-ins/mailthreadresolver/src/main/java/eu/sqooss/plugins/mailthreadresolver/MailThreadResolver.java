@@ -1,7 +1,4 @@
-    /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
+/*
  * Copyright 2009 - 2010 - Organization for Free and Open Source Software,  
  *                 Athens, Greece.
  *
@@ -31,11 +28,12 @@
  *
  */
 
-package eu.sqooss.impl.service.updater;
+package eu.sqooss.plugins.mailthreadresolver;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.mail.internet.MimeMessage;
 
@@ -44,49 +42,63 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.MailAccessor;
+import eu.sqooss.service.updater.MetadataUpdater;
 
 /**
- * Job that organises emails in threads. Should be started each time a 
+ * Updater that organises emails in threads. Should be started each time a 
  * mailing list has received new emails.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
-public class MailThreadUpdater extends Job {
+public class MailThreadResolver implements MetadataUpdater {
 
+    private Set<MailingList> lists;
     private MailingList ml;
-    private String projectName;
+    private StoredProject sp;
     private Logger logger;
     private DBService dbs;
     private MailAccessor mailAccessor;
+    private int progress;
        
-    public MailThreadUpdater(MailingList ml, Logger l) {
-        this.ml = ml;
+    public MailThreadResolver() {}
+
+    @Override
+    public void setUpdateParams(StoredProject sp, Logger l) {
         this.logger = l;
-        this.projectName = ml.getStoredProject().getName();
+        this.sp = sp;
         dbs = AlitheiaCore.getInstance().getDBService();
+        sp = dbs.attachObjectToDBSession(sp);
+        lists = sp.getMailingLists();
         try {
             mailAccessor = AlitheiaCore.getInstance().getTDSService().getAccessor(
-                    ml.getStoredProject().getId()).getMailAccessor();
+                   sp.getId()).getMailAccessor();
         } catch (InvalidAccessorException e) {
-            err("Could not get MailAccessor for project" 
-                    + ml.getStoredProject().getName());
+            err("Could not get MailAccessor for project" + sp.getName());
         }
     }
 
-    public int priority() {
-        return 0x2;
-    }
-
     @Override
-    protected void run() throws Exception {
+    public void update() throws Exception {
+        for (MailingList l : lists) {
+            this.ml = l;
+            realupdate();
+        }
+    }
+    
+    @Override
+    public int progress() {
+        return progress;
+    }
+    
+    private void realupdate() throws Exception {
         dbs.startDBSession();
         ml = dbs.attachObjectToDBSession(ml);
-        int newThreads = 0, updatedThreads = 0;
+        int newThreads = 0, updatedThreads = 0, processedEmails = 0;
         MailMessage lastEmail = null;
         lastEmail = ml.getLatestEmail();
         HashMap<String, MimeMessage> processed = new HashMap<String, MimeMessage>();
@@ -257,37 +269,38 @@ public class MailThreadUpdater extends Job {
                 warn("Mail message " + mail + " was not assigned any thread");
             
             dbs.commitDBSession();
+            processedEmails ++;
+            progress = (processedEmails / mmList.size()) / 100;
         }
         dbs.startDBSession();
         info("Mail thread updater - " + ml 
                 + " " + newThreads + " new threads, " + updatedThreads 
                 + " thread updates" );
-        AlitheiaCore.getInstance().getMetricActivator()
-        	.syncMetrics(ml.getStoredProject(), MailingListThread.class);
+
         if (dbs.isDBSessionActive()) dbs.commitDBSession();
     }   
     
     @Override
     public String toString() {
 
-        return "MailThreadUpdater Job - Project:{" + projectName 
-        + "}, Mailing List: {" + ml.getListId() + "}";
+        return "MailThreadUpdater Job - Project:{" + sp.getName() 
+        + "}, Mailing List: {" + ml.getListId() + "}, " + progress + "%";
         
     }
     
     private void warn(String message) {
-        logger.warn(projectName + ":" + message);
+        logger.warn(sp.getName() + ":" + message);
     }
     
     private void err(String message) {
-        logger.error(projectName + ":" + message);
+        logger.error(sp.getName() + ":" + message);
     }
     
     private void info(String message) {
-        logger.info(projectName + ":" + message);
+        logger.info(sp.getName() + ":" + message);
     }
     
     private void debug(String message) {
-        logger.debug(projectName + ":" + message);
+        logger.debug(sp.getName() + ":" + message);
     }
 }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>plugins</artifactId>
+    <groupId>eu.sqooss</groupId>
+    <version>0.95</version>
+  </parent>
+  <groupId>eu.sqooss.plugins</groupId>
+  <artifactId>mailthreadresolver</artifactId>
+  <version>0.95</version>
+  <packaging>bundle</packaging>
+  <name>Alitheia Core mailing list thread resolver plugin</name>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Embed-Dependency>*;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium</Embed-Dependency>
+            <Import-Package>*;resolution:=optional</Import-Package>
+            <Export-Package>eu.sqooss.plugins.mailthreadresolver</Export-Package>
+            <Bundle-Activator>eu.sqooss.plugins.mailthreadresolver.Activator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.plugins.mailthreadresolver</Bundle-SymbolicName>
+            <Bundle-Version>0.95</Bundle-Version>
+            <Bundle-Vendor>eu.sqooss.plugins</Bundle-Vendor>
+            <Bundle-Description>eu.sqooss.plugins.mailthreadresolver SQO-OSS plugin</Bundle-Description>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.95</version>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>

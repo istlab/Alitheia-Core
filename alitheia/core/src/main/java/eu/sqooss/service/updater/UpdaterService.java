@@ -108,15 +108,19 @@ public interface UpdaterService extends AlitheiaCoreService {
     }
     
     /**
-     * Register a new metadata updater.
+     * Register a new metadata updater. If a plug-in supports more that one
+     * updaters, then this method should be called for each one of the 
+     * updaters implemented.
      * 
      * @param protocols
      *            The URL protocols this updater can process, e.g. svn-http,
-     *            git-file
+     *            git-file. If the <code>stage</code> is equal to
+     *            <code>UpdaterStage.INFERENCE</code>, then no protocol is
+     *            required.
      * @param stage
-     *            The stages this updater can be activated at.
+     *            The stages this updater can be activated in.
      * @param clazz
-     *           The implementation of the updater.
+     *            The class that implements of the updater.
      */
     void registerUpdaterService(String[] protocols, UpdaterStage[] stage, 
             Class<? extends MetadataUpdater> clazz);

@@ -5,7 +5,7 @@ Creating a new plug-in
 
 mvn archetype:generate 
 	-DgroupId=your.package
-	-DartifactId=plug-iname
+	-DartifactId=pluginame
 	-Dversion=xxx  (replace xxx with your plug-in's version) 
 	-Dpackage=your.package.pluginname
 	-DarchetypeGroupId=eu.sqooss.plugins 

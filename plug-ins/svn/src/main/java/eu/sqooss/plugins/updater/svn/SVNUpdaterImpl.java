@@ -55,7 +55,6 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
@@ -88,9 +87,9 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     
     /* References to Alitheia Core services*/
     private TDSService tds;
-    private MetricActivator ma;
     private DBService dbs;
     private Logger logger;
+    private float progress;
     
     /* Flag set on start up */
     private HandleCopies hc = HandleCopies.BRANCHES;
@@ -155,14 +154,20 @@ public class SVNUpdaterImpl implements MetadataUpdater {
 
     public SVNUpdaterImpl() { }
     
+    @Override
     public void setUpdateParams(StoredProject sp, Logger l) {
         this.dbs = AlitheiaCore.getInstance().getDBService();
         this.tds = AlitheiaCore.getInstance().getTDSService();
-        this.ma = AlitheiaCore.getInstance().getMetricActivator();
         this.project = sp;
         this.logger = l;
     }
 
+    @Override
+    public int progress() {
+        return (int)progress;
+    }
+
+    @Override
     public void update() throws Exception {
         
         dbs.startDBSession();
@@ -295,6 +300,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                     return;
                 }
                 dbs.startDBSession();
+                progress = (float) (((double)numRevisions / (double)commitLog.size()) * 100);
             }
             info("Processed " + numRevisions + " revisions");
         } catch (InvalidRepositoryException e) {
@@ -303,17 +309,10 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         } catch (InvalidProjectRevisionException e) {
             err("Not such repository revision:" + e.getMessage());
             throw e;
-        } finally {
-            
-            //Run the metrics even if the update fails, to ensure that 
-            //the versions that were processed correctly will be measured
-            ma.syncMetrics(project, ProjectFile.class);
-            ma.syncMetrics(project, ProjectVersion.class);
-            ma.syncMetrics(project, Developer.class);
-        }
+        } 
         dbs.commitDBSession();
     }
-   
+
     private void init() {
         
         String hcp = System.getProperty(HANDLE_COPIES_PROPERTY);
@@ -1082,7 +1081,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     
     @Override
     public String toString() {
-        return "SVNUpdater - Project:{" + project +"}";
+        return "SVNUpdater - Project:{" + project +"}, " + progress + "%";
     }
     
     /** Convenience method to write warning messages per project */

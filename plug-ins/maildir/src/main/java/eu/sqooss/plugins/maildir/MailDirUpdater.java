@@ -57,7 +57,6 @@ import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
@@ -71,6 +70,10 @@ public class MailDirUpdater implements MetadataUpdater {
 	private DBService dbs;
 	private StoredProject project;
 	private Logger logger;
+	private float progress = 0;
+	private long total = 0L;
+	private long processed = 0L;
+	private MailingList ml;
 	
     private static String[] dateFmts = {
         "EEE MMM d HH:mm:ss yyyy",  //Fri Dec  5 12:50:00 2003
@@ -87,27 +90,38 @@ public class MailDirUpdater implements MetadataUpdater {
     	logger = arg1;
 		this.dbs = AlitheiaCore.getInstance().getDBService();	
 	}
+    
+    @Override
+    public int progress() {
+        return (int) progress;
+    }
 
 	@Override
 	public void update() throws Exception {
 
         ProjectAccessor spAccessor = AlitheiaCore.getInstance().getTDSService().getAccessor(project.getId());
         MailAccessor mailAccessor = spAccessor.getMailAccessor();
-        MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
         List<Long> listIds = Collections.emptyList();
         try {
             //Process mailing lists first
             dbs.startDBSession();
-            listIds = processMailingLists(mailAccessor);
-            
-            ma.syncMetrics(project, MailingList.class);
-            
-            dbs.commitDBSession();
+            listIds = processMailingLists(mailAccessor);            
             
             for (Long mlId : listIds) {
-                ListUpdaterJob luj = new ListUpdaterJob(project.getId(), mlId);
-                AlitheiaCore.getInstance().getScheduler().enqueue(luj);
-                info("Added list update job for listid=" + mlId);
+                MailingList ml = DAObject.loadDAObyId(mlId, MailingList.class);
+                List<String> msgs = mailAccessor.getNewMessages(ml.getListId());
+                total += msgs.size();
+            }
+            
+            if (total == 0)
+                return;
+            
+            for (Long mlId : listIds) {
+               //ListUpdaterJob luj = new ListUpdaterJob(project.getId(), mlId);
+               //AlitheiaCore.getInstance().getScheduler().enqueue(luj);
+               //info("Added list update job for listid=" + mlId);
+                ml = DAObject.loadDAObyId(mlId, MailingList.class);
+                processList(mailAccessor);
             }
         } catch (IllegalArgumentException e) {
             err("MailUpdater: IllegalArgumentException: " + e.getMessage());
@@ -157,12 +171,15 @@ public class MailDirUpdater implements MetadataUpdater {
         params.put("storedProject", sp);
         return dbs.findObjectsByProperties(MailingList.class, params);
     }
-    
+
     @Override
     public String toString() {
-        return "MailUpdaterJob - Project:{" + project + "}";
+        String txt =  "MailUpdaterJob - Project:{" + project + "}";
+        
+        if (ml != null)
+            txt += ", current list:{" + ml.getListId() + "}, " + progress + "%";
+        return txt;
     }
-    
 
     private class ListUpdaterJob extends Job {
 
@@ -183,7 +200,6 @@ public class MailDirUpdater implements MetadataUpdater {
         protected void run() throws Exception {
             ProjectAccessor spAccessor = AlitheiaCore.getInstance().getTDSService().getAccessor(projectid);
             MailAccessor mailAccessor = spAccessor.getMailAccessor();
-            MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
             dbs.startDBSession();
             MailingList ml = DAObject.loadDAObyId(listid, MailingList.class);
 
@@ -192,16 +208,7 @@ public class MailDirUpdater implements MetadataUpdater {
                 return;
             }
 
-            processList(mailAccessor, ml);
-            dbs.startDBSession();
-            ml = dbs.attachObjectToDBSession(ml);
-            //MailThreadUpdater mtu = new MailThreadUpdater(ml, logger);
-            //AlitheiaCore.getInstance().getScheduler().enqueue(mtu);
-            //info("Added thread update job for " + ml);
-
-            ma.syncMetrics(project, MailMessage.class);
-            ma.syncMetrics(project, Developer.class);
-            
+            //processList(mailAccessor, ml);
             dbs.commitDBSession();
         }
         
@@ -209,181 +216,177 @@ public class MailDirUpdater implements MetadataUpdater {
         public String toString() {
             return "ListUpdaterJob - Projectid:{" + projectid + "} MailingList:{" + listid + "}";
         }
-        
-        private List<String> processList(MailAccessor mailAccessor, MailingList mllist) 
-            throws IllegalArgumentException, FileNotFoundException, MessagingException {
-            List<String> fileNames = Collections.emptyList();
-            String listId = mllist.getListId();
+    }
 
-            try {
-                fileNames = mailAccessor.getNewMessages(listId);
-            } catch (FileNotFoundException e) {
-                warn("Mailing list <" + listId + "> vanished: "
-                        + e.getMessage());
-                return Collections.emptyList();
+    private void processList(MailAccessor mailAccessor)
+            throws IllegalArgumentException, FileNotFoundException,
+            MessagingException {
+        List<String> fileNames = Collections.emptyList();
+        String listId = ml.getListId();
+
+        try {
+            fileNames = mailAccessor.getNewMessages(listId);
+        } catch (FileNotFoundException e) {
+            warn("Mailing list <" + listId + "> vanished: " + e.getMessage());
+        }
+
+        for (String fileName : fileNames) {
+            if(!dbs.isDBSessionActive()) dbs.startDBSession();
+            String msg = String.format("Message <%s> in list <%s> ", fileName,
+                    listId);
+
+            MimeMessage mm = mailAccessor.getMimeMessage(listId, fileName);
+
+            if (mm == null) {
+                warn("Failed to parse message " + fileName);
+                mailAccessor.markMessageAsSeen(ml.getListId(), fileName);
+                continue;
             }
 
-            for (String fileName : fileNames) {
-                if (!dbs.isDBSessionActive())
-                    dbs.startDBSession();
-                String msg = String.format("Message <%s> in list <%s> ",
-                        fileName, listId);
+            Address[] senderAddr = mm.getFrom();
+            String devName = "";
+            if (senderAddr == null) {
+                warn("Message " + msg + "  has no sender. Ignoring");
+                continue;
+            }
 
-                MimeMessage mm = mailAccessor.getMimeMessage(listId, fileName);
+            Address actualSender = senderAddr[0];
+            String senderEmail = null;
+            if (actualSender instanceof InternetAddress) {
+                senderEmail = ((InternetAddress) actualSender).getAddress();
+                devName = ((InternetAddress) actualSender).getPersonal();
+            } else {
+                InternetAddress inet = new InternetAddress(
+                        actualSender.toString());
+                senderEmail = inet.getAddress();
+            }
 
-                if (mm == null) {
-                    warn("Failed to parse message " + fileName);
+            // Purify the developer's name
+            if (devName != null && devName.contains("\"")) {
+                devName = devName.replace("\"", "");
+            }
+
+            Developer sender = null;
+
+            // Try to find developer from name first
+            if (devName != null) {
+                sender = Developer.getDeveloperByName(devName,
+                        ml.getStoredProject(), false);
+            }
+
+            if (sender == null) {
+                // Dev not found by name, try email
+                if (!senderEmail.contains("@")) {
+                    // Email cannot be used, drop this mail
+                    warn(msg + ": Not an email address: " + senderEmail);
+                    mailAccessor.markMessageAsSeen(ml.getListId(), fileName);
+                    continue;
+                }
+
+                sender = Developer.getDeveloperByEmail(senderEmail,
+                        ml.getStoredProject(), true);
+
+                // Found dev by email, but not by name
+                // Add a name to the developer, if we have one
+                if (devName != null)
+                    sender.setName(devName);
+            } else {
+                // Add a new email alias, if not exists
+                sender.addAlias(senderEmail);
+            }
+
+            // By now we should have a developer associated with the
+            // processed email;
+            // if not some other error occurs, complain about this and
+            // abandon
+            if (sender == null) {
+                err("Error adding developer");
+                continue;
+            }
+
+            MailMessage mmsg = MailMessage.getMessageById(fileName);
+            if (mmsg == null) {
+                // if the message does not exist in the database, then
+                // write a new one
+                mmsg = new MailMessage();
+                mmsg.setList(ml);
+                mmsg.setMessageId(mm.getMessageID());
+                mmsg.setSender(sender);
+
+                Date sentDate = getSentDate(mm);
+                if (sentDate != null) {
+                    mmsg.setSendDate(sentDate);
+                } else {
+                    warn(msg + " does not contain a parsable date, ignoring");
                     mailAccessor
-                            .markMessageAsSeen(mllist.getListId(), fileName);
+                            .markMessageAsSeen(ml.getListId(), fileName);
                     continue;
                 }
 
-                Address[] senderAddr = mm.getFrom();
-                String devName = "";
-                if (senderAddr == null) {
-                    warn("Message " + msg + "  has no sender. Ignoring");
-                    continue;
+                /* 512 characters should be enough subject for everybody */
+                String subject = mm.getSubject();
+                if (subject != null) {
+                    if (mm.getSubject().length() > 512)
+                        subject = subject.substring(0, 511);
                 }
 
-                Address actualSender = senderAddr[0];
-                String senderEmail = null;
-                if (actualSender instanceof InternetAddress) {
-                    senderEmail = ((InternetAddress) actualSender).getAddress();
-                    devName = ((InternetAddress) actualSender).getPersonal();
-                } else {
-                    InternetAddress inet = new InternetAddress(actualSender
-                            .toString());
-                    senderEmail = inet.getAddress();
-                }
+                mmsg.setSubject(subject);
+                mmsg.setFilename(fileName);
+                dbs.addRecord(mmsg);
+                debug("Adding message " + mm.getMessageID());
 
-                // Purify the developer's name
-                if (devName != null && devName.contains("\"")) {
-                    devName = devName.replace("\"", "");
-                }
-
-                Developer sender = null;
-
-                // Try to find developer from name first
-                if (devName != null) {
-                    sender = Developer.getDeveloperByName(devName, 
-                            mllist.getStoredProject(), false);
-                }
-
-                if (sender == null) {
-                    // Dev not found by name, try email
-                    if (!senderEmail.contains("@")) {
-                        // Email cannot be used, drop this mail
-                        warn(msg + ": Not an email address: " + senderEmail);
-                        mailAccessor.markMessageAsSeen(mllist.getListId(),
-                                fileName);
-                        continue;
-                    }
-
-                    sender = Developer.getDeveloperByEmail(senderEmail, 
-                            mllist.getStoredProject(), true);
-
-                    // Found dev by email, but not by name
-                    // Add a name to the developer, if we have one
-                    if (devName != null)
-                        sender.setName(devName);
-                } else {
-                    // Add a new email alias, if not exists
-                    sender.addAlias(senderEmail);
-                }
-
-                // By now we should have a developer associated with the
-                // processed email;
-                // if not some other error occurs, complain about this and
-                // abandon
-                if (sender == null) {
-                    err("Error adding developer");
-                    continue;
-                }
-
-                MailMessage mmsg = MailMessage.getMessageById(fileName);
-                if (mmsg == null) {
-                    // if the message does not exist in the database, then
-                    // write a new one
-                    mmsg = new MailMessage();
-                    mmsg.setList(mllist);
-                    mmsg.setMessageId(mm.getMessageID());
-                    mmsg.setSender(sender);
-
-                    Date sentDate = getSentDate(mm);
-                    if (sentDate != null) {
-                        mmsg.setSendDate(sentDate);
-                    } else {
-                        warn(msg
-                                + " does not contain a parsable date, ignoring");
-                        mailAccessor.markMessageAsSeen(mllist.getListId(),
-                                fileName);
-                        continue;
-                    }
-
-                    /* 512 characters should be enough subject for everybody */
-                    String subject = mm.getSubject();
-                    if (subject != null) {
-                        if (mm.getSubject().length() > 512)
-                            subject = subject.substring(0, 511);
-                    }
-
-                    mmsg.setSubject(subject);
-                    mmsg.setFilename(fileName);
-                    dbs.addRecord(mmsg);
-                    debug("Adding message " + mm.getMessageID());
-
-                    if (dbs.commitDBSession()) {
-                        if (!mailAccessor.markMessageAsSeen(mllist.getListId(),
-                                fileName))
-                            warn("Failed to mark message <" + fileName
-                                    + "> as seen");
-                    }
-                }
+                if (dbs.commitDBSession()) {
+                    if (!mailAccessor.markMessageAsSeen(ml.getListId(),
+                            fileName))
+                        warn("Failed to mark message <" + fileName
+                                + "> as seen");
+                }   
             }
-            return fileNames;
+            processed++;
+            progress = (float) ((double)processed / (double)total) * 100;
         }
-        
+    }
 
-        private Date getSentDate(MimeMessage mm) {
-            Date d = null;
-            String date = null;
-            try {
-                d = mm.getSentDate();
-                String[] dates = mm.getHeader("Date");
-                
-                if (dates != null && dates.length > 0)
-                    date = mm.getHeader("Date")[0];
-                 
-            } catch (MessagingException e) {
-                //Swallow this exception here
-            }
-            
-            if (d != null)  //Date is standards compliant
-                return d;
-            else 
-                return getDate(date); 
+    private Date getSentDate(MimeMessage mm) {
+        Date d = null;
+        String date = null;
+        try {
+            d = mm.getSentDate();
+            String[] dates = mm.getHeader("Date");
+
+            if (dates != null && dates.length > 0)
+                date = mm.getHeader("Date")[0];
+
+        } catch (MessagingException e) {
+            // Swallow this exception here
         }
-        
-        /* Try hard to parse dates by hand as various Microsoft MUAs, Emacs,
-         * Evolution and others don't feel like respecting the standards 
-         * (namely rfc822 and its extension draft-ietf-drums-msg-fmt-08)
-         */
-        private Date getDate(String date) {
-            if (date == null)
-                return null;
-            
-            Date d = null;
-            for (String fmt : dateFmts) {
-                try {
-                    DateFormat df = new SimpleDateFormat(fmt);
-                    d = df.parse(date.trim());
-                } catch (ParseException e) {
-                    continue;
-                }
-                break;
-            }
+
+        if (d != null) // Date is standards compliant
             return d;
+        else
+            return getDate(date);
+    }
+
+    /*
+     * Try hard to parse dates by hand as various Microsoft MUAs, Emacs,
+     * Evolution and others don't feel like respecting the standards (namely
+     * rfc822 and its extension draft-ietf-drums-msg-fmt-08)
+     */
+    private Date getDate(String date) {
+        if (date == null)
+            return null;
+
+        Date d = null;
+        for (String fmt : dateFmts) {
+            try {
+                DateFormat df = new SimpleDateFormat(fmt);
+                d = df.parse(date.trim());
+            } catch (ParseException e) {
+                continue;
+            }
+            break;
         }
+        return d;
     }
     
     /** Convenience method to write warning messages per project */

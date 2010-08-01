@@ -55,7 +55,6 @@ import eu.sqooss.service.db.BugResolution.Resolution;
 import eu.sqooss.service.db.BugSeverity.Severity;
 import eu.sqooss.service.db.BugStatus.Status;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
 import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
@@ -71,6 +70,7 @@ public class BugzillaUpdater implements MetadataUpdater {
     private StoredProject project;
     private Logger logger;
     private DBService dbs;
+    private float progress;
     
     public BugzillaUpdater() {}
 
@@ -80,9 +80,15 @@ public class BugzillaUpdater implements MetadataUpdater {
 		this.logger = log;
 		this.dbs = AlitheiaCore.getInstance().getDBService();
 	}
+	
+	@Override
+    public int progress() {
+        return (int)progress;
+    }
 
 	@Override
     public void update() throws Exception {
+	    int numprocessed = 0;
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
         //Get latest updated date
@@ -137,11 +143,10 @@ public class BugzillaUpdater implements MetadataUpdater {
             dbs.addRecord(bug);
             logger.debug(project.getName() + ": Added bug " + bugID);
             dbs.commitDBSession();
+            numprocessed++;
+            progress = (float) (((double)numprocessed/(double)bugIds.size())*100);
         }
 
-		MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
-		ma.syncMetrics(project, Bug.class);
-		ma.syncMetrics(project, Developer.class);
         if (dbs.isDBSessionActive())
             dbs.commitDBSession();
     }
@@ -236,6 +241,6 @@ public class BugzillaUpdater implements MetadataUpdater {
     
     @Override
     public String toString() {
-        return "BugzilaUpdater - Project:{" + project +"}";
+        return "BugzilaUpdater - Project:{" + project +"}, " + progress + "%";
     }
 }

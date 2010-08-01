@@ -1,6 +1,6 @@
 /*
  * Copyright 2010 - Organization for Free and Open Source Software,  
- *                Athens, Greece.
+ *                 Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -28,32 +28,31 @@
  *
  */
 
-package eu.sqooss.service.updater;
+package eu.sqooss.plugins.mailthreadresolver;
 
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
-/**
- * Interface that all jobs managed by the updater service must implement.
- * Classes implementing this interface much include a no parameter constructor.
- * 
- * @author Georgios Gousios <gousiosg@gmail.com>
- */
-public interface MetadataUpdater {
-    /**
-     * Updater jobs are by convention initialized with an empty constructor.
-     * This method sets the parameters to be used by the job. 
-     */
-    public void setUpdateParams(StoredProject sp, Logger l);
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
-    /** 
-     * Excecute the update method to perform metadata synchronisation.
-     */
-    public void update() throws Exception;
-    
-    /**
-     * Return a number, where 0 <= number < 100, to indicate progress.
-     * The granuarity of progress is up to the updater to assess. 
-     */
-    public int progress();
+public class Activator implements BundleActivator {
+
+    public void start(BundleContext bc) throws Exception {
+        String[] protocols = {};
+        
+        UpdaterStage[] stages = {UpdaterStage.INFERENCE};
+        UpdaterService us = AlitheiaCore.getInstance().getUpdater();
+        
+        us.registerUpdaterService(protocols, stages, MailThreadResolver.class);
+    }
+
+    public void stop(BundleContext context) throws Exception {
+        UpdaterService us = AlitheiaCore.getInstance().getUpdater();
+        us.unregisterUpdaterService(MailThreadResolver.class);
+    }
 }
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
