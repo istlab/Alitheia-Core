@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>plugins</artifactId>
+    <groupId>eu.sqooss</groupId>
+    <version>0.95</version>
+  </parent>
+  <groupId>eu.sqooss.plugins</groupId>
+  <artifactId>git</artifactId>
+  <version>0.95</version>
+  <packaging>bundle</packaging>
+  <name>Alitheia Core git plug-in</name>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Embed-Dependency>*;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium</Embed-Dependency>
+            <Import-Package>*;resolution:=optional</Import-Package>
+            <Export-Package>eu.sqooss.plugins.git</Export-Package>
+            <Bundle-Activator>eu.sqooss.plugins.git.Activator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.plugins.git</Bundle-SymbolicName>
+            <Bundle-Version>0.95</Bundle-Version>
+            <Bundle-Vendor>eu.sqooss.plugins</Bundle-Vendor>
+            <Bundle-Description>eu.sqooss.plugins.git SQO-OSS plugin</Bundle-Description>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+    <repository>
+      <id>jgit-repository</id>
+      <url>http://download.eclipse.org/jgit/maven</url>
+    </repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.95</version>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>0.8.4</version>
+    </dependency>
+  </dependencies>
+</project>

@@ -22,6 +22,7 @@
     <module>maildir</module>
     <module>mailthreadresolver</module>
     <module>devmatcher</module>
+    <module>git</module>
   </modules>
 
 </project>
