@@ -32,13 +32,20 @@ package eu.sqooss.plugins.tds.git;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.osgi.framework.BundleContext;
+import org.eclipse.jgit.lib.Commit;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
 import eu.sqooss.service.tds.CommitEntry;
@@ -48,45 +55,99 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
+import eu.sqooss.service.tds.Revision.Kind;
+import eu.sqooss.service.tds.Revision.Status;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 
 /**
- *  A TDS accessor translates repository formated data to the Alitheia Core
- *  abstract representations of those. An accessor can be of one of the following
- *  types:
- *  
- *  <ul>
- *      <li>{@link SCMAccessor}, if the underlying data source is a software 
- *          repository</li>
- *      <li>{@link MailAccessor}, if the underlying data source is a mailing 
- *          list archive</li>
- *      <li>{@link BTSAccessor}, if the underlying data source is a bug 
- *          database</li>
- *  </ul>
- *  
- *  This skeleton class implements the <code>SCMAccessor</code> interface, and 
- *  therefore the plug-in abstracts a software repository.
- */ 
+ * An accessor for Git repositories. Encapsulates the functionality provided
+ * by the JGit library.
+ * 
+ * @author Georgios Gousios - <gousiosg@gmail.com>
+ */
 public class GitAccessor implements SCMAccessor {
+    public static String ACCESSOR_NAME = "GitAccessor";
+    private static List<URI> supportedSchemes;
+    
+    private URI uri;
+    private String projectname;
+    private Repository git = null;
+    private Logger logger = null;
+    
+    static {
+        supportedSchemes = new ArrayList<URI>();
+        supportedSchemes.add(URI.create("git-file://www.sqo-oss.org"));
+    }
     
 	@Override
 	public String getName() {
-		return null;
+		return ACCESSOR_NAME;
 	}
 
 	@Override
 	public List<URI> getSupportedURLSchemes() {
-		return null;
+		return supportedSchemes;
 	}
 
 	@Override
-	public void init(URI dataURL, String projectName) throws AccessorException {}		
+	public void init(URI dataURL, String projectName) 
+	throws AccessorException {
+
+        doInit(dataURL, projectName);
+	    this.logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
+        if (logger != null) {
+            logger.info("Created SCMAccessor for " + uri.toASCIIString());
+        } else 
+            throw new AccessorException(this.getClass(), "Could not instantiate a logger");
+	}
+	
+	public void testInit(URI dataURL, String projectName) 
+    throws AccessorException {
+	    doInit(dataURL, projectName);
+	}
+	
+	private void doInit(URI dataURL, String projectName) 
+    throws AccessorException {
+	    this.uri = dataURL;
+	    this.projectname = projectName;
+	    try {
+            git = new Repository(toGitRepo(uri));
+        } catch (IOException e) {
+            throw new AccessorException(this.getClass(), 
+                    "Cannot initialise accessor for URL " + uri.toASCIIString());
+        }
+	}
+	
+	private File toGitRepo(URI url) {
+	    File f = new File(url.getPath(), Constants.DOT_GIT);
+	    return f;
+	}
 	
     public Revision newRevision(Date d) {return null;}
     
-    public Revision newRevision(String uniqueId) {return null;}
+    public Revision newRevision(String uniqueId) {
+        
+        if (uniqueId == null || uniqueId.equals("")) {
+            if (logger != null)
+                logger.error("Cannot create new revision with null or empty" +
+                    " revisionid");
+            return null;
+        }
+        
+        try {
+            Commit obj = git.mapCommit(uniqueId);
+            Revision r = new GitRevision(uniqueId, obj.getAuthor().getWhen(), 
+                    Status.RESOLVED, Kind.FROM_REVISION);
+            return r;
+        } catch (IOException e) {
+            if (logger != null)
+                logger.error("Cannot resove revision " + uniqueId + ":" + 
+                        e.getMessage());
+            return null;
+        }
+    }
 
     public Revision getHeadRevision()
         throws InvalidRepositoryException {return null;}

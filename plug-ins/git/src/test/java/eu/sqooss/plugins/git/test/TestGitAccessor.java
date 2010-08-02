@@ -4,31 +4,45 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.NullProgressMonitor;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.URIish;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import eu.sqooss.plugins.tds.git.GitAccessor;
+import eu.sqooss.service.tds.AccessorException;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.Revision;
 
 public class TestGitAccessor {
 
-    private Repository local;
-    private RemoteConfig remoteConfig;
+    public static Repository local;
+    public static RemoteConfig remoteConfig;
     
-    public TestGitAccessor() throws IOException, URISyntaxException {
-        File repo = new File("test", Constants.DOT_GIT);
+    public GitAccessor git;
+    
+    public static String url = "git://github.com/petdance/ack.git";
+    public static String localrepo = System.getProperty("user.dir") + "/test";
+    
+    @BeforeClass
+    public static void setup() throws IOException, URISyntaxException {
+        File repo = new File(localrepo, Constants.DOT_GIT);
         local = new Repository(repo);
         if (!repo.exists())
             local.create();
         
         remoteConfig = new RemoteConfig(local.getConfig(), "test");
-        remoteConfig.addURI(new URIish("git://github.com/petdance/ack.git"));
+        remoteConfig.addURI(new URIish(url));
         
         final String dst = Constants.R_REMOTES + remoteConfig.getName();
         RefSpec wcrs = new RefSpec();
@@ -42,40 +56,51 @@ public class TestGitAccessor {
         local.getConfig().save();
 
         Transport t = Transport.open(local, remoteConfig);
-        
-        t.fetch(NullProgressMonitor.INSTANCE, null);
-        
+        t.fetch(new TextProgressMonitor(), null);
     }
     
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws AccessorException, URISyntaxException {
+        git = new GitAccessor();
+        git.testInit(new URI("git-file://" + localrepo), "ack");
     }
     
     @Test
     public void testGetName() {
-        fail("Not yet implemented");
+        assertEquals(git.getName(), "GitAccessor");
     }
 
     @Test
     public void testGetSupportedURLSchemes() {
-        fail("Not yet implemented");
+        List<URI> schemes = git.getSupportedURLSchemes();
+        assertEquals(schemes.size(), 1);
+        assertEquals(schemes.get(0).getScheme(), "git-file");
     }
-
+    
     @Test
-    public void testInit() {
-        fail("Not yet implemented");
+    public void testNewRevisionString() throws InvalidProjectRevisionException {
+        //Check commit resolution on a known commit
+        Revision r = git.newRevision("1eaecb1e55d2e0e72fedd0499283345b6edfa097");
+        assertNotNull(r);
+        assertEquals(r.getDate().getTime(), 1204868094 * 1000L);
+        
+        //now check a commit on a branch
+        Revision r1 = git.newRevision("0f5a145948f18e51095e1b635b7b55932fa3121d");
+        assertNotNull(r);
+        assertEquals(r1.getDate().getTime(), 1272470853 * 1000L);
+        
+        //and a commit that creates a tag
+        Revision r2 = git.newRevision("f5556c48eb46100e1733f5a21b45a00f6c190061");
+        assertNotNull(r);
+        assertEquals(r2.getDate().getTime(), 1260553849 * 1000L);
+        assertFalse(r1.compareTo(r2) < 0);
     }
-
+    
     @Test
     public void testNewRevisionDate() {
         fail("Not yet implemented");
     }
-
-    @Test
-    public void testNewRevisionString() {
-        fail("Not yet implemented");
-    }
-
+    
     @Test
     public void testGetHeadRevision() {
         fail("Not yet implemented");
