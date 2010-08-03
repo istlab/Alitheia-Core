@@ -36,13 +36,21 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Commit;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
@@ -62,8 +70,15 @@ import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 
 /**
- * An accessor for Git repositories. Encapsulates the functionality provided
- * by the JGit library.
+ * An accessor for Git repositories. Encapsulates the functionality provided by
+ * the JGit library. Known limitations:
+ * 
+ * <ul>
+ * <li>JGit does not (yet?) support resolving commits by timestamp, we
+ * approximate this by walking the log file around the desired timestamp</li>
+ * <li>The accessor only supports on disk mirrors of repositories, connecting
+ * to remote ones is not yet supported.</li>
+ * </ul>
  * 
  * @author Georgios Gousios - <gousiosg@gmail.com>
  */
@@ -97,60 +112,88 @@ public class GitAccessor implements SCMAccessor {
 
         doInit(dataURL, projectName);
 	    this.logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
-        if (logger != null) {
-            logger.info("Created SCMAccessor for " + uri.toASCIIString());
-        } else 
-            throw new AccessorException(this.getClass(), "Could not instantiate a logger");
+        info("Created SCMAccessor for " + uri.toASCIIString());
 	}
 	
-	public void testInit(URI dataURL, String projectName) 
-    throws AccessorException {
-	    doInit(dataURL, projectName);
-	}
-	
-	private void doInit(URI dataURL, String projectName) 
-    throws AccessorException {
-	    this.uri = dataURL;
-	    this.projectname = projectName;
-	    try {
-            git = new Repository(toGitRepo(uri));
-        } catch (IOException e) {
-            throw new AccessorException(this.getClass(), 
-                    "Cannot initialise accessor for URL " + uri.toASCIIString());
+	/** {@inheritDoc} */
+    public Revision newRevision(Date d) {
+        if (d == null) {
+            err("Cannot resolve commit with empty date");
+            return null;
         }
-	}
-	
-	private File toGitRepo(URI url) {
-	    File f = new File(url.getPath(), Constants.DOT_GIT);
-	    return f;
-	}
-	
-    public Revision newRevision(Date d) {return null;}
+        /*
+         * Approximate revision resolution with a tree walk, as JGit does not
+         * currently support revision resolution by timestamp. Given that Git stores
+         * objects with millisecond accuracy, the following filter should just
+         * return the revision we are looking for. 
+         */
+        RevWalk rw = new RevWalk(git);
+        RevFilter exact = CommitTimeRevFilter.between(new Date(d.getTime() - 1), 
+                new Date(d.getTime() + 1));
+        rw.setRevFilter(exact);
+        try {
+            AnyObjectId headId = git.resolve(getHeadRevision().getUniqueId());
+            RevCommit root = rw.parseCommit(headId);
+            rw.markStart(root);
+            RevCommit r = rw.next();
+            Commit c = r.asCommit(rw);
+            
+            if (c == null) {
+                err("Cannot resolve commit with timestamp: " + d);
+                return null;
+            }
+            
+            return revFromGitCommit(c);
+        } catch (MissingObjectException e) {
+            e.printStackTrace();
+        } catch (IncorrectObjectTypeException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidRepositoryException e) {
+           err("Canno");
+        }
+        return null;
+    }
     
+    /** {@inheritDoc} */
     public Revision newRevision(String uniqueId) {
         
         if (uniqueId == null || uniqueId.equals("")) {
-            if (logger != null)
-                logger.error("Cannot create new revision with null or empty" +
-                    " revisionid");
+            err("Cannot create new revision with null or empty revisionid");
             return null;
         }
         
         try {
             Commit obj = git.mapCommit(uniqueId);
-            Revision r = new GitRevision(uniqueId, obj.getAuthor().getWhen(), 
-                    Status.RESOLVED, Kind.FROM_REVISION);
-            return r;
+            return revFromGitCommit(obj);
         } catch (IOException e) {
-            if (logger != null)
-                logger.error("Cannot resove revision " + uniqueId + ":" + 
+                err("Cannot resolve revision " + uniqueId + ":" + 
                         e.getMessage());
             return null;
         }
     }
 
+    /** {@inheritDoc} */
     public Revision getHeadRevision()
-        throws InvalidRepositoryException {return null;}
+        throws InvalidRepositoryException {
+        AnyObjectId headId;
+        try {
+            RevWalk rw = new RevWalk(git);
+            headId = git.resolve(Constants.HEAD);
+            
+            if (headId == null) {
+                throw new InvalidRepositoryException(uri.toString(), 
+                        "HEAD does not point to a known revision");
+            }
+            
+            RevCommit root = rw.parseCommit(headId);
+            Commit c = root.asCommit(rw);
+            return revFromGitCommit(c);
+        } catch (IOException e) {
+            throw new InvalidRepositoryException("", e.getMessage());
+        }
+    }
     
     public Revision getFirstRevision() 
         throws InvalidRepositoryException {return null;}
@@ -190,7 +233,10 @@ public class GitAccessor implements SCMAccessor {
     
     public CommitLog getCommitLog(Revision r1, Revision r2)
         throws InvalidProjectRevisionException,
-               InvalidRepositoryException {return null;}
+               InvalidRepositoryException {
+        return null;
+        
+    }
 
     public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
         throws InvalidProjectRevisionException,
@@ -229,6 +275,61 @@ public class GitAccessor implements SCMAccessor {
                InvalidProjectRevisionException {return null;}
     
     public List<AnnotatedLine> getNodeAnnotations(SCMNode s) {return null;}
+    
+    /* Accessor internal methods*/
+    
+    /**Init a test repository when unit testing*/
+    public void testInit(URI dataURL, String projectName) 
+    throws AccessorException {
+        doInit(dataURL, projectName);
+    }
+    
+    /**
+     * Actual repo initialization code, construct a repository instance per
+     * tracked project.
+     */
+    private void doInit(URI dataURL, String projectName) 
+    throws AccessorException {
+        this.uri = dataURL;
+        this.projectname = projectName;
+        try {
+            git = new Repository(toGitRepo(uri));
+        } catch (IOException e) {
+            throw new AccessorException(this.getClass(), 
+                    "Cannot initialise accessor for URL " + uri.toASCIIString());
+        }
+    }
+
+    /** Convert an Alitheia Core Git repository URL to an on-disk path*/
+    private File toGitRepo(URI url) {
+        File f = new File(url.getPath(), Constants.DOT_GIT);
+        return f;
+    }
+    
+    /**Convert a JGit revision to an Alitheia Core one*/
+    private Revision revFromGitCommit(Commit obj) {
+        Calendar c = GregorianCalendar.getInstance();
+        c.setTimeInMillis(obj.getAuthor().getWhen().getTime());
+        c.setTimeZone(obj.getAuthor().getTimeZone());
+        Revision r = new GitRevision(obj.getCommitId().getName(), c.getTime(), 
+                Status.RESOLVED, Kind.FROM_REVISION);
+        return r;
+    }
+    
+    private void warn(String msg) {
+        if (logger != null)
+            logger.warn(msg);
+    }
+    
+    private void err(String msg) {
+        if (logger != null)
+            logger.error(msg);
+    }
+    
+    private void info(String msg) {
+        if (logger != null)
+            logger.info(msg);
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
