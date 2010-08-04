@@ -71,11 +71,9 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import eu.sqooss.core.AlitheiaCore;
-//import eu.sqooss.impl.service.tds.diff.UnifiedDiffParser;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
-import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffFactory;
@@ -167,9 +165,9 @@ public class SVNAccessorImpl implements SCMAccessor {
     private long resolveDatedProjectRevision( SVNProjectRevision r )
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
-        if ((r == null) || !r.hasDate()) {
+        if ((r == null) || r.getDate() == null) {
             throw new InvalidProjectRevisionException(
-                    "Can only resolve revisions with date attached", getClass());
+                    "Can only resolve revisions with a valid date", getClass());
         }
 
         long revno = -1;
@@ -178,9 +176,7 @@ public class SVNAccessorImpl implements SCMAccessor {
         } catch (SVNException e) {
             throw new InvalidRepositoryException(url,e.getMessage());
         }
-        if (revno > 0) {
-            r.setSVNRevision(revno);
-        }
+       
         return revno;
     }
     
@@ -189,9 +185,9 @@ public class SVNAccessorImpl implements SCMAccessor {
      */
     private Date resolveRevisionDate(SVNProjectRevision r)
             throws InvalidProjectRevisionException, InvalidRepositoryException {
-        if ((r == null) || !r.hasSVNRevision()) {
+        if ((r == null) || r.getSVNRevision() == -1) {
             throw new InvalidProjectRevisionException(
-                    "Can only resolve revisions with SVN version attached.", getClass());
+                    "Can only resolve revisions with a SVN version.", getClass());
         }
 
         Date d = null;
@@ -211,7 +207,7 @@ public class SVNAccessorImpl implements SCMAccessor {
         if (d == null) {
             logger.warn("Resolved date is null");
         }
-        r.setDate(d);
+       
         return d;
     }
 
@@ -252,81 +248,98 @@ public class SVNAccessorImpl implements SCMAccessor {
         return 0;
     }
     
-    /** {@inheritDoc}} */
-    private boolean resolveRevision(Revision r) 
-        throws InvalidProjectRevisionException {
+
+    /**
+     * Resolve all revision fields from the repo. 
+     */
+    private SVNProjectRevision resolveRevision(Revision r) {
 
         if ((r == null)) {
-            throw new InvalidProjectRevisionException(projectname + 
-                    ": Revision to be resolved is null", getClass());
+            logger.error(projectname + ": Revision to be resolved is null");
+            return null;
         }
+        
+        if (!(r instanceof SVNProjectRevision)) {
+            logger.error(projectname + ": " +
+            		"Non SVN revision appearing in SVN project?");
+            return null;
+        }
+        
+        SVNProjectRevision svnrev = (SVNProjectRevision)r;
 
-        if (((SVNProjectRevision) r).isResolved()) {
+        if (svnrev.isResolved()) {
             // No resolution necessary
-            return true;
+            return svnrev;
         }
 
+        Date d = null;
+        long l = -1;
         try {
-            if (((SVNProjectRevision) r).hasSVNRevision()) {
-                if (((SVNProjectRevision) r).getSVNRevision() > getHeadSVNRevision()) {
-                    throw new InvalidProjectRevisionException(
-                            ((SVNProjectRevision) r).getSVNRevision() + 
-                                " > HEAD", getClass());
+            if (svnrev.getSVNRevision() != -1) {
+                if (svnrev.getSVNRevision() > getHeadSVNRevision()) {
+                    logger.error(String.valueOf(svnrev.getSVNRevision())
+                            + " > HEAD");
+                    return null;
                 }
                 
-                if (((SVNProjectRevision) r).getSVNRevision() < getFirstSVNRevision()) {
-                    throw new InvalidProjectRevisionException(
-                            ((SVNProjectRevision) r).getSVNRevision() + 
-                                " < 0", getClass());
+                if (svnrev.getSVNRevision() < getFirstSVNRevision()) {
+                    logger.error(String.valueOf(svnrev.getSVNRevision())
+                            + " < 0");
+                    return null;
                 }
                 
                 //Resolve date
-                Date d = resolveRevisionDate(((SVNProjectRevision) r));
-            
+                d = resolveRevisionDate(svnrev);
+
                 if (d == null) {
-                    ((SVNProjectRevision) r).setResolved(Revision.Status.INVALID);
-                    return false;
+                    return null;
                 }
             } else {
                 //Resolve SVN revision number
-                long l;
-
-                l = resolveDatedProjectRevision(((SVNProjectRevision) r));
+                l = resolveDatedProjectRevision(svnrev);
 
                 if (l < 0) {
-                    ((SVNProjectRevision) r).setResolved(Revision.Status.INVALID);
-                    return false;
+                    return null;
                 }
             }
+            
+            if (svnrev.getSVNRevision() == 0) {
+                SVNLogEntry logEntry = new SVNLogEntry(Collections.EMPTY_MAP, 0, 
+                        "sqo-oss", d, "Repository Init");
+                
+                SVNProjectRevision spr = new SVNProjectRevision(logEntry, "");
+                return spr;
+            }
+            
+            List<SVNLogEntry> log = getSVNLog("", svnrev.getSVNRevision(), -1);
+            SVNLogEntry full = log.iterator().next();
+            return new SVNProjectRevision(full, "");
         } catch (InvalidRepositoryException e) {
-            throw new InvalidProjectRevisionException("Revision " + r + 
-                    " of project " + projectname + "refers to invalid project " +
-                    "repository " + url, getClass());
+            logger.error("Revision " + r + " of project " + projectname
+                    + "refers to invalid project " + "repository " + url, e);
+        } catch (InvalidProjectRevisionException e) {
+            logger.error("Revision " + r + " is invalid:" + e.getMessage(), e);
         }
-        //Resolution OK, mark the revision
-        ((SVNProjectRevision)r).setResolved(Revision.Status.RESOLVED);
-        return true;
+        return null;
+    }
+    
+
+    private List<SVNLogEntry> getSVNLog(String repoPath, long revstart,
+            long revend) throws InvalidRepositoryException {
+        ArrayList<SVNLogEntry> l = new ArrayList<SVNLogEntry>();
+        try {
+            svnRepository.log(new String[] { repoPath }, l, revstart, revend,
+                    true, true);
+        } catch (SVNException e) {
+            throw new InvalidRepositoryException(url, e.getMessage());
+        }
+        return l;
     }
     
     // Interface methods
     /** {@inheritDoc}} */
     public boolean isValidRevision(Revision r) {
-        if ((r == null)) {
-            return false;
-        }
-        
-        if (! (r instanceof SVNProjectRevision)) {
-            return false;
-        }
-
-        boolean isValid = false;
-        try {
-            isValid = resolveRevision(r); 
-        } catch (InvalidProjectRevisionException e) {
-            isValid = false;
-        }
-        
-        return isValid;
+        return (resolveRevision((SVNProjectRevision)r) != null?true:false);
     }
 
     /** {@inheritDoc}} */
@@ -335,23 +348,14 @@ public class SVNAccessorImpl implements SCMAccessor {
        
         long head = getHeadSVNRevision();
         Revision s = new SVNProjectRevision(head);
-        
-        if (!isValidRevision(s))
-            return null;
-        
-        return s;
+        return resolveRevision(s);
     }
     
-    /**{@inheritDoc}}*/
-    public Revision getFirstRevision()
-        throws InvalidRepositoryException {
-        long head = getFirstSVNRevision();
-        Revision s = new SVNProjectRevision(head);
-        
-        if (!isValidRevision(s))
-            return null;
-        
-        return s;
+    /** {@inheritDoc}  */
+    public Revision getFirstRevision() throws InvalidRepositoryException {
+        long first = getFirstSVNRevision();
+        SVNProjectRevision s = new SVNProjectRevision(first);
+        return resolveRevision(s);
     }
     
     /**{@inheritDoc}*/
@@ -361,15 +365,14 @@ public class SVNAccessorImpl implements SCMAccessor {
         try {
             if (svnr.getSVNRevision() + 1 > getHeadSVNRevision()) {
                 throw new InvalidProjectRevisionException(
-                        "Cannot get next revision of HEAD revision", 
+                        "Cannot get next revision of HEAD", 
                         getClass());
             }
         } catch (InvalidRepositoryException e) {
             throw new InvalidProjectRevisionException(e.getMessage(), getClass());
         }
         SVNProjectRevision next = new SVNProjectRevision(svnr.getSVNRevision() + 1); 
-        resolveRevision(next);
-        return next;
+        return resolveRevision(next);
     }
     
     /**{@inheritDoc}*/
@@ -388,58 +391,41 @@ public class SVNAccessorImpl implements SCMAccessor {
         }
         
         SVNProjectRevision prev = new SVNProjectRevision(svnr.getSVNRevision() - 1); 
-        resolveRevision(prev);
-        return prev;
+        return resolveRevision(prev);
     }
-    
-    /**{@inheritDoc}*/
+
+    /** {@inheritDoc} */
     public Revision newRevision(Date d) {
-        
+
         if (d == null) {
-            logger.error("Cannot create new revision with null or empty" +
-                        " date");
+            logger.error("Cannot create new revision with null or empty"
+                    + " date");
             return null;
         }
-         
-         SVNProjectRevision r = new SVNProjectRevision(d);
-         
-         try {
-            resolveRevision(r);
-        } catch (InvalidProjectRevisionException e) {
-            logger.error("Cannot create dated revision " + d.toString() + ":" + e);
-            return null;
-        } 
-        
-        return r;
+
+        SVNProjectRevision r = new SVNProjectRevision(d);
+        return resolveRevision(r);
     }
-    
-    /**{@inheritDoc}*/
+
+    /** {@inheritDoc} */
     public Revision newRevision(String uniqueId) {
         long revision = -1;
-        
+
         if (uniqueId == null || uniqueId.equals("")) {
-            logger.error("Cannot create new revision with null or empty" +
-            		" revisionid");
+            logger.error("Cannot create new revision with null or empty"
+                    + " revisionid");
             return null;
         }
-        
-         try{ 
-             revision = Long.parseLong(uniqueId);
-         } catch (NumberFormatException nfe) {
-             logger.error("Invalid SVN revision id" + uniqueId);
-             return null;
-         }
-         
-         SVNProjectRevision r = new SVNProjectRevision(revision);
-         
-         try {
-            resolveRevision(r);
-        } catch (InvalidProjectRevisionException e) {
-            logger.error("Cannot create revision " + uniqueId + ":" + e);
+
+        try {
+            revision = Long.parseLong(uniqueId);
+        } catch (NumberFormatException nfe) {
+            logger.error("Invalid SVN revision id" + uniqueId);
             return null;
-        } 
-        
-        return r; 
+        }
+
+        SVNProjectRevision r = new SVNProjectRevision(revision);
+        return resolveRevision(r);
     }
     
     /**{@inheritDoc}*/
@@ -457,14 +443,14 @@ public class SVNAccessorImpl implements SCMAccessor {
         logger.debug("Checking out from repository " + url + " path <" +
             repoPath + "> rev " + rev.getUniqueId() + " in <" +
             localPath + ">");
-
-        if (!resolveRevision(rev)) {
+        
+        SVNProjectRevision svnrev = resolveRevision(rev);
+        
+        if (svnrev == null) {
             throw new InvalidProjectRevisionException("Cannot resolve revision",
                     getClass());
         }
-        
-        SVNProjectRevision svnrev = (SVNProjectRevision)rev;
-        
+         
         SVNNodeKind nodeKind;
         try {
             nodeKind = svnRepository.checkPath(repoPath, svnrev.getSVNRevision());
@@ -511,17 +497,18 @@ public class SVNAccessorImpl implements SCMAccessor {
         logger.info("Updating path <" + repoPath + "> from " + src + " to "
                 + dst + " in <" + localPath + ">");
 
-        if (!resolveRevision(dst)) {
+        SVNProjectRevision svndst = resolveRevision(dst);
+        SVNProjectRevision svnsrc = resolveRevision(src);
+        
+        if (svndst == null) {
             throw new InvalidProjectRevisionException("Cannot resolve revision",
                     getClass());
         }
         
-        if (!resolveRevision(src)) {
+        if (svnsrc == null) {
             throw new InvalidProjectRevisionException("Cannot resolve revision",
                     getClass());
         }
-        SVNProjectRevision svndst = (SVNProjectRevision)dst;
-        SVNProjectRevision svnsrc = (SVNProjectRevision)src;
         
         SVNNodeKind nodeKind;
         try {
@@ -567,12 +554,14 @@ public class SVNAccessorImpl implements SCMAccessor {
         if (svnRepository == null) {
             connectToRepository();
         }
+        
+        SVNProjectRevision svnrev = resolveRevision(revision);
 
-        if (!resolveRevision(revision)) {
+        if (svnrev == null) {
             throw new InvalidProjectRevisionException("Cannot resolve revision",
                     getClass());
         }        
-        long revno = ((SVNProjectRevision)revision).getSVNRevision();
+        long revno = svnrev.getSVNRevision();
         
         try {
             SVNNodeKind nodeKind = svnRepository.checkPath(repoPath, revno);
@@ -632,34 +621,9 @@ public class SVNAccessorImpl implements SCMAccessor {
         getFile(repoPath, revision, stream);
         // Stream was closed by other getFile()
     }
-    
-    /**{@inheritDoc}*/
-    public SVNCommitLogImpl getCommitLog(Revision r)
-        throws InvalidProjectRevisionException, 
-               InvalidRepositoryException {
-        Revision r1 = getPreviousRevision(r);
-        return getCommitLog("",r1,r);
-    }
 
     /**{@inheritDoc}*/
-    public SVNCommitEntryImpl getCommitLog(String repoPath, Revision r1)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {
-        SVNCommitLogImpl l = getCommitLog(repoPath,r1,r1);
-        Iterator<CommitEntry> i = l.iterator();
-        CommitEntry e = i.next();
-        return (SVNCommitEntryImpl)e;
-    }
-
-    /**{@inheritDoc}*/
-    public SVNCommitLogImpl getCommitLog(Revision r1, Revision r2)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {
-        return getCommitLog("",r1,r2);
-    }
-
-    /**{@inheritDoc}*/
-    public SVNCommitLogImpl getCommitLog(String repoPath, Revision r1, Revision r2)
+    public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
         if (svnRepository == null) {
@@ -667,48 +631,41 @@ public class SVNAccessorImpl implements SCMAccessor {
         }
         
         // Map the project revisions to SVN revision numbers
-        long revstart=-1, revend=-1;
         logger.debug("Start revision for log " + r1);
         
-        if ((r1 == null) || (!resolveRevision(r1))) {
+        SVNProjectRevision revstart = resolveRevision(r1);
+        
+        if ((r1 == null) || (revstart == null)) {
             throw new InvalidProjectRevisionException("Invalid start revision", getClass());
         }
-        revstart = ((SVNProjectRevision)r1).getSVNRevision();
-
+        
+        SVNProjectRevision revend = null;
+        
         if (r2 == null) {
             revend = revstart;
         } else {
-            if (!resolveRevision(r2)) {
+            revend = resolveRevision(r2);
+            if (revend == null) {
                 throw new InvalidProjectRevisionException("Invalid end revision",getClass());
             }
-            revend = ((SVNProjectRevision)r2).getSVNRevision();
             logger.debug("End revision for log " + r2);
         }
 
-        ArrayList<SVNLogEntry> l = new ArrayList<SVNLogEntry>();
-        SVNCommitLogImpl result = new SVNCommitLogImpl();
-        
-        String checkoutRoot;
-        try {
-            checkoutRoot = svnRepository.getRepositoryPath("");
-            svnRepository.log(new String[]{repoPath},
-                l,revstart, revend, true, true);
-        } catch (SVNException e) {
-            throw new InvalidRepositoryException(url, e.getMessage());
-        }
-
+        List<SVNLogEntry> l = getSVNLog(repoPath, revstart.getSVNRevision(), 
+                revend.getSVNRevision());
         
         Iterator<SVNLogEntry> i = l.iterator();
-        while(i.hasNext()) {
+        SVNCommitLogImpl result = new SVNCommitLogImpl();
+        while (i.hasNext()) {
             SVNLogEntry entry = i.next();
-            result.getEntriesReference().add(new SVNCommitEntryImpl(entry, checkoutRoot));   
+            result.getEntries().add(new SVNProjectRevision(entry, ""));
         }
         
         return result;
     }
 
     /**{@inheritDoc}*/
-    public Diff getDiff( String repoPath, Revision r1, Revision r2 )
+    public Diff getDiff(String repoPath, Revision r1, Revision r2 )
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {
@@ -719,7 +676,7 @@ public class SVNAccessorImpl implements SCMAccessor {
         //Map the project revisions to SVN revision numbers
         long revstart=-1, revend=-1;
         
-        if ((r1 == null) || (!resolveRevision(r1))) {
+        if ((r1 == null) || (resolveRevision(r1) == null)) {
             throw new InvalidProjectRevisionException("Invalid start revision", getClass());
         }
         revstart = ((SVNProjectRevision)r1).getSVNRevision();
@@ -731,7 +688,7 @@ public class SVNAccessorImpl implements SCMAccessor {
                 revend = revstart + 1;
             }   
         } else {
-            if (!resolveRevision(r2)) {
+            if (resolveRevision(r2) == null) {
                 throw new InvalidProjectRevisionException("Invalid end revision", getClass());
             }
             revend = ((SVNProjectRevision)r2).getSVNRevision();
@@ -879,8 +836,6 @@ public class SVNAccessorImpl implements SCMAccessor {
 		 }
 		 
 		 SCMNodeType t = getNodeType(path, r);
-
-		 
 		 
 		 if ( !t.equals(SCMNodeType.UNKNOWN)) {
 			 return new SCMNode(path, t, r);
@@ -894,12 +849,12 @@ public class SVNAccessorImpl implements SCMAccessor {
 	public PathChangeType getNodeChangeType(SCMNode s)
 			throws InvalidRepositoryException, InvalidProjectRevisionException {
 		
-		CommitLog log = getCommitLog(s.getRevision());
+		CommitLog log = getCommitLog("", getPreviousRevision(s.getRevision()), s.getRevision());
 		
-		Iterator<CommitEntry> i = log.iterator();
+		Iterator<Revision> i = log.iterator();
 		
 		while (i.hasNext()) {
-			CommitEntry ce = i.next();
+			Revision ce = i.next();
 			
 		}
 		
@@ -964,4 +919,3 @@ public class SVNAccessorImpl implements SCMAccessor {
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

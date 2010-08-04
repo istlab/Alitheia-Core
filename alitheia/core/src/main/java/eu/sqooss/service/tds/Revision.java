@@ -34,59 +34,19 @@
 package eu.sqooss.service.tds;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * A Revision denotes a revision of a project; revisions may be created
- * from dates or from SCM unique identifiers. A Revision is not of
- * itself associated with a specific project. Revisions are constructed
- * by date to which they refer or using a SCM repository provided unique
- * identifier. Internally, revision implementation can store either value; 
- * depending on the underlying SCM, a revision may require resolution (i.e.
- * matching the revision sting to a revision date or vice-versa)
- * prior to being return to client code. All revisions returned to client
- * code are guaranteed to be validated. 
+ * A Revision denotes a revision of a project; revisions may be created from
+ * dates or from SCM unique identifiers. In most SCM implementations, a Revision
+ * represents a commit. Depending on the underlying SCM, a revision may require
+ * resolution (i.e. matching the revision sting to a revision date or
+ * vice-versa) prior to being return to client code. All revisions returned to
+ * client code are guaranteed to be validated.
  */
 public interface Revision {
-    
-    /**
-     *  The kind of data used to construct the revision.
-     */
-    public enum Kind {
-        /**
-         * Revision was constructed from a repository-specific revision
-         * identifier
-         */
-        FROM_REVISION,
-
-        /** Revision was constructed from a Date */
-        FROM_DATE,
-    }
-    
-    /** 
-     * Possible states of revision resolution
-     */
-    public enum Status {
-        /** Not a valid revision after revision resolution check. */
-        INVALID,
-        /** A valid revision (both repository id and date are valid) */
-        RESOLVED,
-        /** Resolution is pending */
-        UNRESOLVED
-    }
-    
-    /**
-     * Retrieves the kind of source data was this project revision has been 
-     * created with.
-     */
-    public Kind getKind();
-    
-    /**
-     * Tell if a revision was resolved or not/
-     * @return True if the revision has been successfully resolved, false
-     * otherwise. Normally it should return true; false would mean some
-     * implementation problem in the underlying code. 
-     */
-    public Status getStatus();
     
     /**
      * Get that date associated to this revision.
@@ -100,7 +60,34 @@ public interface Revision {
      * Get the ID that uniquely identifies a revision in the repository.
      */
     public String getUniqueId();
-
+    
+    /**
+     * Get the username of the person that performed the commit 
+     * 
+     */
+    public String getAuthor();
+    
+    /**
+     * Get the message attached to the commit
+     */
+    public String getMessage();
+    
+    /**
+     * Get a set of paths that changed by the commit
+     */
+    public Set<String> getChangedPaths();
+    
+    /**
+     * Get the modification types that were performed on each changed path
+     * by the commit
+     */
+    public Map<String, PathChangeType> getChangedPathsStatus();
+    
+    /**
+     * Get a list of copy operations that took place in this revision
+     */
+    public List<CommitCopyEntry> getCopyOperations();
+    
     /**
      * Return human-readable representation of this ProjectRevision.
      */

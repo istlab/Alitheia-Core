@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -48,6 +49,7 @@ import org.eclipse.jgit.lib.Commit;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
@@ -56,15 +58,12 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
-import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
-import eu.sqooss.service.tds.Revision.Kind;
-import eu.sqooss.service.tds.Revision.Status;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
@@ -144,14 +143,9 @@ public class GitAccessor implements SCMAccessor {
             }
             
             return revFromGitCommit(c);
-        } catch (MissingObjectException e) {
-            e.printStackTrace();
-        } catch (IncorrectObjectTypeException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidRepositoryException e) {
-           err("Canno");
+        } catch (Exception e) {
+           err("Cannot resolve commit with timestamp: " + d + ":" 
+                   + e.getMessage());
         }
         return null;
     }
@@ -226,25 +220,26 @@ public class GitAccessor implements SCMAccessor {
         throws InvalidProjectRevisionException,
                InvalidRepositoryException,
                FileNotFoundException {return;}
-
-    public CommitLog getCommitLog(Revision r)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {return null;}
     
-    public CommitLog getCommitLog(Revision r1, Revision r2)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {
-        return null;
-        
-    }
-
     public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
         throws InvalidProjectRevisionException,
-               InvalidRepositoryException {return null;}
-
-    public CommitEntry getCommitLog(String repoPath, Revision r)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {return null;}
+               InvalidRepositoryException {
+        
+        RevWalk rw = new RevWalk(git);
+        RevFilter exact = CommitTimeRevFilter.between(r1.getDate(), r2.getDate());
+        rw.setRevFilter(exact);
+        rw.sort(RevSort.TOPO, true);
+        rw.sort(RevSort.COMMIT_TIME_DESC, true);
+        rw.sort(RevSort.REVERSE, true);
+        
+        Iterator<RevCommit> i = rw.iterator();
+        
+        while (i.hasNext()) {
+            RevCommit c = i.next();
+            
+        }
+        return null;
+    }
 
     public Diff getDiff(String repoPath, Revision r1, Revision r2)
         throws InvalidProjectRevisionException,
@@ -311,8 +306,7 @@ public class GitAccessor implements SCMAccessor {
         Calendar c = GregorianCalendar.getInstance();
         c.setTimeInMillis(obj.getAuthor().getWhen().getTime());
         c.setTimeZone(obj.getAuthor().getTimeZone());
-        Revision r = new GitRevision(obj.getCommitId().getName(), c.getTime(), 
-                Status.RESOLVED, Kind.FROM_REVISION);
+        Revision r = new GitRevision(obj.getCommitId().getName(), c.getTime());
         return r;
     }
     

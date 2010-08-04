@@ -1,8 +1,5 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ * Copyright 2010 - Organization for Free and Open Source Software,  
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,61 +28,48 @@
  *
  */
 
-package eu.sqooss.service.tds;
+package eu.sqooss.plugins.tds.git;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import eu.sqooss.service.tds.CommitLog;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.Revision;
 
 /**
- * A representation of an entry in the commit log of an SCM system. 
+ * The Git implementation of 
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
-public interface CommitEntry {
-    
-    /**
-     * Get the project revision / commit hash for the commit entry 
-     */
-    Revision getRevision();
-    
-    /**
-     * Get the username of the person that performed the commit 
-     * 
-     */
-    String getAuthor();
-    
-    /**
-     * Get the message attached to the commit
-     */
-    String getMessage();
-    
-    /**
-     * Get the date of the commit
-     */
-    Date getDate();
-    
-    /**
-     * Get a set of paths that changed by the commit
-     */
-    Set<String> getChangedPaths();
-    
-    /**
-     * Get the modification types that were performed on each changed path
-     * by the commit
-     */
-    Map<String, PathChangeType> getChangedPathsStatus();
-    
-    /**
-     * Get a list of copy operations that took place in this revision
-     */
-    List<CommitCopyEntry> getCopyOperations();
+public class GitCommitLog implements CommitLog {
 
-    /**
-     * Get a string representation of the commit
-     */
-    String toString();
+    private LinkedList<Revision> entries;
+    
+    public GitCommitLog() {
+        entries = new LinkedList<Revision>();
+    }
+
+    @Override
+    public Iterator<Revision> iterator() {
+        return entries.iterator();
+    }
+
+    @Override
+    public Revision first() {
+        return null;
+    }
+
+    @Override
+    public Revision last() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int size() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

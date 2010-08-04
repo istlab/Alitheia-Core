@@ -33,15 +33,18 @@
 
 package eu.sqooss.service.tds;
 
-
 /**
  * This interface represents a lowest-common-denominator approach to logs of
  * changes to a project. A commit log extends from some first revision to some
  * last revision (which may be the same revision, or may both be null if the log
  * is empty) and consists of messages. The log is iterable and will return the
- * messages in commit order.
+ * messages in date order.
+ * 
+ * Even if its functionality is simple, this interface is provided in order to
+ * allow implementations to configure the log retrieval strategy (on-request or
+ * one-off) for themselves.
  */
-public interface CommitLog extends Iterable<CommitEntry> {
+public interface CommitLog extends Iterable<Revision> {
     /**
      * Retrieve the project revision information for the first entry in this
      * commit log. May return null if the log is empty.
@@ -60,22 +63,6 @@ public interface CommitLog extends Iterable<CommitEntry> {
     Revision last();
 
     /**
-     * Retrieve the message (commit message) for project revision <code>r</code>
-     * in this log. If <code>r</code> is not valid in some way, throw an
-     * exception. If <code>r</code> is not in the log (the revision does not
-     * occur, for instance) return <code>null</code>. For
-     * <code>ProjectRevisions</code> with no SVN revision attached (date
-     * revisions) return the last revision that is not after the indicated date,
-     * or <code>null</code> if there isn't one.
-     * 
-     * @param r Revision for which the message should be retrieved
-     * @return message at revision <code>r</code>
-     * @throws InvalidProjectRevisionException
-     *                 if <code>r</code> is not within thea scope of this log.
-     */
-    String message(Revision r) throws InvalidProjectRevisionException;
-
-    /**
      * Return the number of entries in the log
      * @return the number of entries in the log
      */
@@ -83,4 +70,3 @@ public interface CommitLog extends Iterable<CommitEntry> {
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

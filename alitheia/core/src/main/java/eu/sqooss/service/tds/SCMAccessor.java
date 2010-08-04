@@ -40,12 +40,12 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * An interface to a source code repository. To be as generic as possible,
- * Alitheia's concept of a source code repository is build with SVN in mind.
- * Therefore, the repository is expected to attach a unique string to each
- * revision and be able to move revisions forwards and backwards. Other than
- * that, support for the remaining operations should be straight forward
- * with most SCM implementations. 
+ * An interface to a source code repository. To be compatible with Alitheia
+ * Core, the repository is expected to attach a unique id to each commit (this
+ * means maintaining repository wide history or some approximation of it) and be
+ * able to traverse revisions forwards and backwards. Other than that, support
+ * for the remaining operations should be straight forward with most SCM
+ * implementations.
  */
 public interface SCMAccessor extends DataAccessor {
    
@@ -225,74 +225,24 @@ public interface SCMAccessor extends DataAccessor {
                FileNotFoundException;
 
     /**
-     * Get the commit log entries for the provided SCM revision.
-     *  
-     * @param r The revision to get the log for.
-     * 
-     * @return A valid commit log
-     * 
-     * @throws InvalidProjectRevisionException When the provided revision is
-     * invalid
-     * @throws InvalidRepositoryException When there is an error accessing the 
-     * underlying repository
-     */
-    public CommitLog getCommitLog(Revision r)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException;
-    
-    /**
-     * Get the commit log entries for the changes between revisions r1 and r2.
-     * 
-     * @param r1 The revision to start getting the log from
-     * @param r2 The revision up to which to get the log
-     * 
-     * @return A valid commit log.
-     * 
-     * @throws InvalidProjectRevisionException When either of the provided 
-     * revisions is invalid
-     * @throws InvalidRepositoryException When there is an error accessing the 
-     * underlying repository
-     */
-    public CommitLog getCommitLog(Revision r1, Revision r2)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException;
-
-    /**
      * Get the commit log entries for the changes between revisions r1 and r2
-     * within the subtree identified
-     * by the path <tt>repoPath</tt>. The <tt>repoPath</tt> must be relative 
-     * to the root URL of the project this accessor is attached to.
+     * within the subtree identified by the path <tt>repoPath</tt>. The
+     * <tt>repoPath</tt> must be relative to the root URL of the project this
+     * accessor is attached to. 
      * 
      * @param repoPath The path to get the log for
      * @param r1 The revision to start getting the log from
-     * @param r2 The revision up to which to get the log
+     * @param r2 The revision up to which to get the log. If null, the commit log
+     * r1 is returned.
      * 
      * @return A valid commit log.
      * 
-     * @throws InvalidProjectRevisionException When either of the provided 
-     * revisions is invalid
-     * @throws InvalidRepositoryException When there is an error accessing the 
-     * underlying repository
+     * @throws InvalidProjectRevisionException
+     *             When either of the provided revisions is invalid
+     * @throws InvalidRepositoryException
+     *             When there is an error accessing the underlying repository
      */
     public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException;
-
-    /**
-     * Convenience method, like getCommitLog() with only one revision. One entry
-     * is returned.
-     * 
-     * @param repoPath The path to get the log for
-     * @param r1 The revision to get the log for
-     * 
-     * @return A single commit entry.
-     * 
-     * @throws InvalidProjectRevisionException When the provided revision is
-     *  invalid
-     * @throws InvalidRepositoryException When there is an error accessing
-     *  the underlying repository
-     */
-    public CommitEntry getCommitLog(String repoPath, Revision r)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException;
 
@@ -346,14 +296,6 @@ public interface SCMAccessor extends DataAccessor {
     public SCMNodeType getNodeType(String repoPath, Revision r)
     	throws InvalidRepositoryException;
 
-    /**
-     * Get the subdirectory of the project within the repository.
-     * 
-     * @throws InvalidRepositoryException When there is an error accessing the 
-     * underlying repository
-     */
-    public String getSubProjectPath() throws InvalidRepositoryException;
-    
     /**
      * Get a list of files in a node in a specific revision. If the 
      * node is a file and not a directory, then the node itself is returned.

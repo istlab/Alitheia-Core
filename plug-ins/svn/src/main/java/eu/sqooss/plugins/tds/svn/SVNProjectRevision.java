@@ -33,33 +33,46 @@
 
 package eu.sqooss.plugins.tds.svn;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.tmatesoft.svn.core.SVNLogEntry;
+import org.tmatesoft.svn.core.SVNLogEntryPath;
+
+import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 
 /**
- * A ProjectRevision denotes a revision of a (any) project; revisions
- * may be created from dates or from SVN revision numbers. A specific
- * ProjectRevision object contains @em only dates or revisions; it is
- * not of itself associated with a specific project. If a ProjectRevision
- * is created with a date it has no SVN revision until it is applied to
- * a specific project; at that point its SVN revision @em may be set
- * by querying the SVN repository. Similarly ProjectRevisions created
- * from a specific revision number have no date until they hit a repository.
- *
- * ProjectRevisions are passed to many functions of the raw accessor
- * classes. It may be invalid to pass certain kinds of revisions
- * to some of those methods (for instance, the email accessors only
- * make sense if there is a date attached to the revision). The
- * InvalidProjectRevisionException is used to indicate problems like that.
+ * A Revision denotes a revision of a (any) project; revisions may be created
+ * from dates or from SVN revision numbers. A specific Revision object contains @em
+ * only dates or revisions; it is not of itself associated with a specific
+ * project. If a SVNProjectRevision is created with a date it has no SVN
+ * revision until it is applied to a specific project; at that point its SVN
+ * revision @em may be set by querying the SVN repository. Similarly
+ * SVNProjectRevisions created from a specific revision number have no date
+ * until they hit a repository.
+ * 
+ * SVNProjectRevisions are passed to many functions of the raw accessor classes.
+ * It may be invalid to pass certain kinds of revisions to some of those methods
+ * (for instance, the email accessors only make sense if there is a date
+ * attached to the revision). The InvalidProjectRevisionException is used to
+ * indicate problems like that.
  */
 public class SVNProjectRevision implements Revision {
 
     private long revision;
     private Date date;
-    private Status status;
-    private Kind kind;
+    private String author;
+    private String message;
+    private Map<String, PathChangeType> changedPaths;
+    private List<CommitCopyEntry> copyOps;
     
     /**
      * Default constructor, creating an invalid revision.
@@ -67,7 +80,6 @@ public class SVNProjectRevision implements Revision {
     private SVNProjectRevision() {
         revision = -1;
         date = null;
-        status = Status.UNRESOLVED;
     }
 
     /**
@@ -78,7 +90,6 @@ public class SVNProjectRevision implements Revision {
     public SVNProjectRevision(long revision) {
         this();
         this.revision = revision;
-        kind = Kind.FROM_REVISION;
     }
 
     /**
@@ -89,49 +100,55 @@ public class SVNProjectRevision implements Revision {
     public SVNProjectRevision(Date date) {
         this();
         this.date = date;
-        kind = Kind.FROM_DATE;
     }
 
     /**
-     * Copy constructor.
+     * Create a revision from an SVNKit log entry object.
      */
-    public SVNProjectRevision(SVNProjectRevision r) {
-        this();
-        kind = r.getKind();
-        status = r.getStatus();
-        date = r.getDate();
-        revision = r.getSVNRevision();
-    }
-    
-    /**
-     * Set the revision to a specific number. This does not change
-     * the kind of the project revision 
-     */
-    public void setSVNRevision(long r) {
-        revision = r;
-        if (r >= 0 &&
-                kind == Kind.FROM_DATE && 
-                status == Status.UNRESOLVED) {
-            status = Status.RESOLVED;
-        }
-    }
-    
-    /**
-     * Set the date for this project revision. Does not change its kind.
-     */
-    public void setDate(Date d) {
-        date = d;
-        if (d != null && 
-                kind == Kind.FROM_REVISION && 
-                status == Status.UNRESOLVED) {
-            status = Status.RESOLVED;
+    public SVNProjectRevision(SVNLogEntry l, String root) {
+        author = l.getAuthor();
+        message = l.getMessage();
+        date = l.getDate();
+        changedPaths = new LinkedHashMap<String, PathChangeType>();
+        copyOps = new ArrayList<CommitCopyEntry>();
+        revision = l.getRevision();
+        
+        Map<String, SVNLogEntryPath> paths = 
+            (Map<String, SVNLogEntryPath>) l.getChangedPaths();
+        
+        for (Iterator i = paths.keySet().iterator(); i.hasNext();) {
+            String path = (String) i.next();
+            if (path.startsWith(root)) {
+                changedPaths.put(
+                        path, parseSVNLogEntryPath(
+                                paths.get(path).getType()));
+            }
+            
+            String copyPath = paths.get(path).getCopyPath();
+            Long   copyRev = paths.get(path).getCopyRevision();
+            
+            if ((copyPath != null) && (copyRev != -1)) {
+                copyOps.add(new CommitCopyEntry(copyPath, 
+                        (Revision)(new SVNProjectRevision(copyRev)), path, 
+                        this));
+            }
         }
     }
 
-    public void setResolved(Status s) {
-        status = s;
+    private PathChangeType parseSVNLogEntryPath(char entryPathType) {
+        if (entryPathType == SVNLogEntryPath.TYPE_ADDED) {
+            return PathChangeType.ADDED;
+        } else if (entryPathType == SVNLogEntryPath.TYPE_DELETED) {
+            return PathChangeType.DELETED;
+        } else if (entryPathType == SVNLogEntryPath.TYPE_MODIFIED) {
+            return PathChangeType.MODIFIED;
+        } else if (entryPathType == SVNLogEntryPath.TYPE_REPLACED) {
+            return PathChangeType.REPLACED;
+        } else {
+            return PathChangeType.UNKNOWN;
+        }
     }
-    
+
     /**
      * Retrieve the SVN revision that most closely corresponds
      * with this project revision.
@@ -139,42 +156,15 @@ public class SVNProjectRevision implements Revision {
     public long getSVNRevision() {
         return revision;
     }
-    
-    /**
-     * Does the project revision have a SVN revision associated?
-     */
-    public boolean hasSVNRevision() {
-        return ((kind == Kind.FROM_REVISION) || 
-                ((kind == Kind.FROM_DATE) && isResolved()));
-    }
-    
-    /**
-     * Does the project revision have a date associated?
-     */
-    public boolean hasDate() {
-        return ((kind == Kind.FROM_DATE) || 
-                ((kind == Kind.FROM_REVISION) && isResolved()));
-    }
 
-    public boolean isValid() {
-        return (status == Status.INVALID);
-    }
-    
     public boolean isResolved() {
-        return (status == Status.RESOLVED);
+        return (revision >= 0 
+                && date != null
+                && author != null
+                && message != null);
     }
     
     //Interface methods
-    /** {@inheritDoc} */
-    public Kind getKind() {
-        return kind;
-    }
-    
-    /** {@inheritDoc} */
-    public Status getStatus() {
-        return status;
-    }
-
     /** {@inheritDoc}} */
     public Date getDate() {
         return date;
@@ -185,21 +175,36 @@ public class SVNProjectRevision implements Revision {
         return String.valueOf(revision);
     }
     
+    @Override
+    public String getAuthor() {
+        return author;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public Set<String> getChangedPaths() {
+        return changedPaths.keySet();
+    }
+
+    @Override
+    public Map<String, PathChangeType> getChangedPathsStatus() {
+        return changedPaths;
+    }
+
+    @Override
+    public List<CommitCopyEntry> getCopyOperations() {
+        return copyOps;
+    }  
+    
     /** {@inheritDoc} */
     public String toString() {
-        if (getStatus() == Status.RESOLVED) {
-            return "r." + revision + " (" + date + ")";
-        } else if(getStatus() == Status.UNRESOLVED) {
-            switch (kind) {
-            case FROM_REVISION:
-                return "r." + revision;
-            case FROM_DATE:
-                return date.toString();
-            }
-        } else {
-            return "invalid revision r:" + revision + " date: " + date;
-        }
-        return null;
+        if (!isResolved())
+            return null;
+        return "r" + revision + " - (" + getAuthor() + "): " + getMessage();
     }
     
     /** {@inheritDoc} */
@@ -219,7 +224,7 @@ public class SVNProjectRevision implements Revision {
         }
         
         return (int) (revision - (((SVNProjectRevision)o).revision)); 
-    }    
+    }  
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

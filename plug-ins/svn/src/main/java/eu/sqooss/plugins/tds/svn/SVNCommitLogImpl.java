@@ -33,79 +33,25 @@
 
 package eu.sqooss.plugins.tds.svn;
 
-import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
-import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.Revision;
 
+/**
+ * A simplistic implementation of the CommitLog interface.
+ */
 public class SVNCommitLogImpl implements CommitLog {
-    private LinkedList<CommitEntry> entries;
+    private LinkedList<Revision> entries;
 
     public SVNCommitLogImpl() {
-        entries = new LinkedList<CommitEntry>();
+        entries = new LinkedList<Revision>();
     }
 
-    public Collection<CommitEntry> getEntriesReference() {
+    public List<Revision> getEntries() {
         return entries;
-    }
-
-    private void dump(CommitEntry l) {
-        System.out.println("--------------------------------");
-        System.out.println("r." + l.getRevision() + "  " + l.getAuthor() + "  "
-                + l.getDate());
-        System.out.println(l.getMessage());
-    }
-
-    public void dump() {
-        for (Iterator<CommitEntry> i = entries.iterator(); i.hasNext();) {
-            CommitEntry l = i.next();
-            dump(l);
-        }
-    }
-    
-    /**{@inheritDoc}}*/
-    private String SVNMessage(SVNProjectRevision r)
-            throws InvalidProjectRevisionException {
-        if ((r == null) || (!r.isValid())) {
-            throw new InvalidProjectRevisionException(
-                    "Need a valid revision to query log", null);
-        }
-
-        if (r.hasSVNRevision()) {
-            long revno = r.getSVNRevision();
-            for (Iterator<CommitEntry> i = entries.iterator(); i.hasNext();) {
-                CommitEntry l = i.next();
-                if (((SVNProjectRevision)l.getRevision()).getSVNRevision() == revno) {
-                    return l.getMessage();
-                }
-            }
-        } else {
-            Date d = r.getDate();
-            CommitEntry l = null, prev = null;
-            for (Iterator<CommitEntry> i = entries.iterator(); i.hasNext();) {
-                prev = l;
-                l = i.next();
-                if (l.getDate().after(d)) {
-                    if (prev != null) {
-                        return prev.getMessage();
-                    } else {
-                        // This is the case when the first entry already
-                        // comes after the requested date.
-                        return null;
-                    }
-                }
-            }
-            // We've gotten to the end without finding a revision that
-            // comes after the requested date, so obviously the last
-            // entry is the latest entry before the requested date.
-            return prev.getMessage();
-        }
-        return null;
     }
 
     // Interface methods
@@ -114,10 +60,8 @@ public class SVNCommitLogImpl implements CommitLog {
         if (entries.size() < 1) {
             return null;
         }
-        SVNProjectRevision r = new SVNProjectRevision(
-                (SVNProjectRevision)entries.get(0).getRevision());
-        r.setDate(entries.get(0).getDate());
-        return r;
+        
+        return entries.getFirst();
     }
     
     /**{@inheritDoc}}*/
@@ -125,16 +69,8 @@ public class SVNCommitLogImpl implements CommitLog {
         if (entries.size() < 1) {
             return null;
         }
-        SVNProjectRevision r = new SVNProjectRevision(
-                (SVNProjectRevision)entries.getLast().getRevision());
-        r.setDate(entries.getLast().getDate());
-        return r;
-    }
-    
-    /**{@inheritDoc}}*/
-    public String message(Revision r) throws InvalidProjectRevisionException {
         
-        return SVNMessage((SVNProjectRevision)r);
+        return entries.getLast();
     }
     
     /**{@inheritDoc}}*/
@@ -143,7 +79,7 @@ public class SVNCommitLogImpl implements CommitLog {
     }
 
     /**{@inheritDoc}}*/
-    public Iterator<CommitEntry> iterator() {
+    public Iterator<Revision> iterator() {
         return entries.iterator();
     }
 }

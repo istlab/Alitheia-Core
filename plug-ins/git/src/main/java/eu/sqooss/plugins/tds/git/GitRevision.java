@@ -31,8 +31,13 @@
 package eu.sqooss.plugins.tds.git;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 
 /**
@@ -45,14 +50,10 @@ public class GitRevision implements Revision {
 
     private String id;
     private Date date;
-    private Status status;
-    private Kind kind;
     
-    public GitRevision(String id, Date date, Status s, Kind k) {
+    public GitRevision(String id, Date date) {
         this.id = id;
         this.date = date;
-        this.status = s;
-        this.kind = k;
     }
     
     @Override
@@ -75,17 +76,37 @@ public class GitRevision implements Revision {
     }
 
     @Override
-    public Kind getKind() {
-        return kind;
-    }
-
-    @Override
-    public Status getStatus() {
-        return status;
-    }
-
-    @Override
     public String getUniqueId() {
         return id;
+    }
+
+    @Override
+    public String getAuthor() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getMessage() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Set<String> getChangedPaths() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Map<String, PathChangeType> getChangedPathsStatus() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<CommitCopyEntry> getCopyOperations() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
