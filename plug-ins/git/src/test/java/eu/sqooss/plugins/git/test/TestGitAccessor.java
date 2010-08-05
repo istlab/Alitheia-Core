@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,7 @@ import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.plugins.tds.git.GitRevision;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.CommitCopyEntry;
+import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
@@ -194,6 +196,7 @@ public class TestGitAccessor {
         r = git.newRevision("779f21b307e7c119a56700fb14f88ba63a2cccc2");
         assertTrue(git.isValidRevision(r));
         
+        //Check a custom impemementation
         r = new Revision() {
             public Date getDate() {return null;}
             public String getUniqueId() {return null;}
@@ -209,10 +212,73 @@ public class TestGitAccessor {
     }
 
     @Test
-    public void testGetCommitLog() {
-        fail("Not yet implemented");
+    public void testGetCommitLog() 
+    throws InvalidProjectRevisionException, InvalidRepositoryException {
+        Revision r1 = git.newRevision("b5d6b907b080992c2d0220eceb66f4ffa85207cd");
+        Revision r2 = git.newRevision("3cb57d82c301e9b8a16f30f468401e3007845bb7");
+        
+        CommitLog l = git.getCommitLog("", r1, r2);
+        assertNotNull(l);
+        assertEquals(l.size(), 15);
+        Iterator<Revision> i = l.iterator();
+        long old = 0;
+        //Check log entry validity and ascending date order
+        while (i.hasNext()) {
+            Revision r = i.next();
+            assertTrue(git.isValidRevision(r));
+            assertTrue(r.getDate().getTime() > old);
+            old = r.getDate().getTime();
+        }
+        
+        //Commit sequence including tags and branches
+        r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
+        r2 = git.newRevision("ae106e2a3569e5ea874852c613ed060d8e232109");
+        
+        l = git.getCommitLog("", r1, r2);
+        assertNotNull(l);
+        assertEquals(l.size(), 12);
+
+        //Check log entry validity and ascending order
+        while (i.hasNext()) {
+            Revision r = i.next();
+            assertTrue(git.isValidRevision(r));
+            assertTrue(r.getDate().getTime() > old);
+            old = r.getDate().getTime();
+        }
+        
+        //Many intermixing commits and branches
+        r1 = git.newRevision("f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
+        r2 = git.newRevision("94f389bf5d9af4511597d035e69d1be9510b50c7");
+        
+        l = git.getCommitLog("", r1, r2);
+        assertNotNull(l);
+        assertEquals(l.size(), 160);
+
+        //Check log entry validity and ascending order
+        while (i.hasNext()) {
+            Revision r = i.next();
+            assertTrue(git.isValidRevision(r));
+            assertTrue(r.getDate().getTime() > old);
+            old = r.getDate().getTime();
+        }
+        
+        //Commit sequence including tags and branches + path filter
+        r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
+        r2 = git.newRevision("ae106e2a3569e5ea874852c613ed060d8e232109");
+        
+        l = git.getCommitLog("", r1, r2);
+        assertNotNull(l);
+        assertEquals(l.size(), 12);
+
+        //Check log entry validity and ascending order
+        while (i.hasNext()) {
+            Revision r = i.next();
+            assertTrue(git.isValidRevision(r));
+            assertTrue(r.getDate().getTime() > old);
+            old = r.getDate().getTime();
+        }
     }
-    
+  
     @Test
     public void testGetCheckout() {
         fail("Not yet implemented");

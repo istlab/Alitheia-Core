@@ -32,12 +32,13 @@ package eu.sqooss.plugins.tds.git;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Revision;
 
 /**
- * The Git implementation of teh CommitLog interface.
+ * The Git implementation of the CommitLog interface.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
@@ -48,6 +49,10 @@ public class GitCommitLog implements CommitLog {
     
     public GitCommitLog() {
         entries = new LinkedList<Revision>();
+    }
+    
+    public List<Revision> entries() {
+        return entries;
     }
 
     @Override

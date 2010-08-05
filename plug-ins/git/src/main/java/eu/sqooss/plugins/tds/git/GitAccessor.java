@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
@@ -296,18 +297,36 @@ public class GitAccessor implements SCMAccessor {
     public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
+        GitCommitLog log = new GitCommitLog();
+       
+        if (r1 == null || !isValidRevision(r1)) 
+            throw new InvalidProjectRevisionException("Revision is invalid", getClass());
         
-        RevWalk rw = new RevWalk(git);
-        rw.sort(RevSort.TOPO, true);
-        rw.sort(RevSort.COMMIT_TIME_DESC, true);
-        rw.sort(RevSort.REVERSE, true);
-        
-        Iterator<RevCommit> i = rw.iterator();
-        
-        while (i.hasNext()) {
-            RevCommit c = i.next();
+        if (r2 == null) {
+            r2 = getNextRevision(r1);
+        } else if (!isValidRevision(r2)) {
+            throw new InvalidProjectRevisionException("Revision is invalid", getClass());
         }
-        return null;
+        
+        try {
+            RevWalk rw = new RevWalk(git);
+            RevFilter exact = CommitTimeRevFilter.between(r1.getDate(), r2.getDate());
+            rw.setRevFilter(exact);
+            //rw.sort(RevSort.TOPO, true);
+            rw.sort(RevSort.COMMIT_TIME_DESC, true);
+            rw.markStart(rw.parseCommit(git.resolve(Constants.HEAD)));
+            Iterator<RevCommit> i = rw.iterator();
+
+            while (i.hasNext()) {
+                RevCommit c = i.next();
+                log.entries().add(new GitRevision(c.asCommit(rw)));
+            }
+        } catch (Exception e) {
+            throw new InvalidRepositoryException(uri.toString(), 
+                    "Cannot get revision log");
+        }
+        Collections.reverse(log.entries());
+        return log;
     }
 
     public Diff getDiff(String repoPath, Revision r1, Revision r2)
