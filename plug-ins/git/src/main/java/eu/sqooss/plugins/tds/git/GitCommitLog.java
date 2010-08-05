@@ -34,11 +34,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import eu.sqooss.service.tds.CommitLog;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.Revision;
 
 /**
- * The Git implementation of 
+ * The Git implementation of teh CommitLog interface.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
@@ -58,18 +57,16 @@ public class GitCommitLog implements CommitLog {
 
     @Override
     public Revision first() {
-        return null;
+        return entries.getFirst();
     }
 
     @Override
     public Revision last() {
-        // TODO Auto-generated method stub
-        return null;
+        return entries.getLast();
     }
 
     @Override
     public int size() {
-        // TODO Auto-generated method stub
-        return 0;
+        return entries.size();
     }
 }

@@ -142,7 +142,7 @@ public class GitAccessor implements SCMAccessor {
                 return null;
             }
             
-            return revFromGitCommit(c);
+            return new GitRevision(c);
         } catch (Exception e) {
            err("Cannot resolve commit with timestamp: " + d + ":" 
                    + e.getMessage());
@@ -152,7 +152,7 @@ public class GitAccessor implements SCMAccessor {
     
     /** {@inheritDoc} */
     public Revision newRevision(String uniqueId) {
-        
+
         if (uniqueId == null || uniqueId.equals("")) {
             err("Cannot create new revision with null or empty revisionid");
             return null;
@@ -160,7 +160,7 @@ public class GitAccessor implements SCMAccessor {
         
         try {
             Commit obj = git.mapCommit(uniqueId);
-            return revFromGitCommit(obj);
+            return new GitRevision(obj);
         } catch (IOException e) {
                 err("Cannot resolve revision " + uniqueId + ":" + 
                         e.getMessage());
@@ -183,22 +183,83 @@ public class GitAccessor implements SCMAccessor {
             
             RevCommit root = rw.parseCommit(headId);
             Commit c = root.asCommit(rw);
-            return revFromGitCommit(c);
+            return new GitRevision(c);
         } catch (IOException e) {
             throw new InvalidRepositoryException("", e.getMessage());
         }
     }
-    
-    public Revision getFirstRevision() 
-        throws InvalidRepositoryException {return null;}
+
+    /** {@inheritDoc} */
+    public Revision getFirstRevision() throws InvalidRepositoryException {
+        RevWalk rw = new RevWalk(git);
+        RevCommit c = null;
+        AnyObjectId headId;
+        try {
+            headId = git.resolve(Constants.HEAD);
+            RevCommit root = rw.parseCommit(headId);
+            rw.sort(RevSort.REVERSE);
+            rw.markStart(root);
+            c = rw.next();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return new GitRevision(c.asCommit(rw));
+    }
+
+    public Revision getPreviousRevision(Revision r)
+        throws InvalidProjectRevisionException {
+        AnyObjectId revId;
+        try {
+            RevWalk rw = new RevWalk(git);
+            revId = git.resolve(r.getUniqueId());
+            
+            if (revId == null) {
+                throw new InvalidProjectRevisionException(
+                        "r" + revId + " is not known", getClass());
+            }
+            RevCommit commit = rw.parseCommit(revId);
+            rw.sort(RevSort.TOPO);
+            rw.markStart(commit);
+            rw.next();
+            RevCommit next = rw.next();
+            Commit c = next.asCommit(rw);
+            return new GitRevision(c);
+        } catch (IOException e) {
+            throw new InvalidProjectRevisionException(
+                    "Cannot get next revision: "+ e.getMessage(), 
+                    getClass());
+        }
+    }
     
     public Revision getNextRevision(Revision r)
-        throws InvalidProjectRevisionException {return null;}
+        throws InvalidProjectRevisionException {
+        AnyObjectId revId;
+        try {
+            RevWalk rw = new RevWalk(git);
+            revId = git.resolve(r.getUniqueId());
+            
+            if (revId == null) {
+                throw new InvalidProjectRevisionException(
+                        "r" + revId + " is not known", getClass());
+            }
+            rw.parseCommit(revId);
+            
+        } catch (IOException e) {
+            throw new InvalidProjectRevisionException(
+                    "Cannot get next revision: "+ e.getMessage(), 
+                    getClass());
+        }
+        return null;
+    }
     
-    public Revision getPreviousRevision(Revision r)
-        throws InvalidProjectRevisionException {return null;}
-    
-    public boolean isValidRevision(Revision r) {return false;}
+    public boolean isValidRevision(Revision r) {
+        
+        if (!(r instanceof GitRevision))
+            return false;
+        
+        return ((GitRevision)r).isResolved();
+    }
     
     public void getCheckout(String repoPath, Revision revision, File localPath)
         throws InvalidProjectRevisionException,
@@ -226,8 +287,6 @@ public class GitAccessor implements SCMAccessor {
                InvalidRepositoryException {
         
         RevWalk rw = new RevWalk(git);
-        RevFilter exact = CommitTimeRevFilter.between(r1.getDate(), r2.getDate());
-        rw.setRevFilter(exact);
         rw.sort(RevSort.TOPO, true);
         rw.sort(RevSort.COMMIT_TIME_DESC, true);
         rw.sort(RevSort.REVERSE, true);
@@ -236,7 +295,6 @@ public class GitAccessor implements SCMAccessor {
         
         while (i.hasNext()) {
             RevCommit c = i.next();
-            
         }
         return null;
     }
@@ -278,7 +336,6 @@ public class GitAccessor implements SCMAccessor {
     throws AccessorException {
         doInit(dataURL, projectName);
     }
-    
     /**
      * Actual repo initialization code, construct a repository instance per
      * tracked project.
@@ -301,28 +358,19 @@ public class GitAccessor implements SCMAccessor {
         return f;
     }
     
-    /**Convert a JGit revision to an Alitheia Core one*/
-    private Revision revFromGitCommit(Commit obj) {
-        Calendar c = GregorianCalendar.getInstance();
-        c.setTimeInMillis(obj.getAuthor().getWhen().getTime());
-        c.setTimeZone(obj.getAuthor().getTimeZone());
-        Revision r = new GitRevision(obj.getCommitId().getName(), c.getTime());
-        return r;
-    }
-    
     private void warn(String msg) {
         if (logger != null)
-            logger.warn(msg);
+            logger.warn("GIT:" + msg);
     }
     
     private void err(String msg) {
         if (logger != null)
-            logger.error(msg);
+            logger.error("GIT:" +msg);
     }
     
     private void info(String msg) {
         if (logger != null)
-            logger.info(msg);
+            logger.info("GIT:" +msg);
     }
 }
 

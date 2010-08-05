@@ -30,10 +30,14 @@
 
 package eu.sqooss.plugins.tds.git;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.jgit.lib.Commit;
 
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -50,12 +54,33 @@ public class GitRevision implements Revision {
 
     private String id;
     private Date date;
-    
+    private String author;
+    private String msg;
+    private Map<String, PathChangeType> changedPaths;
+    private List<CommitCopyEntry> copyOps;
+
     public GitRevision(String id, Date date) {
         this.id = id;
         this.date = date;
     }
+
+    public GitRevision(Commit obj) {
+        this.id = obj.getCommitId().name();
+        this.date = obj.getAuthor().getWhen();
+        this.author = obj.getAuthor().getName() + " <" + obj.getAuthor().getEmailAddress() + ">";
+        this.msg = obj.getMessage();
+        this.changedPaths = new HashMap<String, PathChangeType>();
+        this.copyOps = new ArrayList<CommitCopyEntry>();
+    }
     
+    public boolean isResolved() {
+        return (id != null)  && 
+            (date != null)   && 
+            (author != null) &&
+            (msg != null);
+    }
+    
+    //Interface methods
     @Override
     public int compareTo(Revision other) throws InvalidProjectRevisionException {
         if (!(other instanceof GitRevision))
@@ -82,31 +107,26 @@ public class GitRevision implements Revision {
 
     @Override
     public String getAuthor() {
-        // TODO Auto-generated method stub
-        return null;
+        return author;
     }
 
     @Override
     public String getMessage() {
-        // TODO Auto-generated method stub
-        return null;
+        return msg;
     }
 
     @Override
     public Set<String> getChangedPaths() {
-        // TODO Auto-generated method stub
-        return null;
+        return changedPaths.keySet();
     }
 
     @Override
     public Map<String, PathChangeType> getChangedPathsStatus() {
-        // TODO Auto-generated method stub
-        return null;
+        return changedPaths;
     }
 
     @Override
     public List<CommitCopyEntry> getCopyOperations() {
-        // TODO Auto-generated method stub
-        return null;
+        return copyOps;
     }
 }

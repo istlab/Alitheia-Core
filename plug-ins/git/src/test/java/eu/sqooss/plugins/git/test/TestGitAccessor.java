@@ -8,7 +8,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jgit.lib.Commit;
 import org.eclipse.jgit.lib.Constants;
@@ -28,9 +31,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import eu.sqooss.plugins.tds.git.GitAccessor;
+import eu.sqooss.plugins.tds.git.GitRevision;
 import eu.sqooss.service.tds.AccessorException;
+import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 
 public class TestGitAccessor {
@@ -103,17 +109,20 @@ public class TestGitAccessor {
         Revision r = git.newRevision("93ea66104efe1bd5e3a80cbe097c6c9d88621a25");
         assertNotNull(r);
         assertEquals(r.getDate().getTime(), sdf.parse("Mon May 5 22:52:08 2008 +0800").getTime());
+        assertTrue(git.isValidRevision(r));
         
         //now check a commit on a branch
         Revision r1 = git.newRevision("257fd8db3e60fb655af3c42e224d0a9acaa3624e");
         assertNotNull(r);
         assertEquals(r1.getDate().getTime(), sdf.parse("Thu Feb 12 09:12:00 2009 -0800").getTime());
+        assertTrue(git.isValidRevision(r1));
         
         //and a commit that creates a tag
         Revision r2 = git.newRevision("85fa6ec3a68b6ff8acfa69c59fbdede1385f63bb");
         assertNotNull(r);
         assertEquals(r2.getDate().getTime(), sdf.parse("Sun Aug 2 04:06:03 2009 -0400").getTime());
         assertTrue(r1.compareTo(r2) < 0);
+        assertTrue(git.isValidRevision(r2));
     }
     
     @Test
@@ -121,32 +130,62 @@ public class TestGitAccessor {
         Revision r = git.newRevision(sdf.parse("Thu Feb 12 09:12:00 2009 -0800"));
         assertNotNull(r);
         assertEquals(r.getUniqueId(), "257fd8db3e60fb655af3c42e224d0a9acaa3624e");
+        assertTrue(git.isValidRevision(r));
     }
 
     @Test
     public void testGetHeadRevision() throws InvalidRepositoryException {
         Revision r = git.getHeadRevision();
         assertNotNull(r);
+        assertTrue(git.isValidRevision(r));
     }
 
     @Test
-    public void testGetFirstRevision() {
-        fail("Not yet implemented");
+    public void testGetFirstRevision() throws InvalidRepositoryException {
+        Revision r = git.getFirstRevision();
+        assertNotNull(r);
+        assertEquals(r.getUniqueId(),"f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
+        assertTrue(git.isValidRevision(r));
     }
 
     @Test
-    public void testGetNextRevision() {
-        fail("Not yet implemented");
+    public void testGetPreviousRevision() throws InvalidProjectRevisionException {
+        Revision r1 = git.newRevision("4de1494c84fd5a5078f594f7d26ed667b1bc80ee");
+        Revision r2 = git.getPreviousRevision(r1);
+        assertNotNull(r2);
+        assertEquals(r2.getUniqueId(), "8131f47c9d1832a685e35cc2f838edf439f7af4c");
+        assertTrue(git.isValidRevision(r1));
+        assertTrue(git.isValidRevision(r2));
     }
 
     @Test
-    public void testGetPreviousRevision() {
-        fail("Not yet implemented");
+    public void testGetNextRevision() throws InvalidProjectRevisionException {
+        //Revision r1 = git.newRevision("4de1494c84fd5a5078f594f7d26ed667b1bc80ee");
+        //Revision r2 = git.getNextRevision(r1);
+        //assertNotNull(r2);
+        //assertEquals(r2.getUniqueId(), "b86cbd6205b7c8d7769f330f8ddcf31b160f3aea");
     }
 
     @Test
     public void testIsValidRevision() {
-        fail("Not yet implemented");
+        Revision r = new GitRevision("a21", new Date(12));
+        assertFalse(git.isValidRevision(r));
+        
+        r = git.newRevision("779f21b307e7c119a56700fb14f88ba63a2cccc2");
+        assertTrue(git.isValidRevision(r));
+        
+        r = new Revision() {
+            public Date getDate() {return null;}
+            public String getUniqueId() {return null;}
+            public String getAuthor() {return null;}
+            public String getMessage() {return null;}
+            public Set<String> getChangedPaths() {return null;}
+            public Map<String, PathChangeType> getChangedPathsStatus() {return null;}
+            public List<CommitCopyEntry> getCopyOperations() {return null;}
+            public int compareTo(Revision o) throws InvalidProjectRevisionException {return 0;}
+        };
+        
+        assertFalse(git.isValidRevision(r));
     }
 
     @Test
@@ -170,22 +209,7 @@ public class TestGitAccessor {
     }
 
     @Test
-    public void testGetCommitLogRevision() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetCommitLogRevisionRevision() {
-        fail("Not yet implemented");
-    }
-
-    @Test
     public void testGetCommitLogStringRevisionRevision() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetCommitLogStringRevision() {
         fail("Not yet implemented");
     }
 
