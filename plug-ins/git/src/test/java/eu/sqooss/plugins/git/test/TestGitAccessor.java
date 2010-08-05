@@ -156,14 +156,34 @@ public class TestGitAccessor {
         assertEquals(r2.getUniqueId(), "8131f47c9d1832a685e35cc2f838edf439f7af4c");
         assertTrue(git.isValidRevision(r1));
         assertTrue(git.isValidRevision(r2));
+        
+        //Check a commit with multiple parents (a merge point with the master
+        //branch)
+        r1 = git.newRevision("0cb54345b34fab6616f153c884fdc385180404a5");
+        r2 = git.getPreviousRevision(r1);
+        assertNotNull(r2);
+        assertEquals(r2.getUniqueId(), "9863034427dfd13aef0c19faa140a433542064ce");
+        assertTrue(git.isValidRevision(r1));
+        assertTrue(git.isValidRevision(r2));
     }
 
     @Test
     public void testGetNextRevision() throws InvalidProjectRevisionException {
-        //Revision r1 = git.newRevision("4de1494c84fd5a5078f594f7d26ed667b1bc80ee");
-        //Revision r2 = git.getNextRevision(r1);
-        //assertNotNull(r2);
-        //assertEquals(r2.getUniqueId(), "b86cbd6205b7c8d7769f330f8ddcf31b160f3aea");
+        Revision r1 = git.newRevision("4de1494c84fd5a5078f594f7d26ed667b1bc80ee");
+        Revision r2 = git.getNextRevision(r1);
+        assertNotNull(r2);
+        assertEquals(r2.getUniqueId(), "b86cbd6205b7c8d7769f330f8ddcf31b160f3aea");
+        assertTrue(git.isValidRevision(r1));
+        assertTrue(git.isValidRevision(r2));
+        
+        //Check a commit with multiple children (a merge point with the master
+        //branch)
+        r1 = git.newRevision("a51210199671cd4fcf2fcfa5ba286829a73aeb62");
+        r2 = git.getNextRevision(r1);
+        assertNotNull(r2);
+        assertEquals(r2.getUniqueId(), "86b45edcfe0026370cdff0ecea83348b406b3d92");
+        assertTrue(git.isValidRevision(r1));
+        assertTrue(git.isValidRevision(r2));
     }
 
     @Test
@@ -189,6 +209,11 @@ public class TestGitAccessor {
     }
 
     @Test
+    public void testGetCommitLog() {
+        fail("Not yet implemented");
+    }
+    
+    @Test
     public void testGetCheckout() {
         fail("Not yet implemented");
     }
@@ -205,11 +230,6 @@ public class TestGitAccessor {
 
     @Test
     public void testGetFileStringRevisionOutputStream() {
-        fail("Not yet implemented");
-    }
-
-    @Test
-    public void testGetCommitLogStringRevisionRevision() {
         fail("Not yet implemented");
     }
 

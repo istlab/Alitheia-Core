@@ -169,18 +169,17 @@ public class GitAccessor implements SCMAccessor {
     }
 
     /** {@inheritDoc} */
-    public Revision getHeadRevision()
-        throws InvalidRepositoryException {
+    public Revision getHeadRevision() throws InvalidRepositoryException {
         AnyObjectId headId;
         try {
             RevWalk rw = new RevWalk(git);
             headId = git.resolve(Constants.HEAD);
-            
+
             if (headId == null) {
-                throw new InvalidRepositoryException(uri.toString(), 
+                throw new InvalidRepositoryException(uri.toString(),
                         "HEAD does not point to a known revision");
             }
-            
+
             RevCommit root = rw.parseCommit(headId);
             Commit c = root.asCommit(rw);
             return new GitRevision(c);
@@ -203,10 +202,11 @@ public class GitAccessor implements SCMAccessor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return new GitRevision(c.asCommit(rw));
     }
 
+    /** {@inheritDoc} */
     public Revision getPreviousRevision(Revision r)
         throws InvalidProjectRevisionException {
         AnyObjectId revId;
@@ -231,26 +231,37 @@ public class GitAccessor implements SCMAccessor {
                     getClass());
         }
     }
-    
+
+    /** {@inheritDoc} */
     public Revision getNextRevision(Revision r)
         throws InvalidProjectRevisionException {
         AnyObjectId revId;
         try {
+            /*
+             * We say to JGit to return all commits whose timestamp is
+             * after the provided revision date, but also in ascending
+             * timestamp order (REVERSE strategy). 
+             */
             RevWalk rw = new RevWalk(git);
-            revId = git.resolve(r.getUniqueId());
-            
+            revId = git.resolve(Constants.HEAD);
+            RevFilter exact = CommitTimeRevFilter.after(r.getDate());
+            rw.sort(RevSort.REVERSE);
+            rw.setRevFilter(exact);
             if (revId == null) {
                 throw new InvalidProjectRevisionException(
                         "r" + revId + " is not known", getClass());
             }
-            rw.parseCommit(revId);
+            
+            rw.markStart(rw.parseCommit(revId));
+            rw.next();
+            RevCommit b = rw.next();
+            return new GitRevision(b.asCommit(rw));
             
         } catch (IOException e) {
             throw new InvalidProjectRevisionException(
                     "Cannot get next revision: "+ e.getMessage(), 
                     getClass());
         }
-        return null;
     }
     
     public boolean isValidRevision(Revision r) {
