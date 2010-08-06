@@ -246,22 +246,6 @@ public class TestGitAccessor {
             old = r.getDate().getTime();
         }
         
-        //Many intermixing commits and branches
-        r1 = git.newRevision("f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
-        r2 = git.newRevision("94f389bf5d9af4511597d035e69d1be9510b50c7");
-        
-        l = git.getCommitLog("", r1, r2);
-        assertNotNull(l);
-        assertEquals(l.size(), 160);
-
-        //Check log entry validity and ascending order
-        while (i.hasNext()) {
-            Revision r = i.next();
-            assertTrue(git.isValidRevision(r));
-            assertTrue(r.getDate().getTime() > old);
-            old = r.getDate().getTime();
-        }
-        
         //Commit sequence including tags and branches + path filter
         r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
         r2 = git.newRevision("ae106e2a3569e5ea874852c613ed060d8e232109");

@@ -30,14 +30,12 @@
 
 package eu.sqooss.plugins.tds.git;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jgit.lib.Commit;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -64,13 +62,14 @@ public class GitRevision implements Revision {
         this.date = date;
     }
 
-    public GitRevision(Commit obj) {
-        this.id = obj.getCommitId().name();
-        this.date = obj.getAuthor().getWhen();
-        this.author = obj.getAuthor().getName() + " <" + obj.getAuthor().getEmailAddress() + ">";
-        this.msg = obj.getMessage();
-        this.changedPaths = new HashMap<String, PathChangeType>();
-        this.copyOps = new ArrayList<CommitCopyEntry>();
+    public GitRevision(RevCommit obj, Map<String, PathChangeType> paths, List<CommitCopyEntry> copies) {
+        this.id = obj.getId().name();
+        this.date = obj.getAuthorIdent().getWhen();
+        this.author = obj.getAuthorIdent().getName() + " <" + obj.getAuthorIdent().getEmailAddress() + ">";
+        this.msg = obj.getFullMessage();
+        this.changedPaths = paths;
+        this.copyOps = copies;
+
     }
     
     public boolean isResolved() {

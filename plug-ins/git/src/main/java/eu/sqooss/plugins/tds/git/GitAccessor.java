@@ -36,24 +36,26 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Commit;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
@@ -136,14 +138,13 @@ public class GitAccessor implements SCMAccessor {
             RevCommit root = rw.parseCommit(headId);
             rw.markStart(root);
             RevCommit r = rw.next();
-            Commit c = r.asCommit(rw);
             
-            if (c == null) {
+            if (r == null) {
                 err("Cannot resolve commit with timestamp: " + d);
                 return null;
             }
             
-            return new GitRevision(c);
+            return getRevision(r);
         } catch (Exception e) {
            err("Cannot resolve commit with timestamp: " + d + ":" 
                    + e.getMessage());
@@ -160,8 +161,10 @@ public class GitAccessor implements SCMAccessor {
         }
         
         try {
+            RevWalk rw = new RevWalk(git);
             Commit obj = git.mapCommit(uniqueId);
-            return new GitRevision(obj);
+            RevCommit c = rw.parseCommit(obj.getCommitId());
+            return getRevision(c);
         } catch (IOException e) {
                 err("Cannot resolve revision " + uniqueId + ":" + 
                         e.getMessage());
@@ -182,8 +185,7 @@ public class GitAccessor implements SCMAccessor {
             }
 
             RevCommit root = rw.parseCommit(headId);
-            Commit c = root.asCommit(rw);
-            return new GitRevision(c);
+            return getRevision(root);
         } catch (IOException e) {
             throw new InvalidRepositoryException("", e.getMessage());
         }
@@ -204,7 +206,7 @@ public class GitAccessor implements SCMAccessor {
             e.printStackTrace();
         }
 
-        return new GitRevision(c.asCommit(rw));
+        return getRevision(c);
     }
 
     /** {@inheritDoc} */
@@ -223,9 +225,8 @@ public class GitAccessor implements SCMAccessor {
             rw.sort(RevSort.TOPO);
             rw.markStart(commit);
             rw.next();
-            RevCommit next = rw.next();
-            Commit c = next.asCommit(rw);
-            return new GitRevision(c);
+            RevCommit prev = rw.next();
+            return getRevision(prev);
         } catch (IOException e) {
             throw new InvalidProjectRevisionException(
                     "Cannot get next revision: "+ e.getMessage(), 
@@ -255,8 +256,8 @@ public class GitAccessor implements SCMAccessor {
             
             rw.markStart(rw.parseCommit(revId));
             rw.next();
-            RevCommit b = rw.next();
-            return new GitRevision(b.asCommit(rw));
+            RevCommit next = rw.next();
+            return getRevision(next);
             
         } catch (IOException e) {
             throw new InvalidProjectRevisionException(
@@ -294,40 +295,56 @@ public class GitAccessor implements SCMAccessor {
                InvalidRepositoryException,
                FileNotFoundException {return;}
     
-    public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {
+    public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2) {
         GitCommitLog log = new GitCommitLog();
-       
-        if (r1 == null || !isValidRevision(r1)) 
-            throw new InvalidProjectRevisionException("Revision is invalid", getClass());
-        
-        if (r2 == null) {
-            r2 = getNextRevision(r1);
-        } else if (!isValidRevision(r2)) {
-            throw new InvalidProjectRevisionException("Revision is invalid", getClass());
+        RevWalk rw = new RevWalk(git);
+        String fromRevision;
+
+        if (r1 == null) {
+            fromRevision = Constants.HEAD;
+        } else {
+            fromRevision = r1.getUniqueId();
         }
-        
+
+        ObjectId from;
         try {
-            RevWalk rw = new RevWalk(git);
+            from = git.resolve(fromRevision);
+            
+            if (from == null) {
+                return null;
+            }
+
+            ObjectId to = null;
+            if (r2 != null)
+                to = git.resolve(r2.getUniqueId());
+            
             RevFilter exact = CommitTimeRevFilter.between(r1.getDate(), r2.getDate());
             rw.setRevFilter(exact);
-            //rw.sort(RevSort.TOPO, true);
+            //rw.setRevFilter(RevFilter.NO_MERGES);
             rw.sort(RevSort.COMMIT_TIME_DESC, true);
             rw.markStart(rw.parseCommit(git.resolve(Constants.HEAD)));
+
+            if (to != null) {
+                rw.markUninteresting(rw.parseCommit(to));
+            }
+
+            if (repoPath != null && !repoPath.isEmpty()) {
+                rw.setTreeFilter(PathFilter.create(repoPath));
+            }
+            
             Iterator<RevCommit> i = rw.iterator();
 
             while (i.hasNext()) {
-                RevCommit c = i.next();
-                log.entries().add(new GitRevision(c.asCommit(rw)));
+                Revision r = getRevision(i.next());
+                log.entries().add(r);
             }
-        } catch (Exception e) {
-            throw new InvalidRepositoryException(uri.toString(), 
-                    "Cannot get revision log");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        Collections.reverse(log.entries());
         return log;
     }
+    
+    
 
     public Diff getDiff(String repoPath, Revision r1, Revision r2)
         throws InvalidProjectRevisionException,
@@ -382,6 +399,100 @@ public class GitAccessor implements SCMAccessor {
         }
     }
 
+    private ObjectId[] getTrees(RevCommit commit) 
+    throws MissingObjectException, IncorrectObjectTypeException, IOException {
+        final ObjectId[] r = new ObjectId[commit.getParentCount() + 1];
+        for (int i = 0; i < r.length - 1; i++) {
+            RevWalk rw = new RevWalk(git);
+            RevCommit parent = commit.getParent(i);
+            parent = rw.parseCommit(parent.getId());
+            r[i] = parent.getTree().getId();
+        }
+        r[r.length - 1] = commit.getTree().getId();
+        return r;
+    }
+
+    private PathChangeType getStatus(TreeWalk walk, int mode0, int mode1) {
+        if (mode0 == 0 && mode1 != 0) {
+            return PathChangeType.ADDED;
+        } else if (mode0 != 0 && mode1 == 0) {
+            return PathChangeType.DELETED;
+        } else if (!walk.idEqual(0, 1)) {
+            return PathChangeType.MODIFIED;
+        } 
+        
+        return null;
+    }
+    
+    /*
+     * Construct a full Revision object by analysing a commit's contents. Ideas
+     * and some code stolen by the Netbeans Git plugin:
+     * 
+     * http://github.com/myabc/nbgit.git
+     */
+    private GitRevision getRevision(RevCommit commit) {
+        Map<String, PathChangeType> events = new HashMap<String, PathChangeType>();
+
+        try {
+            ObjectId[] trees = getTrees(commit);
+            final int revTree = trees.length - 1;
+            TreeWalk tw = new TreeWalk(git);
+            tw.setRecursive(true);
+            tw.reset(trees);
+
+            switch (trees.length) {
+            case 1:
+                /* Initial commit. */
+                while (tw.next()) {
+                    events.put(tw.getPathString(), PathChangeType.ADDED);
+                }
+                break;
+            case 2:
+                while (tw.next()) {
+                    int mode0 = tw.getRawMode(0);
+                    int mode1 = tw.getRawMode(1);
+                    PathChangeType status = getStatus(tw, mode0, mode1);
+                    if (status == null) {
+                        continue;
+                    }
+                    events.put(tw.getPathString(), status);
+                }
+                break;
+            default:
+                /* Merge. */
+                while (tw.next()) {
+                    int mode0 = 0;
+                    int mode1 = tw.getRawMode(revTree);
+                    int i;
+
+                    for (i = 0; i < revTree; i++) {
+                        int mode = tw.getRawMode(i);
+                        if (mode == mode1 && tw.idEqual(i, revTree)) {
+                            break;
+                        }
+                        mode0 |= mode;
+                    }
+
+                    if (i != revTree) {
+                        continue;
+                    }
+                    PathChangeType status = getStatus(tw, mode0, mode1);
+                    if (status == null) {
+                        continue;
+                    }
+                    events.put(tw.getPathString(), status);
+                }
+                break;
+            }
+        } catch (Exception e) {
+            err("Cannot retrieve commit contents for rev " + 
+                    commit.getId().getName() + ":" + e.getMessage());
+            return null;
+        }
+        
+        return new GitRevision(commit, events, null);
+    }
+    
     /** Convert an Alitheia Core Git repository URL to an on-disk path*/
     private File toGitRepo(URI url) {
         File f = new File(url.getPath(), Constants.DOT_GIT);
