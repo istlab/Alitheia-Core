@@ -132,7 +132,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
                         " does not include a SCM accessor: " + e.getMessage());
             }
         } else if (t.equals(UpdateTarget.STAGE2)) {
-            return updForStage.get(UpdateTarget.STAGE2);
+            return updForStage.get(UpdaterStage.INFERENCE);
         }
         
         for (URI uri : schemes) {

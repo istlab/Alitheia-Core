@@ -71,9 +71,7 @@ public class MailThreadResolver implements MetadataUpdater {
     public void setUpdateParams(StoredProject sp, Logger l) {
         this.logger = l;
         this.sp = sp;
-        dbs = AlitheiaCore.getInstance().getDBService();
-        sp = dbs.attachObjectToDBSession(sp);
-        lists = sp.getMailingLists();
+
         try {
             mailAccessor = AlitheiaCore.getInstance().getTDSService().getAccessor(
                    sp.getId()).getMailAccessor();
@@ -84,6 +82,10 @@ public class MailThreadResolver implements MetadataUpdater {
 
     @Override
     public void update() throws Exception {
+        dbs = AlitheiaCore.getInstance().getDBService();
+        dbs.startDBSession();
+        sp = dbs.attachObjectToDBSession(sp);
+        lists = sp.getMailingLists();
         for (MailingList l : lists) {
             this.ml = l;
             realupdate();
@@ -282,9 +284,10 @@ public class MailThreadResolver implements MetadataUpdater {
     
     @Override
     public String toString() {
-
-        return "MailThreadUpdater Job - Project:{" + sp.getName() 
-        + "}, Mailing List: {" + ml.getListId() + "}, " + progress + "%";
+        String result =  "MailThreadUpdater Job - Project:{" + sp.getName();
+        if (ml != null)
+            result += "} Mailing List: {" + ml.getListId() + "}, " + progress + "%";
+        return result; 
         
     }
     
