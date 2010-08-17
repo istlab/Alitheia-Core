@@ -35,18 +35,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.codec.language.DoubleMetaphone;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.DeveloperAlias;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.updater.MetadataUpdater;
-import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.util.Pair;
-
-import org.apache.commons.codec.language.DoubleMetaphone;
 
 /**
  * Heuristic based matcher for developer identities. Uses a combination of 
@@ -117,6 +115,7 @@ public class DeveloperMatcher implements MetadataUpdater {
         }
         progress = 30;
         for (String name : nameToDev.keySet()) {
+            
             List<String> usernames = getPossibleUnames(name);
             for (String uname : usernames) {
                 // Try strict matching first
@@ -124,7 +123,7 @@ public class DeveloperMatcher implements MetadataUpdater {
                     addMatch(nameToDev.get(name).getId(), 
                             unameToDev.get(uname).getId(), 10);
                 }
-
+                
               /*  String mph = dm.doubleMetaphone(uname);
 
                 // Try metaphone matching
@@ -161,6 +160,14 @@ public class DeveloperMatcher implements MetadataUpdater {
                 }*/
             }
         }
+        
+        for (String username: unameToDev.keySet()) {
+            if (emailprefToDev.containsKey(username)) {
+                addMatch(emailprefToDev.get(username).getId(),
+                        unameToDev.get(username).getId(), 10);
+            }
+        }
+        
         progress = 60;
         List<String> updates = new ArrayList<String>(); 
         updates.add("update ProjectVersion set committer = :new where committer = :old");
@@ -197,9 +204,11 @@ public class DeveloperMatcher implements MetadataUpdater {
             
             for (String upd : updates) {
                 dbs.executeUpdate(upd, updParam);
+                //debug(upd + updParam);
             }
             
             for (String del : deletes) {
+                //debug(del + updParam);
                 dbs.executeUpdate(del, delParam);
             }
             
