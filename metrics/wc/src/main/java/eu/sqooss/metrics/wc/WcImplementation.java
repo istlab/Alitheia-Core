@@ -32,8 +32,6 @@
  */
 package eu.sqooss.metrics.wc;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -408,32 +406,39 @@ public class WcImplementation extends AbstractMetric {
         String paramIsDirectory = "paramIsDirectory";
         String paramProjectId = "paramProjectId";
         String paramState = "paramState";
+        Map<String, Object> params = new HashMap<String, Object>();
        
         /* Get all measurements for live version files for metrics LoC and LoCom*/ 
         StringBuffer q = new StringBuffer("select pfm ");
-        q.append(" from ProjectVersion pv, ProjectVersion pv2,");
-        q.append(" ProjectVersion pv3, ProjectFile pf, ProjectFileMeasurement pfm ");
-        q.append(" where pv.project.id = :").append(paramProjectId);
-        q.append(" and pv.id = :").append(paramVersionId);
+        if (v.getSequence() == ProjectVersion.getLastProjectVersion(v.getProject()).getSequence()) {
+            q.append(" from ProjectFile pf, ProjectVersion pv, ProjectFileMeasurement pfm");
+            q.append(" where pv.id = :").append(paramVersionId);
+            q.append(" and pf.validUntil is null ");
+        } else {
+            q.append(" from ProjectVersion pv, ProjectVersion pv2,");
+            q.append(" ProjectVersion pv3, ProjectFile pf, ProjectFileMeasurement pfm ");
+            q.append(" where pv.project.id = :").append(paramProjectId);
+            q.append(" and pv.id = :").append(paramVersionId);
+            q.append(" and pv2.project.id = :").append(paramProjectId);
+            q.append(" and pv3.project.id = :").append(paramProjectId);
+            q.append(" and pf.validFrom.id = pv2.id");
+            q.append(" and pf.validUntil.id = pv3.id");
+            q.append(" and pv2.sequence <= pv.sequence");
+            q.append(" and pv3.sequence >= pv.sequence");
+            
+            params.put(paramProjectId, v.getProject().getId());
+        }
         q.append(" and pfm.projectFile = pf ");
-        q.append(" and pv2.project.id = :").append(paramProjectId);
-        q.append(" and pv3.project.id = :").append(paramProjectId);
-        q.append(" and pf.validFrom.id = pv2.id");
-        q.append(" and pf.validUntil.id = pv3.id");
-        q.append(" and pv2.sequence <= pv.sequence");
-        q.append(" and pv3.sequence >= pv.sequence");
         q.append(" and pf.state <> :").append(paramState);
         q.append(" and pf.isDirectory = :").append(paramIsDirectory);
         q.append(" and (pfm.metric.id = :").append(paramMetricLoC);
         q.append(" or pfm.metric.id = :").append(paramMetricLoCom).append(")");
-        
-        Map<String, Object> params = new HashMap<String, Object>();
+
         params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC).getId());
         params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM).getId());
         params.put(paramVersionId, v.getId());
         params.put(paramIsDirectory, Boolean.FALSE);
         params.put(paramState, ProjectFileState.deleted());
-        params.put(paramProjectId, v.getProject().getId());
         
         List<ProjectFileMeasurement> results = 
             (List<ProjectFileMeasurement>) db.doHQL(q.toString(), params);

@@ -282,13 +282,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                  */
                 dbs.addRecords(versionFiles);
                
-                /*
-                 * Update the list of live files in this revision. 
-                 */
-                if (supportStoredProcedureUpdates)
-                	updateValidUntilProc(curVersion);
-                else
-                	updateValidUntil(curVersion);
+              	updateValidUntil(curVersion);
 
                 numRevisions++;
                 dirCache.clear();
@@ -349,16 +343,6 @@ public class SVNUpdaterImpl implements MetadataUpdater {
      	params.put(paramVersion, 0);
      	params.put(paramPrevVersion, 0);
      	
-     	try {
-			dbs.callProcedure("updatelivefiles", arglist, params);
-			this.supportStoredProcedureUpdates = true;
-		} catch (Exception e) {
-			this.supportStoredProcedureUpdates = false;
-		} finally {
-			if (!dbs.isDBSessionActive())
-				dbs.startDBSession();
-		}
-		
     	this.inclPaths = project.getConfigValues(ConfigOption.PROJECT_SCM_PATHS_INCL);
     	
     	/*
@@ -734,7 +718,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         pf.setState(status);
         pf.setCopyFrom(copyFrom);
         pf.setValidFrom(version);
-        pf.setValidUntil(version);
+        pf.setValidUntil(null);
         
         if (t == SCMNodeType.DIR) {
             pf.setIsDirectory(true);
@@ -911,60 +895,26 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         	}
         }
 	}
-  
-    /**
-     * Update the validUntil field after all files have been processed. This
-     * version uses a stored procedure
-     */
-    @SuppressWarnings("deprecation")
-    private void updateValidUntilProc(ProjectVersion pv) {
-    	String paramVersion = "paramVersion";
- 	    String paramPrevVersion = "paramPrev";
-     	String paramState = "paramStatus";
-     	
-    	List<String> arglist = new ArrayList<String>();
-    	arglist.add(paramPrevVersion);
-    	arglist.add(paramVersion);
-    	arglist.add(paramState);
-     	
-    	Map<String,Object> params = new HashMap<String,Object>();
-     	params.put(paramState, ProjectFileState.deleted().getId());
-     	params.put(paramVersion, pv.getId());
-     	params.put(paramPrevVersion, pv.getPreviousVersion().getId());
-     	
-     	try {
-			dbs.callProcedure("updatelivefiles", arglist, params);
-		} catch (QueryException e) {
-			err("Error calling stored procedure 'updatelivefiles'");
-		} catch (SQLException e) {
-			err("Error in stored procedure 'updatelivefiles'");
-			e.printStackTrace();
-		}
-    }
-    
+   
     /**
      * Update the validUntil field after all files have been processed.
      */
-	private void updateValidUntil(ProjectVersion pv) {
+    private void updateValidUntil(ProjectVersion pv) {
 
-    	//Create a lookup table to speedup searching in the processing loop 
-    	Map<String, ProjectFile> cache = new HashMap<String, ProjectFile>();
-    	
-    	for (ProjectFile pf : versionFiles) {
-    		cache.put(pf.getFileName(), pf);
-    	}
-    	
-        List<ProjectFile> pfs = pv.getPreviousVersion().getFiles();
-        
-        for (ProjectFile pf : pfs) {
-        	//File was not modified in this revision, bump up the
-        	if (cache.get(pf.getFileName()) == null) {
-        		pf.setValidUntil(pv);
-        		continue;
-        	}
-        }     
+        ProjectVersion previous = pv.getPreviousVersion();
+
+        for (ProjectFile pf : versionFiles) {
+            if (!pf.isAdded()) {
+                ProjectFile old = pf.getPreviousFileVersion();
+                old.setValidUntil(previous);
+            }
+
+            if (pf.isDeleted()) {
+                pf.setValidUntil(pv);
+            }
+        }
     }
-    
+
 	/*
 	 * Decide what to do for copied paths. Paths whose source
 	 * or destination cannot be processed by path restrictions 

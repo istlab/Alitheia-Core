@@ -149,7 +149,7 @@ public class ProjectFile extends DAObject{
     public ProjectFile(ProjectVersion pv) {
         this.projectVersion = pv;
         this.setValidFrom(pv);
-        this.setValidUntil(pv);
+        this.setValidUntil(null);
         isDirectory = false; //By default, all entries are files
     }
 
@@ -176,7 +176,7 @@ public class ProjectFile extends DAObject{
         this.name = f.getName();
         this.projectVersion = v;
         this.validFrom = v;
-        this.validUntil = v;
+        this.validUntil = null;
         //this.status = f.getStatus();
     }
     

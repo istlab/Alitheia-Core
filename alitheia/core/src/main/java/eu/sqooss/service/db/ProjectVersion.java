@@ -628,26 +628,35 @@ public class ProjectVersion extends DAObject {
         String paramIsDirectory = "paramIsDirectory";
         String paramProjectId = "paramProject";
         String paramState = "paramState";
-    
+        Map<String, Object> params = new HashMap<String, Object>();
+
         StringBuffer q = new StringBuffer("select count(pf) ");
-        q.append(" from ProjectVersion pv, ProjectVersion pv2,");
-        q.append(" ProjectVersion pv3, ProjectFile pf ");
-        q.append(" where pv.project.id = :").append(paramProjectId);
-        q.append(" and pv.id = :").append(paramVersionId);
-        q.append(" and pv2.project.id = :").append(paramProjectId);
-        q.append(" and pv3.project.id = :").append(paramProjectId);
-        q.append(" and pf.validFrom.id = pv2.id");
-        q.append(" and pf.validUntil.id = pv3.id");
-        q.append(" and pv2.sequence <= pv.sequence");
-        q.append(" and pv3.sequence >= pv.sequence");
+        
+        if (this.sequence == ProjectVersion.getLastProjectVersion(this.project).sequence) {
+            q.append(" from ProjectFile pf, ProjectVersion pv");
+            q.append(" where pv.id = :").append(paramVersionId);
+            q.append(" and pf.validUntil is null ");
+        } else {
+            q.append(" from ProjectVersion pv, ProjectVersion pv2,");
+            q.append(" ProjectVersion pv3, ProjectFile pf ");
+            q.append(" where pv.project.id = :").append(paramProjectId);
+            q.append(" and pv.id = :").append(paramVersionId);
+            q.append(" and pv2.project.id = :").append(paramProjectId);
+            q.append(" and pv3.project.id = :").append(paramProjectId);
+            q.append(" and pf.validFrom.id = pv2.id");
+            q.append(" and pf.validUntil.id = pv3.id");
+            q.append(" and pv2.sequence <= pv.sequence");
+            q.append(" and pv3.sequence >= pv.sequence");
+            
+            params.put(paramProjectId, this.getProject().getId());
+        }
         q.append(" and pf.isDirectory = :").append(paramIsDirectory);
         q.append(" and pf.state <> :").append(paramState);
+
         
-        Map<String, Object> params = new HashMap<String, Object>();
         params.put(paramVersionId, this.getId());
         params.put(paramIsDirectory, Boolean.FALSE);
         params.put(paramState, ProjectFileState.deleted());
-        params.put(paramProjectId, this.getProject().getId());
         
         return (Long) dbs.doHQL(q.toString(), params).get(0);
     }
@@ -666,31 +675,38 @@ public class ProjectVersion extends DAObject {
         String paramProjectId = "paramProjectId";
         String paramState = "paramStatus";
 
+        Map<String,Object> params = new HashMap<String,Object>();
         StringBuffer q = new StringBuffer("select pf ");
-        q.append(" from ProjectVersion pv, ProjectVersion pv2,");
-        q.append(" ProjectVersion pv3, ProjectFile pf ");
-        q.append(" where pv.project.id = :").append(paramProjectId);
-        q.append(" and pv.id = :").append(paramVersionId);
-        q.append(" and pv2.project.id = :").append(paramProjectId);
-        q.append(" and pv3.project.id = :").append(paramProjectId);
-        q.append(" and pf.validFrom.id = pv2.id");
-        q.append(" and pf.validUntil.id = pv3.id");
-        q.append(" and pv2.sequence <= pv.sequence");
-        q.append(" and pv3.sequence >= pv.sequence");
+        
+        if (this.sequence == ProjectVersion.getLastProjectVersion(this.project).sequence) {
+            q.append(" from ProjectFile pf, ProjectVersion pv");
+            q.append(" where pv.id = :").append(paramVersionId);
+            q.append(" and pf.validUntil is null ");
+        } else {
+            q.append(" from ProjectVersion pv, ProjectVersion pv2,");
+            q.append(" ProjectVersion pv3, ProjectFile pf ");
+            q.append(" where pv.project.id = :").append(paramProjectId);
+            q.append(" and pv.id = :").append(paramVersionId);
+            q.append(" and pv2.project.id = :").append(paramProjectId);
+            q.append(" and pv3.project.id = :").append(paramProjectId);
+            q.append(" and pf.validFrom.id = pv2.id");
+            q.append(" and pf.validUntil.id = pv3.id");
+            q.append(" and pv2.sequence <= pv.sequence");
+            q.append(" and pv3.sequence >= pv.sequence");
+            
+            params.put(paramProjectId, this.project.getId());
+        }
+        
         q.append(" and pf.state <> :").append(paramState);
         
- 	   if (d != null) {
+        if (d != null) {
  	    	q.append(" and pf.dir = :").append(paramDirectory);
  	    }
  	        
  	    if (mask != ProjectVersion.MASK_ALL) {
  	    	q.append(" and pf.isDirectory = :").append(paramIsDirectory);
  	    }
- 	    
- 	    Map<String,Object> params = new HashMap<String,Object>();
- 	    
- 	 //   params.put(paramVersionSequence, this.sequence);
-     	params.put(paramProjectId, this.project.getId());
+    
      	params.put(paramState, ProjectFileState.deleted());
      	params.put(paramVersionId, this.getId());
  	    
