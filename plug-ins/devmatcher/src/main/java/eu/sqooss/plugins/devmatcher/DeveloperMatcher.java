@@ -124,7 +124,7 @@ public class DeveloperMatcher implements MetadataUpdater {
                             unameToDev.get(uname).getId(), 10);
                 }
                 
-              /*  String mph = dm.doubleMetaphone(uname);
+                /*String mph = dm.doubleMetaphone(uname);
 
                 // Try metaphone matching
                 if (mtphoneToUname.containsKey(mph)) {
@@ -179,27 +179,30 @@ public class DeveloperMatcher implements MetadataUpdater {
         deletes.add("delete from DeveloperAlias d where d.developer.id = :oldid");
         deletes.add("delete from Developer d where d.id = :oldid");
         
-        
         for (Pair<Long, Long> match : matches.keySet()) {
-            Developer byName = Developer.loadDAObyId(match.first, Developer.class);
+            
+            //if (matches.get(match) < 30)
+               // continue;
+            
+            Developer byEmail = Developer.loadDAObyId(match.first, Developer.class);
             Developer byUsrName = Developer.loadDAObyId(match.second, Developer.class);
             
             Map<String, Object> updParam = new HashMap<String, Object>();
-            updParam.put("old", byName);
+            updParam.put("old", byEmail);
             updParam.put("new", byUsrName);
             
             Map<String, Object> delParam = new HashMap<String, Object>();
-            delParam.put("oldid", byName.getId());
+            delParam.put("oldid", byEmail.getId());
             
             //Copy emails
-            for (DeveloperAlias da : byName.getAliases()) {
-                debug("Adding alias " + da.getEmail() + " to dev " + byUsrName);
+            for (DeveloperAlias da : byEmail.getAliases()) {
+                debug("Adding alias " + da.getEmail() + " to dev " + byUsrName.getId());
                 byUsrName.addAlias(da.getEmail());
             }
             
             if (byUsrName.getName() == null || byUsrName.getName().trim().equals("")) {
-                byUsrName.setName(byName.getName());
-                debug("Setting " +  byUsrName.getUsername() + "'s name to " + byName.getName());
+                byUsrName.setName(byEmail.getName());
+                debug("Setting " +  byUsrName.getUsername() + "'s name to " + byEmail.getName());
             }
             
             for (String upd : updates) {
@@ -232,7 +235,7 @@ public class DeveloperMatcher implements MetadataUpdater {
         
         String[] nameParts = realName.split(" ");
         String fname = nameParts[0];
-        names.add(fname);
+        //names.add(fname);
         
         String surname = null;
         if (nameParts.length > 0) {
@@ -296,27 +299,26 @@ public class DeveloperMatcher implements MetadataUpdater {
             return;
         
         Pair<Long, Long> match = new Pair<Long, Long>(id1, id2);
-        Pair<Long, Long> found = null;
-        for (Pair<Long, Long> p : matches.keySet()) {
-            if ((p.first.longValue() == id1.longValue()) 
-                    && (p.second.longValue() == id2.longValue()) ||
-                    (p.second.longValue() == id1.longValue()) 
-                    && (p.first.longValue() == id2.longValue())) {
-                found = p;
-                break;
-            }
-        }
+        Pair<Long, Long> revMatch = new Pair<Long, Long>(id2, id1);
+        boolean foundRevMatch = false;
         
-        if (found != null) {
-            matches.put(found, matches.get(found) + score);
-        } else {
+        if (matches.containsKey(match)) {
+            matches.put(match, matches.get(match) + score);
+        }
+        else if (matches.containsKey(revMatch)) {
+            matches.put(revMatch, matches.get(revMatch) + score);
+            foundRevMatch = true;
+        }
+        else { 
             matches.put(match, score);
         }
-        
-        debug("Potential developer match " + id1 + "->" + id2 + ": " 
-                + score);
-    }
     
+        if (foundRevMatch)
+            debug("Potential developer revmatch " + revMatch + ": " + matches.get(revMatch));
+        else 
+            debug("Potential developer match " + match + ": " + matches.get(match));
+    }
+
     /*
      * Add a value to the metaphone cache, taking care duplicate keys
      */
