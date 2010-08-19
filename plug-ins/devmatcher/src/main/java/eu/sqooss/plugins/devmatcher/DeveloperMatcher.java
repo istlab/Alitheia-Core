@@ -196,7 +196,7 @@ public class DeveloperMatcher implements MetadataUpdater {
             
             //Copy emails
             for (DeveloperAlias da : byEmail.getAliases()) {
-                debug("Adding alias " + da.getEmail() + " to dev " + byUsrName.getId());
+                debug("Adding alias " + da.getEmail() + " to dev " + byUsrName);
                 byUsrName.addAlias(da.getEmail());
             }
             
@@ -206,15 +206,16 @@ public class DeveloperMatcher implements MetadataUpdater {
             }
             
             for (String upd : updates) {
-                dbs.executeUpdate(upd, updParam);
-                //debug(upd + updParam);
+                long lines = dbs.executeUpdate(upd, updParam);
+                debug(upd + " old:" + byEmail + " new:" + 
+                        byUsrName + " " + lines + " changed");
             }
             
             for (String del : deletes) {
-                //debug(del + updParam);
-                dbs.executeUpdate(del, delParam);
+                long lines = dbs.executeUpdate(del, delParam);
+                debug(del + " old:" + byEmail.getId() + lines + " changed");
             }
-            
+
             debug("Replaced dev " + match.first + "->" 
                     + match.second + ", score: " + matches.get(match));
         }
