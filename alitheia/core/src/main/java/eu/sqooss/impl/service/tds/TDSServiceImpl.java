@@ -75,7 +75,7 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
     public ProjectAccessor getAccessor( long projectId ) {
         if (accessorExists(projectId)) {
             ProjectDataAccessorImpl a = accessorPool.get(projectId);
-            synchronized (accessorClaims) {
+            synchronized (this) {
                 int claims = accessorClaims.get(a);
                 claims++;
                 accessorClaims.put(a, claims);

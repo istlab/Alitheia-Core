@@ -108,25 +108,28 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         Set<Class<?>> upds = new HashSet<Class<?>>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
-        Set<URI> schemes = Collections.EMPTY_SET;
+        Set<URI> schemes = new HashSet<URI>();
         
         if (t.equals(UpdateTarget.BUGS) || t.equals(UpdateTarget.STAGE1)) {
             try {
-                schemes = new HashSet<URI>(pa.getBTSAccessor().getSupportedURLSchemes());
+                schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
                 logger.warn("Project " + project + 
                         " does not include a BTS accessor: " + e.getMessage());
             }
-        } else if (t.equals(UpdateTarget.MAIL) || t.equals(UpdateTarget.STAGE1)) {
+        } 
+        if (t.equals(UpdateTarget.MAIL) || t.equals(UpdateTarget.STAGE1)) {
             try {
-                schemes = new HashSet<URI>(pa.getMailAccessor().getSupportedURLSchemes());
+                schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
                 logger.warn("Project " + project + 
                         " does not include a Mail accessor: " + e.getMessage());
             }
-        } else if (t.equals(UpdateTarget.SCM) || t.equals(UpdateTarget.STAGE1)) {
+        }
+        
+        if (t.equals(UpdateTarget.SCM) || t.equals(UpdateTarget.STAGE1)) {
         	try {
-                schemes = new HashSet<URI>(pa.getSCMAccessor().getSupportedURLSchemes());
+        	    schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
                 logger.warn("Project " + project + 
                         " does not include a SCM accessor: " + e.getMessage());

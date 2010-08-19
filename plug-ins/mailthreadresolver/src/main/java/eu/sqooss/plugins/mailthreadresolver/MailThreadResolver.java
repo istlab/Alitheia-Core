@@ -63,7 +63,7 @@ public class MailThreadResolver implements MetadataUpdater {
     private Logger logger;
     private DBService dbs;
     private MailAccessor mailAccessor;
-    private int progress;
+    private float progress;
        
     public MailThreadResolver() {}
 
@@ -94,7 +94,7 @@ public class MailThreadResolver implements MetadataUpdater {
     
     @Override
     public int progress() {
-        return progress;
+        return (int)progress;
     }
     
     private void realupdate() throws Exception {
@@ -272,11 +272,11 @@ public class MailThreadResolver implements MetadataUpdater {
             
             dbs.commitDBSession();
             processedEmails ++;
-            progress = (processedEmails / mmList.size()) / 100;
+            progress = (float)((double)processedEmails / (double)mmList.size()) * 100;
         }
         dbs.startDBSession();
-        info("Mail thread updater - " + ml 
-                + " " + newThreads + " new threads, " + updatedThreads 
+        info("Mail thread updater - " + ml.getListId() + " " + processedEmails
+                + " new emails, " + newThreads + " new threads, " + updatedThreads 
                 + " thread updates" );
 
         if (dbs.isDBSessionActive()) dbs.commitDBSession();

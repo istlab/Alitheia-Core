@@ -357,6 +357,8 @@ public class WebAdminRenderer  extends AbstractView {
         vc.put("RESULTS", "<p>New project added successfully.</p>"
                 + returnToList);
         
+        sobjDB.commitDBSession();
+        sobjDB.startDBSession();
         sobjUpdater.update(sp, UpdaterService.UpdateTarget.STAGE1);
     }
     

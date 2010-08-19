@@ -311,7 +311,11 @@ public class SVNAccessorImpl implements SCMAccessor {
                 return spr;
             }
             
-            List<SVNLogEntry> log = getSVNLog("", svnrev.getSVNRevision(), svnrev.getSVNRevision() + 1);
+            List<SVNLogEntry> log = Collections.EMPTY_LIST;
+            if (svnrev.getSVNRevision() + 1 < getHeadSVNRevision())
+                log = getSVNLog("", svnrev.getSVNRevision(), svnrev.getSVNRevision() + 1);
+            else 
+                log = getSVNLog("", svnrev.getSVNRevision(), -1);
             SVNLogEntry full = log.iterator().next();
             return new SVNProjectRevision(full, "");
         } catch (InvalidRepositoryException e) {
