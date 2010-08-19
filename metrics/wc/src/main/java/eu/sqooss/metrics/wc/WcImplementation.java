@@ -411,9 +411,8 @@ public class WcImplementation extends AbstractMetric {
         /* Get all measurements for live version files for metrics LoC and LoCom*/ 
         StringBuffer q = new StringBuffer("select pfm ");
         if (v.getSequence() == ProjectVersion.getLastProjectVersion(v.getProject()).getSequence()) {
-            q.append(" from ProjectFile pf, ProjectVersion pv, ProjectFileMeasurement pfm");
-            q.append(" where pv.id = :").append(paramVersionId);
-            q.append(" and pf.validUntil is null ");
+            q.append(" from ProjectFile pf, ProjectFileMeasurement pfm");
+            q.append(" where pf.validUntil is null ");
         } else {
             q.append(" from ProjectVersion pv, ProjectVersion pv2,");
             q.append(" ProjectVersion pv3, ProjectFile pf, ProjectFileMeasurement pfm ");
@@ -427,6 +426,7 @@ public class WcImplementation extends AbstractMetric {
             q.append(" and pv3.sequence >= pv.sequence");
             
             params.put(paramProjectId, v.getProject().getId());
+            params.put(paramVersionId, v.getId());
         }
         q.append(" and pfm.projectFile = pf ");
         q.append(" and pf.state <> :").append(paramState);
@@ -436,7 +436,6 @@ public class WcImplementation extends AbstractMetric {
 
         params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC).getId());
         params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM).getId());
-        params.put(paramVersionId, v.getId());
         params.put(paramIsDirectory, Boolean.FALSE);
         params.put(paramState, ProjectFileState.deleted());
         

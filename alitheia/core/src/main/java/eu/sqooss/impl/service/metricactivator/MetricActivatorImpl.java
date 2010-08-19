@@ -324,7 +324,7 @@ public class MetricActivatorImpl  implements MetricActivator {
         	deps.add(pa.getImplementingPlugin(s));
         }
         
-        List<AlitheiaPlugin> toExec = getExcecutionOrder(deps);
+        List<AlitheiaPlugin> toExec = getExecutionOrder(deps);
         
         try {
             Collections.reverse(toExec);
@@ -381,7 +381,7 @@ public class MetricActivatorImpl  implements MetricActivator {
         return true;
     }
     
-    private List<AlitheiaPlugin> getExcecutionOrder(Set<AlitheiaPlugin> unordered) {
+    private List<AlitheiaPlugin> getExecutionOrder(Set<AlitheiaPlugin> unordered) {
     	Map<AlitheiaPlugin, Integer> idx = new HashMap<AlitheiaPlugin, Integer>();
     	Map<Integer, AlitheiaPlugin> invidx = new HashMap<Integer, AlitheiaPlugin>();
     	

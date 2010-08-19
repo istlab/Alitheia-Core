@@ -159,19 +159,29 @@ public class ModuleMetricsImplementation extends AbstractMetric {
         String paramVersionId = "paramVersionId";
         String paramProjectId = "paramProjectId";
         String paramState = "paramStatus";
+        Map<String,Object> params = new HashMap<String,Object>();
 
         StringBuffer q = new StringBuffer("select pfm ");
-        q.append(" from ProjectVersion pv, ProjectVersion pv2,");
-        q.append(" ProjectVersion pv3, ProjectFile pf, ");
-        q.append(" ProjectFileMeasurement pfm ");
-        q.append(" where pv.project.id = :").append(paramProjectId);
-        q.append(" and pv.id = :").append(paramVersionId);
-        q.append(" and pv2.project.id = :").append(paramProjectId);
-        q.append(" and pv3.project.id = :").append(paramProjectId);
-        q.append(" and pf.validFrom.id = pv2.id");
-        q.append(" and pf.validUntil.id = pv3.id");
-        q.append(" and pv2.sequence <= pv.sequence");
-        q.append(" and pv3.sequence >= pv.sequence");
+        if (pv.getSequence() == ProjectVersion.getLastProjectVersion(pv.getProject()).getSequence()) {
+            q.append(" from ProjectFile pf, ProjectFileMeasurement pfm");
+            q.append(" where pf.validUntil is null ");
+        } else {
+            q.append(" from ProjectVersion pv, ProjectVersion pv2,");
+            q.append(" ProjectVersion pv3, ProjectFile pf, ");
+            q.append(" ProjectFileMeasurement pfm ");
+            q.append(" where pv.project.id = :").append(paramProjectId);
+            q.append(" and pv.id = :").append(paramVersionId);
+            q.append(" and pv2.project.id = :").append(paramProjectId);
+            q.append(" and pv3.project.id = :").append(paramProjectId);
+            q.append(" and pf.validFrom.id = pv2.id");
+            q.append(" and pf.validUntil.id = pv3.id");
+            q.append(" and pv2.sequence <= pv.sequence");
+            q.append(" and pv3.sequence >= pv.sequence");
+            
+            params.put(paramProjectId, pv.getProject().getId());
+            params.put(paramVersionId, pv.getId());
+        }
+
         q.append(" and pf.state <> :").append(paramState);
         q.append(" and pf.isDirectory = :").append(paramIsDirectory);
         q.append(" and pfm.projectFile = pf");
@@ -180,10 +190,7 @@ public class ModuleMetricsImplementation extends AbstractMetric {
         q.append(" from ProjectFileMeasurement pfm1 ");
         q.append(" where pfm1.projectFile = pfm.projectFile ");
         q.append(" and pfm1.metric = :").append(paramISSRCDIR).append(")");
-                
-        Map<String,Object> params = new HashMap<String,Object>();
-        params.put(paramProjectId, pv.getProject().getId());
-        params.put(paramVersionId, pv.getId());
+        
         params.put(paramState, ProjectFileState.deleted());
         params.put(paramIsDirectory, true);
         params.put(paramMNOL, Metric.getMetricByMnemonic(MET_MNOL));

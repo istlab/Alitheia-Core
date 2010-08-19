@@ -119,7 +119,6 @@ public class AlitheiaCore implements ServiceListener {
     	services.add(ClusterNodeService.class);
     	services.add(FDSService.class);
     	services.add(MetricActivator.class);
-    	//services.add(Parser.class);
     	services.add(UpdaterService.class);
     	services.add(WebadminService.class);
     	
@@ -131,7 +130,6 @@ public class AlitheiaCore implements ServiceListener {
     	implementations.put(ClusterNodeService.class, ClusterNodeServiceImpl.class);
     	implementations.put(FDSService.class, FDSServiceImpl.class);
     	implementations.put(MetricActivator.class, MetricActivatorImpl.class);
-    	//implementations.put(Parser.class, Parse);
     	implementations.put(UpdaterService.class, UpdaterServiceImpl.class);
     	implementations.put(WebadminService.class, WebadminServiceImpl.class);
     }
@@ -154,7 +152,6 @@ public class AlitheiaCore implements ServiceListener {
         srvWait = new Vector<Class<?>>();
         srvWait.add(HttpService.class);
         srvWait.add(EventAdmin.class);
-        //checkForServicesAndInit();
     }
 
     /**
@@ -231,7 +228,9 @@ public class AlitheiaCore implements ServiceListener {
             
             try {
                 err("Starting " + b.getSymbolicName());
-                b.start();
+                if (b.getState() != Bundle.STARTING && 
+                        b.getState() != Bundle.ACTIVE)
+                    b.start();
             } catch (BundleException e) {
                 err("Failed to start " + b.getSymbolicName());
                 e.printStackTrace();
@@ -310,19 +309,6 @@ public class AlitheiaCore implements ServiceListener {
         return (DBServiceImpl)instances.get(DBService.class);
     }
     
-    /**
-     * Returns the locally stored Parser componenet's instance.
-     * 
-     * @return The Parser component's instance.
-     */
-    /*public Parser getParser() {
-    	if(parser == null) {
-    		parser = new ParserImpl(getLogManager().createLogger(Logger.NAME_SQOOSS_PARSER));
-    	}
-    	
-    	return parser;
-    }*/
-
     /**
      * Unused check of the core instance for liveness. Because the instance
      * might not lee without the rest of the bikini services, we need to

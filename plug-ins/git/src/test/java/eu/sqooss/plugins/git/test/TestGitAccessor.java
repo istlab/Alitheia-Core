@@ -233,7 +233,6 @@ public class TestGitAccessor {
         //Commit sequence including tags and branches
         r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
         r2 = git.newRevision("ae106e2a3569e5ea874852c613ed060d8e232109");
-        
         l = git.getCommitLog("", r1, r2);
         assertNotNull(l);
         assertEquals(l.size(), 12);
