@@ -82,11 +82,16 @@ public interface Revision {
      * by the commit
      */
     public Map<String, PathChangeType> getChangedPathsStatus();
-    
+
     /**
      * Get a list of copy operations that took place in this revision
      */
     public List<CommitCopyEntry> getCopyOperations();
+
+    /**
+     * Get a list of the revision ids that are immediate ancestors to this commit.
+     */
+    public Set<String> getParentIds();
     
     /**
      * Return human-readable representation of this ProjectRevision.

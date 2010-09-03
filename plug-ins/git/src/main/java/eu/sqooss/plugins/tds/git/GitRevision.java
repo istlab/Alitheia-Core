@@ -30,7 +30,9 @@
 
 package eu.sqooss.plugins.tds.git;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +48,6 @@ import eu.sqooss.service.tds.Revision;
  * An implementation of the Revision interface for Git
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
- *
  */
 public class GitRevision implements Revision {
 
@@ -56,20 +57,27 @@ public class GitRevision implements Revision {
     private String msg;
     private Map<String, PathChangeType> changedPaths;
     private List<CommitCopyEntry> copyOps;
+    private Set<String> parents;
 
     public GitRevision(String id, Date date) {
         this.id = id;
         this.date = date;
     }
 
-    public GitRevision(RevCommit obj, Map<String, PathChangeType> paths, List<CommitCopyEntry> copies) {
+    public GitRevision(RevCommit obj, 
+            Map<String, PathChangeType> paths, 
+            List<CommitCopyEntry> copies) {
         this.id = obj.getId().name();
         this.date = obj.getAuthorIdent().getWhen();
         this.author = obj.getAuthorIdent().getName() + " <" + obj.getAuthorIdent().getEmailAddress() + ">";
         this.msg = obj.getFullMessage();
         this.changedPaths = paths;
         this.copyOps = copies;
-
+        this.parents = new HashSet<String>();
+        
+        for (RevCommit s : obj.getParents()) {
+            parents.add(s.getName());
+        }
     }
     
     public boolean isResolved() {
@@ -132,5 +140,10 @@ public class GitRevision implements Revision {
     @Override
     public String toString() {
         return getUniqueId() + " - " + date + " - " + author;
+    }
+
+    @Override
+    public Set<String> getParentIds() {
+        return this.parents;
     }
 }

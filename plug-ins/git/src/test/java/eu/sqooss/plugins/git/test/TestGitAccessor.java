@@ -133,6 +133,24 @@ public class TestGitAccessor {
         assertNotNull(r);
         assertEquals(r.getUniqueId(), "257fd8db3e60fb655af3c42e224d0a9acaa3624e");
         assertTrue(git.isValidRevision(r));
+        assertEquals(r.getParentIds().size(), 1);
+        Iterator<String> i = r.getParentIds().iterator();
+        assertEquals(i.next(), "b97ff5e0ffd259a15d435da1036a3ac3c6bd6d7a");
+    }
+
+    @Test
+    public void testGetParents() throws InvalidProjectRevisionException {
+        Revision r = git.newRevision("099f60dd07aeefd31c94eae532db97e811562fb7");
+        assertNotNull(r);
+        assertEquals(r.getParentIds().size(), 2);
+        Iterator<String> i = r.getParentIds().iterator();
+        while (i.hasNext()) {
+            String parentId = i.next();
+            Revision parent = git.newRevision(parentId);
+            assertNotNull(parent);
+            assertTrue(parent.getDate().getTime() < r.getDate().getTime());
+            assertTrue (parent.compareTo(r) < 0);
+        }
     }
 
     @Test
@@ -206,6 +224,7 @@ public class TestGitAccessor {
             public Map<String, PathChangeType> getChangedPathsStatus() {return null;}
             public List<CommitCopyEntry> getCopyOperations() {return null;}
             public int compareTo(Revision o) throws InvalidProjectRevisionException {return 0;}
+            public Set<String> getParentIds() {return null;}
         };
         
         assertFalse(git.isValidRevision(r));
@@ -260,7 +279,7 @@ public class TestGitAccessor {
             assertTrue(r.getDate().getTime() > old);
             old = r.getDate().getTime();
         }*/
-        
+
         //Commit sequence with null second argument, should return all entries 
         //up to head
         r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
@@ -271,11 +290,10 @@ public class TestGitAccessor {
         Revision r = l.iterator().next();
         assertEquals(r.getUniqueId(), "55a5e323d241cfbd5a59d9a440c506b24b4c255a");
         
-        for (String path : r.getChangedPaths()) {
-            
-        }
+        assertTrue(r.getChangedPaths().contains(".gitignore"));
+        assertTrue(r.getChangedPaths().contains("Rakefile"));
     }
-  
+
     @Test
     public void testGetCheckout() {
         fail("Not yet implemented");

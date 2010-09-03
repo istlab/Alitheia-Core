@@ -225,15 +225,16 @@ public interface SCMAccessor extends DataAccessor {
                FileNotFoundException;
 
     /**
-     * Get the commit log entries for the changes between revisions r1 and r2
-     * within the subtree identified by the path <tt>repoPath</tt>. The
-     * <tt>repoPath</tt> must be relative to the root URL of the project this
-     * accessor is attached to. 
+     * Get the commit log entries in ascending date order for the changes between revisions
+     * <code>r1</code> and <code>r2</code>
+     * (inclusive) within the subtree identified by the path <code>repoPath</code>.
+     * The <code>repoPath</code> must be relative to the root URL of the project
+     * this accessor is attached to.
      * 
      * @param repoPath The path to get the log for
      * @param r1 The revision to start getting the log from
-     * @param r2 The revision up to which to get the log. If null, the commit log
-     * r1 is returned.
+     * @param r2 The revision up to which to get the log. If null, the
+     *           method only returns the log for revision r1.
      * 
      * @return A valid commit log.
      * 

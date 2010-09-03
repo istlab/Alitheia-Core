@@ -35,6 +35,7 @@ package eu.sqooss.plugins.tds.svn;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,6 +74,7 @@ public class SVNProjectRevision implements Revision {
     private String message;
     private Map<String, PathChangeType> changedPaths;
     private List<CommitCopyEntry> copyOps;
+    private Set<String> parents;
     
     /**
      * Default constructor, creating an invalid revision.
@@ -133,6 +135,9 @@ public class SVNProjectRevision implements Revision {
                         this));
             }
         }
+        parents = new HashSet<String>();
+        if (l.getRevision() >= 1)
+            parents.add(String.valueOf((l.getRevision() - 1)));
     }
 
     private PathChangeType parseSVNLogEntryPath(char entryPathType) {
@@ -224,6 +229,11 @@ public class SVNProjectRevision implements Revision {
         }
         
         return (int) (revision - (((SVNProjectRevision)o).revision)); 
+    }
+
+    @Override
+    public Set<String> getParentIds() {
+        return parents;
     }  
 }
 
