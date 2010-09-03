@@ -271,7 +271,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                 				"Not removing");
                 	} else {
                 		debug(msg + ". Removing");
-                		dbs.deleteRecord(curVersion);
+                		//dbs.deleteRecord(curVersion);
                 		dbs.rollbackDBSession();
                         dbs.startDBSession();
                         continue;
