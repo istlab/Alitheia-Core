@@ -158,6 +158,12 @@ public class ProjectVersion extends DAObject {
     private Set<ProjectVersionMeasurement> measurements;
     
     /**
+     * The parent revisions of this revision.
+     */
+    @OneToMany(mappedBy="child", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ProjectVersionParent> parents;
+    
+    /**
 	 * Mask used to select directories
 	 */
 	public static final int MASK_DIRECTORIES = 0x2;
@@ -314,6 +320,14 @@ public class ProjectVersion extends DAObject {
     
     public void setMeasurements(Set<ProjectVersionMeasurement> measurements) {
         this.measurements = measurements;
+    }
+    
+    public void setParents(Set<ProjectVersionParent> parents) {
+        this.parents = parents;
+    }
+
+    public Set<ProjectVersionParent> getParents() {
+        return parents;
     }
 
     /**

@@ -33,7 +33,7 @@
         
         <!-- Make sure that the language used in custom queries is 100% QL compatible -->
         <property name="query.jpaql_strict_compliance">false</property>
-       
+
         <mapping class="eu.sqooss.service.db.Bug" />
         <mapping class="eu.sqooss.service.db.BugStatus" />
         <mapping class="eu.sqooss.service.db.BugReportMessage" />
@@ -68,6 +68,7 @@
         <mapping class="eu.sqooss.service.db.InvocationRule"/>
         <mapping class="eu.sqooss.service.db.OhlohDeveloper"/>
         <mapping class="eu.sqooss.service.db.TimeLineEvent"/>
+        <mapping class="eu.sqooss.service.db.ProjectVersionParent"/>
     </session-factory>
 
 </hibernate-configuration>

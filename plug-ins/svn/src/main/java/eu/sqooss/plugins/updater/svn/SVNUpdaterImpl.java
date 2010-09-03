@@ -51,6 +51,7 @@ import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProject.ConfigOption;
 import eu.sqooss.service.db.Tag;
@@ -385,9 +386,12 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         curVersion.setCommitMsg(commitMsg);
         curVersion.setSequence(Integer.MAX_VALUE);
         dbs.addRecord(curVersion);
-        
+
         ProjectVersion prev = curVersion.getPreviousVersion();
         curVersion.setSequence(prev.getSequence() + 1);
+        ProjectVersionParent pvp = new ProjectVersionParent(curVersion, prev);
+        dbs.addRecord(pvp);
+        
         debug("Got version " + curVersion.getRevisionId() + 
                 " ID " + curVersion.getId());
         
