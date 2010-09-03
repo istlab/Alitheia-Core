@@ -128,4 +128,9 @@ public class GitRevision implements Revision {
     public List<CommitCopyEntry> getCopyOperations() {
         return copyOps;
     }
+    
+    @Override
+    public String toString() {
+        return getUniqueId() + " - " + date + " - " + author;
+    }
 }

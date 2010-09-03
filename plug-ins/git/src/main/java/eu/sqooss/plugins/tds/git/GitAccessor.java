@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -295,56 +296,60 @@ public class GitAccessor implements SCMAccessor {
                InvalidRepositoryException,
                FileNotFoundException {return;}
     
-    public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2) {
-        GitCommitLog log = new GitCommitLog();
-        RevWalk rw = new RevWalk(git);
-        String fromRevision;
+    public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
+    throws InvalidProjectRevisionException, InvalidRepositoryException  {
 
-        if (r1 == null) {
-            fromRevision = Constants.HEAD;
-        } else {
-            fromRevision = r1.getUniqueId();
-        }
-
-        ObjectId from;
         try {
-            from = git.resolve(fromRevision);
             
-            if (from == null) {
-                return null;
-            }
+            if (r1 == null) {
+                r1 = getHeadRevision();
+            } 
+           
+            if (!((GitRevision) r1).isResolved())
+                throw new InvalidProjectRevisionException(r1.getUniqueId(),
+                        this.getClass());
 
-            ObjectId to = null;
-            if (r2 != null)
-                to = git.resolve(r2.getUniqueId());
+            if (r2 != null && !((GitRevision) r2).isResolved())
+                throw new InvalidProjectRevisionException(r2.getUniqueId(),
+                        this.getClass());
             
-            RevFilter exact = CommitTimeRevFilter.between(r1.getDate(), r2.getDate());
-            rw.setRevFilter(exact);
-            //rw.setRevFilter(RevFilter.NO_MERGES);
-            rw.sort(RevSort.COMMIT_TIME_DESC, true);
-            rw.markStart(rw.parseCommit(git.resolve(Constants.HEAD)));
-
-            if (to != null) {
-                rw.markUninteresting(rw.parseCommit(to));
-            }
+            RevWalk rw = new RevWalk(git);
 
             if (repoPath != null && !repoPath.isEmpty()) {
+                if (repoPath.startsWith("/") && repoPath.length() > 1)
+                    repoPath = repoPath.substring(1);
                 rw.setTreeFilter(PathFilter.create(repoPath));
             }
+
+            if (r2 != null) {
+                RevFilter exact = CommitTimeRevFilter.between(r1.getDate(), r2.getDate());
+                rw.setRevFilter(exact);
+            }
+            
+            if (r2 == null)
+                rw.markStart(rw.parseCommit(git.resolve(r1.getUniqueId())));
+            else 
+                rw.markStart(rw.parseCommit(git.resolve(getNextRevision(r2).getUniqueId())));
             
             Iterator<RevCommit> i = rw.iterator();
+
+            GitCommitLog log = new GitCommitLog();
 
             while (i.hasNext()) {
                 Revision r = getRevision(i.next());
                 log.entries().add(r);
+                if (r2 == null)
+                    break;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            Collections.reverse(log.entries());
+            return log;
+
+        } catch (IOException ew) {
+            throw new InvalidRepositoryException(this.uri.toString(),
+                    ew.getMessage());
         }
-        return log;
     }
-    
-    
 
     public Diff getDiff(String repoPath, Revision r1, Revision r2)
         throws InvalidProjectRevisionException,
