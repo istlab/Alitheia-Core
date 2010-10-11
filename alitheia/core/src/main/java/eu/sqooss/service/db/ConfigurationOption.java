@@ -52,7 +52,7 @@ import eu.sqooss.core.AlitheiaCore;
 
 /**
  * An object that encapsulates a single configuration option.
- * Inlcudes methods to get the values for a specific project.
+ * Includes methods to get the values for a specific project.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  * 
@@ -63,7 +63,7 @@ import eu.sqooss.core.AlitheiaCore;
 @Entity
 @Table(name="CONFIG_OPTION")
 public class ConfigurationOption extends DAObject {
-	
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="CONFIG_OPTION_ID")

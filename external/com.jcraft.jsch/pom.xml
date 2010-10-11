@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <relativePath>../pom.xml</relativePath>
+    <groupId>eu.sqooss</groupId>
+    <artifactId>external</artifactId>
+    <version>0.95</version>
+  </parent>
+  
+  <properties>
+    <bundle.symbolicName>com.jcraft.jsch</bundle.symbolicName>
+    <wrapped.groupId>com.jcraft</wrapped.groupId>
+    <wrapped.artifactId>jsch</wrapped.artifactId>
+    <wrapped.version>0.1.42</wrapped.version>
+  </properties>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.sqooss.external</groupId>
+  <artifactId>${wrapped.artifactId}</artifactId>
+  <version>${wrapped.version}</version>
+
+  <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
+
+  <packaging>bundle</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>${wrapped.groupId}</groupId>
+      <artifactId>${wrapped.artifactId}</artifactId>
+      <version>${wrapped.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>

@@ -33,15 +33,20 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.ClusterNodeProject;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectConfig;
 import eu.sqooss.service.scheduler.Job;
@@ -92,12 +97,18 @@ public class ProjectDeleteJob extends Job {
         }
         
         boolean success = true;
-        // Delete project's cluster node assignments
-        //ClusterNodeProject cnp = ClusterNodeProject.getProjectAssignment(sp);
-        //if (cnp != null) {
-        //    success &= dbs.deleteRecord(cnp);
-       // }
         
+        // Delete project version's parents.
+        List<ProjectVersion> versions = sp.getProjectVersions();
+        
+        for (ProjectVersion pv : versions) {
+           /* Set<ProjectVersionParent> parents = pv.getParents();
+            for (ProjectVersionParent pvp : parents) {
+                
+            }*/
+            pv.getParents().clear();
+        }
+               
         //Delete the project's config options
         List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(sp);
         if (!confParams.isEmpty()) {

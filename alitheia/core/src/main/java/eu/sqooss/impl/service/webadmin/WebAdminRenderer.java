@@ -49,7 +49,7 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.StoredProject.ConfigOption;
+import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -450,7 +450,6 @@ public class WebAdminRenderer  extends AbstractView {
 					mail.toString());
 			p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(), 
 					scm.toString());
-			
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}

@@ -33,7 +33,6 @@
 
 package eu.sqooss.plugins.updater.svn;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.LRUMap;
-import org.hibernate.QueryException;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Branch;
@@ -53,7 +51,7 @@ import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.StoredProject.ConfigOption;
+import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitCopyEntry;
@@ -80,6 +78,9 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     
     private static final String HANDLE_COPIES_PROPERTY = "eu.sqooss.updater.svn.handlecopies";
     private static final String OMMIT_NO_FILES_VERSIONS = "eu.sqooss.updater.svn.ommitfileless";
+    private static final String PROJECT_SCM_PATHS_TRUNK = "eu.sqooss.project.scm.svn.trunk";
+    private static final String PROJECT_SCM_PATHS_BRANCH = "eu.sqooss.project.scm.svn.branch";
+    private static final String PROJECT_SCM_PATHS_TAG = "eu.sqooss.project.scm.svn.tag";
     
     private enum HandleCopies {
         TRUNK, BRANCHES, TAGS
@@ -105,11 +106,6 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     private String trunkPath;
     private String branchesPath;
     private String tagsPath;
-    
-    /* Does the database support stored procedure based updates
-     * of the project file validUntil field?
-     */
-    private boolean supportStoredProcedureUpdates;
     
     private boolean ommitFileless = false;
     
@@ -355,13 +351,13 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     	
     	this.exclPaths = project.getConfigValues(ConfigOption.PROJECT_SCM_PATHS_EXCL);
     	
-    	String branch = project.getConfigValue(ConfigOption.PROJECT_SCM_PATHS_BRANCH);
+    	String branch = project.getConfigValue(PROJECT_SCM_PATHS_BRANCH);
     	this.branchesPath = (branch == null)?"/branches":branch;
     	
-    	String trunk = project.getConfigValue(ConfigOption.PROJECT_SCM_PATHS_TRUNK);
+    	String trunk = project.getConfigValue(PROJECT_SCM_PATHS_TRUNK);
     	this.trunkPath = (trunk == null)?"/trunk":trunk;
     	
-    	String tag = project.getConfigValue(ConfigOption.PROJECT_SCM_PATHS_TAG);
+    	String tag = project.getConfigValue(PROJECT_SCM_PATHS_TAG);
     	this.tagsPath = (tag == null)?"/tags":tag;
 	}
 
@@ -1038,22 +1034,22 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     
     /** Convenience method to write warning messages per project */
     protected void warn(String message) {
-        logger.warn(project.getName() + ":" + message);
+        logger.warn("SVN:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write error messages per project */
     protected void err(String message) {
-        logger.error(project.getName() + ":" + message);
+        logger.error("SVN:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write info messages per project */
     protected void info(String message) {
-        logger.info(project.getName() + ":" + message);
+        logger.info("SVN:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write debug messages per project */
     protected void debug(String message) {
-        logger.debug(project.getName() + ":" + message);
+        logger.debug("SVN:" + project.getName() + ":" + message);
     }
 }
 

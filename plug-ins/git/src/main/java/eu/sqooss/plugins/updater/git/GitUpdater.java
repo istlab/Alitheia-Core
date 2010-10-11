@@ -30,8 +30,17 @@
 
 package eu.sqooss.plugins.updater.git;
 
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.CommitLog;
+import eu.sqooss.service.tds.Revision;
+import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
 
 /**
@@ -39,28 +48,77 @@ import eu.sqooss.service.updater.MetadataUpdater;
  */
 public class GitUpdater implements MetadataUpdater {
     
-    private StoredProject sp;
+    private StoredProject project;
     private Logger log;
+    private TDSService tds;
+    private DBService dbs;
+    private float progress;
     
     public GitUpdater() {}
    
     public void setUpdateParams(StoredProject sp, Logger l) {
-        this.sp = sp;
+        this.project = sp;
         this.log = l;
     }
 
-    /**
-     * Updates the metadata. Should support incremental update based on what
-     * is currently in the database and what is the state of the raw data.
-     * Of couse the updater implementor knows better.
-     * 
-     * Significant is never to mask, catch or otherwise manipulate exceptions
-     * thrown while the updater is running. Let them be thrown. The job
-     * mechanism will catch and log them approprietaly. 
-     * 
-     */
     public void update() throws Exception {
+        init();
+
+        dbs.startDBSession();
+        project = dbs.attachObjectToDBSession(project);
         
+        int numRevisions = 0;
+        
+        info("Running source update for project " + project.getName() 
+                + " ID " + project.getId());
+        
+        //1. Compare latest DB version with the repository
+        ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(project);
+        SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
+        if (latestVersion != null) {  
+            Revision r = scm.getHeadRevision();
+        
+            /* Don't choke when called to update an up-to-date project */
+            if (r.compareTo(scm.newRevision(latestVersion.getRevisionId())) <= 0) {
+                info("Project is already at the newest version " 
+                        + r.getUniqueId());
+                dbs.commitDBSession();
+                return;    
+            }
+        }
+        
+        //2. Get commit log for dbversion < v < repohead
+        CommitLog commitLog = scm.getCommitLog("", scm.getNextRevision(
+                scm.newRevision(latestVersion.getRevisionId())), 
+                scm.getHeadRevision());
+
+        for (Revision entry : commitLog) {
+            ProjectVersion pv = new ProjectVersion(project);
+            pv.setRevisionId(entry.getUniqueId());
+            pv.setTimestamp(entry.getDate().getTime());
+
+            Developer d = Developer.getDeveloperByUsername(entry.getAuthor(),
+                    project);
+
+            String commitMsg = entry.getMessage();
+            if (commitMsg.length() > 512) {
+                commitMsg = commitMsg.substring(0, 511);
+            }
+            
+            pv.setCommitMsg(commitMsg);
+            pv.setSequence(Integer.MAX_VALUE);
+            dbs.addRecord(pv);
+            
+            ProjectVersion prev = pv.getPreviousVersion();
+            pv.setSequence(prev.getSequence() + 1);
+            ProjectVersionParent pvp = new ProjectVersionParent(pv, prev);
+            dbs.addRecord(pvp);
+            
+            debug("Got version: " + pv.getRevisionId() + 
+                    " seq: " + pv.getSequence());
+        }
+        
+        dbs.commitDBSession();
     }
     
     /**
@@ -68,7 +126,37 @@ public class GitUpdater implements MetadataUpdater {
      */
     @Override
     public int progress() {
-        return 0;
+        return (int)progress;
+    }
+    
+    private void init() {
+        tds = AlitheiaCore.getInstance().getTDSService();
+        dbs = AlitheiaCore.getInstance().getDBService();
+    }
+    
+    @Override
+    public String toString() {
+        return "GitUpdater - Project:{" + project +"}, " + progress + "%";
+    }
+
+    /** Convenience method to write warning messages per project */
+    protected void warn(String message) {
+        log.warn("Git:" + project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write error messages per project */
+    protected void err(String message) {
+        log.error("Git:" + project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write info messages per project */
+    protected void info(String message) {
+        log.info("Git:" + project.getName() + ":" + message);
+    }
+    
+    /** Convenience method to write debug messages per project */
+    protected void debug(String message) {
+        log.debug("Git:" + project.getName() + ":" + message);
     }
 }
 

@@ -64,6 +64,7 @@ import eu.sqooss.core.AlitheiaCore;
  * 
  * @assoc 1 - n ProjectFile
  * @assoc 1 - n ProjectVersionMeasurement
+ * @assoc 1 - n ProjectVersionParent
  */
 @XmlRootElement(name="version")
 @Entity
@@ -156,13 +157,13 @@ public class ProjectVersion extends DAObject {
      */
     @OneToMany(mappedBy="projectVersion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProjectVersionMeasurement> measurements;
-    
+
     /**
      * The parent revisions of this revision.
      */
     @OneToMany(mappedBy="child", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProjectVersionParent> parents;
-    
+
     /**
 	 * Mask used to select directories
 	 */

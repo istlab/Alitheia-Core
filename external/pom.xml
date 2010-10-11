@@ -16,7 +16,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <!--<module>org.tmatesoft.svnkit</module>-->
     <module>org.apache.velocity</module>
     <module>javax.servlet.api</module>
     <module>javax.mail</module>
@@ -26,6 +25,7 @@
     <module>log4j</module>
     <module>hsqldb</module>
     <module>dom4j</module>
+    <module>com.jcraft.jsch</module>
   </modules>
 
   <build>
