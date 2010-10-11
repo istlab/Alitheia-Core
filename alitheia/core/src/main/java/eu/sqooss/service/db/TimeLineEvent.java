@@ -49,6 +49,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * An event in a project's time line.
+ * 
+ * @assoc 1 - 1 ProjectVersion
+ * @assoc 1 - 1 Bug
+ * @assoc 1 - 1 MailMessage
+ * 
  */
 @Entity
 @Table(name="TIMELINE")

@@ -65,6 +65,8 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n ProjectFile
  * @assoc 1 - n ProjectVersionMeasurement
  * @assoc 1 - n ProjectVersionParent
+ * @assoc 1 - n Branch
+ * @assoc 1 - n Tag
  */
 @XmlRootElement(name="version")
 @Entity

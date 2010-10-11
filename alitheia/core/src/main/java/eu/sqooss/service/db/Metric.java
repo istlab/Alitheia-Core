@@ -63,7 +63,8 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n ProjectVersionMeasurement
  * @assoc 1 - n StoredProjectMeasurement
  * @assoc 1 - n ProjectFileMeasurement
- * @assoc 1 - n FileGroupMeasurement
+ * @assoc 1 - n MailMessageMeasurement
+ * @assoc 1 - n MailingListThreadMeasurement
  * 
  */
 @Entity

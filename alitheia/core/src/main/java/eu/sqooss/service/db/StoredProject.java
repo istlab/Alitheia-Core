@@ -70,6 +70,7 @@ import eu.sqooss.service.db.BugStatus.Status;
  * @assoc 1 - n Developer
  * @assoc 1 - n ClusterNodeProject
  * @assoc 1 - n TimeLineEvent
+ * @assoc 1 - n InvocationRule
  * 
  */
 @XmlRootElement(name="project")

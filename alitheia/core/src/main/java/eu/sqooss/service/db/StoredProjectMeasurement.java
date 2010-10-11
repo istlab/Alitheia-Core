@@ -50,6 +50,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Instances of this class represent a measurement made against a
  * StoredProject, as stored in the database
+ * 
  */
 @Entity
 @Table(name="STORED_PROJECT_MEASUREMENT")
