@@ -73,7 +73,7 @@ public class BugzillaXMLJob extends Job {
     
     @Override
     public int priority() {
-        return 0;
+        return 3;
     }
 
     @Override
