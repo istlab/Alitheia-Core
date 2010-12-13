@@ -190,7 +190,7 @@ public class MailDirUpdater implements MetadataUpdater {
         debug("Processing list:" + ml.getListId() + " " + fileNames.size() + " new emails");
         for (String fileName : fileNames) {
             
-            MailDirJob job = new MailDirJob(ml, fileName, logger);
+            MailMessageJob job = new MailMessageJob(ml, fileName, logger);
             
             jobs.add(job);
             

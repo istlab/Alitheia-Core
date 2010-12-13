@@ -65,6 +65,12 @@
     <!-- If fast, only one randomly chosen metric per plug-in will be queried
     to determine whether recalculation is necessary. Slow is safer, but, well, slower-->
     <eu.sqooss.metricactivator.sync>slow</eu.sqooss.metricactivator.sync>
+    <!--Output performance information in a seperate log file. Lots of output,
+    that might hurt performance-->
+    <eu.sqooss.log.perf>false</eu.sqooss.log.perf>
+    <!--Start exactly this number of threads. If -1 then the system will use 
+    the default number of threads, currently 2x number of CPUs -->
+    <eu.sqooss.scheduler.numthreads>-1</eu.sqooss.scheduler.numthreads>
     <javax.ws.rs.ext.RuntimeDelegate>org.jboss.resteasy.spi.ResteasyProviderFactory</javax.ws.rs.ext.RuntimeDelegate>
   </properties>
   

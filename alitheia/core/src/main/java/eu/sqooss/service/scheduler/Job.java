@@ -171,13 +171,14 @@ public abstract class Job implements Comparable<Job> {
     }
 
     /**
-     * Executes the job.
-     * Makes sure, that all dependencies are met.
+     * Executes the job. Makes sure that all dependencies are met. 
+     * 
+     * @return The time required to execute the Job in milliseconds.
      * @throws Exception
      */
-    final public void execute() throws Exception {
+    final public long execute() throws Exception {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
+        long timer = System.currentTimeMillis();
         try {
             setState(State.Running);
             restart();
@@ -202,6 +203,7 @@ public abstract class Job implements Comparable<Job> {
             // the Exception itself is forwarded
             throw e;
         }
+        return System.currentTimeMillis() - timer;
     }
 
     /**

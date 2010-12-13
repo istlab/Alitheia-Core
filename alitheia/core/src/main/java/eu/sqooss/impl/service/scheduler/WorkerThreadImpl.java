@@ -33,6 +33,7 @@
 
 package eu.sqooss.impl.service.scheduler;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
@@ -43,8 +44,10 @@ import eu.sqooss.service.scheduler.WorkerThread;
  *
  * @author Christoph Schleifenbaum
  */
-class WorkerThreadImpl extends Thread implements WorkerThread
-{
+class WorkerThreadImpl extends Thread implements WorkerThread {
+    private static final String PERF_LOG_PROPERTY = "eu.sqooss.log.perf";
+    
+    private boolean perfLog = false;
 
     private Scheduler m_scheduler;
 
@@ -58,9 +61,14 @@ class WorkerThreadImpl extends Thread implements WorkerThread
      * Constructor creating a new WorkerThread
      * @param s the schedule being asked for jobs.
      */
-    public WorkerThreadImpl(Scheduler s) {
-    	super(null, null, "Worker Thread");
+    public WorkerThreadImpl(Scheduler s, int n) {
+
+    	super(null, null, "Worker ");
         m_scheduler = s;
+        String perfLog = System.getProperty(PERF_LOG_PROPERTY);
+        if (perfLog != null && perfLog.equals("true")) {
+            this.perfLog = true;
+        }
     }
 
     /**
@@ -105,13 +113,19 @@ class WorkerThreadImpl extends Thread implements WorkerThread
 
 	protected void executeJob(Job j) {
 		Job oldJob = m_job;
+		long time = -1;
 		try {
 			m_job = j;
-			m_job.execute();
+			time = m_job.execute();
 		} catch (Exception e) {
 			// no error handling needed here, the job
 			// itself takes care of that.
 		} finally {
+		    if (perfLog) {
+		        AlitheiaCore.getInstance().getLogManager().
+		            createLogger("sqooss.jobtimer").
+		            debug(m_job.toString() + ", time: " + time + " ms");
+		    }
 			m_job = oldJob;
 		}
 	}
@@ -128,7 +142,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread
 		private Job job;
 		
 		public TemporaryWorkerThread(Job job) {
-			this.worker = new WorkerThreadImpl(null);
+			this.worker = new WorkerThreadImpl(null, -1);
 		}
 		
 		TemporaryWorkerThread(WorkerThreadImpl worker,Job job) {

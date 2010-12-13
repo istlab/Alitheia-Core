@@ -62,15 +62,17 @@ public class LogManagerImpl implements LogManager {
     public LogManagerImpl() {}
 
     public Logger createLogger(String name) {
-        LoggerImpl logger = null;
+        LoggerImpl logger = loggers.get(name);
 
-        org.apache.log4j.Logger.getRootLogger().info(
+        if (logger == null) {
+            org.apache.log4j.Logger.getRootLogger().info(
                 "Creating logger <" + name + ">");
-        logger = new LoggerImpl(name);
-        loggers.put(name, logger);
-
+            logger = new LoggerImpl(name);
+            loggers.put(name, logger);
+        }
+        
         logger.get();
-   return logger;
+        return logger;
     }
 
     public void releaseLogger(String name) {

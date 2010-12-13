@@ -51,7 +51,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
 
-public class MailDirJob extends Job{
+public class MailMessageJob extends Job{
 
     private static String[] dateFmts = {
         "EEE MMM d HH:mm:ss yyyy",  //Fri Dec  5 12:50:00 2003
@@ -64,8 +64,9 @@ public class MailDirJob extends Job{
     String fileName;
     MailingList ml;
     StoredProject project;
+    int progress = 0;
     
-    public MailDirJob(MailingList ml, String f, Logger l) {
+    public MailMessageJob(MailingList ml, String f, Logger l) {
         this.logger = l;
         this.ml = ml;
         this.fileName = f;
@@ -259,5 +260,11 @@ public class MailDirJob extends Job{
     /** Convenience method to write debug messages per project */
     protected void debug(String message) {
         logger.debug(project.getName() + ":" + message);
+    }
+    
+    @Override
+    public String toString() {
+        String txt =  "MailMessageJob - Message:{" + fileName + "}";
+        return txt;
     }
 }

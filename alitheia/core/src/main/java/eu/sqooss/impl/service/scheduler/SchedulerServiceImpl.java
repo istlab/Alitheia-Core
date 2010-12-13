@@ -53,8 +53,10 @@ import eu.sqooss.service.scheduler.WorkerThread;
 public class SchedulerServiceImpl implements Scheduler {
 
     private static final String START_THREADS_PROPERTY = "eu.sqooss.scheduler.numthreads";
+    private static final String PERF_LOG_PROPERTY = "eu.sqooss.log.perf";
     
     private Logger logger = null;
+    private boolean perfLog = false;
 
     private SchedulerStats stats = new SchedulerStats();
 
@@ -135,7 +137,7 @@ public class SchedulerServiceImpl implements Scheduler {
     
     public void jobStateChanged(Job job, Job.State state) {
         if (logger != null) {
-            logger.info("Job " + job + " changed to state " + state);
+            logger.debug("Job " + job + " changed to state " + state);
         }
 
         if (state == Job.State.Finished) {
@@ -175,7 +177,7 @@ public class SchedulerServiceImpl implements Scheduler {
             }
 
             for (int i = 0; i < n; ++i) {
-                WorkerThread t = new WorkerThreadImpl(this);
+                WorkerThread t = new WorkerThreadImpl(this, i);
                 t.start();
                 myWorkerThreads.add(t);
                 stats.incWorkerThreads();
@@ -241,7 +243,7 @@ public class SchedulerServiceImpl implements Scheduler {
         int numThreads = 2 * Runtime.getRuntime().availableProcessors(); 
         String threadsProperty = System.getProperty(START_THREADS_PROPERTY);
         
-        if (threadsProperty != null && !threadsProperty.equals("0")) {
+        if (threadsProperty != null && !threadsProperty.equals("-1")) {
             try {
                 numThreads = Integer.parseInt(threadsProperty);
             } catch (NumberFormatException nfe) {
@@ -249,6 +251,13 @@ public class SchedulerServiceImpl implements Scheduler {
             }
         }
         startExecute(numThreads);
+        
+        String perfLog = System.getProperty(PERF_LOG_PROPERTY);
+        if (perfLog != null && perfLog.equals("true")) {
+            logger.info("Using performance logging");
+            this.perfLog = true;
+        }
+
         return true;
 	}
 }
