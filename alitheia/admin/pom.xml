@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>alitheia</artifactId>
+    <groupId>eu.sqooss</groupId>
+    <version>0.95-SNAPSHOT</version>
+  </parent>
+
+  <groupId>eu.sqooss.alitheia</groupId>
+  <artifactId>admin</artifactId>
+  <name>Alitheia Core Admin Service</name>
+  
+  <packaging>bundle</packaging>
+  
+  <version>0.95-SNAPSHOT</version>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Embed-Dependency>*;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium|servlet-api|junit</Embed-Dependency>
+            <Export-Package>
+              eu.sqooss.admin
+            </Export-Package>
+            <Import-Package>
+                org.codehaus.jettison.*,
+                *;resolution:=optional
+            </Import-Package>
+            <Bundle-Activator>eu.sqooss.admin.Activator</Bundle-Activator>
+            <Bundle-SymbolicName>eu.sqooss.admin</Bundle-SymbolicName>
+            <Bundle-Version>1.0</Bundle-Version>
+            <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
+            <Bundle-Description>The Alitheia Core Admin API</Bundle-Description>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <dependencies>
+  	<dependency>
+  		<groupId>eu.sqooss.alitheia</groupId>
+  		<artifactId>rest</artifactId>
+  		<version>0.95</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.osgi</groupId>
+  		<artifactId>org.osgi.core</artifactId>
+  		<version>4.2.0</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.osgi</groupId>
+  		<artifactId>org.osgi.compendium</artifactId>
+  		<version>4.2.0</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>eu.sqooss.alitheia</groupId>
+  		<artifactId>core</artifactId>
+  		<version>0.95-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
+</project>
