@@ -1,29 +1,45 @@
 package eu.sqooss.admin;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 
 public abstract class AdminActionBase implements AdminAction {
 
-    private AdminActionResult result;
-    private AdminActionError error;
-    private AdminActionStatus status;
+    protected Map<String, Object> result;
+    protected Map<String, Object> error;
+    protected Map<String, Object> args;
+    protected AdminActionStatus status;
 
     private Logger log;
     
     protected AdminActionBase() {
         status = AdminActionStatus.CREATED;
         log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
+        result = new HashMap<String, Object>();
+        error = new HashMap<String, Object>();
     }
 
     @Override
-    public final AdminActionResult getResult() {
+    public final Map<String, Object> errors() {
+        return error;
+    }
+    
+    @Override
+    public final Map<String, Object> results() {
         return result;
     }
-
+    
     @Override
-    public final AdminActionError getError() {
-        return error;
+    public final Map<String, Object> args() {
+        return args;
+    }
+    
+    @Override
+    public final void setArgs(Map<String, Object> args) {
+        this.args = args;
     }
     
     @Override
@@ -31,22 +47,17 @@ public abstract class AdminActionBase implements AdminAction {
         return status;
     }
     
-    protected final void error(AdminActionError e) {
-        this.error = e;
+    protected final void error(String key, Object o) {
+        error.put(key, o);
         changeStatus(AdminActionStatus.ERROR);
     }
     
     protected final void error(Exception e) {
-        AdminActionError err = new AdminActionError();
+        error.put("exception", e);
         
         changeStatus(AdminActionStatus.ERROR);
     }
 
-    protected final void success(AdminActionResult r) {
-        this.result = r;
-        changeStatus(AdminActionStatus.FINISHED);
-    }
-    
     protected void info(String msg) {
         log.info(getMnemonic() + ":" + msg);
     }

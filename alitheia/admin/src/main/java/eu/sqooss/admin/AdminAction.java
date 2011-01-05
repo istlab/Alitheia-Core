@@ -30,6 +30,8 @@
 
 package eu.sqooss.admin;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -50,19 +52,24 @@ import eu.sqooss.admin.actions.ExecutableAdminAction;
 @XmlRootElement(name="action")
 public interface AdminAction {
     
+    void setArgs(Map<String, Object> args);
+    
+    @XmlElement(name="args")
+    Map<String, Object> args();
+    
     @XmlElement(name="mnemonic")
     String getMnemonic();
     
     @XmlElement(name="descr")
     String getDescription();
     
-    @XmlElement
-    AdminActionResult getResult();
+    @XmlElement(name="results")
+    Map<String, Object> results();
     
-    @XmlElement
-    AdminActionError getError();
+    @XmlElement(name="errors")
+    Map<String, Object> errors();
     
-    @XmlElement
+    @XmlElement(name="status")
     AdminActionStatus getStatus();
     
     public enum AdminActionStatus {

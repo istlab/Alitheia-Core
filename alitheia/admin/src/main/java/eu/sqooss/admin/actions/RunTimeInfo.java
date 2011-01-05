@@ -50,10 +50,15 @@ public class RunTimeInfo extends AdminActionBase implements ExecutableAdminActio
         return descr;
     }
 
-     @Override
+    @Override
     public void execute() {
          try { 
              SchedulerStats s = AlitheiaCore.getInstance().getScheduler().getSchedulerStats();
+             result.put("sched.jobs.failed", s.getFailedJobs());
+             result.put("sched.jobs.wait", s.getWaitingJobs());
+             result.put("sched.jobs.finished", s.getFinishedJobs());
+             result.put("sched.threads.idle", s.getIdleWorkerThreads());
+             result.put("sched.threads.total", s.getWorkerThreads());
          } catch (Exception e) {
              error(e);
          }

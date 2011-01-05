@@ -29,6 +29,8 @@
  */
 package eu.sqooss.admin.actions;
 
+import java.util.Map;
+
 import eu.sqooss.admin.AdminAction;
 
 /**

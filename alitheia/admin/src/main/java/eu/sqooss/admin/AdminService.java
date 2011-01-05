@@ -32,8 +32,6 @@ package eu.sqooss.admin;
 
 import java.util.Set;
 
-import eu.sqooss.admin.actions.ExecutableAdminAction;
-
 /**
  * A service that contains and executes administrative actions on behalf of
  * clients. 
