@@ -50,11 +50,13 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
@@ -152,7 +154,7 @@ public class GitAccessor implements SCMAccessor {
         }
         return null;
     }
-    
+
     /** {@inheritDoc} */
     public Revision newRevision(String uniqueId) {
 
@@ -163,8 +165,8 @@ public class GitAccessor implements SCMAccessor {
         
         try {
             RevWalk rw = new RevWalk(git);
-            Commit obj = git.mapCommit(uniqueId);
-            RevCommit c = rw.parseCommit(obj.getCommitId());
+            ObjectId obj = git.resolve(uniqueId);
+            RevCommit c = rw.parseCommit(obj);
             return getRevision(c);
         } catch (IOException e) {
                 err("Cannot resolve revision " + uniqueId + ":" + 
@@ -397,7 +399,11 @@ public class GitAccessor implements SCMAccessor {
         this.uri = dataURL;
         this.projectname = projectName;
         try {
-            git = new Repository(toGitRepo(uri));
+            RepositoryBuilder builder = new RepositoryBuilder();
+            git = builder.setGitDir(toGitRepo(uri))
+                .findGitDir() // scan up the file system tree
+                .build();
+
         } catch (IOException e) {
             throw new AccessorException(this.getClass(), 
                     "Cannot initialise accessor for URL " + uri.toASCIIString());
