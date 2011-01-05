@@ -9,7 +9,7 @@
   </parent>
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>developermetrics</artifactId>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <name>Developer Metrics</name>
   <build>

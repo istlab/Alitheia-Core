@@ -8,7 +8,7 @@
   </parent>
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>structural</artifactId>
-  <version>0.9</version>
+  <version>0.9-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <name>McCabe and Halstead Metrics for C and Java</name>
   <build>

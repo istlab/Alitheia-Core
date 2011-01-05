@@ -8,7 +8,7 @@
   </parent>
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>modulemetrics</artifactId>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <name>Module size metrics</name>
   <build>
