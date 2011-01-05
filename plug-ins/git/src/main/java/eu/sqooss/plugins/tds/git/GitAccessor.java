@@ -58,7 +58,9 @@ import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
@@ -320,7 +322,7 @@ public class GitAccessor implements SCMAccessor {
             if (repoPath != null && !repoPath.isEmpty()) {
                 if (repoPath.startsWith("/") && repoPath.length() > 1)
                     repoPath = repoPath.substring(1);
-                rw.setTreeFilter(PathFilter.create(repoPath));
+                rw.setTreeFilter(AndTreeFilter.create(PathFilter.create(repoPath), TreeFilter.ANY_DIFF));
             }
 
             if (r2 != null) {
