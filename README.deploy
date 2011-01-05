@@ -6,7 +6,7 @@ short, this involves 4 steps:
 
 1. Get the required certificates
 
-Maven repository certificate: You can find the certificate under misc/repo.crt.
+Maven repository certificate: You can find the certificate under misc/maven.crt.
 You can also get a fresh copy in case the certificate changes directly from the
 web server.
 
