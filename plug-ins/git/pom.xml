@@ -6,11 +6,11 @@
   <parent>
     <artifactId>plugins</artifactId>
     <groupId>eu.sqooss</groupId>
-    <version>0.95</version>
+    <version>0.95-SNAPSHOT</version>
   </parent>
   <groupId>eu.sqooss.plugins</groupId>
   <artifactId>git</artifactId>
-  <version>0.95</version>
+  <version>0.95-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <name>Alitheia Core git plug-in</name>
   <build>
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
-      <version>0.95</version>
+      <version>0.95-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>

@@ -4,7 +4,7 @@
   <parent>
     <artifactId>metrics</artifactId>
     <groupId>eu.sqooss</groupId>
-    <version>0.95</version>
+    <version>0.95-SNAPSHOT</version>
   </parent>
   <groupId>eu.sqooss.metrics</groupId>
   <artifactId>testability</artifactId>
@@ -56,7 +56,7 @@
     <dependency>
       <groupId>eu.sqooss.alitheia</groupId>
       <artifactId>core</artifactId>
-      <version>0.95</version>
+      <version>0.95-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>

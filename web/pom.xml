@@ -4,7 +4,7 @@
   <groupId>eu.sqooss</groupId>
   <artifactId>web</artifactId>
   <packaging>war</packaging>
-  <version>0.95</version>
+  <version>0.95-SNAPSHOT</version>
   <name>SQO-OSS web frontend</name>
     
   <dependencies>
