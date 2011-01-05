@@ -44,7 +44,7 @@
   	<dependency>
   		<groupId>eu.sqooss.alitheia</groupId>
   		<artifactId>rest</artifactId>
-  		<version>0.95</version>
+  		<version>0.95-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>org.osgi</groupId>
