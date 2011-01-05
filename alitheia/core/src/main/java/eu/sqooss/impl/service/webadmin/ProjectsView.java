@@ -186,8 +186,7 @@ public class ProjectsView extends AbstractView {
         p.put(ConfigOption.PROJECT_SCM_URL.toString(), req.getParameter(REQ_PAR_PRJ_CODE));
     
      // Avoid missing-entirely kinds of parameters.
-        if ( (name == null) || (bts == null) || 
-             (mail == null) || (scm == null) ) {
+        if ( (name == null) || (scm == null) ) {
             e.append(sp(indent)).append("Add project failed because some of the required information was missing.<br/>\n");
             return null;
         }
@@ -214,13 +213,13 @@ public class ProjectsView extends AbstractView {
             return null;
         }
         
-        if (!sobjTDS.isURLSupported(mail)) {
+        if (mail != null &&  !mail.isEmpty() && !sobjTDS.isURLSupported(mail)) {
         	 e.append(sp(indent)).append("No appropriate accessor for URI: &lt;"
                     + mail + "&gt;");
             return null;
         }
         
-        if (!sobjTDS.isURLSupported(bts)) {
+        if (bts != null && !bts.isEmpty() && !sobjTDS.isURLSupported(bts)) {
         	 e.append(sp(indent)).append("No appropriate accessor for bug data URI: &lt;"
                     + bts + "&gt;");
             return null;
