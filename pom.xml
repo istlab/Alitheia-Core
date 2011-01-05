@@ -37,6 +37,11 @@
       <name>Alitheia Core Main Repository</name>
       <url>dav:https://maven.sqo-oss.org/</url>
     </repository>
+    <snapshotRepository>
+    	<id>ac-snapshot</id>
+    	<name>Alitheia Core snapshot repository</name>
+    	<url>dav:https://maven.sqo-oss.org/snapshot</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <properties>
@@ -103,9 +108,9 @@
   </developers>
 
   <scm>
-    <url>http://websvn.sqo-oss.org/</url>
-    <connection>scm:svn:https://svn.sqo-oss.org/</connection>
-    <developerConnection>scm:svn:https://svn.sqo-oss.org/branches/mavenize</developerConnection>
+    <url>http://git.sqo-oss.org/</url>
+    <connection>scm:git:git://git.sqo-oss.org/sqo-oss.git</connection>
+    <developerConnection>scm:git:ssh://git@git.sqo-oss.org:sqo-oss.git</developerConnection>
   </scm>
 
   <build>
