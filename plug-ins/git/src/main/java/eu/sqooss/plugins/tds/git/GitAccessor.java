@@ -46,7 +46,6 @@ import java.util.Map;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
-//import org.eclipse.jgit.lib.Commit;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -56,7 +55,6 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
@@ -153,6 +151,8 @@ public class GitAccessor implements SCMAccessor {
         } catch (Exception e) {
            err("Cannot resolve commit with timestamp: " + d + ":" 
                    + e.getMessage());
+        } finally {
+            rw.release();
         }
         return null;
     }
@@ -164,9 +164,9 @@ public class GitAccessor implements SCMAccessor {
             err("Cannot create new revision with null or empty revisionid");
             return null;
         }
-        
+        RevWalk rw = new RevWalk(git);
+
         try {
-            RevWalk rw = new RevWalk(git);
             ObjectId obj = git.resolve(uniqueId);
             RevCommit c = rw.parseCommit(obj);
             return getRevision(c);
@@ -174,14 +174,17 @@ public class GitAccessor implements SCMAccessor {
                 err("Cannot resolve revision " + uniqueId + ":" + 
                         e.getMessage());
             return null;
+        } finally {
+            rw.release();
         }
     }
 
     /** {@inheritDoc} */
     public Revision getHeadRevision() throws InvalidRepositoryException {
         AnyObjectId headId;
+        RevWalk rw = new RevWalk(git);
+
         try {
-            RevWalk rw = new RevWalk(git);
             headId = git.resolve(Constants.HEAD);
 
             if (headId == null) {
@@ -193,6 +196,8 @@ public class GitAccessor implements SCMAccessor {
             return getRevision(root);
         } catch (IOException e) {
             throw new InvalidRepositoryException("", e.getMessage());
+        } finally {
+            rw.release();
         }
     }
 
@@ -209,6 +214,8 @@ public class GitAccessor implements SCMAccessor {
             c = rw.next();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            rw.release();
         }
 
         return getRevision(c);
@@ -217,9 +224,10 @@ public class GitAccessor implements SCMAccessor {
     /** {@inheritDoc} */
     public Revision getPreviousRevision(Revision r)
         throws InvalidProjectRevisionException {
-        AnyObjectId revId;
+        AnyObjectId revId;  
+        RevWalk rw = new RevWalk(git);
+
         try {
-            RevWalk rw = new RevWalk(git);
             revId = git.resolve(r.getUniqueId());
             
             if (revId == null) {
@@ -236,6 +244,8 @@ public class GitAccessor implements SCMAccessor {
             throw new InvalidProjectRevisionException(
                     "Cannot get next revision: "+ e.getMessage(), 
                     getClass());
+        } finally {
+            rw.release();
         }
     }
 
@@ -243,13 +253,14 @@ public class GitAccessor implements SCMAccessor {
     public Revision getNextRevision(Revision r)
         throws InvalidProjectRevisionException {
         AnyObjectId revId;
+        RevWalk rw = new RevWalk(git);
         try {
             /*
              * We say to JGit to return all commits whose timestamp is
              * after the provided revision date, but also in ascending
              * timestamp order (REVERSE strategy). 
              */
-            RevWalk rw = new RevWalk(git);
+            
             revId = git.resolve(Constants.HEAD);
             RevFilter exact = CommitTimeRevFilter.after(r.getDate());
             rw.sort(RevSort.REVERSE);
@@ -268,6 +279,8 @@ public class GitAccessor implements SCMAccessor {
             throw new InvalidProjectRevisionException(
                     "Cannot get next revision: "+ e.getMessage(), 
                     getClass());
+        } finally {
+            rw.release();
         }
     }
     
@@ -302,7 +315,7 @@ public class GitAccessor implements SCMAccessor {
     
     public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
     throws InvalidProjectRevisionException, InvalidRepositoryException  {
-
+        RevWalk rw = new RevWalk(git);
         try {
             
             if (r1 == null) {
@@ -317,7 +330,7 @@ public class GitAccessor implements SCMAccessor {
                 throw new InvalidProjectRevisionException(r2.getUniqueId(),
                         this.getClass());
             
-            RevWalk rw = new RevWalk(git);
+            
 
             if (repoPath != null && !repoPath.isEmpty()) {
                 if (repoPath.startsWith("/") && repoPath.length() > 1)
@@ -352,6 +365,8 @@ public class GitAccessor implements SCMAccessor {
         } catch (IOException ew) {
             throw new InvalidRepositoryException(this.uri.toString(),
                     ew.getMessage());
+        } finally {
+            rw.release();
         }
     }
 
@@ -440,16 +455,16 @@ public class GitAccessor implements SCMAccessor {
     /*
      * Construct a full Revision object by analysing a commit's contents. Ideas
      * and some code stolen by the Netbeans Git plugin:
-     * 
+     *
      * http://github.com/myabc/nbgit.git
      */
     private GitRevision getRevision(RevCommit commit) {
         Map<String, PathChangeType> events = new HashMap<String, PathChangeType>();
-
+        TreeWalk tw = new TreeWalk(git);
         try {
             ObjectId[] trees = getTrees(commit);
             final int revTree = trees.length - 1;
-            TreeWalk tw = new TreeWalk(git);
+            
             tw.setRecursive(true);
             tw.reset(trees);
 
@@ -501,8 +516,10 @@ public class GitAccessor implements SCMAccessor {
             err("Cannot retrieve commit contents for rev " + 
                     commit.getId().getName() + ":" + e.getMessage());
             return null;
+        } finally {
+            tw.release();
         }
-        
+
         return new GitRevision(commit, events, null);
     }
     

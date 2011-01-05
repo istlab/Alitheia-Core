@@ -253,7 +253,7 @@ public class TestGitAccessor {
 
     @Test
     public void testGetCommitLog() 
-    throws InvalidProjectRevisionException, InvalidRepositoryException {
+    throws InvalidProjectRevisionException, InvalidRepositoryException, ParseException {
         Revision r1 = git.newRevision("b5d6b907b080992c2d0220eceb66f4ffa85207cd");
         Revision r2 = git.newRevision("3cb57d82c301e9b8a16f30f468401e3007845bb7");
         
@@ -292,6 +292,10 @@ public class TestGitAccessor {
         l = git.getCommitLog("/tests", r1, r2);
         assertNotNull(l);
         assertEquals(l.size(), 3);
+        Iterator<Revision> it = l.iterator();
+        assertEquals(it.next().getDate().getTime(), sdf.parse("Mon Mar 3 14:47:01 2008 -0800").getTime());
+        assertEquals(it.next().getUniqueId(), "1d845799ebc05bee9e3a68b7ad9dd5015277ca41");
+        assertEquals(it.next().getUniqueId(), "476d943baabc9852f1653088a58bdb2912bbd95a");
 
         //Check log entry validity and ascending order
         while (i.hasNext()) {
