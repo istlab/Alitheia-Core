@@ -47,7 +47,6 @@ import javax.ws.rs.Produces;
 import eu.sqooss.admin.AdminAction;
 import eu.sqooss.admin.AdminAction.AdminActionStatus;
 import eu.sqooss.admin.AdminService;
-import eu.sqooss.admin.actions.ExecutableAdminAction;
 
 /**
  * 
@@ -76,7 +75,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
 
     @Override
     public void execute(AdminAction a) {
-        ((ExecutableAdminAction)a).execute();
+        a.execute();
     }
     
     @GET

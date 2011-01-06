@@ -34,17 +34,19 @@ import eu.sqooss.admin.AdminActionBase;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.scheduler.SchedulerStats;
 
-public class RunTimeInfo extends AdminActionBase implements ExecutableAdminAction {
+public class RunTimeInfo extends AdminActionBase {
 
     private static final String descr = "Returns misc runtime information";
 
-    public RunTimeInfo() {super();}
-    
+    public RunTimeInfo() {
+        super();
+    }
+
     @Override
     public String getMnemonic() {
         return "rti";
     }
-    
+
     @Override
     public String getDescription() {
         return descr;
@@ -52,15 +54,18 @@ public class RunTimeInfo extends AdminActionBase implements ExecutableAdminActio
 
     @Override
     public void execute() {
-         try { 
-             SchedulerStats s = AlitheiaCore.getInstance().getScheduler().getSchedulerStats();
-             result.put("sched.jobs.failed", s.getFailedJobs());
-             result.put("sched.jobs.wait", s.getWaitingJobs());
-             result.put("sched.jobs.finished", s.getFinishedJobs());
-             result.put("sched.threads.idle", s.getIdleWorkerThreads());
-             result.put("sched.threads.total", s.getWorkerThreads());
-         } catch (Exception e) {
-             error(e);
-         }
+        super.execute();
+        try {
+            SchedulerStats s = AlitheiaCore.getInstance().getScheduler()
+                    .getSchedulerStats();
+            result.put("sched.jobs.failed", s.getFailedJobs());
+            result.put("sched.jobs.wait", s.getWaitingJobs());
+            result.put("sched.jobs.finished", s.getFinishedJobs());
+            result.put("sched.threads.idle", s.getIdleWorkerThreads());
+            result.put("sched.threads.total", s.getWorkerThreads());
+        } catch (Exception e) {
+            error(e);
+        }
+        finished();
     }
 }

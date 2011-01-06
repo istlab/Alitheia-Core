@@ -24,6 +24,15 @@ public abstract class AdminActionBase implements AdminAction {
     }
 
     @Override
+    public void execute() {
+        status = AdminActionStatus.EXECUTING;
+    }
+    
+    public final void finished() {
+        status = AdminActionStatus.FINISHED;
+    }
+    
+    @Override
     public final Map<String, Object> errors() {
         return error;
     }

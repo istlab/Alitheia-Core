@@ -35,8 +35,6 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.admin.actions.ExecutableAdminAction;
-
 /**
  * An action that is executed by the admin service on behalf of some client.
  * Admin actions are identified by a short mnemonic. The long description
@@ -71,6 +69,8 @@ public interface AdminAction {
     
     @XmlElement(name="status")
     AdminActionStatus getStatus();
+    
+    void execute();
     
     public enum AdminActionStatus {
         CREATED,
