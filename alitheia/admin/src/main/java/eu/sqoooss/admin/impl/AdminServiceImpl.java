@@ -51,30 +51,34 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 
 /**
- * Implementation of the {@link AdminService} interface. Uses a
+ * Implementation of the {@link AdminService} interface. Tracks all submitted
+ * actions and uses a background thread to delete old ones. Also serves as a
+ * REST api producer for the admin service, through optional registration with
+ * the REST service.
  * 
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
- *
+ * 
  */
 @Path("/api")
 public class AdminServiceImpl extends Thread implements AdminService {
-    
+
     Map<String, Class<? extends AdminAction>> services;
     ConcurrentMap<Long, ActionContainer> liveactions;
     AtomicLong id;
-    
+
     Logger log;
-    
+
     public AdminServiceImpl() {
         services = new HashMap<String, Class<? extends AdminAction>>();
         liveactions = new ConcurrentHashMap<Long, ActionContainer>();
         id = new AtomicLong();
         if (AlitheiaCore.getInstance() != null)
-            log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
+            log = AlitheiaCore.getInstance().getLogManager()
+                    .createLogger("sqooss.admin");
         start();
     }
-    
+
     @Override
     public void registerAdminAction(String uniq,
             Class<? extends AdminAction> clazz) {
@@ -85,9 +89,9 @@ public class AdminServiceImpl extends Thread implements AdminService {
     public void execute(AdminAction a) {
         a.execute();
     }
-    
+
     @GET
-    @Produces({"application/xml", "application/json"})
+    @Produces({ "application/xml", "application/json" })
     @Path("/actions/")
     @Override
     public Set<AdminAction> getAdminActions() {
@@ -96,71 +100,71 @@ public class AdminServiceImpl extends Thread implements AdminService {
             try {
                 actions.add(aa.newInstance());
             } catch (Exception e) {
-                log.error("Error instantiating action: " 
+                log.error("Error instantiating action: "
                         + aa.getCanonicalName() + ": " + e.getMessage());
                 return null;
-            } 
+            }
         }
         return actions;
     }
-    
+
     @GET
-    @Produces({"application/xml", "application/json"})
+    @Produces({ "application/xml", "application/json" })
     @Path("/actions/{id}")
     public AdminAction show(Long id) {
         if (liveactions.get(id) != null)
             return liveactions.get(id).aa;
         return null;
     }
-    
+
     @GET
-    @Produces({"application/xml", "application/json"})
+    @Produces({ "application/xml", "application/json" })
     @Path("/actions/{id}/result")
     public Map<String, Object> result() {
         if (liveactions.get(id) == null)
             return null;
-        
+
         if (liveactions.get(id).end == -1)
             return null;
-        
+
         return liveactions.get(id).aa.results();
     }
-    
+
     @GET
-    @Produces({"application/xml", "application/json"})
+    @Produces({ "application/xml", "application/json" })
     @Path("/actions/{id}/status")
     public AdminActionStatus status() {
         if (liveactions.get(id) != null)
             return liveactions.get(id).aa.getStatus();
-        
+
         if (liveactions.get(id).end == -1)
             return null;
         return null;
     }
-    
+
     @GET
-    @Produces({"application/xml", "application/json"})
+    @Produces({ "application/xml", "application/json" })
     @Path("/actions/{id}/error")
     public Map<String, Object> error() {
         if (liveactions.get(id) != null)
             return liveactions.get(id).aa.results();
         return null;
     }
-    
+
     @POST
-    @Produces({"application/xml", "application/json"})
+    @Produces({ "application/xml", "application/json" })
     @Path("/actions/{uniq}")
     public AdminAction create(String uniq) {
         Class<? extends AdminAction> clazz = services.get(uniq);
-        
+
         if (clazz == null)
             return null;
-        
+
         try {
             long aid = id.addAndGet(1);
             AdminAction aa = clazz.newInstance();
             aa.setId(aid);
-            
+
             ActionContainer ac = new ActionContainer(aa);
             liveactions.put(aa.id(), ac);
             return aa;
@@ -170,13 +174,13 @@ public class AdminServiceImpl extends Thread implements AdminService {
     }
 
     public class ActionContainer {
-        
-        public ActionContainer (AdminAction aa) {
+
+        public ActionContainer(AdminAction aa) {
             this.aa = aa;
-            this.start = System.currentTimeMillis(); 
+            this.start = System.currentTimeMillis();
             this.end = -1;
         }
-        
+
         public AdminAction aa;
         public long start;
         public long end; // -1 means action not executed
@@ -185,17 +189,19 @@ public class AdminServiceImpl extends Thread implements AdminService {
     @Override
     public void run() {
         Iterator<Long> i = liveactions.keySet().iterator();
-        long ts = System.currentTimeMillis(); 
-        
+        long ts = System.currentTimeMillis();
+
         while (i.hasNext()) {
             long id = i.next();
-            if (liveactions.get(id).end > -1 &&                //Action executed
-                    ts - liveactions.get(id).end > 10*60*1000) //Action is older than 10 mins
+            if (liveactions.get(id).end > -1 && // Action executed
+                    ts - liveactions.get(id).end > 10 * 60 * 1000) // Action is
+                                                                   // older than
+                                                                   // 10 mins
                 liveactions.remove(id);
         }
     }
-    
-    //Methods to help testing, not to be used elsewhere
+
+    // Methods to help testing, not to be used elsewhere
     @Deprecated
     public ConcurrentMap<Long, ActionContainer> liveactions() {
         return liveactions;
