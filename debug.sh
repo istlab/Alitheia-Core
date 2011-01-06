@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OSGI=org.eclipse.osgi_3.5.1.R35x_v20090827.jar
+OSGI=org.eclipse.osgi_3.6.0.v20100517.jar
 
 mkdir -p runner/bundles/configuration
 cat runner/equinox/config.ini| sed -e's/bundles\///' > runner/bundles/configuration/config.ini

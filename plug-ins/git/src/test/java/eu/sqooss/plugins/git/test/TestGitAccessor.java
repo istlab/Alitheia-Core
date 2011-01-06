@@ -1,6 +1,10 @@
 package eu.sqooss.plugins.git.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,14 +18,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jgit.lib.Commit;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheCheckout;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.GitIndex;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TextProgressMonitor;
-import org.eclipse.jgit.lib.Tree;
-import org.eclipse.jgit.lib.WorkDirCheckout;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
@@ -54,7 +61,7 @@ public class TestGitAccessor {
     @BeforeClass
     public static void setup() throws IOException, URISyntaxException {
         File repo = new File(localrepo, Constants.DOT_GIT);
-        local = new Repository(repo);
+        FileRepository local =  new FileRepository(repo);
         sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         
         if (repo.exists())
@@ -62,27 +69,41 @@ public class TestGitAccessor {
             
         local.create();
         
+        final FileBasedConfig localcfg = local.getConfig();
+        localcfg.setBoolean("core", null, "bare", false);
+        localcfg.save();
+        
         RemoteConfig remoteConfig = new RemoteConfig(local.getConfig(), "master");
         remoteConfig.addURI(new URIish(url));
         
         final String dst = Constants.R_REMOTES + remoteConfig.getName();
         RefSpec wcrs = new RefSpec();
         wcrs = wcrs.setForceUpdate(true);
-        wcrs = wcrs.setSourceDestination(Constants.R_HEADS + "*", dst + "/*");
+        wcrs = wcrs.setSourceDestination(Constants.R_HEADS + "*", Constants.R_REMOTES + "master" + "/*");
         remoteConfig.addFetchRefSpec(wcrs);
         
-        local.getConfig().setBoolean("core", null, "bare", false);
         remoteConfig.update(local.getConfig());
-
         local.getConfig().save();
 
-        Transport t = Transport.open(local, remoteConfig);
+        Transport t = Transport.open(local, "master");
         FetchResult fetchResult = t.fetch(new TextProgressMonitor(), null);
+        t.close();
         Ref head = fetchResult.getAdvertisedRef("HEAD");
-        GitIndex index = new GitIndex(local);
-        Commit mapCommit = local.mapCommit(head.getObjectId());
-        Tree tree = mapCommit.getTree();
-        WorkDirCheckout co = new WorkDirCheckout(local, new File(localrepo), index, tree);
+        
+        final RevWalk rw = new RevWalk(local);
+        final RevCommit commit;
+        try {
+            commit = rw.parseCommit(head.getObjectId());
+        } finally {
+            rw.release();
+        }
+        
+        final RefUpdate u = local.updateRef(Constants.HEAD);
+        u.setNewObjectId(commit);
+        u.forceUpdate();
+
+        DirCache dc = local.lockDirCache();
+        DirCacheCheckout co = new DirCacheCheckout(local, dc, commit.getTree());
         co.checkout();
     }
 
@@ -232,7 +253,7 @@ public class TestGitAccessor {
 
     @Test
     public void testGetCommitLog() 
-    throws InvalidProjectRevisionException, InvalidRepositoryException {
+    throws InvalidProjectRevisionException, InvalidRepositoryException, ParseException {
         Revision r1 = git.newRevision("b5d6b907b080992c2d0220eceb66f4ffa85207cd");
         Revision r2 = git.newRevision("3cb57d82c301e9b8a16f30f468401e3007845bb7");
         
@@ -265,12 +286,16 @@ public class TestGitAccessor {
         }
         
         //Commit sequence including tags and branches + path filter
-        /*r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
+        r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
         r2 = git.newRevision("ae106e2a3569e5ea874852c613ed060d8e232109");
         
         l = git.getCommitLog("/tests", r1, r2);
         assertNotNull(l);
         assertEquals(l.size(), 3);
+        Iterator<Revision> it = l.iterator();
+        assertEquals(it.next().getDate().getTime(), sdf.parse("Mon Mar 3 14:47:01 2008 -0800").getTime());
+        assertEquals(it.next().getUniqueId(), "1d845799ebc05bee9e3a68b7ad9dd5015277ca41");
+        assertEquals(it.next().getUniqueId(), "476d943baabc9852f1653088a58bdb2912bbd95a");
 
         //Check log entry validity and ascending order
         while (i.hasNext()) {
@@ -278,7 +303,7 @@ public class TestGitAccessor {
             assertTrue(git.isValidRevision(r));
             assertTrue(r.getDate().getTime() > old);
             old = r.getDate().getTime();
-        }*/
+        }
 
         //Commit sequence with null second argument, should return all entries 
         //up to head
