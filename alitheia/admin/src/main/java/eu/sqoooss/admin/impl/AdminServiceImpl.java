@@ -32,9 +32,20 @@ package eu.sqoooss.admin.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 import eu.sqooss.admin.AdminAction;
+import eu.sqooss.admin.AdminAction.AdminActionStatus;
 import eu.sqooss.admin.AdminService;
 import eu.sqooss.admin.actions.ExecutableAdminAction;
 
@@ -43,13 +54,18 @@ import eu.sqooss.admin.actions.ExecutableAdminAction;
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
-public class AdminServiceImpl implements AdminService {
-
-    HashMap<String, Class<? extends AdminAction>> services;
+@Path("/api")
+public class AdminServiceImpl extends Thread implements AdminService {
     
-    @Override
-    public Set<AdminAction> getAdminActions() {
-        return new HashSet(services.values());
+    Map<String, Class<? extends AdminAction>> services;
+    ConcurrentMap<Long, ActionContainer> liveactions;
+    AtomicLong id;
+    
+    public AdminServiceImpl() {
+        services = new HashMap<String, Class<? extends AdminAction>>();
+        liveactions = new ConcurrentHashMap<Long, ActionContainer>();
+        id = new AtomicLong();
+        start();
     }
     
     @Override
@@ -59,6 +75,64 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public void execute(AdminAction a) {
+        ((ExecutableAdminAction)a).execute();
+    }
+    
+    @GET
+    @Produces({"application/xml", "application/json"})
+    @Path("/actions/")
+    @Override
+    public Set<AdminAction> getAdminActions() {
+        return new HashSet(services.values());
+    }
+    
+    @GET
+    @Produces({"application/xml", "application/json"})
+    @Path("/actions/{id}")
+    public AdminAction show(Long id) {
+        if (liveactions.get(id) != null)
+            return liveactions.get(id).aa;
+        return null;
+    }
+    
+    @GET
+    @Produces({"application/xml", "application/json"})
+    @Path("/actions/{id}/result")
+    public Map<String, Object> result() {
+        if (liveactions.get(id) == null)
+            return null;
+        
+        if (liveactions.get(id).end == -1)
+            return null;
+        
+        return liveactions.get(id).aa.results();
+    }
+    
+    @GET
+    @Produces({"application/xml", "application/json"})
+    @Path("/actions/{id}/status")
+    public AdminActionStatus status() {
+        if (liveactions.get(id) != null)
+            return liveactions.get(id).aa.getStatus();
+        
+        if (liveactions.get(id).end == -1)
+            return null;
+        return null;
+    }
+    
+    @GET
+    @Produces({"application/xml", "application/json"})
+    @Path("/actions/{id}/error")
+    public Map<String, Object> error() {
+        if (liveactions.get(id) != null)
+            return liveactions.get(id).aa.results();
+        return null;
+    }
+    
+    @POST
+    @Produces({"application/xml", "application/json"})
+    @Path("/actions/{uniq}")
     public AdminAction create(String uniq) {
         Class<? extends AdminAction> clazz = services.get(uniq);
         
@@ -67,14 +141,39 @@ public class AdminServiceImpl implements AdminService {
         
         try {
             AdminAction aa = clazz.newInstance();
+            ActionContainer ac = new ActionContainer(aa, id.addAndGet(1));
+            liveactions.put(ac.id, ac);
             return aa;
         } catch (Exception e) {
             return null;
         }
     }
 
+    private class ActionContainer {
+        
+        public ActionContainer (AdminAction aa, long id) {
+            this.aa = aa;
+            this.id = id;
+            this.start = System.currentTimeMillis(); 
+            this.end = -1;
+        }
+        
+        public AdminAction aa;
+        public long start;
+        public long end; // -1 means action not executed
+        public long id;
+    }
+
     @Override
-    public void execute(AdminAction a) {
-        ((ExecutableAdminAction)a).execute();
+    public void run() {
+        Iterator<Long> i = liveactions.keySet().iterator();
+        long ts = System.currentTimeMillis(); 
+        
+        while (i.hasNext()) {
+            long id = i.next();
+            if (liveactions.get(id).end > -1 &&                //Action executed
+                    ts - liveactions.get(id).end > 10*60*1000) //Action is older than 10 mins
+                liveactions.remove(id);
+        }
     }
 }

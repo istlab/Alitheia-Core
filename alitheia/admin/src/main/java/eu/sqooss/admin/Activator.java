@@ -52,8 +52,11 @@ public class Activator implements BundleActivator {
                 + " [" + bc.getBundle() + "]");
         
         AdminServiceImpl service = new AdminServiceImpl();
-        
         sr = bc.registerService(AdminService.class.getName(), service, new Hashtable());
+        
+        log.info("Admin Service started: " + AdminServiceImpl.class.getName());
+        
+        
     }
 
     public void stop(BundleContext bc) throws Exception {

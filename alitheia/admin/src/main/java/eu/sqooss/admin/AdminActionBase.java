@@ -17,7 +17,8 @@ public abstract class AdminActionBase implements AdminAction {
     
     protected AdminActionBase() {
         status = AdminActionStatus.CREATED;
-        log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
+        if (AlitheiaCore.getInstance() != null)
+            log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
         result = new HashMap<String, Object>();
         error = new HashMap<String, Object>();
     }
