@@ -1,0 +1,8 @@
+target*
+runner/*
+*.classpath
+*.project
+*.settings
+plug-ins/git/test/
+maven.jks
+*.externalToolBuilders
