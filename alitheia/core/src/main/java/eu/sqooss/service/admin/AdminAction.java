@@ -28,44 +28,61 @@
  *
  */
 
-package eu.sqooss.admin.actions;
+package eu.sqooss.service.admin;
 
-import eu.sqooss.admin.AdminActionBase;
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.scheduler.SchedulerStats;
+import java.util.Map;
 
-public class RunTimeInfo extends AdminActionBase {
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-    private static final String descr = "Returns misc runtime information";
-
-    public RunTimeInfo() {
-        super();
-    }
-
-    @Override
-    public String mnemonic() {
-        return "rti";
-    }
-
-    @Override
-    public String descr() {
-        return descr;
-    }
-
-    @Override
-    public void execute() throws Exception {
-        super.execute();
-        try {
-            SchedulerStats s = AlitheiaCore.getInstance().getScheduler()
-                    .getSchedulerStats();
-            result.put("sched.jobs.failed", s.getFailedJobs());
-            result.put("sched.jobs.wait", s.getWaitingJobs());
-            result.put("sched.jobs.finished", s.getFinishedJobs());
-            result.put("sched.threads.idle", s.getIdleWorkerThreads());
-            result.put("sched.threads.total", s.getWorkerThreads());
-        } catch (Exception e) {
-            error(e);
-        }
-        finished();
+/**
+ * An action that is executed by the admin service on behalf of some client.
+ * Admin actions are identified by a short mnemonic. The long description
+ * should report all returned fields and error codes.
+ * 
+ * This interface does not support execution of actions as it would enable
+ * clients to perform the execution themselves. Implementations should
+ * implement the private {@link ExecutableAdminAction} interface instead. 
+ * 
+ * @author Georgios Gousios <gousiosg@gmail.com>
+ * 
+ */
+@XmlRootElement(name="action")
+public interface AdminAction {
+    
+    void setArgs(Map<String, Object> args);
+    void execute() throws Exception;
+    void setId(Long id);
+    
+    @XmlElement(name="id")
+    Long id();
+    
+    @XmlElement(name="args")
+    Map<String, Object> args();
+    
+    @XmlElement(name="mnemonic")
+    String mnemonic();
+    
+    @XmlElement(name="descr")
+    String descr();
+    
+    @XmlElement(name="results")
+    Map<String, Object> results();
+    
+    @XmlElement(name="errors")
+    Map<String, Object> errors();
+    
+    @XmlElement(name="warn")
+    Map<String, Object> warnings();
+    
+    @XmlElement(name="status")
+    AdminActionStatus status();
+    
+    public enum AdminActionStatus {
+        CREATED,
+        EXECUTING,
+        FINISHED,
+        ERROR,
+        UNKNOWN
     }
 }

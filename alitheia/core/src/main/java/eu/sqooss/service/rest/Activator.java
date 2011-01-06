@@ -36,7 +36,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.rest.impl.ResteasyServiceImpl;
+import eu.sqooss.impl.service.rest.ResteasyServiceImpl;
 import eu.sqooss.service.logging.Logger;
 
 public class Activator implements BundleActivator {

@@ -28,7 +28,7 @@
  *
  */
 
-package eu.sqooss.admin;
+package eu.sqooss.service.admin;
 
 import java.util.Set;
 

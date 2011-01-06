@@ -1,9 +1,6 @@
 /*
- * This file is part of the Alitheia system, developed by the SQO-OSS
- * consortium as part of the IST FP6 SQO-OSS project, number 033331.
- *
- * Copyright 2008 - Organization for Free and Open Source Software,  
- *                Athens, Greece.
+ * Copyright 2010 - Organization for Free and Open Source Software,  
+ *                 Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,28 +27,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+package eu.sqooss.impl.service.rest;
 
-package eu.sqooss.service.rest;
-
+import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.core.Application;
-
-import eu.sqooss.impl.service.rest.RestServiceRegistry;
-
-public class RestServiceApp extends Application {
-
-	public RestServiceApp() {
+public class RestServiceRegistry {
+	private Set<Class<?>> resources;
+	private static RestServiceRegistry instance;
+	
+	private RestServiceRegistry() {
+		resources = new HashSet<Class<?>>();
 	}
 	
-	@Override
-	public Set<Class<?>> getClasses() {
-		
-		return RestServiceRegistry.getInstance().getResources();
+	public static RestServiceRegistry getInstance() {
+		if (instance == null)
+			instance = new RestServiceRegistry();
+		return instance;
 	}
 	
-	@Override
-	public Set<Object> getSingletons() {
-		return null;
+	public void add (Class<?> resource) {
+		resources.add(resource);
+	}
+	
+	public void remove (Class<?> resource) {
+		resources.remove(resource);
+	}
+	
+	public Set<Class<?>> getResources() {
+		return resources;
 	}
 }

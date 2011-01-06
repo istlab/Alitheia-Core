@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.rest.impl;
+package eu.sqooss.impl.service.rest;
 
 import java.util.Dictionary;
 import java.util.Hashtable;

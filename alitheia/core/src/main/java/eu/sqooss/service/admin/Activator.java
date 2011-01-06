@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.admin;
+package eu.sqooss.service.admin;
 
 import java.util.Hashtable;
 
@@ -36,8 +36,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqoooss.admin.impl.AdminServiceImpl;
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.rest.RestService;
 

@@ -27,34 +27,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.rest.impl;
 
-import java.util.HashSet;
-import java.util.Set;
+package eu.sqooss.service.admin.actions;
 
-public class RestServiceRegistry {
-	private Set<Class<?>> resources;
-	private static RestServiceRegistry instance;
-	
-	private RestServiceRegistry() {
-		resources = new HashSet<Class<?>>();
-	}
-	
-	public static RestServiceRegistry getInstance() {
-		if (instance == null)
-			instance = new RestServiceRegistry();
-		return instance;
-	}
-	
-	public void add (Class<?> resource) {
-		resources.add(resource);
-	}
-	
-	public void remove (Class<?> resource) {
-		resources.remove(resource);
-	}
-	
-	public Set<Class<?>> getResources() {
-		return resources;
-	}
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.admin.AdminActionBase;
+import eu.sqooss.service.scheduler.SchedulerStats;
+
+public class RunTimeInfo extends AdminActionBase {
+
+    private static final String descr = "Returns misc runtime information";
+
+    public RunTimeInfo() {
+        super();
+    }
+
+    @Override
+    public String mnemonic() {
+        return "rti";
+    }
+
+    @Override
+    public String descr() {
+        return descr;
+    }
+
+    @Override
+    public void execute() throws Exception {
+        super.execute();
+        try {
+            SchedulerStats s = AlitheiaCore.getInstance().getScheduler()
+                    .getSchedulerStats();
+            result.put("sched.jobs.failed", s.getFailedJobs());
+            result.put("sched.jobs.wait", s.getWaitingJobs());
+            result.put("sched.jobs.finished", s.getFinishedJobs());
+            result.put("sched.threads.idle", s.getIdleWorkerThreads());
+            result.put("sched.threads.total", s.getWorkerThreads());
+        } catch (Exception e) {
+            error(e);
+        }
+        finished();
+    }
 }

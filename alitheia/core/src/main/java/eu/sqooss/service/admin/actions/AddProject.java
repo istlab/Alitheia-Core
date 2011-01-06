@@ -1,4 +1,4 @@
-package eu.sqooss.admin.actions;
+package eu.sqooss.service.admin.actions;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,8 +6,8 @@ import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.Properties;
 
-import eu.sqooss.admin.AdminActionBase;
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.admin.AdminActionBase;
 import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;

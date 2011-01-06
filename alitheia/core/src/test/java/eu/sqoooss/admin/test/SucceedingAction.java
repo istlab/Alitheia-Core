@@ -1,6 +1,6 @@
 package eu.sqoooss.admin.test;
 
-import eu.sqooss.admin.AdminActionBase;
+import eu.sqooss.service.admin.AdminActionBase;
 
 public class SucceedingAction extends AdminActionBase {
 
