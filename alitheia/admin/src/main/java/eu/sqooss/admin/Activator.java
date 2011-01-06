@@ -66,7 +66,7 @@ public class Activator implements BundleActivator {
             log.error("Could not find the Alitheia Core Rest service!");
         }
 
-        rest.addResource(AdminServiceImpl.class);
+        //rest.addResource(AdminServiceImpl.class);
     }
 
     public void stop(BundleContext bc) throws Exception {
