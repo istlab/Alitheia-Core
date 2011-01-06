@@ -26,7 +26,6 @@
               eu.sqooss.admin
             </Export-Package>
             <Import-Package>
-                org.codehaus.jettison.*,
                 *;resolution:=optional
             </Import-Package>
             <Bundle-Activator>eu.sqooss.admin.Activator</Bundle-Activator>
@@ -34,6 +33,7 @@
             <Bundle-Version>1.0</Bundle-Version>
             <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
             <Bundle-Description>The Alitheia Core Admin API</Bundle-Description>
+            <Eclipse-RegisterBuddy>eu.sqooss.rest</Eclipse-RegisterBuddy>
           </instructions>
         </configuration>
       </plugin>

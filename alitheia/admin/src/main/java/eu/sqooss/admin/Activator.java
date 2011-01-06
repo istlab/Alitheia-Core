@@ -36,7 +36,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqoooss.admin.impl.AdminServiceImpl;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.rest.RestService;
 import eu.sqooss.service.logging.Logger;
@@ -66,6 +65,8 @@ public class Activator implements BundleActivator {
         } else {
             log.error("Could not find the Alitheia Core Rest service!");
         }
+
+        rest.addResource(AdminServiceImpl.class);
     }
 
     public void stop(BundleContext bc) throws Exception {

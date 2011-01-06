@@ -35,6 +35,7 @@
             <Bundle-Version>1.0</Bundle-Version>
             <Bundle-Vendor>Athens University Of Economics and Business</Bundle-Vendor>
             <Bundle-Description>The Alitheia Core Platform Rest API</Bundle-Description>
+            <Eclipse-BuddyPolicy>registered</Eclipse-BuddyPolicy>
           </instructions>
         </configuration>
       </plugin>

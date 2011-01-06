@@ -28,7 +28,7 @@
  *
  */
 
-package eu.sqoooss.admin.impl;
+package eu.sqooss.admin;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,9 +44,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import eu.sqooss.admin.AdminAction;
 import eu.sqooss.admin.AdminAction.AdminActionStatus;
-import eu.sqooss.admin.AdminService;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 
