@@ -85,7 +85,6 @@ public class AdminServiceImplTest {
         
         assertNull(fail.results());
         assertEquals("#fail", fail.errors().get("1"));
-        assertEquals(RuntimeException.class, fail.errors().get("2").getClass());
         assertEquals(AdminActionStatus.ERROR, fail.status());
         failid = fail.id();
     }
@@ -101,7 +100,13 @@ public class AdminServiceImplTest {
     
     @Test
     public void testGC() {
-        impl.gc(1);
+        try {
+            Thread.sleep (300);
+        } catch (InterruptedException e) {}
+        int collected = impl.gc(1);
+        
+        assertEquals(collected, 2);
+        
         AdminAction aa = impl.show(failid);
         assertNull(aa);
     }

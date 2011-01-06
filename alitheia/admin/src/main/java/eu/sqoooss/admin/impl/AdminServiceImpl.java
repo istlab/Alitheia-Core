@@ -205,7 +205,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
     }
 
     /* Delete actions older than time milliseconds */
-    public final void gc(long time) {
+    public final int gc(long time) {
         Iterator<Long> i = liveactions.keySet().iterator();
         long ts = System.currentTimeMillis();
         int count = 0;
@@ -217,7 +217,8 @@ public class AdminServiceImpl extends Thread implements AdminService {
                 count++;
             }
         }
-        info("Live actions cleanup: removed " + count +" actions");
+        info("Action gc: removed " + count +" actions");
+        return count;
     }
 
     // Methods to help testing, not to be used elsewhere
