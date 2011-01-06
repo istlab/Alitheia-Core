@@ -36,7 +36,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.rest.RestService;
 
@@ -44,12 +43,7 @@ public class ResteasyServiceImpl implements RestService {
 
 	private BundleContext bc;
     private Logger log ;
-    
-	public ResteasyServiceImpl(BundleContext bc) {
-		this.bc = bc;
-		log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.rest");
-	}
-
+   
 	@Override
 	public void addResource(Class<?> resource) {
 		unregisterApp();
@@ -69,7 +63,7 @@ public class ResteasyServiceImpl implements RestService {
 
 		Dictionary<String, String> params = new Hashtable<String, String>();
 		params.put("resteasy.scan", "false");
-		params.put("javax.ws.rs.Application", "eu.sqooss.rest.RestServiceApp");
+		params.put("javax.ws.rs.Application", "eu.sqooss.service.rest.RestServiceApp");
 
 		ResteasyServlet bridge = new ResteasyServlet();
 		try {
@@ -98,7 +92,21 @@ public class ResteasyServiceImpl implements RestService {
 		return http;
 	}
 
-	public void stop() {
-		unregisterApp();
-	}
+    @Override
+    public boolean startUp() {
+        addResource(eu.sqooss.rest.api.StoredProjectResource.class);
+        addResource(eu.sqooss.rest.api.MetricsResource.class);
+        return true;
+    }
+
+    @Override
+    public void shutDown() {
+        unregisterApp();
+    }
+
+    @Override
+    public void setInitParams(BundleContext bc, Logger l) {
+        this.bc = bc;
+        this.log = l;
+    }
 }

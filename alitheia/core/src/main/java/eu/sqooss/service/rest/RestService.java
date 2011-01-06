@@ -29,6 +29,8 @@
  */
 package eu.sqooss.service.rest;
 
+import eu.sqooss.core.AlitheiaCoreService;
+
 /**
  * Alitheia Core REST API service. Allows custom paths to be registered under 
  * the /api namespace.  
@@ -36,7 +38,7 @@ package eu.sqooss.service.rest;
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
-public interface RestService {
+public interface RestService extends AlitheiaCoreService {
 	
 	/**
 	 * Service name inside OSGi namespace service registration.

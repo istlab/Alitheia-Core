@@ -56,6 +56,7 @@ import eu.sqooss.impl.service.fds.FDSServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
 import eu.sqooss.impl.service.pa.PAServiceImpl;
+import eu.sqooss.impl.service.rest.ResteasyServiceImpl;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
@@ -66,6 +67,7 @@ import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.rest.RestService;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
@@ -121,6 +123,7 @@ public class AlitheiaCore implements ServiceListener {
     	services.add(MetricActivator.class);
     	services.add(UpdaterService.class);
     	services.add(WebadminService.class);
+    	services.add(RestService.class);
     	
     	implementations.put(LogManager.class, LogManagerImpl.class);
     	implementations.put(DBService.class, DBServiceImpl.class);	 
@@ -132,6 +135,7 @@ public class AlitheiaCore implements ServiceListener {
     	implementations.put(MetricActivator.class, MetricActivatorImpl.class);
     	implementations.put(UpdaterService.class, UpdaterServiceImpl.class);
     	implementations.put(WebadminService.class, WebadminServiceImpl.class);
+        implementations.put(RestService.class, ResteasyServiceImpl.class);
     }
    
     /**

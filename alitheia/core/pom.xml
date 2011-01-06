@@ -38,6 +38,9 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Embed-Dependency> 
+              *;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium|servlet-api|junit
+            </Embed-Dependency>
             <Export-Package>
               eu.sqooss.core, eu.sqooss.service.*
             </Export-Package>
@@ -46,7 +49,7 @@
               org.hibernate, org.hibernate.cfg, org.hibernate.classic, org.hibernate.exception,
               org.hibernate.proxy, org.hibernate.type, org.hibernate.connection,
               org.hibernate.cache, org.hsqldb;resolution:=optional, 
-              com.sun.source.*;resolution:=optional, *
+              com.sun.source.*;resolution:=optional, *;resolution:=optional
             </Import-Package>
             <Bundle-Activator>eu.sqooss.core.CoreActivator</Bundle-Activator>
             <Bundle-SymbolicName>eu.sqooss.alitheia.core</Bundle-SymbolicName>
