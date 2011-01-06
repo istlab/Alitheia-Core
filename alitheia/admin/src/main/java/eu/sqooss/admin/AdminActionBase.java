@@ -20,8 +20,6 @@ public abstract class AdminActionBase implements AdminAction {
         status = AdminActionStatus.CREATED;
         if (AlitheiaCore.getInstance() != null)
             log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
-        result = new HashMap<String, Object>();
-        error = new HashMap<String, Object>();
     }
 
     @Override
@@ -41,6 +39,12 @@ public abstract class AdminActionBase implements AdminAction {
     
     public final void finished() {
         status = AdminActionStatus.FINISHED;
+    }
+    
+    public final void result (String key, Object value) {
+        if (result == null)
+            result = new HashMap<String, Object>();
+        result.put(key, value);
     }
     
     @Override
@@ -69,11 +73,15 @@ public abstract class AdminActionBase implements AdminAction {
     }
     
     protected final void error(String key, Object o) {
+        if (error == null)
+            error = new HashMap<String, Object>();
         error.put(key, o);
         changeStatus(AdminActionStatus.ERROR);
     }
     
     protected final void error(Exception e) {
+        if (error == null)
+            error = new HashMap<String, Object>();
         error.put("exception", e);
         
         changeStatus(AdminActionStatus.ERROR);

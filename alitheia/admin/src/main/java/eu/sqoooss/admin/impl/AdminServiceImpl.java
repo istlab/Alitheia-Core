@@ -188,16 +188,22 @@ public class AdminServiceImpl extends Thread implements AdminService {
 
     @Override
     public void run() {
-        Iterator<Long> i = liveactions.keySet().iterator();
-        long ts = System.currentTimeMillis();
-
-        while (i.hasNext()) {
-            long id = i.next();
-            if (liveactions.get(id).end > -1 && // Action executed
-                    ts - liveactions.get(id).end > 10 * 60 * 1000) // Action is
-                                                                   // older than
-                                                                   // 10 mins
-                liveactions.remove(id);
+        while (true) {
+            Iterator<Long> i = liveactions.keySet().iterator();
+            long ts = System.currentTimeMillis();
+            int count = 0;
+            while (i.hasNext()) {
+                long id = i.next();
+                if (liveactions.get(id).end > -1 && // Action executed
+                        ts - liveactions.get(id).end > 10 * 60 * 1000) {
+                    liveactions.remove(id);
+                    count++;
+                }
+            }
+            log.info("Live actions cleanup: removed " + count +" actions");
+            try {
+                sleep(10 * 60 * 1000); //10 minutes
+            } catch (InterruptedException ignored) {}
         }
     }
 

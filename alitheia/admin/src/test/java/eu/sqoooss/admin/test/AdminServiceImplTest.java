@@ -16,6 +16,8 @@ import eu.sqooss.admin.actions.RunTimeInfo;
 public class AdminServiceImplTest {
 
     static AdminServiceImpl impl;
+    static long failid;
+    static long successid;
 
     @BeforeClass
     public static void setUp() {
@@ -51,42 +53,34 @@ public class AdminServiceImplTest {
     
     @Test
     public void testCreate() {
-        AdminAction aa = impl.create("blah");
-        assertNull(aa);
+        AdminAction fail = impl.create("blah");
+        assertNull(fail);
 
-        aa = impl.create("fail");
-        assertNotNull(aa);
+        fail = impl.create("fail");
+        assertNotNull(fail);
         ActionContainer ac = impl.liveactions().get(1L);
         assertNotNull(ac);
         assertEquals(-1, ac.end);
-        
-        assertEquals(AdminActionStatus.CREATED, aa.getStatus());
-        assertNull(aa.errors());
-        assertNull(aa.results());
-    }
 
-    @Test
-    public void testShow() {
-        fail("Not yet implemented");
+        assertEquals(AdminActionStatus.CREATED, fail.getStatus());
+        assertNull(fail.errors());
+        assertNull(fail.results());
+        failid = fail.id();
     }
     
     @Test
     public void testExecute() {
-        
-    }
-
-    @Test
-    public void testResult() {
         fail("Not yet implemented");
     }
-
+    
     @Test
-    public void testStatus() {
-        fail("Not yet implemented");
+    public void testShow() {
+        AdminAction aa = impl.show(failid);
+        assertNotNull(aa);
     }
-
+    
     @Test
-    public void testError() {
+    public void testGC() {
         fail("Not yet implemented");
     }
 }

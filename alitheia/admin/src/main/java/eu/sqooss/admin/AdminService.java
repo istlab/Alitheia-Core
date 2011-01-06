@@ -72,4 +72,14 @@ public interface AdminService {
      * @param a - The instance of the action to execute.
      */
     void execute(AdminAction a);
+
+    /**
+     * Get an action description by id. This assumes that an action has
+     * already been created.
+     * 
+     * @param id The system id of the action to show
+     * @return An action instance, or null if the action has not been created
+     * or has been garbage collected.
+     */
+    AdminAction show(Long id);
 }
