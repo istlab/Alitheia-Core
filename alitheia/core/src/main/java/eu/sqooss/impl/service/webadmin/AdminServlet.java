@@ -218,10 +218,10 @@ public class AdminServlet extends HttpServlet {
             logger.debug("POST:" + query);
 
             if (query.startsWith("/addproject")) {
-                addProject(request);
+                //addProject(request);
                 sendPage(response, request, "/results.html");
             } else if (query.startsWith("/diraddproject")) {
-                addProjectDir(request);
+                //addProjectDir(request);
                 sendPage(response, request, "/results.html");
             } else {
                 doGet(request,response);
