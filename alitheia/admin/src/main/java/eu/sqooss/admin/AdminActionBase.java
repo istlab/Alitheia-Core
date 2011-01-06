@@ -68,7 +68,7 @@ public abstract class AdminActionBase implements AdminAction {
     }
     
     @Override
-    public final AdminActionStatus getStatus() {
+    public final AdminActionStatus status() {
         return status;
     }
     
@@ -87,18 +87,11 @@ public abstract class AdminActionBase implements AdminAction {
         changeStatus(AdminActionStatus.ERROR);
     }
 
-    protected void info(String msg) {
-        log.info(getMnemonic() + ":" + msg);
+    protected void log(String msg) {
+        if (log != null)
+            log.info(mnemonic() + ":" + msg);
     }
 
-    protected void warn(String msg) {
-        log.warn(getMnemonic() + ":" + msg);
-    }
-
-    protected void err(String msg) {
-        log.error(getMnemonic() + ":" + msg);
-    }
-    
     private synchronized void changeStatus(AdminActionStatus st) {
         switch (status) {
         case CREATED:
@@ -121,5 +114,15 @@ public abstract class AdminActionBase implements AdminAction {
         case ERROR:
         case UNKNOWN:
         }
+    }
+    
+    @Override
+    public String toString() {
+        String msg = "";
+        msg += "args: ";
+        msg += args;
+        msg += ", status:";
+        msg += status();
+        return msg;
     }
 }

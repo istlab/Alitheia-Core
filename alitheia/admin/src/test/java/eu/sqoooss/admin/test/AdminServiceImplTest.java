@@ -32,15 +32,15 @@ public class AdminServiceImplTest {
     @Test
     public void testRegisterAdminAction() {
         RunTimeInfo rti = new RunTimeInfo();
-        impl.registerAdminAction(rti.getMnemonic(), RunTimeInfo.class);
+        impl.registerAdminAction(rti.mnemonic(), RunTimeInfo.class);
         assertEquals(1, impl.getAdminActions().size());
 
         FailingAction fa = new FailingAction();
-        impl.registerAdminAction(fa.getMnemonic(), FailingAction.class);
+        impl.registerAdminAction(fa.mnemonic(), FailingAction.class);
         assertEquals(2, impl.getAdminActions().size());
 
         SucceedingAction su = new SucceedingAction();
-        impl.registerAdminAction(su.getMnemonic(), SucceedingAction.class);
+        impl.registerAdminAction(su.mnemonic(), SucceedingAction.class);
         assertEquals(3, impl.getAdminActions().size());
     }
 
@@ -62,7 +62,7 @@ public class AdminServiceImplTest {
         assertNotNull(ac);
         assertEquals(-1, ac.end);
 
-        assertEquals(AdminActionStatus.CREATED, fail.getStatus());
+        assertEquals(AdminActionStatus.CREATED, fail.status());
         assertNull(fail.errors());
         assertNull(fail.results());
         failid = fail.id();
@@ -70,17 +70,39 @@ public class AdminServiceImplTest {
     
     @Test
     public void testExecute() {
-        fail("Not yet implemented");
+        AdminAction success = impl.create("win");
+        assertNotNull(success);
+        impl.execute(success);
+        
+        assertNull(success.errors());
+        assertEquals("#win", success.results().get("1"));
+        assertEquals(AdminActionStatus.FINISHED, success.status());
+        successid = success.id();
+        
+        AdminAction fail = impl.create("fail");
+        assertNotNull(fail);
+        impl.execute(fail);
+        
+        assertNull(fail.results());
+        assertEquals("#fail", fail.errors().get("1"));
+        assertEquals(RuntimeException.class, fail.errors().get("2").getClass());
+        assertEquals(AdminActionStatus.ERROR, fail.status());
+        failid = fail.id();
     }
     
     @Test
     public void testShow() {
         AdminAction aa = impl.show(failid);
         assertNotNull(aa);
+        
+        aa = impl.show(successid);
+        assertNotNull(aa);
     }
     
     @Test
     public void testGC() {
-        fail("Not yet implemented");
+        impl.gc(1);
+        AdminAction aa = impl.show(failid);
+        assertNull(aa);
     }
 }

@@ -43,12 +43,12 @@ public class RunTimeInfo extends AdminActionBase {
     }
 
     @Override
-    public String getMnemonic() {
+    public String mnemonic() {
         return "rti";
     }
 
     @Override
-    public String getDescription() {
+    public String descr() {
         return descr;
     }
 

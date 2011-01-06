@@ -61,10 +61,10 @@ public interface AdminAction {
     Map<String, Object> args();
     
     @XmlElement(name="mnemonic")
-    String getMnemonic();
+    String mnemonic();
     
     @XmlElement(name="descr")
-    String getDescription();
+    String descr();
     
     @XmlElement(name="results")
     Map<String, Object> results();
@@ -73,7 +73,7 @@ public interface AdminAction {
     Map<String, Object> errors();
     
     @XmlElement(name="status")
-    AdminActionStatus getStatus();
+    AdminActionStatus status();
     
     public enum AdminActionStatus {
         CREATED,

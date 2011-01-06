@@ -74,8 +74,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
         liveactions = new ConcurrentHashMap<Long, ActionContainer>();
         id = new AtomicLong();
         if (AlitheiaCore.getInstance() != null)
-            log = AlitheiaCore.getInstance().getLogManager()
-                    .createLogger("sqooss.admin");
+            log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
         start();
     }
 
@@ -87,7 +86,16 @@ public class AdminServiceImpl extends Thread implements AdminService {
 
     @Override
     public void execute(AdminAction a) {
-        a.execute();
+        debug("Executing action : " + a.id() + " ");
+        try{
+            a.execute();
+        } catch (Throwable t) {
+            err("Error executing action " + a.mnemonic() + ", id " + a.id());
+        } finally {
+            ActionContainer ac = liveactions.get(a.id());
+            ac.end = System.currentTimeMillis();
+            debug("Action " + a.id() + " finished in " + (ac.end - ac.start) + " msec" );
+        }
     }
 
     @GET
@@ -100,7 +108,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
             try {
                 actions.add(aa.newInstance());
             } catch (Exception e) {
-                log.error("Error instantiating action: "
+                err("Error instantiating action: "
                         + aa.getCanonicalName() + ": " + e.getMessage());
                 return null;
             }
@@ -135,7 +143,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
     @Path("/actions/{id}/status")
     public AdminActionStatus status() {
         if (liveactions.get(id) != null)
-            return liveactions.get(id).aa.getStatus();
+            return liveactions.get(id).aa.status();
 
         if (liveactions.get(id).end == -1)
             return null;
@@ -173,7 +181,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
         }
     }
 
-    public class ActionContainer {
+    public final class ActionContainer {
 
         public ActionContainer(AdminAction aa) {
             this.aa = aa;
@@ -187,29 +195,49 @@ public class AdminServiceImpl extends Thread implements AdminService {
     }
 
     @Override
-    public void run() {
+    public final void run() {
         while (true) {
-            Iterator<Long> i = liveactions.keySet().iterator();
-            long ts = System.currentTimeMillis();
-            int count = 0;
-            while (i.hasNext()) {
-                long id = i.next();
-                if (liveactions.get(id).end > -1 && // Action executed
-                        ts - liveactions.get(id).end > 10 * 60 * 1000) {
-                    liveactions.remove(id);
-                    count++;
-                }
-            }
-            log.info("Live actions cleanup: removed " + count +" actions");
+            gc(10 * 60 * 1000);
             try {
                 sleep(10 * 60 * 1000); //10 minutes
             } catch (InterruptedException ignored) {}
         }
     }
 
+    /* Delete actions older than time milliseconds */
+    public final void gc(long time) {
+        Iterator<Long> i = liveactions.keySet().iterator();
+        long ts = System.currentTimeMillis();
+        int count = 0;
+        while (i.hasNext()) {
+            long id = i.next();
+            if (liveactions.get(id).end > -1 && // Action executed
+                    ts - liveactions.get(id).end > time) {
+                liveactions.remove(id);
+                count++;
+            }
+        }
+        info("Live actions cleanup: removed " + count +" actions");
+    }
+
     // Methods to help testing, not to be used elsewhere
     @Deprecated
     public ConcurrentMap<Long, ActionContainer> liveactions() {
         return liveactions;
+    }
+    
+    private void debug(String msg) {
+        if (log != null)
+            log.debug(msg);
+    }
+    
+    private void err(String msg) {
+        if (log != null)
+            log.error(msg);
+    }
+    
+    private void info(String msg) {
+        if (log != null)
+            log.info(msg);
     }
 }

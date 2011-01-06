@@ -5,12 +5,12 @@ import eu.sqooss.admin.AdminActionBase;
 public class SucceedingAction extends AdminActionBase {
 
     @Override
-    public String getMnemonic() {
+    public String mnemonic() {
         return "win";
     }
 
     @Override
-    public String getDescription() {
+    public String descr() {
         return "An action that enjoys success";
     }
 
