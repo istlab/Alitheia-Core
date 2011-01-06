@@ -8,7 +8,6 @@ import org.junit.Test;
 import eu.sqoooss.admin.impl.AdminServiceImpl;
 import eu.sqooss.admin.AdminAction;
 import eu.sqooss.admin.AdminAction.AdminActionStatus;
-import eu.sqooss.admin.AdminActionBase;
 import eu.sqooss.admin.AdminService;
 import eu.sqooss.admin.actions.RunTimeInfo;
 
@@ -80,44 +79,5 @@ public class AdminServiceImplTest {
     @Test
     public void testError() {
         fail("Not yet implemented");
-    }
-
-    public class FailingAction extends AdminActionBase {
-
-        @Override
-        public String getMnemonic() {
-            return "fail";
-        }
-
-        @Override
-        public String getDescription() {
-            return "An action that enjoys to fail itself";
-        }
-
-        @Override
-        public void execute() {
-            super.execute();
-            err("#fail");
-        }
-    }
-
-    public class SucceedingAction extends AdminActionBase {
-
-        @Override
-        public String getMnemonic() {
-            return "win";
-        }
-
-        @Override
-        public String getDescription() {
-            return "An action that enjoys success";
-        }
-
-        @Override
-        public void execute() {
-            super.execute();
-            result.put("1", "#win");
-            finished();
-        }
     }
 }
