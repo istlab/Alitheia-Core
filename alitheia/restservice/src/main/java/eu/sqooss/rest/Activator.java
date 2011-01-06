@@ -53,9 +53,9 @@ public class Activator implements BundleActivator {
 				+ " [" + bc.getBundle() + "]");
 		
 		service = new ResteasyServiceImpl(bc);
-		sr = bc.registerService(RestService.class.getName(), service, new Hashtable());
+		sr = bc.registerService(RestService.class.getName(), (RestService)service, new Hashtable());
 		
-		log.info("RESTEasy OSGi service started: " + ResteasyServiceImpl.class.getName());
+		log.info("RESTEasy OSGi service started: " + RestService.class.getName());
 		
 		service.addResource(eu.sqooss.rest.api.StoredProjectResource.class);
 		service.addResource(eu.sqooss.rest.api.MetricsResource.class);

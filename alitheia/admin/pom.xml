@@ -21,7 +21,7 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Embed-Dependency>*;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium|servlet-api|junit</Embed-Dependency>
+            <Embed-Dependency>*;scope=compile|runtime;artifactId=!core|rest|org.osgi.core|org.osgi.compendium|servlet-api|junit</Embed-Dependency>
             <Export-Package>
               eu.sqooss.admin
             </Export-Package>

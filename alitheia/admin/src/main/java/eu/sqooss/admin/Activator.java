@@ -33,10 +33,12 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import eu.sqoooss.admin.impl.AdminServiceImpl;
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.rest.RestService;
 import eu.sqooss.service.logging.Logger;
 
 public class Activator implements BundleActivator {
@@ -56,7 +58,14 @@ public class Activator implements BundleActivator {
         
         log.info("Admin Service started: " + AdminServiceImpl.class.getName());
         
+        ServiceReference restRef = bc.getServiceReference(RestService.class.getName());
+        RestService rest = null;
         
+        if (restRef != null) {
+            rest = (RestService) bc.getService(restRef);
+        } else {
+            log.error("Could not find the Alitheia Core Rest service!");
+        }
     }
 
     public void stop(BundleContext bc) throws Exception {
