@@ -12,8 +12,9 @@ public abstract class AdminActionBase implements AdminAction {
     protected Map<String, Object> error;
     protected Map<String, Object> args;
     protected AdminActionStatus status;
+    protected Long id;
 
-    private Logger log;
+    protected Logger log;
     
     protected AdminActionBase() {
         status = AdminActionStatus.CREATED;
@@ -23,6 +24,16 @@ public abstract class AdminActionBase implements AdminAction {
         error = new HashMap<String, Object>();
     }
 
+    @Override
+    public Long id() {
+        return id;
+    }
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
     @Override
     public void execute() {
         status = AdminActionStatus.EXECUTING;

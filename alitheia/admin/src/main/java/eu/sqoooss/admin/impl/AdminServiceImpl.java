@@ -47,8 +47,12 @@ import javax.ws.rs.Produces;
 import eu.sqooss.admin.AdminAction;
 import eu.sqooss.admin.AdminAction.AdminActionStatus;
 import eu.sqooss.admin.AdminService;
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.logging.Logger;
 
 /**
+ * Implementation of the {@link AdminService} interface. Uses a
+ * 
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
@@ -60,10 +64,14 @@ public class AdminServiceImpl extends Thread implements AdminService {
     ConcurrentMap<Long, ActionContainer> liveactions;
     AtomicLong id;
     
+    Logger log;
+    
     public AdminServiceImpl() {
         services = new HashMap<String, Class<? extends AdminAction>>();
         liveactions = new ConcurrentHashMap<Long, ActionContainer>();
         id = new AtomicLong();
+        if (AlitheiaCore.getInstance() != null)
+            log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
         start();
     }
     
@@ -83,7 +91,17 @@ public class AdminServiceImpl extends Thread implements AdminService {
     @Path("/actions/")
     @Override
     public Set<AdminAction> getAdminActions() {
-        return new HashSet(services.values());
+        Set<AdminAction> actions = new HashSet<AdminAction>();
+        for (Class<? extends AdminAction> aa : services.values()) {
+            try {
+                actions.add(aa.newInstance());
+            } catch (Exception e) {
+                log.error("Error instantiating action: " 
+                        + aa.getCanonicalName() + ": " + e.getMessage());
+                return null;
+            } 
+        }
+        return actions;
     }
     
     @GET
@@ -139,20 +157,22 @@ public class AdminServiceImpl extends Thread implements AdminService {
             return null;
         
         try {
+            long aid = id.addAndGet(1);
             AdminAction aa = clazz.newInstance();
-            ActionContainer ac = new ActionContainer(aa, id.addAndGet(1));
-            liveactions.put(ac.id, ac);
+            aa.setId(aid);
+            
+            ActionContainer ac = new ActionContainer(aa);
+            liveactions.put(aa.id(), ac);
             return aa;
         } catch (Exception e) {
             return null;
         }
     }
 
-    private class ActionContainer {
+    public class ActionContainer {
         
-        public ActionContainer (AdminAction aa, long id) {
+        public ActionContainer (AdminAction aa) {
             this.aa = aa;
-            this.id = id;
             this.start = System.currentTimeMillis(); 
             this.end = -1;
         }
@@ -160,7 +180,6 @@ public class AdminServiceImpl extends Thread implements AdminService {
         public AdminAction aa;
         public long start;
         public long end; // -1 means action not executed
-        public long id;
     }
 
     @Override
@@ -174,5 +193,11 @@ public class AdminServiceImpl extends Thread implements AdminService {
                     ts - liveactions.get(id).end > 10*60*1000) //Action is older than 10 mins
                 liveactions.remove(id);
         }
+    }
+    
+    //Methods to help testing, not to be used elsewhere
+    @Deprecated
+    public ConcurrentMap<Long, ActionContainer> liveactions() {
+        return liveactions;
     }
 }

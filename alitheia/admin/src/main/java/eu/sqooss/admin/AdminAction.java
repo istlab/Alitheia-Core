@@ -51,6 +51,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 public interface AdminAction {
     
     void setArgs(Map<String, Object> args);
+    void execute();
+    void setId(Long id);
+    
+    @XmlElement(name="id")
+    Long id();
     
     @XmlElement(name="args")
     Map<String, Object> args();
@@ -69,8 +74,6 @@ public interface AdminAction {
     
     @XmlElement(name="status")
     AdminActionStatus getStatus();
-    
-    void execute();
     
     public enum AdminActionStatus {
         CREATED,
