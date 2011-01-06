@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.rest;
+package eu.sqooss.service.rest;
 
 import java.util.Set;
 
@@ -54,5 +54,4 @@ public class RestServiceApp extends Application {
 	public Set<Object> getSingletons() {
 		return null;
 	}
-	
 }

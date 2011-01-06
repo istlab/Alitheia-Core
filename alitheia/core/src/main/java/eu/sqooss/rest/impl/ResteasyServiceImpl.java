@@ -37,8 +37,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.rest.RestService;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.rest.RestService;
 
 public class ResteasyServiceImpl implements RestService {
 

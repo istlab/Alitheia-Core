@@ -38,8 +38,8 @@ import org.osgi.framework.ServiceRegistration;
 
 import eu.sqoooss.admin.impl.AdminServiceImpl;
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.rest.RestService;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.rest.RestService;
 
 public class Activator implements BundleActivator {
     

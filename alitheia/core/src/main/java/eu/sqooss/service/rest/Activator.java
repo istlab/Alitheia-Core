@@ -27,35 +27,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.rest;
+package eu.sqooss.service.rest;
 
-/**
- * Alitheia Core REST API service. Allows custom paths to be registered under 
- * the /api namespace.  
- * 
- * @author Georgios Gousios <gousiosg@gmail.com>
- *
- */
-public interface RestService {
-	
-	/**
-	 * Service name inside OSGi namespace service registration.
-	 */
-	public static final String SERVICE_NAME = RestService.class.getName();
+import java.util.Hashtable;
 
-	/**
-	 * Add a resource to the registry. A resource is a JAX-RS annotated POJO.
-	 * The class-level path annotation must always be equal to <code>/api</code>
-	 * (i.e. <code>@Path("/api")</code>), otherwise the resource will not be
-	 * accessible.
-	 * 
-	 * @param resource The resource to add.
-	 */
-	public void addResource(Class<?> resource);
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.rest.impl.ResteasyServiceImpl;
+import eu.sqooss.service.logging.Logger;
+
+public class Activator implements BundleActivator {
 	
-	/**
-	 * Remove a resource from the resource registry.
-	 * @param resource  The resource to remove.
-	 */
-	public void removeResource(Class<?> resource);	
+    private Logger log;
+    private ResteasyServiceImpl service;
+    private ServiceRegistration sr;
+    
+	@SuppressWarnings("unchecked")
+	public void start(BundleContext bc) throws Exception {
+	   
+	    Logger log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.rest");
+		log.info("Starting bundle " + bc.getBundle().getSymbolicName() 
+				+ " [" + bc.getBundle() + "]");
+		
+		service = new ResteasyServiceImpl(bc);
+		sr = bc.registerService(RestService.class.getName(), (RestService)service, new Hashtable());
+		
+		log.info("RESTEasy OSGi service started: " + RestService.class.getName());
+		
+		service.addResource(eu.sqooss.rest.api.StoredProjectResource.class);
+		service.addResource(eu.sqooss.rest.api.MetricsResource.class);
+	}
+
+	public void stop(BundleContext bc) throws Exception {
+		service.stop();
+		sr.unregister();
+	}
 }
