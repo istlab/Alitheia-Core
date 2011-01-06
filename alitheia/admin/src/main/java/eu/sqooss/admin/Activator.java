@@ -36,6 +36,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+import eu.sqoooss.admin.impl.AdminServiceImpl;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.rest.RestService;
 import eu.sqooss.service.logging.Logger;

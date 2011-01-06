@@ -15,7 +15,7 @@ public class SucceedingAction extends AdminActionBase {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws Exception {
         super.execute();
         result("1", "#win");
         finished();

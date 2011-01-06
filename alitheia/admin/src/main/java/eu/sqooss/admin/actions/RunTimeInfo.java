@@ -53,7 +53,7 @@ public class RunTimeInfo extends AdminActionBase {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws Exception {
         super.execute();
         try {
             SchedulerStats s = AlitheiaCore.getInstance().getScheduler()

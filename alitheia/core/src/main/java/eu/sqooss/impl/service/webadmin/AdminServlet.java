@@ -166,7 +166,7 @@ public class AdminServlet extends HttpServlet {
             String query = request.getPathInfo();
 
             // Add the request to the log
-            //logger.debug("GET:" + query);
+            logger.debug("GET:" + query);
 
             // This is static content
             if (query.startsWith("/stop")) {
@@ -215,22 +215,15 @@ public class AdminServlet extends HttpServlet {
         
         try {
             String query = request.getPathInfo();
-
-            // Add the request to the log
-            //logger.debug("POST:" + query);
+            logger.debug("POST:" + query);
 
             if (query.startsWith("/addproject")) {
-                adminView.addProject(request);
+                addProject(request);
                 sendPage(response, request, "/results.html");
             } else if (query.startsWith("/diraddproject")) {
-                adminView.addProjectDir(request);
+                addProjectDir(request);
                 sendPage(response, request, "/results.html");
-            }
-            else if (query.startsWith("/motd")) {
-                adminView.setMOTD(webadmin, request);
-                sendPage(response, request, "/results.html");
-            }
-            else {
+            } else {
                 doGet(request,response);
             }
         } catch (NullPointerException e) {
@@ -241,6 +234,16 @@ public class AdminServlet extends HttpServlet {
                 db.commitDBSession();
             }
         }
+    }
+    
+    private void projectFailed (String project, String error, String reason) {
+        final String tryAgain = "<p><p><a href=\"/projects\">Try again</a>.</p></p>";
+        
+        
+        logger.warn("Error adding project " + project);
+        vc.put("RESULTS", "<p><b>ERROR:</b> " + error + "</p>" +
+                  "<p><b>REASON:</b> "  + reason + "</p>"
+                + tryAgain);
     }
 
     /**

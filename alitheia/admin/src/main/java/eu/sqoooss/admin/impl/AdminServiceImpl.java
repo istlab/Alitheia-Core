@@ -28,7 +28,7 @@
  *
  */
 
-package eu.sqooss.admin;
+package eu.sqoooss.admin.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,8 +44,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import eu.sqooss.admin.AdminAction;
+import eu.sqooss.admin.AdminService;
 import eu.sqooss.admin.AdminAction.AdminActionStatus;
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 
 /**
@@ -84,13 +87,23 @@ public class AdminServiceImpl extends Thread implements AdminService {
 
     @Override
     public void execute(AdminAction a) {
+        DBService db = null;
+        if (AlitheiaCore.getInstance() != null) {
+            db = AlitheiaCore.getInstance().getDBService();
+            db.startDBSession();
+        }
+        
         debug("Executing action : " + a.id() + " ");
         try{
             a.execute();
         } catch (Throwable t) {
+            if (db != null)db.rollbackDBSession();
             err("Error executing action " + a.mnemonic() + ", id " + a.id());
         } finally {
             ActionContainer ac = liveactions.get(a.id());
+            if (db != null)
+                if (db.isDBSessionActive())
+                    db.commitDBSession();
             ac.end = System.currentTimeMillis();
             debug("Action " + a.id() + " finished in " + (ac.end - ac.start) + " msec" );
         }

@@ -51,7 +51,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public interface AdminAction {
     
     void setArgs(Map<String, Object> args);
-    void execute();
+    void execute() throws Exception;
     void setId(Long id);
     
     @XmlElement(name="id")
@@ -71,6 +71,9 @@ public interface AdminAction {
     
     @XmlElement(name="errors")
     Map<String, Object> errors();
+    
+    @XmlElement(name="warn")
+    Map<String, Object> warnings();
     
     @XmlElement(name="status")
     AdminActionStatus status();

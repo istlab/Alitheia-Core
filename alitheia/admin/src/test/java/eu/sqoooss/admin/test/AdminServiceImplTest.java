@@ -7,10 +7,10 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import eu.sqoooss.admin.impl.AdminServiceImpl;
+import eu.sqoooss.admin.impl.AdminServiceImpl.ActionContainer;
 import eu.sqooss.admin.AdminAction;
-import eu.sqooss.admin.AdminServiceImpl;
 import eu.sqooss.admin.AdminAction.AdminActionStatus;
-import eu.sqooss.admin.AdminServiceImpl.ActionContainer;
 import eu.sqooss.admin.actions.RunTimeInfo;
 
 public class AdminServiceImplTest {

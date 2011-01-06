@@ -41,7 +41,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.webadmin.WebadminService;
 
@@ -125,9 +124,7 @@ public class WebadminServiceImpl implements WebadminService {
 	}
 
 	@Override
-	public boolean startUp() {
-	    AlitheiaCore core = AlitheiaCore.getInstance();
-        
+	public boolean startUp() {        
         // Get a reference to the HTTPService, and then its object
         HttpService sobjHTTPService = null;
         ServiceReference srefHTTPService = bc.getServiceReference(
@@ -154,18 +151,6 @@ public class WebadminServiceImpl implements WebadminService {
             }
             catch (Exception e) {
                 logger.error("AdminServlet",e);
-                return false;
-            }
-
-            try {
-                sobjHTTPService.registerServlet(
-                        "/ws",
-                        new AdminWS(bc),
-                        new Hashtable(),
-                        null);
-            }
-            catch (Exception e) {
-                logger.error("AdmWS", e);
                 return false;
             }
         }

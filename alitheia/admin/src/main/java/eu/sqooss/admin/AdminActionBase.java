@@ -11,6 +11,7 @@ public abstract class AdminActionBase implements AdminAction {
     protected Map<String, Object> result;
     protected Map<String, Object> error;
     protected Map<String, Object> args;
+    protected Map<String, Object> warnings;
     protected AdminActionStatus status;
     protected Long id;
 
@@ -33,7 +34,7 @@ public abstract class AdminActionBase implements AdminAction {
     }
     
     @Override
-    public void execute() {
+    public void execute() throws Exception {
         status = AdminActionStatus.EXECUTING;
     }
     
@@ -45,6 +46,12 @@ public abstract class AdminActionBase implements AdminAction {
         if (result == null)
             result = new HashMap<String, Object>();
         result.put(key, value);
+    }
+    
+    public final void warn (String key, Object value) {
+        if (warnings == null)
+            warnings = new HashMap<String, Object>();
+        warnings.put(key, value);
     }
     
     @Override
@@ -63,6 +70,11 @@ public abstract class AdminActionBase implements AdminAction {
     }
     
     @Override
+    public final Map<String, Object> warnings() {
+        return args;
+    }
+    
+    @Override
     public final void setArgs(Map<String, Object> args) {
         this.args = args;
     }
@@ -72,19 +84,21 @@ public abstract class AdminActionBase implements AdminAction {
         return status;
     }
     
-    protected final void error(String key, Object o) {
+    protected final void error(String key, Object o) throws Exception {
         if (error == null)
             error = new HashMap<String, Object>();
         error.put(key, o);
         changeStatus(AdminActionStatus.ERROR);
+        throw new Exception();
     }
-    
-    protected final void error(Exception e) {
+
+    protected final void error(Exception e) throws Exception {
         if (error == null)
             error = new HashMap<String, Object>();
         error.put("exception", e);
         
         changeStatus(AdminActionStatus.ERROR);
+        throw e;
     }
 
     protected void log(String msg) {

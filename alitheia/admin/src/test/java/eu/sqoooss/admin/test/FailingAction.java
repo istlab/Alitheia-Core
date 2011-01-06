@@ -15,7 +15,7 @@ public class FailingAction extends AdminActionBase {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws Exception {
         super.execute();
         error("1", "#fail");
         throw new RuntimeException();
