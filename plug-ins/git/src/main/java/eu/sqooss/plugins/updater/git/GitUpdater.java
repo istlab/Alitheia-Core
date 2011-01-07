@@ -31,6 +31,7 @@
 package eu.sqooss.plugins.updater.git;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.ProjectVersion;
@@ -38,6 +39,7 @@ import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitLog;
+import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
@@ -50,19 +52,32 @@ public class GitUpdater implements MetadataUpdater {
     
     private StoredProject project;
     private Logger log;
-    private TDSService tds;
+    private SCMAccessor git;
     private DBService dbs;
     private float progress;
     
     public GitUpdater() {}
 
+    public GitUpdater(DBService db, GitAccessor git, Logger log) {
+        this.dbs = db;
+        this.git = git;
+        this.log = log;
+    }
+    
     public void setUpdateParams(StoredProject sp, Logger l) {
         this.project = sp;
         this.log = l;
+        try {
+            git = AlitheiaCore.getInstance().getTDSService().getAccessor(sp.getId()).getSCMAccessor();
+        } catch (InvalidAccessorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        dbs = AlitheiaCore.getInstance().getDBService();
     }
 
     public void update() throws Exception {
-        init();
+       
 
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
@@ -74,12 +89,11 @@ public class GitUpdater implements MetadataUpdater {
         
         //1. Compare latest DB version with the repository
         ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(project);
-        SCMAccessor scm = tds.getAccessor(project.getId()).getSCMAccessor();
         if (latestVersion != null) {  
-            Revision r = scm.getHeadRevision();
+            Revision r = git.getHeadRevision();
         
             /* Don't choke when called to update an up-to-date project */
-            if (r.compareTo(scm.newRevision(latestVersion.getRevisionId())) <= 0) {
+            if (r.compareTo(git.newRevision(latestVersion.getRevisionId())) <= 0) {
                 info("Project is already at the newest version " 
                         + r.getUniqueId());
                 dbs.commitDBSession();
@@ -88,9 +102,9 @@ public class GitUpdater implements MetadataUpdater {
         }
         
         //2. Get commit log for dbversion < v < repohead
-        CommitLog commitLog = scm.getCommitLog("", scm.getNextRevision(
-                scm.newRevision(latestVersion.getRevisionId())), 
-                scm.getHeadRevision());
+        CommitLog commitLog = git.getCommitLog("", git.getNextRevision(
+                git.newRevision(latestVersion.getRevisionId())), 
+                git.getHeadRevision());
 
         for (Revision entry : commitLog) {
             ProjectVersion pv = new ProjectVersion(project);
@@ -129,11 +143,6 @@ public class GitUpdater implements MetadataUpdater {
         return (int)progress;
     }
     
-    private void init() {
-        tds = AlitheiaCore.getInstance().getTDSService();
-        dbs = AlitheiaCore.getInstance().getDBService();
-    }
-    
     @Override
     public String toString() {
         return "GitUpdater - Project:{" + project +"}, " + progress + "%";
@@ -141,25 +150,21 @@ public class GitUpdater implements MetadataUpdater {
 
     /** Convenience method to write warning messages per project */
     protected void warn(String message) {
-        if (log != null)
             log.warn("Git:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write error messages per project */
     protected void err(String message) {
-        if (log != null)
             log.error("Git:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write info messages per project */
     protected void info(String message) {
-        if (log != null)
             log.info("Git:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write debug messages per project */
     protected void debug(String message) {
-        if (log != null)
             log.debug("Git:" + project.getName() + ":" + message);
     }
 }

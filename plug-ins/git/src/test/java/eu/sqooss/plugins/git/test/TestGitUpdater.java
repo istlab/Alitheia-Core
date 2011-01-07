@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
+import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
@@ -22,6 +23,7 @@ public class TestGitUpdater {
 
     static DBService db;
     static Logger l;
+    static GitUpdater updater;
 
     @BeforeClass
     public static void setup() throws MalformedURLException {
