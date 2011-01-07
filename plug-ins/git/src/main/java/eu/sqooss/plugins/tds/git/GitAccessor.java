@@ -170,9 +170,9 @@ public class GitAccessor implements SCMAccessor {
             ObjectId obj = git.resolve(uniqueId);
             RevCommit c = rw.parseCommit(obj);
             return getRevision(c);
-        } catch (IOException e) {
+        } catch (Throwable t) {
                 err("Cannot resolve revision " + uniqueId + ":" + 
-                        e.getMessage());
+                        t.getMessage());
             return null;
         } finally {
             rw.release();
@@ -345,8 +345,11 @@ public class GitAccessor implements SCMAccessor {
             
             if (r2 == null)
                 rw.markStart(rw.parseCommit(git.resolve(r1.getUniqueId())));
-            else 
+            else if (r2.getUniqueId().equals(getHeadRevision().getUniqueId())) {
+                rw.markStart(rw.parseCommit(git.resolve(r2.getUniqueId())));
+            } else{
                 rw.markStart(rw.parseCommit(git.resolve(getNextRevision(r2).getUniqueId())));
+            }
             
             Iterator<RevCommit> i = rw.iterator();
 

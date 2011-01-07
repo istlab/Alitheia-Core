@@ -3,6 +3,7 @@ package eu.sqooss.plugins.git.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -74,6 +75,10 @@ public class TestGitAccessor extends TestGitSetup {
         assertEquals(r2.getDate().getTime(), sdf.parse("Sun Aug 2 04:06:03 2009 -0400").getTime());
         assertTrue(r1.compareTo(r2) < 0);
         assertTrue(git.isValidRevision(r2));
+        
+        //Check invalid revision
+        Revision r3 = git.newRevision("0");
+        assertNull(r3);
     }
     
     @Test
@@ -233,8 +238,7 @@ public class TestGitAccessor extends TestGitSetup {
             old = r.getDate().getTime();
         }
 
-        //Commit sequence with null second argument, should return all entries 
-        //up to head
+        //Commit sequence with null second argument, should return entry for specific commit
         r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
         
         l = git.getCommitLog("", r1, null);
@@ -245,6 +249,12 @@ public class TestGitAccessor extends TestGitSetup {
         
         assertTrue(r.getChangedPaths().contains(".gitignore"));
         assertTrue(r.getChangedPaths().contains("Rakefile"));
+        
+        //Get the full log
+        r1 = git.newRevision("f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
+        r2 = git.newRevision(git.getHeadRevision().getUniqueId());
+        l = git.getCommitLog("", r1, r2);
+        assertNotNull(l);
     }
 
     @Test

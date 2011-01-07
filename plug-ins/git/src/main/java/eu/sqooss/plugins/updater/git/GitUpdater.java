@@ -34,6 +34,9 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.Directory;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
@@ -88,6 +91,7 @@ public class GitUpdater implements MetadataUpdater {
         
         //1. Compare latest DB version with the repository
         ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(project);
+        Revision next;
         if (latestVersion != null) {  
             Revision r = git.getHeadRevision();
         
@@ -98,12 +102,13 @@ public class GitUpdater implements MetadataUpdater {
                 dbs.commitDBSession();
                 return;    
             }
+            next = git.newRevision(latestVersion.getRevisionId());
+        } else {
+            next = git.getFirstRevision();
         }
         
-        //2. Get commit log for dbversion < v < repohead
-        CommitLog commitLog = git.getCommitLog("", git.getNextRevision(
-                git.newRevision(latestVersion.getRevisionId())), 
-                git.getHeadRevision());
+        // 2. Get commit log for dbversion < v < repohead
+        CommitLog commitLog = git.getCommitLog("", next, git.getHeadRevision());
 
         for (Revision entry : commitLog) {
             ProjectVersion pv = new ProjectVersion(project);
