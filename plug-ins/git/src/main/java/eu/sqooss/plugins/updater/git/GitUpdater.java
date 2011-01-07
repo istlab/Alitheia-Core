@@ -42,7 +42,6 @@ import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
-import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
 
 /**

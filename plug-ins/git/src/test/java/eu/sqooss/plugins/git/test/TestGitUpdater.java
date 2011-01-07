@@ -3,7 +3,8 @@ package eu.sqooss.plugins.git.test;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
@@ -14,19 +15,22 @@ import org.junit.Test;
 
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
+import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
-public class TestGitUpdater {
+public class TestGitUpdater extends TestGitSetup {
 
     static DBService db;
     static Logger l;
     static GitUpdater updater;
 
     @BeforeClass
-    public static void setup() throws MalformedURLException {
+    public static void setup() throws IOException, URISyntaxException {
+        initTestRepo();
+        
         Properties conProp = new Properties();
         conProp.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
         conProp.setProperty("hibernate.connection.url", "jdbc:hsqldb:file:alitheia.db");
@@ -70,7 +74,6 @@ public class TestGitUpdater {
 
     @Test
     public void testUpdate() {
-        fail("Not yet implemented");
+        updater = new GitUpdater(db, new GitAccessor(), l);
     }
-
 }
