@@ -164,6 +164,35 @@
           <excludePackageNames>eu.sqooss.impl.*</excludePackageNames> 
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
     </plugins>
   </reporting>
+  <profiles>
+    <profile>
+      <id>runtests</id>
+      <activation>
+        <property>
+          <name>tests</name>
+          <value>1</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skipTests>false</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
