@@ -57,10 +57,11 @@ public class GitUpdater implements MetadataUpdater {
     
     public GitUpdater() {}
 
-    public GitUpdater(DBService db, GitAccessor git, Logger log) {
+    public GitUpdater(DBService db, GitAccessor git, Logger log, StoredProject sp) {
         this.dbs = db;
         this.git = git;
         this.log = log;
+        this.project = sp;
     }
     
     public void setUpdateParams(StoredProject sp, Logger l) {
@@ -77,7 +78,6 @@ public class GitUpdater implements MetadataUpdater {
 
     public void update() throws Exception {
        
-
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
         

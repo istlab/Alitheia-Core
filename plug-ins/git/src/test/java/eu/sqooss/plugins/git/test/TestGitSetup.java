@@ -2,6 +2,7 @@ package eu.sqooss.plugins.git.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 
@@ -22,12 +23,18 @@ import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.URIish;
 
+import eu.sqooss.plugins.tds.git.GitAccessor;
+import eu.sqooss.service.tds.AccessorException;
+
 public class TestGitSetup {
 
+    public static String projectName = "ruby-git";
     public static Repository local;
     public static SimpleDateFormat sdf;
     public static String url = "git://github.com/schacon/ruby-git.git";
     public static String localrepo = System.getProperty("user.dir") + "/test";
+    
+    public static GitAccessor git;
     
     public static void initTestRepo() throws IOException, URISyntaxException {
         File repo = new File(localrepo, Constants.DOT_GIT);
@@ -75,5 +82,10 @@ public class TestGitSetup {
         DirCache dc = local.lockDirCache();
         DirCacheCheckout co = new DirCacheCheckout(local, dc, commit.getTree());
         co.checkout();
+    }
+    
+    public static void getGitRepo() throws AccessorException, URISyntaxException {
+        git = new GitAccessor();
+        git.testInit(new URI("git-file://" + localrepo), projectName);
     }
 }

@@ -13,11 +13,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
-import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
@@ -26,6 +27,7 @@ public class TestGitUpdater extends TestGitSetup {
     static DBService db;
     static Logger l;
     static GitUpdater updater;
+    static StoredProject sp ;
 
     @BeforeClass
     public static void setup() throws IOException, URISyntaxException {
@@ -67,13 +69,23 @@ public class TestGitUpdater extends TestGitSetup {
         }
         
         LogManager lm = new LogManagerImpl(true);
-        l = lm.createLogger("test.db");
+        l = lm.createLogger("sqooss.updater");
+        
+        AlitheiaCore.getInstance();
         
         db = new DBServiceImpl(conProp, config.toURL() , l);
+        db.startDBSession();
+        sp = new StoredProject();
+        sp.setName(projectName);
+        db.addRecord(sp);
+        db.commitDBSession();
     }
 
     @Test
-    public void testUpdate() {
-        updater = new GitUpdater(db, new GitAccessor(), l);
+    public void testUpdate() throws Exception {
+        getGitRepo();
+        assertNotNull(git);
+        updater = new GitUpdater(db, git, l, sp);
+        updater.update();
     }
 }

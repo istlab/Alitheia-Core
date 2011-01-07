@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.plugins.tds.git.GitRevision;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.CommitCopyEntry;
@@ -32,8 +31,6 @@ import eu.sqooss.service.tds.Revision;
 
 public class TestGitAccessor extends TestGitSetup {
     
-    public GitAccessor git;
-    
     @BeforeClass
     public static void setup() throws IOException, URISyntaxException {
        initTestRepo();
@@ -41,8 +38,7 @@ public class TestGitAccessor extends TestGitSetup {
 
     @Before
     public void setUp() throws AccessorException, URISyntaxException {
-        git = new GitAccessor();
-        git.testInit(new URI("git-file://" + localrepo), "ack");
+        getGitRepo();
     }
     
     @Test

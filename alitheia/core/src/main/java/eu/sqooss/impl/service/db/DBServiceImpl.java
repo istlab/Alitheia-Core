@@ -276,6 +276,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         this.conProp = p;
         this.logger = l;
         initHibernate(configFileURL);
+        isInitialised.compareAndSet(false, true);
     }
 
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
