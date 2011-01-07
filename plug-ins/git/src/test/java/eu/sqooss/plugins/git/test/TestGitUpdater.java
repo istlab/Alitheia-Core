@@ -71,7 +71,7 @@ public class TestGitUpdater extends TestGitSetup {
         LogManager lm = new LogManagerImpl(true);
         l = lm.createLogger("sqooss.updater");
         
-        AlitheiaCore.getInstance();
+        AlitheiaCore.testInstance();
         
         db = new DBServiceImpl(conProp, config.toURL() , l);
         db.startDBSession();

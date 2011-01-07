@@ -112,8 +112,9 @@ public class AlitheiaCore implements ServiceListener {
     	 * Order matters here as services are initialised 
     	 * in the order they appear in this list
     	 */
-    	//services.add(LogManager.class); //This service is started manually
-    	services.add(DBService.class);	
+    	//The following two services are started manually
+    	//services.add(LogManager.class); 
+    	//services.add(DBService.class);	
     	//All services after this point are guaranteed to have access to the DB 
     	services.add(PluginAdmin.class);
     	services.add(Scheduler.class);
@@ -171,6 +172,12 @@ public class AlitheiaCore implements ServiceListener {
         return instance;
     }
     
+    /*Create a test instance to use for testing. This*/
+    public static AlitheiaCore testInstance() {
+        instance = new AlitheiaCore(null);
+        return instance;
+    }
+    
     /**
      * This method performs initialization of the <code>AlitheiaCore</code>
      * object by instantiating the core components, by calling the 
@@ -195,6 +202,13 @@ public class AlitheiaCore implements ServiceListener {
         }
         instances.put(LogManager.class, logger);
 
+        DBService db = DBServiceImpl.getInstance();
+        db.setInitParams(bc, logger.createLogger("sqooss.db"));
+        if (db.startUp()) {
+            err("Cannot start the DB service, aborting");
+        }
+        instances.put(DBService.class, db);
+        
         for (Class<? extends AlitheiaCoreService> s : services) {
             Class<?> impl = implementations.get(s);
             try {
@@ -310,7 +324,8 @@ public class AlitheiaCore implements ServiceListener {
      * @return The DB component's instance.
      */
     public DBService getDBService() {
-        return (DBServiceImpl)instances.get(DBService.class);
+        //return (DBServiceImpl)instances.get(DBService.class);
+        return DBServiceImpl.getInstance(); // <-- Ugly but required for testing.
     }
     
     /**

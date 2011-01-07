@@ -75,6 +75,8 @@ import eu.sqooss.service.logging.Logger;
  */
 public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
+    private static DBService instance;
+    
     public static Map<String, String> drivers = new HashMap<String, String>();
     
     static {
@@ -277,6 +279,13 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         this.logger = l;
         initHibernate(configFileURL);
         isInitialised.compareAndSet(false, true);
+        instance = this;
+    }
+    
+    public static DBService getInstance() {
+        if (instance == null)
+            instance = new DBServiceImpl();
+        return instance;
     }
 
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
