@@ -90,7 +90,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         connString.put("hsqldb", "jdbc:hsqldb:file:<SCHEMA>");
         connString.put("postgres", "jdbc:postgresql://<HOST>/<SCHEMA>");
     }
-    
+
     public static Map<String, String> hbmDialects = new HashMap<String, String>();
     
     static {
@@ -271,6 +271,12 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     }
     
     public DBServiceImpl() { }
+    
+    public DBServiceImpl(Properties p, URL configFileURL, Logger l) { 
+        this.conProp = p;
+        this.logger = l;
+        initHibernate(configFileURL);
+    }
 
     public <T extends DAObject> T findObjectById(Class<T> daoClass, long id) {
         return doFindObjectById(daoClass, id, false);

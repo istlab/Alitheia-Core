@@ -55,7 +55,7 @@ public class GitUpdater implements MetadataUpdater {
     private float progress;
     
     public GitUpdater() {}
-   
+
     public void setUpdateParams(StoredProject sp, Logger l) {
         this.project = sp;
         this.log = l;
@@ -141,22 +141,26 @@ public class GitUpdater implements MetadataUpdater {
 
     /** Convenience method to write warning messages per project */
     protected void warn(String message) {
-        log.warn("Git:" + project.getName() + ":" + message);
+        if (log != null)
+            log.warn("Git:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write error messages per project */
     protected void err(String message) {
-        log.error("Git:" + project.getName() + ":" + message);
+        if (log != null)
+            log.error("Git:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write info messages per project */
     protected void info(String message) {
-        log.info("Git:" + project.getName() + ":" + message);
+        if (log != null)
+            log.info("Git:" + project.getName() + ":" + message);
     }
     
     /** Convenience method to write debug messages per project */
     protected void debug(String message) {
-        log.debug("Git:" + project.getName() + ":" + message);
+        if (log != null)
+            log.debug("Git:" + project.getName() + ":" + message);
     }
 }
 
