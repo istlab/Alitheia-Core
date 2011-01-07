@@ -61,6 +61,11 @@ public class LogManagerImpl implements LogManager {
 
     public LogManagerImpl() {}
 
+    public LogManagerImpl(boolean testInit) {
+        logManager = new LogManagerImpl();
+        loggers = new HashMap<String, LoggerImpl>();
+    }
+    
     public Logger createLogger(String name) {
         LoggerImpl logger = loggers.get(name);
 

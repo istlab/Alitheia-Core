@@ -3,6 +3,7 @@ package eu.sqooss.plugins.git.test;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
@@ -11,25 +12,27 @@ import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import eu.sqooss.impl.service.db.DBServiceImpl;
+import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 
 public class TestGitUpdater {
 
-    DBService db;
+    static DBService db;
+    static Logger l;
 
     @BeforeClass
-    public static void setup() {
+    public static void setup() throws MalformedURLException {
         Properties conProp = new Properties();
-        conProp.setProperty("hibernate.connection.driver_class",
-                "org.hsqldb.jdbcDriver");
-        conProp.setProperty("hibernate.connection.url",
-                "jdbc:hsqldb:file:alitheia.db");
-        conProp.setProperty("hibernate.connection.username", "alitheia");
-        conProp.setProperty("hibernate.connection.password", "alitheia");
-        conProp.setProperty("hibernate.connection.dialect",
-                "org.hibernate.dialect.HSQLDialect");
-        conProp.setProperty("hibernate.connection.provider_class",
-                "org.hibernate.connection.DriverManagerConnectionProvider");
+        conProp.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
+        conProp.setProperty("hibernate.connection.url", "jdbc:hsqldb:file:alitheia.db");
+        conProp.setProperty("hibernate.connection.username", "sa");
+        conProp.setProperty("hibernate.connection.password", "");
+        conProp.setProperty("hibernate.connection.host", "localhost");
+        conProp.setProperty("hibernate.connection.dialect", "org.hibernate.dialect.HSQLDialect");
+        conProp.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.DriverManagerConnectionProvider");
 
         File root = new File(System.getProperty("user.dir"));
         File config = null;
@@ -57,7 +60,10 @@ public class TestGitUpdater {
                 break;
         }
         
+        LogManager lm = new LogManagerImpl(true);
+        l = lm.createLogger("test.db");
         
+        db = new DBServiceImpl(conProp, config.toURL() , l);
     }
 
     @Test
