@@ -129,8 +129,8 @@ public class TestGitUpdater extends TestGitSetup {
         //Test a non properly formated name
         d = updater.getAuthor(sp, "Clumsy Smurf <smurfvillage.com>");
         assertNotNull(d);
-        assertEquals("Smurfette", d.getUsername());
-        assertNull(d.getName());
+        assertNull(d.getUsername());
+        assertEquals("Clumsy Smurf <smurfvillage.com>", d.getName());
         assertEquals(0, d.getAliases().size());
         
         db.rollbackDBSession();
