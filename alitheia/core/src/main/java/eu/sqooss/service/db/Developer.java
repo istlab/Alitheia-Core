@@ -34,10 +34,12 @@
 package eu.sqooss.service.db;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -93,8 +95,8 @@ public class Developer extends DAObject {
      * The list of developer emails
      */
 	@XmlElement
-	@OneToMany(fetch=FetchType.LAZY, mappedBy="developer", orphanRemoval=true)
-    private Set<DeveloperAlias> aliases;
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="developer", orphanRemoval=true, cascade=CascadeType.ALL)
+    private Set<DeveloperAlias> aliases = new HashSet<DeveloperAlias>();
     
     /**
      * The project this developer belongs to
@@ -191,27 +193,9 @@ public class Developer extends DAObject {
      * if the email is a correct and valid email address.
      */
     public void addAlias(String email) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-        String paramProject = "project";
-        String paramEmail = "email";
-        
-        StringBuffer q = new StringBuffer("select da");
-        q.append(" from Developer d, DeveloperAlias da ");
-        q.append(" where da.developer = d ");
-        q.append(" and d.storedProject = :").append(paramProject);
-        q.append(" and da.email = :").append(paramEmail);
-        
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put(paramEmail, email);
-        params.put(paramProject, this.storedProject);
-        
-        List<DeveloperAlias> das = (List<DeveloperAlias>) dbs.doHQL(q.toString(), params);
-        
-        if (das.isEmpty()) { //Alias does not exist, add it
-            DeveloperAlias da = new DeveloperAlias(email, this);
-            dbs.addRecord(da);
-        }
+        DeveloperAlias da = new DeveloperAlias(email, this);
+        if (! getAliases().contains(da))
+            getAliases().add(da);
     }
     
     /**

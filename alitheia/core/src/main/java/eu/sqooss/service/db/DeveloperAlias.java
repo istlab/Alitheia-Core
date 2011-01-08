@@ -98,4 +98,25 @@ public class DeveloperAlias extends DAObject {
     public void setDeveloper(Developer developer) {
         this.developer = developer;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 1;
+        hash = hash * 31 + (developer == null ? 0 : developer.hashCode());
+        hash = hash * 31 + (email == null ? 0 : email.hashCode());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof DeveloperAlias))
+            return false;
+        DeveloperAlias that = (DeveloperAlias) other;
+        return  (email.equals(that.email));
+    }
+  
+    @Override
+    public String toString() {
+        return email;
+    }
 }

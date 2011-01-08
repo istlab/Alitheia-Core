@@ -20,6 +20,7 @@ import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.DeveloperAlias;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
@@ -103,9 +104,14 @@ public class TestGitUpdater extends TestGitSetup {
         assertEquals("Papa Smurf", d.getName());
         assertNull(d.getUsername());
         assertEquals(1, d.getAliases().size());
-        assertTrue(d.getAliases().contains("pm@smurfvillage.com"));
+        assertTrue(d.getAliases().contains(new DeveloperAlias("pm@smurfvillage.com", d)));
         
-       // d = 
+        //A bit of Developer DAO testing
+        assertNotNull(Developer.getDeveloperByEmail("pm@smurfvillage.com", sp));
+        d.addAlias("pm@smurfvillage.com");
+        assertEquals(1, d.getAliases().size());
+        
+        
         
         db.rollbackDBSession();
     }
