@@ -255,7 +255,7 @@ public class Developer extends DAObject {
         
         String paramProject = "project";
         String paramEmail = "email";
-        
+
         StringBuffer q = new StringBuffer("select d ");
         q.append(" from Developer d, DeveloperAlias da ");
         q.append(" where da.developer = d ");
@@ -330,16 +330,13 @@ public class Developer extends DAObject {
      * the username matches the email of an existing developer in the database,
      * then this record is updated with the provided username and returned.
      * 
-     * This method comes in two flavours that enable its use in both manual and
-     * automatic transaction management environments.
-     * 
      * @param username The Developer's username
      * @param sp The StoredProject this Developer belongs to
      * @return A Developer record for the specified Developer or null on failure
      */
-    public static Developer getDeveloperByUsername(String email, 
+    public static Developer getDeveloperByUsername(String username, 
             StoredProject sp) {
-        return getDeveloperByUsername(email, sp, true);
+        return getDeveloperByUsername(username, sp, true);
     }
     
     /**
@@ -348,9 +345,6 @@ public class Developer extends DAObject {
      * controls whether it will be created and saved. If the username matches
      * the email of an existing developer in the database, then this record is
      * updated with the provided username and returned.
-     * 
-     * This method comes in two flavours that enable its use in both manual and
-     * automatic transaction management environments.
      * 
      * @param username The Developer's username
      * @param sp The StoredProject this Developer belongs to
@@ -454,9 +448,16 @@ public class Developer extends DAObject {
     }
     
     public String toString() {
-        return name + "<" + username +">, ";
+        StringBuffer dev =  new StringBuffer(); 
+        dev.append(name).append(", aka:").append(username).append(" (");
+        for (DeveloperAlias d : getAliases()) {
+            dev.append("<");
+            dev.append(d.getEmail());
+            dev.append(">, ");
+        }
+        dev.deleteCharAt(dev.lastIndexOf(",")).append(")");
+        return dev.toString();
     }
-    
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

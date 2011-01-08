@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,9 +19,11 @@ import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.AccessorException;
 
 public class TestGitUpdater extends TestGitSetup {
 
@@ -80,12 +83,35 @@ public class TestGitUpdater extends TestGitSetup {
         db.addRecord(sp);
         db.commitDBSession();
     }
-
-    @Test
-    public void testUpdate() throws Exception {
+    
+    @Before
+    public void setUp() throws AccessorException, URISyntaxException {
         getGitRepo();
         assertNotNull(git);
         updater = new GitUpdater(db, git, l, sp);
+    }
+
+    @Test
+    public void testGetAuthor() {
+        db.startDBSession();
+        String ps = "Papa Smurf <pm@smurfvillage.com>";
+        String gag = "Gargamel <gar@smurfvillage.nosuchdomain>";
+        String brainy = "Brainy Smurf";
+        
+        Developer d = updater.getAuthor(sp, ps);
+        assertNotNull(d);
+        assertEquals("Papa Smurf", d.getName());
+        assertNull(d.getUsername());
+        assertEquals(1, d.getAliases().size());
+        assertTrue(d.getAliases().contains("pm@smurfvillage.com"));
+        
+       // d = 
+        
+        db.rollbackDBSession();
+    }
+    
+    @Test
+    public void testUpdate() throws Exception {
         updater.update();
     }
 }

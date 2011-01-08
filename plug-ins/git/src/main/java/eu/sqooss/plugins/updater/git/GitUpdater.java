@@ -30,6 +30,9 @@
 
 package eu.sqooss.plugins.updater.git;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.db.DBService;
@@ -112,13 +115,16 @@ public class GitUpdater implements MetadataUpdater {
             pv.setRevisionId(entry.getUniqueId());
             pv.setTimestamp(entry.getDate().getTime());
 
-            Developer d = Developer.getDeveloperByUsername(entry.getAuthor(),
-                    project);
+            Developer d = getAuthor(project, entry.getAuthor());
 
+            pv.setCommitter(d);
+            
             String commitMsg = entry.getMessage();
             if (commitMsg.length() > 512) {
                 commitMsg = commitMsg.substring(0, 511);
             }
+            
+            commitMsg = commitMsg.substring(0, commitMsg.indexOf('\n'));
             
             pv.setCommitMsg(commitMsg);
             pv.setSequence(Integer.MAX_VALUE);
@@ -141,6 +147,29 @@ public class GitUpdater implements MetadataUpdater {
         }
         
         dbs.commitDBSession();
+    }
+
+    public Developer getAuthor(StoredProject sp, String entryAuthor) {
+        InternetAddress ia = null;
+        try {
+            ia = new InternetAddress(entryAuthor);
+        } catch (AddressException ignored) {}
+        
+        Developer d = null;
+        if (ia == null) {
+            if (entryAuthor.contains(" ")) { 
+              //The provided name looks like a real name
+                d = Developer.getDeveloperByName(entryAuthor, sp, true);
+            } else {
+                d = Developer.getDeveloperByUsername(entryAuthor, sp, true);
+            }
+        } else {
+            d = Developer.getDeveloperByEmail(ia.getAddress(), sp, true);
+            if (!ia.getPersonal().equals(""))
+                d.setName(ia.getPersonal());
+        }
+        
+        return d;
     }
     
     /**
