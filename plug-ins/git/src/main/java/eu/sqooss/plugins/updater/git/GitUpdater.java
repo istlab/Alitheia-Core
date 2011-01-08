@@ -34,9 +34,6 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.Directory;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
@@ -128,9 +125,16 @@ public class GitUpdater implements MetadataUpdater {
             dbs.addRecord(pv);
             
             ProjectVersion prev = pv.getPreviousVersion();
-            pv.setSequence(prev.getSequence() + 1);
-            ProjectVersionParent pvp = new ProjectVersionParent(pv, prev);
-            dbs.addRecord(pvp);
+            if (prev != null)
+                pv.setSequence(prev.getSequence() + 1);
+            else 
+                pv.setSequence(1);
+            
+            for (String parentId : entry.getParentIds()) {
+                ProjectVersion parent = ProjectVersion.getVersionByRevision(project, parentId);
+                ProjectVersionParent pvp = new ProjectVersionParent(pv, parent);
+                dbs.addRecord(pvp);
+            }
             
             debug("Got version: " + pv.getRevisionId() + 
                     " seq: " + pv.getSequence());
