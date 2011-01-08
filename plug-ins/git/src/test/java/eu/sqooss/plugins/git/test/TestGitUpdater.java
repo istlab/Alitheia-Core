@@ -96,9 +96,9 @@ public class TestGitUpdater extends TestGitSetup {
     public void testGetAuthor() {
         db.startDBSession();
         String ps = "Papa Smurf <pm@smurfvillage.com>";
-        String gag = "Gargamel <gar@smurfvillage.nosuchdomain>";
-        String brainy = "Brainy Smurf";
-        
+        String gag = "Gargamel <gar@smurfvillage.(name)>";
+
+        //Test a properly formatted name
         Developer d = updater.getAuthor(sp, ps);
         assertNotNull(d);
         assertEquals("Papa Smurf", d.getName());
@@ -111,7 +111,27 @@ public class TestGitUpdater extends TestGitSetup {
         d.addAlias("pm@smurfvillage.com");
         assertEquals(1, d.getAliases().size());
         
+        //Test a non properly formated name
+        d = updater.getAuthor(sp, gag);
+        assertNotNull(d);
+        assertEquals("Gargamel", d.getName());
+        assertNull(d.getUsername());
+        assertEquals(1, d.getAliases().size());
+        assertTrue(d.getAliases().contains(new DeveloperAlias("gar@smurfvillage.(name)", d)));
         
+        //Test a user name only name
+        d = updater.getAuthor(sp, "Smurfette");
+        assertNotNull(d);
+        assertEquals("Smurfette", d.getUsername());
+        assertNull(d.getName());
+        assertEquals(0, d.getAliases().size());
+        
+        //Test a non properly formated name
+        d = updater.getAuthor(sp, "Clumsy Smurf <smurfvillage.com>");
+        assertNotNull(d);
+        assertEquals("Smurfette", d.getUsername());
+        assertNull(d.getName());
+        assertEquals(0, d.getAliases().size());
         
         db.rollbackDBSession();
     }

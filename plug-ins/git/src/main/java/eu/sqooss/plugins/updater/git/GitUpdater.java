@@ -37,6 +37,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.DeveloperAlias;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
@@ -152,22 +153,57 @@ public class GitUpdater implements MetadataUpdater {
     public Developer getAuthor(StoredProject sp, String entryAuthor) {
         InternetAddress ia = null;
         try {
-            ia = new InternetAddress(entryAuthor);
+            ia = new InternetAddress(entryAuthor, true);
         } catch (AddressException ignored) {}
         
         Developer d = null;
-        if (ia == null) {
-            if (entryAuthor.contains(" ")) { 
-              //The provided name looks like a real name
-                d = Developer.getDeveloperByName(entryAuthor, sp, true);
-            } else {
-                d = Developer.getDeveloperByUsername(entryAuthor, sp, true);
-            }
-        } else {
+        if (ia != null) {
             d = Developer.getDeveloperByEmail(ia.getAddress(), sp, true);
             if (!ia.getPersonal().equals(""))
                 d.setName(ia.getPersonal());
-        }
+        } else { 
+            if (entryAuthor.contains("@")) { 
+                //Hm, an email address that Java could not parse. Probably the result of
+                //misconfigured git. e.g. scott Chacon <schacon@agadorsparticus.(none)>
+                if (entryAuthor.contains("<")) {
+                    String name = entryAuthor.substring(0, entryAuthor.indexOf("<")).trim();
+                    String email;
+                    if (entryAuthor.contains(">"))
+                        email = entryAuthor.substring(entryAuthor.indexOf("<") + 1, entryAuthor.indexOf(">")).trim();
+                    else 
+                        email = entryAuthor.substring(entryAuthor.indexOf("<") + 1).trim();
+                    
+                    //Try to find the dev by name first, he might have 
+                    //an earlier entry
+                    d = Developer.getDeveloperByName(name, sp, false);
+                    if (d == null) {
+                        d = Developer.getDeveloperByEmail(email, sp, true);
+                        d.setName(name);
+                    } else {
+                        d.addAlias(email);
+                    }
+                } else {
+                    if (entryAuthor.contains(" ")) { 
+                        //The provided name looks like a real name 
+                        //with a @ somehow in it
+                        d = Developer.getDeveloperByName(entryAuthor, sp, true);
+                    } else {
+                        //The provided name looks like a non standard email
+                        // e.g. schacon@agadorsparticus.(none)
+                        d = Developer.getDeveloperByEmail(entryAuthor, sp, true);
+                    }
+                }
+            } else {
+                if (entryAuthor.contains(" ")) { 
+                    //The provided name looks like a real name
+                    d = Developer.getDeveloperByName(entryAuthor, sp, true);
+                } else {
+                    //The provided name is a non-spaced string. This looks
+                    // like a user name
+                    d = Developer.getDeveloperByUsername(entryAuthor, sp, true);
+                }
+            }
+        } 
         
         return d;
     }
