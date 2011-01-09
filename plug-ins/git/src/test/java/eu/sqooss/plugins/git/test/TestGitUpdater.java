@@ -95,24 +95,22 @@ public class TestGitUpdater extends TestGitSetup {
     @Test
     public void testGetAuthor() {
         db.startDBSession();
-        String ps = "Papa Smurf <pm@smurfvillage.com>";
-        String gag = "Gargamel <gar@smurfvillage.(name)>";
 
         //Test a properly formatted name
-        Developer d = updater.getAuthor(sp, ps);
+        Developer d = updater.getAuthor(sp, "Papa Smurf <pm@smurfvillage.com>");
         assertNotNull(d);
         assertEquals("Papa Smurf", d.getName());
         assertNull(d.getUsername());
         assertEquals(1, d.getAliases().size());
         assertTrue(d.getAliases().contains(new DeveloperAlias("pm@smurfvillage.com", d)));
-        
+
         //A bit of Developer DAO testing
         assertNotNull(Developer.getDeveloperByEmail("pm@smurfvillage.com", sp));
         d.addAlias("pm@smurfvillage.com");
         assertEquals(1, d.getAliases().size());
         
         //Test a non properly formated name
-        d = updater.getAuthor(sp, gag);
+        d = updater.getAuthor(sp, "Gargamel <gar@smurfvillage.(name)>");
         assertNotNull(d);
         assertEquals("Gargamel", d.getUsername());
         assertNull(d.getName());
@@ -126,7 +124,7 @@ public class TestGitUpdater extends TestGitSetup {
         assertNull(d.getName());
         assertEquals(0, d.getAliases().size());
         
-        //Test a non properly formated name
+        //Test a non properly formated email
         d = updater.getAuthor(sp, "Clumsy Smurf <smurfvillage.com>");
         assertNotNull(d);
         assertNull(d.getUsername());
@@ -139,14 +137,7 @@ public class TestGitUpdater extends TestGitSetup {
         assertNull(d.getUsername());
         assertNull(d.getName());
         assertEquals(1, d.getAliases().size());
-        
-        //Test with name being just an email
-        d = updater.getAuthor(sp, "schacon <schacon@gmail.com>");
-        assertNotNull(d);
-        assertNull(d.getUsername());
-        assertNull(d.getName());
-        assertEquals(1, d.getAliases().size());
-        
+       
         db.rollbackDBSession();
     }
     
