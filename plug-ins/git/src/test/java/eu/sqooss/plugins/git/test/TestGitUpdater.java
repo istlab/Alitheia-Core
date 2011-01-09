@@ -114,8 +114,8 @@ public class TestGitUpdater extends TestGitSetup {
         //Test a non properly formated name
         d = updater.getAuthor(sp, gag);
         assertNotNull(d);
-        assertEquals("Gargamel", d.getName());
-        assertNull(d.getUsername());
+        assertEquals("Gargamel", d.getUsername());
+        assertNull(d.getName());
         assertEquals(1, d.getAliases().size());
         assertTrue(d.getAliases().contains(new DeveloperAlias("gar@smurfvillage.(name)", d)));
         
@@ -132,6 +132,20 @@ public class TestGitUpdater extends TestGitSetup {
         assertNull(d.getUsername());
         assertEquals("Clumsy Smurf <smurfvillage.com>", d.getName());
         assertEquals(0, d.getAliases().size());
+        
+        //Test with name being just an email
+        d = updater.getAuthor(sp, "chef@smurfvillage.com");
+        assertNotNull(d);
+        assertNull(d.getUsername());
+        assertNull(d.getName());
+        assertEquals(1, d.getAliases().size());
+        
+        //Test with name being just an email
+        d = updater.getAuthor(sp, "schacon <schacon@gmail.com>");
+        assertNotNull(d);
+        assertNull(d.getUsername());
+        assertNull(d.getName());
+        assertEquals(1, d.getAliases().size());
         
         db.rollbackDBSession();
     }
