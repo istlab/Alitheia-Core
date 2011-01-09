@@ -30,6 +30,7 @@
 
 package eu.sqooss.plugins.tds.git;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -52,6 +55,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
@@ -64,6 +68,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
+import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -456,74 +461,77 @@ public class GitAccessor implements SCMAccessor {
     }
     
     /*
-     * Construct a full Revision object by analysing a commit's contents. Ideas
-     * and some code stolen by the Netbeans Git plugin:
-     *
-     * http://github.com/myabc/nbgit.git
+     * Construct a full Revision object by analysing a commit's contents. Ideas 
+     * and some code from JGit's log command implementation.
      */
     private GitRevision getRevision(RevCommit commit) {
         Map<String, PathChangeType> events = new HashMap<String, PathChangeType>();
-        TreeWalk tw = new TreeWalk(git);
+        List<CommitCopyEntry> copies = new ArrayList<CommitCopyEntry>();
+        
+        final RevTree a = commit.getParent(0).getTree();
+        
+        //If a commit has no parent, it is the first repo commit.
+        if (a == null) {
+            warn ("Commit with no parent");
+            return new GitRevision(commit, events, copies);
+        }
+        
+        final RevTree b = commit.getTree();
+        
+        DiffFormatter diffFmt = new DiffFormatter( //
+                new BufferedOutputStream(System.out));
+        diffFmt.setRepository(git);
+        diffFmt.setDetectRenames(true);
+        diffFmt.getRenameDetector().setRenameLimit(1000);
+        
+        List<DiffEntry> entries;
         try {
-            ObjectId[] trees = getTrees(commit);
-            final int revTree = trees.length - 1;
-            
-            tw.setRecursive(true);
-            tw.reset(trees);
-
-            switch (trees.length) {
-            case 1:
-                /* Initial commit. */
-                while (tw.next()) {
-                    events.put(tw.getPathString(), PathChangeType.ADDED);
-                }
+            entries = diffFmt.scan(a, b);
+        } catch (IOException e) {
+            err("Cannot parse commit " + commit.getId());
+            return null;
+        }
+        
+        String path = null; PathChangeType pct = null;
+        CommitCopyEntry cce = null;
+        boolean isCopy = false;
+        
+        for (DiffEntry ent : entries) {
+            switch (ent.getChangeType()) {
+            case ADD:
+                path =  ent.getNewPath();
+                pct = PathChangeType.ADDED;
                 break;
-            case 2:
-                while (tw.next()) {
-                    int mode0 = tw.getRawMode(0);
-                    int mode1 = tw.getRawMode(1);
-                    PathChangeType status = getStatus(tw, mode0, mode1);
-                    if (status == null) {
-                        continue;
-                    }
-                    events.put(tw.getPathString(), status);
-                }
+            case DELETE:
+                path =  ent.getOldPath();
+                pct = PathChangeType.DELETED;
                 break;
-            default:
-                /* Merge. */
-                while (tw.next()) {
-                    int mode0 = 0;
-                    int mode1 = tw.getRawMode(revTree);
-                    int i;
-
-                    for (i = 0; i < revTree; i++) {
-                        int mode = tw.getRawMode(i);
-                        if (mode == mode1 && tw.idEqual(i, revTree)) {
-                            break;
-                        }
-                        mode0 |= mode;
-                    }
-
-                    if (i != revTree) {
-                        continue;
-                    }
-                    PathChangeType status = getStatus(tw, mode0, mode1);
-                    if (status == null) {
-                        continue;
-                    }
-                    events.put(tw.getPathString(), status);
-                }
+            case MODIFY:
+                path =  ent.getNewPath();
+                pct = PathChangeType.MODIFIED;
+                break;
+            case COPY:
+                //out.format("C%1$03d\t%2$s\t%3$s", ent.getScore(), //
+                //        ent.getOldPath(), ent.getNewPath());
+                //out.println();
+                cce = new CommitCopyEntry(ent.getOldPath(), 
+                        newRevision(commit.getParent(0).getId().toString()), 
+                        ent.getNewPath(), 
+                        newRevision(commit.getId().toString()));
+                isCopy = true;
+                break;
+            case RENAME:
+                path =  ent.getOldPath();
+                pct = PathChangeType.REPLACED;
                 break;
             }
-        } catch (Exception e) {
-            err("Cannot retrieve commit contents for rev " + 
-                    commit.getId().getName() + ":" + e.getMessage());
-            return null;
-        } finally {
-            tw.release();
+            if (isCopy)
+                events.put(path, pct);
+            else 
+                copies.add(cce);
         }
-
-        return new GitRevision(commit, events, null);
+        
+        return new GitRevision(commit, events, copies);
     }
     
     /** Convert an Alitheia Core Git repository URL to an on-disk path*/

@@ -110,46 +110,54 @@ public class GitUpdater implements MetadataUpdater {
         
         // 2. Get commit log for dbversion < v < repohead
         CommitLog commitLog = git.getCommitLog("", next, git.getHeadRevision());
-
+        dbs.commitDBSession();
+        
         for (Revision entry : commitLog) {
-            ProjectVersion pv = new ProjectVersion(project);
-            pv.setRevisionId(entry.getUniqueId());
-            pv.setTimestamp(entry.getDate().getTime());
-
-            Developer d = getAuthor(project, entry.getAuthor());
-
-            pv.setCommitter(d);
-            
-            String commitMsg = entry.getMessage();
-            if (commitMsg.length() > 512) {
-                commitMsg = commitMsg.substring(0, 511);
-            }
-            
-            commitMsg = commitMsg.substring(0, commitMsg.indexOf('\n'));
-            
-            pv.setCommitMsg(commitMsg);
-            pv.setSequence(Integer.MAX_VALUE);
-            dbs.addRecord(pv);
-            
-            ProjectVersion prev = pv.getPreviousVersion();
-            if (prev != null)
-                pv.setSequence(prev.getSequence() + 1);
-            else 
-                pv.setSequence(1);
-            
-            for (String parentId : entry.getParentIds()) {
-                ProjectVersion parent = ProjectVersion.getVersionByRevision(project, parentId);
-                ProjectVersionParent pvp = new ProjectVersionParent(pv, parent);
-                dbs.addRecord(pvp);
-            }
-            
-            debug("Got version: " + pv.getRevisionId() + 
-                    " seq: " + pv.getSequence());
+            processOneRevision(entry);
         }
         
-        dbs.commitDBSession();
+        numRevisions ++;
     }
 
+    private void processOneRevision(Revision entry) {
+        dbs.startDBSession();
+        ProjectVersion pv = new ProjectVersion(project);
+        pv.setRevisionId(entry.getUniqueId());
+        pv.setTimestamp(entry.getDate().getTime());
+
+        Developer d = getAuthor(project, entry.getAuthor());
+
+        pv.setCommitter(d);
+        
+        String commitMsg = entry.getMessage();
+        if (commitMsg.length() > 512) {
+            commitMsg = commitMsg.substring(0, 511);
+        }
+        
+        //if (commitMsg.contains("\n"))
+        //    commitMsg = commitMsg.substring(0, commitMsg.indexOf('\n'));
+        
+        pv.setCommitMsg(commitMsg);
+        pv.setSequence(Integer.MAX_VALUE);
+        dbs.addRecord(pv);
+        
+        ProjectVersion prev = pv.getPreviousVersion();
+        if (prev != null)
+            pv.setSequence(prev.getSequence() + 1);
+        else 
+            pv.setSequence(1);
+        
+        for (String parentId : entry.getParentIds()) {
+            ProjectVersion parent = ProjectVersion.getVersionByRevision(project, parentId);
+            ProjectVersionParent pvp = new ProjectVersionParent(pv, parent);
+            dbs.addRecord(pvp);
+        }
+        
+        debug("Got version: " + pv.getRevisionId() + 
+                " seq: " + pv.getSequence());
+        dbs.commitDBSession();
+    }
+    
     public Developer getAuthor(StoredProject sp, String entryAuthor) {
         InternetAddress ia = null;
         String name = null, email = null;

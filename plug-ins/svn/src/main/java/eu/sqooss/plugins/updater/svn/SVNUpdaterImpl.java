@@ -538,7 +538,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                     ProjectFileState.fromStatus(SCMStatusIDs.get(
                     entry.getChangedPathsStatus().get(chPath).toString())), 
                     t, null);
-            
+
             /*
              * Before entering the next block, examine whether the deleted
              * file was a directory or not. If there is no path entry in the
