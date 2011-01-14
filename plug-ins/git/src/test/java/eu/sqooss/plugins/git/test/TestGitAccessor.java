@@ -120,6 +120,7 @@ public class TestGitAccessor extends TestGitSetup {
         assertNotNull(r);
         assertEquals(r.getUniqueId(),"f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
         assertTrue(git.isValidRevision(r));
+        assertEquals(4, r.getChangedPathsStatus().size());
     }
 
     @Test

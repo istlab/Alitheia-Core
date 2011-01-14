@@ -46,6 +46,7 @@ import java.util.Map;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -169,19 +170,7 @@ public class GitAccessor implements SCMAccessor {
             err("Cannot create new revision with null or empty revisionid");
             return null;
         }
-        RevWalk rw = new RevWalk(git);
-
-        try {
-            ObjectId obj = git.resolve(uniqueId);
-            RevCommit c = rw.parseCommit(obj);
-            return getRevision(c);
-        } catch (Throwable t) {
-                err("Cannot resolve revision " + uniqueId + ":" + 
-                        t.getMessage());
-            return null;
-        } finally {
-            rw.release();
-        }
+        return getRevision(resolveGitRev(uniqueId));
     }
 
     /** {@inheritDoc} */
@@ -434,48 +423,27 @@ public class GitAccessor implements SCMAccessor {
                     "Cannot initialise accessor for URL " + uri.toASCIIString());
         }
     }
-
-    private ObjectId[] getTrees(RevCommit commit) 
-    throws MissingObjectException, IncorrectObjectTypeException, IOException {
-        final ObjectId[] r = new ObjectId[commit.getParentCount() + 1];
-        for (int i = 0; i < r.length - 1; i++) {
-            RevWalk rw = new RevWalk(git);
-            RevCommit parent = commit.getParent(i);
-            parent = rw.parseCommit(parent.getId());
-            r[i] = parent.getTree().getId();
-        }
-        r[r.length - 1] = commit.getTree().getId();
-        return r;
-    }
-
-    private PathChangeType getStatus(TreeWalk walk, int mode0, int mode1) {
-        if (mode0 == 0 && mode1 != 0) {
-            return PathChangeType.ADDED;
-        } else if (mode0 != 0 && mode1 == 0) {
-            return PathChangeType.DELETED;
-        } else if (!walk.idEqual(0, 1)) {
-            return PathChangeType.MODIFIED;
-        } 
-        
-        return null;
-    }
-    
+   
     /*
      * Construct a full Revision object by analysing a commit's contents. Ideas 
      * and some code from JGit's log command implementation.
      */
     private GitRevision getRevision(RevCommit commit) {
+        if (commit == null)
+            return null;
+            
         Map<String, PathChangeType> events = new HashMap<String, PathChangeType>();
         List<CommitCopyEntry> copies = new ArrayList<CommitCopyEntry>();
         
-        final RevTree a = commit.getParent(0).getTree();
+        RevTree a = null; 
         
-        //If a commit has no parent, it is the first repo commit.
-        if (a == null) {
-            warn ("Commit with no parent");
-            return new GitRevision(commit, events, copies);
+        if (commit.getParentCount() != 1) {
+            a = commit.getTree();
+        } else {
+            RevCommit c = resolveGitRev(commit.getParent(0).name());
+            a = c.getTree(); //We hope that the parent is resolvable.
         }
-        
+
         final RevTree b = commit.getTree();
         
         DiffFormatter diffFmt = new DiffFormatter( //
@@ -511,9 +479,6 @@ public class GitAccessor implements SCMAccessor {
                 pct = PathChangeType.MODIFIED;
                 break;
             case COPY:
-                //out.format("C%1$03d\t%2$s\t%3$s", ent.getScore(), //
-                //        ent.getOldPath(), ent.getNewPath());
-                //out.println();
                 cce = new CommitCopyEntry(ent.getOldPath(), 
                         newRevision(commit.getParent(0).getId().toString()), 
                         ent.getNewPath(), 
@@ -525,13 +490,28 @@ public class GitAccessor implements SCMAccessor {
                 pct = PathChangeType.REPLACED;
                 break;
             }
-            if (isCopy)
+            if (!isCopy)
                 events.put(path, pct);
             else 
                 copies.add(cce);
         }
-        
+
         return new GitRevision(commit, events, copies);
+    }
+    
+    private RevCommit resolveGitRev(String rev) {
+        RevWalk rw = new RevWalk(git);
+
+        try {
+            ObjectId obj = git.resolve(rev);
+            RevCommit c = rw.parseCommit(obj);
+            return c;
+        } catch (Exception e) {
+            warn("Cannot resolve revision: " + rev);
+            return null;
+        } finally {
+            rw.release();
+        }
     }
     
     /** Convert an Alitheia Core Git repository URL to an on-disk path*/
