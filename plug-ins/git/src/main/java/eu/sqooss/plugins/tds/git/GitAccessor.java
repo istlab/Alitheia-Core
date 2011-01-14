@@ -175,24 +175,15 @@ public class GitAccessor implements SCMAccessor {
 
     /** {@inheritDoc} */
     public Revision getHeadRevision() throws InvalidRepositoryException {
-        AnyObjectId headId;
-        RevWalk rw = new RevWalk(git);
 
-        try {
-            headId = git.resolve(Constants.HEAD);
+        RevCommit head = resolveGitRev(Constants.HEAD);
 
-            if (headId == null) {
-                throw new InvalidRepositoryException(uri.toString(),
-                        "HEAD does not point to a known revision");
-            }
-
-            RevCommit root = rw.parseCommit(headId);
-            return getRevision(root);
-        } catch (IOException e) {
-            throw new InvalidRepositoryException("", e.getMessage());
-        } finally {
-            rw.release();
+        if (head == null) {
+            throw new InvalidRepositoryException(uri.toString(),
+                    "HEAD does not point to a known revision");
         }
+
+        return getRevision(head);
     }
 
     /** {@inheritDoc} */
