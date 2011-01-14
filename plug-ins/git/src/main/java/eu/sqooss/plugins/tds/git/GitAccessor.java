@@ -47,6 +47,7 @@ import java.util.Map;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.AmbiguousObjectException;
+import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
@@ -426,15 +427,30 @@ public class GitAccessor implements SCMAccessor {
         Map<String, PathChangeType> events = new HashMap<String, PathChangeType>();
         List<CommitCopyEntry> copies = new ArrayList<CommitCopyEntry>();
         
-        RevTree a = null; 
+        //Special case for first revision, use a tree walk and mark all files
+        //as added
+        if (commit.getParentCount() == 0) {
+            RevTree a = commit.getTree();
+            TreeWalk tw = null;
+            try {
+                tw = new TreeWalk(git);
+                tw.addTree(a);
+                tw.setRecursive(true);
+                while (tw.next()) {
+                    events.put(tw.getPathString(), PathChangeType.ADDED);
+                }
+                events.put(tw.getPathString(), PathChangeType.ADDED);
+            } catch (Exception e) {
+                err("Cannot files for revision " + commit.getName() + ": " + e.getMessage());
+            } finally {
+                tw.release();
+            }
+            return new GitRevision(commit, events, copies);
+        } 
         
-        if (commit.getParentCount() != 1) {
-            a = commit.getTree();
-        } else {
-            RevCommit c = resolveGitRev(commit.getParent(0).name());
-            a = c.getTree(); //We hope that the parent is resolvable.
-        }
-
+        RevCommit c = resolveGitRev(commit.getParent(0).name());
+        
+        final RevTree a = c.getTree(); //We hope that the parent is resolvable.
         final RevTree b = commit.getTree();
         
         DiffFormatter diffFmt = new DiffFormatter( //
