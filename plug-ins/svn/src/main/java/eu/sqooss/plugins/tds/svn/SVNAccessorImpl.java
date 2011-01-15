@@ -739,14 +739,6 @@ public class SVNAccessorImpl implements SCMAccessor {
     }
 
     /**{@inheritDoc}*/
-    public Diff getChange(String repoPath, Revision r)
-        throws InvalidProjectRevisionException,
-            InvalidRepositoryException,
-            FileNotFoundException {
-        return getDiff(repoPath, getPreviousRevision(r), r);
-    }
-
-    /**{@inheritDoc}*/
     public SCMNodeType getNodeType(String repoPath, Revision r)
             throws InvalidRepositoryException {
         try {
@@ -845,23 +837,6 @@ public class SVNAccessorImpl implements SCMAccessor {
 			 return new SCMNode(path, t, r);
 		 }
 		 
-		return null;
-	}
-
-	/** {@inheritDoc}} */
-	//TODO: Finish implementation
-	public PathChangeType getNodeChangeType(SCMNode s)
-			throws InvalidRepositoryException, InvalidProjectRevisionException {
-		
-		CommitLog log = getCommitLog("", getPreviousRevision(s.getRevision()), s.getRevision());
-		
-		Iterator<Revision> i = log.iterator();
-		
-		while (i.hasNext()) {
-			Revision ce = i.next();
-			
-		}
-		
 		return null;
 	}
 

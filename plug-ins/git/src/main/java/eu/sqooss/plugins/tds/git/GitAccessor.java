@@ -122,6 +122,7 @@ public class GitAccessor implements SCMAccessor {
         doInit(dataURL, projectName);
 	    this.logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
         info("Created SCMAccessor for " + uri.toASCIIString());
+        this.projectname = projectName;
 	}
 	
 	/** {@inheritDoc} */
@@ -360,11 +361,6 @@ public class GitAccessor implements SCMAccessor {
                InvalidRepositoryException,
                FileNotFoundException {return null;}
 
-    public Diff getChange(String repoPath, Revision r)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException,
-               FileNotFoundException {return null;}
-
     public SCMNodeType getNodeType(String repoPath, Revision r)
         throws InvalidRepositoryException {
         
@@ -406,13 +402,12 @@ public class GitAccessor implements SCMAccessor {
         return null;
     }
     
-    public SCMNode getNode(String path, Revision r) 
-        throws  InvalidRepositoryException,
-                InvalidProjectRevisionException {return null;}
-    
-    public PathChangeType getNodeChangeType(SCMNode s) 
-        throws InvalidRepositoryException, 
-               InvalidProjectRevisionException {return null;}
+    @Override
+    public SCMNode getNode(String path, Revision r)
+            throws InvalidRepositoryException, InvalidProjectRevisionException {
+        // TODO Auto-generated method stub
+        return null;
+    }
     
     public List<AnnotatedLine> getNodeAnnotations(SCMNode s) {return null;}
     

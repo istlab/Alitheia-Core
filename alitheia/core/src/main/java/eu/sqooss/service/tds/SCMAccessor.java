@@ -269,26 +269,6 @@ public interface SCMAccessor extends DataAccessor {
                FileNotFoundException;
 
     /**
-     * Get the change that led to revision r. In other words get the
-     * diff between the previous and the provided revision
-     * 
-     * @param repoPath The path to get the diff for
-     * @param r1 The revision to start getting the diff from
-     * @param r2 The revision up to which to get the diff
-     * 
-     * @throws InvalidProjectRevisionException When the provided revision is
-     * invalid
-     * @throws InvalidRepositoryException When there is an error accessing the 
-     * underlying repository
-     * @throws FileNotFoundException When the temporary required to calculate
-     * the diff cannot be created
-     */
-    public Diff getChange(String repoPath, Revision r)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException,
-               FileNotFoundException;
-
-    /**
      * Get the type of the node.
      *      
      * @throws InvalidRepositoryException When there is an error accessing the 
@@ -324,24 +304,10 @@ public interface SCMAccessor extends DataAccessor {
      * @throws InvalidRepositoryException When there is an error accessing
      *  the underlying repository
      */
-    public SCMNode getNode(String path, Revision r) 
+     public SCMNode getNode(String path, Revision r) 
     	throws  InvalidRepositoryException,
     			InvalidProjectRevisionException;
-    
-    /**
-     * Gets the status a the node in the provided revision.  
-     * 
-     * @return A {@link PathChangeType} value. If the node was not changed
-     * in the revision the method will return {@link PathChangeType.UNMODIFIED}
-     * @throws InvalidProjectRevisionException When the provided revision is
-     *  invalid
-     * @throws InvalidRepositoryException When there is an error accessing
-     *  the underlying repository
-     */
-    public PathChangeType getNodeChangeType(SCMNode s) 
-    	throws InvalidRepositoryException, 
-    		   InvalidProjectRevisionException;
-    
+        
     /**
      * Get an annotated version of the contents of the file represented
      * by the provided SCMNode. This is equivalent to <tt>svn blame</tt>,
