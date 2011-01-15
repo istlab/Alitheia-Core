@@ -46,12 +46,9 @@ import java.util.Map;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.errors.AmbiguousObjectException;
-import org.eclipse.jgit.errors.CorruptObjectException;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
@@ -301,6 +298,7 @@ public class GitAccessor implements SCMAccessor {
     
     public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
     throws InvalidProjectRevisionException, InvalidRepositoryException  {
+        repoPath = toGitPath(repoPath);
         RevWalk rw = new RevWalk(git);
         try {
             
@@ -319,8 +317,6 @@ public class GitAccessor implements SCMAccessor {
             
 
             if (repoPath != null && !repoPath.isEmpty()) {
-                if (repoPath.startsWith("/") && repoPath.length() > 1)
-                    repoPath = repoPath.substring(1);
                 rw.setTreeFilter(AndTreeFilter.create(PathFilter.create(repoPath), TreeFilter.ANY_DIFF));
             }
 
@@ -370,14 +366,45 @@ public class GitAccessor implements SCMAccessor {
                FileNotFoundException {return null;}
 
     public SCMNodeType getNodeType(String repoPath, Revision r)
-        throws InvalidRepositoryException {return null;}
+        throws InvalidRepositoryException {
+        
+        if (!isValidRevision(r))
+            throw new InvalidRepositoryException(repoPath, 
+                    "The provided revision is not valid: " + r);
+        
+        RevTree a = resolveGitRev(r.getUniqueId()).getTree();
+        TreeWalk tw = null;
+        try {
+            tw = TreeWalk.forPath(git, toGitPath(repoPath), a);
+            
+            if (tw == null) 
+                return SCMNodeType.UNKNOWN;
+            
+            switch(tw.getFileMode(0).getBits() & FileMode.TYPE_MASK) {
+            case FileMode.TYPE_FILE:
+                return SCMNodeType.FILE;
+            case FileMode.TYPE_TREE:
+                return SCMNodeType.DIR;
+            default:
+                return SCMNodeType.UNKNOWN;
+            }
+        } catch (Exception e) {
+            warn("Path " + repoPath + " does not exist in revision " 
+                    + r.getUniqueId() + ":" + e.getMessage());
+        } finally {
+            if (tw != null) tw.release();
+        }
+        return SCMNodeType.UNKNOWN;
+    }
 
     public String getSubProjectPath() throws InvalidRepositoryException 
         {return null;}
     
     public List<SCMNode> listDirectory(SCMNode dir)
         throws InvalidRepositoryException,
-        InvalidProjectRevisionException  {return null;}
+        InvalidProjectRevisionException  {
+        return null;
+    }
     
     public SCMNode getNode(String path, Revision r) 
         throws  InvalidRepositoryException,
@@ -391,12 +418,13 @@ public class GitAccessor implements SCMAccessor {
     
     /* Accessor internal methods*/
     
-    /**Init a test repository when unit testing*/
+    /*Init a test repository when unit testing*/
     public void testInit(URI dataURL, String projectName) 
     throws AccessorException {
         doInit(dataURL, projectName);
     }
-    /**
+    
+    /*
      * Actual repo initialization code, construct a repository instance per
      * tracked project.
      */
@@ -428,7 +456,7 @@ public class GitAccessor implements SCMAccessor {
         List<CommitCopyEntry> copies = new ArrayList<CommitCopyEntry>();
         
         //Special case for first revision, use a tree walk and mark all files
-        //as added
+        //as added. 
         if (commit.getParentCount() == 0) {
             RevTree a = commit.getTree();
             TreeWalk tw = null;
@@ -441,19 +469,21 @@ public class GitAccessor implements SCMAccessor {
                 }
                 events.put(tw.getPathString(), PathChangeType.ADDED);
             } catch (Exception e) {
-                err("Cannot files for revision " + commit.getName() + ": " + e.getMessage());
+                err("Cannot get files for revision " + commit.getName() + ": " + e.getMessage());
             } finally {
                 tw.release();
             }
             return new GitRevision(commit, events, copies);
         } 
         
+        //General case, get the revision files by constructing a diff between 
+        //the revision we are asking for and its first parent. 
         RevCommit c = resolveGitRev(commit.getParent(0).name());
         
         final RevTree a = c.getTree(); //We hope that the parent is resolvable.
         final RevTree b = commit.getTree();
         
-        DiffFormatter diffFmt = new DiffFormatter( //
+        DiffFormatter diffFmt = new DiffFormatter( 
                 new BufferedOutputStream(System.out));
         diffFmt.setRepository(git);
         diffFmt.setDetectRenames(true);
@@ -493,7 +523,7 @@ public class GitAccessor implements SCMAccessor {
                 isCopy = true;
                 break;
             case RENAME:
-                path =  ent.getOldPath();
+                path = ent.getOldPath();
                 pct = PathChangeType.REPLACED;
                 break;
             }
@@ -519,6 +549,21 @@ public class GitAccessor implements SCMAccessor {
         } finally {
             rw.release();
         }
+    }
+    
+    private String toGitPath(String path) {
+        
+        if (path == null)
+            return null;
+        
+        if (!path.startsWith("/"))
+            return path;
+        
+        int i = 0;
+        while (path.charAt(i) == '/') {
+            i++;
+        }
+        return path.substring(i);
     }
     
     /** Convert an Alitheia Core Git repository URL to an on-disk path*/

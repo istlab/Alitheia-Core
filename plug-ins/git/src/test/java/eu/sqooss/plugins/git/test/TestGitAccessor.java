@@ -29,6 +29,7 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
+import eu.sqooss.service.tds.SCMNodeType;
 
 public class TestGitAccessor extends TestGitSetup {
     
@@ -259,6 +260,28 @@ public class TestGitAccessor extends TestGitSetup {
     }
 
     @Test
+    public void testGetNodeType() throws InvalidRepositoryException {
+        Revision r = git.newRevision("ab20a674e50268b6c541949c746d77b16a26d15c");
+        
+        //Basic checks
+        SCMNodeType t = git.getNodeType("/lib", r);
+        assertNotNull(t);
+        assertEquals(SCMNodeType.DIR, t);
+        
+        t = git.getNodeType("/lib/git/repository.rb", r);
+        assertNotNull(t);
+        assertEquals(SCMNodeType.FILE, t);
+        
+        t = git.getNodeType("/alitheia/core/test", r);
+        assertNotNull(t);
+        assertEquals(SCMNodeType.UNKNOWN, t);
+        
+        t = git.getNodeType("/", r);
+        assertNotNull(t);
+        assertEquals(SCMNodeType.DIR, t);
+    }
+    
+    @Test
     public void testGetCheckout() {
         fail("Not yet implemented");
     }
@@ -287,12 +310,7 @@ public class TestGitAccessor extends TestGitSetup {
     public void testGetChange() {
         fail("Not yet implemented");
     }
-
-    @Test
-    public void testGetNodeType() {
-        fail("Not yet implemented");
-    }
-
+    
     @Test
     public void testGetSubProjectPath() {
         fail("Not yet implemented");
