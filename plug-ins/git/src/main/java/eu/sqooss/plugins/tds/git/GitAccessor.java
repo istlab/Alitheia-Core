@@ -460,9 +460,10 @@ public class GitAccessor implements SCMAccessor {
                 tw.addTree(a);
                 tw.setRecursive(true);
                 while (tw.next()) {
-                    events.put(tw.getPathString(), PathChangeType.ADDED);
+                    //Paths in Alitheia Core are not relative to root
+                    events.put("/" + tw.getPathString(), PathChangeType.ADDED);
                 }
-                events.put(tw.getPathString(), PathChangeType.ADDED);
+                events.put("/" + tw.getPathString(), PathChangeType.ADDED);
             } catch (Exception e) {
                 err("Cannot get files for revision " + commit.getName() + ": " + e.getMessage());
             } finally {
@@ -511,9 +512,11 @@ public class GitAccessor implements SCMAccessor {
                 pct = PathChangeType.MODIFIED;
                 break;
             case COPY:
-                cce = new CommitCopyEntry(ent.getOldPath(), 
+              //Paths in Alitheia Core are not relative to root
+                cce = new CommitCopyEntry(
+                        "/" + ent.getOldPath(), 
                         newRevision(commit.getParent(0).getId().toString()), 
-                        ent.getNewPath(), 
+                        "/" + ent.getNewPath(), 
                         newRevision(commit.getId().toString()));
                 isCopy = true;
                 break;
@@ -523,7 +526,8 @@ public class GitAccessor implements SCMAccessor {
                 break;
             }
             if (!isCopy)
-                events.put(path, pct);
+              //Paths in Alitheia Core are not relative to root 
+                events.put("/" + path, pct); 
             else 
                 copies.add(cce);
         }
