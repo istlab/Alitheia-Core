@@ -247,7 +247,6 @@ public class GitUpdater implements MetadataUpdater {
                     t, null);
             files.add(toAdd);
         }
-        dbs.addRecords(files);
         return files;
     }
     
@@ -262,6 +261,7 @@ public class GitUpdater implements MetadataUpdater {
         String path = FileUtils.dirname(fPath);
         String fname = FileUtils.basename(fPath);
 
+        mkdirs(version, path, status);
         Directory dir = Directory.getDirectory(path, true);
         pf.setName(fname);
         pf.setDir(dir);
@@ -278,6 +278,7 @@ public class GitUpdater implements MetadataUpdater {
         }
         
         debug("Adding file " + pf);
+        dbs.addRecord(pf);
         return pf;
     }
     
@@ -285,21 +286,45 @@ public class GitUpdater implements MetadataUpdater {
      * Adds or updates directories leading to path. Similar to 
      * mkdir -p cmd line command.
      */
-    private List<ProjectFile> mkdirs(ProjectVersion pv, String path) {
+    private List<ProjectFile> mkdirs(ProjectVersion pv, String path, ProjectFileState status) {
         List<ProjectFile> dirs = new ArrayList<ProjectFile>();
-        
-        String[] directories = FileUtils.dirname(path).split("/");
+
+        String[] directories = path.split("/");
         ProjectVersion previous = pv.getPreviousVersion();
-        
-        for (String dir : directories) {
-            if (previous == null) { //First version
-                
-                continue;
-            }
-            
-            //ProjectFile prev = ProjectFile.findFile(project.getId(), name, path, pv);
+
+        if (previous == null) { // Special case for first version
+            previous = pv;
         }
-        
+
+        String constrPath = "/";
+
+        for (int i = 0; i < directories.length; i++) {
+
+            ProjectFile prev = ProjectFile.findFile(project.getId(),
+                    constrPath, path, previous.getRevisionId());
+
+            ProjectFile cur = ProjectFile.findFile(project.getId(), constrPath,
+                    path, pv.getRevisionId());
+
+            ProjectFile pf = new ProjectFile(pv);
+            pf.setDirectory(true);
+            pf.setDir(Directory.getDirectory(constrPath, true));
+            pf.setName(directories[i]);
+
+            if (prev == null) {
+                pf.setState(ProjectFileState.added());
+            } else {
+                //We only need to affect the last path entry
+                if (i < directories.length - 1)
+                    pf.setState(status);
+            }
+
+            constrPath += directories[i];
+
+            if (cur != null)
+                dirs.add(pf);
+        }
+        dbs.addRecords(dirs);
         return dirs;
     }
     
