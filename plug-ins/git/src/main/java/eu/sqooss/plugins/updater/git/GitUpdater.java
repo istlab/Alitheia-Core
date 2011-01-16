@@ -30,6 +30,9 @@
 
 package eu.sqooss.plugins.updater.git;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -37,7 +40,9 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.DeveloperAlias;
+import eu.sqooss.service.db.Directory;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
@@ -48,7 +53,9 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.util.FileUtils;
 
 /**
  * A metadata updater converts raw data to Alitheia Core database metadata.
@@ -99,7 +106,7 @@ public class GitUpdater implements MetadataUpdater {
         
             /* Don't choke when called to update an up-to-date project */
             if (r.compareTo(git.newRevision(latestVersion.getRevisionId())) <= 0) {
-                info("Project is already at the newest version " 
+                info("Project is already at the newest version: " 
                         + r.getUniqueId());
                 dbs.commitDBSession();
                 return;    
@@ -120,16 +127,28 @@ public class GitUpdater implements MetadataUpdater {
 
         // 2. Get commit log for dbversion < v < repohead
         CommitLog commitLog = git.getCommitLog("", from, to);
-        dbs.commitDBSession();
+        if(!dbs.isDBSessionActive()) dbs.startDBSession();
 
         for (Revision entry : commitLog) {
-            processOneRevision(entry);
+            ProjectVersion pv = processOneRevision(entry);
+            List<ProjectFile> files = processRevisionFiles(git, entry, pv);
+           
+            updateValidUntil(pv, files);
+
+            if (!dbs.commitDBSession()) {
+                warn("Intermediate commit failed, failing update");
+                //restart();
+                return;
+            }
+            
+            dbs.startDBSession();
+            progress = (float) (((double)numRevisions / (double)commitLog.size()) * 100);
+            
             numRevisions++;
         }
     }
 
-    private void processOneRevision(Revision entry) {
-        dbs.startDBSession();
+    private ProjectVersion processOneRevision(Revision entry) {
         ProjectVersion pv = new ProjectVersion(project);
         pv.setRevisionId(entry.getUniqueId());
         pv.setTimestamp(entry.getDate().getTime());
@@ -164,7 +183,7 @@ public class GitUpdater implements MetadataUpdater {
         
         debug("Got version: " + pv.getRevisionId() + 
                 " seq: " + pv.getSequence());
-        dbs.commitDBSession();
+        return pv;
     }
     
     public Developer getAuthor(StoredProject sp, String entryAuthor) {
@@ -213,6 +232,94 @@ public class GitUpdater implements MetadataUpdater {
             }
         }
         return d;
+    }
+    
+    private List<ProjectFile> processRevisionFiles(SCMAccessor scm, Revision entry,
+            ProjectVersion curVersion) throws InvalidRepositoryException {
+        List<ProjectFile> files = new ArrayList<ProjectFile>();
+        
+        for (String chPath : entry.getChangedPaths()) {
+            
+            SCMNodeType t = scm.getNodeType(chPath, entry);
+
+            ProjectFile toAdd = addFile(curVersion, chPath,
+                    ProjectFileState.fromPathChangeType(entry.getChangedPathsStatus().get(chPath)), 
+                    t, null);
+            files.add(toAdd);
+        }
+        dbs.addRecords(files);
+        return files;
+    }
+    
+    /**
+     * Constructs a project file out of the provided elements and adds it
+     * to the project file cache.
+     */
+    private ProjectFile addFile(ProjectVersion version, String fPath, 
+            ProjectFileState status, SCMNodeType t, ProjectFile copyFrom) {
+        ProjectFile pf = new ProjectFile(version);
+
+        String path = FileUtils.dirname(fPath);
+        String fname = FileUtils.basename(fPath);
+
+        Directory dir = Directory.getDirectory(path, true);
+        pf.setName(fname);
+        pf.setDir(dir);
+        pf.setState(status);
+        pf.setCopyFrom(copyFrom);
+        pf.setValidFrom(version);
+        pf.setValidUntil(null);
+        
+        if (t == SCMNodeType.DIR) {
+            pf.setIsDirectory(true);
+            Directory.getDirectory(pf.getFileName(), true);
+        } else {
+            pf.setIsDirectory(false);
+        }
+        
+        debug("Adding file " + pf);
+        return pf;
+    }
+    
+    /**
+     * Adds or updates directories leading to path. Similar to 
+     * mkdir -p cmd line command.
+     */
+    private List<ProjectFile> mkdirs(ProjectVersion pv, String path) {
+        List<ProjectFile> dirs = new ArrayList<ProjectFile>();
+        
+        String[] directories = FileUtils.dirname(path).split("/");
+        ProjectVersion previous = pv.getPreviousVersion();
+        
+        for (String dir : directories) {
+            if (previous == null) { //First version
+                
+                continue;
+            }
+            
+            //ProjectFile prev = ProjectFile.findFile(project.getId(), name, path, pv);
+        }
+        
+        return dirs;
+    }
+    
+    /**
+     * Update the validUntil field after all files have been processed.
+     */
+    private void updateValidUntil(ProjectVersion pv, List<ProjectFile> versionFiles) {
+
+        ProjectVersion previous = pv.getPreviousVersion();
+
+        for (ProjectFile pf : versionFiles) {
+            if (!pf.isAdded()) {
+                ProjectFile old = pf.getPreviousFileVersion();
+                old.setValidUntil(previous);
+            }
+
+            if (pf.isDeleted()) {
+                pf.setValidUntil(pv);
+            }
+        }
     }
     
     /**

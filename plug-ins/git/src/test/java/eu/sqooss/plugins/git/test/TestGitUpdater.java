@@ -156,7 +156,7 @@ public class TestGitUpdater extends TestGitSetup {
         
         while (to.compareTo(git.newRevision("b7a7d204bad7de8696ac800c3d1e608bdc344a38")) < 0) {
             ArrayList<ProjectFile> foundFiles = new ArrayList<ProjectFile>();
-            to = git.getNextRevision(to);
+           
             System.err.println("Revision: " + from.getUniqueId());
             updater.updateFromTo(from, to);
 
@@ -184,7 +184,7 @@ public class TestGitUpdater extends TestGitSetup {
                 foundFiles.add(pf);
             }
             
-            //Try to see whether we have extra files in the revision
+            //Check whether we have extra files in the revision
             for (ProjectFile pf: pv.getFiles()) {
                 assertTrue(foundFiles.contains(pf));
             }
@@ -194,6 +194,7 @@ public class TestGitUpdater extends TestGitSetup {
             tw.release();
             rw.release();
             from = to;
+            to = git.getNextRevision(to);
         }
     }
 }

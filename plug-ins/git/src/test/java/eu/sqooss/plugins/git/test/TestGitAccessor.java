@@ -242,7 +242,7 @@ public class TestGitAccessor extends TestGitSetup {
 
         //Commit sequence with null second argument, should return entry for specific commit
         r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
-        
+
         l = git.getCommitLog("", r1, null);
         assertNotNull(l);
         assertEquals(l.size(), 1);
@@ -251,7 +251,7 @@ public class TestGitAccessor extends TestGitSetup {
         
         assertTrue(r.getChangedPaths().contains(".gitignore"));
         assertTrue(r.getChangedPaths().contains("Rakefile"));
-        
+
         //Get the full log
         r1 = git.newRevision("f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
         r2 = git.newRevision(git.getHeadRevision().getUniqueId());
