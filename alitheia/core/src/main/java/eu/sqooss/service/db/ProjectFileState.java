@@ -50,6 +50,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.tds.PathChangeType;
 
 /**
  * A representation of the status of the file in this revision:
@@ -140,6 +141,21 @@ public class ProjectFileState extends DAObject {
         return fromStatus(status);
     }
 
+    public static ProjectFileState fromPathChangeType(PathChangeType pct) {
+        switch (pct) {
+        case ADDED:
+            return fromStatus(STATE_ADDED);
+        case MODIFIED:
+            return fromStatus(STATE_MODIFIED);
+        case DELETED:
+            return fromStatus(STATE_DELETED);    
+        case REPLACED:
+            return fromStatus(STATE_REPLACED);
+        default:
+            return null;
+        }
+    }
+    
     public int getStatus() {
         return status;
     }
