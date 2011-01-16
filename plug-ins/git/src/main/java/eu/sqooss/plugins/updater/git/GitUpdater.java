@@ -44,6 +44,8 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidAccessorException;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.updater.MetadataUpdater;
@@ -85,7 +87,6 @@ public class GitUpdater implements MetadataUpdater {
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
         
-        int numRevisions = 0;
         
         info("Running source update for project " + project.getName() 
                 + " ID " + project.getId());
@@ -108,15 +109,23 @@ public class GitUpdater implements MetadataUpdater {
             next = git.getFirstRevision();
         }
         
+        updateFromTo(next, git.getHeadRevision());
+    } 
+    
+    public void updateFromTo(Revision from, Revision to)
+            throws InvalidProjectRevisionException, InvalidRepositoryException {
+        if (from.compareTo(to) > 1)
+            return;
+        int numRevisions = 0;
+
         // 2. Get commit log for dbversion < v < repohead
-        CommitLog commitLog = git.getCommitLog("", next, git.getHeadRevision());
+        CommitLog commitLog = git.getCommitLog("", from, to);
         dbs.commitDBSession();
-        
+
         for (Revision entry : commitLog) {
             processOneRevision(entry);
+            numRevisions++;
         }
-        
-        numRevisions ++;
     }
 
     private void processOneRevision(Revision entry) {
