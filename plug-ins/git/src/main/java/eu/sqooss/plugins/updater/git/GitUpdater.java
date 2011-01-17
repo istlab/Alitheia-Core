@@ -286,10 +286,15 @@ public class GitUpdater implements MetadataUpdater {
      * Adds or updates directories leading to path. Similar to 
      * mkdir -p cmd line command.
      */
-    private List<ProjectFile> mkdirs(ProjectVersion pv, String path, ProjectFileState status) {
+    public List<ProjectFile> mkdirs(ProjectVersion pv, String path, ProjectFileState status) {
         List<ProjectFile> dirs = new ArrayList<ProjectFile>();
 
         String[] directories = path.split("/");
+        if (directories.length == 0) {
+            String[] tmp = {""};
+            directories = tmp;
+        }
+            
         ProjectVersion previous = pv.getPreviousVersion();
 
         if (previous == null) { // Special case for first version
@@ -299,19 +304,26 @@ public class GitUpdater implements MetadataUpdater {
         String constrPath = "/";
 
         for (int i = 0; i < directories.length; i++) {
+            String name = null;
+            if (!directories[i].equals("")) //The first entry is always empty
+                name = directories[i];
+            else 
+                name = "/";
 
             ProjectFile prev = ProjectFile.findFile(project.getId(),
-                    constrPath, path, previous.getRevisionId());
+                    constrPath, name, previous.getRevisionId());
 
             ProjectFile cur = ProjectFile.findFile(project.getId(), constrPath,
-                    path, pv.getRevisionId());
+                    name, pv.getRevisionId());
 
             ProjectFile pf = new ProjectFile(pv);
             pf.setDirectory(true);
-            pf.setDir(Directory.getDirectory(constrPath, true));
-            pf.setName(directories[i]);
+            pf.setDir(Directory.getDirectory(FileUtils.dirname(constrPath), true));
+            pf.setName(name);
 
             if (prev == null) {
+                //We don't have a previous version, so the dir 
+                //or the dir hierarchy from this dir upwards is new
                 pf.setState(ProjectFileState.added());
             } else {
                 //We only need to affect the last path entry
@@ -319,9 +331,12 @@ public class GitUpdater implements MetadataUpdater {
                     pf.setState(status);
             }
 
-            constrPath += directories[i];
+            if (i < directories.length - 1)
+                constrPath += directories[i + 1];
 
-            if (cur != null)
+            //Check whether the directory has been re-added 
+            //while processing this revision
+            if (cur == null)
                 dirs.add(pf);
         }
         dbs.addRecords(dirs);
