@@ -31,7 +31,9 @@
 package eu.sqooss.plugins.updater.git;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -135,7 +137,7 @@ public class GitUpdater implements MetadataUpdater {
         	}
         	
             ProjectVersion pv = processOneRevision(entry);
-            List<ProjectFile> files = processRevisionFiles(git, entry, pv);
+            Set<ProjectFile> files = processRevisionFiles(git, entry, pv);
            
             updateValidUntil(pv, files);
 
@@ -182,7 +184,7 @@ public class GitUpdater implements MetadataUpdater {
         for (String parentId : entry.getParentIds()) {
             ProjectVersion parent = ProjectVersion.getVersionByRevision(project, parentId);
             ProjectVersionParent pvp = new ProjectVersionParent(pv, parent);
-            dbs.addRecord(pvp);
+            pv.getParents().add(pvp);
         }
         
         debug("Got version: " + pv.getRevisionId() + 
@@ -238,9 +240,9 @@ public class GitUpdater implements MetadataUpdater {
         return d;
     }
     
-    private List<ProjectFile> processRevisionFiles(SCMAccessor scm, Revision entry,
+    private Set<ProjectFile> processRevisionFiles(SCMAccessor scm, Revision entry,
             ProjectVersion curVersion) throws InvalidRepositoryException {
-        List<ProjectFile> files = new ArrayList<ProjectFile>();
+        Set<ProjectFile> files = new HashSet<ProjectFile>();
         
         for (String chPath : entry.getChangedPaths()) {
             
@@ -256,7 +258,8 @@ public class GitUpdater implements MetadataUpdater {
     
     /**
      * Constructs a project file out of the provided elements and adds it
-     * to the project file cache.
+     * to the database. If the path has already been processed in this
+     * revision, it returns the processed entry.
      */
     private ProjectFile addFile(ProjectVersion version, String fPath, 
             ProjectFileState status, SCMNodeType t, ProjectFile copyFrom) {
@@ -265,7 +268,15 @@ public class GitUpdater implements MetadataUpdater {
         String path = FileUtils.dirname(fPath);
         String fname = FileUtils.basename(fPath);
 
-        mkdirs(version, path, status);
+        version.getVersionFiles().addAll(mkdirs(version, path));
+        
+        ProjectFile cur = ProjectFile.findFile(project.getId(), fname,
+        		path, version.getRevisionId());
+        
+        if (containsPath(version, fPath)) {
+            return cur;
+        }
+        
         Directory dir = Directory.getDirectory(path, true);
         pf.setName(fname);
         pf.setDir(dir);
@@ -282,7 +293,9 @@ public class GitUpdater implements MetadataUpdater {
         }
         
         debug("Adding file " + pf);
-        dbs.addRecord(pf);
+        //dbs.addRecord(pf);
+        version.getVersionFiles().add(pf);
+
         return pf;
     }
     
@@ -290,71 +303,52 @@ public class GitUpdater implements MetadataUpdater {
      * Adds or updates directories leading to path. Similar to 
      * mkdir -p cmd line command.
      */
-    public List<ProjectFile> mkdirs(ProjectVersion pv, String path, ProjectFileState status) {
-        List<ProjectFile> dirs = new ArrayList<ProjectFile>();
-
-        String[] directories = path.split("/");
-        if (directories.length == 0) {
-            String[] tmp = {""};
-            directories = tmp;
-        }
-            
-        ProjectVersion previous = pv.getPreviousVersion();
+    public Set<ProjectFile> mkdirs(final ProjectVersion pv, String path) {
+    	Set<ProjectFile> files = new HashSet<ProjectFile>();
+    	String pathname = FileUtils.dirname(path);
+    	String filename = FileUtils.basename(path);
+    	
+    	ProjectVersion previous = pv.getPreviousVersion();
 
         if (previous == null) { // Special case for first version
             previous = pv;
         }
-
-        String constrPath = "/";
-
-        for (int i = 0; i < directories.length; i++) {
-            String name = null;
-            if (!directories[i].equals("")) //The first entry is always empty
-                name = directories[i];
-            else 
-                name = "";
-
-            ProjectFile prev = ProjectFile.findFile(project.getId(),
-            		name, constrPath, previous.getRevisionId());
-
-            ProjectFile cur = ProjectFile.findFile(project.getId(), name,
-            		constrPath, pv.getRevisionId());
-
-            //Check whether the directory has been re-added 
-            //while processing this revision
-            if (cur != null) {
-                continue;
-            }
-            
-            ProjectFile pf = new ProjectFile(pv);
-            pf.setDirectory(true);
-            pf.setDir(Directory.getDirectory(FileUtils.dirname(constrPath), true));
-            pf.setName(name);
-            
-            if (prev == null) {
-                //We don't have a previous version, so the dir 
-                //or the dir hierarchy from this dir upwards is new
-                pf.setState(ProjectFileState.added());
-            } else {
-                //We only need to affect the last path entry
-                if (i < directories.length - 1)
-                    pf.setState(status);
-            }
-
-            if (i < directories.length - 1)
-                constrPath += directories[i + 1];
-
-            dirs.add(pf);
-            debug("Adding directory " + pf);
+    	
+        //Check whether the directory has been re-added 
+        //while processing this revision
+        if (containsPath(pv, path)) {
+            return new HashSet<ProjectFile>();
         }
-        dbs.addRecords(dirs);
-        return dirs;
+        
+    	ProjectFile prev = ProjectFile.findFile(project.getId(),
+    			filename, pathname, previous.getRevisionId());
+    	
+    	ProjectFile pf = new ProjectFile(pv);
+    	
+    	if (prev == null) {
+            pf.setState(ProjectFileState.added());
+          //Recursion reached the root directory
+            if (!(pathname.equals("/") && filename.equals(""))) 
+            	files.addAll(mkdirs(pv, pathname));
+
+    	} else {
+    		pf.setState(ProjectFileState.modified());
+    	}
+    	
+        pf.setDirectory(true);
+        pf.setDir(Directory.getDirectory(pathname, true));
+        pf.setName(filename);
+        pf.setValidFrom(pv);
+        
+        files.add(pf);
+        debug("Adding directory " + pf);
+    	return files;
     }
     
     /**
      * Update the validUntil field after all files have been processed.
      */
-    private void updateValidUntil(ProjectVersion pv, List<ProjectFile> versionFiles) {
+    private void updateValidUntil(ProjectVersion pv, Set<ProjectFile> versionFiles) {
 
         ProjectVersion previous = pv.getPreviousVersion();
 
@@ -368,6 +362,15 @@ public class GitUpdater implements MetadataUpdater {
                 pf.setValidUntil(pv);
             }
         }
+    }
+    
+    private boolean containsPath(final ProjectVersion pv, String path) {
+  	
+    	for (ProjectFile pf : pv.getVersionFiles()) {
+    		if (pf.getFileName().equals(path))
+    			return true;
+    	}
+    	return false;
     }
     
     /**

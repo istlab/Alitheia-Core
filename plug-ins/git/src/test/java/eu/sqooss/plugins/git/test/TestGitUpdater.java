@@ -154,7 +154,7 @@ public class TestGitUpdater extends TestGitSetup {
         Revision from = git.getFirstRevision();
         Revision to = git.getNextRevision(from);
         
-        while (to.compareTo(git.newRevision("b7a7d204bad7de8696ac800c3d1e608bdc344a38")) < 0) {
+        while (to.compareTo(git.newRevision("94f389bf5d9af4511597d035e69d1be9510b50c7")) < 0) {
             ArrayList<ProjectFile> foundFiles = new ArrayList<ProjectFile>();
            
             System.err.println("Revision: " + from.getUniqueId());
@@ -176,7 +176,7 @@ public class TestGitUpdater extends TestGitSetup {
             //Compare repository files against database files
             while (tw.next()) {
                 String path = "/" + tw.getPathString();
-                System.err.println("Tree entry: " + path);
+                //System.err.println("Tree entry: " + path);
                 String basename = eu.sqooss.service.util.FileUtils.basename(path);
                 String dirname = eu.sqooss.service.util.FileUtils.dirname(path);
                 ProjectFile pf = ProjectFile.findFile(sp.getId(), basename, dirname, pv.getRevisionId());
