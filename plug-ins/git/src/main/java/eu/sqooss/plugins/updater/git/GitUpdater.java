@@ -308,19 +308,25 @@ public class GitUpdater implements MetadataUpdater {
             if (!directories[i].equals("")) //The first entry is always empty
                 name = directories[i];
             else 
-                name = "/";
+                name = "";
 
             ProjectFile prev = ProjectFile.findFile(project.getId(),
-                    constrPath, name, previous.getRevisionId());
+            		name, constrPath, previous.getRevisionId());
 
-            ProjectFile cur = ProjectFile.findFile(project.getId(), constrPath,
-                    name, pv.getRevisionId());
+            ProjectFile cur = ProjectFile.findFile(project.getId(), name,
+            		constrPath, pv.getRevisionId());
 
+            //Check whether the directory has been re-added 
+            //while processing this revision
+            if (cur != null) {
+                continue;
+            }
+            
             ProjectFile pf = new ProjectFile(pv);
             pf.setDirectory(true);
             pf.setDir(Directory.getDirectory(FileUtils.dirname(constrPath), true));
             pf.setName(name);
-
+            
             if (prev == null) {
                 //We don't have a previous version, so the dir 
                 //or the dir hierarchy from this dir upwards is new
@@ -334,10 +340,8 @@ public class GitUpdater implements MetadataUpdater {
             if (i < directories.length - 1)
                 constrPath += directories[i + 1];
 
-            //Check whether the directory has been re-added 
-            //while processing this revision
-            if (cur == null)
-                dirs.add(pf);
+            dirs.add(pf);
+            debug("Adding directory " + pf);
         }
         dbs.addRecords(dirs);
         return dirs;

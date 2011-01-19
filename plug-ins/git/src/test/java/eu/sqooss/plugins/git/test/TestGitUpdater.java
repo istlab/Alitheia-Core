@@ -179,7 +179,7 @@ public class TestGitUpdater extends TestGitSetup {
                 System.err.println("Tree entry: " + path);
                 String basename = eu.sqooss.service.util.FileUtils.basename(path);
                 String dirname = eu.sqooss.service.util.FileUtils.dirname(path);
-                ProjectFile pf = ProjectFile.findFile(sp.getId(), dirname, basename, pv.getRevisionId());
+                ProjectFile pf = ProjectFile.findFile(sp.getId(), basename, dirname, pv.getRevisionId());
                 assertNotNull(pf);
                 foundFiles.add(pf);
             }
@@ -189,8 +189,8 @@ public class TestGitUpdater extends TestGitSetup {
                 assertTrue(foundFiles.contains(pf));
             }
             
-            db.rollbackDBSession();
-            
+            //db.rollbackDBSession();
+            db.commitDBSession();
             tw.release();
             rw.release();
             from = to;
