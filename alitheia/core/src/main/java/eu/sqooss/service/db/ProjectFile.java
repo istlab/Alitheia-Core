@@ -589,6 +589,27 @@ public class ProjectFile extends DAObject{
         		.append(":").append(((getFileName()==null)?"":getFileName()))
         		.append(" (").append(getState()).append(")").toString();
     }
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if ((obj == null) || (obj.getClass() != this.getClass()))
+			return false;
+		ProjectFile test = (ProjectFile) obj;
+		return  (name != null && name.equals(test.name)) &&
+				(state != null && state.equals(test.state)) &&
+				dir != null	&& dir.equals(test.dir) &&
+				projectVersion != null && projectVersion.equals(test.projectVersion);
+	}
+
+	public int hashCode() {
+		int hash = 7;
+		hash = 31 * hash + name.hashCode();
+		hash = 31 * hash + (null == state ? 0 : state.hashCode());
+		hash = 31 * hash + (null == dir ? 0 : dir.hashCode());
+		hash = 31 * hash + (null == projectVersion ? 0 : projectVersion.hashCode());
+		return hash;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

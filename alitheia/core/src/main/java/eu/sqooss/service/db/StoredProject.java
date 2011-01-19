@@ -476,6 +476,21 @@ public class StoredProject extends DAObject {
     public String toString() {
         return getName();
     }
+    
+    public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if ((obj == null) || (obj.getClass() != this.getClass()))
+			return false;
+		StoredProject test = (StoredProject) obj;
+		return  (name != null && name.equals(test.name));
+	}
+
+	public int hashCode() {
+		int hash = 7;
+		hash = 31 * hash + (null == name ? 0 : name.hashCode());
+		return hash;
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -296,7 +297,11 @@ public class ProjectVersion extends DAObject {
      * Returns the files that were changed in this revision
      */
     public Set<ProjectFile> getVersionFiles() {
-        return versionFiles;
+    	if (versionFiles == null) {
+    		versionFiles = new HashSet<ProjectFile>();
+    	}
+    		
+    	return versionFiles;
     }
     
     public void setVersionFiles( Set<ProjectFile> versionFiles ) {
@@ -330,6 +335,9 @@ public class ProjectVersion extends DAObject {
     }
 
     public Set<ProjectVersionParent> getParents() {
+    	if (parents == null) {
+    		parents = new HashSet<ProjectVersionParent>();
+    	}
         return parents;
     }
 
@@ -871,6 +879,25 @@ public class ProjectVersion extends DAObject {
     	
     	return true;
     }
+    
+    public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if ((obj == null) || (obj.getClass() != this.getClass()))
+			return false;
+		ProjectVersion test = (ProjectVersion) obj;
+		return  (revisionId != null && revisionId.equals(test.revisionId)) &&
+				(timestamp != 0 && timestamp == test.timestamp) &&
+				project != null	&& project.equals(test.project);
+	}
+
+	public int hashCode() {
+		int hash = 7;
+		hash = 31 * hash + (int)timestamp;
+		hash = 31 * hash + (null == revisionId ? 0 : revisionId.hashCode());
+		hash = 31 * hash + (null == project ? 0 : project.hashCode());
+		return hash;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

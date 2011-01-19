@@ -155,6 +155,21 @@ public class Directory extends DAObject {
     public String toString() {
         return this.path;
     }
+    
+    public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if ((obj == null) || (obj.getClass() != this.getClass()))
+			return false;
+		Directory test = (Directory) obj;
+		return  (path != null && path.equals(test.path));
+	}
+
+	public int hashCode() {
+		int hash = 7;
+		hash = 31 * hash + (null == path ? 0 : path.hashCode());
+		return hash;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
