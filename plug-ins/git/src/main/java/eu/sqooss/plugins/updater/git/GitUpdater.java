@@ -125,11 +125,15 @@ public class GitUpdater implements MetadataUpdater {
             return;
         int numRevisions = 0;
 
-        // 2. Get commit log for dbversion < v < repohead
         CommitLog commitLog = git.getCommitLog("", from, to);
         if(!dbs.isDBSessionActive()) dbs.startDBSession();
 
         for (Revision entry : commitLog) {
+        	if (ProjectVersion.getVersionByRevision(project, entry.getUniqueId()) != null) {
+        		info("Skipping processed revision: " + entry.getUniqueId());
+        		continue;
+        	}
+        	
             ProjectVersion pv = processOneRevision(entry);
             List<ProjectFile> files = processRevisionFiles(git, entry, pv);
            

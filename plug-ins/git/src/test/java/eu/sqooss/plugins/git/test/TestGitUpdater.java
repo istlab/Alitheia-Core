@@ -189,11 +189,11 @@ public class TestGitUpdater extends TestGitSetup {
                 assertTrue(foundFiles.contains(pf));
             }
             
-            //db.rollbackDBSession();
             db.commitDBSession();
             tw.release();
             rw.release();
             from = to;
+            foundFiles.clear();
             to = git.getNextRevision(to);
         }
     }
