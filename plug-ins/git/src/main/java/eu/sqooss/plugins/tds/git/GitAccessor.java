@@ -381,6 +381,8 @@ public class GitAccessor implements SCMAccessor {
                 return SCMNodeType.FILE;
             case FileMode.TYPE_TREE:
                 return SCMNodeType.DIR;
+            case FileMode.TYPE_GITLINK: //A submodule is always a dir
+                return SCMNodeType.DIR;
             default:
                 return SCMNodeType.UNKNOWN;
             }
