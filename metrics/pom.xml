@@ -10,7 +10,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss</groupId>
   <artifactId>metrics</artifactId>
-
+  <version>0.95-SNAPSHOT</version>
   <name>Alitheia Core Metrics</name>
 
   <packaging>pom</packaging>
