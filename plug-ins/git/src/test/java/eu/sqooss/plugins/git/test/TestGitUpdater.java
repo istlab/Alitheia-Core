@@ -29,6 +29,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.DeveloperAlias;
 import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
@@ -181,14 +182,14 @@ public class TestGitUpdater extends TestGitSetup {
                 String basename = eu.sqooss.service.util.FileUtils.basename(path);
                 String dirname = eu.sqooss.service.util.FileUtils.dirname(path);
                 ProjectFile pf = ProjectFile.findFile(sp.getId(), basename, dirname, pv.getRevisionId());
-                assertNotNull(pf);
+                testVersionedProjectFile(pf);
                 foundFiles.add(pf);
             }
             
             //Check whether we have extra files in the revision
-            for (ProjectFile pf: pv.getFiles()) {
-                assertTrue(foundFiles.contains(pf));
-            }
+            //for (ProjectFile pf: pv.getFiles()) {
+            //    assertTrue(foundFiles.contains(pf));
+            //}
             
             db.commitDBSession();
             tw.release();
@@ -197,5 +198,30 @@ public class TestGitUpdater extends TestGitSetup {
             foundFiles.clear();
             to = git.getNextRevision(to);
         }
+    }
+    
+    //From this point forward, all methods assume an open db session
+    public void testVersionedProjectFile(ProjectFile pf) {
+    	assertNotNull(pf);
+    	//System.err.println("Testing file: " + pf);
+    	
+    	//Check that each file entry is accompanied with an enclosing directory
+    	//entry with an added or modified state
+    	ProjectFile dir = pf.getEnclosingDirectory();
+    	assertNotNull(dir);
+    	assertEquals(pf.getProjectVersion().getRevisionId(), pf.getProjectVersion().getRevisionId());
+    	assertTrue(dir.getState().getStatus() == ProjectFileState.STATE_MODIFIED || 
+    			dir.getState().getStatus() == ProjectFileState.STATE_ADDED);
+    	
+    	if (pf.isAdded()) {
+    		//Not much more to test...
+    		return;
+    	}
+    	
+    	//Check that old and new versions of a file point to the same path
+		ProjectFile old = pf.getPreviousFileVersion();
+		assertNotNull(old);
+		assertEquals(old.getFileName(), pf.getFileName());
+		assertEquals(old.getIsDirectory(), pf.getIsDirectory());
     }
 }
