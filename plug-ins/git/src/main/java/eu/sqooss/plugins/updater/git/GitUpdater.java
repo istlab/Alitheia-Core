@@ -298,7 +298,8 @@ public class GitUpdater implements MetadataUpdater {
             
             ProjectFile copyFrom = null;
             ProjectFile winner = null; 
-            
+            //dbs.addRecord(pf);
+
             for (ProjectFile f: tmpFiles) {
                 
                 if (!f.getFileName().equals(fpath)) { 
@@ -380,7 +381,6 @@ public class GitUpdater implements MetadataUpdater {
         }
         
         debug("addFile(): Adding entry " + pf + "(" + decided + ")");
-        //dbs.addRecord(pf);
         version.getVersionFiles().add(pf);
 
         return pf;
@@ -419,7 +419,7 @@ public class GitUpdater implements MetadataUpdater {
     	} else {
     		pf.setState(ProjectFileState.modified());
     	}
-    	
+
         pf.setDirectory(true);
         pf.setDir(Directory.getDirectory(pathname, true));
         pf.setName(filename);
