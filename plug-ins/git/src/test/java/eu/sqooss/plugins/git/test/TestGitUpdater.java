@@ -153,8 +153,9 @@ public class TestGitUpdater extends TestGitSetup {
         FileRepository local =  new FileRepository(repo);
         Revision from = git.getFirstRevision();
         Revision to = git.getNextRevision(from);
+        Revision upTo = git.newRevision("94f389bf5d9af4511597d035e69d1be9510b50c7");
         
-        while (to.compareTo(git.newRevision("94f389bf5d9af4511597d035e69d1be9510b50c7")) < 0) {
+        while (to.compareTo(upTo) < 0) {
             ArrayList<ProjectFile> foundFiles = new ArrayList<ProjectFile>();
            
             System.err.println("Revision: " + from.getUniqueId());

@@ -270,10 +270,15 @@ public class GitUpdater implements MetadataUpdater {
 
         version.getVersionFiles().addAll(mkdirs(version, path));
         
+        /* cur can point to either the current file version if the
+         * file has been processed before whithin this revision
+         * or the previous file version
+         */
         ProjectFile cur = ProjectFile.findFile(project.getId(), fname,
         		path, version.getRevisionId());
-        
-        if (containsPath(version, fPath)) {
+              
+        if (pathProcessedBefore(version, fPath) != null) {
+        	cur.setState(decideFileStatus(cur.getState(), status));
             return cur;
         }
         
@@ -285,14 +290,25 @@ public class GitUpdater implements MetadataUpdater {
         pf.setValidFrom(version);
         pf.setValidUntil(null);
         
-        if (t == SCMNodeType.DIR) {
+        SCMNodeType decided = null;
+        
+		if (t == SCMNodeType.UNKNOWN) {
+			if (status.getStatus() == ProjectFileState.STATE_DELETED)
+				decided = (cur.getIsDirectory() == true ? 
+						SCMNodeType.DIR : SCMNodeType.FILE);
+			else 
+				decided = SCMNodeType.DIR;
+		} else {
+			decided = t;
+		}
+
+        if (decided == SCMNodeType.DIR) {
             pf.setIsDirectory(true);
-            Directory.getDirectory(pf.getFileName(), true);
         } else {
             pf.setIsDirectory(false);
         }
         
-        debug("Adding file " + pf);
+        debug("addFile(): Adding entry " + pf + "(" + decided + ")");
         //dbs.addRecord(pf);
         version.getVersionFiles().add(pf);
 
@@ -316,8 +332,10 @@ public class GitUpdater implements MetadataUpdater {
     	
         //Check whether the directory has been re-added 
         //while processing this revision
-        if (containsPath(pv, path)) {
-            return new HashSet<ProjectFile>();
+        ProjectFile inRev = pathProcessedBefore(pv, path);
+        if (inRev != null) {
+        	inRev.setState(decideFileStatus(inRev.getState(), ProjectFileState.modified()));
+            return files;
         }
         
     	ProjectFile prev = ProjectFile.findFile(project.getId(),
@@ -341,7 +359,7 @@ public class GitUpdater implements MetadataUpdater {
         pf.setValidFrom(pv);
         
         files.add(pf);
-        debug("Adding directory " + pf);
+        debug("mkdirs(): Adding directory " + pf);
     	return files;
     }
     
@@ -363,16 +381,80 @@ public class GitUpdater implements MetadataUpdater {
             }
         }
     }
-    
-    private boolean containsPath(final ProjectVersion pv, String path) {
+        
+    /**
+     * This method finds previous recorded cases of paths within the same revision. 
+     */
+    private ProjectFile pathProcessedBefore(final ProjectVersion pv, String path) {
   	
     	for (ProjectFile pf : pv.getVersionFiles()) {
-    		if (pf.getFileName().equals(path))
-    			return true;
+    		if (pf.getFileName().equals(path)) {
+    			return pf;
+    		}
     	}
-    	return false;
+    	return null;
     }
     
+    /**
+     * A path can receive several types of processing within a revision. 
+     * For example, it could be deleted and then overwritten by another
+     * path that includes it or added and then deleted in the same
+     * revision. This method decides what the status of a file should
+     * be.
+     */
+	private ProjectFileState decideFileStatus(ProjectFileState prev,
+			ProjectFileState cur) {
+		switch (prev.getStatus()) {
+		case ProjectFileState.STATE_ADDED:
+			switch (cur.getStatus()) {
+			case ProjectFileState.STATE_ADDED:
+				return ProjectFileState.added();
+			case ProjectFileState.STATE_DELETED:
+				return ProjectFileState.deleted();
+			case ProjectFileState.STATE_MODIFIED:
+				return ProjectFileState.added();
+			case ProjectFileState.STATE_REPLACED:
+				return ProjectFileState.added();
+			}
+		case ProjectFileState.STATE_DELETED:
+			switch (cur.getStatus()) {
+			case ProjectFileState.STATE_ADDED:
+				return ProjectFileState.replaced();
+			case ProjectFileState.STATE_DELETED:
+				return ProjectFileState.deleted();
+			case ProjectFileState.STATE_MODIFIED:
+				return ProjectFileState.deleted();
+			case ProjectFileState.STATE_REPLACED:
+				return ProjectFileState.deleted();
+			}
+		case ProjectFileState.STATE_MODIFIED:
+			switch (cur.getStatus()) {
+			case ProjectFileState.STATE_ADDED:
+				return ProjectFileState.modified();
+			case ProjectFileState.STATE_DELETED:
+				return ProjectFileState.deleted();
+			case ProjectFileState.STATE_MODIFIED:
+				return ProjectFileState.modified();
+			case ProjectFileState.STATE_REPLACED:
+				return ProjectFileState.modified();
+			}
+		case ProjectFileState.STATE_REPLACED:
+			switch (cur.getStatus()) {
+			case ProjectFileState.STATE_ADDED:
+				return ProjectFileState.replaced();
+			case ProjectFileState.STATE_DELETED:
+				return ProjectFileState.deleted();
+			case ProjectFileState.STATE_MODIFIED:
+				return ProjectFileState.replaced();
+			case ProjectFileState.STATE_REPLACED:
+				return ProjectFileState.replaced();
+			}
+		}
+    	err("Function decideFileStatus() shouldn't reach this point");
+    	assert(false);
+    	return null;
+    }
+ 
     /**
      * This method should return a sensible representation of progress. 
      */
