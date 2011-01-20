@@ -31,8 +31,10 @@
 package eu.sqooss.plugins.updater.git;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.mail.internet.AddressException;
@@ -69,6 +71,20 @@ public class GitUpdater implements MetadataUpdater {
     private SCMAccessor git;
     private DBService dbs;
     private float progress;
+    
+    /* 
+     * State weights to use when evaluating duplicate project file entries
+     * in a single revision
+     */
+    private static Map<Integer, Integer> stateWeights ;
+    
+    static {
+        stateWeights = new HashMap<Integer, Integer>();
+        stateWeights.put(ProjectFileState.STATE_ADDED, 2);
+        stateWeights.put(ProjectFileState.STATE_MODIFIED, 4);
+        stateWeights.put(ProjectFileState.STATE_REPLACED, 8);
+        stateWeights.put(ProjectFileState.STATE_DELETED, 16);
+    }
     
     public GitUpdater() {}
 
@@ -137,9 +153,11 @@ public class GitUpdater implements MetadataUpdater {
         	}
         	
             ProjectVersion pv = processOneRevision(entry);
-            Set<ProjectFile> files = processRevisionFiles(git, entry, pv);
-           
-            updateValidUntil(pv, files);
+            processRevisionFiles(git, entry, pv);
+            
+            replayLog(pv);
+            
+            updateValidUntil(pv, pv.getVersionFiles());
 
             if (!dbs.commitDBSession()) {
                 warn("Intermediate commit failed, failing update");
@@ -240,10 +258,9 @@ public class GitUpdater implements MetadataUpdater {
         return d;
     }
     
-    private Set<ProjectFile> processRevisionFiles(SCMAccessor scm, Revision entry,
+    private void processRevisionFiles(SCMAccessor scm, Revision entry,
             ProjectVersion curVersion) throws InvalidRepositoryException {
-        Set<ProjectFile> files = new HashSet<ProjectFile>();
-        
+       
         for (String chPath : entry.getChangedPaths()) {
             
             SCMNodeType t = scm.getNodeType(chPath, entry);
@@ -251,10 +268,69 @@ public class GitUpdater implements MetadataUpdater {
             ProjectFile toAdd = addFile(curVersion, chPath,
                     ProjectFileState.fromPathChangeType(entry.getChangedPathsStatus().get(chPath)), 
                     t, null);
-            files.add(toAdd);
         }
-        return files;
     }
+    
+    private void replayLog(ProjectVersion curVersion) {
+    	 /*Find duplicate projectfile entries*/
+        HashMap<String, Integer> numOccurs = new HashMap<String, Integer>();
+        for (ProjectFile pf : curVersion.getVersionFiles()) {
+            if (numOccurs.get(pf.getFileName()) != null) {
+                numOccurs.put(pf.getFileName(), numOccurs.get(pf.getFileName()).intValue() + 1);
+            } else {
+                numOccurs.put(pf.getFileName(), 1);
+            }
+        }
+        
+        /* Copy list of files to be added to the DB in a tmp array,
+         * to use for iterating
+         */
+        List<ProjectFile> tmpFiles = new ArrayList<ProjectFile>();
+        tmpFiles.addAll(curVersion.getVersionFiles());
+        
+        for (String fpath : numOccurs.keySet()) {
+            if (numOccurs.get(fpath) <= 1) { 
+                continue;
+            }
+            debug("replayLog(): Multiple entries for file " + fpath);
+            
+            int points = 0;
+            
+            ProjectFile copyFrom = null;
+            ProjectFile winner = null; 
+            
+            for (ProjectFile f: tmpFiles) {
+                
+                if (!f.getFileName().equals(fpath)) { 
+                    continue;
+                }
+                
+                debug("  " + f);
+                
+                if (stateWeights.get(f.getState().getStatus()) > points) {
+                    points = stateWeights.get(f.getState().getStatus());
+                    if (winner != null)
+                    	curVersion.getVersionFiles().remove(winner);
+                    winner = f;
+                } else {
+                    curVersion.getVersionFiles().remove(f);
+                }
+                
+                if (f.getCopyFrom() != null) {
+                    copyFrom = f.getCopyFrom();
+                }
+            }
+            
+            /*Update file to be added to the DB with copy-from info*/
+            if (copyFrom != null) {
+            	curVersion.getVersionFiles().remove(winner);
+                winner.setCopyFrom(copyFrom);
+                curVersion.getVersionFiles().add(winner);
+            }
+            debug("replayLog(): Keeping file " + winner);
+        }
+    }
+    
     
     /**
      * Constructs a project file out of the provided elements and adds it
@@ -276,12 +352,7 @@ public class GitUpdater implements MetadataUpdater {
          */
         ProjectFile cur = ProjectFile.findFile(project.getId(), fname,
         		path, version.getRevisionId());
-              
-        if (pathProcessedBefore(version, fPath) != null) {
-        	cur.setState(decideFileStatus(cur.getState(), status));
-            return cur;
-        }
-        
+            
         Directory dir = Directory.getDirectory(path, true);
         pf.setName(fname);
         pf.setDir(dir);
@@ -329,13 +400,9 @@ public class GitUpdater implements MetadataUpdater {
         if (previous == null) { // Special case for first version
             previous = pv;
         }
-    	
-        //Check whether the directory has been re-added 
-        //while processing this revision
-        ProjectFile inRev = pathProcessedBefore(pv, path);
-        if (inRev != null) {
-        	inRev.setState(decideFileStatus(inRev.getState(), ProjectFileState.modified()));
-            return files;
+
+        if (pathProcessedBefore(pv, path) != null) {
+        	return files;
         }
         
     	ProjectFile prev = ProjectFile.findFile(project.getId(),
@@ -395,66 +462,6 @@ public class GitUpdater implements MetadataUpdater {
     	return null;
     }
     
-    /**
-     * A path can receive several types of processing within a revision. 
-     * For example, it could be deleted and then overwritten by another
-     * path that includes it or added and then deleted in the same
-     * revision. This method decides what the status of a file should
-     * be.
-     */
-	private ProjectFileState decideFileStatus(ProjectFileState prev,
-			ProjectFileState cur) {
-		switch (prev.getStatus()) {
-		case ProjectFileState.STATE_ADDED:
-			switch (cur.getStatus()) {
-			case ProjectFileState.STATE_ADDED:
-				return ProjectFileState.added();
-			case ProjectFileState.STATE_DELETED:
-				return ProjectFileState.deleted();
-			case ProjectFileState.STATE_MODIFIED:
-				return ProjectFileState.added();
-			case ProjectFileState.STATE_REPLACED:
-				return ProjectFileState.added();
-			}
-		case ProjectFileState.STATE_DELETED:
-			switch (cur.getStatus()) {
-			case ProjectFileState.STATE_ADDED:
-				return ProjectFileState.replaced();
-			case ProjectFileState.STATE_DELETED:
-				return ProjectFileState.deleted();
-			case ProjectFileState.STATE_MODIFIED:
-				return ProjectFileState.deleted();
-			case ProjectFileState.STATE_REPLACED:
-				return ProjectFileState.deleted();
-			}
-		case ProjectFileState.STATE_MODIFIED:
-			switch (cur.getStatus()) {
-			case ProjectFileState.STATE_ADDED:
-				return ProjectFileState.modified();
-			case ProjectFileState.STATE_DELETED:
-				return ProjectFileState.deleted();
-			case ProjectFileState.STATE_MODIFIED:
-				return ProjectFileState.modified();
-			case ProjectFileState.STATE_REPLACED:
-				return ProjectFileState.modified();
-			}
-		case ProjectFileState.STATE_REPLACED:
-			switch (cur.getStatus()) {
-			case ProjectFileState.STATE_ADDED:
-				return ProjectFileState.replaced();
-			case ProjectFileState.STATE_DELETED:
-				return ProjectFileState.deleted();
-			case ProjectFileState.STATE_MODIFIED:
-				return ProjectFileState.replaced();
-			case ProjectFileState.STATE_REPLACED:
-				return ProjectFileState.replaced();
-			}
-		}
-    	err("Function decideFileStatus() shouldn't reach this point");
-    	assert(false);
-    	return null;
-    }
- 
     /**
      * This method should return a sensible representation of progress. 
      */
