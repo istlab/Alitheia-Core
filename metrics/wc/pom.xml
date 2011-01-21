@@ -15,7 +15,7 @@
     <resources>
       <resource>
         <targetPath>eu/sqooss/service/db</targetPath>
-        <directory>src/main/java/${groupId}/${artifactId}/db</directory>
+        <directory>src/main/java/${project.groupId}/${project.artifactId}/db</directory>
         <includes>
           <include>**/*.xml</include>
         </includes>
@@ -31,7 +31,8 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
+        <version>2.2.0</version>
+	<extensions>true</extensions>
         <configuration>
           <instructions>
             <Export-Package>eu.sqooss.metrics.wc</Export-Package>

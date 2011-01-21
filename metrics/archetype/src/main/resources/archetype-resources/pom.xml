@@ -40,7 +40,8 @@
       <plugin>    
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
+        <version>2.2.0</version>
+	<extensions>true</extensions>
         <configuration>
           <instructions>
             <Export-Package>${groupId}.${artifactId}</Export-Package>
