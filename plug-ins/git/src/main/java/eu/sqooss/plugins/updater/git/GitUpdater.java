@@ -80,8 +80,9 @@ public class GitUpdater implements MetadataUpdater {
     
     static {
         stateWeights = new HashMap<Integer, Integer>();
-        stateWeights.put(ProjectFileState.STATE_ADDED, 2);
-        stateWeights.put(ProjectFileState.STATE_MODIFIED, 4);
+
+        stateWeights.put(ProjectFileState.STATE_MODIFIED, 2);
+        stateWeights.put(ProjectFileState.STATE_ADDED, 4);
         stateWeights.put(ProjectFileState.STATE_REPLACED, 8);
         stateWeights.put(ProjectFileState.STATE_DELETED, 16);
     }
@@ -322,6 +323,25 @@ public class GitUpdater implements MetadataUpdater {
                 }
             }
             
+            //Check whether a DELETED path is part of some path that has
+            //been modified later on and mark it REPLACED. This takes care
+            //of scenarios like the following:
+            // D /a/dir
+            // A /a/dir/other/file.txt
+            if (winner.getState().getStatus() == ProjectFileState.STATE_DELETED) {
+            	for (ProjectFile f: curVersion.getVersionFiles()) {
+            		if (!f.equals(winner) &&
+            			 f.getFileName().startsWith(winner.getFileName()) &&
+            			 f.getState().getStatus() != ProjectFileState.STATE_DELETED) {
+            			debug("Setting status of " + winner + " to " 
+            					+ ProjectFileState.replaced() + " as " +
+            					"file " + f + " uses its path");
+            			winner.setState(ProjectFileState.replaced());
+            			break;
+            		}
+            	}
+            }
+            
             /*Update file to be added to the DB with copy-from info*/
             if (copyFrom != null) {
             	curVersion.getVersionFiles().remove(winner);
@@ -400,10 +420,6 @@ public class GitUpdater implements MetadataUpdater {
         if (previous == null) { // Special case for first version
             previous = pv;
         }
-
-        if (pathProcessedBefore(pv, path) != null) {
-        	return files;
-        }
         
     	ProjectFile prev = ProjectFile.findFile(project.getId(),
     			filename, pathname, previous.getRevisionId());
@@ -412,7 +428,7 @@ public class GitUpdater implements MetadataUpdater {
     	
     	if (prev == null) {
             pf.setState(ProjectFileState.added());
-          //Recursion reached the root directory
+            //Recursion reached the root directory
             if (!(pathname.equals("/") && filename.equals(""))) 
             	files.addAll(mkdirs(pv, pathname));
 
