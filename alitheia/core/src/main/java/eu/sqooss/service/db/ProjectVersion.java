@@ -668,8 +668,8 @@ public class ProjectVersion extends DAObject {
             q.append(" and pv.id = :").append(paramVersionId);
             q.append(" and pv2.project.id = :").append(paramProjectId);
             q.append(" and pv3.project.id = :").append(paramProjectId);
-            q.append(" and pf.validFrom.id = pv2.id");
-            q.append(" and pf.validUntil.id = pv3.id");
+            q.append(" and ((pf.validFrom.id = pv2.id and pf.validUntil.id = pv3.id)");
+            q.append("     or (pf.validFrom.id = pv2.id and pf.validUntil.id is null))");
             q.append(" and pv2.sequence <= pv.sequence");
             q.append(" and pv3.sequence >= pv.sequence");
             
@@ -701,7 +701,7 @@ public class ProjectVersion extends DAObject {
         String paramState = "paramStatus";
 
         Map<String,Object> params = new HashMap<String,Object>();
-        StringBuffer q = new StringBuffer("select pf ");
+        StringBuffer q = new StringBuffer("select distinct pf ");
         
         if (this.sequence == ProjectVersion.getLastProjectVersion(this.project).sequence) {
             q.append(" from ProjectFile pf, ProjectVersion pv");
@@ -714,8 +714,8 @@ public class ProjectVersion extends DAObject {
             q.append(" and pv.id = :").append(paramVersionId);
             q.append(" and pv2.project.id = :").append(paramProjectId);
             q.append(" and pv3.project.id = :").append(paramProjectId);
-            q.append(" and pf.validFrom.id = pv2.id");
-            q.append(" and pf.validUntil.id = pv3.id");
+            q.append(" and ((pf.validFrom.id = pv2.id and pf.validUntil.id = pv3.id)");
+            q.append("     or (pf.validFrom.id = pv2.id and pf.validUntil.id is null))");
             q.append(" and pv2.sequence <= pv.sequence");
             q.append(" and pv3.sequence >= pv.sequence");
             
