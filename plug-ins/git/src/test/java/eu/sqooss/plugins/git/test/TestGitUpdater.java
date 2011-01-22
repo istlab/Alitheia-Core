@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -56,6 +57,14 @@ public class TestGitUpdater extends TestGitSetup {
         conProp.setProperty("hibernate.connection.host", "localhost");
         conProp.setProperty("hibernate.connection.dialect", "org.hibernate.dialect.HSQLDialect");
         conProp.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.DriverManagerConnectionProvider");
+        
+//        conProp.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
+//        conProp.setProperty("hibernate.connection.url", "jdbc:mysql://localhost/alitheiatest?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8");
+//        conProp.setProperty("hibernate.connection.username", "root");
+//        conProp.setProperty("hibernate.connection.password", "george");
+//        conProp.setProperty("hibernate.connection.host", "localhost");
+//        conProp.setProperty("hibernate.connection.dialect", "org.hibernate.dialect.MySQLInnoDBDialect");
+//        conProp.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.DriverManagerConnectionProvider");
 
         File root = new File(System.getProperty("user.dir"));
         File config = null;
@@ -183,13 +192,25 @@ public class TestGitUpdater extends TestGitSetup {
                 String dirname = eu.sqooss.service.util.FileUtils.dirname(path);
                 ProjectFile pf = ProjectFile.findFile(sp.getId(), basename, dirname, pv.getRevisionId());
                 testVersionedProjectFile(pf);
-                foundFiles.add(pf);
+                if (!pf.getIsDirectory())
+                	foundFiles.add(pf);
             }
             
-            //Check whether we have extra files in the revision
-            //for (ProjectFile pf: pv.getFiles()) {
-            //    assertTrue(foundFiles.contains(pf));
-            //}
+            List<ProjectFile> allfiles = pv.allFiles();
+            for (ProjectFile pf : allfiles) {
+            	if (!foundFiles.contains(pf)) {
+            		System.err.println("File " + pf + " not returned by allFiles()");
+            		assertTrue(false);
+            	}
+            }
+            
+            for (ProjectFile pf : foundFiles) {
+            	if (!allfiles.contains(pf)) {
+            		System.err.println("File " + pf + " not found in allFiles() result");
+            		assertTrue(false);
+            	}
+            		
+            }
             
             db.commitDBSession();
             tw.release();
