@@ -536,9 +536,25 @@ public class ProjectFile extends DAObject{
      * @return A list of ProjectFile objects matching the search arguments
      *  which can be empty if no matching files where found
      */
-    @SuppressWarnings("unchecked")
     public static ProjectFile findFile(Long projectId, String name,
             String path, String version) {
+    	return findFile(projectId, name, path, version, false);
+    }
+    
+    /**
+     * Return the latest file version matching the provided arguments
+     * 
+     * @param projectId The project to search for
+     * @param name The name of the file
+     * @param path The directory path this file resides in
+     * @param version The version number
+     * 
+     * @return A list of ProjectFile objects matching the search arguments
+     *  which can be empty if no matching files where found
+     */
+    @SuppressWarnings("unchecked")
+    public static ProjectFile findFile(Long projectId, String name,
+            String path, String version, boolean inclDeleted) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         List<ProjectFile> pfs = new ArrayList<ProjectFile>();
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -556,8 +572,9 @@ public class ProjectFile extends DAObject{
         
         query.append("select pf ");
         query.append("from ProjectFile pf, ProjectVersion pv, StoredProject sp, Directory d ");
-        query.append(" where pf.projectVersion = pv.id "); 
-        query.append(" and pf.state <> :").append(paramStatus); 
+        query.append(" where pf.projectVersion = pv.id ");
+        if (!inclDeleted)
+        	query.append(" and pf.state <> :").append(paramStatus); 
         query.append(" and pv.project.id = :").append(paramProjectId); 
         query.append(" and pf.name = :").append(paramName);
         query.append(" and pf.dir.id = d.id "); 
@@ -569,7 +586,8 @@ public class ProjectFile extends DAObject{
         query.append("    and pv1.project.id = :").append(paramProjectId).append(")");
         query.append(" order by pv.sequence desc");
 
-        parameters.put(paramStatus, ProjectFileState.deleted());        
+        if (!inclDeleted)
+        	parameters.put(paramStatus, ProjectFileState.deleted());        
         parameters.put(paramProjectId, projectId);
         parameters.put(paramName, name);
         parameters.put(paramPath, path);
