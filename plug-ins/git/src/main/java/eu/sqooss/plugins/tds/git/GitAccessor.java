@@ -382,7 +382,7 @@ public class GitAccessor implements SCMAccessor {
                 return SCMNodeType.UNKNOWN;
             
             FileMode fm = tw.getFileMode(0);
-            System.err.println(repoPath + ":" + fm);
+
             if (fm.equals(FileMode.REGULAR_FILE))
             	return SCMNodeType.FILE;
             if (fm.equals(FileMode.TREE))

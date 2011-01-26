@@ -167,7 +167,7 @@ public class TestGitUpdater extends TestGitSetup {
         
         while (to.compareTo(upTo) < 0) {
             ArrayList<ProjectFile> foundFiles = new ArrayList<ProjectFile>();
-           
+          
             System.err.println("Revision: " + from.getUniqueId());
             updater.updateFromTo(from, to);
 
@@ -199,7 +199,7 @@ public class TestGitUpdater extends TestGitSetup {
             List<ProjectFile> allfiles = pv.allFiles();
             for (ProjectFile pf : allfiles) {
             	if (!foundFiles.contains(pf)) {
-            		System.err.println("File " + pf + " not returned by allFiles()");
+            		System.err.println("File " + pf + " not in repository");
             		assertTrue(false);
             	}
             }
@@ -210,6 +210,8 @@ public class TestGitUpdater extends TestGitSetup {
             		assertTrue(false);
             	}
             }
+            
+            
             
             db.commitDBSession();
             tw.release();
@@ -241,6 +243,8 @@ public class TestGitUpdater extends TestGitSetup {
 		ProjectFile old = pf.getPreviousFileVersion();
 		assertNotNull(old);
 		assertEquals(old.getFileName(), pf.getFileName());
-		assertEquals(old.getIsDirectory(), pf.getIsDirectory());
+		if (old.getIsDirectory() != pf.getIsDirectory()) {
+			assertEquals(false, true);
+		}
     }
 }

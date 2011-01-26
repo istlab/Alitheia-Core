@@ -60,6 +60,7 @@ import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.util.FileUtils;
+import eu.sqooss.service.util.Pair;
 
 /**
  * A metadata updater converts raw data to Alitheia Core database metadata.
@@ -71,6 +72,17 @@ public class GitUpdater implements MetadataUpdater {
     private SCMAccessor git;
     private DBService dbs;
     private float progress;
+    
+    /*
+     * Possible set of valid file state transitions
+     */
+    private static List<Pair<Integer, Integer>> validStateTransitions;
+    
+    /*
+     * Heuristic fixes for invalid state transitions. They may or may not
+     * work, depending on the examined case.
+     */
+    private static Map<Integer, Integer> invTransitionFix;
     
     /* 
      * State weights to use when evaluating duplicate project file entries
@@ -85,6 +97,24 @@ public class GitUpdater implements MetadataUpdater {
         stateWeights.put(ProjectFileState.STATE_ADDED, 4);
         stateWeights.put(ProjectFileState.STATE_REPLACED, 8);
         stateWeights.put(ProjectFileState.STATE_DELETED, 16);
+        
+        validStateTransitions = new ArrayList<Pair<Integer,Integer>>();
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_MODIFIED, ProjectFileState.STATE_MODIFIED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_MODIFIED, ProjectFileState.STATE_DELETED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_ADDED, ProjectFileState.STATE_MODIFIED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_ADDED, ProjectFileState.STATE_DELETED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_DELETED, ProjectFileState.STATE_ADDED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_MODIFIED, ProjectFileState.STATE_REPLACED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_ADDED, ProjectFileState.STATE_REPLACED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_REPLACED, ProjectFileState.STATE_DELETED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_REPLACED, ProjectFileState.STATE_REPLACED));
+        validStateTransitions.add(new Pair(ProjectFileState.STATE_REPLACED, ProjectFileState.STATE_MODIFIED));
+        
+        invTransitionFix = new HashMap<Integer, Integer>();
+        invTransitionFix.put(ProjectFileState.STATE_MODIFIED, ProjectFileState.STATE_MODIFIED);
+        invTransitionFix.put(ProjectFileState.STATE_ADDED, ProjectFileState.STATE_MODIFIED);
+        invTransitionFix.put(ProjectFileState.STATE_DELETED, ProjectFileState.STATE_ADDED);
+        invTransitionFix.put(ProjectFileState.STATE_REPLACED, ProjectFileState.STATE_MODIFIED);
     }
     
     public GitUpdater() {}
@@ -394,7 +424,7 @@ public class GitUpdater implements MetadataUpdater {
             		if (!f.equals(winner) &&
             			 f.getFileName().startsWith(winner.getFileName()) &&
             			 f.getState().getStatus() != ProjectFileState.STATE_DELETED) {
-            			debug("Setting status of " + winner + " to " 
+            			debug("replayLog(): Setting status of " + winner + " to " 
             					+ ProjectFileState.replaced() + " as " +
             					"file " + f + " uses its path");
             			winner.setState(ProjectFileState.replaced());
@@ -413,7 +443,6 @@ public class GitUpdater implements MetadataUpdater {
             debug("replayLog(): Keeping file " + winner);
         }
     }
-    
     
     /**
      * Constructs a project file out of the provided elements and adds it
@@ -434,8 +463,18 @@ public class GitUpdater implements MetadataUpdater {
          * or the previous file version
          */
         ProjectFile cur = ProjectFile.findFile(project.getId(), fname,
-        		path, version.getRevisionId());
-            
+        		path, version.getRevisionId(), true);
+
+        if (cur != null && 
+        	!cur.getProjectVersion().getRevisionId().equals(version.getRevisionId()) &&
+        	!isValidStateTransition(cur.getState(), status)) {
+        	ProjectFileState newstatus = ProjectFileState.fromStatus(invTransitionFix.get(cur.getState().getStatus()));
+        	debug("addFile(): Invalid state transition (" + cur.getState() + 
+        			"->" + status + ") for path " + fPath + ". Setting " + 
+        			"status to " + newstatus);
+        	status = newstatus;
+        }
+        
         Directory dir = Directory.getDirectory(path, true);
         pf.setName(fname);
         pf.setDir(dir);
@@ -568,7 +607,20 @@ public class GitUpdater implements MetadataUpdater {
         }
         return files;
     }
-       
+    
+    /**
+     * Checks whether file state transitions are valid, at least for what 
+     * Alitheia Core expects.
+     */
+    private boolean isValidStateTransition(ProjectFileState a, ProjectFileState b) {
+    	for (Pair<Integer, Integer> p: validStateTransitions) {
+    		if (p.first == a.getStatus())
+    			if (p.second == b.getStatus())
+    				return true;
+    	}
+    	return false;
+    }
+    
     /**
      * This method should return a sensible representation of progress. 
      */
