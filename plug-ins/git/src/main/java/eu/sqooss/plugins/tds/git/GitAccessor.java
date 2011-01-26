@@ -561,7 +561,7 @@ public class GitAccessor implements SCMAccessor {
             return path;
         
         int i = 0;
-        while (path.charAt(i) == '/') {
+        while (i < path.length() && path.charAt(i) == '/') {
             i++;
         }
         return path.substring(i);
