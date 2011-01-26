@@ -238,13 +238,13 @@ public class GitAccessor implements SCMAccessor {
         throws InvalidProjectRevisionException {
         AnyObjectId revId;
         RevWalk rw = new RevWalk(git);
+        
         try {
             /*
-             * We say to JGit to return all commits whose timestamp is
+             * We tell JGit to return all commits whose timestamp is
              * after the provided revision date, but also in ascending
              * timestamp order (REVERSE strategy). 
              */
-            
             revId = git.resolve(Constants.HEAD);
             RevFilter exact = CommitTimeRevFilter.after(r.getDate());
             rw.sort(RevSort.REVERSE);
@@ -253,10 +253,22 @@ public class GitAccessor implements SCMAccessor {
                 throw new InvalidProjectRevisionException(
                         "r" + revId + " is not known", getClass());
             }
-            
+
             rw.markStart(rw.parseCommit(revId));
-            rw.next();
+            RevCommit start = rw.parseCommit(git.resolve(r.getUniqueId()));
             RevCommit next = rw.next();
+            
+            /*
+             * The following conditions take care of the extremely rare case
+             * where two commits share the exact same commit timestamp. The
+             * loop tries to find the first commit which is not the parent
+             * of the provided commit. May fail if more than 2 commits share
+             * the same timestamp.
+             */
+            while (next.equals(start) || 
+            		(start.getParentCount() > 0 && start.getParent(0).equals(next))) {
+            	next = rw.next();
+            }
             return getRevision(next);
             
         } catch (IOException e) {
