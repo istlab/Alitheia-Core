@@ -323,11 +323,18 @@ public class GitUpdater implements MetadataUpdater {
                 }
             }
             
-            //Check whether a DELETED path is part of some path that has
-            //been modified later on and mark it REPLACED. This takes care
-            //of scenarios like the following:
-            // D /a/dir
-            // A /a/dir/other/file.txt
+			/*
+			 * Check whether a DELETED path is part of some path that has been
+			 * modified later on and mark it REPLACED. Moreover, mark the
+			 * deleted file as a directory (JGit will return it as file).
+			 * This takes care of scenarios like the following: 
+			 * D /a/dir 
+			 * A /a/dir/other/file.txt
+			 * where a directory has been deleted and then a file has been 
+			 * added to a path that includes the directory. Such cases 
+			 * might indicated the replacement of a Git submodule with a
+			 * locally versioned path. 
+			 */
             if (winner.getState().getStatus() == ProjectFileState.STATE_DELETED) {
             	for (ProjectFile f: curVersion.getVersionFiles()) {
             		if (!f.equals(winner) &&
@@ -337,6 +344,7 @@ public class GitUpdater implements MetadataUpdater {
             					+ ProjectFileState.replaced() + " as " +
             					"file " + f + " uses its path");
             			winner.setState(ProjectFileState.replaced());
+            			winner.setIsDirectory(true);
             			break;
             		}
             	}
