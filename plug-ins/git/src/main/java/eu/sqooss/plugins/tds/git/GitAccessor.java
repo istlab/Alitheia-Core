@@ -371,21 +371,27 @@ public class GitAccessor implements SCMAccessor {
         RevTree a = resolveGitRev(r.getUniqueId()).getTree();
         TreeWalk tw = null;
         try {
-            tw = TreeWalk.forPath(git, toGitPath(repoPath), a);
+        	String path = toGitPath(repoPath);
+        	
+        	if (path.isEmpty()) //Only the root dir can have an empty path
+        		return SCMNodeType.DIR;
+        	
+            tw = TreeWalk.forPath(git, path, a);
             
             if (tw == null) 
                 return SCMNodeType.UNKNOWN;
             
-            switch(tw.getFileMode(0).getBits() & FileMode.TYPE_MASK) {
-            case FileMode.TYPE_FILE:
-                return SCMNodeType.FILE;
-            case FileMode.TYPE_TREE:
-                return SCMNodeType.DIR;
-            case FileMode.TYPE_GITLINK: //A submodule is always a dir
-                return SCMNodeType.DIR;
-            default:
-                return SCMNodeType.UNKNOWN;
-            }
+            FileMode fm = tw.getFileMode(0);
+            System.err.println(repoPath + ":" + fm);
+            if (fm.equals(FileMode.REGULAR_FILE))
+            	return SCMNodeType.FILE;
+            if (fm.equals(FileMode.TREE))
+            	return SCMNodeType.DIR;
+            if(fm.equals(FileMode.GITLINK))
+            	return SCMNodeType.DIR;
+            if (fm.equals(FileMode.SYMLINK))
+            	return SCMNodeType.FILE; //FIXME: Need to track down link target
+            
         } catch (Exception e) {
             warn("Path " + repoPath + " does not exist in revision " 
                     + r.getUniqueId() + ":" + e.getMessage());
