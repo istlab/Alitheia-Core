@@ -249,8 +249,8 @@ public class TestGitAccessor extends TestGitSetup {
         Revision r = l.iterator().next();
         assertEquals(r.getUniqueId(), "55a5e323d241cfbd5a59d9a440c506b24b4c255a");
         
-        assertTrue(r.getChangedPaths().contains(".gitignore"));
-        assertTrue(r.getChangedPaths().contains("Rakefile"));
+        assertTrue(r.getChangedPaths().contains("/.gitignore"));
+        assertTrue(r.getChangedPaths().contains("/Rakefile"));
 
         //Get the full log
         r1 = git.newRevision("f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
@@ -260,7 +260,8 @@ public class TestGitAccessor extends TestGitSetup {
     }
 
     @Test
-    public void testGetNodeType() throws InvalidRepositoryException {
+    public void testGetNodeType() throws InvalidRepositoryException, MissingObjectException, 
+    IncorrectObjectTypeException, CorruptObjectException, IOException {
         Revision r = git.newRevision("ab20a674e50268b6c541949c746d77b16a26d15c");
         
         //Basic checks
