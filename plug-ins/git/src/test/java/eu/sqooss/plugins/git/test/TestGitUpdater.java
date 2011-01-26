@@ -195,7 +195,7 @@ public class TestGitUpdater extends TestGitSetup {
                 if (!pf.getIsDirectory())
                 	foundFiles.add(pf);
             }
-            
+
             List<ProjectFile> allfiles = pv.allFiles();
             for (ProjectFile pf : allfiles) {
             	if (!foundFiles.contains(pf)) {
@@ -203,13 +203,12 @@ public class TestGitUpdater extends TestGitSetup {
             		assertTrue(false);
             	}
             }
-            
+
             for (ProjectFile pf : foundFiles) {
             	if (!allfiles.contains(pf)) {
             		System.err.println("File " + pf + " not found in allFiles() result");
             		assertTrue(false);
             	}
-            		
             }
             
             db.commitDBSession();
@@ -220,7 +219,7 @@ public class TestGitUpdater extends TestGitSetup {
             to = git.getNextRevision(to);
         }
     }
-    
+
     //From this point forward, all methods assume an open db session
     public void testVersionedProjectFile(ProjectFile pf) {
     	assertNotNull(pf);
@@ -231,11 +230,10 @@ public class TestGitUpdater extends TestGitSetup {
     	ProjectFile dir = pf.getEnclosingDirectory();
     	assertNotNull(dir);
     	assertEquals(pf.getProjectVersion().getRevisionId(), pf.getProjectVersion().getRevisionId());
-    	assertTrue(dir.getState().getStatus() == ProjectFileState.STATE_MODIFIED || 
-    			dir.getState().getStatus() == ProjectFileState.STATE_ADDED);
+    	assertFalse(dir.getState().getStatus() == ProjectFileState.STATE_DELETED);
     	
     	if (pf.isAdded()) {
-    		//Not much more to test...
+    		//Not much to test...
     		return;
     	}
     	
