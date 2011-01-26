@@ -17,6 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -261,7 +270,7 @@ public class TestGitAccessor extends TestGitSetup {
 
     @Test
     public void testGetNodeType() throws InvalidRepositoryException, MissingObjectException, 
-    IncorrectObjectTypeException, CorruptObjectException, IOException {
+    IncorrectObjectTypeException, CorruptObjectException, IOException, URISyntaxException {
         Revision r = git.newRevision("ab20a674e50268b6c541949c746d77b16a26d15c");
         
         //Basic checks
@@ -280,6 +289,39 @@ public class TestGitAccessor extends TestGitSetup {
         t = git.getNodeType("/", r);
         assertNotNull(t);
         assertEquals(SCMNodeType.DIR, t);
+        
+        //JGit bug specific test, to check whether new versions will fix it
+        initTestRepo();
+        r = git.newRevision("b18bca3b853dee6a7bc86f09921aa3b1ee3f3d7b");
+        
+        RevWalk rw = new RevWalk(local);
+        ObjectId treeId = local.resolve("5df04c8b946ef9c1f31bf8e722a9262b512c1928");
+        RevTree tree = rw.parseTree(treeId);
+        
+        final TreeWalk walk = new TreeWalk(local);
+		walk.setRecursive(false);
+		walk.addTree(tree);
+		
+		FileMode a = null, b = null;
+		
+		while (walk.next()) {
+			String pathstr = walk.getPathString();
+			if (pathstr.equals("working")) {
+				a = walk.getFileMode(0);
+				break;
+			}
+		}
+
+		assertNotNull(a);
+		assertEquals(a, FileMode.TREE);
+		
+		RevCommit c = rw.parseCommit(local.resolve("b18bca3b853dee6a7bc86f09921aa3b1ee3f3d7b"));
+		TreeWalk tw = TreeWalk.forPath(local, "tests/files/working", c.getTree());
+		b = tw.getFileMode(0);
+		
+		assertNotNull(b);
+		assertEquals(b, FileMode.REGULAR_FILE);
+		assertFalse(a.equals(b));
     }
     
     @Test

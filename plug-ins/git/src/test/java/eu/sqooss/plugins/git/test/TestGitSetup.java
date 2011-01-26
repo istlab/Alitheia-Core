@@ -11,7 +11,6 @@ import org.eclipse.jgit.dircache.DirCacheCheckout;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefUpdate;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -29,7 +28,7 @@ import eu.sqooss.service.tds.AccessorException;
 public class TestGitSetup {
 
     public static String projectName = "ruby-git";
-    public static Repository local;
+    public static FileRepository local;
     public static SimpleDateFormat sdf;
     public static String url = "git://github.com/schacon/ruby-git.git";
     public static String localrepo = System.getProperty("user.dir") + "/test";
@@ -38,7 +37,7 @@ public class TestGitSetup {
     
     public static void initTestRepo() throws IOException, URISyntaxException {
         File repo = new File(localrepo, Constants.DOT_GIT);
-        FileRepository local =  new FileRepository(repo);
+        local =  new FileRepository(repo);
         sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
         
         if (repo.exists())
