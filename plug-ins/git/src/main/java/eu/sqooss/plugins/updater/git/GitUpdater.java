@@ -266,9 +266,63 @@ public class GitUpdater implements MetadataUpdater {
             
             SCMNodeType t = scm.getNodeType(chPath, entry);
 
-            ProjectFile toAdd = addFile(curVersion, chPath,
+            ProjectFile file = addFile(curVersion, chPath,
                     ProjectFileState.fromPathChangeType(entry.getChangedPathsStatus().get(chPath)), 
                     t, null);
+            /*
+             * Before entering the next block, examine whether the deleted
+             * file was a directory or not. If there is no path entry in the
+             * Directory table for the processed file path, this means that
+             * the path is definitely not a directory. If there is such an
+             * entry, it may be shared with another project; this case is
+             * examined upon entering
+             */
+            if (file.isDeleted() && (Directory.getDirectory(chPath, false) != null)) {
+                /*
+                 * Directories, when they are deleted, do not have type DIR,
+                 * but something else. So we need to check on deletes
+                 * whether this name was most recently a directory.
+                 */
+                ProjectFile lastVersion = file.getPreviousFileVersion();
+                
+                /*
+                 * If a directory is deleted and its previous incarnation cannot
+                 * be found in a previous revision, this means that the
+                 * directory is deleted in the same revision it was added
+                 * (probably copied first)! Search in the current
+                 * revision files then.
+                 */
+                boolean delAfterCopy = false;
+                if (lastVersion == null) {
+                    for (ProjectFile pf : curVersion.getVersionFiles()) {
+                        if (pf.getFileName().equals(file.getFileName())
+                                && pf.getIsDirectory()
+                                && pf.isAdded()) {
+                            lastVersion = pf;
+                            delAfterCopy = true;
+                            break;
+                        }
+                    }
+                }
+                    
+                /* If a dir was deleted, mark all children as deleted */
+                if (lastVersion != null
+                        && lastVersion.getIsDirectory()) {
+                    // In spite of it not being marked as a directory
+                    // in the node tree right now.
+                    file.setIsDirectory(true);
+                } else if (!delAfterCopy) {
+                    warn("Cannot find previous version of DELETED" +
+                                " directory " + file.getFileName());
+                }
+                
+                if (!delAfterCopy) {
+                    curVersion.getVersionFiles().addAll(handleDirDeletion(file, curVersion));
+                } else {
+                	warn("FIXME: DELETED DIRECTORY AFTER COPY");
+                    //handleCopiedDirDeletion(toAdd);
+                }
+            }
         }
     }
     
@@ -472,20 +526,49 @@ public class GitUpdater implements MetadataUpdater {
             }
         }
     }
-        
-    /**
-     * This method finds previous recorded cases of paths within the same revision. 
-     */
-    private ProjectFile pathProcessedBefore(final ProjectVersion pv, String path) {
-  	
-    	for (ProjectFile pf : pv.getVersionFiles()) {
-    		if (pf.getFileName().equals(path)) {
-    			return pf;
-    		}
-    	}
-    	return null;
-    }
     
+    /**
+     * Mark the contents of a directory as DELETED when the directory has been
+     * DELETED
+     * 
+     * @param pf The project file representing the deleted directory
+     */
+    private Set<ProjectFile> handleDirDeletion(final ProjectFile pf, final ProjectVersion pv) {
+    	Set<ProjectFile> files = new HashSet<ProjectFile>();
+
+		if (pf == null || pv == null) {
+			return files;
+		}
+        
+        if (pf.getIsDirectory() == false) {
+            return files;
+        }
+        
+        debug("Deleting directory " + pf.getFileName() + " ID "
+                + pf.getId());
+        Directory d = Directory.getDirectory(pf.getFileName(), false);
+        if (d == null) {
+            warn("Directory entry " + pf.getFileName() + " in project "
+                    + pf.getProjectVersion().getProject().getName()
+                    + " is missing in Directory table.");
+            return files;
+        }
+
+        ProjectVersion prev = pv.getPreviousVersion();
+        
+        List<ProjectFile> dirFiles = prev.getFiles(d);
+        
+        for (ProjectFile f : dirFiles) {
+            if (f.getIsDirectory()) {
+                files.addAll(handleDirDeletion(f, pv));
+            }
+            ProjectFile deleted = new ProjectFile(f, pv);
+            deleted.setState(ProjectFileState.deleted());
+            files.add(deleted);
+        }
+        return files;
+    }
+       
     /**
      * This method should return a sensible representation of progress. 
      */
