@@ -36,7 +36,6 @@ package eu.sqooss.impl.service.webadmin;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -55,14 +54,8 @@ import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.SchedulerException;
-import eu.sqooss.service.tds.BTSAccessor;
-import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.MailAccessor;
-import eu.sqooss.service.tds.ProjectAccessor;
-import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdateTarget;
 
 public class ProjectsView extends AbstractView {
