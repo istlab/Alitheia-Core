@@ -44,34 +44,37 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import org.osgi.framework.BundleContext;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.AdminAction.AdminActionStatus;
+import eu.sqooss.service.admin.actions.AddProject;
+import eu.sqooss.service.admin.actions.RunTimeInfo;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 
 /**
  * Implementation of the {@link AdminService} interface. Tracks all submitted
- * actions and uses a background thread to delete old ones. Also serves as a
- * REST api producer for the admin service, through optional registration with
- * the REST service.
- * 
+ * actions and uses a background thread to delete old ones. 
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
- * 
  */
 @Path("/api")
 public class AdminServiceImpl extends Thread implements AdminService {
 
-    Map<String, Class<? extends AdminAction>> services;
+	static {
+		services = new HashMap<String, Class<? extends AdminAction>>();
+	}
+	
+    static Map<String, Class<? extends AdminAction>> services;
     ConcurrentMap<Long, ActionContainer> liveactions;
     AtomicLong id;
 
     Logger log;
 
     public AdminServiceImpl() {
-        services = new HashMap<String, Class<? extends AdminAction>>();
         liveactions = new ConcurrentHashMap<Long, ActionContainer>();
         id = new AtomicLong();
         if (AlitheiaCore.getInstance() != null)
@@ -79,6 +82,11 @@ public class AdminServiceImpl extends Thread implements AdminService {
         start();
     }
 
+    public static void registerAction(String uniq,
+            Class<? extends AdminAction> clazz) {
+    	services.put(uniq, clazz);
+    }
+    
     @Override
     public void registerAdminAction(String uniq,
             Class<? extends AdminAction> clazz) {
@@ -252,4 +260,20 @@ public class AdminServiceImpl extends Thread implements AdminService {
         if (log != null)
             log.info(msg);
     }
+
+	@Override
+	public boolean startUp() {
+		services.put(AddProject.MNEMONIC, AddProject.class);
+		services.put(RunTimeInfo.MNEMONIC, RunTimeInfo.class);
+		return true;
+	}
+
+	@Override
+	public void shutDown() {
+	}
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+		log = l;
+	}
 }
