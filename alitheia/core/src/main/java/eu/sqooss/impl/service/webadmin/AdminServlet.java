@@ -236,16 +236,6 @@ public class AdminServlet extends HttpServlet {
         }
     }
     
-    private void projectFailed (String project, String error, String reason) {
-        final String tryAgain = "<p><p><a href=\"/projects\">Try again</a>.</p></p>";
-        
-        
-        logger.warn("Error adding project " + project);
-        vc.put("RESULTS", "<p><b>ERROR:</b> " + error + "</p>" +
-                  "<p><b>REASON:</b> "  + reason + "</p>"
-                + tryAgain);
-    }
-
     /**
      * Sends a resource (stored in the jar file) as a response. The mime-type
      * is set to @p mimeType . The @p path to the resource should start
