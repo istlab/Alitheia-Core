@@ -32,6 +32,8 @@ package eu.sqooss.service.admin;
 
 import java.util.Set;
 
+import eu.sqooss.core.AlitheiaCoreService;
+
 /**
  * A service that contains and executes administrative actions on behalf of
  * clients. 
@@ -39,7 +41,7 @@ import java.util.Set;
  * @author Georgios Gousios <gousiosg@gmail.com>
  * 
  */
-public interface AdminService {
+public interface AdminService extends AlitheiaCoreService {
     
     /**
      * Get a list of instances of all administrative actions
