@@ -499,7 +499,7 @@ public class ProjectsView extends AbstractView {
                     String lastVersion = getLbl("l0051");
                     ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
                     if (v != null) {
-                        lastVersion = v.getRevisionId();
+                        lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
                     }
                     b.append(sp(in) + "<td class=\"trans\">"
                             + lastVersion
