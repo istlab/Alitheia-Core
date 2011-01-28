@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.service.admin.AdminActionBase;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
@@ -59,11 +62,13 @@ import eu.sqooss.service.updater.UpdaterService;
  */
 public class AddProject extends AdminActionBase {
 
+	public static final String MNEMONIC = "addpr";
+	
     Properties p;
     
     @Override
     public String mnemonic() {
-        return "addpr";
+        return MNEMONIC;
     }
 
     @Override
@@ -74,25 +79,27 @@ public class AddProject extends AdminActionBase {
     @Override
     public void execute() throws Exception {
         super.execute();
-        String name = null, bts = null, scm = null, mail = null;
+        String name = null, bts = null, scm = null, mail = null, contact = null, web = null;
         DBService db = AlitheiaCore.getInstance().getDBService();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         
         if (args.containsKey("dir")) { 
             addProjectDir(args.get("dir").toString());
         } else {
-            name = (args.get("name") == null)?null:args.get("name").toString();
-            bts = (args.get("bts") == null)?null:args.get("bts").toString();
-            scm = (args.get("scm") == null)?null:args.get("scm").toString();
-            mail = (args.get("mail") == null)?null:args.get("mail").toString();
+            name = (args.get("name") == null)?"":args.get("name").toString();
+            bts = (args.get("bts") == null)?"":args.get("bts").toString();
+            scm = (args.get("scm") == null)?"":args.get("scm").toString();
+            mail = (args.get("mail") == null)?"":args.get("mail").toString();
+            contact = (args.get("contact") == null)?"":args.get("contact").toString();
+            web = (args.get("web") == null)?"":args.get("web").toString();
             
-            Properties p = new Properties();
-            p.put(ConfigOption.PROJECT_NAME, name);
-            p.put(ConfigOption.PROJECT_WEBSITE, args.get("website").toString());
-            p.put(ConfigOption.PROJECT_CONTACT, args.get("contact").toString());
-            p.put(ConfigOption.PROJECT_BTS_URL, bts);
-            p.put(ConfigOption.PROJECT_ML_URL, mail);
-            p.put(ConfigOption.PROJECT_SCM_URL, scm);   
+            p = new Properties();
+            p.put(ConfigOption.PROJECT_NAME.getName(), name);
+            p.put(ConfigOption.PROJECT_WEBSITE.getName(), web);
+            p.put(ConfigOption.PROJECT_CONTACT.getName(), contact);
+            p.put(ConfigOption.PROJECT_BTS_URL.getName(), bts);
+            p.put(ConfigOption.PROJECT_ML_URL.getName(), mail);
+            p.put(ConfigOption.PROJECT_SCM_URL.getName(), scm);   
         }
 
         // Avoid missing-entirely kinds of parameters.
@@ -169,12 +176,18 @@ public class AddProject extends AdminActionBase {
        
         tds.addAccessor(sp.getId(), sp.getName(), sp.getBtsUrl(), sp.getMailUrl(), 
                 sp.getScmUrl());
+
+        ClusterNodeProject cnp = new ClusterNodeProject();
+        cnp.setProject(sp);
+        cnp.setNode(ClusterNode.thisNode());
+        
+        db.addRecord(cnp);
         
         log("Added a new project <" + name + "> with ID " + sp.getId());
         
         if (args.get("update") != null)
             AlitheiaCore.getInstance().getUpdater().update(sp, UpdaterService.UpdateTarget.STAGE1);
-                
+        
         finished();
     }
     

@@ -36,6 +36,7 @@ import eu.sqooss.service.scheduler.SchedulerStats;
 
 public class RunTimeInfo extends AdminActionBase {
 
+    public static final String MNEMONIC = "rti";
     private static final String descr = "Returns misc runtime information";
 
     public RunTimeInfo() {
@@ -44,7 +45,7 @@ public class RunTimeInfo extends AdminActionBase {
 
     @Override
     public String mnemonic() {
-        return "rti";
+        return MNEMONIC;
     }
 
     @Override
