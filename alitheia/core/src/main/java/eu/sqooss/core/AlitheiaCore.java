@@ -50,6 +50,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 
+import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
@@ -61,6 +62,7 @@ import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
+import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
@@ -125,6 +127,7 @@ public class AlitheiaCore implements ServiceListener {
     	services.add(UpdaterService.class);
     	services.add(WebadminService.class);
     	services.add(RestService.class);
+    	services.add(AdminService.class);
     	
     	implementations.put(LogManager.class, LogManagerImpl.class);
     	implementations.put(DBService.class, DBServiceImpl.class);	 
@@ -137,6 +140,7 @@ public class AlitheiaCore implements ServiceListener {
     	implementations.put(UpdaterService.class, UpdaterServiceImpl.class);
     	implementations.put(WebadminService.class, WebadminServiceImpl.class);
         implementations.put(RestService.class, ResteasyServiceImpl.class);
+    	implementations.put(AdminService.class, AdminServiceImpl.class);
     }
    
     /**
@@ -423,6 +427,15 @@ public class AlitheiaCore implements ServiceListener {
      */
     public MetricActivator getMetricActivator() {
     	return (MetricActivator)instances.get(MetricActivator.class);
+    }
+    
+    /**
+     * Returns the locally stored Administration Service component's instance.
+     * 
+     * @return The Administration Service component's instance.
+     */
+    public AdminService getAdminService() {
+    	return (AdminService)instances.get(AdminService.class);
     }
     
 	@Override
