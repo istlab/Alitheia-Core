@@ -75,6 +75,13 @@ public abstract class AdminActionBase implements AdminAction {
     }
     
     @Override
+    public final void addArg(String key, Object value) {
+    	if (args == null)
+    		args = new HashMap<String, Object>();
+    	args.put(key, value);
+    }
+    
+    @Override
     public final void setArgs(Map<String, Object> args) {
         this.args = args;
     }

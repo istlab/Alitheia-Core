@@ -40,17 +40,27 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Admin actions are identified by a short mnemonic. The long description
  * should report all returned fields and error codes.
  * 
- * This interface does not support execution of actions as it would enable
- * clients to perform the execution themselves. Implementations should
- * implement the private {@link ExecutableAdminAction} interface instead. 
- * 
  * @author Georgios Gousios <gousiosg@gmail.com>
- * 
  */
 @XmlRootElement(name="action")
 public interface AdminAction {
     
+	/**
+	 * Add an argument to the list of the action's arguments. Overrides
+	 * previously set arguments with the same key. Does not have any effect if
+	 * {@link #execute()} has been called.
+	 */
+	void addArg(String key, Object value);
+	
+	/**
+	 * Set all action arguments, overriding previously set ones. Does not have
+	 * any effect if {@link #execute()} has been called.
+	 */
     void setArgs(Map<String, Object> args);
+    
+    /**
+     * Execute the administrative action.
+     */
     void execute() throws Exception;
     void setId(Long id);
     
