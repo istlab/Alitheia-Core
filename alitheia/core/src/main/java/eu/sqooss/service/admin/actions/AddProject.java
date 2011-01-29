@@ -247,7 +247,7 @@ public class AddProject extends AdminActionBase {
         p.setProperty(ConfigOption.PROJECT_ML_URL.getName(), 
                 "maildir://" + f.getParentFile().getAbsolutePath() + "/mail");
         
-        for (File file: f.listFiles()) {
+        for (File file: infoFile.listFiles()) {
             if (!file.isDirectory())
                 continue;
             

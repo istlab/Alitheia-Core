@@ -35,6 +35,9 @@ package eu.sqooss.impl.service.webadmin;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.util.Pair;
@@ -221,7 +224,11 @@ public class AdminServlet extends HttpServlet {
                 //addProject(request);
                 sendPage(response, request, "/results.html");
             } else if (query.startsWith("/diraddproject")) {
-                //addProjectDir(request);
+                AdminService as = AlitheiaCore.getInstance().getAdminService();
+                AdminAction aa = as.create(AddProject.MNEMONIC);
+                aa.addArg("dir", request.getParameter("properties"));
+                as.execute(aa);
+                
                 sendPage(response, request, "/results.html");
             } else {
                 doGet(request,response);
