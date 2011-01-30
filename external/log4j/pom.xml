@@ -12,7 +12,7 @@
     <bundle.symbolicName>log4j</bundle.symbolicName>
     <wrapped.groupId>log4j</wrapped.groupId>
     <wrapped.artifactId>log4j</wrapped.artifactId>
-    <wrapped.version>1.2.15</wrapped.version>
+    <wrapped.version>1.2.16</wrapped.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
@@ -42,7 +42,10 @@
               <groupId>com.sun.jmx</groupId>
               <artifactId>jmxri</artifactId>
           </exclusion>
-
+          <exclusion>
+              <groupId>com.ibm.uvm</groupId>
+              <artifactId>tools</artifactId>
+          </exclusion>
       </exclusions>
   </dependency>
   </dependencies>
