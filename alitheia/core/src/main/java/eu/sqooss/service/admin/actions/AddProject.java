@@ -15,6 +15,7 @@ import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.BTSAccessor;
+import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
@@ -85,6 +86,13 @@ public class AddProject extends AdminActionBase {
         
         if (args.containsKey("dir")) { 
             addProjectDir(args.get("dir").toString());
+            
+            name = p.getProperty(ConfigOption.PROJECT_NAME.getName());
+            bts = p.getProperty(ConfigOption.PROJECT_BTS_URL.getName());
+            scm = p.getProperty(ConfigOption.PROJECT_SCM_URL.getName());
+            mail = p.getProperty(ConfigOption.PROJECT_ML_URL.getName());
+            contact = p.getProperty(ConfigOption.PROJECT_CONTACT.getName());
+            web = p.getProperty(ConfigOption.PROJECT_WEBSITE.getName());
         } else {
             name = (args.get("name") == null)?"":args.get("name").toString();
             bts = (args.get("bts") == null)?"":args.get("bts").toString();
@@ -99,7 +107,7 @@ public class AddProject extends AdminActionBase {
             p.put(ConfigOption.PROJECT_CONTACT.getName(), contact);
             p.put(ConfigOption.PROJECT_BTS_URL.getName(), bts);
             p.put(ConfigOption.PROJECT_ML_URL.getName(), mail);
-            p.put(ConfigOption.PROJECT_SCM_URL.getName(), scm);   
+            p.put(ConfigOption.PROJECT_SCM_URL.getName(), scm);
         }
 
         // Avoid missing-entirely kinds of parameters.
@@ -149,8 +157,10 @@ public class AddProject extends AdminActionBase {
             }
         } catch (InvalidRepositoryException ire) {
             error("tds.scm.url", "No appropriate accessor for repository URI: "+ scm);
-        } catch (Exception ex) {
-            error("tds.scm.url", "No appropriate accessor for repository URI: "+ scm);
+        } catch (InvalidAccessorException iae) {
+            error("tds", "Invalid accessor: "+ iae.getAccessorURI());
+        } catch (Exception e) {
+        	error("tds", "Accessor failed: "+ e.getMessage());
         } finally {
             tds.releaseAccessor(a);
         }
@@ -188,7 +198,7 @@ public class AddProject extends AdminActionBase {
         if (args.get("update") != null)
             AlitheiaCore.getInstance().getUpdater().update(sp, UpdaterService.UpdateTarget.STAGE1);
         
-        finished();
+        finished("Project addded succesfully");
     }
     
     private void addProjectDir(String info) throws Exception {

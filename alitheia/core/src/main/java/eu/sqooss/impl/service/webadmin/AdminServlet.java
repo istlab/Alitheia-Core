@@ -228,7 +228,10 @@ public class AdminServlet extends HttpServlet {
                 AdminAction aa = as.create(AddProject.MNEMONIC);
                 aa.addArg("dir", request.getParameter("properties"));
                 as.execute(aa);
-                
+                if (aa.hasErrors())
+                	vc.put("RESULTS", aa.errors());
+                else
+                	vc.put("RESULTS", aa.results());
                 sendPage(response, request, "/results.html");
             } else {
                 doGet(request,response);
