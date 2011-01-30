@@ -109,16 +109,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.5.8</version>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.8</version>
+      <groupId>eu.sqooss.external</groupId>
+      <artifactId>org.hibernate</artifactId>
+      <version>3.5.1-Final</version>
       <type>jar</type>
       <scope>test</scope>
     </dependency>
