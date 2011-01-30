@@ -40,7 +40,7 @@ public abstract class AdminActionBase implements AdminAction {
     
     public final void finished(String results) {
         status = AdminActionStatus.FINISHED;
-        result.put("result", results);
+        result("result", results);
     }
     
     public final void result (String key, Object value) {
