@@ -18,6 +18,6 @@ public class SucceedingAction extends AdminActionBase {
     public void execute() throws Exception {
         super.execute();
         result("1", "#win");
-        finished();
+        finished("");
     }
 }
