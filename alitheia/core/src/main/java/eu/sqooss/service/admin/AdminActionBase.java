@@ -38,8 +38,9 @@ public abstract class AdminActionBase implements AdminAction {
         status = AdminActionStatus.EXECUTING;
     }
     
-    public final void finished() {
+    public final void finished(String results) {
         status = AdminActionStatus.FINISHED;
+        result.put("result", results);
     }
     
     public final void result (String key, Object value) {
@@ -89,6 +90,13 @@ public abstract class AdminActionBase implements AdminAction {
     @Override
     public final AdminActionStatus status() {
         return status;
+    }
+    
+    @Override
+    public boolean hasErrors()  {
+    	if (status == AdminActionStatus.ERROR)
+    		return true;
+    	return false;	
     }
     
     protected final void error(String key, Object o) throws Exception {

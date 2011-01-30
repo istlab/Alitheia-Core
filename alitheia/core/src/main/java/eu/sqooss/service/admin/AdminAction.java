@@ -64,6 +64,11 @@ public interface AdminAction {
     void execute() throws Exception;
     void setId(Long id);
     
+    /**
+     * Return true if the action status is marked as Error.
+     */
+    boolean hasErrors();
+    
     @XmlElement(name="id")
     Long id();
     

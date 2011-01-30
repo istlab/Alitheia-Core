@@ -67,6 +67,6 @@ public class RunTimeInfo extends AdminActionBase {
         } catch (Exception e) {
             error(e);
         }
-        finished();
+        finished("Info retrieved");
     }
 }
