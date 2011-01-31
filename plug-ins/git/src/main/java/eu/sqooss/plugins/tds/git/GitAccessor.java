@@ -517,6 +517,8 @@ public class GitAccessor implements SCMAccessor {
         CommitCopyEntry cce = null;
         boolean isCopy = false;
         
+        GitRevision gitrev = new GitRevision(commit, events, copies);
+        
         for (DiffEntry ent : entries) {
             switch (ent.getChangeType()) {
             case ADD:
@@ -535,14 +537,19 @@ public class GitAccessor implements SCMAccessor {
               //Paths in Alitheia Core are not relative to root
                 cce = new CommitCopyEntry(
                         "/" + ent.getOldPath(), 
-                        newRevision(commit.getParent(0).getId().toString()), 
+                        newRevision(commit.getParent(0).getId().name()), 
                         "/" + ent.getNewPath(), 
-                        newRevision(commit.getId().toString()));
+                        gitrev);
                 isCopy = true;
                 break;
             case RENAME:
-                path = ent.getOldPath();
-                pct = PathChangeType.REPLACED;
+                cce = new CommitCopyEntry(
+                        "/" + ent.getOldPath(), 
+                        newRevision(commit.getParent(0).getId().name()), 
+                        "/" + ent.getNewPath(), 
+                        gitrev);
+                cce.setMove();
+                isCopy = true;
                 break;
             }
             if (!isCopy)
@@ -552,7 +559,7 @@ public class GitAccessor implements SCMAccessor {
                 copies.add(cce);
         }
 
-        return new GitRevision(commit, events, copies);
+        return gitrev;
     }
     
     private RevCommit resolveGitRev(String rev) {
