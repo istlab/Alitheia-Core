@@ -59,7 +59,7 @@ public class TestGitUpdater extends TestGitSetup {
         conProp.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.DriverManagerConnectionProvider");
         
 //        conProp.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-//        conProp.setProperty("hibernate.connection.url", "jdbc:mysql://localhost/alitheiatest?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8");
+//        conProp.setProperty("hibernate.connection.url", "jdbc:mysql://localhost/alitheia?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8");
 //        conProp.setProperty("hibernate.connection.username", "root");
 //        conProp.setProperty("hibernate.connection.password", "george");
 //        conProp.setProperty("hibernate.connection.host", "localhost");
@@ -210,8 +210,6 @@ public class TestGitUpdater extends TestGitSetup {
             		assertTrue(false);
             	}
             }
-            
-            
             
             db.commitDBSession();
             tw.release();

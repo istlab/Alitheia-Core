@@ -50,6 +50,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -431,6 +432,25 @@ public class GitAccessor implements SCMAccessor {
     
     public List<AnnotatedLine> getNodeAnnotations(SCMNode s) {return null;}
     
+    /*Methods available only to clients GitAccessor clients*/
+    
+    /**
+     * Get a list of all refs identifying tags with the tag name as 
+     */
+    public Map<String, String> allTags() {
+    	Map<String, Ref> all = git.getAllRefs();
+		Map<String, String> result = new HashMap<String, String>();
+		
+		for (String ref : all.keySet()) {
+			if (!ref.contains("/tags/"))
+				continue;
+			String tagname = ref.substring(ref.lastIndexOf('/') + 1);
+			result.put(all.get(ref).getObjectId().getName(), tagname);
+		}
+		
+		return result;
+    }
+    
     /* Accessor internal methods*/
     
     /*Init a test repository when unit testing*/
@@ -512,7 +532,7 @@ public class GitAccessor implements SCMAccessor {
             err("Cannot parse commit " + commit.getId());
             return null;
         }
-        
+
         String path = null; PathChangeType pct = null;
         CommitCopyEntry cce = null;
         boolean isCopy = false;

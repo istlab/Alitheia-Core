@@ -321,7 +321,16 @@ public class TestGitAccessor extends TestGitSetup {
 		
 		assertNotNull(b);
 		assertEquals(b, FileMode.REGULAR_FILE);
-		assertFalse(a.equals(b));
+		assertFalse(a.equals(b)); //This should fail when the correspoding bug in Jgit gets fixed
+    }
+    
+    @Test
+    public void testGetTags() {
+    	Map<String, String> tags = git.allTags();
+    	assertNotNull(tags);
+    	assertEquals(tags.keySet().size(), 10);
+    	assertTrue(tags.values().contains("v1.2.0"));
+    	assertTrue(tags.values().contains("1.0.3"));
     }
     
     @Test
