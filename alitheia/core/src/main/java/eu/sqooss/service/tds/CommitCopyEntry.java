@@ -34,7 +34,7 @@
 package eu.sqooss.service.tds;
 
 /**
- * A commit entry representing a copy operation 
+ * A commit entry representing a copy or a move (rename) operation 
  *
  */
 public class CommitCopyEntry {
@@ -45,13 +45,16 @@ public class CommitCopyEntry {
     private String toPath;
     private Revision toRev;
     
-    public CommitCopyEntry(String fromP, Revision fromR, String toP, 
+    private boolean move;
+
+	public CommitCopyEntry(String fromP, Revision fromR, String toP, 
             Revision toR) {
         this.fromPath = fromP;
         this.fromRev = fromR;
         
         this.toPath = toP;
         this.toRev = toR;
+        this.move = false;
     }
     
     /**
@@ -81,4 +84,19 @@ public class CommitCopyEntry {
     public Revision toRev() {
         return toRev;
     }
+    
+    /**
+     * Returns true if the represented operation moves (renames) a file.
+     */
+    public boolean isMove() {
+		return move;
+	}
+
+    /**
+     * If the action represents a move (rename) operation, call this method
+     * to set it. 
+     */
+	public void setMove() {
+		this.move = true;
+	}
 }
