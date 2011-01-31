@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheCheckout;
@@ -38,7 +39,7 @@ public class TestGitSetup {
     public static void initTestRepo() throws IOException, URISyntaxException {
         File repo = new File(localrepo, Constants.DOT_GIT);
         local =  new FileRepository(repo);
-        sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+        sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", new Locale("en"));
         
         if (repo.exists())
             return;
