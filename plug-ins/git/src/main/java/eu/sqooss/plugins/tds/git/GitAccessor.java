@@ -40,12 +40,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -65,6 +68,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.git.util.ChildrenFilter;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
@@ -451,6 +455,46 @@ public class GitAccessor implements SCMAccessor {
 		return result;
     }
     
+    /**
+     * Get the children (commits whose parents is the provided commit) 
+     * of a commit.
+     * 
+     * <b>Warning:</b> This method can be very CPU intensive on large 
+     * repositories.
+     * @throws AccessorException When an error occurs during 
+     */
+    public Set<String> getCommitChidren(String revisionId) throws AccessorException {
+    	Set<String> children = new HashSet<String>(0);
+    	
+    	Long start = System.currentTimeMillis();
+    	RevCommit r = resolveGitRev(revisionId);
+    	
+    	if (r == null) {
+    		return children;
+    	}
+
+    	RevWalk rw = new RevWalk(git);
+    	try {
+    		ChildrenFilter cf = new ChildrenFilter(r);
+    		rw.setRevFilter(cf);
+    		ObjectId revId = git.resolve(Constants.HEAD);
+            rw.markStart(rw.parseCommit(revId));
+            RevCommit c;
+            while((c = rw.next()) != null) {
+            	children.add(c.getName());
+            }
+    	} catch (Exception e) {
+    		throw new AccessorException(this.getClass(), "Error getting " +
+    				"commit children: " + e.getMessage());
+		} finally {
+    		rw.release();
+    	}
+    	
+    	Long msec = System.currentTimeMillis() - start;
+    	debug("getCommitChildren(): " + msec + " msec");
+    	return children;
+    }
+    
     /* Accessor internal methods*/
     
     /*Init a test repository when unit testing*/
@@ -631,6 +675,13 @@ public class GitAccessor implements SCMAccessor {
     private void info(String msg) {
         if (logger != null)
             logger.info("GIT:" +msg);
+    }
+    
+    private void debug(String msg) {
+        if (logger != null)
+            logger.debug("GIT:" +msg);
+        else 
+        	System.err.println("GIT: " + msg);
     }
 }
 
