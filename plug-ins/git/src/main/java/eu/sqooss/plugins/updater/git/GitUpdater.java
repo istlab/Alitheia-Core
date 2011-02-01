@@ -51,6 +51,7 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.InvalidAccessorException;
@@ -58,7 +59,6 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
-import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.util.FileUtils;
@@ -71,7 +71,7 @@ public class GitUpdater implements MetadataUpdater {
     
     private StoredProject project;
     private Logger log;
-    private SCMAccessor git;
+    private GitAccessor git;
     private DBService dbs;
     private float progress;
     
@@ -132,7 +132,7 @@ public class GitUpdater implements MetadataUpdater {
         this.project = sp;
         this.log = l;
         try {
-            git = AlitheiaCore.getInstance().getTDSService().getAccessor(sp.getId()).getSCMAccessor();
+            git = (GitAccessor) AlitheiaCore.getInstance().getTDSService().getAccessor(sp.getId()).getSCMAccessor();
         } catch (InvalidAccessorException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -171,7 +171,7 @@ public class GitUpdater implements MetadataUpdater {
     } 
     
     public void updateFromTo(Revision from, Revision to)
-            throws InvalidProjectRevisionException, InvalidRepositoryException {
+            throws InvalidProjectRevisionException, InvalidRepositoryException, AccessorException {
         if (from.compareTo(to) > 1)
             return;
         int numRevisions = 0;
@@ -208,7 +208,7 @@ public class GitUpdater implements MetadataUpdater {
         }
     }
 
-    private ProjectVersion processOneRevision(Revision entry) {
+    private ProjectVersion processOneRevision(Revision entry) throws AccessorException {
         ProjectVersion pv = new ProjectVersion(project);
         pv.setRevisionId(entry.getUniqueId());
         pv.setTimestamp(entry.getDate().getTime());
@@ -221,7 +221,7 @@ public class GitUpdater implements MetadataUpdater {
         if (commitMsg.length() > 512) {
             commitMsg = commitMsg.substring(0, 511);
         }
-              
+
         pv.setCommitMsg(commitMsg);
         pv.setSequence(Integer.MAX_VALUE);
         dbs.addRecord(pv);
@@ -236,6 +236,14 @@ public class GitUpdater implements MetadataUpdater {
             ProjectVersion parent = ProjectVersion.getVersionByRevision(project, parentId);
             ProjectVersionParent pvp = new ProjectVersionParent(pv, parent);
             pv.getParents().add(pvp);
+        }
+        
+        if (entry.getParentIds().size() == 0) {
+        	//new branch
+        } else {
+        	if (git.getCommitChidren(entry.getUniqueId()).size() > 0) {
+        		//This commit creates a branch
+        	}
         }
         
         debug("Got version: " + pv.getRevisionId() + 
