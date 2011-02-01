@@ -33,18 +33,20 @@
 
 package eu.sqooss.service.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -65,23 +67,18 @@ public class Branch extends DAObject {
 	@XmlElement
 	private long id;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="BRANCH_VERSION")
-	private ProjectVersion branchVersion;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="MERGE_VERSION")
-	private ProjectVersion mergeVersion;
-	
+	@ManyToMany(mappedBy="branches")
+	private Collection<ProjectVersion> versions;
+
 	@Column(name="BRANCH_NAME")
 	private String name;
 	
-	public Branch() {}
+	public Branch() {
+		versions = new ArrayList<ProjectVersion>();
+	}
 	
 	public Branch(ProjectVersion branch, String name, ProjectVersion merge) {
-		this.branchVersion = branch;
 		this.name = name;
-		this.mergeVersion = merge;
 	}
 	
 	public long getId() {
@@ -92,23 +89,19 @@ public class Branch extends DAObject {
 		this.id = id;
 	}
 	
-	public ProjectVersion getBranchVersion() {
-		return branchVersion;
-	}
-	public void setBranchVersion(ProjectVersion branchVersion) {
-		this.branchVersion = branchVersion;
-	}
-	public ProjectVersion getMergeVersion() {
-		return mergeVersion;
-	}
-	public void setMergeVersion(ProjectVersion mergeVersion) {
-		this.mergeVersion = mergeVersion;
-	}
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public Collection<ProjectVersion> getVersions() {
+		return versions;
+	}
+
+	public void setVersions(Collection<ProjectVersion> versions) {
+		this.versions = versions;
 	}
 	
 	public static List<ProjectVersion> getBranchVersions(StoredProject sp) {

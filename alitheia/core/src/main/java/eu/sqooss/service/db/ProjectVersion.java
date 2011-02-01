@@ -33,6 +33,7 @@
 package eu.sqooss.service.db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -66,7 +68,7 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n ProjectFile
  * @assoc 1 - n ProjectVersionMeasurement
  * @assoc 1 - n ProjectVersionParent
- * @assoc 1 - n Branch
+ * @assoc m - n Branch
  * @assoc 1 - n Tag
  */
 @XmlRootElement(name="version")
@@ -144,18 +146,6 @@ public class ProjectVersion extends DAObject {
     private Set<Tag> tags;
     
     /**
-     * The set of branches that were branched in this version of the project
-     */
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="branchVersion", orphanRemoval=true, cascade=CascadeType.ALL)
-    private Set<Branch> branched;
-    
-	/**
-     * The set of branches that were merged in this version of the project
-     */
-    @OneToMany(mappedBy="mergeVersion", orphanRemoval=true, cascade=CascadeType.ALL)
-    private Set<Branch> merged;
-   
-    /**
      * The set of measurements available for the given version of the project
      */
     @OneToMany(mappedBy="projectVersion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -167,6 +157,9 @@ public class ProjectVersion extends DAObject {
     @OneToMany(mappedBy="child", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProjectVersionParent> parents;
 
+    @ManyToMany
+    private Collection<Branch> branches;
+    
     /**
 	 * Mask used to select directories
 	 */
@@ -198,22 +191,6 @@ public class ProjectVersion extends DAObject {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public Set<Branch> getBranched() {
-		return branched;
-	}
-
-	public void setBranched(Set<Branch> branched) {
-		this.branched = branched;
-	}
-
-	public Set<Branch> getMerged() {
-		return merged;
-	}
-
-	public void setMerged(Set<Branch> merged) {
-		this.merged = merged;
 	}
 
 	public StoredProject getProject() {
@@ -318,6 +295,15 @@ public class ProjectVersion extends DAObject {
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
+    
+
+	public void setBranches(Collection<Branch> branches) {
+		this.branches = branches;
+	}
+
+	public Collection<Branch> getBranches() {
+		return branches;
+	}
         
     /**
      * Get all measurements associated with this version
