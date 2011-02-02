@@ -31,6 +31,7 @@
 package eu.sqooss.plugins.updater.git;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ import javax.mail.internet.InternetAddress;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
+import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
@@ -208,7 +210,8 @@ public class GitUpdater implements MetadataUpdater {
         }
     }
 
-    private ProjectVersion processOneRevision(Revision entry) throws AccessorException {
+    private ProjectVersion processOneRevision(Revision entry) 
+    	throws AccessorException, InvalidProjectRevisionException {
         ProjectVersion pv = new ProjectVersion(project);
         pv.setRevisionId(entry.getUniqueId());
         pv.setTimestamp(entry.getDate().getTime());
@@ -238,17 +241,72 @@ public class GitUpdater implements MetadataUpdater {
             pv.getParents().add(pvp);
         }
         
-        if (entry.getParentIds().size() == 0) {
-        	//new branch
-        } else {
-        	if (git.getCommitChidren(entry.getUniqueId()).size() > 0) {
-        		//This commit creates a branch
-        	}
-        }
-        
         debug("Got version: " + pv.getRevisionId() + 
                 " seq: " + pv.getSequence());
         return pv;
+    }
+    
+    BranchGraph bg = new BranchGraph();
+    
+    //Naming scheme for implicit branches. 
+    public String getBranchName(Revision rev) 
+    	throws AccessorException, InvalidProjectRevisionException {
+    	String[] parents = (String[])rev.getParentIds().toArray();
+    	String name = null;
+    	bg.setName(0);
+    	
+    	//Not a fork of an existing commit --> a new branch
+    	if (parents.length == 0) {
+    		//First project branch
+    		if (getNumBranches() == 0) {
+    			//name = "master";
+    			BranchGraph master = new BranchGraph();
+    			bg.addChild(master);
+    			name = master.toString();
+    		} else {
+    			//A parentless branch, created by the following sequence
+    			//git branch "test" && git checkout test && touch a && git commit -a -m "test"
+    			err("Give me a name already!");
+    			BranchGraph master = new BranchGraph();
+    			bg.addChild(master);
+    			name = master.toString();
+    		}
+        } else {
+        	//For the next statement, we don't care if a commit is a merge,
+        	//because it cannot create a branch and a merge at the same time.
+        	//So, we just examine the first parent.
+        	String[] children = git.getCommitChidren(parents[0]);
+        	Revision previous = git.getPreviousRevision(rev);
+        	if (children.length > 1) {
+        		//The previous commit generated a branch. Expand 
+        		//previous commit.
+        		//int idx = Arrays.binarySearch(children, rev.getUniqueId());
+        		String prevName = branchName(previous);
+        		BranchGraph prev = bg.find(prevName);
+        		BranchGraph cur = new BranchGraph();
+        		prev.addChild(cur);
+        		name = cur.toString();
+        	} else {
+        		if (parents.length > 1) {
+        			//Merge commit, combine branch names
+        			
+        		} else {
+        			//Just re-use the branch name from the previous commit
+        			name = branchName(previous);
+        		}
+        	}
+        }
+
+    	return name;
+    }
+
+    protected int getNumBranches() {
+    	return project.getBranches().size();
+    }
+    
+    protected String branchName(Revision rev) {
+    	ProjectVersion v = ProjectVersion.getVersionByRevision(project, rev.getUniqueId());
+    	return v.getBranch().getName();
     }
     
     public Developer getAuthor(StoredProject sp, String entryAuthor) {

@@ -316,6 +316,7 @@ public class GitAccessor implements SCMAccessor {
     
     public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
     throws InvalidProjectRevisionException, InvalidRepositoryException  {
+    	long time = System.currentTimeMillis();
         repoPath = toGitPath(repoPath);
         RevWalk rw = new RevWalk(git);
         try {
@@ -368,6 +369,7 @@ public class GitAccessor implements SCMAccessor {
                     ew.getMessage());
         } finally {
             rw.release();
+            debug("getCommitLog(): " + (System.currentTimeMillis() - time) + "ms");
         }
     }
 
