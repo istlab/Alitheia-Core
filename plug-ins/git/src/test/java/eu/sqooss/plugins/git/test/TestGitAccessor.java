@@ -334,27 +334,28 @@ public class TestGitAccessor extends TestGitSetup {
     }
 
     @Test
-    public void testGetCommitChidren() throws AccessorException {
+    public void testGetCommitChidren() throws AccessorException, InvalidProjectRevisionException {
     	Revision normal = git.newRevision("13f7daaf27656fefe4c266e9b53a53010caf4177");
-    	Set<String> children = git.getCommitChidren(normal.getUniqueId());
-    	assertEquals(children.size(), 1);
-    	Revision child = git.newRevision((String)(children.toArray()[0]));
+    	String[] children = git.getCommitChidren(normal.getUniqueId());
+    	assertEquals(children.length, 1);
+    	Revision child = git.newRevision(children[0]);
     	assertNotNull(child);
     	assertTrue(child.getParentIds().contains(normal.getUniqueId()));
     	
     	Revision branch = git.newRevision("2cef1e66c395296620225c7ffd77b772c6ad4215");
     	children = git.getCommitChidren(branch.getUniqueId());
-    	assertEquals(children.size(), 2);
-    	child = git.newRevision((String)(children.toArray()[0]));
-    	assertNotNull(child);
-    	assertTrue(child.getParentIds().contains(branch.getUniqueId()));
-    	child = git.newRevision((String)(children.toArray()[1]));
-    	assertNotNull(child);
-    	assertTrue(child.getParentIds().contains(branch.getUniqueId()));
+    	assertEquals(children.length, 2);
+    	Revision first = git.newRevision(children[0]);
+    	assertNotNull(first);
+    	assertTrue(first.getParentIds().contains(branch.getUniqueId()));
+    	Revision second = git.newRevision(children[1]);
+    	assertNotNull(second);
+    	assertTrue(second.getParentIds().contains(branch.getUniqueId()));
+    	assertTrue(first.compareTo(second) < 0);
     	
     	Revision head = git.newRevision("94f389bf5d9af4511597d035e69d1be9510b50c7");
     	children = git.getCommitChidren(head.getUniqueId());
-    	assertEquals(children.size(), 0);
+    	assertEquals(children.length, 0);
     }
 
     @Test

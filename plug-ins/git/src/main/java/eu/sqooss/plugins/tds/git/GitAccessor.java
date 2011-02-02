@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +49,6 @@ import java.util.Set;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -332,8 +332,6 @@ public class GitAccessor implements SCMAccessor {
                 throw new InvalidProjectRevisionException(r2.getUniqueId(),
                         this.getClass());
             
-            
-
             if (repoPath != null && !repoPath.isEmpty()) {
                 rw.setTreeFilter(AndTreeFilter.create(PathFilter.create(repoPath), TreeFilter.ANY_DIFF));
             }
@@ -457,20 +455,22 @@ public class GitAccessor implements SCMAccessor {
     
     /**
      * Get the children (commits whose parents is the provided commit) 
-     * of a commit.
+     * of a commit. The returned array is sorted by commit time, so the
+     * first entry corresponds to the first commit that is the immediate
+     * child of the provided commit.
      * 
      * <b>Warning:</b> This method can be very CPU intensive on large 
      * repositories.
      * @throws AccessorException When an error occurs during 
      */
-    public Set<String> getCommitChidren(String revisionId) throws AccessorException {
-    	Set<String> children = new HashSet<String>(0);
+    public String[] getCommitChidren(String revisionId) throws AccessorException {
+    	List<String> children = new ArrayList<String>(0);
     	
     	Long start = System.currentTimeMillis();
     	RevCommit r = resolveGitRev(revisionId);
     	
     	if (r == null) {
-    		return children;
+    		return (String [])children.toArray();
     	}
 
     	RevWalk rw = new RevWalk(git);
@@ -478,6 +478,7 @@ public class GitAccessor implements SCMAccessor {
     		ChildrenFilter cf = new ChildrenFilter(r);
     		rw.setRevFilter(cf);
     		ObjectId revId = git.resolve(Constants.HEAD);
+            rw.sort(RevSort.COMMIT_TIME_DESC); //Doesn't really do anything
             rw.markStart(rw.parseCommit(revId));
             RevCommit c;
             while((c = rw.next()) != null) {
@@ -491,8 +492,10 @@ public class GitAccessor implements SCMAccessor {
     	}
     	
     	Long msec = System.currentTimeMillis() - start;
+    	Collections.reverse(children);
+    	String[] result = new String[children.size()];
     	debug("getCommitChildren(): " + msec + " msec");
-    	return children;
+    	return children.toArray(result);
     }
     
     /* Accessor internal methods*/
