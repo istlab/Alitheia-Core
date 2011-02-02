@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -36,6 +38,9 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
+import eu.sqooss.service.tds.CommitLog;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
 
 public class TestGitUpdater extends TestGitSetup {
@@ -45,6 +50,8 @@ public class TestGitUpdater extends TestGitSetup {
     static GitUpdater updater;
     static StoredProject sp ;
 
+    static Map<String, String> branchNames = new HashMap<String, String>();
+    
     @BeforeClass
     public static void setup() throws IOException, URISyntaxException {
         initTestRepo();
@@ -107,7 +114,7 @@ public class TestGitUpdater extends TestGitSetup {
         assertNotNull(git);
         updater = new GitUpdater(db, git, l, sp);
     }
-
+    
     @Test
     public void testGetAuthor() {
         db.startDBSession();
@@ -155,6 +162,19 @@ public class TestGitUpdater extends TestGitSetup {
         assertEquals(1, d.getAliases().size());
        
         db.rollbackDBSession();
+    }
+    
+    @Test
+    public void testGetBranchName() 
+    	throws InvalidProjectRevisionException, InvalidRepositoryException, AccessorException  {
+    	BranchNameTestUpdater upd = new BranchNameTestUpdater();
+    	CommitLog log = git.getCommitLog("", git.getFirstRevision(), git.getHeadRevision());
+    	BranchNameTestUpdater updater = new BranchNameTestUpdater();
+    	
+    	for (Revision entry : log ) {
+    		String name = updater.getBranchName(entry);
+    		updater.addVersionBranch(entry.getUniqueId(), name);
+    	}
     }
     
     @Test

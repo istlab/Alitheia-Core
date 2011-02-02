@@ -31,7 +31,7 @@ public class TestGitSetup {
     public static String projectName = "ruby-git";
     public static FileRepository local;
     public static SimpleDateFormat sdf;
-    public static String url = "git://github.com/schacon/ruby-git.git";
+    public static String url = "git://github.com/git/git.git";
     public static String localrepo = System.getProperty("user.dir") + "/test";
     
     public static GitAccessor git;
