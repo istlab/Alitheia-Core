@@ -46,10 +46,19 @@ import eu.sqooss.service.db.StoredProject;
 
 public class ContribActionType extends DAObject {
 
+    private long id;
     private String actionCategory;
     private String actionType;
     private boolean isPositive;
     
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public ContributionActions.ActionCategory getCategory(){
         return ContributionActions.ActionCategory.fromString(actionCategory);
     }

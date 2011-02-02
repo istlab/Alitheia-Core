@@ -48,12 +48,21 @@ import eu.sqooss.service.db.StoredProject;
 
 public class ContribAction extends DAObject {
 
+    private long id;
     private Developer developer;
     private Long changedResourceId;
     private ContribActionType contribActionType;
     private long total;
     private Date changedResourceTimestamp;    
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+    
     public Date getChangedResourceTimestamp() {
         return changedResourceTimestamp;
     }
