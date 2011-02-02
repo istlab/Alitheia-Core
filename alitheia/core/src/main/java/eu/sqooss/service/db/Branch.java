@@ -35,7 +35,11 @@ package eu.sqooss.service.db;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -43,19 +47,27 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
+
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Keeps track of branches. 
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
+ * 
+ * @assoc 1 - n ProjectVersion
  */
 @Entity
-@Table(name="BRANCH")
+@Table(name="BRANCH", uniqueConstraints=@UniqueConstraint(columnNames="BRANCH_NAME"))
 public class Branch extends DAObject {
+	
+	private static final String qBranchByName = 
+		"from Branch b where b.name = :name and b.project = :project";
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -63,10 +75,10 @@ public class Branch extends DAObject {
 	@XmlElement
 	private long id;
 	
-	@ManyToMany(mappedBy="branches")
+	@OneToMany(mappedBy="branch", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private Collection<ProjectVersion> versions;
 
-	@Column(name="BRANCH_NAME")
+	@Column(name="BRANCH_NAME", unique=true, nullable = false)
 	@XmlElement
 	private String name;
 	
@@ -120,5 +132,19 @@ public class Branch extends DAObject {
 
 	public StoredProject getProject() {
 		return project;
+	}
+	
+	public static Branch fromName(StoredProject sp, String name) {
+		DBService db = AlitheiaCore.getInstance().getDBService();
+		Map<String, Object> params = new HashMap<String, Object>();
+		
+		params.put("name", name);
+		params.put("project", sp);
+		
+		List<Branch> branches = (List<Branch>)db.doHQL(qBranchByName, params);
+		if (branches.isEmpty())
+			return null;
+		
+		return branches.get(0);
 	}
 }

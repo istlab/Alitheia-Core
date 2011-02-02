@@ -68,7 +68,6 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n ProjectFile
  * @assoc 1 - n ProjectVersionMeasurement
  * @assoc 1 - n ProjectVersionParent
- * @assoc m - n Branch
  * @assoc 1 - n Tag
  */
 @XmlRootElement(name="version")
@@ -157,8 +156,10 @@ public class ProjectVersion extends DAObject {
     @OneToMany(mappedBy="child", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProjectVersionParent> parents;
 
-    @ManyToMany
-    private Collection<Branch> branches;
+    @XmlElement
+    @ManyToOne
+    @JoinColumn(name="BRANCH_ID")
+    private Branch branch;
     
     /**
 	 * Mask used to select directories
@@ -269,6 +270,14 @@ public class ProjectVersion extends DAObject {
     public void setSequence(long sequence) {
         this.sequence = sequence;
     }
+    
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+
+	public Branch getBranch() {
+		return branch;
+	}
   
     /**
      * Returns the files that were changed in this revision
@@ -295,21 +304,6 @@ public class ProjectVersion extends DAObject {
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
-    
-
-	public void setBranches(Collection<Branch> branches) {
-		this.branches = branches;
-	}
-
-	public Collection<Branch> getBranches() {
-		return branches;
-	}
-	
-	public void addBranch(Branch b) {
-		if (branches == null)
-			branches = new HashSet<Branch>();
-		branches.add(b);
-	}
         
     /**
      * Get all measurements associated with this version

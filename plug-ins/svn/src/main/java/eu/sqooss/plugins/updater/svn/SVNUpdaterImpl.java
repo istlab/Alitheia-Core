@@ -419,7 +419,6 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         		//Branch b = new Branch(curVersion, FileUtils.basename(copyOp.toPath()), null);
         		Branch b = new Branch(project, FileUtils.basename(copyOp.toPath()));
         		b.addVersion(curVersion);
-        		curVersion.addBranch(b);
         		dbs.addRecord(b);
         	}
         	
