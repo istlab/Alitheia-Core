@@ -35,25 +35,21 @@ package eu.sqooss.service.db;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
- * Keeps track of branching and merging operations. 
+ * Keeps track of branches. 
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
@@ -71,13 +67,21 @@ public class Branch extends DAObject {
 	private Collection<ProjectVersion> versions;
 
 	@Column(name="BRANCH_NAME")
+	@XmlElement
 	private String name;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="STORED_PROJECT_ID")
+	@XmlElement
+	private StoredProject project;
 	
 	public Branch() {
 		versions = new ArrayList<ProjectVersion>();
 	}
 	
-	public Branch(ProjectVersion branch, String name, ProjectVersion merge) {
+	public Branch(StoredProject sp, String name) {
+		versions = new ArrayList<ProjectVersion>();
+		project = sp;
 		this.name = name;
 	}
 	
@@ -104,20 +108,17 @@ public class Branch extends DAObject {
 		this.versions = versions;
 	}
 	
-	public static List<ProjectVersion> getBranchVersions(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+	public void addVersion(ProjectVersion pv) {
+		if (versions == null)
+			versions = new ArrayList<ProjectVersion>();
+		versions.add(pv);
+	}
+	
+	public void setProject(StoredProject project) {
+		this.project = project;
+	}
 
-        String paramProject = "project_id";
-
-        String query = "select pv " 
-                + " from ProjectVersion pv, Branch b "
-                + " where b.branchVersion = pv " 
-                + " and pv.project =:" + paramProject;
-
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put(paramProject, sp);
-
-        return (List<ProjectVersion>) dbs.doHQL(query, parameters);
-
-    }
+	public StoredProject getProject() {
+		return project;
+	}
 }

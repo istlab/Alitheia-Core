@@ -304,6 +304,12 @@ public class ProjectVersion extends DAObject {
 	public Collection<Branch> getBranches() {
 		return branches;
 	}
+	
+	public void addBranch(Branch b) {
+		if (branches == null)
+			branches = new HashSet<Branch>();
+		branches.add(b);
+	}
         
     /**
      * Get all measurements associated with this version

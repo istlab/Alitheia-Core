@@ -69,8 +69,8 @@ import eu.sqooss.service.db.BugStatus.Status;
  * @assoc 1 - n StoredProjectMeasurement
  * @assoc 1 - n Developer
  * @assoc 1 - n ClusterNodeProject
- * @assoc 1 - n TimeLineEvent
  * @assoc 1 - n InvocationRule
+ * @assoc 1 - n Branch
  * 
  */
 @XmlRootElement(name="project")
@@ -111,17 +111,9 @@ public class StoredProject extends DAObject {
    
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
     private Set<ClusterNodeProject> assignments;
-
-    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
-	private Set<TimeLineEvent> timelineEvents;
 	
-    public Set<TimeLineEvent> getTimelineEvents() {
-        return timelineEvents;
-    }
-
-    public void setTimelineEvents(Set<TimeLineEvent> timelineEvents) {
-        this.timelineEvents = timelineEvents;
-    }
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
+	private Set<Branch> branches;
 
     public StoredProject() {}
     
@@ -236,6 +228,14 @@ public class StoredProject extends DAObject {
     public void setAssignments(Set<ClusterNodeProject> assignments) {
         this.assignments = assignments;
     }
+    
+    public void setBranches(Set<Branch> branches) {
+		this.branches = branches;
+	}
+
+	public Set<Branch> getBranches() {
+		return branches;
+	}
     
     /**
      * Get the first (in an arbitrary definition of order) value for
