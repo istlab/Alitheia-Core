@@ -30,8 +30,6 @@
 
 package eu.sqooss.service.db;
 
-
-import javax.persistence.CascadeType;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -53,6 +51,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "PROJECT_VERSION_PARENT")
 public class ProjectVersionParent extends DAObject {
 
+	private long id; //Purely for DAObject compatibility
+	
     @EmbeddedId
     private ProjectVersionParentId pk;
 
@@ -100,4 +100,14 @@ public class ProjectVersionParent extends DAObject {
     public ProjectVersionParentId getPk() {
         return pk;
     }
+
+	@Override
+	public long getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(long id) {
+		this.id = id;
+	}
 }
