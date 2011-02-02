@@ -64,7 +64,6 @@
         <mapping class="eu.sqooss.service.db.MailMessageMeasurement"/>
         <mapping class="eu.sqooss.service.db.InvocationRule"/>
         <mapping class="eu.sqooss.service.db.OhlohDeveloper"/>
-        <mapping class="eu.sqooss.service.db.TimeLineEvent"/>
         <mapping class="eu.sqooss.service.db.ProjectVersionParent"/>
     </session-factory>
 
