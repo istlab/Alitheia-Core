@@ -26,7 +26,7 @@ public class BranchGraph {
 	
 	BranchGraph find (String s) {
 		int idx = Integer.parseInt(s.split("-")[0]);
-		return children.get(idx).find (s.substring(s.indexOf('-')));
+		return children.get(idx).find (s.substring(s.indexOf('-') == 0?0:s.indexOf('-') + 1));
 	}
 	
 	@Override

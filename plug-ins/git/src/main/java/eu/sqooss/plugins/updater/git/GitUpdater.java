@@ -251,7 +251,8 @@ public class GitUpdater implements MetadataUpdater {
     //Naming scheme for implicit branches. 
     public String getBranchName(Revision rev) 
     	throws AccessorException, InvalidProjectRevisionException {
-    	String[] parents = (String[])rev.getParentIds().toArray();
+    	String[] parents = new String[rev.getParentIds().size()];
+    	parents = rev.getParentIds().toArray(parents);
     	String name = null;
     	bg.setName(0);
     	
@@ -266,7 +267,6 @@ public class GitUpdater implements MetadataUpdater {
     		} else {
     			//A parentless branch, created by the following sequence
     			//git branch "test" && git checkout test && touch a && git commit -a -m "test"
-    			err("Give me a name already!");
     			BranchGraph master = new BranchGraph();
     			bg.addChild(master);
     			name = master.toString();
