@@ -37,17 +37,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -67,7 +66,6 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.plugins.git.util.ChildrenFilter;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
@@ -158,7 +156,7 @@ public class GitAccessor implements SCMAccessor {
                 return null;
             }
             
-            return getRevision(r);
+            return getRevision(r, false);
         } catch (Exception e) {
            err("Cannot resolve commit with timestamp: " + d + ":" 
                    + e.getMessage());
@@ -175,7 +173,7 @@ public class GitAccessor implements SCMAccessor {
             err("Cannot create new revision with null or empty revisionid");
             return null;
         }
-        return getRevision(resolveGitRev(uniqueId));
+        return getRevision(resolveGitRev(uniqueId), false);
     }
 
     /** {@inheritDoc} */
@@ -188,7 +186,7 @@ public class GitAccessor implements SCMAccessor {
                     "HEAD does not point to a known revision");
         }
 
-        return getRevision(head);
+        return getRevision(head, false);
     }
 
     /** {@inheritDoc} */
@@ -208,7 +206,7 @@ public class GitAccessor implements SCMAccessor {
             rw.release();
         }
 
-        return getRevision(c);
+        return getRevision(c, false);
     }
 
     /** {@inheritDoc} */
@@ -229,7 +227,7 @@ public class GitAccessor implements SCMAccessor {
             rw.markStart(commit);
             rw.next();
             RevCommit prev = rw.next();
-            return getRevision(prev);
+            return getRevision(prev, false);
         } catch (IOException e) {
             throw new InvalidProjectRevisionException(
                     "Cannot get next revision: "+ e.getMessage(), 
@@ -275,7 +273,7 @@ public class GitAccessor implements SCMAccessor {
             		(start.getParentCount() > 0 && start.getParent(0).equals(next))) {
             	next = rw.next();
             }
-            return getRevision(next);
+            return getRevision(next, false);
             
         } catch (IOException e) {
             throw new InvalidProjectRevisionException(
@@ -290,6 +288,9 @@ public class GitAccessor implements SCMAccessor {
         
         if (!(r instanceof GitRevision))
             return false;
+        
+        if (!((GitRevision)r).isResolved())
+        	r.getChangedPaths(); //This should trigger a resolution
         
         return ((GitRevision)r).isResolved();
     }
@@ -356,7 +357,7 @@ public class GitAccessor implements SCMAccessor {
             GitCommitLog log = new GitCommitLog();
 
             while (i.hasNext()) {
-                Revision r = getRevision(i.next());
+                Revision r = getRevision(i.next(), false);
                 log.entries().add(r);
                 if (r2 == null)
                     break;
@@ -464,7 +465,7 @@ public class GitAccessor implements SCMAccessor {
      * 
      * <b>Warning:</b> This method can cause the accessor to use a lot 
      * of memory in very large repositories, as it calculates and 
-     * caches all parent-child relationships beforehand. 
+     * caches all parent-childrelationships beforehand. 
      * 
      * @throws AccessorException When an error occurs during 
      */
@@ -474,8 +475,23 @@ public class GitAccessor implements SCMAccessor {
     		resolveChildren();
     	}
     	
-    	String[] children = new String[childrenOf.get(revisionId).size()];
-    	return childrenOf.get(revisionId).toArray(children);
+    	Revision[] children = new Revision[childrenOf.get(revisionId).size()];
+    	int i = 0;
+    	for (String childid : childrenOf.get(revisionId)) {
+    		children[i] = getRevision(resolveGitRev(childid), false);
+    		i++;
+    	}
+    	
+    	Arrays.sort(children, children[0]);
+    	
+    	String[] chIds = new String[children.length];
+    	i = 0;
+    	for (Revision r : children) {
+    		chIds[i] = r.getUniqueId();
+    		i++;
+    	}
+    	
+    	return chIds;
     }
     
     private void resolveChildren() throws AccessorException {
@@ -537,10 +553,13 @@ public class GitAccessor implements SCMAccessor {
      * Construct a full Revision object by analysing a commit's contents. Ideas 
      * and some code from JGit's log command implementation.
      */
-    private GitRevision getRevision(RevCommit commit) {
-        if (commit == null)
+    GitRevision getRevision(RevCommit commit, boolean resolve) {
+    	if (commit == null)
             return null;
-            
+    	
+    	if (!resolve)
+    		return new GitRevision(commit, this);
+    	    
         Map<String, PathChangeType> events = new HashMap<String, PathChangeType>();
         List<CommitCopyEntry> copies = new ArrayList<CommitCopyEntry>();
         

@@ -39,7 +39,6 @@ import java.util.Set;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import eu.sqooss.service.tds.CommitCopyEntry;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 
@@ -58,46 +57,61 @@ public class GitRevision implements Revision {
     private List<CommitCopyEntry> copyOps;
     private Set<String> parents;
 
-    public GitRevision(String id, Date date) {
-        this.id = id;
-        this.date = date;
+    private boolean isResolved = false;
+    GitAccessor git = null;
+    RevCommit commit = null;
+
+    public GitRevision(RevCommit obj, GitAccessor git) {
+        this.id = obj.getId().name();
+        this.date = obj.getAuthorIdent().getWhen();
+        this.author = obj.getAuthorIdent().getName() + " <"
+                + obj.getAuthorIdent().getEmailAddress() + ">";
+        this.msg = obj.getFullMessage();
+        this.git = git;
+        this.commit = obj;
+        this.parents = new HashSet<String>();
+
+        for (RevCommit s : obj.getParents()) {
+            parents.add(s.getName());
+        }
+        isResolved = false;
     }
 
-    public GitRevision(RevCommit obj, 
-            Map<String, PathChangeType> paths, 
+    public GitRevision(RevCommit obj, Map<String, PathChangeType> paths,
             List<CommitCopyEntry> copies) {
         this.id = obj.getId().name();
         this.date = obj.getAuthorIdent().getWhen();
-        this.author = obj.getAuthorIdent().getName() + " <" + obj.getAuthorIdent().getEmailAddress() + ">";
+        this.author = obj.getAuthorIdent().getName() + " <"
+                + obj.getAuthorIdent().getEmailAddress() + ">";
         this.msg = obj.getFullMessage();
         this.changedPaths = paths;
         this.copyOps = copies;
         this.parents = new HashSet<String>();
-        
+
         for (RevCommit s : obj.getParents()) {
             parents.add(s.getName());
         }
+        isResolved = true;
     }
-    
+
     public boolean isResolved() {
-        return (id != null)  && 
-            (date != null)   && 
-            (author != null) &&
-            (msg != null);
+        resolve();
+        return isResolved;
     }
-    
-    //Interface methods
+
+    // Interface methods
     @Override
-    public int compareTo(Revision other) throws InvalidProjectRevisionException {
+    public int compareTo(Revision other) {
         if (!(other instanceof GitRevision))
-            throw new InvalidProjectRevisionException(other.getUniqueId(), GitRevision.class);
+            throw new RuntimeException("Not of type: "
+                    + this.getClass().getName());
         GitRevision othergit = (GitRevision) other;
         if (this.date.getTime() == othergit.date.getTime())
             return 0;
-        
+
         if (this.date.getTime() > othergit.date.getTime())
             return 1;
-        else 
+        else
             return -1;
     }
 
@@ -123,19 +137,22 @@ public class GitRevision implements Revision {
 
     @Override
     public Set<String> getChangedPaths() {
+        resolve();
         return changedPaths.keySet();
     }
 
     @Override
     public Map<String, PathChangeType> getChangedPathsStatus() {
+        resolve();
         return changedPaths;
     }
 
     @Override
     public List<CommitCopyEntry> getCopyOperations() {
+        resolve();
         return copyOps;
     }
-    
+
     @Override
     public String toString() {
         return getUniqueId() + " - " + date + " - " + author;
@@ -144,5 +161,18 @@ public class GitRevision implements Revision {
     @Override
     public Set<String> getParentIds() {
         return this.parents;
+    }
+
+    private void resolve() {
+        if (isResolved == false) {
+            GitRevision r = git.getRevision(commit, true);
+            this.changedPaths = r.changedPaths;
+            this.copyOps = r.copyOps;
+            // We don't need these now that the commit is resolved.
+            // Let the GC grab them.
+            git = null;
+            commit = null;
+            isResolved = true;
+        }
     }
 }
