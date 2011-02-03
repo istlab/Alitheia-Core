@@ -167,13 +167,13 @@ public class TestGitUpdater extends TestGitSetup {
     @Test
     public void testGetBranchName() 
     	throws InvalidProjectRevisionException, InvalidRepositoryException, AccessorException  {
-    	BranchNameTestUpdater upd = new BranchNameTestUpdater();
     	CommitLog log = git.getCommitLog("", git.getFirstRevision(), git.getHeadRevision());
-    	BranchNameTestUpdater updater = new BranchNameTestUpdater();
+    	BranchNameTestUpdater updater = new BranchNameTestUpdater(git);
     	
     	for (Revision entry : log ) {
     		String name = updater.getBranchName(entry);
     		updater.addVersionBranch(entry.getUniqueId(), name);
+    		System.err.println("Rev:" + entry.getUniqueId() + " branch:" + name);
     	}
     }
     
