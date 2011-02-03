@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.tds;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ import java.util.Set;
  * vice-versa) prior to being return to client code. All revisions returned to
  * client code are guaranteed to be validated.
  */
-public interface Revision {
+public interface Revision extends Comparable<Revision>, Comparator<Revision> {
     
     /**
      * Get that date associated to this revision.
@@ -106,8 +107,8 @@ public interface Revision {
      * @return 0 if the two revisions are the same. >0 if the provided
      *  revision is newer (for the underlying repository's definition of
      *  newer) that this revision. <0 otherwise.
-     * @exception InvalidProjectRevisionException If the underlying type of
+     * @exception RunTimeException If the underlying type of
      * the provided revision is not the same as this type
      */
-    public int compareTo(Revision o) throws InvalidProjectRevisionException;
+    //public int compareTo(Revision o);
 }

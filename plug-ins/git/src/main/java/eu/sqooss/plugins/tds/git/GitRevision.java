@@ -159,6 +159,11 @@ public class GitRevision implements Revision {
     }
 
     @Override
+    public int compare(Revision o1, Revision o2) {
+        return o1.compareTo(o2);
+    }
+
+    @Override
     public Set<String> getParentIds() {
         return this.parents;
     }

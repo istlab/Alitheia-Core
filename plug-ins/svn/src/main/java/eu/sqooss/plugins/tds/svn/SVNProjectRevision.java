@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.RuntimeErrorException;
+
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNLogEntryPath;
 
@@ -213,19 +215,18 @@ public class SVNProjectRevision implements Revision {
     }
     
     /** {@inheritDoc} */
-    public int compareTo(Revision o) 
-        throws InvalidProjectRevisionException {
+    public int compareTo(Revision o) {
         if (!(o instanceof SVNProjectRevision))
-            throw new InvalidProjectRevisionException(getUniqueId(), this.getClass());
+            throw new RuntimeException("Revision not of type: " + this.getClass().getName());
         
         if (!((SVNProjectRevision)o).isResolved()) {
-            throw new InvalidProjectRevisionException("Revision not resoved " 
-                    + getUniqueId(), this.getClass());
+            throw new RuntimeException("Revision not resoved " 
+                    + getUniqueId());
         }
         
         if (!isResolved()) {
-            throw new InvalidProjectRevisionException("Revision not resoved "
-                    + getUniqueId(), this.getClass());
+            throw new RuntimeException("Revision not resoved "
+                    + getUniqueId());
         }
         
         return (int) (revision - (((SVNProjectRevision)o).revision)); 
@@ -234,7 +235,12 @@ public class SVNProjectRevision implements Revision {
     @Override
     public Set<String> getParentIds() {
         return parents;
-    }  
+    }
+
+	@Override
+	public int compare(Revision o1, Revision o2) {
+		return o1.compareTo(o2);
+	}  
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
