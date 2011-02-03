@@ -68,21 +68,21 @@ public class TestGitAccessor extends TestGitSetup {
     public void testNewRevisionString() throws InvalidProjectRevisionException, 
         ParseException {
         //Check commit resolution on a known commit
-        Revision r = git.newRevision("93ea66104efe1bd5e3a80cbe097c6c9d88621a25");
+        Revision r = git.newRevision("7660a188dfd0c5e52884790bebf5637d24f990d4");
         assertNotNull(r);
-        assertEquals(r.getDate().getTime(), sdf.parse("Mon May 5 22:52:08 2008 +0800").getTime());
+        assertEquals(r.getDate().getTime(), sdf.parse("Fri Apr 8 15:04:51 2005 -0700").getTime());
         assertTrue(git.isValidRevision(r));
         
         //now check a commit on a branch
-        Revision r1 = git.newRevision("257fd8db3e60fb655af3c42e224d0a9acaa3624e");
+        Revision r1 = git.newRevision("e2e5e98a40d6ed04b7acf791cc2243ff32923db3");
         assertNotNull(r);
-        assertEquals(r1.getDate().getTime(), sdf.parse("Thu Feb 12 09:12:00 2009 -0800").getTime());
+        assertEquals(r1.getDate().getTime(), sdf.parse("Wed Apr 13 01:40:09 2005 -0700").getTime());
         assertTrue(git.isValidRevision(r1));
         
         //and a commit that creates a tag
-        Revision r2 = git.newRevision("85fa6ec3a68b6ff8acfa69c59fbdede1385f63bb");
+        Revision r2 = git.newRevision("a3eb250f996bf5e12376ec88622c4ccaabf20ea8");
         assertNotNull(r);
-        assertEquals(r2.getDate().getTime(), sdf.parse("Sun Aug 2 04:06:03 2009 -0400").getTime());
+        assertEquals(r2.getDate().getTime(), sdf.parse("Sun Jul 10 15:40:43 2005 -0700").getTime());
         assertTrue(r1.compareTo(r2) < 0);
         assertTrue(git.isValidRevision(r2));
         
@@ -93,18 +93,18 @@ public class TestGitAccessor extends TestGitSetup {
     
     @Test
     public void testNewRevisionDate() throws ParseException {
-        Revision r = git.newRevision(sdf.parse("Thu Feb 12 09:12:00 2009 -0800"));
+        Revision r = git.newRevision(sdf.parse("Sun Jul 10 15:40:43 2005 -0700"));
         assertNotNull(r);
-        assertEquals(r.getUniqueId(), "257fd8db3e60fb655af3c42e224d0a9acaa3624e");
+        assertEquals(r.getUniqueId(), "a3eb250f996bf5e12376ec88622c4ccaabf20ea8");
         assertTrue(git.isValidRevision(r));
         assertEquals(r.getParentIds().size(), 1);
         Iterator<String> i = r.getParentIds().iterator();
-        assertEquals(i.next(), "b97ff5e0ffd259a15d435da1036a3ac3c6bd6d7a");
+        assertEquals(i.next(), "013aab8265a806c8d3c9b040485839091bca30f4");
     }
 
     @Test
     public void testGetParents() throws InvalidProjectRevisionException {
-        Revision r = git.newRevision("099f60dd07aeefd31c94eae532db97e811562fb7");
+        Revision r = git.newRevision("e27a56a676a1524036add6067948c647d3093ce8");
         assertNotNull(r);
         assertEquals(r.getParentIds().size(), 2);
         Iterator<String> i = r.getParentIds().iterator();
@@ -128,55 +128,52 @@ public class TestGitAccessor extends TestGitSetup {
     public void testGetFirstRevision() throws InvalidRepositoryException {
         Revision r = git.getFirstRevision();
         assertNotNull(r);
-        assertEquals(r.getUniqueId(),"f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
+        assertEquals(r.getUniqueId(),"e83c5163316f89bfbde7d9ab23ca2e25604af290");
         assertTrue(git.isValidRevision(r));
-        assertEquals(4, r.getChangedPathsStatus().size());
+        assertEquals(11, r.getChangedPathsStatus().size());
     }
 
     @Test
     public void testGetPreviousRevision() throws InvalidProjectRevisionException {
-        Revision r1 = git.newRevision("4de1494c84fd5a5078f594f7d26ed667b1bc80ee");
+        Revision r1 = git.newRevision("eb38c22f535c7c973f27b62845c5136c4be0ae49");
         Revision r2 = git.getPreviousRevision(r1);
         assertNotNull(r2);
-        assertEquals(r2.getUniqueId(), "8131f47c9d1832a685e35cc2f838edf439f7af4c");
+        assertEquals(r2.getUniqueId(), "59c1e249808c6ba38194733fa00efddb9e0eb488");
         assertTrue(git.isValidRevision(r1));
         assertTrue(git.isValidRevision(r2));
         
         //Check a commit with multiple parents (a merge point with the master
         //branch)
-        r1 = git.newRevision("0cb54345b34fab6616f153c884fdc385180404a5");
+        r1 = git.newRevision("b51ad4314078298194d23d46e2b4473ffd32a88a");
         r2 = git.getPreviousRevision(r1);
         assertNotNull(r2);
-        assertEquals(r2.getUniqueId(), "9863034427dfd13aef0c19faa140a433542064ce");
+        assertEquals(r2.getUniqueId(), "a4b7dbef4ef53f4fffbda0a6f5eada4c377e3fc5");
         assertTrue(git.isValidRevision(r1));
         assertTrue(git.isValidRevision(r2));
     }
 
     @Test
     public void testGetNextRevision() throws InvalidProjectRevisionException {
-        Revision r1 = git.newRevision("4de1494c84fd5a5078f594f7d26ed667b1bc80ee");
+        Revision r1 = git.newRevision("c747fc6facdbbde4386418cfe6ad7e231a1b4eaf");
         Revision r2 = git.getNextRevision(r1);
         assertNotNull(r2);
-        assertEquals(r2.getUniqueId(), "b86cbd6205b7c8d7769f330f8ddcf31b160f3aea");
+        assertEquals(r2.getUniqueId(), "e8871e88adca0637eb0299a41d85400beac928bd");
         assertTrue(git.isValidRevision(r1));
         assertTrue(git.isValidRevision(r2));
         
         //Check a commit with multiple children (a merge point with the master
         //branch)
-        r1 = git.newRevision("a51210199671cd4fcf2fcfa5ba286829a73aeb62");
+        r1 = git.newRevision("6683463ed6b2da9eed309c305806f9393d1ae728");
         r2 = git.getNextRevision(r1);
         assertNotNull(r2);
-        assertEquals(r2.getUniqueId(), "86b45edcfe0026370cdff0ecea83348b406b3d92");
+        assertEquals(r2.getUniqueId(), "7d60ad7cc948b1b9e1066a3e740c91651bdc7e8d");
         assertTrue(git.isValidRevision(r1));
         assertTrue(git.isValidRevision(r2));
     }
 
     @Test
     public void testIsValidRevision() {
-        Revision r = new GitRevision("a21", new Date(12));
-        assertFalse(git.isValidRevision(r));
-        
-        r = git.newRevision("779f21b307e7c119a56700fb14f88ba63a2cccc2");
+        Revision r = git.newRevision("fa06d442c6c5113fcff9991f349157bdb0c4b989");
         assertTrue(git.isValidRevision(r));
         
         //Check a custom impemementation
@@ -188,8 +185,9 @@ public class TestGitAccessor extends TestGitSetup {
             public Set<String> getChangedPaths() {return null;}
             public Map<String, PathChangeType> getChangedPathsStatus() {return null;}
             public List<CommitCopyEntry> getCopyOperations() {return null;}
-            public int compareTo(Revision o) throws InvalidProjectRevisionException {return 0;}
+            public int compareTo(Revision o) {return 0;}
             public Set<String> getParentIds() {return null;}
+			public int compare(Revision o1, Revision o2) {return 0;}
         };
         
         assertFalse(git.isValidRevision(r));
@@ -198,12 +196,12 @@ public class TestGitAccessor extends TestGitSetup {
     @Test
     public void testGetCommitLog() 
     throws InvalidProjectRevisionException, InvalidRepositoryException, ParseException {
-        Revision r1 = git.newRevision("b5d6b907b080992c2d0220eceb66f4ffa85207cd");
-        Revision r2 = git.newRevision("3cb57d82c301e9b8a16f30f468401e3007845bb7");
+        Revision r1 = git.newRevision("13e897e58072678cdae3ec1db51cc91110dc559d");
+        Revision r2 = git.newRevision("95fd5bf82ae28da47dcbf8e6e4570e64d71dc532");
         
         CommitLog l = git.getCommitLog("", r1, r2);
         assertNotNull(l);
-        assertEquals(l.size(), 15);
+        assertEquals(l.size(), 4);
         Iterator<Revision> i = l.iterator();
         long old = 0;
         //Check log entry validity and ascending date order
@@ -215,11 +213,11 @@ public class TestGitAccessor extends TestGitSetup {
         }
         
         //Commit sequence including tags and branches
-        r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
-        r2 = git.newRevision("ae106e2a3569e5ea874852c613ed060d8e232109");
+        r1 = git.newRevision("6683463ed6b2da9eed309c305806f9393d1ae728");
+        r2 = git.newRevision("839a7a06f35bf8cd563a41d6db97f453ab108129");
         l = git.getCommitLog("", r1, r2);
         assertNotNull(l);
-        assertEquals(l.size(), 12);
+        assertEquals(l.size(), 19);
 
         //Check log entry validity and ascending order
         while (i.hasNext()) {
@@ -230,16 +228,15 @@ public class TestGitAccessor extends TestGitSetup {
         }
         
         //Commit sequence including tags and branches + path filter
-        r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
-        r2 = git.newRevision("ae106e2a3569e5ea874852c613ed060d8e232109");
+        r1 = git.newRevision("d19fbc3c171aa71a79b2ff0b654e3064c91628b8");
+        r2 = git.newRevision("6bd9b6822f7647cb3275cf151ca92c6d6e9423aa");
         
-        l = git.getCommitLog("/tests", r1, r2);
+        l = git.getCommitLog("/Documentation", r1, r2);
         assertNotNull(l);
-        assertEquals(l.size(), 3);
+        assertEquals(l.size(), 2);
         Iterator<Revision> it = l.iterator();
-        assertEquals(it.next().getDate().getTime(), sdf.parse("Mon Mar 3 14:47:01 2008 -0800").getTime());
-        assertEquals(it.next().getUniqueId(), "1d845799ebc05bee9e3a68b7ad9dd5015277ca41");
-        assertEquals(it.next().getUniqueId(), "476d943baabc9852f1653088a58bdb2912bbd95a");
+        assertEquals(it.next().getDate().getTime(), sdf.parse("Sun Jan 7 19:23:49 2007 -0500").getTime());
+        assertEquals(it.next().getUniqueId(), "6bd9b6822f7647cb3275cf151ca92c6d6e9423aa");
 
         //Check log entry validity and ascending order
         while (i.hasNext()) {
@@ -250,19 +247,18 @@ public class TestGitAccessor extends TestGitSetup {
         }
 
         //Commit sequence with null second argument, should return entry for specific commit
-        r1 = git.newRevision("55a5e323d241cfbd5a59d9a440c506b24b4c255a");
+        r1 = git.newRevision("98327e5891471e7baceda5c6543a387f0dd21d3a");
 
         l = git.getCommitLog("", r1, null);
         assertNotNull(l);
         assertEquals(l.size(), 1);
         Revision r = l.iterator().next();
-        assertEquals(r.getUniqueId(), "55a5e323d241cfbd5a59d9a440c506b24b4c255a");
+        assertEquals(r.getUniqueId(), "98327e5891471e7baceda5c6543a387f0dd21d3a");
         
-        assertTrue(r.getChangedPaths().contains("/.gitignore"));
-        assertTrue(r.getChangedPaths().contains("/Rakefile"));
+        assertTrue(r.getChangedPaths().contains("/git-svn.perl"));
 
         //Get the full log
-        r1 = git.newRevision("f5baa11a1c82dc42ade5c291e9f061c13b66bc2f");
+        r1 = git.newRevision(git.getFirstRevision().getUniqueId());
         r2 = git.newRevision(git.getHeadRevision().getUniqueId());
         l = git.getCommitLog("", r1, r2);
         assertNotNull(l);
@@ -271,14 +267,14 @@ public class TestGitAccessor extends TestGitSetup {
     @Test
     public void testGetNodeType() throws InvalidRepositoryException, MissingObjectException, 
     IncorrectObjectTypeException, CorruptObjectException, IOException, URISyntaxException {
-        Revision r = git.newRevision("ab20a674e50268b6c541949c746d77b16a26d15c");
+        Revision r = git.newRevision("33a59fd07d8d75e58a5b1edbcc3c5798c98aa8bf");
         
         //Basic checks
-        SCMNodeType t = git.getNodeType("/lib", r);
+        SCMNodeType t = git.getNodeType("/compat", r);
         assertNotNull(t);
         assertEquals(SCMNodeType.DIR, t);
         
-        t = git.getNodeType("/lib/git/repository.rb", r);
+        t = git.getNodeType("/contrib/colordiff/README", r);
         assertNotNull(t);
         assertEquals(SCMNodeType.FILE, t);
         
@@ -291,7 +287,7 @@ public class TestGitAccessor extends TestGitSetup {
         assertEquals(SCMNodeType.DIR, t);
         
         //JGit bug specific test, to check whether new versions will fix it
-        initTestRepo();
+        /*initTestRepo();
         r = git.newRevision("b18bca3b853dee6a7bc86f09921aa3b1ee3f3d7b");
         
         RevWalk rw = new RevWalk(local);
@@ -321,28 +317,28 @@ public class TestGitAccessor extends TestGitSetup {
 		
 		assertNotNull(b);
 		assertEquals(b, FileMode.REGULAR_FILE);
-		assertFalse(a.equals(b)); //This should fail when the correspoding bug in Jgit gets fixed
+		assertFalse(a.equals(b)); //This should fail when the correspoding bug in Jgit gets fixed*/
     }
     
     @Test
     public void testGetTags() {
     	Map<String, String> tags = git.allTags();
     	assertNotNull(tags);
-    	assertEquals(tags.keySet().size(), 10);
-    	assertTrue(tags.values().contains("v1.2.0"));
-    	assertTrue(tags.values().contains("1.0.3"));
+    	assertEquals(tags.keySet().size(), 342);
+    	assertTrue(tags.values().contains("v1.7.3-rc0"));
+    	assertTrue(tags.values().contains("gitgui-0.7.0-rc1"));
     }
 
     @Test
     public void testGetCommitChidren() throws AccessorException, InvalidProjectRevisionException {
-    	Revision normal = git.newRevision("13f7daaf27656fefe4c266e9b53a53010caf4177");
+    	Revision normal = git.newRevision("15000d78996db926d18dd68e6f5f5770de09cad3");
     	String[] children = git.getCommitChidren(normal.getUniqueId());
     	assertEquals(children.length, 1);
     	Revision child = git.newRevision(children[0]);
     	assertNotNull(child);
     	assertTrue(child.getParentIds().contains(normal.getUniqueId()));
     	
-    	Revision branch = git.newRevision("2cef1e66c395296620225c7ffd77b772c6ad4215");
+    	Revision branch = git.newRevision("6683463ed6b2da9eed309c305806f9393d1ae728");
     	children = git.getCommitChidren(branch.getUniqueId());
     	assertEquals(children.length, 2);
     	Revision first = git.newRevision(children[0]);
@@ -352,10 +348,6 @@ public class TestGitAccessor extends TestGitSetup {
     	assertNotNull(second);
     	assertTrue(second.getParentIds().contains(branch.getUniqueId()));
     	assertTrue(first.compareTo(second) < 0);
-    	
-    	Revision head = git.newRevision("94f389bf5d9af4511597d035e69d1be9510b50c7");
-    	children = git.getCommitChidren(head.getUniqueId());
-    	assertEquals(children.length, 0);
     }
 
     @Test
