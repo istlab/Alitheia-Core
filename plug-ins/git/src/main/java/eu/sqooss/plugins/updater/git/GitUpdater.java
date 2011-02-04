@@ -280,7 +280,6 @@ public class GitUpdater implements MetadataUpdater {
         	if (children.length > 1) {
         		//The previous commit generated a branch. Expand 
         		//previous commit.
-        		//int idx = Arrays.binarySearch(children, rev.getUniqueId());
         		String prevName = branchName(previous);
         		BranchGraph prev = bg.find(prevName);
         		BranchGraph cur = new BranchGraph();
@@ -288,8 +287,12 @@ public class GitUpdater implements MetadataUpdater {
         		name = cur.toString();
         	} else {
         		if (parents.length > 1) {
-        			//Merge commit, combine branch names
-        			
+        		    BranchGraph mergeParent = bg.find(branchName(git.newRevision(parents[0])));
+        			//Merge commit, get parent branches and combine them
+        		    for (int i = 1; i < parents.length; i++) {
+        		        BranchGraph toMerge = bg.find(branchName(git.newRevision(parents[i])));
+        		        mergeParent.merge(toMerge);
+        		    }
         		} else {
         			//Just re-use the branch name from the previous commit
         			name = branchName(previous);

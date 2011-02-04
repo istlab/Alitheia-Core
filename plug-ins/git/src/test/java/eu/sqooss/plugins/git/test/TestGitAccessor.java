@@ -324,7 +324,7 @@ public class TestGitAccessor extends TestGitSetup {
     public void testGetTags() {
     	Map<String, String> tags = git.allTags();
     	assertNotNull(tags);
-    	assertEquals(tags.keySet().size(), 342);
+    	assertEquals(tags.keySet().size(), 340);
     	assertTrue(tags.values().contains("v1.7.3-rc0"));
     	assertTrue(tags.values().contains("gitgui-0.7.0-rc1"));
     }

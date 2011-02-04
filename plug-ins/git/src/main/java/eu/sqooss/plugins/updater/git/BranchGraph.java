@@ -25,9 +25,18 @@ public class BranchGraph {
 	}
 	
 	BranchGraph find (String s) {
+	    if (!s.contains("-")) {
+	        return this;
+	    }
+	    
 		int idx = Integer.parseInt(s.split("-")[0]);
 		return children.get(idx).find (s.substring(s.indexOf('-') == 0?0:s.indexOf('-') + 1));
 	}
+	
+	void merge (BranchGraph s) {
+        parent.children.add(s);
+        
+    }
 	
 	@Override
 	public boolean equals(Object obj) {
