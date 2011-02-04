@@ -212,6 +212,8 @@ public class GitUpdater implements MetadataUpdater {
 
     private ProjectVersion processOneRevision(Revision entry) 
     	throws AccessorException, InvalidProjectRevisionException {
+        Branch b = getBranch(entry);
+        
         ProjectVersion pv = new ProjectVersion(project);
         pv.setRevisionId(entry.getUniqueId());
         pv.setTimestamp(entry.getDate().getTime());
@@ -246,6 +248,50 @@ public class GitUpdater implements MetadataUpdater {
         return pv;
     }
     
+    //Naming scheme for implicit branches. 
+    public Branch getBranch(Revision rev) 
+        throws AccessorException, InvalidProjectRevisionException {
+        String[] parents = new String[rev.getParentIds().size()];
+        Branch branch = null;
+        
+        //Not a fork of an existing commit --> a new branch
+        if (parents.length == 0) {
+            //First project branch
+            if (project.getBranches().size() == 0) {
+                branch = new Branch(project, Branch.suggestName(project, false, null));
+            } else {
+                //A parentless branch, created by the following sequence
+                //git branch "test" && git checkout test && touch a && git commit -a -m "test"
+                branch = new Branch(project, Branch.suggestName(project, false, null));
+            }
+        } else {
+            //For the next statement, we don't care if a commit is a merge,
+            //because it cannot create a branch and a merge at the same time.
+            //So, we just examine the first parent.
+            String[] children = git.getCommitChidren(parents[0]);
+            Revision previous = git.getPreviousRevision(rev);
+            if (children.length > 1) {
+                //The previous commit generated a branch.
+                branch = new Branch(project, Branch.suggestName(project, false, null));
+            } else {
+                if (parents.length > 1) {
+                    //The commit is a merge. Create a new branch and mark the 
+                    //merged branches as such
+                    List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+                    for (String parent : parents) {
+                        versions.add(ProjectVersion.getVersionByRevision(project, parent));
+                    }
+                    branch = new Branch(project, Branch.suggestName(project, true, versions));
+                } else {
+                    //Just re-use the branch from the previous commit
+                    branch = ProjectVersion.getVersionByRevision(project, 
+                            previous.getUniqueId()).getBranch();
+                }
+            }
+        }
+        
+        return branch;
+    }
     
     public Developer getAuthor(StoredProject sp, String entryAuthor) {
         InternetAddress ia = null;

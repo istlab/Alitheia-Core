@@ -69,6 +69,9 @@ public class Branch extends DAObject {
 	private static final String qBranchByName = 
 		"from Branch b where b.name = :name and b.project = :project";
 	
+	private static final String qNextSequence = 
+        "select count(b) from Branch b where b.name not like :name and b.project = :project";
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="BRANCH_ID")
@@ -147,4 +150,34 @@ public class Branch extends DAObject {
 		
 		return branches.get(0);
 	}
+	
+	public static String suggestName(StoredProject sp, 
+	        boolean isMerge, List<ProjectVersion> mergeVersions) {
+	    DBService db = AlitheiaCore.getInstance().getDBService();
+        StringBuffer name = new StringBuffer();
+        
+        if (isMerge) {
+            name.append("merge");
+            for (ProjectVersion pv : mergeVersions) {
+                name.append("-");
+                String branchname = pv.getBranch().getName();
+                if (branchname.contains("merge"))
+                    branchname = branchname.substring(branchname.indexOf("-") + 1);
+                
+                name.append(branchname);
+            }
+            return name.toString();
+        }
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        
+        params.put("name", "%merge%");
+        params.put("project", sp);
+        
+        List<Long> ids = (List<Long>)db.doHQL(qNextSequence, params);
+        if (ids.isEmpty())
+            return "1";
+        else
+            return String.valueOf(ids.get(0) + 1);
+    }
 }
