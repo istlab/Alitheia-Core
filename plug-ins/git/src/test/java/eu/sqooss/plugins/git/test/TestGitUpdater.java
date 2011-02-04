@@ -49,8 +49,6 @@ public class TestGitUpdater extends TestGitSetup {
     static Logger l;
     static GitUpdater updater;
     static StoredProject sp ;
-
-    static Map<String, String> branchNames = new HashMap<String, String>();
     
     @BeforeClass
     public static void setup() throws IOException, URISyntaxException {
@@ -162,19 +160,6 @@ public class TestGitUpdater extends TestGitSetup {
         assertEquals(1, d.getAliases().size());
        
         db.rollbackDBSession();
-    }
-    
-    @Test
-    public void testGetBranchName() 
-    	throws InvalidProjectRevisionException, InvalidRepositoryException, AccessorException  {
-    	CommitLog log = git.getCommitLog("", git.getFirstRevision(), git.getHeadRevision());
-    	BranchNameTestUpdater updater = new BranchNameTestUpdater(git);
-    	
-    	for (Revision entry : log ) {
-    		String name = updater.getBranchName(entry);
-    		updater.addVersionBranch(entry.getUniqueId(), name);
-    		System.err.println("Rev:" + entry.getUniqueId() + " branch:" + name);
-    	}
     }
     
     @Test
