@@ -23,9 +23,19 @@ public class BidiMap<K, V> extends HashMap<K, V> {
     public K getKey(V value) {
         return inverse.get(value);
     }
-    
-    public void putKey (V value, K key) {
-        put(key, value);
+        
+    @Override
+    public V put(K key, V value) {
+        V prev = super.put(key, value);
         inverse.put(value, key);
+        return prev;
+    };
+    
+    @Override
+    public void putAll(Map<? extends K, ? extends V> m) {
+        super.putAll(m);
+        for (K key : m.keySet()) {
+            inverse.put(super.get(key), key);
+        }
     }
 }

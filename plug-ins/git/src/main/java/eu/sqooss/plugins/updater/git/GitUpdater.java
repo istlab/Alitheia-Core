@@ -43,8 +43,6 @@ import java.util.StringTokenizer;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
-import org.apache.commons.collections.BidiMap;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
@@ -68,6 +66,7 @@ import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.util.BidiMap;
 import eu.sqooss.service.util.FileUtils;
 import eu.sqooss.service.util.Pair;
 
@@ -254,7 +253,8 @@ public class GitUpdater implements MetadataUpdater {
     }
     
     //<Integer, List<Integer>>
-    BidiMap branchGraph = new DualHashBidiMap();
+    //BidiMap branchGraph = new DualHashBidiMap();
+    BidiMap<Integer, List<Integer>> branchGraph = new BidiMap<Integer, List<Integer>>();
     Map<Integer, List<Integer>> availBranchNames = new HashMap<Integer, List<Integer>>();
     int branchseq = 0;
     
@@ -267,11 +267,14 @@ public class GitUpdater implements MetadataUpdater {
         String name = null;
 
         // Not a fork of an existing commit --> a new branch
-        if (parents.length == 0) 
+        if (parents.length == 0) {
             // A parent-less branch, created by the following sequence
             // git branch "test" && git checkout test && touch a && git commit
             // -a -m "test"
-            return String.valueOf(branchseq++);
+            name = String.valueOf(branchseq++);
+            System.err.println("New branch: " + name);
+            return name;
+        }
 
         // A commit cannot be a branch and a merge at the same time.
         // Just examine the first parent then.
@@ -282,10 +285,11 @@ public class GitUpdater implements MetadataUpdater {
             for (int i = 0; i < children.length; i++)
                 newBranches.add(branchseq++);
 
-            branchGraph.put(branchName(previous).get(0), newBranches);
+            branchGraph.put(branchName(previous).get(0), newBranches);            
             // Create a copy as the copied list is manipulated afterwards
             // Beware: Java Collections crap in effect
             Integer[] arr = newBranches.toArray(new Integer[1]);
+
             ArrayList<Integer> newBranchesCopy = new ArrayList<Integer>(Arrays.asList(arr));
             availBranchNames.put(branchName(previous).get(0), newBranchesCopy);
             name = toBranchName(branchName(previous));
@@ -305,8 +309,8 @@ public class GitUpdater implements MetadataUpdater {
                     List<Integer> toRemove = new ArrayList<Integer>();
                     for (int i = 0; i < size; i++) {
                         if (branchGraph.get(names.get(i)) != null) {
-                            names.addAll((List<Integer>) branchGraph.get(names.get(i)));
-                            toRemove.add(i);
+                            names.addAll(branchGraph.get(names.get(i)));
+                            toRemove.add(names.get(i));
                         }
                     }
                     if (toRemove.isEmpty()) {
@@ -317,6 +321,7 @@ public class GitUpdater implements MetadataUpdater {
                     }
                 }
 
+                // Remove duplicates and sort
                 Set<Integer> uniqNames = new HashSet<Integer>();
                 uniqNames.addAll(names);
                 names.clear();
@@ -325,13 +330,36 @@ public class GitUpdater implements MetadataUpdater {
 
                 // Reduce potential name by taking advantage of existing
                 // branch parent-child hierarchies.
-                name = toBranchName(names);
+                Integer[] namesarr = names.toArray(new Integer[1]);
+                int j = namesarr.length;
+                for (int i = 0; i < namesarr.length; i++) {
+                    for (; j > i; j--) {
+                        Integer[] tmp = new Integer[j - i];
+                        System.arraycopy(namesarr, i, tmp, 0, j - i);
+                        List<Integer> tmpList = Arrays.asList(tmp);
+                        Integer toReplace = branchGraph.getKey(tmpList);
+                        if (toReplace != null) {
+                            // Found a replacement!
+                            System.err.println("Replace " + tmpList + " with " + toReplace);
+                            Integer[] toCopy = new Integer[namesarr.length - (j - i) + 1];
+                            System.arraycopy(namesarr, 0, toCopy, 0, i);
+                            toCopy[i] = toReplace;
+                            System.arraycopy(namesarr, j, toCopy, i + 1,namesarr.length - j);
+                            namesarr = toCopy;
+                            //i = 0;
+                            j = toCopy.length;
+                            break;
+                        }
+                    }
+                }
+                name = toBranchName(Arrays.asList(namesarr));
 
             } else {
                 if (git.getCommitChidren(previous.getUniqueId()).length > 1) {
                     // The previous commit generated a branch. Get the first
                     // unused branch name
                     name = availBranchNames.get(branchName(previous).get(0)).remove(0).toString();
+                    System.err.println("New branch: " + name);
                     if (availBranchNames.get(branchName(previous).get(0)).size() == 0)
                         availBranchNames.remove(branchName(previous).get(0));
                 } else {
