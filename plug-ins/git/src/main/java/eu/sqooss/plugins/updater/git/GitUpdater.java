@@ -98,6 +98,13 @@ public class GitUpdater implements MetadataUpdater {
      */
     private static Map<Integer, Integer> stateWeights ;
     
+    /*
+     * Branch naming helper structures 
+     */
+    protected BidiMap<List<Integer>, List<Integer>> branchGraph = new BidiMap<List<Integer>, List<Integer>>();
+    protected Map<List<Integer>, List<Integer>> availBranchNames = new HashMap<List<Integer>, List<Integer>>();
+    protected int branchseq = 0;
+    
     static {
         stateWeights = new HashMap<Integer, Integer>();
 
@@ -251,10 +258,6 @@ public class GitUpdater implements MetadataUpdater {
                 " seq: " + pv.getSequence());
         return pv;
     }
-    
-    BidiMap<List<Integer>, List<Integer>> branchGraph = new BidiMap<List<Integer>, List<Integer>>();
-    Map<List<Integer>, List<Integer>> availBranchNames = new HashMap<List<Integer>, List<Integer>>();
-    int branchseq = 0;
     
     // Naming scheme for implicit branches.
     // Beware: Java Collections crap in effect
