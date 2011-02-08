@@ -38,4 +38,11 @@ public class BidiMap<K, V> extends HashMap<K, V> {
             inverse.put(super.get(key), key);
         }
     }
+    
+    @Override
+    public V remove(Object key) {
+        V value = super.remove(key);
+        inverse.remove(value);
+        return value;
+    }
 }
