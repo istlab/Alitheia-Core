@@ -252,8 +252,8 @@ public class GitUpdater implements MetadataUpdater {
         return pv;
     }
     
-    BidiMap<Integer, List<Integer>> branchGraph = new BidiMap<Integer, List<Integer>>();
-    Map<Integer, List<Integer>> availBranchNames = new HashMap<Integer, List<Integer>>();
+    BidiMap<List<Integer>, List<Integer>> branchGraph = new BidiMap<List<Integer>, List<Integer>>();
+    Map<List<Integer>, List<Integer>> availBranchNames = new HashMap<List<Integer>, List<Integer>>();
     int branchseq = 0;
     
     // Naming scheme for implicit branches.
@@ -272,33 +272,40 @@ public class GitUpdater implements MetadataUpdater {
         }
 
         Revision previous = git.getPreviousRevision(rev);
+        List<Integer> previousBranchName = null;
+        
+        if (git.getCommitChidren(previous.getUniqueId()).length <= 1){
+            previousBranchName = branchName(previous);
+        } else {
+            if (children.length > 1) {
+                previousBranchName = new ArrayList<Integer>();
+                previousBranchName.add(getAvailBranchName(previous));
+            }
+        }
+        
         if (children.length > 1) {
-            // The commit has more than 1 child -> generates a branch
+            // The commit has more than 1 child -> creates a branch
             List<Integer> newBranches = new ArrayList<Integer>();
             //Create branch names
             for (int i = 0; i < children.length; i++)
                 newBranches.add(branchseq++);
 
             //Store the operation in the current branch graph
-            branchGraph.put(branchName(previous).get(0), newBranches);
-            System.err.println(rev.getUniqueId() + " branch " + branchName(previous).get(0) + "->" + newBranches);
+            branchGraph.put(previousBranchName, newBranches);
+            debug(rev.getUniqueId() + " branch " + previousBranchName + "->" + newBranches);
+
             // Store the resulting branch names for the children to use when
             // they are processed.
             // Create a copy, as the copied list is manipulated afterwards
             Integer[] arr = newBranches.toArray(new Integer[1]);
             ArrayList<Integer> newBranchesCopy = new ArrayList<Integer>(Arrays.asList(arr));
-            availBranchNames.put(branchName(previous).get(0), newBranchesCopy);
-            name = toBranchName(branchName(previous));
+            availBranchNames.put(previousBranchName, newBranchesCopy);
+            name = toBranchName(previousBranchName);
+
         } else {
             if (parents.length > 1) {
                 /*
-                 * Merge commit, get parent branch names and combine them. Then,
-                 * expand the names of the merged branches to their
-                 * constituents. The expansion is the result of replacing a
-                 * branch's name with the names of the branches that produced
-                 * it, if we have such information at this stage of processing.
-                 * For example, if the merge commit merges the branches {8,2}
-                 * and {9,6}, and we know that
+                 * Merge commit, get parent branch names and combine them. 
                  */
                 List<Integer> names = new ArrayList<Integer>();
                 for (String parent : parents) {
@@ -309,39 +316,14 @@ public class GitUpdater implements MetadataUpdater {
                      */
                     if (Arrays.asList(git.getCommitChidren(parent)).contains(rev.getUniqueId())
                             && git.getCommitChidren(parent).length > 1) {
-                        names.add(availBranchNames.get(branchName(git.newRevision(parent)).get(0)).remove(0));
-                        if (availBranchNames.get(branchName(git.newRevision(parent)).get(0)).size() == 0)
-                            availBranchNames.remove(branchName(previous).get(0));
+                        names.add(getAvailBranchName(git.newRevision(parent)));
                     } else {
                         names.addAll(branchName(git.newRevision(parent)));
                     }
                 }
-
-                boolean hasExpansions = true;
-                while (hasExpansions) {
-                    int size = names.size();
-                    List<Integer> toRemove = new ArrayList<Integer>();
-                    for (int i = 0; i < size; i++) {
-                        if (branchGraph.get(names.get(i)) != null) {
-                            names.addAll(branchGraph.get(names.get(i)));
-                            toRemove.add(names.get(i));
-                        }
-                    }
-                    if (toRemove.isEmpty()) {
-                        hasExpansions = false;
-                    }
-                    for (Integer i : toRemove) {
-                        names.remove(i);
-                    }
-                }
-
-                // Remove duplicates and sort
-                Set<Integer> uniqNames = new HashSet<Integer>();
-                uniqNames.addAll(names);
-                names.clear();
-                names.addAll(uniqNames);
                 Collections.sort(names);
-
+                //debug("Merge request for " + names);
+               
                 /*
                  * Reduce potential name by taking advantage of existing branch
                  * parent-child hierarchies. To do so, the algorithm searches
@@ -367,22 +349,23 @@ public class GitUpdater implements MetadataUpdater {
                  * name is rewritten as described above.
                  */
                 Integer[] namesarr = names.toArray(new Integer[1]);
-                int j = namesarr.length;
                 for (int i = 0; i < namesarr.length; i++) {
-                    for (; j > i; j--) {
+                    int j = namesarr.length;
+                    for (; j > i + 1; j--) {
                         Integer[] tmp = new Integer[j - i];
                         System.arraycopy(namesarr, i, tmp, 0, j - i);
                         List<Integer> tmpList = Arrays.asList(tmp);
-                        Integer match = branchGraph.getKey(tmpList);
+                        List<Integer> match = branchGraph.getKey(tmpList);
+                        //debug("attempting match " + tmpList);
                         if (match != null) {
                             // Found a replacement!
-                            System.err.println(rev.getUniqueId() + " merge " + tmpList + " -> " + match);
-                            Integer[] toCopy = new Integer[namesarr.length - (j - i) + 1];
+                            debug(rev.getUniqueId() + " merge " + tmpList + " -> " + match);
+                            Integer[] toCopy = new Integer[namesarr.length - (j - i) + match.size()];
                             System.arraycopy(namesarr, 0, toCopy, 0, i);
-                            toCopy[i] = match;
+                            System.arraycopy(match.toArray(new Integer[0]), 0, toCopy, i, match.size());
                             System.arraycopy(namesarr, j, toCopy, i + 1,namesarr.length - j);
                             namesarr = toCopy;
-                            j = toCopy.length;
+                            i = -1;
                             branchGraph.remove(match);
                             break;
                         }
@@ -395,16 +378,25 @@ public class GitUpdater implements MetadataUpdater {
                     // The previous commit generated a branch. Get the first
                     // unused branch name. All the first childs of branches 
                     // must get a new branch name.
-                    name = availBranchNames.get(branchName(previous).get(0)).remove(0).toString();
-                    if (availBranchNames.get(branchName(previous).get(0)).size() == 0)
-                        availBranchNames.remove(branchName(previous).get(0));
+                   name = getAvailBranchName(previous).toString();
                 } else {
                     // Just re-use the branch name from the previous commit
-                    name = toBranchName(branchName(previous));
+                    name = toBranchName(previousBranchName);
                 }
             }
         }
-
+        return name;
+    }
+    
+    protected  Integer getAvailBranchName(Revision previous) {
+        List<Integer> prevBranch = branchName(previous);
+        if (availBranchNames.get(prevBranch) == null)
+            debug("Here");
+        Integer name = availBranchNames.get(prevBranch).remove(0);
+        if (availBranchNames.get(prevBranch).size() == 0) {
+            //debug("removing " + branchName(previous));
+            availBranchNames.remove(prevBranch);
+        }
         return name;
     }
 
@@ -971,7 +963,10 @@ public class GitUpdater implements MetadataUpdater {
     
     /** Convenience method to write debug messages per project */
     protected void debug(String message) {
+        if (log != null)
             log.debug("Git:" + project.getName() + ":" + message);
+        else
+            System.err.println(message);
     }
 }
 

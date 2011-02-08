@@ -168,11 +168,11 @@ public class TestGitUpdater extends TestGitSetup {
     	CommitLog log = git.getCommitLog("", git.getFirstRevision(), git.getHeadRevision());
     	BranchNameTestUpdater updater = new BranchNameTestUpdater(git);
     	
-    	for (Revision entry : log ) {
+    	for (Revision entry : log) {
     		String name = updater.getBranchName(entry);
     		assertNotNull (name);
     		updater.addVersionBranch(entry.getUniqueId(), name);
-    		System.err.println("Rev:" + entry.getUniqueId() + " branch:" + name);
+    	//	System.err.println(entry.getUniqueId() + " branch:" + name);
     	}
     }
     
