@@ -71,7 +71,7 @@ public class Branch extends DAObject {
 	
 	private static final String qNextSequence = 
         "select count(b) from Branch b where b.name not like :name and b.project = :project";
-	
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="BRANCH_ID")

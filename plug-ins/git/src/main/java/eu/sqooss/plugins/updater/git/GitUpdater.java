@@ -30,6 +30,8 @@
 
 package eu.sqooss.plugins.updater.git;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,8 +45,11 @@ import java.util.StringTokenizer;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.hibernate.mapping.Array;
+
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.git.test.BranchNameTestUpdater;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
@@ -162,7 +167,7 @@ public class GitUpdater implements MetadataUpdater {
         info("Running source update for project " + project.getName() 
                 + " ID " + project.getId());
         
-        //1. Compare latest DB version with the repository
+        //Compare latest DB version with the repository
         ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(project);
         Revision next;
         if (latestVersion != null) {  
@@ -179,10 +184,13 @@ public class GitUpdater implements MetadataUpdater {
         } else {
             next = git.getFirstRevision();
         }
-        
-        updateFromTo(next, git.getHeadRevision());
+
+        //Init the branch naming related data structures
+        initBranchNaming(next);
+       
+        updateFromTo(next, git.getHeadRevision());  
     } 
-    
+
     public void updateFromTo(Revision from, Revision to)
             throws InvalidProjectRevisionException, InvalidRepositoryException, AccessorException {
         if (from.compareTo(to) > 1)
@@ -210,7 +218,6 @@ public class GitUpdater implements MetadataUpdater {
 
             if (!dbs.commitDBSession()) {
                 warn("Intermediate commit failed, failing update");
-                //restart();
                 return;
             }
             
@@ -230,6 +237,9 @@ public class GitUpdater implements MetadataUpdater {
         pv.setTimestamp(entry.getDate().getTime());
 
         Developer d = getAuthor(project, entry.getAuthor());
+
+        Branch b = Branch.fromName(project, getBranchName(entry));
+        pv.setBranch(b);
 
         pv.setCommitter(d);
         
@@ -259,7 +269,11 @@ public class GitUpdater implements MetadataUpdater {
         return pv;
     }
     
-    // Naming scheme for implicit branches.
+    /**
+     * Git enables easy branching, but does not store the name of branches after
+     * deleting them or pushing to remote repositories. The following algorithm
+     * attempts to provide a sane naming scheme for implicit branches.
+     */
     // Beware: Java Collections crap in effect
     public String getBranchName(Revision rev) throws AccessorException,
             InvalidProjectRevisionException {
@@ -282,7 +296,7 @@ public class GitUpdater implements MetadataUpdater {
         } else {
             if (children.length > 1) {
                 previousBranchName = new ArrayList<Integer>();
-                previousBranchName.add(getAvailBranchName(previous));
+                previousBranchName.addAll(getAvailBranchName(previous));
             }
         }
         
@@ -319,7 +333,7 @@ public class GitUpdater implements MetadataUpdater {
                      */
                     if (Arrays.asList(git.getCommitChidren(parent)).contains(rev.getUniqueId())
                             && git.getCommitChidren(parent).length > 1) {
-                        names.add(getAvailBranchName(git.newRevision(parent)));
+                        names.addAll(getAvailBranchName(git.newRevision(parent)));
                     } else {
                         names.addAll(branchName(git.newRevision(parent)));
                     }
@@ -391,27 +405,42 @@ public class GitUpdater implements MetadataUpdater {
         return name;
     }
     
-    protected  Integer getAvailBranchName(Revision previous) {
+    /**
+     * Search the list of available branch names for the children of a specific
+     * branch point and return the first available.
+     */
+    protected  List<Integer> getAvailBranchName(Revision previous) {
         List<Integer> prevBranch = branchName(previous);
-        if (availBranchNames.get(prevBranch) == null)
-            debug("Here");
         Integer name = availBranchNames.get(prevBranch).remove(0);
+
         if (availBranchNames.get(prevBranch).size() == 0) {
             //debug("removing " + branchName(previous));
             availBranchNames.remove(prevBranch);
         }
-        return name;
+        ArrayList<Integer> names = new ArrayList<Integer>();
+        names.add(name);
+        return names;
     }
 
+    /**
+     * Return the number of branches stored by the project
+     */
     protected int getNumBranches() {
     	return project.getBranches().size();
     }
     
+    /**
+     * Get the name of the branch the provided revision belongs to
+     */
     protected List<Integer> branchName(Revision rev) {
     	ProjectVersion v = ProjectVersion.getVersionByRevision(project, rev.getUniqueId());
     	return branchNameToList(v.getBranch().getName());
     }
     
+    /**
+     * Convert a String (db or otherwise stored) branch name to the canonical
+     * list of integers naming scheme.
+     */
     protected List<Integer> branchNameToList(String name) {
         StringTokenizer st = new StringTokenizer(name, ",");
         ArrayList<Integer> result = new ArrayList<Integer>();
@@ -423,6 +452,9 @@ public class GitUpdater implements MetadataUpdater {
         return result;
     }
     
+    /**
+     * Convert an internal representation of a branch name to a string
+     */
     protected String toBranchName(List<Integer> name) {
         StringBuffer b = new StringBuffer();
         for (Integer i : name) {
@@ -432,6 +464,27 @@ public class GitUpdater implements MetadataUpdater {
         return b.toString();
     }
     
+    /**
+     * Init the branch naming data structures.
+     */
+    private void initBranchNaming(Revision next)
+        throws InvalidProjectRevisionException, InvalidRepositoryException,
+        AccessorException {
+        long ts = System.currentTimeMillis();
+
+        branchseq = getNumBranches();
+        CommitLog log = git.getCommitLog("", git.getFirstRevision(), next);
+        BranchNameTestUpdater updater = new BranchNameTestUpdater(git);
+
+        for (Revision entry : log) {
+            updater.getBranchName(entry);
+        }
+        debug("initBranchNaming(): " + (System.currentTimeMillis() - ts) + " ms");
+    }
+    
+    /**
+     * Do our best to fill in the Developer object with good information.
+     */
     public Developer getAuthor(StoredProject sp, String entryAuthor) {
         InternetAddress ia = null;
         String name = null, email = null;
