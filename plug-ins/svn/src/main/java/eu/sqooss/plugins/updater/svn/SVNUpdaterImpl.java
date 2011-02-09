@@ -395,7 +395,6 @@ public class SVNUpdaterImpl implements MetadataUpdater {
          * tags or branches directories is supposed to create a 
          * branch or tag, as per: 
          * http://svnbook.red-bean.com/en/1.1/ch04s06.html
-         * 
          */
         for (CommitCopyEntry copyOp : entry.getCopyOperations()) {
         	SCMNode s = null; 
@@ -416,9 +415,9 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         	String dirname = FileUtils.dirname(copyOp.toPath());
         	
         	if (dirname.equals(branchesPath) || dirname.equals(branchesPath + "/")) {
-        		//Branch b = new Branch(curVersion, FileUtils.basename(copyOp.toPath()), null);
         		Branch b = new Branch(project, FileUtils.basename(copyOp.toPath()));
-        		b.addVersion(curVersion);
+        		b.getBranchIncoming().add(prev);
+        		b.getBranchOutgoing().add(curVersion);
         		dbs.addRecord(b);
         	}
         	
@@ -428,6 +427,9 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         		dbs.addRecord(tag);
         	}
         }
+        
+        curVersion.getIncomingBranches().addAll(prev.getOutgoingBranches());
+        curVersion.getOutgoingBranches().addAll(prev.getOutgoingBranches());
         
         return curVersion;
     }
