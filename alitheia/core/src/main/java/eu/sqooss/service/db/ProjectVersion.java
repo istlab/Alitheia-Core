@@ -52,12 +52,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.Index;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -93,6 +96,8 @@ public class ProjectVersion extends DAObject {
      */
     @XmlElement
     @Column(name="REVISION_ID")
+    @Index(name="IDX_PROJECT_VERSION_REVISION", 
+            columnNames={"STORED_PROJECT_ID", "REVISION_ID"})
     private String revisionId;
 
     /**
@@ -117,12 +122,6 @@ public class ProjectVersion extends DAObject {
     @XmlElement
     @Column(name="COMMIT_MESSAGE", length=512)
     private String commitMsg;
-
-    /**
-     * SCM properties associated with this version. For future use.
-     */
-    @Column(name="PROPERTIES", length=512)
-    private String properties;
     
     /**
      * The order of this version. The ordering of revisions depends on
@@ -155,12 +154,21 @@ public class ProjectVersion extends DAObject {
      */
     @OneToMany(mappedBy="child", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProjectVersionParent> parents;
-
-    @XmlElement
-    @ManyToOne
-    @JoinColumn(name="BRANCH_ID")
-    private Branch branch;
     
+    @ManyToMany
+    @JoinTable(
+            name="BRANCH_INCOMING",
+            joinColumns={@JoinColumn(name="PROJECT_VERSION_ID", referencedColumnName="PROJECT_VERSION_ID")},
+            inverseJoinColumns={@JoinColumn(name="BRANCH_ID", referencedColumnName="BRANCH_ID")})
+    private Set<Branch> incomingBranches;
+    
+    @ManyToMany
+    @JoinTable(
+            name="BRANCH_OUTGOING",
+            joinColumns={@JoinColumn(name="PROJECT_VERSION_ID", referencedColumnName="PROJECT_VERSION_ID")},
+            inverseJoinColumns={@JoinColumn(name="BRANCH_ID", referencedColumnName="BRANCH_ID")})
+    private Set<Branch> outgoingBranches;
+
     /**
 	 * Mask used to select directories
 	 */
@@ -247,14 +255,6 @@ public class ProjectVersion extends DAObject {
         this.committer = committer;
     }
 
-    public String getProperties() {
-        return properties;
-    }
-
-    public void setProperties(String properties) {
-        this.properties = properties;
-    }
-
     public String getCommitMsg() {
         return commitMsg;
     }
@@ -270,14 +270,6 @@ public class ProjectVersion extends DAObject {
     public void setSequence(long sequence) {
         this.sequence = sequence;
     }
-    
-	public void setBranch(Branch branch) {
-		this.branch = branch;
-	}
-
-	public Branch getBranch() {
-		return branch;
-	}
   
     /**
      * Returns the files that were changed in this revision
@@ -326,6 +318,27 @@ public class ProjectVersion extends DAObject {
     	}
         return parents;
     }
+    
+    public Set<Branch> getIncomingBranches() {
+        if (incomingBranches == null) 
+            incomingBranches = new HashSet<Branch>();
+        return incomingBranches;
+    }
+
+    public void setIncomingBranches(Set<Branch> incomingBranches) {
+        this.incomingBranches = incomingBranches;
+    }
+
+    public Set<Branch> getOutgoingBranches() {
+        if (outgoingBranches == null) 
+            outgoingBranches = new HashSet<Branch>();
+        return outgoingBranches;
+    }
+
+    public void setOutgoingBranches(Set<Branch> outgoingBranches) {
+        this.outgoingBranches = outgoingBranches;
+    }
+    
 
     /**
      * Less-than-or-equal (operator <=) for project versions.
@@ -855,15 +868,33 @@ public class ProjectVersion extends DAObject {
      * Return true if this version's actions generated a branch.
      */
     public boolean isBranch() {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
-    	Map<String, Object> props = new HashMap<String, Object>();
-    	props.put("branchVersion", this);
-    	List<Branch> branches = dbs.findObjectsByProperties(Branch.class, props);
-    	
-    	if (branches.isEmpty())
-    		return false;
-    	
-    	return true;
+    	if (getOutgoingBranches().size() > getIncomingBranches().size() 
+    	        && getIncomingBranches().size() > 0)
+    	    return true;
+    	return false;
+    }
+    
+    /**
+     * Return true if this version's actions generated a merge.
+     */
+    public boolean isMerge() {
+        if (getOutgoingBranches().size() < getIncomingBranches().size() && 
+                getIncomingBranches().size() > 1)
+            return true;
+        return false;
+    }
+    
+    /**
+     * Return true if this version's actions generated a merge.
+     */
+    public Branch getBranch() {
+        List<Branch> branches = new ArrayList<Branch>();
+        if (isMerge() || !isBranch()) {
+            branches.addAll(getOutgoingBranches());
+        } else { //isBranch()
+            branches.addAll(getIncomingBranches());
+        }
+        return branches.get(0);
     }
     
     public boolean equals(Object obj) {
@@ -887,4 +918,3 @@ public class ProjectVersion extends DAObject {
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
-

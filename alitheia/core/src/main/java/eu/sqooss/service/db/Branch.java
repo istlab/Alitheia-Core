@@ -33,13 +33,12 @@
 
 package eu.sqooss.service.db;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -47,8 +46,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
@@ -70,16 +70,13 @@ public class Branch extends DAObject {
 		"from Branch b where b.name = :name and b.project = :project";
 	
 	private static final String qNextSequence = 
-        "select count(b) from Branch b where b.name not like :name and b.project = :project";
-
+	    "select count(b) from Branch b where b.project = :project";
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="BRANCH_ID")
 	@XmlElement
 	private long id;
-	
-	@OneToMany(mappedBy="branch", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-	private Collection<ProjectVersion> versions;
 
 	@Column(name="BRANCH_NAME", unique=true, nullable = false)
 	@XmlElement
@@ -90,16 +87,27 @@ public class Branch extends DAObject {
 	@XmlElement
 	private StoredProject project;
 	
-	public Branch() {
-		versions = new ArrayList<ProjectVersion>();
-	}
+	@ManyToMany
+	@JoinTable(
+      name="BRANCH_INCOMING",
+      inverseJoinColumns={@JoinColumn(name="PROJECT_VERSION_ID", referencedColumnName="PROJECT_VERSION_ID")},
+      joinColumns={@JoinColumn(name="BRANCH_ID", referencedColumnName="BRANCH_ID")})
+    private Set<ProjectVersion> branchIncoming = new HashSet<ProjectVersion>();
 	
-	public Branch(StoredProject sp, String name) {
-		versions = new ArrayList<ProjectVersion>();
-		project = sp;
-		this.name = name;
-	}
+    @ManyToMany
+    @JoinTable(
+      name="BRANCH_OUTGOING",
+      inverseJoinColumns={@JoinColumn(name="PROJECT_VERSION_ID", referencedColumnName="PROJECT_VERSION_ID")},
+      joinColumns={@JoinColumn(name="BRANCH_ID", referencedColumnName="BRANCH_ID")})
+    private Set<ProjectVersion> branchOutgoing = new HashSet<ProjectVersion>();
 	
+    public Branch() {}
+    
+    public Branch(StoredProject sp, String name) {
+        this.project = sp;
+        this.name = name;
+    }
+    
 	public long getId() {
 		return id;
 	}
@@ -115,20 +123,6 @@ public class Branch extends DAObject {
 		this.name = name;
 	}
 	
-	public Collection<ProjectVersion> getVersions() {
-		return versions;
-	}
-
-	public void setVersions(Collection<ProjectVersion> versions) {
-		this.versions = versions;
-	}
-	
-	public void addVersion(ProjectVersion pv) {
-		if (versions == null)
-			versions = new ArrayList<ProjectVersion>();
-		versions.add(pv);
-	}
-	
 	public void setProject(StoredProject project) {
 		this.project = project;
 	}
@@ -137,7 +131,23 @@ public class Branch extends DAObject {
 		return project;
 	}
 	
-	public static Branch fromName(StoredProject sp, String name) {
+	public Set<ProjectVersion> getBranchIncoming() {
+        return branchIncoming;
+    }
+
+    public void setBranchIncoming(Set<ProjectVersion> branchIncoming) {
+        this.branchIncoming = branchIncoming;
+    }
+
+    public Set<ProjectVersion> getBranchOutgoing() {
+        return branchOutgoing;
+    }
+
+    public void setBranchOutgoing(Set<ProjectVersion> branchOutgoing) {
+        this.branchOutgoing = branchOutgoing;
+    }
+	
+	public static Branch fromName(StoredProject sp, String name, boolean create) {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		Map<String, Object> params = new HashMap<String, Object>();
 		
@@ -145,36 +155,26 @@ public class Branch extends DAObject {
 		params.put("project", sp);
 		
 		List<Branch> branches = (List<Branch>)db.doHQL(qBranchByName, params);
-		if (branches.isEmpty())
-			return null;
+		if (branches.isEmpty()) {
+		    if (!create)
+		        return null;
+		    Branch b = new Branch();
+		    b.setProject(sp);
+		    b.setName(name);
+		    db.addRecord(b);
+		    return fromName(sp, name, false);
+		}
 		
 		return branches.get(0);
 	}
-	
-	public static String suggestName(StoredProject sp, 
-	        boolean isMerge, List<ProjectVersion> mergeVersions) {
-	    DBService db = AlitheiaCore.getInstance().getDBService();
-        StringBuffer name = new StringBuffer();
-        
-        if (isMerge) {
-            name.append("merge");
-            for (ProjectVersion pv : mergeVersions) {
-                name.append("-");
-                String branchname = pv.getBranch().getName();
-                if (branchname.contains("merge"))
-                    branchname = branchname.substring(branchname.indexOf("-") + 1);
-                
-                name.append(branchname);
-            }
-            return name.toString();
-        }
-        
+
+    public static String suggestName(StoredProject sp) {
+        DBService db = AlitheiaCore.getInstance().getDBService();
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
-        params.put("name", "%merge%");
         params.put("project", sp);
-        
-        List<Long> ids = (List<Long>)db.doHQL(qNextSequence, params);
+
+        List<Long> ids = (List<Long>) db.doHQL(qNextSequence, params);
         if (ids.isEmpty())
             return "1";
         else
