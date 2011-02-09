@@ -53,6 +53,8 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.FileUtils;
 
@@ -80,6 +82,7 @@ public class ProjectFile extends DAObject{
      */
 	@Column(name="FILE_NAME")
 	@XmlElement
+    @Index(name="IDX_PROJECT_FILE_NAME")
     private String name;
 
     /**

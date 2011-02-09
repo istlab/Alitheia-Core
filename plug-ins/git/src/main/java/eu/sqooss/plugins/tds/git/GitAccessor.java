@@ -441,7 +441,8 @@ public class GitAccessor implements SCMAccessor {
     /*Methods available only to clients GitAccessor clients*/
     
     /**
-     * Get a list of all refs identifying tags with the tag name as 
+     * Get a Map <code>{revisionId -> tagname}</code> for all revisions that 
+     * are marked with a tag 
      */
     public Map<String, String> allTags() {
     	Map<String, Ref> all = git.getAllRefs();

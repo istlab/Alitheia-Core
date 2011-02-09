@@ -49,6 +49,8 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -77,6 +79,7 @@ public class Directory extends DAObject {
      */
     @Column(name="PATH")
     @XmlElement
+    @Index(name="IDX_DIRECTORY_PATH")
     private String path;
     
     /**
