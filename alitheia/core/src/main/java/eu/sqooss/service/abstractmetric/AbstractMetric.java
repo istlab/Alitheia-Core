@@ -494,8 +494,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     
     private void logErr(String method, DAObject o, Exception e) {
         log.error("Plugin:" + this.getClass().toString() + 
-                "\nDAO id:" + o.getId() + 
-                "\nDAO class:" + o.getClass() +
+                "\nDAO id: " + o.getId() + 
+                "\nDAO class: " + o.getClass() +
+                "\nDAO toString(): " + o.toString() +
                 "\nUnable to invoke " + method + " method." +
                 "\nException:" + e.getClass().getName() +
                 "\nError:" + e.getMessage() + 
