@@ -300,6 +300,15 @@ public class ProjectFile extends DAObject{
         this.measurements = measurements;
     }
     
+
+    public void setEncapsulationUnits(Set<EncapsulationUnit> encapsulationUnits) {
+        this.encapsulationUnits = encapsulationUnits;
+    }
+
+    public Set<EncapsulationUnit> getEncapsulationUnits() {
+        return encapsulationUnits;
+    }
+    
     /**
      * Returns the full path to the file, relative to the repository root
      * @return

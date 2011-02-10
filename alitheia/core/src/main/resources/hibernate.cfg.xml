@@ -65,6 +65,9 @@
         <mapping class="eu.sqooss.service.db.InvocationRule"/>
         <mapping class="eu.sqooss.service.db.OhlohDeveloper"/>
         <mapping class="eu.sqooss.service.db.ProjectVersionParent"/>
+        <mapping class="eu.sqooss.service.db.NameSpace"/>
+        <mapping class="eu.sqooss.service.db.ExecutionUnit"/>
+        <mapping class="eu.sqooss.service.db.EncapsulationUnit"/>
     </session-factory>
 
 </hibernate-configuration>

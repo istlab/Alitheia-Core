@@ -48,7 +48,7 @@ public class NameSpace extends DAObject {
     long id;
 
     /** The namespace name */
-    @Column(name = "REVISION_ID")
+    @Column(name = "NAME")
     @XmlElement
     String name;
 
@@ -74,6 +74,7 @@ public class NameSpace extends DAObject {
     @Enumerated(EnumType.STRING)
     @XmlElement
     @Index(name = "IDX_NAMESPACE_LANG")
+    @Column(name = "LANG")
     Language lang;
 
     @Override
