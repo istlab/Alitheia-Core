@@ -60,7 +60,6 @@ import eu.sqooss.core.AlitheiaCore;
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  * 
- * @assoc 1 - n ProjectVersion
  */
 @Entity
 @Table(name="BRANCH", uniqueConstraints=@UniqueConstraint(columnNames="BRANCH_NAME"))

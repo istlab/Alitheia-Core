@@ -33,7 +33,6 @@
 package eu.sqooss.service.db;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -72,6 +71,8 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n ProjectVersionMeasurement
  * @assoc 1 - n ProjectVersionParent
  * @assoc 1 - n Tag
+ * @assoc "m\n\n outgoing\r" - "n\n\n" Branch
+ * @assoc "m\n\n incoming\r" - "n\n\n" Branch
  */
 @XmlRootElement(name="version")
 @Entity
