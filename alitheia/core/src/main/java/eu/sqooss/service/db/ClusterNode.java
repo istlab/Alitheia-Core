@@ -73,7 +73,7 @@ public class ClusterNode extends DAObject {
     @XmlElement
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="clusternode",  orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REFRESH, mappedBy="clusternode",  fetch = FetchType.LAZY)
     private Set<StoredProject> projects;
     
     // Nothing to do here

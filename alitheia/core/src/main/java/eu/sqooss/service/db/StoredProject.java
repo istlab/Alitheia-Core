@@ -108,7 +108,7 @@ public class StoredProject extends DAObject {
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
 	private Set<StoredProjectConfig> configOpts;
    
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY, optional = true)
     private ClusterNode clusternode;
 	
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
