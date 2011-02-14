@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -53,7 +54,6 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
-import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -118,36 +118,22 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
     	}
 
         try {          
-        	// check if project is allready assigned to any ClusterNode
-            ClusterNodeProject assignment = ClusterNodeProject.getProjectAssignment(project);
+        	// check if project is already assigned to any ClusterNode
+            ClusterNode assignment = project.getClusternode();
             if (assignment == null) {
                 // new project assignment
                 logger.info("Assigning project " + project.getName() + " to "
                         + node.getName());
-                assignment = new ClusterNodeProject();
-                assignment.setProject(project);
-                assignment.setNode(node);
-                assignment.setLocked(false);
-                return dbs.addRecord(assignment);
+                node.getProjects().add(project);
             } else {
                 logger.info("Moving project " + project.getName() + " from "
-                        + assignment.getNode().getName() + " to "
+                        + assignment.getName() + " to "
                         + node.getName());
-                if (assignment.getNode().getId() == node.getId()) {
+                if (assignment.getId() == node.getId()) {
                     logger.info("No need to move " + project.getName()
                             + " - Already assigned!");
                     return true;
                 }
-                // TODO: Clustering - Find a way to implement a robust Locking
-                // mechanism
-                // A project shouldn't be moved when there is an Update or a
-                // Metric job in process
-                // For now, no locking is performed
-                if (assignment.isLocked()) {
-                    throw new ClusterNodeActionException("Project ["
-                            + project.getName() + "] is locked! - aborting");
-                }
-                assignment.setNode(node);
             }
         } catch (Exception e) {
             throw new ClusterNodeActionException("Failed to assign project ["
@@ -198,7 +184,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
      * @return  
      */
     public boolean isProjectAssigned(StoredProject project){
-        return ClusterNodeProject.isProjectAssigned(this.thisNode, project);
+        return (project.getClusternode() != null);
     }
 
     
@@ -362,24 +348,14 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
          	          	 
              bcontent = new StringBuilder();
              dbs.startDBSession();
-             List<ClusterNodeProject> assignments = ClusterNodeProject.getNodeAssignments(node);
+             Set<StoredProject> assignments = ClusterNode.thisNode().getProjects();
              if ((assignments!=null) &&  (assignments.size()>0) ){
                  bcontent.append("\n");
-                 for (ClusterNodeProject cnp : assignments) {                
-                     project = cnp.getProject();
-                     bcontent.append("<project id=\"" + project.getId() + "\"");
-                     
-                     // report lock status (currently unused)
-                     bcontent.append(" locked=\"");
-                     if (cnp.isLocked()) {
-                        bcontent.append("yes\"");
-                     } else {
-                        bcontent.append("no\"");
-                     }
-
-                     // check if project is currently being updated
+                 for (StoredProject sp : assignments) {                
+                     bcontent.append("<project id=\"" + sp.getId() + "\"");
+                                          // check if project is currently being updated
                      // yes/no/unknown, (unknown means that this project is assigned to another clusternode instance)                    
-                     bcontent.append(">" + project.getName() + "</project>\n");
+                     bcontent.append(">" + sp.getName() + "</project>\n");
                  }
              }
              dbs.rollbackDBSession();

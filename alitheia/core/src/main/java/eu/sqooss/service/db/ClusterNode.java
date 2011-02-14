@@ -73,8 +73,8 @@ public class ClusterNode extends DAObject {
     @XmlElement
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<ClusterNodeProject> assignments;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="clusternode",  orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<StoredProject> projects;
     
     // Nothing to do here
     public ClusterNode(){}
@@ -100,12 +100,12 @@ public class ClusterNode extends DAObject {
         this.id = id;
     }
     
-    public Set<ClusterNodeProject> getAssignments() {
-        return assignments;
+    public Set<StoredProject> getProjects() {
+        return projects;
     }
 
-    public void setAssignments(Set<ClusterNodeProject> assignments) {
-        this.assignments = assignments;
+    public void setProjects(Set<StoredProject> projects) {
+        this.projects = projects;
     }
     
     public static ClusterNode getClusteNodeByName(String name) {
@@ -129,17 +129,4 @@ public class ClusterNode extends DAObject {
         
         return getClusteNodeByName(hostname);
     }
-    
-    public List<StoredProject> getProjects() {
-        StringBuffer q = new StringBuffer("select project ");
-        q.append("from ClusterNodeProject cnp ");
-        q.append("where cnp.node =:node");
-        
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("node", this);
-        
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        return (List<StoredProject>) dbs.doHQL(q.toString(), params);
-    }
-
 }

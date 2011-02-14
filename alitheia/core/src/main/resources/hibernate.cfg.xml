@@ -52,7 +52,6 @@
         <mapping class="eu.sqooss.service.db.StoredProjectConfig"/>
         <mapping class="eu.sqooss.service.db.ConfigurationOption"/>
         <mapping class="eu.sqooss.service.db.ClusterNode"/>
-        <mapping class="eu.sqooss.service.db.ClusterNodeProject"/>
         <mapping class="eu.sqooss.service.db.Plugin"/>
         <mapping class="eu.sqooss.service.db.PluginConfiguration"/>
         <mapping class="eu.sqooss.service.db.Metric"/>

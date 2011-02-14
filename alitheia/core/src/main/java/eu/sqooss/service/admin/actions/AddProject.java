@@ -7,10 +7,8 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.service.admin.AdminActionBase;
 import eu.sqooss.service.db.ClusterNode;
-import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
@@ -187,11 +185,7 @@ public class AddProject extends AdminActionBase {
         tds.addAccessor(sp.getId(), sp.getName(), sp.getBtsUrl(), sp.getMailUrl(), 
                 sp.getScmUrl());
 
-        ClusterNodeProject cnp = new ClusterNodeProject();
-        cnp.setProject(sp);
-        cnp.setNode(ClusterNode.thisNode());
-        
-        db.addRecord(cnp);
+        sp.setClusternode(ClusterNode.thisNode());
         
         log("Added a new project <" + name + "> with ID " + sp.getId());
         

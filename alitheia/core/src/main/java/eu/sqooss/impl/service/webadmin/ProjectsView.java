@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.webadmin;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -49,7 +50,6 @@ import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
-import eu.sqooss.service.db.ClusterNodeProject;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
@@ -246,13 +246,10 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
     private static void triggerAllUpdateNode(StringBuilder e,
 			StoredProject selProject, int in) {
-		List<ClusterNodeProject> projectList = 
-			ClusterNodeProject.getNodeAssignments(
-					ClusterNode.getClusteNodeByName(
-							sobjClusterNode.getClusterNodeName()));
+		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
 		
-		for (ClusterNodeProject project : projectList) {
-			triggerAllUpdate(e, project.getProject(), in);
+		for (StoredProject project : projectList) {
+			triggerAllUpdate(e, project, in);
 		}
 	}
 
@@ -291,7 +288,7 @@ public class ProjectsView extends AbstractView {
         b.append(errorFieldset(e, ++in));
 
         // Get the complete list of projects stored in the SQO-OSS framework
-        List<StoredProject> projects = ClusterNode.thisNode().getProjects();
+        Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
         // ===================================================================
@@ -525,12 +522,9 @@ public class ProjectsView extends AbstractView {
                     
                     // Cluster node
                     String nodename = null;
-                    if (null != ClusterNodeProject.getProjectAssignment(nextPrj)) {
-                        if (null != ClusterNodeProject.getProjectAssignment(nextPrj).getNode()) {
-                            nodename = ClusterNodeProject.getProjectAssignment(nextPrj).getNode().getName();
-                        }
-                    }
-                    if (null == nodename) {
+                    if (null != nextPrj.getClusternode()) {
+                        nodename = nextPrj.getClusternode().getName();
+                    } else {
                         nodename = "(local)";
                     }
                     b.append(sp(in) + "<td class=\"trans\">" + nodename + "</td>\n");

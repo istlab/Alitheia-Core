@@ -57,7 +57,7 @@ import org.osgi.service.http.NamespaceException;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
-import eu.sqooss.service.db.ClusterNodeProject;
+import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -211,7 +211,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
     /** {@inheritDoc}*/
     public boolean update(StoredProject project, UpdateTarget target) {
         ClusterNodeService cns = null;
-        ClusterNodeProject cnp = null;
         
     	if (project == null) {
             logger.info("Bad project name for update.");
@@ -224,9 +223,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             logger.warn("ClusterNodeService reference not found - ClusterNode assignment checks will be ignored");
         } else {            
            
-            cnp = ClusterNodeProject.getProjectAssignment(project);
+            ClusterNode node = project.getClusternode();
             
-            if (cnp==null) {
+            if (node == null) {
                 // project is not assigned yet to any ClusterNode, assign it here by-default
                 try {
                     cns.assignProject(project);
@@ -236,7 +235,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
                 }
             } else { 
                 // project is assigned , check if it is assigned to this Node
-                if (!cns.isProjectAssigned(project)){
+                if (!cns.isProjectAssigned(project)) {
                     logger.warn("Project " + project.getName() + " is not assigned to this ClusterNode - Ignoring update");
                     // TODO: Clustering - further implementation:
                     //       If needed, forward Update to the appropriate ClusterNode!

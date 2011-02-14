@@ -33,20 +33,15 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.db.ClusterNodeProject;
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectConfig;
 import eu.sqooss.service.scheduler.Job;

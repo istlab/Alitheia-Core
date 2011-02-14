@@ -47,7 +47,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
@@ -68,7 +68,6 @@ import eu.sqooss.service.db.BugStatus.Status;
  * @assoc 1 - n ProjectVersion
  * @assoc 1 - n StoredProjectMeasurement
  * @assoc 1 - n Developer
- * @assoc 1 - n ClusterNodeProject
  * @assoc 1 - n InvocationRule
  * @assoc 1 - n Branch
  * 
@@ -109,8 +108,8 @@ public class StoredProject extends DAObject {
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
 	private Set<StoredProjectConfig> configOpts;
    
-    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
-    private Set<ClusterNodeProject> assignments;
+    @ManyToOne
+    private ClusterNode clusternode;
 	
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
 	private Set<Branch> branches;
@@ -220,13 +219,13 @@ public class StoredProject extends DAObject {
     public void setConfigOpts(Set<StoredProjectConfig> configOpts) {
         this.configOpts = configOpts;
     }
-    
-    public Set<ClusterNodeProject> getAssignments() {
-        return assignments;
+
+    public void setClusternode (ClusterNode assignment) {
+        this.clusternode = assignment;
     }
 
-    public void setAssignments(Set<ClusterNodeProject> assignments) {
-        this.assignments = assignments;
+    public ClusterNode getClusternode() {
+        return clusternode;
     }
     
     public void setBranches(Set<Branch> branches) {
@@ -236,6 +235,14 @@ public class StoredProject extends DAObject {
 	public Set<Branch> getBranches() {
 		return branches;
 	}
+	
+    public Set<Bug> getBugs() {
+        return bugs;
+    }
+
+    public void setBugs(Set<Bug> bugs) {
+        this.bugs = bugs;
+    } 
     
     /**
      * Get the first (in an arbitrary definition of order) value for
@@ -463,15 +470,7 @@ public class StoredProject extends DAObject {
     	}
     	return false;
     }
-    
-    public Set<Bug> getBugs() {
-        return bugs;
-    }
 
-    public void setBugs(Set<Bug> bugs) {
-        this.bugs = bugs;
-    }
-    
     @Override
     public String toString() {
         return getName();

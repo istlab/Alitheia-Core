@@ -56,7 +56,7 @@ import eu.sqooss.service.abstractmetric.SchedulerHints;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.Bug;
-import eu.sqooss.service.db.ClusterNodeProject;
+import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.InvocationRule;
@@ -348,7 +348,6 @@ public class MetricActivatorImpl  implements MetricActivator {
 
     private boolean canRunOnHost(StoredProject sp) {
         ClusterNodeService cns = null;
-        ClusterNodeProject cnp = null;
         
         cns = core.getClusterNodeService();
         if (cns == null) {
@@ -356,8 +355,9 @@ public class MetricActivatorImpl  implements MetricActivator {
             		"- ClusterNode assignment checks will be ignored");
             return true;
         } else {
-            cnp = ClusterNodeProject.getProjectAssignment(sp);
-            if (cnp == null) {
+            ClusterNode node = sp.getClusternode();
+            
+            if (node == null) {
                 // project is not assigned yet to any ClusterNode, assign it
                 // here by-default
                 try {
