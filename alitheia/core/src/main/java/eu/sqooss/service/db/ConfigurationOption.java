@@ -38,12 +38,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -76,9 +78,9 @@ public class ConfigurationOption extends DAObject {
 	@Column(name="CONFIG_DESCR")
 	@XmlElement
 	private String description;
-	
-	@ManyToMany
-	private Set<StoredProject> projects;
+
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="confOpt", cascade=CascadeType.ALL)
+	public Set<StoredProjectConfig> configurations;
 	
     public ConfigurationOption() {}
 	
@@ -103,14 +105,6 @@ public class ConfigurationOption extends DAObject {
 		this.description = description;
 	}
 	
-	public Set<StoredProject> getProjects() {
-        return projects;
-    }
-
-    public void setProjects(Set<StoredProject> projects) {
-        this.projects = projects;
-    }
-	
     public long getId() {
 		return id;
 	}
@@ -118,15 +112,25 @@ public class ConfigurationOption extends DAObject {
 	public void setId(long id) {
 		this.id = id;
 	}
-    
-	/**
-	 * 
-	 * @param sp
-	 * @param value
-	 * @param overwrite If the key already has a value in the config database,
-	 * the method determines whether to overwrite the value or append the 
-	 * provided value to the existing list of values.
-	 */
+	
+    public Set<StoredProjectConfig> getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(Set<StoredProjectConfig> configurations) {
+        this.configurations = configurations;
+    }
+
+    /**
+     * Set an array of values for this configuration option for the specified
+     * project.
+     * 
+     * @param sp The project to add the configuration value
+     * @param value The value to set
+     * @param overwrite If the key already has a value in the config database,
+     *  the method determines whether to overwrite the value or append the
+     *  provided value to the existing list of values.
+     */
 	public void setValues(StoredProject sp, List<String> values,
 			boolean overwrite) {
 		DBService dbs = AlitheiaCore.getInstance().getDBService();

@@ -106,8 +106,8 @@ public class StoredProject extends DAObject {
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
 	private Set<Bug> bugs;
 
-    @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="projects")
-	private Set<ConfigurationOption> configOpts;
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
+	private Set<StoredProjectConfig> configOpts;
    
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
     private Set<ClusterNodeProject> assignments;
@@ -213,11 +213,11 @@ public class StoredProject extends DAObject {
         this.measurements = measurements;
     }
 
-    public Set<ConfigurationOption> getConfigOpts() {
+    public Set<StoredProjectConfig> getConfigOpts() {
         return configOpts;
     }
 
-    public void setConfigOpts(Set<ConfigurationOption> configOpts) {
+    public void setConfigOpts(Set<StoredProjectConfig> configOpts) {
         this.configOpts = configOpts;
     }
     
