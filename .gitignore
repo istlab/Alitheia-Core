@@ -1,6 +1,7 @@
 target*
 runner/*
 *.classpath
+*.DS_Store
 *.project
 *.settings
 plug-ins/git/test/
