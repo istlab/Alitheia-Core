@@ -469,7 +469,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             } else {
                 if (e != null && e.getCause() != null) {
                     logErr("run", o, e);
-                    throw new Exception(e.getCause());
+                    if (e.getCause() != null)
+                        throw new Exception(e.getCause());
+                    else
+                        throw new Exception(e);
                 }
             }
         }
@@ -497,7 +500,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 "\nDAO id: " + o.getId() + 
                 "\nDAO class: " + o.getClass() +
                 "\nDAO toString(): " + o.toString() +
-                "\nUnable to invoke " + method + " method." +
+                "\nError when invoking the " + method + " method." +
                 "\nException:" + e.getClass().getName() +
                 "\nError:" + e.getMessage() + 
                 "\nReason:" + e.getCause(), e);
