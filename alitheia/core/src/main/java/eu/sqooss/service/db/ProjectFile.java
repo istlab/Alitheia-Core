@@ -63,7 +63,7 @@ import eu.sqooss.service.util.FileUtils;
  * stored in the database
  * 
  * @assoc 1 - n ProjectFileMeasurement
- * 
+ * @assoc 1 - n EncapsulationUnit
  */
 @Entity
 @Table(name="PROJECT_FILE")

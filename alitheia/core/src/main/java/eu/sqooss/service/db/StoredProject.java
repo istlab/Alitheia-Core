@@ -63,14 +63,13 @@ import eu.sqooss.service.db.BugStatus.Status;
  * has to be a record of this type in the system.
  * 
  * @assoc 1 - n Bug
- * @assoc 1 - n StoredProjectConfig
  * @assoc 1 - n MailingList
  * @assoc 1 - n ProjectVersion
  * @assoc 1 - n StoredProjectMeasurement
  * @assoc 1 - n Developer
  * @assoc 1 - n InvocationRule
  * @assoc 1 - n Branch
- * @assoc "m\n\n defines\r" - "n\n\n" ConfigurationOption
+ * @assoc "m defines\r" - "n\n\n" ConfigurationOption
  */
 @XmlRootElement(name="project")
 @Entity

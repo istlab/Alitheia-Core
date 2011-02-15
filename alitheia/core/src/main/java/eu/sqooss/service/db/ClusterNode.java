@@ -56,7 +56,7 @@ import eu.sqooss.service.db.DAObject;
 /**
  * A node in a Alitheia Core cluster installation
  * 
- * @assoc 1 - n ClusterNodeProject
+ * @assoc 1 - n StoredProject
  */
 @XmlRootElement(name="clusternode")
 @Entity
