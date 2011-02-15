@@ -70,7 +70,7 @@ import eu.sqooss.service.db.BugStatus.Status;
  * @assoc 1 - n Developer
  * @assoc 1 - n InvocationRule
  * @assoc 1 - n Branch
- * 
+ * @assoc "m\n\n defines\r" - "n\n\n" ConfigurationOption
  */
 @XmlRootElement(name="project")
 @Entity

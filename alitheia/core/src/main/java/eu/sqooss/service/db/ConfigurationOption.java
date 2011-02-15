@@ -57,8 +57,6 @@ import eu.sqooss.core.AlitheiaCore;
  * Includes methods to get the values for a specific project.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
- * 
- * @assoc 1 - n StoredProjectConfig
  *
  */
 @XmlRootElement(name="config-option")

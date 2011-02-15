@@ -35,6 +35,9 @@ import org.hibernate.annotations.Index;
  * Namespace with the validUntil field equal to null means that it is current.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
+ * 
+ * @assoc 1 - n EncapsulationUnit
+ * @assoc 1 - n ExecutionUnit
  */
 @XmlRootElement(name = "namespace")
 @Entity

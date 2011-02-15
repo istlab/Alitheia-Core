@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  * 
+ * @assoc 1 - n ExecutionUnit
  */
 @XmlRootElement(name = "encapsulation-unit")
 @Entity
