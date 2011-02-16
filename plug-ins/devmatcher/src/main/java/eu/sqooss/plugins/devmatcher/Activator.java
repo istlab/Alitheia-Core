@@ -33,31 +33,14 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
-/*
- * An Alitheia Core plug-in extends the TDS and updater services
- * to new data formats. A plug-in does not necessarily need to
- * extend both services at the same time. 
- */
 public class Activator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
-        /* 
-         * List of data protocols implemented by this plug-in
-         * Only one accessor implementation per protocol is permitted.
-         */
-        String[] protocols = {};
-        
-        /*
-         * Register the plug-in to the updater service
-         */
-        UpdaterStage[] stages = {UpdaterStage.INFERENCE};
         UpdaterService us = AlitheiaCore.getInstance().getUpdater();
         
-        us.registerUpdaterService(protocols, stages, DeveloperMatcher.class);
+        us.registerUpdaterService(DeveloperMatcher.class);
     }
 
     public void stop(BundleContext context) throws Exception {

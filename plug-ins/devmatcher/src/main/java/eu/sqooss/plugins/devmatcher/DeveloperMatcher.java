@@ -44,6 +44,8 @@ import eu.sqooss.service.db.DeveloperAlias;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 import eu.sqooss.service.util.Pair;
 
 /**
@@ -54,6 +56,9 @@ import eu.sqooss.service.util.Pair;
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
+@Updater(descr = "Heuristic based matcher for developer identities", 
+        stage = UpdaterStage.INFERENCE,
+        mnem = "DEVMATCH") 
 public class DeveloperMatcher implements MetadataUpdater {
 
     private StoredProject project;
