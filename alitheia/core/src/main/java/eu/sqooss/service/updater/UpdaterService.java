@@ -104,7 +104,10 @@ public interface UpdaterService extends AlitheiaCoreService {
         IMPORT,
         
         /** Metadata relationship inference stage*/
-        INFERENCE
+        INFERENCE, 
+        
+        /**Source code parsing stage*/
+        PARSING
     }
     
     /**

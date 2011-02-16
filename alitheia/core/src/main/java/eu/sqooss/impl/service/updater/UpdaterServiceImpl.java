@@ -35,7 +35,6 @@ package eu.sqooss.impl.service.updater;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -93,12 +92,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
     /* Maps project-ids to the jobs that have been scheduled for 
      * each update target*/
     private ConcurrentMap<Long,Map<UpdateTarget, Job>> scheduledUpdates;
-    
-    /*
-     * Index to speed up searching for entries in the scheduledUpdates
-     * structure when a jobStateChanged event was fired.
-     */
-    private ConcurrentMap<Job, Long> jobsPerProject; 
     
     /**
      * Resolves the updaters to run for a specific project given the update target
@@ -190,7 +183,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
                     scheduledUpdates.put(project.getId(), m);
                 } 
                 m.put(t, uj);
-                jobsPerProject.put(uj, project.getId());
                 
                 // Add it to the scheduler queue
                 core.getScheduler().enqueue(uj);
@@ -380,8 +372,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         
         updaters = new HashMap<String, Set<Class<?>>>();
         updForStage = new HashMap<UpdaterService.UpdaterStage, Set<Class<?>>>();
-        scheduledUpdates = new ConcurrentHashMap<Long, Map<UpdateTarget,Job>>();
-        jobsPerProject = new ConcurrentHashMap<Job, Long>(); 
+        scheduledUpdates = new ConcurrentHashMap<Long, Map<UpdateTarget,Job>>(); 
         
         logger.info("Succesfully started updater service");
         return true;
@@ -460,7 +451,6 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());
         if (m != null) {
             Job j = m.remove(t);
-            jobsPerProject.remove(j);
         }
     }
 
@@ -470,7 +460,15 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
      */
     public synchronized void jobStateChanged(Job j, State newState) {
         
-        Long projectId = jobsPerProject.get(j);
+        Long projectId = null;
+        
+        for (Long pid : scheduledUpdates.keySet()) {
+            if (scheduledUpdates.get(pid).containsValue(j)) {
+                projectId = pid;
+                break;
+            }
+        }
+        
         Map<UpdateTarget, Job> updates = scheduledUpdates.get(projectId);
         UpdateTarget ut = null;
         for (UpdateTarget t : updates.keySet()) {
