@@ -73,7 +73,7 @@ public interface UpdaterService extends AlitheiaCoreService {
      * Targets for an update request. These names are used in the updater
      * URLs (case-insensitive) and in the rest of the system code.
      */
-    public enum UpdateTarget {
+    public enum ImportUpdaterTarget {
         /** Request to update source code metadata */
         SCM,
         /** Request to update mailing list metadata */
@@ -91,17 +91,23 @@ public interface UpdaterService extends AlitheiaCoreService {
     }
     
     /**
-     * Enum that puts a name on the various updater services.
+     * Enum that puts a name on the update stages.
      */
     public enum UpdaterStage {
-        /** Raw data to metadata (DB) stage*/
+        /**
+         * Default updater stage for all updaters. Means that the updater can
+         * run at any time during the update process.
+         */
+        DEFAULT,
+
+        /** Raw data to metadata (DB) stage */
         IMPORT,
 
-        /** Metadata relationship inference stage*/
-        INFERENCE, 
-
-        /**Source code parsing stage*/
-        PARSING
+        /** Source code parsing stage */
+        PARSING,
+        
+        /** Metadata relationship inference stage */
+        INFERENCE;
     }
     
     /**
@@ -162,7 +168,7 @@ public interface UpdaterService extends AlitheiaCoreService {
      *          does not mean that the jobs themselves were successful,
      *          as they run asynchronously.
      */
-    boolean update(StoredProject project, UpdateTarget target);
+    boolean update(StoredProject project, ImportUpdaterTarget target);
     
     /**
      * Run all updaters that can process data from the provided StoredProject.

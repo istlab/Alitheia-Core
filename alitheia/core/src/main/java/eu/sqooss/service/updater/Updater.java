@@ -15,9 +15,9 @@ public @interface Updater {
     String descr() default "";
     
     /**
-     * A list of updaters this updater depends on. Alitheia Core will use
-     * this information to invoke the updaters in the correct order. The
-     * dependencies are declared by means of updater mnemonics.
+     * An updater can depend on one or more updaters within the same update
+     * stage in order to run. The updater declares those dependencies by
+     * providing the mnemonics of the other updaters.
      */
     String[] dependencies() default {};
     
@@ -28,7 +28,7 @@ public @interface Updater {
     String[] protocols() default {};
     
     /**
-     * The stage this updater should be invoked in
+     * The update stage the updater should be invoked in.
      */
-    UpdaterStage stage() default UpdaterStage.IMPORT;
+    UpdaterStage stage() default UpdaterStage.DEFAULT;
 }

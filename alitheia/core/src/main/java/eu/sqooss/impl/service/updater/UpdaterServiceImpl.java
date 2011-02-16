@@ -91,19 +91,19 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
     
     /* Maps project-ids to the jobs that have been scheduled for 
      * each update target*/
-    private ConcurrentMap<Long,Map<UpdateTarget, Job>> scheduledUpdates;
+    private ConcurrentMap<Long,Map<ImportUpdaterTarget, Job>> scheduledUpdates;
     
     /**
      * Resolves the updaters to run for a specific project given the update target
      * and the project configuration.
      */
-    private Set<Class<?>> updTargetToUpdater(StoredProject project, UpdateTarget t) {
+    private Set<Class<?>> updTargetToUpdater(StoredProject project, ImportUpdaterTarget t) {
         Set<Class<?>> upds = new HashSet<Class<?>>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
         Set<URI> schemes = new HashSet<URI>();
         
-        if (t.equals(UpdateTarget.BUGS)) {
+        if (t.equals(ImportUpdaterTarget.BUGS)) {
             try {
                 schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
@@ -111,7 +111,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
                         " does not include a BTS accessor: " + e.getMessage());
             }
         } 
-        if (t.equals(UpdateTarget.MAIL)) {
+        if (t.equals(ImportUpdaterTarget.MAIL)) {
             try {
                 schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
@@ -120,7 +120,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             }
         }
 
-        if (t.equals(UpdateTarget.SCM)) {
+        if (t.equals(ImportUpdaterTarget.SCM)) {
         	try {
         	    schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
@@ -147,7 +147,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
      * @return true if the claim succeeds or if an update is already running 
      * for this update target, false otherwise
      */
-    private boolean addUpdate(StoredProject project, UpdateTarget t) {
+    private boolean addUpdate(StoredProject project, ImportUpdaterTarget t) {
         
         if (t == null) {
             logger.warn("Updater target is null");
@@ -174,10 +174,10 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
                 uj.addJobStateListener(this);
                 
                 // Add it to the list of running jobs per project
-                Map<UpdateTarget, Job> m = scheduledUpdates.get(project.getId());
+                Map<ImportUpdaterTarget, Job> m = scheduledUpdates.get(project.getId());
                 
                 if (m == null) {
-                    m = new HashMap<UpdateTarget, Job>();
+                    m = new HashMap<ImportUpdaterTarget, Job>();
                     scheduledUpdates.put(project.getId(), m);
                 } 
                 m.put(t, uj);
@@ -199,7 +199,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
     }
     
     /** {@inheritDoc}*/
-    public boolean update(StoredProject project, UpdateTarget target) {
+    public boolean update(StoredProject project, ImportUpdaterTarget target) {
         ClusterNodeService cns = null;
         
     	if (project == null) {
@@ -298,9 +298,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             return;
         }
 
-        UpdateTarget target = null;
+        ImportUpdaterTarget target = null;
         try {
-            target = UpdateTarget.valueOf(t.toUpperCase());
+            target = ImportUpdaterTarget.valueOf(t.toUpperCase());
         } catch (IllegalArgumentException e) {
             errorMessage = "Bad updater request for target <" + t + ">";
             logger.warn(errorMessage);
@@ -370,7 +370,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         
         updaters = new HashMap<String, Set<Class<?>>>();
         updForStage = new HashMap<UpdaterService.UpdaterStage, Set<Class<?>>>();
-        scheduledUpdates = new ConcurrentHashMap<Long, Map<UpdateTarget,Job>>(); 
+        scheduledUpdates = new ConcurrentHashMap<Long, Map<ImportUpdaterTarget,Job>>(); 
         
         logger.info("Succesfully started updater service");
         return true;
@@ -433,14 +433,14 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
      * @param p project to release claims for
      * @param t set of targets to release
      */
-    private synchronized void removeUpdater(StoredProject p, UpdateTarget t) {
+    private synchronized void removeUpdater(StoredProject p, ImportUpdaterTarget t) {
         
         if (p == null) {
             logger.warn("Cannot remove an update job for a null project");
             return;
         }
         
-        Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());
+        Map<ImportUpdaterTarget, Job> m = scheduledUpdates.get(p.getId());
         if (m != null) {
             Job j = m.remove(t);
         }
@@ -461,9 +461,9 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             }
         }
         
-        Map<UpdateTarget, Job> updates = scheduledUpdates.get(projectId);
-        UpdateTarget ut = null;
-        for (UpdateTarget t : updates.keySet()) {
+        Map<ImportUpdaterTarget, Job> updates = scheduledUpdates.get(projectId);
+        ImportUpdaterTarget ut = null;
+        for (ImportUpdaterTarget t : updates.keySet()) {
             if (updates.get(t).equals(j)) {
                 ut = t;
                 break;
@@ -490,8 +490,8 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
     }
 
     /** {@inheritDoc}}*/
-    public synchronized boolean isUpdateRunning(StoredProject p, UpdateTarget t) {
-        Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());
+    public synchronized boolean isUpdateRunning(StoredProject p, ImportUpdaterTarget t) {
+        Map<ImportUpdaterTarget, Job> m = scheduledUpdates.get(p.getId());
         if (m == null) {
             // Nothing in progress
             return false;
