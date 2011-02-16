@@ -41,16 +41,14 @@ import eu.sqooss.plugins.tds.svn.SVNAccessorImpl;
 import eu.sqooss.plugins.updater.svn.SVNUpdaterImpl;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 public class Activator implements BundleActivator {
     
     public void start(BundleContext bc) throws Exception {
         String[] protocols = {"svn", "svn-http", "svn-file"};
-        UpdaterStage[] stages = {UpdaterStage.IMPORT};
         UpdaterService us = AlitheiaCore.getInstance().getUpdater();
         
-        us.registerUpdaterService(protocols, stages, SVNUpdaterImpl.class);
+        us.registerUpdaterService(SVNUpdaterImpl.class);
         
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         tds.registerPlugin(protocols, SVNAccessorImpl.class);

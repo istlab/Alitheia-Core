@@ -65,6 +65,8 @@ import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 import eu.sqooss.service.util.FileUtils;
 
 /**
@@ -72,6 +74,10 @@ import eu.sqooss.service.util.FileUtils;
  * the metadata database with the latest version available to the 
  * repository.
  */
+@Updater(descr = "Subversion repository importer", 
+        protocols = {"svn", "svn-http", "svn-file"},
+        stage = UpdaterStage.IMPORT, 
+        mnem = "SVN")
 public class SVNUpdaterImpl implements MetadataUpdater {
     
     private StoredProject project;
