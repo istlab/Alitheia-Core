@@ -36,10 +36,9 @@ public class Activator implements BundleActivator {
         /*
          * Register the plug-in to the updater service
          */
-        UpdaterStage[] stages = {UpdaterStage.IMPORT};
         UpdaterService us = AlitheiaCore.getInstance().getUpdater();
         
-        us.registerUpdaterService(protocols, stages, BugzillaUpdater.class);
+        us.registerUpdaterService(BugzillaUpdater.class);
     }
 
     public void stop(BundleContext context) throws Exception {

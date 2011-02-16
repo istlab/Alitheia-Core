@@ -33,40 +33,30 @@
 
 package eu.sqooss.plugins.bugzilla;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
-import eu.sqooss.service.db.BugPriority;
-import eu.sqooss.service.db.BugReportMessage;
-import eu.sqooss.service.db.BugResolution;
-import eu.sqooss.service.db.BugSeverity;
-import eu.sqooss.service.db.BugStatus;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.BugPriority.Priority;
-import eu.sqooss.service.db.BugResolution.Resolution;
-import eu.sqooss.service.db.BugSeverity.Severity;
-import eu.sqooss.service.db.BugStatus.Status;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.BTSAccessor;
-import eu.sqooss.service.tds.BTSEntry;
-import eu.sqooss.service.tds.BTSEntry.BTSEntryComment;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 /**
  * Bug updater. Reads data from the TDS and updates the bug metadata
  * database. 
  */
+@Updater(descr = "Processes Bugzilla XML data", 
+        mnem = "BUGZXML", 
+        protocols = {"bugzilla-xml"}, 
+        stage = UpdaterStage.IMPORT)
 public class BugzillaUpdater implements MetadataUpdater  {
 
     private BTSAccessor bts;
