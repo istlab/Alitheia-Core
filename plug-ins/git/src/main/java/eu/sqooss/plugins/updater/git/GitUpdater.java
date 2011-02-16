@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -64,13 +63,16 @@ import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.updater.MetadataUpdater;
-import eu.sqooss.service.util.BidiMap;
+import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.util.FileUtils;
 import eu.sqooss.service.util.Pair;
 
 /**
  * A metadata updater converts raw data to Alitheia Core database metadata.
  */
+@Updater(descr = "Metadata updater for Git repositories", 
+        mnem ="GIT", 
+        protocols = {"git-file"})
 public class GitUpdater implements MetadataUpdater {
     
     private StoredProject project;

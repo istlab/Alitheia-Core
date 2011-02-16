@@ -38,7 +38,6 @@ import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 public class Activator implements BundleActivator {
 
@@ -48,20 +47,19 @@ public class Activator implements BundleActivator {
          * Only one accessor implementation per protocol is permitted.
          */
         String[] protocols = {"git-file"};
-        
+
         /*
          * Register the plug-in accessor to the TDS service 
          */
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         tds.registerPlugin(protocols, GitAccessor.class);
-        
+
         /*
          * Register the plug-in to the updater service
          */
-        UpdaterStage[] stages = {UpdaterStage.IMPORT};
         UpdaterService us = AlitheiaCore.getInstance().getUpdater();
         
-        us.registerUpdaterService(protocols, stages, GitUpdater.class);
+        us.registerUpdaterService(GitUpdater.class);
     }
 
     public void stop(BundleContext context) throws Exception {
