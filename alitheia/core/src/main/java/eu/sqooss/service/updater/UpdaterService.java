@@ -79,19 +79,13 @@ public interface UpdaterService extends AlitheiaCoreService {
         /** Request to update mailing list metadata */
         MAIL,
         /** Request to update bug metadata */
-        BUGS,
-        /** Meta-target to update all raw metadata */
-        STAGE1,
-        /** Meta data inference stage*/
-        STAGE2;
+        BUGS;
         
         public static String[] toStringArray() {
             String[] targets = new String[6];
             targets[0] = "CODE";
             targets[1] = "MAIL";
             targets[2] = "BUGS";
-            targets[3] = "STAGE1";
-            targets[4] = "STAGE2";
             return targets;
         }
     }
@@ -102,10 +96,10 @@ public interface UpdaterService extends AlitheiaCoreService {
     public enum UpdaterStage {
         /** Raw data to metadata (DB) stage*/
         IMPORT,
-        
+
         /** Metadata relationship inference stage*/
         INFERENCE, 
-        
+
         /**Source code parsing stage*/
         PARSING
     }
@@ -125,8 +119,7 @@ public interface UpdaterService extends AlitheiaCoreService {
      * @param clazz
      *            The class that implements of the updater.
      */
-    void registerUpdaterService(String[] protocols, UpdaterStage[] stage, 
-            Class<? extends MetadataUpdater> clazz);
+    void registerUpdaterService(Class<? extends MetadataUpdater> clazz);
     
     /**
      * Unregister an updater class.
@@ -151,17 +144,32 @@ public interface UpdaterService extends AlitheiaCoreService {
      *          does not mean that the jobs themselves were successful,
      *          as they run asynchronously.
      */
+    boolean update(StoredProject project, UpdaterStage stage);
+    
+    /**
+     * Inform the updater service that project data has changed. The
+     * given project is queried for the new data; which new data is
+     * queried is controlled by the target parameter. There is a
+     * one-to-one mapping of /updater?target=foo&project=bar and a
+     * method call update(bar,UpdateTarget.FOO).
+     *
+     * @param project   The project name that has been updated
+     * @param target    Specifies which project resource has been updated
+
+     *
+     * @return false if basic validation of the request failed
+     * @return true if the update jobs were started successfully -- this
+     *          does not mean that the jobs themselves were successful,
+     *          as they run asynchronously.
+     */
     boolean update(StoredProject project, UpdateTarget target);
     
     /**
-     * Checks if an update is running for the specified project
-     * on the given resource target.
+     * Run all updaters that can process data from the provided StoredProject.
+     *
+     * @param project The project name that has been updated
      * 
-     * @param project the project DAO
-     * @param target the resource target
-     * 
-     * @return <code>true</code>, if an update is currently running,
-     *   or <code>false</code> otherwise.
+     * @return true if at least one update job was scheduled, false otherwise
      */
-    boolean isUpdateRunning(StoredProject p, UpdateTarget t);
+    boolean update(StoredProject project);
 }

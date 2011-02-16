@@ -103,7 +103,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         ProjectAccessor pa = tds.getAccessor(project.getId());
         Set<URI> schemes = new HashSet<URI>();
         
-        if (t.equals(UpdateTarget.BUGS) || t.equals(UpdateTarget.STAGE1)) {
+        if (t.equals(UpdateTarget.BUGS)) {
             try {
                 schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
@@ -111,7 +111,7 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
                         " does not include a BTS accessor: " + e.getMessage());
             }
         } 
-        if (t.equals(UpdateTarget.MAIL) || t.equals(UpdateTarget.STAGE1)) {
+        if (t.equals(UpdateTarget.MAIL)) {
             try {
                 schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
@@ -119,17 +119,15 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
                         " does not include a Mail accessor: " + e.getMessage());
             }
         }
-        
-        if (t.equals(UpdateTarget.SCM) || t.equals(UpdateTarget.STAGE1)) {
+
+        if (t.equals(UpdateTarget.SCM)) {
         	try {
         	    schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
             } catch (InvalidAccessorException e) {
                 logger.warn("Project " + project + 
                         " does not include a SCM accessor: " + e.getMessage());
             }
-        } else if (t.equals(UpdateTarget.STAGE2)) {
-            return updForStage.get(UpdaterStage.INFERENCE);
-        }
+        } 
         
         for (URI uri : schemes) {
             if (updaters.containsKey(uri.getScheme())){
@@ -380,30 +378,29 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
 
     /** {@inheritDoc} */
     @Override
-    public void registerUpdaterService(String[] protocols,
-            UpdaterStage[] stages, Class<? extends MetadataUpdater> clazz) {
-        
+    public void registerUpdaterService(Class<? extends MetadataUpdater> clazz) {
+
         String prots = "", stgs = "";
         
-        for (String proto : protocols) {
+        /*for (String proto : protocols) {
             //If a plug-in registers its URL scheme with separators
             if (proto.contains("://"))
                 proto = proto.substring(0, proto.indexOf(":") - 1); 
-                    
+
             prots += proto + " ";
-            
+
             if (updaters.get(proto) == null)
                 updaters.put(proto, new HashSet<Class<?>>());
-            	
+
             updaters.get(proto).add(clazz);
         }
-        
+
         for (UpdaterStage us : stages) {
             stgs += us + " ";
             if (updForStage.get(us) == null)
                 updForStage.put(us, new HashSet<Class<?>>());
             updForStage.get(us).add(clazz);
-        }
+        }*/
         logger.info("Registering updater class " + clazz.getCanonicalName() + 
                 " for protocols (" + prots + ") and stages (" + stgs + ")");
     }
@@ -436,18 +433,13 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
      * @param p project to release claims for
      * @param t set of targets to release
      */
-    public synchronized void removeUpdater(StoredProject p, UpdateTarget t) {
+    private synchronized void removeUpdater(StoredProject p, UpdateTarget t) {
         
         if (p == null) {
             logger.warn("Cannot remove an update job for a null project");
             return;
         }
         
-        if (t == UpdateTarget.STAGE1) {
-            logger.warn("Removing update target STAGE1 is bogus.");
-            return;
-        }
-
         Map<UpdateTarget, Job> m = scheduledUpdates.get(p.getId());
         if (m != null) {
             Job j = m.remove(t);
@@ -504,12 +496,22 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
             // Nothing in progress
             return false;
         }
-        if (t == UpdateTarget.STAGE1) {
-            return !m.keySet().isEmpty();
-        }
+
         if (m.keySet().contains(t)) {
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean update(StoredProject project, UpdaterStage stage) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean update(StoredProject project) {
+        // TODO Auto-generated method stub
         return false;
     }
 }
