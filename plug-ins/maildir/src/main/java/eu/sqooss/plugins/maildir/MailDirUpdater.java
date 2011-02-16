@@ -34,28 +34,19 @@
 package eu.sqooss.plugins.maildir;
 
 import java.io.FileNotFoundException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.mail.Address;
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -64,10 +55,16 @@ import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 /**
  * Synchronises raw mails with the database.
  */
+@Updater(descr = "MailDir format data importer", 
+        mnem = "MAILDIR", 
+        stage = UpdaterStage.IMPORT,
+        protocols = {"maildir"})
 public class MailDirUpdater implements MetadataUpdater {
 
 	private DBService dbs;

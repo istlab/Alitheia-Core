@@ -13,11 +13,6 @@ import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
-/*
- * An Alitheia Core plug-in extends the TDS and updater services
- * to new data formats. A plug-in does not necessarily need to
- * extend both services at the same time. 
- */
 public class Activator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
@@ -33,13 +28,10 @@ public class Activator implements BundleActivator {
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         tds.registerPlugin(protocols, MailDirAccessor.class);
         
-        /*
-         * Register the plug-in to the updater service
-         */
         UpdaterStage[] stages = {UpdaterStage.IMPORT};
         UpdaterService us = AlitheiaCore.getInstance().getUpdater();
         
-        us.registerUpdaterService(protocols, stages, MailDirUpdater.class);
+        us.registerUpdaterService(MailDirUpdater.class);
     }
 
     public void stop(BundleContext context) throws Exception {
