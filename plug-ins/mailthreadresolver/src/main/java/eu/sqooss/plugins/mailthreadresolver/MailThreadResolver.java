@@ -47,6 +47,8 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 /**
  * Updater that organises emails in threads. Should be started each time a 
@@ -55,6 +57,9 @@ import eu.sqooss.service.updater.MetadataUpdater;
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
+@Updater(descr = "Updater that organises emails in threads", 
+        mnem = "MLTHREAD",
+        stage = UpdaterStage.INFERENCE)
 public class MailThreadResolver implements MetadataUpdater {
 
     private Set<MailingList> lists;

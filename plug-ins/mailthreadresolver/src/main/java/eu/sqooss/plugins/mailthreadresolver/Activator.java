@@ -35,17 +35,13 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 public class Activator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
-        String[] protocols = {};
-        
-        UpdaterStage[] stages = {UpdaterStage.INFERENCE};
         UpdaterService us = AlitheiaCore.getInstance().getUpdater();
         
-        us.registerUpdaterService(protocols, stages, MailThreadResolver.class);
+        us.registerUpdaterService(MailThreadResolver.class);
     }
 
     public void stop(BundleContext context) throws Exception {
