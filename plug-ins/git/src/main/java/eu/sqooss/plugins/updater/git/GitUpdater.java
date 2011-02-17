@@ -30,8 +30,6 @@
 
 package eu.sqooss.plugins.updater.git;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,11 +43,7 @@ import java.util.StringTokenizer;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.hibernate.mapping.Array;
-
-
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.plugins.git.test.BranchNameTestUpdater;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
@@ -60,6 +54,7 @@ import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.CommitCopyEntry;
@@ -186,7 +181,7 @@ public class GitUpdater implements MetadataUpdater {
         }
 
         //Init the branch naming related data structures
-        initBranchNaming(next);
+        //initBranchNaming(next);
        
         updateFromTo(next, git.getHeadRevision());  
     } 
@@ -230,17 +225,13 @@ public class GitUpdater implements MetadataUpdater {
 
     private ProjectVersion processOneRevision(Revision entry) 
     	throws AccessorException, InvalidProjectRevisionException {
-        Branch b = getBranch(entry);
         
+        //Basic stuff
         ProjectVersion pv = new ProjectVersion(project);
         pv.setRevisionId(entry.getUniqueId());
         pv.setTimestamp(entry.getDate().getTime());
 
         Developer d = getAuthor(project, entry.getAuthor());
-
-        Branch b = Branch.fromName(project, getBranchName(entry));
-        pv.setBranch(b);
-
         pv.setCommitter(d);
         
         String commitMsg = entry.getMessage();
@@ -252,19 +243,56 @@ public class GitUpdater implements MetadataUpdater {
         pv.setSequence(Integer.MAX_VALUE);
         dbs.addRecord(pv);
         
+        //Tags
+        String tag = git.allTags().get(entry.getUniqueId());
+        if (tag != null) {
+            Tag t = new Tag(pv);
+            t.setName(tag);
+            dbs.addRecord(t);
+            pv.getTags().add(t);
+        }
+        
+        //Sequencing
         ProjectVersion prev = pv.getPreviousVersion();
         if (prev != null)
             pv.setSequence(prev.getSequence() + 1);
         else 
             pv.setSequence(1);
-        
+              
+        //Branches and parent-child relationships
         for (String parentId : entry.getParentIds()) {
             ProjectVersion parent = ProjectVersion.getVersionByRevision(project, parentId);
             ProjectVersionParent pvp = new ProjectVersionParent(pv, parent);
             pv.getParents().add(pvp);
+            
+            //Parent is a branch
+            if (git.getCommitChidren(parentId).length > 1) {
+                Branch b = new Branch(project, Branch.suggestName(project));
+                dbs.addRecord(b);
+                parent.getOutgoingBranches().add(b);
+                pv.getIncomingBranches().add(b);
+            } else {
+                pv.getIncomingBranches().add(parent.getBranch());
+            }
         }
-        
-        debug("Got version: " + pv.getRevisionId() + 
+
+        if (entry.getParentIds().size() > 1) {
+            //A merge commit
+            Branch b = new Branch(project, Branch.suggestName(project));
+            pv.getOutgoingBranches().add(b);
+        } else {
+            //New line of development
+            if (entry.getParentIds().size() == 0) {
+                Branch b = new Branch(project, Branch.suggestName(project));
+                dbs.addRecord(b);
+                pv.getOutgoingBranches().add(b);
+            } else {
+                pv.getOutgoingBranches().addAll(pv.getIncomingBranches());
+                //TODO: Add branch to Branch, need to convert it to List :-(
+            }
+        }
+
+        debug("Got version: " + pv.getRevisionId() +  
                 " seq: " + pv.getSequence());
         return pv;
     }
@@ -434,7 +462,11 @@ public class GitUpdater implements MetadataUpdater {
      */
     protected List<Integer> branchName(Revision rev) {
     	ProjectVersion v = ProjectVersion.getVersionByRevision(project, rev.getUniqueId());
-    	return branchNameToList(v.getBranch().getName());
+    	List<Integer> branches = new ArrayList<Integer>();
+    	for (Branch b : v.getIncomingBranches())
+    	    branches.addAll(branchNameToList(b.getName()));
+    	    
+    	return branches;
     }
     
     /**
@@ -474,10 +506,9 @@ public class GitUpdater implements MetadataUpdater {
 
         branchseq = getNumBranches();
         CommitLog log = git.getCommitLog("", git.getFirstRevision(), next);
-        BranchNameTestUpdater updater = new BranchNameTestUpdater(git);
 
         for (Revision entry : log) {
-            updater.getBranchName(entry);
+            getBranchName(entry);
         }
         debug("initBranchNaming(): " + (System.currentTimeMillis() - ts) + " ms");
     }
