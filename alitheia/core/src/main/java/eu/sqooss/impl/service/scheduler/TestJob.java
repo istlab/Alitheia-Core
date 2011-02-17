@@ -55,7 +55,7 @@ class TestJob extends Job
         this.s = s;
     }
 
-    public int priority() {
+    public long priority() {
         return 0;
     }
     

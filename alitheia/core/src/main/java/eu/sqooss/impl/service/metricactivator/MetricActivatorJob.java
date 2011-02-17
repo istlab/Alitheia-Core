@@ -60,12 +60,12 @@ public class MetricActivatorJob extends Job {
     private MetricActivator ma;
     private Long daoID;
     private AbstractMetric metric;
-    private int priority;
+    private long priority;
     Class<? extends DAObject> daoType;
     private boolean fastSync = false; 
     
     MetricActivatorJob(AbstractMetric m, Long daoID, Logger l,
-            Class<? extends DAObject> daoType, int priority, 
+            Class<? extends DAObject> daoType, long priority, 
             boolean fastSync) {
     	this.metric = m;
         this.logger = l;
@@ -78,7 +78,7 @@ public class MetricActivatorJob extends Job {
     }
     
     @Override
-    public int priority() {
+    public long priority() {
         return priority;
     }
 

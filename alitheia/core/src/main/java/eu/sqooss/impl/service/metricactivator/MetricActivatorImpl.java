@@ -45,6 +45,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -99,7 +100,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     private Long firstRuleId = null;
     private HashMap<Long,InvocationRule> rules = null;
 
-    private AtomicInteger priority;
+    private AtomicLong priority;
     
     private HashMap<MetricType.Type, Class<? extends DAObject>> metricTypesToActivators;
     
@@ -421,7 +422,6 @@ public class MetricActivatorImpl  implements MetricActivator {
     	for (AlitheiaPlugin p : result) {
     		logger.debug("  " + p.getName());
     	}
-    		
     	
     	return result;
     }
@@ -443,7 +443,7 @@ public class MetricActivatorImpl  implements MetricActivator {
         }
         
         @Override
-        public int priority() {
+        public long priority() {
             return 0x2;
         }
 
@@ -544,7 +544,8 @@ public class MetricActivatorImpl  implements MetricActivator {
         serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
         core = (AlitheiaCore) bc.getService(serviceRef);
 
-        priority = new AtomicInteger();
+        priority = new AtomicLong();
+        //Lower priorities are reserved for updater jobs
         priority.set(0x1000);
         
         this.pa = core.getPluginAdmin();

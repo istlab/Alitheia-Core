@@ -244,7 +244,7 @@ public abstract class Job implements Comparable<Job> {
      * might lead to undefined behaviour.
      * @return The priority of the job.
      */
-    abstract public int priority();
+    abstract public long priority();
 
     /**
      * @return All unfinished jobs this job depends on.

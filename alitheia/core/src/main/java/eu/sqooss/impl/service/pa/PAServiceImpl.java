@@ -627,7 +627,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         }
         
         @Override
-        public int priority() {
+        public long priority() {
             // TODO Auto-generated method stub
             return 0x3;
         }

@@ -54,7 +54,7 @@ public class JobPriorityComparator implements Comparator<Job>
      */
     public int compare(Job lhs, Job rhs)
     {
-        return lhs.priority() - rhs.priority();
+        return (int)(lhs.priority() - rhs.priority());
     }
 
     /**

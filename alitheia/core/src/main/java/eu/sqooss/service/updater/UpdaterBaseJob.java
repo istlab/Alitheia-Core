@@ -61,7 +61,7 @@ public abstract class UpdaterBaseJob extends Job {
     }
     
     @Override
-    public abstract int priority();
+    public abstract long priority();
 
     @Override
     protected abstract void run() throws Exception; 
