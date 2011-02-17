@@ -53,6 +53,8 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 
