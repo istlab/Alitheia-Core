@@ -171,6 +171,12 @@ public class ProjectVersion extends DAObject {
     private Set<Branch> outgoingBranches;
 
     /**
+     * The namespaces that have been updated in this revision
+     */
+    @OneToMany(mappedBy="child", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<NameSpace> namespaces;
+    
+    /**
 	 * Mask used to select directories
 	 */
 	public static final int MASK_DIRECTORIES = 0x2;
@@ -340,6 +346,16 @@ public class ProjectVersion extends DAObject {
         this.outgoingBranches = outgoingBranches;
     }
     
+
+    public void setNamespaces(Set<NameSpace> namespaces) {
+        this.namespaces = namespaces;
+    }
+
+    public Set<NameSpace> getNamespaces() {
+        if (namespaces == null) 
+            namespaces = new HashSet<NameSpace>();
+        return namespaces;
+    }
 
     /**
      * Less-than-or-equal (operator <=) for project versions.

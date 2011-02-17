@@ -144,6 +144,12 @@ public class ProjectFile extends DAObject{
     @OneToMany(mappedBy = "projectFile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ProjectFileMeasurement> measurements;
     
+    /**
+     * Classes defined in this file
+     */
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<EncapsulationUnit> encapsulationUnits;
+    
     public ProjectFile() {
         // Nothing to see here
         isDirectory = false; //By default, all entries are files
