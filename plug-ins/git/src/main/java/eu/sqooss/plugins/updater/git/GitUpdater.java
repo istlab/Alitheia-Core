@@ -32,14 +32,19 @@ package eu.sqooss.plugins.updater.git;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+
+import org.apache.commons.collections.bidimap.DualHashBidiMap;
+import org.apache.commons.collections.BidiMap;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
@@ -248,49 +253,124 @@ public class GitUpdater implements MetadataUpdater {
         return pv;
     }
     
-    //Naming scheme for implicit branches. 
-    public Branch getBranch(Revision rev) 
-        throws AccessorException, InvalidProjectRevisionException {
+    //<Integer, List<Integer>>
+    BidiMap branchGraph = new DualHashBidiMap();
+    Map<Integer, List<Integer>> availBranchNames = new HashMap<Integer, List<Integer>>();
+    int branchseq = 0;
+    
+    // Naming scheme for implicit branches.
+    public String getBranchName(Revision rev) throws AccessorException,
+            InvalidProjectRevisionException {
         String[] parents = new String[rev.getParentIds().size()];
-        Branch branch = null;
-        
-        //Not a fork of an existing commit --> a new branch
-        if (parents.length == 0) {
-            //First project branch
-            if (project.getBranches().size() == 0) {
-                branch = new Branch(project, Branch.suggestName(project, false, null));
-            } else {
-                //A parentless branch, created by the following sequence
-                //git branch "test" && git checkout test && touch a && git commit -a -m "test"
-                branch = new Branch(project, Branch.suggestName(project, false, null));
-            }
+        parents = rev.getParentIds().toArray(parents);
+        String[] children = git.getCommitChidren(rev.getUniqueId());
+        String name = null;
+
+        // Not a fork of an existing commit --> a new branch
+        if (parents.length == 0) 
+            // A parent-less branch, created by the following sequence
+            // git branch "test" && git checkout test && touch a && git commit
+            // -a -m "test"
+            return String.valueOf(branchseq++);
+
+        // A commit cannot be a branch and a merge at the same time.
+        // Just examine the first parent then.
+        Revision previous = git.getPreviousRevision(rev);
+        if (children.length > 1) {
+            // The commit generates a branch
+            List<Integer> newBranches = new ArrayList<Integer>();
+            for (int i = 0; i < children.length; i++)
+                newBranches.add(branchseq++);
+
+            branchGraph.put(branchName(previous).get(0), newBranches);
+            // Create a copy as the copied list is manipulated afterwards
+            // Beware: Java Collections crap in effect
+            Integer[] arr = newBranches.toArray(new Integer[1]);
+            ArrayList<Integer> newBranchesCopy = new ArrayList<Integer>(Arrays.asList(arr));
+            availBranchNames.put(branchName(previous).get(0), newBranchesCopy);
+            name = toBranchName(branchName(previous));
         } else {
-            //For the next statement, we don't care if a commit is a merge,
-            //because it cannot create a branch and a merge at the same time.
-            //So, we just examine the first parent.
-            String[] children = git.getCommitChidren(parents[0]);
-            Revision previous = git.getPreviousRevision(rev);
-            if (children.length > 1) {
-                //The previous commit generated a branch.
-                branch = new Branch(project, Branch.suggestName(project, false, null));
-            } else {
-                if (parents.length > 1) {
-                    //The commit is a merge. Create a new branch and mark the 
-                    //merged branches as such
-                    List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
-                    for (String parent : parents) {
-                        versions.add(ProjectVersion.getVersionByRevision(project, parent));
+            if (parents.length > 1) {
+                // Merge commit, get parent branches and combine them
+                List<Integer> names = new ArrayList<Integer>();
+                for (String parent : parents) {
+                    names.addAll(branchName(git.newRevision(parent)));
+                }
+
+                // Expand branch names to their originating branches,
+                // recursively, uniq and sort them
+                boolean hasExpansions = true;
+                while (hasExpansions) {
+                    int size = names.size();
+                    List<Integer> toRemove = new ArrayList<Integer>();
+                    for (int i = 0; i < size; i++) {
+                        if (branchGraph.get(names.get(i)) != null) {
+                            names.addAll((List<Integer>) branchGraph.get(names.get(i)));
+                            toRemove.add(i);
+                        }
                     }
-                    branch = new Branch(project, Branch.suggestName(project, true, versions));
+                    if (toRemove.isEmpty()) {
+                        hasExpansions = false;
+                    }
+                    for (Integer i : toRemove) {
+                        names.remove(i);
+                    }
+                }
+
+                Set<Integer> uniqNames = new HashSet<Integer>();
+                uniqNames.addAll(names);
+                names.clear();
+                names.addAll(uniqNames);
+                Collections.sort(names);
+
+                // Reduce potential name by taking advantage of existing
+                // branch parent-child hierarchies.
+                name = toBranchName(names);
+
+            } else {
+                if (git.getCommitChidren(previous.getUniqueId()).length > 1) {
+                    // The previous commit generated a branch. Get the first
+                    // unused branch name
+                    name = availBranchNames.get(branchName(previous).get(0)).remove(0).toString();
+                    if (availBranchNames.get(branchName(previous).get(0)).size() == 0)
+                        availBranchNames.remove(branchName(previous).get(0));
                 } else {
-                    //Just re-use the branch from the previous commit
-                    branch = ProjectVersion.getVersionByRevision(project, 
-                            previous.getUniqueId()).getBranch();
+                    // Just re-use the branch name from the previous commit
+                    name = toBranchName(branchName(previous));
                 }
             }
         }
+
+        return name;
+    }
+
+    protected int getNumBranches() {
+    	return project.getBranches().size();
+    }
+    
+    protected List<Integer> branchName(Revision rev) {
+    	ProjectVersion v = ProjectVersion.getVersionByRevision(project, rev.getUniqueId());
+    	return branchNameToList(v.getBranch().getName());
+    }
+    
+    protected List<Integer> branchNameToList(String name) {
+        StringTokenizer st = new StringTokenizer(name, ",");
+        ArrayList<Integer> result = new ArrayList<Integer>();
         
-        return branch;
+        while (st.hasMoreTokens()) {
+            result.add(Integer.parseInt(st.nextToken()));
+        }
+        
+        return result;
+    }
+    
+    protected String toBranchName(List<Integer> name) {
+        StringBuffer b = new StringBuffer();
+        for (Integer i : name) {
+            b.append(i).append(",");
+        }
+        b.deleteCharAt(b.length() - 1);
+        return b.toString();
     }
     
     public Developer getAuthor(StoredProject sp, String entryAuthor) {
