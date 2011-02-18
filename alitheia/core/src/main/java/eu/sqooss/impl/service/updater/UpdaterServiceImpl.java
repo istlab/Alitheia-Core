@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +59,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Job.State;
 import eu.sqooss.service.scheduler.JobStateListener;
+import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
@@ -363,18 +365,38 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             
             //We now have updaters in correct execution order
             DependencyJob old = null;
-            DependencyJob importJob = new DependencyJob();
-            List<Job> jobs = new ArrayList<Job>();
+            DependencyJob importJob = new DependencyJob(us.toString());
+            List<Job> jobs = new LinkedList<Job>();
+
+            List<String> deps = new ArrayList<String>();
+            if (updater != null)
+                deps = Arrays.asList(updater.dependencies());
             
             for (Updater u : updForStage) {
-                MetadataUpdater upd;
-                try {
-                    upd = (MetadataUpdater) updaters.get(u).newInstance();
-                    upd.setUpdateParams(project, logger);
 
-                    if (updater == null) {
-                        break;
+                //Ignore the current in case we have an updater specified as argument
+                //unless the updater is the same as the argument of the current updater
+                //is a dependency to the one we have as argument :-)
+                if (updater != null &&
+                        (!updater.equals(u) || !deps.contains(u.mnem()))) {
+                    continue;
+                }
+
+                try {
+                    // Create an updater job
+                    MetadataUpdater upd = (MetadataUpdater) updaters.get(u).newInstance();
+                    upd.setUpdateParams(project, logger);
+                    UpdaterJob uj = new UpdaterJob(upd);
+                    uj.addJobStateListener(this);
+
+                    // Add dependency to stage level job
+                    importJob.addDependency(uj);
+                    jobs.add(importJob);
+
+                    for (Job j :jobs) {
+
                     }
+
                 } catch (InstantiationException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -383,7 +405,22 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                     return false;
+                } catch (SchedulerException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return false;
                 } 
+            }
+
+            try {
+                if (old != null)
+                    importJob.addDependency(old);
+
+                jobs.add(old);
+                old = importJob;
+            } catch (SchedulerException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
         
