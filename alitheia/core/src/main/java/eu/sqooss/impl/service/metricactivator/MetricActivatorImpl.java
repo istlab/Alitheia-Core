@@ -386,7 +386,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     	Map<AlitheiaPlugin, Integer> idx = new HashMap<AlitheiaPlugin, Integer>();
     	Map<Integer, AlitheiaPlugin> invidx = new HashMap<Integer, AlitheiaPlugin>();
     	
-    	GraphTS graph = new GraphTS(unordered.size());
+    	GraphTS<AlitheiaPlugin> graph = new GraphTS<AlitheiaPlugin>(unordered.size());
     	
     	//Build the adjacency matrix
     	for (AlitheiaPlugin p : unordered) {

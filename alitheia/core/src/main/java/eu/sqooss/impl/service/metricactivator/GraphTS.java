@@ -33,7 +33,8 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * Topological sorting for Alitheia Core plugin invocations. Based on code
@@ -42,8 +43,9 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
  * @author Georgios Gousios <gousiosg@aueb.gr>
  * 
  */
-public class GraphTS {
-	private int MAX_VERTS = 20;
+public class GraphTS<T> {
+
+    private int MAX_VERTS = 20;
 
 	private Vertex vertexList[]; // list of vertices
 
@@ -51,20 +53,22 @@ public class GraphTS {
 
 	private int numVerts; // current number of vertices
 
-	private AlitheiaPlugin sortedArray[];
+	private ArrayList<T> sortedArray;
 
 	public GraphTS(int numvertices) {
 	    MAX_VERTS = numvertices;
-		vertexList = new Vertex[MAX_VERTS];
+	    vertexList = (Vertex[]) Array.newInstance(Vertex.class, MAX_VERTS);
 		matrix = new int[MAX_VERTS][MAX_VERTS];
 		numVerts = 0;
 		for (int i = 0; i < MAX_VERTS; i++)
 			for (int k = 0; k < MAX_VERTS; k++)
 				matrix[i][k] = 0;
-		sortedArray = new AlitheiaPlugin[MAX_VERTS]; // sorted vert labels
+		//sortedArray = new T[MAX_VERTS]; // sorted vert labels
+		//sortedArray = (T[]) Array.newInstance(, MAX_VERTS);
+		sortedArray = new ArrayList<T>();
 	}
 
-	public int addVertex(AlitheiaPlugin lab) {
+	public int addVertex(T lab) {
 		vertexList[numVerts++] = new Vertex(lab);
 		return numVerts;
 	}
@@ -77,7 +81,7 @@ public class GraphTS {
 		System.out.print(vertexList[v].label);
 	}
 
-	public AlitheiaPlugin[] topo() { // toplogical sort 
+	public T[] topo() { // toplogical sort 
 		int orig_nVerts = numVerts;
 
 		while (numVerts > 0) // while vertices remain,
@@ -90,12 +94,12 @@ public class GraphTS {
 				return null;
 			}
 			// insert vertex label in sorted array (start at end)
-			sortedArray[numVerts - 1] = vertexList[currentVertex].label;
+			sortedArray.add(numVerts - 1, vertexList[currentVertex].label);
 
 			deleteVertex(currentVertex); // delete vertex
 		}
 
-		return sortedArray;
+		return (T[])sortedArray.toArray();
 	}
 
 	public int noSuccessors() // returns vert with no successors (or -1 if no
@@ -157,12 +161,13 @@ public class GraphTS {
 	            
 	}
 
-}
+	class Vertex {
+	    public T label;
 
-class Vertex {
-	public AlitheiaPlugin label;
-
-	public Vertex(AlitheiaPlugin lab) {
-		label = lab;
+	    public Vertex(T lab) {
+	        label = lab;
+	    }
 	}
 }
+
+
