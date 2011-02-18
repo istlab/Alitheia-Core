@@ -49,7 +49,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.metricactivator.GraphTS;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
@@ -67,6 +66,7 @@ import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.util.BidiMap;
+import eu.sqooss.service.util.GraphTS;
 
 public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 

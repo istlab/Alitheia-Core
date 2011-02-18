@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service.metricactivator;
+package eu.sqooss.service.util;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

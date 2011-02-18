@@ -81,6 +81,7 @@ import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.util.GraphTS;
 
 public class MetricActivatorImpl  implements MetricActivator {
 
