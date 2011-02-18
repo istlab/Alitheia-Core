@@ -52,7 +52,7 @@ public interface Scheduler extends AlitheiaCoreService {
     void enqueue(Job job) throws SchedulerException;
 
     /**
-     * Queue 
+     * Queue lots of jobs without checking their dependencies.
      */
     void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException;
     
