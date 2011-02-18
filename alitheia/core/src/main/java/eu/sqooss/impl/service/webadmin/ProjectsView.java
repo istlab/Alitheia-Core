@@ -56,7 +56,6 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.SchedulerException;
-import eu.sqooss.service.updater.UpdaterService.ImportUpdaterTarget;
 
 public class ProjectsView extends AbstractView {
     // Script for submitting this page
@@ -202,10 +201,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerCodeUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, ImportUpdaterTarget.SCM) == false) {
-			e.append(sp(indent)).append(getErr("e0035")).append(
-					getMsg("try_again")).append("<br/>\n");
-		}
+		
 	}
 
 	// ---------------------------------------------------------------
@@ -213,10 +209,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerMailUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, ImportUpdaterTarget.MAIL) == false) {
-			e.append(sp(indent)).append(getErr("e0036")).append(
-					getMsg("try_again")).append("<br/>\n");
-		}
+		
 	}
 
 	// ---------------------------------------------------------------
@@ -224,10 +217,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerBugUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-		if (sobjUpdater.update(selProject, ImportUpdaterTarget.BUGS) == false) {
-			e.append(sp(indent)).append(getErr("e0037")).append(
-					getMsg("try_again")).append("<br/>\n");
-		}
+		
 	}
 
 	// ---------------------------------------------------------------

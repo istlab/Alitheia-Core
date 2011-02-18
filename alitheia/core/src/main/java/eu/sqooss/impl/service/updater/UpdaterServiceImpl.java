@@ -33,27 +33,22 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.metricactivator.GraphTS;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
@@ -63,152 +58,224 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Job.State;
 import eu.sqooss.service.scheduler.JobStateListener;
-import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.util.BidiMap;
 
-public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, JobStateListener {
+public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
-    private static final long serialVersionUID = 1L;
     private Logger logger = null;
     private AlitheiaCore core = null;
-    private HttpService httpService = null;
     private BundleContext context;
     private DBService dbs = null;
     
-    /*
-     * List of updaters indexed by protocol
-     */
-    private Map<String, Set<Class<?>>> updaters;
-    
-    /*
-     * List of updaters indexed by updater stage
-     */
-    private Map<UpdaterStage, Set<Class<?>>> updForStage;    
-    
     /* Maps project-ids to the jobs that have been scheduled for 
      * each update target*/
-    private ConcurrentMap<Long,Map<ImportUpdaterTarget, Job>> scheduledUpdates;
+    private ConcurrentMap<Long,Map<Updater, Job>> scheduledUpdates;
     
-    /**
-     * Resolves the updaters to run for a specific project given the update target
-     * and the project configuration.
-     */
-    private Set<Class<?>> updTargetToUpdater(StoredProject project, ImportUpdaterTarget t) {
-        Set<Class<?>> upds = new HashSet<Class<?>>();
+    /* List of registered updaters */
+    private BidiMap<Updater, Class<? extends MetadataUpdater>> updaters;
+
+    /* UpdaterService interface methods*/
+    /** {@inheritDoc} */
+    @Override
+    public void registerUpdaterService(Class<? extends MetadataUpdater> clazz) {
+
+        Updater u = clazz.getAnnotation(Updater.class);
+        
+        if (getUpdaterByMnemonic(u.mnem()) != null) {
+            logger.error("Mnemonic already used by updater " 
+                    + updaters.get(getUpdaterByMnemonic(u.mnem())));
+            return;
+        }
+        
+        updaters.put(u, clazz);
+            
+        logger.info("Registering updater class " + clazz.getCanonicalName() + 
+                " for protocols (" + u.protocols() + ") and stage " + u.stage());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void unregisterUpdaterService(Class<? extends MetadataUpdater> clazz) {
+        updaters.remove(updaters.getKey(clazz));
+        logger.info("Unregistering updater class " + clazz.getCanonicalName());
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public boolean update(StoredProject project) {
+        return update(project, null, null);
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public boolean update(StoredProject project, UpdaterStage stage) {
+        return update(project, stage, null);
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public boolean update(StoredProject sp, Updater u) {
+        if (!getUpdaters(sp).contains(u))
+            return false;
+        return update(sp, null, u);
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public boolean update(StoredProject sp, String updater) {
+        Updater u = getUpdaterByMnemonic(updater);
+        if (u == null) {
+            logger.warn("No such updater: " + updater);
+            return false;
+        }
+        return update(sp, u);
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public List<Updater> getUpdaters(StoredProject project) {
+        List<Updater> upds = new ArrayList<Updater>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
         Set<URI> schemes = new HashSet<URI>();
-        
-        if (t.equals(ImportUpdaterTarget.BUGS)) {
-            try {
-                schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
-            } catch (InvalidAccessorException e) {
-                logger.warn("Project " + project + 
-                        " does not include a BTS accessor: " + e.getMessage());
-            }
-        } 
-        if (t.equals(ImportUpdaterTarget.MAIL)) {
-            try {
-                schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
-            } catch (InvalidAccessorException e) {
-                logger.warn("Project " + project + 
-                        " does not include a Mail accessor: " + e.getMessage());
-            }
+
+        //Import phase updaters
+        try {
+            schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
+            schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
+            schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
+        } catch (InvalidAccessorException e) {
+            logger.warn("Project " + project
+                    + " does not include a Mail accessor: " + e.getMessage());
         }
 
-        if (t.equals(ImportUpdaterTarget.SCM)) {
-        	try {
-        	    schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
-            } catch (InvalidAccessorException e) {
-                logger.warn("Project " + project + 
-                        " does not include a SCM accessor: " + e.getMessage());
-            }
-        } 
-        
         for (URI uri : schemes) {
-            if (updaters.containsKey(uri.getScheme())){
-                upds.addAll(updaters.get(uri.getScheme()));
+            upds.addAll(getUpdatersByProtocol(uri.getScheme()));
+        }
+        
+        //Other updaters
+        upds.addAll(getUpdatersByStage(UpdaterStage.PARSE));
+        upds.addAll(getUpdatersByStage(UpdaterStage.INFERENCE));
+        upds.addAll(getUpdatersByStage(UpdaterStage.DEFAULT));
+        
+        return upds;
+    }
+    
+    /**{@inheritDoc}*/
+    @Override
+    public List<Updater> getUpdaters(StoredProject sp, UpdaterStage st) {
+        List<Updater> upd = new ArrayList<Updater>();
+        
+        for (Updater updater : getUpdaters(sp)) {
+            if (updater.stage().equals(st))
+                upd.add(updater);
+        }
+        return upd;
+    }
+
+    /** {@inheritDoc}}*/
+    public synchronized boolean isUpdateRunning(StoredProject p, Updater u) {
+        Map<Updater, Job> m = scheduledUpdates.get(p.getId());
+        if (m == null) {
+            // Nothing in progress
+            return false;
+        }
+
+        if (m.keySet().contains(u)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /* AlitheiaCoreService interface methods*/
+    @Override
+    public void shutDown() {
+        
+    }
+
+    @Override
+    public boolean startUp() {
+       
+        /* Get a reference to the core service*/
+        ServiceReference serviceRef = null;
+        serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
+        core = (AlitheiaCore) context.getService(serviceRef);
+        if (logger != null) {
+            logger.info("Got a valid reference to the logger");
+        } else {
+            System.out.println("ERROR: Updater got no logger");
+        }
+        
+        dbs = core.getDBService();
+        
+        updaters = new BidiMap<Updater, Class<? extends MetadataUpdater>>();
+        scheduledUpdates = new ConcurrentHashMap<Long, Map<Updater,Job>>();
+        
+        logger.info("Succesfully started updater service");
+        return true;
+    }
+
+    @Override
+    public void setInitParams(BundleContext bc, Logger l) {
+        this.context = bc;
+        this.logger = l;
+    }
+
+    /*Private service methods*/
+    private List<Updater> getUpdatersByProtocol(String protocol) {
+        List<Updater> upds = new ArrayList<Updater>();
+        
+        for (Updater u : updaters.keySet()) {
+            for (String p : u.protocols()) {
+                if (protocol.equals(p)) {
+                    upds.add(u);
+                    break;
+                }
             }
         }
         
         return upds;
     }
-
-    /**
-     * Add an update job of the given type for the project. You may not claim
-     * ALL as a type of update -- use the individual types.
-     * 
-     * @param project the project to claim
-     * @param t the type of update that is being claimed
-     * @return true if the claim succeeds or if an update is already running 
-     * for this update target, false otherwise
-     */
-    private boolean addUpdate(StoredProject project, ImportUpdaterTarget t) {
-        
-        if (t == null) {
-            logger.warn("Updater target is null");
-            return false;
+    
+    private List<Updater> getUpdatersByStage(UpdaterStage u) {
+        List<Updater> upds = new ArrayList<Updater>();
+       
+        for (Updater upd : updaters.keySet()) {
+            if (upd.stage().equals(u))
+                upds.add(upd);
         }
         
-        if (isUpdateRunning(project, t))
-            return true;
-        
-       Set<Class<?>> updaters = updTargetToUpdater(project, t);
-
-        if (updaters.isEmpty()) {
-            logger.warn("No updater registered for update target:" + t);
-            return false;
-        }
-        
-        for (Class<?> updater : updaters) {
-            try {
-                // Create update job
-                MetadataUpdater upd = (MetadataUpdater) updater.newInstance();
-                upd.setUpdateParams(project, logger);
-
-                UpdaterJob uj = new UpdaterJob(upd);
-                uj.addJobStateListener(this);
-                
-                // Add it to the list of running jobs per project
-                Map<ImportUpdaterTarget, Job> m = scheduledUpdates.get(project.getId());
-                
-                if (m == null) {
-                    m = new HashMap<ImportUpdaterTarget, Job>();
-                    scheduledUpdates.put(project.getId(), m);
-                } 
-                m.put(t, uj);
-                
-                // Add it to the scheduler queue
-                core.getScheduler().enqueue(uj);
-            } catch (SchedulerException e) {
-                logger.error("The Updater failed to update the repository"
-                        + " metadata for project " + project.getName()
-                        + " Scheduler error: " + e.getMessage());
-            } catch (InstantiationException e) {
-                logger.error("Failed to add update job: " + e.getMessage());
-            } catch (IllegalAccessException e) {
-                logger.error("Failed to add update job: " + e.getMessage());
-            }
-            logger.debug("");
-        }
-        return true;
+        return upds;
     }
     
-    /** {@inheritDoc}*/
-    public boolean update(StoredProject project, ImportUpdaterTarget target) {
+    private Updater getUpdaterByMnemonic(String updater) {
+        for (Updater upd : updaters.keySet()) {
+            if (upd.mnem().equals(updater))
+                return upd;
+        }
+        return null;
+    }
+
+    /**
+     * Add an update job of the given type or the specific updater for the project. 
+     */
+    private boolean update(StoredProject project, UpdaterStage stage, Updater updater) {
+        
         ClusterNodeService cns = null;
         
-    	if (project == null) {
+        if (project == null) {
             logger.info("Bad project name for update.");
             return false;
         }     
-    	
-    	 /// ClusterNode Checks - Clone to MetricActivatorImpl
-    	cns = core.getClusterNodeService();
+        
+         /// ClusterNode Checks - Clone to MetricActivatorImpl
+        cns = core.getClusterNodeService();
         if (cns==null) {
             logger.warn("ClusterNodeService reference not found - ClusterNode assignment checks will be ignored");
         } else {            
@@ -236,194 +303,91 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
         }  
         // Done with ClusterNode Checks
        
-    	logger.info("Request to update project:" + project.getName() + " for target: "
-                + target);
-
-    	addUpdate(project, target);
-       
-        return true;
-    }
-
-
-    /**
-     * This is the standard HTTP request handler. It maps GET parameters onto
-     * the method arguments for update(project,target). The response always
-     * gets a response code -- SC_OK (200) only if the update was able to
-     * start at all.
-     *
-     * The response codes in HTTP are used as follows:
-     * - SC_OK  if the update starts successfully; a fake XML response is
-     *          returned describing the success.
-     * - SC_BAD_REQUEST (400) if the request is syntactically incorrect, which in
-     *          this case means that one of the required parameters "project"
-     *          or "target" is missing.
-     * - SC_NOT_FOUND (404) if the project does not exist in the database or
-     *          is otherwise not found. (This may be confusing with the 404
-     *          returned when the updater servlet is not running, so may need
-     *          to change this at some point).
-     * - SC_NOT_IMPLEMENTED if the update target type is not supported, for
-     *          instance because it names a datatype that we do not know about
-     *          (valid values are "mail", "code", "bugs" and "all" right now).
-     * - SC_CONFLICT if there is already an update running for the given project
-     *          and data source; only one can be active at any time.
-     */
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String p = request.getParameter("project");
-        String t = request.getParameter("target");
-        String errorMessage;
-        dbs.startDBSession();
-        if (p == null) {
-            errorMessage = "Bad updater request is missing project name.";
-            logger.warn(errorMessage);
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMessage);
-            dbs.commitDBSession();
-            return;
-        }
-        if (t == null) {
-            errorMessage = "Bad updater request is missing update target.";
-            logger.warn(errorMessage);
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMessage);
-            dbs.commitDBSession();
-            return;
-        }
-
-        StoredProject project = StoredProject.getProjectByName(p);
-        if (project == null) {
-            //the project was not found, so the job can not continue
-            errorMessage = "The project <" + p + "> was not found";
-            logger.warn(errorMessage);
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, errorMessage);
-            dbs.commitDBSession();
-            return;
-        }
-
-        ImportUpdaterTarget target = null;
-        try {
-            target = ImportUpdaterTarget.valueOf(t.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            errorMessage = "Bad updater request for target <" + t + ">";
-            logger.warn(errorMessage);
-            response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errorMessage);
-            dbs.commitDBSession();
-            return;
-        }
-
-        logger.info("Updating project " + p + " target " + t);
-        if (!update(project, target)) {
-            // Something's wrong
-            response.sendError(HttpServletResponse.SC_CONFLICT);
-        } else {
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("text/xml;charset=UTF-8");
-            response.getWriter().println("<updater>");
-            response.getWriter().println("<project-id>" + project.getId() + "</project-id>");
-            response.getWriter().println("<status>Jobs scheduled</status>");
-            response.getWriter().println("</updater>");
-            response.getWriter().flush();
-        }
-        dbs.commitDBSession();
-    }
-  
-	@Override
-	public void setInitParams(BundleContext bc, Logger l) {
-        this.context = bc;
-        this.logger = l;
-	}
-
-	@Override
-	public void shutDown() {
-		
-	}
-
-	@Override
-	public boolean startUp() {
-	   
-        /* Get a reference to the core service*/
-        ServiceReference serviceRef = null;
-        serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
-        core = (AlitheiaCore) context.getService(serviceRef);
-        if (logger != null) {
-            logger.info("Got a valid reference to the logger");
-        } else {
-            System.out.println("ERROR: Updater got no logger");
-        }
-
-        /* Get a reference to the HTTP service */
-        serviceRef = context.getServiceReference("org.osgi.service.http.HttpService");
-        if (serviceRef != null) {
-            httpService = (HttpService) context.getService(serviceRef);
-            try {
-                httpService.registerServlet("/updater", (Servlet) this, null, null);
-            } catch (ServletException e) {
-                logger.error("Cannot register servlet to path /updater");
-                return false;
-            } catch (NamespaceException e) {
-                logger.error("Duplicate registration at path /updater");
-                return false;
+        logger.info("Request to update project:" + project.getName()  
+                + " stage:" + (stage == null?stage:"all") 
+                + " updater:" + (updater == null?updater:"all"));
+        
+        //Construct a list of updater stages to iterate later
+        List<UpdaterStage> stages = new ArrayList<UpdaterStage>(); 
+        
+        if (updater == null) {
+            if (stage == null) {
+                stages.add(UpdaterStage.DEFAULT);
+                stages.add(UpdaterStage.IMPORT);
+                stages.add(UpdaterStage.PARSE);
+                stages.add(UpdaterStage.INFERENCE);
+            } else {
+                stages.add(stage);
             }
         } else {
-            logger.error("Could not load the HTTP service.");
-            return false;
+            stages.add(updater.stage());
         }
-        dbs = core.getDBService();
         
-        updaters = new HashMap<String, Set<Class<?>>>();
-        updForStage = new HashMap<UpdaterService.UpdaterStage, Set<Class<?>>>();
-        scheduledUpdates = new ConcurrentHashMap<Long, Map<ImportUpdaterTarget,Job>>(); 
-        
-        logger.info("Succesfully started updater service");
-        return true;
-	}
-
-    /** {@inheritDoc} */
-    @Override
-    public void registerUpdaterService(Class<? extends MetadataUpdater> clazz) {
-
-        String prots = "", stgs = "";
-        
-        /*for (String proto : protocols) {
-            //If a plug-in registers its URL scheme with separators
-            if (proto.contains("://"))
-                proto = proto.substring(0, proto.indexOf(":") - 1); 
-
-            prots += proto + " ";
-
-            if (updaters.get(proto) == null)
-                updaters.put(proto, new HashSet<Class<?>>());
-
-            updaters.get(proto).add(clazz);
-        }
-
+        /* For each update stage add updaters in topologically
+         * sorted order. Add dependencies to jobs to serialize
+         * execution between updaters in the same stage and
+         * add fake dependency jobs to serialise execution 
+         * among stages. 
+         */
         for (UpdaterStage us : stages) {
-            stgs += us + " ";
-            if (updForStage.get(us) == null)
-                updForStage.put(us, new HashSet<Class<?>>());
-            updForStage.get(us).add(clazz);
-        }*/
-        logger.info("Registering updater class " + clazz.getCanonicalName() + 
-                " for protocols (" + prots + ") and stages (" + stgs + ")");
-    }
+            //Topologically sort updaters within the same stage
+            List<Updater> updForStage = getUpdaters(project, us);
+            GraphTS<Updater> graph = new GraphTS<Updater>(updForStage.size());
+            BidiMap<Updater, Integer> idx = new BidiMap<Updater, Integer>();
+            
+            for (Updater u : updForStage) {
+                if (!idx.containsKey(u)) {
+                    int n = graph.addVertex(u);
+                    idx.put(u, n);
+                }
+                
+                for (String dependency : u.dependencies()) {
+                    Updater dep = getUpdaterByMnemonic(dependency);
+                    
+                    //Updaters are allowed to introduce self depedencies
+                    if (u.equals(dep)) {
+                        continue;
+                    }
+                    
+                    if (!idx.containsKey(dep)) {
+                        int n = graph.addVertex(dep);
+                        idx.put(dep, n);
+                    }
+                    graph.addEdge(idx.get(u), idx.get(dep));
+                }
+            }
+            
+            Updater[] sorted = graph.topo();
+            updForStage = Arrays.asList(sorted);
+            Collections.reverse(updForStage);
+            
+            //We now have updaters in correct execution order
+            DependencyJob old = null;
+            DependencyJob importJob = new DependencyJob();
+            List<Job> jobs = new ArrayList<Job>();
+            
+            for (Updater u : updForStage) {
+                MetadataUpdater upd;
+                try {
+                    upd = (MetadataUpdater) updaters.get(u).newInstance();
+                    upd.setUpdateParams(project, logger);
 
-    /** {@inheritDoc} */
-    @Override
-    public void unregisterUpdaterService(Class<? extends MetadataUpdater> clazz) {
-        for (String proto : updaters.keySet()) {
-            if (updaters.get(proto).contains(clazz)) {
-                updaters.get(proto).remove(clazz);
-                if (updaters.get(proto).size() <= 0)
-                    updaters.remove(proto);
-                break;
+                    if (updater == null) {
+                        break;
+                    }
+                } catch (InstantiationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return false;
+                } catch (IllegalAccessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return false;
+                } 
             }
         }
         
-        for (UpdaterStage us : updForStage.keySet()) {
-            if (updForStage.get(us).contains(clazz)) {
-                updForStage.get(us).remove(clazz);
-                break;
-            }
-        }
-        logger.info("Unregistering updater class " + clazz.getCanonicalName());
+        return true;
     }
 
     /**
@@ -433,85 +397,74 @@ public class UpdaterServiceImpl extends HttpServlet implements UpdaterService, J
      * @param p project to release claims for
      * @param t set of targets to release
      */
-    private synchronized void removeUpdater(StoredProject p, ImportUpdaterTarget t) {
+    private synchronized void removeUpdater(StoredProject p, Updater u) {
         
         if (p == null) {
             logger.warn("Cannot remove an update job for a null project");
             return;
         }
         
-        Map<ImportUpdaterTarget, Job> m = scheduledUpdates.get(p.getId());
+        Map<Updater, Job> m = scheduledUpdates.get(p.getId());
         if (m != null) {
-            Job j = m.remove(t);
+            m.remove(u);
         }
     }
 
-    /** 
-     * {@inheritDoc}}
-     * Does some clean up when a job has finished (either by error or normally) 
+    /**
+     * Does a bit of clean up when a job has finished (either by error or
+     * normally)
      */
     public synchronized void jobStateChanged(Job j, State newState) {
-        
+
         Long projectId = null;
-        
+
         for (Long pid : scheduledUpdates.keySet()) {
             if (scheduledUpdates.get(pid).containsValue(j)) {
                 projectId = pid;
                 break;
             }
         }
-        
-        Map<ImportUpdaterTarget, Job> updates = scheduledUpdates.get(projectId);
-        ImportUpdaterTarget ut = null;
-        for (ImportUpdaterTarget t : updates.keySet()) {
+
+        Map<Updater, Job> updates = scheduledUpdates.get(projectId);
+        Updater ut = null;
+        for (Updater t : updates.keySet()) {
             if (updates.get(t).equals(j)) {
                 ut = t;
                 break;
             }
         }
-        
+
         if (newState.equals(State.Error) || newState.equals(State.Finished)) {
             if (ut == null) {
-                logger.error("Update job finished with state "  + newState + 
-                        " but was not scheduled. That's weird...");
+                logger.error("Update job finished with state " + newState
+                        + " but was not scheduled. That's weird...");
                 return;
             }
-                
-            if (!dbs.isDBSessionActive()) dbs.startDBSession();
+
+            if (!dbs.isDBSessionActive())
+                dbs.startDBSession();
             StoredProject sp = StoredProject.loadDAObyId(projectId, StoredProject.class);
             removeUpdater(sp, ut);
-            
+
             if (newState.equals(State.Error)) {
-                logger.warn(ut + " updater job for project " + sp + 
-                        " did not finish properly");
+                logger.warn(ut + " updater job for project " + sp
+                        + " did not finish properly");
             }
             dbs.commitDBSession();
         }
     }
-
-    /** {@inheritDoc}}*/
-    public synchronized boolean isUpdateRunning(StoredProject p, ImportUpdaterTarget t) {
-        Map<ImportUpdaterTarget, Job> m = scheduledUpdates.get(p.getId());
-        if (m == null) {
-            // Nothing in progress
-            return false;
+    
+    /*Dummy jobs to ensure correct sequencing of jobs within updater stages */
+    private class DependencyJob extends Job {
+        private String name;
+        private DependencyJob(){};
+        public DependencyJob(String name) { this.name = name;}
+        public long priority() {return 0;}
+        protected void run() throws Exception {}
+        
+        @Override
+        public String toString() {
+            return "Dependency Job: " + name;
         }
-
-        if (m.keySet().contains(t)) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean update(StoredProject project, UpdaterStage stage) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean update(StoredProject project) {
-        // TODO Auto-generated method stub
-        return false;
     }
 }
