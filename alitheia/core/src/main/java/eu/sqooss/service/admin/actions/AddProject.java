@@ -18,10 +18,9 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.service.updater.UpdaterService;
 
 /**
- * Actions that adds a new project to the project database. 
+ * Action that adds a new project to the project database. 
  * 
  * <h2>Arguments</h2>
  * 
