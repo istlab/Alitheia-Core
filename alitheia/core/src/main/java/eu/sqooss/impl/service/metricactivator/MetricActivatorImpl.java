@@ -415,16 +415,16 @@ public class MetricActivatorImpl  implements MetricActivator {
     	    }
     	}
     	
-    	AlitheiaPlugin[] sorted = graph.topo();
-    	List<AlitheiaPlugin> result = Arrays.asList(sorted);
-    	Collections.reverse(result); //
+    	List<AlitheiaPlugin> sorted = graph.topo();
+    	//List<AlitheiaPlugin> result = Arrays.asList(sorted);
+    	//Collections.reverse(sorted); //
     	
     	logger.debug("Calculated metric order:");
-    	for (AlitheiaPlugin p : result) {
+    	for (AlitheiaPlugin p : sorted) {
     		logger.debug("  " + p.getName());
     	}
     	
-    	return result;
+    	return sorted;
     }
     
     /**

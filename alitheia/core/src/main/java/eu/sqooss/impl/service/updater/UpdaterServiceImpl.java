@@ -368,9 +368,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 }
             }
             
-            Updater[] sorted = graph.topo();
-            updForStage = Arrays.asList(sorted);
-            Collections.reverse(updForStage);
+            updForStage = graph.topo();
+            //Collections.reverse(updForStage);
             
             //We now have updaters in correct execution order
             DependencyJob old = null;
@@ -386,10 +385,10 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 //Ignore the current in case we have an updater specified as argument
                 //unless the updater is the same as the argument of the current updater
                 //is a dependency to the one we have as argument :-)
-                if (updater != null &&
-                        (!updater.equals(u) || !deps.contains(u.mnem()))) {
-                    continue;
-                }
+                if (updater != null) {
+                    if (!deps.contains(u.mnem())) 
+                        continue;
+                } 
 
                 try {
                     // Create an updater job
@@ -435,7 +434,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             try {
                 if (old != null)
                     importJob.addDependency(old);
-
                 jobs.add(old);
                 old = importJob;
             } catch (SchedulerException e) {

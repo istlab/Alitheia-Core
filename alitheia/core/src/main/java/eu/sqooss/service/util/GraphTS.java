@@ -35,6 +35,7 @@ package eu.sqooss.service.util;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Topological sorting for Alitheia Core plugin invocations. Based on code
@@ -60,12 +61,12 @@ public class GraphTS<T> {
 	    vertexList = (Vertex[]) Array.newInstance(Vertex.class, MAX_VERTS);
 		matrix = new int[MAX_VERTS][MAX_VERTS];
 		numVerts = 0;
-		for (int i = 0; i < MAX_VERTS; i++)
+		sortedArray = new ArrayList<T>(numvertices);
+		for (int i = 0; i < MAX_VERTS; i++) {
 			for (int k = 0; k < MAX_VERTS; k++)
 				matrix[i][k] = 0;
-		//sortedArray = new T[MAX_VERTS]; // sorted vert labels
-		//sortedArray = (T[]) Array.newInstance(, MAX_VERTS);
-		sortedArray = new ArrayList<T>();
+			//sortedArray.add((T)null);
+		}
 	}
 
 	public int addVertex(T lab) {
@@ -81,7 +82,7 @@ public class GraphTS<T> {
 		System.out.print(vertexList[v].label);
 	}
 
-	public T[] topo() { // toplogical sort 
+	public List<T> topo() { // toplogical sort 
 		int orig_nVerts = numVerts;
 
 		while (numVerts > 0) // while vertices remain,
@@ -94,12 +95,12 @@ public class GraphTS<T> {
 				return null;
 			}
 			// insert vertex label in sorted array (start at end)
-			sortedArray.add(numVerts - 1, vertexList[currentVertex].label);
+			sortedArray.add(vertexList[currentVertex].label);
 
 			deleteVertex(currentVertex); // delete vertex
 		}
 
-		return (T[])sortedArray.toArray();
+		return sortedArray;
 	}
 
 	public int noSuccessors() // returns vert with no successors (or -1 if no
