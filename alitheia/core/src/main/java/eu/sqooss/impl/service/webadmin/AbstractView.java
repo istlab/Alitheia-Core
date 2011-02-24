@@ -77,7 +77,7 @@ public abstract class AbstractView {
     protected static SecurityManager sobjSecurity = null;
 
     // Velocity stuff
-    protected VelocityContext vc = null;
+    protected static VelocityContext vc = null;
     protected BundleContext bc = null;
 
     // Names of the various resource files

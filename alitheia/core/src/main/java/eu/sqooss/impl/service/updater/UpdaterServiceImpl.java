@@ -148,8 +148,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     /**{@inheritDoc}*/
     @Override
-    public List<Updater> getUpdaters(StoredProject project) {
-        List<Updater> upds = new ArrayList<Updater>();
+    public Set<Updater> getUpdaters(StoredProject project) {
+        Set<Updater> upds = new HashSet<Updater>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
         Set<URI> schemes = new HashSet<URI>();
@@ -178,8 +178,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     
     /**{@inheritDoc}*/
     @Override
-    public List<Updater> getUpdaters(StoredProject sp, UpdaterStage st) {
-        List<Updater> upd = new ArrayList<Updater>();
+    public Set<Updater> getUpdaters(StoredProject sp, UpdaterStage st) {
+        Set<Updater> upd = new HashSet<Updater>();
         
         for (Updater updater : getUpdaters(sp)) {
             if (updater.stage().equals(st))
@@ -340,7 +340,9 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
          */
         for (UpdaterStage us : stages) {
             //Topologically sort updaters within the same stage
-            List<Updater> updForStage = getUpdaters(project, us);
+
+            List<Updater> updForStage = new ArrayList<Updater>();
+            updForStage.addAll(getUpdaters(project, us));
             GraphTS<Updater> graph = new GraphTS<Updater>(updForStage.size());
             BidiMap<Updater, Integer> idx = new BidiMap<Updater, Integer>();
             

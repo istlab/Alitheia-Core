@@ -48,6 +48,7 @@ import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
+import eu.sqooss.service.admin.actions.UpdateProject;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.InvocationRule;
@@ -56,6 +57,9 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 public class ProjectsView extends AbstractView {
     // Script for submitting this page
@@ -68,9 +72,7 @@ public class ProjectsView extends AbstractView {
     private static String ACT_CON_REM_PROJECT   = "conRemProject";
     private static String ACT_REQ_SHOW_PROJECT  = "conShowProject";
     private static String ACT_CON_UPD_ALL       = "conUpdateAll";
-    private static String ACT_CON_UPD_CODE      = "conUpdateCode";
-    private static String ACT_CON_UPD_MAIL      = "conUpdateMail";
-    private static String ACT_CON_UPD_BUGS      = "conUpdateBugs";
+    private static String ACT_CON_UPD           = "conUpdate";
     private static String ACT_CON_UPD_ALL_NODE  = "conUpdateAllOnNode";
 
     // Servlet parameters
@@ -83,6 +85,7 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_PRJ_MAIL      = "projectML";
     private static String REQ_PAR_PRJ_CODE      = "projectSCM";
     private static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
+    private static String REQ_PAR_UPD           = "reqUpd";
     
     /**
      * Instantiates a new projects view.
@@ -144,12 +147,8 @@ public class ProjectsView extends AbstractView {
             	selProject = addProject(e, req, in);
             } else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {
             	selProject = removeProject(e, selProject, in);
-            } else if (reqValAction.equals(ACT_CON_UPD_CODE)) {
-            	triggerCodeUpdate(e, selProject, in);
-            } else if (reqValAction.equals(ACT_CON_UPD_MAIL)) {
-            	triggerMailUpdate(e, selProject, in);
-            } else if (reqValAction.equals(ACT_CON_UPD_BUGS)) {
-            	triggerBugUpdate(e, selProject, in);
+            } else if (reqValAction.equals(ACT_CON_UPD)) {
+            	triggerUpdate(e, selProject, in, req.getParameter(REQ_PAR_UPD));
             } else if (reqValAction.equals(ACT_CON_UPD_ALL)) {
             	triggerAllUpdate(e, selProject, in);
             } else if (reqValAction.equals(ACT_CON_UPD_ALL_NODE)) {
@@ -165,7 +164,7 @@ public class ProjectsView extends AbstractView {
     }
   
     private static StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
-    	AdminService as = AlitheiaCore.getInstance().getAdminService();
+        AdminService as = AlitheiaCore.getInstance().getAdminService();
     	AdminAction aa = as.create(AddProject.MNEMONIC);
     	aa.addArg("scm", r.getParameter(REQ_PAR_PRJ_CODE));
     	aa.addArg("name", r.getParameter(REQ_PAR_PRJ_NAME));
@@ -173,7 +172,14 @@ public class ProjectsView extends AbstractView {
     	aa.addArg("mail", r.getParameter(REQ_PAR_PRJ_MAIL));
     	aa.addArg("web", r.getParameter(REQ_PAR_PRJ_WEB));
     	as.execute(aa);
-    	return null;
+    	
+    	if (aa.hasErrors()) {
+            vc.put("RESULTS", aa.errors());
+            return null;
+    	} else { 
+            vc.put("RESULTS", aa.results());
+            return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
+    	}
     }
     
     // ---------------------------------------------------------------
@@ -196,28 +202,23 @@ public class ProjectsView extends AbstractView {
 		}
     	return selProject;
     }
-    // ---------------------------------------------------------------
-	// Trigger code update
-	// ---------------------------------------------------------------
-	private static void triggerCodeUpdate(StringBuilder e,
-			StoredProject selProject, int indent) {
-		
-	}
 
 	// ---------------------------------------------------------------
-	// Trigger mailing list(s) update
+	// Trigger an update
 	// ---------------------------------------------------------------
-	private static void triggerMailUpdate(StringBuilder e,
-			StoredProject selProject, int indent) {
-		
-	}
+	private static void triggerUpdate(StringBuilder e,
+			StoredProject selProject, int indent, String mnem) {
+		AdminService as = AlitheiaCore.getInstance().getAdminService();
+		AdminAction aa = as.create(UpdateProject.MNEMONIC);
+		aa.addArg("project", selProject.getId());
+		aa.addArg("updater", mnem);
+		as.execute(aa);
 
-	// ---------------------------------------------------------------
-	// Trigger bugs list(s) update
-	// ---------------------------------------------------------------
-	private static void triggerBugUpdate(StringBuilder e,
-			StoredProject selProject, int indent) {
-		
+		if (aa.hasErrors()) {
+            vc.put("RESULTS", aa.errors());
+        } else { 
+            vc.put("RESULTS", aa.results());
+        }
 	}
 
 	// ---------------------------------------------------------------
@@ -225,10 +226,9 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-	    
-	    triggerCodeUpdate(e, selProject, indent);
-	    triggerMailUpdate(e, selProject, indent);
-		triggerBugUpdate(e, selProject, indent);
+	    for (Updater u: sobjUpdater.getUpdaters(selProject)) {
+	        triggerUpdate(e, selProject, indent, u.mnem());
+	    }
 	}
 	
 	// ---------------------------------------------------------------
@@ -242,7 +242,6 @@ public class ProjectsView extends AbstractView {
 			triggerAllUpdate(e, project, in);
 		}
 	}
-
 	
 	// ---------------------------------------------------------------
 	// Trigger synchronize on the selected plug-in for that project
@@ -581,17 +580,37 @@ public class ProjectsView extends AbstractView {
         // Remove project button
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0059") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_REM_PROJECT + "';" + SUBMIT + "\"" + ((selProject != null) ? "" : " disabled") + ">");
         b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
-        // Trigger source update
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0061") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_CODE + "';" + SUBMIT + "\"" + (((selProject != null))
-                ? "" : " disabled") + ">\n");
-        // Trigger mailing list update
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0062") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_MAIL + "';" + SUBMIT + "\"" + (((selProject != null))
-                ? "" : " disabled") + ">\n");
-        // Trigger bugs list update
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0063") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_BUGS + "';" + SUBMIT + "\"" + (((selProject != null))
+        
+        if (selProject != null) {
+            b.append(sp(in) + "<select " + ((selProject != null) ? "" : " disabled=\"disabled\"") + ">\n");
+            b.append(sp(in) + "<optgroup label=\"Import Stage\">");
+            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.IMPORT)) {
+                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
+            }
+            b.append(sp(in) + "</optgroup>");
+            b.append(sp(in) + "<optgroup label=\"Parse Stage\">");
+            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.PARSE)) {
+                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
+            }
+            b.append(sp(in) + "</optgroup>");
+            b.append(sp(in) + "<optgroup label=\"Inference Stage\">");
+            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.INFERENCE)) {
+                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
+            }
+            b.append(sp(in) + "</optgroup>");
+            b.append(sp(in) + "<optgroup label=\"Default Stage\">");
+            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.DEFAULT)) {
+                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
+            }
+            b.append(sp(in) + "</optgroup>");
+            b.append(sp(in) + "</select>");
+        }
+
+        // Trigger updater
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " value=\"Run Updater\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD + "';" + SUBMIT + "\"" + (((selProject != null))
                 ? "" : " disabled") + ">\n");
         // Trigger all updates
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0064") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null))
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " value=\"Run All Updaters\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null))
                 ? "" : " disabled") + ">\n");
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "<td colspan=\"2\" align=\"right\">\n");

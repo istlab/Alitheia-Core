@@ -30,6 +30,7 @@
 package eu.sqooss.service.updater;
 
 import java.util.List;
+import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.StoredProject;
@@ -137,10 +138,10 @@ public interface UpdaterService extends AlitheiaCoreService {
     /**
      * Get a list of all updaters that can be applied to the specified project.
      */
-    List<Updater> getUpdaters(StoredProject sp);
+    Set<Updater> getUpdaters(StoredProject sp);
 
     /**
      * Get a list of all updaters that can be applied to the specified project.
      */
-    List<Updater> getUpdaters(StoredProject sp, UpdaterStage st);
+    Set<Updater> getUpdaters(StoredProject sp, UpdaterStage st);
 }

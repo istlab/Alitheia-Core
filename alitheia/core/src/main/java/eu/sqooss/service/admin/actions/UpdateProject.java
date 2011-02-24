@@ -45,9 +45,11 @@ import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
  */
 public class UpdateProject extends AdminActionBase {
 
+    public static final String MNEMONIC = "upd";
+    
     @Override
     public String mnemonic() {
-        return "upd";
+        return MNEMONIC;
     }
 
     @Override
