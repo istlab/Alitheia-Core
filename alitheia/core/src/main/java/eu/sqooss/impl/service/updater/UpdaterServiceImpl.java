@@ -384,7 +384,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
                 try {
                     // Create an updater job
-                    MetadataUpdater upd = (MetadataUpdater) updaters.get(u).newInstance();
+                    MetadataUpdater upd = updaters.get(u).newInstance();
                     upd.setUpdateParams(project, logger);
                     UpdaterJob uj = new UpdaterJob(upd);
                     uj.addJobStateListener(this);
@@ -392,11 +392,22 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     // Add dependency to stage level job
                     importJob.addDependency(uj);
                     jobs.add(importJob);
-
-                    for (Job j :jobs) {
-
+                    
+                    // Add dependencies to previously scheduled jobs
+                    List<Class<? extends MetadataUpdater>> dependencies = 
+                        new ArrayList<Class<? extends MetadataUpdater>>();
+                    
+                    for (String s : u.dependencies()) {
+                        dependencies.add(updaters.get(getUpdaterByMnemonic(s)));
                     }
-
+                    
+                    for (Class<? extends MetadataUpdater> d : dependencies) {
+                        for (Job j :jobs) {
+                            if (((UpdaterJob)j).getUpdater().getClass().equals(d)) {
+                                importJob.addDependency(j);
+                            }
+                        }
+                    }
                 } catch (InstantiationException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

@@ -60,6 +60,10 @@ public class UpdaterJob extends Job {
         mu.update();
     }
     
+    public MetadataUpdater getUpdater() {
+        return mu;
+    }
+    
     @Override
     public String toString() {
         return mu.toString();
