@@ -64,6 +64,7 @@ import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 import eu.sqooss.service.util.FileUtils;
 import eu.sqooss.service.util.Pair;
 
@@ -72,7 +73,8 @@ import eu.sqooss.service.util.Pair;
  */
 @Updater(descr = "Metadata updater for Git repositories", 
         mnem ="GIT", 
-        protocols = {"git-file"})
+        protocols = {"git-file"}, 
+        stage = UpdaterStage.IMPORT)
 public class GitUpdater implements MetadataUpdater {
     
     private StoredProject project;

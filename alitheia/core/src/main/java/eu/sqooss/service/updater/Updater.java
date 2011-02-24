@@ -1,7 +1,14 @@
 package eu.sqooss.service.updater;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
 public @interface Updater {
 
     /**

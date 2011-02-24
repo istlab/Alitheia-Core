@@ -88,7 +88,13 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     public void registerUpdaterService(Class<? extends MetadataUpdater> clazz) {
 
         Updater u = clazz.getAnnotation(Updater.class);
-        
+
+        if (u == null) {
+            logger.error("Class " + clazz + " is missing required annotation" +
+            		" @Updater");
+            return;
+        }
+
         if (getUpdaterByMnemonic(u.mnem()) != null) {
             logger.error("Mnemonic already used by updater " 
                     + updaters.get(getUpdaterByMnemonic(u.mnem())));
@@ -98,7 +104,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         updaters.put(u, clazz);
             
         logger.info("Registering updater class " + clazz.getCanonicalName() + 
-                " for protocols (" + u.protocols() + ") and stage " + u.stage());
+                " for protocols (" + Arrays.toString(u.protocols()) +
+                ") and stage " + u.stage());
     }
 
     /** {@inheritDoc} */
