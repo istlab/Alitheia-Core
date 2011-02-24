@@ -60,9 +60,9 @@ public class UpdateProject extends AdminActionBase {
     @Override
     public void execute() throws Exception {
         super.execute();
-        String project = args.get("project").toString();
-        String stage = args.get("stage").toString();
-        String updater = args.get("updater").toString();
+        String project = (args.get("project") != null) ? args.get("project").toString() : null;
+        String stage = (args.get("stage") != null) ? args.get("stage").toString() : null;
+        String updater = (args.get("updater") != null) ? args.get("updater").toString() : null;
 
         if (project == null) {
             error("missing.param", "Missing required parameter: project");

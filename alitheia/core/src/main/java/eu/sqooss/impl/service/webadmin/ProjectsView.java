@@ -582,7 +582,7 @@ public class ProjectsView extends AbstractView {
         b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
         
         if (selProject != null) {
-            b.append(sp(in) + "<select " + ((selProject != null) ? "" : " disabled=\"disabled\"") + ">\n");
+            b.append(sp(in) + "<select name=\"" + REQ_PAR_UPD + "\" id=\"" + REQ_PAR_UPD + "\" " + ((selProject != null) ? "" : " disabled=\"disabled\"") + ">\n");
             b.append(sp(in) + "<optgroup label=\"Import Stage\">");
             for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.IMPORT)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
@@ -607,8 +607,7 @@ public class ProjectsView extends AbstractView {
         }
 
         // Trigger updater
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " value=\"Run Updater\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD + "';" + SUBMIT + "\"" + (((selProject != null))
-                ? "" : " disabled") + ">\n");
+        b.append(sp(in) + "<input type=\"button\" class=\"install\" value=\"Run Updater\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD + "';" + SUBMIT + "\"" + ((selProject != null)? "" : " disabled") + ">\n");
         // Trigger all updates
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " value=\"Run All Updaters\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null))
                 ? "" : " disabled") + ">\n");

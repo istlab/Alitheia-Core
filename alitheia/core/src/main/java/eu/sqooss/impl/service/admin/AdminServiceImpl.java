@@ -52,6 +52,7 @@ import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.AdminAction.AdminActionStatus;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.RunTimeInfo;
+import eu.sqooss.service.admin.actions.UpdateProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
 
@@ -265,6 +266,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
 	public boolean startUp() {
 		services.put(AddProject.MNEMONIC, AddProject.class);
 		services.put(RunTimeInfo.MNEMONIC, RunTimeInfo.class);
+		services.put(UpdateProject.MNEMONIC, UpdateProject.class);
 		return true;
 	}
 
