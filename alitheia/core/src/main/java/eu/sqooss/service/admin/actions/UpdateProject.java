@@ -8,21 +8,21 @@ import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 /**
  * An action that triggers a project update.
- *
+ * 
  * <h2>Arguments</h2>
- *
+ * 
  * <table>
  * <th>
  * <td>Argument</td>
  * <td>Required?</td>
  * <td>Explanation</td></th>
- *
+ * 
  * <tr>
  * <td>project</td>
  * <td>yes</td>
  * <td>The project (name or id) to run the update for</td>
  * </tr>
- *
+ * 
  * <tr>
  * <td>updater</td>
  * <td>no</td>
@@ -34,12 +34,12 @@ import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
  * <tr>
  * <td>stage</td>
  * <td>no</td>
- * <td>One of DEFAULT, IMPORT, PARSING, INFERENCE. If omitted, all updaters
- * available to the project will be run.</td>
+ * <td>One of DEFAULT, IMPORT, PARSING, INFERENCE. If omitted, and the updater
+ * parameter is not set, all updaters available to the project will be run.</td>
  * </tr>
- *
+ * 
  * </table>
- *
+ * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  * 
  */
