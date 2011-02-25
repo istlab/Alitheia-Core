@@ -321,10 +321,10 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         
         if (updater == null) {
             if (stage == null) {
-                stages.add(UpdaterStage.DEFAULT);
                 stages.add(UpdaterStage.IMPORT);
                 stages.add(UpdaterStage.PARSE);
                 stages.add(UpdaterStage.INFERENCE);
+                stages.add(UpdaterStage.DEFAULT);
             } else {
                 stages.add(stage);
             }
@@ -332,12 +332,14 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             stages.add(updater.stage());
         }
         
-        /* For each update stage add updaters in topologically
-         * sorted order. Add dependencies to jobs to serialize
-         * execution between updaters in the same stage and
-         * add fake dependency jobs to serialise execution 
-         * among stages. 
+        /*
+         * For each update stage add updaters in topologically sorted order. Add
+         * dependencies to jobs to serialize execution between updaters in the
+         * same stage and add fake dependency jobs to serialise execution among
+         * stages. The result of this loop is a list of jobs with properly set
+         * dependencies to ensure correct execution.
          */
+        List<Job> jobs = new LinkedList<Job>();
         for (UpdaterStage us : stages) {
             //Topologically sort updaters within the same stage
 
@@ -369,12 +371,10 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             }
             
             updForStage = graph.topo();
-            //Collections.reverse(updForStage);
             
             //We now have updaters in correct execution order
             DependencyJob old = null;
             DependencyJob importJob = new DependencyJob(us.toString());
-            List<Job> jobs = new LinkedList<Job>();
 
             List<String> deps = new ArrayList<String>();
             if (updater != null)
@@ -386,9 +386,9 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 //unless the updater is the same as the argument of the current updater
                 //is a dependency to the one we have as argument :-)
                 if (updater != null) {
-                    if (!deps.contains(u.mnem())) 
+                    if (!updater.equals(u) && !deps.contains(u.mnem())) 
                         continue;
-                } 
+                }
 
                 try {
                     // Create an updater job
@@ -399,7 +399,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
                     // Add dependency to stage level job
                     importJob.addDependency(uj);
-                    jobs.add(importJob);
+                    jobs.add(uj);
                     
                     // Add dependencies to previously scheduled jobs
                     List<Class<? extends MetadataUpdater>> dependencies = 
@@ -411,6 +411,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     
                     for (Class<? extends MetadataUpdater> d : dependencies) {
                         for (Job j :jobs) {
+                            if (!(j instanceof UpdaterJob))
+                                continue;
                             if (((UpdaterJob)j).getUpdater().getClass().equals(d)) {
                                 importJob.addDependency(j);
                             }
@@ -434,7 +436,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             try {
                 if (old != null)
                     importJob.addDependency(old);
-                jobs.add(old);
+                jobs.add(importJob);
                 old = importJob;
             } catch (SchedulerException e) {
                 // TODO Auto-generated catch block
