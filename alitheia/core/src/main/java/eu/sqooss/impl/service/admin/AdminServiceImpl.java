@@ -96,12 +96,12 @@ public class AdminServiceImpl extends Thread implements AdminService {
 
     @Override
     public void execute(AdminAction a) {
-        boolean commitDb = false;
+        boolean commitDB = false;
         DBService db = null;
         if (AlitheiaCore.getInstance() != null) {
             db = AlitheiaCore.getInstance().getDBService();
             if (db.isDBSessionActive() != true) {
-                commitDb = true;
+                commitDB = true;
                 db.startDBSession();
             }
         }
@@ -110,12 +110,14 @@ public class AdminServiceImpl extends Thread implements AdminService {
         try{
             a.execute();
         } catch (Throwable t) {
-            if (db != null)db.rollbackDBSession();
-            err("Error executing action " + a.mnemonic() + ", id " + a.id());
+            if ((db != null) && commitDB)
+                db.rollbackDBSession();
+            err("Error executing action " + a.mnemonic() + ", id " + a.id() + 
+                    "\nCause:" + t.getMessage(), t);
         } finally {
             ActionContainer ac = liveactions.get(a.id());
             if (db != null)
-                if (db.isDBSessionActive() && commitDb)
+                if (db.isDBSessionActive() && commitDB)
                     db.commitDBSession();
             ac.end = System.currentTimeMillis();
             debug("Action " + a.id() + " finished in " + (ac.end - ac.start) + " msec" );
@@ -259,6 +261,11 @@ public class AdminServiceImpl extends Thread implements AdminService {
     private void err(String msg) {
         if (log != null)
             log.error(msg);
+    }
+    
+    private void err(String msg, Throwable t) {
+        if (log != null)
+            log.error(msg, new Exception(t));
     }
     
     private void info(String msg) {
