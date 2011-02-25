@@ -104,7 +104,7 @@ public abstract class AdminActionBase implements AdminAction {
             error = new HashMap<String, Object>();
         error.put(key, o);
         changeStatus(AdminActionStatus.ERROR);
-        throw new Exception();
+        throw new Exception(o.toString());
     }
 
     protected final void error(Exception e) throws Exception {

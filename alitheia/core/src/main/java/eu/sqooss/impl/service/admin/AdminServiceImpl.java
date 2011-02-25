@@ -109,11 +109,11 @@ public class AdminServiceImpl extends Thread implements AdminService {
         debug("Executing action : " + a.id() + " ");
         try{
             a.execute();
-        } catch (Throwable t) {
+        } catch (Exception e) {
             if ((db != null) && commitDB)
                 db.rollbackDBSession();
             err("Error executing action " + a.mnemonic() + ", id " + a.id() + 
-                    "\nCause:" + t.getMessage(), t);
+                    "\nCause:" + e.getMessage(), e);
         } finally {
             ActionContainer ac = liveactions.get(a.id());
             if (db != null)
@@ -263,11 +263,11 @@ public class AdminServiceImpl extends Thread implements AdminService {
             log.error(msg);
     }
     
-    private void err(String msg, Throwable t) {
+    private void err(String msg, Exception e) {
         if (log != null)
-            log.error(msg, new Exception(t));
+            log.error(msg, e);
     }
-    
+        
     private void info(String msg) {
         if (log != null)
             log.info(msg);

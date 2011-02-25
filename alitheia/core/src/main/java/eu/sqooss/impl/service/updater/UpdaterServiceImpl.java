@@ -102,6 +102,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             return;
         }
         
+        
+        
         updaters.put(u, clazz);
             
         logger.info("Registering updater class " + clazz.getCanonicalName() + 
@@ -272,6 +274,29 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         return null;
     }
 
+    private boolean checkDependencies(Updater upd) {
+        boolean met = true;
+        for (String dep : upd.dependencies()) {
+            boolean found = false;
+            for (Updater other : updaters.keySet()) {
+                if (dep.equals(other.mnem())) {
+                    if (other.stage().equals(upd.stage())) {
+                        found = true;
+                        break;
+                    } else {
+                        logger.error("Updater <" + upd.mnem() + ">-" + 
+                                upd.stage() + 
+                                " depends on other stage updater <" 
+                                + other.mnem() + ">-" + other.stage());
+                        return false;
+                    }
+                }
+            }
+            met &= found;
+        }
+        return met;
+    }
+    
     /**
      * Add an update job of the given type or the specific updater for the project. 
      */
@@ -337,7 +362,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
          */
         List<Job> jobs = new LinkedList<Job>();
         BidiMap<Updater, Job> toSchedule = new BidiMap<Updater, Job>();
-        DependencyJob old = null;
+        DependencyJob oldDepJob = null;
         try {
             for (UpdaterStage us : stages) {
                 
@@ -351,6 +376,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
                 //Construct a adjacency matrix for dependencies
                 for (Updater u : updForStage) {
+                    if (!checkDependencies(u))
+                        return false;
                     if (!idx.containsKey(u)) {
                         int n = graph.addVertex(u);
                         idx.put(u, n);
@@ -376,7 +403,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 updForStage = graph.topo();
 
                 // We now have updaters in correct execution order
-                DependencyJob importJob = new DependencyJob(us.toString());
+                DependencyJob depJob = new DependencyJob(us.toString());
 
                 List<String> deps = new ArrayList<String>();
                 if (updater != null)
@@ -417,13 +444,18 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     }
 
                     // Add dependency to stage level job
-                    importJob.addDependency(uj);
+                    depJob.addDependency(uj);
                     jobs.add(uj);
                     
                     if (isUpdateRunning(project, u))
                         continue;
+                    
+                    //Add dependency to previous stage dependency job
+                    if (oldDepJob != null)
+                        uj.addDependency(oldDepJob);
 
                     // Add dependencies to previously scheduled jobs
+                    // within the same stage
                     List<Class<? extends MetadataUpdater>> dependencies = 
                         new ArrayList<Class<? extends MetadataUpdater>>();
 
@@ -436,16 +468,17 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                             if (!(j instanceof UpdaterJob))
                                 continue;
                             if (((UpdaterJob) j).getUpdater().getClass().equals(d)) {
-                                importJob.addDependency(j);
+                                uj.addDependency(j);
                             }
                         }
                     }
                 }
 
-                if (old != null)
-                    importJob.addDependency(old);
-                jobs.add(importJob);
-                old = importJob;
+                if (oldDepJob != null)
+                    depJob.addDependency(oldDepJob);
+
+                jobs.add(depJob);
+                oldDepJob = depJob;
             }
 
             //Enqueue jobs
