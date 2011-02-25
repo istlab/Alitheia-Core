@@ -226,9 +226,16 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-	    for (Updater u: sobjUpdater.getUpdaters(selProject)) {
-	        triggerUpdate(e, selProject, indent, u.mnem());
-	    }
+	    AdminService as = AlitheiaCore.getInstance().getAdminService();
+        AdminAction aa = as.create(UpdateProject.MNEMONIC);
+        aa.addArg("project", selProject.getId());
+        as.execute(aa);
+
+        if (aa.hasErrors()) {
+            vc.put("RESULTS", aa.errors());
+        } else { 
+            vc.put("RESULTS", aa.results());
+        }
 	}
 	
 	// ---------------------------------------------------------------
