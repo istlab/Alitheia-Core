@@ -96,10 +96,14 @@ public class AdminServiceImpl extends Thread implements AdminService {
 
     @Override
     public void execute(AdminAction a) {
+        boolean commitDb = false;
         DBService db = null;
         if (AlitheiaCore.getInstance() != null) {
             db = AlitheiaCore.getInstance().getDBService();
-            db.startDBSession();
+            if (db.isDBSessionActive() != true) {
+                commitDb = true;
+                db.startDBSession();
+            }
         }
         
         debug("Executing action : " + a.id() + " ");
@@ -111,7 +115,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
         } finally {
             ActionContainer ac = liveactions.get(a.id());
             if (db != null)
-                if (db.isDBSessionActive())
+                if (db.isDBSessionActive() && commitDb)
                     db.commitDBSession();
             ac.end = System.currentTimeMillis();
             debug("Action " + a.id() + " finished in " + (ac.end - ac.start) + " msec" );
