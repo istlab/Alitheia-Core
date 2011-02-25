@@ -34,6 +34,8 @@
 package eu.sqooss.service.scheduler;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
@@ -75,12 +77,12 @@ public abstract class Job implements Comparable<Job> {
      * As soon as the \a first job is finished, the pair is removed from
      * the list.
      */
-    protected static List<Pair<Job,Job>> s_dependencies = new LinkedList<Pair<Job,Job>>();
+    protected List<Pair<Job,Job>> m_dependencies;
 
     /**
      * A list of objects that listen to this job's state changes  
      */
-    private List<JobStateListener> listeners = new ArrayList<JobStateListener>();
+    private List<JobStateListener> listeners;
     
     private State m_state;
 
@@ -115,7 +117,7 @@ public abstract class Job implements Comparable<Job> {
      * This job cannot be executed, as long \a other
      * is not finished.
      */
-    public final void addDependency(Job other) throws SchedulerException {
+    public final synchronized void addDependency(Job other) throws SchedulerException {
         // Dependencies of jobs can ony be changed before the job is queued.
         // Otherwise, race conditions would occur in which it would be undefined
         // if the dependency is applied or not.
@@ -128,9 +130,11 @@ public abstract class Job implements Comparable<Job> {
             throw new SchedulerException("Job dependencies are not allowed to be cyclic.");
         }
 
-        synchronized (s_dependencies) {
+        m_dependencies = new LinkedList<Pair<Job,Job>>();
+
+        synchronized (m_dependencies) {
             Pair<Job,Job> newDependency = new Pair<Job,Job>(other, this);
-            s_dependencies.add(newDependency);
+            m_dependencies.add(newDependency);
         }
         callDependenciesChanged();
     }
@@ -140,14 +144,16 @@ public abstract class Job implements Comparable<Job> {
      * \sa addDependency
      */
     public final void removeDependency(Job other) {
-        synchronized(s_dependencies) {
+        if (m_dependencies == null)
+            return;
+        synchronized(m_dependencies) {
             List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
-            for (Pair<Job,Job> p: s_dependencies ) {
+            for (Pair<Job,Job> p: m_dependencies ) {
                 if ( (p.first == other) && (p.second == this) ) {
                     doomed.add(p);
                 }
             }
-            s_dependencies.removeAll(doomed);
+            m_dependencies.removeAll(doomed);
         }
         callDependenciesChanged();
     }
@@ -158,8 +164,10 @@ public abstract class Job implements Comparable<Job> {
      * @return true, when the job depends on \a other, otherwise false.
      */
     public final boolean dependsOn(Job other) {
-        synchronized(s_dependencies) {
-            for (Pair<Job,Job> p: s_dependencies ) {
+        if (m_dependencies == null)
+            return false;
+        synchronized(m_dependencies) {
+            for (Pair<Job,Job> p: m_dependencies ) {
                 if ( (p.first == other) && (p.second == this) ) {
                     return true;
                 } else if ( (p.second == this) && p.first.dependsOn(other)) {
@@ -250,9 +258,12 @@ public abstract class Job implements Comparable<Job> {
      * @return All unfinished jobs this job depends on.
      */
     public final List<Job> dependencies() {
+        if (m_dependencies == null)
+            return Collections.EMPTY_LIST;
+        
         List<Job> result = new LinkedList<Job>();
-        synchronized (s_dependencies) {
-            for (Pair<Job,Job> p: s_dependencies) {
+        synchronized (m_dependencies) {
+            for (Pair<Job,Job> p: m_dependencies) {
                 if (p.second == this) {
                     result.add(p.first);
                 }
@@ -349,18 +360,18 @@ public abstract class Job implements Comparable<Job> {
 
         m_state = s;
 
-        if (m_state == State.Finished) {
+        if (m_state == State.Finished && m_dependencies != null) {
             // remove the job from the dependency list
             List<Job> unblockedJobs = new LinkedList<Job>();
-            synchronized (s_dependencies) {
+            synchronized (m_dependencies) {
                 List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
-                for (Pair<Job,Job> p: s_dependencies) {
+                for (Pair<Job,Job> p: m_dependencies) {
                     if (p.first == this) {
                         doomed.add(p);
                         unblockedJobs.add(p.second);
                     }
                 }
-                s_dependencies.removeAll(doomed);
+                m_dependencies.removeAll(doomed);
             }
             /* tell all jobs depending on the now finished on to forward that
              * to the scheduler
@@ -442,6 +453,8 @@ public abstract class Job implements Comparable<Job> {
      * Add a listener from the job's list of state listeners
      */
     public final synchronized void addJobStateListener(JobStateListener l) {
+        if (listeners == null)
+            listeners = new ArrayList<JobStateListener>();
         listeners.add(l);
     }
     
@@ -450,6 +463,8 @@ public abstract class Job implements Comparable<Job> {
      * @param l The listener to remove'
      */
     public final synchronized void removeJobStateListener(JobStateListener l) {
+        if (listeners == null)
+            return;
         listeners.remove(l);
     }
     
@@ -457,6 +472,8 @@ public abstract class Job implements Comparable<Job> {
      * Called when the job's state has changed to notify clients about that.
      */
     private void fireStateChangedEvent() {
+        if (listeners == null)
+            return;
         for (JobStateListener l : listeners) {
             l.jobStateChanged(this, m_state);
         }
