@@ -11,10 +11,8 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.core.AlitheiaCore;
 import ${groupId}.${artifactId}.SkelAccessor;
 import ${groupId}.${artifactId}.SkelUpdater;
-import eu.sqooss.plugins.updater.svn.SVNUpdaterImpl;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 /*
  * An Alitheia Core plug-in extends the TDS and updater services

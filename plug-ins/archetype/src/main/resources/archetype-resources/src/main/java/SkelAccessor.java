@@ -12,11 +12,8 @@ import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
-import org.osgi.framework.BundleContext;
-
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
-import eu.sqooss.service.tds.CommitEntry;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -98,19 +95,7 @@ public class SkelAccessor implements SCMAccessor {
                InvalidRepositoryException,
                FileNotFoundException {return;}
 
-    public CommitLog getCommitLog(Revision r)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {return null;}
-    
-    public CommitLog getCommitLog(Revision r1, Revision r2)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {return null;}
-
     public CommitLog getCommitLog(String repoPath, Revision r1, Revision r2)
-        throws InvalidProjectRevisionException,
-               InvalidRepositoryException {return null;}
-
-    public CommitEntry getCommitLog(String repoPath, Revision r)
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {return null;}
 
