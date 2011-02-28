@@ -482,6 +482,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             }
 
             //Enqueue jobs
+            List<Job> toQueue = new ArrayList<Job>();
             for (Job job : jobs) {
                 if (!scheduledUpdates.containsKey(project.getId()))
                     scheduledUpdates.put(project.getId(),
@@ -501,14 +502,14 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     logger.warn("Job " + job + " has been scheduled before, ignoring");
                     continue;
                 }
-
-                AlitheiaCore.getInstance().getScheduler().enqueue(job);
+                toQueue.add(job);
                 //DependencyJobs don't need to be tracked
                 if (!(job instanceof UpdaterJob))
                     continue;
                 scheduledUpdates.get(project.getId()).put(
                         toSchedule.getKey(job), (UpdaterJob)job);
             }
+            AlitheiaCore.getInstance().getScheduler().enqueueBlock(toQueue);
         } catch (SchedulerException e) {
             logger.error("Cannot schedule update job(s):" + e.getMessage(), e);
             return false;
