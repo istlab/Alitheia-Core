@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.scheduler;
 
+import java.util.List;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCoreService;
@@ -55,6 +56,12 @@ public interface Scheduler extends AlitheiaCoreService {
      * Queue lots of jobs without checking their dependencies.
      */
     void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException;
+    
+    /**
+     * Queue lots of jobs as a block. Execution won't start until all
+     * jobs are queued.  
+     */
+    void enqueueBlock(List<Job> jobs) throws SchedulerException;
     
     /**
      * This method is called, when the state of the job \a job changes to 

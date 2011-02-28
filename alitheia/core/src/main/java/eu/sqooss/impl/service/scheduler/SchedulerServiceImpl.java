@@ -86,7 +86,7 @@ public class SchedulerServiceImpl implements Scheduler {
     public void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException {
         synchronized (this) {
             for (Job job : jobs) {
-                logger.info("Scheduler ServiceImpl: queuing job "
+                logger.debug("Scheduler ServiceImpl: queuing job "
                         + job.toString());
                 job.callAboutToBeEnqueued(this);
                 workQueue.add(job);
@@ -94,6 +94,20 @@ public class SchedulerServiceImpl implements Scheduler {
                 stats.incTotalJobs();
             }
         }
+    }
+    
+    public void enqueueBlock(List<Job> jobs) throws SchedulerException {
+        synchronized (this) {
+            for (Job job : jobs) {
+                logger.debug("SchedulerServiceImpl: queuing job " + job.toString());
+                job.callAboutToBeEnqueued(this);
+                blockedQueue.add(job);
+                stats.addWaitingJob(job.getClass().toString());
+                stats.incTotalJobs();
+            }
+        }
+        if (jobs.size() >= 0)
+            jobDependenciesChanged(jobs.get(0));
     }
 
     public void dequeue(Job job) {
