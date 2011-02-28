@@ -95,6 +95,7 @@ public class MailThreadResolver implements MetadataUpdater {
             this.ml = l;
             realupdate();
         }
+        if (dbs.isDBSessionActive())dbs.commitDBSession();
     }
     
     @Override
@@ -103,7 +104,7 @@ public class MailThreadResolver implements MetadataUpdater {
     }
     
     private void realupdate() throws Exception {
-        dbs.startDBSession();
+        if (!dbs.isDBSessionActive()) dbs.startDBSession();
         ml = dbs.attachObjectToDBSession(ml);
         int newThreads = 0, updatedThreads = 0, processedEmails = 0;
         MailMessage lastEmail = null;

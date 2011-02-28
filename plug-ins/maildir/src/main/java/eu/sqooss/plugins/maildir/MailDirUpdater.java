@@ -106,8 +106,10 @@ public class MailDirUpdater implements MetadataUpdater {
                 total += msgs.size();
             }
             
-            if (total == 0)
+            if (total == 0) {
+                dbs.commitDBSession();
                 return;
+            }
             
             for (Long mlId : listIds) {
                 ml = DAObject.loadDAObyId(mlId, MailingList.class);
