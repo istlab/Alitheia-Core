@@ -11,6 +11,7 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.core.AlitheiaCore;
 import ${groupId}.${artifactId}.SkelAccessor;
 import ${groupId}.${artifactId}.SkelUpdater;
+import eu.sqooss.plugins.updater.svn.SVNUpdaterImpl;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
@@ -38,10 +39,8 @@ public class Activator implements BundleActivator {
         /*
          * Register the plug-in to the updater service
          */
-        UpdaterStage[] stages = {UpdaterStage.IMPORT};
         UpdaterService us = AlitheiaCore.getInstance().getUpdater();
-        
-        us.registerUpdaterService(protocols, stages, SkelUpdater.class);
+        us.registerUpdaterService(SkelUpdater.class);
     }
 
     public void stop(BundleContext context) throws Exception {

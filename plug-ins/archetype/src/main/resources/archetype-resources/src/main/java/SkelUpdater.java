@@ -12,10 +12,16 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.MetadataUpdater;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 /**
  * A metadata updater converts raw data to Alitheia Core database metadata.
  */
+@Updater(descr = "Skeleton updater", 
+        protocols = {"skel"},
+        stage = UpdaterStage.IMPORT, 
+        mnem = "SKEL")
 public class SkelUpdater implements MetadataUpdater {
     
     private StoredProject sp;
