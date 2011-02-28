@@ -51,7 +51,7 @@ public class UpdaterJob extends Job {
     }
     
     @Override
-    public long priority() {
+    public final long priority() {
         return 0;
     }
 
