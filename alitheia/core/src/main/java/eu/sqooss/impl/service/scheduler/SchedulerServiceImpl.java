@@ -106,8 +106,8 @@ public class SchedulerServiceImpl implements Scheduler {
                 stats.incTotalJobs();
             }
         }
-        if (jobs.size() >= 0)
-            jobDependenciesChanged(jobs.get(0));
+        for (Job job : jobs)
+            jobDependenciesChanged(job);
     }
 
     public void dequeue(Job job) {
