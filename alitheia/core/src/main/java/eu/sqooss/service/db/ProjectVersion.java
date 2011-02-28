@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -913,6 +914,24 @@ public class ProjectVersion extends DAObject {
             branches.addAll(getIncomingBranches());
         }
         return branches.get(0);
+    }
+    
+    /**
+     * Filter files that changed in a version by their path name
+     */
+    public Set<ProjectFile> getVersionFiles(Pattern p) {
+        Set<ProjectFile> result = new HashSet<ProjectFile>();
+        Set<ProjectFile> files = getVersionFiles();
+
+        Iterator<ProjectFile> it = files.iterator();
+        while (it.hasNext()) {
+            ProjectFile pf = it.next();
+            Matcher m = p.matcher(pf.getFileName());
+            if (m.matches())
+                result.add(pf);
+        }
+
+        return result;
     }
     
     public boolean equals(Object obj) {
