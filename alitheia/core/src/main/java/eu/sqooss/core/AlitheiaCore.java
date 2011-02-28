@@ -258,13 +258,29 @@ public class AlitheiaCore implements ServiceListener {
                 e.printStackTrace();
             }
         }
+        err("Initialising plugin bundles");
+        for (Bundle b : bc.getBundles()) {
+            if (!b.getSymbolicName().contains(".plugins."))
+                continue; //Not a plugin bundle
+            
+            try {
+                err("Starting " + b.getSymbolicName());
+                if (b.getState() != Bundle.STARTING && 
+                        b.getState() != Bundle.ACTIVE)
+                    b.start();
+            } catch (BundleException e) {
+                err("Failed to start " + b.getSymbolicName());
+                e.printStackTrace();
+            }
+        }
         err("Initialising other bundles");
         for (Bundle b : bc.getBundles()) {
             if (!b.getSymbolicName().contains(".sqooss."))
                 continue; //Not a sqooss bundle
             
-            if (b.getSymbolicName().contains(".metrics."))
-                continue; //Metric bundle started earlier
+            if (b.getSymbolicName().contains(".metrics.") ||
+                    b.getSymbolicName().contains(".plugins."))
+                continue; //Those bundles were started earlier
             
             if (b.getSymbolicName().contains(".alitheia.core"))
                 continue; //Don't start thyself
