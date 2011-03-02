@@ -75,7 +75,7 @@ public class OhlohUpdater extends UpdaterBaseJob {
     }
 
     @Override
-    public int priority() {
+    public long priority() {
         return 3;
     }
 

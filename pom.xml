@@ -124,7 +124,8 @@
             <param>--platform=equinox</param>
             <param>--ee=JavaSE-1.6</param>
           </provision>
-        </configuration>
+          <runner>1.5.0</runner>
+         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
