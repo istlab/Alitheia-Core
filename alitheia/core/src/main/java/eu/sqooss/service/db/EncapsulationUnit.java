@@ -1,6 +1,7 @@
 package eu.sqooss.service.db;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -46,12 +47,18 @@ public class EncapsulationUnit extends DAObject {
     private NameSpace namespace;
 
     @OneToMany(mappedBy = "encapsulationUnit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ExecutionUnit> execUnits;
+    private Set<ExecutionUnit> execUnits;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROJECT_FILE_ID")
     private ProjectFile file;
 
+    public EncapsulationUnit(){}
+    
+    public EncapsulationUnit(ProjectFile pf){
+        this.file = pf;
+    }
+    
     public long getId() {
         return id;
     }
@@ -76,11 +83,13 @@ public class EncapsulationUnit extends DAObject {
         this.namespace = namespace;
     }
 
-    public List<ExecutionUnit> getExecUnits() {
+    public Set<ExecutionUnit> getExecUnits() {
+        if (execUnits == null)
+            return new HashSet<ExecutionUnit>();
         return execUnits;
     }
 
-    public void setExecUnits(List<ExecutionUnit> execUnits) {
+    public void setExecUnits(Set<ExecutionUnit> execUnits) {
         this.execUnits = execUnits;
     }
 
