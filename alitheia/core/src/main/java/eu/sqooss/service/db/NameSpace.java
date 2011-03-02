@@ -1,5 +1,8 @@
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -15,10 +18,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
+
+import eu.sqooss.core.AlitheiaCore;
 
 /**
  * A representation of a namespace. According to Wikipedia, a namespace is an
@@ -32,7 +38,6 @@ import org.hibernate.annotations.Index;
  * A namespace has a lifetime; during the course of a project, as code changes,
  * so does the validity of the namespace. Everytime there is a source code
  * commit that affects a certain namespace, a new Namespace DB entry is added; a
- * Namespace with the validUntil field equal to null means that it is current.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  * 
@@ -44,6 +49,11 @@ import org.hibernate.annotations.Index;
 @Table(name = "NAMESPACE")
 public class NameSpace extends DAObject {
 
+    private static final String nsByVersion = 
+    		"from NameSpace ns " +
+    		"where ns.changeVersion = :pv " +
+    		"and ns.name = :name";
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "NAMESPACE_ID")
@@ -55,15 +65,10 @@ public class NameSpace extends DAObject {
     @XmlElement
     String name;
 
-    /** Version since this namespace instance is valid */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "VALID_FROM_ID")
-    ProjectVersion validFrom;
-
     /** Version until this namespace instance is valid */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "VALID_UNTIL_ID")
-    ProjectVersion validUntil;
+    @JoinColumn(name = "CHANGE_VERSION_ID")
+    ProjectVersion changeVersion;
 
     /** Encapsulation units, if any, */
     @OneToMany(mappedBy = "namespace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -98,23 +103,17 @@ public class NameSpace extends DAObject {
         this.name = name;
     }
 
-    public ProjectVersion getValidFrom() {
-        return validFrom;
+    public ProjectVersion getChangeVersion() {
+        return changeVersion;
     }
 
-    public void setValidFrom(ProjectVersion validFrom) {
-        this.validFrom = validFrom;
+    public void setChangeVersion(ProjectVersion changeVersion) {
+        this.changeVersion = changeVersion;
     }
-
-    public ProjectVersion getValidUntil() {
-        return validUntil;
-    }
-
-    public void setValidUntil(ProjectVersion validUntil) {
-        this.validUntil = validUntil;
-    }
-
+    
     public Set<EncapsulationUnit> getEncapsulationUnits() {
+        if (encapsulationUnits == null)
+            encapsulationUnits = new HashSet<EncapsulationUnit>();
         return encapsulationUnits;
     }
 
@@ -127,6 +126,8 @@ public class NameSpace extends DAObject {
     }
 
     public void setExecutionUnits(Set<ExecutionUnit> executionUnits) {
+        if (executionUnits == null)
+            executionUnits = new HashSet<ExecutionUnit>();
         this.executionUnits = executionUnits;
     }
 
@@ -137,6 +138,17 @@ public class NameSpace extends DAObject {
     public void setLang(Language lang) {
         this.lang = lang;
     }
-
     
+    public static NameSpace findByVersionName(ProjectVersion pv, String name) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("pv", pv);
+        params.put("name", name);
+        
+        List<NameSpace> ns = (List<NameSpace>) dbs.doHQL(nsByVersion, params);
+        
+        if (ns.isEmpty())
+            return null;
+        return ns.get(0);
+    }
 }

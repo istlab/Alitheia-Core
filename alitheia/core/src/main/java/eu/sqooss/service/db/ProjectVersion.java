@@ -175,7 +175,7 @@ public class ProjectVersion extends DAObject {
     /**
      * The namespaces that have been updated in this revision
      */
-    @OneToMany(mappedBy="validFrom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="changeVersion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<NameSpace> namespaces;
     
     /**
