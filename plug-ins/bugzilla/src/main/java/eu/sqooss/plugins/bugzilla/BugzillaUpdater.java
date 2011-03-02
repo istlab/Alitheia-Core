@@ -36,6 +36,7 @@ package eu.sqooss.plugins.bugzilla;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
@@ -43,6 +44,8 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Job.State;
+import eu.sqooss.service.scheduler.JobStateListener;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.updater.MetadataUpdater;
@@ -57,13 +60,15 @@ import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
         mnem = "BUGZXML", 
         protocols = {"bugzilla-xml"}, 
         stage = UpdaterStage.IMPORT)
-public class BugzillaUpdater implements MetadataUpdater  {
+public class BugzillaUpdater implements MetadataUpdater, JobStateListener  {
 
     private BTSAccessor bts;
     private StoredProject project;
     private Logger logger;
     private DBService dbs;
     private float progress;
+    private AtomicInteger jobCounter;
+    int numbugs;
     
     public BugzillaUpdater() {}
 
@@ -81,7 +86,7 @@ public class BugzillaUpdater implements MetadataUpdater  {
 
 	@Override
     public void update() throws Exception {
-	    int numprocessed = 0;
+	    jobCounter = new AtomicInteger();
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
         
@@ -105,15 +110,20 @@ public class BugzillaUpdater implements MetadataUpdater  {
         // Update
         for (String bugID : bugIds) {
             BugzillaXMLJob job = new BugzillaXMLJob(project, bugID, logger);
-            numprocessed++;
-            
+            job.addJobStateListener(this);
             jobs.add(job);
-            
-            progress = (float) (((double)numprocessed/(double)bugIds.size())*100);
+            numbugs++;
         }
-        
+        jobCounter.set(jobs.size());
         s.enqueueNoDependencies(jobs);
 
+      //Poor man's synchronization
+        while (jobCounter.intValue() > 0) {
+            try {
+                Thread.sleep(1000);
+            } catch(InterruptedException ignored){}
+        }
+        
         if (dbs.isDBSessionActive())
             dbs.commitDBSession();
     }
@@ -121,5 +131,11 @@ public class BugzillaUpdater implements MetadataUpdater  {
     @Override
     public String toString() {
         return "BugzilaUpdater - Project:{" + project +"}, " + progress + "%";
+    }
+
+    @Override
+    public void jobStateChanged(Job j, State newState) {
+        if (newState == State.Error || newState == State.Finished)
+            progress = 100 - (float) (((double)jobCounter.decrementAndGet() / (double)numbugs) * 100); 
     }
 }
