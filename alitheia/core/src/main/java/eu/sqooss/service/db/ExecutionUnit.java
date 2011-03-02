@@ -42,6 +42,20 @@ public class ExecutionUnit extends DAObject {
     @JoinColumn(name = "ENCAPSULATION_UNIT_ID")
     private EncapsulationUnit encapsulationUnit;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROJECT_FILE_ID")
+    private ProjectFile file;
+
+    @Column(name = "CHANGED")
+    @XmlElement
+    private boolean changed = false;
+    
+    public ExecutionUnit() {}
+    
+    public ExecutionUnit(EncapsulationUnit eu) {
+        this.encapsulationUnit = eu;
+    }
+    
     public long getId() {
         return id;
     }
@@ -72,5 +86,21 @@ public class ExecutionUnit extends DAObject {
 
     public void setEncapsulationUnit(EncapsulationUnit encapsulationUnit) {
         this.encapsulationUnit = encapsulationUnit;
+    }
+
+    public void setFile(ProjectFile file) {
+        this.file = file;
+    }
+
+    public ProjectFile getFile() {
+        return file;
+    }
+
+    public void setChanged(boolean changed) {
+        this.changed = changed;
+    }
+
+    public boolean isChanged() {
+        return changed;
     }
 }

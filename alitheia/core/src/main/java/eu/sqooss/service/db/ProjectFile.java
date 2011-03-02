@@ -35,6 +35,7 @@ package eu.sqooss.service.db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -150,16 +151,22 @@ public class ProjectFile extends DAObject{
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<EncapsulationUnit> encapsulationUnits;
     
+    /**
+     * Methods defined in this file
+     */
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ExecutionUnit> executionUnits;
+    
     public ProjectFile() {
         // Nothing to see here
         isDirectory = false; //By default, all entries are files
     }
 
     public ProjectFile(ProjectVersion pv) {
+        this();
         this.projectVersion = pv;
         this.setValidFrom(pv);
         this.setValidUntil(null);
-        isDirectory = false; //By default, all entries are files
     }
 
     /**
@@ -306,7 +313,19 @@ public class ProjectFile extends DAObject{
     }
 
     public Set<EncapsulationUnit> getEncapsulationUnits() {
+        if (encapsulationUnits == null)
+            encapsulationUnits = new HashSet<EncapsulationUnit>();
         return encapsulationUnits;
+    }
+    
+    public void setExecutionUnits(Set<ExecutionUnit> executionUnits) {
+        if (executionUnits == null)
+            executionUnits = new HashSet<ExecutionUnit>();
+        this.executionUnits = executionUnits;
+    }
+
+    public Set<ExecutionUnit> getExecutionUnits() {
+        return executionUnits;
     }
     
     /**
