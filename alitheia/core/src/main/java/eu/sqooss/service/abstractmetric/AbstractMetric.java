@@ -164,6 +164,45 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     protected static final String QRY_SYNC_DEV = "select d.id " +
     		"from Developer d " +
     		"where d.storedProject = :project";
+    
+    protected static final String QRY_SYNC_NS = "select ns.id " +
+            "from NameSpace ns, ProjectVersion pv " +
+            "where pv = ns.changeVersion " +
+            "and pv.project = :project " +
+            "and not exists ( " +
+            "   select nsm " + 
+            "   from NameSpaceMeasurement nsm " + 
+            "   where nsm.metric = :metric " +
+            "   and nsm.namespace = ns) " +
+            "order by pv.sequence asc";
+    
+    protected static final String QRY_SYNC_ENCUNT = "select encu.id " +
+            "from EncapsulationUnit encu, ProjectVersion pv, ProjectFile pf " +
+            " where pf.projectVersion = pv " +
+            " and encu.file = pf " +
+            "and pv.project = :project " +
+            "and not exists ( " +
+            "    select eum " +
+            "    from EncapsulationUnitMeasurement eum " +
+            "    where eum.encapsulationUnit = encu " +
+            "    and eum.metric = :metric " +
+            " ) order by pv.sequence asc ";
+    
+    protected static final String QRY_SYNC_EXECUNT = "select exu.id " +
+    		"from ExecutionUnit exu, EncapsulationUnit encu, " +
+    		"     ProjectVersion pv, ProjectFile pf " +
+            "where pf.projectVersion = pv " +
+            "and encu.file = pf " +
+            "and pv.project = :project " +
+            "and exu.changed = true " +
+            "and exu.encapsulationUnit = encu " +
+            "and not exists ( " +
+            "    select eum  " +
+            "    from ExecutionUnitMeasurement eum " +
+            "    where eum.executionUnit = exu " +
+            "    and eum.metric = :metric) " +
+            "order by pv.sequence asc";
+    
     /**
      * Init basic services common to all implementing classes
      * @param bc - The bundle context of the implementing metric - to be passed
@@ -872,7 +911,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 	    		throw new MetricActivationException("Metric synchronisation with BUG objects not implemented");
 	    	} else if (MetricType.fromActivator(at) == Type.DEVELOPER) {
 	    		q = QRY_SYNC_DEV;
-	    	} else {
+	    	} else if (MetricType.fromActivator(at) == Type.NAMESPACE) {
+                q = QRY_SYNC_NS;
+            } else if (MetricType.fromActivator(at) == Type.ENCAPSUNIT) {
+                q = QRY_SYNC_ENCUNT;
+            } else if (MetricType.fromActivator(at) == Type.EXECUNIT) {
+                q = QRY_SYNC_EXECUNT;
+            } else {
 	    		throw new MetricActivationException("Metric synchronisation with GENERIC objects not implemented");
 	    	}
 	    	

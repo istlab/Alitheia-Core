@@ -35,9 +35,12 @@ package eu.sqooss.service.abstractmetric;
 
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.EncapsulationUnit;
+import eu.sqooss.service.db.ExecutionUnit;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
+import eu.sqooss.service.db.NameSpace;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectDirectory;
 import eu.sqooss.service.db.ProjectVersion;
@@ -51,6 +54,9 @@ public @interface SchedulerHints {
 	 * the following:
 	 * 
 	 * <ul>
+	 * <li>{@link eu.sqooss.service.db.ExecutionUnit}</li>
+	 * <li>{@link eu.sqooss.service.db.EncapsulationUnit}</li>
+	 * <li>{@link eu.sqooss.service.db.Namespace}</li>
 	 * <li>{@link eu.sqooss.service.db.ProjectDirectory}</li>
 	 * <li>{@link eu.sqooss.service.db.ProjectFile.class}</li>
 	 * <li>{@link eu.sqooss.service.db.ProjectVersion.class}</li>
@@ -64,6 +70,9 @@ public @interface SchedulerHints {
 	 */
 	public Class<? extends DAObject>[] activationOrder() 
 		default {
+	        ExecutionUnit.class,
+	        EncapsulationUnit.class,
+	        NameSpace.class,
 			ProjectDirectory.class, 
 			ProjectFile.class,
 			ProjectVersion.class,

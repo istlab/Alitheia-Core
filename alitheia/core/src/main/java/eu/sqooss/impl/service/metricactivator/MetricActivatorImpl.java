@@ -34,7 +34,6 @@
 package eu.sqooss.impl.service.metricactivator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.osgi.framework.BundleContext;
@@ -60,20 +58,23 @@ import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.EncapsulationUnit;
+import eu.sqooss.service.db.ExecutionUnit;
 import eu.sqooss.service.db.InvocationRule;
+import eu.sqooss.service.db.InvocationRule.ActionType;
+import eu.sqooss.service.db.InvocationRule.ScopeType;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.MetricType.Type;
+import eu.sqooss.service.db.NameSpace;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.InvocationRule.ActionType;
-import eu.sqooss.service.db.InvocationRule.ScopeType;
-import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
@@ -416,8 +417,6 @@ public class MetricActivatorImpl  implements MetricActivator {
     	}
     	
     	List<AlitheiaPlugin> sorted = graph.topo();
-    	//List<AlitheiaPlugin> result = Arrays.asList(sorted);
-    	//Collections.reverse(sorted); //
     	
     	logger.debug("Calculated metric order:");
     	for (AlitheiaPlugin p : sorted) {
@@ -524,8 +523,10 @@ public class MetricActivatorImpl  implements MetricActivator {
 		this.bc = bc;
 		this.logger = l;
 		
-        
         metricTypesToActivators = new HashMap<Type, Class<? extends DAObject>>();
+        metricTypesToActivators.put(Type.NAMESPACE, NameSpace.class);
+        metricTypesToActivators.put(Type.ENCAPSUNIT, EncapsulationUnit.class);
+        metricTypesToActivators.put(Type.EXECUNIT, ExecutionUnit.class);
         metricTypesToActivators.put(Type.SOURCE_DIRECTORY, ProjectFile.class);
         metricTypesToActivators.put(Type.SOURCE_FILE, ProjectFile.class);
         metricTypesToActivators.put(Type.BUG, Bug.class);
