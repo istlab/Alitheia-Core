@@ -35,6 +35,7 @@ package eu.sqooss.service.db;
 
 import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.logging.Logger;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -253,22 +254,6 @@ public interface DBService extends AlitheiaCoreService {
      * @return true if all the record deletions succeeded, false otherwise
      */
     public <T extends DAObject> boolean deleteRecords(List<T> records);
-
-    /**
-     * Add a new composite-key association to the database.
-     * 
-     * @param compositeKey the composite key object to persist into the database
-     * @return true if the association was successfully added, false otherwise
-     */
-    public boolean addAssociation(Object compositeKey);
-    
-    /**
-     * Delete an existing composite-key association from the database.
-     * 
-     * @param compositeKey the composite key object to delete from the database
-     * @return true if the association was successfully deleted, false otherwise
-     */
-    public boolean deleteAssociation(Object compositeKey);
 
     /**
      * Attach a disconnected object to the current Session. If the corresponding
@@ -495,7 +480,12 @@ public interface DBService extends AlitheiaCoreService {
      * @return The number of rows updated or deleted or -1 in case of error
      */
     public int executeUpdate(String hql, Map<String, Object> params);
-        
+    
+    /**
+     * Get the logger used by the DB service, to log something DB specific. 
+     * This is the prefered method for DAOs to log things.
+     */
+    public Logger logger();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -488,7 +488,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
                 }
             }
             if (lockForUpdate) {
-                query.setLockMode("foo", LockMode.UPGRADE);
+                query.setLockMode("foo", LockMode.PESSIMISTIC_WRITE);
             }
             if ( start >= 0 && limit >= 0 ) {
                 query.setFirstResult(start);
@@ -586,35 +586,8 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         }
     }
     
-    public boolean addAssociation(Object compositeKey) {
-        if( !checkSession() )
-            return false;
-
-        try {
-            Session s = sessionFactory.getCurrentSession();
-            s.save(compositeKey);
-            return true;
-        } catch (HibernateException e) {
-            logExceptionAndTerminateSession(e);
-            return false;
-        }
-    }
-
-    public boolean deleteAssociation(Object compositeKey) {
-        if( !checkSession() )
-            return false;
-
-        try {
-            Session s = sessionFactory.getCurrentSession();
-            if (!s.contains(compositeKey)) {
-                compositeKey = s.merge(compositeKey);
-            }
-            s.delete(compositeKey);
-            return true;
-        } catch (HibernateException e) {
-            logExceptionAndTerminateSession(e);
-            return false;
-        }
+    public Logger logger() {
+        return this.logger;
     }
     
     public boolean startDBSession() {
