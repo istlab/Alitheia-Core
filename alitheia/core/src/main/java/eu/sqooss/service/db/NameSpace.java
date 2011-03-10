@@ -85,6 +85,10 @@ public class NameSpace extends DAObject {
     @Column(name = "LANG")
     Language lang;
 
+    /** Measurements for this namespace*/
+    @OneToMany(mappedBy = "namespace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<NameSpaceMeasurement> measurements;
+    
     @Override
     public long getId() {
         return id;
@@ -137,6 +141,14 @@ public class NameSpace extends DAObject {
 
     public void setLang(Language lang) {
         this.lang = lang;
+    }
+    
+    public void setMeasurements(Set<NameSpaceMeasurement> measurements) {
+        this.measurements = measurements;
+    }
+
+    public Set<NameSpaceMeasurement> getMeasurements() {
+        return measurements;
     }
     
     public static NameSpace findByVersionName(ProjectVersion pv, String name) {

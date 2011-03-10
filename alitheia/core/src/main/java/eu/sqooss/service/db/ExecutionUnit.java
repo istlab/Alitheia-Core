@@ -1,5 +1,8 @@
 package eu.sqooss.service.db;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -50,6 +54,13 @@ public class ExecutionUnit extends DAObject {
     @XmlElement
     private boolean changed = false;
     
+    /**
+     * Measurements for this execution unit. Only execution units whose
+     * <code>changed</code> field is true can have measurements.
+     */
+    @OneToMany(mappedBy = "executionUnit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ExecutionUnitMeasurement> measurements;
+
     public ExecutionUnit() {}
     
     public ExecutionUnit(EncapsulationUnit eu) {
@@ -102,5 +113,13 @@ public class ExecutionUnit extends DAObject {
 
     public boolean isChanged() {
         return changed;
+    }
+
+    public void setMeasurements(Set<ExecutionUnitMeasurement> measurements) {
+        this.measurements = measurements;
+    }
+
+    public Set<ExecutionUnitMeasurement> getMeasurements() {
+        return measurements;
     }
 }

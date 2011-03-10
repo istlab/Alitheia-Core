@@ -67,6 +67,9 @@
         <mapping class="eu.sqooss.service.db.NameSpace"/>
         <mapping class="eu.sqooss.service.db.ExecutionUnit"/>
         <mapping class="eu.sqooss.service.db.EncapsulationUnit"/>
+        <mapping class="eu.sqooss.service.db.NameSpaceMeasurement"/>
+        <mapping class="eu.sqooss.service.db.ExecutionUnitMeasurement"/>
+        <mapping class="eu.sqooss.service.db.EncapsulationUnitMeasurement"/>
     </session-factory>
 
 </hibernate-configuration>

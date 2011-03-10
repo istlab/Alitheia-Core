@@ -91,7 +91,8 @@ public class MetricType extends DAObject {
         MAILING_LIST,
         BUG, PROJECT_VERSION,
         MAILTHREAD, MAILMESSAGE,
-        DEVELOPER;
+        DEVELOPER, NAMESPACE,
+        EXECUNIT, ENCAPSUNIT;
 
         public static Type fromString(String s) {
             if ("SOURCE_CODE".equals(s) || "SOURCE_FILE".equals(s))
@@ -110,6 +111,12 @@ public class MetricType extends DAObject {
                 return Type.PROJECT_VERSION;
             else if ("DEVELOPER".equals(s))
             	return Type.DEVELOPER;
+            else if ("NAMESPACE".equals(s))
+                return Type.NAMESPACE;
+            else if ("EXECUNIT".equals(s))
+                return Type.EXECUNIT;
+            else if ("ENCAPSUNIT".equals(s))
+                return Type.ENCAPSUNIT;
             else
                 return null;
         }
@@ -197,6 +204,12 @@ public class MetricType extends DAObject {
 	       return Type.BUG;
 	   if (activator.equals(Developer.class))
 		   return Type.DEVELOPER;
+	   if (activator.equals(NameSpace.class))
+           return Type.NAMESPACE;
+	   if (activator.equals(EncapsulationUnit.class))
+           return Type.ENCAPSUNIT;
+	   if (activator.equals(ExecutionUnit.class))
+           return Type.EXECUNIT;
 	   return null;
 	}
 	
@@ -220,6 +233,12 @@ public class MetricType extends DAObject {
 	            return Bug.class;
 	        case DEVELOPER:
 	        	return Developer.class;
+	        case NAMESPACE:
+	            return NameSpace.class;
+	        case ENCAPSUNIT:
+	            return EncapsulationUnit.class;
+	        case EXECUNIT:
+	            return ExecutionUnit.class;
 	    }
 	    return null;
 	}

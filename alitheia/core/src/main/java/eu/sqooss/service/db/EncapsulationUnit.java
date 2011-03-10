@@ -52,6 +52,12 @@ public class EncapsulationUnit extends DAObject {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROJECT_FILE_ID")
     private ProjectFile file;
+    
+    /**
+     * Measurements for this encapsulation unit.
+     */
+    @OneToMany(mappedBy = "encapsulationUnit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<EncapsulationUnitMeasurement> measurements;
 
     public EncapsulationUnit(){}
     
@@ -99,5 +105,13 @@ public class EncapsulationUnit extends DAObject {
 
     public ProjectFile getFile() {
         return file;
+    }
+
+    public void setMeasurements(Set<EncapsulationUnitMeasurement> measurements) {
+        this.measurements = measurements;
+    }
+
+    public Set<EncapsulationUnitMeasurement> getMeasurements() {
+        return measurements;
     }
 }
