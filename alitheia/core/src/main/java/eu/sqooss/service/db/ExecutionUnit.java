@@ -30,7 +30,7 @@ public class ExecutionUnit extends DAObject {
     @XmlElement
     private long id;
 
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 256)
     @XmlElement
     private String name;
 

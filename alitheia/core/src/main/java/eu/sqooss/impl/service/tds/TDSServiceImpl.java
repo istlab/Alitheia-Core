@@ -80,7 +80,7 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
                 claims++;
                 accessorClaims.put(a, claims);
             }
-            logger.debug("Retrieving accessor for project " + projectId);
+            //logger.debug("Retrieving accessor for project " + projectId);
             return a;
         } else {
             logger.warn("Retrieval request for non-existent project " + projectId);
