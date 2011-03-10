@@ -70,7 +70,10 @@ import eu.sqooss.service.util.FileUtils;
 @Table(name="PROJECT_FILE")
 @XmlRootElement(name="file")
 public class ProjectFile extends DAObject{
-   
+    
+    private static final String qPrevVersion = "select pf from ProjectVersion pv, ProjectFile pf where pf.projectVersion = pv.id and pv.project.id = :paramProject and pv.sequence < :paramsequence and  pf.name = :paramFile and pf.dir.id = :paramDir order by pv.sequence desc";
+    private static final String qPrevVersionCopy = "select pf from ProjectVersion pv, ProjectFile pf where pf.projectVersion = pv.id and pv.project.id = :paramProject and pv.sequence < :paramsequence and ((pf.name = :paramFile and pf.dir.id = :paramDir) or ( pf.name = :paramCopyFromName and pf.dir.id = :paramCopyFromDir)) order by pv.sequence desc";
+    
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="PROJECT_FILE_ID")
@@ -232,19 +235,19 @@ public class ProjectFile extends DAObject{
     }
 
     public boolean isDeleted() {
-        return (state.equals(ProjectFileState.deleted()));
+        return (state.getStatus() == ProjectFileState.STATE_DELETED);
     }
 
     public boolean isAdded() {
-        return (state.equals(ProjectFileState.added()));
+        return (state.getStatus() == ProjectFileState.STATE_ADDED);
     }
     
     public boolean isReplaced() {
-        return (state.equals(ProjectFileState.replaced()));
+        return (state.getStatus() == ProjectFileState.STATE_REPLACED);
     }
     
     public boolean isModified() {
-        return (state.equals(ProjectFileState.modified()));
+        return (state.getStatus() == ProjectFileState.STATE_MODIFIED);
     }
    
     public boolean getIsDirectory() {
@@ -372,47 +375,31 @@ public class ProjectFile extends DAObject{
         if (this.isAdded()) {
             return null;
         }
-
-        String paramFile = "paramFile";
-        String paramOrder = "paramsequence";
-        String paramDir = "paramDir";
-        String paramProject = "paramProject";
-        String paramCopyFromName = "paramCopyFromName";
-        String paramCopyFromDir = "paramCopyFromDir";
-
-        String query = "select pf" +
-            " from ProjectVersion pv, ProjectFile pf" +
-            " where pf.projectVersion = pv.id " +
-            " and pv.project = :" + paramProject +
-            " and pv.sequence < :" + paramOrder +
-            " and "; 
-            if (this.copyFrom != null) {
-                query += "(("; 
-            }
-            
-            query += " pf.name = :" + paramFile +
-            " and pf.dir = :" + paramDir;
-            if (this.copyFrom != null) {
-                query += " ) or ( pf.name = :" + paramCopyFromName +
-                " and pf.dir = :" + paramCopyFromDir +
-                "     ))" ;
-            }
-            query += " order by pv.sequence desc";
+        
+        String query = null;
+        
+        if (this.copyFrom == null)
+            query = qPrevVersion;
+        else
+            query = qPrevVersionCopy;
+        
         Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramFile, this.getName());
-        parameters.put(paramDir, this.getDir());
-        parameters.put(paramProject, this.getProjectVersion().getProject());
-        parameters.put(paramOrder, this.getProjectVersion().getSequence());
+        parameters.put("paramFile", this.getName());
+        parameters.put("paramDir", this.getDir().getId());
+        parameters.put("paramProject", this.getProjectVersion().getProject().getId());
+        parameters.put("paramsequence", this.getProjectVersion().getSequence());
         
         if (this.copyFrom != null) {
-            parameters.put(paramCopyFromName, this.getCopyFrom().getName());
-            parameters.put(paramCopyFromDir, this.getCopyFrom().getDir());
+            parameters.put("paramCopyFromName", this.getCopyFrom().getName());
+            parameters.put("paramCopyFromDir", this.getCopyFrom().getDir().getId());
         }
         List<?> projectFiles = dbs.doHQL(query, parameters, 1);
 
-        if(projectFiles == null || projectFiles.size() == 0) {
+        if (projectFiles.size() == 0) {
+            dbs.logger().warn("No previous versions for " + this +
+                    "\nQuery: " + query + ", params:" + parameters);
             return null;
-        }else {
+        } else {
             return (ProjectFile) projectFiles.get(0);
         }
     }
