@@ -246,18 +246,18 @@ public class UnifiedDiffParser implements Diff {
 					
 					//Unified diffs do not support this
 					curChunk.setDiffOp(DiffOp.UNDEF);
-					curChunk.setPath(curPath);
-					curChunk.setSourceLenght(Integer.parseInt(m.group(1)));
+					curChunk.setPath(curPath);					
+					curChunk.setSourceStartLine(Integer.parseInt(m.group(1)));
 					if (m.group(2) != null) {
-						curChunk.setSourceStartLine(Integer.parseInt(m.group(2).substring(1)));
+						curChunk.setSourceLenght(Integer.parseInt(m.group(2).substring(1)));
 					} else {
-						curChunk.setSourceStartLine(0);
+						curChunk.setSourceLenght(0);
 					}
 					curChunk.setTargetStartLine(Integer.parseInt(m.group(3)));
 					if (m.group(4) != null) {
-						curChunk.setTargetStartLine(Integer.parseInt(m.group(4).substring(1)));
+						curChunk.setTargetLength(Integer.parseInt(m.group(4).substring(1)));
 					} else {
-						curChunk.setTargetStartLine(0);
+						curChunk.setTargetLength(0);
 					}
 					curChunkText = new StringBuffer();
 					continue;
