@@ -51,6 +51,14 @@ public class ExecutionUnitMeasurement extends MetricMeasurement {
     @Column(name="RESULT")
     private String result;
 
+    public ExecutionUnitMeasurement() {}
+    
+    public ExecutionUnitMeasurement(ExecutionUnit eu, Metric m, String result) {
+        this.executionUnit = eu;
+        this.metric = m;
+        this.result = result;
+    }
+    
     public long getId() {
         return id;
     }

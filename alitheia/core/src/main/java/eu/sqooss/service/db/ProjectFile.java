@@ -73,6 +73,7 @@ public class ProjectFile extends DAObject{
     
     private static final String qPrevVersion = "select pf from ProjectVersion pv, ProjectFile pf where pf.projectVersion = pv.id and pv.project.id = :paramProject and pv.sequence < :paramsequence and  pf.name = :paramFile and pf.dir.id = :paramDir order by pv.sequence desc";
     private static final String qPrevVersionCopy = "select pf from ProjectVersion pv, ProjectFile pf where pf.projectVersion = pv.id and pv.project.id = :paramProject and pv.sequence < :paramsequence and ((pf.name = :paramFile and pf.dir.id = :paramDir) or ( pf.name = :paramCopyFromName and pf.dir.id = :paramCopyFromDir)) order by pv.sequence desc";
+    private static final String qChangedMethods = "from ExecutionUnit eu where eu.file = :file and eu.changed = true";
     
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -623,6 +624,14 @@ public class ProjectFile extends DAObject{
             return null;
         
         return pfs.get(0);
+    }
+    
+    public List<ExecutionUnit> getChangedExecutionUnits() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String, Object> params = new HashMap<String, Object>();
+        
+        params.put("file", this);
+        return (List<ExecutionUnit>)dbs.doHQL(qChangedMethods, params);
     }
     
     public String toString() {
