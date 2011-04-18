@@ -33,6 +33,7 @@
 
 package eu.sqooss.impl.service.scheduler;
 
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -45,6 +46,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.ResumePoint;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.scheduler.SchedulerStats;
@@ -69,12 +71,13 @@ public class SchedulerServiceImpl implements Scheduler {
     private BlockingQueue<Job> failedQueue = new ArrayBlockingQueue<Job>(1000);
 
     private List<WorkerThread> myWorkerThreads = null;
-
+    
     public SchedulerServiceImpl() { }
 
     public void enqueue(Job job) throws SchedulerException {
         synchronized (this) {
-            logger.debug("SchedulerServiceImpl: queuing job " + job.toString());
+            if (logger != null)
+                logger.debug("SchedulerServiceImpl: queuing job " + job.toString());
             job.callAboutToBeEnqueued(this);
             blockedQueue.add(job);
             stats.addWaitingJob(job.getClass().toString());
@@ -184,7 +187,8 @@ public class SchedulerServiceImpl implements Scheduler {
     }
 
     public void startExecute(int n) {
-        logger.info("Starting " + n + " worker threads");
+        if (logger != null)
+            logger.info("Starting " + n + " worker threads");
         synchronized (this) {
             if (myWorkerThreads == null) {
                 myWorkerThreads = new LinkedList<WorkerThread>();
@@ -274,6 +278,32 @@ public class SchedulerServiceImpl implements Scheduler {
 
         return true;
 	}
+
+    @Override
+    public void createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p) {
+        j.yield(p);
+        for (Job job : jobs) {
+            try {
+                j.addDependency(job);
+                enqueue(job);
+            } catch (SchedulerException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void yield(Job j, ResumePoint p) {
+        j.yield(p);
+        WorkerThread wt = j.getWorkerThread();
+        wt.stopProcessing();
+        
+        blockedQueue.add(j);
+        
+        WorkerThread wnew = new WorkerThreadImpl(this, false);
+        myWorkerThreads.add(wnew);
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

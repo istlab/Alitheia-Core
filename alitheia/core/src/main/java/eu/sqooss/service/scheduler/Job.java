@@ -65,7 +65,8 @@ public abstract class Job implements Comparable<Job> {
         Queued,
         Running,
         Finished,
-        Error
+        Error,
+        Yielded
     }
 
     /**
@@ -100,7 +101,11 @@ public abstract class Job implements Comparable<Job> {
     
     public void setWorkerThread(WorkerThread worker) {
     	m_worker = worker;
-    }
+     }
+    
+    public WorkerThread getWorkerThread() {
+        return m_worker;
+     }
     
     /**
      * @return The current state of the job.
@@ -464,6 +469,17 @@ public abstract class Job implements Comparable<Job> {
      */
     abstract protected void run() throws Exception;
 
+    /**
+     * Stop execution of the job until 
+     * @param p
+     */
+    public synchronized void yield(ResumePoint p) {
+        if (state() == State.Running) {
+            setState(State.Yielded);
+            m_scheduler.yield(this, p);
+        }
+    }
+    
     /**
      * This method is called during queueing, right before the job is added to
      * the work queue.

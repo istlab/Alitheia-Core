@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.scheduler;
 
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
@@ -128,4 +129,23 @@ public interface Scheduler extends AlitheiaCoreService {
      * Starts a temporary worker thread handling exactly one job.
      */
     void startOneShotWorkerThread();
+    
+    /**
+     * Create an auxiliary queue tied to a specific job, that allows the
+     * execution of (sub-)jobs scheduled by the specified job in parallel.
+     * The new queue is guaranteed to have at least one worker thread processing
+     * its jobs (the one to which the parent job is assigned to) and might 
+     * scale to the full set of available threads, if those are idle. When no
+     * jobs are left in the queue, the queue is automatically destroyed.
+     * 
+     * For efficiency reasons, the objects in the provided job queue might be
+     * modified.
+     */
+    void createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p);
+    
+    /**
+     * Pause the execution of a Job.  
+     */
+    void yield(Job j, ResumePoint p);
+    
 }
