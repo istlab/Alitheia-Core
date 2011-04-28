@@ -85,6 +85,7 @@ public class MetricActivatorJob extends Job {
     @Override
     protected void run() throws Exception {
         dbs.startDBSession();
+        metric.setJob(this);
         DAObject obj = dbs.findObjectById(daoType, daoID);
         
         // trigger calculation of the metric

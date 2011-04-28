@@ -50,6 +50,12 @@ public class EncapsulationUnitMeasurement extends MetricMeasurement {
     @Column(name="RESULT")
     private String result;
 
+    public EncapsulationUnitMeasurement(EncapsulationUnit eu, Metric m, String result) {
+        this.encapsulationUnit = eu;
+        this.metric = m;
+        this.result = result;
+    }
+    
     public long getId() {
         return id;
     }

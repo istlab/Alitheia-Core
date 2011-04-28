@@ -58,11 +58,14 @@ import org.osgi.framework.ServiceReference;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.EncapsulationUnitMeasurement;
+import eu.sqooss.service.db.ExecutionUnitMeasurement;
 import eu.sqooss.service.db.MailMessageMeasurement;
 import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricMeasurement;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.NameSpaceMeasurement;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectFileMeasurement;
@@ -75,6 +78,7 @@ import eu.sqooss.service.metricactivator.MetricActivationException;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.util.Pair;
 
 /**
@@ -100,6 +104,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * metric jobs 
      */
     protected PluginAdmin pa;
+    
+    /**
+     * The scheduler job that executes this metric. 
+     */
+    protected Job job;
 
     /** 
      * Metric mnemonics for the metrics required to be present for this 
@@ -829,8 +838,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         resultFieldNames.put(ProjectFileMeasurement.class, "projectFile");
         resultFieldNames.put(MailMessageMeasurement.class, "mail");
         resultFieldNames.put(MailingListThreadMeasurement.class, "thread");
+        resultFieldNames.put(ExecutionUnitMeasurement.class, "executionUnit");
+        resultFieldNames.put(EncapsulationUnitMeasurement.class, "encapsulationUnit");
+        resultFieldNames.put(NameSpaceMeasurement.class, "namespace");
     }
-    
+
     /**
      * Convenience method to get the measurement for a single metric.
      */
@@ -851,7 +863,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return result;
         
     }
-    
+
     /**{@inheritDoc}*/
     @Override
     public final List<Class<? extends DAObject>> getMetricActivationTypes (Metric m) {
@@ -928,4 +940,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     	}
     	return IDs;
     }
-}
+    
+    /** {@inheritDoc} */
+    @Override
+    public void setJob(Job j) {
+        this.job = j;
+    }
+ }

@@ -45,6 +45,7 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.metricactivator.MetricActivationException;
+import eu.sqooss.service.scheduler.Job;
 
 /**
  * This interface defines the common metric plug-in related functionality.
@@ -184,7 +185,7 @@ public interface AlitheiaPlugin {
      * if the plug-in does not support the provided activation type
      */
     List<Metric> getSupportedMetrics(Class<? extends DAObject> activationType);
-    
+
     /**
      * This method performs a measurement for
      * the given DAO, if possible. The DAO might be any one of the types
@@ -241,7 +242,7 @@ public interface AlitheiaPlugin {
      * @return True, if the cleanup succeeded, false otherwise
      */
     boolean cleanup(DAObject sp);
-    
+
     /**
      * Return a string that is unique for this plugin, used for indexing this
      * plugin to the system database
@@ -269,7 +270,7 @@ public interface AlitheiaPlugin {
      * @return A list of subclasses of DAObject (a.k.a activation types).
      */
     List<Class<? extends DAObject>> getMetricActivationTypes (Metric m);
-    
+
     /**
      * Retrieves the list of configuration properties for this plug-in.
      * <br/>
@@ -282,7 +283,7 @@ public interface AlitheiaPlugin {
      *   needed or if the plug-in is not active.
      */
     Set<PluginConfiguration> getConfigurationSchema();
-    
+
     /**
      * Metric mnemonics for the metrics required to be present for this 
      * plugin to operate. 
@@ -290,7 +291,7 @@ public interface AlitheiaPlugin {
      * @return A, possibly empty, set of metric mnemonics. 
      */
     Set<String> getDependencies();
-    
+
     /**
      * Get a list of object ids for the database entities to run the metric
      * on, ordered by activation type. This method essentially allows the plugin
@@ -300,4 +301,10 @@ public interface AlitheiaPlugin {
      */
     Map<MetricType.Type, SortedSet<Long>> getObjectIdsToSync(StoredProject sp, Metric m) 
     	throws MetricActivationException;
+
+    /**
+     * Set a reference to the scheduler job that executes the metric. The
+     * job reference is only set when the metric's execute method is called.
+     */
+    void setJob(Job j);
 }
