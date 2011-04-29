@@ -554,18 +554,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 "\nReason:" + e.getCause(), e);
     }
 
-
     /** {@inheritDoc} */
     public List<Metric> getAllSupportedMetrics() {
-        List<Metric> supportedMetrics = new ArrayList<Metric>();
-        supportedMetrics.addAll(
-        		Plugin.getPluginByHashcode(getUniqueKey()).getSupportedMetrics());
-
-        if (supportedMetrics.isEmpty()) {
-            return null;
-        } else {
-            return supportedMetrics;
-        }
+        String qry = "from Metric m where m.plugin=:plugin";
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put("plugin", Plugin.getPluginByHashcode(getUniqueKey()));
+        
+        return (List<Metric>)db.doHQL(qry, params);
     }
     
     /** {@inheritDoc} */

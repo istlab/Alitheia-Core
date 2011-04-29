@@ -45,6 +45,7 @@ import org.osgi.framework.Constants;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
@@ -647,7 +648,7 @@ public class PluginsView extends AbstractView{
                     // Display the set of configuration properties
                     b.append(sp(in++) + "<tbody>\n");
                     // Get the plug-in's configuration set
-                    Set<PluginConfiguration> config = selPI.getConfiguration();
+                    Set<PluginConfiguration> config = Plugin.getPluginByHashcode(selPI.getHashcode()).getConfigurations();
                     if ((config == null) || (config.isEmpty())) {
                         b.append(sp(in++) + "<tr>");
                         b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
