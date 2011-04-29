@@ -276,6 +276,21 @@ public class Metric extends DAObject {
 				.append("where mmm.metric=:metric")
 				.append("and mmm.mail.list.storedProject=:project");
 			break;
+		case ENCAPSUNIT:
+		    query.append("select eum from EncapsulationUnitMeasurement eum ")
+                .append("where eum=:metric ")
+                .append("and eum.encapsulationUnit.file.projectVersion.project=:project");
+            break;
+		case EXECUNIT:
+		    query.append("select eum from EncapsulationUnitMeasurement eum ")
+                .append("where eum=:metric ")
+                .append("and eum.encapsulationUnit.file.projectVersion.project=:project");
+            break;
+		case NAMESPACE:
+		    query.append("select nm from NameSpaceMeasurement nm ")
+                .append("where nm=:metric ")
+                .append("and nm.namespace.changeVersion.project=:project");
+            break;
 		case BUG:
 		case MAILING_LIST:
 		case DEVELOPER:
