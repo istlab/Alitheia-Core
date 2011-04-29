@@ -41,7 +41,7 @@ public class ExecutionUnitMeasurement extends MetricMeasurement {
     /**
      * The metric to which this result belongs
      */
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name="METRIC_ID", referencedColumnName="METRIC_ID")
     private Metric metric;
 

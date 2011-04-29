@@ -109,29 +109,32 @@ public class Metric extends DAObject {
 	@XmlElement
 	@Column(name="DESCRIPTION")
 	private String description;
-
-	/**
-	 * A list of project-wide measurements for this metric
-	 */
-	@Transient
-	@OneToMany(mappedBy="storedProject", cascade = CascadeType.ALL, orphanRemoval = true)
+	
+	@OneToMany(mappedBy="metric", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<StoredProjectMeasurement> projectMeasurements;
 
-	/**
-	 * A list of project-version-wide measurements for this metric
-	 */
-	@Transient
-	@OneToMany(mappedBy="projectVersion", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy="metric", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProjectVersionMeasurement> versionMeasurements;
 
-	/**
-	 * A list of project-file-wide measurements for this metric
-	 */
-	@Transient
-    @OneToMany(mappedBy="projectFile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy="metric", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProjectFileMeasurement> fileMeasurements;
+	
+    @OneToMany(mappedBy="metric", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<NameSpaceMeasurement> nsMeasurements;
 
-	public Metric() {
+    @OneToMany(mappedBy="metric", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<EncapsulationUnitMeasurement> encUnitMeasurements;
+    
+    @OneToMany(mappedBy="metric", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExecutionUnitMeasurement> execUnitMeasurements;
+    
+    @OneToMany(mappedBy="metric", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MailingListThreadMeasurement> mlThreadMeasurements;
+    
+    @OneToMany(mappedBy="metric", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MailMessageMeasurement> mmMeasurements;
+
+    public Metric() {
 		// Nothing to do here
 	}
 
@@ -200,6 +203,50 @@ public class Metric extends DAObject {
 	public void setFileMeasurements(Set<ProjectFileMeasurement> fileMeasurements) {
 		this.fileMeasurements = fileMeasurements;
 	}
+	
+    
+    public Set<NameSpaceMeasurement> getNsMeasurements() {
+        return nsMeasurements;
+    }
+
+    public void setNsMeasurements(Set<NameSpaceMeasurement> nsMeasurements) {
+        this.nsMeasurements = nsMeasurements;
+    }
+
+    public Set<EncapsulationUnitMeasurement> getEncUnitMeasurements() {
+        return encUnitMeasurements;
+    }
+
+    public void setEncUnitMeasurements(
+            Set<EncapsulationUnitMeasurement> encUnitMeasurements) {
+        this.encUnitMeasurements = encUnitMeasurements;
+    }
+
+    public Set<ExecutionUnitMeasurement> getExecUnitMeasurements() {
+        return execUnitMeasurements;
+    }
+
+    public void setExecUnitMeasurements(
+            Set<ExecutionUnitMeasurement> execUnitMeasurements) {
+        this.execUnitMeasurements = execUnitMeasurements;
+    }
+
+    public Set<MailingListThreadMeasurement> getMlThreadMeasurements() {
+        return mlThreadMeasurements;
+    }
+
+    public void setMlThreadMeasurements(
+            Set<MailingListThreadMeasurement> mlThreadMeasurements) {
+        this.mlThreadMeasurements = mlThreadMeasurements;
+    }
+
+    public Set<MailMessageMeasurement> getMmMeasurements() {
+        return mmMeasurements;
+    }
+
+    public void setMmMeasurements(Set<MailMessageMeasurement> mmMeasurements) {
+        this.mmMeasurements = mmMeasurements;
+    }
 
 	/**
 	 * Check whether the metric was ever run on the provided project.
