@@ -113,19 +113,22 @@ public class Metric extends DAObject {
 	/**
 	 * A list of project-wide measurements for this metric
 	 */
-	@OneToMany(mappedBy="storedProject")
+	@Transient
+	@OneToMany(mappedBy="storedProject", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<StoredProjectMeasurement> projectMeasurements;
 
 	/**
 	 * A list of project-version-wide measurements for this metric
 	 */
 	@Transient
+	@OneToMany(mappedBy="projectVersion", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProjectVersionMeasurement> versionMeasurements;
 
 	/**
 	 * A list of project-file-wide measurements for this metric
 	 */
 	@Transient
+    @OneToMany(mappedBy="projectFile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProjectFileMeasurement> fileMeasurements;
 
 	public Metric() {

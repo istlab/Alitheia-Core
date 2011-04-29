@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -106,13 +107,13 @@ public class Plugin extends DAObject {
     /**
      * A list of all configuration entries for this plugin
      */
-	@OneToMany(mappedBy="plugin")
+	@OneToMany(mappedBy="plugin", cascade=CascadeType.ALL, orphanRemoval = true)
     private Set<PluginConfiguration> configurations;
     
     /**
      * A list of all supported metrics for this plugin
      */
-	@OneToMany(mappedBy="plugin")
+	@OneToMany(mappedBy="plugin", cascade=CascadeType.ALL, orphanRemoval = true)
     private Set<Metric> supportedMetrics;
     
     public long getId() {

@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -76,7 +77,7 @@ public class MetricType extends DAObject {
     /**
      * A list of all metrics of this type
      */
-	@OneToMany(mappedBy="metricType")
+	@OneToMany(mappedBy="metricType", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Metric> metrics;
 
 	/**
