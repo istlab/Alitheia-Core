@@ -283,12 +283,12 @@ public class SchedulerServiceImpl implements Scheduler {
 	}
 
     @Override
-    public void createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p)
+    public boolean createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p)
             throws SchedulerException {
         
         if (jobs.isEmpty()) {
             logger.warn("Empty job queue passed to createAuxQueue(). Ignoring request");
-            return;
+            return false;
         }
         
         j.yield(p);
@@ -296,11 +296,14 @@ public class SchedulerServiceImpl implements Scheduler {
             j.addDependency(job);
             enqueue(job);
         }
+        return true;
     }
 
     @Override
-    public void yield(Job j, ResumePoint p) {
-        j.yield(p);
+    public void yield(Job j, ResumePoint p) throws SchedulerException {
+        
+        if (j.state() != Job.State.Yielded)
+            j.yield(p);
         workQueue.remove(j);
         blockedQueue.add(j);
     }

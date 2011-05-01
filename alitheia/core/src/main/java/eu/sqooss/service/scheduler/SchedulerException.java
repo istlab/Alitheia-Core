@@ -40,14 +40,12 @@ public class SchedulerException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    private static String service = "[Scheduler]";
-
     public SchedulerException(String message) {
         super(message);
     }
 
     public String getMessage() {
-        return service + " " + super.getMessage();
+        return super.getMessage();
     }
 }
 

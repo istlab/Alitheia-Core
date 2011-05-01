@@ -141,11 +141,12 @@ public interface Scheduler extends AlitheiaCoreService {
      * For efficiency reasons, the objects in the provided job queue might be
      * modified.
      */
-    void createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p) throws SchedulerException;
+    boolean createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p) throws SchedulerException;
     
     /**
      * Pause the execution of a Job.  
+     * @throws SchedulerException 
      */
-    void yield(Job j, ResumePoint p);
+    void yield(Job j, ResumePoint p) throws SchedulerException;
     
 }

@@ -475,12 +475,15 @@ public abstract class Job implements Comparable<Job> {
     /**
      * Stop execution of the job until 
      * @param p
+     * @throws SchedulerException 
      */
-    public synchronized void yield(ResumePoint p) {
+    public synchronized void yield(ResumePoint p) throws SchedulerException {
         if (state() == State.Running) {
             setState(State.Yielded);
             this.resumePoint = p;
             m_scheduler.yield(this, p);
+        } else {
+            throw new SchedulerException("Cannot yield non-running job: " + this + " (state was:" + state() + ")");
         }
     }
     
