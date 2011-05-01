@@ -49,7 +49,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -65,7 +64,9 @@ import eu.sqooss.core.AlitheiaCore;
  * @assoc 1 - n ProjectFileMeasurement
  * @assoc 1 - n MailMessageMeasurement
  * @assoc 1 - n MailingListThreadMeasurement
- * 
+ * @assoc 1 - n EncapsulationUnitMeasurement
+ * @assoc 1 - n ExecutionUnitMeasurement
+ * @assoc 1 - n NameSpaceMeasurement
  */
 @Entity
 @Table(name="METRIC")
@@ -76,7 +77,7 @@ public class Metric extends DAObject {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="METRIC_ID")
 	@XmlElement(name="id")
-	private long id; 
+	private long id;
 
 	/**
 	 * the Alitheia Core plugin providing the functionality for this metric

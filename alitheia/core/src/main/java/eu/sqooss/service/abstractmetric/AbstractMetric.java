@@ -181,7 +181,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             "and not exists ( " +
             "   select nsm " + 
             "   from NameSpaceMeasurement nsm " + 
-            "   where nsm.metric = :metric " +
+            "   where nsm.metric.id = :metric " +
             "   and nsm.namespace = ns) " +
             "order by pv.sequence asc";
     
@@ -194,7 +194,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             "    select eum " +
             "    from EncapsulationUnitMeasurement eum " +
             "    where eum.encapsulationUnit = encu " +
-            "    and eum.metric = :metric " +
+            "    and eum.metric.id = :metric " +
             " ) order by pv.sequence asc ";
     
     protected static final String QRY_SYNC_EXECUNT = "select exu.id " +
@@ -209,7 +209,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             "    select eum  " +
             "    from ExecutionUnitMeasurement eum " +
             "    where eum.executionUnit = exu " +
-            "    and eum.metric = :metric) " +
+            "    and eum.metric.id = :metric) " +
             "order by pv.sequence asc";
     
     /**
