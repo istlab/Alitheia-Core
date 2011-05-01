@@ -127,7 +127,7 @@ public class SchedulerServiceImpl implements Scheduler {
             workQueue.remove(job);
         }
         if (logger != null) {
-            logger.info("SchedulerServiceImpl: job " + job.toString()
+            logger.warn("SchedulerServiceImpl: job " + job.toString()
                     + " not found in the queue.");
         }
     }
@@ -163,6 +163,9 @@ public class SchedulerServiceImpl implements Scheduler {
         } else if (state == Job.State.Running) {
             stats.removeWaitingJob(job.getClass().toString());
             stats.addRunJob(job);
+        } else if (state == Job.State.Yielded) {
+            stats.removeRunJob(job);
+            stats.addWaitingJob(job.getClass().toString());
         } else if (state == Job.State.Error) {
 
             if (failedQueue.remainingCapacity() == 1)
@@ -280,29 +283,26 @@ public class SchedulerServiceImpl implements Scheduler {
 	}
 
     @Override
-    public void createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p) {
+    public void createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p)
+            throws SchedulerException {
+        
+        if (jobs.isEmpty()) {
+            logger.warn("Empty job queue passed to createAuxQueue(). Ignoring request");
+            return;
+        }
+        
         j.yield(p);
         for (Job job : jobs) {
-            try {
-                j.addDependency(job);
-                enqueue(job);
-            } catch (SchedulerException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            j.addDependency(job);
+            enqueue(job);
         }
     }
 
     @Override
     public void yield(Job j, ResumePoint p) {
         j.yield(p);
-        WorkerThread wt = j.getWorkerThread();
-        wt.stopProcessing();
-        
+        workQueue.remove(j);
         blockedQueue.add(j);
-        
-        WorkerThread wnew = new WorkerThreadImpl(this, false);
-        myWorkerThreads.add(wnew);
     }
 }
 

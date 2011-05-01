@@ -99,6 +99,8 @@ public abstract class Job implements Comparable<Job> {
     
     private int restarts = 0;
     
+    private ResumePoint resumePoint;
+    
     public void setWorkerThread(WorkerThread worker) {
     	m_worker = worker;
      }
@@ -130,7 +132,7 @@ public abstract class Job implements Comparable<Job> {
         // Dependencies of jobs can ony be changed before the job is queued.
         // Otherwise, race conditions would occur in which it would be undefined
         // if the dependency is applied or not.
-        if ( (state() != State.Created) ) {
+        if ( (state() != State.Created) && (state() != State.Yielded) ) {
         	throw new SchedulerException("Job dependencies cannot be added after the job has been queued.");
         }
 
@@ -225,7 +227,8 @@ public abstract class Job implements Comparable<Job> {
                 dbs.rollbackDBSession();
                 setState(State.Error); //No uncommitted sessions are tolerated
             } else {
-                setState(State.Finished);
+                if (state() != State.Yielded)
+                    setState(State.Finished);
             }   
         } catch(Exception e) {
             
@@ -476,8 +479,46 @@ public abstract class Job implements Comparable<Job> {
     public synchronized void yield(ResumePoint p) {
         if (state() == State.Running) {
             setState(State.Yielded);
+            this.resumePoint = p;
             m_scheduler.yield(this, p);
         }
+    }
+    
+    public long resume() throws Exception {
+        long ts = System.currentTimeMillis();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        if (state() != State.Yielded)
+            throw new SchedulerException("Cannot resume a non-yielded job");
+        
+        if (resumePoint == null)
+            throw new SchedulerException("Resume point is null");
+        
+        try {
+            setState(State.Running);
+            resumePoint.resume();
+                       
+            assert (!dbs.isDBSessionActive());            
+            if (dbs.isDBSessionActive()) {
+                dbs.rollbackDBSession();
+                setState(State.Error); //No uncommitted sessions are tolerated
+            } else {
+                setState(State.Finished);
+            }   
+        } catch(Exception e) {
+            
+            if (dbs.isDBSessionActive()) {
+                dbs.rollbackDBSession();
+            }
+            
+            // In case of an exception, state becomes Error
+            m_errorException = e;
+            setState(State.Error);
+            // the Exception itself is forwarded
+            throw e;
+        }
+        
+        return System.currentTimeMillis() - ts;
     }
     
     /**

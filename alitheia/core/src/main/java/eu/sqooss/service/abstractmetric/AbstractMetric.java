@@ -423,7 +423,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     
                     r = getResultIfAlreadyCalculated(o, l);
                     if (r == null || r.size() == 0) {
-                        log.debug("Metric " + getClass() + " didn't return"
+                        if (job.state() != Job.State.Yielded)
+                            log.debug("Metric " + getClass() + " didn't return"
                                 + "a result even after running it. DAO: "
                                 + o.getId());
                     }

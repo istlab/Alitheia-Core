@@ -33,6 +33,7 @@
 package eu.sqooss.service.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -819,28 +820,18 @@ public class ProjectVersion extends DAObject {
 	 */
 	public List<ProjectFile> getFiles(Pattern p) {      
 	    List<ProjectFile> files = this.getFiles();
-	    List<ProjectFile> matchedFiles = new ArrayList<ProjectFile>();
-	    
-	    if (files == null) {
-	        return matchedFiles;
-	    }
+	    Set<ProjectFile> matchedFiles = new HashSet<ProjectFile>();
 	    
 	    for ( ProjectFile pf : files ) {
 	        Matcher m = p.matcher(pf.getFileName());
 	        
-	        if (m.matches() && !matchedFiles.contains(pf)) {
-	            for(ProjectFile tmpPF : matchedFiles) {
-	                if (tmpPF.getFileName().equals(pf.getFileName())) {
-	                    System.err.println("Duplicate filename in file list:" 
-	                    		+ tmpPF.getFileName());
-	                }
-	            }
-	            
+	        if (m.matches()) {
 	            matchedFiles.add(pf);
 	        }
 	    }
-	    
-	    return matchedFiles;
+	    ProjectFile[] arr = new ProjectFile[matchedFiles.size()];
+	    arr = matchedFiles.toArray(arr);
+	    return Arrays.asList(arr);
 	}
 	
 	 /**

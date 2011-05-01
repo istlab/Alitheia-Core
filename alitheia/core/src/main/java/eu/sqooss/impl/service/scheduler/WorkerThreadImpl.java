@@ -119,7 +119,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
 		try {
 			m_job = j;
 			if (m_job.state() == Job.State.Yielded)
-			    ((ResumePoint)m_job).resume();
+			    time = m_job.resume();
 			else 
 			    time = m_job.execute();
 		} catch (ClassCastException cce) { 
