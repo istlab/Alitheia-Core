@@ -108,7 +108,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /**
      * The scheduler job that executes this metric. 
      */
-    protected Job job;
+    protected ThreadLocal<Job> job = new ThreadLocal<Job>();
 
     /** 
      * Metric mnemonics for the metrics required to be present for this 
@@ -423,7 +423,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     
                     r = getResultIfAlreadyCalculated(o, l);
                     if (r == null || r.size() == 0) {
-                        if (job.state() != Job.State.Yielded)
+                        if (job.get().state() != Job.State.Yielded)
                             log.debug("Metric " + getClass() + " didn't return"
                                 + "a result even after running it. DAO: "
                                 + o.getId());
@@ -940,6 +940,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** {@inheritDoc} */
     @Override
     public void setJob(Job j) {
-        this.job = j;
+        this.job.set(j);
     }
  }

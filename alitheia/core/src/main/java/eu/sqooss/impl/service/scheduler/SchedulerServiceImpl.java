@@ -300,7 +300,7 @@ public class SchedulerServiceImpl implements Scheduler {
     }
 
     @Override
-    public void yield(Job j, ResumePoint p) throws SchedulerException {
+    public synchronized void yield(Job j, ResumePoint p) throws SchedulerException {
         
         if (j.state() != Job.State.Yielded)
             j.yield(p);

@@ -118,10 +118,11 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
 		long time = -1;
 		try {
 			m_job = j;
-			if (m_job.state() == Job.State.Yielded)
+			if (m_job.state() == Job.State.Yielded) {
 			    time = m_job.resume();
-			else 
+			} else { 
 			    time = m_job.execute();
+			}
 		} catch (ClassCastException cce) { 
 		    AlitheiaCore.getInstance().getLogManager().createLogger(
 		            Logger.NAME_SQOOSS_SCHEDULING).error("Job " + j + " is not resumable");
