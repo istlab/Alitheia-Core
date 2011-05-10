@@ -49,7 +49,7 @@
     <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
 
     <!-- MySQL and HSQLDB supported out of the box. Uncomment one of the sections below -->
-    <!-- MySQL 
+    <!-- MySQL
     <eu.sqooss.db>MySQL</eu.sqooss.db>
     <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
     <eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema>
@@ -75,8 +75,9 @@
     <eu.sqooss.log.perf>false</eu.sqooss.log.perf>
     <!--Start exactly this number of threads. If -1 then the system will use 
     the default number of threads, currently 2x number of CPUs -->
-    <eu.sqooss.scheduler.numthreads>2</eu.sqooss.scheduler.numthreads>
-    <javax.ws.rs.ext.RuntimeDelegate>org.jboss.resteasy.spi.ResteasyProviderFactory</javax.ws.rs.ext.RuntimeDelegate>
+    <eu.sqooss.scheduler.numthreads>8</eu.sqooss.scheduler.numthreads>
+    <com.mws.squal.cache.dir>/tmp</com.mws.squal.cache.dir>
+    <com.mws.squal.cache.impl>com.mws.squal.impl.service.cache.OnDiskCache</com.mws.squal.cache.impl>
   </properties>
   
   <packaging>pom</packaging>

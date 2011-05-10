@@ -43,7 +43,8 @@
               *;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium|servlet-api|junit
             </Embed-Dependency>
             <Export-Package>
-              eu.sqooss.core, eu.sqooss.service.*
+              eu.sqooss.core, eu.sqooss.service.*,
+              com.mws.squal.service.*
             </Export-Package>
             <Import-Package>
               com.mysql.jdbc;resolution:=optional, javassist.util, javassist.util.proxy,
