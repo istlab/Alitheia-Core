@@ -2,24 +2,34 @@ package com.mws.squal.impl.service.cache;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.FileLock;
+import java.nio.channels.FileLockInterruptionException;
+import java.nio.channels.NonWritableChannelException;
+import java.nio.channels.OverlappingFileLockException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import com.mws.squal.service.cache.CacheService;
+
+import eu.sqooss.service.logging.Logger;
 
 public class OnDiskCache implements CacheService {
 
     public static final String CACHE_DIR = "com.mws.squal.cache.dir";
     
     private File dir;
+    
+    private Logger log;
     
     public OnDiskCache() throws Exception {
         
@@ -43,7 +53,7 @@ public class OnDiskCache implements CacheService {
     
     @Override
     public byte[] get(String key) {
-        FileChannel file;
+        FileChannel file = null;
         MappedByteBuffer buff;
         FileLock lock = null;
         byte[] result = null;
@@ -58,6 +68,7 @@ public class OnDiskCache implements CacheService {
         } finally {
             try {
                 lock.release();
+                file.close();
             } catch (IOException e) {
                 return null;
             }
@@ -74,8 +85,54 @@ public class OnDiskCache implements CacheService {
     
     @Override
     public void set(String key, byte[] data) {
-        // TODO Auto-generated method stub
+        FileChannel file = null;
+        MappedByteBuffer buff;
+        FileLock lock = null;
+        RandomAccessFile raf;
 
+        try {
+            String fname = dir.getAbsolutePath() + File.pathSeparator + md5(key);
+            raf = new RandomAccessFile(fname, "rw");
+            file = raf.getChannel();
+            while (lock != null) {
+                try {
+                    lock = file.lock(0, data.length, false);
+                } catch (ClosedChannelException cce) {
+                    log.warn("Cannot store key " + key + 
+                            "Cannot write to file " + fname + 
+                            " Channel was closed");
+                    return;
+                } catch (FileLockInterruptionException ace) {
+                    //ignored
+                } catch (OverlappingFileLockException ofle ) {
+                    //ignored
+                } catch (NonWritableChannelException ofle ) {
+                    log.warn("Cannot store key " + key + " File " + fname + 
+                            " was not opened for writing");
+                    return;
+                } catch (IOException ioe) {
+                    log.warn("Cannot store key " + key + 
+                            " An exception occured: "+ ioe.getMessage());
+                    file.close();
+                    return;
+                } 
+            }
+            buff = file.map(MapMode.READ_WRITE, 0, data.length);
+            buff.put(data);
+        } catch (FileNotFoundException e) {
+            log.warn("Cannot store key " + key + 
+                    " An exception occured: "+ e.getMessage());
+        } catch (Exception e) {
+            log.warn("Cannot store key " + key + 
+                    " An exception occured: "+ e.getMessage());
+        }  finally {
+            try {
+                lock.release();
+                file.close();
+            } catch (IOException e) {
+                //Ignored
+            }
+        }
     }
 
     @Override
