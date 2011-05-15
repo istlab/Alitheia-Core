@@ -31,6 +31,10 @@ public class OnDiskCache implements CacheService {
     
     private Logger log;
     
+    public OnDiskCache(String cachedir) throws Exception {
+        initDir(cachedir);
+    }
+    
     public OnDiskCache() throws Exception {
         
         String dirpath = System.getProperty(CACHE_DIR);
@@ -40,15 +44,15 @@ public class OnDiskCache implements CacheService {
             if (dirpath == null)
                 dirpath = "tmp";
         }
-        
-        dir = new File(dirpath);
-        
-        try {
-            if (!dir.exists())
-                dir.createNewFile();
-        } catch (IOException e) {
-            throw new Exception("Cannot create cache dir: " + dir.getPath());
-        }
+        initDir(dirpath);
+       
+    }
+    
+    private void initDir(String path) throws Exception {
+        dir = new File(path);
+
+        if (!dir.exists())
+            dir.mkdirs();
     }
     
     @Override
@@ -58,8 +62,28 @@ public class OnDiskCache implements CacheService {
         FileLock lock = null;
         byte[] result = null;
         try {
-            file = new FileInputStream(md5(key)).getChannel();
-            lock = file.lock();
+            String fname = dir.getAbsolutePath() + File.separatorChar + md5(key);
+            file = new FileInputStream(fname).getChannel();
+            try {
+                lock = file.lock(0, Long.MAX_VALUE, true);
+            } catch (ClosedChannelException cce) {
+                warn("Cannot store key " + key + "Cannot write to file "
+                        + fname + " Channel was closed");
+                return null;
+            } catch (FileLockInterruptionException ace) {
+                // ignored
+            } catch (OverlappingFileLockException ofle) {
+                // ignored
+            } catch (NonWritableChannelException ofle) {
+                warn("Cannot store key " + key + " File " + fname
+                        + " was not opened for writing");
+                return null;
+            } catch (IOException ioe) {
+                warn("Cannot store key " + key + " An exception occured: "
+                        + ioe.getMessage());
+                file.close();
+                return null;
+            }
             buff = file.map(MapMode.READ_ONLY, 0, file.size());
             result = new byte[(int)file.size()]; // 4GB should be enough for everybody :-)
             buff.get(result);
@@ -67,8 +91,10 @@ public class OnDiskCache implements CacheService {
             return null;
         } finally {
             try {
-                lock.release();
-                file.close();
+                if (lock != null)
+                    lock.release();
+                if (file != null)
+                    file.close();
             } catch (IOException e) {
                 return null;
             }
@@ -91,53 +117,51 @@ public class OnDiskCache implements CacheService {
         RandomAccessFile raf;
 
         try {
-            String fname = dir.getAbsolutePath() + File.pathSeparator + md5(key);
+            String fname = dir.getAbsolutePath() + File.separatorChar + md5(key);
             raf = new RandomAccessFile(fname, "rw");
             file = raf.getChannel();
-            while (lock != null) {
-                try {
-                    lock = file.lock(0, data.length, false);
-                } catch (ClosedChannelException cce) {
-                    log.warn("Cannot store key " + key + 
-                            "Cannot write to file " + fname + 
-                            " Channel was closed");
-                    return;
-                } catch (FileLockInterruptionException ace) {
-                    //ignored
-                } catch (OverlappingFileLockException ofle ) {
-                    //ignored
-                } catch (NonWritableChannelException ofle ) {
-                    log.warn("Cannot store key " + key + " File " + fname + 
-                            " was not opened for writing");
-                    return;
-                } catch (IOException ioe) {
-                    log.warn("Cannot store key " + key + 
-                            " An exception occured: "+ ioe.getMessage());
-                    file.close();
-                    return;
-                } 
+            try {
+                lock = file.lock(0, data.length, false);
+            } catch (ClosedChannelException cce) {
+                warn("Cannot store key " + key + "Cannot write to file "
+                        + fname + " Channel was closed");
+                return;
+            } catch (FileLockInterruptionException ace) {
+                // ignored
+            } catch (OverlappingFileLockException ofle) {
+                // ignored
+            } catch (NonWritableChannelException ofle) {
+                warn("Cannot store key " + key + " File " + fname
+                        + " was not opened for writing");
+                return;
+            } catch (IOException ioe) {
+                warn("Cannot store key " + key + " An exception occured: "
+                        + ioe.getMessage());
+                file.close();
+                return;
             }
             buff = file.map(MapMode.READ_WRITE, 0, data.length);
             buff.put(data);
         } catch (FileNotFoundException e) {
-            log.warn("Cannot store key " + key + 
+            warn("Cannot store key " + key + 
                     " An exception occured: "+ e.getMessage());
         } catch (Exception e) {
-            log.warn("Cannot store key " + key + 
+            warn("Cannot store key " + key + 
                     " An exception occured: "+ e.getMessage());
         }  finally {
             try {
-                lock.release();
-                file.close();
+                if (lock != null)
+                    lock.release();
+                if (file != null)
+                    file.close();
             } catch (IOException e) {
-                //Ignored
+                
             }
         }
     }
 
     @Override
     public void setObject(String key, ObjectOutputStream oos) {
-        // TODO Auto-generated method stub
         
     }
 
@@ -147,5 +171,12 @@ public class OnDiskCache implements CacheService {
         for (String arg : args)
             m.update(arg.getBytes(), 0, arg.length());
         return new BigInteger(1, m.digest()).toString(16);
+    }
+    
+    private void warn(String message) {
+        if (log != null)
+            log.warn(message);
+        else 
+            System.err.println(message);
     }
 }
