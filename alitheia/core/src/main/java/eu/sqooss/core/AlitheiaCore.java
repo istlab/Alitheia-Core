@@ -50,6 +50,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 
+import com.mws.squal.service.cache.CacheService;
+import com.mws.squal.impl.service.cache.CacheServiceImpl;
+
 import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.impl.service.db.DBServiceImpl;
@@ -128,6 +131,7 @@ public class AlitheiaCore implements ServiceListener {
     	services.add(WebadminService.class);
     	services.add(RestService.class);
     	services.add(AdminService.class);
+    	services.add(CacheService.class);
     	
     	implementations.put(LogManager.class, LogManagerImpl.class);
     	implementations.put(DBService.class, DBServiceImpl.class);	 
@@ -141,6 +145,7 @@ public class AlitheiaCore implements ServiceListener {
     	implementations.put(WebadminService.class, WebadminServiceImpl.class);
         implementations.put(RestService.class, ResteasyServiceImpl.class);
     	implementations.put(AdminService.class, AdminServiceImpl.class);
+    	implementations.put(CacheService.class, CacheServiceImpl.class);
     }
    
     /**
@@ -452,6 +457,11 @@ public class AlitheiaCore implements ServiceListener {
      */
     public AdminService getAdminService() {
     	return (AdminService)instances.get(AdminService.class);
+    }
+    
+
+    public CacheService getCacheService() {
+        return (CacheService)instances.get(CacheService.class);
     }
     
 	@Override

@@ -1,7 +1,8 @@
 package com.mws.squal.service.cache;
 
 import java.io.InputStream;
-import java.io.OutputStream;;
+
+import eu.sqooss.core.AlitheiaCoreService;
 
 
 /**
@@ -13,7 +14,7 @@ import java.io.OutputStream;;
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
-public interface CacheService {
+public interface CacheService extends AlitheiaCoreService {
 
     /**
      * Get contents of key as an unencoded raw byte data array. The contents of
