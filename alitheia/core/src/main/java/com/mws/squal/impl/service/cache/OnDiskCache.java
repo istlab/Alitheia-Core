@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.nio.MappedByteBuffer;
@@ -19,11 +17,26 @@ import java.nio.channels.OverlappingFileLockException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.mws.squal.service.cache.CacheService;
-
 import eu.sqooss.service.logging.Logger;
 
-public class OnDiskCache implements CacheService {
+/**
+ * Disk based implementation of the cache service. Does not manage any resource
+ * and puts all cached in a single directory. On a busy system, it may easily
+ * hit system limits (e.g. files per directory).
+ * 
+ * Accepts the following system property:
+ *  
+ *  <dl>
+ *      <dt>
+ *          com.mws.squal.cache.dir
+ *      </dt>
+ *      <dd>
+ *          The directory to store cache files to 
+ *      </dd>
+ * </dl>
+ * 
+ */
+public class OnDiskCache extends CacheServiceImpl {
 
     public static final String CACHE_DIR = "com.mws.squal.cache.dir";
     
@@ -102,13 +115,7 @@ public class OnDiskCache implements CacheService {
 
         return result;
     }
-    
-    @Override
-    public InputStream getObject(String key) {
         
-        return null;
-    }
-    
     @Override
     public void set(String key, byte[] data) {
         FileChannel file = null;
@@ -158,11 +165,6 @@ public class OnDiskCache implements CacheService {
                 
             }
         }
-    }
-
-    @Override
-    public void setObject(String key, ObjectOutputStream oos) {
-        
     }
 
     private String md5(String...args) throws NoSuchAlgorithmException {

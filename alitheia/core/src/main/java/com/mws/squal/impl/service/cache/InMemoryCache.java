@@ -1,34 +1,20 @@
 package com.mws.squal.impl.service.cache;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.mws.squal.service.cache.CacheService;
+public class InMemoryCache extends CacheServiceImpl {
 
-public class InMemoryCache implements CacheService {
-
+    ConcurrentHashMap<String, byte[]> cache = new ConcurrentHashMap<String, byte[]>(1024);
+    
+    public InMemoryCache() {}
+    
     @Override
     public byte[] get(String key) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ObjectInputStream getObject(String key) {
-        // TODO Auto-generated method stub
-        return null;
+        return cache.get(key);
     }
 
     @Override
     public void set(String key, byte[] data) {
-        // TODO Auto-generated method stub
-        
+        cache.put(key, data);
     }
-
-    @Override
-    public void setObject(String key, ObjectOutputStream oos) {
-        // TODO Auto-generated method stub
-        
-    }
-
 }

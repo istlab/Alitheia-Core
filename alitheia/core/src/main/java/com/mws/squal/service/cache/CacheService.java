@@ -1,7 +1,7 @@
 package com.mws.squal.service.cache;
 
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
+import java.io.OutputStream;;
 
 
 /**
@@ -27,7 +27,7 @@ public interface CacheService {
      * WARNING, ACHTUNG: The client is responsible to close the returned input
      * stream, otherwise the system's resources will be soon exhausted.
      */
-    InputStream getObject(String key);
+    InputStream getStream(String key);
     
     /**
      * Set the contents of a key as an in-memory byte array. After the call, the
@@ -36,7 +36,11 @@ public interface CacheService {
     void set(String key, byte[] data);
     
     /**
-     * Set the contents of key from the 
+     * Set the contents of key from the provided input stream.
+     * 
+     * This method is for convenience only, and it is slow as it performs lots
+     * of unecessary copying. Use the much faster {@link #set(String, byte[])}
+     * instead when you know the size of the data you want to put on the cache.
      */
-    void setObject(String key, ObjectOutputStream oos);
+    void setStream(String key, InputStream oos);
 }

@@ -1,7 +1,9 @@
 package com.mws.squal.impl.service.cache;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +38,14 @@ public class CacheServiceImpl implements CacheService, AlitheiaCoreService {
     }
     
     @Override
-    public InputStream getObject(String key) {
-        return c.getObject(key);
+    public InputStream getStream(String key) {
+        byte[] buff = c.get(key);
+        
+        if (buff == null)
+            return null;
+        
+        ByteArrayInputStream bais = new ByteArrayInputStream(buff);
+        return bais;
     }
 
     @Override
@@ -46,8 +54,22 @@ public class CacheServiceImpl implements CacheService, AlitheiaCoreService {
     }
 
     @Override
-    public void setObject(String key, ObjectOutputStream oos) {
-        c.setObject(key, oos);
+    public void setStream(String key, InputStream in) {
+        try {
+            int nRead;
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] data = new byte[4096];
+
+            while ((nRead = in.read(data, 0, data.length)) != -1) {
+              buffer.write(data, 0, nRead);
+            }
+
+            buffer.flush();            
+            set(key, buffer.toByteArray());
+            
+        } catch (IOException e) {
+            log.error("Error");
+        }
     }
 
     @Override
