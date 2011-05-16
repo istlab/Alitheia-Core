@@ -76,8 +76,10 @@
     <!--Start exactly this number of threads. If -1 then the system will use 
     the default number of threads, currently 2x number of CPUs -->
     <eu.sqooss.scheduler.numthreads>8</eu.sqooss.scheduler.numthreads>
-    <com.mws.squal.cache.dir>/tmp</com.mws.squal.cache.dir>
+    <!--Cache implemnetation to use-->
     <com.mws.squal.cache.impl>com.mws.squal.impl.service.cache.OnDiskCache</com.mws.squal.cache.impl>
+    <!--Location of the cache dir to use-->
+    <com.mws.squal.cache.dir>tmp</com.mws.squal.cache.dir>
   </properties>
   
   <packaging>pom</packaging>
