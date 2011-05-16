@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "EXECUTION_UNIT")
 public class ExecutionUnit extends DAObject {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "EXECUTION_UNIT_ID")
@@ -121,5 +121,19 @@ public class ExecutionUnit extends DAObject {
 
     public Set<ExecutionUnitMeasurement> getMeasurements() {
         return measurements;
+    }
+    
+    public String getFullyQualifiedName() {
+        return toString();
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(encapsulationUnit.toString());
+        sb.append("::");
+        sb.append(name);
+        
+        return sb.toString();
     }
 }

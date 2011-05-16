@@ -114,4 +114,9 @@ public class EncapsulationUnit extends DAObject {
     public Set<EncapsulationUnitMeasurement> getMeasurements() {
         return measurements;
     }
+    
+    @Override
+    public String toString() {
+        return name;
+    }
 }
