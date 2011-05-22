@@ -144,6 +144,13 @@ public class ProjectFile extends DAObject{
     private ProjectFile copyFrom;
     
     /**
+     * If this "file" contains source code files, it is marked as a module
+     */
+    @Column(name="IS_MODULE", nullable = true)
+    @XmlElement(name = "ismodule")
+    private Boolean module;
+    
+    /**
      * File measurements for this file
      */
     @OneToMany(mappedBy = "projectFile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -164,6 +171,7 @@ public class ProjectFile extends DAObject{
     public ProjectFile() {
         // Nothing to see here
         isDirectory = false; //By default, all entries are files
+        module = null;
     }
 
     public ProjectFile(ProjectVersion pv) {
@@ -254,6 +262,10 @@ public class ProjectFile extends DAObject{
     public boolean getIsDirectory() {
         return isDirectory;
     }
+    
+    public Boolean isModule() {
+        return module;
+    }
 
     public long getId() {
 		return id;
@@ -266,6 +278,10 @@ public class ProjectFile extends DAObject{
 	public void setDirectory(boolean isDirectory) {
 		this.isDirectory = isDirectory;
 	}
+	
+	public void setModule(Boolean isModule) {
+        this.module = isModule;
+    }
 
     public void setIsDirectory(boolean isDirectory) {
         this.isDirectory = isDirectory;
