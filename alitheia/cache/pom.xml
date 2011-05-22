@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>alitheia</artifactId>
+    <groupId>eu.sqooss</groupId>
+    <version>0.95-SNAPSHOT</version>
+  </parent>
+  <groupId>com.mws.squal</groupId>
+  <artifactId>cache</artifactId>
+  <version>0.0.2-SNAPSHOT</version>
+  <packaging>bundle</packaging>
+  <name>SQuAL Caching service</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.2.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Embed-Dependency>
+              *;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium
+            </Embed-Dependency>
+            <Export-Package>
+              com.mws.squal.cache
+            </Export-Package>
+            <Import-Package>
+              *;resolution:=optional
+            </Import-Package>
+            <Bundle-Activator>com.mws.squal.workqueue.cache</Bundle-Activator>
+            <Bundle-SymbolicName>com.mws.squal.cache</Bundle-SymbolicName>
+            <Bundle-Version>1.0</Bundle-Version>
+            <Bundle-Vendor>MidWinterSun</Bundle-Vendor>
+            <Bundle-Description>SQuAL Cache service</Bundle-Description>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.2.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+    	<groupId>eu.sqooss.alitheia</groupId>
+    	<artifactId>core</artifactId>
+    	<version>0.95-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.6</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
