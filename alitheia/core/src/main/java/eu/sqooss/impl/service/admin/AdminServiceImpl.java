@@ -78,8 +78,8 @@ public class AdminServiceImpl extends Thread implements AdminService {
     public AdminServiceImpl() {
         liveactions = new ConcurrentHashMap<Long, ActionContainer>();
         id = new AtomicLong();
-        if (AlitheiaCore.getInstance() != null)
-            log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
+        //if (AlitheiaCore.getInstance() != null)
+        //    log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
         start();
     }
 

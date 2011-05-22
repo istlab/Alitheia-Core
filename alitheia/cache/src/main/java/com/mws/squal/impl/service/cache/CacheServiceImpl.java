@@ -9,9 +9,8 @@ import java.util.List;
 
 import org.osgi.framework.BundleContext;
 
-import com.mws.squal.service.cache.CacheService;
-
 import eu.sqooss.core.AlitheiaCoreService;
+import eu.sqooss.service.cache.CacheService;
 import eu.sqooss.service.logging.Logger;
 
 public class CacheServiceImpl implements CacheService, AlitheiaCoreService {

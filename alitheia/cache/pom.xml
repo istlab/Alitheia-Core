@@ -32,7 +32,7 @@
             <Import-Package>
               *;resolution:=optional
             </Import-Package>
-            <Bundle-Activator>com.mws.squal.workqueue.cache</Bundle-Activator>
+            <Bundle-Activator>com.mws.squal.impl.service.cache.Activator</Bundle-Activator>
             <Bundle-SymbolicName>com.mws.squal.cache</Bundle-SymbolicName>
             <Bundle-Version>1.0</Bundle-Version>
             <Bundle-Vendor>MidWinterSun</Bundle-Vendor>
