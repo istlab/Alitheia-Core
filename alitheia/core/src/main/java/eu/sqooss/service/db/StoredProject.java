@@ -47,6 +47,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -108,6 +109,7 @@ public class StoredProject extends DAObject {
 	private Set<StoredProjectConfig> configOpts;
    
     @ManyToOne(fetch=FetchType.LAZY, optional = true)
+    @JoinColumn(name="CLUSTERNODE_ID")
     private ClusterNode clusternode;
 	
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
