@@ -108,14 +108,14 @@ public final class FileTypeMatcher {
 			".cc", ".ccg", ".cgi", ".cls", ".cob", ".cpp", ".cpy", ".cs",
 			".csh", ".css", ".cxx", ".d", ".diff", ".dlg", ".dsp", ".dtd",
 			".e", ".ec", ".ecp", ".el", ".exp", ".f", ".f77", ".fd", ".for",
-			".gnorba", ".gnuplot", ".h", ".hg", ".hh", ".hpp", ".hs", ".hxx",
+			".gnorba", ".h", ".hg", ".hh", ".hpp", ".hs", ".hxx",
 			".i", ".i3", ".idl", ".ids", ".inc", ".itk", ".java", ".jl", ".js",
 			".jsp", ".l", ".lex", ".ll", ".lsp", ".m", ".m3", ".m4", ".ml",
 			".ml3", ".p", ".pad", ".pas", ".patch", ".pc", ".pcc", ".perl",
 			".php", ".php3", ".php4", ".pl", ".plot", ".plugin", ".pm", ".pod",
 			".ppd", ".pri", ".pro", ".py", ".rb", ".s", ".schema", ".scm",
 			".sed", ".sh", ".sql", ".tcl", ".tk", ".trm", ".upd", ".vb",
-			".vbs", ".vim", ".xs", ".xsl", ".y", ".yy", "Makefile"};
+			".vbs", ".vim", ".xs", ".xsl", ".y", ".yy", ".scala"};
 
 	private static String[] docMimes = { "readme.*", "changelog.*", "todo.*",
 			"credits.*", "authors.*", "changes.*", "news.*", "install.*",
@@ -128,6 +128,7 @@ public final class FileTypeMatcher {
 			"lsm", "directory", "dox", "html", "txt", "lyx", "tex",
 			"tex", "sgml", "docbook", "xhtml", "phtml", "shtml", "htm",
 			"rdf", "phtm", "ref", "css", "dsl", "ent", "xml", "xsl",
+			".gnuplot", 
 			"entities", "man", "manpages", "man\\.[0-9]+", "docs$" };
 
 	private static String[] xmlFormats = { ".xml", ".svn", ".argo", ".graffle",
