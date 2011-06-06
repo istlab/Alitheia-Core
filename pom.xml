@@ -93,7 +93,6 @@
   </repositories>
 
   <modules>
-    <module>provision</module>
     <module>alitheia</module>
     <module>plug-ins</module>
     <module>metrics</module>
@@ -123,9 +122,15 @@
         <artifactId>maven-pax-plugin</artifactId>
         <version>1.4</version>
         <configuration>
+          <framework>equinox</framework>
           <provision>
-            <param>--platform=equinox</param>
-            <param>--ee=JavaSE-1.6</param>
+              <param>mvn:org.osgi/org.osgi.core/4.2.0@2</param>
+              <param>mvn:org.osgi/org.osgi.compendium/4.2.0@2</param>
+              <param>mvn:org.apache.felix/org.apache.felix.webconsole/1.2.8@2</param>
+              <param>mvn:org.apache.felix/org.apache.felix.scr/1.0.8@2</param>
+              <param>mvn:org.apache.felix/org.apache.felix.http.jetty/1.0.1@2</param>
+              <param>mvn:org.apache.felix/org.apache.felix.eventadmin/1.0.0@2</param>
+              <param>mvn:eu.sqooss.alitheia/core/0.95-SNAPSHOT@3</param>
           </provision>
           <runner>1.5.0</runner>
          </configuration>
