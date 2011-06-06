@@ -48,13 +48,11 @@ public class CoreActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
         core = new AlitheiaCore(bc);
-        bc.addServiceListener(core);
         sregCore = bc.registerService(AlitheiaCore.class.getName(), core, null);
     }
   
     public void stop(BundleContext bc) throws Exception {
     	core.shutDown();
-    	bc.removeServiceListener(core);
     	if (sregCore != null) {
     		sregCore.unregister();
     	}

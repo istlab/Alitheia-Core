@@ -213,11 +213,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     @Override
     public boolean startUp() {
-       
-        /* Get a reference to the core service*/
-        ServiceReference serviceRef = null;
-        serviceRef = context.getServiceReference(AlitheiaCore.class.getName());
-        core = (AlitheiaCore) context.getService(serviceRef);
+        core = AlitheiaCore.getInstance();
         if (logger != null) {
             logger.info("Got a valid reference to the logger");
         } else {

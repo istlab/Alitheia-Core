@@ -106,17 +106,9 @@ public abstract class AbstractView {
         // Keep the Velocity context instance
         this.vc = vc;
         this.bc = bundlecontext;
-
-        // Retrieve the SQO-OSS core service's object
-        srefCore = bundlecontext.getServiceReference(
-                AlitheiaCore.class.getName());
-        if (srefCore != null)
-            sobjCore = (AlitheiaCore) bundlecontext.getService(srefCore);
-        else
-            System.out.println("ERROR"
-                    + " " + Logger.NAME_SQOOSS_WEBADMIN
-                    + " - " + "Can not find the SQO-OSS core service!");
-
+       
+        sobjCore = AlitheiaCore.getInstance();
+        
         // Retrieve the instances of the core components
         if (sobjCore != null) {
             //Get the log manager's instance

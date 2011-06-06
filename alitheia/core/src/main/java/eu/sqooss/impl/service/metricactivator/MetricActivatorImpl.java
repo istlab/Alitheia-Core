@@ -542,9 +542,7 @@ public class MetricActivatorImpl  implements MetricActivator {
 
 	@Override
 	public boolean startUp() {
-	    ServiceReference serviceRef = null;
-        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());
-        core = (AlitheiaCore) bc.getService(serviceRef);
+        core = AlitheiaCore.getInstance();
 
         priority = new AtomicLong();
         //Lower priorities are reserved for updater jobs

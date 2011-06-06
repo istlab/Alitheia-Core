@@ -37,20 +37,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.http.HttpService;
 
 import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
@@ -65,7 +55,6 @@ import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
 import eu.sqooss.service.admin.AdminService;
-import eu.sqooss.service.cache.CacheService;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
@@ -79,13 +68,13 @@ import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /**
- * Startup class of the SQO-OSS framework's core. Its main goal is to
+ * Startup class of the Alitheia framework's core. Its main goal is to
  * initialize all core components and be able to provide them upon request.
  * There is one AlitheiaCore instance which may be retrieved statically
  * through getInstance(); after that you can use the get*Service() methods
  * to get each of the other core components as needed.
  */
-public class AlitheiaCore implements ServiceListener {
+public class AlitheiaCore {
 
     /** The Logger component's instance. */
     private LogManagerImpl logger;
@@ -96,25 +85,16 @@ public class AlitheiaCore implements ServiceListener {
     /** The Core is singleton-line because it has a special instance */
     private static AlitheiaCore instance = null;
     
-    /** Classes to services to wait for prior to self initialisation*/
-    private Vector<Class<?>> srvWait;
-    
-    /** Flag set when the init routines have run*/
-    private AtomicBoolean initFlag;
-    
-    /** Flag set when the init routines have run*/
-    private Semaphore semSrvInit;
-
     /** Holds initialised service instances */
     private HashMap<Class<? extends AlitheiaCoreService>, Object> instances;
     
     /* Service Configuration */
     private static Vector<Class<? extends AlitheiaCoreService>> services;
-    private static ConcurrentMap<Class<? extends AlitheiaCoreService>, Class<?>> implementations;
+    private static Map<Class<? extends AlitheiaCoreService>, Class<?>> implementations;
 
     static {
         services = new Vector<Class<? extends AlitheiaCoreService>>();
-        implementations = new ConcurrentHashMap<Class<? extends AlitheiaCoreService>, Class<?>>();
+        implementations = new HashMap<Class<? extends AlitheiaCoreService>, Class<?>>();
 
     	/* 
     	 * Order matters here as services are initialised 
@@ -134,7 +114,6 @@ public class AlitheiaCore implements ServiceListener {
     	services.add(WebadminService.class);
     	services.add(RestService.class);
     	services.add(AdminService.class);
-    	services.add(CacheService.class);
 
     	implementations.put(LogManager.class, LogManagerImpl.class);
     	implementations.put(DBService.class, DBServiceImpl.class);	 
@@ -160,20 +139,8 @@ public class AlitheiaCore implements ServiceListener {
         instance = this;
         err("Instance Created");
         
-        initFlag = new AtomicBoolean();
-        initFlag.set(false);
-        
-        semSrvInit = new Semaphore(1);
-        try {
-            semSrvInit.acquire();
-        } catch (InterruptedException e) {
-        }
-        
         instances = new HashMap<Class<? extends AlitheiaCoreService>, Object>();
-        
-        srvWait = new Vector<Class<?>>();
-        srvWait.add(HttpService.class);
-        srvWait.add(EventAdmin.class);
+        init();
     }
 
     /**
@@ -189,27 +156,27 @@ public class AlitheiaCore implements ServiceListener {
         return instance;
     }
     
+    /*Create a temp instance to use for testing.*/
+    public static AlitheiaCore testInstance() {
+        instance = new AlitheiaCore(null);
+        return instance;
+    }
+    
     /**
      * Register an external implementation of an AlitheiaCore service. It
-     * will override the internally defined implementation.
+     * will override any internally defined implementation.
      *
      * @param service The service interface to register an implementation for
      * @param clazz The class that implements the registered service
      */
-    public void registerService(Class<? extends AlitheiaCoreService> service,
+    public synchronized void registerService(
+            Class<? extends AlitheiaCoreService> service,
             Class<?> clazz) {
-        try {
-            semSrvInit.acquire();
 
-            if (!services.contains(service))
-                services.add(service);
-            implementations.put(service, clazz);
-            initService(service);
-        } catch (InterruptedException e) {
-            err("Thread has been interrupted: " + e.getMessage());
-        } finally {
-            semSrvInit.release();
-        }
+        if (!services.contains(service))
+            services.add(service);
+        implementations.put(service, clazz);
+        initService(service);
     }
 
     /**
@@ -217,98 +184,41 @@ public class AlitheiaCore implements ServiceListener {
      * This method does not check if external entities hold references to the
      * service to be unregistered.
      */
-    public void unregisterService(Class<? extends AlitheiaCoreService> service) {
-        implementations.remove(CacheService.class);
+    public synchronized void unregisterService(
+            Class<? extends AlitheiaCoreService> service) {
+        implementations.remove(service);
     }
 
     /**
      * This method performs initialization of the <code>AlitheiaCore</code>
      * object by instantiating the core components, by calling the 
-     * method on their service interface. After all services have been 
-     * instantiated (failures are reported but do not block the instatiation
-     * process), the system initialises the metric bundles. To do so, it 
-     * queries all bundles for those that contain a <code>*.metrics.*</code>
-     * portion in their symbolic path and starts those that do. 
+     * method on their service interface. Failures are reported but do not 
+     * block the instatiation process).
      */
-    public void init() {
-        if (initFlag.get() == true) {
-            return;
-        }
+    private void init() {
+
         err("Required services online, initialising");
-        initFlag.compareAndSet(false, true);
 
-        try {
-            logger = new LogManagerImpl();
-            logger.setInitParams(bc, null);
-            if (!logger.startUp()) {
-                err("Cannot start the log service, aborting");
-            }
-            instances.put(LogManager.class, logger);
+        logger = new LogManagerImpl();
+        logger.setInitParams(bc, null);
+        if (!logger.startUp()) {
+            err("Cannot start the log service, aborting");
+        }
+        instances.put(LogManager.class, logger);
+        err("Service " + LogManagerImpl.class.getName() + " started");
 
-            DBService db = DBServiceImpl.getInstance();
-            db.setInitParams(bc, logger.createLogger("sqooss.db"));
-            if (!db.startUp()) {
-                err("Cannot start the DB service, aborting");
-            }
-            instances.put(DBService.class, db);
+        DBService db = DBServiceImpl.getInstance();
+        db.setInitParams(bc, logger.createLogger("sqooss.db"));
+        if (!db.startUp()) {
+            err("Cannot start the DB service, aborting");
+        }
+        instances.put(DBService.class, db);
+        err("Service " + DBServiceImpl.class.getName() + " started");
 
-            for (Class<? extends AlitheiaCoreService> s : services) {
-                initService(s);
-            }
-        } finally {
-            semSrvInit.release();
+        for (Class<? extends AlitheiaCoreService> s : services) {
+            initService(s);
         }
 
-        err("Initialising metric bundles");
-        for (Bundle b : bc.getBundles()) {
-            if (!b.getSymbolicName().contains(".metrics."))
-                continue; //Not a metrics bundle
-            
-            try {
-                err("Starting " + b.getSymbolicName());
-                if (b.getState() != Bundle.STARTING && 
-                        b.getState() != Bundle.ACTIVE)
-                    b.start();
-            } catch (BundleException e) {
-                err("Failed to start " + b.getSymbolicName());
-                e.printStackTrace();
-            }
-        }
-        err("Initialising plugin bundles");
-        for (Bundle b : bc.getBundles()) {
-            if (!b.getSymbolicName().contains(".plugins."))
-                continue; //Not a plugin bundle
-            
-            try {
-                err("Starting " + b.getSymbolicName());
-                if (b.getState() != Bundle.STARTING && 
-                        b.getState() != Bundle.ACTIVE)
-                    b.start();
-            } catch (BundleException e) {
-                err("Failed to start " + b.getSymbolicName());
-                e.printStackTrace();
-            }
-        }
-        err("Initialising other bundles");
-        for (Bundle b : bc.getBundles()) {
-            if (!b.getSymbolicName().contains(".sqooss."))
-                continue; //Not a sqooss bundle
-            
-            if (b.getSymbolicName().contains(".metrics.") ||
-                    b.getSymbolicName().contains(".plugins."))
-                continue; //Those bundles were started earlier
-            
-            if (b.getSymbolicName().contains(".alitheia.core"))
-                continue; //Don't start thyself
-            
-            try {
-                err("Starting " + b.getSymbolicName());
-                b.start();
-            } catch (BundleException e) {
-                err("Failed to start " + b.getSymbolicName());
-                e.printStackTrace();
-            }
-        }
     }
 
     private synchronized void initService(Class<? extends AlitheiaCoreService> s) {
@@ -504,53 +414,6 @@ public class AlitheiaCore implements ServiceListener {
     public AdminService getAdminService() {
     	return (AdminService)instances.get(AdminService.class);
     }
-
-    /**
-     * Returns a Cache service instance
-     * 
-     */
-    public CacheService getCacheService() {
-        return (CacheService)instances.get(CacheService.class);
-    }
-
-	@Override
-	public synchronized void serviceChanged(ServiceEvent event) {
-		if (event.getType() == ServiceEvent.REGISTERED) {
-			if (event.getServiceReference().toString().matches(".*" 
-					+ HttpService.class.getName() + ".*")) {
-				err("HTTP service registered");
-			}
-			
-			if (event.getServiceReference().toString().matches(".*" 
-					+ EventAdmin.class.getName() + ".*")) {
-				err("Event service registered");
-			}
-			checkForServicesAndInit();
-		}
-	}
-
-	private synchronized void checkForServicesAndInit() {
-		boolean init = true;
-		
-		for (Class<?> srvClass : srvWait) {
-			ServiceReference sr  =  bc.getServiceReference(srvClass.getName());
-			if (sr == null) {
-				init = false;
-				continue;
-			}
-			
-			Object o = bc.getService(sr);
-			
-			if (o == null) {
-				init = false;
-				continue;
-			}
-		}
-		
-		if (init == true) {
-			init();
-		}
-	}
 	
 	private void err(String msg) {
 		System.err.println("AlitheiaCore: " + msg);
