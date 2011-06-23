@@ -8,9 +8,6 @@ import eu.sqooss.core.AlitheiaCore;
 
 public class Activator implements BundleActivator {
 
-    /** Keeps the <code>AlitheaCore</code>'s service registration instance. */
-    private ServiceRegistration sregCache;
-
     public void start(BundleContext bc) throws Exception {
         AlitheiaCore.getInstance().registerService(CacheService.class, CacheServiceImpl.class);
     }
