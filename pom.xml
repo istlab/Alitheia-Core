@@ -88,7 +88,7 @@
     <repository>
       <name>JBoss</name>
       <id>jboss</id>
-      <url>http://repository.jboss.com/maven2/</url>
+      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
     </repository>
   </repositories>
 
