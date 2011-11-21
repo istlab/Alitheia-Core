@@ -150,7 +150,7 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
                         p.getMailUrl(), p.getScmUrl());
             }
             db.commitDBSession();
-        } 
+        }
 
         logger.info("TDS Stuffer is finished.");
     }

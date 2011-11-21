@@ -88,6 +88,12 @@ public class ProjectDeleteJob extends Job {
         
         for (Plugin p : ps ) {
             AlitheiaPlugin ap = core.getPluginAdmin().getPlugin(core.getPluginAdmin().getPluginInfo(p.getHashcode()));
+            if (ap == null) {
+            	//logger.warn("Plugin with hashcode: "+ p.getHashcode() + 
+            	//		" not installed");
+            	continue;
+            }
+            	
             ap.cleanup(sp);
         }
         

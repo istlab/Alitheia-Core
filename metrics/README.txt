@@ -1,16 +1,26 @@
 Creating a new metric 
 ---------------------
 
-1. Use the provided maven archetype
+1. Use the provided maven archetype (see below how).  Before running it, do
+mvn install at the top level directory. Also, make sure that artifactId
+parameter contains the following string: ".metrics." in order to allow the
+Alitheia Core runtime to pick up at runtime. Examples of
+eligible package names are the following:
+
+-gr.aueb.metrics.foo
+-com.metrics.bar.foo
+-eu.sqooss.metrics.baz
+
+Then run the following:
 
 mvn archetype:generate 
     -DgroupId=your.package
     -DartifactId=metricname
     -Dversion=0.x   (replace x with your metrics version)
     -Dpackage=your.package.pluginname 
-    -DarchetypeGroupId=eu.sqooss.metrics 
+    -DarchetypeGroupId=eu.sqooss.metrics
     -DarchetypeArtifactId=archetype 
-    -DarchetypeVersion=1.0
+    -DarchetypeVersion=1.0-SNAPSHOT
 
 2. Add the plugin to the pom.xml file in the <modules> section, if the
 archetype creator does not do that for your
