@@ -57,7 +57,7 @@ The source code to Alitheia Core is maintained on Github, using the Git
 version control system. To get the code (including development history)
 Git must be installed. Git can be downloaded from: http://git-scm.com/download
 
-Without a Github account, the code can be checked as follows:
+Without a Github account, the code can be checked out as follows:
 
 git clone git://github.com/gousiosg/Alitheia-Core.git
 

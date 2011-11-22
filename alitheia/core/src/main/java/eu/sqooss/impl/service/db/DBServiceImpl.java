@@ -70,6 +70,7 @@ import eu.sqooss.service.logging.Logger;
 /**
  * Implementation of the Database service, using Hibernate's Thread-based session handling
  * 
+ * 
  * @author Romain Pokrzywka, Georgios Gousios
  * 
  */
