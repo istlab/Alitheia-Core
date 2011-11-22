@@ -74,6 +74,8 @@ Maven from the following link: http://maven.apache.org/
   [quit the OSGi prompt]
   ./debug.sh
 
+  Then you can connect a remote Java debugger to port 8000 on localhost.
+
 - To develop for Alitheia Core:
 
   * To develop a metric plug-in: see metrics/README.txt

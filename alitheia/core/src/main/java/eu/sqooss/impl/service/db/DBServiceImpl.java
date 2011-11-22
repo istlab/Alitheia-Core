@@ -83,6 +83,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         drivers.put("mysql", "com.mysql.jdbc.Driver");
         drivers.put("hsqldb", "org.hsqldb.jdbcDriver");
         drivers.put("postgres", "org.postgresql.Driver");
+        drivers.put("h2", "org.h2.Driver");
     }
     
     public static Map<String, String> connString = new HashMap<String, String>();
@@ -91,6 +92,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         connString.put("mysql", "jdbc:mysql://<HOST>/<SCHEMA>?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8");
         connString.put("hsqldb", "jdbc:hsqldb:file:<SCHEMA>");
         connString.put("postgres", "jdbc:postgresql://<HOST>/<SCHEMA>");
+        connString.put("h2", "jdbc:h2:<SCHEMA>");
     }
 
     public static Map<String, String> hbmDialects = new HashMap<String, String>();
@@ -99,8 +101,9 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         hbmDialects.put("mysql", "org.hibernate.dialect.MySQLInnoDBDialect");
         hbmDialects.put("hsqldb", "org.hibernate.dialect.HSQLDialect");
         hbmDialects.put("postgres", "org.hibernate.dialect.PostgreSQLDialect");
+        hbmDialects.put("h2", "org.h2.Driver");
     }
-    
+
     public static Map<String, String> conPools = new HashMap<String, String>();
     
     static {

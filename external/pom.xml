@@ -26,6 +26,7 @@
     <module>hsqldb</module>
     <module>dom4j</module>
     <module>com.jcraft.jsch</module>
+    <module>h2</module>
   </modules>
 
   <build>
