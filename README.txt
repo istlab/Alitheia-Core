@@ -6,8 +6,11 @@ This is the source tree for the software produced by the SQO-OSS project.
 The main software product is Alitheia Core, the platform for the automated
 measurement of the quality of  projects.
 
-The README gives an overview of how the source tree is organised and
-how the rest of the READMEs can be used.
+The README gives an overview of how the source tree is organised and sort
+instructions on how to use and develop for Alitheia Core. Full documentation
+is always available at the project's web site at
+
+http://www.sqo-oss.org
 
 ***
 *** Source Organisation
@@ -15,7 +18,7 @@ how the rest of the READMEs can be used.
 
 You can find the following files and directories here:
 
-LICENSE*
+LICENSE
     These are the licenses that apply to the software included in this
     source tree. The LICENSE file applies to Alitheia itself, and is the
     2-clause BSD license. Other parts of the system may have different
@@ -30,28 +33,52 @@ pom.xml
 
 alitheia/
     Contains the Alitheia Core source code (under core/) and modules for the
-    programmating interfaces to the system. 
+    programmating interfaces to the system.
+
+external/
+    External libraries (actually library references) to be bundled as OSGi
+    bundles at complile time.
 
 metrics/
-    Contain the source code of the various metric plug-ins developed for the
+    Contains the source code of the various metric plug-ins developed for the
     Alitheia system. Each metric is a self-contained codebase.
 
-tools/
-    Contains build and data mirroring tools which were developed as part of the
-    system.  Shouldn't have to be packaged with the rest of the system.
+plug-ins/
+    Code for data and updater plug-ins.
 
 ui/
-    Contains the source code and build definition (will probably be Maven too)
-    for the public-facing website (user interface), the CLI (admin interface)
-    and the eclipse plugin (IDE interface). Also contains the SCL (SQO-OSS
-    connector library) which is shared between the UIs.
+    Source code for a simple client to the Alitheia Core REST api.
 
 ***
-*** Using Alitheia
+*** Compiling, running and developing
 ***
 
-To read about building the system, see README-BUILD.txt
-To read about configuring the system for use, see README-CONFIGURE.txt
-To read about running the system, see README-RUN.txt
-To read about development practices and how to code, see README-DEVELOP.txt
+Alitheia Core is build using Maven (tested with version > 3). You can download
+Maven from the following link: http://maven.apache.org/
+
+- To build the project, do:
+
+  mvn install
+
+- To run Alitheia Core, you need to configure a database first. Consult the
+  online Quickstart guide at http://www.sqo-oss.org/quickstart
+  on how to do it. Then, run:
+
+  mvn pax:provision
+
+  Then visit the web interface: http://localhost:8080
+
+- To debug Alitheia Core (on Unix-based systems):
+
+  mvn install pax:provision
+  [quit the OSGi prompt]
+  ./debug.sh
+
+- To develop for Alitheia Core:
+
+  * To develop a metric plug-in: see metrics/README.txt
+  * To develop a data plug-in: see plug-ins/README.txt
+
+  Any tool can be used to write code for Alitheia Core, but using Eclipse will
+  simplify things a lot. Instructions can be found in README.eclipse
 
