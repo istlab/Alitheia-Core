@@ -241,8 +241,8 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 			List<String> inited = new ArrayList<String>();
 			
             for (String dir : dirsToSearch) {
-            	File searchDir = new File(URI.create(dir));
-            	
+            	File searchDir = new File(URI.create(dir.replace(" ", "%20")));
+
             	logger.debug("Searching for plug-ins in " + searchDir.getCanonicalPath());
                 
                 if ( searchDir.exists() && searchDir.isDirectory() ) {
