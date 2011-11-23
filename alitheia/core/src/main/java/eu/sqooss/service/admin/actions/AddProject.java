@@ -139,18 +139,32 @@ public class AddProject extends AdminActionBase {
         }
 
         tds.addAccessor(Integer.MAX_VALUE, name, bts, mail, scm);
+        
+        if (tds.getAccessor(Integer.MAX_VALUE) == null)
+        	warn("tds", "Error retrieving accessor for project: " + name);
+        
         ProjectAccessor a = tds.getAccessor(Integer.MAX_VALUE);
         
-        try{
+        try {
+        	debug("Testing SCM accessor for project: " + name);
             a.getSCMAccessor().getHeadRevision();
-            BTSAccessor ba = a.getBTSAccessor(); 
+            debug("SCM accessor OK. SCM Head: " + 
+            		a.getSCMAccessor().getHeadRevision().getUniqueId());
+            
+            debug("Testing BTS accessor for project: " + name);
+            BTSAccessor ba = a.getBTSAccessor();
             if (ba == null) {
                 warn("tds.bts.url", "Bug Accessor failed initialization for URI:" + bts);
+            } else {
+            	debug("BTS accessor OK.");
             }
 
+            debug("Testing mail accessor for project: " + name);
             MailAccessor ma = a.getMailAccessor();
             if (ma == null) {
                 warn("tds.mail.maildir", "Mail accessor failed initialization for URI:" + bts);
+            } else {
+            	debug("Mail accessor OK.");
             }
         } catch (InvalidRepositoryException ire) {
             error("tds.scm.url", "No appropriate accessor for repository URI: "+ scm);
@@ -243,23 +257,23 @@ public class AddProject extends AdminActionBase {
             p.setProperty(ConfigOption.PROJECT_NAME.getName(), f.getParentFile().getName());
 
         String parent = f.getParentFile().getAbsolutePath();
-        parent = parent.replace('\\', '/'); //Hack for windows paths
+        debug("Project dir URI: " + f.getParentFile().toURI());
         
         p.setProperty(ConfigOption.PROJECT_BTS_URL.getName(),
-                "bugzilla-xml://" + f.getParentFile().getAbsolutePath() + "/bugs");
+                "bugzilla-xml://" + parent + File.separator + "bugs");
         p.setProperty(ConfigOption.PROJECT_ML_URL.getName(), 
-                "maildir://" + f.getParentFile().getAbsolutePath() + "/mail");
-        
+                "maildir://" + parent + File.separator + "mail");
+
         for (File file: infoFile.listFiles()) {
             if (!file.isDirectory())
                 continue;
             
             if(file.getName().equals("svn")) {
                 p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(),
-                        "svn-file://" + f.getParentFile().getAbsolutePath() + "/svn");
+                        "svn-file://" + parent + File.separator +"svn");
             } else if (file.getName().equals("git")) {
                 p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(),
-                        "git-file://" + f.getParentFile().getAbsolutePath() + "/git");
+                        "git-file://" + parent + File.separator + "git");
             }
         }
     }

@@ -120,6 +120,12 @@ public abstract class AdminActionBase implements AdminAction {
         if (log != null)
             log.info(mnemonic() + ":" + msg);
     }
+    
+    protected void debug(String msg) {
+        if (log != null)
+            log.debug(mnemonic() + ":" + msg);
+    }
+
 
     private synchronized void changeStatus(AdminActionStatus st) {
         switch (status) {
