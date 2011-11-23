@@ -116,19 +116,24 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
     }
     
     /**{@inheritDoc}}*/
-    public boolean isURLSupported(String URL) {
+    public boolean isURLSupported(String url) {
         boolean supported = false;
         URI toTest = null;
         
         try {
-            toTest = URI.create(URL);
+        	url = url.replace("\\", "/").replace(" ", "%20");
+            toTest = URI.create(url);
         } catch (IllegalArgumentException iae) {
+        	logger.warn(String.format("Error constructing URI from URL:%s", url));
             return false;
         }
         
-        for (String schemes : DataAccessorFactory.getSupportedSchemes()) {
-            if (schemes.equals(toTest.getScheme())) {
+        logger.debug("Checking URI: " + toTest);
+        for (String scheme : DataAccessorFactory.getSupportedSchemes()) {
+        	logger.debug("Trying scheme: " + scheme);
+            if (scheme.equals(toTest.getScheme())) {
                 supported = true;
+                logger.debug("Found scheme: " + scheme);
                 break;
             }
         }

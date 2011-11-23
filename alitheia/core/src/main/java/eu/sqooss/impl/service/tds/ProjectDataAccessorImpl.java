@@ -107,20 +107,25 @@ public class ProjectDataAccessorImpl implements ProjectAccessor {
 
     /** {@inheritDoc} */
     public SCMAccessor getSCMAccessor() throws InvalidAccessorException {
+    	scm = scm.replace(" ", "%20").replace("\\", "/");
+    	
     	try {
+    		URI uri = URI.create(scm);
 			if (scmAccessor == null) {
 				scmAccessor = (SCMAccessor) DataAccessorFactory.getInstance(
-						URI.create(this.scm), name);
+						uri, name);
 				if (scmAccessor == null) {
 					logger.warn("SCM accessor for project <" + name
 							+ "> could not be initialized");
-					throw new InvalidAccessorException(scmAccessor, 
-							URI.create(this.scm));
+					throw new InvalidAccessorException(scmAccessor, uri);
 				}
 			}
+		} catch (IllegalArgumentException iae) {
+			logger.error("Error " + iae.toString() + " creating URI from string: " + scm);
+			return null;
 		} catch (Exception e) {
-			throw new InvalidAccessorException(scmAccessor, URI
-					.create(this.scm));
+			throw new InvalidAccessorException(scmAccessor, 
+					URI.create(scm));
 		}
 
         return scmAccessor;
