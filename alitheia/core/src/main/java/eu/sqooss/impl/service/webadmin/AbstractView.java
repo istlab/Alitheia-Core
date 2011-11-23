@@ -528,49 +528,6 @@ public abstract class AbstractView {
     }
 
     /**
-     * Method for validation of properties that hold an URL string against
-     * the given URL scheme(s). The validation is based on the specifications
-     * for that scheme(s).
-     * <br/>
-     * The scheme sequence can contain a single scheme
-     * (e.g. <code>"http"</code>), or two or more schemes separated by commas
-     * (e.g. <code>"http,https,file"</code>).
-     * <br/>
-     * <br/>
-     * <i><b>Note:</b> Not yet fully implemented. Right now this method checks
-     * only if a scheme name does match.</i>
-     * 
-     * @param text the property value
-     * @param schemes the list of comma separated scheme definitions
-     * 
-     * @return <code>true</code> upon successful validation,
-     *   or <code>false</code> otherwise.
-     */
-    protected static boolean checkUrl (String text, String schemes) {
-        if (text == null || schemes == null) 
-            return false;
-
-        URI toTest;
-        try {
-            toTest = URI.create(text);
-            if (toTest.getScheme() == null)
-                return false;
-        } catch (IllegalArgumentException iae) {
-            return false;
-        }
-
-        String[] urlschemes = schemes.split(",");
-        if (urlschemes.length == 0)
-            return false;
-
-       for (String scheme : urlschemes) {
-           if (toTest.getScheme().equals(scheme))
-               return true;
-       }
-       return false;
-    }
-
-    /**
      * Check if the provided URL is supported by the TDS data accessor 
      * plug-ins.
      * @param url The URL to check
