@@ -143,7 +143,7 @@ public class SVNAccessorImpl implements SCMAccessor {
     private void connectToRepository()
         throws InvalidRepositoryException {
         try {
-            svnRepository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
+            svnRepository = SVNRepositoryFactory.create(SVNURL.parseURIEncoded(url));
             // All access is assumed to be anonynmous, so no
             // authentication manager is used.
         } catch (SVNException e) {
