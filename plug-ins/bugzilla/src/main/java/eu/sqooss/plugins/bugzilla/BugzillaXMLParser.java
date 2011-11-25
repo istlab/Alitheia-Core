@@ -40,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -83,27 +84,52 @@ public class BugzillaXMLParser implements BTSAccessor {
         supportedSchemes = new ArrayList<URI>();
         supportedSchemes.add(URI.create("bugzilla-xml://www.sqo-oss.org"));
     }
-    
+
     /** {@inheritDoc} */
     public void init(URI dataURL, String name) throws AccessorException {
+        logger = AlitheiaCore.getInstance().getLogManager().createLogger(
+                Logger.NAME_SQOOSS_TDS);
         this.name = name;
-        File f = new File(dataURL.getPath());
-        
+
+        URI converted = convertURI(dataURL);
+        if (converted == null) {
+        	logger.error("Cannot init Bugzilla accessor for URI " + dataURL);
+        	return;
+        } else {
+        	logger.info("Init Bugzilla accessor for URI " + converted);
+        }
+
+        File f = null;
+
+        try {
+        	f = new File(converted);
+        } catch (IllegalArgumentException iae) {
+        	throw new AccessorException(this.getClass(), "Error " +
+        			"accessing file based URI " + converted);
+        }
+
         if (!f.exists() || !f.isDirectory() || !f.canRead()) {
             throw new AccessorException(this.getClass(), "Invalid path "
                     + f.getPath() + " Either not exists or not a readable " +
                     		"directory" );
         }
-        
-        logger = AlitheiaCore.getInstance().getLogManager().createLogger(
-                Logger.NAME_SQOOSS_TDS);
-        if (logger != null) {
-            logger.info("Created BTSAccessor for " + dataURL.toString());
-        }
-        
+
+        logger.info("Created BTSAccessor for " + dataURL.toString());
         location = f;
     }
     
+    private URI convertURI(URI uri) {
+        String s = uri.toString();
+        s = s.replace("bugzilla-xml", "file");
+
+        try {
+			return new URI(s);
+		} catch (URISyntaxException e) {
+			logger.error("Error converting URI", e);
+			return null;
+		}
+    }
+
     /** {@inheritDoc} */
     public BTSEntry getBug(String bugID) {
         
