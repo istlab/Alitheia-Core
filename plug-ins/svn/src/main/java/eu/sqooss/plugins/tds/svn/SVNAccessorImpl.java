@@ -115,9 +115,10 @@ public class SVNAccessorImpl implements SCMAccessor {
     }
 
     public void init(URI dataURL, String name) throws AccessorException {
+        logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
+
         this.url = convertURI(dataURL);
         this.projectname = name;
-        logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
         if (logger != null) {
             logger.info("Created SCMAccessor for " + url);
         }     
