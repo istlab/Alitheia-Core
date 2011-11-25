@@ -66,6 +66,7 @@ import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.util.URIUtills;
 
 /**
  * Implementation of the Database service, using Hibernate's Thread-based session handling
@@ -241,7 +242,13 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 			List<String> inited = new ArrayList<String>();
 			
             for (String dir : dirsToSearch) {
-            	File searchDir = new File(URI.create(dir.replace(" ", "%20")));
+
+            	URI uri = URIUtills.toURI(dir);
+            	if (uri == null) {
+            		logger.warn("Error constructing URI for path: " + dir);
+            	}
+
+            	File searchDir = new File(uri);
 
             	logger.debug("Searching for plug-ins in " + searchDir.getCanonicalPath());
                 
