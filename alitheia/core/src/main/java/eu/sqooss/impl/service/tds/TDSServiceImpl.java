@@ -47,6 +47,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.DataAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.util.URIUtills;
 
 public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
     private Logger logger = null;
@@ -120,14 +121,11 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
         boolean supported = false;
         URI toTest = null;
         
-        try {
-        	url = url.replace("\\", "/").replace(" ", "%20");
-            toTest = URI.create(url);
-        } catch (IllegalArgumentException iae) {
-        	logger.warn(String.format("Error constructing URI from URL:%s", url));
-            return false;
+        if ((toTest = URIUtills.toURI(url)) == null) {
+        	logger.warn("Error converting to URI: " + url);
+        	return false;
         }
-        
+
         logger.debug("Checking URI: " + toTest);
         for (String scheme : DataAccessorFactory.getSupportedSchemes()) {
         	logger.debug("Trying scheme: " + scheme);

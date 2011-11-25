@@ -41,6 +41,7 @@ import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.util.URIUtills;
 
 /**
  * A collection of accessors to project data sources. 
@@ -68,49 +69,61 @@ public class ProjectDataAccessorImpl implements ProjectAccessor {
 
     // Interface functions
     /** {@inheritDoc} */
-    public BTSAccessor getBTSAccessor() throws InvalidAccessorException {
-    	try {
-    		if (btsAccessor == null) {
-				btsAccessor = (BTSAccessor) DataAccessorFactory.getInstance(
-						URI.create(this.bts), name);
-				if (btsAccessor == null) {
-					logger.warn("Bug data accessor for project <" + name
-							+ "> could not be initialized");
-					throw new InvalidAccessorException(btsAccessor, 
-							URI.create(this.bts));
-				}
+	public BTSAccessor getBTSAccessor() throws InvalidAccessorException {
+
+		URI uri = null;
+
+		if ((uri = URIUtills.toURI(bts)) == null) {
+			logger.warn("Error converting to URI: " + bts);
+			return null;
+		}
+
+		if (btsAccessor == null) {
+			btsAccessor = (BTSAccessor) DataAccessorFactory.getInstance(uri,
+					name);
+			if (btsAccessor == null) {
+				logger.warn("Bug data accessor for project <" + name
+						+ "> could not be initialized");
+				throw new InvalidAccessorException(btsAccessor, uri);
 			}
-    	} catch (Exception e) {
-    		throw new InvalidAccessorException(btsAccessor, URI.create(this.bts));
-    	}
-        return btsAccessor;
-    }
+		}
+
+		return btsAccessor;
+	}
 
     /** {@inheritDoc} */
-    public MailAccessor getMailAccessor() throws InvalidAccessorException {
-    	try {
-    		if (mailAccessor == null) {
-    			mailAccessor = (MailAccessor) DataAccessorFactory.getInstance(
-    					URI.create(this.mail), name);
-    			if (mailAccessor == null) {
-    				logger.warn("Mailing list accessor for project <" + name
-                        + "> could not be initialized");
-    				throw new InvalidAccessorException(mailAccessor, 
-							URI.create(this.mail));
-    			}
-    		}
-    	} catch (Exception e) {
-    		throw new InvalidAccessorException(mailAccessor, URI.create(this.mail));
-    	}
-        return mailAccessor;
-    }
+	public MailAccessor getMailAccessor() throws InvalidAccessorException {
+		URI uri = null;
+
+		if ((uri = URIUtills.toURI(mail)) == null) {
+			logger.warn("Error converting to URI: " + mail);
+			return null;
+		}
+
+		if (mailAccessor == null) {
+			mailAccessor = (MailAccessor) DataAccessorFactory.getInstance(uri,
+					name);
+			if (mailAccessor == null) {
+				logger.warn("Mailing list accessor for project <" + name
+						+ "> could not be initialized");
+				throw new InvalidAccessorException(mailAccessor, uri);
+			}
+		}
+
+		return mailAccessor;
+	}
 
     /** {@inheritDoc} */
     public SCMAccessor getSCMAccessor() throws InvalidAccessorException {
-    	scm = scm.replace(" ", "%20").replace("\\", "/");
     	
     	try {
-    		URI uri = URI.create(scm);
+    		URI uri = null;
+    		
+    		if ((uri = URIUtills.toURI(scm)) == null) {
+            	logger.warn("Error converting to URI: " + scm);
+            	return null;
+            }
+
 			if (scmAccessor == null) {
 				scmAccessor = (SCMAccessor) DataAccessorFactory.getInstance(
 						uri, name);
@@ -120,12 +133,9 @@ public class ProjectDataAccessorImpl implements ProjectAccessor {
 					throw new InvalidAccessorException(scmAccessor, uri);
 				}
 			}
-		} catch (IllegalArgumentException iae) {
-			logger.error("Error " + iae.toString() + " creating URI from string: " + scm);
-			return null;
 		} catch (Exception e) {
 			throw new InvalidAccessorException(scmAccessor, 
-					URI.create(scm));
+					URIUtills.toURI(scm));
 		}
 
         return scmAccessor;

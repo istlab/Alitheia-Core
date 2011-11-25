@@ -270,10 +270,10 @@ public class AddProject extends AdminActionBase {
             
             if(file.getName().equals("svn")) {
                 p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(),
-                        "svn-file://" + parent + File.separator +"svn");
+                        "svn-file:///" + parent + File.separator +"svn");
             } else if (file.getName().equals("git")) {
                 p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(),
-                        "git-file://" + parent + File.separator + "git");
+                        "git-file:///" + parent + File.separator + "git");
             }
         }
     }
