@@ -187,6 +187,14 @@ public class AddProject extends AdminActionBase {
             if (s == null)
                 continue;
             
+            //Don't split URLs
+            if (co.equals(ConfigOption.PROJECT_BTS_URL) ||
+            		co.equals(ConfigOption.PROJECT_ML_URL) ||
+            		co.equals(ConfigOption.PROJECT_SCM_URL)) {
+            	sp.addConfig(co, s);
+            	continue;
+            }
+
             String[] subopts = s.split(" ");
             
             for (String subopt : subopts) {
