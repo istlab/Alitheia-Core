@@ -10,6 +10,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.AdminActionBase;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ConfigOption;
+import eu.sqooss.service.db.ConfigurationOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.BTSAccessor;
@@ -268,9 +269,9 @@ public class AddProject extends AdminActionBase {
         debug("Project dir URI: " + f.getParentFile().toURI());
         
         p.setProperty(ConfigOption.PROJECT_BTS_URL.getName(),
-                "bugzilla-xml://" + parent + File.separator + "bugs");
+                "bugzilla-xml:///" + parent + File.separator + "bugs");
         p.setProperty(ConfigOption.PROJECT_ML_URL.getName(), 
-                "maildir://" + parent + File.separator + "mail");
+                "maildir:///" + parent + File.separator + "mail");
 
         for (File file: infoFile.listFiles()) {
             if (!file.isDirectory())
