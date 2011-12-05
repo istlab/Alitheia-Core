@@ -25,6 +25,7 @@
     <module>contrib</module>
     <module>discussionheat</module>
     <module>developermetrics</module>
+    <module>findbugs</module>
   </modules>
 
   <build>
