@@ -44,10 +44,14 @@
 */
 package gr.aueb.metrics.findbugs;
 
+import java.io.*;
 import java.util.List;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.OnDiskCheckout;
 import org.osgi.framework.BundleContext;
 
 /* These are imports of standard Alitheia core services and types.
@@ -63,24 +67,50 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 
 
-@MetricDeclarations(metrics= {
-	@MetricDecl(mnemonic="SECBUG", activators={ProjectVersion.class},
-			descr="FindbugsMetrics Metric")
+@MetricDeclarations(metrics = {
+        @MetricDecl(mnemonic = "SECBUG", activators = {ProjectVersion.class},
+                descr = "FindbugsMetrics Metric")
 })
 public class FindbugsMetrics extends AbstractMetric {
-    
+
     public FindbugsMetrics(BundleContext bc) {
-        super(bc);        
+        super(bc);
     }
 
     public List<Result> getResult(ProjectVersion pv, Metric m) {
         return getResult(pv, m);
     }
-    
+
     public void run(ProjectVersion pv) {
         db.startDBSession();
 
+        FDSService fds = AlitheiaCore.getInstance().getFDSService();
 
+        try {
+            OnDiskCheckout odc = fds.getCheckout(pv);
+            File checkout = odc.getRoot();
+
+            Runtime run = Runtime.getRuntime();
+
+            Process pr = run.exec("mvn install", new String[1], checkout);
+            pr.waitFor();
+            BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+            String line = "";
+            while ((line = buf.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            fds.releaseCheckout(odc);
+
+        } catch (CheckoutException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         db.commitDBSession();
     }
