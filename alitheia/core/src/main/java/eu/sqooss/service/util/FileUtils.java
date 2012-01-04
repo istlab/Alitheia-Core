@@ -163,6 +163,25 @@ public class FileUtils {
     	
     	return newPath;
     }
+
+    /**
+     * Delete a directory and its contents recursively
+     *
+     * @param path The file path to include
+     */
+    public static void deleteRecursive(File path) {
+        File[] c = path.listFiles();
+        for (File file : c) {
+            if (file.isDirectory()) {
+                deleteRecursive(file);
+                file.delete();
+            } else {
+                file.delete();
+            }
+        }
+
+        path.delete();
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
