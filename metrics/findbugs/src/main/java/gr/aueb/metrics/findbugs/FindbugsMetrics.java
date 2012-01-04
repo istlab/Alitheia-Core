@@ -87,12 +87,13 @@ public class FindbugsMetrics extends AbstractMetric {
         FDSService fds = AlitheiaCore.getInstance().getFDSService();
 
         try {
-            OnDiskCheckout odc = fds.getCheckout(pv);
+            OnDiskCheckout odc = fds.getCheckout(pv, "/trunk");
             File checkout = odc.getRoot();
 
             Runtime run = Runtime.getRuntime();
 
-            Process pr = run.exec("mvn install", new String[1], checkout);
+            //Process pr = run.exec("ls", new String[1], checkout);
+            Process pr = run.exec("ls");
             pr.waitFor();
             BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String line = "";
