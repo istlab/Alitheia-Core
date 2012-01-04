@@ -78,6 +78,9 @@ public interface FDSService extends AlitheiaCoreService {
      * files in the checkout will not change, but once the checkout is
      * released by all, it may be updated to some new revision. 
      *
+     * @param pv Version to checkout
+     * @param path Repository path to checkout
+     *
      * @return OnDiskCheckout 
      *
      * @throws CheckoutException if the repository is not valid
@@ -85,7 +88,8 @@ public interface FDSService extends AlitheiaCoreService {
      * does not make sense with the given repository or when an existing
      * checkout update failed for some reason. 
      */
-    OnDiskCheckout getCheckout(ProjectVersion pv) throws CheckoutException;
+    OnDiskCheckout getCheckout(ProjectVersion pv, String path)
+            throws CheckoutException;
 
     /**
      * Update an existing checkout to the provided version. 
@@ -103,7 +107,7 @@ public interface FDSService extends AlitheiaCoreService {
     /**
      * Release a previously obtained checkout.
      * 
-     * @param c Checkout obtained from previous call to getCheckout()
+     * @param co Checkout obtained from previous call to getCheckout()
      * 
      */
     void releaseCheckout(OnDiskCheckout co);
@@ -112,8 +116,6 @@ public interface FDSService extends AlitheiaCoreService {
      * Maintains an in-memory representation of a project checkout for a
      * specific revision. 
      * 
-     * @param id Stored project id
-     * @param r The revision to retrieve the checkout from
      * @return An in-memory representation of the working copy for a specific
      *              revision
      * @throws CheckoutException When a DB or other error occurred
@@ -124,8 +126,6 @@ public interface FDSService extends AlitheiaCoreService {
      * Maintains an in-memory representation of a project checkout for a
      * specific revision. 
      * 
-     * @param id Stored project id
-     * @param r The revision to retrieve the checkout from
      * @param pattern A regular expression pattern used to filter files by their path
      * @return An in-memory representation of the working copy for a specific
      *              revision

@@ -151,7 +151,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
      * 
      * @return
      */
-    private OnDiskCheckout createCheckout(SCMAccessor scm, ProjectVersion pv) {
+    private OnDiskCheckout createCheckout(SCMAccessor scm, ProjectVersion pv, String path) {
         logger.info("Creating new checkout for " + pv);
 
         File projectRoot = new File(fdsCheckoutRoot, pv.getProject().getName());
@@ -171,12 +171,11 @@ public class FDSServiceImpl implements FDSService, Runnable {
             logger.warn("Could not create checkout root <" + checkoutRoot
                     + ">");
             return null;
-
         }
 
         // Now checkoutRoot exists and is a directory.
         logger.info("Created checkout root <" + checkoutRoot + ">");
-        OnDiskCheckout c = new OnDiskCheckoutImpl("", pv, checkoutRoot);
+        OnDiskCheckoutImpl c = new OnDiskCheckoutImpl(scm, path, pv, checkoutRoot);
         return c;
     }
 
@@ -526,7 +525,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
     }
 
     /** {@inheritDoc} */
-    public OnDiskCheckout getCheckout(ProjectVersion pv)
+    public OnDiskCheckout getCheckout(ProjectVersion pv, String path)
             throws CheckoutException {
 
         if (!canCheckout(pv)) {
@@ -553,7 +552,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
         }
 
         // Search for a cached checkout that could be updated
-        Set<String> c = checkoutCache.keySet();
+        /*Set<String> c = checkoutCache.keySet();
         OnDiskCheckoutImpl updatable = null;
 
         for (String s : c) {
@@ -580,8 +579,9 @@ public class FDSServiceImpl implements FDSService, Runnable {
         synchronized (pv) {
             if (!cacheContains(pv))
                 addCheckoutToCache(pv, createCheckout(svn, pv));
-        }
-        return getCheckoutFromCache(pv);
+        } */
+        //return getCheckoutFromCache(pv);
+        return createCheckout(svn, pv, path);
     }
 
     /** {@inheritDoc} */
