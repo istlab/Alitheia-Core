@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import eu.sqooss.service.util.FileUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.osgi.framework.BundleContext;
 
@@ -153,44 +154,27 @@ public class FDSServiceImpl implements FDSService, Runnable {
     private OnDiskCheckout createCheckout(SCMAccessor scm, ProjectVersion pv) {
         logger.info("Creating new checkout for " + pv);
 
-        File projectRoot = new File(fdsCheckoutRoot, String.format("%0"
-                + INT_AS_DECIMAL_LENGTH + "d", pv.getProject().getId())
-                + "-" + pv.getProject().getName());
-        // It shouldn't exist yet
-        projectRoot.mkdir();
+        File projectRoot = new File(fdsCheckoutRoot, pv.getProject().getName());
+        // It might not exist yet
+        projectRoot.mkdirs();
 
         // Side effect: throws if the revision is invalid
         Revision r = scm.newRevision(pv.getRevisionId());
+        File checkoutRoot = new File(projectRoot, pv.getRevisionId());
 
-        // In order to discourage assumptions about what checkouts belong
-        // where, assign each an 8-character random prefix and then
-        // encode the revision number as well; this means that we can
-        // update and futz with the revisions within each checkout directory.
-        byte[] randomBytes = new byte[(RANDOM_PREFIX_LENGTH + 1) / 2];
-        randomCheckout.nextBytes(randomBytes);
-        char[] randomPrefixChars = Hex.encodeHex(randomBytes);
-        String format = "%0" + INT_AS_HEX_LENGTH + "x";
-        File checkoutRoot = new File(projectRoot, new String(randomPrefixChars)
-                + "." + String.format(format, r.getUniqueId()));
-        // It shouldn't exist yet either
         if (checkoutRoot.exists()) {
-            logger.warn("Checkout root <" + checkoutRoot + "> already exists.");
-            if (checkoutRoot.isDirectory()) {
-                logger.info("Recycling the checkout root.");
-            } else {
-                logger.warn("Already existing root <" + checkoutRoot
-                        + "> is not a directory. Can't use that one.");
-                return null;
-            }
-        } else {
-            if (!checkoutRoot.mkdirs()) {
-                logger.warn("Could not create checkout root <" + checkoutRoot
-                        + ">");
-                return null;
-            }
+            logger.warn("Checkout root <" + checkoutRoot + "> exists. " +
+                    "Cleaning up");
+            FileUtils.deleteRecursive(checkoutRoot);
         }
-        // Now checkoutRoot exists and is a directory.
+        if (!checkoutRoot.mkdirs()) {
+            logger.warn("Could not create checkout root <" + checkoutRoot
+                    + ">");
+            return null;
 
+        }
+
+        // Now checkoutRoot exists and is a directory.
         logger.info("Created checkout root <" + checkoutRoot + ">");
         OnDiskCheckout c = new OnDiskCheckoutImpl("", pv, checkoutRoot);
         return c;
