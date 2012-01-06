@@ -46,9 +46,11 @@ package gr.aueb.metrics.findbugs;
 
 import java.io.*;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.OnDiskCheckout;
@@ -78,16 +80,23 @@ public class FindbugsMetrics extends AbstractMetric {
     }
 
     public List<Result> getResult(ProjectVersion pv, Metric m) {
-        return getResult(pv, m);
+        return getResult(pv, ProjectVersionMeasurement.class,
+                m, Result.ResultType.INTEGER);
     }
 
     public void run(ProjectVersion pv) {
-        db.startDBSession();
+
+        if (pv.getFiles(Pattern.compile("/pom.xml")).isEmpty()) {
+            log.info("Skipping version " + pv + " as no pom.xml " +
+                    "file could be found");
+            return;
+        }
 
         FDSService fds = AlitheiaCore.getInstance().getFDSService();
 
+        OnDiskCheckout odc = null;
         try {
-            OnDiskCheckout odc = fds.getCheckout(pv, "/trunk");
+            odc = fds.getCheckout(pv, "/trunk");
             File checkout = odc.getRoot();
 
             Runtime run = Runtime.getRuntime();
@@ -100,9 +109,6 @@ public class FindbugsMetrics extends AbstractMetric {
             while ((line = buf.readLine()) != null) {
                 System.out.println(line);
             }
-
-            fds.releaseCheckout(odc);
-
         } catch (CheckoutException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
@@ -111,10 +117,13 @@ public class FindbugsMetrics extends AbstractMetric {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (odc != null)
+                fds.releaseCheckout(odc);
         }
-
-        db.commitDBSession();
     }
+
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

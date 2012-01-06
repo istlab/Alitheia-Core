@@ -838,7 +838,6 @@ public class ProjectVersion extends DAObject {
      * Returns all directories that are visible in a given project 
      * version. 
      *
-     * @param version Project and version to look at
      * @return List of directories visible in that version (may be empty, 
      * not null)
      */
@@ -850,7 +849,6 @@ public class ProjectVersion extends DAObject {
      * Returns all the files that are visible in a given project 
      * version. 
      *
-     * @param version Project and version to look at
      * @return List of files visible in that version (may be empty, 
      * not null)
      */
