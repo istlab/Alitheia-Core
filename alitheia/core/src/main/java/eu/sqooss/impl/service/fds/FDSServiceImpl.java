@@ -637,6 +637,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
     /** {@inheritDoc} */
     public void releaseCheckout(OnDiskCheckout c) {
 
+        /*
         if (c == null) {
             logger.warn("Attempting to release null checkout");
             return;
@@ -648,6 +649,16 @@ public class FDSServiceImpl implements FDSService, Runnable {
         }
 
         returnCheckout(c);
+        */
+        File root = null;
+        try {
+            root = c.getRoot();
+            FileUtils.deleteRecursive(root);
+        } catch (Exception e) {
+            logger.error("Cannot clean up checkout root: " +
+                    root.getAbsolutePath());
+        }
+        c = null;
     }
 
     public Timeline getTimeline(StoredProject c) {
@@ -685,8 +696,8 @@ public class FDSServiceImpl implements FDSService, Runnable {
         // Get the checkout root from the properties file.
         String s = bc.getProperty("eu.sqooss.fds.root");
         if (s == null) {
-            logger.info("No eu.sqooss.fds.root set, using default /var/tmp");
-            s = "/var/tmp";
+            logger.info("No eu.sqooss.fds.root set, using default /var/tmp/alitheia");
+            s = "/var/tmp/alitheia";
         } else {
             logger.info("FDS root directory " + s);
         }
