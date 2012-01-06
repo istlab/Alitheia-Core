@@ -35,6 +35,10 @@ package eu.sqooss.service.util;
 
 import java.io.File;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This is a static utility class for various file manipulations.
@@ -182,7 +186,28 @@ public class FileUtils {
 
         path.delete();
     }
+
+    /**
+     * Search recursively for a filename pattern in the provided path
+     *
+     * @return A list of files whose full path matches with the
+     * provided pattern
+     */
+    public static List<File> findGrep(File path, Pattern p) {
+        List<File> result = new ArrayList<File>();
+
+        File[] c = path.listFiles();
+        for (File file : c) {
+            if (file.isDirectory()) {
+                result.addAll(findGrep(file, p));
+            } else {
+                Matcher m = p.matcher(file.getAbsolutePath());
+                if (m.matches())
+                    result.add(file);
+            }
+        }
+        return result;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-
