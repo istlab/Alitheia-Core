@@ -202,11 +202,33 @@ public class FileUtils {
                 result.addAll(findGrep(file, p));
             } else {
                 Matcher m = p.matcher(file.getAbsolutePath());
-                if (m.matches())
+                if (m.find())
                     result.add(file);
             }
         }
         return result;
+    }
+
+    /**
+     * Find the first file that matches with the provided pattern
+     * using breadth first traversal.
+     */
+    public static File findBreadthFirst(File path, Pattern p) {
+        File[] c = path.listFiles();
+        List<File> dirs = new ArrayList<File>();
+        for (File file : c) {
+            if (file.isDirectory()) {
+                dirs.add(file);
+            } else {
+                Matcher m = p.matcher(file.getAbsolutePath());
+                if (m.find())
+                    return file;
+
+            }
+        }
+        for (File dir: dirs)
+            return findBreadthFirst(dir, p);
+        return null;
     }
 }
 

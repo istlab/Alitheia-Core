@@ -823,9 +823,9 @@ public class ProjectVersion extends DAObject {
 	    Set<ProjectFile> matchedFiles = new HashSet<ProjectFile>();
 	    
 	    for ( ProjectFile pf : files ) {
-	        Matcher m = p.matcher(pf.getFileName());
+	        Matcher m = p.matcher(pf.getName());
 	        
-	        if (m.matches()) {
+	        if (m.find()) {
 	            matchedFiles.add(pf);
 	        }
 	    }
