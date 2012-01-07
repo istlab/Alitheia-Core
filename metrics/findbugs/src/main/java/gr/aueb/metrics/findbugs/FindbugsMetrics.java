@@ -54,6 +54,7 @@ import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.OnDiskCheckout;
+import eu.sqooss.service.util.FileUtils;
 import org.osgi.framework.BundleContext;
 
 /* These are imports of standard Alitheia core services and types.
@@ -66,7 +67,6 @@ import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.ProjectFile;
 
 
 @MetricDeclarations(metrics = {
@@ -86,7 +86,7 @@ public class FindbugsMetrics extends AbstractMetric {
 
     public void run(ProjectVersion pv) {
 
-        if (pv.getFiles(Pattern.compile("/pom.xml")).isEmpty()) {
+        if (pv.getFiles(Pattern.compile("pom.xml$")).isEmpty()) {
             log.info("Skipping version " + pv + " as no pom.xml " +
                     "file could be found");
             return;
@@ -99,30 +99,67 @@ public class FindbugsMetrics extends AbstractMetric {
             odc = fds.getCheckout(pv, "/trunk");
             File checkout = odc.getRoot();
 
+            File pom = FileUtils.findBreadthFirst(checkout, Pattern.compile("pom.xml"));
+
+            if (pom == null) {
+                log.warn(pv +" No pom.xml found in checkout?!");
+                return;
+            }
+
             Runtime run = Runtime.getRuntime();
 
-            //Process pr = run.exec("ls", new String[1], checkout);
-            Process pr = run.exec("ls");
-            pr.waitFor();
+            ProcessBuilder pb = new ProcessBuilder("mvn", "install", "-DskipTests=true");
+            pb.directory(pom.getParentFile());
+            pb.redirectErrorStream(true);
+            Process pr = pb.start();
+
             BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-            String line = "";
-            while ((line = buf.readLine()) != null) {
-                System.out.println(line);
+            String out = pv.getProject().getName() + "-" + pv.getRevisionId() +
+                    "-" + pv.getId() + "-out.txt";
+            File f = new File(out);
+            FileWriter fw = new FileWriter(f);
+            copyCompletely(buf, fw);
+
+            if (pr.exitValue() != 0) {
+                log.warn("Build with maven failed. See file:" + out);
+            } else {
+                f.delete();
             }
+
+            List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
+            for (File jar: jars)
+                System.err.println(jar);
+
         } catch (CheckoutException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
+        }  catch (IOException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            t.printStackTrace();
         } finally {
             if (odc != null)
                 fds.releaseCheckout(odc);
         }
     }
 
+    public static void copyCompletely(Reader input, Writer output)
+            throws IOException
+    {
+        char[] buf = new char[8192];
+        while (true)
+        {
+            int length = input.read(buf);
+            if (length < 0)
+                break;
+            output.write(buf, 0, length);
+            output.flush();
+        }
+
+        try { input.close(); } catch (IOException e) {e.printStackTrace();}
+        try { output.close(); } catch (IOException e) {e.printStackTrace();}
+    }
 
 }
 
