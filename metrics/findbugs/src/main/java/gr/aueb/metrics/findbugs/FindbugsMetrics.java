@@ -45,10 +45,14 @@
 package gr.aueb.metrics.findbugs;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.fds.CheckoutException;
@@ -57,11 +61,6 @@ import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.util.FileUtils;
 import org.osgi.framework.BundleContext;
 
-/* These are imports of standard Alitheia core services and types.
-** You are going to need these anyway; some others that you might
-** need are the FDS and other Metric interfaces, as well as more
-** DAO types from the database service.
-*/
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
@@ -86,7 +85,7 @@ public class FindbugsMetrics extends AbstractMetric {
 
     public void run(ProjectVersion pv) {
 
-        if (pv.getFiles(Pattern.compile("pom.xml$")).isEmpty()) {
+        if (pv.getFiles(Pattern.compile("pom.xml$"), ProjectVersion.MASK_FILES).isEmpty()) {
             log.info("Skipping version " + pv + " as no pom.xml " +
                     "file could be found");
             return;
@@ -118,7 +117,7 @@ public class FindbugsMetrics extends AbstractMetric {
                     "-" + pv.getId() + "-out.txt";
             File f = new File(out);
             FileWriter fw = new FileWriter(f);
-            copyCompletely(buf, fw);
+            copyOutput(buf, fw);
 
             if (pr.exitValue() != 0) {
                 log.warn("Build with maven failed. See file:" + out);
@@ -127,8 +126,11 @@ public class FindbugsMetrics extends AbstractMetric {
             }
 
             List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
-            for (File jar: jars)
-                System.err.println(jar);
+
+            Set<String> pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
+                    ProjectVersion.MASK_FILES));
+            for (String pkg: pkgs)
+                System.err.println(pkg);
 
         } catch (CheckoutException e) {
             e.printStackTrace();
@@ -144,7 +146,20 @@ public class FindbugsMetrics extends AbstractMetric {
         }
     }
 
-    public static void copyCompletely(Reader input, Writer output)
+    public Set<String> getPkgs(List<ProjectFile> files) {
+        Set<String> pkgs = new HashSet<String>();
+        Pattern p = Pattern.compile("src/main/java/(.*\\.java)");
+
+        for(ProjectFile f: files) {
+            Matcher m = p.matcher(f.getFileName());
+            if (m.find()) {
+                pkgs.add(FileUtils.dirname(m.group(1)).replace('/','.'));
+            }
+        }
+        return pkgs;
+    }
+
+    public void copyOutput(Reader input, Writer output)
             throws IOException
     {
         char[] buf = new char[8192];
