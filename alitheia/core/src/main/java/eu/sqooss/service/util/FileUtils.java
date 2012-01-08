@@ -35,8 +35,7 @@ package eu.sqooss.service.util;
 
 import java.io.File;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -229,6 +228,46 @@ public class FileUtils {
         for (File dir: dirs)
             return findBreadthFirst(dir, p);
         return null;
+    }
+
+    public static List<File> findDirs(File path) {
+        return find(path, FindOpt.DIRS);
+    }
+
+    public static List<File> findFiles(File path) {
+        return find(path, FindOpt.FILES);
+    }
+
+    public static List<File> find(File path, FindOpt what) {
+        Set<File> toReturn = new HashSet<File>();
+
+        boolean dirs = (what == FindOpt.DIRS || what == FindOpt.ALL);
+        boolean files = (what == FindOpt.FILES || what == FindOpt.ALL);
+
+        File[] c = path.listFiles();
+        for (File file : c) {
+            if (file.isFile() && files)
+                toReturn.add(file);
+
+            if (file.isDirectory() && dirs) {
+                toReturn.add(file);
+                toReturn.addAll(find(file, what));
+            }
+        }
+
+        List<File> result = new ArrayList<File>(toReturn);
+
+        Collections.sort(result, new Comparator<File>() {
+            @Override
+            public int compare(File a, File b) {
+                return (a.getAbsolutePath().compareTo(b.getAbsolutePath()));
+            }
+        });
+        return result;
+    }
+
+    public enum FindOpt {
+        FILES, DIRS, ALL
     }
 }
 
