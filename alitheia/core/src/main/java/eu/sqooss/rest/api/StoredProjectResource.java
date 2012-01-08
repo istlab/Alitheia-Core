@@ -148,7 +148,7 @@ public class StoredProjectResource {
 	    if (pv == null)
 	        return Collections.EMPTY_LIST;
 	        
-        return pv.getFiles(null, ProjectVersion.MASK_FILES);
+        return pv.getFiles((Directory)null, ProjectVersion.MASK_FILES);
     }
 
 	@Path("/project/{id}/version/{vid}/files/{dir: .+}")
@@ -192,7 +192,7 @@ public class StoredProjectResource {
         if (pv == null)
             return Collections.EMPTY_LIST;
  
-        return pv.getFiles(null, 
+        return pv.getFiles((Directory)null,
                 ProjectVersion.MASK_DIRECTORIES);
 	}
 

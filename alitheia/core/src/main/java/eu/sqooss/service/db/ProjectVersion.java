@@ -510,7 +510,6 @@ public class ProjectVersion extends DAObject {
      * revisions.
      * 
      * @param project Project to look up
-     * @param revision SVN revision number to look up for this project
      * @return ProjectVersion object corresponding to the revision,
      *         or null if there is none.
      */
@@ -634,8 +633,7 @@ public class ProjectVersion extends DAObject {
     /**
      * Gets the number of files in the given version which are in the
      * selected file state.
-     * 
-     * @param pv the version DAO
+     *
      * @param state the file state
      * 
      * @return The number of files in that version and that state.
@@ -704,12 +702,13 @@ public class ProjectVersion extends DAObject {
         
         return (Long) dbs.doHQL(q.toString(), params).get(0);
     }
-    
+
 
     public String toString() {
         return "ProjectVersion(\"" + this.project.getName() + "\",r" + this.revisionId +")";
     }
-    
+
+
     private List<ProjectFile> getVersionFiles(Directory d, int mask) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
@@ -809,7 +808,6 @@ public class ProjectVersion extends DAObject {
 	/**
 	 * Returns all of the files visible in a given project version that match
 	 * the provided Pattern. The Pattern is evaluated against the file path.
-	 * Does not return null, but the list may be empty.
 	 * 
 	 * @param p
 	 *            A regular expression pattern. File paths that match the
@@ -818,21 +816,39 @@ public class ProjectVersion extends DAObject {
 	 *         specified pattern (may be empty, not null)
 	 * 
 	 */
-	public List<ProjectFile> getFiles(Pattern p) {      
-	    List<ProjectFile> files = this.getFiles();
-	    Set<ProjectFile> matchedFiles = new HashSet<ProjectFile>();
-	    
-	    for ( ProjectFile pf : files ) {
-	        Matcher m = p.matcher(pf.getName());
-	        
-	        if (m.find()) {
-	            matchedFiles.add(pf);
-	        }
-	    }
-	    ProjectFile[] arr = new ProjectFile[matchedFiles.size()];
-	    arr = matchedFiles.toArray(arr);
-	    return Arrays.asList(arr);
+	public List<ProjectFile> getFiles(Pattern p) {
+        return getFiles(p, MASK_ALL);
 	}
+
+    /**
+     * Returns all of the files visible in a given project version that match
+     * the provided Pattern. The Pattern is evaluated against the file path.
+     * The match can be restricted to either files or directories, for speed.
+     *
+     * @param p
+     *            A regular expression pattern. File paths that match the
+     *            provided pattern are returned as results.
+     * @param mask Used to restrict the matched against to either files or
+     *             directories
+     *
+     * @return List of files visible in that version, whose path matches the
+     *         specified pattern (may be empty, not null)
+     *
+     */
+    public List<ProjectFile> getFiles(Pattern p, int mask) {
+        List<ProjectFile> files = getVersionFiles(null, mask);
+        Set<ProjectFile> matchedFiles = new HashSet<ProjectFile>();
+
+        for ( ProjectFile pf : files ) {
+            Matcher m = p.matcher(pf.getFileName());
+
+            if (m.find()) {
+                matchedFiles.add(pf);
+            }
+        }
+
+        return new ArrayList<ProjectFile>(matchedFiles);
+    }
 	
 	 /**
      * Returns all directories that are visible in a given project 
