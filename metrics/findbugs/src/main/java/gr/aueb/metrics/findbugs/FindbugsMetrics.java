@@ -126,22 +126,30 @@ public class FindbugsMetrics extends AbstractMetric {
             }
 
             List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
-            String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
-                    ProjectVersion.MASK_FILES));
+            
+            for(File jar: jars) {
 
-            List<String> findbugsArgs = new ArrayList<String>();
-            findbugsArgs.add(FINDBUGS_PATH);
-            findbugsArgs.add("-textui");
-            findbugsArgs.add("-xml");
-            findbugsArgs.add("-onlyAnalyze"); findbugsArgs.add(pkgs);
-            findbugsArgs.add("-output"); findbugsArgs.add(pv.getProject().getName() + ".xml");
-            ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
-            findbugs.directory(pom.getParentFile());
-            findbugs.redirectErrorStream(true);
-            retVal = runReadOutput(findbugs.start(), out);
+                String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
+                        ProjectVersion.MASK_FILES));
 
-            if (retVal != 0) {
-                log.warn("Build with findbugs failed. See file:" + out);
+                List<String> findbugsArgs = new ArrayList<String>();
+                findbugsArgs.add(FINDBUGS_PATH);
+                findbugsArgs.add("-textui");
+                findbugsArgs.add("-xml");
+                findbugsArgs.add("-onlyAnalyze"); findbugsArgs.add(pkgs);
+                findbugsArgs.add("-output"); findbugsArgs.add(pv.getProject().getName() + ".xml");
+                findbugsArgs.add(jar.getAbsolutePath());
+                ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
+                findbugs.directory(pom.getParentFile());
+                findbugs.redirectErrorStream(true);
+                retVal = runReadOutput(findbugs.start(), out);
+
+                if (retVal != 0) {
+                    log.warn("Build with findbugs failed. See file:" + out);
+                }
+
+                File f = new File(pv.getProject().getName() + ".xml");
+                parseFindbugsResults(f);
             }
 
         } catch (CheckoutException e) {
