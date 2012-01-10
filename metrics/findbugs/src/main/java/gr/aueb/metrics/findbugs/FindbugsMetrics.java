@@ -218,33 +218,20 @@ public class FindbugsMetrics extends AbstractMetric {
         }
         doc.getDocumentElement().normalize();
         XPath xpath = XPathFactory.newInstance().newXPath();
-        //get the nodes that fall into the categories that we need
-        XPathExpression exprBugs = null;
-        try {
-            exprBugs = xpath.compile("//BugCollection/BugInstance" +
-                    "[@category = \"MALICIOUS_CODE\" or @category = \"SECURITY\"]");
-        } catch (XPathExpressionException xpee) {
-            xpee.printStackTrace();
-        }
-
-        try {
-            resultBugs = exprBugs.evaluate(doc, XPathConstants.NODESET);
-        } catch (XPathExpressionException xpee) {
-            xpee.printStackTrace();
-        }
-        //get the nodes that contain the source path and the line where the bug starts
-        XPathExpression exprDetails = null;
-        try {
-            exprDetails = xpath.compile("//BugCollection/BugInstance" +
-                    "[@category = \"MALICIOUS_CODE\" or @category = \"SECURITY\"]/Class/SourceLine");
-        } catch (XPathExpressionException xpee) {
-            xpee.printStackTrace();
-        }
-        try {
-            resultDetails = exprDetails.evaluate(doc, XPathConstants.NODESET);
-        } catch (XPathExpressionException xpee) {
-            xpee.printStackTrace();
-        }
+		XPathExpression exprBugs = null;
+		XPathExpression exprDetails = null;
+		try {
+			//get the nodes that fall into the categories that we need
+			exprBugs = xpath.compile("//BugCollection/BugInstance" +
+									 "[@category = \"MALICIOUS_CODE\" or @category = \"SECURITY\"]");
+			resultBugs = exprBugs.evaluate(doc, XPathConstants.NODESET);
+			//get the nodes that contain the source path and the line where the bug starts
+			exprDetails = xpath.compile("//BugCollection/BugInstance" +
+										"[@category = \"MALICIOUS_CODE\" or @category = \"SECURITY\"]/Class/SourceLine");
+			resultDetails = exprDetails.evaluate(doc, XPathConstants.NODESET);
+		} catch (XPathExpressionException xpee) {
+			xpee.printStackTrace();
+		}
 
         NodeList nodes = (NodeList) resultDetails;
         NodeList nodesBugs = (NodeList) resultBugs;
