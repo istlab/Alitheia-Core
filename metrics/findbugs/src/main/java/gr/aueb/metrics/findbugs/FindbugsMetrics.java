@@ -45,9 +45,7 @@
 package gr.aueb.metrics.findbugs;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,13 +64,23 @@ import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Metric;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 
 @MetricDeclarations(metrics = {
         @MetricDecl(mnemonic = "SECBUG", activators = {ProjectVersion.class},
                 descr = "FindbugsMetrics Metric")
 })
 public class FindbugsMetrics extends AbstractMetric {
+
+    final String MAVEN_PATH = "maven";
+    final String FINDBUGS_PATH = "findbugs";
 
     public FindbugsMetrics(BundleContext bc) {
         super(bc);
@@ -105,32 +113,36 @@ public class FindbugsMetrics extends AbstractMetric {
                 return;
             }
 
-            Runtime run = Runtime.getRuntime();
-
-            ProcessBuilder pb = new ProcessBuilder("mvn", "install", "-DskipTests=true");
-            pb.directory(pom.getParentFile());
-            pb.redirectErrorStream(true);
-            Process pr = pb.start();
-
-            BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String out = pv.getProject().getName() + "-" + pv.getRevisionId() +
                     "-" + pv.getId() + "-out.txt";
-            File f = new File(out);
-            FileWriter fw = new FileWriter(f);
-            copyOutput(buf, fw);
 
-            if (pr.exitValue() != 0) {
+            ProcessBuilder maven = new ProcessBuilder(MAVEN_PATH, "install", "-DskipTests=true");
+            maven.directory(pom.getParentFile());
+            maven.redirectErrorStream(true);
+            int retVal = runReadOutput(maven.start(), out);
+
+            if (retVal != 0) {
                 log.warn("Build with maven failed. See file:" + out);
-            } else {
-                f.delete();
             }
 
             List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
-
-            Set<String> pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
+            String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
                     ProjectVersion.MASK_FILES));
-            for (String pkg: pkgs)
-                System.err.println(pkg);
+
+            List<String> findbugsArgs = new ArrayList<String>();
+            findbugsArgs.add(FINDBUGS_PATH);
+            findbugsArgs.add("-textui");
+            findbugsArgs.add("-xml");
+            findbugsArgs.add("-onlyAnalyze"); findbugsArgs.add(pkgs);
+            findbugsArgs.add("-output"); findbugsArgs.add(pv.getProject().getName() + ".xml");
+            ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
+            findbugs.directory(pom.getParentFile());
+            findbugs.redirectErrorStream(true);
+            retVal = runReadOutput(findbugs.start(), out);
+
+            if (retVal != 0) {
+                log.warn("Build with findbugs failed. See file:" + out);
+            }
 
         } catch (CheckoutException e) {
             e.printStackTrace();
@@ -146,7 +158,7 @@ public class FindbugsMetrics extends AbstractMetric {
         }
     }
 
-    public Set<String> getPkgs(List<ProjectFile> files) {
+    public String getPkgs(List<ProjectFile> files) {
         Set<String> pkgs = new HashSet<String>();
         Pattern p = Pattern.compile("src/main/java/(.*\\.java)");
 
@@ -156,26 +168,147 @@ public class FindbugsMetrics extends AbstractMetric {
                 pkgs.add(FileUtils.dirname(m.group(1)).replace('/','.'));
             }
         }
-        return pkgs;
+
+        StringBuffer sb = new StringBuffer();
+        for (String pkg : pkgs)
+            sb.append(pkg).append(",");
+
+        return sb.toString();
     }
 
-    public void copyOutput(Reader input, Writer output)
-            throws IOException
-    {
-        char[] buf = new char[8192];
-        while (true)
-        {
-            int length = input.read(buf);
-            if (length < 0)
-                break;
-            output.write(buf, 0, length);
-            output.flush();
+    public int runReadOutput(Process pr, String name) throws IOException {
+        OutReader outReader = new OutReader(pr.getInputStream(), name);
+        outReader.start();
+        int retVal = -1;
+        while (retVal == -1) {
+            try {
+                retVal = pr.waitFor();
+            } catch (Exception ignored) {}
+        }
+        return retVal;
+    }
+
+    /**
+     * parses the XML document that contains the FindBugs report
+     * and finds bugs of security-related categories. Then creates a
+     * HashMap that includes these bug instances, the files that these
+     * bugs exist and how many times they exist in these files.
+     *
+     */
+    public Map <String, Map<String, Integer>> parseFindbugsResults (File results) {
+        Map <String, Map <String, Integer>> resultsMap = new HashMap <String, Map <String, Integer>> ();
+        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+        domFactory.setNamespaceAware(true);
+        DocumentBuilder builder = null;
+        Document doc = null;
+        Object resultBugs = null;
+        Object resultDetails = null;
+        try {
+            builder = domFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException pce) {
+            pce.printStackTrace();
+        }
+        try {
+            //parse the XML file
+            doc = builder.parse(results);
+        } catch (SAXException se) {
+            se.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        doc.getDocumentElement().normalize();
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        //get the nodes that fall into the categories that we need
+        XPathExpression exprBugs = null;
+        try {
+            exprBugs = xpath.compile("//BugCollection/BugInstance" +
+                    "[@category = \"MALICIOUS_CODE\" or @category = \"SECURITY\"]");
+        } catch (XPathExpressionException xpee) {
+            xpee.printStackTrace();
         }
 
-        try { input.close(); } catch (IOException e) {e.printStackTrace();}
-        try { output.close(); } catch (IOException e) {e.printStackTrace();}
+        try {
+            resultBugs = exprBugs.evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException xpee) {
+            xpee.printStackTrace();
+        }
+        //get the nodes that contain the source path and the line where the bug starts
+        XPathExpression exprDetails = null;
+        try {
+            exprDetails = xpath.compile("//BugCollection/BugInstance" +
+                    "[@category = \"MALICIOUS_CODE\" or @category = \"SECURITY\"]/Class/SourceLine");
+        } catch (XPathExpressionException xpee) {
+            xpee.printStackTrace();
+        }
+        try {
+            resultDetails = exprDetails.evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException xpee) {
+            xpee.printStackTrace();
+        }
+
+        NodeList nodes = (NodeList) resultDetails;
+        NodeList nodesBugs = (NodeList) resultBugs;
+        if (nodes.getLength() == nodesBugs.getLength()) {
+            for (int i = 0; i < nodes.getLength(); i++) {
+                // check if this Bug exists in our HashMap
+                if (!resultsMap.containsKey(nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent())) {
+                    // no Bug like this in the HashMap
+                    Map <String, Integer> tmp = new HashMap<String, Integer>();
+                    tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString(), 1);
+                    resultsMap.put(
+                            nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString(), tmp);
+                } else {
+                    // there is a bug like this in our HashMap
+                    Map <String, Integer> tmp = new HashMap<String, Integer>();
+                    tmp = resultsMap.get(
+                            nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString());
+                    if (!tmp.containsKey(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString())) {
+                        // this is a new file that contains this bug
+                        tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString(), 1);
+                       resultsMap.put(
+                                nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString(), tmp);
+                    } else {
+                        // found this bug in more than one lines on the same file
+                        tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString(),
+                                tmp.get(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString()) + 1);
+                        resultsMap.put(
+                                nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString(), tmp);
+                    }
+                }
+            }
+        }
+        return resultsMap;
     }
 
+    private class OutReader extends Thread {
+        String name;
+        InputStream input;
+
+        public OutReader(InputStream in, String name) {
+            this.name = name;
+            this.input = in;
+        }
+
+        public void run() {
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(input));
+                FileWriter out = new FileWriter(new File(name), true);
+
+                char[] buf = new char[8192];
+                while (true) {
+                    int length = in.read(buf);
+                    if (length < 0)
+                        break;
+                    out.write(buf, 0, length);
+                    out.flush();
+                }
+                in.close();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

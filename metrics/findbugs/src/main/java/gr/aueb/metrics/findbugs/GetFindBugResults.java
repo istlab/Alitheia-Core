@@ -72,21 +72,21 @@ public class GetFindBugResults {
 	 * and finds bugs of security-related categories. Then creates a
 	 * HashMap that includes these bug instances, the files that these
 	 * bugs exist and how many times they exist in these files.
-	 * 
+	 *
 	 */
-	
+
 	public Map <String, Map <String, Integer>> parseResults () {
 		DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-		domFactory.setNamespaceAware(true); 
+		domFactory.setNamespaceAware(true);
 		DocumentBuilder builder = null;
 		Document doc = null;
-		Object resultBugs = null;		
-		Object resultDetails = null;		
+		Object resultBugs = null;
+		Object resultDetails = null;
 		try {
 			builder = domFactory.newDocumentBuilder();
 		} catch (ParserConfigurationException pce) {
 			pce.printStackTrace();
-		}		
+		}
 		try {
 			//parse the XML file
 			doc = builder.parse(new File(this.outputXMLFile));
@@ -95,7 +95,7 @@ public class GetFindBugResults {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-		doc.getDocumentElement().normalize();		
+		doc.getDocumentElement().normalize();
 		XPath xpath = XPathFactory.newInstance().newXPath();
 		//get the nodes that fall into the categories that we need
 		XPathExpression exprBugs = null;
@@ -105,13 +105,13 @@ public class GetFindBugResults {
 		} catch (XPathExpressionException xpee) {
 			xpee.printStackTrace();
 		}
-		
+
 
 		try {
 			resultBugs = exprBugs.evaluate(doc, XPathConstants.NODESET);
 		} catch (XPathExpressionException xpee) {
 			xpee.printStackTrace();
-		}	
+		}
 		//get the nodes that contain the source path and the line where the bug starts
 		XPathExpression exprDetails = null;
 		try {
@@ -119,15 +119,15 @@ public class GetFindBugResults {
 					"[@category = \"MALICIOUS_CODE\" or @category = \"SECURITY\"]/Class/SourceLine");
 		} catch (XPathExpressionException xpee) {
 			xpee.printStackTrace();
-		}		
+		}
 		try {
 			resultDetails = exprDetails.evaluate(doc, XPathConstants.NODESET);
 		} catch (XPathExpressionException xpee) {
 			xpee.printStackTrace();
 		}
-		
+
 		NodeList nodes = (NodeList) resultDetails;
-		NodeList nodesBugs = (NodeList) resultBugs;		
+		NodeList nodesBugs = (NodeList) resultBugs;
 		if (nodes.getLength() == nodesBugs.getLength()) {
 			for (int i = 0; i < nodes.getLength(); i++) {
 				// check if this Bug exists in our HashMap
@@ -155,11 +155,11 @@ public class GetFindBugResults {
 								nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString(), tmp);
 					}
 				}
-			}			
-		} 
-		
+			}
+		}
+
 		return resultsMap;
-		
+
 	}
 	
 }
