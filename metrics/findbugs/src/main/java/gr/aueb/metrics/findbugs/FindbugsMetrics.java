@@ -79,7 +79,7 @@ import javax.xml.xpath.*;
 })
 public class FindbugsMetrics extends AbstractMetric {
 
-    final String MAVEN_PATH = "maven";
+    final String MAVEN_PATH = "mvn";
     final String FINDBUGS_PATH = "findbugs";
 
     public FindbugsMetrics(BundleContext bc) {
