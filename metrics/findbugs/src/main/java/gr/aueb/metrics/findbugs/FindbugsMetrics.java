@@ -131,14 +131,23 @@ public class FindbugsMetrics extends AbstractMetric {
 
                 String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
                         ProjectVersion.MASK_FILES));
+                pkgs = pkgs.substring(0, pkgs.length() - 1);
 
                 List<String> findbugsArgs = new ArrayList<String>();
                 findbugsArgs.add(FINDBUGS_PATH);
                 findbugsArgs.add("-textui");
+                findbugsArgs.add("-onlyAnalyze");
+                findbugsArgs.add(pkgs);
                 findbugsArgs.add("-xml");
-                findbugsArgs.add("-onlyAnalyze"); findbugsArgs.add(pkgs);
-                findbugsArgs.add("-output"); findbugsArgs.add(pv.getProject().getName() + ".xml");
+                findbugsArgs.add("-output");
+                // dimitro: I have added a specific path for the output file. You can do that too.
+                findbugsArgs.add(
+                        "/Users/dimitro/Documents/PhD/FindBugs+Alitheia/Alitheia-Core/runner/"+
+                                pv.getRevisionId()+"-"+pv.getProject().getName() + ".xml");
                 findbugsArgs.add(jar.getAbsolutePath());
+                //dimitro
+                System.out.println("dimitro: the arguments fed to FindBugs are: "+findbugsArgs);
+                //dimitro
                 ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
                 findbugs.directory(pom.getParentFile());
                 findbugs.redirectErrorStream(true);
@@ -148,7 +157,7 @@ public class FindbugsMetrics extends AbstractMetric {
                     log.warn("Build with findbugs failed. See file:" + out);
                 }
 
-                File f = new File(pv.getProject().getName() + ".xml");
+                File f = new File(pv.getRevisionId()+"-"+pv.getProject().getName() + ".xml");
                 parseFindbugsResults(f);
             }
 
@@ -173,7 +182,8 @@ public class FindbugsMetrics extends AbstractMetric {
         for(ProjectFile f: files) {
             Matcher m = p.matcher(f.getFileName());
             if (m.find()) {
-                pkgs.add(FileUtils.dirname(m.group(1)).replace('/','.'));
+                // dimitro: I have added ".-" as we discussed
+                pkgs.add(FileUtils.dirname(m.group(1)).replace('/','.')+".-");
             }
         }
 
@@ -272,6 +282,19 @@ public class FindbugsMetrics extends AbstractMetric {
                 }
             }
         }
+
+        //dimitro : Printing the HashMaps values to make sure everything went OK
+        Map <String, Map <String, Integer>> testResults =  new HashMap <String, Map <String, Integer>> ();
+		testResults = resultsMap;
+        System.out.println("dimitro: Here come the HashMap's values: ");
+		Iterator iterator = testResults.keySet().iterator();
+		while (iterator.hasNext()) {
+			String key = iterator.next().toString();
+			String value = testResults.get(key).toString();
+
+			System.out.println(key + " " + value);
+		}
+        //dimitro
         return resultsMap;
     }
 
