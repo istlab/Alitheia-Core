@@ -77,8 +77,19 @@ import javax.xml.xpath.*;
 @SchedulerHints(invocationOrder = InvocationOrder.NEWFIRST)
 public class FindbugsMetrics extends AbstractMetric {
 
-    final String MAVEN_PATH = "mvn";
-    final String FINDBUGS_PATH = "findbugs";
+    static String MAVEN_PATH = "";
+    static String FINDBUGS_PATH = "";
+
+    static {
+        if (System.getProperty("findbugs.path") != null)
+            FINDBUGS_PATH = System.getProperty("findbugs.path");
+        else
+            FINDBUGS_PATH = "findbugs";
+        if (System.getProperty("mvn.path") != null)
+            MAVEN_PATH = System.getProperty("mvn.path");
+        else
+            MAVEN_PATH = "mvn";
+    }
 
     public FindbugsMetrics(BundleContext bc) {
         super(bc);
@@ -123,13 +134,14 @@ public class FindbugsMetrics extends AbstractMetric {
                 log.warn("Build with maven failed. See file:" + out);
             }
 
-            List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
+            List<File> jars = getJars(checkout);
             
             for(File jar: jars) {
 
                 String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
                         ProjectVersion.MASK_FILES));
                 pkgs = pkgs.substring(0, pkgs.length() - 1);
+                String findbugsOut = pv.getRevisionId()+"-" + jar.getName() + "-" +pv.getProject().getName() + ".xml";
 
                 List<String> findbugsArgs = new ArrayList<String>();
                 findbugsArgs.add(FINDBUGS_PATH);
@@ -138,26 +150,19 @@ public class FindbugsMetrics extends AbstractMetric {
                 findbugsArgs.add(pkgs);
                 findbugsArgs.add("-xml");
                 findbugsArgs.add("-output");
-                // dimitro: I have added a specific path for the output file. You can do that too.
-                findbugsArgs.add(
-                        "/Users/dimitro/Documents/PhD/FindBugs+Alitheia/Alitheia-Core/runner/"+
-                                pv.getRevisionId()+"-"+pv.getProject().getName() + ".xml");
+                findbugsArgs.add(findbugsOut);
                 findbugsArgs.add(jar.getAbsolutePath());
-                //dimitro
-                System.out.println("dimitro: the arguments fed to FindBugs are: "+findbugsArgs);
-                //dimitro
+
                 ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
-                findbugs.directory(pom.getParentFile());
                 findbugs.redirectErrorStream(true);
                 retVal = runReadOutput(findbugs.start(), out);
 
                 if (retVal != 0) {
-                    log.warn("Build with findbugs failed. See file:" + out);
+                    log.warn("Findbugs failed. See file:" + out);
                 }
 
-                File f = new File(pv.getRevisionId()+"-"+pv.getProject().getName() + ".xml");
+                File f = new File(findbugsOut);
                 parseFindbugsResults(f);
-
 
             }
         } catch (CheckoutException e) {
@@ -191,6 +196,22 @@ public class FindbugsMetrics extends AbstractMetric {
             sb.append(pkg).append(",");
 
         return sb.toString();
+    }
+    
+    public List<File> getJars(File checkout) {
+        List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
+        List<File> result = new ArrayList<File>();
+        //Exclude common maven output jar patterns
+        for(File f: jars) {
+            if (f.getName().endsWith("-sources.jar"))
+                continue;
+            if (f.getName().endsWith("with-dependencies.jar"))
+                continue;
+            if (f.getName().endsWith("-javadoc.jar"))
+                continue;
+            result.add(f);
+        }
+        return result;
     }
 
     public int runReadOutput(Process pr, String name) throws IOException {
