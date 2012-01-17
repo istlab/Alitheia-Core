@@ -50,6 +50,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.*;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
@@ -59,10 +60,6 @@ import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.util.FileUtils;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.MetricDecl;
-import eu.sqooss.service.abstractmetric.MetricDeclarations;
-import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Metric;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -77,6 +74,7 @@ import javax.xml.xpath.*;
         @MetricDecl(mnemonic = "SECBUG", activators = {ProjectVersion.class},
                 descr = "FindbugsMetrics Metric")
 })
+@SchedulerHints(invocationOrder = InvocationOrder.NEWFIRST)
 public class FindbugsMetrics extends AbstractMetric {
 
     final String MAVEN_PATH = "mvn";
@@ -159,8 +157,9 @@ public class FindbugsMetrics extends AbstractMetric {
 
                 File f = new File(pv.getRevisionId()+"-"+pv.getProject().getName() + ".xml");
                 parseFindbugsResults(f);
-            }
 
+
+            }
         } catch (CheckoutException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
