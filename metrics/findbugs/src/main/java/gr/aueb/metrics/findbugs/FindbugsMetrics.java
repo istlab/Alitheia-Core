@@ -71,8 +71,32 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
 
 @MetricDeclarations(metrics = {
-        @MetricDecl(mnemonic = "SECBUG", activators = {ProjectVersion.class},
-                descr = "FindbugsMetrics Metric")
+//Security
+@MetricDecl(mnemonic = "DCDP",    activators = {ProjectFile.class, ProjectVersion.class}, descr = "Dm: Hardcoded constant database password"),
+@MetricDecl(mnemonic = "DEDP",    activators = {ProjectFile.class, ProjectVersion.class}, descr = "Dm: Empty database password"),
+@MetricDecl(mnemonic = "HRPTC",   activators = {ProjectFile.class, ProjectVersion.class}, descr = "HRS: HTTP cookie formed from untrusted input"),
+@MetricDecl(mnemonic = "HRPTHH",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "HRS: HTTP Response splitting vulnerability"),
+@MetricDecl(mnemonic = "SNSPTE",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "SQL: Nonconstant string passed to execute method on an SQL statement"),
+@MetricDecl(mnemonic = "SPSGFNS", activators = {ProjectFile.class, ProjectVersion.class}, descr = "SQL: A prepared statement is generated from a nonconstant String"),
+@MetricDecl(mnemonic = "XRPTJW",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "XSS: JSP reflected cross site scripting vulnerability"),
+@MetricDecl(mnemonic = "XRPTSE",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "XSS: Servlet reflected cross site scripting vulnerability in error page"),
+@MetricDecl(mnemonic = "XRPTSW",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "XSS: Servlet reflected cross site scripting vulnerability"),
+
+//Malicious Code
+@MetricDecl(mnemonic = "DCCIDP",  activators = {ProjectFile.class, ProjectVersion.class},descr = "DP: Classloaders should only be created inside doPrivileged block"),
+@MetricDecl(mnemonic = "DDIDP",   activators = {ProjectFile.class, ProjectVersion.class},descr = "DP: Method invoked that should be only be invoked inside a doPrivileged block"),
+@MetricDecl(mnemonic = "EER",     activators = {ProjectFile.class, ProjectVersion.class},descr = "EI: May expose internal representation by returning reference to mutable object"),
+@MetricDecl(mnemonic = "EER2",    activators = {ProjectFile.class, ProjectVersion.class},descr = "EI2: May expose internal representation by incorporating reference to mutable object"),
+@MetricDecl(mnemonic = "FPSBP",   activators = {ProjectFile.class, ProjectVersion.class},descr = "FI: Finalizer should be protected, not public"),
+@MetricDecl(mnemonic = "EESR",    activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: May expose internal static state by storing a mutable object into a static field"),
+@MetricDecl(mnemonic = "MCBF",    activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field isn't final and can't be protected from malicious code"),
+@MetricDecl(mnemonic = "MER",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Public static method may expose internal representation by returning array"),
+@MetricDecl(mnemonic = "MFP",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field should be both final and package protected"),
+@MetricDecl(mnemonic = "MMA",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field is a mutable array"),
+@MetricDecl(mnemonic = "MMH",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field is a mutable Hashtable"),
+@MetricDecl(mnemonic = "MOP",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field should be moved out of an interface and made package protected"),
+@MetricDecl(mnemonic = "MP",      activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field should be package protected"),
+@MetricDecl(mnemonic = "MSBF",    activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field isn't final but should be")
 })
 @SchedulerHints(invocationOrder = InvocationOrder.NEWFIRST)
 public class FindbugsMetrics extends AbstractMetric {
@@ -93,6 +117,14 @@ public class FindbugsMetrics extends AbstractMetric {
 
     public FindbugsMetrics(BundleContext bc) {
         super(bc);
+    }
+
+    //Run per version only
+    public void run(ProjectFile pf){}
+
+    public List<Result> getResult(ProjectFile pf, Metric m) {
+        return getResult(pf, ProjectVersionMeasurement.class,
+                m, Result.ResultType.INTEGER);
     }
 
     public List<Result> getResult(ProjectVersion pv, Metric m) {
