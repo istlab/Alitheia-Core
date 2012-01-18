@@ -61,7 +61,6 @@ import org.osgi.framework.BundleContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import sun.net.idn.StringPrep;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
