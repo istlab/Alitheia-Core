@@ -51,19 +51,17 @@ import java.util.regex.Pattern;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.*;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.db.*;
 import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.util.FileUtils;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.service.db.Metric;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import sun.net.idn.StringPrep;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -72,33 +70,59 @@ import javax.xml.xpath.*;
 
 @MetricDeclarations(metrics = {
 //Security
-@MetricDecl(mnemonic = "DCDP",    activators = {ProjectFile.class, ProjectVersion.class}, descr = "Dm: Hardcoded constant database password"),
-@MetricDecl(mnemonic = "DEDP",    activators = {ProjectFile.class, ProjectVersion.class}, descr = "Dm: Empty database password"),
-@MetricDecl(mnemonic = "HRPTC",   activators = {ProjectFile.class, ProjectVersion.class}, descr = "HRS: HTTP cookie formed from untrusted input"),
-@MetricDecl(mnemonic = "HRPTHH",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "HRS: HTTP Response splitting vulnerability"),
-@MetricDecl(mnemonic = "SNSPTE",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "SQL: Nonconstant string passed to execute method on an SQL statement"),
-@MetricDecl(mnemonic = "SPSGFNS", activators = {ProjectFile.class, ProjectVersion.class}, descr = "SQL: A prepared statement is generated from a nonconstant String"),
-@MetricDecl(mnemonic = "XRPTJW",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "XSS: JSP reflected cross site scripting vulnerability"),
-@MetricDecl(mnemonic = "XRPTSE",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "XSS: Servlet reflected cross site scripting vulnerability in error page"),
-@MetricDecl(mnemonic = "XRPTSW",  activators = {ProjectFile.class, ProjectVersion.class}, descr = "XSS: Servlet reflected cross site scripting vulnerability"),
+@MetricDecl(mnemonic = "DCDP",    activators = {ProjectFile.class}, descr = "Dm: Hardcoded constant database password"),
+@MetricDecl(mnemonic = "DEDP",    activators = {ProjectFile.class}, descr = "Dm: Empty database password"),
+@MetricDecl(mnemonic = "HRPTC",   activators = {ProjectFile.class}, descr = "HRS: HTTP cookie formed from untrusted input"),
+@MetricDecl(mnemonic = "HRPTHH",  activators = {ProjectFile.class}, descr = "HRS: HTTP Response splitting vulnerability"),
+@MetricDecl(mnemonic = "SNSPTE",  activators = {ProjectFile.class}, descr = "SQL: Nonconstant string passed to execute method on an SQL statement"),
+@MetricDecl(mnemonic = "SPSGFNS", activators = {ProjectFile.class}, descr = "SQL: A prepared statement is generated from a nonconstant String"),
+@MetricDecl(mnemonic = "XRPTJW",  activators = {ProjectFile.class}, descr = "XSS: JSP reflected cross site scripting vulnerability"),
+@MetricDecl(mnemonic = "XRPTSE",  activators = {ProjectFile.class}, descr = "XSS: Servlet reflected cross site scripting vulnerability in error page"),
+@MetricDecl(mnemonic = "XRPTSW",  activators = {ProjectFile.class}, descr = "XSS: Servlet reflected cross site scripting vulnerability"),
 
 //Malicious Code
-@MetricDecl(mnemonic = "DCCIDP",  activators = {ProjectFile.class, ProjectVersion.class},descr = "DP: Classloaders should only be created inside doPrivileged block"),
-@MetricDecl(mnemonic = "DDIDP",   activators = {ProjectFile.class, ProjectVersion.class},descr = "DP: Method invoked that should be only be invoked inside a doPrivileged block"),
-@MetricDecl(mnemonic = "EER",     activators = {ProjectFile.class, ProjectVersion.class},descr = "EI: May expose internal representation by returning reference to mutable object"),
-@MetricDecl(mnemonic = "EER2",    activators = {ProjectFile.class, ProjectVersion.class},descr = "EI2: May expose internal representation by incorporating reference to mutable object"),
-@MetricDecl(mnemonic = "FPSBP",   activators = {ProjectFile.class, ProjectVersion.class},descr = "FI: Finalizer should be protected, not public"),
-@MetricDecl(mnemonic = "EESR",    activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: May expose internal static state by storing a mutable object into a static field"),
-@MetricDecl(mnemonic = "MCBF",    activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field isn't final and can't be protected from malicious code"),
-@MetricDecl(mnemonic = "MER",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Public static method may expose internal representation by returning array"),
-@MetricDecl(mnemonic = "MFP",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field should be both final and package protected"),
-@MetricDecl(mnemonic = "MMA",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field is a mutable array"),
-@MetricDecl(mnemonic = "MMH",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field is a mutable Hashtable"),
-@MetricDecl(mnemonic = "MOP",     activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field should be moved out of an interface and made package protected"),
-@MetricDecl(mnemonic = "MP",      activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field should be package protected"),
-@MetricDecl(mnemonic = "MSBF",    activators = {ProjectFile.class, ProjectVersion.class},descr = "MS: Field isn't final but should be")
+@MetricDecl(mnemonic = "DCCIDP",  activators = {ProjectFile.class}, descr = "DP: Classloaders should only be created inside doPrivileged block"),
+@MetricDecl(mnemonic = "DDIDP",   activators = {ProjectFile.class}, descr = "DP: Method invoked that should be only be invoked inside a doPrivileged block"),
+@MetricDecl(mnemonic = "EER",     activators = {ProjectFile.class}, descr = "EI: May expose internal representation by returning reference to mutable object"),
+@MetricDecl(mnemonic = "EER2",    activators = {ProjectFile.class}, descr = "EI2: May expose internal representation by incorporating reference to mutable object"),
+@MetricDecl(mnemonic = "FPSBP",   activators = {ProjectFile.class}, descr = "FI: Finalizer should be protected, not public"),
+@MetricDecl(mnemonic = "EESR",    activators = {ProjectFile.class}, descr = "MS: May expose internal static state by storing a mutable object into a static field"),
+@MetricDecl(mnemonic = "MCBF",    activators = {ProjectFile.class}, descr = "MS: Field isn't final and can't be protected from malicious code"),
+@MetricDecl(mnemonic = "MER",     activators = {ProjectFile.class}, descr = "MS: Public static method may expose internal representation by returning array"),
+@MetricDecl(mnemonic = "MFP",     activators = {ProjectFile.class}, descr = "MS: Field should be both final and package protected"),
+@MetricDecl(mnemonic = "MMA",     activators = {ProjectFile.class}, descr = "MS: Field is a mutable array"),
+@MetricDecl(mnemonic = "MMH",     activators = {ProjectFile.class}, descr = "MS: Field is a mutable Hashtable"),
+@MetricDecl(mnemonic = "MOP",     activators = {ProjectFile.class}, descr = "MS: Field should be moved out of an interface and made package protected"),
+@MetricDecl(mnemonic = "MP",      activators = {ProjectFile.class}, descr = "MS: Field should be package protected"),
+@MetricDecl(mnemonic = "MSBF",    activators = {ProjectFile.class}, descr = "MS: Field isn't final but should be"),
+
+//Summarized per project versions
+@MetricDecl(mnemonic = "TDCDP",    activators = {ProjectVersion.class}, descr = "Dm: Hardcoded constant database password (total)"),
+@MetricDecl(mnemonic = "TDEDP",    activators = {ProjectVersion.class}, descr = "Dm: Empty database password (total)"),
+@MetricDecl(mnemonic = "THRPTC",   activators = {ProjectVersion.class}, descr = "HRS: HTTP cookie formed from untrusted input (total)"),
+@MetricDecl(mnemonic = "THRPTHH",  activators = {ProjectVersion.class}, descr = "HRS: HTTP Response splitting vulnerability (total)"),
+@MetricDecl(mnemonic = "TSNSPTE",  activators = {ProjectVersion.class}, descr = "SQL: Nonconstant string passed to execute method on an SQL statement (total)"),
+@MetricDecl(mnemonic = "TSPSGFNS", activators = {ProjectVersion.class}, descr = "SQL: A prepared statement is generated from a nonconstant String (total)"),
+@MetricDecl(mnemonic = "TXRPTJW",  activators = {ProjectVersion.class}, descr = "XSS: JSP reflected cross site scripting vulnerability (total)"),
+@MetricDecl(mnemonic = "TXRPTSE",  activators = {ProjectVersion.class}, descr = "XSS: Servlet reflected cross site scripting vulnerability in error page (total)"),
+@MetricDecl(mnemonic = "TXRPTSW",  activators = {ProjectVersion.class}, descr = "XSS: Servlet reflected cross site scripting vulnerability (total)"),
+
+@MetricDecl(mnemonic = "TDCCIDP",  activators = {ProjectVersion.class}, descr = "DP: Classloaders should only be created inside doPrivileged block (total)"),
+@MetricDecl(mnemonic = "TDDIDP",   activators = {ProjectVersion.class}, descr = "DP: Method invoked that should be only be invoked inside a doPrivileged block (total)"),
+@MetricDecl(mnemonic = "TEER",     activators = {ProjectVersion.class}, descr = "EI: May expose internal representation by returning reference to mutable object (total)"),
+@MetricDecl(mnemonic = "TEER2",    activators = {ProjectVersion.class}, descr = "EI2: May expose internal representation by incorporating reference to mutable object (total)"),
+@MetricDecl(mnemonic = "TFPSBP",   activators = {ProjectVersion.class}, descr = "FI: Finalizer should be protected, not public (total)"),
+@MetricDecl(mnemonic = "TEESR",    activators = {ProjectVersion.class}, descr = "MS: May expose internal static state by storing a mutable object into a static field (total)"),
+@MetricDecl(mnemonic = "TMCBF",    activators = {ProjectVersion.class}, descr = "MS: Field isn't final and can't be protected from malicious code (total)"),
+@MetricDecl(mnemonic = "TMER",     activators = {ProjectVersion.class}, descr = "MS: Public static method may expose internal representation by returning array (total)"),
+@MetricDecl(mnemonic = "TMFP",     activators = {ProjectVersion.class}, descr = "MS: Field should be both final and package protected (total)"),
+@MetricDecl(mnemonic = "TMMA",     activators = {ProjectVersion.class}, descr = "MS: Field is a mutable array (total)"),
+@MetricDecl(mnemonic = "TMMH",     activators = {ProjectVersion.class}, descr = "MS: Field is a mutable Hashtable (total)"),
+@MetricDecl(mnemonic = "TMOP",     activators = {ProjectVersion.class}, descr = "MS: Field should be moved out of an interface and made package protected (total)"),
+@MetricDecl(mnemonic = "TMP",      activators = {ProjectVersion.class}, descr = "MS: Field should be package protected (total)"),
+@MetricDecl(mnemonic = "TMSBF",    activators = {ProjectVersion.class}, descr = "MS: Field isn't final but should be (total)")
 })
-@SchedulerHints(invocationOrder = InvocationOrder.NEWFIRST)
+@SchedulerHints(invocationOrder = InvocationOrder.NEWFIRST, activationOrder = {ProjectVersion.class})
 public class FindbugsMetrics extends AbstractMetric {
 
     static String MAVEN_PATH = "";
@@ -123,7 +147,7 @@ public class FindbugsMetrics extends AbstractMetric {
     public void run(ProjectFile pf){}
 
     public List<Result> getResult(ProjectFile pf, Metric m) {
-        return getResult(pf, ProjectVersionMeasurement.class,
+        return getResult(pf, ProjectFileMeasurement.class,
                 m, Result.ResultType.INTEGER);
     }
 
@@ -134,11 +158,12 @@ public class FindbugsMetrics extends AbstractMetric {
 
     public void run(ProjectVersion pv) {
 
+        List<ProjectFile> files = pv.getFiles();
         Pattern pom = Pattern.compile("pom.xml$");
         Pattern trunk = Pattern.compile("/trunk");
         boolean foundTrunk = false, foundPom = false;
 
-        for(ProjectFile pf: pv.getFiles()) {
+        for(ProjectFile pf: files) {
             if (pom.matcher(pf.getFileName()).find())
                 foundPom = true;
 
@@ -207,7 +232,7 @@ public class FindbugsMetrics extends AbstractMetric {
                 }
 
                 File f = new File(findbugsOut);
-                parseFindbugsResults(f);
+                storeResults(parseFindbugsResults(f), files, pv);
 
             }
         } catch (CheckoutException e) {
@@ -347,19 +372,80 @@ public class FindbugsMetrics extends AbstractMetric {
             }
         }
 
-        //dimitro : Printing the HashMaps values to make sure everything went OK
-        Map <String, Map <String, Integer>> testResults =  new HashMap <String, Map <String, Integer>> ();
-		testResults = resultsMap;
-        System.out.println("dimitro: Here come the HashMap's values: ");
-		Iterator iterator = testResults.keySet().iterator();
-		while (iterator.hasNext()) {
-			String key = iterator.next().toString();
-			String value = testResults.get(key).toString();
-
-			System.out.println(key + " " + value);
-		}
         //dimitro
         return resultsMap;
+    }
+
+    private void storeResults(Map <String, Map<String, Integer>> results,
+                              List<ProjectFile> files, ProjectVersion pv) {
+        List<Metric> metrics = getAllSupportedMetrics();
+        List<ProjectFileMeasurement> fileMeasurements = new ArrayList<ProjectFileMeasurement>();
+        List<ProjectVersionMeasurement> versionMeasurements = new ArrayList<ProjectVersionMeasurement>();
+
+        for(String key: results.keySet()) {
+            String mnem = bugToMnemonic(key, false);
+            Metric m = findMetric(metrics, mnem);
+            if (m == null) {
+                log.warn("Cannot find bug " + key + " as installed metric");
+                continue;
+            }
+
+            for (String fileName: results.get(key).keySet()) {
+                ProjectFile file = findFile(files, fileName);
+                if (file == null) {
+                    log.warn("Cannot find file path " + fileName + " in DB project files");
+                    continue;
+                }
+
+                if(getResult(file, m).isEmpty())
+                    fileMeasurements.add(new ProjectFileMeasurement(m, file, results.get(key).get(fileName).toString()));
+            }
+        }
+
+        //Summarize per version
+        for(String key: results.keySet()) {
+            String mnem = bugToMnemonic(key, true);
+            Metric m = findMetric(metrics, mnem);
+            if (m == null) {
+                log.warn("Cannot find bug " + key + " as installed metric");
+                continue;
+            }
+            Integer bugTotal = 0;
+            for(Integer bugResult: results.get(key).values())
+                bugTotal += bugResult;
+            if (bugTotal > 0) {
+                versionMeasurements.add(new ProjectVersionMeasurement(m, pv, bugTotal.toString()));
+            }
+        }
+        db.addRecords(fileMeasurements);
+        db.addRecords(versionMeasurements);
+    }
+
+    private ProjectFile findFile(List<ProjectFile> files, String path) {
+        for(ProjectFile pf: files) {
+            if (pf.getFileName().endsWith(path))
+                return pf;
+        }
+        return null;
+    }
+
+    private Metric findMetric(List<Metric> metrics, String mnemonic) {
+        for(Metric m : metrics) {
+            if (m.getMnemonic().equals(mnemonic))
+                return m;
+        }
+        return null;
+    }
+
+    private String bugToMnemonic(String bug, boolean version) {
+        StringBuffer result = new StringBuffer();
+
+        for (String bugChunk : bug.split("_")) {
+            result.append(bugChunk.charAt(0));
+        }
+        if (version)
+            return "T" + result.toString();
+        return result.toString();
     }
 
     private class OutReader extends Thread {
