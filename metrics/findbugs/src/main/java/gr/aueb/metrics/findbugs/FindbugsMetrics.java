@@ -102,9 +102,22 @@ public class FindbugsMetrics extends AbstractMetric {
 
     public void run(ProjectVersion pv) {
 
-        if (pv.getFiles(Pattern.compile("pom.xml$"), ProjectVersion.MASK_FILES).isEmpty()) {
-            log.info("Skipping version " + pv + " as no pom.xml " +
-                    "file could be found");
+        Pattern pom = Pattern.compile("pom.xml$");
+        Pattern trunk = Pattern.compile("/trunk");
+        boolean foundTrunk = false, foundPom = false;
+
+        for(ProjectFile pf: pv.getFiles()) {
+            if (pom.matcher(pf.getFileName()).find())
+                foundPom = true;
+
+            if (trunk.matcher(pf.getFileName()).find())
+                foundTrunk = true;
+        }
+
+        if (!foundPom || !foundTrunk) {
+            log.info("Skipping version " + pv + " as no " +
+                (foundTrunk ? "pom.xml file":"/trunk directory") +
+                    " could be found");
             return;
         }
 
@@ -115,7 +128,7 @@ public class FindbugsMetrics extends AbstractMetric {
             odc = fds.getCheckout(pv, "/trunk");
             File checkout = odc.getRoot();
 
-            File pom = FileUtils.findBreadthFirst(checkout, Pattern.compile("pom.xml"));
+            File pomFile = FileUtils.findBreadthFirst(checkout, Pattern.compile("pom.xml"));
 
             if (pom == null) {
                 log.warn(pv +" No pom.xml found in checkout?!");
@@ -126,7 +139,7 @@ public class FindbugsMetrics extends AbstractMetric {
                     "-" + pv.getId() + "-out.txt";
 
             ProcessBuilder maven = new ProcessBuilder(MAVEN_PATH, "install", "-DskipTests=true");
-            maven.directory(pom.getParentFile());
+            maven.directory(pomFile.getParentFile());
             maven.redirectErrorStream(true);
             int retVal = runReadOutput(maven.start(), out);
 
@@ -186,7 +199,6 @@ public class FindbugsMetrics extends AbstractMetric {
         for(ProjectFile f: files) {
             Matcher m = p.matcher(f.getFileName());
             if (m.find()) {
-                // dimitro: I have added ".-" as we discussed
                 pkgs.add(FileUtils.dirname(m.group(1)).replace('/','.')+".-");
             }
         }
@@ -201,7 +213,7 @@ public class FindbugsMetrics extends AbstractMetric {
     public List<File> getJars(File checkout) {
         List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
         List<File> result = new ArrayList<File>();
-        //Exclude common maven output jar patterns
+        //Exclude common maven artifacts which don't contain bytecode
         for(File f: jars) {
             if (f.getName().endsWith("-sources.jar"))
                 continue;
@@ -273,31 +285,31 @@ public class FindbugsMetrics extends AbstractMetric {
 
         NodeList nodes = (NodeList) resultDetails;
         NodeList nodesBugs = (NodeList) resultBugs;
-        if (nodes.getLength() == nodesBugs.getLength()) {
+        if (nodesBugs.getLength() == nodes.getLength()) {
             for (int i = 0; i < nodes.getLength(); i++) {
                 // check if this Bug exists in our HashMap
                 if (!resultsMap.containsKey(nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent())) {
                     // no Bug like this in the HashMap
                     Map <String, Integer> tmp = new HashMap<String, Integer>();
-                    tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString(), 1);
+                    tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent(), 1);
                     resultsMap.put(
-                            nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString(), tmp);
+                            nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent(), tmp);
                 } else {
                     // there is a bug like this in our HashMap
                     Map <String, Integer> tmp = new HashMap<String, Integer>();
                     tmp = resultsMap.get(
-                            nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString());
-                    if (!tmp.containsKey(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString())) {
+                            nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent());
+                    if (!tmp.containsKey(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent())) {
                         // this is a new file that contains this bug
-                        tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString(), 1);
+                        tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent(), 1);
                        resultsMap.put(
-                                nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString(), tmp);
+                                nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent(), tmp);
                     } else {
                         // found this bug in more than one lines on the same file
-                        tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString(),
-                                tmp.get(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent().toString()) + 1);
+                        tmp.put(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent(),
+                                tmp.get(nodes.item(i).getAttributes().getNamedItem("sourcepath").getTextContent()) + 1);
                         resultsMap.put(
-                                nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent().toString(), tmp);
+                                nodesBugs.item(i).getAttributes().getNamedItem("type").getTextContent(), tmp);
                     }
                 }
             }
