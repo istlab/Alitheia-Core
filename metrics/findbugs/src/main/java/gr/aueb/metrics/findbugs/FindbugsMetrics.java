@@ -49,6 +49,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.*;
 import eu.sqooss.service.db.*;
@@ -126,6 +130,7 @@ public class FindbugsMetrics extends AbstractMetric {
 
     static String MAVEN_PATH = "";
     static String FINDBUGS_PATH = "";
+    static String COPYDEPS_PATH = "";
 
     static {
         if (System.getProperty("findbugs.path") != null)
@@ -136,6 +141,10 @@ public class FindbugsMetrics extends AbstractMetric {
             MAVEN_PATH = System.getProperty("mvn.path");
         else
             MAVEN_PATH = "mvn";
+        if (System.getProperty("copydeps.path") != null)
+            COPYDEPS_PATH = System.getProperty("copydeps.path");
+        else
+            COPYDEPS_PATH = "copy-deps";
     }
 
     public FindbugsMetrics(BundleContext bc) {
@@ -199,24 +208,40 @@ public class FindbugsMetrics extends AbstractMetric {
             maven.redirectErrorStream(true);
             int retVal = runReadOutput(maven.start(), out);
 
+            // project dependencies
+            List<File> deps = new ArrayList<File>();
             if (retVal != 0) {
                 log.warn("Build with maven failed. See file:" + out);
+            } else {
+                //Copy copy-deps to checkout - we need a method to copy one file to another
+                FileUtils.copyFile(new File(COPYDEPS_PATH), pomFile.getParentFile());
+                ProcessBuilder copyDeps = new ProcessBuilder(pomFile.getParentFile() + "/" + "copy-deps");
+                copyDeps.directory(pomFile.getParentFile());
+                copyDeps.redirectErrorStream(true);
+                int retVal2 = runReadOutput(copyDeps.start(), out);
+                if (retVal2 == 0) {
+                    File allDeps = new File(checkout.getPath() + "/all-deps");
+                    if (allDeps.exists() && allDeps.isDirectory()) {
+                        deps = Arrays.asList(allDeps.listFiles());
+                    }
+                }
             }
 
             List<File> jars = getJars(checkout);
+            jars.addAll(deps);
             
             for(File jar: jars) {
 
-                String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
-                        ProjectVersion.MASK_FILES));
-                pkgs = pkgs.substring(0, pkgs.length() - 1);
+                //String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
+                //        ProjectVersion.MASK_FILES));
+                //pkgs = pkgs.substring(0, pkgs.length() - 1);
                 String findbugsOut = pv.getRevisionId()+"-" + jar.getName() + "-" +pv.getProject().getName() + ".xml";
 
                 List<String> findbugsArgs = new ArrayList<String>();
                 findbugsArgs.add(FINDBUGS_PATH);
                 findbugsArgs.add("-textui");
-                findbugsArgs.add("-onlyAnalyze");
-                findbugsArgs.add(pkgs);
+                //findbugsArgs.add("-onlyAnalyze");
+                //findbugsArgs.add(pkgs);
                 findbugsArgs.add("-xml");
                 findbugsArgs.add("-output");
                 findbugsArgs.add(findbugsOut);
