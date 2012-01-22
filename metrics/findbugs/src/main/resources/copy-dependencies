@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# code by Christos KK Loverdos <loverdos@gmail.com>
 
 alldeps() {
 	mkdir ./all-deps 2>/dev/null

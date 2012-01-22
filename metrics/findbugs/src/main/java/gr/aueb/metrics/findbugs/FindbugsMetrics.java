@@ -130,7 +130,6 @@ public class FindbugsMetrics extends AbstractMetric {
 
     static String MAVEN_PATH = "";
     static String FINDBUGS_PATH = "";
-    static String COPYDEPS_PATH = "";
 
     static {
         if (System.getProperty("findbugs.path") != null)
@@ -141,10 +140,6 @@ public class FindbugsMetrics extends AbstractMetric {
             MAVEN_PATH = System.getProperty("mvn.path");
         else
             MAVEN_PATH = "mvn";
-        if (System.getProperty("copydeps.path") != null)
-            COPYDEPS_PATH = System.getProperty("copydeps.path");
-        else
-            COPYDEPS_PATH = "copy-deps";
     }
 
     public FindbugsMetrics(BundleContext bc) {
@@ -213,9 +208,22 @@ public class FindbugsMetrics extends AbstractMetric {
             if (retVal != 0) {
                 log.warn("Build with maven failed. See file:" + out);
             } else {
-                //Copy copy-deps to checkout - we need a method to copy one file to another
-                FileUtils.copyFile(new File(COPYDEPS_PATH), pomFile.getParentFile());
-                ProcessBuilder copyDeps = new ProcessBuilder(pomFile.getParentFile() + "/" + "copy-deps");
+                // Copy the script that gathers the dependency from
+                // the resource bundle
+                File copyDepsScript = new File(pomFile.getParentFile(), "copy-dependencies");
+                FileOutputStream fos = new FileOutputStream(copyDepsScript);
+                InputStream in = bc.getBundle().getResource("copy-dependencies").openStream();
+
+                int read;
+                byte[] buff = new byte[1024];
+                while ((read = in.read(buff)) != -1) {
+                    fos.write(buff, 0, read);
+                }
+
+                copyDepsScript.setExecutable(true);
+                fos.close(); in.close();
+
+                ProcessBuilder copyDeps = new ProcessBuilder("./copy-dependencies");
                 copyDeps.directory(pomFile.getParentFile());
                 copyDeps.redirectErrorStream(true);
                 int retVal2 = runReadOutput(copyDeps.start(), out);

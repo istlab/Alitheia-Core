@@ -120,9 +120,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     private Map<String, Metric> metrics = new HashMap<String, Metric>();
     
     /** The list of this plug-in's activators*/
-    private Set<Class<? extends DAObject>> activators = 
+    private Set<Class<? extends DAObject>> activators =
         new HashSet<Class<? extends DAObject>>();
-    
+
     private Map<Metric, List<Class<? extends DAObject>>> metricActType =
     	new HashMap<Metric, List<Class<? extends DAObject>>>();
     
