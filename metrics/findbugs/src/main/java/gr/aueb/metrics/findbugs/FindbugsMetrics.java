@@ -445,12 +445,25 @@ public class FindbugsMetrics extends AbstractMetric {
             Integer bugTotal = 0;
             for(Integer bugResult: results.get(key).values())
                 bugTotal += bugResult;
-            if (bugTotal > 0) {
+            if (bugTotal > 0 && !pvMeasurementExists(pv, m)) {
                 versionMeasurements.add(new ProjectVersionMeasurement(m, pv, bugTotal.toString()));
             }
         }
         db.addRecords(fileMeasurements);
         db.addRecords(versionMeasurements);
+    }
+
+    private boolean pvMeasurementExists(ProjectVersion pv, Metric m) {
+        DBService db = AlitheiaCore.getInstance().getDBService();
+        String q = "from ProjectVersionMeasurement pvm " +
+                "where pvm.metric = :metric " +
+                "and pvm.projectVersion = :version";
+
+        Map<String,Object> parameters = new HashMap<String,Object>();
+        parameters.put("metric", m);
+        parameters.put("version", pv);
+
+        return db.doHQL(q, parameters).size() > 0;
     }
 
     private ProjectFile findFile(List<ProjectFile> files, String path) {
