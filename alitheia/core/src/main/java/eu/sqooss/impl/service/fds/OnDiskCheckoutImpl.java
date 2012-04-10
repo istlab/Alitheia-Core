@@ -66,10 +66,12 @@ class OnDiskCheckoutImpl implements OnDiskCheckout {
     
     private boolean initCheckout = false;
 
-    OnDiskCheckoutImpl(String path, ProjectVersion pv, File root) {
+    OnDiskCheckoutImpl(SCMAccessor accessor, String path,
+                       ProjectVersion pv, File root) {
         repoPath = path;
         localRoot = root;
         revision = pv;
+        scm = accessor;
         updateLock = new ReentrantLock(true);
     }
     

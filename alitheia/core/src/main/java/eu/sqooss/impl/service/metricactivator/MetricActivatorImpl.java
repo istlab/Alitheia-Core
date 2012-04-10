@@ -33,18 +33,10 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import eu.sqooss.service.abstractmetric.InvocationOrder;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -387,25 +379,44 @@ public class MetricActivatorImpl  implements MetricActivator {
             HashSet<Job> jobs = new HashSet<Job>();
             
             /*Check what is the default activation ordering as suggested by the metric*/
-            Class<? extends DAObject>[] order;
+            Class<? extends DAObject>[] activOrder;
+            InvocationOrder invOrder;
             SchedulerHints hints = metric.getClass().getAnnotation(SchedulerHints.class);
-            
-            if (hints == null)
-            	order = (Class<? extends DAObject>[]) 
+
+            if (hints == null) {
+                activOrder = (Class<? extends DAObject>[])
             		SchedulerHints.class.getMethod("activationOrder").getDefaultValue();
-            else 
-            	order = hints.activationOrder();
-            
+                invOrder = (InvocationOrder)
+                       SchedulerHints.class.getMethod("invocationOrder").getDefaultValue();
+            } else {
+                activOrder = hints.activationOrder();
+                invOrder = hints.invocationOrder();
+            }
+
 			/*
 			 * Iterate over all activation types but only create a job when
 			 * there exists stuff to recalculate the metric on.
 			 */
-            for (Class<? extends DAObject> activator : order) {
+            for (Class<? extends DAObject> activator : activOrder) {
             	MetricType.Type actType = MetricType.fromActivator(activator);
             	if (!objectIds.keySet().contains(actType))
             		continue;
-            	
-            	for (Long l : objectIds.get(actType)) {
+
+                //We assume that resource IDs increase monotonically
+                TreeSet<Long> ids = objectIds.get(actType);
+                TreeSet<Long> tmp = null;
+                if (invOrder.equals(InvocationOrder.NEWFIRST)) {
+                    tmp = new TreeSet<Long>(new DecreasingLongComparator());
+                } else if (invOrder.equals(InvocationOrder.RANDOM)) {
+                    tmp = new TreeSet<Long>(new RandomizedComparator());
+                }
+
+                if (tmp != null) {
+                    tmp.addAll(ids);
+                    ids = tmp;
+                }
+
+                for (Long l : ids) {
             		jobs.add(new MetricActivatorJob(metric, l, logger, 
             			metricTypesToActivators.get(actType),
             			priority.incrementAndGet(),
@@ -419,6 +430,28 @@ public class MetricActivatorImpl  implements MetricActivator {
         @Override
         public String toString() {
             return "MetricSchedulerJob - Project:{" + sp + "} Metric:{" + m + "}";
+        }
+    }
+
+    class DecreasingLongComparator implements Comparator<Long> {
+        @Override
+        public int compare(Long a, Long b) {
+            if (a > b)
+                return -1;
+            else if (a < b)
+                return 1;
+            return 0;
+        }
+    }
+
+    class RandomizedComparator implements Comparator<Long> {
+        Random r = new Random();
+        @Override
+        public int compare(Long a, Long b) {
+            if(r.nextBoolean())
+                return -1;
+            else
+                return 1;
         }
     }
 

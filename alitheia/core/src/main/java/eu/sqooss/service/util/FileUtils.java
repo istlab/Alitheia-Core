@@ -33,8 +33,10 @@
 
 package eu.sqooss.service.util;
 
-import java.io.File;
-import java.io.ByteArrayOutputStream;
+import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This is a static utility class for various file manipulations.
@@ -163,7 +165,136 @@ public class FileUtils {
     	
     	return newPath;
     }
+
+    /**
+     * Delete a directory and its contents recursively
+     *
+     * @param path The file path to include
+     */
+    public static void deleteRecursive(File path) {
+        File[] c = path.listFiles();
+        for (File file : c) {
+            if (file.isDirectory()) {
+                deleteRecursive(file);
+                file.delete();
+            } else {
+                file.delete();
+            }
+        }
+
+        path.delete();
+    }
+
+    /**
+     * Search recursively for a filename pattern in the provided path
+     *
+     * @return A list of files whose full path matches with the
+     * provided pattern
+     */
+    public static List<File> findGrep(File path, Pattern p) {
+        List<File> result = new ArrayList<File>();
+
+        File[] c = path.listFiles();
+        for (File file : c) {
+            if (file.isDirectory()) {
+                result.addAll(findGrep(file, p));
+            } else {
+                Matcher m = p.matcher(file.getAbsolutePath());
+                if (m.find())
+                    result.add(file);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Find the first file that matches with the provided pattern
+     * using breadth first traversal.
+     */
+    public static File findBreadthFirst(File path, Pattern p) {
+        File[] c = path.listFiles();
+        List<File> dirs = new ArrayList<File>();
+        for (File file : c) {
+            if (file.isDirectory()) {
+                dirs.add(file);
+            } else {
+                Matcher m = p.matcher(file.getAbsolutePath());
+                if (m.find())
+                    return file;
+
+            }
+        }
+        for (File dir: dirs)
+            return findBreadthFirst(dir, p);
+        return null;
+    }
+
+    public static List<File> findDirs(File path) {
+        return find(path, FindOpt.DIRS);
+    }
+
+    public static List<File> findFiles(File path) {
+        return find(path, FindOpt.FILES);
+    }
+
+    public static List<File> find(File path, FindOpt what) {
+        Set<File> toReturn = new HashSet<File>();
+
+        boolean dirs = (what == FindOpt.DIRS || what == FindOpt.ALL);
+        boolean files = (what == FindOpt.FILES || what == FindOpt.ALL);
+
+        File[] c = path.listFiles();
+        for (File file : c) {
+            if (file.isFile() && files)
+                toReturn.add(file);
+
+            if (file.isDirectory() && dirs) {
+                toReturn.add(file);
+                toReturn.addAll(find(file, what));
+            }
+        }
+
+        List<File> result = new ArrayList<File>(toReturn);
+
+        Collections.sort(result, new Comparator<File>() {
+            @Override
+            public int compare(File a, File b) {
+                return (a.getAbsolutePath().compareTo(b.getAbsolutePath()));
+            }
+        });
+        return result;
+    }
+
+    public enum FindOpt {
+        FILES, DIRS, ALL
+    }
+
+    public static void copyFile(File source, File dest) throws IOException {
+        if (!dest.exists()) {
+            dest.createNewFile();
+        }
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = new FileInputStream(source);
+            out = new FileOutputStream(dest);
+
+            // Transfer bytes from in to out
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
-

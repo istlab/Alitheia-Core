@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import eu.sqooss.service.util.FileUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.osgi.framework.BundleContext;
 
@@ -150,49 +151,31 @@ public class FDSServiceImpl implements FDSService, Runnable {
      * 
      * @return
      */
-    private OnDiskCheckout createCheckout(SCMAccessor scm, ProjectVersion pv) {
+    private OnDiskCheckout createCheckout(SCMAccessor scm, ProjectVersion pv, String path) {
         logger.info("Creating new checkout for " + pv);
 
-        File projectRoot = new File(fdsCheckoutRoot, String.format("%0"
-                + INT_AS_DECIMAL_LENGTH + "d", pv.getProject().getId())
-                + "-" + pv.getProject().getName());
-        // It shouldn't exist yet
-        projectRoot.mkdir();
+        File projectRoot = new File(fdsCheckoutRoot, pv.getProject().getName());
+        // It might not exist yet
+        projectRoot.mkdirs();
 
         // Side effect: throws if the revision is invalid
         Revision r = scm.newRevision(pv.getRevisionId());
+        File checkoutRoot = new File(projectRoot, pv.getRevisionId());
 
-        // In order to discourage assumptions about what checkouts belong
-        // where, assign each an 8-character random prefix and then
-        // encode the revision number as well; this means that we can
-        // update and futz with the revisions within each checkout directory.
-        byte[] randomBytes = new byte[(RANDOM_PREFIX_LENGTH + 1) / 2];
-        randomCheckout.nextBytes(randomBytes);
-        char[] randomPrefixChars = Hex.encodeHex(randomBytes);
-        String format = "%0" + INT_AS_HEX_LENGTH + "x";
-        File checkoutRoot = new File(projectRoot, new String(randomPrefixChars)
-                + "." + String.format(format, r.getUniqueId()));
-        // It shouldn't exist yet either
         if (checkoutRoot.exists()) {
-            logger.warn("Checkout root <" + checkoutRoot + "> already exists.");
-            if (checkoutRoot.isDirectory()) {
-                logger.info("Recycling the checkout root.");
-            } else {
-                logger.warn("Already existing root <" + checkoutRoot
-                        + "> is not a directory. Can't use that one.");
-                return null;
-            }
-        } else {
-            if (!checkoutRoot.mkdirs()) {
-                logger.warn("Could not create checkout root <" + checkoutRoot
-                        + ">");
-                return null;
-            }
+            logger.warn("Checkout root <" + checkoutRoot + "> exists. " +
+                    "Cleaning up");
+            FileUtils.deleteRecursive(checkoutRoot);
         }
-        // Now checkoutRoot exists and is a directory.
+        if (!checkoutRoot.mkdirs()) {
+            logger.warn("Could not create checkout root <" + checkoutRoot
+                    + ">");
+            return null;
+        }
 
+        // Now checkoutRoot exists and is a directory.
         logger.info("Created checkout root <" + checkoutRoot + ">");
-        OnDiskCheckout c = new OnDiskCheckoutImpl("", pv, checkoutRoot);
+        OnDiskCheckoutImpl c = new OnDiskCheckoutImpl(scm, path, pv, checkoutRoot);
         return c;
     }
 
@@ -542,7 +525,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
     }
 
     /** {@inheritDoc} */
-    public OnDiskCheckout getCheckout(ProjectVersion pv)
+    public OnDiskCheckout getCheckout(ProjectVersion pv, String path)
             throws CheckoutException {
 
         if (!canCheckout(pv)) {
@@ -569,7 +552,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
         }
 
         // Search for a cached checkout that could be updated
-        Set<String> c = checkoutCache.keySet();
+        /*Set<String> c = checkoutCache.keySet();
         OnDiskCheckoutImpl updatable = null;
 
         for (String s : c) {
@@ -596,8 +579,9 @@ public class FDSServiceImpl implements FDSService, Runnable {
         synchronized (pv) {
             if (!cacheContains(pv))
                 addCheckoutToCache(pv, createCheckout(svn, pv));
-        }
-        return getCheckoutFromCache(pv);
+        } */
+        //return getCheckoutFromCache(pv);
+        return createCheckout(svn, pv, path);
     }
 
     /** {@inheritDoc} */
@@ -653,6 +637,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
     /** {@inheritDoc} */
     public void releaseCheckout(OnDiskCheckout c) {
 
+        /*
         if (c == null) {
             logger.warn("Attempting to release null checkout");
             return;
@@ -664,6 +649,16 @@ public class FDSServiceImpl implements FDSService, Runnable {
         }
 
         returnCheckout(c);
+        */
+        File root = null;
+        try {
+            root = c.getRoot();
+            FileUtils.deleteRecursive(root);
+        } catch (Exception e) {
+            logger.error("Cannot clean up checkout root: " +
+                    root.getAbsolutePath());
+        }
+        c = null;
     }
 
     public Timeline getTimeline(StoredProject c) {
@@ -701,8 +696,8 @@ public class FDSServiceImpl implements FDSService, Runnable {
         // Get the checkout root from the properties file.
         String s = bc.getProperty("eu.sqooss.fds.root");
         if (s == null) {
-            logger.info("No eu.sqooss.fds.root set, using default /var/tmp");
-            s = "/var/tmp";
+            logger.info("No eu.sqooss.fds.root set, using default /var/tmp/alitheia");
+            s = "/var/tmp/alitheia";
         } else {
             logger.info("FDS root directory " + s);
         }

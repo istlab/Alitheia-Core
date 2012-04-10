@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# code by Christos KK Loverdos <loverdos@gmail.com>
+
+alldeps() {
+	mkdir ./all-deps 2>/dev/null
+	rm ./all-deps/*.jar 2>/dev/null
+	return 0
+}
+
+getdeps() {
+	mvn dependency:copy-dependencies
+}
+
+copydeps() {
+	find . -type f -name "*.jar" | grep target/dependency/ | xargs -I file cp file ./all-deps
+	ls -al ./all-deps
+}
+
+alldeps && getdeps && copydeps
