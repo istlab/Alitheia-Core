@@ -11,3 +11,9 @@ maven.jks
 bin/
 .metadata
 *.*~
+*.externalToolBuilders
+.idea/
+*.iml
+*.ipr
+*.iws
+*.db

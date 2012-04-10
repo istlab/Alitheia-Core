@@ -46,6 +46,15 @@ import eu.sqooss.service.db.ProjectDirectory;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static eu.sqooss.service.abstractmetric.InvocationOrder.OLDFIRST;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+@Target({TYPE})
+@Retention(RUNTIME)
 public @interface SchedulerHints {
 
 	/**
@@ -56,15 +65,15 @@ public @interface SchedulerHints {
 	 * <ul>
 	 * <li>{@link eu.sqooss.service.db.ExecutionUnit}</li>
 	 * <li>{@link eu.sqooss.service.db.EncapsulationUnit}</li>
-	 * <li>{@link eu.sqooss.service.db.Namespace}</li>
+	 * <li>{@link eu.sqooss.service.db.NameSpace}</li>
 	 * <li>{@link eu.sqooss.service.db.ProjectDirectory}</li>
-	 * <li>{@link eu.sqooss.service.db.ProjectFile.class}</li>
-	 * <li>{@link eu.sqooss.service.db.ProjectVersion.class}</li>
-	 * <li>{@link eu.sqooss.service.db.MailingListThread.class}</li>
-	 * <li>{@link eu.sqooss.service.db.MailMessage.class}</li>
-	 * <li>{@link eu.sqooss.service.db.MailingList.class}</li>
-	 * <li>{@link eu.sqooss.service.db.Bug.class}</li>
-	 * <li>{@link eu.sqooss.service.db.StoredProject.class}</li>
+	 * <li>{@link eu.sqooss.service.db.ProjectFile}</li>
+	 * <li>{@link eu.sqooss.service.db.ProjectVersion}</li>
+	 * <li>{@link eu.sqooss.service.db.MailingListThread}</li>
+	 * <li>{@link eu.sqooss.service.db.MailMessage}</li>
+	 * <li>{@link eu.sqooss.service.db.MailingList}</li>
+	 * <li>{@link eu.sqooss.service.db.Bug}</li>
+	 * <li>{@link eu.sqooss.service.db.StoredProject}</li>
 	 * </ul>
 	 * 
 	 */
@@ -81,5 +90,12 @@ public @interface SchedulerHints {
 			MailingList.class,
 			Bug.class,
 			StoredProject.class
-		} ; 
+		};
+
+    /**
+     * The order of resources by which the metrics should be run.
+     * This is a best effort approach
+     */
+    public InvocationOrder invocationOrder() default OLDFIRST;
 }
+
