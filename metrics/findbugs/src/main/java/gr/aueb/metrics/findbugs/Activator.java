@@ -1,6 +1,7 @@
 /*
- * Copyright 2008 - Organization for Free and Open Source Software,  
+ * Copyright 2012 - Organization for Free and Open Source Software,
  *                  Athens, Greece.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -27,20 +28,6 @@
  *
  */
 
-/*
-** That copyright notice makes sense for code residing in the 
-** main SQO-OSS repository. For the FindbugsMetrics plug-in only, the Copyright
-** notice may be removed and replaced by a statement of your own
-** with (compatible) license terms as you see fit; the FindbugsMetrics
-** plug-in itself is insufficiently a creative work to be protected
-** by Copyright.
-*/
-
-/* This is the package for this particular plug-in. Third-party
-** applications will want a different package name, but it is
-** *ESSENTIAL* that the package name contain the string '.metrics.'
-** because this is how Alitheia Core discovers the metric plug-ins. 
-*/
 package gr.aueb.metrics.findbugs;
 
 /*
@@ -50,25 +37,17 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-/*
- * The rest of the code is boilerplate; we use the
- * implementation of the FindbugsMetrics plug-in to instantiate
- * a service. 
- *
- * The FindbugsMetrics plug-in is simple because it has only a single
- * interface and we have put the implementation in the same package
- * as the activator. Some plug-ins are big and complicated and
- * will put interfaces in this package and the implementation
- * in impl.metrics; that's up to the implementor.
- */
 public class Activator implements BundleActivator {
 
     private ServiceRegistration registration;
 
     public void start(BundleContext bc) throws Exception {
 
-        registration = bc.registerService(FindbugsMetrics.class.getName(),
-                new FindbugsMetrics(bc), null);
+        //registration = bc.registerService(FindbugsMetrics.class.getName(),
+        //        new FindbugsMetrics(bc), null);
+        registration = bc.registerService(
+                gr.aueb.metrics.findbugsscala.FindBugsMetrics.class.getName(),
+                new gr.aueb.metrics.findbugsscala.FindBugsMetrics(bc), null);
     }
 
     public void stop(BundleContext context) throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - Organization for Free and Open Source Software,  
+ * Copyright 2012 - Organization for Free and Open Source Software,
  *                  Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,21 +27,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-/*
-** That copyright notice makes sense for code residing in the 
-** main SQO-OSS repository. For the FindbugsMetrics plug-in only, the Copyright
-** notice may be removed and replaced by a statement of your own
-** with (compatible) license terms as you see fit; the FindbugsMetrics
-** plug-in itself is insufficiently a creative work to be protected
-** by Copyright.
-*/
-
-/* This is the package for this particular plug-in. Third-party
-** applications will want a different package name, but it is
-** *ESSENTIAL* that the package name contain the string '.metrics.'
-** because this is how Alitheia Core discovers the metric plug-ins. 
-*/
 package gr.aueb.metrics.findbugs;
 
 import java.io.*;
