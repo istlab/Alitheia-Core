@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <parent>
+    <groupId>eu</groupId>
+    <artifactId>sqooss</artifactId>
+    <version>0.95-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.sqooss</groupId>
+  <artifactId>parsers</artifactId>
+  <name>Parsers</name>
+  <version>0.95-SNAPSHOT</version>
+
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>java</module>
+    <module>python</module>
+  </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr3-maven-plugin</artifactId>
+        <version>3.3</version>
+        <configuration>
+          <sourceDirectory>src/main/antlr3</sourceDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>antlr</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <version>3.3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr-runtime</artifactId>
+        <version>3.3</version>
+        <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>

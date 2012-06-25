@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>parsers</artifactId>
+    <groupId>eu.sqooss</groupId>
+    <version>0.95-SNAPSHOT</version>
+  </parent>
+
+  <groupId>eu.sqooss.parsers</groupId>
+  <artifactId>python</artifactId>
+  <name>Python Parser</name>
+  <version>0.95-SNAPSHOT</version>
+
+  <packaging>bundle</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.2.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Embed-Dependency>
+              *;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium
+            </Embed-Dependency>
+            <Export-Package>
+              eu.sqooss.parsers.python
+            </Export-Package>
+            <Import-Package>
+              *;resolution:=optional
+            </Import-Package>
+            <Bundle-SymbolicName>eu.sqooss.parsers.python</Bundle-SymbolicName>
+            <Bundle-Version>1.0</Bundle-Version>
+            <Bundle-Vendor>AUEB</Bundle-Vendor>
+            <Bundle-Description>Alitheia Core parser for Python</Bundle-Description>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr-runtime</artifactId>
+      <version>3.3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+    	<groupId>junit</groupId>
+    	<artifactId>junit</artifactId>
+    	<version>4.8.2</version>
+    	<type>jar</type>
+    	<scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>
