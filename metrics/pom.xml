@@ -26,7 +26,8 @@
     <module>discussionheat</module>
     <module>developermetrics</module>
     <module>findbugs</module>
-  </modules>
+    <module>java</module>
+</modules>
 
   <build>
     <plugins>

@@ -56,16 +56,17 @@
     <eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
     <eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
     <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
-    -->
+    -->   
+    
     <eu.sqooss.db>H2</eu.sqooss.db>
     <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
     <eu.sqooss.db.schema>alitheia;LOCK_MODE=3;MULTI_THREADED=true</eu.sqooss.db.schema>
     <eu.sqooss.db.user>sa</eu.sqooss.db.user>
     <eu.sqooss.db.passwd></eu.sqooss.db.passwd>
     <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
-    
     <eu.sqooss.updater.svn.ommitfileless>true</eu.sqooss.updater.svn.ommitfileless>
     <eu.sqooss.updater.svn.handlecopies>branches</eu.sqooss.updater.svn.handlecopies>
+    
     <!-- If fast, only one randomly chosen metric per plug-in will be queried
     to determine whether recalculation is necessary. Slow is safer, but, well, slower-->
     <eu.sqooss.metricactivator.sync>slow</eu.sqooss.metricactivator.sync>
@@ -76,9 +77,9 @@
     the default number of threads, currently 2x number of CPUs -->
     <eu.sqooss.scheduler.numthreads>4</eu.sqooss.scheduler.numthreads>
     <!--Cache implemnetation to use-->
-    <com.mws.squal.cache.impl>com.mws.squal.impl.service.cache.OnDiskCache</com.mws.squal.cache.impl>
+    <eu.sqooss.service.cache.impl>eu.sqooss.service.cache.OnDiskCache</eu.sqooss.service.cache.impl>
     <!--Location of the cache dir to use-->
-    <com.mws.squal.cache.dir>tmp</com.mws.squal.cache.dir>
+    <eu.sqooss.service.cache.dir>tmp</eu.sqooss.service.cache.dir>
   </properties>
   
   <packaging>pom</packaging>

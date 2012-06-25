@@ -23,6 +23,8 @@
     <module>mailthreadresolver</module>
     <module>devmatcher</module>
     <module>git</module>
+    <module>java</module>
+    <module>moduleresolver</module>
   </modules>
 
 </project>
