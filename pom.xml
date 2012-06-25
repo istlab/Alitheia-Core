@@ -96,6 +96,7 @@
     <module>plug-ins</module>
     <module>metrics</module>
     <module>external</module>
+    <module>parsers</module>
     <module>web</module>
   </modules>
 
