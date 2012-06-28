@@ -51,14 +51,12 @@ import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.UpdateProject;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
-import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.Updater;
-import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 public class ProjectsView extends AbstractView {
@@ -392,18 +390,7 @@ public class ProjectsView extends AbstractView {
             b.append(sp(in) + "<td class=\"borderless\">"
                     + "<b>" + getMsg("delete_project") + "</b>"
                     + "</td>\n");
-            // Affected invocation rules
-            HashMap<String,Object> properties = new HashMap<String, Object>();
-            properties.put("project", selProject);
-            List<?> affectedRules = sobjDB.findObjectsByProperties(
-                    InvocationRule.class, properties);
-            if ((affectedRules != null) && (affectedRules.size() > 0)) {
-                b.append(sp(in++) + "<tr>\n");
-                b.append(sp(in) + "<td class=\"borderless\">"
-                        + getMsg("delete_assoc_rules") + ": "
-                        + affectedRules.size()
-                        + "</td>\n");
-            }
+
             b.append(sp(--in) + "</tr>\n");
             //------------------------------------------------------------
             // Tool-bar

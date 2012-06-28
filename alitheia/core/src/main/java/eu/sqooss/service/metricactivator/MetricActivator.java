@@ -37,7 +37,6 @@ import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.InvocationRule.ActionType;
 
 /**
  * The MetricActivator service is responsible for kickstarting metric jobs
@@ -74,7 +73,7 @@ public interface MetricActivator extends AlitheiaCoreService {
     /**
      * Run the provided plug-in over all projects 
      *
-     * @param sp The plug-in to run
+     * @param ap The plug-in to run
      */
     public void syncMetrics(AlitheiaPlugin ap);
     
@@ -86,28 +85,4 @@ public interface MetricActivator extends AlitheiaCoreService {
      * synced with the results of the provided plugin
      */
     public void syncMetric(AlitheiaPlugin m, StoredProject sp);
-
-    /**
-     * Instructs the <code>MetricActivator<code> component, to load the list
-     * of invocation rules available in the SQO-OSS database.
-     * <br/>
-     * In the special case when no rules can be found in the database,
-     * this method will initialize the rule chain, by creating a database
-     * record for its default rule i.e. the default chain policy.
-     */
-    public void initRules();
-
-    /**
-     * Reloads the invocation rule with the specified Id from the database.
-     * When a rule with the given Id doesn't exist in the database, then it
-     * is removed from the <code>MetricActivator</code>'s cache as well
-     * (<i>if found in the cache</i>).
-     * When such rule exists in the database, then its record in the cache is
-     * replaced with the current database record.
-     *
-     * @param ruleId the invocation rule's Id
-     */
-    public void reloadRule(Long ruleId);
-
-    public ActionType matchRules (AlitheiaPlugin ap, DAObject resource);
 }

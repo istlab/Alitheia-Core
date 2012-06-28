@@ -51,9 +51,6 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.EncapsulationUnit;
 import eu.sqooss.service.db.ExecutionUnit;
-import eu.sqooss.service.db.InvocationRule;
-import eu.sqooss.service.db.InvocationRule.ActionType;
-import eu.sqooss.service.db.InvocationRule.ScopeType;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
@@ -61,9 +58,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.db.NameSpace;
-import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -87,66 +82,11 @@ public class MetricActivatorImpl  implements MetricActivator {
     private Scheduler sched;
     private boolean fastSync = false;
 
-    // Default action of the invocation rules chain
-    private ActionType defaultAction = null;
-    private Long defaultRuleId = null;
-    private Long firstRuleId = null;
-    private HashMap<Long,InvocationRule> rules = null;
-
     private AtomicLong priority;
     
     private HashMap<MetricType.Type, Class<? extends DAObject>> metricTypesToActivators;
     
     public MetricActivatorImpl() { }
-
-    public void initRules() {
-        // Load all defined invocation rules
-        if (rules == null) {
-            rules = new HashMap<Long, InvocationRule>();
-            InvocationRule defaultRule = InvocationRule.getDefaultRule(db);
-            defaultRuleId = defaultRule.getId();
-            defaultAction = ActionType.fromString(defaultRule.getAction());
-            InvocationRule rule = InvocationRule.first(db);
-            firstRuleId = rule.getId();
-            while (rule != null) {
-                rules.put(rule.getId(), rule);
-                rule = rule.next(db);
-            }
-        }
-    }
-
-    public void reloadRule (Long ruleId) {
-        // Load the rules chain, if not done yet
-        if(rules == null)
-            initRules();
-
-        // Invalid rule Id
-        if (ruleId == null) return;
-        // Retrieve the target rule from the database
-        InvocationRule rule = db.findObjectById(
-                InvocationRule.class, ruleId);
-        // Rule update
-        if (rule != null) {
-            rules.put(rule.getId(), rule);
-            // Check if this is the first rule in the chain
-            if (rule.getPrevRule() == null) {
-                firstRuleId = rule.getId();
-            }
-            // Check if this is the default rule in the chain
-            if (rule.getId() == defaultRuleId.longValue()) {
-                defaultAction = ActionType.fromString(rule.getAction());
-            }
-        }
-        // Rule remove
-        else {
-            if (rules.containsKey(ruleId))
-                rules.remove(ruleId);
-        }
-    }
-
-    public ActionType matchRules (AlitheiaPlugin ap, DAObject resource) {
-        return ActionType.EVAL;
-    }
 
     @Override
 	public <T extends DAObject> void runMetric(T resource, AlitheiaPlugin ap) {

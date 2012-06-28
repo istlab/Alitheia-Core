@@ -39,7 +39,6 @@ import java.util.List;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.InvocationRule;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -74,15 +73,7 @@ public class ProjectDeleteJob extends Job {
         // Delete any associated invocation rules first
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put("project", sp);
-        List<?> assosRules = dbs.findObjectsByProperties(InvocationRule.class,
-                properties);
-        if ((assosRules != null) && (assosRules.size() > 0)) {
-            for (Object nextDAO : assosRules) {
-                InvocationRule.deleteInvocationRule(dbs, 
-                        core.getMetricActivator(), (InvocationRule) nextDAO);
-            }
-        }
-        
+
         //Cleanup plugin results
         List<Plugin> ps = (List<Plugin>) dbs.doHQL("from Plugin");        
         

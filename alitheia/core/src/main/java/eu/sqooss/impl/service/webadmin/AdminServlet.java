@@ -89,9 +89,6 @@ public class AdminServlet extends HttpServlet {
     // Plug-ins view
     PluginsView pluginsView = null;
 
-    // Invocation rules view
-    RulesView rulesView = null;
-
     // Projects view
     ProjectsView projectsView = null;
 
@@ -145,7 +142,6 @@ public class AdminServlet extends HttpServlet {
         adminView = new WebAdminRenderer(bc, vc);
 
         // Create the various view objects
-        rulesView = new RulesView(bc, vc);
         pluginsView = new PluginsView(bc, vc);
         projectsView = new ProjectsView(bc, vc);
     }
@@ -321,7 +317,6 @@ public class AdminServlet extends HttpServlet {
         vc.put("admin",adminView);
         vc.put("projects",projectsView);
         vc.put("metrics",pluginsView);
-        vc.put("rules",rulesView);
         vc.put("request", request); // The request can be used by the render() methods
     }  
     
