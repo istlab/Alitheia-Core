@@ -3,8 +3,9 @@
 #
 
 if [ ! -e UMLGraph.jar ]; then
-    echo Copy UMLGraph.jar to `pwd` and re-run
-    exit 1
+    curl -o UmlGraph.jar http://search.maven.org/remotecontent?filepath=org/umlgraph/umlgraph/5.6/umlgraph-5.6.jar
+    #echo Copy UMLGraph.jar to `pwd` and re-run
+    #exit 1
 fi
 
 cwd=`pwd`
@@ -15,6 +16,6 @@ cat graph.dot |grep -v STATE|grep -v MASK|grep -v SCM_ROOT|grep -v DEFAULT >grap
 mv graph1.dot graph.dot
 dot -Tpdf graph.dot >db-schema.pdf
 mv db-schema.pdf $cwd
-rm UMLGraph.jar graph.dot
+#rm UMLGraph.jar graph.dot
 cd $cwd
 
