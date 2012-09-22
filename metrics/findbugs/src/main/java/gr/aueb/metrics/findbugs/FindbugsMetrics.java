@@ -114,6 +114,7 @@ import javax.xml.xpath.*;
 public class FindbugsMetrics extends AbstractMetric {
 
     static String MAVEN_PATH = "";
+    static String ANT_PATH = "";
     static String FINDBUGS_PATH = "";
 
     static {
@@ -125,6 +126,10 @@ public class FindbugsMetrics extends AbstractMetric {
             MAVEN_PATH = System.getProperty("mvn.path");
         else
             MAVEN_PATH = "mvn";
+        if (System.getProperty("ant.path") != null)
+            ANT_PATH = System.getProperty("ant.path");
+        else
+            ANT_PATH = "ant";
     }
 
     public FindbugsMetrics(BundleContext bc) {
@@ -148,8 +153,10 @@ public class FindbugsMetrics extends AbstractMetric {
 
         List<ProjectFile> files = pv.getFiles();
         Pattern pom = Pattern.compile("pom.xml$");
+        Pattern buildxml = Pattern.compile("build.xml$");
         Pattern trunk = Pattern.compile("/trunk");
-        boolean foundTrunk = false, foundPom = false;
+        boolean foundTrunk = false, foundPom = false,
+                foundBuild = false, maven_build = true;
 
         for(ProjectFile pf: files) {
             if (pom.matcher(pf.getFileName()).find())
@@ -157,14 +164,26 @@ public class FindbugsMetrics extends AbstractMetric {
 
             if (trunk.matcher(pf.getFileName()).find())
                 foundTrunk = true;
+
+            if (buildxml.matcher(pf.getFileName()).find())
+                foundBuild = true;
         }
 
-        if (!foundPom || !foundTrunk) {
-            log.info("Skipping version " + pv + " as no " +
-                (foundTrunk ? "pom.xml file":"/trunk directory") +
-                    " could be found");
+        if (!foundTrunk) {
+            log.info("Skipping version " + pv + "/trunk directory could be found");
             return;
         }
+
+        if (foundPom)
+            maven_build = true; // Prefer maven over ant
+        else
+            if (foundBuild)
+                maven_build = false;
+            else {
+                log.info("Skipping version " + pv + " as neither pom.xml " +
+                        "nor build.xml could be found");
+                return;
+            }
 
         FDSService fds = AlitheiaCore.getInstance().getFDSService();
 
@@ -173,56 +192,15 @@ public class FindbugsMetrics extends AbstractMetric {
             odc = fds.getCheckout(pv, "/trunk");
             File checkout = odc.getRoot();
 
-            File pomFile = FileUtils.findBreadthFirst(checkout, Pattern.compile("pom.xml"));
-
-            if (pom == null) {
-                log.warn(pv +" No pom.xml found in checkout?!");
-                return;
-            }
-
             String out = pv.getProject().getName() + "-" + pv.getRevisionId() +
                     "-" + pv.getId() + "-out.txt";
 
-            ProcessBuilder maven = new ProcessBuilder(MAVEN_PATH, "install", "-DskipTests=true");
-            maven.directory(pomFile.getParentFile());
-            maven.redirectErrorStream(true);
-            int retVal = runReadOutput(maven.start(), out);
+            List<File> jars = null;
+            if (maven_build)
+                jars = compileMaven(pv, pom, checkout, out);
+            else
+                jars = compileAnt(pv, buildxml, checkout, out);
 
-            // project dependencies
-            List<File> deps = new ArrayList<File>();
-            if (retVal != 0) {
-                log.warn("Build with maven failed. See file:" + out);
-            } else {
-                // Copy the script that gathers the dependency from
-                // the resource bundle
-                File copyDepsScript = new File(pomFile.getParentFile(), "copy-dependencies");
-                FileOutputStream fos = new FileOutputStream(copyDepsScript);
-                InputStream in = bc.getBundle().getResource("copy-dependencies").openStream();
-
-                int read;
-                byte[] buff = new byte[1024];
-                while ((read = in.read(buff)) != -1) {
-                    fos.write(buff, 0, read);
-                }
-
-                copyDepsScript.setExecutable(true);
-                fos.close(); in.close();
-
-                ProcessBuilder copyDeps = new ProcessBuilder("./copy-dependencies");
-                copyDeps.directory(pomFile.getParentFile());
-                copyDeps.redirectErrorStream(true);
-                int retVal2 = runReadOutput(copyDeps.start(), out);
-                if (retVal2 == 0) {
-                    File allDeps = new File(checkout.getPath() + "/all-deps");
-                    if (allDeps.exists() && allDeps.isDirectory()) {
-                        deps = Arrays.asList(allDeps.listFiles());
-                    }
-                }
-            }
-
-            List<File> jars = getJars(checkout);
-            jars.addAll(deps);
-            
             for(File jar: jars) {
 
                 //String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
@@ -242,7 +220,7 @@ public class FindbugsMetrics extends AbstractMetric {
 
                 ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
                 findbugs.redirectErrorStream(true);
-                retVal = runReadOutput(findbugs.start(), out);
+                int retVal = runReadOutput(findbugs.start(), out);
 
                 if (retVal != 0) {
                     log.warn("Findbugs failed. See file:" + out);
@@ -266,6 +244,83 @@ public class FindbugsMetrics extends AbstractMetric {
         }
     }
 
+    private List<File> compileMaven(ProjectVersion pv, Pattern pom,
+                                    File checkout, String out) throws IOException {
+
+        File pomFile = FileUtils.findBreadthFirst(checkout, pom);
+
+        if (pomFile == null) {
+            log.warn(pv + " No pom.xml found in checkout?!");
+            return new ArrayList<File>();
+        }
+
+        ProcessBuilder maven = new ProcessBuilder(MAVEN_PATH, "install", "-DskipTests=true");
+        maven.directory(pomFile.getParentFile());
+        maven.redirectErrorStream(true);
+        int retVal = runReadOutput(maven.start(), out);
+
+        // project dependencies
+        List<File> deps = new ArrayList<File>();
+        if (retVal != 0) {
+            log.warn("Build with maven failed. See file:" + out);
+            return deps;
+        }
+        // Copy the script that gathers the dependency from
+        // the resource bundle
+        File copyDepsScript = new File(pomFile.getParentFile(), "copy-dependencies");
+        FileOutputStream fos = new FileOutputStream(copyDepsScript);
+        InputStream in = bc.getBundle().getResource("copy-dependencies").openStream();
+
+        int read;
+        byte[] buff = new byte[1024];
+        while ((read = in.read(buff)) != -1) {
+            fos.write(buff, 0, read);
+        }
+
+        copyDepsScript.setExecutable(true);
+        fos.close();
+        in.close();
+
+        ProcessBuilder copyDeps = new ProcessBuilder("./copy-dependencies");
+        copyDeps.directory(pomFile.getParentFile());
+        copyDeps.redirectErrorStream(true);
+        int retVal2 = runReadOutput(copyDeps.start(), out);
+        if (retVal2 == 0) {
+            File allDeps = new File(checkout.getPath() + "/all-deps");
+            if (allDeps.exists() && allDeps.isDirectory()) {
+                deps = Arrays.asList(allDeps.listFiles());
+            }
+        }
+
+        List<File> jars = getMavenJars(checkout);
+        jars.addAll(deps);
+
+        return jars;
+    }
+
+    private List<File> compileAnt(ProjectVersion pv, Pattern buildxml,
+                                    File checkout, String out) throws IOException {
+
+        File antFile = FileUtils.findBreadthFirst(checkout, buildxml);
+
+        if (antFile == null) {
+            log.warn(pv + " No build.xml found in checkout?!");
+            return new ArrayList<File>();
+        }
+
+        ProcessBuilder ant = new ProcessBuilder(ANT_PATH);
+        ant.directory(antFile.getParentFile());
+        ant.redirectErrorStream(true);
+        int retVal = runReadOutput(ant.start(), out);
+
+        if (retVal != 0) {
+            log.warn("Build with ant failed. See file:" + out);
+            return new ArrayList<File>();
+        }
+
+        return getAntJars(checkout);
+    }
+
     public String getPkgs(List<ProjectFile> files) {
         Set<String> pkgs = new HashSet<String>();
         Pattern p = Pattern.compile("src/main/java/(.*\\.java)");
@@ -284,7 +339,7 @@ public class FindbugsMetrics extends AbstractMetric {
         return sb.toString();
     }
     
-    public List<File> getJars(File checkout) {
+    public List<File> getMavenJars(File checkout) {
         List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
         List<File> result = new ArrayList<File>();
         //Exclude common maven artifacts which don't contain bytecode
@@ -294,6 +349,19 @@ public class FindbugsMetrics extends AbstractMetric {
             if (f.getName().endsWith("with-dependencies.jar"))
                 continue;
             if (f.getName().endsWith("-javadoc.jar"))
+                continue;
+            result.add(f);
+        }
+        return result;
+    }
+
+    public List<File> getAntJars(File checkout) {
+        List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
+        List<File> result = new ArrayList<File>();
+        //Exclude common maven artifacts which don't contain bytecode
+        for(File f: jars) {
+            // Exclude libraries commonly included in Maven repositories
+            if (f.getAbsolutePath().contains("/lib/"))
                 continue;
             result.add(f);
         }
