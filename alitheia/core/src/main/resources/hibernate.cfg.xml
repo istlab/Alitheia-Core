@@ -61,7 +61,6 @@
         <mapping class="eu.sqooss.service.db.ProjectFileMeasurement"/>
         <mapping class="eu.sqooss.service.db.MailingListThreadMeasurement"/>
         <mapping class="eu.sqooss.service.db.MailMessageMeasurement"/>
-        <mapping class="eu.sqooss.service.db.InvocationRule"/>
         <mapping class="eu.sqooss.service.db.OhlohDeveloper"/>
         <mapping class="eu.sqooss.service.db.ProjectVersionParent"/>
         <mapping class="eu.sqooss.service.db.NameSpace"/>
