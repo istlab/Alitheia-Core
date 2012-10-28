@@ -108,6 +108,12 @@
       <email>gousiosg@gmail.com</email>
       <url>http://istlab.dmst.aueb.gr/~george</url>
     </developer>
+    <developer>
+      <id>bkarak</id>
+      <name>Vassilios Karakoidas</name>
+      <email>vassilios.karakoidas@gmail.com</email>
+      <url>http://bkarak.wizhut.com/</url>
+    </developer>
   </developers>
 
   <scm>
