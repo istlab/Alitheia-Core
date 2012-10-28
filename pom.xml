@@ -122,8 +122,19 @@
     <developerConnection>scm:git:ssh://git@git.sqo-oss.org:sqo-oss.git</developerConnection>
   </scm>
 
+  <!-- build -->
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-pax-plugin</artifactId>
@@ -170,6 +181,8 @@
          </extension>
     </extensions>
   </build>
+
+  <!-- reporting -->
   <reporting>
     <plugins>
       <plugin>
@@ -184,6 +197,8 @@
       </plugin>
     </plugins>
   </reporting>
+
+  <!-- profiles -->
   <profiles>
   	<profile>
       <id>skiptests</id>
@@ -224,9 +239,10 @@
             <configuration>
               <skipTests>false</skipTests>
             </configuration>
-          </plugin>
+          </plugin>        
         </plugins>
       </build>
     </profile>
   </profiles>
+  
 </project>
