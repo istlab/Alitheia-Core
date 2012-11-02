@@ -108,6 +108,12 @@
       <email>gousiosg@gmail.com</email>
       <url>http://istlab.dmst.aueb.gr/~george</url>
     </developer>
+    <developer>
+      <id>bkarak</id>
+      <name>Vassilios Karakoidas</name>
+      <email>vassilios.karakoidas@gmail.com</email>
+      <url>http://bkarak.wizhut.com/</url>
+    </developer>
   </developers>
 
   <scm>
@@ -116,8 +122,28 @@
     <developerConnection>scm:git:ssh://git@git.sqo-oss.org:sqo-oss.git</developerConnection>
   </scm>
 
+  <!-- build -->
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <!-- FUTURE: executable jar
+          <archive>
+            <manifest>
+              <mainClass>org.sample.App</mainClass>
+            </manifest>
+          </archive>
+          -->
+          <!-- create a jar -->
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <!-- configure execution -->          
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.ops4j</groupId>
         <artifactId>maven-pax-plugin</artifactId>
@@ -164,6 +190,8 @@
          </extension>
     </extensions>
   </build>
+
+  <!-- reporting -->
   <reporting>
     <plugins>
       <plugin>
@@ -178,6 +206,8 @@
       </plugin>
     </plugins>
   </reporting>
+
+  <!-- profiles -->
   <profiles>
   	<profile>
       <id>skiptests</id>
@@ -218,7 +248,7 @@
             <configuration>
               <skipTests>false</skipTests>
             </configuration>
-          </plugin>
+          </plugin>        
         </plugins>
       </build>
     </profile>
