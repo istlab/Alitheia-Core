@@ -90,13 +90,11 @@ public class JavaUpdater implements MetadataUpdater, JobStateListener {
         if (db.isDBSessionActive())db.commitDBSession();
     }
 
-    @Override
     public void jobStateChanged(Job j, State newState) {
         if (newState == State.Error || newState == State.Finished)
             progress = 100 - (float) (((double)jobCounter.decrementAndGet() / (double)numVersions) * 100); 
     }
 
-    @Override
     public int progress() {
         return (int) progress;
     }
