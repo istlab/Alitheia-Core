@@ -43,11 +43,11 @@ public class Activator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
 
-        //registration = bc.registerService(FindbugsMetrics.class.getName(),
-        //        new FindbugsMetrics(bc), null);
-        registration = bc.registerService(
-                gr.aueb.metrics.findbugsscala.FindBugsMetrics.class.getName(),
-                new gr.aueb.metrics.findbugsscala.FindBugsMetrics(bc), null);
+        registration = bc.registerService(FindbugsMetrics.class.getName(),
+                new FindbugsMetrics(bc), null);
+//        registration = bc.registerService(
+//                gr.aueb.metrics.findbugsscala.FindBugsMetrics.class.getName(),
+//                new gr.aueb.metrics.findbugsscala.FindBugsMetrics(bc), null);
     }
 
     public void stop(BundleContext context) throws Exception {
