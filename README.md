@@ -15,7 +15,7 @@ http://www.sqo-oss.org
 
 You can find the following files and directories here:
 
-LICENSE
+`LICENSE`
     These are the licenses that apply to the software included in this
     source tree. The LICENSE file applies to Alitheia itself, and is the
     2-clause BSD license. Other parts of the system may have different
@@ -23,27 +23,27 @@ LICENSE
     components used in (or by) Alitheia fall under that Apache License,
     version 2.
 
-pom.xml
+`pom.xml`
     As any other modern Java project, Alitheia Core uses maven for building. 
     We also use the Pax OSGi tools. You need to have those installed if
     you plan to add functionality or external libraries to Alitheia Core
 
-alitheia/
+`alitheia/`
     Contains the Alitheia Core source code (under core/) and modules for the
     programmating interfaces to the system.
 
-external/
+`external/`
     External libraries (actually library references) to be bundled as OSGi
     bundles at complile time.
 
-metrics/
+`metrics/`
     Contains the source code of the various metric plug-ins developed for the
     Alitheia system. Each metric is a self-contained codebase.
 
-plug-ins/
+`plug-ins/`
     Code for data and updater plug-ins.
 
-ui/
+`ui/`
     Source code for a simple client to the Alitheia Core REST api.
 
 ### Getting the code
