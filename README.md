@@ -1,20 +1,17 @@
-***
-*** Introduction
-***
+## Introduction
 
-This is the source tree for the software produced by the SQO-OSS project.
-The main software product is Alitheia Core, the platform for the automated
-measurement of the quality of  projects.
+
+This is the source tree for Alitheia Core, a platform for 
+software analytics and software engineering research.
 
 The README gives an overview of how the source tree is organised and sort
-instructions on how to use and develop for Alitheia Core. Full documentation
+instructions on how to use and develop for Alitheia Core. More documentation
 is always available at the project's web site at
 
 http://www.sqo-oss.org
 
-***
-*** Source Organisation
-***
+
+### Source Organisation
 
 You can find the following files and directories here:
 
@@ -49,9 +46,7 @@ plug-ins/
 ui/
     Source code for a simple client to the Alitheia Core REST api.
 
-***
-*** Getting the code
-***
+### Getting the code
 
 The source code to Alitheia Core is maintained on Github, using the Git
 version control system. To get the code (including development history)
@@ -59,41 +54,39 @@ Git must be installed. Git can be downloaded from: http://git-scm.com/download
 
 Without a Github account, the code can be checked out as follows:
 
-git clone git://github.com/gousiosg/Alitheia-Core.git
+git clone git://github.com/istlab/Alitheia-Core.git
 
 Courtesy of Github, a zip of the current latest version of the software
 can be downloaded.
 
-https://github.com/gousiosg/Alitheia-Core/zipball/master
+https://github.com/istlab/Alitheia-Core/zipball/master
 
-***
-*** Compiling, running and developing
-***
+### Compiling, running and developing
 
 Alitheia Core is build using Maven (tested with version > 3). You can download
 Maven from the following link: http://maven.apache.org/
 
-- To build the project, do:
+* To build the project, do:
 
-  mvn install
+  `mvn install`
 
-- To run Alitheia Core, you need to configure a database first. Consult the
+* To run Alitheia Core, you need to configure a database first. Consult the
   online Quickstart guide at http://www.sqo-oss.org/quickstart
   on how to do it. Then, run:
 
-  mvn pax:provision
+  `mvn pax:provision`
 
-  Then visit the web interface: http://localhost:8080
+  Then visit the web interface: [http://localhost:8080](http://localhost:8080)
 
-- To debug Alitheia Core (on Unix-based systems):
-
-  mvn install pax:provision
+* To debug Alitheia Core (on Unix-based systems):
+```
+  mvn install pax:provision`
   [quit the OSGi prompt]
   ./debug.sh
-
+```
   Then you can connect a remote Java debugger to port 8000 on localhost.
 
-- To develop for Alitheia Core:
+* To develop for Alitheia Core:
 
   * To develop a metric plug-in: see metrics/README.txt
   * To develop a data plug-in: see plug-ins/README.txt
