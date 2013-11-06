@@ -1,12 +1,9 @@
-Working with Eclipse
-++++++++++++++++++++
+## Working with IDEs
 
-Eclipse is the prefered development environment to work on Alitheia Core. 
 The following instructions have been tested and confirmed working 
-with Eclipse Kepler (4.3) and IntelliJ 12.1 on MacOSX. The steps are:
+with Eclipse Kepler (4.3) and IntelliJ 12.1 on MacOSX.
 
-Eclipse
-=======
+### Eclipse
 1. Checkout the project from its repository, for example
     
     git clone git@github.com:istlab/Alitheia-Core.git
@@ -28,8 +25,7 @@ the list and click on the new launch configuration button. Add a name click
 debug. Eclipse will connect to the waiting virtual machine and will stop
 at any breakpoint you have set in the code.
 
-IntelliJ
-========
+### IntelliJ
 
 1. Checkout the project from its repository, for example
     
