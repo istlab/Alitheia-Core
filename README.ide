@@ -15,10 +15,10 @@ Eclipse
     mvn clean install
     mvn -DdownloadJavadoc -Ddownloadsources eclipse:eclipse
 
-3. In Eclipse, choose Import->General-> In the next dialogue,
+3. In Eclipse, choose Import->General->Existing Projects into Workspace.
+In the next dialogue,
 you enter the checkout directory and a list of project modules appears. Here
-you should select only the modules you will be working with. This is it, you
-are now ready to hack!
+you should select only the modules you will be working with.
 
 4. To debug, you run the debug.sh script from the top-level directory. This
 will start Alitheia Core in debug mode; initialisation will stop until an
