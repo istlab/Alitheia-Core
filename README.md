@@ -34,7 +34,7 @@ You can find the following files and directories here:
 
 `external/`
     External libraries (actually library references) to be bundled as OSGi
-    bundles at complile time.
+    bundles at compile time.
 
 `metrics/`
     Contains the source code of the various metric plug-ins developed for the
