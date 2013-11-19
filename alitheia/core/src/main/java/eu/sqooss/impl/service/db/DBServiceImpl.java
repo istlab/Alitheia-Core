@@ -294,8 +294,10 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     }
     
     public static DBService getInstance() {
-        if (instance == null)
+    	if (instance == null) {
+        	System.out.println("instance == null");
             instance = new DBServiceImpl();
+        }
         return instance;
     }
 

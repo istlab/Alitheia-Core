@@ -34,10 +34,11 @@
 package eu.sqooss.service.scheduler;
 
 import java.util.Deque;
-import java.util.List;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCoreService;
+import eu.sqooss.impl.service.scheduler.BaseWorker;
+import eu.sqooss.impl.service.scheduler.DependencyManager;
 
 /**
  * Interface for the scheduler.
@@ -54,25 +55,17 @@ public interface Scheduler extends AlitheiaCoreService {
     void enqueue(Job job) throws SchedulerException;
 
     /**
-     * Queue lots of jobs without checking their dependencies.
-     */
-    void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException;
-    
-    /**
      * Queue lots of jobs as a block. Execution won't start until all
      * jobs are queued.  
      */
-    void enqueueBlock(List<Job> jobs) throws SchedulerException;
+    void enqueue(Set<Job> jobs) throws SchedulerException;
     
-    /**
-     * This method is called, when the state of the job \a job changes to 
-     * \a state.
-     */
-    void jobStateChanged(Job job, Job.State state);
-
+    @Deprecated
+	public void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException;
     /**
      * This method is called, when dependencies of the job \a were changed.
      */
+    @Deprecated
     void jobDependenciesChanged(Job job);
 
     /**
@@ -123,12 +116,7 @@ public interface Scheduler extends AlitheiaCoreService {
     /**
      * Get the list of threads working on jobs of this scheduler.
      */
-    WorkerThread[] getWorkerThreads();
-    
-    /**
-     * Starts a temporary worker thread handling exactly one job.
-     */
-    void startOneShotWorkerThread();
+//    WorkerThread[] getWorkerThreads();
     
     /**
      * Create an auxiliary queue tied to a specific job, that allows the
@@ -141,7 +129,7 @@ public interface Scheduler extends AlitheiaCoreService {
      * For efficiency reasons, the objects in the provided job queue might be
      * modified.
      */
-    boolean createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p) throws SchedulerException;
+    boolean createAuxQueue(Job j, Set<Job> jobs, ResumePoint p) throws SchedulerException;
     
     /**
      * Pause the execution of a Job.  
@@ -149,4 +137,27 @@ public interface Scheduler extends AlitheiaCoreService {
      */
     void yield(Job j, ResumePoint p) throws SchedulerException;
     
+    /**
+     * Starts the execution of a Job.  
+     * @throws SchedulerException 
+     */
+    void resume(Job j, ResumePoint p) throws SchedulerException;
+    
+    /**
+     * Returns the {@link DependencyManager} of this {@link Scheduler}.
+     * @return {@link DependencyManager} - contains the dependencies of the jobs in this schedule
+     */
+	DependencyManager getDependencyManager();
+
+	/**
+	 * Start a new thread that executes one job and one job only.
+	 * @param job
+	 */
+	void startOneShotWorker(Job job);
+	
+	/**
+	 * Remove a worker from the temporary threadpool
+	 * @param bw
+	 */
+	void deallocateFromThreadpool(BaseWorker bw);
 }

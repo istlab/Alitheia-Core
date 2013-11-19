@@ -1,6 +1,9 @@
 /*
- * Copyright 2010 - Organization for Free and Open Source Software,  
- *                 Athens, Greece.
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -28,45 +31,59 @@
  *
  */
 
-package eu.sqooss.service.admin.actions;
+package eu.sqooss.test.service.scheduler;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.admin.AdminActionBase;
-import eu.sqooss.service.scheduler.SchedulerStats;
+import java.util.Random;
 
-public class RunTimeInfo extends AdminActionBase {
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Job.State;
 
-    public static final String MNEMONIC = "rti";
-    private static final String descr = "Returns misc runtime information";
+/**
+ * This a test job class.
+ * It has the holy purpuse to print a string n times.
+ *
+ * @author Christoph Schleifenbaum
+ */
+class TestJobObject extends Job
+{
 
-    public RunTimeInfo() {
-        super();
+    private int n;
+    private String s;
+
+    /**
+     * Contructor creating a job printing string \a s \a n times.
+     */
+    public TestJobObject(int n, String s) {
+        this.n = n;
+        this.s = s;
     }
 
-    @Override
-    public String mnemonic() {
-        return MNEMONIC;
+    public long priority() {
+        return 0;
     }
-
-    @Override
-    public String descr() {
-        return descr;
+    
+    public void mockState(State s) {
+    	this.setState(s);
     }
-
-    @Override
-    public void execute() throws Exception {
-        super.execute();
-        try {
-            SchedulerStats s = AlitheiaCore.getInstance().getScheduler()
-                    .getSchedulerStats();
-            result.put("sched.jobs.failed", s.getFailedJobs());
-            result.put("sched.jobs.wait", s.getWaitingJobs());
-            result.put("sched.jobs.finished", s.getFinishedJobs());
-            result.put("sched.threads.idle", 0);
-            result.put("sched.threads.total", 0);
-        } catch (Exception e) {
-            error(e);
+    
+    protected void run() throws Exception  {
+        System.out.println("Testjob running!");
+        Random r = new Random();
+        for (int i = 0; i < n; ++i) {  
+        	int j = Math.abs(r.nextInt() % 100);
+        	try {
+				Thread.sleep(j);
+			} catch (InterruptedException e) {
+			}
         }
-        finished("Info retrieved");
+        System.out.println("Testjob finished!");
+    }
+    
+    public void stateChange(State s) {
+    	this.setState(s);
+    }
+    
+    public String toString() {
+    	return this.s;	
     }
 }

@@ -90,6 +90,14 @@
       <id>jboss</id>
       <url>http://repository.jboss.org/nexus/content/groups/public/</url>
     </repository>
+  <repository>
+    <id>spring-osgified-artifacts</id>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+    <name>Springframework Maven OSGified Artifacts Repository</name>
+    <url>http://maven.springframework.org/osgi</url>
+  </repository>
   </repositories>
 
   <modules>

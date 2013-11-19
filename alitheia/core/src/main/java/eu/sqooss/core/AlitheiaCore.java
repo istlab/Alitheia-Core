@@ -33,14 +33,31 @@
 
 package eu.sqooss.core;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.osgi.framework.Bundle;
+import org.eclipse.gemini.blueprint.mock.MockBundleContext;
+import org.eclipse.gemini.blueprint.mock.MockServiceReference;
+
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleListener;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.eclipse.gemini.blueprint.mock.MockBundleContext;
+import org.eclipse.gemini.blueprint.mock.MockServiceReference;
 
 import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
@@ -76,7 +93,11 @@ import eu.sqooss.service.webadmin.WebadminService;
  */
 public class AlitheiaCore {
 
-    /** The Logger component's instance. */
+	private static ServiceReference reference;
+	private static BundleContext bundleContext;
+	private static Object service;
+	
+	/** The Logger component's instance. */
     private LogManagerImpl logger;
     
     /** The parent bundle's context object. */
@@ -158,7 +179,26 @@ public class AlitheiaCore {
     
     /*Create a temp instance to use for testing.*/
     public static AlitheiaCore testInstance() {
-        instance = new AlitheiaCore(null);
+    	reference = new MockServiceReference();
+    	bundleContext = new MockBundleContext() {
+
+    		public ServiceReference getServiceReference(String clazz) {
+    			return reference;
+    		}
+
+    		public ServiceReference[] getServiceReferences(String clazz, String filter) 
+    				throws InvalidSyntaxException {
+    			return new ServiceReference[] { reference };
+    		}
+    		
+    		public Object getService(ServiceReference ref) {
+    		    if (reference == ref)
+    		       return service;
+    		    return super.getService(ref);
+    		}
+    	};
+
+        instance = new AlitheiaCore(bundleContext);
         return instance;
     }
     
@@ -196,7 +236,6 @@ public class AlitheiaCore {
      * block the instatiation process).
      */
     private void init() {
-
         err("Required services online, initialising");
 
         logger = new LogManagerImpl();
@@ -308,7 +347,7 @@ public class AlitheiaCore {
      */
     public DBService getDBService() {
         //return (DBServiceImpl)instances.get(DBService.class);
-        return DBServiceImpl.getInstance(); // <-- Ugly but required for testing.
+    	return DBServiceImpl.getInstance(); // <-- Ugly but required for testing.
     }
     
     /**

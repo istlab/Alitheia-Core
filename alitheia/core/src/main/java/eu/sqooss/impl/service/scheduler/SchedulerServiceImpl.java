@@ -33,14 +33,22 @@
 
 package eu.sqooss.impl.service.scheduler;
 
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.BundleContext;
 
@@ -54,259 +62,307 @@ import eu.sqooss.service.scheduler.WorkerThread;
 
 public class SchedulerServiceImpl implements Scheduler {
 
-    private static final String START_THREADS_PROPERTY = "eu.sqooss.scheduler.numthreads";
-    private static final String PERF_LOG_PROPERTY = "eu.sqooss.log.perf";
-    
-    private Logger logger = null;
-    private boolean perfLog = false;
+	private static final String START_THREADS_PROPERTY = "eu.sqooss.scheduler.numthreads";
 
-    private SchedulerStats stats = new SchedulerStats();
+	private Logger logger;
+	private SchedulerStats stats;
 
-    // thread safe job queue
-    private PriorityQueue<Job> blockedQueue = new PriorityQueue<Job>(1,
-            new JobPriorityComparator());
-    private BlockingQueue<Job> workQueue = new PriorityBlockingQueue<Job>(1,
-            new JobPriorityComparator());
+	private ExecutorService threadPool;
+	private List<BaseWorker> tempThreadPool;
 
-    private BlockingQueue<Job> failedQueue = new ArrayBlockingQueue<Job>(1000);
+	private PriorityQueue<Job> jobsToBeExecuted;
+	private List<Job> failedJobs = new ArrayList<Job>();
+	private DependencyManager dependencyManager;
 
-    private List<WorkerThread> myWorkerThreads = null;
-    
-    public SchedulerServiceImpl() { }
+	/**
+	 * Initialize a new SchedulerServiceImpl
+	 */
+	public SchedulerServiceImpl() {
+		this.stats = new SchedulerStats();
+		this.threadPool = Executors.newFixedThreadPool(1);
+		this.jobsToBeExecuted = new PriorityQueue<Job>(10,
+				new JobPriorityComparator());
+		this.dependencyManager = DependencyManager.getInstance();
+		this.tempThreadPool = new ArrayList<BaseWorker>();
+	}
 
-    public void enqueue(Job job) throws SchedulerException {
-        synchronized (this) {
-            if (logger != null)
-                logger.debug("SchedulerServiceImpl: queuing job " + job.toString());
-            job.callAboutToBeEnqueued(this);
-            blockedQueue.add(job);
-            stats.addWaitingJob(job.getClass().toString());
-            stats.incTotalJobs();
-        }
-        jobDependenciesChanged(job);
-    }
-    
-    public void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException {
-        synchronized (this) {
-            for (Job job : jobs) {
-                logger.debug("Scheduler ServiceImpl: queuing job "
-                        + job.toString());
-                job.callAboutToBeEnqueued(this);
-                workQueue.add(job);
-                stats.addWaitingJob(job.getClass().toString());
-                stats.incTotalJobs();
-            }
-        }
-    }
-    
-    public void enqueueBlock(List<Job> jobs) throws SchedulerException {
-        synchronized (this) {
-            for (Job job : jobs) {
-                logger.debug("SchedulerServiceImpl: queuing job " + job.toString());
-                job.callAboutToBeEnqueued(this);
-                blockedQueue.add(job);
-                stats.addWaitingJob(job.getClass().toString());
-                stats.incTotalJobs();
-            }
-        }
-        for (Job job : jobs)
-            jobDependenciesChanged(job);
-    }
+	/**
+	 * Force the start of a {@link Scheduler} specifying the number of threads
+	 * to be used with n.
+	 * 
+	 * @param n
+	 *            - the number of threads to use in the threadpool.
+	 */
+	@Override
+	public void startExecute(int n) {
+		this.threadPool = Executors.newFixedThreadPool(n);
+		for (int i = 0; i < n; i++) {
+			this.threadPool.execute(new BaseWorker(this));
+		}
+	}
 
-    public void dequeue(Job job) {
-        synchronized (this) {
-            if (!blockedQueue.contains(job) && !workQueue.contains(job)) {
-                if (logger != null) {
-                    logger.info("SchedulerServiceImpl: job " + job.toString()
-                            + " not found in the queue.");
-                }
-                return;
-            }
-            job.callAboutToBeDequeued(this);
-            blockedQueue.remove(job);
-            workQueue.remove(job);
-        }
-        if (logger != null) {
-            logger.warn("SchedulerServiceImpl: job " + job.toString()
-                    + " not found in the queue.");
-        }
-    }
+	/**
+	 * Start the {@link Scheduler}, the number of threads is based on the
+	 * available processors.
+	 */
+	@Override
+	public boolean startUp() {
 
-    public Job takeJob() throws java.lang.InterruptedException {
-        /*
-         * no synchronize needed here, the queue is doing that adding
-         * synchronize here would actually dead-lock this, since no new items
-         * can be added as long someone is waiting for items
-         */
-        return workQueue.take();
-    }
+		int numThreads = 2 * Runtime.getRuntime().availableProcessors();
+		String threadsProperty = System.getProperty(START_THREADS_PROPERTY);
 
-    public Job takeJob(Job job) throws SchedulerException {
-        synchronized (workQueue) {
-            if (!workQueue.contains(job)) {
-                throw new SchedulerException("Can't take job " + job
-                        + ": It is not in the scheduler's queue right now.");
-            }
-            workQueue.remove(job);
-            return job;
-        }
-    }
-    
-    public void jobStateChanged(Job job, Job.State state) {
-        if (logger != null) {
-            logger.debug("Job " + job + " changed to state " + state);
-        }
+		if (threadsProperty != null && !threadsProperty.equals("-1")) {
+			try {
+				numThreads = Integer.parseInt(threadsProperty);
+			} catch (NumberFormatException nfe) {
+				logger.warn("Invalid number of threads to start:"
+						+ threadsProperty);
+			}
+		}
+		this.startExecute(numThreads);
 
-        if (state == Job.State.Finished) {
-            stats.removeRunJob(job);
-            stats.incFinishedJobs();
-        } else if (state == Job.State.Running) {
-            stats.removeWaitingJob(job.getClass().toString());
-            stats.addRunJob(job);
-        } else if (state == Job.State.Yielded) {
-            stats.removeRunJob(job);
-            stats.addWaitingJob(job.getClass().toString());
-        } else if (state == Job.State.Error) {
+		return true;
+	}
 
-            if (failedQueue.remainingCapacity() == 1)
-                failedQueue.remove();
-            failedQueue.add(job);
-            
-            stats.removeRunJob(job);
-            stats.addFailedJob(job.getClass().toString());
-        }
-    }
+	/**
+	 * Kill the current {@link Scheduler}, this stops all the threads that are
+	 * associated with this {@link Scheduler}
+	 */
+	@Override
+	public void shutDown() {
+		for (BaseWorker worker : this.tempThreadPool) {
+			worker.stopProcessing();
+			worker = null;
+		}
+		this.threadPool.shutdownNow();
+		try {
+			this.threadPool.awaitTermination(15, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 
-    public void jobDependenciesChanged(Job job) {
-        synchronized (this) {
-            if (workQueue.contains(job) && !job.canExecute()) {
-                workQueue.remove(job);
-                blockedQueue.add(job);
-            } else if (job.canExecute()) {
-                blockedQueue.remove(job);
-                workQueue.add(job);
-            }
-        }
-    }
+		}
+	}
 
-    public void startExecute(int n) {
-        if (logger != null)
-            logger.info("Starting " + n + " worker threads");
-        synchronized (this) {
-            if (myWorkerThreads == null) {
-                myWorkerThreads = new LinkedList<WorkerThread>();
-            }
-
-            for (int i = 0; i < n; ++i) {
-                WorkerThread t = new WorkerThreadImpl(this, i);
-                t.start();
-                myWorkerThreads.add(t);
-                stats.incWorkerThreads();
-            }
-        }
-    }
-
-    public void stopExecute() {
-        synchronized (this) {
-            if (myWorkerThreads == null) {
-                return;
-            }
-
-            for (WorkerThread t : myWorkerThreads) {
-                t.stopProcessing();
-                stats.decWorkerThreads();
-            }
-
-            myWorkerThreads.clear();
-        }
-    }
-
-    synchronized public boolean isExecuting() {
-        synchronized (this) {
-            if (myWorkerThreads == null) {
-                return false;
-            } else {
-                return !myWorkerThreads.isEmpty();
-            }
-        }
-    }
-
-    public SchedulerStats getSchedulerStats() {
-        return stats;
-    }
-
-    public Job[] getFailedQueue() {
-        Job[] failedJobs = new Job[failedQueue.size()];
-        return failedQueue.toArray(failedJobs);
-    }
-
-    public WorkerThread[] getWorkerThreads() {
-        return (WorkerThread[]) this.myWorkerThreads.toArray();
-    }
-
-    public void startOneShotWorkerThread() {
-        WorkerThread t = new WorkerThreadImpl(this, true);
-        t.start();
-    }
-
+	/**
+	 * Specify the logger after initializing the {@link Scheduler}
+	 */
 	@Override
 	public void setInitParams(BundleContext bc, Logger l) {
 		this.logger = l;
+		this.stats.setInitParams(bc, l);
+	}
+
+	/**
+	 * Enqueue a {@link Job} in this scheduler. Note: dependencies are handled
+	 * by the {@link DependencyManager} now.
+	 * 
+	 * @param job
+	 *            - The {@link Job} to be enqueued.
+	 */
+	@Override
+	public void enqueue(Job job) throws SchedulerException {
+		if (job == null) {
+			return;
+		}
+		synchronized (this) {
+			job.callAboutToBeEnqueued(this);
+			this.jobsToBeExecuted.add(job);
+			this.stats.incTotalJobs();
+			this.stats.addWaitingJob(job.getClass().toString());
+			job.addJobStateListener(this.stats);
+		}
+	}
+
+	/**
+	 * Enqueue a multiple jobs at once, this calls
+	 * {@link Scheduler#enqueue(Job)} for each job in the Set.
+	 * 
+	 * @param jobs
+	 *            - A set of jobs.
+	 */
+	@Override
+	public void enqueue(Set<Job> jobs) throws SchedulerException {
+		synchronized (this) {
+			for (Job j : jobs) {
+				this.enqueue(j);
+			}
+		}
+	}
+
+	/**
+	 * @deprecated This method exists for backward compatability and should not
+	 *             be used, dependencies are handled by
+	 *             {@link DependencyManager}
+	 */
+	@Deprecated
+	public void enqueueNoDependencies(Set<Job> jobs) throws SchedulerException {
+		this.enqueue(jobs);
+	}
+
+	/**
+	 * Remove a {@link Job} j from the queue of this {@link Scheduler}
+	 * 
+	 * @param j
+	 *            - the Job to be dequeued
+	 */
+	public void dequeue(Job j) {
+		synchronized (this) {
+			j.callAboutToBeDequeued(this);
+			this.jobsToBeExecuted.remove(j);
+			this.stats.removeWaitingJob(j.getClass().toString());
+		}
+	}
+
+	/**
+	 * @deprecated This method exists for backward compatability and should not
+	 *             be used, dependencies are handled by
+	 *             {@link DependencyManager}
+	 */
+	@Override
+	@Deprecated
+	public void jobDependenciesChanged(Job job) {
+		// for backwards compatibility
+		// does nothing
+	}
+
+	/**
+	 * Take the first job that can be executed. Jobs are ordered by priority, a
+	 * higher priority means that a job is executed sooner.
+	 */
+	@Override
+	public Job takeJob() throws InterruptedException {
+		while (true) {
+			synchronized (this) {
+				for (Job j : this.jobsToBeExecuted) {
+					if (this.dependencyManager.canExecute(j)) {
+						this.jobsToBeExecuted.remove(j);
+						return j;
+					} else {
+						if (this.logger != null) {
+							this.logger.debug("Unmatched dependencies for "
+									+ this.dependencyManager.getDependency(j));
+
+						}
+					}
+				}
+			}
+			Thread.sleep(100);
+		}
+	}
+
+	/**
+	 * Take a specific job from the {@link Scheduler}, this {@link Job} has to
+	 * be in the scheduler or else a {@link SchedulerException} will be thrown
+	 * 
+	 * @param job
+	 *            - The job to be taken from the scheduler.
+	 * @throws SchedulerException
+	 *             when the job is not enqueued in this scheduler
+	 */
+	@Override
+	public synchronized Job takeJob(Job job) throws SchedulerException {
+		if (job == null || job.state() == Job.State.Finished
+				|| !this.jobsToBeExecuted.contains(job)) {
+			throw new SchedulerException(String.format(
+					"Job %s is not enqueued in scheduler %s", job, this));
+		}
+		this.jobsToBeExecuted.remove(job);
+		return job;
+	}
+
+	/**
+	 * Stop this {@link Scheduler} killing all the threads associated with it
+	 */
+	@Override
+	public void stopExecute() {
+		for (BaseWorker worker : this.tempThreadPool) {
+			worker.stopProcessing();
+		}
+		this.threadPool.shutdownNow();
+	}
+
+	/**
+	 * Check if threads of this {@link Scheduler} are executing.
+	 * 
+	 * @return boolean
+	 */
+	@Override
+	// TODO testen
+	public boolean isExecuting() {
+		return ((ThreadPoolExecutor) this.threadPool).getActiveCount() > 0;
+	}
+
+	/**
+	 * Return the {@link SchedulerStats} object of this {@link Scheduler}
+	 * 
+	 * @return {@link SchedulerStats}
+	 */
+	@Override
+	public SchedulerStats getSchedulerStats() {
+		return this.stats;
+	}
+
+	/**
+	 * Get the queue of failed jobs.
+	 * 
+	 * @return Job[] - array of failed jobs.
+	 */
+	@Override
+	public Job[] getFailedQueue() {
+		return this.failedJobs.toArray(new Job[0]);
 	}
 
 	@Override
-	public void shutDown() {
+	public boolean createAuxQueue(Job j, Set<Job> jobs, ResumePoint p)
+			throws SchedulerException {
+		if (jobs.isEmpty() ) {
+			if ( logger != null) {
+				logger.warn("Empty job queue passed to createAuxQueue(). Ignoring request");
+			}
+			return false;
+		}
+
+		j.yield(p);
+		for (Job job : jobs) {
+			this.dependencyManager.addDependency(j, job);
+			enqueue(job);
+		}
+		return true;
 	}
 
 	@Override
-	public boolean startUp() {
-        
-        int numThreads = 2 * Runtime.getRuntime().availableProcessors(); 
-        String threadsProperty = System.getProperty(START_THREADS_PROPERTY);
-        
-        if (threadsProperty != null && !threadsProperty.equals("-1")) {
-            try {
-                numThreads = Integer.parseInt(threadsProperty);
-            } catch (NumberFormatException nfe) {
-                logger.warn("Invalid number of threads to start:" + threadsProperty);
-            }
-        }
-        startExecute(numThreads);
-        
-        String perfLog = System.getProperty(PERF_LOG_PROPERTY);
-        if (perfLog != null && perfLog.equals("true")) {
-            logger.info("Using performance logging");
-            this.perfLog = true;
-        }
+	public void yield(Job j, ResumePoint p) throws SchedulerException {
+		if (j.state() != Job.State.Yielded) {
+			j.yield(p);
+		}
+		this.jobsToBeExecuted.remove(j);
 
-        return true;
 	}
 
-    @Override
-    public boolean createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p)
-            throws SchedulerException {
-        
-        if (jobs.isEmpty()) {
-            logger.warn("Empty job queue passed to createAuxQueue(). Ignoring request");
-            return false;
-        }
-        
-        j.yield(p);
-        for (Job job : jobs) {
-            j.addDependency(job);
-            enqueue(job);
-        }
-        return true;
-    }
+	@Override
+	public void resume(Job j, ResumePoint p) throws SchedulerException {
+		if (j.state() == Job.State.Yielded) {
+			this.jobsToBeExecuted.add(j);
+		}
+	}
 
-    @Override
-    public synchronized void yield(Job j, ResumePoint p) throws SchedulerException {
-        
-        if (j.state() != Job.State.Yielded)
-            j.yield(p);
-        workQueue.remove(j);
-        blockedQueue.add(j);
-    }
+	@Override
+	public DependencyManager getDependencyManager() {
+		return dependencyManager;
+	}
+
+	@Override
+	public void startOneShotWorker(Job job) {
+		OneShotWorker osw = new OneShotWorker(this, job);
+		this.tempThreadPool.add(osw);
+		osw.run();
+	}
+
+	@Override
+	public void deallocateFromThreadpool(BaseWorker bw) {
+		this.tempThreadPool.remove(bw);
+	}
+
 }
 
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab

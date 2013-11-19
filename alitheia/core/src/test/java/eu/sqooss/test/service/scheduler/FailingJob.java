@@ -1,6 +1,9 @@
 /*
- * Copyright 2010 - Organization for Free and Open Source Software,  
- *                 Athens, Greece.
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -28,45 +31,34 @@
  *
  */
 
-package eu.sqooss.service.admin.actions;
+package eu.sqooss.test.service.scheduler;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.admin.AdminActionBase;
-import eu.sqooss.service.scheduler.SchedulerStats;
+import eu.sqooss.service.scheduler.Job;
 
-public class RunTimeInfo extends AdminActionBase {
+/**
+ * This a test job class.
+ * Its purpose is to fail when ran.
+ *
+ * @author Joost Naaijen
+ */
+class FailingJob extends Job
+{
 
-    public static final String MNEMONIC = "rti";
-    private static final String descr = "Returns misc runtime information";
+    private String s;
 
-    public RunTimeInfo() {
-        super();
+    /**
+     * Create a failing job with string s
+     */
+    public FailingJob(String s) {
+        this.s = s;
     }
 
-    @Override
-    public String mnemonic() {
-        return MNEMONIC;
+    public long priority() {
+        return 0;
     }
-
-    @Override
-    public String descr() {
-        return descr;
-    }
-
-    @Override
-    public void execute() throws Exception {
-        super.execute();
-        try {
-            SchedulerStats s = AlitheiaCore.getInstance().getScheduler()
-                    .getSchedulerStats();
-            result.put("sched.jobs.failed", s.getFailedJobs());
-            result.put("sched.jobs.wait", s.getWaitingJobs());
-            result.put("sched.jobs.finished", s.getFinishedJobs());
-            result.put("sched.threads.idle", 0);
-            result.put("sched.threads.total", 0);
-        } catch (Exception e) {
-            error(e);
-        }
-        finished("Info retrieved");
+    
+    protected void run() throws Exception {
+        Thread.sleep(100);
+        throw new InterruptedException("Job "+s+" fails!");
     }
 }

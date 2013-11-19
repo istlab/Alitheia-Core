@@ -34,7 +34,7 @@ You can find the following files and directories here:
 
 `external/`
     External libraries (actually library references) to be bundled as OSGi
-    bundles at complile time.
+    bundles at compile time.
 
 `metrics/`
     Contains the source code of the various metric plug-ins developed for the
@@ -118,6 +118,29 @@ GRANT ALL PRIVILEGES ON alitheia.* TO alitheia@'localhost';
 
 #### Building the project
 
+* First choose which database to use H2 or MYSQL are included in `./pom.xml` file uncomment the appropriate database section arround line 50.    
+    * MYSQL: 
+        ```
+
+        <eu.sqooss.db>MySQL</eu.sqooss.db>
+        <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
+        <eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema>
+        <eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
+        <eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
+        <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
+        ```
+    * H2:
+        ```
+        
+        <eu.sqooss.db>H2</eu.sqooss.db>
+        <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
+        <eu.sqooss.db.schema>alitheia;LOCK_MODE=3;MULTI_THREADED=true</eu.sqooss.db.schema>
+        <eu.sqooss.db.user>sa</eu.sqooss.db.user>
+        <eu.sqooss.db.passwd></eu.sqooss.db.passwd>
+        <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
+        <eu.sqooss.updater.svn.ommitfileless>true</eu.sqooss.updater.svn.ommitfileless>
+        <eu.sqooss.updater.svn.handlecopies>branches</eu.sqooss.updater.svn.handlecopies>
+        ```
 * To build the project, do:
 
   `mvn install`

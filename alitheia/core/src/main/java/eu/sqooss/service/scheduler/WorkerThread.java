@@ -40,10 +40,11 @@ public interface WorkerThread {
      */
 	void stopProcessing();
 
-	/**
-	 * Starts processing of jobs.
-	 */
-	void start();
+//TODO start() is no longer needed since threads will be managed by the threadpool in scheduler
+//	/**
+//	 * Starts processing of jobs.
+//	 */
+//	void start();
 	
 	/**
 	 * Returns the job currently executed by this thread, if any.

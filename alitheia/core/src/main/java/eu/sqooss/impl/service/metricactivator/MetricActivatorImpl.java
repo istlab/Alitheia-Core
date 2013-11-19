@@ -363,7 +363,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             			fastSync));
             	}
             }
-            sched.enqueueNoDependencies(jobs);
+            sched.enqueue(jobs);
             dbs.commitDBSession();
         }
         

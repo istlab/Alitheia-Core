@@ -39,138 +39,144 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.collections.list.SynchronizedList;
+import org.osgi.framework.BundleContext;
 
-public class SchedulerStats {
-    // the number of jobs currently in the scheduler
-    private long totalJobs = 0;
-    // the number of jobs which were finished
-    private long finishedJobs = 0;
-    // the number of jobs currently waiting
-    private long waitingJobs = 0;
-    // the number of jobs currently running
-    private long runningJobs = 0;
-    // the total number of threads available for scheduling
-    private long workerThreads = 0;
-    // the number of threads being idle at the moment
-    private long idleWorkerThreads = 0;
-    // the number of jobs which failed
-    private long failedJobs = 0;
-    //Classname->Failed Jobs 
-    private HashMap<String, Integer> failedJobTypes = new HashMap<String, Integer>();
-    //Classname->Num jobs waiting
-    private HashMap<String, Integer> waitingJobTypes = new HashMap<String, Integer>();
-    //Running jobs
-    private List<Job> runJobs = new Vector<Job>();
-    
-    public synchronized void incTotalJobs() {
-        totalJobs++;
-    }
+import eu.sqooss.service.logging.Logger;
 
-    public synchronized void decTotalJobs() {
-        totalJobs--;
-    }
-   
-    public synchronized void incFinishedJobs() {
-        finishedJobs++;
-    }
-    
-    public synchronized void incWorkerThreads() {
-        workerThreads++;
-    }
-    
-    public synchronized void decWorkerThreads() {
-        workerThreads--;
-    }
-    
-    public synchronized void incIdleWorkerThreads() {
-        idleWorkerThreads++;
-    }
-    
-    public synchronized void decIdleWorkerThreads() {
-        idleWorkerThreads--;
-    }
-    
-    public synchronized void addFailedJob(String classname) {
-        this.failedJobs++;
-        if (failedJobTypes.containsKey(classname))
-            failedJobTypes.put(classname, (failedJobTypes.get(classname) + 1));
-        else
-            failedJobTypes.put(classname, 1);
-    }
+public class SchedulerStats implements JobStateListener {
+	// the number of jobs currently in the scheduler
+	private long totalJobs = 0;
+	// the number of jobs which were finished
+	private long finishedJobs = 0;
+	// the number of jobs currently waiting
+	private long waitingJobs = 0;
+	// the number of jobs currently running
+	private long runningJobs = 0;
+	// the number of jobs which failed
+	private long failedJobs = 0;
+	// Classname->Failed Jobs
+	private HashMap<String, Integer> failedJobTypes = new HashMap<String, Integer>();
+	// Classname->Num jobs waiting
+	private HashMap<String, Integer> waitingJobTypes = new HashMap<String, Integer>();
+	// Running jobs
+	private List<Job> runJobs = new Vector<Job>();
+	private Logger logger;
 
-    public synchronized void addWaitingJob(String classname) {
-        this.waitingJobs++;
-        if (waitingJobTypes.containsKey(classname))
-            waitingJobTypes.put(classname, (waitingJobTypes.get(classname) + 1));
-        else
-            waitingJobTypes.put(classname, 1);
-    }
-    
-    public synchronized void removeWaitingJob(String classname) {
-        this.waitingJobs --;
-        if (waitingJobTypes.containsKey(classname)) {
-            int jobs = waitingJobTypes.get(classname) - 1;
-            if (jobs == 0) {
-                waitingJobTypes.remove(classname);
-            }
-            
-            waitingJobTypes.put(classname, jobs);
-        }
-    }
- 
-    public synchronized void addRunJob(Job j) {
-        this.runningJobs++;
-        this.runJobs.add(j);
-    }
-    
-    public synchronized void removeRunJob(Job j) {
-        this.runningJobs--;
-        this.runJobs.remove(j);
-    }
-    
-    public long getTotalJobs() {
-        return totalJobs;
-    }
+	public synchronized void incTotalJobs() {
+		totalJobs++;
+	}
 
-    public long getWaitingJobs() {
-        return waitingJobs;
-    }
+	public synchronized void decTotalJobs() {
+		totalJobs--;
+	}
 
-    public long getFinishedJobs() {
-        return finishedJobs;
-    }
+	public synchronized void incFinishedJobs() {
+		finishedJobs++;
+	}
 
-    public long getRunningJobs() {
-        return runningJobs;
-    }
+	public synchronized void addFailedJob(String classname) {
+		this.failedJobs++;
+		if (failedJobTypes.containsKey(classname))
+			failedJobTypes.put(classname, (failedJobTypes.get(classname) + 1));
+		else
+			failedJobTypes.put(classname, 1);
+	}
 
-    public long getWorkerThreads() {
-        return workerThreads;
-    }
+	public synchronized void addWaitingJob(String classname) {
+		this.waitingJobs++;
+		if (waitingJobTypes.containsKey(classname))
+			waitingJobTypes
+					.put(classname, (waitingJobTypes.get(classname) + 1));
+		else
+			waitingJobTypes.put(classname, 1);
+	}
 
-    public long getIdleWorkerThreads() {
-        return idleWorkerThreads;
-    }
+	public synchronized void removeWaitingJob(String classname) {
+		this.waitingJobs--;
+		if (waitingJobTypes.containsKey(classname)) {
+			int jobs = waitingJobTypes.get(classname) - 1;
+			if (jobs == 0) {
+				waitingJobTypes.remove(classname);
+			} else {
+				waitingJobTypes.put(classname, jobs);
+			}
+		}
+	}
 
-    public long getFailedJobs() {
-        return failedJobs;
-    }
-    
-    public HashMap<String, Integer> getFailedJobTypes() {
-        return failedJobTypes;
-    }
-    
-    public HashMap<String, Integer> getWaitingJobTypes() {
-        return waitingJobTypes;
-    }
-    
-    public synchronized List<String> getRunJobs() {
-        Job[] jobs = new Job[runJobs.size()];
-        runJobs.toArray(jobs);
-        List<String> jobDescr = new ArrayList<String>();
-        for (Job j : jobs) {
-            jobDescr.add(j.toString());
-        }
-        return jobDescr;
-    }
+	public synchronized void addRunJob(Job j) {
+		this.runningJobs++;
+		this.runJobs.add(j);
+	}
+
+	public synchronized void removeRunJob(Job j) {
+		this.runningJobs--;
+		this.runJobs.remove(j);
+	}
+
+	public long getTotalJobs() {
+		return totalJobs;
+	}
+
+	public long getWaitingJobs() {
+		return waitingJobs;
+	}
+
+	public long getFinishedJobs() {
+		return finishedJobs;
+	}
+
+	public long getRunningJobs() {
+		return runningJobs;
+	}
+
+	public long getFailedJobs() {
+		return failedJobs;
+	}
+
+	public HashMap<String, Integer> getFailedJobTypes() {
+		return failedJobTypes;
+	}
+
+	public HashMap<String, Integer> getWaitingJobTypes() {
+		return waitingJobTypes;
+	}
+
+	public synchronized List<String> getRunJobs() {
+		Job[] jobs = new Job[runJobs.size()];
+		runJobs.toArray(jobs);
+		List<String> jobDescr = new ArrayList<String>();
+		for (Job j : jobs) {
+			jobDescr.add(j.toString());
+		}
+		return jobDescr;
+	}
+
+	public void jobStateChanged(Job job, Job.State state) {
+		if (logger != null) {
+			logger.debug("Job " + job + " changed to state " + state);
+		}
+		if (state == Job.State.Finished) {
+			removeRunJob(job);
+			incFinishedJobs();
+		} else if (state == Job.State.Running) {
+			removeWaitingJob(job.getClass().toString());
+			addRunJob(job);
+		} else if (state == Job.State.Yielded) {
+			removeRunJob(job);
+			addWaitingJob(job.getClass().toString());
+		} else if (state == Job.State.Error) {
+			// TODO do something with this failed queue
+			// if (failedQueue.remainingCapacity() == 1)
+			// failedQueue.remove();
+			// failedQueue.add(job);
+
+			removeRunJob(job);
+			addFailedJob(job.getClass().toString());
+		}
+	}
+
+	public void setInitParams(BundleContext bc, Logger l) {
+		this.logger = l;
+	}
+
 }
