@@ -80,7 +80,7 @@ Maven from the following link: http://maven.apache.org/
 
 * To debug Alitheia Core (on Unix-based systems):
 ```
-  mvn install pax:provision`
+  mvn install pax:provision
   [quit the OSGi prompt]
   ./debug.sh
 ```
