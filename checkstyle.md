@@ -1,4 +1,6 @@
 
+# Checkstyle report overview
+
 ## Cyclomatic Complexity violations
 
 eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl
