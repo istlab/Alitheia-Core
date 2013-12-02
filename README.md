@@ -66,7 +66,6 @@ https://github.com/istlab/Alitheia-Core/zipball/master
 Alitheia Core is build using Maven (tested with version > 3). You can download
 Maven from the following link: http://maven.apache.org/
 
-/////////NEW SHIZZLE
 #### Choosing the Database Backend 
   
 Alitheia-­‐Core supports two database backends: H2 and MySQL. 
