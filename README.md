@@ -77,9 +77,9 @@ its database backend. This should be ok for a local installation and experimenta
 
 ##### Enabling Support for MySQL 
   
-To enable supportforMySQLthefollowingstepsmust be followed: 
+To enable support for MySQL the following steps must be followed: 
   
-1. Edit the file «Alitheia-­‐Core/pom.xml» 
+1. Edit the file «Alitheia-­‐Core/pom.xml: 
   
 a. Comment out the following lines:
 ```xml
@@ -102,11 +102,10 @@ b. Uncomment the following lines:
 ``` 
 2. Edit the MySQL main configuration file (usually named «/etc/my.cnf») and add the 
   following lines: 
-  
-  default-­‐storage-­‐engine=innodb 
-  
+``` 
+default-­‐storage-­‐engine=innodb 
 transaction_isolation=READ-­‐COMMITTED
-  
+```
 The above lines enable innodb as default.
   
 3. Create an empty database named «alitheia». Then create a database user named 
