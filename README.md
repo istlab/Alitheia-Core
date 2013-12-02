@@ -66,6 +66,55 @@ https://github.com/istlab/Alitheia-Core/zipball/master
 Alitheia Core is build using Maven (tested with version > 3). You can download
 Maven from the following link: http://maven.apache.org/
 
+/////////NEW SHIZZLE
+#### Choosing the Database Backend 
+  
+Alitheia-­‐Core supports two database backends: H2 and MySQL. 
+
+Note: The configuration should always be enabled prior to compilation.
+ 
+By default, Alitheia-­‐Core uses H2 (http://www.h2database.com/html/main.html) as 
+its database backend. This should be ok for a local installation and experimentation, but in general it is recommended to use MySQL. 
+
+##### Enabling Support for MySQL 
+  
+To enable supportforMySQLthefollowingstepsmust be followed: 
+  
+1. Edit the file «Alitheia-­‐Core/pom.xml» 
+  
+a. Comment out the following lines:
+```xml
+<eu.sqooss.db>H2</eu.sqooss.db> 
+<eu.sqooss.db.host>localhost</eu.sqooss.db.host>
+<eu.sqooss.db.schema>alitheia;LOCK_MODE=3;MULTI_THREADED=true</eu.sqooss.db.sche
+ma> 
+<eu.sqooss.db.user>sa</eu.sqooss.db.user> 
+<eu.sqooss.db.passwd></eu.sqooss.db.passwd> 
+<eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool> 
+```
+b. Uncomment the following lines:
+```xml
+<eu.sqooss.db>MySQL</eu.sqooss.db>
+<eu.sqooss.db.host>localhost</eu.sqooss.db.host>
+<eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema> 
+<eu.sqooss.db.user>alitheia</eu.sqooss.db.user> 
+<eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd> 
+<eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool> 
+``` 
+2. Edit the MySQL main configuration file (usually named «/etc/my.cnf») and add the 
+  following lines: 
+  
+  default-­‐storage-­‐engine=innodb 
+  
+transaction_isolation=READ-­‐COMMITTED
+  
+The above lines enable innodb as default.
+  
+3. Create an empty database named «alitheia». Then create a database user named 
+  
+«alitheia» with password «alitheia» and grant full control over the database 
+(@localhost). 
+
 * To build the project, do:
 
   `mvn install`
@@ -92,5 +141,7 @@ Maven from the following link: http://maven.apache.org/
   * To develop a data plug-in: see plug-ins/README.txt
 
   Any tool can be used to write code for Alitheia Core, but using Eclipse will
-  simplify things a lot. Instructions can be found in README.eclipse
+  simplify things a lot. Instructions can be found in README.eclipse.
 
+
+  
