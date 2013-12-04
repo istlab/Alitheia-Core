@@ -6,7 +6,7 @@ with Eclipse Kepler (4.3) and IntelliJ 12.1 on MacOSX.
 ### Eclipse
 1. Checkout the project from its repository, for example
     
-`git clone git@github.com:istlab/Alitheia-Core.git`
+    `git clone git@github.com:istlab/Alitheia-Core.git`
 
 2. Do the following 
   * `mvn clean install`
