@@ -126,6 +126,11 @@ The above lines enable innodb as default.
 
   Then visit the web interface: [http://localhost:8080](http://localhost:8080)
 
+* To see actual results of runned plugins of projects, perform the following steps:
+  Run from the web folder:
+  ```mvn jetty:run```
+  Then visit the web interface: [http://localhost:8081](http://localhost:8081)
+
 * To debug Alitheia Core (on Unix-based systems):
 ```
   mvn install pax:provision
