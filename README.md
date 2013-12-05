@@ -68,20 +68,20 @@ Maven from the following link: http://maven.apache.org/
 
 #### Choosing the Database Backend 
   
-Alitheia-­‐Core supports two database backends: H2 and MySQL. 
+Alitheia Core supports two database backends: H2 and MySQL. 
 
 **Note: The configuration should always be enabled prior to compilation.**
  
-By default, Alitheia-­‐Core uses H2 (http://www.h2database.com/html/main.html) as 
+By default, Alitheia Core uses H2 (http://www.h2database.com/html/main.html) as 
 its database backend. This should be ok for a local installation and experimentation, but in general it is recommended to use MySQL. 
 
 ##### Enabling Support for MySQL 
   
 To enable support for MySQL the following steps must be followed: 
   
-1. Edit the file «Alitheia-­‐Core/pom.xml: 
+ 1. Edit the file `Alitheia­‐Core/pom.xml`: 
   
-a. Comment out the following lines:
+  a. Comment out the following lines:
 ```xml
 <eu.sqooss.db>H2</eu.sqooss.db> 
 <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
@@ -91,7 +91,7 @@ ma>
 <eu.sqooss.db.passwd></eu.sqooss.db.passwd> 
 <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool> 
 ```
-b. Uncomment the following lines:
+  b. Uncomment the following lines:
 ```xml
 <eu.sqooss.db>MySQL</eu.sqooss.db>
 <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
@@ -100,7 +100,7 @@ b. Uncomment the following lines:
 <eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd> 
 <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool> 
 ``` 
-2. Edit the MySQL main configuration file (usually named «/etc/my.cnf») and add the 
+ 2. Edit the MySQL main configuration file (usually named `/etc/my.cnf`) and add the 
   following lines: 
 ``` 
 default-­‐storage-­‐engine=innodb 
@@ -108,10 +108,11 @@ transaction_isolation=READ-­‐COMMITTED
 ```
 The above lines enable innodb as default.
   
-3. Create an empty database named «alitheia». Then create a database user named 
+ 3. Create an empty database named `alitheia`. Then create a database user named 
   
-«alitheia» with password «alitheia» and grant full control over the database 
+`alitheia` with password `alitheia` and grant full control over the database 
 (@localhost). 
+#### Building the project
 
 * To build the project, do:
 
