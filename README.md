@@ -70,7 +70,7 @@ Maven from the following link: http://maven.apache.org/
   
 Alitheia-­‐Core supports two database backends: H2 and MySQL. 
 
-Note: The configuration should always be enabled prior to compilation.
+**Note: The configuration should always be enabled prior to compilation.**
  
 By default, Alitheia-­‐Core uses H2 (http://www.h2database.com/html/main.html) as 
 its database backend. This should be ok for a local installation and experimentation, but in general it is recommended to use MySQL. 
@@ -124,6 +124,11 @@ The above lines enable innodb as default.
   `mvn pax:provision`
 
   Then visit the web interface: [http://localhost:8080](http://localhost:8080)
+
+* To see actual results of runned plugins of projects, perform the following steps:
+  Run from the web folder:
+  ```mvn jetty:run```
+  Then visit the web interface: [http://localhost:8081](http://localhost:8081)
 
 * To debug Alitheia Core (on Unix-based systems):
 ```
