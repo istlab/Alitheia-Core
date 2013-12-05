@@ -79,7 +79,7 @@ its database backend. This should be ok for a local installation and experimenta
   
 To enable support for MySQL the following steps must be followed: 
   
- 1. Edit the file `Alitheia-­‐Core/pom.xml`: 
+ 1. Edit the file `Alitheia­‐Core/pom.xml`: 
   
   a. Comment out the following lines:
 ```xml
