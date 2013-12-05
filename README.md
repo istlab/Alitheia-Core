@@ -54,23 +54,22 @@ Git must be installed. Git can be downloaded from: http://git-scm.com/download
 
 Without a Github account, the code can be checked out as follows:
 
-git clone git://github.com/istlab/Alitheia-Core.git
+`git clone git://github.com/istlab/Alitheia-Core.git`
 
 Courtesy of Github, a zip of the current latest version of the software
-can be downloaded.
-
-https://github.com/istlab/Alitheia-Core/zipball/master
+can be downloaded from https://github.com/istlab/Alitheia-Core/zipball/master.
 
 ### Compiling, running and developing
+Note: More instructions can be found at the online Quickstart guide at http://www.sqo-oss.org/quickstart.
 
 Alitheia Core is build using Maven (tested with version > 3). You can download
-Maven from the following link: http://maven.apache.org/
+Maven from the following link: http://maven.apache.org/.
 
 #### Choosing the Database Backend 
   
 Alitheia Core supports two database backends: H2 and MySQL. 
 
-**Note: The configuration should always be enabled prior to compilation.**
+ **Note: The configuration should always be enabled prior to compilation.**
  
 By default, Alitheia Core uses H2 (http://www.h2database.com/html/main.html) as 
 its database backend. This should be ok for a local installation and experimentation, but in general it is recommended to use MySQL. 
