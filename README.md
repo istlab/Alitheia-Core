@@ -109,26 +109,27 @@ transaction_isolation=READ-­‐COMMITTED
 The above lines enable innodb as default.
   
  3. Create an empty database named `alitheia`. Then create a database user named 
-  
-`alitheia` with password `alitheia` and grant full control over the database 
+  `alitheia` with password `alitheia` and grant full control over the database 
 (@localhost). 
+
 #### Building the project
 
 * To build the project, do:
 
   `mvn install`
 
-* To run Alitheia Core, you need to configure a database first. Consult the
-  online Quickstart guide at http://www.sqo-oss.org/quickstart
-  on how to do it. Then, run:
+#### Run the project
+
+* To run Alitheia Core, run:
 
   `mvn pax:provision`
 
   Then visit the web interface: [http://localhost:8080](http://localhost:8080)
 
-* To see actual results of runned plugins of projects, perform the following steps:
-  Run from the web folder:
+* To see the results of runned plugins of projects, run the following from the web folder:
+  
   ```mvn jetty:run```
+
   Then visit the web interface: [http://localhost:8081](http://localhost:8081)
 
 * To debug Alitheia Core (on Unix-based systems):
