@@ -97,6 +97,12 @@ public class BugzillaUpdater implements MetadataUpdater, JobStateListener  {
 
         this.bts = AlitheiaCore.getInstance().getTDSService().getAccessor(
                 project.getId()).getBTSAccessor();
+
+        // The accessor should exist, for how else should this updater be called?
+        if(bts == null) {
+            logger.error("Accessor does not exist");
+        }
+
         if (Bug.getLastUpdate(project) != null) {
             bugIds = bts.getBugsNewerThan(Bug.getLastUpdate(project).getUpdateRun());
         } else {

@@ -73,7 +73,7 @@ public class ProjectDataAccessorImpl implements ProjectAccessor {
 
 		URI uri = null;
 
-		if ((uri = URIUtills.toURI(bts)) == null) {
+		if ((uri = URIUtills.toURI(bts)) == null || uri.getScheme() == null) {
 			logger.warn("Error converting to URI: " + bts);
 			return null;
 		}
@@ -95,7 +95,7 @@ public class ProjectDataAccessorImpl implements ProjectAccessor {
 	public MailAccessor getMailAccessor() throws InvalidAccessorException {
 		URI uri = null;
 
-		if ((uri = URIUtills.toURI(mail)) == null) {
+		if ((uri = URIUtills.toURI(mail)) == null || uri.getScheme() == null) {
 			logger.warn("Error converting to URI: " + mail);
 			return null;
 		}
