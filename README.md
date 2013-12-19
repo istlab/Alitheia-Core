@@ -109,7 +109,13 @@ The above lines enable innodb as default.
 
  3. Create an empty database named `alitheia`. Then create a database user named
   `alitheia` with password `alitheia` and grant full control over the database
-(@localhost).
+(@localhost):
+
+```sql
+CREATE USER 'alitheia'@'localhost' IDENTIFIED BY 'alitheia';
+CREATE DATABASE alitheia;
+GRANT ALL PRIVILEGES ON alitheia.* TO alitheia@'localhost';
+```
 
 #### Building the project
 
