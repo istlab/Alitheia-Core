@@ -1,14 +1,14 @@
 ## Working with IDEs
 
-The following instructions have been tested and confirmed working 
+The following instructions have been tested and confirmed working
 with Eclipse Kepler (4.3) and IntelliJ 12.1 on MacOSX.
 
 ### Eclipse
 1. Checkout the project from its repository, for example
-    
+
     `git clone git@github.com:istlab/Alitheia-Core.git`
 
-2. Do the following 
+2. Do the following
   ```bash
     mvn clean install
     mvn -DdownloadJavadoc -Ddownloadsources eclipse:eclipse
@@ -33,14 +33,14 @@ at any breakpoint you have set in the code.
 
     `git clone git@github.com:istlab/Alitheia-Core.git`
 
-2. Do the following 
+2. Do the following
 
   ```bash
     mvn clean install
     mvn -DdownloadJavadoc -Ddownloadsources intellij:intellij
   ```
-    
-3. In IntelliJ, go to `File->Open` project and choose the Alitheia Core top-level 
+
+3. In IntelliJ, go to `File->Open` project and choose the Alitheia Core top-level
 directory. Importing will start.
 
 4. To debug, create a debug configuration (Run->Debug->Edit Configurations) and
