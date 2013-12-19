@@ -1,7 +1,7 @@
 ## Introduction
 
 
-This is the source tree for Alitheia Core, a platform for 
+This is the source tree for Alitheia Core, a platform for
 software analytics and software engineering research.
 
 The README gives an overview of how the source tree is organised and sort
@@ -24,7 +24,7 @@ You can find the following files and directories here:
     version 2.
 
 `pom.xml`
-    As any other modern Java project, Alitheia Core uses maven for building. 
+    As any other modern Java project, Alitheia Core uses maven for building.
     We also use the Pax OSGi tools. You need to have those installed if
     you plan to add functionality or external libraries to Alitheia Core
 
@@ -65,51 +65,57 @@ Note: More instructions can be found at the online Quickstart guide at http://ww
 Alitheia Core is build using Maven (tested with version > 3). You can download
 Maven from the following link: http://maven.apache.org/.
 
-#### Choosing the Database Backend 
-  
-Alitheia Core supports two database backends: H2 and MySQL. 
+#### Choosing the Database Backend
+
+Alitheia Core supports two database backends: H2 and MySQL.
 
  **Note: The configuration should always be enabled prior to compilation.**
- 
-By default, Alitheia Core uses H2 (http://www.h2database.com/html/main.html) as 
-its database backend. This should be ok for a local installation and experimentation, but in general it is recommended to use MySQL. 
 
-##### Enabling Support for MySQL 
-  
-To enable support for MySQL the following steps must be followed: 
-  
- 1. Edit the file `Alitheia­‐Core/pom.xml`: 
-  
+By default, Alitheia Core uses H2 (http://www.h2database.com/html/main.html) as
+its database backend. This should be ok for a local installation and experimentation, but in general it is recommended to use MySQL.
+
+##### Enabling Support for MySQL
+
+To enable support for MySQL the following steps must be followed:
+
+ 1. Edit the file `Alitheia­‐Core/pom.xml`:
+
   a. Comment out the following lines:
 ```xml
-<eu.sqooss.db>H2</eu.sqooss.db> 
+<eu.sqooss.db>H2</eu.sqooss.db>
 <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
 <eu.sqooss.db.schema>alitheia;LOCK_MODE=3;MULTI_THREADED=true</eu.sqooss.db.sche
-ma> 
-<eu.sqooss.db.user>sa</eu.sqooss.db.user> 
-<eu.sqooss.db.passwd></eu.sqooss.db.passwd> 
-<eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool> 
+ma>
+<eu.sqooss.db.user>sa</eu.sqooss.db.user>
+<eu.sqooss.db.passwd></eu.sqooss.db.passwd>
+<eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
 ```
   b. Uncomment the following lines:
 ```xml
 <eu.sqooss.db>MySQL</eu.sqooss.db>
 <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
-<eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema> 
-<eu.sqooss.db.user>alitheia</eu.sqooss.db.user> 
-<eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd> 
-<eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool> 
-``` 
- 2. Edit the MySQL main configuration file (usually named `/etc/my.cnf`) and add the 
-  following lines: 
-``` 
-default-­‐storage-­‐engine=innodb 
+<eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema>
+<eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
+<eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
+<eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
+```
+ 2. Edit the MySQL main configuration file (usually named `/etc/my.cnf`) and add the
+  following lines:
+```
+default-­‐storage-­‐engine=innodb
 transaction_isolation=READ-­‐COMMITTED
 ```
 The above lines enable innodb as default.
-  
- 3. Create an empty database named `alitheia`. Then create a database user named 
-  `alitheia` with password `alitheia` and grant full control over the database 
-(@localhost). 
+
+ 3. Create an empty database named `alitheia`. Then create a database user named
+  `alitheia` with password `alitheia` and grant full control over the database
+(@localhost):
+
+```sql
+CREATE USER 'alitheia'@'localhost' IDENTIFIED BY 'alitheia';
+CREATE DATABASE alitheia;
+GRANT ALL PRIVILEGES ON alitheia.* TO alitheia@'localhost';
+```
 
 #### Building the project
 
@@ -126,7 +132,7 @@ The above lines enable innodb as default.
   Then visit the web interface: [http://localhost:8080](http://localhost:8080)
 
 * To see the results of runned plugins of projects, run the following from the web folder:
-  
+
   ```mvn jetty:run```
 
   Then visit the web interface: [http://localhost:8081](http://localhost:8081)
@@ -147,4 +153,4 @@ The above lines enable innodb as default.
   Any tool can be used to write code for Alitheia Core, but using Eclipse will
   simplify things a lot. Instructions can be found in IDE.md
 
-  
+
