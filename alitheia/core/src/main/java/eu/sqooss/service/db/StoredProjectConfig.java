@@ -34,10 +34,14 @@
 package eu.sqooss.service.db;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -48,6 +52,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -62,23 +69,28 @@ public class StoredProjectConfig extends DAObject {
 	private long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	// Only cascade persistence and save, do not cascade deletion
+	@Cascade(value = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.SAVE_UPDATE})
 	@JoinColumn(name="CONFIG_OPTION_ID")
 	private ConfigurationOption confOpt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	// Only cascade persistence and save, do not cascade deletion
+	@Cascade(value = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.SAVE_UPDATE})
 	@JoinColumn(name="STORED_PROJECT_ID")
 	private StoredProject project;
 
+	@ElementCollection(fetch = FetchType.LAZY)
 	@Column(name="VALUE")
 	@XmlElement(name="value")
-	private String value;
+	private Set<String> values = new HashSet<>();
 
 	public StoredProjectConfig() {}
 	
-	public StoredProjectConfig(ConfigurationOption co, String value, 
+	public StoredProjectConfig(ConfigurationOption co, Set<String> values,
 			StoredProject sp) {
 		this.confOpt = co;
-		this.value = value;
+		this.values = values;
 		this.project = sp;
 	}
 	
@@ -106,12 +118,12 @@ public class StoredProjectConfig extends DAObject {
 		this.project = project;
 	}
 	
-	public String getValue() {
-		return value;
+	public Set<String> getValues() {
+		return values;
 	}
 	
-	public void setValue(String value) {
-		this.value = value;
+	public void setValues(Set<String> value) {
+		this.values = value;
 	}
 	
 	public static List<StoredProjectConfig> fromProject(StoredProject sp) {
@@ -121,5 +133,17 @@ public class StoredProjectConfig extends DAObject {
 		params.put("project", sp);
 		
 		return dbs.findObjectsByProperties(StoredProjectConfig.class, params);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof StoredProjectConfig
+				&& ((StoredProjectConfig) obj).getConfOpt().equals( getConfOpt() )
+				&& ((StoredProjectConfig) obj).getProject().equals( getProject() );
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getConfOpt(), getProject());
 	}
 }

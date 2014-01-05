@@ -34,8 +34,10 @@
 package eu.sqooss.service.db;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -49,6 +51,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.NaturalId;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -69,6 +73,7 @@ public class ConfigurationOption extends DAObject {
 	@Column(name="CONFIG_OPTION_ID")
 	private long id;
 	
+	@NaturalId
 	@Column(name="CONFIG_KEY")
 	@XmlElement
 	private String key;
@@ -148,30 +153,15 @@ public class ConfigurationOption extends DAObject {
 		params.put(paramProject, sp);
 		params.put(paramConfOpt, this);
 
-		List<StoredProjectConfig> curValues = 
-			(List<StoredProjectConfig>) dbs.doHQL(query.toString(),params);
-		boolean found = false;
 		if (overwrite) {
+			@SuppressWarnings("unchecked")
+			List<StoredProjectConfig> curValues =
+					(List<StoredProjectConfig>) dbs.doHQL(query.toString(),params);
 			dbs.deleteRecords(curValues);
-			for (String newValue : values) {
-				StoredProjectConfig newspc = new StoredProjectConfig(
-						this, newValue, sp);
-				dbs.addRecord(newspc);
-			}
-		} else { //Merge values
-			for (String newValue : values) {
-				for (StoredProjectConfig conf : curValues) {
-					if (conf.getValue().equals(newValue)) {
-						found = true;
-					}
-				}
-				if (!found) {
-					StoredProjectConfig newspc = new StoredProjectConfig(
-							this, newValue, sp);
-					dbs.addRecord(newspc);
-				}
-			}
 		}
+		StoredProjectConfig newspc = new StoredProjectConfig(
+				this, new HashSet<String>(values), sp);
+		dbs.addRecord(newspc);
 	}
 	
 	/**
@@ -216,7 +206,19 @@ public class ConfigurationOption extends DAObject {
 		return opts.get(0);
 	}
 	
+	@Override
 	public String toString() {
 		return key + " - " + description; 
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof ConfigurationOption
+				&& ((ConfigurationOption) obj).getKey().equals( getKey() );
+	}
+
+	@Override
+	public int hashCode() {
+		return getKey().hashCode();
 	}
 }

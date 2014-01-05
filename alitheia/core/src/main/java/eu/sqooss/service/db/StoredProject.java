@@ -36,6 +36,7 @@ package eu.sqooss.service.db;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,10 +50,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.NaturalId;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.BugStatus.Status;
@@ -82,6 +86,7 @@ public class StoredProject extends DAObject {
 	@XmlElement
 	private long id;
 
+	@NaturalId
 	@XmlElement
 	@Column(name="PROJECT_NAME")
 	private String name;
@@ -90,29 +95,30 @@ public class StoredProject extends DAObject {
      * The versions that this project contains
      */
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
-    private List<ProjectVersion> projectVersions;
+    private List<ProjectVersion> projectVersions = new ArrayList<>();
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
-    private Set<Developer> developers;
+    private Set<Developer> developers = new HashSet<>();
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
-    private Set<MailingList> mailingLists;
+    private Set<MailingList> mailingLists = new HashSet<>();
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
-    private Set<StoredProjectMeasurement> measurements;
+    private Set<StoredProjectMeasurement> measurements = new HashSet<>();
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
-	private Set<Bug> bugs;
+	private Set<Bug> bugs = new HashSet<>();
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
-	private Set<StoredProjectConfig> configOpts;
+    @MapKey(name="confOpt")
+	private Map<ConfigurationOption, StoredProjectConfig> configOpts = new HashMap<>();
    
     @ManyToOne(fetch=FetchType.LAZY, optional = true)
     @JoinColumn(name="CLUSTERNODE_ID")
     private ClusterNode clusternode;
 	
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
-	private Set<Branch> branches;
+	private Set<Branch> branches = new HashSet<>();
 
     public StoredProject() {}
     
@@ -137,7 +143,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getWebsiteUrl() {
-        return getConfigValue(ConfigOption.PROJECT_WEBSITE.getName());
+        return getConfigValue(ConfigOption.PROJECT_WEBSITE);
     }
 
     public void setWebsiteUrl(String url) {
@@ -145,7 +151,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getContactUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_CONTACT.getName());
+        return getConfigValue(ConfigOption.PROJECT_CONTACT);
     }
 
     public void setContactUrl(String url) {
@@ -153,7 +159,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getBtsUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_BTS_URL.getName());
+        return getConfigValue(ConfigOption.PROJECT_BTS_URL);
     }
 
     public void setBtsUrl(String url) {
@@ -161,7 +167,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getScmUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_SCM_URL.getName());
+        return getConfigValue(ConfigOption.PROJECT_SCM_URL);
     }
 
     public void setScmUrl(String url) {
@@ -169,7 +175,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getMailUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_ML_URL.getName());
+        return getConfigValue(ConfigOption.PROJECT_ML_URL);
     }
 
     public void setMailUrl(String url) {
@@ -212,11 +218,11 @@ public class StoredProject extends DAObject {
         this.measurements = measurements;
     }
 
-    public Set<StoredProjectConfig> getConfigOpts() {
+    public Map<ConfigurationOption, StoredProjectConfig> getConfigOpts() {
         return configOpts;
     }
 
-    public void setConfigOpts(Set<StoredProjectConfig> configOpts) {
+    public void setConfigOpts(Map<ConfigurationOption, StoredProjectConfig> configOpts) {
         this.configOpts = configOpts;
     }
 
@@ -251,7 +257,12 @@ public class StoredProject extends DAObject {
      * @return The configuration value or null, if the option is not set
      */
     public String getConfigValue (ConfigOption key) {
-    	return getConfigValue(key.getName());
+        Set<String> values = getConfigValues(key);
+
+        if(values.isEmpty())
+            return null;
+
+        return values.iterator().next();
     }
     
     /**
@@ -261,10 +272,10 @@ public class StoredProject extends DAObject {
      * @return The configuration value or null, if the option is not set
      */
     public String getConfigValue (String key) {
-    	List<String> values = getConfigValues(key);
-    	if (values.isEmpty())
-    		return null;
-    	return values.get(0);
+        List<String> values = getConfigValues(key);
+        if (values.isEmpty())
+            return null;
+        return values.get(0);
     }
     
     /**
@@ -272,8 +283,10 @@ public class StoredProject extends DAObject {
      * @param co The {@link ConfigOption} to look the value for
      * @return A list of values for the provided configuration option 
      */
-    public List<String> getConfigValues (ConfigOption co) {
-    	return getConfigValues(co.getName());
+    public Set<String> getConfigValues (ConfigOption co) {
+    	ConfigurationOption opt = new ConfigurationOption(co.getName(), co.getDesc());
+
+    	return configOpts.get(opt).getValues();
     }
     
     /** 
@@ -327,7 +340,16 @@ public class StoredProject extends DAObject {
 	 * @param value The value to set to the configuration option
 	 */
 	public void addConfig(ConfigOption co, String value) {
-		updateConfigValue(co, null, value, false);
+		ConfigurationOption opt = new ConfigurationOption(co.getName(), co.getDesc());
+
+		StoredProjectConfig spc = configOpts.get(opt);
+
+		if(spc == null) {
+			spc = new StoredProjectConfig(opt, new HashSet<String>(), this);
+			configOpts.put(opt, spc);
+		}
+
+		spc.getValues().add(value);
 	}
     
     private void updateConfigValue (ConfigOption configOpt, String key, 
