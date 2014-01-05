@@ -307,7 +307,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
          	     node = thisNode;	 
          	 } else {
          	     dbs.startDBSession();
-         	     node = ClusterNode.getClusteNodeByName(clusternode);
+         	     node = ClusterNode.getClusteNodeByName(dbs, clusternode);
          	     dbs.rollbackDBSession();
          	     if (node==null) {
                      content = createXMLResponse(null,"ClusterNode " + clusternode + " not found", HttpServletResponse.SC_NOT_FOUND);
@@ -336,7 +336,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
            	     node = thisNode;	 
            	 } else {
            	     dbs.startDBSession();
-           	     node = ClusterNode.getClusteNodeByName(clusternode);
+           	     node = ClusterNode.getClusteNodeByName(dbs, clusternode);
            	     dbs.rollbackDBSession();
            	 }
          	 if (node==null){
@@ -347,7 +347,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
          	          	 
              bcontent = new StringBuilder();
              dbs.startDBSession();
-             Set<StoredProject> assignments = ClusterNode.thisNode().getProjects();
+             Set<StoredProject> assignments = ClusterNode.thisNode(dbs).getProjects();
              if ((assignments!=null) &&  (assignments.size()>0) ){
                  bcontent.append("\n");
                  for (StoredProject sp : assignments) {                
