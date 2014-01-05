@@ -265,7 +265,6 @@
   	<profile>
       <id>skiptests</id>
       <activation>
-      	<activeByDefault>true</activeByDefault>
       	<property>
           <name>tests</name>
           <value>0</value>
@@ -287,6 +286,7 @@
     <profile>
       <id>runtests</id>
       <activation>
+      	<activeByDefault>true</activeByDefault>
       	<property>
           <name>tests</name>
           <value>1</value>
