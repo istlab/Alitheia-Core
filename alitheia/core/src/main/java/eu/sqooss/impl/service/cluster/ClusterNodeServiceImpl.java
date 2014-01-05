@@ -307,7 +307,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
          	     node = thisNode;	 
          	 } else {
          	     dbs.startDBSession();
-         	     node = ClusterNode.getClusteNodeByName(clusternode);
+         	     node = ClusterNode.getClusterNodeByName(clusternode);
          	     dbs.rollbackDBSession();
          	     if (node==null) {
                      content = createXMLResponse(null,"ClusterNode " + clusternode + " not found", HttpServletResponse.SC_NOT_FOUND);
@@ -336,7 +336,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
            	     node = thisNode;	 
            	 } else {
            	     dbs.startDBSession();
-           	     node = ClusterNode.getClusteNodeByName(clusternode);
+           	     node = ClusterNode.getClusterNodeByName(clusternode);
            	     dbs.rollbackDBSession();
            	 }
          	 if (node==null){
