@@ -295,7 +295,8 @@ public class StoredProject extends DAObject {
      * @param key The key whose value we want to retrieve
      */
     public List<String> getConfigValues (String key) {
-    	ConfigurationOption co = ConfigurationOption.fromKey(key);
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	ConfigurationOption co = ConfigurationOption.fromKey(dbs, key);
     	
     	if (co == null)
     		return Collections.emptyList();
@@ -358,14 +359,14 @@ public class StoredProject extends DAObject {
     	ConfigurationOption co = null;
     	
     	if (configOpt == null) {
-    		co = ConfigurationOption.fromKey(key);
+    		co = ConfigurationOption.fromKey(dbs, key);
     	
     		if (co == null) {
     			co = new ConfigurationOption(key, "");
     			dbs.addRecord(co);
     		}
     	} else {
-    		co = ConfigurationOption.fromKey(configOpt.getName());
+    		co = ConfigurationOption.fromKey(dbs, configOpt.getName());
         	
     		if (co == null) {
     			co = new ConfigurationOption(configOpt.getName(), 

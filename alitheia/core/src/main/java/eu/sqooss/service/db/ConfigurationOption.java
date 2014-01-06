@@ -190,9 +190,7 @@ public class ConfigurationOption extends DAObject {
 		return (List<String>) dbs.doHQL(query.toString(), params);
 	}
 	
-	public static ConfigurationOption fromKey(String key) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
+	public static ConfigurationOption fromKey(DBService dbs, String key) {
 		String paramKey = "key";
 		
 		Map<String, Object> params = new HashMap<String, Object>();
