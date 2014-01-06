@@ -26,7 +26,7 @@ public class TestInitHelper {
     }
 
     public static DBServiceImpl initDatabase(Logger l, boolean newInstance) throws MalformedURLException {
-        if(dbInstance == null || !dbInstance.logger().equals(l) || newInstance) {
+        if(dbInstance == null || !dbInstance.logger().getName().equals(l.getName()) || newInstance) {
             Properties conProp = new Properties();
             conProp.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
             conProp.setProperty("hibernate.connection.url", "jdbc:h2:mem");
