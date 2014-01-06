@@ -164,11 +164,11 @@ public abstract class AbstractView {
 	/**
 	 * @return
 	 */
-	private AlitheiaCore getSobjObject() {
+	private static AlitheiaCore getSobjObject() {
 		return sobjCore;
 	}
 	
-	public void setSobjObject(AlitheiaCore obj){
+	public static void setSobjObject(AlitheiaCore obj){
 		sobjCore = obj;
 	}
 	
@@ -260,7 +260,19 @@ public abstract class AbstractView {
         return name;
     }
 
-    // TODO: Move this method's logic in the initResources() once all views
+    public static void setResLbl(ResourceBundle resLbl) {
+		AbstractView.resLbl = resLbl;
+	}
+
+	public static void setResMsg(ResourceBundle resMsg) {
+		AbstractView.resMsg = resMsg;
+	}
+
+	public static void setResErr(ResourceBundle resErr) {
+		AbstractView.resErr = resErr;
+	}
+
+	// TODO: Move this method's logic in the initResources() once all views
     // are using the new methods.
 	public static ResourceBundle getLabelsBundle(Locale locale) {
 		locale = Locale.ENGLISH;
