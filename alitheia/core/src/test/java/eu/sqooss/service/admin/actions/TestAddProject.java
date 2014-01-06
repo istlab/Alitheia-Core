@@ -24,10 +24,10 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
 
 public class TestAddProject {
-    AddProject action;
     static DBService db;
     TDSService tds;
     static Logger l;
@@ -91,12 +91,12 @@ public class TestAddProject {
 
     @Test(expected=Exception.class)
     public void noAccessors() throws Exception {
-        action = new AddProject(db, tds);
+        AddProject action = new AddProject(db, tds);
 
         action.addArg("name", "Test Name");
-        action.addArg("bts", "bugzilla-file://bugzilla-path");
-        action.addArg("scm", "test-scm://svn-path");
-        action.addArg("mail", "mail-file://mail-path");
+        action.addArg("bts", "test-bts-acc://bugzilla-path");
+        action.addArg("scm", "test-scm-acc://svn-path");
+        action.addArg("mail", "test-mail-acc://mail-path");
         action.addArg("contact", "maintainer@isp.com");
         action.addArg("web", "awesome.project.org");
 
@@ -105,15 +105,15 @@ public class TestAddProject {
 
     @Test(expected=Exception.class)
     public void UnknownSCMAccessor() throws Exception {
-        String[] protocols = {"test-acc"};
-        tds.registerPlugin(protocols, TestSCMAccessorImp.class);
+        tds.registerPlugin(new String[]{"test-bts-acc"}, TestBTSAccessorImp.class);
+        tds.registerPlugin(new String[]{"test-mail-acc"}, TestMailAccessorImp.class);
 
-        action = new AddProject(db, tds);
+        AddProject action = new AddProject(db, tds);
 
         action.addArg("name", "Test Name");
-        action.addArg("bts", "test-acc://bugzilla-path");
-        action.addArg("scm", "unknown-acc://svn-path");
-        action.addArg("mail", "test-acc://mail-path");
+        action.addArg("bts", "test-bts-acc://bugzilla-path");
+        action.addArg("scm", "test-scm-acc://svn-path");
+        action.addArg("mail", "test-mail-acc://mail-path");
         action.addArg("contact", "maintainer@isp.com");
         action.addArg("web", "awesome.project.org");
 
@@ -122,15 +122,15 @@ public class TestAddProject {
 
     @Test(expected=Exception.class)
     public void unknownMailAccessor() throws Exception {
-        String[] protocols = {"test-acc"};
-        tds.registerPlugin(protocols, TestSCMAccessorImp.class);
+        tds.registerPlugin(new String[]{"test-scm-acc"}, TestSCMAccessorImp.class);
+        tds.registerPlugin(new String[]{"test-bts-acc"}, TestBTSAccessorImp.class);
 
-        action = new AddProject(db, tds);
+        AddProject action = new AddProject(db, tds);
 
         action.addArg("name", "Test Name");
-        action.addArg("bts", "test-acc://bugzilla-path");
-        action.addArg("scm", "test-acc://svn-path");
-        action.addArg("mail", "unknown-acc://mail-path");
+        action.addArg("bts", "test-bts-acc://bugzilla-path");
+        action.addArg("scm", "test-scm-acc://svn-path");
+        action.addArg("mail", "test-mail-acc://mail-path");
         action.addArg("contact", "maintainer@isp.com");
         action.addArg("web", "awesome.project.org");
 
@@ -139,15 +139,15 @@ public class TestAddProject {
 
     @Test(expected=Exception.class)
     public void unknownBTSAccessor() throws Exception {
-        String[] protocols = {"test-acc"};
-        tds.registerPlugin(protocols, TestSCMAccessorImp.class);
+        tds.registerPlugin(new String[]{"test-scm-acc"}, TestSCMAccessorImp.class);
+        tds.registerPlugin(new String[]{"test-mail-acc"}, TestMailAccessorImp.class);
 
-        action = new AddProject(db, tds);
+        AddProject action = new AddProject(db, tds);
 
         action.addArg("name", "Test Name");
-        action.addArg("bts", "unknown-acc://bugzilla-path");
-        action.addArg("scm", "test-acc://svn-path");
-        action.addArg("mail", "test-acc://mail-path");
+        action.addArg("bts", "test-bts-acc://bugzilla-path");
+        action.addArg("scm", "test-scm-acc://svn-path");
+        action.addArg("mail", "test-mail-acc://mail-path");
         action.addArg("contact", "maintainer@isp.com");
         action.addArg("web", "awesome.project.org");
 
@@ -160,7 +160,7 @@ public class TestAddProject {
         tds.registerPlugin(new String[]{"test-bts-acc"}, TestBTSAccessorImp.class);
         tds.registerPlugin(new String[]{"test-mail-acc"}, TestMailAccessorImp.class);
 
-        action = new AddProject(db, tds);
+        AddProject action = new AddProject(db, tds);
 
         action.addArg("name", "Test Name");
         action.addArg("bts", "test-bts-acc://bts-path");
@@ -183,5 +183,9 @@ public class TestAddProject {
         assertEquals("test-mail-acc://mail-path", sp.getMailUrl());
         assertEquals("maintainer@isp.com", sp.getContactUrl());
         assertEquals("awesome.project.org", sp.getWebsiteUrl());
+
+        ProjectAccessor acc = tds.getAccessor(sp.getId());
+        assertEquals("Test Name", acc.getName());
+        assertEquals(sp.getId(), (long)acc.getId());
     }
 }
