@@ -33,6 +33,13 @@
 
 package eu.sqooss.service.abstractmetric;
 
+import static eu.sqooss.service.abstractmetric.InvocationOrder.OLDFIRST;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.EncapsulationUnit;
@@ -41,17 +48,10 @@ import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.NameSpace;
-import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectDirectory;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static eu.sqooss.service.abstractmetric.InvocationOrder.OLDFIRST;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({TYPE})
 @Retention(RUNTIME)

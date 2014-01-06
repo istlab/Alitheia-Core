@@ -36,16 +36,12 @@ package eu.sqooss.impl.service.fds;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import eu.sqooss.service.util.FileUtils;
-import org.apache.commons.codec.binary.Hex;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -67,6 +63,7 @@ import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.util.FileUtils;
 
 /** {@inheritDoc} */
 public class FDSServiceImpl implements FDSService, Runnable {

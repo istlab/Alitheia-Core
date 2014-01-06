@@ -38,8 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.collections.list.SynchronizedList;
-
 public class SchedulerStats {
     // the number of jobs currently in the scheduler
     private long totalJobs = 0;

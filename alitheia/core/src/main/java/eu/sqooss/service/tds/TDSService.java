@@ -34,7 +34,6 @@
 package eu.sqooss.service.tds;
 
 import eu.sqooss.core.AlitheiaCoreService;
-import eu.sqooss.service.tds.DataAccessor;
 
 /**
  * The TDS service interface provides a way to retrieve and configure project

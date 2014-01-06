@@ -48,8 +48,8 @@ import java.util.regex.Pattern;
 
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffChunk;
-import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.DiffChunk.DiffOp;
+import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.util.FileUtils;
 
 /**

@@ -33,7 +33,6 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.net.URI;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -107,7 +106,7 @@ public abstract class AbstractView {
         this.vc = vc;
         this.bc = bundlecontext;
        
-        sobjCore = AlitheiaCore.getInstance();
+        sobjCore = getSobjObject();
         
         // Retrieve the instances of the core components
         if (sobjCore != null) {
@@ -161,6 +160,19 @@ public abstract class AbstractView {
                 sobjLogger.debug("Could not get the security manager's instance.");
         }
     }
+
+	/**
+	 * @return
+	 */
+	private AlitheiaCore getSobjObject() {
+		return sobjCore;
+	}
+	
+	public void setSobjObject(AlitheiaCore obj){
+		sobjCore = obj;
+	}
+	
+	
 
     /**
      * Initializes the various resource bundle with the specified locale.

@@ -35,7 +35,6 @@ package eu.sqooss.service.db;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

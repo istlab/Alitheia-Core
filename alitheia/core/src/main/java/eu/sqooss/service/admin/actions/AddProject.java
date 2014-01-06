@@ -10,7 +10,6 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.AdminActionBase;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ConfigOption;
-import eu.sqooss.service.db.ConfigurationOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.BTSAccessor;

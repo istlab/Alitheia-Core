@@ -36,8 +36,6 @@ package eu.sqooss.impl.service.fds;
 import java.io.File;
 import java.io.IOException;
 
-import eu.sqooss.service.logging.Logger;
-
 /**
  * This class contains common static functionality for manipulating
  * directory trees on-disk.

@@ -36,7 +36,6 @@ package eu.sqooss.impl.service.scheduler;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.ResumePoint;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.scheduler.WorkerThread;

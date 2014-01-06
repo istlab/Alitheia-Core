@@ -33,7 +33,6 @@
 
 package eu.sqooss.service.tds;
 
-import eu.sqooss.service.tds.TDSException;
 
 /**
  * This exception indicates that an error occurred during accessor

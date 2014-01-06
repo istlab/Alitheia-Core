@@ -36,8 +36,8 @@ package eu.sqooss.impl.service.db;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.URL;
 import java.net.URI;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -52,14 +52,14 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.QueryException;
 import org.hibernate.JDBCException;
+import org.hibernate.LockMode;
 import org.hibernate.Query;
+import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.cfg.Configuration;	
+import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCoreService;

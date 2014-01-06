@@ -33,10 +33,10 @@
 
 package eu.sqooss.service.tds;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
 
-import java.io.FileNotFoundException;
 import javax.mail.internet.MimeMessage;
 
 /**

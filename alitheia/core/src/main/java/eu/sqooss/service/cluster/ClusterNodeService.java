@@ -35,8 +35,8 @@ package eu.sqooss.service.cluster;
 
 
 import eu.sqooss.core.AlitheiaCoreService;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.StoredProject;
 
 /**
  * The clusternode service is the gateway in Alitheia to control the clusternode

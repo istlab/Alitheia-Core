@@ -33,16 +33,15 @@
 
 package eu.sqooss.service.db;
 
-import eu.sqooss.core.AlitheiaCoreService;
-import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.logging.Logger;
-
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.QueryException;
+
+import eu.sqooss.core.AlitheiaCoreService;
+import eu.sqooss.service.logging.Logger;
 
 
 /**

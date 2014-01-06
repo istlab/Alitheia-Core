@@ -34,8 +34,6 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
