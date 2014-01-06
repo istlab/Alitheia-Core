@@ -1,4 +1,4 @@
-package eu.sqooss.service.admin.actions;
+package eu.sqooss.service.admin.actions.test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
