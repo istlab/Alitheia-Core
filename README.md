@@ -92,5 +92,5 @@ Maven from the following link: http://maven.apache.org/
   * To develop a data plug-in: see plug-ins/README.txt
 
   Any tool can be used to write code for Alitheia Core, but using Eclipse will
-  simplify things a lot. Instructions can be found in README.eclipse
+  simplify things a lot. Instructions can be found in IDE.md
 

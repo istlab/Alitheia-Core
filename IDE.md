@@ -6,11 +6,13 @@ with Eclipse Kepler (4.3) and IntelliJ 12.1 on MacOSX.
 ### Eclipse
 1. Checkout the project from its repository, for example
     
-    git clone git@github.com:istlab/Alitheia-Core.git
+    ```git clone git@github.com:istlab/Alitheia-Core.git```
 
 2. Do the following 
+    ```
     mvn clean install
     mvn -DdownloadJavadoc -Ddownloadsources eclipse:eclipse
+    ```
 
 3. In Eclipse, choose Import->General->Existing Projects into Workspace.
 In the next dialogue,
@@ -29,11 +31,13 @@ at any breakpoint you have set in the code.
 
 1. Checkout the project from its repository, for example
     
-    git clone git@github.com:istlab/Alitheia-Core.git
+    ```git clone git@github.com:istlab/Alitheia-Core.git```
 
 2. Do the following 
+    ```
     mvn clean install
     mvn -DdownloadJavadoc -Ddownloadsources intellij:intellij
+    ```
     
 3. In IntelliJ, go to File->Open project and choose the Alitheia Core top-level 
 directory. Importing will start.
