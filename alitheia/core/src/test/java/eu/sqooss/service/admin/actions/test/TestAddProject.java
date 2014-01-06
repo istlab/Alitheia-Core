@@ -3,79 +3,34 @@ package eu.sqooss.service.admin.actions.test;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
-import java.io.File;
 import java.net.MalformedURLException;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.matchers.JUnitMatchers;
 
-import eu.sqooss.impl.service.db.DBServiceImpl;
-import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.test.TestInitHelper;
 
 public class TestAddProject {
     static DBService db;
     TDSService tds;
     static Logger l;
 
-    public static void initLogger() {
-        LogManager lm = new LogManagerImpl(true);
-        l = lm.createLogger("sqooss.updater");
-    }
-
-    public static void initDatabase() throws MalformedURLException {
-        Properties conProp = new Properties();
-        conProp.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
-        conProp.setProperty("hibernate.connection.url", "jdbc:h2:mem");
-        conProp.setProperty("hibernate.connection.dialect", "org.hibernate.dialect.HSQLDialect");
-        conProp.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.DriverManagerConnectionProvider");
-
-        File root = new File(System.getProperty("user.dir"));
-        File config = null;
-        while (true) {
-            String[] extensions = { "xml" };
-            boolean recursive = true;
-
-            @SuppressWarnings("unchecked")
-            Collection<File> files = FileUtils.listFiles(root, extensions, recursive);
-
-            for (Iterator<File> iterator = files.iterator(); iterator.hasNext();) {
-                File file = iterator.next();
-                if (file.getName().equals("hibernate.cfg.xml")) {
-                    config = file;
-                    break;
-                }
-            }
-
-            if (config == null)
-                root = root.getParentFile();
-            else
-                break;
-        }
-
-        db = new DBServiceImpl(conProp, config.toURI().toURL() , l);
-    }
-
     @BeforeClass
     public static void setUpClass() throws MalformedURLException {
-        initLogger();
-        initDatabase();
+        l = TestInitHelper.initLogger();
+        db = TestInitHelper.initDatabase(l);
     }
 
     @Before
