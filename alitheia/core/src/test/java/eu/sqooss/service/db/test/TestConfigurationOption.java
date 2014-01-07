@@ -11,11 +11,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.service.db.ConfigurationOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.test.TestInitHelper;
 
 public class TestConfigurationOption {
@@ -43,10 +41,10 @@ public class TestConfigurationOption {
         ConfigurationOption co1 = new ConfigurationOption();
         co1.setKey("Key1");
         co1.setDescription("Desc1");
-        db.addRecord(co1);
+        assertTrue(db.addRecord(co1));
         
         ConfigurationOption co2 = new ConfigurationOption("Key2", "Desc2");
-        db.addRecord(co2);
+        assertTrue(db.addRecord(co2));
         
         List<ConfigurationOption> coList = db.findObjectsByProperties(ConfigurationOption.class, new HashMap<String, Object>());
         assertEquals(2, coList.size());
