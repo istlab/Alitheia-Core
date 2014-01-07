@@ -49,6 +49,10 @@ public class ProjectDeleteJob extends Job {
 
 	private StoredProject sp;
     private AlitheiaCore core;
+    
+    public static ProjectDeleteJob makeProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
+    	return new ProjectDeleteJob(core, sp);
+    }
 
     ProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
         this.sp = sp;
@@ -62,7 +66,8 @@ public class ProjectDeleteJob extends Job {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void run() throws Exception {
+    //@FIXME FIXME ELWIN this must be protected in stead of public
+    public void run() throws Exception {
         DBService dbs = core.getDBService();
 
         if (!dbs.isDBSessionActive()) {

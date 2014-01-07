@@ -311,7 +311,7 @@ public abstract class AbstractView {
         }
         return b.toString();
     }
-
+    
     /**
      * Generates a string that contains a <b>2*num</b> spaces.
      * <br/>
@@ -328,8 +328,8 @@ public abstract class AbstractView {
             b.append("  ");
         return b.toString();
     }
-
-    /**
+    
+   /**
      * Generates a simple table row (<i>with two columns</i>) that represents
      * a single text input element with a title line. The title line will be
      * stored in the first cell, while the text input will be placed in the
