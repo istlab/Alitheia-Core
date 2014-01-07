@@ -3,39 +3,26 @@ package eu.sqooss.service.admin.actions.test;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.matchers.JUnitMatchers;
 
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.service.admin.actions.AddProject;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.test.TestInitHelper;
+import eu.sqooss.test.TestDAObject;
 
-public class TestAddProject {
-    static DBService db;
+public class TestAddProject extends TestDAObject {
     TDSService tds;
-    static Logger l;
-
-    @BeforeClass
-    public static void setUpClass() throws MalformedURLException {
-        l = TestInitHelper.initLogger();
-        db = TestInitHelper.initDatabase(l);
-    }
 
     @Before
     public void setUpTest() {
-        db.startDBSession();
         tds = new TDSServiceImpl(db, l);
         tds.startUp();
     }
@@ -43,7 +30,6 @@ public class TestAddProject {
     @After
     public void tearDownTest() {
         tds.shutDown();
-        assertTrue("Make sure we do not store any changes", db.rollbackDBSession());
     }
 
     @Test(expected=Exception.class)
