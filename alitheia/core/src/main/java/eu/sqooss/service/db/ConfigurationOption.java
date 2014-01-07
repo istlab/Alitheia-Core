@@ -33,11 +33,11 @@
 
 package eu.sqooss.service.db;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -53,8 +53,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.NaturalId;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * An object that encapsulates a single configuration option.
@@ -134,10 +132,8 @@ public class ConfigurationOption extends DAObject {
      *  the method determines whether to overwrite the value or append the
      *  provided value to the existing list of values.
      */
-	public void setValues(StoredProject sp, List<String> values,
+	public void setValues(DBService dbs, StoredProject sp, List<String> values,
 			boolean overwrite) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
 		String paramProject = "paramProject";
 		String paramConfOpt = "paramConfOpt";
 		
@@ -153,15 +149,25 @@ public class ConfigurationOption extends DAObject {
 		params.put(paramProject, sp);
 		params.put(paramConfOpt, this);
 
+		@SuppressWarnings("unchecked")
+		List<StoredProjectConfig> curValues =
+				(List<StoredProjectConfig>) dbs.doHQL(query.toString(),params);
+		
+		assert curValues.size() <= 1 : "At most one StoredProjectConfig should exist for a project and option combination.";
+		
 		if (overwrite) {
-			@SuppressWarnings("unchecked")
-			List<StoredProjectConfig> curValues =
-					(List<StoredProjectConfig>) dbs.doHQL(query.toString(),params);
 			dbs.deleteRecords(curValues);
+			curValues.clear();
 		}
-		StoredProjectConfig newspc = new StoredProjectConfig(
-				this, new HashSet<String>(values), sp);
-		dbs.addRecord(newspc);
+		
+		StoredProjectConfig spc;
+		if(curValues.isEmpty()) {
+			spc = new StoredProjectConfig(this, new HashSet<String>(values), sp);
+			dbs.addRecord(spc);
+		} else {
+			curValues.get(0).getValues().addAll(values);
+		}
+		
 	}
 	
 	/**
@@ -170,14 +176,12 @@ public class ConfigurationOption extends DAObject {
 	 * @return A list of configuration values that correspond to the provided
 	 * project
 	 */
-	public List<String> getValues(StoredProject sp) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
+	public List<String> getValues(DBService dbs, StoredProject sp) {
 		String paramProject = "paramProject";
 		String paramConfOpt = "paramConfOpt";
 		
 		StringBuilder query = new StringBuilder();
-		query.append(" select spc.value ");
+		query.append(" select spc ");
 		query.append(" from StoredProjectConfig spc, ConfigurationOption co ");
 		query.append(" where spc.confOpt = co ");
 		query.append(" and spc.project =:").append(paramProject);
@@ -187,7 +191,16 @@ public class ConfigurationOption extends DAObject {
 		params.put(paramProject, sp);
 		params.put(paramConfOpt, this);
 		
-		return (List<String>) dbs.doHQL(query.toString(), params);
+		@SuppressWarnings("unchecked")
+		List<StoredProjectConfig> spcs = (List<StoredProjectConfig>)dbs.doHQL(query.toString(), params);
+		
+		assert spcs.size() <= 1 : "At most one StoredProjectConfig should exist for a project and option combination.";
+		
+		if(spcs.size() == 0) {
+			return null;
+		} else {
+			return new ArrayList<String>(spcs.get(0).getValues());
+		}
 	}
 	
 	public static ConfigurationOption fromKey(DBService dbs, String key) {

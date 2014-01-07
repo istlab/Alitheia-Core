@@ -301,7 +301,7 @@ public class StoredProject extends DAObject {
     	if (co == null)
     		return Collections.emptyList();
     	
-    	return co.getValues(this);
+    	return co.getValues(dbs, this);
     }
     
     /**
@@ -377,7 +377,7 @@ public class StoredProject extends DAObject {
     	
     	List<String> values = new ArrayList<String>();
     	values.add(value);
-    	co.setValues(this, values, update);
+    	co.setValues(dbs, this, values, update);
     }
 
     //================================================================

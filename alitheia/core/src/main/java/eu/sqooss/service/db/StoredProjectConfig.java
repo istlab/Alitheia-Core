@@ -55,6 +55,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.NaturalId;
 
 import eu.sqooss.core.AlitheiaCore;
 
@@ -68,12 +69,14 @@ public class StoredProjectConfig extends DAObject {
 	@Column(name="STORED_PROJECT_CONFIG_ID")
 	private long id;
 
+	@NaturalId
 	@ManyToOne(fetch = FetchType.LAZY)
 	// Only cascade persistence and save, do not cascade deletion
 	@Cascade(value = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.SAVE_UPDATE})
 	@JoinColumn(name="CONFIG_OPTION_ID")
 	private ConfigurationOption confOpt;
 
+	@NaturalId
 	@ManyToOne(fetch = FetchType.LAZY)
 	// Only cascade persistence and save, do not cascade deletion
 	@Cascade(value = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.SAVE_UPDATE})
