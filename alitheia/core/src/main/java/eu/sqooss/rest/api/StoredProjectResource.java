@@ -72,12 +72,16 @@ public class StoredProjectResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public StoredProject getProject(@PathParam("id") String id) {
-		
 		StoredProject sp = null;
-		if (id.matches("^[0-9]*$")) //numeric id
+		if (id.matches("^[0-9]*$")){ //numeric id
+			System.out.println("I'm here in id");
+			System.out.println(Long.valueOf(id));
 			sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
-		else 
+		} else {
+			System.out.println("I'm in name");
 			sp = StoredProject.getProjectByName(id);
+		}
+		System.out.println(sp);
 		return sp;
 	}
 	

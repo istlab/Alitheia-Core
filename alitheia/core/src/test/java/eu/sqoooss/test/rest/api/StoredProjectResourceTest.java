@@ -2,6 +2,7 @@ package eu.sqoooss.test.rest.api;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +21,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import eu.sqoooss.test.rest.api.utils.TestUtils;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.rest.api.StoredProjectResource;
+import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 
-@PrepareForTest(AlitheiaCore.class)
+@PrepareForTest({ AlitheiaCore.class, StoredProject.class, String.class,
+		DAObject.class })
 @RunWith(PowerMockRunner.class)
 public class StoredProjectResourceTest {
 
@@ -35,7 +38,7 @@ public class StoredProjectResourceTest {
 
 		PowerMockito.mockStatic(AlitheiaCore.class);
 		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
-		
+
 		db = PowerMockito.mock(DBService.class);
 		Mockito.when(core.getDBService()).thenReturn(db);
 
@@ -55,22 +58,61 @@ public class StoredProjectResourceTest {
 		l.add(p1);
 		l.add(p2);
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				 + "<collection>"
-				 + "<project><id>0</id><name>TestProject1</name></project>"
-				 + "<project><id>0</id><name>TestProject2</name></project>"
-				 + "</collection>";
+				+ "<collection>"
+				+ "<project><id>0</id><name>TestProject1</name></project>"
+				+ "<project><id>0</id><name>TestProject2</name></project>"
+				+ "</collection>";
 
 		Mockito.when(db.doHQL(Mockito.anyString())).thenReturn(l);
-
 
 		MockHttpResponse response = TestUtils.fireMockHttpRequest(
 				StoredProjectResource.class, "api/project");
 
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 		assertEquals(r, response.getContentAsString());
-		
+
 	}
 
+	@Test
+	public void testGetProjectWithId() throws Exception {
+
+		StoredProject sp = new StoredProject();
+		sp.setName("TestProject");
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<project><id>0</id><name>TestProject</name></project>";
+
+		PowerMockito.mockStatic(DAObject.class);
+		Mockito.when(
+				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
+				.thenReturn(sp);
+
+		MockHttpResponse response = TestUtils.fireMockHttpRequest(
+				StoredProjectResource.class, "api/project/0123");
+
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
+
+	}
+
+	@Test
+	public void testGetProjectWithName() throws Exception {
+
+		StoredProject sp = new StoredProject();
+		sp.setName("TestProject");
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<project><id>0</id><name>TestProject</name></project>";
+
+		PowerMockito.mockStatic(StoredProject.class);
+		Mockito.when(StoredProject.getProjectByName(Mockito.anyString()))
+				.thenReturn(sp);
+
+		MockHttpResponse response = TestUtils.fireMockHttpRequest(
+				StoredProjectResource.class, "api/project/aaa");
+
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
+
+	}
 
 
 }
