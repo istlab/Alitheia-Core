@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.VelocityContext;
-import org.easymock.Mock;
+//import org.easymock.Mock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
