@@ -66,6 +66,29 @@ https://github.com/istlab/Alitheia-Core/zipball/master
 Alitheia Core is build using Maven (tested with version > 3). You can download
 Maven from the following link: http://maven.apache.org/
 
+* First choose which database to use H2 or MYSQL are included in `./pom.xml` file uncomment the appropriate database section arround line 50.    
+    * MYSQL: 
+        ```
+
+        <eu.sqooss.db>MySQL</eu.sqooss.db>
+        <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
+        <eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema>
+        <eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
+        <eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
+        <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
+        ```
+    * H2:
+        ```
+        
+        <eu.sqooss.db>H2</eu.sqooss.db>
+        <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
+        <eu.sqooss.db.schema>alitheia;LOCK_MODE=3;MULTI_THREADED=true</eu.sqooss.db.schema>
+        <eu.sqooss.db.user>sa</eu.sqooss.db.user>
+        <eu.sqooss.db.passwd></eu.sqooss.db.passwd>
+        <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
+        <eu.sqooss.updater.svn.ommitfileless>true</eu.sqooss.updater.svn.ommitfileless>
+        <eu.sqooss.updater.svn.handlecopies>branches</eu.sqooss.updater.svn.handlecopies>
+        ```
 * To build the project, do:
 
   `mvn install`
