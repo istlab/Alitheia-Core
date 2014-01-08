@@ -1,4 +1,4 @@
-package eu.sqoooss.admin.test;
+package eu.sqooss.admin.test;
 
 import eu.sqooss.service.admin.AdminActionBase;
 
