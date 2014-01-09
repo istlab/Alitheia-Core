@@ -6,19 +6,19 @@ package eu.sqooss.test.service.webadmin;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+//import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
+//import static org.powermock.api.mockito.PowerMockito.do;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.doThrow;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.doThrow;
-//import static org.powermock.api.mockito.PowerMockito.do;
-import static org.mockito.Mockito.verify;
-//import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -26,13 +26,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.VelocityContext;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.osgi.framework.BundleContext;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
@@ -61,7 +58,7 @@ import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.UpdaterService;
 
 /**
- * @author elwin
+ * @author Ellen
  *
  */
 @RunWith(PowerMockRunner.class)
@@ -132,7 +129,8 @@ public class ProjectsViewTest {
 		when(alitheiaCore.getPluginAdmin()).thenReturn(pluginAdmin);
 		when(adminService.create(AddProject.MNEMONIC)).thenReturn(adminAction);
 		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(adminAction);
-		when(adminAction.results()).thenReturn(mock(Map.class));
+		Map<String,Object> map = new HashMap<String,Object>();
+		when(adminAction.results()).thenReturn(map);
 		when(adminAction.errors()).thenReturn(null);
 		when(clusterNodeService.getClusterNodeName()).thenReturn("ClusterNodeName");
 		
