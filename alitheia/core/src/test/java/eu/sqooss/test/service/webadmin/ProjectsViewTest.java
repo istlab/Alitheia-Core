@@ -94,7 +94,7 @@ public class ProjectsViewTest {
 		StoredProject proj = Whitebox.<StoredProject>invokeMethod(ProjectsView.class, "addProject",builder,r,0);
 		assertThat(proj,equalTo(storedProject));
 		
-		//set errors to false
+		//set errors to true
 		when(adminAction.hasErrors()).thenReturn(true);
 		//call private method
 		proj = Whitebox.<StoredProject>invokeMethod(ProjectsView.class, "addProject",builder,r,0);

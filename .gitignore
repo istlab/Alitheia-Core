@@ -17,3 +17,5 @@ bin/
 *.ipr
 *.iws
 *.db
+alitheia/core/.codepro/
+metrics/contrib/maven-eclipse.xml
