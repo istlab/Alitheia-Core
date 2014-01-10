@@ -4,6 +4,7 @@
 package eu.sqooss.test.service.webadmin;
 
 import static org.junit.Assert.*;
+import org.apache.velocity.Template;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -22,15 +23,19 @@ import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.doThrow;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Time;
 import java.util.ListResourceBundle;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.velocity.VelocityContext;
@@ -53,10 +58,14 @@ import eu.sqooss.impl.service.webadmin.AbstractView;
 import eu.sqooss.impl.service.webadmin.PluginsView;
 import eu.sqooss.impl.service.webadmin.ProjectsView;
 import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.webadmin.WebadminService;
 
@@ -65,6 +74,7 @@ import org.powermock.reflect.Whitebox;
 
 import java.util.Hashtable;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -73,6 +83,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.sqooss.impl.service.webadmin.AdminServlet;
+import eu.sqooss.impl.service.webadmin.AdminServlet.TranslationProxy;
 
 /**
  * @author elwin
@@ -200,6 +211,7 @@ public class AdminServletTest {
 		AdminServlet spy = spy(adminServlet);
 		
 		doNothing().when(spy,"sendPage",any(HttpServletResponse.class),any(HttpServletRequest.class), anyString());
+		doNothing().when(spy,"sendResource",any(HttpServletResponse.class),any());
 		
 		// simulate a non active db session
 		when(db.isDBSessionActive()).thenReturn(false);
@@ -227,6 +239,9 @@ public class AdminServletTest {
 		// so still one time 1 called
 		verify(db,times(1)).startDBSession();
 		
+		// DBSessis is active, so a commit should take place
+		verify(db,times(1)).commitDBSession();
+		
 		// Case 2: query starts with "/stop"
 		when(request.getPathInfo()).thenReturn("/stopIt");
 		
@@ -252,30 +267,151 @@ public class AdminServletTest {
 		verifyPrivate(spy,times(3)).invoke("sendPage",eq(response), eq(request), anyString());
 		verify(bc,times(2)).getBundle(0);
 		verify(bundle,times(2)).stop();
+		// restart needs to be fixed
+			
+		// Case 4: query contains staticContentMap "/uptimte.png" 
+		when(request.getPathInfo()).thenReturn("/uptime.png");
+		Whitebox.invokeMethod(spy, "doGet", request, response);
+		verifyPrivate(spy,times(1)).invoke("sendResource",response, new Pair<String, String> ("/uptime.png", "image/x-png"));
+		
+		// Case 5: query contains dynamicContentMap "/jobs"
+		when(request.getPathInfo()).thenReturn("/jobs");
+		Whitebox.invokeMethod(spy, "doGet", request, response);
+		verifyPrivate(spy,times(1)).invoke("sendPage",response, request, "jobs.html");
 	}
 	
 	/**
 	 * Test method for {@link eu.sqooss.impl.service.webadmin.AdminServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
+	 * @throws Exception 
 	 */
 	@Test
-	public void testDoPostHttpServletRequestHttpServletResponse() {
-		fail("Not yet implemented"); // TODO
+	public void testDoPostHttpServletRequestHttpServletResponse() throws Exception {
+		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+		
+		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
+		AdminServlet spy = spy(adminServlet);
+		
+		doNothing().when(spy,"sendPage",any(HttpServletResponse.class),any(HttpServletRequest.class), anyString());
+		
+		// simulate a non active db session
+		when(db.isDBSessionActive()).thenReturn(false);
+		
+		Whitebox.invokeMethod(spy, "doPost", request, response);
+		
+		// we simulated no active db session, so no commit must take place
+		verify(db,times(0)).commitDBSession();
+		
+		// simulate an active db session
+		when(db.isDBSessionActive()).thenReturn(true);
+		
+		// simulate "/addproject"
+		when(request.getPathInfo()).thenReturn("/addproject");
+		
+		Whitebox.invokeMethod(spy, "doPost", request, response);
+		verifyPrivate(spy,times(1)).invoke("sendPage",response, request, "/results.html"); 
+		
+		// simulated an active db session => commit should take place
+		verify(db,times(1)).commitDBSession();
+		
+		// simulate "/diraddproject"
+		when(request.getPathInfo()).thenReturn("/diraddproject");
+		AdminService as = Mockito.mock(AdminService.class);
+		
+		when(AlitheiaCore.getInstance().getAdminService()).thenReturn(as);
+		AdminAction aa = Mockito.mock(AdminAction.class);
+		
+		when(as.create(AddProject.MNEMONIC)).thenReturn(aa);
+		when(request.getParameter("properties")).thenReturn("myProperties");
+		Whitebox.invokeMethod(spy, "doPost", request, response);
+		
+		verify(as,times(1)).create(AddProject.MNEMONIC);
+		verify(aa,times(1)).addArg("dir", "myProperties");
+		verify(db,times(2)).commitDBSession();
+		
+		// adminAction has errors
+		when(aa.hasErrors()).thenReturn(true);
+		Whitebox.invokeMethod(spy, "doPost", request, response);
+		
+		// simulated errors, errors must be given to the vc
+		verify(aa,times(1)).errors();
+		
+		// doGet when not `/addproject' or `/diraddproject'
+		when(request.getPathInfo()).thenReturn("somethingElse");
+		Whitebox.invokeMethod(spy, "doPost", request, response);
+		verifyPrivate(spy, times(1)).invoke("doGet",request,response);
 	}
 
 	/**
 	 * Test method for {@link eu.sqooss.impl.service.webadmin.AdminServlet#sendResource(javax.servlet.http.HttpServletResponse, eu.sqooss.service.util.Pair)}.
+	 * @throws Exception 
 	 */
 	@Test
-	public void testSendResource() {
-		fail("Not yet implemented"); // TODO
+	public void testSendResource() throws Exception {
+		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+		ServletOutputStream ostream = Mockito.mock(ServletOutputStream.class);
+		
+		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
+		when(response.getOutputStream()).thenReturn(ostream);
+		
+		Whitebox.invokeMethod(
+			adminServlet, 
+			"sendResource", 
+			response, 
+			new Pair<String, String>("/uptime.png", "image/x-png")
+		);
+		
+		verify(response,times(1)).setContentType("image/x-png");
+		
+		// test bad path => triggers IOException
+		boolean ioException = false;
+		try{
+			Whitebox.invokeMethod(
+				adminServlet, 
+				"sendResource", 
+				response, 
+				new Pair<String, String>("badPath", "image/x-png")
+			);
+		} catch (IOException e) {
+			ioException = true;
+		}
+		
+		assertTrue(ioException);
 	}
 
 	/**
 	 * Test method for {@link eu.sqooss.impl.service.webadmin.AdminServlet#sendPage(javax.servlet.http.HttpServletResponse, javax.servlet.http.HttpServletRequest, java.lang.String)}.
+	 * @throws Exception 
 	 */
 	@Test
-	public void testSendPage() {
-		fail("Not yet implemented"); // TODO
+	public void testSendPage() throws Exception {
+		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+		Scheduler scheduler = Mockito.mock(Scheduler.class);
+		PrintWriter print = Mockito.mock(PrintWriter.class);
+		
+		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
+		AdminServlet spy = spy(adminServlet);
+//		doNothing().when(spy,"createSubstitutions",eq(request));
+		
+		Template t = Mockito.mock(Template.class);
+		
+		when(ve.getTemplate(anyString())).thenReturn(t);
+		Whitebox.setInternalState(AbstractView.class, Scheduler.class, scheduler);
+		
+		when(response.getWriter()).thenReturn(print);
+		Whitebox.invokeMethod(spy, "sendPage", response, request, "/projects");
+		verify(ve,times(1)).getTemplate("/projects");
+		verifyPrivate(spy,times(1)).invoke("createSubstitutions",request);
+	}
+	
+	@Test
+	public void testTranslationProxy() {
+		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
+		TranslationProxy tp = adminServlet.new TranslationProxy();
+		assertEquals("myLabel",tp.label("myLabel"));
+		assertEquals("myMessage",tp.label("myMessage"));
+		assertEquals("myError",tp.label("myError"));
 	}
 
 }
