@@ -8,11 +8,11 @@
 
   <name>The SQO-OSS project</name>
 
-  <description>Alitheia Core is a platform for conducting software engineering studies. 
+  <description>Alitheia Core is a platform for conducting software engineering studies.
   	It integrates data from various sources such as from SVN, mailing lists and bug databases.
 
-	Being a platform, and not a concrete implementation, means that by writing the appropriate plug-ins, 
-	you can instruct Alitheia Core to produce any measurements you are interested into and maybe 
+	Being a platform, and not a concrete implementation, means that by writing the appropriate plug-ins,
+	you can instruct Alitheia Core to produce any measurements you are interested into and maybe
 	integrate those measurements in high level quality evaluations.</description>
 
   <url>http://www.sqo-oss.org</url>
@@ -49,15 +49,15 @@
     <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
 
     <!-- MySQL and HSQLDB supported out of the box. Uncomment one of the sections below -->
-    <!-- MySQL 
+    <!-- MySQL
     <eu.sqooss.db>MySQL</eu.sqooss.db>
     <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
     <eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema>
     <eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
     <eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
     <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
-    -->   
-    
+    -->
+
     <eu.sqooss.db>H2</eu.sqooss.db>
     <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
     <eu.sqooss.db.schema>alitheia;LOCK_MODE=3;MULTI_THREADED=true</eu.sqooss.db.schema>
@@ -66,14 +66,14 @@
     <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
     <eu.sqooss.updater.svn.ommitfileless>true</eu.sqooss.updater.svn.ommitfileless>
     <eu.sqooss.updater.svn.handlecopies>branches</eu.sqooss.updater.svn.handlecopies>
-    
+
     <!-- If fast, only one randomly chosen metric per plug-in will be queried
     to determine whether recalculation is necessary. Slow is safer, but, well, slower-->
     <eu.sqooss.metricactivator.sync>slow</eu.sqooss.metricactivator.sync>
     <!--Output performance information in a seperate log file. Lots of output,
     that might hurt performance-->
     <eu.sqooss.log.perf>false</eu.sqooss.log.perf>
-    <!--Start exactly this number of threads. If -1 then the system will use 
+    <!--Start exactly this number of threads. If -1 then the system will use
     the default number of threads, currently 2x number of CPUs -->
     <eu.sqooss.scheduler.numthreads>4</eu.sqooss.scheduler.numthreads>
     <!--Cache implemnetation to use-->
@@ -81,7 +81,7 @@
     <!--Location of the cache dir to use-->
     <eu.sqooss.service.cache.dir>tmp</eu.sqooss.service.cache.dir>
   </properties>
-  
+
   <packaging>pom</packaging>
 
   <repositories>
@@ -90,6 +90,12 @@
       <id>jboss</id>
       <url>http://repository.jboss.org/nexus/content/groups/public/</url>
     </repository>
+    <repository>
+      <name>Maven2</name>
+      <id>central-maven2</id>
+      <url>http://central.maven.org/maven2/</url>
+    </repository>
+
   </repositories>
 
   <modules>
@@ -141,7 +147,7 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-          <!-- configure execution -->          
+          <!-- configure execution -->
         </configuration>
       </plugin>
       <plugin>
@@ -201,7 +207,7 @@
         <configuration>
           <aggregate>true</aggregate>
           <destDir>api</destDir>
-          <excludePackageNames>eu.sqooss.impl.*</excludePackageNames> 
+          <excludePackageNames>eu.sqooss.impl.*</excludePackageNames>
         </configuration>
       </plugin>
     </plugins>
@@ -248,7 +254,7 @@
             <configuration>
               <skipTests>false</skipTests>
             </configuration>
-          </plugin>        
+          </plugin>
         </plugins>
       </build>
     </profile>

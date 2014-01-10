@@ -39,7 +39,7 @@
 	<extensions>true</extensions>
         <configuration>
           <instructions>
-            <Embed-Dependency> 
+            <Embed-Dependency>
               *;scope=compile|runtime;artifactId=!core|org.osgi.core|org.osgi.compendium|servlet-api|junit
             </Embed-Dependency>
             <Export-Package>
@@ -47,11 +47,11 @@
               com.mws.squal.service.*
             </Export-Package>
             <Import-Package>
-              com.mysql.jdbc;resolution:=optional, org.h2;resolution:=optional, 
+              com.mysql.jdbc;resolution:=optional, org.h2;resolution:=optional,
               javassist.util, javassist.util.proxy,
               org.hibernate, org.hibernate.cfg, org.hibernate.classic, org.hibernate.exception,
               org.hibernate.proxy, org.hibernate.type, org.hibernate.connection,
-              org.hibernate.cache, org.hsqldb;resolution:=optional, 
+              org.hibernate.cache, org.hsqldb;resolution:=optional,
               com.sun.source.*;resolution:=optional, *;resolution:=optional
             </Import-Package>
             <Bundle-Activator>eu.sqooss.core.CoreActivator</Bundle-Activator>
@@ -82,7 +82,25 @@
     <dependency>
       <groupId>org.apache.velocity</groupId>
       <artifactId>velocity</artifactId>
-      <version>1.6</version>
+      <version>1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>1.5.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <version>1.5.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>1.9.5</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
@@ -159,7 +177,7 @@
       <scope>compile</scope>
     </dependency>
   </dependencies>
-    
+
   <profiles>
     <profile>
       <id>tools.jar</id>
