@@ -40,7 +40,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.eclipse.gemini.blueprint.mock.MockBundleContext;
+import org.eclipse.gemini.blueprint.mock.MockServiceReference;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
@@ -76,6 +80,12 @@ import eu.sqooss.service.webadmin.WebadminService;
  */
 public class AlitheiaCore {
 
+	
+	private static ServiceReference reference;
+	private static BundleContext bundleContext;
+	private static Object service;
+	
+	
     /** The Logger component's instance. */
     private LogManagerImpl logger;
     
@@ -158,7 +168,26 @@ public class AlitheiaCore {
     
     /*Create a temp instance to use for testing.*/
     public static AlitheiaCore testInstance() {
-        instance = new AlitheiaCore(null);
+    	reference = new MockServiceReference();
+    	bundleContext = new MockBundleContext() {
+
+    		public ServiceReference getServiceReference(String clazz) {
+    			return reference;
+    		}
+
+    		public ServiceReference[] getServiceReferences(String clazz, String filter) 
+    				throws InvalidSyntaxException {
+    			return new ServiceReference[] { reference };
+    		}
+    		
+    		public Object getService(ServiceReference ref) {
+    		    if (reference == ref)
+    		       return service;
+    		    return super.getService(ref);
+    		}
+    	};
+
+        instance = new AlitheiaCore(bundleContext);
         return instance;
     }
     
@@ -196,7 +225,6 @@ public class AlitheiaCore {
      * block the instatiation process).
      */
     private void init() {
-
         err("Required services online, initialising");
 
         logger = new LogManagerImpl();

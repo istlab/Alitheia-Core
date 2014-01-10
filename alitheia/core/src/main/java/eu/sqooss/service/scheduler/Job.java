@@ -218,11 +218,13 @@ public abstract class Job implements Comparable<Job> {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         long timer = System.currentTimeMillis();
         try {
+        	System.out.println("Dbsession is active: " + dbs.isDBSessionActive());
             setState(State.Running);
             restart();
             
             /*Idiot/bad programmer proofing*/
-            assert (!dbs.isDBSessionActive());            
+            assert (!dbs.isDBSessionActive());  
+            
             if (dbs.isDBSessionActive()) {
                 dbs.rollbackDBSession();
                 setState(State.Error); //No uncommitted sessions are tolerated

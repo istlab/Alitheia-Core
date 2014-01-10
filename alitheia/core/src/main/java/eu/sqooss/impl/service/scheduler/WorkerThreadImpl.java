@@ -89,8 +89,9 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
         m_processing = true;
         while (m_processing) {
             try {
+            	Job job = m_scheduler.takeJob();
                 // get a job from the scheduler
-                executeJob(m_scheduler.takeJob());
+                executeJob(job);
             } catch (InterruptedException e) {
                 // we were interrupted, just try again
                 continue;
@@ -119,7 +120,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
 		try {
 			m_job = j;
 			if (m_job.state() == Job.State.Yielded) {
-			    time = m_job.resume();
+				time = m_job.resume();
 			} else { 
 			    time = m_job.execute();
 			}

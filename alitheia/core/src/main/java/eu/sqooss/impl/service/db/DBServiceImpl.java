@@ -296,6 +296,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     public static DBService getInstance() {
         if (instance == null)
             instance = new DBServiceImpl();
+        System.out.println(instance);
         return instance;
     }
 
@@ -775,6 +776,8 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
     @Override
     public boolean startUp() {
+    	System.out.println("BC :"+bc.toString());
+    	System.out.println("DB :"+ bc.getProperty(DB));
         String db  = bc.getProperty(DB).toLowerCase();
         String cs = connString.get(db);
         cs = cs.replaceAll("<HOST>", bc.getProperty(DB_HOST));

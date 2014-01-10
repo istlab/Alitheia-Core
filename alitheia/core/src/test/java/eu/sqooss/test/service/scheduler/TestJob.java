@@ -62,7 +62,7 @@ class TestJob extends Job
     protected void run() throws Exception {
         System.out.println("Testjob running!");
         for (int i = 0; i < n; ++i) {   
-            Thread.sleep(500);
+            Thread.sleep(100);
             System.out.println(s);
         }
         System.out.println("Testjob finished!");

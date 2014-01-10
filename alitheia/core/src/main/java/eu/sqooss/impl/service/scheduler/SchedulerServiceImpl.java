@@ -102,6 +102,8 @@ public class SchedulerServiceImpl implements Scheduler {
     public void enqueueBlock(List<Job> jobs) throws SchedulerException {
         synchronized (this) {
             for (Job job : jobs) {
+            	System.out.println(logger);
+            	if (logger != null) //Added by Joost
                 logger.debug("SchedulerServiceImpl: queuing job " + job.toString());
                 job.callAboutToBeEnqueued(this);
                 blockedQueue.add(job);
