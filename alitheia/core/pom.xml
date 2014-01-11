@@ -158,6 +158,34 @@
       <version>1.2</version>
       <scope>compile</scope>
     </dependency>
+    <!-- Google Guice -->
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-assistedinject</artifactId>
+      <version>3.0</version>
+    </dependency>
+    <!-- Peaberry -->
+    <dependency>
+      <groupId>org.ops4j</groupId>
+      <artifactId>peaberry</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <!-- only needed when injecting Eclipse extensions -->
+    <dependency>
+      <groupId>org.ops4j</groupId>
+      <artifactId>peaberry.eclipse</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>aopalliance</groupId>
+      <artifactId>aopalliance</artifactId>
+      <version>1.0</version>
+    </dependency>
   </dependencies>
     
   <profiles>
