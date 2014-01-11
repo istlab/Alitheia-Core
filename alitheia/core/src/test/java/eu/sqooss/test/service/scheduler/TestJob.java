@@ -46,17 +46,23 @@ class TestJob extends Job
 
     private int n;
     private String s;
-
+    private long priority;
     /**
      * Contructor creating a job printing string \a s \a n times.
      */
     public TestJob(int n, String s) {
         this.n = n;
         this.s = s;
+        this.priority = 0;
     }
-
+   
+    public TestJob(int n, String s, Long priority) {
+        this.n = n;
+        this.s = s;
+        this.priority = priority;
+    }
     public long priority() {
-        return 0;
+        return priority;
     }
     
     protected void run() throws Exception {
