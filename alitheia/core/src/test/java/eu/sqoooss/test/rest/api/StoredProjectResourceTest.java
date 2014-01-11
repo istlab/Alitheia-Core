@@ -347,6 +347,39 @@ public class StoredProjectResourceTest {
 		auxiliarForWithSlashBarVerifications("api/project/0123/version/first/dirs//bab");
 	} 
 	
-	// TODO test getVersions -> StoredProjectResource.java LINE 96
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testGetRequiredVersionsNullProject() throws Exception {
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection/>";
+
+		PowerMockito.mockStatic(DAObject.class);
+		Mockito.when(
+				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
+				.thenReturn(null);
+
+		httpRequestFireAndTestAssertations("api/project/0123/versions/vid,vid,vid,vid", r);
+	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testGetRequiredVersionsWithProject() throws Exception{
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection><version><id>0</id><timestamp>0</timestamp><sequence>0</sequence></version></collection>";
+
+		StoredProject sp = new StoredProject();
+		List<ProjectVersion> l = new ArrayList<ProjectVersion>();
+		ProjectVersion pv = new ProjectVersion(sp);
+		l.add(pv);
+
+		PowerMockito.mockStatic(DAObject.class);
+		Mockito.when(
+				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
+				.thenReturn(sp);
+		
+		PowerMockito.mockStatic(ProjectVersion.class);
+		Mockito.when(ProjectVersion.getVersionByRevision(Mockito.any(StoredProject.class), Mockito.anyString())).thenReturn(pv);
+		
+		httpRequestFireAndTestAssertations("api/project/0123/versions/vid,vid,vid,vid", r);
+	}
 }
