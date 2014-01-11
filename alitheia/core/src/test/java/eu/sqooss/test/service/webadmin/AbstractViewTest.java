@@ -6,12 +6,44 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.ListResourceBundle;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+import java.util.Vector;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.collections.iterators.EnumerationIterator;
 import org.apache.velocity.VelocityContext;
+import org.hibernate.cache.impl.bridge.CollectionAccessStrategyAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,12 +52,17 @@ import org.mockito.Mockito;
 import org.osgi.framework.BundleContext;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+import org.scannotation.archiveiterator.IteratorFactory;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.webadmin.AbstractView;
 import eu.sqooss.impl.service.webadmin.PluginsView;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.tds.TDSService;
 
 @RunWith(PowerMockRunner.class)
 public class AbstractViewTest {
@@ -185,9 +222,26 @@ public class AbstractViewTest {
 	}
 	
 	@Test
-	public void testDebugRequest() {
-		fail("TODO");
-		// @TODO  
+	public void testDebugRequest() throws Exception {
+		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+		
+		Vector<String> v = new Vector<String>();
+		v.add("elementOne");
+		v.add("elementTwo");
+		v.add("elementThree");
+		
+		Enumeration<?> e = v.elements();
+		when(request.getParameterNames()).thenReturn(e);
+		when(request.getParameter("elementOne")).thenReturn("elementOneOut");
+		when(request.getParameter("elementTwo")).thenReturn("elementTwoOut");
+		when(request.getParameter("elementThree")).thenReturn("elementThreeOut");
+		
+		String out = Whitebox.invokeMethod(AbstractView.class, "debugRequest",request);
+		String expected = 
+			"elementOne=elementOneOut<br/>\n"+
+			"elementTwo=elementTwoOut<br/>\n"+
+			"elementThree=elementThreeOut<br/>\n";
+		assertEquals(expected, out);
 	}
 	
 	@Test
@@ -329,7 +383,6 @@ public class AbstractViewTest {
 	}
 	
 	@Test
-	//TODO add test cases for uncovered code
 	public void testEmail() throws Exception {
 		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail",(String)null));
 		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail",""));
@@ -343,9 +396,11 @@ public class AbstractViewTest {
 	}
 	
 	@Test
-	public void checkTDSUrl() {
-		// TODO implement test-case
-		fail("not implemented yet");
+	public void checkTDSUrl() throws Exception {
+		TDSService tds = Mockito.mock(TDSService.class);
+		Whitebox.setInternalState(AbstractView.class, TDSService.class, tds);
+		Whitebox.invokeMethod(AbstractView.class, "checkTDSUrl","myUrl");
+		verify(tds,times(1)).isURLSupported("myUrl");
 	}
 	
 	

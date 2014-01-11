@@ -62,8 +62,7 @@ public class ProjectDeleteJob extends Job {
 
     @SuppressWarnings("unchecked")
     @Override
-    //@FIXME FIXME ELWIN this must be protected in stead of public
-    public void run() throws Exception {
+    protected void run() throws Exception {
         DBService dbs = core.getDBService();
 
         if (!dbs.isDBSessionActive()) {
