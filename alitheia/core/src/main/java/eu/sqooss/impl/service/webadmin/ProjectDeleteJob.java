@@ -50,10 +50,6 @@ public class ProjectDeleteJob extends Job {
 	private StoredProject sp;
     private AlitheiaCore core;
     
-    public static ProjectDeleteJob makeProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
-    	return new ProjectDeleteJob(core, sp);
-    }
-
     ProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
         this.sp = sp;
         this.core = core;
