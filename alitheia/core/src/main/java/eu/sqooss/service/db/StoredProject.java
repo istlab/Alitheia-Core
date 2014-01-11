@@ -111,7 +111,7 @@ public class StoredProject extends DAObject {
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
     @MapKey(name="confOpt")
-	private Map<ConfigurationOption, StoredProjectConfig> configOpts = new HashMap<>();
+	private Map<ConfigOption, StoredProjectConfig> configOpts = new HashMap<>();
    
     @ManyToOne(fetch=FetchType.LAZY, optional = true)
     @JoinColumn(name="CLUSTERNODE_ID")
@@ -218,11 +218,11 @@ public class StoredProject extends DAObject {
         this.measurements = measurements;
     }
 
-    public Map<ConfigurationOption, StoredProjectConfig> getConfigOpts() {
+    public Map<ConfigOption, StoredProjectConfig> getConfigOpts() {
         return configOpts;
     }
 
-    public void setConfigOpts(Map<ConfigurationOption, StoredProjectConfig> configOpts) {
+    public void setConfigOpts(Map<ConfigOption, StoredProjectConfig> configOpts) {
         this.configOpts = configOpts;
     }
 
@@ -284,9 +284,7 @@ public class StoredProject extends DAObject {
      * @return A list of values for the provided configuration option 
      */
     public Set<String> getConfigValues (ConfigOption co) {
-    	ConfigurationOption opt = new ConfigurationOption(co.getName(), co.getDesc());
-
-    	return configOpts.get(opt).getValues();
+    	return configOpts.get(co).getValues();
     }
     
     /** 
@@ -296,7 +294,7 @@ public class StoredProject extends DAObject {
      */
     public List<String> getConfigValues (String key) {
     	DBService dbs = AlitheiaCore.getInstance().getDBService();
-    	ConfigurationOption co = ConfigurationOption.fromKey(dbs, key);
+    	ConfigOption co = ConfigOption.fromKey(key);
     	
     	if (co == null)
     		return Collections.emptyList();
@@ -340,9 +338,7 @@ public class StoredProject extends DAObject {
 	 * @param co The configuration option to store a value for
 	 * @param value The value to set to the configuration option
 	 */
-	public void addConfig(ConfigOption co, String value) {
-		ConfigurationOption opt = new ConfigurationOption(co.getName(), co.getDesc());
-
+	public void addConfig(ConfigOption opt, String value) {
 		StoredProjectConfig spc = configOpts.get(opt);
 
 		if(spc == null) {
@@ -356,28 +352,14 @@ public class StoredProject extends DAObject {
     private void updateConfigValue (ConfigOption configOpt, String key, 
     		String value, boolean update) {
     	DBService dbs = AlitheiaCore.getInstance().getDBService();
-    	ConfigurationOption co = null;
     	
     	if (configOpt == null) {
-    		co = ConfigurationOption.fromKey(dbs, key);
-    	
-    		if (co == null) {
-    			co = new ConfigurationOption(key, "");
-    			dbs.addRecord(co);
-    		}
-    	} else {
-    		co = ConfigurationOption.fromKey(dbs, configOpt.getName());
-        	
-    		if (co == null) {
-    			co = new ConfigurationOption(configOpt.getName(), 
-    					configOpt.getDesc());
-    			dbs.addRecord(co);
-    		}
+    		configOpt = ConfigOption.fromKey(key);
     	}
     	
     	List<String> values = new ArrayList<String>();
     	values.add(value);
-    	co.setValues(dbs, this, values, update);
+    	configOpt.setValues(dbs, this, values, update);
     }
 
     //================================================================

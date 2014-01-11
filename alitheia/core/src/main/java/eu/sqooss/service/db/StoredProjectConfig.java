@@ -43,6 +43,8 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -70,11 +72,8 @@ public class StoredProjectConfig extends DAObject {
 	private long id;
 
 	@NaturalId
-	@ManyToOne(fetch = FetchType.LAZY)
-	// Only cascade persistence and save, do not cascade deletion
-	@Cascade(value = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.SAVE_UPDATE})
-	@JoinColumn(name="CONFIG_OPTION_ID")
-	private ConfigurationOption confOpt;
+	@Enumerated(EnumType.STRING)
+	private ConfigOption confOpt;
 
 	@NaturalId
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -90,7 +89,7 @@ public class StoredProjectConfig extends DAObject {
 
 	public StoredProjectConfig() {}
 	
-	public StoredProjectConfig(ConfigurationOption co, Set<String> values,
+	public StoredProjectConfig(ConfigOption co, Set<String> values,
 			StoredProject sp) {
 		this.confOpt = co;
 		this.values = values;
@@ -105,11 +104,11 @@ public class StoredProjectConfig extends DAObject {
 		this.id = id;
 	}
 	
-	public ConfigurationOption getConfOpt() {
+	public ConfigOption getConfOpt() {
 		return confOpt;
 	}
 	
-	public void setConfOpt(ConfigurationOption confOpt) {
+	public void setConfOpt(ConfigOption confOpt) {
 		this.confOpt = confOpt;
 	}
 	
