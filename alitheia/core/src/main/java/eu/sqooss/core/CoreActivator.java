@@ -37,6 +37,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import com.google.inject.Guice;
+
 
 public class CoreActivator implements BundleActivator {
 
@@ -48,6 +50,15 @@ public class CoreActivator implements BundleActivator {
 
     public void start(BundleContext bc) throws Exception {
         core = new AlitheiaCore(bc);
+        try {
+            Guice.createInjector(new AlitheiaCoreModule()/*,
+                    new WebAdminModule(), new FDSServiceModule(),
+                    new MetricActivatorModule(), new RestServiceModule(),
+                    new SchedulerServiceModule()*/).injectMembers(core);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        core.init();
         sregCore = bc.registerService(AlitheiaCore.class.getName(), core, null);
     }
   

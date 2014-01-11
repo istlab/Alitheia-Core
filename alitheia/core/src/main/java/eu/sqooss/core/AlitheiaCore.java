@@ -40,25 +40,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.impl.service.admin.AdminServiceImpl;
-import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
-import eu.sqooss.impl.service.db.DBServiceImpl;
-import eu.sqooss.impl.service.fds.FDSServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
-import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
-import eu.sqooss.impl.service.pa.PAServiceImpl;
-import eu.sqooss.impl.service.rest.ResteasyServiceImpl;
-import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
-import eu.sqooss.impl.service.tds.TDSServiceImpl;
-import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
-import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.rest.RestService;
@@ -74,60 +67,48 @@ import eu.sqooss.service.webadmin.WebadminService;
  * through getInstance(); after that you can use the get*Service() methods
  * to get each of the other core components as needed.
  */
+@Singleton
 public class AlitheiaCore {
 
-    /** The Logger component's instance. */
-    private LogManagerImpl logger;
+    @Inject
+    private LogManager logger;
+    @Inject
+    private DBService dbService;
+    @Inject
+    private PluginAdmin pluginAdmin;
+    @Inject
+    private Scheduler scheduler;
+    @Inject
+    private TDSService tdsService;
+    @Inject
+    private ClusterNodeService clusterNodeService;
+    @Inject
+    private FDSService fdsService;
+    @Inject
+    private MetricActivator metricActivator;
+    @Inject
+    private UpdaterService updaterService;
+    @Inject
+    private WebadminService webadminService;
+    @Inject
+    private RestService restService;
+    @Inject
+    private AdminService adminService;
     
     /** The parent bundle's context object. */
     private BundleContext bc;
     
     /** The Core is singleton-line because it has a special instance */
-    private static AlitheiaCore instance = null;
+    private static AlitheiaCore instance;
     
     /** Holds initialised service instances */
     private HashMap<Class<? extends AlitheiaCoreService>, Object> instances;
     
     /* Service Configuration */
-    private static Vector<Class<? extends AlitheiaCoreService>> services;
-    private static Map<Class<? extends AlitheiaCoreService>, Class<?>> implementations;
-
-    static {
-        services = new Vector<Class<? extends AlitheiaCoreService>>();
-        implementations = new HashMap<Class<? extends AlitheiaCoreService>, Class<?>>();
-
-    	/* 
-    	 * Order matters here as services are initialised 
-    	 * in the order they appear in this list
-    	 */
-    	//The following two services are started manually
-    	//services.add(LogManager.class); 
-    	//services.add(DBService.class);	
-    	//All services after this point are guaranteed to have access to the DB 
-    	services.add(PluginAdmin.class);
-    	services.add(Scheduler.class);
-    	services.add(TDSService.class);
-    	services.add(ClusterNodeService.class);
-    	services.add(FDSService.class);
-    	services.add(MetricActivator.class);
-    	services.add(UpdaterService.class);
-    	services.add(WebadminService.class);
-    	services.add(RestService.class);
-    	services.add(AdminService.class);
-
-    	implementations.put(LogManager.class, LogManagerImpl.class);
-    	implementations.put(DBService.class, DBServiceImpl.class);	 
-    	implementations.put(PluginAdmin.class, PAServiceImpl.class);
-    	implementations.put(Scheduler.class, SchedulerServiceImpl.class);
-    	implementations.put(TDSService.class, TDSServiceImpl.class);
-    	implementations.put(ClusterNodeService.class, ClusterNodeServiceImpl.class);
-    	implementations.put(FDSService.class, FDSServiceImpl.class);
-    	implementations.put(MetricActivator.class, MetricActivatorImpl.class);
-    	implementations.put(UpdaterService.class, UpdaterServiceImpl.class);
-    	implementations.put(WebadminService.class, WebadminServiceImpl.class);
-        implementations.put(RestService.class, ResteasyServiceImpl.class);
-    	implementations.put(AdminService.class, AdminServiceImpl.class);
-    }
+    private static Vector<Class<? extends AlitheiaCoreService>> services =
+            new Vector<Class<? extends AlitheiaCoreService>>();
+    private static Map<Class<? extends AlitheiaCoreService>, Class<?>> implementations =
+            new HashMap<Class<? extends AlitheiaCoreService>, Class<?>>();
    
     /**
      * Simple constructor.
@@ -140,7 +121,7 @@ public class AlitheiaCore {
         err("Instance Created");
         
         instances = new HashMap<Class<? extends AlitheiaCoreService>, Object>();
-        init();
+        // init();
     }
 
     /**
@@ -195,11 +176,10 @@ public class AlitheiaCore {
      * method on their service interface. Failures are reported but do not 
      * block the instatiation process).
      */
-    private void init() {
+    public void init() {
 
         err("Required services online, initialising");
 
-        logger = new LogManagerImpl();
         logger.setInitParams(bc, null);
         if (!logger.startUp()) {
             err("Cannot start the log service, aborting");
@@ -207,18 +187,32 @@ public class AlitheiaCore {
         instances.put(LogManager.class, logger);
         err("Service " + LogManagerImpl.class.getName() + " started");
 
-        DBService db = DBServiceImpl.getInstance();
-        db.setInitParams(bc, logger.createLogger("sqooss.db"));
-        if (!db.startUp()) {
-            err("Cannot start the DB service, aborting");
-        }
-        instances.put(DBService.class, db);
-        err("Service " + DBServiceImpl.class.getName() + " started");
+        initInjectedService(dbService);
+        initInjectedService(pluginAdmin);
+        initInjectedService(scheduler);
+        initInjectedService(tdsService);
+        initInjectedService(clusterNodeService);
+        initInjectedService(fdsService);
+        initInjectedService(metricActivator);
+        initInjectedService(updaterService);
+        initInjectedService(webadminService);
+        initInjectedService(restService);
+        initInjectedService(adminService);
 
         for (Class<? extends AlitheiaCoreService> s : services) {
             initService(s);
         }
 
+    }
+
+    private synchronized void initInjectedService(AlitheiaCoreService service) {
+        service.setInitParams(bc, createLogger(service.getClass()));
+        if (service.startUp()) {
+            err("Started service: " + service.getClass().getName());
+        } else {
+            err("Cannot start injected service: "
+                    + service.getClass().getName());
+        }
     }
 
     private synchronized void initService(Class<? extends AlitheiaCoreService> s) {
@@ -273,6 +267,15 @@ public class AlitheiaCore {
 			}    		
     	}
 	}
+    
+    public Logger createLogger(Class<? extends AlitheiaCoreService> clazz) {
+        // Extract the unique service portion of the class FQN.
+        // e.g. from eu.sqooss.service.db.DBService -> db
+        String[] paths = clazz.getCanonicalName().split("\\.");
+
+        /* Logger names are constructed as per */
+        return logger.createLogger("sqooss." + paths[3]);
+    }
 
     /**
      * Returns the locally stored Logger component's instance.
@@ -280,7 +283,7 @@ public class AlitheiaCore {
      * @return The Logger component's instance.
      */
     public LogManager getLogManager() {
-        return (LogManager)instances.get(LogManager.class);
+        return logger;
     }
 
     /**
@@ -289,7 +292,7 @@ public class AlitheiaCore {
      * @return The WebAdmin component's instance.
      */
     public WebadminService getWebadminService() {
-        return (WebadminService)instances.get(WebadminService.class);
+        return webadminService;
     }
 
     /**
@@ -298,7 +301,7 @@ public class AlitheiaCore {
      * @return The Plug-in Admin component's instance.
      */
     public PluginAdmin getPluginAdmin() {
-        return (PluginAdmin)instances.get(PluginAdmin.class);
+        return pluginAdmin;
     }
 
     /**
@@ -307,8 +310,8 @@ public class AlitheiaCore {
      * @return The DB component's instance.
      */
     public DBService getDBService() {
-        //return (DBServiceImpl)instances.get(DBService.class);
-        return DBServiceImpl.getInstance(); // <-- Ugly but required for testing.
+        return dbService;
+        //return DBServiceImpl.getInstance(); // <-- Ugly but required for testing.
     }
     
     /**
@@ -331,7 +334,7 @@ public class AlitheiaCore {
      * @return The FDS component's instance.
      */
     public FDSService getFDSService() {
-        return (FDSService)instances.get(FDSService.class);
+        return fdsService;
     }
 
     /**
@@ -343,7 +346,7 @@ public class AlitheiaCore {
      * @return The Scheduler component's instance.
      */
     public Scheduler getScheduler() {
-        return (Scheduler)instances.get(Scheduler.class);
+        return scheduler;
     }
 
     /**
@@ -367,7 +370,7 @@ public class AlitheiaCore {
      * @return The TDS component's instance.
      */
     public TDSService getTDSService() {
-        return (TDSService)instances.get(TDSService.class);
+        return tdsService;
     }
 
     /**
@@ -379,7 +382,7 @@ public class AlitheiaCore {
      * @return The Updater component's instance.
      */
     public UpdaterService getUpdater() {
-        return (UpdaterService)instances.get(UpdaterService.class);
+        return updaterService;
     }
 
     /**
@@ -391,7 +394,7 @@ public class AlitheiaCore {
      * @return The ClusterNodeSerive component's instance.
      */
     public ClusterNodeService getClusterNodeService() {
-        return (ClusterNodeService)instances.get(ClusterNodeService.class);
+        return clusterNodeService;
     }
 
     /**
@@ -403,7 +406,7 @@ public class AlitheiaCore {
      * @return The Metric Activator component's instance.
      */
     public MetricActivator getMetricActivator() {
-    	return (MetricActivator)instances.get(MetricActivator.class);
+    	return metricActivator;
     }
     
     /**
@@ -412,7 +415,7 @@ public class AlitheiaCore {
      * @return The Administration Service component's instance.
      */
     public AdminService getAdminService() {
-    	return (AdminService)instances.get(AdminService.class);
+    	return adminService;
     }
 	
 	private void err(String msg) {

@@ -26,6 +26,7 @@
     <module>com.jcraft.jsch</module>
     <module>h2</module>
     <module>antlr3</module>
+    <module>javax.inject</module>
   </modules>
 
   <build>
