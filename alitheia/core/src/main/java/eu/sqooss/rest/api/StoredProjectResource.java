@@ -74,14 +74,10 @@ public class StoredProjectResource {
 	public StoredProject getProject(@PathParam("id") String id) {
 		StoredProject sp = null;
 		if (id.matches("^[0-9]*$")){ //numeric id
-			System.out.println("I'm here in id");
-			System.out.println(Long.valueOf(id));
 			sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
 		} else {
-			System.out.println("I'm in name");
 			sp = StoredProject.getProjectByName(id);
 		}
-		System.out.println(sp);
 		return sp;
 	}
 	
@@ -90,7 +86,7 @@ public class StoredProjectResource {
 	@Produces({"application/xml", "application/json"})
 	public List<ProjectVersion> getAllVersions(@PathParam("id") Long id) {
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
-	
+		
 		return sp.getProjectVersions();
 	}
 	
