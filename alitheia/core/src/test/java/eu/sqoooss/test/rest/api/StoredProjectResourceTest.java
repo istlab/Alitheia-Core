@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,12 +32,13 @@ import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 
 @PrepareForTest({ AlitheiaCore.class, StoredProject.class, String.class,
-		DAObject.class, ProjectVersion.class, StoredProjectResource.class})
+		DAObject.class, ProjectVersion.class, StoredProjectResource.class, Directory.class})
 @RunWith(PowerMockRunner.class)
 public class StoredProjectResourceTest {
 
 	private DBService db;
 
+	/************Auxiliar methods**************/
 	private void httpRequestFireAndTestAssertations(String api_path, String r) throws URISyntaxException {
 		MockHttpResponse response = TestUtils.fireMockHttpRequest(
 				StoredProjectResource.class, api_path);
@@ -43,6 +46,84 @@ public class StoredProjectResourceTest {
 		//System.out.println(response.getContentAsString());
 		assertEquals(r, response.getContentAsString());
 	}
+	
+	private void auxiliarGetFilesAndGetDirsWithProject(String path)
+			throws URISyntaxException {
+		ProjectVersion v = PowerMockito.mock(ProjectVersion.class);
+		ProjectFile f = PowerMockito.mock(ProjectFile.class);;
+		
+		List<ProjectFile> l = new ArrayList<ProjectFile>();
+		l.add(f);
+		
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+		+ "<collection/>";
+		
+		StoredProjectResource api = PowerMockito.mock(StoredProjectResource.class);
+		Mockito.when(api.getVersion(Mockito.anyString(), Mockito.anyString())).thenReturn(v);
+		
+		PowerMockito.mockStatic(ProjectVersion.class);
+		PowerMockito.mock(Directory.class);
+		
+		Mockito.when(v.getFiles((Directory) Mockito.isNull(), Mockito.anyInt())).thenReturn(l);
+		
+		httpRequestFireAndTestAssertations(path, r);
+	}
+	
+	private void auxiliarGetFilesAndGetDirsNullProject(String path)
+			throws URISyntaxException {
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection/>";
+		
+		StoredProjectResource api = PowerMockito.mock(StoredProjectResource.class);
+		Mockito.when(api.getVersion(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+		
+		httpRequestFireAndTestAssertations(path, r);
+	}
+	
+	private void auxiliarForWithoutSlashBarVerifications(String path) throws URISyntaxException {
+		ProjectVersion v = PowerMockito.mock(ProjectVersion.class);
+		List<ProjectFile> l = new ArrayList<ProjectFile>();
+		ProjectFile f1 = PowerMockito.mock(ProjectFile.class);
+		ProjectFile f2 = PowerMockito.mock(ProjectFile.class);
+		l.add(f1);
+		l.add(f2);
+		
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection/>";
+		
+		StoredProjectResource api = PowerMockito.mock(StoredProjectResource.class);
+		Mockito.when(api.getVersion(Mockito.anyString(), Mockito.anyString())).thenReturn(v);
+		
+		PowerMockito.mockStatic(Directory.class);
+		//Mockito.when(Directory.getDirectory(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(d); //TODO discuss with Georgi
+		Mockito.when( v.getFiles(Mockito.any(Directory.class), Mockito.anyInt())).thenReturn(l);
+		
+		httpRequestFireAndTestAssertations(path, r);
+	}
+	
+	private void auxiliarForWithSlashBarVerifications(String path)
+			throws URISyntaxException {
+		ProjectVersion v = PowerMockito.mock(ProjectVersion.class);
+		
+		List<ProjectFile> l = new ArrayList<ProjectFile>();
+		ProjectFile f1 = PowerMockito.mock(ProjectFile.class);
+		ProjectFile f2 = PowerMockito.mock(ProjectFile.class);
+		l.add(f1);
+		l.add(f2);
+		
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection/>";
+		
+		StoredProjectResource api = PowerMockito.mock(StoredProjectResource.class);
+		Mockito.when(api.getVersion(Mockito.anyString(), Mockito.anyString())).thenReturn(v);
+		
+		PowerMockito.mockStatic(Directory.class);
+		Mockito.when( v.getFiles(Mockito.any(Directory.class), Mockito.anyInt())).thenReturn(l);
+		
+		httpRequestFireAndTestAssertations(path, r);
+	}
+	
+	/************************************/
 	
 	@Before
 	public void setUp() {
@@ -119,13 +200,11 @@ public class StoredProjectResourceTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testGetAllVersions() throws Exception {
-		StoredProject sp = new StoredProject();
-		sp.setName("TestProject");
 		
-		ProjectVersion pv1 = new ProjectVersion(sp);
-		ProjectVersion pv2 = new ProjectVersion(sp);
+		ProjectVersion pv1 = PowerMockito.mock(ProjectVersion.class);
+		ProjectVersion pv2 = PowerMockito.mock(ProjectVersion.class);
 		
-		List l = new ArrayList<ProjectVersion>();
+		List<ProjectVersion> l = new ArrayList<ProjectVersion>();
 		l.add(pv1);
 		l.add(pv2);
 		
@@ -144,9 +223,7 @@ public class StoredProjectResourceTest {
 	
 	@Test
 	public void testGetFirstVersion() throws Exception {
-		StoredProject sp = new StoredProject();
-		sp.setName("TestProject");
-		
+		StoredProject sp = new StoredProject("TestProject");
 		ProjectVersion v = new ProjectVersion(sp);
 		
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -154,6 +231,7 @@ public class StoredProjectResourceTest {
 		
 		PowerMockito.mockStatic(ProjectVersion.class);
 		StoredProjectResource api = PowerMockito.mock(StoredProjectResource.class);
+		
 		Mockito.when(ProjectVersion.getFirstProjectVersion(api.getProject(Mockito.anyString()))).thenReturn(v);
 		
 		httpRequestFireAndTestAssertations("api/project/0123/version/first", r);
@@ -162,9 +240,7 @@ public class StoredProjectResourceTest {
 	
 	@Test
 	public void testGetMiddleVersion() throws Exception {
-		StoredProject sp = new StoredProject();
-		sp.setName("TestProject");
-		
+		StoredProject sp = new StoredProject("TestProject");
 		ProjectVersion v = new ProjectVersion(sp);
 		
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -179,9 +255,8 @@ public class StoredProjectResourceTest {
 	
 	@Test
 	public void testGetLastVersion() throws Exception {
-		StoredProject sp = new StoredProject();
-		sp.setName("TestProject");
 		
+		StoredProject sp = new StoredProject("TestProject");
 		ProjectVersion v = new ProjectVersion(sp);
 		
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -195,40 +270,83 @@ public class StoredProjectResourceTest {
 	}
 	
 	@Test
-	public void testGetAllFilesNullProject() throws Exception {
-		
-		ProjectVersion v = null;
-		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-		+ "<collection/>";
-				
-		StoredProjectResource api = PowerMockito.mock(StoredProjectResource.class);
-		Mockito.when(api.getVersion(Mockito.anyString(), Mockito.anyString())).thenReturn(v);
-		
-		httpRequestFireAndTestAssertations("api/project/0123/version/random/files/", r);
+	public void testGetAllFilesNullProjectVersion() throws Exception {
+		auxiliarGetFilesAndGetDirsNullProject("api/project/0123/version/random/files/");
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
-	public void testGetAllFilesWithProject() throws Exception {
-				
+	public void testGetAllFilesWithProjectVersion() throws Exception {
+		auxiliarGetFilesAndGetDirsWithProject("api/project/0123/version/random/files/");
+	}
+
+	@Test
+	public void testGetFilesInDirNullProjectVersion() throws Exception {
+		auxiliarGetFilesAndGetDirsNullProject("api/project/0123/version/first/files/bla");
+	}
+	
+	@Test
+	public void testGetFilesInDirWithProjectVersionWithoutSlashBar() throws Exception {
+		auxiliarForWithoutSlashBarVerifications("api/project/0123/version/first/files/bla");
+	}
+	
+	@Test
+	public void testGetFilesInDirWithProjectVersionWithSlashBar() throws Exception {
+		auxiliarForWithSlashBarVerifications("api/project/0123/version/first/files//bla");
+	}
+	
+	@Test
+	public void testGetChangedFilesNullProjectVersion() throws Exception {
+		auxiliarGetFilesAndGetDirsNullProject("api/project/0123/version/first/files/changed");
+	}
+	
+	@Test
+	public void testGetChangedFilesWithProjectVersion() throws Exception {
+
 		ProjectVersion v = PowerMockito.mock(ProjectVersion.class);
-		ProjectFile f = new ProjectFile(v);
 		
-		List l = new ArrayList<ProjectFile>();
-		l.add(f);
+		Set<ProjectFile> s = new HashSet<ProjectFile>();
+		ProjectFile f1 = PowerMockito.mock(ProjectFile.class);
+		ProjectFile f2 = PowerMockito.mock(ProjectFile.class);
+		s.add(f1);
+		s.add(f2);
 		
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-		+ "<collection/>";
+				+ "<collection/>";
 		
 		StoredProjectResource api = PowerMockito.mock(StoredProjectResource.class);
 		Mockito.when(api.getVersion(Mockito.anyString(), Mockito.anyString())).thenReturn(v);
 		
-		PowerMockito.mockStatic(ProjectVersion.class);
-		PowerMockito.mock(Directory.class);
+		Mockito.when(v.getVersionFiles()).thenReturn(s);
 		
-		Mockito.when(v.getFiles((Directory) Mockito.isNull(), Mockito.anyInt())).thenReturn(l);
+		httpRequestFireAndTestAssertations("api/project/0123/version/first/files/changed", r);
 		
-		httpRequestFireAndTestAssertations("api/project/0123/version/random/files/", r);
 	}
-
+	
+	@Test
+	public void testGetDirsNullProjectVersion() throws Exception {
+		auxiliarGetFilesAndGetDirsNullProject("api/project/0123/version/first/dirs/");
+	}
+	
+	@Test
+	public void testGetDirsWithProjectVersion() throws Exception {
+		auxiliarGetFilesAndGetDirsWithProject("api/project/0123/version/first/dirs/");
+	}
+	
+	@Test
+	public void testGetDirsPlusPathNullProjectVersion() throws Exception {
+		auxiliarGetFilesAndGetDirsNullProject("api/project/0123/version/first/dirs/bab");
+	}
+	
+	@Test
+	public void testGetDirsPlusPathWithProjectVersionNoSlashBar() throws Exception {
+		auxiliarForWithoutSlashBarVerifications("api/project/0123/version/first/dirs/bab");
+	}
+	
+	@Test
+	public void testGetDirsPlusPathWithProjectVersionWithSlashBar() throws Exception {
+		auxiliarForWithSlashBarVerifications("api/project/0123/version/first/dirs//bab");
+	} 
+	
+	// TODO test getVersions -> StoredProjectResource.java LINE 96
+	
 }
