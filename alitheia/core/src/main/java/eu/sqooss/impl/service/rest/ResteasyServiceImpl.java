@@ -97,6 +97,7 @@ public class ResteasyServiceImpl implements RestService {
         addResource(eu.sqooss.rest.api.StoredProjectResource.class);
         addResource(eu.sqooss.rest.api.MetricsResource.class);
         addResource(eu.sqooss.rest.api.SchedulerResource.class);
+        addResource(eu.sqooss.rest.api.LogManagerResource.class);
         return true;
     }
 

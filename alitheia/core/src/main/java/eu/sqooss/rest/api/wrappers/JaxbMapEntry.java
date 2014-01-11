@@ -4,11 +4,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="map_entry")
-public class XMLMapEntry<K, V> {
+public class JaxbMapEntry<K, V> {
 	
-	public XMLMapEntry(){}
+	public JaxbMapEntry(){}
 	
-	public XMLMapEntry(K k, V v) {
+	public JaxbMapEntry(K k, V v) {
 		this.key = k;
 		this.value = v;
 	}

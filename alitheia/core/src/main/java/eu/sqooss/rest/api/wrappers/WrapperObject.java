@@ -1,4 +1,4 @@
-package eu.sqooss.rest.api;
+package eu.sqooss.rest.api.wrappers;
 
 import java.util.HashMap;
 import java.util.List;

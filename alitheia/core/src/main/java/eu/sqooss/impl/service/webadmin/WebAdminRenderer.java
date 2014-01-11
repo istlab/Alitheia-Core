@@ -120,7 +120,7 @@ public class WebAdminRenderer  extends AbstractView {
                     try {
                         //result.append(j.getClass().getPackage().getName());
                         //result.append(". " + j.getClass().getSimpleName());
-			result.append(j.toString());
+                    	result.append(j.toString());
                     }
                     catch (NullPointerException ex) {
                         result.append("<b>NA<b>");

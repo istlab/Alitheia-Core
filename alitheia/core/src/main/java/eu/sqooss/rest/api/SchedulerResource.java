@@ -9,11 +9,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import org.jboss.resteasy.plugins.providers.jaxb.JaxbMap;
-
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.rest.api.wrappers.JaxbString;
-import eu.sqooss.rest.api.wrappers.XMLMapEntry;
+import eu.sqooss.rest.api.wrappers.JaxbMapEntry;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 
@@ -29,15 +27,18 @@ public class SchedulerResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	@Path("stats/jobtypes/failed")
-	public List<XMLMapEntry<String, Integer>> getFailedJobTypes() {
+	public List<JaxbMapEntry<String, Integer>> getFailedJobTypes() {
 		
-		List<XMLMapEntry<String, Integer>> l = new ArrayList<XMLMapEntry<String, Integer>>();
+		List<JaxbMapEntry<String, Integer>> l = new ArrayList<JaxbMapEntry<String, Integer>>();
 
 		Map<String, Integer> map = scheduler.getSchedulerStats().getFailedJobTypes();
 		Set<String> keySet = map.keySet();
 		
 		for ( String k :  keySet )
-			l.add(new XMLMapEntry<String, Integer>(k, map.get(k)));
+			l.add(new JaxbMapEntry<String, Integer>(k, map.get(k)));
+		
+		l.add(new JaxbMapEntry<String, Integer>("test1", 1));
+		l.add(new JaxbMapEntry<String, Integer>("test2", 2));
 		
 		return l;
 		
@@ -46,19 +47,19 @@ public class SchedulerResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	@Path("stats/jobtypes/waiting")
-	public JaxbMap getWaitingJobTypes() {
-		JaxbMap jm = new JaxbMap("133", "Can", "");
-		jm.addEntry("test", "val");
-		
-		List<XMLMapEntry<String, Integer>> l = new ArrayList<XMLMapEntry<String, Integer>>();
+	public List<JaxbMapEntry<String, Integer>> getWaitingJobTypes() {
+		List<JaxbMapEntry<String, Integer>> l = new ArrayList<JaxbMapEntry<String, Integer>>();
 
 		Map<String, Integer> map = scheduler.getSchedulerStats().getWaitingJobTypes();
 		Set<String> keySet = map.keySet();
 		
 		for ( String k :  keySet )
-			l.add(new XMLMapEntry<String, Integer>(k, map.get(k)));
+			l.add(new JaxbMapEntry<String, Integer>(k, map.get(k)));
 		
-		return jm ;
+		l.add(new JaxbMapEntry<String, Integer>("test1", 1));
+		l.add(new JaxbMapEntry<String, Integer>("test2", 2));
+		
+		return l;
 		
 	}
 	
@@ -72,6 +73,9 @@ public class SchedulerResource {
         
         for (String s : rjobs)
         	l.add(new JaxbString(s));
+        
+		l.add(new JaxbString("test1"));
+		l.add(new JaxbString("test2"));
 		
 		return l;
 		
@@ -80,11 +84,17 @@ public class SchedulerResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	@Path("queue/failed")
-	public Job[] getFailedQueue() {
+	public List<Job> getFailedQueue() {
 		
 		Job[] jobs = scheduler.getFailedQueue();
-		return jobs;
+
+		List<Job> l = new ArrayList<Job>();
+		for (Job j : jobs)
+			if(j != null)
+				l.add(j);
+		
+		return l;
 		
 	}
-
+	
 }

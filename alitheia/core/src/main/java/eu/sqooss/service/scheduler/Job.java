@@ -38,13 +38,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
-
 import java.lang.Comparable;
 import java.lang.InterruptedException;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.Pair;
-
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.scheduler.SchedulerException;
 
@@ -53,6 +54,7 @@ import eu.sqooss.service.scheduler.SchedulerException;
  *
  * @author Christoph Schleifenbam
  */
+@XmlRootElement(name="job")
 public abstract class Job implements Comparable<Job> {
 
     /**
@@ -89,25 +91,28 @@ public abstract class Job implements Comparable<Job> {
      */
     private List<JobStateListener> listeners;
     
+    @XmlElement
     private State m_state;
 
     private Scheduler m_scheduler;
 
+    @XmlElement
     private Exception m_errorException;
     
-    private WorkerThread m_worker;
+    //private WorkerThread m_worker;
     
     private int restarts = 0;
     
     private ResumePoint resumePoint;
     
-    public void setWorkerThread(WorkerThread worker) {
-    	m_worker = worker;
-     }
     
-    public WorkerThread getWorkerThread() {
-        return m_worker;
-     }
+    //public void setWorkerThread(WorkerThread worker) {
+    //	m_worker = worker;
+    // }
+    
+    //public WorkerThread getWorkerThread() {
+    //   return m_worker;
+    //}
     
     /**
      * @return The current state of the job.
