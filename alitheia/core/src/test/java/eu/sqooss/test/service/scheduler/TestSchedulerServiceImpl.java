@@ -69,6 +69,23 @@ public class TestSchedulerServiceImpl {
  	  
     }
     
+    @Test
+    public void testEnqueueMultipleJobsWithPriorities() throws SchedulerException, InterruptedException {
+    	//Clean scheduler
+    	SchedulerServiceImpl sched = new SchedulerServiceImpl();
+    	//add jobs
+    	TestJob j1 = new TestJob(20, "J1", 10l);
+    	TestJob j2 = new TestJob(20, "J2", 20l);
+    	TestJob j3 = new TestJob(20, "J3", 5l);
+        sched.enqueue(j1);
+        sched.enqueue(j2);
+        sched.enqueue(j3);
+        assertEquals(j3, sched.takeJob());
+        assertEquals(j1, sched.takeJob());
+        assertEquals(j2, sched.takeJob());
+ 	  
+    }
+    
 //    Dont test here because it belongs to Job? And only concerns private fields in SchedulerServiceImpl?
 //    @Test 
 //    public void testJobDependenciesAfterEnqueue() throws SchedulerException{

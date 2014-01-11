@@ -46,7 +46,7 @@ import eu.sqooss.service.scheduler.WorkerThread;
  *
  * @author Christoph Schleifenbaum
  */
-class WorkerThreadImpl extends Thread implements WorkerThread {
+ class WorkerThreadImpl extends Thread implements WorkerThread {
     private static final String PERF_LOG_PROPERTY = "eu.sqooss.log.perf";
     
     private boolean perfLog = false;
@@ -79,7 +79,6 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
      */
     public WorkerThreadImpl(Scheduler s, boolean oneshot) {
     	super(null, null, "OneShot Worker Thread");
-    	System.out.println("Ik ben een ONESHOT worker");
         m_scheduler = s;
     }
 
@@ -90,7 +89,6 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
         m_processing = true;
         while (m_processing) {
             try {
-            	System.out.println("Oneshit: "+m_oneshot);
             	Job job = m_scheduler.takeJob();
                 // get a job from the scheduler
                 executeJob(job);
@@ -130,7 +128,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
 		    AlitheiaCore.getInstance().getLogManager().createLogger(
 		            Logger.NAME_SQOOSS_SCHEDULING).error("Job " + j + " is not resumable");
 		} catch (Exception e) {
-//			System.out.println("Caught the exception");
+			e.printStackTrace();
 			// no error handling needed here, the job
 			// itself takes care of that.
 		} finally {

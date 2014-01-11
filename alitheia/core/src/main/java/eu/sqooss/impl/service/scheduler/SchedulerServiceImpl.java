@@ -34,6 +34,7 @@
 package eu.sqooss.impl.service.scheduler;
 
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -102,7 +103,6 @@ public class SchedulerServiceImpl implements Scheduler {
     public void enqueueBlock(List<Job> jobs) throws SchedulerException {
         synchronized (this) {
             for (Job job : jobs) {
-            	System.out.println(logger);
             	if (logger != null) //Added by Joost
                 logger.debug("SchedulerServiceImpl: queuing job " + job.toString());
                 job.callAboutToBeEnqueued(this);
@@ -140,6 +140,9 @@ public class SchedulerServiceImpl implements Scheduler {
          * synchronize here would actually dead-lock this, since no new items
          * can be added as long someone is waiting for items
          */
+    	for (Iterator iterator = workQueue.iterator(); iterator.hasNext();) {
+			Job j = (Job) iterator.next();
+		}
         return workQueue.take();
     }
 
