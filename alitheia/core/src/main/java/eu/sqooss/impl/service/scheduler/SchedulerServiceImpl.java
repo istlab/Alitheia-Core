@@ -243,7 +243,7 @@ public class SchedulerServiceImpl implements Scheduler {
     }
 
     public WorkerThread[] getWorkerThreads() {
-        return (WorkerThread[]) this.myWorkerThreads.toArray();
+        return (WorkerThread[]) this.myWorkerThreads.toArray(new WorkerThread[0]);
     }
 
     public void startOneShotWorkerThread() {
