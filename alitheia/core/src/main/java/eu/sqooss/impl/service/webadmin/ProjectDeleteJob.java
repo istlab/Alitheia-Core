@@ -102,7 +102,7 @@ public class ProjectDeleteJob extends Job {
         }
                
         //Delete the project's config options
-        List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(sp);
+        List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(dbs, sp);
         if (!confParams.isEmpty()) {
         	success &= dbs.deleteRecords(confParams);
         }

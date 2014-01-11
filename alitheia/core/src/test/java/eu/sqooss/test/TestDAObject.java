@@ -1,6 +1,7 @@
 package eu.sqooss.test;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -23,6 +24,21 @@ public class TestDAObject {
     protected static DBService db;
     protected static Logger l;
 
+    /**
+     * True if the test expects the session to no be active when it is done.
+     */
+    private boolean needsRollback = true;
+
+    /**
+     * Do not rollback the database after this test.
+     * 
+     * Call this if the database is already rolled back, for instance due to an
+     * expected hibernate exception.
+     */
+    protected void dontRollback() {
+        needsRollback = false;
+    }
+
     @BeforeClass
     public static void setUpDatabase() throws MalformedURLException {
         l = TestDAObject.initLogger();
@@ -36,7 +52,11 @@ public class TestDAObject {
 
     @After
     public void rollbackDBSession() {
-        assertTrue("Make sure we do not store any changes", db.rollbackDBSession());
+        if(needsRollback) {
+            assertTrue("Make sure we do not store any changes", db.rollbackDBSession());
+        } else if (db.isDBSessionActive()) {
+            fail("Test thinks DB session should not be rolled back, but it is still active!");
+        }
     }
 
     private static DBServiceImpl dbInstance = null;

@@ -468,7 +468,6 @@ public class StoredProject extends DAObject {
      * @return
      */
     public boolean isEvaluated() {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
     	for (Metric m : Metric.getAllMetrics()) {
     		if (m.isEvaluated(this))
     			return true;

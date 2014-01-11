@@ -59,8 +59,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.NaturalId;
 
-import eu.sqooss.core.AlitheiaCore;
-
 @XmlRootElement(name="project-config")
 @Entity
 @Table(name="STORED_PROJECT_CONFIG")
@@ -128,9 +126,7 @@ public class StoredProjectConfig extends DAObject {
 		this.values = value;
 	}
 	
-	public static List<StoredProjectConfig> fromProject(StoredProject sp) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
+	public static List<StoredProjectConfig> fromProject(DBService dbs, StoredProject sp) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("project", sp);
 		
