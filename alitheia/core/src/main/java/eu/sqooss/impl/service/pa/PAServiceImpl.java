@@ -48,7 +48,9 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -62,6 +64,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 
+@Singleton
 public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     /* ===[ Constants: Service search filters ]=========================== */
@@ -89,8 +92,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     // Required SQO-OSS components
     private Logger logger;
-    private DBService sobjDB = null;
-    private AlitheiaCore sobjCore = null;
+    private DBService sobjDB;
+    private Scheduler sobjSched;
     
     /**
      * Keeps a list of registered metric plug-in's services, indexed by the
@@ -99,7 +102,11 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private ConcurrentHashMap<String, PluginInfo> registeredPlugins =
         new ConcurrentHashMap<String, PluginInfo>();
 
-    public PAServiceImpl () { }
+    @Inject
+    public PAServiceImpl (DBService sobjDB, Scheduler sobjSched) {
+        this.sobjDB = sobjDB;
+        this.sobjSched = sobjSched;
+    }
 
     /**
      * Retrieves the service Id of the specified service reference.
@@ -504,10 +511,9 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.Long)
      */
     public boolean uninstallPlugin(Long serviceID) {
-        Scheduler s = AlitheiaCore.getInstance().getScheduler();
         try {
             PluginUninstallJob puj = new PluginUninstallJob(serviceID);
-            s.enqueue(puj);
+            sobjSched.enqueue(puj);
         } catch (SchedulerException e) {
             ServiceReference srefPlugin = getPluginService(serviceID);
             // Get the metric plug-in's object
@@ -645,8 +651,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 + " failed : ";
 
             try {
-                DBService dbs = AlitheiaCore.getInstance().getDBService();
-                dbs.startDBSession();
+                sobjDB.startDBSession();
                 // Get the metric plug-in's service
                 ServiceReference srefPlugin = getPluginService(serviceID);
 
@@ -674,7 +679,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                                 pluginInfo.getHashcode(), pluginInfo);
                     }
                 }
-                dbs.commitDBSession();
+                sobjDB.commitDBSession();
             } catch (Exception e) {
                 logger.warn(UNINSTALL_FAILED, e);
             }
@@ -689,29 +694,14 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 	@Override
 	public boolean startUp() {
 	    logger.info("Starting the PluginAdmin component.");
-
-        // Get the AlitheiaCore's object
-        sobjCore = AlitheiaCore.getInstance();
-
-        if (sobjCore != null) {
-            // Obtain the required core components
-            sobjDB = sobjCore.getDBService();
-            if (sobjDB == null) {
-                logger.error("Can not obtain the DB object!");
-            }
-
-            try {
-                bc.addServiceListener(this, SREF_FILTER_PLUGIN);
-            } catch (InvalidSyntaxException e) {
-                logger.error("Invalid filter syntax ", e);
-            }
-            
-            logger.debug("The PluginAdmin component was successfully started.");
+        try {
+            bc.addServiceListener(this, SREF_FILTER_PLUGIN);
+        } catch (InvalidSyntaxException e) {
+            logger.error("Invalid filter syntax ", e);
+            return false;
         }
-        else {
-            logger.error("Can not obtain the Core object!");
-        }
-		return true;
+        logger.debug("The PluginAdmin component was successfully started.");
+        return true;
 	}
 
 	@Override
