@@ -32,6 +32,9 @@ package eu.sqooss.impl.service.rest;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
@@ -39,11 +42,19 @@ import org.osgi.service.http.HttpService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.rest.RestService;
 
+@Singleton
 public class ResteasyServiceImpl implements RestService {
 
 	private BundleContext bc;
     private Logger log ;
    
+    private ResteasyServletFactory servletFactory;
+    
+    @Inject
+    public ResteasyServiceImpl(ResteasyServletFactory servletFactory) {
+        this.servletFactory = servletFactory;
+    }
+    
 	@Override
 	public void addResource(Class<?> resource) {
 		unregisterApp();
@@ -65,7 +76,7 @@ public class ResteasyServiceImpl implements RestService {
 		params.put("resteasy.scan", "false");
 		params.put("javax.ws.rs.Application", "eu.sqooss.service.rest.RestServiceApp");
 
-		ResteasyServlet bridge = new ResteasyServlet();
+		ResteasyServlet bridge = servletFactory.create();
 		try {
 			http.registerServlet("/api", bridge, params, null);
 		} catch (Exception e) {

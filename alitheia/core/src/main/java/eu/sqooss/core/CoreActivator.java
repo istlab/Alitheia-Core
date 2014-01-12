@@ -41,6 +41,7 @@ import com.google.inject.Guice;
 
 import eu.sqooss.impl.service.fds.FDSServiceModule;
 import eu.sqooss.impl.service.metricactivator.MetricActivatorModule;
+import eu.sqooss.impl.service.rest.RestServiceModule;
 
 
 public class CoreActivator implements BundleActivator {
@@ -55,7 +56,7 @@ public class CoreActivator implements BundleActivator {
         core = new AlitheiaCore(bc);
         try {
             Guice.createInjector(new AlitheiaCoreModule(), new FDSServiceModule(),
-                    new MetricActivatorModule()/*, new WebAdminModule(), new RestServiceModule(),
+                    new MetricActivatorModule(), new RestServiceModule()/*, new WebAdminModule(),
                     new SchedulerServiceModule()*/).injectMembers(core);
         } catch (Throwable t) {
             t.printStackTrace();
