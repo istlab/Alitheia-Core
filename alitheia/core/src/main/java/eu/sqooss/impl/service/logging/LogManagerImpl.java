@@ -44,9 +44,12 @@ import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.SimpleLayout;
 import org.osgi.framework.BundleContext;
 
+import com.google.inject.Singleton;
+
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 
+@Singleton
 public class LogManagerImpl implements LogManager {
     // Our singleton manager
     public static LogManagerImpl logManager = null;

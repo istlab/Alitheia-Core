@@ -40,6 +40,7 @@ import org.osgi.framework.ServiceRegistration;
 import com.google.inject.Guice;
 
 import eu.sqooss.impl.service.fds.FDSServiceModule;
+import eu.sqooss.impl.service.metricactivator.MetricActivatorModule;
 
 
 public class CoreActivator implements BundleActivator {
@@ -53,8 +54,8 @@ public class CoreActivator implements BundleActivator {
     public void start(BundleContext bc) throws Exception {
         core = new AlitheiaCore(bc);
         try {
-            Guice.createInjector(new AlitheiaCoreModule(), new FDSServiceModule()/*,
-                    new WebAdminModule(), new MetricActivatorModule(), new RestServiceModule(),
+            Guice.createInjector(new AlitheiaCoreModule(), new FDSServiceModule(),
+                    new MetricActivatorModule()/*, new WebAdminModule(), new RestServiceModule(),
                     new SchedulerServiceModule()*/).injectMembers(core);
         } catch (Throwable t) {
             t.printStackTrace();

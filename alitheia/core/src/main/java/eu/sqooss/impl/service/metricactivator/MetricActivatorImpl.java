@@ -39,7 +39,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import eu.sqooss.service.abstractmetric.InvocationOrder;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.core.AlitheiaCore;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.SchedulerHints;
@@ -70,31 +72,42 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.util.GraphTS;
 
+@Singleton
 public class MetricActivatorImpl  implements MetricActivator {
 
     /** The parent bundle's context object. */
     private BundleContext bc;
 
-    private AlitheiaCore core;
     private Logger logger;
     private PluginAdmin pa;
-    private DBService db;
+    private DBService dbs;
     private Scheduler sched;
+    private ClusterNodeService cns;
+    private MetricActivatorJobFactory maJobFactory;
+    
     private boolean fastSync = false;
 
     private AtomicLong priority;
     
     private HashMap<MetricType.Type, Class<? extends DAObject>> metricTypesToActivators;
     
-    public MetricActivatorImpl() { }
+    @Inject
+    public MetricActivatorImpl(PluginAdmin pa, DBService dbs, 
+            Scheduler sched, ClusterNodeService cns, MetricActivatorJobFactory maJobFactory) {
+        this.pa = pa;
+        this.dbs = dbs;
+        this.sched = sched;
+        this.cns = cns;
+        this.maJobFactory = maJobFactory;
+    }
 
     @Override
 	public <T extends DAObject> void runMetric(T resource, AlitheiaPlugin ap) {
     	Class<? extends DAObject> activator = resource.getClass();
-    	Job j = new MetricActivatorJob((AbstractMetric)ap, resource.getId(), logger, 
-    			metricTypesToActivators.get(activator),
-    			priority.incrementAndGet(),
-    			fastSync);
+    	Job j = maJobFactory.create((AbstractMetric)ap, resource.getId(), logger, 
+                metricTypesToActivators.get(activator),
+                priority.incrementAndGet(),
+                fastSync);
     	try {
             sched.enqueue(j);
         } catch (SchedulerException e) {
@@ -132,7 +145,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     @Override
     public void syncMetrics(AlitheiaPlugin ap) {
         List<StoredProject> lp = 
-            (List<StoredProject>) db.doHQL("from StoredProject");
+            (List<StoredProject>) dbs.doHQL("from StoredProject");
         
         for(StoredProject sp : lp) {
             syncMetric(ap, sp);
@@ -186,9 +199,6 @@ public class MetricActivatorImpl  implements MetricActivator {
     }
 
     private boolean canRunOnHost(StoredProject sp) {
-        ClusterNodeService cns = null;
-        
-        cns = core.getClusterNodeService();
         if (cns == null) {
             logger.warn("ClusterNodeService reference not found " +
             		"- ClusterNode assignment checks will be ignored");
@@ -285,7 +295,6 @@ public class MetricActivatorImpl  implements MetricActivator {
 
         @Override
         protected void run() throws Exception {
-            DBService dbs = AlitheiaCore.getInstance().getDBService();
             dbs.startDBSession();
             sp = DAObject.loadDAObyId(sp.getId(), StoredProject.class);
             PluginInfo mi = pa.getPluginInfo(m);
@@ -357,11 +366,11 @@ public class MetricActivatorImpl  implements MetricActivator {
                 }
 
                 for (Long l : ids) {
-            		jobs.add(new MetricActivatorJob(metric, l, logger, 
-            			metricTypesToActivators.get(actType),
-            			priority.incrementAndGet(),
-            			fastSync));
-            	}
+                    jobs.add(maJobFactory.create(metric, l, logger, 
+                        metricTypesToActivators.get(actType),
+                        priority.incrementAndGet(),
+                        fastSync));
+                }
             }
             sched.enqueueNoDependencies(jobs);
             dbs.commitDBSession();
@@ -419,15 +428,9 @@ public class MetricActivatorImpl  implements MetricActivator {
 
 	@Override
 	public boolean startUp() {
-        core = AlitheiaCore.getInstance();
-
         priority = new AtomicLong();
         //Lower priorities are reserved for updater jobs
         priority.set(0x1000);
-        
-        this.pa = core.getPluginAdmin();
-        this.db = core.getDBService();
-        this.sched = core.getScheduler();
         
         String sync = bc.getProperty("eu.sqooss.metricactivator.sync");
         

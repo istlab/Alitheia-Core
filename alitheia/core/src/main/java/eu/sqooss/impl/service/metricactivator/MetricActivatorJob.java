@@ -37,7 +37,9 @@ import java.util.List;
 
 import org.hibernate.exception.LockAcquisitionException;
 
-import eu.sqooss.core.AlitheiaCore;
+import javax.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
@@ -45,7 +47,6 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 
 /**
@@ -56,22 +57,21 @@ public class MetricActivatorJob extends Job {
 
     private Logger logger;
     private DBService dbs;
-    private MetricActivator ma;
     private Long daoID;
     private AbstractMetric metric;
     private long priority;
     Class<? extends DAObject> daoType;
     private boolean fastSync = false; 
     
-    MetricActivatorJob(AbstractMetric m, Long daoID, Logger l,
-            Class<? extends DAObject> daoType, long priority, 
-            boolean fastSync) {
-    	this.metric = m;
+    @Inject
+    MetricActivatorJob(@Assisted AbstractMetric m, @Assisted("daoID") Long daoID, @Assisted Logger l,
+            @Assisted Class<? extends DAObject> daoType, @Assisted("priority") long priority, 
+            @Assisted boolean fastSync, DBService dbs) {
+        this.metric = m;
         this.logger = l;
         this.daoID = daoID;
         this.daoType = daoType;
-        this.dbs = AlitheiaCore.getInstance().getDBService();
-        this.ma = AlitheiaCore.getInstance().getMetricActivator(); 
+        this.dbs = dbs;
         this.priority = priority;
         this.fastSync = fastSync;
     }
