@@ -33,10 +33,12 @@
 
 package eu.sqooss.impl.service.scheduler;
 
-import eu.sqooss.core.AlitheiaCore;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+
+import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.ResumePoint;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.scheduler.WorkerThread;
@@ -59,14 +61,21 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
     
     private boolean m_oneshot = false;
     
+    private LogManager logManager;
+    
+    private WorkerThreadFactory workerThreadFactory;
+    
     /**
      * Constructor creating a new WorkerThread
      * @param s the schedule being asked for jobs.
      */
-    public WorkerThreadImpl(Scheduler s, int n) {
-
-    	super(null, null, "Worker ");
+    @AssistedInject
+    public WorkerThreadImpl(@Assisted Scheduler s, @Assisted int n, 
+            LogManager logManager, WorkerThreadFactory workerThreadFactory) {
+        super(null, null, "Worker ");
         m_scheduler = s;
+        this.logManager = logManager;
+        this.workerThreadFactory = workerThreadFactory;
         String perfLog = System.getProperty(PERF_LOG_PROPERTY);
         if (perfLog != null && perfLog.equals("true")) {
             this.perfLog = true;
@@ -77,9 +86,13 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
      * Constructor creating a new WorkerThread
      * @param s the schedule being asked for jobs.
      */
-    public WorkerThreadImpl(Scheduler s, boolean oneshot) {
-    	super(null, null, "OneShot Worker Thread");
+    @AssistedInject
+    public WorkerThreadImpl(@Assisted Scheduler s, @Assisted boolean oneshot, 
+            LogManager logManager, WorkerThreadFactory workerThreadFactory) {
+        super(null, null, "OneShot Worker Thread");
         m_scheduler = s;
+        this.logManager = logManager;
+        this.workerThreadFactory = workerThreadFactory;
     }
 
     /**
@@ -113,7 +126,7 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
 		return m_job;
 	}
 
-	protected void executeJob(Job j) {
+	public void executeJob(Job j) {
 		Job oldJob = m_job;
 		long time = -1;
 		try {
@@ -124,15 +137,14 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
 			    time = m_job.execute();
 			}
 		} catch (ClassCastException cce) { 
-		    AlitheiaCore.getInstance().getLogManager().createLogger(
+		    logManager.createLogger(
 		            Logger.NAME_SQOOSS_SCHEDULING).error("Job " + j + " is not resumable");
 		} catch (Exception e) {
 			// no error handling needed here, the job
 			// itself takes care of that.
 		} finally {
 		    if (perfLog) {
-		        AlitheiaCore.getInstance().getLogManager().
-		            createLogger("sqooss.jobtimer").
+		        logManager.createLogger("sqooss.jobtimer").
 		            debug(m_job.toString() + ", time: " + time + " ms");
 		    }
 			m_job = oldJob;
@@ -147,14 +159,14 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
 	 */
 	public class TemporaryWorkerThread implements Runnable {
 
-		private WorkerThreadImpl worker;
+		private WorkerThread worker;
 		private Job job;
 		
 		public TemporaryWorkerThread(Job job) {
-			this.worker = new WorkerThreadImpl(null, -1);
+			this.worker = workerThreadFactory.create(null, -1);
 		}
 		
-		TemporaryWorkerThread(WorkerThreadImpl worker,Job job) {
+		TemporaryWorkerThread(WorkerThread worker,Job job) {
 			this.worker = worker;
 			this.job = job;
 		}

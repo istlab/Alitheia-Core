@@ -50,6 +50,8 @@ public interface WorkerThread {
 	 */
 	Job executedJob();
 	
+	void executeJob(Job j);
+	
 	/**
 	 * Tries to enforce the given job to be handled by this
 	 * WorkerThread. This only works, if \a job is enqueued into
