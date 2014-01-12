@@ -36,23 +36,31 @@ package eu.sqooss.impl.service.webadmin;
 import java.util.HashMap;
 import java.util.List;
 
-import eu.sqooss.core.AlitheiaCore;
+import javax.inject.Inject;
+
+import com.google.inject.assistedinject.Assisted;
+
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectConfig;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Job;
 
 public class ProjectDeleteJob extends Job {
 
 	private StoredProject sp;
-    private AlitheiaCore core;
+    
+    private DBService dbs;
+    private PluginAdmin pa;
 
-    ProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
+    @Inject
+    public ProjectDeleteJob(@Assisted StoredProject sp, DBService dbs, PluginAdmin pa) {
         this.sp = sp;
-        this.core = core;
+        this.dbs = dbs;
+        this.pa = pa;
     }
 
     @Override
@@ -63,8 +71,6 @@ public class ProjectDeleteJob extends Job {
     @SuppressWarnings("unchecked")
     @Override
     protected void run() throws Exception {
-        DBService dbs = core.getDBService();
-
         if (!dbs.isDBSessionActive()) {
             dbs.startDBSession();
         }
@@ -78,7 +84,7 @@ public class ProjectDeleteJob extends Job {
         List<Plugin> ps = (List<Plugin>) dbs.doHQL("from Plugin");        
         
         for (Plugin p : ps ) {
-            AlitheiaPlugin ap = core.getPluginAdmin().getPlugin(core.getPluginAdmin().getPluginInfo(p.getHashcode()));
+            AlitheiaPlugin ap = pa.getPlugin(pa.getPluginInfo(p.getHashcode()));
             if (ap == null) {
             	//logger.warn("Plugin with hashcode: "+ p.getHashcode() + 
             	//		" not installed");

@@ -33,24 +33,23 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
-import eu.sqooss.service.webadmin.WebadminService;
 
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.util.Hashtable;
 import java.util.Locale;
 
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -60,20 +59,21 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
+
+import com.google.inject.assistedinject.Assisted;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static BundleContext bc = null;
-    private static WebadminService webadmin = null;
 
     /// Logger given by our owner to write log messages to.
-    private Logger logger = null;
+    private Logger logger;
     
-    private DBService db = null;
+    private DBService db;
+    private AdminService adminService;
+    private Scheduler scheduler;
 
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
@@ -84,27 +84,34 @@ public class AdminServlet extends HttpServlet {
     VelocityEngine ve = null;
 
     // Renderer of content
-    WebAdminRenderer adminView = null;
+    WebAdminRenderer adminView;
 
     // Plug-ins view
-    PluginsView pluginsView = null;
+    PluginsView pluginsView;
 
     // Projects view
-    ProjectsView projectsView = null;
+    ProjectsView projectsView;
 
     TranslationProxy tr = new TranslationProxy();
     
-    public AdminServlet(BundleContext bc,
-            WebadminService webadmin,
-            Logger logger,
-            VelocityEngine ve) {
-        AdminServlet.webadmin = webadmin;
-        AdminServlet.bc = bc;
-        this.ve = ve;
+    @Inject
+    public AdminServlet(@Assisted BundleContext bc,
+            @Assisted Logger logger,
+            VelocityEngine ve,
+            VelocityContext vc,
+            DBService db,
+            AdminService adminService,
+            Scheduler scheduler,
+            WebAdminRendererFactory webAdminRendererFactory,
+            PluginsViewFactory pluginsViewFactory,
+            ProjectsViewFactory projectsViewFactory) {
+        this.bc = bc;
         this.logger = logger;
-        
-        AlitheiaCore core = AlitheiaCore.getInstance();
-        db = core.getDBService();
+        this.ve = ve;
+        this.vc = vc;
+        this.db = db;
+        this.adminService = adminService;
+        this.scheduler = scheduler;
         
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
@@ -138,12 +145,11 @@ public class AdminServlet extends HttpServlet {
         dynamicContentMap.put("/jobstat", "jobstat.html");
 
         // Now the dynamic substitutions and renderer
-        vc = new VelocityContext();
-        adminView = new WebAdminRenderer(bc, vc);
+        adminView = webAdminRendererFactory.create(bc, vc);
 
         // Create the various view objects
-        pluginsView = new PluginsView(bc, vc);
-        projectsView = new ProjectsView(bc, vc);
+        pluginsView = pluginsViewFactory.create(bc, vc);
+        projectsView = projectsViewFactory.create(bc, vc);
     }
 
     /**
@@ -220,10 +226,9 @@ public class AdminServlet extends HttpServlet {
                 //addProject(request);
                 sendPage(response, request, "/results.html");
             } else if (query.startsWith("/diraddproject")) {
-                AdminService as = AlitheiaCore.getInstance().getAdminService();
-                AdminAction aa = as.create(AddProject.MNEMONIC);
+                AdminAction aa = adminService.create(AddProject.MNEMONIC);
                 aa.addArg("dir", request.getParameter("properties"));
-                as.execute(aa);
+                adminService.execute(aa);
                 if (aa.hasErrors())
                 	vc.put("RESULTS", aa.errors());
                 else
@@ -312,7 +317,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("UPTIME", WebAdminRenderer.getUptime());
 
         // Object-based substitutions
-        vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
+        vc.put("scheduler", scheduler.getSchedulerStats());
         vc.put("tr",tr); // translations proxy
         vc.put("admin",adminView);
         vc.put("projects",projectsView);

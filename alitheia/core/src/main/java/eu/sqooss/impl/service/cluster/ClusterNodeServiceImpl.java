@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -50,19 +52,18 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.updater.UpdaterService;
 
 /**
  * @author George M. Zouganelis
  *
  */
+@Singleton
 public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeService {
     private static final long serialVersionUID = 1L;
 	static final String localServerName;
@@ -80,16 +81,19 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
 			
 	}
 
-    private Logger logger = null;
-    private AlitheiaCore core = null;
+	private Logger logger = null;
     private HttpService httpService = null;
     private BundleContext context;
-    private DBService dbs = null;
-    private UpdaterService upds = null;
+    
+    private DBService dbs;
+    // private UpdaterService upds; // NOTE: unused and caused cyclic dependency 
     
     private ClusterNode thisNode = null;
 
-    public ClusterNodeServiceImpl() {}
+    @Inject
+    public ClusterNodeServiceImpl(DBService dbs) {
+        this.dbs = dbs;
+    }
     
     public String getClusterNodeName(){
 	   return thisNode.getName();
@@ -398,9 +402,6 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
 		/* Get a reference to the core service*/
         ServiceReference serviceRef = null;
       
-        core = AlitheiaCore.getInstance();
-        dbs = core.getDBService();
-        upds = core.getUpdater();
         if (logger != null) {
             logger.info("Got a valid reference to the logger");
         } else {
