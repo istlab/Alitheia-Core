@@ -145,7 +145,7 @@ public class BugPriority extends DAObject {
     public static BugPriority getBugPriority(Priority s) {
         if (s == null)
             return null;
-        return getBugPriority(s.toString(), true);
+        return getBugPriority(null, s.toString(), true);
     }
     
     /**
@@ -159,8 +159,8 @@ public class BugPriority extends DAObject {
      * and the create field was set to null or when an error occurred
      * while modifying the DB.
      */
-    public static BugPriority getBugPriority(String priority, boolean create) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static BugPriority getBugPriority(DBService dbs, String priority, boolean create) {
+       // DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("priority", priority);

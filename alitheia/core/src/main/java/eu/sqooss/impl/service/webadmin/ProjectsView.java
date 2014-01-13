@@ -34,8 +34,6 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -489,12 +487,12 @@ public class ProjectsView extends AbstractView {
                             + lastVersion
                             + "</td>\n");
                     // Date of the last known email
-                    MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
+                    MailMessage mm = MailMessage.getLatestMailMessage( dbs, nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((mm == null)?getLbl("l0051"):mm.getSendDate())
                             + "</td>\n");
                     // ID of the last known bug entry
-                    Bug bug = Bug.getLastUpdate(nextPrj);
+                    Bug bug = Bug.getLastUpdate( dbs, nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((bug == null)?getLbl("l0051"):bug.getBugID())
                             + "</td>\n");

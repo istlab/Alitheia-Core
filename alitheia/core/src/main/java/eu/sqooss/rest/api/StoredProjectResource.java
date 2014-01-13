@@ -64,6 +64,7 @@ public class StoredProjectResource {
 	public List<StoredProject> getProjects() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from StoredProject";
+		@SuppressWarnings("unchecked")
 		List<StoredProject> sp = (List<StoredProject>) db.doHQL(q);
 		return sp;
 	}
@@ -166,7 +167,7 @@ public class StoredProjectResource {
         if (!path.startsWith("/"))
             path = "/" + path;
         
-        return pv.getFiles(Directory.getDirectory(path, false), 
+        return pv.getFiles(Directory.getDirectory(null, path, false), 
                 ProjectVersion.MASK_FILES);
     }
 
@@ -211,7 +212,7 @@ public class StoredProjectResource {
         if (!path.startsWith("/"))
             path = "/" + path;
         
-        return pv.getFiles(Directory.getDirectory(path, false), 
+        return pv.getFiles(Directory.getDirectory( null, path, false), 
                 ProjectVersion.MASK_DIRECTORIES);
 	}
 }

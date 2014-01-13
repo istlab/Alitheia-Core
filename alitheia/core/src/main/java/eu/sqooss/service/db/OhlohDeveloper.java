@@ -136,22 +136,22 @@ public class OhlohDeveloper extends DAObject {
     }
     
     public static OhlohDeveloper getByOhlohId(String id) {
-       return getBy("ohlohId", id);
+       return getBy(null, "ohlohId", id);
     }
     
     public static OhlohDeveloper getByEmailHash(String hash) {
-        return getBy("emailHash", hash);
+        return getBy(null, "emailHash", hash);
     }
     
-    public static List<OhlohDeveloper> getByUserName(String uname) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static List<OhlohDeveloper> getByUserName(String uname, DBService dbs) {
+        // DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("uname", uname);
         return dbs.findObjectsByProperties(OhlohDeveloper.class, params);
     }
     
-    private static OhlohDeveloper getBy(String name, String value) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    private static OhlohDeveloper getBy(DBService dbs, String name, String value) {
+       // DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(name, value);
         List<OhlohDeveloper> l = dbs.findObjectsByProperties(OhlohDeveloper.class, params);

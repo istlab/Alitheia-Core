@@ -115,8 +115,9 @@ public class ClusterNode extends DAObject {
         return (cnList == null || cnList.isEmpty()) ? null : cnList.get(0);
     }
     
-    public static ClusterNode thisNode(DBService dbs) {
-        String hostname;
+    public static ClusterNode thisNode() {
+        DBService dbs=AlitheiaCore.getInstance().getDBService();
+    	String hostname;
         try {
             java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
             hostname = localMachine.getHostName();

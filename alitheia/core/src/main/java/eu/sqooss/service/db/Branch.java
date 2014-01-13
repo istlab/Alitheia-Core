@@ -146,13 +146,13 @@ public class Branch extends DAObject {
         this.branchOutgoing = branchOutgoing;
     }
 	
-	public static Branch fromName(StoredProject sp, String name, boolean create) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
+	public static Branch fromName(DBService db, StoredProject sp, String name, boolean create) {
+		//DBService db = AlitheiaCore.getInstance().getDBService();
 		Map<String, Object> params = new HashMap<String, Object>();
 		
 		params.put("name", name);
 		params.put("project", sp);
-		
+		@SuppressWarnings("unchecked")
 		List<Branch> branches = (List<Branch>)db.doHQL(qBranchByName, params);
 		if (branches.isEmpty()) {
 		    if (!create)
@@ -161,7 +161,7 @@ public class Branch extends DAObject {
 		    b.setProject(sp);
 		    b.setName(name);
 		    db.addRecord(b);
-		    return fromName(sp, name, false);
+		    return fromName(null, sp, name, false);
 		}
 		
 		return branches.get(0);
@@ -172,7 +172,7 @@ public class Branch extends DAObject {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("project", sp);
-
+        @SuppressWarnings("unchecked")
         List<Long> ids = (List<Long>) db.doHQL(qNextSequence, params);
         if (ids.isEmpty())
             return "1";

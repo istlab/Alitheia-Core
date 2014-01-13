@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.LRUMap;
-
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
@@ -75,6 +74,7 @@ import eu.sqooss.service.util.FileUtils;
  * the metadata database with the latest version available to the 
  * repository.
  */
+@SuppressWarnings("deprecation")
 @Updater(descr = "Subversion repository importer", 
         protocols = {"svn", "svn-http", "svn-file"},
         stage = UpdaterStage.IMPORT, 
@@ -994,7 +994,8 @@ public class SVNUpdaterImpl implements MetadataUpdater {
      * Uses the SCM to get the previous version to avoid timestamp 
      * inconsistencies 
      */
-    private ProjectVersion getPreviousVersion(SCMAccessor scm, ProjectVersion pv) {
+    @SuppressWarnings("unused")
+	private ProjectVersion getPreviousVersion(SCMAccessor scm, ProjectVersion pv) {
         
         Revision p;
         try {
@@ -1030,7 +1031,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         Directory dir = null;
         dir = (Directory) dirCache.get(path);
         if (dir == null) {
-            dir = Directory.getDirectory(path, create);
+            dir = Directory.getDirectory(dbs, path, create);
             if (dir != null) {
                 dirCache.put(path, dir);
             }

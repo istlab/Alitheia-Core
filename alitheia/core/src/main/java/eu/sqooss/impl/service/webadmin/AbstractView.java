@@ -33,7 +33,6 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.net.URI;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -102,7 +101,8 @@ public abstract class AbstractView {
      * @param bundlecontext the parent bundle's context
      * @param vc the Velocity instance's context
      */
-    public AbstractView(BundleContext bundlecontext, VelocityContext vc) {
+    @SuppressWarnings("static-access")
+	public AbstractView(BundleContext bundlecontext, VelocityContext vc) {
         // Keep the Velocity context instance
         this.vc = vc;
         this.bc = bundlecontext;

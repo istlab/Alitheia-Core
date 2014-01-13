@@ -153,9 +153,9 @@ public class MailingListThread extends DAObject {
     /**
      * Get the email that kickstarted this thread.
      */
-    public MailMessage getStartingEmail() {
+    public MailMessage getStartingEmail(DBService dbs) {
 
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("thread", this);
@@ -175,8 +175,9 @@ public class MailingListThread extends DAObject {
      * 
      * @return The last MailMessage in a thread.
      */
-    public List<MailMessage> getMessagesByArrivalOrder() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    @SuppressWarnings("unchecked")
+    public List<MailMessage> getMessagesByArrivalOrder(DBService dbs) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramThread = "paramThread";
         
@@ -199,9 +200,10 @@ public class MailingListThread extends DAObject {
     /**
      * Get the number of levels in the reply tree.
      */
-    public int getThreadDepth() {
+    @SuppressWarnings("unchecked")
+    public int getThreadDepth(DBService dbs) {
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        // DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramThread = "paramThread";
         
@@ -225,9 +227,10 @@ public class MailingListThread extends DAObject {
      * @param level The thread depth level for which to select emails.
      * @return The emails at the specified thread depth.
      */
-    public List<MailMessage> getMessagesAtLevel(int level) {
+    @SuppressWarnings("unchecked")
+    public List<MailMessage> getMessagesAtLevel(DBService dbs, int level) {
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        // DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramThread = "paramThread";
         String paramDepth = "paramDepth";

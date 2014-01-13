@@ -63,12 +63,12 @@ import org.apache.velocity.VelocityContext;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static BundleContext bc = null;
-    private static WebadminService webadmin = null;
+    @SuppressWarnings("unused")
+	private static WebadminService webadmin = null;
 
     /// Logger given by our owner to write log messages to.
     private Logger logger = null;
@@ -263,13 +263,10 @@ public class AdminServlet extends HttpServlet {
 
         byte[] buffer = new byte[1024];
         int bytesRead = 0;
-        int totalBytes = 0;
-
         response.setContentType(source.second);
         ServletOutputStream ostream = response.getOutputStream();
         while ((bytesRead = istream.read(buffer)) > 0) {
             ostream.write(buffer,0,bytesRead);
-            totalBytes += bytesRead;
         }
     }
 

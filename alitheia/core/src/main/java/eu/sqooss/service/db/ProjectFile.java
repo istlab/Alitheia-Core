@@ -481,7 +481,8 @@ public class ProjectFile extends DAObject{
         params.put(paramProject, pf.getProjectVersion().getProject());
         params.put(paramOrder, pf.getProjectVersion().getSequence());
 
-        List<ProjectVersion> pvs = (List<ProjectVersion>) db.doHQL(query, params);
+        @SuppressWarnings("unchecked")
+		List<ProjectVersion> pvs = (List<ProjectVersion>) db.doHQL(query, params);
                        
         if (pvs.size() <= 0)
             return null;
@@ -520,12 +521,13 @@ public class ProjectFile extends DAObject{
         HashMap<String, Object> params = new HashMap<String, Object>();
         
         params.put(paramName, FileUtils.basename(this.getDir().getPath()));
-        params.put(paramDir, Directory.getDirectory(FileUtils.dirname(this.getDir().getPath()), false));
+        params.put(paramDir, Directory.getDirectory(db, FileUtils.dirname(this.getDir().getPath()), false));
         params.put(paramProject, this.getProjectVersion().getProject());
         params.put(paramIsDir, true);
         params.put(paramSequence, this.getProjectVersion().getSequence());
         
-        List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
+        @SuppressWarnings("unchecked")
+		List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
         
         if (pfs.size() <= 0)
             return null;
@@ -642,7 +644,8 @@ public class ProjectFile extends DAObject{
         return pfs.get(0);
     }
     
-    public List<ExecutionUnit> getChangedExecutionUnits() {
+    @SuppressWarnings("unchecked")
+	public List<ExecutionUnit> getChangedExecutionUnits() {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> params = new HashMap<String, Object>();
         

@@ -423,8 +423,9 @@ public interface DBService extends AlitheiaCoreService {
      * @throws QueryException if the query is invalid or if params or collectionParams
      *                          contain invalid entries
      */
-    public List<?> doHQL(String hql, Map<String, Object> params,
-                          Map<String, Collection> collectionParams)
+    @SuppressWarnings("rawtypes")
+	public List<?> doHQL(String hql, Map<String, Object> params,
+                           Map<String, Collection> collectionParams)
         throws QueryException;
 
     /**
@@ -458,7 +459,8 @@ public interface DBService extends AlitheiaCoreService {
      * @throws QueryException if the query is invalid or if params or collectionParams
      *                          contain invalid entries
      */
-    public List<?> doHQL(String hql,
+    @SuppressWarnings("rawtypes")
+	public List<?> doHQL(String hql,
                          Map<String, Object> params,
                          Map<String, Collection> collectionParams,
                          boolean lockForUpdate,

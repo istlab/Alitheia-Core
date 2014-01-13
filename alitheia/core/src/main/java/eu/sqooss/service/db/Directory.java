@@ -127,9 +127,9 @@ public class Directory extends DAObject {
      * not found. If true, it will be created.
      * @return A Directory record for the specified path or null on failure
      */
-    public static synchronized Directory getDirectory(String path, boolean create) {
+    public static synchronized Directory getDirectory(DBService dbs, String path, boolean create) {
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("path", path);
         

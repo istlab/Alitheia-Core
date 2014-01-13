@@ -145,8 +145,9 @@ public class MailingList extends DAObject {
      * @param d The date to compare the arrival date with
      * @return A list of messages newer than <tt>d</tt>
      */
-    public List<MailMessage> getMessagesNewerThan(Date d) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    @SuppressWarnings("unchecked")
+    public List<MailMessage> getMessagesNewerThan(DBService dbs, Date d) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramDate = "paramDate";
         String paramMailingList = "paramML";
@@ -172,8 +173,9 @@ public class MailingList extends DAObject {
     /**
      * Get the latest mail message in this mailing list.
      */
-    public MailMessage getLatestEmail() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    @SuppressWarnings("unchecked")
+    public MailMessage getLatestEmail(DBService dbs) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramMailingList = "paramML";
         
@@ -198,8 +200,9 @@ public class MailingList extends DAObject {
     /**
      * Get the latest updated thread in this mailing list.
      */
-    public MailingListThread getLatestThread() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    @SuppressWarnings("unchecked")
+    public MailingListThread getLatestThread(DBService dbs) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramMailingList = "paramML";
         

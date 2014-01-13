@@ -85,8 +85,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
     private HttpService httpService = null;
     private BundleContext context;
     private DBService dbs = null;
-    private UpdaterService upds = null;
-    
+   
     private ClusterNode thisNode = null;
 
     public ClusterNodeServiceImpl() {}
@@ -400,7 +399,8 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
       
         core = AlitheiaCore.getInstance();
         dbs = core.getDBService();
-        upds = core.getUpdater();
+        @SuppressWarnings("unused")
+		UpdaterService upds = core.getUpdater();
         if (logger != null) {
             logger.info("Got a valid reference to the logger");
         } else {

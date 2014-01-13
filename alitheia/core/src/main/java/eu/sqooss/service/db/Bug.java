@@ -244,8 +244,8 @@ public class Bug extends DAObject {
      * Get the latest entry processed by the bug updater
      */
     @SuppressWarnings("unchecked")
-    public static Bug getLastUpdate(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static Bug getLastUpdate(DBService dbs, StoredProject sp) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         if (sp == null)
             return null;
@@ -274,8 +274,8 @@ public class Bug extends DAObject {
      * ordered by the time the comment was left (old to new).  
      */
     @SuppressWarnings("unchecked")
-    public List<BugReportMessage> getAllReportComments() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public List<BugReportMessage> getAllReportComments(DBService dbs) {
+         //DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramBugID = "paramBugID";
         String paramStoredProject = "stroredProject";
@@ -297,8 +297,8 @@ public class Bug extends DAObject {
     /**
      * Get the latest entry for the bug with the provided Id.
      */
-    public static Bug getBug(String bugID, StoredProject sp) {    
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static Bug getBug(DBService dbs, String bugID, StoredProject sp) {    
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramBugID = "paramBugID";
         String paramStoredProject = "stroredProject";
@@ -312,7 +312,7 @@ public class Bug extends DAObject {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(paramBugID, bugID);
         params.put(paramStoredProject, sp);
-        
+        @SuppressWarnings("unchecked")
         List<Bug> bug = (List<Bug>) dbs.doHQL(query, params, 1);
         
         if (bug.isEmpty())

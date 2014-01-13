@@ -215,7 +215,7 @@ public class Developer extends DAObject {
      */
     public static Developer getDeveloperByEmail(String email, 
             StoredProject sp) {
-        return getDeveloperByEmail(email, sp, true);
+        return getDeveloperByEmail(null, email, sp, true);
     }
     
     /**
@@ -233,9 +233,9 @@ public class Developer extends DAObject {
      *         <li>The passed email is invalid syntactically</li>
      *         <ul>
      */
-    public static synchronized Developer getDeveloperByEmail(String email,
+    public static synchronized Developer getDeveloperByEmail(DBService dbs, String email,
             StoredProject sp, boolean create){
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+         //DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramProject = "project";
         String paramEmail = "email";
@@ -250,7 +250,8 @@ public class Developer extends DAObject {
         parameterMap.put(paramEmail, email);
         parameterMap.put(paramProject, sp);
         
-        List<Developer> devs = (List<Developer>) dbs.doHQL(q.toString(), parameterMap);
+        @SuppressWarnings("unchecked")
+		List<Developer> devs = (List<Developer>) dbs.doHQL(q.toString(), parameterMap);
         
         /* Developer in the DB, return it */
         if ( !devs.isEmpty() )
@@ -284,7 +285,7 @@ public class Developer extends DAObject {
         OhlohDeveloper od = OhlohDeveloper.getByEmailHash(hash);
         
         if (od != null) {
-            Developer d = getDeveloperByUsername(od.getUname(), sp, false);
+            Developer d = getDeveloperByUsername(dbs, od.getUname(), sp, false);
         
             if (d != null) {
                 d.addAlias(email);
@@ -320,7 +321,7 @@ public class Developer extends DAObject {
      */
     public static Developer getDeveloperByUsername(String username, 
             StoredProject sp) {
-        return getDeveloperByUsername(username, sp, true);
+        return getDeveloperByUsername(null, username, sp, true);
     }
     
     /**
@@ -338,11 +339,11 @@ public class Developer extends DAObject {
      *         to retrieve or create an entry.
      * 
      */    
-    @SuppressWarnings("unchecked")
-    public static synchronized Developer getDeveloperByUsername(String username,
+  
+    public static synchronized Developer getDeveloperByUsername(DBService dbs, String username,
             StoredProject sp, boolean create) {
 		
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("username", username);
@@ -405,10 +406,10 @@ public class Developer extends DAObject {
      * @param create
      * @return
      */
-    public static synchronized Developer getDeveloperByName(String name, 
+    public static synchronized Developer getDeveloperByName(DBService dbs, String name, 
             StoredProject sp, boolean create) {
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", name);

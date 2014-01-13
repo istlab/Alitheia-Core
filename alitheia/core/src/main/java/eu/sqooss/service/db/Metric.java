@@ -252,8 +252,8 @@ public class Metric extends DAObject {
 	/**
 	 * Check whether the metric was ever run on the provided project.
 	 */
-	public boolean isEvaluated (StoredProject p) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
+	public boolean isEvaluated (DBService dbs, StoredProject p) {
+		//DBService dbs = AlitheiaCore.getInstance().getDBService();
 		StringBuffer query = new StringBuffer();
 
 		switch (metricType.getEnumType()) {
@@ -296,6 +296,8 @@ public class Metric extends DAObject {
 		case MAILING_LIST:
 		case DEVELOPER:
 			return false; //No DAO result types for those types yet
+		default:
+			break;
 		}
 		
 		Map<String, Object> params = new HashMap<String, Object>();
@@ -363,6 +365,7 @@ public class Metric extends DAObject {
 	 * @return A list of all installed metrics, which might be empty if no
 	 *         metric is installed.
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<Metric> getAllMetrics() {
 		DBService dbs = AlitheiaCore.getInstance().getDBService();
 		return (List<Metric>) dbs.doHQL("from Metric");

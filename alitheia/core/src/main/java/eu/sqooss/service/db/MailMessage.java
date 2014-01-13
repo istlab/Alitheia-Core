@@ -230,8 +230,8 @@ public class MailMessage extends DAObject {
     /**
      * Return a stored mail message based on messageId
      */
-    public static MailMessage getMessageById(String messageId) {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static MailMessage getMessageById(DBService dbs, String messageId) {
+    	//DBService dbs = AlitheiaCore.getInstance().getDBService();
     	Map<String,Object> properties = new HashMap<String, Object>(1);
     	properties.put("messageId", messageId);
     	List<MailMessage> msgList = dbs.findObjectsByProperties(MailMessage.class, properties);
@@ -246,8 +246,8 @@ public class MailMessage extends DAObject {
     /**
      * Return a stored mail message based on filename
      */
-    public static MailMessage getMessageByFileName(String filename) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static MailMessage getMessageByFileName(DBService dbs, String filename) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String,Object> properties = new HashMap<String, Object>(1);
         properties.put("fileName", filename);
         List<MailMessage> msgList = dbs.findObjectsByProperties(MailMessage.class, properties);
@@ -262,8 +262,9 @@ public class MailMessage extends DAObject {
     /**
      * Get the latest known mail message for the provided project, or null.  
      */
-    public static MailMessage getLatestMailMessage(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    @SuppressWarnings("unchecked")
+    public static MailMessage getLatestMailMessage(DBService dbs,StoredProject sp) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
         String paramStoredProject = "paramStoredProject";
 
         String query = "select mm " 

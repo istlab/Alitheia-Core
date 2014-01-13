@@ -621,7 +621,8 @@ public class ProjectVersion extends DAObject {
         HashMap<String, Object> params = new HashMap<String, Object>(4);
         params.put("metric", m);
         params.put("project", p);
-        List<ProjectVersion> pv = (List<ProjectVersion>) 
+        @SuppressWarnings("unchecked")
+		List<ProjectVersion> pv = (List<ProjectVersion>) 
             AlitheiaCore.getInstance().getDBService().doHQL( query, params, 1);
 	    
         if (pv.isEmpty())
@@ -638,7 +639,8 @@ public class ProjectVersion extends DAObject {
      * 
      * @return The number of files in that version and that state.
      */
-    public long getFilesCount(ProjectFileState state) {
+    @SuppressWarnings("null")
+	public long getFilesCount(ProjectFileState state) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         // Construct the field names
         String parVersionId     = "project_version_id"; 
@@ -762,7 +764,8 @@ public class ProjectVersion extends DAObject {
  	        params.put(paramIsDirectory, isDirectory);
  	    }
  	    
- 	    List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(q.toString(), params);
+ 	    @SuppressWarnings("unchecked")
+		List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(q.toString(), params);
 
  	    if (projectFiles == null) 
  	        return Collections.emptyList();

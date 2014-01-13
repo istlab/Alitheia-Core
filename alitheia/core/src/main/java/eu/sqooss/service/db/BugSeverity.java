@@ -155,7 +155,7 @@ public class BugSeverity extends DAObject {
      * the severity code line to the database
      */
     public static BugSeverity getBugseverity(Severity s) {
-        return getBugSeverity(s.toString(), true);
+        return getBugSeverity(null, s.toString(), true);
     }
     
     /**
@@ -169,8 +169,8 @@ public class BugSeverity extends DAObject {
      * and the create field was set to null or when an error occurred
      * while modifying the DB.
      */
-    public static BugSeverity getBugSeverity(String severity, boolean create) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static BugSeverity getBugSeverity(DBService dbs, String severity, boolean create) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("severity", severity);

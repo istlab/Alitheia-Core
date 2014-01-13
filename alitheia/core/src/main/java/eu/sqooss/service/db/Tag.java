@@ -112,8 +112,8 @@ public class Tag extends DAObject {
     }
 
     public static ProjectVersion getProjectVersionForNamedTag(String tagName,
-            StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+            StoredProject sp,DBService dbs) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramTagName = "tagname";
         String paramProject = "project_id";
@@ -137,7 +137,8 @@ public class Tag extends DAObject {
         }
     }
     
-    public static List<ProjectVersion> getTaggedVersions(StoredProject sp) {
+    @SuppressWarnings("unchecked")
+	public static List<ProjectVersion> getTaggedVersions(StoredProject sp) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         String paramProject = "project_id";

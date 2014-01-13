@@ -63,7 +63,7 @@ public abstract class DAObject {
      * @param type The type of the object to look for
      * @return 
      */
-    public static <T extends DAObject> T loadDAObyId(long id, Class<T> type) {
+    public static <T extends DAObject> T loadDAObyId( long id, Class<T> type) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         return dbs.findObjectById(type, id);
     }

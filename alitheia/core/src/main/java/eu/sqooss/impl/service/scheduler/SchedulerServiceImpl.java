@@ -58,8 +58,6 @@ public class SchedulerServiceImpl implements Scheduler {
     private static final String PERF_LOG_PROPERTY = "eu.sqooss.log.perf";
     
     private Logger logger = null;
-    private boolean perfLog = false;
-
     private SchedulerStats stats = new SchedulerStats();
 
     // thread safe job queue
@@ -276,7 +274,6 @@ public class SchedulerServiceImpl implements Scheduler {
         String perfLog = System.getProperty(PERF_LOG_PROPERTY);
         if (perfLog != null && perfLog.equals("true")) {
             logger.info("Using performance logging");
-            this.perfLog = true;
         }
 
         return true;
