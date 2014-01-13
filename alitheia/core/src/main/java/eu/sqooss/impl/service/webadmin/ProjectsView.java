@@ -644,6 +644,8 @@ public class ProjectsView extends AbstractView {
         //----------------------------------------------------------------
         // Create the header row
         //----------------------------------------------------------------
+    	
+    	// RENG: This method opens table, but doesn't close it. Move this out?
         b.append(sp(in++) + "<table>\n");
         b.append(sp(in++) + "<thead>\n");
         b.append(sp(in++) + "<tr class=\"head\">\n");
