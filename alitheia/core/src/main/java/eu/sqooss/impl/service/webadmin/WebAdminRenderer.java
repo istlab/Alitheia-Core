@@ -68,7 +68,7 @@ public class WebAdminRenderer  extends AbstractView {
      *
      * @return a String representing the HTML table
      */
-    public static String renderJobFailStats() {
+    public String renderJobFailStats() {
         StringBuilder result = new StringBuilder();
         HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -98,7 +98,7 @@ public class WebAdminRenderer  extends AbstractView {
      * failed and the recorded exceptions
      * @return
      */
-    public static String renderFailedJobs() {
+    public String renderFailedJobs() {
         StringBuilder result = new StringBuilder();
         Job[] jobs = sobjSched.getFailedQueue();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -185,7 +185,7 @@ public class WebAdminRenderer  extends AbstractView {
      *
      * @return a String representing the HTML unordered list items
      */
-    public static String renderLogs() {
+    public String renderLogs() {
         String[] names = sobjLogManager.getRecentEntries();
 
         if ((names != null) && (names.length > 0)) {
@@ -204,7 +204,7 @@ public class WebAdminRenderer  extends AbstractView {
      * Returns a string representing the uptime of the Alitheia core
      * in dd:hh:mm:ss format
      */
-    public static String getUptime() {
+    public String getUptime() {
         long remainder;
         long currentTime = new Date().getTime();
         long timeRunning = currentTime - startTime;
@@ -222,7 +222,7 @@ public class WebAdminRenderer  extends AbstractView {
     }
     
 
-    public static String renderJobWaitStats() {
+    public String renderJobWaitStats() {
         StringBuilder result = new StringBuilder();
         HashMap<String,Integer> wjobs = sobjSched.getSchedulerStats().getWaitingJobTypes();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -247,7 +247,7 @@ public class WebAdminRenderer  extends AbstractView {
         return result.toString();
     }
 
-    public static String renderJobRunStats() {
+    public String renderJobRunStats() {
         StringBuilder result = new StringBuilder();
         List<String> rjobs = sobjSched.getSchedulerStats().getRunJobs();
         if (rjobs.size() == 0) {

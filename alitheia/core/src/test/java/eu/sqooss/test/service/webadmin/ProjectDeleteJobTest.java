@@ -102,7 +102,6 @@ public class ProjectDeleteJobTest {
 		
 		when(storedProject.getProjectVersions()).thenReturn(versions);
 		
-		@SuppressWarnings("unchecked")
 		Set<ProjectVersionParent> mySet = (Set<ProjectVersionParent>) Mockito.mock(Set.class);
 		when(pv.getParents()).thenReturn(mySet);
 		

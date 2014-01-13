@@ -123,6 +123,7 @@ public class WebadminServiceImpl implements WebadminService {
 	public void shutDown() {
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean startUp() {        
         // Get a reference to the HTTPService, and then its object

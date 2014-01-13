@@ -58,42 +58,42 @@ import eu.sqooss.service.updater.UpdaterService;
 
 public abstract class AbstractView {
     // Core components
-    protected static AlitheiaCore sobjCore = null;
-    protected static ServiceReference srefCore = null;
+    protected AlitheiaCore sobjCore = null;
+    protected ServiceReference srefCore = null;
 
     // Critical logging components
-    protected static LogManager sobjLogManager = null;
-    protected static Logger sobjLogger = null;
+    protected LogManager sobjLogManager = null;
+    protected Logger sobjLogger = null;
 
     // Service components
-    protected static DBService sobjDB = null;
-    protected static MetricActivator compMA = null;
-    protected static PluginAdmin sobjPA = null;
-    protected static Scheduler sobjSched = null;
-    protected static TDSService sobjTDS = null;
-    protected static UpdaterService sobjUpdater = null;
-    protected static ClusterNodeService sobjClusterNode = null;
-    protected static SecurityManager sobjSecurity = null;
+    protected DBService sobjDB = null;
+    protected MetricActivator compMA = null;
+    protected PluginAdmin sobjPA = null;
+    protected Scheduler sobjSched = null;
+    protected TDSService sobjTDS = null;
+    protected UpdaterService sobjUpdater = null;
+    protected ClusterNodeService sobjClusterNode = null;
+    protected SecurityManager sobjSecurity = null;
 
     // Velocity stuff
-    protected static VelocityContext vc = null;
+    protected VelocityContext vc = null;
     protected BundleContext bc = null;
 
     // Names of the various resource files
-    private static String RES_LABELS_FILE   = "ResourceLabels";
-    private static String RES_ERRORS_FILE   = "ResourceErrors";
-    private static String RES_MESSAGES_FILE = "ResourceMessages";
+    private String RES_LABELS_FILE   = "ResourceLabels";
+    private String RES_ERRORS_FILE   = "ResourceErrors";
+    private String RES_MESSAGES_FILE = "ResourceMessages";
 
     // Resource bundles
-    private static ResourceBundle resLbl = null;
-    private static ResourceBundle resMsg = null;
-    private static ResourceBundle resErr = null;
+    private ResourceBundle resLbl = null;
+    private ResourceBundle resMsg = null;
+    private ResourceBundle resErr = null;
 
     // Debug flag - global for all views
-    protected static boolean DEBUG = false;
+    protected static final boolean DEBUG = false;
     
     // Some constants that are used internally
-    private static String NULL_PARAM_NAME = "Undefined parameter name!";
+    private String NULL_PARAM_NAME = "Undefined parameter name!";
 
     /**
      * Instantiates a new <code>AbstractView</code> object.
@@ -106,7 +106,7 @@ public abstract class AbstractView {
         this.vc = vc;
         this.bc = bundlecontext;
        
-        sobjCore = getSobjObject();
+        sobjCore = AlitheiaCore.getInstance();
         
         // Retrieve the instances of the core components
         if (sobjCore != null) {
@@ -160,17 +160,6 @@ public abstract class AbstractView {
                 sobjLogger.debug("Could not get the security manager's instance.");
         }
     }
-
-	/**
-	 * @return
-	 */
-	private static AlitheiaCore getSobjObject() {
-		return sobjCore;
-	}
-	
-	public static void setSobjObject(AlitheiaCore obj){
-		sobjCore = obj;
-	}
 	
 	
 
@@ -179,10 +168,10 @@ public abstract class AbstractView {
      * 
      * @param locale the user's locale
      */
-    public static void initResources (Locale locale) {
-        resLbl = getLabelsBundle(locale);
-        resErr = getErrorsBundle(locale);
-        resMsg = getMessagesBundle(locale);
+    public void initResources (Locale locale) {
+        resLbl = ResourceBundle.getBundle(RES_LABELS_FILE, locale);
+        resErr = ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
+        resMsg = ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);;
     }
 
     /**
@@ -195,7 +184,7 @@ public abstract class AbstractView {
      *   corresponding resource bundle, OR the provided property name's
      *   parameter, when such property is missing.
      */
-    public static String getLbl (String name) {
+    public String getLbl (String name) {
         if (resLbl != null) {
             try {
                 return resLbl.getString(name);
@@ -220,7 +209,7 @@ public abstract class AbstractView {
      *   corresponding resource bundle, OR the provided property name's
      *   parameter, when such property is missing.
      */
-    public static String getErr (String name) {
+    public String getErr (String name) {
         if (resErr != null) {
             try {
                 return resErr.getString(name);
@@ -245,7 +234,7 @@ public abstract class AbstractView {
      *   corresponding resource bundle, OR the provided property name's
      *   parameter, when such property is missing.
      */
-    public static String getMsg (String name) {
+    public String getMsg (String name) {
         if (resMsg != null) {
             try {
                 return resMsg.getString(name);
@@ -260,38 +249,6 @@ public abstract class AbstractView {
         return name;
     }
 
-    public static void setResLbl(ResourceBundle resLbl) {
-		AbstractView.resLbl = resLbl;
-	}
-
-	public static void setResMsg(ResourceBundle resMsg) {
-		AbstractView.resMsg = resMsg;
-	}
-
-	public static void setResErr(ResourceBundle resErr) {
-		AbstractView.resErr = resErr;
-	}
-
-	// TODO: Move this method's logic in the initResources() once all views
-    // are using the new methods.
-	public static ResourceBundle getLabelsBundle(Locale locale) {
-		locale = Locale.ENGLISH;
-		return ResourceBundle.getBundle(RES_LABELS_FILE, locale);
-	}
-
-    // TODO: Move this method's logic in the initResources() once all views
-    // are using the new methods.
-	public static ResourceBundle getErrorsBundle(Locale locale) {
-		locale = Locale.ENGLISH;
-		return ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
-	}
-
-    // TODO: Move this method's logic in the initResources() once all views
-    // are using the new methods.
-    public static ResourceBundle getMessagesBundle (Locale locale) {
-    	locale = Locale.ENGLISH;
-    	return ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);
-    }
 
     /**
      * Construct an HTML-based list of all parameters and their values, that
@@ -302,7 +259,7 @@ public abstract class AbstractView {
      * 
      * @return The list of request parameters.
      */
-    protected static String debugRequest (HttpServletRequest request) {
+    protected String debugRequest (HttpServletRequest request) {
         StringBuilder b = new StringBuilder();
         Enumeration<?> e = request.getParameterNames();
         while (e.hasMoreElements()) {
@@ -322,7 +279,7 @@ public abstract class AbstractView {
      * 
      * @return The indentation string.
      */
-    protected static String sp (long num) {
+    protected String sp (long num) {
         StringBuilder b = new StringBuilder();
         for (long i = 0; i < num; i++)
             b.append("  ");
@@ -346,7 +303,7 @@ public abstract class AbstractView {
      * @return The string that contains the table's row, or an empty string
      *   upon invalid (<code>null</code>) name of the input element.
      */
-    protected static String normalInputRow (
+    protected String normalInputRow (
             String title, String parName, String parValue, long in) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
@@ -389,7 +346,7 @@ public abstract class AbstractView {
      * 
      * @return The string that contains the table's row.
      */
-    protected static String normalInfoRow (
+    protected String normalInfoRow (
             String title, String value, long in) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
@@ -420,7 +377,7 @@ public abstract class AbstractView {
      * 
      * @return The HTML presentation.
      */
-    protected static String normalFieldset (
+    protected String normalFieldset (
             String name,
             String css,
             StringBuilder content,
@@ -439,7 +396,7 @@ public abstract class AbstractView {
     }
 
     // TODO: Remove this method, since it is not I18n compatible.
-    protected static String errorFieldset (StringBuilder errors, long in) {
+    protected String errorFieldset (StringBuilder errors, long in) {
         return normalFieldset("Errors", null, errors, in);
     }
 
@@ -452,7 +409,7 @@ public abstract class AbstractView {
      * 
      * @return The <code>Long</code> value.
      */
-    protected static Long fromString (String value) {
+    protected Long fromString (String value) {
         try {
             return (new Long(value));
         }
@@ -473,7 +430,7 @@ public abstract class AbstractView {
      * @return <code>true</code> upon successful validation,
      *   or <code>false</code> otherwise.
      */
-    protected static boolean checkName (String text) {
+    protected boolean checkName (String text) {
         if (text == null) return false;
 
         // Check for head or foot occurrence of deprecated signs
@@ -499,7 +456,7 @@ public abstract class AbstractView {
      * @return <code>true</code> upon successful validation,
      *   or <code>false</code> otherwise.
      */
-    protected static boolean checkProjectName (String text) {
+    protected boolean checkProjectName (String text) {
         if (text == null) return false;
 
         // Check for head or foot occurrence of deprecated signs
@@ -526,7 +483,7 @@ public abstract class AbstractView {
      * @return <code>true</code> upon successful validation,
      *   or <code>false</code> otherwise.
      */
-    protected static boolean checkEmail (String text) {
+    protected boolean checkEmail (String text) {
         if (text == null) return false;
 
         // Check for adjacent dot signs
@@ -558,7 +515,7 @@ public abstract class AbstractView {
      * @return True if the URL is supported, false otherwise or if the 
      * provided string is not a URL.
      */
-    protected static boolean checkTDSUrl (String url) {
+    protected boolean checkTDSUrl (String url) {
         return sobjTDS.isURLSupported(url);
     }
 }

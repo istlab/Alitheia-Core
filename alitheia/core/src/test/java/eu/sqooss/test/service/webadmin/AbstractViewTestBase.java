@@ -1,7 +1,6 @@
 package eu.sqooss.test.service.webadmin;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -10,10 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.velocity.VelocityContext;
-import org.powermock.reflect.Whitebox;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.webadmin.AbstractView;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
@@ -75,19 +72,19 @@ public abstract class AbstractViewTestBase {
 		bug = mock(Bug.class);
 		logManager = mock(LogManager.class);
 		
-		//set private static fields
-		Whitebox.setInternalState(AbstractView.class, VelocityContext.class, veclocityContext);
-		Whitebox.setInternalState(AbstractView.class, Scheduler.class, scheduler);
-		Whitebox.setInternalState(AbstractView.class, PluginAdmin.class, pluginAdmin);
-		Whitebox.setInternalState(AbstractView.class, MetricActivator.class, metricActivator);
-		Whitebox.setInternalState(AbstractView.class, Logger.class, logger);
-		Whitebox.setInternalState(AbstractView.class, ClusterNodeService.class, clusterNodeService);
-		Whitebox.setInternalState(AbstractView.class, UpdaterService.class, updateService);
-		Whitebox.setInternalState(AbstractView.class, LogManager.class, logManager);
+//		//set private static fields
+//		Whitebox.setInternalState(AbstractView.class, VelocityContext.class, veclocityContext);
+//		Whitebox.setInternalState(AbstractView.class, Scheduler.class, scheduler);
+//		Whitebox.setInternalState(AbstractView.class, PluginAdmin.class, pluginAdmin);
+//		Whitebox.setInternalState(AbstractView.class, MetricActivator.class, metricActivator);
+//		Whitebox.setInternalState(AbstractView.class, Logger.class, logger);
+//		Whitebox.setInternalState(AbstractView.class, ClusterNodeService.class, clusterNodeService);
+//		Whitebox.setInternalState(AbstractView.class, UpdaterService.class, updateService);
+//		Whitebox.setInternalState(AbstractView.class, LogManager.class, logManager);
 
 		//define behavior public static method calls
 		when(AlitheiaCore.getInstance()).thenReturn(alitheiaCore);
-		when(StoredProject.getProjectByName(anyString())).thenReturn(storedProject);
+//		when(StoredProject.getProjectByName(anyString())).thenReturn(storedProject);
 		when(ClusterNode.thisNode()).thenReturn(clusterNode);
 		when(MailMessage.getLatestMailMessage(any(StoredProject.class))).thenReturn(mailMessage);
 		when(Bug.getLastUpdate(any(StoredProject.class))).thenReturn(bug);

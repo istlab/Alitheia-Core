@@ -100,7 +100,7 @@ public class ProjectsView extends AbstractView {
      *
      * @return The HTML presentation of the generated view.
      */
-    public static String render(HttpServletRequest req) {
+    public String render(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
         // Stores the accumulated error messages
@@ -159,7 +159,7 @@ public class ProjectsView extends AbstractView {
         return b.toString();
     }
   
-    private static StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
+    private StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
         AdminService as = AlitheiaCore.getInstance().getAdminService();
     	AdminAction aa = as.create(AddProject.MNEMONIC);
     	aa.addArg("scm", r.getParameter(REQ_PAR_PRJ_CODE));
@@ -181,7 +181,7 @@ public class ProjectsView extends AbstractView {
     // ---------------------------------------------------------------
     // Remove project
     // ---------------------------------------------------------------
-    private static StoredProject removeProject(StringBuilder e, 
+    private StoredProject removeProject(StringBuilder e, 
     		StoredProject selProject, int indent) {
     	if (selProject != null) {
 			// Deleting large projects in the foreground is
@@ -202,7 +202,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger an update
 	// ---------------------------------------------------------------
-	private static void triggerUpdate(StringBuilder e,
+	private void triggerUpdate(StringBuilder e,
 			StoredProject selProject, int indent, String mnem) {
 		AdminService as = AlitheiaCore.getInstance().getAdminService();
 		AdminAction aa = as.create(UpdateProject.MNEMONIC);
@@ -220,7 +220,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources for that project
 	// ---------------------------------------------------------------
-	private static void triggerAllUpdate(StringBuilder e,
+	private void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
 	    AdminService as = AlitheiaCore.getInstance().getAdminService();
         AdminAction aa = as.create(UpdateProject.MNEMONIC);
@@ -237,7 +237,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources on all projects of a node
 	// ---------------------------------------------------------------
-    private static void triggerAllUpdateNode(StringBuilder e,
+    private void triggerAllUpdateNode(StringBuilder e,
 			StoredProject selProject, int in) {
 		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
 		
@@ -249,7 +249,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger synchronize on the selected plug-in for that project
 	// ---------------------------------------------------------------
-    private static void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
+    private void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
 		if ((reqValSyncPlugin != null) && (selProject != null)) {
 			PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);
 			if (pInfo != null) {
@@ -263,7 +263,7 @@ public class ProjectsView extends AbstractView {
 		}
     }
     
-    private static void createFrom(StringBuilder b, StringBuilder e, 
+    private void createFrom(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
 
         // ===============================================================
@@ -540,7 +540,7 @@ public class ProjectsView extends AbstractView {
     }
 
 
-    private static void addHiddenFields(StoredProject selProject,
+    private void addHiddenFields(StoredProject selProject,
             StringBuilder b,
             long in) {
         // "Action type" input field
@@ -557,7 +557,7 @@ public class ProjectsView extends AbstractView {
                 "' value=''>\n");
     }
     
-    private static void addToolBar(StoredProject selProject,
+    private void addToolBar(StoredProject selProject,
             StringBuilder b,
             long in) {
         b.append(sp(in++) + "<tr class=\"subhead\">\n");
@@ -611,7 +611,7 @@ public class ProjectsView extends AbstractView {
         b.append(sp(--in) + "</tr>\n");
     }
     
-    private static void showLastAppliedVersion(
+    private void showLastAppliedVersion(
             StoredProject project,
             Collection<PluginInfo> metrics,
             StringBuilder b) {
@@ -638,7 +638,7 @@ public class ProjectsView extends AbstractView {
         }
     }
 
-    private static void addHeaderRow(StringBuilder b, long in) {
+    private void addHeaderRow(StringBuilder b, long in) {
         //----------------------------------------------------------------
         // Create the header row
         //----------------------------------------------------------------

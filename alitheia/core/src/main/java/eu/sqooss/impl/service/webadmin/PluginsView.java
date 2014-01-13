@@ -64,7 +64,7 @@ public class PluginsView extends AbstractView{
      * 
      * @return The HTML presentation of the generated view.
      */
-    public static String render(HttpServletRequest req) {
+    public String render(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
         // Stores the accumulated error messages
@@ -936,7 +936,7 @@ public class PluginsView extends AbstractView{
      * 
      * @return The table as HTML presentation.
      */
-    private static String renderPluginAttributes(
+    private String renderPluginAttributes(
             PluginInfo pluginInfo,
             boolean showProperties,
             boolean showActivators,

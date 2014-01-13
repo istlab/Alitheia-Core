@@ -18,6 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.osgi.framework.BundleContext;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
@@ -41,12 +42,14 @@ import eu.sqooss.service.scheduler.SchedulerStats;
 //@PrepareForTest({Job.class,AlitheiaCore.class,StoredProject.class,ClusterNode.class,ProjectVersion.class,MailMessage.class,Bug.class})
 public class WebAdminRendererTest extends AbstractViewTestBase {
 
+	WebAdminRenderer webAdminRenderer;
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+		webAdminRenderer = new WebAdminRenderer(mock(BundleContext.class),veclocityContext);
 	}
 
 	/**
@@ -61,7 +64,7 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	 */
 	@Test
 	public void testRenderFailedJobs() {
-		String result = WebAdminRenderer.renderFailedJobs();
+		String result = webAdminRenderer.renderFailedJobs();
 		String expected = "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n\t<thead>\n\t\t<tr>\n\t\t\t<td>Job Type</td>\n\t\t\t<td>Exception type</td>\n\t\t\t<td>Exception text</td>\n\t\t\t<td>Exception backtrace</td>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n<tr><td colspan=\"4\">No failed jobs.</td></tr>\t</tbody>\n</table>";
 		assertThat(result,equalTo(expected));
 		
@@ -69,7 +72,7 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 		Job job = mock(Job.class);
 		failedJobs[0] = job;
 		when(scheduler.getFailedQueue()).thenReturn(failedJobs);
-		result = WebAdminRenderer.renderFailedJobs();
+		result = webAdminRenderer.renderFailedJobs();
 		expected = "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n\t<thead>\n\t\t<tr>\n\t\t\t<td>Job Type</td>\n\t\t\t<td>Exception type</td>\n\t\t\t<td>Exception text</td>\n\t\t\t<td>Exception backtrace</td>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n\t\t<tr>\n\t\t\t<td>job</td>\n\t\t\t<td><b>NA</b></td>\n\t\t\t<td><b>NA<b></td>\n\t\t\t<td><b>NA</b>\t\t\t</td>\n\t\t</tr>\t</tbody>\n</table>";
 		assertThat(result,equalTo(expected));
 	}
@@ -79,7 +82,7 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	 */
 	@Test
 	public void testRenderFailedJobs2() {
-		String result = WebAdminRenderer.renderFailedJobs();
+		String result = webAdminRenderer.renderFailedJobs();
 		String expected = "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n\t<thead>\n\t\t<tr>\n\t\t\t<td>Job Type</td>\n\t\t\t<td>Exception type</td>\n\t\t\t<td>Exception text</td>\n\t\t\t<td>Exception backtrace</td>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n<tr><td colspan=\"4\">No failed jobs.</td></tr>\t</tbody>\n</table>";
 		assertThat(result,equalTo(expected));
 		
@@ -90,14 +93,14 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 		NullPointerException exception = mock(NullPointerException.class);
 		when(job.getErrorException()).thenReturn(exception);
 		
-		result = WebAdminRenderer.renderFailedJobs();
+		result = webAdminRenderer.renderFailedJobs();
 		expected = "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n\t<thead>\n\t\t<tr>\n\t\t\t<td>Job Type</td>\n\t\t\t<td>Exception type</td>\n\t\t\t<td>Exception text</td>\n\t\t\t<td>Exception backtrace</td>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n\t\t<tr>\n\t\t\t<td>job</td>\n\t\t\t<td><b>NA<b></td>\n\t\t\t<td>null</td>\n\t\t\t<td><b>NA</b>\t\t\t</td>\n\t\t</tr>\t</tbody>\n</table>";
 		assertThat(result,equalTo(expected));
 		
 		StackTraceElement[] stackTrace = new StackTraceElement[1];
 		stackTrace[0] = mock(StackTraceElement.class);
 		when(exception.getStackTrace()).thenReturn(stackTrace);
-		result = WebAdminRenderer.renderFailedJobs();
+		result = webAdminRenderer.renderFailedJobs();
 		//only expeced if WebAdminRenderer is prepared for test, otherwise fails.
 		expected = "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n\t<thead>\n\t\t<tr>\n\t\t\t<td>Job Type</td>\n\t\t\t<td>Exception type</td>\n\t\t\t<td>Exception text</td>\n\t\t\t<td>Exception backtrace</td>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n\t\t<tr>\n\t\t\t<td>job</td>\n\t\t\t<td><b>NA<b></td>\n\t\t\t<td>null</td>\n\t\t\t<td>null. null(), (null:0)<br/>\t\t\t</td>\n\t\t</tr>\t</tbody>\n</table>";
 		assertThat(result,equalTo(expected));
@@ -110,7 +113,7 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	public void testRenderJobFailStats() {
 		SchedulerStats schedulerStats = mock(SchedulerStats.class);
 		when(scheduler.getSchedulerStats()).thenReturn(schedulerStats);
-		String result = WebAdminRenderer.renderJobFailStats();
+		String result = webAdminRenderer.renderJobFailStats();
 		String expected = "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n\t<thead>\n\t\t<tr>\n\t\t\t<td>Job Type</td>\n\t\t\t<td>Num Jobs Failed</td>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n\t\t<tr>\n\t\t\t<td>No failures</td>\n\t\t\t<td>&nbsp;\t\t\t</td>\n\t\t</tr>\t</tbody>\n</table>";
 		assertThat(result,equalTo(expected));
 		
@@ -121,13 +124,13 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	 */
 	@Test
 	public void testRenderLogs() {
-		String result = WebAdminRenderer.renderLogs();
+		String result = webAdminRenderer.renderLogs();
 		String expected = "\t\t\t\t\t<li>&lt;none&gt;</li>\n";
 		assertThat(result,equalTo(expected));
 		
 		String[] names = {"name"};
 		when(logManager.getRecentEntries()).thenReturn(names);
-		result = WebAdminRenderer.renderLogs();
+		result = webAdminRenderer.renderLogs();
 		expected = "\t\t\t\t\t<li>name</li>\n";
 		assertThat(result,equalTo(expected));
 	}
@@ -138,11 +141,11 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	 */
 	@Test
 	public void testGetUptime() throws Exception {
-		Whitebox.setInternalState(WebAdminRenderer.class, long.class, 0);
+		Whitebox.setInternalState(webAdminRenderer, long.class, 0);
 		Date date = mock(Date.class);
 		when(date.getTime()).thenReturn(123456789L);
 		whenNew(Date.class).withNoArguments().thenReturn(date);
-		String result = WebAdminRenderer.getUptime();
+		String result = webAdminRenderer.getUptime();
 		
 //		only expeced if WebAdminRenderer is prepared for test, otherwise fails.
 		assertThat(result,equalTo("1:10:17:36"));
@@ -156,7 +159,7 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	public void testRenderJobWaitStats() {
 		SchedulerStats schedulerStats = mock(SchedulerStats.class);
 		when(scheduler.getSchedulerStats()).thenReturn(schedulerStats);
-		String result = WebAdminRenderer.renderJobWaitStats();
+		String result = webAdminRenderer.renderJobWaitStats();
 		String expected = "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n\t<thead>\n\t\t<tr>\n\t\t\t<td>Job Type</td>\n\t\t\t<td>Num Jobs Waiting</td>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n\t\t<tr>\n\t\t\t<td>No failures</td>\n\t\t\t<td>&nbsp;\t\t\t</td>\n\t\t</tr>\t</tbody>\n</table>";
 		assertThat(result,equalTo(expected));
 	}
@@ -168,13 +171,13 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	public void testRenderJobRunStats() {
 		SchedulerStats schedulerStats = mock(SchedulerStats.class);
 		when(scheduler.getSchedulerStats()).thenReturn(schedulerStats);
-		String result = WebAdminRenderer.renderJobRunStats();
+		String result = webAdminRenderer.renderJobRunStats();
 		String expected = "No running jobs";
 		assertThat(result,equalTo(expected));
 		List<String> rJobs = new ArrayList<String>();
 		rJobs.add("Test");
 		when(schedulerStats.getRunJobs()).thenReturn(rJobs);
-		result = WebAdminRenderer.renderJobRunStats();
+		result = webAdminRenderer.renderJobRunStats();
 		expected = "<ul>\n\t<li>Test\t</li>\n</ul>\n";
 		assertThat(result, equalTo(expected));
 	}

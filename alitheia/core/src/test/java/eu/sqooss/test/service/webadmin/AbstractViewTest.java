@@ -5,75 +5,48 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.anyString;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.ListResourceBundle;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.collections.iterators.EnumerationIterator;
 import org.apache.velocity.VelocityContext;
-import org.hibernate.cache.impl.bridge.CollectionAccessStrategyAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.osgi.framework.BundleContext;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-import org.scannotation.archiveiterator.IteratorFactory;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.webadmin.AbstractView;
 import eu.sqooss.impl.service.webadmin.PluginsView;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.pa.PluginAdmin;
-import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.TDSService;
 
 @RunWith(PowerMockRunner.class)
-public class AbstractViewTest {
+@PrepareForTest(AlitheiaCore.class)
+public class AbstractViewTest extends AbstractViewTestBase{
 
 	AbstractView abstractView;
 	BundleContext bundleContext;
 	VelocityContext velocityContext;
-	AlitheiaCore alitheiaCore;
+//	AlitheiaCore alitheiaCore;
 	
 	@Before
 	public void setUp() throws Exception {
+		super.setUp();
 		bundleContext = Mockito.mock(BundleContext.class);
 		velocityContext = Mockito.mock(VelocityContext.class);
 		alitheiaCore = Mockito.mock(AlitheiaCore.class);
@@ -85,17 +58,19 @@ public class AbstractViewTest {
 		bundleContext = null;
 		velocityContext = null;
 		abstractView = null;
+		super.tearDown();
 	}
 
 	@Test
 	public void testInitResources() {
-		AbstractView.initResources(Locale.ENGLISH);
+		abstractView = new PluginsView(bundleContext,velocityContext);
+		abstractView.initResources(Locale.ENGLISH);
 	}
 	
 	@Test
 	public void testConstructor(){
 		abstractView = new PluginsView(bundleContext,velocityContext);
-		AbstractView.setSobjObject(alitheiaCore);
+		
 		LogManager logManager = Mockito.mock(LogManager.class);
 		Mockito.when(alitheiaCore.getLogManager()).thenReturn(logManager);
 		Logger logger = Mockito.mock(Logger.class);
@@ -116,8 +91,10 @@ public class AbstractViewTest {
 	@Test
 	public void testConstructorLogger(){
 		abstractView = new PluginsView(bundleContext,velocityContext);
+//		when(AlitheiaCore.getInstance()).thenReturn(alitheiaCore);
+
 		
-		alitheiaCore = Mockito.mock(AlitheiaCore.class);
+//		alitheiaCore = Mockito.mock(AlitheiaCore.class);
 		Mockito.when(alitheiaCore.getDBService()).thenReturn(null);
 		Mockito.when(alitheiaCore.getPluginAdmin()).thenReturn(null);
 		Mockito.when(alitheiaCore.getScheduler()).thenReturn(null);
@@ -128,7 +105,6 @@ public class AbstractViewTest {
 		Mockito.when(alitheiaCore.getSecurityManager()).thenReturn(null);
 		Mockito.when(alitheiaCore.getLogManager()).thenReturn(null);
 		
-		AbstractView.setSobjObject(alitheiaCore);
 		abstractView = new PluginsView(bundleContext,velocityContext);
 		Mockito.verify(alitheiaCore).getDBService();
 		Mockito.verify(alitheiaCore).getPluginAdmin();
@@ -155,18 +131,19 @@ public class AbstractViewTest {
 
 	@Test
 	public void testGetLbl() throws Exception{
-		AbstractView.setSobjObject(alitheiaCore);
-		assertEquals("test",AbstractView.getLbl("test"));
-		AbstractView.initResources(Locale.ENGLISH);
-		assertEquals("test",AbstractView.getLbl("test"));
+		abstractView = new PluginsView(bundleContext,velocityContext);
+
+		assertEquals("test",abstractView.getLbl("test"));
+		abstractView.initResources(Locale.ENGLISH);
+		assertEquals("test",abstractView.getLbl("test"));
 
 		ResourceBundle resourceBundle = new MsgResourceBundle();
-		AbstractView.setResLbl(resourceBundle);
-		assertEquals("resLbl string",AbstractView.getLbl("resLbl"));
+		Whitebox.setInternalState(abstractView, "resLbl", resourceBundle);
+		assertEquals("resLbl string",abstractView.getLbl("resLbl"));
 		
 		// resLbl = null
-		AbstractView.setResLbl(null);
-		assertEquals("resLbl is null", AbstractView.getLbl("resLbl is null"));
+		Whitebox.setInternalState(abstractView, "resLbl", (ResourceBundle)null);
+		assertEquals("resLbl is null", abstractView.getLbl("resLbl is null"));
 		
 //		code below fails. when resourceBundle.getString() is called it actually tries to 
 //		execute it. This is not expected behavior.
@@ -191,38 +168,39 @@ public class AbstractViewTest {
 	
 	@Test
 	public void testGetErr() throws Exception{
-		AbstractView.setSobjObject(alitheiaCore);
-		assertEquals("test",AbstractView.getErr("test"));
-		AbstractView.initResources(Locale.ENGLISH);
-		assertEquals("test",AbstractView.getErr("test"));
+		abstractView = new PluginsView(bundleContext,velocityContext);
+		assertEquals("test",abstractView.getErr("test"));
+		abstractView.initResources(Locale.ENGLISH);
+		assertEquals("test",abstractView.getErr("test"));
 
 		ResourceBundle resourceBundle = new MsgResourceBundle();
-		AbstractView.setResErr(resourceBundle);
-		assertEquals("resErr string",AbstractView.getErr("resErr"));
+		Whitebox.setInternalState(abstractView, "resErr", resourceBundle);
+		assertEquals("resErr string",abstractView.getErr("resErr"));
 		
 		// resLbl = null
-		AbstractView.setResErr(null);
-		assertEquals("resErr is null", AbstractView.getErr("resErr is null"));
+		Whitebox.setInternalState(abstractView, "resErr", (ResourceBundle)null);
+		assertEquals("resErr is null", abstractView.getErr("resErr is null"));
 	}
 	
 	@Test
 	public void testGetMsg() throws Exception{
-		AbstractView.setSobjObject(alitheiaCore);
-		assertEquals("test",AbstractView.getMsg("test"));
-		AbstractView.initResources(Locale.ENGLISH);
-		assertEquals("test",AbstractView.getMsg("test"));
+		abstractView = new PluginsView(bundleContext,velocityContext);
+		assertEquals("test",abstractView.getMsg("test"));
+		abstractView.initResources(Locale.ENGLISH);
+		assertEquals("test",abstractView.getMsg("test"));
 
 		ResourceBundle resourceBundle = new MsgResourceBundle();
-		AbstractView.setResMsg(resourceBundle);
-		assertEquals("resMsg string",AbstractView.getMsg("resMsg"));
+		Whitebox.setInternalState(abstractView, "resMsg", resourceBundle);
+		assertEquals("resMsg string",abstractView.getMsg("resMsg"));
 		
 		// resLbl = null
-		AbstractView.setResMsg(null);
-		assertEquals("resMsg is null", AbstractView.getMsg("resMsg is null"));
+		Whitebox.setInternalState(abstractView, "resMsg", (ResourceBundle)null);
+		assertEquals("resMsg is null", abstractView.getMsg("resMsg is null"));
 	}
 	
 	@Test
 	public void testDebugRequest() throws Exception {
+		abstractView = new PluginsView(bundleContext,velocityContext);
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		
 		Vector<String> v = new Vector<String>();
@@ -236,7 +214,7 @@ public class AbstractViewTest {
 		when(request.getParameter("elementTwo")).thenReturn("elementTwoOut");
 		when(request.getParameter("elementThree")).thenReturn("elementThreeOut");
 		
-		String out = Whitebox.invokeMethod(AbstractView.class, "debugRequest",request);
+		String out = Whitebox.invokeMethod(abstractView, "debugRequest",request);
 		String expected = 
 			"elementOne=elementOneOut<br/>\n"+
 			"elementTwo=elementTwoOut<br/>\n"+
@@ -246,13 +224,15 @@ public class AbstractViewTest {
 	
 	@Test
 	public void testSp() throws Exception {
-		assertEquals("", Whitebox.<String>invokeMethod(AbstractView.class,"sp",0l));
-		assertEquals("  ", Whitebox.<String>invokeMethod(AbstractView.class,"sp",1l));
-		assertEquals("    ", Whitebox.<String>invokeMethod(AbstractView.class,"sp",2l));
+		abstractView = new PluginsView(bundleContext,velocityContext);
+		assertEquals("", Whitebox.<String>invokeMethod(abstractView,"sp",0l));
+		assertEquals("  ", Whitebox.<String>invokeMethod(abstractView,"sp",1l));
+		assertEquals("    ", Whitebox.<String>invokeMethod(abstractView,"sp",2l));
 	}
 	
 	@Test
 	public void testNormalInputRow() throws Exception {
+		abstractView = new PluginsView(bundleContext,velocityContext);
 		// start without indentation
 		assertEquals(
 			"\n"+
@@ -263,7 +243,7 @@ public class AbstractViewTest {
 			"  </td>\n" +
 			"</tr>"+
 			"\n",
-			Whitebox.<String>invokeMethod(AbstractView.class,"normalInputRow","myTitle", "myParName", "myParValue", 0l)
+			Whitebox.<String>invokeMethod(abstractView,"normalInputRow","myTitle", "myParName", "myParValue", 0l)
 		);
 		
 		// start with an indentation of 2 spaces
@@ -276,16 +256,17 @@ public class AbstractViewTest {
 			"    </td>\n" +
 			"  </tr>"+
 			"\n",
-			Whitebox.<String>invokeMethod(AbstractView.class,"normalInputRow","myTitle", "myParName", "myParValue", 1l)
+			Whitebox.<String>invokeMethod(abstractView,"normalInputRow","myTitle", "myParName", "myParValue", 1l)
 		);
 		
 		// Called with parName = null generates a newline
-		assertEquals("\n", Whitebox.<String>invokeMethod(AbstractView.class,"normalInputRow","myTitle", null, "myParValue", 0l));
+		assertEquals("\n", Whitebox.<String>invokeMethod(abstractView,"normalInputRow","myTitle", null, "myParValue", 0l));
 	}
 	
 	@Test
 	public void testnormalInfoRow() throws Exception {
-		
+		abstractView = new PluginsView(bundleContext,velocityContext);
+
 		// start without indentation
 		assertEquals(
 			"\n"+
@@ -296,7 +277,7 @@ public class AbstractViewTest {
 			"  </td>\n" +
 			"</tr>"+
 			"\n",
-			Whitebox.<String>invokeMethod(AbstractView.class,"normalInfoRow","myTitle", "myValue", 0l)
+			Whitebox.<String>invokeMethod(abstractView,"normalInfoRow","myTitle", "myValue", 0l)
 		);
 		
 		// start with an indentation of 2 spaces
@@ -309,17 +290,19 @@ public class AbstractViewTest {
 			"    </td>\n" +
 			"  </tr>"+
 			"\n",
-			Whitebox.<String>invokeMethod(AbstractView.class,"normalInfoRow","myTitle", "myValue", 1l)
+			Whitebox.<String>invokeMethod(abstractView,"normalInfoRow","myTitle", "myValue", 1l)
 		);
 	}
 	
 	@Test
 	public void testNormalFieldSet() throws Exception {
+		abstractView = new PluginsView(bundleContext,velocityContext);
+
 		// Called with content = null generates an empty String
-		assertEquals("", Whitebox.<String>invokeMethod(AbstractView.class,"normalFieldset","myName", "myCss", null, 0l));
+		assertEquals("", Whitebox.<String>invokeMethod(abstractView,"normalFieldset","myName", "myCss", null, 0l));
 				
 		// Called with an empty string StringBuilder generates an empty String
-		assertEquals("", Whitebox.<String>invokeMethod(AbstractView.class,"normalFieldset","myName", "myCss", new StringBuilder(), 0l));
+		assertEquals("", Whitebox.<String>invokeMethod(abstractView,"normalFieldset","myName", "myCss", new StringBuilder(), 0l));
 				
 		// start without indentation
 		assertEquals(
@@ -327,7 +310,7 @@ public class AbstractViewTest {
 			"  <legend>myName</legend>\n"+
 			"  <p>myContent</p>\n" +
 			"</fieldset>\n",
-			Whitebox.<String>invokeMethod(AbstractView.class,"normalFieldset","myName", "myCss", new StringBuilder("<p>myContent</p>"), 0l)
+			Whitebox.<String>invokeMethod(abstractView,"normalFieldset","myName", "myCss", new StringBuilder("<p>myContent</p>"), 0l)
 		);
 		
 		// start with an indentation of 2 spaces
@@ -336,70 +319,76 @@ public class AbstractViewTest {
 			"    <legend>myName</legend>\n"+
 			"    <p>myContent</p>\n" +
 			"  </fieldset>\n",
-			Whitebox.<String>invokeMethod(AbstractView.class,"normalFieldset","myName", "myCss", new StringBuilder("<p>myContent</p>"), 1l)
+			Whitebox.<String>invokeMethod(abstractView,"normalFieldset","myName", "myCss", new StringBuilder("<p>myContent</p>"), 1l)
 		);
 	}
 	
 	@Test
 	public void testErrorFieldSet() throws Exception {
+		abstractView = new PluginsView(bundleContext,velocityContext);
 		assertEquals(
 			"<fieldset>\n"+
 			"  <legend>Errors</legend>\n"+
 			"  <p>Errors</p>\n" +
 			"</fieldset>",
-			Whitebox.<String>invokeMethod(AbstractView.class,"errorFieldset",new StringBuilder("<p>Errors</p>"), 0l)
+			Whitebox.<String>invokeMethod(abstractView,"errorFieldset",new StringBuilder("<p>Errors</p>"), 0l)
 		);
 	}
 	
 	@Test
 	public void testFromString() throws Exception {
-		assertEquals(new Long(0), Whitebox.<String>invokeMethod(AbstractView.class,"fromString","0"));
-		assertNull(Whitebox.<String>invokeMethod(AbstractView.class,"fromString","not a number"));
+		abstractView = new PluginsView(bundleContext,velocityContext);
+		assertEquals(new Long(0), Whitebox.<String>invokeMethod(abstractView,"fromString","0"));
+		assertNull(Whitebox.<String>invokeMethod(abstractView,"fromString","not a number"));
 	}
 	
 	@Test
 	public void testCheckName() throws Exception {
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkName",""));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkName",new String()));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkName",(String)null));
-		assertTrue(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkName","a Valid Name 1"));
-		assertTrue(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkName","aValidName2"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkName"," name must not start with space"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkName","name must not end with space "));
+		abstractView = new PluginsView(bundleContext,velocityContext);
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkName",""));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkName",new String()));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkName",(String)null));
+		assertTrue(Whitebox.<Boolean>invokeMethod(abstractView,"checkName","a Valid Name 1"));
+		assertTrue(Whitebox.<Boolean>invokeMethod(abstractView,"checkName","aValidName2"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkName"," name must not start with space"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkName","name must not end with space "));
 	}
 	
 	@Test
 	public void testCheckProjectName() throws Exception {
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName",""));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName",new String()));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName",(String)null));
-		assertTrue(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName","a Valid Name 1"));
-		assertTrue(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName","aValidName2"));
-		assertTrue(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName","a_Valid_Name_3"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName"," name must not start with space"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName","name must not end with space "));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName","_name must not start with underscore"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkProjectName","name must not end with underscore_"));
+		abstractView = new PluginsView(bundleContext,velocityContext);
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName",""));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName",new String()));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName",(String)null));
+		assertTrue(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName","a Valid Name 1"));
+		assertTrue(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName","aValidName2"));
+		assertTrue(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName","a_Valid_Name_3"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName"," name must not start with space"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName","name must not end with space "));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName","_name must not start with underscore"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkProjectName","name must not end with underscore_"));
 	}
 	
 	@Test
 	public void testEmail() throws Exception {
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail",(String)null));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail",""));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail","test@.nl"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail","test.nl"));
-		assertTrue(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail","test@myDomain.nl"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail",".test@myDomain.nl"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail",".test@.myDomain.nl"));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail","test@myDomain.nl."));
-		assertFalse(Whitebox.<Boolean>invokeMethod(AbstractView.class,"checkEmail","..test@myDomain.nl"));
+		abstractView = new PluginsView(bundleContext,velocityContext);
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail",(String)null));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail",""));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail","test@.nl"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail","test.nl"));
+		assertTrue(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail","test@myDomain.nl"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail",".test@myDomain.nl"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail",".test@.myDomain.nl"));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail","test@myDomain.nl."));
+		assertFalse(Whitebox.<Boolean>invokeMethod(abstractView,"checkEmail","..test@myDomain.nl"));
 	}
 	
 	@Test
 	public void checkTDSUrl() throws Exception {
+		abstractView = new PluginsView(bundleContext,velocityContext);
 		TDSService tds = Mockito.mock(TDSService.class);
-		Whitebox.setInternalState(AbstractView.class, TDSService.class, tds);
-		Whitebox.invokeMethod(AbstractView.class, "checkTDSUrl","myUrl");
+		Whitebox.setInternalState(abstractView, TDSService.class, tds);
+		Whitebox.invokeMethod(abstractView, "checkTDSUrl","myUrl");
 		verify(tds,times(1)).isURLSupported("myUrl");
 	}
 	

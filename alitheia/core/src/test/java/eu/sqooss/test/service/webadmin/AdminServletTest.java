@@ -3,41 +3,31 @@
  */
 package eu.sqooss.test.service.webadmin;
 
-import static org.junit.Assert.*;
-import org.apache.velocity.Template;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static org.powermock.api.mockito.PowerMockito.doThrow;
-import static org.powermock.api.support.membermodification.MemberMatcher.method;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.doThrow;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Time;
-import java.util.ListResourceBundle;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.Hashtable;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.junit.After;
@@ -48,42 +38,22 @@ import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.AbstractView;
-import eu.sqooss.impl.service.webadmin.PluginsView;
-import eu.sqooss.impl.service.webadmin.ProjectsView;
-import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
+import eu.sqooss.impl.service.webadmin.AdminServlet;
+import eu.sqooss.impl.service.webadmin.AdminServlet.TranslationProxy;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.webadmin.WebadminService;
-
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-
-import java.util.Hashtable;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import eu.sqooss.impl.service.webadmin.AdminServlet;
-import eu.sqooss.impl.service.webadmin.AdminServlet.TranslationProxy;
 
 /**
  * @author elwin
