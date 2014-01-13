@@ -76,7 +76,7 @@ public class TestDAObject {
             
             // Setup Database connection
             conProp.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
-            conProp.setProperty("hibernate.connection.url", "jdbc:h2:mem");
+            conProp.setProperty("hibernate.connection.url", "jdbc:h2:mem:");
             conProp.setProperty("hibernate.connection.dialect", "org.hibernate.dialect.HSQLDialect");
             conProp.setProperty("hibernate.connection.provider_class", "org.hibernate.connection.DriverManagerConnectionProvider");
     
