@@ -174,7 +174,7 @@ public enum ConfigOption {
 		assert spcs.size() <= 1 : "At most one StoredProjectConfig should exist for a project and option combination.";
 		
 		if(spcs.size() == 0) {
-			return null;
+			return new ArrayList<String>();
 		} else {
 			return new ArrayList<String>(spcs.get(0).getValues());
 		}

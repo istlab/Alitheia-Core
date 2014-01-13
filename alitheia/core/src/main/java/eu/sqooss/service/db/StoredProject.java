@@ -271,8 +271,8 @@ public class StoredProject extends DAObject {
      * @param key The key to retrieve a value for
      * @return The configuration value or null, if the option is not set
      */
-    public String getConfigValue (String key) {
-        List<String> values = getConfigValues(key);
+    public String getConfigValue (DBService dbs, String key) {
+        List<String> values = getConfigValues(dbs, key);
         if (values.isEmpty())
             return null;
         return values.get(0);
@@ -284,7 +284,13 @@ public class StoredProject extends DAObject {
      * @return A list of values for the provided configuration option 
      */
     public Set<String> getConfigValues (ConfigOption co) {
-    	return configOpts.get(co).getValues();
+        StoredProjectConfig projectConfig = configOpts.get(co);
+        
+        if(projectConfig == null) {
+            return Collections.emptySet();
+        }
+        
+        return projectConfig.getValues();
     }
     
     /** 
@@ -292,8 +298,7 @@ public class StoredProject extends DAObject {
      * 
      * @param key The key whose value we want to retrieve
      */
-    public List<String> getConfigValues (String key) {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public List<String> getConfigValues (DBService dbs, String key) {
     	ConfigOption co = ConfigOption.fromKey(key);
     	
     	if (co == null)
@@ -311,8 +316,8 @@ public class StoredProject extends DAObject {
 	 * @param key The key to set the value for
 	 * @param value The value to be set 
 	 */
-    public void setConfigValue (String key, String value) {
-    	updateConfigValue(null, key, value, true);
+    public void setConfigValue (DBService dbs, String key, String value) {
+    	updateConfigValue(dbs, null, key, value, true);
     }
     
     
@@ -325,8 +330,8 @@ public class StoredProject extends DAObject {
 	 * @param key The key to set the value for
 	 * @param value The value to be set 
 	 */
-    public void addConfigValue(String key, String value) {
-    	updateConfigValue(null, key, value, false);
+    public void addConfigValue(DBService dbs, String key, String value) {
+    	updateConfigValue(dbs, null, key, value, false);
     }
     
     /**
@@ -349,10 +354,8 @@ public class StoredProject extends DAObject {
 		spc.getValues().add(value);
 	}
     
-    private void updateConfigValue (ConfigOption configOpt, String key, 
+    private void updateConfigValue (DBService dbs, ConfigOption configOpt, String key,
     		String value, boolean update) {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
-    	
     	if (configOpt == null) {
     		configOpt = ConfigOption.fromKey(key);
     	}
