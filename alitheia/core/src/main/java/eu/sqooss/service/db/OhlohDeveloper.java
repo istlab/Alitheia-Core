@@ -136,11 +136,13 @@ public class OhlohDeveloper extends DAObject {
     }
     
     public static OhlohDeveloper getByOhlohId(String id) {
-       return getBy(null, "ohlohId", id);
+       DBService dbs = null;
+    	return getBy(dbs, "ohlohId", id);
     }
     
     public static OhlohDeveloper getByEmailHash(String hash) {
-        return getBy(null, "emailHash", hash);
+    	DBService dbs = null;
+    	return getBy(dbs, "emailHash", hash);
     }
     
     public static List<OhlohDeveloper> getByUserName(String uname, DBService dbs) {

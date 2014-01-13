@@ -145,7 +145,8 @@ public class BugPriority extends DAObject {
     public static BugPriority getBugPriority(Priority s) {
         if (s == null)
             return null;
-        return getBugPriority(null, s.toString(), true);
+        DBService dbs = null;
+        return getBugPriority(dbs, s.toString(), true);
     }
     
     /**

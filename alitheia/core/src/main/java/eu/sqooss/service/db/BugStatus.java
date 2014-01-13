@@ -155,7 +155,8 @@ public class BugStatus extends DAObject {
      * the status code line to the database
      */
     public static BugStatus getBugStatus(BugStatus.Status s) {
-        return getBugStatus(null, s.toString(), true);
+    	DBService dbs = null;
+        return getBugStatus(dbs, s.toString(), true);
     }
     
     /**

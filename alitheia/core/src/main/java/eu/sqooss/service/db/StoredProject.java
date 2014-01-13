@@ -455,7 +455,7 @@ public class StoredProject extends DAObject {
      */
     public boolean isEvaluated() {
     	for (Metric m : Metric.getAllMetrics()) {
-    		if (m.isEvaluated(null, this))
+    		if (m.isEvaluated(dbs, this))
     			return true;
     	}
     	return false;

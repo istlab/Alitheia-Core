@@ -155,7 +155,8 @@ public class BugSeverity extends DAObject {
      * the severity code line to the database
      */
     public static BugSeverity getBugseverity(Severity s) {
-        return getBugSeverity(null, s.toString(), true);
+    	DBService dbs = null;
+        return getBugSeverity(dbs, s.toString(), true);
     }
     
     /**

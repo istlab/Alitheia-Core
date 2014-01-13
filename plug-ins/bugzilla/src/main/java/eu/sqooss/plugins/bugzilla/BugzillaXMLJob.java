@@ -129,7 +129,7 @@ public class BugzillaXMLJob extends Job {
     private Bug BTSEntryToBug (BTSEntry b) {
         if (b == null)
             return null;
-        
+        DBService dbs = null;
         Bug bug = new Bug();
         bug.setBugID(b.bugID);
         bug.setCreationTS(b.creationTimestamp);

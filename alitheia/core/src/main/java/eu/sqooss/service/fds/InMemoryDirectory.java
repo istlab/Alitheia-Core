@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
@@ -154,9 +155,9 @@ public class InMemoryDirectory {
     public List<ProjectFile> getFiles() {
         @SuppressWarnings("unused")
         ArrayList<ProjectFile> result = new ArrayList<ProjectFile>(files.size());
-        
+        DBService dbs = null;
         return getCheckout().getProjectVersion().getFiles(
-                Directory.getDirectory(getPath(), false), 
+                Directory.getDirectory(dbs, getPath(), false), 
                 ProjectVersion.MASK_FILES);
     }
 

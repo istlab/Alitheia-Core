@@ -336,7 +336,6 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
      @SuppressWarnings("unchecked")
      public List<Result> getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
-        boolean found = false;        
         List<Result> result = new ArrayList<Result>();
         
         for (Metric m : l) {
@@ -556,7 +555,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
 
     /** {@inheritDoc} */
-    public List<Metric> getAllSupportedMetrics() {
+    @SuppressWarnings("unchecked")
+	public List<Metric> getAllSupportedMetrics() {
         String qry = "from Metric m where m.plugin=:plugin";
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("plugin", Plugin.getPluginByHashcode(getUniqueKey()));
@@ -620,7 +620,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         for (String mnem :metrics.keySet()) {
         	Metric m = metrics.get(mnem);
         	Type type = Type.fromString(m.getMetricType().getType());
-        	MetricType newType = MetricType.getMetricType(type);
+        	MetricType newType = MetricType.getMetricType(db, type);
         	if (newType == null) {
                 newType = new MetricType(type);
                 db.addRecord(newType);
@@ -842,14 +842,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /**
      * Convenience method to get the measurement for a single metric.
      */
-    protected List<Result> getResult(DAObject o, Class<? extends MetricMeasurement> clazz, 
+    @SuppressWarnings("unchecked")
+	protected List<Result> getResult(DAObject o, Class<? extends MetricMeasurement> clazz, 
             Metric m, Result.ResultType type) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> props = new HashMap<String, Object>();
         
         props.put(resultFieldNames.get(clazz), o);
         props.put("metric", m);
-        List resultat = dbs.findObjectsByProperties(clazz, props);
+        @SuppressWarnings("rawtypes")
+		List resultat = dbs.findObjectsByProperties(clazz, props);
         
         if (resultat.isEmpty())
             return Collections.EMPTY_LIST;
@@ -929,7 +931,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 	    		throw new MetricActivationException("Metric synchronisation with GENERIC objects not implemented");
 	    	}
 	    	
-	    	List<Long> objectIds = (List<Long>) db.doHQL(q, params);
+	    	@SuppressWarnings("unchecked")
+			List<Long> objectIds = (List<Long>) db.doHQL(q, params);
 	    	TreeSet<Long> ids = new TreeSet<Long>();
 	    	ids.addAll(objectIds);
 	    	IDs.put(MetricType.fromActivator(at), ids);

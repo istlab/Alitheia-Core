@@ -215,7 +215,8 @@ public class Developer extends DAObject {
      */
     public static Developer getDeveloperByEmail(String email, 
             StoredProject sp) {
-        return getDeveloperByEmail(null, email, sp, true);
+    	DBService dbs = null;
+        return getDeveloperByEmail(dbs, email, sp, true);
     }
     
     /**

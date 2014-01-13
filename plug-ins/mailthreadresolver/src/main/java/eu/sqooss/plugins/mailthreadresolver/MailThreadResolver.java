@@ -108,7 +108,7 @@ public class MailThreadResolver implements MetadataUpdater {
         ml = dbs.attachObjectToDBSession(ml);
         int newThreads = 0, updatedThreads = 0, processedEmails = 0;
         MailMessage lastEmail = null;
-        lastEmail = ml.getLatestEmail();
+        lastEmail = ml.getLatestEmail(dbs);
         HashMap<String, MimeMessage> processed = new HashMap<String, MimeMessage>();
         
         if (lastEmail == null) {
@@ -128,7 +128,8 @@ public class MailThreadResolver implements MetadataUpdater {
         Map<String,Object> params = new HashMap<String, Object>(1);
         params.put(paramMl, ml);
         
-        List<Long> mmList = (List<Long>) dbs.doHQL(query, params);
+        @SuppressWarnings("unchecked")
+		List<Long> mmList = (List<Long>) dbs.doHQL(query, params);
         
         if (mmList.isEmpty()) {
             info("No unprocessed mail messages found for list " + ml);

@@ -167,8 +167,8 @@ public class Branch extends DAObject {
 		return branches.get(0);
 	}
 
-    public static String suggestName(StoredProject sp) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
+    public static String suggestName(DBService db, StoredProject sp) {
+         //DBService db = AlitheiaCore.getInstance().getDBService();
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("project", sp);

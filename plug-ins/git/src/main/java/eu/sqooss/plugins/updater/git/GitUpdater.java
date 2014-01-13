@@ -71,6 +71,7 @@ import eu.sqooss.service.util.Pair;
 /**
  * A metadata updater converts raw data to Alitheia Core database metadata.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 @Updater(descr = "Metadata updater for Git repositories", 
         mnem ="GIT", 
         protocols = {"git-file"}, 
@@ -262,7 +263,7 @@ public class GitUpdater implements MetadataUpdater {
             
             //Parent is a branch
             if (git.getCommitChidren(parentId).length > 1) {
-                Branch b = new Branch(project, Branch.suggestName(project));
+                Branch b = new Branch(project, Branch.suggestName(dbs, project));
                 dbs.addRecord(b);
                 parent.getOutgoingBranches().add(b);
                 pv.getIncomingBranches().add(b);
@@ -273,12 +274,12 @@ public class GitUpdater implements MetadataUpdater {
 
         if (entry.getParentIds().size() > 1) {
             //A merge commit
-            Branch b = new Branch(project, Branch.suggestName(project));
+            Branch b = new Branch(project, Branch.suggestName(dbs, project));
             pv.getOutgoingBranches().add(b);
         } else {
             //New line of development
             if (entry.getParentIds().size() == 0) {
-                Branch b = new Branch(project, Branch.suggestName(project));
+                Branch b = new Branch(project, Branch.suggestName(dbs, project));
                 dbs.addRecord(b);
                 pv.getOutgoingBranches().add(b);
             } else {
