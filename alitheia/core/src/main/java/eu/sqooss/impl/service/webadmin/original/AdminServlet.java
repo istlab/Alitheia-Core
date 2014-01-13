@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.impl.service.webadmin;
+package eu.sqooss.impl.service.webadmin.original;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,6 +64,8 @@ import eu.sqooss.service.webadmin.WebadminService;
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static BundleContext bc = null;
+    private static WebadminService webadmin = null;
+
     /// Logger given by our owner to write log messages to.
     private Logger logger = null;
     
@@ -92,6 +94,7 @@ public class AdminServlet extends HttpServlet {
             WebadminService webadmin,
             Logger logger,
             VelocityEngine ve) {
+        AdminServlet.webadmin = webadmin;
         AdminServlet.bc = bc;
         this.ve = ve;
         this.logger = logger;
@@ -256,10 +259,13 @@ public class AdminServlet extends HttpServlet {
 
         byte[] buffer = new byte[1024];
         int bytesRead = 0;
+        int totalBytes = 0;
+
         response.setContentType(source.second);
         ServletOutputStream ostream = response.getOutputStream();
         while ((bytesRead = istream.read(buffer)) > 0) {
             ostream.write(buffer,0,bytesRead);
+            totalBytes += bytesRead;
         }
     }
 
@@ -289,17 +295,17 @@ public class AdminServlet extends HttpServlet {
 
     private void createSubstitutions(HttpServletRequest request) {
         // Initialize the resource bundles with the provided locale
-        pluginsView.initResources(Locale.ENGLISH);
+        AbstractView.initResources(Locale.ENGLISH);
 
         // Simple string substitutions
-        vc.put("APP_NAME", pluginsView.getLbl("app_name"));
+        vc.put("APP_NAME", AbstractView.getLbl("app_name"));
         vc.put("COPYRIGHT",
                 "Copyright 2007-2008"
                 + "<a href=\"http://www.sqo-oss.eu/about/\">"
                 + "&nbsp;SQO-OSS Consortium Members"
                 + "</a>");
         vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
-        vc.put("UPTIME", adminView.getUptime());
+        vc.put("UPTIME", WebAdminRenderer.getUptime());
 
         // Object-based substitutions
         vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
@@ -309,7 +315,6 @@ public class AdminServlet extends HttpServlet {
         vc.put("metrics",pluginsView);
         vc.put("request", request); // The request can be used by the render() methods
     }  
-<<<<<<< HEAD
     
     /**
      * This is a class whose sole purpose is to provide a useful API from
@@ -324,21 +329,19 @@ public class AdminServlet extends HttpServlet {
         
         /** Translate a label */
         public String label(String s) {
-            return pluginsView.getLbl(s);
+            return AbstractView.getLbl(s);
         }
         
         /** Translate a (multi-line, html formatted) message */
         public String message(String s) {
-            return pluginsView.getMsg(s);
+            return AbstractView.getMsg(s);
         }
         
         /** Translate an error message */
         public String error(String s) {
-            return pluginsView.getErr(s);
+            return AbstractView.getErr(s);
         }
     }
-=======
->>>>>>> 1c7aeea87ff3e07f014f38a30529ff54c91a85a6
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

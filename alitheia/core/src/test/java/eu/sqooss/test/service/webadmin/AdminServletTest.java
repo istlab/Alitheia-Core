@@ -55,6 +55,25 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.webadmin.WebadminService;
 
+<<<<<<< HEAD
+=======
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+
+import java.util.Hashtable;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import eu.sqooss.impl.service.webadmin.AdminServlet;
+import eu.sqooss.impl.service.webadmin.TranslationProxy;
+
+>>>>>>> 1c7aeea87ff3e07f014f38a30529ff54c91a85a6
 /**
  * @author elwin
  *
@@ -378,7 +397,7 @@ public class AdminServletTest {
 	@Test
 	public void testTranslationProxy() {
 		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
-		TranslationProxy tp = adminServlet.new TranslationProxy();
+		TranslationProxy tp = new TranslationProxy();
 		assertEquals("myLabel",tp.label("myLabel"));
 		assertEquals("myMessage",tp.label("myMessage"));
 		assertEquals("myError",tp.label("myError"));
