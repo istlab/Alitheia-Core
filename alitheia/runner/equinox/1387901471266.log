@@ -1,0 +1,108 @@
+!SESSION 2013-12-24 17:11:11.094 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_45
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -console -configuration equinox
+
+!ENTRY org.eclipse.osgi 4 0 2013-12-24 17:11:11.565
+!MESSAGE Error installing bundle: reference:file:../bundles/log4j_1.2.16.jar/
+!STACK 0
+org.osgi.framework.BundleException: Invalid manifest header Import-Package: "com.sun.jdmk.comm;resolution:="optional"" : Cannot import a package more than once "com.sun.jdmk.comm"
+	at org.eclipse.osgi.internal.resolver.StateBuilder.checkImportExportSyntax(StateBuilder.java:546)
+	at org.eclipse.osgi.internal.resolver.StateBuilder.validateHeaders(StateBuilder.java:192)
+	at org.eclipse.osgi.internal.resolver.StateBuilder.createBundleDescription(StateBuilder.java:50)
+	at org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl.createBundleDescription(StateObjectFactoryImpl.java:32)
+	at org.eclipse.osgi.internal.baseadaptor.BaseStorage.updateState(BaseStorage.java:1131)
+	at org.eclipse.osgi.internal.baseadaptor.BundleInstall.commit(BundleInstall.java:128)
+	at org.eclipse.osgi.framework.internal.core.Framework.installWorkerPrivileged(Framework.java:948)
+	at org.eclipse.osgi.framework.internal.core.Framework$1.run(Framework.java:837)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at org.eclipse.osgi.framework.internal.core.Framework.installWorker(Framework.java:888)
+	at org.eclipse.osgi.framework.internal.core.Framework.installBundle(Framework.java:832)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.installBundle(BundleContextImpl.java:167)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.installBundles(EclipseStarter.java:1050)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.loadBasicBundles(EclipseStarter.java:637)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.startup(EclipseStarter.java:301)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:175)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.main(EclipseStarter.java:150)
+
+!ENTRY eu.sqooss.alitheia.core 4 0 2013-12-24 17:11:11.639
+!MESSAGE 
+!STACK 0
+org.osgi.framework.BundleException: The bundle "eu.sqooss.alitheia.core_1.0.0 [7]" could not be resolved. Reason: Missing Constraint: Import-Package: javassist.util; version="0.0.0"
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.getResolverError(AbstractBundle.java:1317)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.getResolutionFailureException(AbstractBundle.java:1301)
+	at org.eclipse.osgi.framework.internal.core.BundleHost.startWorker(BundleHost.java:319)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.resume(AbstractBundle.java:374)
+	at org.eclipse.osgi.framework.internal.core.Framework.resumeBundle(Framework.java:1067)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.resumeBundles(StartLevelManager.java:561)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.resumeBundles(StartLevelManager.java:546)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.incFWSL(StartLevelManager.java:459)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.doSetStartLevel(StartLevelManager.java:243)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.dispatchEvent(StartLevelManager.java:440)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:227)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:337)
+
+!ENTRY eu.sqooss.service.cache 4 0 2013-12-24 17:11:11.642
+!MESSAGE 
+!STACK 0
+org.osgi.framework.BundleException: Exception in eu.sqooss.service.cache.Activator.start() of bundle eu.sqooss.service.cache.
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.startActivator(BundleContextImpl.java:806)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.start(BundleContextImpl.java:755)
+	at org.eclipse.osgi.framework.internal.core.BundleHost.startWorker(BundleHost.java:370)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.resume(AbstractBundle.java:374)
+	at org.eclipse.osgi.framework.internal.core.Framework.resumeBundle(Framework.java:1067)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.resumeBundles(StartLevelManager.java:561)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.resumeBundles(StartLevelManager.java:546)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.incFWSL(StartLevelManager.java:459)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.doSetStartLevel(StartLevelManager.java:243)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.dispatchEvent(StartLevelManager.java:440)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:227)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:337)
+Caused by: java.lang.NoClassDefFoundError: eu/sqooss/core/AlitheiaCore
+	at eu.sqooss.service.cache.Activator.start(Activator.java:11)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl$1.run(BundleContextImpl.java:783)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.startActivator(BundleContextImpl.java:774)
+	... 11 more
+Caused by: java.lang.ClassNotFoundException: eu.sqooss.core.AlitheiaCore
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClassInternal(BundleLoader.java:506)
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClass(BundleLoader.java:422)
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClass(BundleLoader.java:410)
+	at org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader.loadClass(DefaultClassLoader.java:107)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 15 more
+Root exception:
+java.lang.NoClassDefFoundError: eu/sqooss/core/AlitheiaCore
+	at eu.sqooss.service.cache.Activator.start(Activator.java:11)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl$1.run(BundleContextImpl.java:783)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.startActivator(BundleContextImpl.java:774)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.start(BundleContextImpl.java:755)
+	at org.eclipse.osgi.framework.internal.core.BundleHost.startWorker(BundleHost.java:370)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.resume(AbstractBundle.java:374)
+	at org.eclipse.osgi.framework.internal.core.Framework.resumeBundle(Framework.java:1067)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.resumeBundles(StartLevelManager.java:561)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.resumeBundles(StartLevelManager.java:546)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.incFWSL(StartLevelManager.java:459)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.doSetStartLevel(StartLevelManager.java:243)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.dispatchEvent(StartLevelManager.java:440)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:227)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:337)
+Caused by: java.lang.ClassNotFoundException: eu.sqooss.core.AlitheiaCore
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClassInternal(BundleLoader.java:506)
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClass(BundleLoader.java:422)
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClass(BundleLoader.java:410)
+	at org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader.loadClass(DefaultClassLoader.java:107)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:358)
+	... 15 more
+
+!ENTRY org.eclipse.osgi 4 0 2013-12-24 17:11:11.644
+!MESSAGE Bundle initial@reference:file:../bundles/eu.sqooss.alitheia.core_1.0.jar/ was not resolved.
+
+!ENTRY org.eclipse.osgi 4 0 2013-12-24 17:11:11.644
+!MESSAGE Bundle initial@reference:file:../bundles/slf4j.log4j12_1.6.1.jar/ was not resolved.
+
+!ENTRY org.eclipse.osgi 4 0 2013-12-24 17:11:11.645
+!MESSAGE Bundle eu.sqooss.service.cache_1.0.0 [12] is not active.

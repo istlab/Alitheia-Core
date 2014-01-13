@@ -1,4 +1,4 @@
-package eu.sqooss.plugins.git.test;
+package eu.sqooss.plugins.git.tds.test;
 
 import static org.junit.Assert.assertNull;
 

@@ -1,14 +1,22 @@
 package eu.sqooss.plugins.git.test;
 
-import eu.sqooss.plugins.git.Activator;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.git.Activator;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
-
-import org.junit.Before;
-import org.junit.Test;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AlitheiaCore.class)
@@ -17,7 +25,7 @@ public class ActivatorTest {
 	
 	private AlitheiaCore core;
 	private TDSService tdsService;
-	private UpdateService upService;
+	private UpdaterService upService;
 	
 	@Before
 	public void setUp() {
@@ -27,28 +35,28 @@ public class ActivatorTest {
 		
 		core =  mock(AlitheiaCore.class);
 		tdsService = mock(TDSService.class);
-		upService = mock(UpdateService.class);
+		upService = mock(UpdaterService.class);
 	}
 	
 	@Test 
 	public void testStart() throws Exception {		
-		expect(AlitheiaCore.getInstance()).andReturn(core);
-		expect(core.getTDSService()).andReturn(tdsService);
-		expect(core.getUpdateService()).andReturn(upService);
+		when(AlitheiaCore.getInstance()).thenReturn(core);
+		when(core.getTDSService()).thenReturn(tdsService);
+		when(core.getUpdater()).thenReturn(upService);
 		
-		activator.start();
+		activator.start(null);
 		
-		verify(tdsService).registPlugin({"git-file"}, GitAccessor.class);
-		verify(upService).registerUpdateDevice(GitUpdater.class);		
+		verify(tdsService).registerPlugin(new String[] {"git-file"}, GitAccessor.class);
+		verify(upService).registerUpdaterService(GitUpdater.class);		
 	}
 	
 	@Test
 	public void testStop() throws Exception {
-		expect(AlitheiaCore.getInstance()).andReturn(core);
-		expect(core.getTDSService()).andReturn(tdsService);
-		expect(core.getUpdateService()).andReturn(upService);
+		when(AlitheiaCore.getInstance()).thenReturn(core);
+		when(core.getTDSService()).thenReturn(tdsService);
+		when(core.getUpdater()).thenReturn(upService);
 		
-		activator.stop();
+		activator.stop(null);
 		
 		verify(tdsService).unregisterPlugin(GitAccessor.class);
 		verify(upService).unregisterUpdaterService(GitUpdater.class);

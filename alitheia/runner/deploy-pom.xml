@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>eu</groupId>
+    <artifactId>sqooss</artifactId>
+    <version>0.95-SNAPSHOT</version>
+  </parent>
+  <groupId>eu.sqooss.alitheia.build</groupId>
+  <artifactId>deployment</artifactId>
+  <version>0.95-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name></name>
+  <description>Alitheia Core is a platform for conducting software engineering studies. 
+  	It integrates data from various sources such as from SVN, mailing lists and bug databases.
+
+	Being a platform, and not a concrete implementation, means that by writing the appropriate plug-ins, 
+	you can instruct Alitheia Core to produce any measurements you are interested into and maybe 
+	integrate those measurements in high level quality evaluations.</description>
+  <url>http://www.sqo-oss.org/alitheia</url>
+  <inceptionYear>2006</inceptionYear>
+  <organization>
+    <name>Organisation for Free and Open Source Software Greece</name>
+    <url>http://www.ellak.gr/</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>BSD 2-clause</name>
+      <url>http://en.wikipedia.org/wiki/BSD_licenses</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>gousiosg</id>
+      <name>Georgios Gousios</name>
+      <email>gousiosg@gmail.com</email>
+      <url>http://istlab.dmst.aueb.gr/~george</url>
+    </developer>
+    <developer>
+      <id>bkarak</id>
+      <name>Vassilios Karakoidas</name>
+      <email>vassilios.karakoidas@gmail.com</email>
+      <url>http://bkarak.wizhut.com/</url>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git://git.sqo-oss.org/sqo-oss.git/alitheia</connection>
+    <developerConnection>scm:git:ssh://git@git.sqo-oss.org:sqo-oss.git/alitheia</developerConnection>
+    <url>http://git.sqo-oss.org/alitheia/</url>
+  </scm>
+  <distributionManagement>
+    <repository>
+      <id>ac-main</id>
+      <name>Alitheia Core Main Repository</name>
+      <url>dav:https://maven.sqo-oss.org/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ac-snapshot</id>
+      <name>Alitheia Core snapshot repository</name>
+      <url>dav:https://maven.sqo-oss.org/snapshot</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <properties>
+    <eu.sqooss.scheduler.numthreads>4</eu.sqooss.scheduler.numthreads>
+    <eu.sqooss.service.cache.impl>eu.sqooss.service.cache.OnDiskCache</eu.sqooss.service.cache.impl>
+    <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
+    <eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
+    <org.osgi.service.http.port>8080</org.osgi.service.http.port>
+    <eu.sqooss.metricactivator.sync>slow</eu.sqooss.metricactivator.sync>
+    <eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
+    <eu.sqooss.db>MySQL</eu.sqooss.db>
+    <eu.sqooss.service.cache.dir>tmp</eu.sqooss.service.cache.dir>
+    <eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema>
+    <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
+    <eu.sqooss.log.perf>false</eu.sqooss.log.perf>
+    <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.95-SNAPSHOT</version>
+      <type>bundle</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.16</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>jsr311-api</artifactId>
+      <version>1.1.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.6.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jettison</groupId>
+      <artifactId>jettison</artifactId>
+      <version>1.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.service</groupId>
+      <artifactId>cache</artifactId>
+      <version>0.95-SNAPSHOT</version>
+      <type>bundle</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.95-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <id>jboss</id>
+      <name>JBoss</name>
+      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>Central Repository</name>
+      <url>http://repo.maven.apache.org/maven2</url>
+    </repository>
+  </repositories>
+</project>
