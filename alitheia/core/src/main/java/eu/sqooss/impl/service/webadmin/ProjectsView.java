@@ -59,7 +59,7 @@ import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 public class ProjectsView extends AbstractView {
     // Script for submitting this page
-    private static String SUBMIT = "document.projects.submit();";
+    protected static String SUBMIT = "document.projects.submit();";
 
     // Action parameter's values
     private static String ACT_REQ_ADD_PROJECT   = "reqAddProject";
@@ -80,7 +80,7 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_PRJ_BUG       = "projectBL";
     private static String REQ_PAR_PRJ_MAIL      = "projectML";
     private static String REQ_PAR_PRJ_CODE      = "projectSCM";
-    private static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
+    protected static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
     private static String REQ_PAR_UPD           = "reqUpd";
     
     /**
@@ -611,7 +611,7 @@ public class ProjectsView extends AbstractView {
         b.append(sp(--in) + "</tr>\n");
     }
     
-    private static void showLastAppliedVersion(
+    protected static void showLastAppliedVersion(
             StoredProject project,
             Collection<PluginInfo> metrics,
             StringBuilder b) {
@@ -638,7 +638,7 @@ public class ProjectsView extends AbstractView {
         }
     }
 
-    private static void addHeaderRow(StringBuilder b, long in) {
+    protected static void addHeaderRow(StringBuilder b, long in) {
         //----------------------------------------------------------------
         // Create the header row
         //----------------------------------------------------------------
