@@ -47,6 +47,7 @@ import eu.sqooss.impl.service.webadmin.AbstractView;
 import eu.sqooss.impl.service.webadmin.AdminServlet;
 import eu.sqooss.impl.service.webadmin.PluginsView;
 import eu.sqooss.impl.service.webadmin.TranslationProxy;
+import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
@@ -100,7 +101,7 @@ public class AdminServletTest {
 	@Test
 	public void testConstructor() {
 		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
-		verify(core,times(1)).getDBService();
+		verify(core,times(4)).getDBService();
 		
 		Hashtable<String, Pair<String, String>> staticContentMap = Whitebox.getInternalState(adminServlet, "staticContentMap");
 		Hashtable<String, String> dynamicContentMap = Whitebox.getInternalState(adminServlet, "dynamicContentMap");
@@ -157,7 +158,7 @@ public class AdminServletTest {
 	@Test
 	public void testAddStaticContent() throws Exception {
 		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
-		verify(core,times(1)).getDBService();
+		verify(core,times(4)).getDBService();
 		
 		Hashtable<String, Pair<String, String>> staticContentMap = Whitebox.getInternalState(adminServlet, "staticContentMap");
 //		System.out.println(staticContentMap.get("/myTest"));
@@ -360,16 +361,21 @@ public class AdminServletTest {
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		Scheduler scheduler = Mockito.mock(Scheduler.class);
 		PrintWriter print = Mockito.mock(PrintWriter.class);
-		
+		WebAdminRenderer adminView = Mockito.mock(WebAdminRenderer.class);
 		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
+		
+		
 		AdminServlet spy = spy(adminServlet);
+		
+		Whitebox.setInternalState(spy, "adminView", adminView);
 //		doNothing().when(spy,"createSubstitutions",eq(request));
 		
 		Template t = Mockito.mock(Template.class);
 		
 		when(ve.getTemplate(anyString())).thenReturn(t);
 //		AbstractView view = new PluginsView(bc,vc);
-		Whitebox.setInternalState(AbstractView.class, Scheduler.class, scheduler);
+		
+		Whitebox.setInternalState(adminView, Scheduler.class, scheduler);
 		
 		when(response.getWriter()).thenReturn(print);
 		Whitebox.invokeMethod(spy, "sendPage", response, request, "/projects");
