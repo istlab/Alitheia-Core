@@ -56,7 +56,7 @@ public class WebAdminRenderer  extends AbstractView {
      * thus the system) was started. This is required for the system
      * uptime display.
      */
-    private static long startTime = new Date().getTime();
+    private long startTime = new Date().getTime();
 
     public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);

@@ -2,7 +2,6 @@ package eu.sqooss.test.service.webadmin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
@@ -36,7 +35,6 @@ import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.TDSService;
@@ -348,7 +346,7 @@ public class AbstractViewTest extends AbstractViewTestBase{
 			"<fieldset>\n"+
 			"  <legend>Errors</legend>\n"+
 			"  <p>Errors</p>\n" +
-			"</fieldset>",
+			"</fieldset>\n",
 			Whitebox.<String>invokeMethod(abstractView,"errorFieldset",new StringBuilder("<p>Errors</p>"), 0l)
 		);
 	}

@@ -389,7 +389,7 @@ public abstract class AbstractView {
                     + sp(++in) + "<legend>"
                     + ((name != null) ? name : "NONAME")
                     + "</legend>\n"
-                    + content.toString()
+                    + sp(in)+content.toString()+"\n"
                     + sp(--in) + "</fieldset>\n");
         }
         return ("");

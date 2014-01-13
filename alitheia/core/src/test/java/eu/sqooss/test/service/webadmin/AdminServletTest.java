@@ -18,7 +18,6 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.mock;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -46,6 +45,7 @@ import org.powermock.reflect.Whitebox;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.AbstractView;
 import eu.sqooss.impl.service.webadmin.AdminServlet;
+import eu.sqooss.impl.service.webadmin.PluginsView;
 import eu.sqooss.impl.service.webadmin.TranslationProxy;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
@@ -368,6 +368,7 @@ public class AdminServletTest {
 		Template t = Mockito.mock(Template.class);
 		
 		when(ve.getTemplate(anyString())).thenReturn(t);
+//		AbstractView view = new PluginsView(bc,vc);
 		Whitebox.setInternalState(AbstractView.class, Scheduler.class, scheduler);
 		
 		when(response.getWriter()).thenReturn(print);
@@ -378,7 +379,8 @@ public class AdminServletTest {
 	
 	@Test
 	public void testTranslationProxy() {
-		TranslationProxy tp = new TranslationProxy(mock(AbstractView.class));
+		AbstractView view = new PluginsView(bc,vc);
+		TranslationProxy tp = new TranslationProxy(view);
 		assertEquals("myLabel",tp.label("myLabel"));
 		assertEquals("myMessage",tp.label("myMessage"));
 		assertEquals("myError",tp.label("myError"));

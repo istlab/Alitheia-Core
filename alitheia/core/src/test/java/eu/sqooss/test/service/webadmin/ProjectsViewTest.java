@@ -17,10 +17,12 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.velocity.VelocityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +61,7 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 	@Before
 	public void setUp() throws Exception {
 		BundleContext bundleContext = mock(BundleContext.class);
+		velocityContext = mock(VelocityContext.class);
 		projectsView = new ProjectsView(bundleContext,velocityContext);
 		super.setUp(projectsView);
 
@@ -287,6 +290,7 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 	@Test
 	public void testRender() {
 		HttpServletRequest req = mock(HttpServletRequest.class);
+		when(req.getLocale()).thenReturn(Locale.ENGLISH);
 		String result = projectsView.render(req);
 		String expected = "\n            <form id=\"projects\" name=\"projects\" method=\"post\" action=\"/projects\">\n              <table>\n                <thead>\n                  <tr class=\"head\">\n                    <td class='head'  style='width: 10%;'>Project Id</td>\n                    <td class='head' style='width: 35%;'>Project Name</td>\n                    <td class='head' style='width: 15%;'>Last Version</td>\n                    <td class='head' style='width: 15%;'>Last Email</td>\n                    <td class='head' style='width: 15%;'>Last Bug</td>\n                    <td class='head' style='width: 10%;'>Evaluated</td>\n                    <td class='head' style='width: 10%;'>Host</td>\n                  </tr>\n                </thead>\n              <tr>\n                <td colspan=\"6\" class=\"noattr\">\nNo projects found.</td>\n              </tr>\n              <tr class=\"subhead\">\n                <td>View</td><td colspan=\"6\">\n                  <input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Refresh\" onclick=\"javascript:window.location='/projects';\"></td></tr><tr class=\"subhead\"><td>Manage</td><td colspan='6'>\n                  <input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Add project\" onclick=\"javascript:document.getElementById('reqAction').value='reqAddProject';document.projects.submit();\">\n                  <input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Delete project\" onclick=\"javascript:document.getElementById('reqAction').value='reqRemProject';document.projects.submit();\" disabled></td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n                  <input type=\"button\" class=\"install\" value=\"Run Updater\" onclick=\"javascript:document.getElementById('reqAction').value='conUpdate';document.projects.submit();\" disabled>\n                  <input type=\"button\" class=\"install\" value=\"Run All Updaters\" onclick=\"javascript:document.getElementById('reqAction').value='conUpdateAll';document.projects.submit();\" disabled>\n                </td>\n              <td colspan=\"2\" align=\"right\">\n              <input type=\"button\" class=\"install\" value=\"Update all on ClusterNodeName\" onclick=\"javascript:document.getElementById('reqAction').value='conUpdateAllOnNode';document.projects.submit();\">\n            </td>\n          </tr>\n            </tbody>\n          </table>\n        </fieldset>\n        <input type='hidden' id='reqAction' name='reqAction' value=''>\n        <input type='hidden' id='projectId' name='projectId' value=''>\n        <input type='hidden' id='reqParSyncPlugin' name='reqParSyncPlugin' value=''>\n      </form>\n";
 		assertThat(result,equalTo(expected));
