@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -70,6 +71,7 @@ public class StoredProjectConfig extends DAObject {
 	private long id;
 
 	@NaturalId
+	@Column(name="STORED_PROJECT_CONFIG_OPTION")
 	@Enumerated(EnumType.STRING)
 	private ConfigOption confOpt;
 
@@ -81,6 +83,7 @@ public class StoredProjectConfig extends DAObject {
 	private StoredProject project;
 
 	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(name="STORED_PROJECT_CONFIG_VALUES")
 	@Column(name="VALUE")
 	@XmlElement(name="value")
 	private Set<String> values = new HashSet<>();
