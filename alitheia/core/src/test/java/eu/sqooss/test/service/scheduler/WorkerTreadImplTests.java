@@ -153,7 +153,6 @@ public class WorkerTreadImplTests {
 		assertEquals("No threads should exist yet", 0, sched.getWorkerThreads().length);
 		sched.startOneShotWorkerThread();
 		
-		int timeout=1000;
 		ResumePoint p = new ResumePoint() {
 			
 			@Override
@@ -162,7 +161,8 @@ public class WorkerTreadImplTests {
 				
 			}
 		};
-		while(sched.getSchedulerStats().getFinishedJobs()<2){ 
+		int timeout = 6000;
+		while(sched.getSchedulerStats().getFinishedJobs()<2 && timeout>0){ 
 			try {
 				Thread.sleep(100);
 				System.out.println("Finished: " + sched.getSchedulerStats().getFinishedJobs());
@@ -174,6 +174,7 @@ public class WorkerTreadImplTests {
 				if(j2.state()==Job.State.Running){
 					assertEquals("While j2 is running j1 should be yielded", Job.State.Yielded, j1.state());
 				}
+				timeout-=100;
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -181,13 +182,32 @@ public class WorkerTreadImplTests {
 		}
 		sched.stopExecute();
 		sched.shutDown();
-		assertEquals("Finaly both jobs should be done", 2, sched.getSchedulerStats().getFinishedJobs());
 		
+		if( timeout > 0)//This means a yielded job is not redone
+			fail("No timeout should happen");
+		
+		assertEquals("Finaly both jobs should be done", 2, sched.getSchedulerStats().getFinishedJobs());
 	}
 
 	@Test
-	public final void testTakeJob() {
-		fail("Not yet implemented"); // TODO
+	public final void testTakeJob() throws SchedulerException {
+		SchedulerServiceImpl sched = new SchedulerServiceImpl();
+		Job j1 = new TestJob(30, "J1");
+		Job j2 = new TestJob(20, "J2");
+		sched.startExecute(1);
+		sched.enqueue(j1);
+		sched.enqueue(j2);
+		WorkerThread t1 = sched.getWorkerThreads()[0];
+		t1.takeJob(j2);
+		while(sched.getSchedulerStats().getFinishedJobs()<2){
+			System.out.println("Finished: "+sched.getSchedulerStats().getFinishedJobs());
+			System.out.println("J1"+j1.state());
+			System.out.println("J2"+j2.state());
+			if(j1.state() == Job.State.Finished && j2.state() != Job.State.Finished){
+				fail("J2 should be finished before J1");
+			}
+		}
+		assertEquals("Two jobs should be finished", 2, sched.getSchedulerStats().getFinishedJobs());
 	}
 
 }

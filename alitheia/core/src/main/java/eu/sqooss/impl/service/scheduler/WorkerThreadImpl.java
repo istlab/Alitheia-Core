@@ -89,9 +89,12 @@ import eu.sqooss.service.scheduler.WorkerThread;
         m_processing = true;
         while (m_processing) {
             try {
+            	System.out.println("Ready for new job");
             	Job job = m_scheduler.takeJob();
+            	System.out.println("JOb i got has state: "+job.state());
                 // get a job from the scheduler
                 executeJob(job);
+                System.out.println("Finished Job: "+job.toString());
             } catch (InterruptedException e) {
                 // we were interrupted, just try again
                 continue;
@@ -120,6 +123,7 @@ import eu.sqooss.service.scheduler.WorkerThread;
 		try {
 			m_job = j;
 			if (m_job.state() == Job.State.Yielded) {
+				System.out.println("Job was yielded");
 				time = m_job.resume();
 			} else { 
 			    time = m_job.execute();

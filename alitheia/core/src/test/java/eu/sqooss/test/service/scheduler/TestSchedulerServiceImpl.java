@@ -297,8 +297,9 @@ public class TestSchedulerServiceImpl {
     
     @Test
     public void testCreateAuxQueueWithEmtpyJobList() throws SchedulerException  {
-    	SchedulerServiceImpl sched = new SchedulerServiceImpl(); 
-    	TestJob j1 = new TestJob(20, "J1");
+    	SchedulerServiceImpl sched = new SchedulerServiceImpl();
+    	sched.startExecute(1);
+    	TestJob j1 = new TestJob(100, "J1");
     	TestJob j2 = new TestJob(20, "J2");
         sched.enqueue(j1);
         sched.enqueue(j2);
@@ -393,7 +394,6 @@ public class TestSchedulerServiceImpl {
     	assertEquals("There is one waiting job after yielding", 1, sched.getSchedulerStats().getWaitingJobs());
     }
     @Test
-    @Ignore
     public void testRunMultipleJobs() throws SchedulerException {
     	//Clean scheduler
     	SchedulerServiceImpl sched = new SchedulerServiceImpl();

@@ -142,7 +142,12 @@ public class SchedulerServiceImpl implements Scheduler {
          */
     	for (Iterator iterator = workQueue.iterator(); iterator.hasNext();) {
 			Job j = (Job) iterator.next();
+			System.out.println("Job in workqueue: "+j.toString() +": "+j.state());
 		}
+    	for (Iterator iterator = blockedQueue.iterator(); iterator.hasNext();) {
+    		Job j = (Job) iterator.next();
+    		System.out.println("Job in blockQueue: "+j.toString() +": "+j.state());
+    	}
         return workQueue.take();
     }
 
@@ -291,7 +296,7 @@ public class SchedulerServiceImpl implements Scheduler {
     public boolean createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p)
             throws SchedulerException {
         
-        if (jobs.isEmpty()) {
+        if (jobs.isEmpty() && logger != null) { //add by Joost
             logger.warn("Empty job queue passed to createAuxQueue(). Ignoring request");
             return false;
         }
