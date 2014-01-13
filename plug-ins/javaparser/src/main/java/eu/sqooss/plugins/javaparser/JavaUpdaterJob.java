@@ -49,6 +49,7 @@ public class JavaUpdaterJob extends Job {
     
     public JavaUpdaterJob(StoredProject sp, 
             ProjectVersion pv, Logger log) {
+        super(AlitheiaCore.getInstance().getDBService());
         this.sp = sp;
         this.pv = pv;
         this.log = log;

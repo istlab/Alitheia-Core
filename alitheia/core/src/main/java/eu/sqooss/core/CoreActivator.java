@@ -43,6 +43,7 @@ import eu.sqooss.impl.service.fds.FDSServiceModule;
 import eu.sqooss.impl.service.metricactivator.MetricActivatorModule;
 import eu.sqooss.impl.service.rest.RestServiceModule;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceModule;
+import eu.sqooss.impl.service.updater.UpdaterModule;
 import eu.sqooss.impl.service.webadmin.WebAdminModule;
 
 
@@ -59,7 +60,8 @@ public class CoreActivator implements BundleActivator {
         try {
             Guice.createInjector(new AlitheiaCoreModule(), new FDSServiceModule(),
                                  new MetricActivatorModule(), new RestServiceModule(),
-                                 new SchedulerServiceModule(), new WebAdminModule()
+                                 new SchedulerServiceModule(), new WebAdminModule(),
+                                 new UpdaterModule()
             ).injectMembers(core);
         } catch (Throwable t) {
             t.printStackTrace();

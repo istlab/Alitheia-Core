@@ -79,6 +79,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     private TDSService tds;
     private Scheduler sched;
     private ClusterNodeService cns;
+    private UpdaterJobFactory updaterJobFactory;
     
     /* Maps project-ids to the jobs that have been scheduled for 
      * each update target*/
@@ -89,11 +90,13 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     @Inject
     public UpdaterServiceImpl(DBService dbs, TDSService tds, 
-            Scheduler sched, ClusterNodeService cns) {
+            Scheduler sched, ClusterNodeService cns, 
+            UpdaterJobFactory updaterJobFactory) {
         this.dbs = dbs;
         this.tds = tds;
         this.sched = sched;
         this.cns = cns;
+        this.updaterJobFactory = updaterJobFactory;
     }
     
     /* UpdaterService interface methods*/
@@ -439,7 +442,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     if (isUpdateRunning(project, u)) {
                         uj = scheduledUpdates.get(project.getId()).get(u);
                     } else {
-                        uj = new UpdaterJob(upd);
+                        uj = updaterJobFactory.create(upd);
                         uj.addJobStateListener(this);
                         toSchedule.put(u, uj);
                     }
@@ -592,8 +595,16 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /*Dummy jobs to ensure correct sequencing of jobs within updater stages */
     private class DependencyJob extends Job {
         private String name;
-        private DependencyJob(){};
-        public DependencyJob(String name) { this.name = name;}
+        
+        private DependencyJob() {
+            super(dbs);
+        };
+        
+        public DependencyJob(String name) {
+            super(dbs);
+            this.name = name;
+        }
+        
         public long priority() {return 0;}
         protected void run() throws Exception {}
         

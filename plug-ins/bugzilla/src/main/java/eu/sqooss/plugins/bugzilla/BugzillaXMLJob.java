@@ -65,6 +65,7 @@ public class BugzillaXMLJob extends Job {
     StoredProject project;
     
     public BugzillaXMLJob(StoredProject sp, String bugId, Logger l) {
+        super(AlitheiaCore.getInstance().getDBService());
         this.dbs = AlitheiaCore.getInstance().getDBService();
         this.logger = l;
         this.bugID = bugId;

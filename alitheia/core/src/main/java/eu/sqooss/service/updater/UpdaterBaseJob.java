@@ -54,6 +54,10 @@ public abstract class UpdaterBaseJob extends Job {
     protected StoredProject project;
     protected UpdaterServiceImpl updater;
     
+    public UpdaterBaseJob() {
+        super(AlitheiaCore.getInstance().getDBService());
+    }
+    
     public void setUpdateParams(StoredProject sp, Logger l) {
         this.project = sp;
         this.logger = l;

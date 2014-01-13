@@ -58,6 +58,7 @@ public class ProjectDeleteJob extends Job {
 
     @Inject
     public ProjectDeleteJob(@Assisted StoredProject sp, DBService dbs, PluginAdmin pa) {
+        super(dbs);
         this.sp = sp;
         this.dbs = dbs;
         this.pa = pa;

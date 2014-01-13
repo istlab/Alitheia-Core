@@ -67,6 +67,7 @@ public class MetricActivatorJob extends Job {
     MetricActivatorJob(@Assisted AbstractMetric m, @Assisted("daoID") Long daoID, @Assisted Logger l,
             @Assisted Class<? extends DAObject> daoType, @Assisted("priority") long priority, 
             @Assisted boolean fastSync, DBService dbs) {
+        super(dbs);
         this.metric = m;
         this.logger = l;
         this.daoID = daoID;

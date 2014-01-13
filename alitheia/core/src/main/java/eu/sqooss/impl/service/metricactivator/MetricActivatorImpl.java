@@ -284,6 +284,7 @@ public class MetricActivatorImpl  implements MetricActivator {
         private StoredProject sp;
         
         public MetricSchedulerJob(AlitheiaPlugin m, StoredProject sp) {
+            super(dbs);
             this.m = m;
             this.sp = sp;
         }

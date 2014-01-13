@@ -33,6 +33,11 @@
 
 package eu.sqooss.impl.service.updater;
 
+import javax.inject.Inject;
+
+import com.google.inject.assistedinject.Assisted;
+
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.updater.MetadataUpdater;
 
@@ -46,7 +51,9 @@ public class UpdaterJob extends Job {
 
     MetadataUpdater mu;
     
-    public UpdaterJob(MetadataUpdater updater) {
+    @Inject
+    public UpdaterJob(@Assisted MetadataUpdater updater, DBService db) {
+        super(db);
         mu = updater;
     }
     

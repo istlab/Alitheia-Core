@@ -42,7 +42,6 @@ import java.util.LinkedList;
 import java.lang.Comparable;
 import java.lang.InterruptedException;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.Pair;
 
 import eu.sqooss.service.db.DBService;
@@ -91,6 +90,8 @@ public abstract class Job implements Comparable<Job> {
     
     private State m_state;
 
+    private DBService m_dbs;
+    
     private Scheduler m_scheduler;
 
     private Exception m_errorException;
@@ -100,6 +101,16 @@ public abstract class Job implements Comparable<Job> {
     private int restarts = 0;
     
     private ResumePoint resumePoint;
+    
+    /**
+     * Protected default constructor.
+     */
+    protected Job(DBService dbs) {
+        m_dbs = dbs;
+        m_scheduler = null;
+        m_errorException = null;
+        setState( State.Created );
+    }
     
     public void setWorkerThread(WorkerThread worker) {
     	m_worker = worker;
@@ -215,16 +226,15 @@ public abstract class Job implements Comparable<Job> {
      * @throws Exception
      */
     final public long execute() throws Exception {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
         long timer = System.currentTimeMillis();
         try {
             setState(State.Running);
             restart();
             
             /*Idiot/bad programmer proofing*/
-            assert (!dbs.isDBSessionActive());            
-            if (dbs.isDBSessionActive()) {
-                dbs.rollbackDBSession();
+            assert (!m_dbs.isDBSessionActive());            
+            if (m_dbs.isDBSessionActive()) {
+                m_dbs.rollbackDBSession();
                 setState(State.Error); //No uncommitted sessions are tolerated
             } else {
                 if (state() != State.Yielded)
@@ -232,8 +242,8 @@ public abstract class Job implements Comparable<Job> {
             }   
         } catch(Exception e) {
             
-            if (dbs.isDBSessionActive()) {
-                dbs.rollbackDBSession();
+            if (m_dbs.isDBSessionActive()) {
+                m_dbs.rollbackDBSession();
             }
             
             // In case of an exception, state becomes Error
@@ -372,15 +382,6 @@ public abstract class Job implements Comparable<Job> {
     }
 
     /**
-     * Protected default constructor.
-     */
-    protected Job() {
-        m_scheduler = null;
-        m_errorException = null;
-        setState( State.Created );
-    }
-
-    /**
      * Sets the job's state.
      * @param s The new state.
      */
@@ -493,8 +494,7 @@ public abstract class Job implements Comparable<Job> {
     
     public long resume() throws Exception {
         long ts = System.currentTimeMillis();
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+        
         if (state() != State.Yielded)
             throw new SchedulerException("Cannot resume a non-yielded job");
         
@@ -505,17 +505,17 @@ public abstract class Job implements Comparable<Job> {
             setState(State.Running);
             resumePoint.resume();
                        
-            assert (!dbs.isDBSessionActive());            
-            if (dbs.isDBSessionActive()) {
-                dbs.rollbackDBSession();
+            assert (!m_dbs.isDBSessionActive());            
+            if (m_dbs.isDBSessionActive()) {
+                m_dbs.rollbackDBSession();
                 setState(State.Error); //No uncommitted sessions are tolerated
             } else {
                 setState(State.Finished);
             }   
         } catch(Exception e) {
             
-            if (dbs.isDBSessionActive()) {
-                dbs.rollbackDBSession();
+            if (m_dbs.isDBSessionActive()) {
+                m_dbs.rollbackDBSession();
             }
             
             // In case of an exception, state becomes Error

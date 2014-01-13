@@ -629,6 +629,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         private Long serviceID;
         
         public PluginUninstallJob(Long serviceID) {
+            super(sobjDB);
             this.serviceID = serviceID;
         }
         
