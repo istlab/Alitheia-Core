@@ -2,11 +2,13 @@ package eu.sqooss.test.service.scheduler;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.service.scheduler.SchedulerException;
 
+@Ignore
 public class SchedulerTests {
     
     static SchedulerServiceImpl sched;

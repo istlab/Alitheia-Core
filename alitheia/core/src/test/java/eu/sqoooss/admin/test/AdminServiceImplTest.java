@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.Set;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.sqooss.impl.service.admin.AdminServiceImpl;
@@ -13,6 +14,7 @@ import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminAction.AdminActionStatus;
 import eu.sqooss.service.admin.actions.RunTimeInfo;
 
+@Ignore
 public class AdminServiceImplTest {
 
     static AdminServiceImpl impl;
