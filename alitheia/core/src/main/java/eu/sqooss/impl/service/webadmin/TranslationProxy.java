@@ -8,21 +8,23 @@ package eu.sqooss.impl.service.webadmin;
  * methods of the view.
  */
 public class TranslationProxy {
-    public TranslationProxy() { 
+    AbstractView view;
+	public TranslationProxy(AbstractView view) { 
+    	this.view = view;
     }
     
     /** Translate a label */
     public String label(String s) {
-        return AbstractView.getLbl(s);
+        return view.getLbl(s);
     }
     
     /** Translate a (multi-line, html formatted) message */
     public String message(String s) {
-        return AbstractView.getMsg(s);
+        return view.getMsg(s);
     }
     
     /** Translate an error message */
     public String error(String s) {
-        return AbstractView.getErr(s);
+        return view.getErr(s);
     }
 }

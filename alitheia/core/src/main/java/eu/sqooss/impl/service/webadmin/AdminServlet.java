@@ -86,7 +86,7 @@ public class AdminServlet extends HttpServlet {
     // Projects view
     ProjectsView projectsView = null;
 
-    TranslationProxy tr = new TranslationProxy();
+    TranslationProxy tr;
     
     public AdminServlet(BundleContext bc,
             WebadminService webadmin,
@@ -137,6 +137,7 @@ public class AdminServlet extends HttpServlet {
         // Create the various view objects
         pluginsView = new PluginsView(bc, vc);
         projectsView = new ProjectsView(bc, vc);
+        tr = new TranslationProxy(adminView);
     }
 
     /**
@@ -308,37 +309,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("projects",projectsView);
         vc.put("metrics",pluginsView);
         vc.put("request", request); // The request can be used by the render() methods
-    }  
-<<<<<<< HEAD
-    
-    /**
-     * This is a class whose sole purpose is to provide a useful API from
-     * within Velocity templates for the translation functions offered by
-     * the AbstractView. Only one object needs to be created, and it
-     * forwards all the label(), message() and error() calls to the translation
-     * methods of the view.
-     */
-    public class TranslationProxy {
-        public TranslationProxy() { 
-        }
-        
-        /** Translate a label */
-        public String label(String s) {
-            return pluginsView.getLbl(s);
-        }
-        
-        /** Translate a (multi-line, html formatted) message */
-        public String message(String s) {
-            return pluginsView.getMsg(s);
-        }
-        
-        /** Translate an error message */
-        public String error(String s) {
-            return pluginsView.getErr(s);
-        }
     }
-=======
->>>>>>> 1c7aeea87ff3e07f014f38a30529ff54c91a85a6
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
