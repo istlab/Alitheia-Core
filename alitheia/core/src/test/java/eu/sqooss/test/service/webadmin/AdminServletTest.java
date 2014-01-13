@@ -83,7 +83,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.sqooss.impl.service.webadmin.AdminServlet;
-import eu.sqooss.impl.service.webadmin.AdminServlet.TranslationProxy;
+import eu.sqooss.impl.service.webadmin.TranslationProxy;
 
 /**
  * @author elwin
@@ -408,7 +408,7 @@ public class AdminServletTest {
 	@Test
 	public void testTranslationProxy() {
 		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
-		TranslationProxy tp = adminServlet.new TranslationProxy();
+		TranslationProxy tp = new TranslationProxy();
 		assertEquals("myLabel",tp.label("myLabel"));
 		assertEquals("myMessage",tp.label("myMessage"));
 		assertEquals("myError",tp.label("myError"));
