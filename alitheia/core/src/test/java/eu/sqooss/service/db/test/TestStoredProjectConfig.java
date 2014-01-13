@@ -32,6 +32,9 @@ public class TestStoredProjectConfig extends TestDAObject {
         
         assertEquals(spc1, spc2);
         assertEquals(spc1.hashCode(), spc2.hashCode());
+        
+        assertFalse(spc1.equals(null));
+        assertFalse(spc1.equals(co1));
     }
     
     @Test

@@ -63,4 +63,10 @@ public class TestConfigOption extends TestDAObject {
         Collections.sort(result);
         assertEquals(expected, result);
     }
+    
+    @Test
+    public void testFromKey() {
+        assertEquals(ConfigOption.PROJECT_NAME, ConfigOption.fromKey(ConfigOption.PROJECT_NAME.getName()));
+        assertEquals(null, ConfigOption.fromKey("BadKey"));
+    }
 }
