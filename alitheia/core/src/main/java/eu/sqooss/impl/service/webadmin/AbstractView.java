@@ -384,7 +384,7 @@ public abstract class AbstractView {
             long in) {
         if ((content != null) && (content.toString().length() > 0)) {
             return (sp(in) + "<fieldset"
-                    + ((css != null) ? "class=\"" + css + "\"": "")
+                    + ((css != null) ? " class=\"" + css + "\"": "")
                     + ">\n"
                     + sp(++in) + "<legend>"
                     + ((name != null) ? name : "NONAME")
