@@ -629,7 +629,7 @@ public class ProjectsView extends AbstractView {
                         + REQ_PAR_SYNC_PLUGIN + "').value='"
                         + m.getHashcode() + "';"
                         + SUBMIT + "\""
-                        + ">"
+                        + "/>"
                         + "&nbsp;"
                         + m.getPluginName()
                         + "</td>\n");
