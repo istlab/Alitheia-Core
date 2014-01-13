@@ -58,8 +58,8 @@ public class AbstractViewTest extends AbstractViewTestBase{
 		super.setUp(abstractView);
 		
 		
-		alitheiaCore = Mockito.mock(AlitheiaCore.class);
-		assertNotNull(alitheiaCore);
+//		alitheiaCore = Mockito.mock(AlitheiaCore.class);
+//		assertNotNull(alitheiaCore);
 	}
 
 	@After
@@ -78,14 +78,20 @@ public class AbstractViewTest extends AbstractViewTestBase{
 	
 	@Test
 	public void testConstructor(){
-		abstractView = new PluginsView(bundleContext,velocityContext);
 		
-		LogManager logManager = Mockito.mock(LogManager.class);
+		Mockito.when(alitheiaCore.getDBService()).thenReturn(null);
+		Mockito.when(alitheiaCore.getPluginAdmin()).thenReturn(null);
+		Mockito.when(alitheiaCore.getScheduler()).thenReturn(null);
+		Mockito.when(alitheiaCore.getMetricActivator()).thenReturn(null);
+		Mockito.when(alitheiaCore.getTDSService()).thenReturn(null);
+		Mockito.when(alitheiaCore.getUpdater()).thenReturn(null);
+		Mockito.when(alitheiaCore.getClusterNodeService()).thenReturn(null);
+		Mockito.when(alitheiaCore.getSecurityManager()).thenReturn(null);
 		Mockito.when(alitheiaCore.getLogManager()).thenReturn(logManager);
-		Logger logger = Mockito.mock(Logger.class);
-		Mockito.when(logManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN)).thenReturn(logger);
+		when(logManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN)).thenReturn(logger);
+		
 		abstractView = new PluginsView(bundleContext,velocityContext);
-		Mockito.verify(logger,Mockito.atLeast(7)).debug(Mockito.anyString());
+
 		Mockito.verify(alitheiaCore).getDBService();
 		Mockito.verify(alitheiaCore).getPluginAdmin();
 		Mockito.verify(alitheiaCore).getScheduler();
@@ -94,12 +100,15 @@ public class AbstractViewTest extends AbstractViewTestBase{
 		Mockito.verify(alitheiaCore).getUpdater();
 		Mockito.verify(alitheiaCore).getClusterNodeService();
 		Mockito.verify(alitheiaCore).getSecurityManager();
+		Mockito.verify(alitheiaCore).getLogManager();
+		Mockito.verify(logger,Mockito.atLeast(7)).debug(Mockito.anyString());
+
 
 	}
 	
 	@Test
 	public void testConstructorLogger(){
-		abstractView = new PluginsView(bundleContext,velocityContext);
+//		abstractView = new PluginsView(bundleContext,velocityContext);
 //		when(AlitheiaCore.getInstance()).thenReturn(alitheiaCore);
 
 		
