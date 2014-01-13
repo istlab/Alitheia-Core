@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.velocity.VelocityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +49,9 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		super.setUp();
-		webAdminRenderer = new WebAdminRenderer(mock(BundleContext.class),veclocityContext);
+		webAdminRenderer = new WebAdminRenderer(mock(BundleContext.class),velocityContext);
+		velocityContext = mock(VelocityContext.class);
+		super.setUp(webAdminRenderer);
 	}
 
 	/**

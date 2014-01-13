@@ -58,8 +58,9 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		super.setUp();
-		projectsView = new ProjectsView(mock(BundleContext.class),veclocityContext);
+		BundleContext bundleContext = mock(BundleContext.class);
+		projectsView = new ProjectsView(bundleContext,velocityContext);
+		super.setUp(projectsView);
 
 	}
 
@@ -116,14 +117,14 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 		//call private method
 		Whitebox.<StoredProject>invokeMethod(projectsView, "triggerUpdate",builder,p,0,"mnem");
 		verify(adminService).create(UpdateProject.MNEMONIC);
-		verify(veclocityContext).put("RESULTS", adminAction.results());
+		verify(velocityContext).put("RESULTS", adminAction.results());
 		
 		//set errors to true
 		when(adminAction.hasErrors()).thenReturn(true);
 		Whitebox.invokeMethod(projectsView, "triggerUpdate",builder,p,0,"mnem");
 		verify(adminService,times(2)).create(UpdateProject.MNEMONIC);
 		verify(adminService,times(2)).execute(adminAction);
-		verify(veclocityContext).put("RESULTS", adminAction.errors());
+		verify(velocityContext).put("RESULTS", adminAction.errors());
 	}
 	
 	@Test
@@ -134,14 +135,14 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 		Whitebox.<StoredProject>invokeMethod(projectsView, "triggerAllUpdate",builder,p,0);
 		
 		verify(adminService).create(UpdateProject.MNEMONIC);
-		verify(veclocityContext).put("RESULTS", adminAction.results());
+		verify(velocityContext).put("RESULTS", adminAction.results());
 		
 		//set errors to true
 		when(adminAction.hasErrors()).thenReturn(true);
 		Whitebox.invokeMethod(projectsView, "triggerAllUpdate",builder,p,0);
 		verify(adminService,times(2)).create(UpdateProject.MNEMONIC);
 		verify(adminService,times(2)).execute(adminAction);
-		verify(veclocityContext).put("RESULTS", adminAction.errors());
+		verify(velocityContext).put("RESULTS", adminAction.errors());
 	}
 	
 	@Test

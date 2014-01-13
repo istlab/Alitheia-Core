@@ -31,24 +31,33 @@ import org.powermock.reflect.Whitebox;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.AbstractView;
 import eu.sqooss.impl.service.webadmin.PluginsView;
+import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.TDSService;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(AlitheiaCore.class)
+@PrepareForTest({Job.class,AlitheiaCore.class,StoredProject.class,ClusterNode.class,ProjectVersion.class,MailMessage.class,Bug.class})
 public class AbstractViewTest extends AbstractViewTestBase{
 
 	AbstractView abstractView;
 	BundleContext bundleContext;
-	VelocityContext velocityContext;
+//	VelocityContext velocityContext;
 //	AlitheiaCore alitheiaCore;
 	
 	@Before
 	public void setUp() throws Exception {
-		super.setUp();
 		bundleContext = Mockito.mock(BundleContext.class);
 		velocityContext = Mockito.mock(VelocityContext.class);
+		abstractView = new PluginsView(bundleContext, velocityContext);
+		super.setUp(abstractView);
+		
+		
 		alitheiaCore = Mockito.mock(AlitheiaCore.class);
 		assertNotNull(alitheiaCore);
 	}
