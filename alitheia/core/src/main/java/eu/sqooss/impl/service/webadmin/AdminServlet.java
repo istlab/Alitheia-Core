@@ -279,7 +279,7 @@ public class AdminServlet extends HttpServlet {
         	if ( path.toLowerCase().contains("jobstat") ) {
         		loc = path;
         	} else {
-        		loc = this.globalTemplateLocation;
+        		loc = globalTemplateLocation;
         	}
             t = ve.getTemplate( loc );
         } catch (Exception e) {
@@ -292,6 +292,9 @@ public class AdminServlet extends HttpServlet {
         
         // put requested page into velocity context
         vc.put("CONTENTS", path);
+        
+        // 
+        projectsView.render(request);
 
         // Do any substitutions that may be required
         createSubstitutions(request);
