@@ -203,14 +203,6 @@ public class MailMessage extends DAObject {
         subject = value;
     }
     
-    public String getFilename() {
-        return fileName;
-    }
-
-    public void setFilename(String filename) {
-        this.fileName = filename;
-    }
-    
     public MailMessage getParent() {
         return parent;
     }

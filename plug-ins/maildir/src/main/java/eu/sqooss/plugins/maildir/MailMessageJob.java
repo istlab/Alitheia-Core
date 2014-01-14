@@ -187,7 +187,7 @@ public class MailMessageJob extends Job{
             }
 
             mmsg.setSubject(subject);
-            mmsg.setFilename(fileName);
+            mmsg.setFileName(fileName);
             dbs.addRecord(mmsg);
             debug("Adding message " + mm.getMessageID());
 
