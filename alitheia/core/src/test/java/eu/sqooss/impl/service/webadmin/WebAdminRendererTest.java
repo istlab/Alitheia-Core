@@ -3,6 +3,7 @@ package eu.sqooss.impl.service.webadmin;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
@@ -28,12 +29,12 @@ public class WebAdminRendererTest {
 	AlitheiaCore core;
 
 	@Test
-	public void shouldRenderNoFailedJobs() {
+	public void shouldRenderNoFailedJobStats() {
 		// Arrange
 		WebAdminRenderer web = new WebAdminRenderer(null, null);
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, map, null, null);
+				null, null, map, null, null, null);
 
 		// Act
 		String failureString = render.renderJobFailStats();
@@ -55,13 +56,13 @@ public class WebAdminRendererTest {
 	}
 
 	@Test
-	public void shouldRenderOneFailedJobs() {
+	public void shouldRenderOneFailedJobStats() {
 		// Arrange
 		WebAdminRenderer web = new WebAdminRenderer(null, null);
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put("test", 1);
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, map, null, null);
+				null, null, map, null, null, null);
 
 		// Act
 		String failureString = render.renderJobFailStats();
@@ -87,7 +88,7 @@ public class WebAdminRendererTest {
 	}
 
 	@Test
-	public void shouldRenderTwoFailedJobs() {
+	public void shouldRenderTwoFailedJobStats() {
 		// Arrange
 		WebAdminRenderer web = new WebAdminRenderer(null, null);
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
@@ -95,7 +96,7 @@ public class WebAdminRendererTest {
 		map.put("test2", 2);
 
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, map, null, null);
+				null, null, map, null, null, null);
 
 		// Act
 		String failureString = render.renderJobFailStats();
@@ -140,7 +141,7 @@ public class WebAdminRendererTest {
 		WebAdminRenderer web = new WebAdminRenderer(null, null);
 		List<String> runJobs = new ArrayList<String>();
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, null, runJobs);
+				null, null, null, null, null, runJobs);
 
 		// Act
 		String runningJobs = render.renderJobRunStats();
@@ -158,7 +159,7 @@ public class WebAdminRendererTest {
 		runJobs.add("job1");
 		runJobs.add("job2");
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, null, runJobs);
+				null, null, null, null, null, runJobs);
 
 		// Act
 		String runningJobs = render.renderJobRunStats();
@@ -183,7 +184,7 @@ public class WebAdminRendererTest {
 		// runJobs.put("job1", 2);
 		// runJobs.put("job2", 1);
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, waitJobs, null);
+				null, null, null, null, waitJobs, null);
 
 		// Act
 		String waitingJobs = render.renderJobWaitStats();
@@ -210,7 +211,7 @@ public class WebAdminRendererTest {
 		waitJobs.put("job1", 2);
 		waitJobs.put("job2", 1);
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, waitJobs, null);
+				null, null, null, null, waitJobs, null);
 
 		// Act
 		String waitingJobs = render.renderJobWaitStats();
@@ -243,6 +244,71 @@ public class WebAdminRendererTest {
 				the(html),
 				hasXPath("/root/table/tbody/tr[2]/td[2]",
 						equalToIgnoringWhiteSpace("1")));
+	}
+
+	@Test
+	public void shouldRenderNoLogs() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		String[] logs = new String[0];
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, logs, null, null);
+
+		// Act
+		String loglist = render.renderLogs();
+
+		// Assert
+		String html = "<root>" + loglist.replace("&nbsp;", " ") + "</root>";
+		// Check that string contains the none word
+		assertTrue(loglist.contains("none"));
+		// Check that the list length is one
+		assertThat(the(html), hasXPath("count(/root/li)", equalTo("1")));
+	}
+
+	@Test
+	public void shouldRenderNullLogs() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, null, null, null);
+
+		// Act
+		String loglist = render.renderLogs();
+
+		// Assert
+		String html = "<root>" + loglist.replace("&nbsp;", " ") + "</root>";
+		// Check that string contains the none word
+		assertTrue(loglist.contains("none"));
+		// Check that the list length is one
+		assertThat(the(html), hasXPath("count(/root/li)", equalTo("1")));
+	}
+	
+	@Test
+	public void shouldRenderLog() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		String[] logs = new String[2];
+		logs[0] = "log1";
+		logs[1] = "log2";
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, logs, null, null);
+
+		// Act
+		String loglist = render.renderLogs();
+		System.out.println(loglist);
+		// Assert
+		String html = "<root>" + loglist.replace("&nbsp;", " ") + "</root>";
+		// Check that the list length is two
+		assertThat(the(html), hasXPath("count(/root/li)", equalTo("2")));
+		// Check that the first list element is log1
+		assertThat(the(html), hasXPath("/root/li[1]", equalTo("log1")));
+		// Check that the first list element is log1
+		assertThat(the(html), hasXPath("/root/li[2]", equalTo("log2")));
+	}
+	
+	@Test
+	public void shouldRenderNoFailedJobs() {
+	
 	}
 
 }

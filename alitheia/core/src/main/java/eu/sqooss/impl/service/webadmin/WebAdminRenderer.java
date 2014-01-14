@@ -192,8 +192,8 @@ public class WebAdminRenderer  extends AbstractView {
      *
      * @return a String representing the HTML unordered list items
      */
-    public static String renderLogs() {
-        String[] names = sobjLogManager.getRecentEntries();
+    public String renderLogs() {
+        String[] names = getLogs();
 
         if ((names != null) && (names.length > 0)) {
             StringBuilder b = new StringBuilder();
@@ -206,6 +206,11 @@ public class WebAdminRenderer  extends AbstractView {
             return "\t\t\t\t\t<li>&lt;none&gt;</li>\n";
         }
     }
+
+	protected String[] getLogs() {
+		String[] names = sobjLogManager.getRecentEntries();
+		return names;
+	}
 
     /**
      * Returns a string representing the uptime of the Alitheia core
@@ -283,14 +288,16 @@ public class WebAdminRenderer  extends AbstractView {
 protected class TestableWebAdminRenderer extends WebAdminRenderer {
 		
 		HashMap<String, Integer> failedJobs;
+		String[] logs;
 		HashMap<String, Integer> waitingJobs;
 		List<String> runJobs;
 		
 
 		public TestableWebAdminRenderer(BundleContext bundlecontext,
-				VelocityContext vc, HashMap<String, Integer> failedJobs, HashMap<String, Integer> waitingJobs, List<String> runJobs) {
+				VelocityContext vc, HashMap<String, Integer> failedJobs, String[] logs, HashMap<String, Integer> waitingJobs, List<String> runJobs) {
 			super(bundlecontext, vc);
 			this.failedJobs = failedJobs;
+			this.logs = logs;
 			this.waitingJobs = waitingJobs;
 			this.runJobs = runJobs;
 		}
@@ -298,6 +305,11 @@ protected class TestableWebAdminRenderer extends WebAdminRenderer {
 		@Override
 		protected HashMap<String, Integer> getFailedJobs() {
 			return this.failedJobs;
+		}
+		
+		@Override
+		protected String[] getLogs() {
+			return this.logs;
 		}
 		
 		@Override
