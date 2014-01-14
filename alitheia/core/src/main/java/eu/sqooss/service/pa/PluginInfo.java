@@ -181,9 +181,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     public PluginInfo(Set<PluginConfiguration> c, AlitheiaPlugin p) {
         setPluginConfiguration(c);
         if (p != null) {
-            setPluginName(p.getName());
-            setPluginVersion(p.getVersion());
-            setActivationTypes(p.getActivationTypes());
+            setAlitheiaPlugin(p);
         }
     }
 
@@ -195,6 +193,18 @@ public class PluginInfo implements Comparable<PluginInfo> {
      */
     public void setPluginConfiguration (Set<PluginConfiguration> c) {
         this.config = c;
+    }
+    
+    /**
+     * Gets the name, version and activationtypes of the given plug-in
+     * and sets those values to the local fields. 
+     * 
+     * @param p the plug-in 
+     */
+    public void setAlitheiaPlugin(AlitheiaPlugin p){
+    	setPluginName(p.getName());
+        setPluginVersion(p.getVersion());
+        setActivationTypes(p.getActivationTypes());
     }
 
     /**
@@ -313,7 +323,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * Adds a new configuration property for this metric plug-in by creating
      * a new database record for it.
      *
-     * @param db the DB components object
+     * @param p the relevant plug-in
      * @param name the configuration property's name
      * @param description the configuration property's description
      * @param type the configuration property's type
@@ -326,7 +336,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   invalid property's type, or invalid property's name.
      */
     public boolean addConfigEntry(
-            DBService db,
+            Plugin p,
             String name,
             String description,
             String type,
@@ -379,7 +389,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
         newParam.setMsg((description != null) ? description : "");
         newParam.setType(type);
         newParam.setValue(value);
-        Plugin p = Plugin.getPluginByHashcode(hashcode);
         newParam.setPlugin(p);
         return p.getConfigurations().add(newParam);
 }

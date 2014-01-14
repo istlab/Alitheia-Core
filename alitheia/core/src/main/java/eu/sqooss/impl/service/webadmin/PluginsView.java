@@ -266,7 +266,7 @@ public class PluginsView extends AbstractView{
                         else {
                             try {
                                 if (selPI.addConfigEntry(
-                                        sobjDB,
+                                		Plugin.getPluginByHashcode(selPI.getHashcode()),
                                         reqValPropName,
                                         reqValPropDescr,
                                         reqValPropType,

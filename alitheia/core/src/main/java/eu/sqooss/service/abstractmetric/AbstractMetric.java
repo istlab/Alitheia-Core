@@ -746,7 +746,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             // Create property
             else {
                 if (pi.addConfigEntry(
-                        db, name, msg, type.toString(), defValue)) {
+                        Plugin.getPluginByHashcode(pi.getHashcode()), name, msg, type.toString(), defValue)) {
                     // Update the Plug-in Admin's information
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
