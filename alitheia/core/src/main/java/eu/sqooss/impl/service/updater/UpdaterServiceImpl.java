@@ -270,6 +270,17 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         return null;
     }
 
+    /**
+     * 1. For each dependency in upd.dependencies(): <br>
+     * 1.1. For each known updater: <br>
+     * 1.1.1. If the unique String id equals dependency <br> 
+     * 1.1.1.a. If the updater stage equals the upd stage, continue with the next dependency <br>
+     * 1.1.1.b. Otherwise log an error and return false <br>
+     * 2. Return true
+     *  
+     * @param upd The Updater to have its dependencies checked
+     * @return True if, and only if all of the dependencies of upd are contained in our set of updaters 
+     */
     private boolean checkDependencies(Updater upd) {
         boolean met = true;
         for (String dep : upd.dependencies()) {
@@ -294,7 +305,21 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     }
     
     /**
-     * Add an update job of the given type or the specific updater for the project. 
+     * Add an update job of the given type or the specific updater for the project. <br>
+     * 
+     * 1. If project is null log an info message and return false <br>
+     * 2. If the global ClusterNodeServer is null or there is no ClusterNode for this project, log a warning <br>
+     * 2.a. Otherwise if this is not assigned to the known node, log a warning and return true <br>
+     * 3. Log an info message that this project is being updated <br>
+     * 4. If the updater is not null, add the updater stage to the stages <br>
+     * 4.a. Otherwise if the stage is not null, add the stage to the stages <br>
+     * 4.a.a. Otherwise add all possible updater stages to the stages <br>
+     * 5. Schedule all the jobs in correct order, regarding dependencies (see code for detailed description)
+     * 
+     * @param project The project to update (not null)
+     * @param stage Updater stage to use if updater is null (updates all stages if null)
+     * @param updater The Updater to receive the UpdaterStage from (uses stage if null) 
+     * @return True if, and only if all the jobs for all the stages have been scheduled correctly (otherwise supplies a log entry)
      */
     private boolean update(StoredProject project, UpdaterStage stage, Updater updater) {
         
