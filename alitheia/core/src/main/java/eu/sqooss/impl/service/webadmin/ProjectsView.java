@@ -159,7 +159,7 @@ public class ProjectsView extends AbstractView {
         		syncPlugin(e, selProject, reqValSyncPlugin);
             }
         }
-        createFrom(b, e, selProject, reqValAction , in);
+        createForm(b, e, selProject, reqValAction , in);
         return b.toString();
     }
   
@@ -299,7 +299,7 @@ public class ProjectsView extends AbstractView {
 		return sobjPA;
 	}
     
-    private void createFrom(StringBuilder b, StringBuilder e, 
+    private void createForm(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
 
         // ===============================================================
