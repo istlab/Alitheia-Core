@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import eu.sqooss.service.tds.CommitCopyEntry;
@@ -62,37 +64,61 @@ public class GitRevision implements Revision {
     RevCommit commit = null;
 
     public GitRevision(RevCommit obj, GitAccessor git) {
-        this.id = obj.getId().name();
-        this.date = obj.getAuthorIdent().getWhen();
-        this.author = obj.getAuthorIdent().getName() + " <"
-                + obj.getAuthorIdent().getEmailAddress() + ">";
-        this.msg = obj.getFullMessage();
+        this.id = getRevCommitIDName(obj);
+        this.date = getRevCommitAuthorIdent(obj).getWhen();
+        this.author = getRevCommitAuthorIdent(obj).getName() + " <"
+                + getRevCommitAuthorIdent(obj).getEmailAddress() + ">";
+        this.msg = getRevCommitFullMessage(obj);
         this.git = git;
         this.commit = obj;
         this.parents = new HashSet<String>();
 
-        for (RevCommit s : obj.getParents()) {
-            parents.add(s.getName());
+        for (RevCommit s : getRevCommitParents(obj)) {
+            parents.add(getRevCommitName(s));
         }
         isResolved = false;
     }
 
     public GitRevision(RevCommit obj, Map<String, PathChangeType> paths,
             List<CommitCopyEntry> copies) {
-        this.id = obj.getId().name();
-        this.date = obj.getAuthorIdent().getWhen();
-        this.author = obj.getAuthorIdent().getName() + " <"
-                + obj.getAuthorIdent().getEmailAddress() + ">";
-        this.msg = obj.getFullMessage();
+        this.id = getRevCommitIDName(obj);
+        this.date = getRevCommitAuthorIdent(obj).getWhen();
+        this.author = getRevCommitAuthorIdent(obj).getName() + " <"
+                + getRevCommitAuthorIdent(obj).getEmailAddress() + ">";
+        this.msg = getRevCommitFullMessage(obj);
         this.changedPaths = paths;
         this.copyOps = copies;
         this.parents = new HashSet<String>();
 
-        for (RevCommit s : obj.getParents()) {
-            parents.add(s.getName());
+        for (RevCommit s : getRevCommitParents(obj)) {
+            parents.add(getRevCommitName(s));
         }
         isResolved = true;
     }
+
+    protected String getRevCommitIDName(RevCommit obj) {
+		return getRevCommitID(obj).name();
+	}
+
+    protected String getRevCommitName(RevCommit s) {
+		return s.getName();
+	}
+
+    protected ObjectId getRevCommitID(RevCommit obj) {
+		return obj.getId();
+	}
+
+    protected String getRevCommitFullMessage(RevCommit obj) {
+		return obj.getFullMessage();
+	}
+
+	protected PersonIdent getRevCommitAuthorIdent(RevCommit obj) {
+		return obj.getAuthorIdent();
+	}
+
+	protected RevCommit[] getRevCommitParents(RevCommit obj) {
+		return obj.getParents();
+	}
 
     public boolean isResolved() {
         resolve();

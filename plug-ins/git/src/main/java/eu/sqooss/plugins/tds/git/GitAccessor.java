@@ -141,7 +141,7 @@ public class GitAccessor implements SCMAccessor {
          * objects with millisecond accuracy, the following filter should just
          * return the revision we are looking for. 
          */
-        RevWalk rw = new RevWalk(git);
+        RevWalk rw = new RevWalk(git);//createRevWalk(git);
         RevFilter exact = CommitTimeRevFilter.between(new Date(d.getTime() - 1), 
                 new Date(d.getTime() + 1));
         rw.setRevFilter(exact);
@@ -150,7 +150,7 @@ public class GitAccessor implements SCMAccessor {
             RevCommit root = rw.parseCommit(headId);
             rw.markStart(root);
             RevCommit r = rw.next();
-            
+
             if (r == null) {
                 err("Cannot resolve commit with timestamp: " + d);
                 return null;
@@ -165,6 +165,10 @@ public class GitAccessor implements SCMAccessor {
         }
         return null;
     }
+
+    public RevWalk createRevWalk(Repository git) {
+		return new RevWalk(git);
+	}
 
     /** {@inheritDoc} */
     public Revision newRevision(String uniqueId) {
@@ -191,7 +195,7 @@ public class GitAccessor implements SCMAccessor {
 
     /** {@inheritDoc} */
     public Revision getFirstRevision() throws InvalidRepositoryException {
-        RevWalk rw = new RevWalk(git);
+        RevWalk rw = createRevWalk(git);
         RevCommit c = null;
         AnyObjectId headId;
         try {
@@ -213,7 +217,7 @@ public class GitAccessor implements SCMAccessor {
     public Revision getPreviousRevision(Revision r)
         throws InvalidProjectRevisionException {
         AnyObjectId revId;  
-        RevWalk rw = new RevWalk(git);
+        RevWalk rw = createRevWalk(git);
 
         try {
             revId = git.resolve(r.getUniqueId());
@@ -241,7 +245,7 @@ public class GitAccessor implements SCMAccessor {
     public Revision getNextRevision(Revision r)
         throws InvalidProjectRevisionException {
         AnyObjectId revId;
-        RevWalk rw = new RevWalk(git);
+        RevWalk rw = createRevWalk(git);
         
         try {
             /*
@@ -320,7 +324,7 @@ public class GitAccessor implements SCMAccessor {
     throws InvalidProjectRevisionException, InvalidRepositoryException  {
     	long time = System.currentTimeMillis();
         repoPath = toGitPath(repoPath);
-        RevWalk rw = new RevWalk(git);
+        RevWalk rw = createRevWalk(git);
         try {
             
             if (r1 == null) {
@@ -497,7 +501,7 @@ public class GitAccessor implements SCMAccessor {
     
     private void resolveChildren() throws AccessorException {
     	Long start = System.currentTimeMillis();
-    	RevWalk rw = new RevWalk(git);
+    	RevWalk rw = createRevWalk(git);
     	try {
     		ObjectId revId = git.resolve(Constants.HEAD);
             rw.sort(RevSort.COMMIT_TIME_DESC); //Doesn't really do anything
@@ -657,7 +661,7 @@ public class GitAccessor implements SCMAccessor {
     }
     
     private RevCommit resolveGitRev(String rev) {
-        RevWalk rw = new RevWalk(git);
+        RevWalk rw = createRevWalk(git);
 
         try {
             ObjectId obj = git.resolve(rev);

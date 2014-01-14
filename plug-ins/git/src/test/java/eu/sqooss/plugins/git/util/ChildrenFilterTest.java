@@ -1,4 +1,4 @@
-package eu.sqooss.plugins.git.util.test;
+package eu.sqooss.plugins.git.util;
 
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;

@@ -1,4 +1,4 @@
-package eu.sqooss.plugins.git.test;
+package eu.sqooss.plugins.git.rubbish;
 
 import java.io.File;
 import java.io.IOException;
