@@ -52,6 +52,9 @@ import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.Updater;
@@ -160,7 +163,7 @@ public class ProjectsView extends AbstractView {
     }
   
     private StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
-        AdminService as = AlitheiaCore.getInstance().getAdminService();
+        AdminService as = getAdminService();
     	AdminAction aa = as.create(AddProject.MNEMONIC);
     	aa.addArg("scm", r.getParameter(REQ_PAR_PRJ_CODE));
     	aa.addArg("name", r.getParameter(REQ_PAR_PRJ_NAME));
@@ -170,10 +173,10 @@ public class ProjectsView extends AbstractView {
     	as.execute(aa);
     	
     	if (aa.hasErrors()) {
-            vc.put("RESULTS", aa.errors());
+            getVelocityContext().put("RESULTS", aa.errors());
             return null;
     	} else { 
-            vc.put("RESULTS", aa.results());
+            getVelocityContext().put("RESULTS", aa.results());
             return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
     	}
     }
@@ -202,19 +205,27 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger an update
 	// ---------------------------------------------------------------
-	private void triggerUpdate(StringBuilder e,
+	protected void triggerUpdate(StringBuilder e,
 			StoredProject selProject, int indent, String mnem) {
-		AdminService as = AlitheiaCore.getInstance().getAdminService();
+		AdminService as = getAdminService();
 		AdminAction aa = as.create(UpdateProject.MNEMONIC);
 		aa.addArg("project", selProject.getId());
 		aa.addArg("updater", mnem);
 		as.execute(aa);
 
 		if (aa.hasErrors()) {
-            vc.put("RESULTS", aa.errors());
+            getVelocityContext().put("RESULTS", aa.errors());
         } else { 
-            vc.put("RESULTS", aa.results());
+            getVelocityContext().put("RESULTS", aa.results());
         }
+	}
+
+	protected VelocityContext getVelocityContext() {
+		return vc;
+	}
+
+	protected AdminService getAdminService() {
+		return AlitheiaCore.getInstance().getAdminService();
 	}
 
 	// ---------------------------------------------------------------
@@ -222,15 +233,15 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-	    AdminService as = AlitheiaCore.getInstance().getAdminService();
+	    AdminService as = getAdminService();
         AdminAction aa = as.create(UpdateProject.MNEMONIC);
         aa.addArg("project", selProject.getId());
         as.execute(aa);
 
         if (aa.hasErrors()) {
-            vc.put("RESULTS", aa.errors());
+            getVelocityContext().put("RESULTS", aa.errors());
         } else { 
-            vc.put("RESULTS", aa.results());
+            getVelocityContext().put("RESULTS", aa.results());
         }
 	}
 	
@@ -249,19 +260,31 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger synchronize on the selected plug-in for that project
 	// ---------------------------------------------------------------
-    private void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
+    protected void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
 		if ((reqValSyncPlugin != null) && (selProject != null)) {
-			PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);
+			PluginInfo pInfo = getPluginAdmin().getPluginInfo(reqValSyncPlugin);
 			if (pInfo != null) {
-				AlitheiaPlugin pObj = sobjPA.getPlugin(pInfo);
+				AlitheiaPlugin pObj = getPluginAdmin().getPlugin(pInfo);
 				if (pObj != null) {
-					compMA.syncMetric(pObj, selProject);
-					sobjLogger.debug("Syncronise plugin (" + pObj.getName()
+					getMetricActivator().syncMetric(pObj, selProject);
+					getLogger().debug("Syncronise plugin (" + pObj.getName()
 							+ ") on project (" + selProject.getName() + ").");
 				}
 			}
 		}
     }
+
+	protected Logger getLogger() {
+		return sobjLogger;
+	}
+
+	protected MetricActivator getMetricActivator() {
+		return compMA;
+	}
+
+	protected PluginAdmin getPluginAdmin() {
+		return sobjPA;
+	}
     
     private void createFrom(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
@@ -281,7 +304,7 @@ public class ProjectsView extends AbstractView {
 
         // Get the complete list of projects stored in the SQO-OSS framework
         Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
-        Collection<PluginInfo> metrics = sobjPA.listPlugins();
+        Collection<PluginInfo> metrics = getPluginAdmin().listPlugins();
 
         // ===================================================================
         // "Show project info" view
@@ -540,7 +563,7 @@ public class ProjectsView extends AbstractView {
     }
 
 
-    private void addHiddenFields(StoredProject selProject,
+    protected void addHiddenFields(StoredProject selProject,
             StringBuilder b,
             long in) {
         // "Action type" input field

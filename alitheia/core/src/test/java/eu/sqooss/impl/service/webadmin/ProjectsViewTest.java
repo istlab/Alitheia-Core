@@ -4,7 +4,11 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
@@ -24,19 +28,45 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.velocity.VelocityContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.UpdateProject;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ProjectsViewTest {
 	private static final String INPUT_REGEX = "<input([\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\/\\\\]*[\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\\\]+)>";
 	private static final String CLUSTER_NODE_NAME = "CLUSTER_NODE1";
 	private ProjectsView projectsView;
 	private Map<UpdaterStage, Set<Updater>> updaters;
+	
+	@Mock
+	public AdminService adminService;
+	@Mock
+	public AlitheiaPlugin somePlugin;
+	@Mock
+	public PluginAdmin pluginAdmin;
+	@Mock
+	public Logger logger;
+	@Mock
+	public MetricActivator metricActivator;
+	@Mock
+	public VelocityContext velocityContext;
 
 	@Before
 	public void setUp() {
@@ -45,15 +75,139 @@ public class ProjectsViewTest {
 	}
 	
 	@Test
+	public void shouldExecuteUpdateActionAndPutResults() {
+		StoredProject project = new StoredProject();
+		project.setId(1234l);
+		AdminAction action = mock(AdminAction.class);
+		Map<String, Object> results = new HashMap<String, Object>();
+		
+		when(adminService.create(anyString())).thenReturn(action);
+		when(action.results()).thenReturn(results);
+		
+		projectsView.triggerUpdate(null, project, 0, "updater");
+		
+		verify(adminService).create(UpdateProject.MNEMONIC);
+		verify(action).addArg("project", 1234l);
+		verify(action).addArg("updater", "updater");
+		verify(adminService).execute(action);
+		
+		verify(velocityContext).put("RESULTS", results);
+	}
+	
+	@Test
+	public void shouldExecuteUpdateActionAndPutErrors() {
+		StoredProject project = new StoredProject();
+		project.setId(1234l);
+		AdminAction action = mock(AdminAction.class);
+		Map<String, Object> errors = new HashMap<String, Object>();
+		
+		when(adminService.create(anyString())).thenReturn(action);
+		when(action.errors()).thenReturn(errors);
+		when(action.hasErrors()).thenReturn(true);
+		
+		projectsView.triggerUpdate(null, project, 0, "updater");
+		
+		verify(adminService).create(UpdateProject.MNEMONIC);
+		verify(action).addArg("project", 1234l);
+		verify(action).addArg("updater", "updater");
+		verify(adminService).execute(action);
+		
+		verify(velocityContext).put("RESULTS", errors);
+	}
+	
+	@Test
+	public void syncNothingIfNoPluginSelected() {
+		projectsView.syncPlugin(null, null, null);
+		
+		verifyZeroInteractions(pluginAdmin);
+	}
+	
+	@Test
+	public void syncNothingIfNoProjectSelected() {
+		projectsView.syncPlugin(null, null, "selected_plugin");
+		
+		verifyZeroInteractions(pluginAdmin);
+	}
+	
+	@Test
+	public void syncNothingIfNoPluginInfo() {
+		StoredProject project = new StoredProject();
+		
+		projectsView.syncPlugin(null, project, "selected_plugin");
+		
+		verify(pluginAdmin).getPluginInfo("selected_plugin");
+		verifyNoMoreInteractions(pluginAdmin);
+	}
+	
+	@Test
+	public void syncNothingIfNoPluginObject() {
+		StoredProject project = new StoredProject();
+		PluginInfo info = new PluginInfo();
+		when(pluginAdmin.getPluginInfo("selected_plugin")).thenReturn(info);
+		
+		projectsView.syncPlugin(null, project, "selected_plugin");
+		
+		verify(pluginAdmin).getPluginInfo("selected_plugin");
+		verify(pluginAdmin).getPlugin(info);
+		verifyNoMoreInteractions(pluginAdmin);
+	}
+	
+	@Test
+	public void syncMetricIfPluginObjectFound() {
+		StoredProject project = new StoredProject();
+		PluginInfo info = new PluginInfo();
+		when(pluginAdmin.getPluginInfo("selected_plugin")).thenReturn(info);
+		when(pluginAdmin.getPlugin(info)).thenReturn(somePlugin);
+		
+		projectsView.syncPlugin(null, project, "selected_plugin");
+		
+		verify(pluginAdmin).getPluginInfo("selected_plugin");
+		verify(pluginAdmin).getPlugin(info);
+		verifyNoMoreInteractions(pluginAdmin);
+		
+		verify(metricActivator).syncMetric(somePlugin, project);
+	}
+	
+	@Test
+	public void shouldAddEmptyHiddenFieldsWithoutProject() {
+		StringBuilder builder = new StringBuilder();
+		
+		projectsView.addHiddenFields(null, builder, 0);
+		
+		String html = sanitizeHTML(builder.toString());
+		
+		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_ACTION + "' and @name='" + ProjectsView.REQ_PAR_ACTION + "' and @value='']"));
+		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "' and @name='" + ProjectsView.REQ_PAR_PROJECT_ID + "' and @value='']"));
+		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "' and @name='" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "' and @value='']"));
+	}
+	
+	@Test
+	public void shouldAddProjectIdWithProject() {
+		StringBuilder builder = new StringBuilder();
+		StoredProject project = new StoredProject();
+		project.setId(100);
+		
+		projectsView.addHiddenFields(project , builder, 0);
+		
+		String html = sanitizeHTML(builder.toString());
+		
+		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "' and @name='" + ProjectsView.REQ_PAR_PROJECT_ID + "']/@value", equalTo("100")));
+	}
+
+	protected String sanitizeHTML(String string) {
+		String html = "<root>" + string + "</root>";		
+		html = html.replaceAll(INPUT_REGEX, "<input$1/>");
+		html = html.replaceAll("disabled(\\s*[^=])", "disabled='true'$1");
+		return html;
+	}
+	
+	@Test
 	public void shouldShowBasicToolbarIfNoProjectSelected() {
 		StringBuilder builder = new StringBuilder();
 		
 		projectsView.addToolBar(null, builder, 0);
 		
-		// sanitize html input
-		String html = "<root>" + builder.toString() + "</root>";		
-		html = html.replaceAll(INPUT_REGEX, "<input$1/>");
-		html = html.replaceAll("disabled(\\s*[^=])", "disabled='true'$1");
+		String html = sanitizeHTML(builder.toString());
 		
 		// the toolbar should have three rows.
 		assertThat(the(html), hasXPath("count(/root/tr)", equalTo("3")));
@@ -104,12 +258,8 @@ public class ProjectsViewTest {
 		projectsView.addToolBar(project, builder, 0);
 
 		// sanitize html input
-		String html = "<root>" + builder.toString() + "</root>";		
-		html = html.replaceAll(INPUT_REGEX, "<input$1/>");
-		html = html.replaceAll("disabled(\\s*[^=])", "disabled='true'$1");
+		String html = sanitizeHTML(builder.toString());
 
-		System.out.println(html);
-		
 		// the first row should have a button that goes to the project page
 		String onclick1 = "javascript:window.location='/projects?" + ProjectsView.REQ_PAR_PROJECT_ID + "=" + project.getId() + "';";
 		assertThat(the(html), hasXPath("/root/tr[1]/td[2]/input/@onclick", equalTo(onclick1)));
@@ -233,6 +383,31 @@ public class ProjectsViewTest {
 				VelocityContext vc) {
 			super(bundlecontext, vc);
 		}
+		
+		@Override
+		protected VelocityContext getVelocityContext() {
+			return velocityContext;
+		}
+
+		@Override
+		protected AdminService getAdminService() {
+			return adminService;
+		}
+
+		@Override
+		protected Logger getLogger() {
+			return logger;
+		}
+
+		@Override
+		protected MetricActivator getMetricActivator() {
+			return metricActivator;
+		}
+
+		@Override
+		protected PluginAdmin getPluginAdmin() {
+			return pluginAdmin;
+		}
 
 		@Override
 		protected String getClusterNodeName() {
@@ -242,12 +417,7 @@ public class ProjectsViewTest {
 		@Override
 		protected Set<Updater> getUpdaters(StoredProject selProject,
 				UpdaterStage importStage) {
-			Set<Updater> s = updaters.get(importStage);
-			if (s == null) {
-				return new HashSet<Updater>();
-			} else {
-				return s;
-			}
+			return updaters.get(importStage);
 		}
 	}	
 }
