@@ -7,15 +7,23 @@
     <link rel="stylesheet" type="text/css" media="screen" href="screen.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="webadmin.css" />
   </head>
-  <body $ACTIVE>
+  <body class="section-$section">
     <div id="wrap">
-      <div id="header">
+      <div id="header"`>
         <h1>$APP_NAME</h1>
         <img src="/sqo-oss.png" alt="SQO-OSS Logo" />
       </div>
+      <div id="main">
         #parse("menu.inc")
-      <div id="contents">
-        $RESULTS
+        <div id="contents">
+          <!-- specific page template
+          (projectslist, jobs, logs, etc.) is stored in $CONTENTS -->
+          #parse($CONTENTS)
+        </div>
+      </div>
+      #parse("sidebar.inc")
+      <div id="footer">
+        <p>$COPYRIGHT</p>
       </div>
     </div>
   </body>

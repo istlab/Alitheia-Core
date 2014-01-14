@@ -1,0 +1,12 @@
+#set($section=7)
+#parse("header.inc")
+      <div id="main">
+#parse("menu.inc")
+        <div id="contents">
+          <h2>$tr.label("rules_mngm")</h2>
+          <div id="table">
+            $rules.render($request)
+          </div>
+        </div>
+      </div>
+#parse("sidebar.inc")

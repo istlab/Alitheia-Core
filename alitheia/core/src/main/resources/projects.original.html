@@ -1,0 +1,26 @@
+#set($section=3)
+#parse("header.inc")
+      <div id="main">
+#parse("menu.inc")
+        <div id="contents">
+          <h2>$tr.label("projects_mngm")</h2>
+          <div id="table">
+            $projects.render($request)
+          </div>
+          <h1>No clean install required?</h1>
+          <h2>$tr.label("install_new_project")</h2>
+          <form id="addprojectdir" method="post" action="diraddproject">
+            project.properties file location
+            <input name="properties" type="text" alt="Enter the path to the project.properties file of the project you want to install" class="form" size="40"/>
+            <input type="submit" value="Install Project"/>
+          </form>
+## Only print help if we're doing an addProject -- this is a complication
+## because we use this one template for a gazillion different things. The
+## extra clause before && is to handle null returns.
+#if ($request.getParameter("reqAction") && ("reqAddProject" == $request.getParameter("reqAction")))
+          <h2>$tr.label("help")</h2>
+          $tr.message("project_help")
+#end
+        </div>
+      </div>
+#parse("sidebar.inc")
