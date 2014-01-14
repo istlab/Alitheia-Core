@@ -14,6 +14,8 @@ import eu.sqooss.rest.api.wrappers.JaxbString;
 import eu.sqooss.rest.api.wrappers.JaxbMapEntry;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerStats;
+import eu.sqooss.service.scheduler.WorkerThread;
 
 @Path("/api/scheduler/")
 public class SchedulerResource {
@@ -22,6 +24,13 @@ public class SchedulerResource {
 	
 	public SchedulerResource() {
 		scheduler = AlitheiaCore.getInstance().getScheduler();
+	}
+	
+	@GET
+    @Produces({"application/xml", "application/json"})
+	@Path("stats")
+	public SchedulerStats getSchedulerStats() {
+		return scheduler.getSchedulerStats();
 	}
 
 	@GET
@@ -37,6 +46,7 @@ public class SchedulerResource {
 		for ( String k :  keySet )
 			l.add(new JaxbMapEntry<String, Integer>(k, map.get(k)));
 		
+        //TODO remove these
 		l.add(new JaxbMapEntry<String, Integer>("test1", 1));
 		l.add(new JaxbMapEntry<String, Integer>("test2", 2));
 		
@@ -56,6 +66,7 @@ public class SchedulerResource {
 		for ( String k :  keySet )
 			l.add(new JaxbMapEntry<String, Integer>(k, map.get(k)));
 		
+        //TODO remove these
 		l.add(new JaxbMapEntry<String, Integer>("test1", 1));
 		l.add(new JaxbMapEntry<String, Integer>("test2", 2));
 		
@@ -83,7 +94,7 @@ public class SchedulerResource {
 	
 	@GET
     @Produces({"application/xml", "application/json"})
-	@Path("queue/failed")
+	@Path("failed_queue")
 	public List<Job> getFailedQueue() {
 		
 		Job[] jobs = scheduler.getFailedQueue();

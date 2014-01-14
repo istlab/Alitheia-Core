@@ -70,6 +70,12 @@ public abstract class Job implements Comparable<Job> {
         Error,
         Yielded
     }
+    
+    @XmlElement
+    private State m_state;
+    
+    @XmlElement
+    private Exception m_errorException;
 
     /**
      * This list contains the dependencies between the jobs.
@@ -91,15 +97,10 @@ public abstract class Job implements Comparable<Job> {
      */
     private List<JobStateListener> listeners;
     
-    @XmlElement
-    private State m_state;
-
     private Scheduler m_scheduler;
 
-    @XmlElement
-    private Exception m_errorException;
     
-    //private WorkerThread m_worker;
+    private WorkerThread m_worker;
     
     private int restarts = 0;
     

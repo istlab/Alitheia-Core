@@ -33,6 +33,7 @@ public class LogManagerResource {
         	for (String s : names)
         		l.add(new JaxbString(s));
         
+        //TODO remove these
         l.add(new JaxbString("test1"));
 		l.add(new JaxbString("test2"));
 		
