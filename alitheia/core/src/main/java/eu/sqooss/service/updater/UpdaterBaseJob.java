@@ -54,14 +54,15 @@ public abstract class UpdaterBaseJob extends Job {
     protected StoredProject project;
     protected UpdaterServiceImpl updater;
     
-    public UpdaterBaseJob() {
-        super(AlitheiaCore.getInstance().getDBService());
+    public UpdaterBaseJob(DBService dbs) {
+        super(dbs);
+        this.dbs = dbs;
     }
     
     public void setUpdateParams(StoredProject sp, Logger l) {
         this.project = sp;
         this.logger = l;
-        dbs = AlitheiaCore.getInstance().getDBService();
+        //dbs = AlitheiaCore.getInstance().getDBService();
     }
     
     @Override
