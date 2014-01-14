@@ -8,8 +8,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -200,6 +202,43 @@ public class ProjectsViewTest {
 		verify(adminService).execute(action);
 		
 		verify(velocityContext).put("RESULTS", errors);
+	}
+	
+	@Test
+	public void shouldExecuteUpdateActionWithoutMnemonicAndPutResults() {
+		AdminAction action = mock(AdminAction.class);
+		Map<String, Object> errors = new HashMap<String, Object>();
+		
+		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(action);
+		when(action.errors()).thenReturn(errors);
+		when(action.hasErrors()).thenReturn(true);
+		
+		projectsView.triggerAllUpdate(null, project, 0);
+		
+		verify(adminService).create(UpdateProject.MNEMONIC);
+		verify(action).addArg("project", 1234l);
+		verify(action, times(0)).addArg(eq("updater"), anyString());
+		verify(adminService).execute(action);
+		
+		verify(velocityContext).put("RESULTS", errors);
+	}
+	
+	@Test
+	public void shouldExecuteUpdateActionWithoutMnemonicAndPutErrors() {
+		AdminAction action = mock(AdminAction.class);
+		Map<String, Object> results = new HashMap<String, Object>();
+		
+		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(action);
+		when(action.results()).thenReturn(results);
+		
+		projectsView.triggerAllUpdate(null, project, 0);
+		
+		verify(adminService).create(UpdateProject.MNEMONIC);
+		verify(action).addArg("project", 1234l);
+		verify(action, times(0)).addArg(eq("updater"), anyString());
+		verify(adminService).execute(action);
+		
+		verify(velocityContext).put("RESULTS", results);
 	}
 	
 	@Test

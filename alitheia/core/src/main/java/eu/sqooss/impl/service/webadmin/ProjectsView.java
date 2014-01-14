@@ -244,7 +244,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources for that project
 	// ---------------------------------------------------------------
-	private void triggerAllUpdate(StringBuilder e,
+	protected void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
 	    AdminService as = getAdminService();
         AdminAction aa = as.create(UpdateProject.MNEMONIC);
