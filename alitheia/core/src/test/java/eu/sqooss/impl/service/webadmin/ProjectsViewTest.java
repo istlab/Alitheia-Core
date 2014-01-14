@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
 
@@ -83,6 +85,22 @@ public class ProjectsViewTest {
 		StoredProject project = new StoredProject();
 		StringBuilder builder = new StringBuilder();
 		
+		Updater iu1 = createUpdater("iu1", "import_updater_1", UpdaterStage.IMPORT);
+		Updater iu2 = createUpdater("iu2", "import_updater_2", UpdaterStage.IMPORT);
+		updaters.put(UpdaterStage.IMPORT, new HashSet<Updater>(Arrays.asList(iu1, iu2)));
+		
+		Updater pu1 = createUpdater("pu1", "parse_updater_1", UpdaterStage.PARSE);
+		Updater pu2 = createUpdater("pu2", "parse_updater_2", UpdaterStage.PARSE);
+		updaters.put(UpdaterStage.PARSE, new HashSet<Updater>(Arrays.asList(pu1, pu2)));
+		
+		Updater inu1 = createUpdater("inu1", "inference_updater_1", UpdaterStage.INFERENCE);
+		Updater inu2 = createUpdater("inu2", "inference_updater_2", UpdaterStage.INFERENCE);
+		updaters.put(UpdaterStage.INFERENCE, new HashSet<Updater>(Arrays.asList(inu1, inu2)));
+		
+		Updater defu1 = createUpdater("defu1", "default_updater_1", UpdaterStage.DEFAULT);
+		Updater defu2 = createUpdater("defu2", "default_updater_2", UpdaterStage.DEFAULT);
+		updaters.put(UpdaterStage.DEFAULT, new HashSet<Updater>(Arrays.asList(defu1, defu2)));
+		
 		projectsView.addToolBar(project, builder, 0);
 
 		// sanitize html input
@@ -99,10 +117,31 @@ public class ProjectsViewTest {
 		// the remove action is not disabled this time
 		assertThat(the(html), hasXPath("//input[contains(@onclick, '" + ProjectsView.ACT_REQ_REM_PROJECT + "') and not(@disabled)]"));
 		// test the select:
-		// lol
+		assertThat(the(html), hasXPath("/root/tr/td/select"));
+		assertThat(the(html), hasXPath("/root/tr/td/select[@id='" + ProjectsView.REQ_PAR_UPD + "']"));
+		assertThat(the(html), hasXPath("count(/root/tr/td/select/optgroup)", equalTo("4")));
+		
+		// test each pair for each group
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Import Stage']/option[@value='iu1']/text()", equalTo("import_updater_1")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Import Stage']/option[@value='iu2']/text()", equalTo("import_updater_2")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Parse Stage']/option[@value='pu1']/text()", equalTo("parse_updater_1")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Parse Stage']/option[@value='pu2']/text()", equalTo("parse_updater_2")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Inference Stage']/option[@value='inu1']/text()", equalTo("inference_updater_1")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Inference Stage']/option[@value='inu2']/text()", equalTo("inference_updater_2")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Default Stage']/option[@value='defu1']/text()", equalTo("default_updater_1")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Default Stage']/option[@value='defu2']/text()", equalTo("default_updater_2")));
+		
 		// the update buttons are not disabled this time
 		assertThat(the(html), hasXPath("//input[contains(@onclick, '" + ProjectsView.ACT_CON_UPD + "') and not(@disabled)]"));
 		assertThat(the(html), hasXPath("//input[contains(@onclick, '" + ProjectsView.ACT_CON_UPD_ALL + "') and not(@disabled)]"));
+	}
+
+	protected Updater createUpdater(String mnemonic, String description, UpdaterStage stage) {
+		Updater updater = mock(Updater.class);
+		when(updater.mnem()).thenReturn(mnemonic);
+		when(updater.descr()).thenReturn(description);
+		when(updater.stage()).thenReturn(stage);
+		return updater;
 	}
 	
 	@Test

@@ -81,7 +81,7 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_PRJ_MAIL      = "projectML";
     private static String REQ_PAR_PRJ_CODE      = "projectSCM";
     protected static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
-    private static String REQ_PAR_UPD           = "reqUpd";
+    protected static String REQ_PAR_UPD           = "reqUpd";
     
     /**
      * Instantiates a new projects view.
@@ -574,6 +574,7 @@ public class ProjectsView extends AbstractView {
         b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
         
         if (selProject != null) {
+        	// RENG: the ternary operator can only take one side because of the if.
             b.append(sp(in) + "<select name=\"" + REQ_PAR_UPD + "\" id=\"" + REQ_PAR_UPD + "\" " + ((selProject != null) ? "" : " disabled=\"disabled\"") + ">\n");
             b.append(sp(in) + "<optgroup label=\"Import Stage\">");
             for (Updater u : getUpdaters(selProject, UpdaterStage.IMPORT)) {
