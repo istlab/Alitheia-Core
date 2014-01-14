@@ -498,7 +498,7 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Evaluation state
                     String evalState = getLbl("project_not_evaluated");
-                    if (nextPrj.isEvaluated()) {
+                    if (nextPrj.isEvaluated(dbs)) {
                     	evalState = getLbl("project_is_evaluated");
                     }
                     b.append(sp(in) + "<td class=\"trans\">"

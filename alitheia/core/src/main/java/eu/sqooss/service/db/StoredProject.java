@@ -453,7 +453,7 @@ public class StoredProject extends DAObject {
      * Check whether any metric has run on the given project.
      * @return
      */
-    public boolean isEvaluated() {
+    public boolean isEvaluated(DBService dbs) {
     	for (Metric m : Metric.getAllMetrics()) {
     		if (m.isEvaluated(dbs, this))
     			return true;
