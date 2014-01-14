@@ -40,7 +40,6 @@ import java.util.regex.Pattern;
 import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
 
 /**
  * The FDS (Fat Data Service) is the part of the data access layer that
@@ -133,14 +132,6 @@ public interface FDSService extends AlitheiaCoreService {
      */
     InMemoryCheckout getInMemoryCheckout(ProjectVersion pv, Pattern pattern)
         throws CheckoutException;
-    
-    /**
-     * This function returns a timeline view (combined metadata and pointers 
-     * to actual data) for a given project. 
-     *  
-     * @param c StoredProject to return the timeline for
-     */
-    Timeline getTimeline(StoredProject c);
     
     /**
      * Retrieve a file handle corresponding to the selected ProjectFile entry.

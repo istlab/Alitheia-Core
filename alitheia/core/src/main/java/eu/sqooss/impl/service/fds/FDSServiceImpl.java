@@ -52,7 +52,6 @@ import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.OnDiskCheckout;
-import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -532,10 +531,6 @@ public class FDSServiceImpl implements FDSService {
                     root.getAbsolutePath());
         }
         c = null;
-    }
-
-    public Timeline getTimeline(StoredProject c) {
-        return new TimelineImpl(c);
     }
 
     @Override
