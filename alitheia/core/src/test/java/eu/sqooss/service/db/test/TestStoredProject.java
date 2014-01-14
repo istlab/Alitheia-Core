@@ -15,13 +15,16 @@ import org.junit.Test;
 
 import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.BugStatus;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectMeasurement;
+import eu.sqooss.service.db.BugStatus.Status;
 import eu.sqooss.test.TestDAObject;
 
 public class TestStoredProject extends TestDAObject {
@@ -40,6 +43,7 @@ public class TestStoredProject extends TestDAObject {
         
         // There shouldn't be any values associated with this configuration
         assertEquals(0, sp.getConfigValues(db, configKey).size());
+        assertEquals(null, sp.getConfigValue(db, configKey));
         
         // Add a configuration value
         sp.addConfigValue(db, configKey, configValue1);
@@ -69,6 +73,14 @@ public class TestStoredProject extends TestDAObject {
     }
     
     @Test
+    public void testGetConfigValuesNonExistentKey() {
+        StoredProject sp = new StoredProject("Test Project");
+        
+        assertEquals(0, sp.getConfigValues(db, "NonExistentKey").size());
+        assertEquals(null, sp.getConfigValue(db, "NonExistentKey"));
+    }
+    
+    @Test
     public void addGetConfigValueFromConfigOption() {
         StoredProject sp = new StoredProject("Test Project");
         ConfigOption configOpt = ConfigOption.PROJECT_SCM_URL;
@@ -80,6 +92,7 @@ public class TestStoredProject extends TestDAObject {
         
         // There shouldn't be any values associated with this configuration
         assertEquals(0, sp.getConfigValues(configOpt).size());
+        assertEquals(null, sp.getConfigValue(configOpt));
         
         // Add a configuration value
         sp.addConfig(configOpt, configValue1);
@@ -109,10 +122,37 @@ public class TestStoredProject extends TestDAObject {
     }
     
     @Test
+    public void setConfigValue() {
+        StoredProject sp = new StoredProject("Test Project");
+        ConfigOption configOpt = ConfigOption.PROJECT_SCM_URL;
+        String configKey = configOpt.getName();
+        String configValue1 = "Test value";
+        String configValue2 = "Other value";
+        
+        // FIXME: If we don't store the project, many of the methods fail. This shouldn't be necessary.
+        assertTrue(db.addRecord(sp));
+        
+        // There shouldn't be any values associated with this configuration
+        assertEquals(null, sp.getConfigValue(configOpt));
+        
+        // Add a configuration value
+        sp.setConfigValue(db, configKey, configValue1);
+        assertEquals(configValue1, sp.getConfigValue(db, configKey));
+        
+        // Change configuration value
+        sp.setConfigValue(db, configKey, configValue2);
+        assertEquals(configValue2, sp.getConfigValue(db, configKey));
+    }
+    
+    @Test
     public void testGetterSetters() {
         StoredProject sp = new StoredProject();
         
-        final List<ProjectVersion> projectVersions = Arrays.asList(new ProjectVersion(sp), new ProjectVersion(sp));
+        final ProjectVersion version1 = new ProjectVersion();
+        final ProjectVersion version2 = new ProjectVersion();
+        version1.setCommitMsg("Version1");
+        version2.setCommitMsg("Version2");
+        final List<ProjectVersion> projectVersions = Arrays.asList(version1, version2);
         
         // Initialise developers
         final Developer dev1 = new Developer();
@@ -164,8 +204,8 @@ public class TestStoredProject extends TestDAObject {
         sp.setBranches(branches);
         sp.setBugs(bugs);
         
-        db.addRecord(clusterNode);
-        db.addRecord(sp);
+        assertTrue(db.addRecord(clusterNode));
+        assertTrue(db.addRecord(sp));
         
         List<StoredProject> dbSpc = db.findObjectsByProperties(StoredProject.class, emptyMap);
         assertEquals(1, dbSpc.size());
@@ -185,5 +225,111 @@ public class TestStoredProject extends TestDAObject {
         assertEquals(clusterNode, sp.getClusternode());
         assertEquals(branches, sp.getBranches());
         assertEquals(bugs, sp.getBugs());
+    }
+    
+    @Test
+    public void testGetProjectByName() {
+        StoredProject sp = new StoredProject("Test Project");
+        assertTrue(db.addRecord(sp));
+        
+        assertEquals(sp, StoredProject.getProjectByName(db, "Test Project"));
+        
+        assertEquals(null, StoredProject.getProjectByName(db, "Non existend project"));
+    }
+    
+    @Test
+    public void testProjectCount() {
+        assertEquals(0, StoredProject.getProjectCount(db));
+        
+        StoredProject sp = new StoredProject("Test Project");
+        assertTrue(db.addRecord(sp));
+        assertEquals(1, StoredProject.getProjectCount(db));
+        
+        sp = new StoredProject("Other Project");
+        assertTrue(db.addRecord(sp));
+        assertEquals(2, StoredProject.getProjectCount(db));
+    }
+    
+    @Test
+    public void testGetVersionsCount() {
+        StoredProject sp = new StoredProject("Test Project");
+        assertEquals(0, sp.getVersionsCount());
+        
+        final ProjectVersion version1 = new ProjectVersion();
+        final ProjectVersion version2 = new ProjectVersion();
+        version1.setProject(sp);
+        version2.setProject(sp);
+        version1.setCommitMsg("Version1");
+        version2.setCommitMsg("Version2");
+        
+        sp.getProjectVersions().add(version1);
+        assertEquals(1, sp.getVersionsCount());
+        
+        sp.getProjectVersions().add(version2);
+        assertEquals(2, sp.getVersionsCount());
+    }
+    
+    @Test
+    public void testGetMailsCount() {
+        StoredProject sp = new StoredProject("Test Project");
+        assertTrue(db.addRecord(sp));
+        assertEquals(0, sp.getMailsCount(db));
+        
+        final MailingList mailingList1 = new MailingList();
+        final MailingList mailingList2 = new MailingList();
+        mailingList1.setStoredProject(sp);
+        mailingList2.setStoredProject(sp);
+        final MailMessage mailMessage1 = new MailMessage();
+        final MailMessage mailMessage2 = new MailMessage();
+        final MailMessage mailMessage3 = new MailMessage();
+        mailMessage1.setSubject("message 1");
+        mailMessage1.setList(mailingList1);
+        mailMessage2.setSubject("message 2");
+        mailMessage2.setList(mailingList1);
+        mailMessage3.setSubject("message 3");
+        mailMessage3.setList(mailingList2);
+        mailingList1.setMessages(new HashSet<>(Arrays.asList(mailMessage1, mailMessage2)));
+        mailingList2.setMessages(new HashSet<>(Arrays.asList(mailMessage3)));
+        
+        sp.getMailingLists().add(mailingList1);
+        assertEquals(2, sp.getMailsCount(db));
+        
+        sp.getMailingLists().add(mailingList2);
+        assertEquals(3, sp.getMailsCount(db));
+    }
+    
+    @Test
+    public void testGetBugsCount() {
+        StoredProject sp = new StoredProject("Test Project");
+        assertTrue(db.addRecord(sp));
+        assertEquals(0, sp.getBugsCount(db));
+        
+        final BugStatus bugStatusNew = new BugStatus();
+        final BugStatus bugStatusAssigned = new BugStatus();
+        bugStatusNew.setBugStatus(Status.NEW);
+        bugStatusAssigned.setBugStatus(Status.ASSIGNED);
+        final Bug bug1 = new Bug();
+        final Bug bug2 = new Bug();
+        final Bug bug3 = new Bug();
+        bug1.setProject(sp);
+        bug2.setProject(sp);
+        bug3.setProject(sp);
+        bug1.setStatus(bugStatusNew);
+        bug2.setStatus(bugStatusAssigned);
+        bug3.setStatus(bugStatusNew);
+        
+        sp.getBugs().add(bug1);
+        assertEquals(1, sp.getBugsCount(db));
+        
+        sp.getBugs().add(bug2);
+        assertEquals(1, sp.getBugsCount(db));
+        
+        sp.getBugs().add(bug3);
+        assertEquals(2, sp.getBugsCount(db));
+    }
+    
+    @Test
+    public void testIsEvaluated() {
+        // TODO: needs testing
     }
 }

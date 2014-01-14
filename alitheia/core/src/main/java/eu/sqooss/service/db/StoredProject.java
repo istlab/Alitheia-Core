@@ -58,7 +58,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.NaturalId;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.BugStatus.Status;
 
 /**
@@ -380,9 +379,7 @@ public class StoredProject extends DAObject {
      * @param name Name of the project to search for
      * @return StoredProject object or null if not found
      */
-    public static StoredProject getProjectByName(String name) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public static StoredProject getProjectByName(DBService dbs, String name) {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("name",name);
         List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
@@ -394,8 +391,7 @@ public class StoredProject extends DAObject {
      * 
      * @return number of stored projects in the database
      */
-    public static int getProjectCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static int getProjectCount(DBService dbs) {
         List<?> l = dbs.doHQL("SELECT COUNT(*) FROM StoredProject");
         if ((l == null) || (l.size() < 1)) {
             return 0;
@@ -412,16 +408,7 @@ public class StoredProject extends DAObject {
      * @return The total number of version for that project.
      */
     public long getVersionsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> pvList = dbs.doHQL("select count(*)"
-                + " from ProjectVersion pv"
-                + " where pv.project.id=:pid",
-                parameterMap);
-
-        return (pvList == null || pvList.isEmpty()) ? 0 : (Long) pvList.get(0);
+        return projectVersions.size();
     }
 
     /**
@@ -432,9 +419,7 @@ public class StoredProject extends DAObject {
      *
      * @return The total number of mails associated with that project.
      */
-    public long getMailsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public long getMailsCount(DBService dbs) {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("pid", this.getId());
         List<?> res = dbs.doHQL("select count(*)"
@@ -452,9 +437,7 @@ public class StoredProject extends DAObject {
      *
      * @return The total number of bugs associated with that project.
      */
-    public long getBugsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public long getBugsCount(DBService dbs) {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("pid", this.getId());
         List<?> res = dbs.doHQL("select count(*)"

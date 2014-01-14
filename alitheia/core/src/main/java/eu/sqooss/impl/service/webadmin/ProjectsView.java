@@ -177,7 +177,8 @@ public class ProjectsView extends AbstractView {
             return null;
     	} else { 
             vc.put("RESULTS", aa.results());
-            return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
+            DBService dbs = AlitheiaCore.getInstance().getDBService();
+            return StoredProject.getProjectByName(dbs, r.getParameter(REQ_PAR_PRJ_NAME));
     	}
     }
     

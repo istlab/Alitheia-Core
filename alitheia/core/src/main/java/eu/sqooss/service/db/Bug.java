@@ -52,6 +52,8 @@ import javax.persistence.Table;
 import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.hibernate.annotations.Cascade;
+
 import eu.sqooss.core.AlitheiaCore;
 
 /**
@@ -89,6 +91,12 @@ public class Bug extends DAObject {
     
     /** The bug resolution status. */
     @ManyToOne(fetch=FetchType.LAZY)
+    // Only cascade persistence and save, do not cascade deletion
+    @Cascade(value = {
+            org.hibernate.annotations.CascadeType.PERSIST,
+            org.hibernate.annotations.CascadeType.MERGE,
+            org.hibernate.annotations.CascadeType.SAVE_UPDATE
+    })
     @JoinColumn(name="BUG_STATUS_ID")
     private BugStatus status;
     
