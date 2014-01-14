@@ -1,4 +1,4 @@
-package eu.sqoooss.admin.test;
+package eu.sqooss.impl.service.admin;
 
 import static org.junit.Assert.*;
 
