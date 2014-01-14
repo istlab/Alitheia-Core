@@ -68,9 +68,9 @@ public class WebAdminRenderer  extends AbstractView {
      *
      * @return a String representing the HTML table
      */
-    public static String renderJobFailStats() {
+    public String renderJobFailStats() {
         StringBuilder result = new StringBuilder();
-        HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
+        HashMap<String, Integer> fjobs = getFailedJobs();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
         result.append("\t<thead>\n");
         result.append("\t\t<tr>\n");
@@ -92,6 +92,13 @@ public class WebAdminRenderer  extends AbstractView {
         result.append("</table>");
         return result.toString();
     }
+
+	protected HashMap<String, Integer> getFailedJobs() {
+		HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
+		return fjobs;
+	}
+	
+	
 
     /**
      * Creates and HTML table with information about the jobs that
@@ -247,9 +254,9 @@ public class WebAdminRenderer  extends AbstractView {
         return result.toString();
     }
 
-    public static String renderJobRunStats() {
+    public String renderJobRunStats() {
         StringBuilder result = new StringBuilder();
-        List<String> rjobs = sobjSched.getSchedulerStats().getRunJobs();
+        List<String> rjobs = getRunJobs();
         if (rjobs.size() == 0) {
             return "No running jobs";
         }
@@ -262,6 +269,34 @@ public class WebAdminRenderer  extends AbstractView {
         result.append("</ul>\n");
         return result.toString();
     }
+
+	protected List<String> getRunJobs() {
+		List<String> rjobs = sobjSched.getSchedulerStats().getRunJobs();
+		return rjobs;
+	}
+    
+protected class TestableWebAdminRenderer extends WebAdminRenderer {
+		
+		HashMap<String, Integer> map;
+		List<String> runJobs;
+
+		public TestableWebAdminRenderer(BundleContext bundlecontext,
+				VelocityContext vc, HashMap<String, Integer> map, List<String> runJobs) {
+			super(bundlecontext, vc);
+			this.map = map;
+			this.runJobs = runJobs;
+		}
+		
+		@Override
+		protected HashMap<String, Integer> getFailedJobs() {
+			return this.map;
+		}
+		
+		@Override
+		protected List<String> getRunJobs() {
+			return this.runJobs;
+		}
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
