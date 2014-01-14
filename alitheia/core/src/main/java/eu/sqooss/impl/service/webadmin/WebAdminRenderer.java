@@ -41,6 +41,7 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.StringUtils;
 
 /**
@@ -68,9 +69,9 @@ public class WebAdminRenderer  extends AbstractView {
      *
      * @return a String representing the HTML table
      */
-    public static String renderJobFailStats() {
+    public String renderJobFailStats() {
         StringBuilder result = new StringBuilder();
-        HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
+        HashMap<String, Integer> fjobs = getFailedJobs();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
         result.append("\t<thead>\n");
         result.append("\t\t<tr>\n");
@@ -92,6 +93,29 @@ public class WebAdminRenderer  extends AbstractView {
         result.append("</table>");
         return result.toString();
     }
+
+	protected HashMap<String, Integer> getFailedJobs() {
+		HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
+		return fjobs;
+	}
+	
+	protected class TestableWebAdminRenderer extends WebAdminRenderer {
+		
+		HashMap<String, Integer> map;
+
+		public TestableWebAdminRenderer(BundleContext bundlecontext,
+				VelocityContext vc, HashMap<String, Integer> map) {
+			super(bundlecontext, vc);
+			this.map = map;
+			// TODO Auto-generated constructor stub
+		}
+		
+		@Override
+		protected HashMap<String, Integer> getFailedJobs() {
+			HashMap<String,Integer> fjobs = map;
+			return fjobs;
+		}
+	}
 
     /**
      * Creates and HTML table with information about the jobs that
