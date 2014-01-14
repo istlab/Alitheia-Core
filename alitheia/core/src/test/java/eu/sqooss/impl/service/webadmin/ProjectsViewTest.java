@@ -2,9 +2,13 @@ package eu.sqooss.impl.service.webadmin;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -22,6 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -30,21 +35,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.UpdateProject;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
@@ -55,33 +61,116 @@ public class ProjectsViewTest {
 	private ProjectsView projectsView;
 	private Map<UpdaterStage, Set<Updater>> updaters;
 	
-	@Mock
-	public AdminService adminService;
-	@Mock
-	public AlitheiaPlugin somePlugin;
-	@Mock
-	public PluginAdmin pluginAdmin;
-	@Mock
-	public Logger logger;
-	@Mock
-	public MetricActivator metricActivator;
-	@Mock
-	public VelocityContext velocityContext;
+	@Mock public AdminService adminService;
+	@Mock public AlitheiaPlugin somePlugin;
+	@Mock public Logger logger;
+	@Mock public MetricActivator metricActivator;
+	@Mock public PluginAdmin pluginAdmin;
+	@Mock public Scheduler scheduler;
+	@Mock public VelocityContext velocityContext;
+	public StoredProject project;
 
 	@Before
 	public void setUp() {
 		projectsView = new TestableProjectsView(null, null);
 		updaters = new HashMap<UpdaterStage, Set<Updater>>();
+		project = new StoredProject();
+		project.setId(1234l);
+		project.setName("project1234");
+	}
+	
+	@Test
+	public void shouldExecuteAddActionAndPutResults() {
+		AdminAction action = mock(AdminAction.class);
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_CODE)).thenReturn("scm");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn("project1234");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_BUG)).thenReturn("bug");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_MAIL)).thenReturn("test@test.tst");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_WEB)).thenReturn("web.com");
+		when(adminService.create(AddProject.MNEMONIC)).thenReturn(action);
+		Map<String, Object> results = new HashMap<String, Object>();
+		when(action.results()).thenReturn(results);
+
+		StoredProject added = projectsView.addProject(null, request, 0);
+
+		verify(adminService).create(AddProject.MNEMONIC);
+		verify(action).addArg("scm", "scm");
+		verify(action).addArg("name", "project1234");
+		verify(action).addArg("bts", "bug");
+		verify(action).addArg("mail", "test@test.tst");
+		verify(action).addArg("web", "web.com");
+		verify(adminService).execute(action);
+		verify(velocityContext).put("RESULTS", results);
+		
+		assertEquals(project, added);
+	}
+	
+	@Test
+	public void shouldExecuteAddActionAndPutErrors() {
+		AdminAction action = mock(AdminAction.class);
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_CODE)).thenReturn("scm");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn("project1234");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_BUG)).thenReturn("bug");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_MAIL)).thenReturn("test@test.tst");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_WEB)).thenReturn("web.com");
+		when(adminService.create(AddProject.MNEMONIC)).thenReturn(action);
+		Map<String, Object> errors = new HashMap<String, Object>();
+		when(action.errors()).thenReturn(errors);
+		when(action.hasErrors()).thenReturn(true);
+
+		StoredProject added = projectsView.addProject(null, request, 0);
+
+		verify(adminService).create(AddProject.MNEMONIC);
+		verify(action).addArg("scm", "scm");
+		verify(action).addArg("name", "project1234");
+		verify(action).addArg("bts", "bug");
+		verify(action).addArg("mail", "test@test.tst");
+		verify(action).addArg("web", "web.com");
+		verify(adminService).execute(action);
+		verify(velocityContext).put("RESULTS", errors);
+		
+		assertNull(added);
+	}
+	
+	@Test
+	public void shouldAppendErrorIfNoProjectGiven() {
+		StringBuilder error = new StringBuilder();
+		
+		projectsView.removeProject(error, null, 0);
+		
+		assertThat(error.toString(), not(equalTo("")));
+	}
+	
+	@Test
+	public void shouldEnqueueProjectDeleteJobIfProjectGiven() throws Exception {
+		StringBuilder error = new StringBuilder();
+
+		projectsView.removeProject(error, project, 0);
+		
+		verify(scheduler).enqueue(any(ProjectDeleteJob.class));
+		assertThat(error.toString(), equalTo(""));
+	}
+	
+	@Test
+	public void shouldPrintErrorIfEnqueueProjectDeleteJobFails() throws Exception {
+		StringBuilder error = new StringBuilder();
+
+		doThrow(new SchedulerException("Big failure")).when(scheduler).enqueue(any(ProjectDeleteJob.class));
+		
+		projectsView.removeProject(error, project, 0);
+		
+		verify(scheduler).enqueue(any(ProjectDeleteJob.class));
+		assertThat(error.toString(), not(equalTo("")));
 	}
 	
 	@Test
 	public void shouldExecuteUpdateActionAndPutResults() {
-		StoredProject project = new StoredProject();
-		project.setId(1234l);
 		AdminAction action = mock(AdminAction.class);
 		Map<String, Object> results = new HashMap<String, Object>();
 		
-		when(adminService.create(anyString())).thenReturn(action);
+		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(action);
 		when(action.results()).thenReturn(results);
 		
 		projectsView.triggerUpdate(null, project, 0, "updater");
@@ -96,8 +185,6 @@ public class ProjectsViewTest {
 	
 	@Test
 	public void shouldExecuteUpdateActionAndPutErrors() {
-		StoredProject project = new StoredProject();
-		project.setId(1234l);
 		AdminAction action = mock(AdminAction.class);
 		Map<String, Object> errors = new HashMap<String, Object>();
 		
@@ -131,8 +218,6 @@ public class ProjectsViewTest {
 	
 	@Test
 	public void syncNothingIfNoPluginInfo() {
-		StoredProject project = new StoredProject();
-		
 		projectsView.syncPlugin(null, project, "selected_plugin");
 		
 		verify(pluginAdmin).getPluginInfo("selected_plugin");
@@ -141,7 +226,6 @@ public class ProjectsViewTest {
 	
 	@Test
 	public void syncNothingIfNoPluginObject() {
-		StoredProject project = new StoredProject();
 		PluginInfo info = new PluginInfo();
 		when(pluginAdmin.getPluginInfo("selected_plugin")).thenReturn(info);
 		
@@ -154,7 +238,6 @@ public class ProjectsViewTest {
 	
 	@Test
 	public void syncMetricIfPluginObjectFound() {
-		StoredProject project = new StoredProject();
 		PluginInfo info = new PluginInfo();
 		when(pluginAdmin.getPluginInfo("selected_plugin")).thenReturn(info);
 		when(pluginAdmin.getPlugin(info)).thenReturn(somePlugin);
@@ -184,14 +267,11 @@ public class ProjectsViewTest {
 	@Test
 	public void shouldAddProjectIdWithProject() {
 		StringBuilder builder = new StringBuilder();
-		StoredProject project = new StoredProject();
-		project.setId(100);
-		
 		projectsView.addHiddenFields(project , builder, 0);
 		
 		String html = sanitizeHTML(builder.toString());
 		
-		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "' and @name='" + ProjectsView.REQ_PAR_PROJECT_ID + "']/@value", equalTo("100")));
+		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "' and @name='" + ProjectsView.REQ_PAR_PROJECT_ID + "']/@value", equalTo("1234")));
 	}
 
 	protected String sanitizeHTML(String string) {
@@ -236,7 +316,6 @@ public class ProjectsViewTest {
 	
 	@Test
 	public void shouldShowAdvancedToolbarIfProjectSelected() {
-		StoredProject project = new StoredProject();
 		StringBuilder builder = new StringBuilder();
 		
 		Updater iu1 = createUpdater("iu1", "import_updater_1", UpdaterStage.IMPORT);
@@ -384,6 +463,20 @@ public class ProjectsViewTest {
 			super(bundlecontext, vc);
 		}
 		
+		@Override
+		protected StoredProject getProjectByName(String parameter) {
+			if (parameter != null && parameter.equals(project.getName())) {
+				return project;
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		protected Scheduler getScheduler() {
+			return scheduler;
+		}
+
 		@Override
 		protected VelocityContext getVelocityContext() {
 			return velocityContext;

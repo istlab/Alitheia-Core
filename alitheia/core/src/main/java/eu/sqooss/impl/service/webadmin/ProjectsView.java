@@ -56,6 +56,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
@@ -77,12 +78,12 @@ public class ProjectsView extends AbstractView {
     // Servlet parameters
     protected static String REQ_PAR_ACTION        = "reqAction";
     protected static String REQ_PAR_PROJECT_ID    = "projectId";
-    private static String REQ_PAR_PRJ_NAME      = "projectName";
-    private static String REQ_PAR_PRJ_WEB       = "projectHomepage";
+    protected static String REQ_PAR_PRJ_NAME      = "projectName";
+    protected static String REQ_PAR_PRJ_WEB       = "projectHomepage";
     private static String REQ_PAR_PRJ_CONT      = "projectContact";
-    private static String REQ_PAR_PRJ_BUG       = "projectBL";
-    private static String REQ_PAR_PRJ_MAIL      = "projectML";
-    private static String REQ_PAR_PRJ_CODE      = "projectSCM";
+    protected static String REQ_PAR_PRJ_BUG       = "projectBL";
+    protected static String REQ_PAR_PRJ_MAIL      = "projectML";
+    protected static String REQ_PAR_PRJ_CODE      = "projectSCM";
     protected static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
     protected static String REQ_PAR_UPD           = "reqUpd";
     
@@ -162,7 +163,7 @@ public class ProjectsView extends AbstractView {
         return b.toString();
     }
   
-    private StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
+    protected StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
         AdminService as = getAdminService();
     	AdminAction aa = as.create(AddProject.MNEMONIC);
     	aa.addArg("scm", r.getParameter(REQ_PAR_PRJ_CODE));
@@ -177,21 +178,25 @@ public class ProjectsView extends AbstractView {
             return null;
     	} else { 
             getVelocityContext().put("RESULTS", aa.results());
-            return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
+            return getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
     	}
     }
+
+	protected StoredProject getProjectByName(String parameter) {
+		return StoredProject.getProjectByName(parameter);
+	}
     
     // ---------------------------------------------------------------
     // Remove project
     // ---------------------------------------------------------------
-    private StoredProject removeProject(StringBuilder e, 
+    protected StoredProject removeProject(StringBuilder e, 
     		StoredProject selProject, int indent) {
     	if (selProject != null) {
 			// Deleting large projects in the foreground is
 			// very slow
 			ProjectDeleteJob pdj = new ProjectDeleteJob(sobjCore, selProject);
 			try {
-				sobjSched.enqueue(pdj);
+				getScheduler().enqueue(pdj);
 			} catch (SchedulerException e1) {
 				e.append(sp(indent)).append(getErr("e0034")).append("<br/>\n");
 			}
@@ -201,6 +206,14 @@ public class ProjectsView extends AbstractView {
 		}
     	return selProject;
     }
+
+	protected ProjectDeleteJob createProjectDeleteJob(StoredProject selProject) {
+		return new ProjectDeleteJob(sobjCore, selProject);
+	}
+
+	protected Scheduler getScheduler() {
+		return sobjSched;
+	}
 
 	// ---------------------------------------------------------------
 	// Trigger an update
