@@ -7,12 +7,14 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 
 public class MetricActivatorModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+	    bind(MetricActivator.class).to(MetricActivatorImpl.class);
 		install(new FactoryModuleBuilder().implement(Job.class,
 				MetricActivatorJob.class)
 				.build(MetricActivatorJobFactory.class));

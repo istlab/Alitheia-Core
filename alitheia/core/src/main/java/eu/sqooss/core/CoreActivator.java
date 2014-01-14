@@ -39,11 +39,17 @@ import org.osgi.framework.ServiceRegistration;
 
 import com.google.inject.Guice;
 
+import eu.sqooss.impl.service.admin.AdminServiceModule;
+import eu.sqooss.impl.service.cluster.ClusterNodeModule;
+import eu.sqooss.impl.service.db.DBServiceModule;
 import eu.sqooss.impl.service.fds.FDSServiceModule;
+import eu.sqooss.impl.service.logging.LogManagerModule;
 import eu.sqooss.impl.service.metricactivator.MetricActivatorModule;
+import eu.sqooss.impl.service.pa.PluginAdminModule;
 import eu.sqooss.impl.service.rest.RestServiceModule;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceModule;
-import eu.sqooss.impl.service.updater.UpdaterModule;
+import eu.sqooss.impl.service.tds.TDSServiceModule;
+import eu.sqooss.impl.service.updater.UpdaterServiceModule;
 import eu.sqooss.impl.service.webadmin.WebAdminModule;
 
 
@@ -58,10 +64,12 @@ public class CoreActivator implements BundleActivator {
     public void start(BundleContext bc) throws Exception {
         core = new AlitheiaCore(bc);
         try {
-            Guice.createInjector(new AlitheiaCoreModule(), new FDSServiceModule(),
+            Guice.createInjector(new DBServiceModule(), new FDSServiceModule(),
                                  new MetricActivatorModule(), new RestServiceModule(),
                                  new SchedulerServiceModule(), new WebAdminModule(),
-                                 new UpdaterModule()
+                                 new UpdaterServiceModule(), new AdminServiceModule(),
+                                 new ClusterNodeModule(), new LogManagerModule(),
+                                 new PluginAdminModule(), new TDSServiceModule()
             ).injectMembers(core);
         } catch (Throwable t) {
             t.printStackTrace();

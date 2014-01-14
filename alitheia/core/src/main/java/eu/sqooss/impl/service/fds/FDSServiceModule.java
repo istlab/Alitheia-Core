@@ -7,6 +7,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.tds.SCMAccessor;
@@ -15,6 +16,7 @@ public class FDSServiceModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+	    bind(FDSService.class).to(FDSServiceImpl.class);
 		install(new FactoryModuleBuilder().implement(OnDiskCheckout.class,
 				OnDiskCheckoutImpl.class).build(OnDiskCheckoutFactory.class));
 		install(new FactoryModuleBuilder().implement(Timeline.class,

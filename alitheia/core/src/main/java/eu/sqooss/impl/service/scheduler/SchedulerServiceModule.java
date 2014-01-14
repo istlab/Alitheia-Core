@@ -10,6 +10,7 @@ public class SchedulerServiceModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+	    bind(Scheduler.class).to(SchedulerServiceImpl.class);
 		install(new FactoryModuleBuilder().implement(WorkerThread.class,
 				WorkerThreadImpl.class).build(WorkerThreadFactory.class));
 	}
