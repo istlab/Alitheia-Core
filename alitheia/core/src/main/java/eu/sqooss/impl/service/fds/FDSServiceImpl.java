@@ -36,20 +36,15 @@ package eu.sqooss.impl.service.fds;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import eu.sqooss.service.util.FileUtils;
-import org.apache.commons.codec.binary.Hex;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -69,7 +64,7 @@ import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 
 /** {@inheritDoc} */
-public class FDSServiceImpl implements FDSService, Runnable {
+public class FDSServiceImpl implements FDSService {
     /** The logger for the FDS. */
     private Logger logger = null;
     /** We use the TDS for raw data access. */
@@ -82,12 +77,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
      * directory, and then checkouts of that project live under there.
      */
     private File fdsCheckoutRoot = null;
-    /**
-     * Checkouts are done in directories with a random prefix; this is done to
-     * avoid the suggestion that the checkouts are tied to specific revisions.
-     * We generate the random prefixes with this random generator.
-     */
-    private Random randomCheckout = null;
 
     /**
      * Cache checkouts in a live system. The cache will not be re-populated from
@@ -102,25 +91,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
 
     private BundleContext bc;
     
-    /*
-     * The following constants influence the formatting of checkout and project
-     * directory names.
-     */
-    /**
-     * Project IDs are formatted as decimals (with leading zeroes) of this
-     * length; 8 covers the expected range of IDs.
-     */
-    private static final int INT_AS_DECIMAL_LENGTH = 8;
-    /**
-     * Each checkout gets a random hex string prefixed to a guaranteed unique
-     * identifier. The length of the prefix is defined here.
-     */
-    private static final int RANDOM_PREFIX_LENGTH = 8;
-    /**
-     * States how many hex digits are needed to express an int.
-     */
-    private static final int INT_AS_HEX_LENGTH = 8;
-
     public FDSServiceImpl() { }
 
     /**
@@ -325,41 +295,12 @@ public class FDSServiceImpl implements FDSService, Runnable {
     }
 
     /**
-     * Atomic decrement of checkout handle counts.
-     */
-    private synchronized void returnCheckout(OnDiskCheckout c) {
-        if (c == null)
-            return;
-
-        if (checkoutHandles.contains(c))
-            checkoutHandles.put(c, checkoutHandles.get(c) - 1);
-    }
-
-    /**
-     * Atomic add checkout to both cache tables
-     */
-    private synchronized void addCheckoutToCache(ProjectVersion pv,
-            OnDiskCheckout c) {
-        checkoutCache.putIfAbsent(cacheKey(pv), c);
-        checkoutHandles.putIfAbsent(c, 0);
-    }
-
-    /**
      * Atomically check whether the checkout can be updated
      */
     private synchronized boolean isUpdatable(OnDiskCheckout c) {
         if (checkoutHandles.get(c) > 0)
             return false;
         return true;
-    }
-
-    /**
-     * Check if there is a checkout for a specific project version.
-     */
-    private synchronized boolean cacheContains(ProjectVersion pv) {
-        if (checkoutCache.keySet().contains(cacheKey(pv)))
-            return true;
-        return false;
     }
 
     // Cache key ops
@@ -370,30 +311,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
     private String cacheKey(ProjectVersion pv) {
         return pv.getProject().getName() + "|" + pv.getId() + "|"
                 + pv.getRevisionId();
-    }
-
-    /**
-     * Retrieve the project name part of the provided cache key.
-     */
-    private String cacheKeyProject(String key) {
-        if (key == null || key.length() == 0)
-            return null;
-
-        return key.split("|")[0];
-    }
-
-    /**
-     * Retrieve from the provided cache key and resolve from the DB the
-     * ProjectVersion object attached to a checkout.
-     */
-    private ProjectVersion cacheKeyProjectVersion(String key) {
-        if (key == null || key.length() == 0)
-            return null;
-
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Long id = Long.parseLong(key.split("|")[1]);
-        return dbs.findObjectById(ProjectVersion.class, id);
     }
 
     /**
@@ -551,36 +468,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
             return co;
         }
 
-        // Search for a cached checkout that could be updated
-        /*Set<String> c = checkoutCache.keySet();
-        OnDiskCheckoutImpl updatable = null;
-
-        for (String s : c) {
-            if (cacheKeyProject(s).equals(pv.getProject())) {
-                ProjectVersion cached = cacheKeyProjectVersion(s);
-                if (cached.lt(pv)) {
-                    updatable = (OnDiskCheckoutImpl) getCheckoutFromCache(cached);
-
-                    if (checkoutHandles.get(updatable) == 1) {
-                        try {
-                            updateCheckout(updatable, pv);
-                        } finally {
-                            releaseCheckout(updatable);
-                        }
-                        return getCheckoutFromCache(pv);
-                    }
-                    releaseCheckout(updatable);
-                    updatable = null;
-                }
-            }
-        }
-
-        // No updatable checkout found, create
-        synchronized (pv) {
-            if (!cacheContains(pv))
-                addCheckoutToCache(pv, createCheckout(svn, pv));
-        } */
-        //return getCheckoutFromCache(pv);
         return createCheckout(svn, pv, path);
     }
 
@@ -636,20 +523,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
 
     /** {@inheritDoc} */
     public void releaseCheckout(OnDiskCheckout c) {
-
-        /*
-        if (c == null) {
-            logger.warn("Attempting to release null checkout");
-            return;
-        }
-
-        if (!checkoutCache.contains(c)) {
-            logger.warn("Attempting to release not cached checkout");
-            return;
-        }
-
-        returnCheckout(c);
-        */
         File root = null;
         try {
             root = c.getRoot();
@@ -663,10 +536,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
 
     public Timeline getTimeline(StoredProject c) {
         return new TimelineImpl(c);
-    }
-
-    public void run() {
-
     }
 
     @Override
@@ -702,7 +571,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
             logger.info("FDS root directory " + s);
         }
         fdsCheckoutRoot = new File(s);
-        randomCheckout = new Random();
 
         return true;
     }
