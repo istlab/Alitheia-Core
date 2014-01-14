@@ -4,7 +4,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
 
@@ -12,21 +13,142 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.velocity.VelocityContext;
+import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
+import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 public class ProjectsViewTest {
+	private static final String INPUT_REGEX = "<input([\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\/\\\\]*[\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\\\]+)>";
+	private static final String CLUSTER_NODE_NAME = "CLUSTER_NODE1";
+	private ProjectsView projectsView;
+	private Map<UpdaterStage, Set<Updater>> updaters;
+
+	@Before
+	public void setUp() {
+		projectsView = new TestableProjectsView(null, null);
+		updaters = new HashMap<UpdaterStage, Set<Updater>>();
+	}
+	
+	@Test
+	public void shouldShowBasicToolbarIfNoProjectSelected() {
+		StringBuilder builder = new StringBuilder();
+		
+		projectsView.addToolBar(null, builder, 0);
+		
+		// sanitize html input
+		String html = "<root>" + builder.toString() + "</root>";		
+		html = html.replaceAll(INPUT_REGEX, "<input$1/>");
+		html = html.replaceAll("disabled(\\s*[^=])", "disabled='true'$1");
+		
+		// the toolbar should have three rows.
+		assertThat(the(html), hasXPath("count(/root/tr)", equalTo("3")));
+		// the first row should have a button that refreshes the projects page
+		String onclick1 = "javascript:window.location='/projects';";
+		assertThat(the(html), hasXPath("/root/tr[1]/td[2]/input/@onclick", equalTo(onclick1)));
+		// the second row has a button that does the add project action and a button that does a remove project action
+		String onclick2 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION +"').value='" + ProjectsView.ACT_REQ_ADD_PROJECT + "';" + ProjectsView.SUBMIT;
+		assertThat(the(html), hasXPath("/root/tr[2]/td[2]/input[1]/@onclick", equalTo(onclick2)));
+		// this action must be disabled
+		String onclick3 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION +"').value='" + ProjectsView.ACT_REQ_REM_PROJECT + "';" + ProjectsView.SUBMIT;
+		assertThat(the(html), hasXPath("/root/tr[2]/td[2]/input[2]/@onclick", equalTo(onclick3)));
+		assertThat(the(html), hasXPath("/root/tr[2]/td[2]/input[2]/@disabled"));
+		// the third row has a button that runs the updater and one that runs all updaters,
+		// both must be disabled
+		String onclick4 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION +"').value='" + ProjectsView.ACT_CON_UPD + "';" + ProjectsView.SUBMIT;
+		assertThat(the(html), hasXPath("/root/tr[3]/td[2]/input[1]/@onclick", equalTo(onclick4)));
+		assertThat(the(html), hasXPath("/root/tr[3]/td[2]/input[1]/@disabled"));		
+		String onclick5 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION +"').value='" + ProjectsView.ACT_CON_UPD_ALL + "';" + ProjectsView.SUBMIT;
+		assertThat(the(html), hasXPath("/root/tr[3]/td[2]/input[2]/@onclick", equalTo(onclick5)));
+		assertThat(the(html), hasXPath("/root/tr[3]/td[2]/input[2]/@disabled"));
+		// the next column has a button to update all on a node
+		String onclick6 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION +"').value='" + ProjectsView.ACT_CON_UPD_ALL_NODE + "';" + ProjectsView.SUBMIT;
+		assertThat(the(html), hasXPath("/root/tr[3]/td[3]/input[1]/@onclick", equalTo(onclick6)));
+	}
+	
+	@Test
+	public void shouldShowAdvancedToolbarIfProjectSelected() {
+		StoredProject project = new StoredProject();
+		StringBuilder builder = new StringBuilder();
+		
+		Updater iu1 = createUpdater("iu1", "import_updater_1", UpdaterStage.IMPORT);
+		Updater iu2 = createUpdater("iu2", "import_updater_2", UpdaterStage.IMPORT);
+		updaters.put(UpdaterStage.IMPORT, new HashSet<Updater>(Arrays.asList(iu1, iu2)));
+		
+		Updater pu1 = createUpdater("pu1", "parse_updater_1", UpdaterStage.PARSE);
+		Updater pu2 = createUpdater("pu2", "parse_updater_2", UpdaterStage.PARSE);
+		updaters.put(UpdaterStage.PARSE, new HashSet<Updater>(Arrays.asList(pu1, pu2)));
+		
+		Updater inu1 = createUpdater("inu1", "inference_updater_1", UpdaterStage.INFERENCE);
+		Updater inu2 = createUpdater("inu2", "inference_updater_2", UpdaterStage.INFERENCE);
+		updaters.put(UpdaterStage.INFERENCE, new HashSet<Updater>(Arrays.asList(inu1, inu2)));
+		
+		Updater defu1 = createUpdater("defu1", "default_updater_1", UpdaterStage.DEFAULT);
+		Updater defu2 = createUpdater("defu2", "default_updater_2", UpdaterStage.DEFAULT);
+		updaters.put(UpdaterStage.DEFAULT, new HashSet<Updater>(Arrays.asList(defu1, defu2)));
+		
+		projectsView.addToolBar(project, builder, 0);
+
+		// sanitize html input
+		String html = "<root>" + builder.toString() + "</root>";		
+		html = html.replaceAll(INPUT_REGEX, "<input$1/>");
+		html = html.replaceAll("disabled(\\s*[^=])", "disabled='true'$1");
+
+		System.out.println(html);
+		
+		// the first row should have a button that goes to the project page
+		String onclick1 = "javascript:window.location='/projects?" + ProjectsView.REQ_PAR_PROJECT_ID + "=" + project.getId() + "';";
+		assertThat(the(html), hasXPath("/root/tr[1]/td[2]/input/@onclick", equalTo(onclick1)));
+
+		// the remove action is not disabled this time
+		assertThat(the(html), hasXPath("//input[contains(@onclick, '" + ProjectsView.ACT_REQ_REM_PROJECT + "') and not(@disabled)]"));
+		// test the select:
+		assertThat(the(html), hasXPath("/root/tr/td/select"));
+		assertThat(the(html), hasXPath("/root/tr/td/select[@id='" + ProjectsView.REQ_PAR_UPD + "']"));
+		assertThat(the(html), hasXPath("count(/root/tr/td/select/optgroup)", equalTo("4")));
+		
+		// test each pair for each group
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Import Stage']/option[@value='iu1']/text()", equalTo("import_updater_1")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Import Stage']/option[@value='iu2']/text()", equalTo("import_updater_2")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Parse Stage']/option[@value='pu1']/text()", equalTo("parse_updater_1")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Parse Stage']/option[@value='pu2']/text()", equalTo("parse_updater_2")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Inference Stage']/option[@value='inu1']/text()", equalTo("inference_updater_1")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Inference Stage']/option[@value='inu2']/text()", equalTo("inference_updater_2")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Default Stage']/option[@value='defu1']/text()", equalTo("default_updater_1")));
+		assertThat(the(html), hasXPath("/root/tr/td/select/optgroup[@label='Default Stage']/option[@value='defu2']/text()", equalTo("default_updater_2")));
+		
+		// the update buttons are not disabled this time
+		assertThat(the(html), hasXPath("//input[contains(@onclick, '" + ProjectsView.ACT_CON_UPD + "') and not(@disabled)]"));
+		assertThat(the(html), hasXPath("//input[contains(@onclick, '" + ProjectsView.ACT_CON_UPD_ALL + "') and not(@disabled)]"));
+	}
+
+	protected Updater createUpdater(String mnemonic, String description, UpdaterStage stage) {
+		Updater updater = mock(Updater.class);
+		when(updater.mnem()).thenReturn(mnemonic);
+		when(updater.descr()).thenReturn(description);
+		when(updater.stage()).thenReturn(stage);
+		return updater;
+	}
+	
 	@Test
 	public void shouldShowNoLastAppliedVersionForEmptyList() {
 		StringBuilder html = new StringBuilder();
 
-		ProjectsView.showLastAppliedVersion(null, new ArrayList<PluginInfo>(),
+		projectsView.showLastAppliedVersion(null, new ArrayList<PluginInfo>(),
 				html);
 
 		assertEquals("", html.toString());
@@ -39,7 +161,7 @@ public class ProjectsViewTest {
 		pi.installed = false;
 		Collection<PluginInfo> metrics = Arrays.asList(pi);
 
-		ProjectsView.showLastAppliedVersion(null, metrics, html);
+		projectsView.showLastAppliedVersion(null, metrics, html);
 
 		assertEquals("", html.toString());
 	}
@@ -66,7 +188,7 @@ public class ProjectsViewTest {
 		Collection<PluginInfo> metrics = Arrays.asList(p1, p2);
 
 		// Act
-		ProjectsView.showLastAppliedVersion(null, metrics, builder);
+		projectsView.showLastAppliedVersion(null, metrics, builder);
 
 		// Assert
 		String html = "<root>" + builder.toString().replace("&nbsp;", " ") + "</root>";
@@ -94,15 +216,38 @@ public class ProjectsViewTest {
 
 	@Test
 	public void shouldCreateTableHeaderRow() {
-		StringBuilder html = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
 
-		ProjectsView.addHeaderRow(html, 0);
+		projectsView.addHeaderRow(builder, 0);
 
-		String expected = "\\s*<table>\\s*" + "<thead>\\s*"
-				+ "<tr\\s+class\\s*=\\s*['\"]head['\"]>\\s*"
-				+ "(<td (.*)>\\w+</td>\\s*){7}\\s*" + "</tr>\\s*"
-				+ "</thead>\\s*";
-
-		assertTrue(html.toString().matches(expected));
+		String html = builder.toString() + "</table>";
+		
+		// the table should contain a thead with a tr with 7 td's
+		assertThat(the(html), hasXPath("count(/table/thead/tr/td)", equalTo("7")));
+		// all td's have class='head'
+		assertThat(the(html), hasXPath("count(//td[not(@class='head')])", equalTo("0")));
 	}
+	
+	public class TestableProjectsView extends ProjectsView {
+		public TestableProjectsView(BundleContext bundlecontext,
+				VelocityContext vc) {
+			super(bundlecontext, vc);
+		}
+
+		@Override
+		protected String getClusterNodeName() {
+			return CLUSTER_NODE_NAME;
+		}
+
+		@Override
+		protected Set<Updater> getUpdaters(StoredProject selProject,
+				UpdaterStage importStage) {
+			Set<Updater> s = updaters.get(importStage);
+			if (s == null) {
+				return new HashSet<Updater>();
+			} else {
+				return s;
+			}
+		}
+	}	
 }

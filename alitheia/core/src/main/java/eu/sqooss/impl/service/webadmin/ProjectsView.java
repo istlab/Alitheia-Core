@@ -62,18 +62,18 @@ public class ProjectsView extends AbstractView {
     protected static String SUBMIT = "document.projects.submit();";
 
     // Action parameter's values
-    private static String ACT_REQ_ADD_PROJECT   = "reqAddProject";
+    protected static String ACT_REQ_ADD_PROJECT   = "reqAddProject";
     private static String ACT_CON_ADD_PROJECT   = "conAddProject";
-    private static String ACT_REQ_REM_PROJECT   = "reqRemProject";
+    protected static String ACT_REQ_REM_PROJECT   = "reqRemProject";
     private static String ACT_CON_REM_PROJECT   = "conRemProject";
     private static String ACT_REQ_SHOW_PROJECT  = "conShowProject";
-    private static String ACT_CON_UPD_ALL       = "conUpdateAll";
-    private static String ACT_CON_UPD           = "conUpdate";
-    private static String ACT_CON_UPD_ALL_NODE  = "conUpdateAllOnNode";
+    protected static String ACT_CON_UPD_ALL       = "conUpdateAll";
+    protected static String ACT_CON_UPD           = "conUpdate";
+    protected static String ACT_CON_UPD_ALL_NODE  = "conUpdateAllOnNode";
 
     // Servlet parameters
-    private static String REQ_PAR_ACTION        = "reqAction";
-    private static String REQ_PAR_PROJECT_ID    = "projectId";
+    protected static String REQ_PAR_ACTION        = "reqAction";
+    protected static String REQ_PAR_PROJECT_ID    = "projectId";
     private static String REQ_PAR_PRJ_NAME      = "projectName";
     private static String REQ_PAR_PRJ_WEB       = "projectHomepage";
     private static String REQ_PAR_PRJ_CONT      = "projectContact";
@@ -81,7 +81,7 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_PRJ_MAIL      = "projectML";
     private static String REQ_PAR_PRJ_CODE      = "projectSCM";
     protected static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
-    private static String REQ_PAR_UPD           = "reqUpd";
+    protected static String REQ_PAR_UPD           = "reqUpd";
     
     /**
      * Instantiates a new projects view.
@@ -100,7 +100,7 @@ public class ProjectsView extends AbstractView {
      *
      * @return The HTML presentation of the generated view.
      */
-    public static String render(HttpServletRequest req) {
+    public String render(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
         // Stores the accumulated error messages
@@ -159,7 +159,7 @@ public class ProjectsView extends AbstractView {
         return b.toString();
     }
   
-    private static StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
+    private StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
         AdminService as = AlitheiaCore.getInstance().getAdminService();
     	AdminAction aa = as.create(AddProject.MNEMONIC);
     	aa.addArg("scm", r.getParameter(REQ_PAR_PRJ_CODE));
@@ -181,7 +181,7 @@ public class ProjectsView extends AbstractView {
     // ---------------------------------------------------------------
     // Remove project
     // ---------------------------------------------------------------
-    private static StoredProject removeProject(StringBuilder e, 
+    private StoredProject removeProject(StringBuilder e, 
     		StoredProject selProject, int indent) {
     	if (selProject != null) {
 			// Deleting large projects in the foreground is
@@ -202,7 +202,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger an update
 	// ---------------------------------------------------------------
-	private static void triggerUpdate(StringBuilder e,
+	private void triggerUpdate(StringBuilder e,
 			StoredProject selProject, int indent, String mnem) {
 		AdminService as = AlitheiaCore.getInstance().getAdminService();
 		AdminAction aa = as.create(UpdateProject.MNEMONIC);
@@ -220,7 +220,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources for that project
 	// ---------------------------------------------------------------
-	private static void triggerAllUpdate(StringBuilder e,
+	private void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
 	    AdminService as = AlitheiaCore.getInstance().getAdminService();
         AdminAction aa = as.create(UpdateProject.MNEMONIC);
@@ -237,7 +237,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources on all projects of a node
 	// ---------------------------------------------------------------
-    private static void triggerAllUpdateNode(StringBuilder e,
+    private void triggerAllUpdateNode(StringBuilder e,
 			StoredProject selProject, int in) {
 		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
 		
@@ -249,7 +249,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger synchronize on the selected plug-in for that project
 	// ---------------------------------------------------------------
-    private static void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
+    private void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
 		if ((reqValSyncPlugin != null) && (selProject != null)) {
 			PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);
 			if (pInfo != null) {
@@ -263,7 +263,7 @@ public class ProjectsView extends AbstractView {
 		}
     }
     
-    private static void createFrom(StringBuilder b, StringBuilder e, 
+    private void createFrom(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
 
         // ===============================================================
@@ -540,7 +540,7 @@ public class ProjectsView extends AbstractView {
     }
 
 
-    private static void addHiddenFields(StoredProject selProject,
+    private void addHiddenFields(StoredProject selProject,
             StringBuilder b,
             long in) {
         // "Action type" input field
@@ -557,7 +557,7 @@ public class ProjectsView extends AbstractView {
                 "' value=''>\n");
     }
     
-    private static void addToolBar(StoredProject selProject,
+    protected void addToolBar(StoredProject selProject,
             StringBuilder b,
             long in) {
         b.append(sp(in++) + "<tr class=\"subhead\">\n");
@@ -574,24 +574,25 @@ public class ProjectsView extends AbstractView {
         b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
         
         if (selProject != null) {
+        	// RENG: the ternary operator can only take one side because of the if.
             b.append(sp(in) + "<select name=\"" + REQ_PAR_UPD + "\" id=\"" + REQ_PAR_UPD + "\" " + ((selProject != null) ? "" : " disabled=\"disabled\"") + ">\n");
             b.append(sp(in) + "<optgroup label=\"Import Stage\">");
-            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.IMPORT)) {
+            for (Updater u : getUpdaters(selProject, UpdaterStage.IMPORT)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
             }
             b.append(sp(in) + "</optgroup>");
             b.append(sp(in) + "<optgroup label=\"Parse Stage\">");
-            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.PARSE)) {
+            for (Updater u : getUpdaters(selProject, UpdaterStage.PARSE)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
             }
             b.append(sp(in) + "</optgroup>");
             b.append(sp(in) + "<optgroup label=\"Inference Stage\">");
-            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.INFERENCE)) {
+            for (Updater u : getUpdaters(selProject, UpdaterStage.INFERENCE)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
             }
             b.append(sp(in) + "</optgroup>");
             b.append(sp(in) + "<optgroup label=\"Default Stage\">");
-            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.DEFAULT)) {
+            for (Updater u : getUpdaters(selProject, UpdaterStage.DEFAULT)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
             }
             b.append(sp(in) + "</optgroup>");
@@ -606,12 +607,21 @@ public class ProjectsView extends AbstractView {
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "<td colspan=\"2\" align=\"right\">\n");
      // Trigger updates on host
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ sobjClusterNode.getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\">\n");
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\">\n");
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
     }
+
+	protected Set<Updater> getUpdaters(StoredProject selProject,
+			UpdaterStage importStage) {
+		return sobjUpdater.getUpdaters(selProject, importStage);
+	}
+
+	protected String getClusterNodeName() {
+		return sobjClusterNode.getClusterNodeName();
+	}
     
-    protected static void showLastAppliedVersion(
+    protected void showLastAppliedVersion(
             StoredProject project,
             Collection<PluginInfo> metrics,
             StringBuilder b) {
@@ -638,7 +648,7 @@ public class ProjectsView extends AbstractView {
         }
     }
 
-    protected static void addHeaderRow(StringBuilder b, long in) {
+    protected void addHeaderRow(StringBuilder b, long in) {
         //----------------------------------------------------------------
         // Create the header row
         //----------------------------------------------------------------
