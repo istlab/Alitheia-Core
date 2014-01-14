@@ -1,3 +1,13 @@
+#.
+Note to sijmen
+regel 258 heb ik even een voorbeeldje getest met een project row in een
+aparte template
+works like a charm, variabele gaan netjes mee
+dus dat is een mooi mechanisme om deze (en anderee) templates mee op te schonen
+repeterende code kan dus in subtemplates
+op regel 259 begint een blok met nog niet omgezet materiaal
+.#
+
 <h2>$tr.label("projects_mngm")</h2>
 <div id="table">
   <form id="projects" name="projects" method="post" action="/projects">
@@ -245,29 +255,7 @@
                 #set($myId = $project.getId())
               #end
 
-              <tr class="$myClass"
-                onclick="javascript: document.getElementById('$REQ_PAR_PROJECT_ID').value='$myId'; SUBMIT"
-              >
-                <td class="trans">$project.getId()</td>
-                <td class="trans">
-                  #if ($selected)
-                    <input
-                      type="button"
-                      class="install"
-                      style="width: 100px;"
-                      value="$projects.getLbl("btn_info")"
-                      onclick="javascript: document.getElementById('$REQ_PAR_ACTION').value='ACT_REQ_SHOW_PROJECT'; SUBMIT"
-                    />
-                  #else
-                    <img src="/edit.png" alt="[Edit]"/>
-                  #end
-                  $project.getName()
-                </td>
-                <td class="trans">FIXME</td>
-                <td class="trans">FIXME</td>
-                <td class="trans">FIXME</td>
-                <td class="trans">FIXME</td>
-                <td class="trans">FIXME</td>
+              #parse("projectRow.inc")
                 #*
                 // Last project version
                 String lastVersion = getLbl("l0051");
@@ -316,7 +304,7 @@
           //----------------------------------------------------------------
           addToolBar(selProject,b,in);
           *#
-              </tr>
+              ## </tr>
             #end
           </tbody>
         #end
