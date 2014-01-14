@@ -2,21 +2,47 @@ package eu.sqooss.impl.service.updater.test;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.*;
+import org.mockito.Mockito;
+
+import java.io.File;
 import java.io.FileNotFoundException;
 
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 
-@RunWith(JUnit4.class)
+//@RunWith(JUnit4.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(OhlohDeveloper.class)
 public class OhlohUpdaterTest {
 
 	private OhlohUpdaterWrapper ohlohupdater;
 	private Logger mockedLogger;
+	
+	@Test
+	/**
+	 * Invoke run() normally 
+	 */
+    public void testRun() throws Exception {
+		Mockito.when(OhlohDeveloper.getByOhlohId(anyString())).thenReturn(null);
+		ohlohupdater.run();
+		
+		DBService dbs = ohlohupdater.getMockedDBService();
+		
+		//file0.xml contains 0 entries
+		//file1.xml contains 1 entry
+		//file2.xml contains 3 entries
+		verify(dbs, Mockito.times(4)).addRecord((DAObject) anyObject());
+    }
 	
 	@Test(expected = FileNotFoundException.class) 
 	/**
@@ -27,7 +53,7 @@ public class OhlohUpdaterTest {
 		System.setProperty("eu.sqooss.updater.ohloh.path", "THISpathDOESnotEXIST");
 		
 		OhlohUpdaterWrapper updater = new OhlohUpdaterWrapper();
-		updater.setUpdateParams(mock(StoredProject.class), mockedLogger);
+		updater.setUpdateParams(Mockito.mock(StoredProject.class), mockedLogger);
 		
 		Exception e = new RuntimeException();
 		try {
@@ -49,7 +75,7 @@ public class OhlohUpdaterTest {
 		System.clearProperty("eu.sqooss.updater.ohloh.path");
 		
 		OhlohUpdaterWrapper updater = new OhlohUpdaterWrapper();
-		updater.setUpdateParams(mock(StoredProject.class), mockedLogger);
+		updater.setUpdateParams(Mockito.mock(StoredProject.class), mockedLogger);
 		
 		Exception e = new RuntimeException();
 		try {
@@ -84,17 +110,22 @@ public class OhlohUpdaterTest {
 	
 	@Before
     public void setUp() {
-		System.setProperty("eu.sqooss.updater.ohloh.path", "ohlohpath/");
+		File f = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator + "ohlohpath");
+		
+		System.setProperty("eu.sqooss.updater.ohloh.path", f.getAbsolutePath());
 		ohlohupdater = new OhlohUpdaterWrapper();
 		
-		mockedLogger = mock(Logger.class);
+		mockedLogger = Mockito.mock(Logger.class);
 		
-		ohlohupdater.setUpdateParams(mock(StoredProject.class), mockedLogger);
+		ohlohupdater.setUpdateParams(Mockito.mock(StoredProject.class), mockedLogger);
+		
+		mockStatic(OhlohDeveloper.class);
+
     }
  
     @After
     public void tearDown() {
 
     }
-	
+
 }

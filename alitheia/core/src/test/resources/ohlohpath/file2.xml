@@ -1,17 +1,19 @@
-<result>
-    <account>
-        <id>0</id>
-        <name>TestDeveloper0</name>
-        <email_sha1>L9ThxnotKPzthJ7hu3bnORuT6xI=</email_sha1>
-    </account>
-    <account>
-        <id>1</id>
-        <name>TestDeveloper1</name>
-        <email_sha1>L9ThxnotKPzthJ7hu3bnORuT6xI=</email_sha1>
-    </account>
-    <account>
-        <id>2</id>
-        <name>TestDeveloper2</name>
-        <email_sha1>L9ThxnotKPzthJ7hu3bnORuT6xI=</email_sha1>
-    </account>
-</result>
+<root>
+	<result>
+	    <account>
+	        <id>0</id>
+	        <name>TestDeveloper0</name>
+	        <email_sha1>L9ThxnotKPzthJ7hu3bnORuT6xI=</email_sha1>
+	    </account>
+	    <account>
+	        <id>1</id>
+	        <name>TestDeveloper1</name>
+	        <email_sha1>L9ThxnotKPzthJ7hu3bnORuT6xI=</email_sha1>
+	    </account>
+	    <account>
+	        <id>2</id>
+	        <name>TestDeveloper2</name>
+	        <email_sha1>L9ThxnotKPzthJ7hu3bnORuT6xI=</email_sha1>
+	    </account>
+	</result>
+</root>
