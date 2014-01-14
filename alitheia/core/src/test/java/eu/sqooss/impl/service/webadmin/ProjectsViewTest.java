@@ -2,6 +2,7 @@ package eu.sqooss.impl.service.webadmin;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -18,20 +19,27 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
+import static org.xmlmatchers.xpath.XpathReturnType.returningANumber;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +54,10 @@ import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.UpdateProject;
+import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
@@ -58,27 +70,95 @@ import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectsViewTest {
-	private static final String INPUT_REGEX = "<input([\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\/\\\\]*[\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\\\]+)>";
+	private static final String CLUSTER_NODE = "CLUSTER_NODE";
+	private static final long PROJECT_ID = 1234l;
+	private static final String PROJECT_NAME = "project1234";
+	private static final String PROJECT_WEBSITE = "www.project.com";
+	private static final String PROJECT_CONTACT = "info@project.com";
+	private static final String PROJECT_BTS_URL = "bts.project.com";
+	private static final String PROJECT_MAIL_URL = "mailinglist.project.com";
+	private static final String PROJECT_SCM_URL = "svn.project.com";
+	private static final Date EPOCH_DATE = new Date(0);
+	private static final String BUG_ID = "nasty_bug";
+
 	private static final String CLUSTER_NODE_NAME = "CLUSTER_NODE1";
+	
+	private static final String INPUT_REGEX = "<input([\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\/\\\\]*[\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\\\]+)>";
+
 	private ProjectsView projectsView;
 	private Map<UpdaterStage, Set<Updater>> updaters;
 	
-	@Mock public AdminService adminService;
-	@Mock public AlitheiaPlugin somePlugin;
-	@Mock public Logger logger;
-	@Mock public MetricActivator metricActivator;
-	@Mock public PluginAdmin pluginAdmin;
-	@Mock public Scheduler scheduler;
-	@Mock public VelocityContext velocityContext;
-	public StoredProject project;
+	@Mock private AdminService adminService;
+	@Mock private ClusterNode clusterNode;
+	@Mock private Logger logger;
+	@Mock private MetricActivator metricActivator;
+	@Mock private PluginAdmin pluginAdmin;
+	@Mock private StoredProject project1;
+	@Mock private StoredProject project2;
+	@Mock private Scheduler scheduler;
+	@Mock private AlitheiaPlugin somePlugin;
+	@Mock private VelocityContext velocityContext;
+	private Set<StoredProject> projectSet;
+	private Map<StoredProject, MailMessage> mailMessages;
 
 	@Before
 	public void setUp() {
 		projectsView = new TestableProjectsView(null, null);
 		updaters = new HashMap<UpdaterStage, Set<Updater>>();
-		project = new StoredProject();
-		project.setId(1234l);
-		project.setName("project1234");
+		mailMessages = new HashMap<StoredProject, MailMessage>();
+
+		when(project1.getId()).thenReturn(PROJECT_ID);
+		when(project1.getName()).thenReturn(PROJECT_NAME);
+		when(project1.getWebsiteUrl()).thenReturn(PROJECT_WEBSITE);
+		when(project1.getContactUrl()).thenReturn(PROJECT_CONTACT);
+		when(project1.getBtsUrl()).thenReturn(PROJECT_BTS_URL);
+		when(project1.getMailUrl()).thenReturn(PROJECT_MAIL_URL);
+		when(project1.getScmUrl()).thenReturn(PROJECT_SCM_URL);
+		
+		when(project2.getId()).thenReturn(PROJECT_ID + 1);
+		when(project2.getName()).thenReturn(PROJECT_NAME + "_2");
+		when(project2.getWebsiteUrl()).thenReturn(PROJECT_WEBSITE + "_2");
+		when(project2.getContactUrl()).thenReturn(PROJECT_CONTACT + "_2");
+		when(project2.getBtsUrl()).thenReturn(PROJECT_BTS_URL + "_2");
+		when(project2.getMailUrl()).thenReturn(PROJECT_MAIL_URL + "_2");
+		when(project2.getScmUrl()).thenReturn(PROJECT_SCM_URL + "_2");
+		ProjectVersion version = new ProjectVersion();
+		version.setSequence(1);
+		version.setRevisionId("a");
+		when(project2.getProjectVersions()).thenReturn(Arrays.asList(version));
+		MailMessage message = new MailMessage();
+		message.setSendDate(EPOCH_DATE);
+		mailMessages.put(project2, message);
+		Bug bug = new Bug();
+		bug.setBugID(BUG_ID);
+		when(project2.getBugs()).thenReturn(new HashSet<Bug>(Arrays.asList(bug)));
+		when(project2.isEvaluated()).thenReturn(true);
+		when(project2.getClusternode()).thenReturn(clusterNode);
+		when(clusterNode.getName()).thenReturn(CLUSTER_NODE);
+		
+		projectSet = new TreeSet<StoredProject>(new Comparator<StoredProject>() {
+			@Override
+			public int compare(StoredProject o1, StoredProject o2) {
+				return Long.compare(o1.getId(), o2.getId());
+			}
+		});
+		projectSet.add(project1);
+		projectSet.add(project2);
+	}
+	
+	@Test
+	public void shouldRenderProjectListWithoutRequest() {
+		String result = projectsView.render(null);
+		
+		String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
 	}
 	
 	@Test
@@ -86,7 +166,7 @@ public class ProjectsViewTest {
 		AdminAction action = mock(AdminAction.class);
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_CODE)).thenReturn("scm");
-		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn("project1234");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn(PROJECT_NAME);
 		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_BUG)).thenReturn("bug");
 		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_MAIL)).thenReturn("test@test.tst");
 		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_WEB)).thenReturn("web.com");
@@ -98,14 +178,14 @@ public class ProjectsViewTest {
 
 		verify(adminService).create(AddProject.MNEMONIC);
 		verify(action).addArg("scm", "scm");
-		verify(action).addArg("name", "project1234");
+		verify(action).addArg("name", PROJECT_NAME);
 		verify(action).addArg("bts", "bug");
 		verify(action).addArg("mail", "test@test.tst");
 		verify(action).addArg("web", "web.com");
 		verify(adminService).execute(action);
 		verify(velocityContext).put("RESULTS", results);
 		
-		assertEquals(project, added);
+		assertEquals(project1, added);
 	}
 	
 	@Test
@@ -113,7 +193,7 @@ public class ProjectsViewTest {
 		AdminAction action = mock(AdminAction.class);
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_CODE)).thenReturn("scm");
-		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn("project1234");
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn(PROJECT_NAME);
 		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_BUG)).thenReturn("bug");
 		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_MAIL)).thenReturn("test@test.tst");
 		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_WEB)).thenReturn("web.com");
@@ -126,7 +206,7 @@ public class ProjectsViewTest {
 
 		verify(adminService).create(AddProject.MNEMONIC);
 		verify(action).addArg("scm", "scm");
-		verify(action).addArg("name", "project1234");
+		verify(action).addArg("name", PROJECT_NAME);
 		verify(action).addArg("bts", "bug");
 		verify(action).addArg("mail", "test@test.tst");
 		verify(action).addArg("web", "web.com");
@@ -149,7 +229,7 @@ public class ProjectsViewTest {
 	public void shouldEnqueueProjectDeleteJobIfProjectGiven() throws Exception {
 		StringBuilder error = new StringBuilder();
 
-		projectsView.removeProject(error, project, 0);
+		projectsView.removeProject(error, project1, 0);
 		
 		verify(scheduler).enqueue(any(ProjectDeleteJob.class));
 		assertThat(error.toString(), equalTo(""));
@@ -161,7 +241,7 @@ public class ProjectsViewTest {
 
 		doThrow(new SchedulerException("Big failure")).when(scheduler).enqueue(any(ProjectDeleteJob.class));
 		
-		projectsView.removeProject(error, project, 0);
+		projectsView.removeProject(error, project1, 0);
 		
 		verify(scheduler).enqueue(any(ProjectDeleteJob.class));
 		assertThat(error.toString(), not(equalTo("")));
@@ -175,10 +255,10 @@ public class ProjectsViewTest {
 		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(action);
 		when(action.results()).thenReturn(results);
 		
-		projectsView.triggerUpdate(null, project, 0, "updater");
+		projectsView.triggerUpdate(null, project1, 0, "updater");
 		
 		verify(adminService).create(UpdateProject.MNEMONIC);
-		verify(action).addArg("project", 1234l);
+		verify(action).addArg("project", PROJECT_ID);
 		verify(action).addArg("updater", "updater");
 		verify(adminService).execute(action);
 		
@@ -194,10 +274,10 @@ public class ProjectsViewTest {
 		when(action.errors()).thenReturn(errors);
 		when(action.hasErrors()).thenReturn(true);
 		
-		projectsView.triggerUpdate(null, project, 0, "updater");
+		projectsView.triggerUpdate(null, project1, 0, "updater");
 		
 		verify(adminService).create(UpdateProject.MNEMONIC);
-		verify(action).addArg("project", 1234l);
+		verify(action).addArg("project", PROJECT_ID);
 		verify(action).addArg("updater", "updater");
 		verify(adminService).execute(action);
 		
@@ -213,10 +293,10 @@ public class ProjectsViewTest {
 		when(action.errors()).thenReturn(errors);
 		when(action.hasErrors()).thenReturn(true);
 		
-		projectsView.triggerAllUpdate(null, project, 0);
+		projectsView.triggerAllUpdate(null, project1, 0);
 		
 		verify(adminService).create(UpdateProject.MNEMONIC);
-		verify(action).addArg("project", 1234l);
+		verify(action).addArg("project", PROJECT_ID);
 		verify(action, times(0)).addArg(eq("updater"), anyString());
 		verify(adminService).execute(action);
 		
@@ -231,10 +311,10 @@ public class ProjectsViewTest {
 		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(action);
 		when(action.results()).thenReturn(results);
 		
-		projectsView.triggerAllUpdate(null, project, 0);
+		projectsView.triggerAllUpdate(null, project1, 0);
 		
 		verify(adminService).create(UpdateProject.MNEMONIC);
-		verify(action).addArg("project", 1234l);
+		verify(action).addArg("project", PROJECT_ID);
 		verify(action, times(0)).addArg(eq("updater"), anyString());
 		verify(adminService).execute(action);
 		
@@ -257,7 +337,7 @@ public class ProjectsViewTest {
 	
 	@Test
 	public void syncNothingIfNoPluginInfo() {
-		projectsView.syncPlugin(null, project, "selected_plugin");
+		projectsView.syncPlugin(null, project1, "selected_plugin");
 		
 		verify(pluginAdmin).getPluginInfo("selected_plugin");
 		verifyNoMoreInteractions(pluginAdmin);
@@ -268,7 +348,7 @@ public class ProjectsViewTest {
 		PluginInfo info = new PluginInfo();
 		when(pluginAdmin.getPluginInfo("selected_plugin")).thenReturn(info);
 		
-		projectsView.syncPlugin(null, project, "selected_plugin");
+		projectsView.syncPlugin(null, project1, "selected_plugin");
 		
 		verify(pluginAdmin).getPluginInfo("selected_plugin");
 		verify(pluginAdmin).getPlugin(info);
@@ -281,13 +361,190 @@ public class ProjectsViewTest {
 		when(pluginAdmin.getPluginInfo("selected_plugin")).thenReturn(info);
 		when(pluginAdmin.getPlugin(info)).thenReturn(somePlugin);
 		
-		projectsView.syncPlugin(null, project, "selected_plugin");
+		projectsView.syncPlugin(null, project1, "selected_plugin");
 		
 		verify(pluginAdmin).getPluginInfo("selected_plugin");
 		verify(pluginAdmin).getPlugin(info);
 		verifyNoMoreInteractions(pluginAdmin);
 		
-		verify(metricActivator).syncMetric(somePlugin, project);
+		verify(metricActivator).syncMetric(somePlugin, project1);
+	}
+	
+	@Test
+	public void shouldCreateForm() {
+		StringBuilder builder = new StringBuilder();
+		
+		projectsView.createForm(builder, null, project1, ProjectsView.ACT_REQ_SHOW_PROJECT, 0);
+		
+		String html = sanitizeHTML(builder.toString());
+		
+		// test that the form exists
+		assertThat(the(html), hasXPath("/root/form[@id='projects' and @name='projects' and @method='post' and @action='/projects']"));
+	}
+	
+	@Test
+	public void shouldPresentErrorsInForm() {
+		StringBuilder builder = new StringBuilder();
+		StringBuilder errors = new StringBuilder("Fatal_Error");
+		
+		projectsView.createForm(builder, errors, project1, ProjectsView.ACT_REQ_SHOW_PROJECT, 0);
+		
+		String html = sanitizeHTML(builder.toString());
+		
+		// test that the form contains a fieldset that contains the error message.
+		assertThat(the(html), hasXPath("string-join(//form[@id='projects']/fieldset[legend[text()='Errors']]/text(), '')", equalToIgnoringWhiteSpace("Fatal_Error")));
+	}
+	
+	@Test
+	public void shouldShowProjectInfo() {
+		StringBuilder builder = new StringBuilder();
+		
+		projectsView.createForm(builder, null, project1, ProjectsView.ACT_REQ_SHOW_PROJECT, 0);
+		
+		String html = sanitizeHTML(builder.toString());
+
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[td[1]//*[contains(text(), 'Project name')]]/td[2]", equalToIgnoringWhiteSpace(PROJECT_NAME)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[td[1]//*[contains(text(), 'Homepage')]]/td[2]", equalToIgnoringWhiteSpace(PROJECT_WEBSITE)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[td[1]//*[contains(text(), 'Contact e-mail')]]/td[2]", equalToIgnoringWhiteSpace(PROJECT_CONTACT)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[td[1]//*[contains(text(), 'Bug database')]]/td[2]", equalToIgnoringWhiteSpace(PROJECT_BTS_URL)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[td[1]//*[contains(text(), 'Mailing list')]]/td[2]", equalToIgnoringWhiteSpace(PROJECT_MAIL_URL)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[td[1]//*[contains(text(), 'Source code')]]/td[2]", equalToIgnoringWhiteSpace(PROJECT_SCM_URL)));
+		
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[last()]/td/input[@type='button']/@onclick", equalTo("javascript:" + ProjectsView.SUBMIT)));
+		
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_ACTION + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "']"));
+	}
+	
+	@Test
+	public void shouldShowAddProjectForm() {
+		StringBuilder builder = new StringBuilder();
+		
+		projectsView.createForm(builder, null, project1, ProjectsView.ACT_REQ_ADD_PROJECT, 0);
+		
+		String html = sanitizeHTML(builder.toString());
+		
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[td[1]//*[contains(text(), 'Project name')]]/td[2]/input[@type='text' and @id='" + ProjectsView.REQ_PAR_PRJ_NAME + "' and @value='']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[td[1]//*[contains(text(), 'Homepage')]]/td[2]/input[@type='text' and @id='" + ProjectsView.REQ_PAR_PRJ_WEB + "' and @value='']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[td[1]//*[contains(text(), 'Contact e-mail')]]/td[2]/input[@type='text' and @id='" + ProjectsView.REQ_PAR_PRJ_CONT + "' and @value='']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[td[1]//*[contains(text(), 'Bug database')]]/td[2]/input[@type='text' and @id='" + ProjectsView.REQ_PAR_PRJ_BUG + "' and @value='']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[td[1]//*[contains(text(), 'Mailing list')]]/td[2]/input[@type='text' and @id='" + ProjectsView.REQ_PAR_PRJ_MAIL + "' and @value='']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[td[1]//*[contains(text(), 'Source code')]]/td[2]/input[@type='text' and @id='" + ProjectsView.REQ_PAR_PRJ_CODE + "' and @value='']"));
+
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[last()]/td/input[@type='button'][1]/@onclick", equalTo("javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION + "').value='" + ProjectsView.ACT_CON_ADD_PROJECT + "';" + ProjectsView.SUBMIT)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[last()]/td/input[@type='button'][2]/@onclick", equalTo("javascript:" + ProjectsView.SUBMIT)));
+		
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_ACTION + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "']"));
+	}
+	
+	@Test
+	public void shouldShowDeleteProjectConfirmation() {
+		StringBuilder builder = new StringBuilder();
+		
+		projectsView.createForm(builder, null, project1, ProjectsView.ACT_REQ_REM_PROJECT, 0);
+		
+		String html = sanitizeHTML(builder.toString());
+		
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[contains(text(), '" + PROJECT_NAME + "')]]/table/tr/td/input[@type='button'][1]/@onclick", equalTo("javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION + "').value='" + ProjectsView.ACT_CON_REM_PROJECT +"';" + ProjectsView.SUBMIT)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[contains(text(), '" + PROJECT_NAME + "')]]/table/tr/td/input[@type='button'][2]/@onclick", equalTo("javascript:" + ProjectsView.SUBMIT)));
+		
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_ACTION + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "']"));
+	}
+	
+	@Test
+	public void shouldShowMessageIfNoProjects() {
+		StringBuilder builder = new StringBuilder();
+		
+		projectSet.clear();
+		projectsView.createForm(builder, null, project1, "some_non_existing_action", 0);
+		
+		String html = sanitizeHTML(builder.toString());
+		
+		// RENG: if the tbody's are unbalanced, disregard them for now
+		if (StringUtils.countMatches(html, "<tbody>") != StringUtils.countMatches(html, "</tbody>")) {
+			html = html.replaceAll("<tbody>", "").replaceAll("</tbody>", "");
+		}
+		// RENG: same for fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		assertThat(the(html), hasXPath("count(//form[@id='projects']/table/thead/tr/td)", returningANumber(), equalTo(7.0)));
+		assertThat(the(html), hasXPath("count(//form[@id='projects']/table/tr[1]/td)", returningANumber(), equalTo(1.0)));
+	}
+	
+	@Test
+	public void shouldCreateContentRowPerProject() {
+		StringBuilder builder = new StringBuilder();
+		
+		projectsView.createForm(builder, null, project1, "some_non_existing_action", 0);
+
+		String html = sanitizeHTML(builder.toString());		
+		// RENG: Ignore an uneven number of fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/@class", equalTo("selected")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/@onclick", equalTo("javascript:document.getElementById('" + ProjectsView.REQ_PAR_PROJECT_ID + "').value='';" + ProjectsView.SUBMIT)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/td[1]/text()", equalToIgnoringWhiteSpace(Long.toString(PROJECT_ID))));
+		assertThat(the(html), hasXPath("string-join(//form[@id='projects']/table/tbody/tr[1]/td[2]/text(), '')", equalToIgnoringWhiteSpace(PROJECT_NAME)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/td[2]/input[@type='button']/@onclick", equalTo("javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION + "').value='" + ProjectsView.ACT_REQ_SHOW_PROJECT + "';" + ProjectsView.SUBMIT)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/td[3]/text()", equalToIgnoringWhiteSpace("l0051")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/td[4]/text()", equalToIgnoringWhiteSpace("l0051")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/td[5]/text()", equalToIgnoringWhiteSpace("l0051")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/td[6]/text()", equalToIgnoringWhiteSpace("project_not_evaluated")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[1]/td[7]/text()", equalToIgnoringWhiteSpace("(local)")));
+		
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/@class", equalTo("edit")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/@onclick", equalTo("javascript:document.getElementById('" + ProjectsView.REQ_PAR_PROJECT_ID + "').value='" + (PROJECT_ID + 1) + "';" + ProjectsView.SUBMIT)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/td[1]/text()", equalToIgnoringWhiteSpace(Long.toString(PROJECT_ID + 1))));
+		assertThat(the(html), hasXPath("string-join(//form[@id='projects']/table/tbody/tr[2]/td[2]/text(), '')", equalToIgnoringWhiteSpace(PROJECT_NAME + "_2")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/td[2]/img"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/td[3]/text()", equalToIgnoringWhiteSpace("1(a)")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/td[4]/text()", equalToIgnoringWhiteSpace(EPOCH_DATE.toString())));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/td[5]/text()", equalToIgnoringWhiteSpace(BUG_ID)));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/td[6]/text()", equalToIgnoringWhiteSpace("project_is_evaluated")));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table/tbody/tr[2]/td[7]/text()", equalToIgnoringWhiteSpace(CLUSTER_NODE)));	
+	}
+	
+	@Test
+	public void shouldPrintAppliedVersion() {
+		StringBuilder builder = new StringBuilder();
+		
+		String hash1 = "hash1";
+		String name1 = "name1";
+		String hash2 = "hash2";
+		String name2 = "name2";
+		
+		PluginInfo p1 = new PluginInfo();
+		p1.installed = true;
+		p1.setHashcode(hash1);
+		p1.setPluginName(name1);
+		PluginInfo p2 = new PluginInfo();
+		p2.installed = true;
+		p2.setHashcode(hash2);
+		p2.setPluginName(name2);
+		Collection<PluginInfo> metrics = Arrays.asList(p1, p2);
+		
+		when(pluginAdmin.listPlugins()).thenReturn(metrics);
+		
+		projectsView.createForm(builder, null, project1, "some_non_existing_action", 0);
+
+		String html = sanitizeHTML(builder.toString());		
+		// RENG: Ignore an uneven number of fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		// RENG: very coarse test, just verifies that something is done with these metrics.
+		assertThat(the(html), hasXPath("//form[@id='projects']/table//td[contains(string-join(text(), ''), '" + name1 + "') and input[@type='button' and contains(@onclick, '" + hash1 + "')]]"));
+		assertThat(the(html), hasXPath("//form[@id='projects']/table//td[contains(string-join(text(), ''), '" + name2 + "') and input[@type='button' and contains(@onclick, '" + hash2 + "')]]"));
 	}
 	
 	@Test
@@ -306,7 +563,7 @@ public class ProjectsViewTest {
 	@Test
 	public void shouldAddProjectIdWithProject() {
 		StringBuilder builder = new StringBuilder();
-		projectsView.addHiddenFields(project , builder, 0);
+		projectsView.addHiddenFields(project1 , builder, 0);
 		
 		String html = sanitizeHTML(builder.toString());
 		
@@ -316,6 +573,7 @@ public class ProjectsViewTest {
 	protected String sanitizeHTML(String string) {
 		String html = "<root>" + string + "</root>";		
 		html = html.replaceAll(INPUT_REGEX, "<input$1/>");
+		html = html.replaceAll("&nbsp;", " ");
 		html = html.replaceAll("disabled(\\s*[^=])", "disabled='true'$1");
 		return html;
 	}
@@ -373,13 +631,13 @@ public class ProjectsViewTest {
 		Updater defu2 = createUpdater("defu2", "default_updater_2", UpdaterStage.DEFAULT);
 		updaters.put(UpdaterStage.DEFAULT, new HashSet<Updater>(Arrays.asList(defu1, defu2)));
 		
-		projectsView.addToolBar(project, builder, 0);
+		projectsView.addToolBar(project1, builder, 0);
 
 		// sanitize html input
 		String html = sanitizeHTML(builder.toString());
 
 		// the first row should have a button that goes to the project page
-		String onclick1 = "javascript:window.location='/projects?" + ProjectsView.REQ_PAR_PROJECT_ID + "=" + project.getId() + "';";
+		String onclick1 = "javascript:window.location='/projects?" + ProjectsView.REQ_PAR_PROJECT_ID + "=" + project1.getId() + "';";
 		assertThat(the(html), hasXPath("/root/tr[1]/td[2]/input/@onclick", equalTo(onclick1)));
 
 		// the remove action is not disabled this time
@@ -459,23 +717,23 @@ public class ProjectsViewTest {
 		projectsView.showLastAppliedVersion(null, metrics, builder);
 
 		// Assert
-		String html = "<root>" + builder.toString().replace("&nbsp;", " ") + "</root>";
+		String html = sanitizeHTML(builder.toString());
 		
 		String onclick1 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "').value='" + hash1 +"';" + ProjectsView.SUBMIT;
 		String onclick2 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "').value='" + hash2 +"';" + ProjectsView.SUBMIT;
 
 		// there must be two rows.
-		assertThat(the(html), hasXPath("count(/root/tr)", equalTo("2")));
+		assertThat(the(html), hasXPath("count(/root/tr)", returningANumber(), equalTo(2.0)));
 		// the first row has one column.
 		
-		assertThat(the(html), hasXPath("count(/root/tr[1]/td)", equalTo("1")));
+		assertThat(the(html), hasXPath("count(/root/tr[1]/td)", returningANumber(), equalTo(1.0)));
 		// that column has an input of type button that does 'onclick1' on click.
 		assertThat(the(html), hasXPath("/root/tr[1]/td/input[@type='button']/@onclick", equalTo(onclick1)));
 		// that column's text should contain the plugin name
 		assertThat(the(html), hasXPath("string-join(/root/tr[1]/td/text(), '')", containsString(name1)));
 		
 		// the second row has one column.
-		assertThat(the(html), hasXPath("count(/root/tr[2]/td)", equalTo("1")));
+		assertThat(the(html), hasXPath("count(/root/tr[2]/td)", returningANumber(), equalTo(1.0)));
 		// that column has an input of type button that does 'onclick2' on click.
 		assertThat(the(html), hasXPath("/root/tr[2]/td/input[@type='button']/@onclick", equalTo(onclick2)));
 		// that column's text should contain the plugin name
@@ -503,9 +761,51 @@ public class ProjectsViewTest {
 		}
 		
 		@Override
+		protected void initializeResources(HttpServletRequest req) {
+			// do nothing.
+		}
+
+		@Override
+		protected MailMessage getLastMailMessage(StoredProject project) {
+			return mailMessages.get(project);
+		}
+		
+		@Override
+		protected Bug getLastBug(StoredProject project) {
+			Set<Bug> bugs = project.getBugs();
+			if (bugs.isEmpty()) {
+				return null;
+			} else {
+				ArrayList<Bug> bugsList = new ArrayList<Bug>(bugs);
+				Collections.sort(bugsList, new Comparator<Bug>() {
+					@Override
+					public int compare(Bug b1, Bug b2) {
+						return b1.getUpdateRun().compareTo(b2.getUpdateRun());
+					}
+				});
+				return bugsList.get(bugsList.size() - 1);
+			}
+		}
+
+		@Override
+		protected ProjectVersion getLastProjectVersion(StoredProject project) {
+			List<ProjectVersion> projectVersions = project.getProjectVersions();
+			if (projectVersions == null || projectVersions.isEmpty()) {
+				return null;
+			} else {
+				return projectVersions.get(projectVersions.size() - 1);
+			}
+		}
+
+		@Override
+		protected Set<StoredProject> getThisNodeProjects() {
+			return projectSet;
+		}
+
+		@Override
 		protected StoredProject getProjectByName(String parameter) {
-			if (parameter != null && parameter.equals(project.getName())) {
-				return project;
+			if (parameter != null && parameter.equals(project1.getName())) {
+				return project1;
 			} else {
 				return null;
 			}
@@ -549,7 +849,8 @@ public class ProjectsViewTest {
 		@Override
 		protected Set<Updater> getUpdaters(StoredProject selProject,
 				UpdaterStage importStage) {
-			return updaters.get(importStage);
+			Set<Updater> set = updaters.get(importStage);
+			return set == null ? new HashSet<Updater>() : set;
 		}
 	}	
 }

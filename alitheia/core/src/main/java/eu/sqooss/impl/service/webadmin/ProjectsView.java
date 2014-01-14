@@ -67,10 +67,10 @@ public class ProjectsView extends AbstractView {
 
     // Action parameter's values
     protected static String ACT_REQ_ADD_PROJECT   = "reqAddProject";
-    private static String ACT_CON_ADD_PROJECT   = "conAddProject";
+    protected static String ACT_CON_ADD_PROJECT   = "conAddProject";
     protected static String ACT_REQ_REM_PROJECT   = "reqRemProject";
-    private static String ACT_CON_REM_PROJECT   = "conRemProject";
-    private static String ACT_REQ_SHOW_PROJECT  = "conShowProject";
+    protected static String ACT_CON_REM_PROJECT   = "conRemProject";
+    protected static String ACT_REQ_SHOW_PROJECT  = "conShowProject";
     protected static String ACT_CON_UPD_ALL       = "conUpdateAll";
     protected static String ACT_CON_UPD           = "conUpdate";
     protected static String ACT_CON_UPD_ALL_NODE  = "conUpdateAllOnNode";
@@ -80,7 +80,7 @@ public class ProjectsView extends AbstractView {
     protected static String REQ_PAR_PROJECT_ID    = "projectId";
     protected static String REQ_PAR_PRJ_NAME      = "projectName";
     protected static String REQ_PAR_PRJ_WEB       = "projectHomepage";
-    private static String REQ_PAR_PRJ_CONT      = "projectContact";
+    protected static String REQ_PAR_PRJ_CONT      = "projectContact";
     protected static String REQ_PAR_PRJ_BUG       = "projectBL";
     protected static String REQ_PAR_PRJ_MAIL      = "projectML";
     protected static String REQ_PAR_PRJ_CODE      = "projectSCM";
@@ -113,7 +113,7 @@ public class ProjectsView extends AbstractView {
         int in = 6;
 
         // Initialize the resource bundles with the request's locale
-        initResources(req.getLocale());
+        initializeResources(req);
 
         // Request values
         String reqValAction        = "";
@@ -162,6 +162,10 @@ public class ProjectsView extends AbstractView {
         createForm(b, e, selProject, reqValAction , in);
         return b.toString();
     }
+
+	protected void initializeResources(HttpServletRequest req) {
+		initResources(req.getLocale());
+	}
   
     protected StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
         AdminService as = getAdminService();
@@ -263,7 +267,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
     private void triggerAllUpdateNode(StringBuilder e,
 			StoredProject selProject, int in) {
-		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
+		Set<StoredProject> projectList = getThisNodeProjects();
 		
 		for (StoredProject project : projectList) {
 			triggerAllUpdate(e, project, in);
@@ -299,7 +303,7 @@ public class ProjectsView extends AbstractView {
 		return sobjPA;
 	}
     
-    private void createForm(StringBuilder b, StringBuilder e, 
+    protected void createForm(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
 
         // ===============================================================
@@ -316,7 +320,7 @@ public class ProjectsView extends AbstractView {
         b.append(errorFieldset(e, ++in));
 
         // Get the complete list of projects stored in the SQO-OSS framework
-        Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
+        Set<StoredProject> projects = getThisNodeProjects();
         Collection<PluginInfo> metrics = getPluginAdmin().listPlugins();
 
         // ===================================================================
@@ -471,6 +475,7 @@ public class ProjectsView extends AbstractView {
                 //------------------------------------------------------------
                 // Create the content rows
                 //------------------------------------------------------------
+            	// RENG: this tbody is not opened in the other case of the if, but always closed.
                 b.append(sp(in++) + "<tbody>\n");
                 for (StoredProject nextPrj : projects) {
                     boolean selected = false;
@@ -511,7 +516,7 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Last project version
                     String lastVersion = getLbl("l0051");
-                    ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
+                    ProjectVersion v = getLastProjectVersion(nextPrj);
                     if (v != null) {
                         lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
                     }
@@ -519,12 +524,12 @@ public class ProjectsView extends AbstractView {
                             + lastVersion
                             + "</td>\n");
                     // Date of the last known email
-                    MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
+                    MailMessage mm = getLastMailMessage(nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((mm == null)?getLbl("l0051"):mm.getSendDate())
                             + "</td>\n");
                     // ID of the last known bug entry
-                    Bug bug = Bug.getLastUpdate(nextPrj);
+                    Bug bug = getLastBug(nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((bug == null)?getLbl("l0051"):bug.getBugID())
                             + "</td>\n");
@@ -561,6 +566,7 @@ public class ProjectsView extends AbstractView {
             //----------------------------------------------------------------
             b.append(sp(--in) + "</tbody>\n");
             b.append(sp(--in) + "</table>\n");
+            // RENG: this fieldset is never opened.
             b.append(sp(--in) + "</fieldset>\n");
         }
 
@@ -574,6 +580,22 @@ public class ProjectsView extends AbstractView {
         // ===============================================================
         b.append(sp(--in) + "</form>\n");
     }
+
+	protected Bug getLastBug(StoredProject project) {
+		return Bug.getLastUpdate(project);
+	}
+
+	protected MailMessage getLastMailMessage(StoredProject project) {
+		return MailMessage.getLatestMailMessage(project);
+	}
+
+	protected ProjectVersion getLastProjectVersion(StoredProject project) {
+		return ProjectVersion.getLastProjectVersion(project);
+	}
+
+	protected Set<StoredProject> getThisNodeProjects() {
+		return ClusterNode.thisNode().getProjects();
+	}
 
 
     protected void addHiddenFields(StoredProject selProject,
