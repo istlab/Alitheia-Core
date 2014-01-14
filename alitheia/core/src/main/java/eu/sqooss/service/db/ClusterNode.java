@@ -108,7 +108,7 @@ public class ClusterNode extends DAObject {
         this.projects = projects;
     }
     
-    public static ClusterNode getClusteNodeByName(String name) {
+    public static ClusterNode getClusterNodeByName(String name) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> parameterMap = new HashMap<String,Object>();
@@ -127,6 +127,6 @@ public class ClusterNode extends DAObject {
             hostname = "unknown host";
         }       
         
-        return getClusteNodeByName(hostname);
+        return getClusterNodeByName(hostname);
     }
 }

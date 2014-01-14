@@ -146,9 +146,9 @@ public class MailThreadResolver implements MetadataUpdater {
                 continue;
 
             MimeMessage mm = mailAccessor.getMimeMessage(ml.getListId(), 
-                    mail.getFilename());
+                    mail.getFileName());
             
-            processed.put(mail.getFilename(), mm);
+            processed.put(mail.getFileName(), mm);
 
             /* Thread identification code. Naive, but works */
             String[] inReplyTo = mm.getHeader("In-Reply-To");
