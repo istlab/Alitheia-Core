@@ -229,9 +229,9 @@ public class WebAdminRenderer  extends AbstractView {
     }
     
 
-    public static String renderJobWaitStats() {
+    public String renderJobWaitStats() {
         StringBuilder result = new StringBuilder();
-        HashMap<String,Integer> wjobs = sobjSched.getSchedulerStats().getWaitingJobTypes();
+        HashMap<String, Integer> wjobs = getWaitingJobs();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
         result.append("\t<thead>\n");
         result.append("\t\t<tr>\n");
@@ -253,6 +253,11 @@ public class WebAdminRenderer  extends AbstractView {
         result.append("</table>");
         return result.toString();
     }
+
+	protected HashMap<String, Integer> getWaitingJobs() {
+		HashMap<String,Integer> wjobs = sobjSched.getSchedulerStats().getWaitingJobTypes();
+		return wjobs;
+	}
 
     public String renderJobRunStats() {
         StringBuilder result = new StringBuilder();
@@ -277,24 +282,32 @@ public class WebAdminRenderer  extends AbstractView {
     
 protected class TestableWebAdminRenderer extends WebAdminRenderer {
 		
-		HashMap<String, Integer> map;
+		HashMap<String, Integer> failedJobs;
+		HashMap<String, Integer> waitingJobs;
 		List<String> runJobs;
+		
 
 		public TestableWebAdminRenderer(BundleContext bundlecontext,
-				VelocityContext vc, HashMap<String, Integer> map, List<String> runJobs) {
+				VelocityContext vc, HashMap<String, Integer> failedJobs, HashMap<String, Integer> waitingJobs, List<String> runJobs) {
 			super(bundlecontext, vc);
-			this.map = map;
+			this.failedJobs = failedJobs;
+			this.waitingJobs = waitingJobs;
 			this.runJobs = runJobs;
 		}
 		
 		@Override
 		protected HashMap<String, Integer> getFailedJobs() {
-			return this.map;
+			return this.failedJobs;
 		}
 		
 		@Override
 		protected List<String> getRunJobs() {
 			return this.runJobs;
+		}
+		
+		@Override
+		protected HashMap<String, Integer> getWaitingJobs() {
+			return waitingJobs;
 		}
 	}
 }
