@@ -137,8 +137,7 @@ public class ProjectsView extends AbstractView {
             // Retrieve the selected project's DAO (if any)
             reqValProjectId = fromString(req.getParameter(REQ_PAR_PROJECT_ID));
             if (reqValProjectId != null) {
-                selProject = sobjDB.findObjectById(
-                        StoredProject.class, reqValProjectId);
+                selProject = getProjectById(reqValProjectId);
             }
             
             if (reqValAction == null) {
@@ -162,6 +161,11 @@ public class ProjectsView extends AbstractView {
         createForm(b, e, selProject, reqValAction , in);
         return b.toString();
     }
+
+	protected StoredProject getProjectById(long reqValProjectId) {
+		return sobjDB.findObjectById(
+		        StoredProject.class, reqValProjectId);
+	}
 
 	protected void initializeResources(HttpServletRequest req) {
 		initResources(req.getLocale());
@@ -257,7 +261,7 @@ public class ProjectsView extends AbstractView {
 
         if (aa.hasErrors()) {
             getVelocityContext().put("RESULTS", aa.errors());
-        } else { 
+        } else {
             getVelocityContext().put("RESULTS", aa.results());
         }
 	}
@@ -265,10 +269,11 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources on all projects of a node
 	// ---------------------------------------------------------------
-    private void triggerAllUpdateNode(StringBuilder e,
+    protected void triggerAllUpdateNode(StringBuilder e,
 			StoredProject selProject, int in) {
 		Set<StoredProject> projectList = getThisNodeProjects();
 		
+		// RENG: would this not only put the results of the last update in velocity?
 		for (StoredProject project : projectList) {
 			triggerAllUpdate(e, project, in);
 		}
