@@ -26,6 +26,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.plugins.tds.git.GitRevision;
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.PathChangeType;
@@ -36,7 +37,7 @@ import eu.sqooss.service.tds.Revision;
 public class GitRevisionTest {
 
 	// The object that is tested
-	private GitRevision gitRevision;
+	private SCMProjectRevision gitRevision;
 	private GitRevision gitRevision2;
 	
 	// The objects that are passed as arguments to the constructor
@@ -186,7 +187,7 @@ public class GitRevisionTest {
 	public void testToString() {
 		gitRevision = new TestableGitRevision(revCommit, gitAccessor);
 		String expected = "ID - " + date.toString() + " - Name <E-Mail>";
-		
+
 		assertEquals(gitRevision.toString(), expected);
 	}
 	
@@ -196,11 +197,11 @@ public class GitRevisionTest {
 		
 		// Instantiate three comparison objects, change the behaviour of 
 		// thepersonIdent.getWhen method to facilitate different dates.
-		GitRevision gitRevisionSame = new TestableGitRevision(revCommit, gitAccessor);
+		SCMProjectRevision gitRevisionSame = new TestableGitRevision(revCommit, gitAccessor);
 		when(personIdent.getWhen()).thenReturn(new Date(2));
-		GitRevision gitRevisionLater = new TestableGitRevision(revCommit, gitAccessor);
+		SCMProjectRevision gitRevisionLater = new TestableGitRevision(revCommit, gitAccessor);
 		when(personIdent.getWhen()).thenReturn(new Date(0));
-		GitRevision gitRevisionEarlier = new TestableGitRevision(revCommit, gitAccessor);
+		SCMProjectRevision gitRevisionEarlier = new TestableGitRevision(revCommit, gitAccessor);
 
 		assertEquals(gitRevision.compare(gitRevision, gitRevisionSame), 0);
 		assertEquals(gitRevision.compare(gitRevision, gitRevisionEarlier), 1);

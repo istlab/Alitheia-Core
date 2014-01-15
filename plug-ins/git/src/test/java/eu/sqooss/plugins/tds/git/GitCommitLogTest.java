@@ -15,8 +15,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.sqooss.plugins.tds.git.GitCommitLog;
-import eu.sqooss.plugins.tds.git.GitRevision;
 import eu.sqooss.plugins.tds.scm.SCMCommitLog;
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.Revision;
 
@@ -27,11 +27,11 @@ public class GitCommitLogTest {
 	
 	private List<Revision> entries;
 	@Mock
-	GitRevision gitRevision1;
+	SCMProjectRevision gitRevision1;
 	@Mock
-	GitRevision gitRevision2;
+	SCMProjectRevision gitRevision2;
 	@Mock
-	GitRevision gitRevision3;
+	SCMProjectRevision gitRevision3;
 	
 	@Before
     public void setUp() throws AccessorException, URISyntaxException {

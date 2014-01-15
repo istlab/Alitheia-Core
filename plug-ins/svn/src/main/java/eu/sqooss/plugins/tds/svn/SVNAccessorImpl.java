@@ -71,6 +71,7 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
@@ -162,7 +163,7 @@ public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
      * library or InvalidProjectRevisionException if the
      * ProjectRevision can't be used for resolution.
      */
-    private long resolveDatedProjectRevision( SVNProjectRevision r )
+    private long resolveDatedProjectRevision( SCMProjectRevision r )
         throws InvalidProjectRevisionException,
                InvalidRepositoryException {
         if ((r == null) || r.getDate() == null) {
@@ -343,7 +344,7 @@ public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
     // Interface methods
     /** {@inheritDoc}} */
     public boolean isValidRevision(Revision r) {
-        return (resolveRevision((SVNProjectRevision)r) != null?true:false);
+        return (resolveRevision((SCMProjectRevision)r) != null?true:false);
     }
 
     /** {@inheritDoc}} */
@@ -358,7 +359,7 @@ public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
     /** {@inheritDoc}  */
     public Revision getFirstRevision() throws InvalidRepositoryException {
         long first = getFirstSVNRevision();
-        SVNProjectRevision s = new SVNProjectRevision(first);
+        SCMProjectRevision s = new SVNProjectRevision(first);
         return resolveRevision(s);
     }
     
@@ -375,7 +376,7 @@ public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
         } catch (InvalidRepositoryException e) {
             throw new InvalidProjectRevisionException(e.getMessage(), getClass());
         }
-        SVNProjectRevision next = new SVNProjectRevision(svnr.getSVNRevision() + 1); 
+        SCMProjectRevision next = new SVNProjectRevision(svnr.getSVNRevision() + 1); 
         return resolveRevision(next);
     }
     
@@ -394,7 +395,7 @@ public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
             throw new InvalidProjectRevisionException(e.getMessage(), getClass());
         }
         
-        SVNProjectRevision prev = new SVNProjectRevision(svnr.getSVNRevision() - 1); 
+        SCMProjectRevision prev = new SVNProjectRevision(svnr.getSVNRevision() - 1); 
         return resolveRevision(prev);
     }
 
@@ -407,7 +408,7 @@ public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
             return null;
         }
 
-        SVNProjectRevision r = new SVNProjectRevision(d);
+        SCMProjectRevision r = new SVNProjectRevision(d);
         return resolveRevision(r);
     }
 
@@ -428,7 +429,7 @@ public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
             return null;
         }
 
-        SVNProjectRevision r = new SVNProjectRevision(revision);
+        SCMProjectRevision r = new SVNProjectRevision(revision);
         return resolveRevision(r);
     }
     
@@ -728,8 +729,8 @@ public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
                 false,
                 diff);
             // Store the diff
-            Diff theDiff = DiffFactory.getInstance().doUnifiedDiff((SVNProjectRevision)r1, 
-            		(SVNProjectRevision)r2, FileUtils.dirname(repoPath), diff.toString());
+            Diff theDiff = DiffFactory.getInstance().doUnifiedDiff((SCMProjectRevision)r1, 
+            		(SCMProjectRevision)r2, FileUtils.dirname(repoPath), diff.toString());
            
             return theDiff;
         } catch (SVNException e) {

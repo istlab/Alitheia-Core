@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.Revision;
 
@@ -24,11 +25,11 @@ public class SVNCommitLogImplTest {
 	
 	private List<Revision> entries;
 	@Mock
-	SVNProjectRevision gitRevision1;
+	SCMProjectRevision gitRevision1;
 	@Mock
-	SVNProjectRevision gitRevision2;
+	SCMProjectRevision gitRevision2;
 	@Mock
-	SVNProjectRevision gitRevision3;
+	SCMProjectRevision gitRevision3;
 	
 	@Before
     public void setUp() throws AccessorException, URISyntaxException {

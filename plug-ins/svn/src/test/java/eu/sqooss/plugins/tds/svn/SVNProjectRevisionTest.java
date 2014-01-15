@@ -23,6 +23,7 @@ import org.omg.SendingContext.RunTime;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNLogEntryPath;
 
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
@@ -439,7 +440,7 @@ public class SVNProjectRevisionTest {
 	@Test(expected=RuntimeException.class)
 	public void testCompareToOtherNotResolved() {
 		svnProjectRevision = new TestableSVNProjectRevision(highRevision);
-		SVNProjectRevision svnProjectRevision2 = new TestableSVNProjectRevision(date);
+		SCMProjectRevision svnProjectRevision2 = new TestableSVNProjectRevision(date);
 		
 		svnProjectRevision.compareTo(svnProjectRevision2);
 	}
@@ -455,7 +456,7 @@ public class SVNProjectRevisionTest {
 		when(svnLogEntry.getDate()).thenReturn(date);
 		when(svnLogEntry.getRevision()).thenReturn(highRevision);
 		when(svnLogEntry.getChangedPaths()).thenReturn(changedPaths);
-		SVNProjectRevision svnProjectRevision2 = new TestableSVNProjectRevision(svnLogEntry, "root");
+		SCMProjectRevision svnProjectRevision2 = new TestableSVNProjectRevision(svnLogEntry, "root");
 		
 		svnProjectRevision.compareTo(svnProjectRevision2);
 	}
@@ -478,7 +479,7 @@ public class SVNProjectRevisionTest {
 		when(svnLogEntry2.getDate()).thenReturn(date);
 		when(svnLogEntry2.getRevision()).thenReturn(highRevision - 1);
 		when(svnLogEntry2.getChangedPaths()).thenReturn(changedPaths);
-		SVNProjectRevision svnProjectRevision2 = new TestableSVNProjectRevision(svnLogEntry2, "root");
+		SCMProjectRevision svnProjectRevision2 = new TestableSVNProjectRevision(svnLogEntry2, "root");
 		
 		int result = svnProjectRevision.compareTo(svnProjectRevision2);
 		assertEquals(result, 1);
@@ -502,7 +503,7 @@ public class SVNProjectRevisionTest {
 		when(svnLogEntry2.getDate()).thenReturn(date);
 		when(svnLogEntry2.getRevision()).thenReturn(highRevision - 1);
 		when(svnLogEntry2.getChangedPaths()).thenReturn(changedPaths);
-		SVNProjectRevision svnProjectRevision2 = new TestableSVNProjectRevision(svnLogEntry2, "root");
+		SCMProjectRevision svnProjectRevision2 = new TestableSVNProjectRevision(svnLogEntry2, "root");
 		
 		int result = svnProjectRevision.compareTo(svnProjectRevision2);
 		int result2 = svnProjectRevision.compare(svnProjectRevision, svnProjectRevision2);

@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -53,13 +52,6 @@ import eu.sqooss.service.tds.Revision;
 public class GitRevision extends SCMProjectRevision {
 
     private String id;
-    private Date date;
-    private String author;
-    private String msg;
-    private Map<String, PathChangeType> changedPaths;
-    private List<CommitCopyEntry> copyOps;
-    private Set<String> parents;
-
     private boolean isResolved = false;
     GitAccessor git = null;
     RevCommit commit = null;
@@ -69,7 +61,7 @@ public class GitRevision extends SCMProjectRevision {
         this.date = getRevCommitAuthorIdent(obj).getWhen();
         this.author = getRevCommitAuthorIdent(obj).getName() + " <"
                 + getRevCommitAuthorIdent(obj).getEmailAddress() + ">";
-        this.msg = getRevCommitFullMessage(obj);
+        this.message = getRevCommitFullMessage(obj);
         this.git = git;
         this.commit = obj;
         this.parents = new HashSet<String>();
@@ -86,7 +78,7 @@ public class GitRevision extends SCMProjectRevision {
         this.date = getRevCommitAuthorIdent(obj).getWhen();
         this.author = getRevCommitAuthorIdent(obj).getName() + " <"
                 + getRevCommitAuthorIdent(obj).getEmailAddress() + ">";
-        this.msg = getRevCommitFullMessage(obj);
+        this.message = getRevCommitFullMessage(obj);
         this.changedPaths = paths;
         this.copyOps = copies;
         this.parents = new HashSet<String>();
@@ -121,18 +113,36 @@ public class GitRevision extends SCMProjectRevision {
 		return obj.getParents();
 	}
 
-    public boolean isResolved() {
+    public void resolve() {
+	    if (isResolved == false) {
+	        SCMProjectRevision r = git.getRevision(commit, true);
+	        this.changedPaths = r.changedPaths;
+	        this.copyOps = r.copyOps;
+	        // We don't need these now that the commit is resolved.
+	        // Let the GC grab them.
+	        git = null;
+	        commit = null;
+	        isResolved = true;
+	    }
+	}
+
+	public boolean isResolved() {
         resolve();
         return isResolved;
     }
 
     // Interface methods
-    @Override
+	@Override
+	public String getUniqueId() {
+	    return id;
+	}
+
+	@Override
     public int compareTo(Revision other) {
         if (!(other instanceof GitRevision))
             throw new RuntimeException("Not of type: "
                     + this.getClass().getName());
-        GitRevision othergit = (GitRevision) other;
+        SCMProjectRevision othergit = (SCMProjectRevision) other;
         if (this.date.getTime() == othergit.date.getTime())
             return 0;
 
@@ -142,69 +152,8 @@ public class GitRevision extends SCMProjectRevision {
             return -1;
     }
 
-    @Override
-    public Date getDate() {
-        return date;
-    }
-
-    @Override
-    public String getUniqueId() {
-        return id;
-    }
-
-    @Override
-    public String getAuthor() {
-        return author;
-    }
-
-    @Override
-    public String getMessage() {
-        return msg;
-    }
-
-    @Override
-    public Set<String> getChangedPaths() {
-        resolve();
-        return changedPaths.keySet();
-    }
-
-    @Override
-    public Map<String, PathChangeType> getChangedPathsStatus() {
-        resolve();
-        return changedPaths;
-    }
-
-    @Override
-    public List<CommitCopyEntry> getCopyOperations() {
-        resolve();
-        return copyOps;
-    }
-
-    @Override
-    public String toString() {
-        return getUniqueId() + " - " + date + " - " + author;
-    }
-
-    @Override
-    public int compare(Revision o1, Revision o2) {
-        return o1.compareTo(o2);
-    }
-
-    @Override
-    public Set<String> getParentIds() {
-        return this.parents;
-    }
-
-    private void resolve() {
-        if (isResolved == false) {
-            GitRevision r = git.getRevision(commit, true);
-            this.changedPaths = r.changedPaths;
-            this.copyOps = r.copyOps;
-            // We don't need these now that the commit is resolved.
-            // Let the GC grab them.
-            git = null;
-            commit = null;
-            isResolved = true;
-        }
-    }
+	@Override
+	public String toString() {
+	    return getUniqueId() + " - " + date + " - " + author;
+	}
 }

@@ -68,14 +68,8 @@ import eu.sqooss.service.tds.Revision;
  */
 public class SVNProjectRevision extends SCMProjectRevision {
 
-    private long revision;
-    private Date date;
-    private String author;
-    private String message;
-    private Map<String, PathChangeType> changedPaths;
-    private List<CommitCopyEntry> copyOps;
-    private Set<String> parents;
-    
+	public long revision;
+	
     /**
      * Default constructor, creating an invalid revision.
      */
@@ -167,60 +161,28 @@ public class SVNProjectRevision extends SCMProjectRevision {
         return revision;
     }
 
+    public void resolve() {
+    	// Do nothing.
+    }
+
     public boolean isResolved() {
         return (revision >= 0 
                 && date != null
                 && author != null
                 && message != null);
     }
-    
-    //Interface methods
-    /** {@inheritDoc}} */
-    public Date getDate() {
-        return date;
-    }
-    
-    /** {@inheritDoc} */
-    public String getUniqueId() {
-        return String.valueOf(revision);
-    }
-    
-    @Override
-    public String getAuthor() {
-        return author;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    @Override
-    public Set<String> getChangedPaths() {
-        return changedPaths.keySet();
-    }
-
-    @Override
-    public Map<String, PathChangeType> getChangedPathsStatus() {
-        return changedPaths;
-    }
-
-    @Override
-    public List<CommitCopyEntry> getCopyOperations() {
-        return copyOps;
-    }  
-    
-    @Override
-	public Set<String> getParentIds() {
-	    return parents;
-	}
 
 	/** {@inheritDoc} */
+	public String getUniqueId() {
+	    return String.valueOf(revision);
+	}
+    
+    /** {@inheritDoc} */
     public int compareTo(Revision o) {
         if (!(o instanceof SVNProjectRevision))
             throw new RuntimeException("Revision not of type: " + this.getClass().getName());
         
-        if (!((SVNProjectRevision)o).isResolved()) {
+        if (!((SCMProjectRevision)o).isResolved()) {
             throw new RuntimeException("Revision not resoved " 
                     + getUniqueId());
         }
@@ -233,17 +195,12 @@ public class SVNProjectRevision extends SCMProjectRevision {
         return (int) (revision - (((SVNProjectRevision)o).revision)); 
     }
 
-    @Override
-	public int compare(Revision o1, Revision o2) {
-		return o1.compareTo(o2);
-	}
-
 	/** {@inheritDoc} */
 	public String toString() {
 	    if (!isResolved())
 	        return null;
 	    return "r" + revision + " - (" + getAuthor() + "): " + getMessage();
-	}  
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
