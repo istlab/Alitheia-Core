@@ -91,47 +91,12 @@ public interface FDSService extends AlitheiaCoreService {
             throws CheckoutException;
 
     /**
-     * Update an existing checkout to the provided version. 
-     * 
-     * @param c The checkout to update
-     * @param pv The version to 
-     * @return True if the update succeeded, false if the checkout is 
-     * held by more than one clients
-     * @throws CheckoutException When the update failed or if the checkout
-     * has been updated by some other client before this method finishes.
-     */
-    boolean updateCheckout(OnDiskCheckout c, ProjectVersion pv) 
-        throws CheckoutException;
-
-    /**
      * Release a previously obtained checkout.
      * 
      * @param co Checkout obtained from previous call to getCheckout()
      * 
      */
     void releaseCheckout(OnDiskCheckout co);
-    
-    /**
-     * Maintains an in-memory representation of a project checkout for a
-     * specific revision. 
-     * 
-     * @return An in-memory representation of the working copy for a specific
-     *              revision
-     * @throws CheckoutException When a DB or other error occurred
-     */
-    InMemoryCheckout getInMemoryCheckout(ProjectVersion pv)
-        throws CheckoutException;
-    /**
-     * Maintains an in-memory representation of a project checkout for a
-     * specific revision. 
-     * 
-     * @param pattern A regular expression pattern used to filter files by their path
-     * @return An in-memory representation of the working copy for a specific
-     *              revision
-     * @throws CheckoutException When a DB or other error occurred 
-     */
-    InMemoryCheckout getInMemoryCheckout(ProjectVersion pv, Pattern pattern)
-        throws CheckoutException;
     
     /**
      * Retrieve a file handle corresponding to the selected ProjectFile entry.
