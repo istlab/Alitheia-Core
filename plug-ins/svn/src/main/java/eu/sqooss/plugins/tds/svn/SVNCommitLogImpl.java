@@ -44,7 +44,7 @@ import eu.sqooss.service.tds.Revision;
 /**
  * A simplistic implementation of the CommitLog interface.
  */
-public class SVNCommitLogImpl extends SCMCommitLog {
+public class SVNCommitLogImpl implements CommitLog {
     private LinkedList<Revision> entries;
 
     public SVNCommitLogImpl() {
