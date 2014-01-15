@@ -1,10 +1,11 @@
 package eu.sqooss.impl.service.webadmin;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
 
@@ -12,21 +13,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer.TestableWebAdminRenderer;
-import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.Job;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebAdminRendererTest {
+	
 	@Mock
-	Scheduler scheduler;
-	@Mock
-	AlitheiaCore core;
+	TestJob test;
 
 	@Test
 	public void shouldRenderNoFailedJobStats() {
@@ -34,7 +34,7 @@ public class WebAdminRendererTest {
 		WebAdminRenderer web = new WebAdminRenderer(null, null);
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, map, null, null, null);
+				null, null, map, null, null, null, null, null);
 
 		// Act
 		String failureString = render.renderJobFailStats();
@@ -62,7 +62,7 @@ public class WebAdminRendererTest {
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put("test", 1);
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, map, null, null, null);
+				null, null, map, null, null, null, null, null);
 
 		// Act
 		String failureString = render.renderJobFailStats();
@@ -96,7 +96,7 @@ public class WebAdminRendererTest {
 		map.put("test2", 2);
 
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, map, null, null, null);
+				null, null, map, null, null, null, null, null);
 
 		// Act
 		String failureString = render.renderJobFailStats();
@@ -141,7 +141,7 @@ public class WebAdminRendererTest {
 		WebAdminRenderer web = new WebAdminRenderer(null, null);
 		List<String> runJobs = new ArrayList<String>();
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, null, null, runJobs);
+				null, null, null, null, null, null, runJobs, null);
 
 		// Act
 		String runningJobs = render.renderJobRunStats();
@@ -159,7 +159,7 @@ public class WebAdminRendererTest {
 		runJobs.add("job1");
 		runJobs.add("job2");
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, null, null, runJobs);
+				null, null, null, null, null, null, runJobs, null);
 
 		// Act
 		String runningJobs = render.renderJobRunStats();
@@ -184,7 +184,7 @@ public class WebAdminRendererTest {
 		// runJobs.put("job1", 2);
 		// runJobs.put("job2", 1);
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, null, waitJobs, null);
+				null, null, null, null, null, waitJobs, null, null);
 
 		// Act
 		String waitingJobs = render.renderJobWaitStats();
@@ -211,7 +211,7 @@ public class WebAdminRendererTest {
 		waitJobs.put("job1", 2);
 		waitJobs.put("job2", 1);
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, null, waitJobs, null);
+				null, null, null, null, null, waitJobs, null, null);
 
 		// Act
 		String waitingJobs = render.renderJobWaitStats();
@@ -252,7 +252,7 @@ public class WebAdminRendererTest {
 		WebAdminRenderer web = new WebAdminRenderer(null, null);
 		String[] logs = new String[0];
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, logs, null, null);
+				null, null, null, null, logs, null, null, null);
 
 		// Act
 		String loglist = render.renderLogs();
@@ -270,7 +270,7 @@ public class WebAdminRendererTest {
 		// Arrange
 		WebAdminRenderer web = new WebAdminRenderer(null, null);
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null);
 
 		// Act
 		String loglist = render.renderLogs();
@@ -282,7 +282,7 @@ public class WebAdminRendererTest {
 		// Check that the list length is one
 		assertThat(the(html), hasXPath("count(/root/li)", equalTo("1")));
 	}
-	
+
 	@Test
 	public void shouldRenderLog() {
 		// Arrange
@@ -291,11 +291,10 @@ public class WebAdminRendererTest {
 		logs[0] = "log1";
 		logs[1] = "log2";
 		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, logs, null, null);
+				null, null, null, null, logs, null, null, null);
 
 		// Act
 		String loglist = render.renderLogs();
-		System.out.println(loglist);
 		// Assert
 		String html = "<root>" + loglist.replace("&nbsp;", " ") + "</root>";
 		// Check that the list length is two
@@ -305,10 +304,263 @@ public class WebAdminRendererTest {
 		// Check that the first list element is log1
 		assertThat(the(html), hasXPath("/root/li[2]", equalTo("log2")));
 	}
-	
+
 	@Test
-	public void shouldRenderNoFailedJobs() {
-	
+	public void shouldRenderNoFailedNullListJobs() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, null, null, null, null, null);
+
+		// Act
+		String failedJobs = render.renderFailedJobs();
+
+		// Assert
+		String html = "<root>" + failedJobs.replace("&nbsp;", " ") + "</root>";
+		// Check that the number of td in thead is four
+		assertThat(the(html),
+				hasXPath("count(/root/table/thead/tr/td)", equalTo("4")));
+		// Check td 1
+		assertThat(the(html),
+				hasXPath("/root/table/thead/tr/td[1]", equalTo("Job Type")));
+		// Check td 2
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[2]",
+						equalTo("Exception type")));
+		// Check td 3
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[3]",
+						equalTo("Exception text")));
+		// Check td 4
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[4]",
+						equalTo("Exception backtrace")));
+		// Check that there is onle one td tbody
+		assertThat(the(html),
+				hasXPath("count(/root/table/tbody/tr/td)", equalTo("1")));
+		// Check tbody td no failed jobs
+		assertThat(the(html),
+				hasXPath("/root/table/tbody/tr/td", equalTo("No failed jobs.")));
+	}
+
+	@Test
+	public void shouldRenderNoFailedEmptyListJobs() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		Job[] jobs = new Job[0];
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, jobs, null, null, null, null);
+
+		// Act
+		String failedJobs = render.renderFailedJobs();
+
+		// Assert
+		String html = "<root>" + failedJobs.replace("&nbsp;", " ") + "</root>";
+		// Check that the number of td in thead is four
+		assertThat(the(html),
+				hasXPath("count(/root/table/thead/tr/td)", equalTo("4")));
+		// Check td 1
+		assertThat(the(html),
+				hasXPath("/root/table/thead/tr/td[1]", equalTo("Job Type")));
+		// Check td 2
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[2]",
+						equalTo("Exception type")));
+		// Check td 3
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[3]",
+						equalTo("Exception text")));
+		// Check td 4
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[4]",
+						equalTo("Exception backtrace")));
+		// Check that there is onle one td tbody
+		assertThat(the(html),
+				hasXPath("count(/root/table/tbody/tr/td)", equalTo("1")));
+		// Check tbody td no failed jobs
+		assertThat(the(html),
+				hasXPath("/root/table/tbody/tr/td", equalTo("No failed jobs.")));
+	}
+
+	@Test
+	public void shouldRenderNoFailedNullJobJobs() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		Job[] jobs = new Job[1];
+		jobs[0] = null;
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, null, null, null, null, null);
+
+		// Act
+		String failedJobs = render.renderFailedJobs();
+
+		// Assert
+		String html = "<root>" + failedJobs.replace("&nbsp;", " ") + "</root>";
+		// Check that the number of td in thead is four
+		assertThat(the(html),
+				hasXPath("count(/root/table/thead/tr/td)", equalTo("4")));
+		// Check td 1
+		assertThat(the(html),
+				hasXPath("/root/table/thead/tr/td[1]", equalTo("Job Type")));
+		// Check td 2
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[2]",
+						equalTo("Exception type")));
+		// Check td 3
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[3]",
+						equalTo("Exception text")));
+		// Check td 4
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[4]",
+						equalTo("Exception backtrace")));
+		// Check that there is onle one td tbody
+		assertThat(the(html),
+				hasXPath("count(/root/table/tbody/tr/td)", equalTo("1")));
+		// Check tbody td no failed jobs
+		assertThat(the(html),
+				hasXPath("/root/table/tbody/tr/td", equalTo("No failed jobs.")));
+	}
+
+	@Test
+	public void shouldRenderOneEmptyJob() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		Job[] jobs = new Job[1];
+		Job test = new TestJob();
+		jobs[0] = test;
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, jobs, null, null, null, null);
+
+		// Act
+		String failedJobs = render.renderFailedJobs();
+
+		// Assert
+		String html = "<root>" + failedJobs.replace("&nbsp;", " ") + "</root>";
+		// Check that the number of td in thead is four
+		assertThat(the(html),
+				hasXPath("count(/root/table/thead/tr/td)", equalTo("4")));
+		// Check td 1
+		assertThat(the(html),
+				hasXPath("/root/table/thead/tr/td[1]", equalTo("Job Type")));
+		// Check td 2
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[2]",
+						equalTo("Exception type")));
+		// Check td 3
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[3]",
+						equalTo("Exception text")));
+		// Check td 4
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[4]",
+						equalTo("Exception backtrace")));
+		// Check that there are four tds in tbody
+		assertThat(the(html),
+				hasXPath("count(/root/table/tbody/tr/td)", equalTo("4")));
+		// Check that class name is set
+		assertThat(
+				the(html),
+				hasXPath("/root/table/tbody/tr/td[1]", equalTo(test.toString())));
+		// Check that there are three b's in tbody
+		assertThat(the(html),
+				hasXPath("count(/root/table/tbody/tr/td/b)", equalTo("3")));
+
+	}
+
+	@Test
+	public void shouldRenderOneJobWithException() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		Job[] jobs = new Job[1];
+		jobs[0] = test;
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, jobs, null, null, null, new Exception(
+						"test exception"));
+
+		// Act
+		String failedJobs = render.renderFailedJobs();
+
+		// Assert
+		String html = "<root>" + failedJobs.replace("&nbsp;", " ") + "</root>";
+		// Check that the number of td in thead is four
+		assertThat(the(html),
+				hasXPath("count(/root/table/thead/tr/td)", equalTo("4")));
+		// Check td 1
+		assertThat(the(html),
+				hasXPath("/root/table/thead/tr/td[1]", equalTo("Job Type")));
+		// Check td 2
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[2]",
+						equalTo("Exception type")));
+		// Check td 3
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[3]",
+						equalTo("Exception text")));
+		// Check td 4
+		assertThat(
+				the(html),
+				hasXPath("/root/table/thead/tr/td[4]",
+						equalTo("Exception backtrace")));
+		// Check that the number of td in tbody is four
+		assertThat(the(html),
+				hasXPath("count(/root/table/tbody/tr/td)", equalTo("4")));
+		// Check that the first td has the name of the test
+		assertThat(the(html),
+				hasXPath("/root/table/tbody/tr/td[1]", equalTo("test")));
+		// Check that the exception type matches the exception
+		assertThat(
+				the(html),
+				hasXPath("/root/table/tbody/tr/td[2]",
+						equalToIgnoringWhiteSpace("java.lang. Exception")));
+		// Check that the message passed is the same
+		assertThat(
+				the(html),
+				hasXPath("/root/table/tbody/tr/td[3]",
+						equalTo("test exception")));
+		// Check that the message passed is the same
+		assertThat(
+				the(html),
+				hasXPath("/root/table/tbody/tr/td[4]",
+						containsString("WebAdminRendererTest")));
+	}
+
+	@Ignore
+	@Test
+	public void testGetUptime() {
+		// Arrange
+		WebAdminRenderer web = new WebAdminRenderer(null, null);
+		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
+				null, null, null, null, null, null, null, null);
+		assertEquals("0:00:00:00", render.getUptime());
+
+	}
+
+	public class TestJob extends Job {
+
+		@Override
+		public long priority() {
+			return 4;
+		}
+
+		@Override
+		protected void run() throws Exception {
+		}
+
 	}
 
 }

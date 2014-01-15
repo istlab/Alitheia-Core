@@ -105,9 +105,9 @@ public class WebAdminRenderer  extends AbstractView {
      * failed and the recorded exceptions
      * @return
      */
-    public static String renderFailedJobs() {
+    public String renderFailedJobs() {
         StringBuilder result = new StringBuilder();
-        Job[] jobs = sobjSched.getFailedQueue();
+        Job[] jobs = getFailedQueue();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
         result.append("\t<thead>\n");
         result.append("\t\t<tr>\n");
@@ -130,21 +130,21 @@ public class WebAdminRenderer  extends AbstractView {
 			result.append(j.toString());
                     }
                     catch (NullPointerException ex) {
-                        result.append("<b>NA<b>");
+                        result.append("<b>NA</b>");
                     }
                 }
                 else {
-                    result.append("<b>NA<b>");
+                    result.append("<b>NA</b>");
                 }
                 result.append("</td>\n\t\t\t<td>");
-                Exception e = j.getErrorException();
+                Exception e = getException(j);
                 if (e != null) {
                     try {
                         result.append(e.getClass().getPackage().getName());
                         result.append(". " + e.getClass().getSimpleName());
                     }
                     catch (NullPointerException ex) {
-                        result.append("<b>NA<b>");
+                        result.append("<b>NA</b>");
                     }
                 }
                 else {
@@ -155,7 +155,7 @@ public class WebAdminRenderer  extends AbstractView {
                     result.append(e.getMessage());
                 }
                 catch (NullPointerException ex) {
-                    result.append("<b>NA<b>");
+                    result.append("<b>NA</b>");
                 }
                 result.append("</td>\n\t\t\t<td>");
                 if ((e != null)
@@ -186,6 +186,15 @@ public class WebAdminRenderer  extends AbstractView {
 
         return result.toString();
     }
+
+	protected Exception getException(Job j) {
+		return j.getErrorException();
+	}
+
+	protected Job[] getFailedQueue() {
+		Job[] jobs = sobjSched.getFailedQueue();
+		return jobs;
+	}
 
     /**
      * Creates an HTML unordered list displaying the contents of the current system log
@@ -218,8 +227,7 @@ public class WebAdminRenderer  extends AbstractView {
      */
     public static String getUptime() {
         long remainder;
-        long currentTime = new Date().getTime();
-        long timeRunning = currentTime - startTime;
+        long timeRunning = getRunningTime();
 
         // Get the elapsed time in days, hours, mins, secs
         int days = new Long(timeRunning / 86400000).intValue();
@@ -232,7 +240,14 @@ public class WebAdminRenderer  extends AbstractView {
 
         return String.format("%d:%02d:%02d:%02d", days, hours, mins, secs);
     }
-    
+
+	protected static long getRunningTime() {
+		long currentTime = new Date().getTime();
+        long timeRunning = currentTime - startTime;
+		return timeRunning;
+	}
+
+	   
 
     public String renderJobWaitStats() {
         StringBuilder result = new StringBuilder();
@@ -288,24 +303,34 @@ public class WebAdminRenderer  extends AbstractView {
 protected class TestableWebAdminRenderer extends WebAdminRenderer {
 		
 		HashMap<String, Integer> failedJobs;
+		Job[] jobs;
 		String[] logs;
 		HashMap<String, Integer> waitingJobs;
 		List<String> runJobs;
+		Exception exception;
 		
-
 		public TestableWebAdminRenderer(BundleContext bundlecontext,
-				VelocityContext vc, HashMap<String, Integer> failedJobs, String[] logs, HashMap<String, Integer> waitingJobs, List<String> runJobs) {
+				VelocityContext vc, HashMap<String, Integer> failedJobs, Job[] jobs, String[] logs, HashMap<String, Integer> waitingJobs, List<String> runJobs, Exception exception) {
 			super(bundlecontext, vc);
 			this.failedJobs = failedJobs;
+			this.jobs = jobs;
 			this.logs = logs;
 			this.waitingJobs = waitingJobs;
 			this.runJobs = runJobs;
+			this.exception = exception;
+			
 		}
 		
 		@Override
 		protected HashMap<String, Integer> getFailedJobs() {
 			return this.failedJobs;
 		}
+		
+		@Override
+		protected Job[] getFailedQueue() {
+			return this.jobs;
+		}
+
 		
 		@Override
 		protected String[] getLogs() {
@@ -321,6 +346,13 @@ protected class TestableWebAdminRenderer extends WebAdminRenderer {
 		protected HashMap<String, Integer> getWaitingJobs() {
 			return waitingJobs;
 		}
+		
+		@Override
+		protected Exception getException(Job j) {
+			return this.exception;
+		}
+		
+		
 	}
 }
 
