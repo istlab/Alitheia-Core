@@ -33,9 +33,8 @@
 
 package eu.sqooss.service.db;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -52,6 +51,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.util.ClusterNodeUtils;
 
 /**
  * A node in a Alitheia Core cluster installation
@@ -107,16 +107,7 @@ public class ClusterNode extends DAObject {
     public void setProjects(Set<StoredProject> projects) {
         this.projects = projects;
     }
-    
-    public static ClusterNode getClusteNodeByName(String name) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("name",name);
-        List<ClusterNode> cnList = dbs.findObjectsByProperties(ClusterNode.class, parameterMap);
-        return (cnList == null || cnList.isEmpty()) ? null : cnList.get(0);
-    }
-    
+
     public static ClusterNode thisNode() {
         String hostname;
         try {
@@ -127,6 +118,6 @@ public class ClusterNode extends DAObject {
             hostname = "unknown host";
         }       
         
-        return getClusteNodeByName(hostname);
+        return new ClusterNodeUtils(AlitheiaCore.getInstance().getDBService()).getClusterNodeByName(hostname);
     }
 }

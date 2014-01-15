@@ -47,7 +47,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
@@ -66,7 +68,6 @@ import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService;
-import eu.sqooss.service.util.BidiMap;
 import eu.sqooss.service.util.GraphTS;
 
 public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
@@ -81,7 +82,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     private ConcurrentMap<Long,Map<Updater, UpdaterJob>> scheduledUpdates;
     
     /* List of registered updaters */
-    private BidiMap<Updater, Class<? extends MetadataUpdater>> updaters;
+    private BiMap<Updater, Class<? extends MetadataUpdater>> updaters;
 
     /* UpdaterService interface methods*/
     /** {@inheritDoc} */
@@ -114,7 +115,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /** {@inheritDoc} */
     @Override
     public void unregisterUpdaterService(Class<? extends MetadataUpdater> clazz) {
-        updaters.remove(updaters.getKey(clazz));
+        updaters.remove(updaters.inverse().get(clazz));
         logger.info("Unregistering updater class " + clazz.getCanonicalName());
     }
     
@@ -152,10 +153,10 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /**{@inheritDoc}*/
     @Override
     public Set<Updater> getUpdaters(StoredProject project) {
-        Set<Updater> upds = new HashSet<Updater>();
+        Set<Updater> upds = new HashSet<>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
-        Set<URI> schemes = new HashSet<URI>();
+        Set<URI> schemes = new HashSet<>();
 
         //Import phase updaters
         try {
@@ -182,7 +183,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /**{@inheritDoc}*/
     @Override
     public Set<Updater> getUpdaters(StoredProject sp, UpdaterStage st) {
-        Set<Updater> upd = new HashSet<Updater>();
+        Set<Updater> upd = new HashSet<>();
         
         for (Updater updater : getUpdaters(sp)) {
             if (updater.stage().equals(st))
@@ -222,8 +223,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         
         dbs = core.getDBService();
         
-        updaters = new BidiMap<Updater, Class<? extends MetadataUpdater>>();
-        scheduledUpdates = new ConcurrentHashMap<Long, Map<Updater, UpdaterJob>>();
+        updaters = HashBiMap.create();
+        scheduledUpdates = new ConcurrentHashMap<>();
         
         logger.info("Succesfully started updater service");
         return true;
@@ -237,7 +238,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     /*Private service methods*/
     private List<Updater> getUpdatersByProtocol(String protocol) {
-        List<Updater> upds = new ArrayList<Updater>();
+        List<Updater> upds = new ArrayList<>();
         
         for (Updater u : updaters.keySet()) {
             for (String p : u.protocols()) {
@@ -252,7 +253,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     }
  
     private List<Updater> getUpdatersByStage(UpdaterStage u) {
-        List<Updater> upds = new ArrayList<Updater>();
+        List<Updater> upds = new ArrayList<>();
        
         for (Updater upd : updaters.keySet()) {
             if (upd.stage().equals(u))
@@ -334,7 +335,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 + " updater:" + (updater == null?updater:"all"));
         
         //Construct a list of updater stages to iterate later
-        List<UpdaterStage> stages = new ArrayList<UpdaterStage>(); 
+        List<UpdaterStage> stages = new ArrayList<>(); 
         
         if (updater == null) {
             if (stage == null) {
@@ -356,19 +357,17 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
          * stages. The result of this loop is a list of jobs with properly set
          * dependencies to ensure correct execution.
          */
-        List<Job> jobs = new LinkedList<Job>();
-        BidiMap<Updater, Job> toSchedule = new BidiMap<Updater, Job>();
+        List<Job> jobs = new LinkedList<>();
+        BiMap<Updater, Job> toSchedule = HashBiMap.create();
         DependencyJob oldDepJob = null;
         try {
             for (UpdaterStage us : stages) {
                 
                 // Topologically sort updaters within the same stage
-                List<Updater> updForStage = new ArrayList<Updater>();
+                List<Updater> updForStage = new ArrayList<>();
                 updForStage.addAll(getUpdaters(project, us));
-                GraphTS<Updater> graph = 
-                    new GraphTS<Updater>(updForStage.size());
-                BidiMap<Updater, Integer> idx = 
-                    new BidiMap<Updater, Integer>();
+                GraphTS<Updater> graph = new GraphTS<>(updForStage.size());
+                HashBiMap<Updater, Integer> idx = HashBiMap.create();
 
                 //Construct a adjacency matrix for dependencies
                 for (Updater u : updForStage) {
@@ -401,7 +400,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 // We now have updaters in correct execution order
                 DependencyJob depJob = new DependencyJob(us.toString());
 
-                List<String> deps = new ArrayList<String>();
+                List<String> deps = new ArrayList<>();
                 if (updater != null)
                     deps = Arrays.asList(updater.dependencies());
 
@@ -452,8 +451,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
                     // Add dependencies to previously scheduled jobs
                     // within the same stage
-                    List<Class<? extends MetadataUpdater>> dependencies = 
-                        new ArrayList<Class<? extends MetadataUpdater>>();
+                    List<Class<? extends MetadataUpdater>> dependencies = new ArrayList<>();
 
                     for (String s : u.dependencies()) {
                         dependencies.add(updaters.get(getUpdaterByMnemonic(s)));
@@ -478,7 +476,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             }
 
             //Enqueue jobs
-            List<Job> toQueue = new ArrayList<Job>();
+            List<Job> toQueue = new ArrayList<>();
             for (Job job : jobs) {
                 if (!scheduledUpdates.containsKey(project.getId()))
                     scheduledUpdates.put(project.getId(),
@@ -503,7 +501,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 if (!(job instanceof UpdaterJob))
                     continue;
                 scheduledUpdates.get(project.getId()).put(
-                        toSchedule.getKey(job), (UpdaterJob)job);
+                        toSchedule.inverse().get(job), (UpdaterJob)job);
             }
             AlitheiaCore.getInstance().getScheduler().enqueueBlock(toQueue);
         } catch (SchedulerException e) {

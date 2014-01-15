@@ -33,9 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -48,9 +45,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.tds.PathChangeType;
 
 /**
  * A representation of the status of the file in this revision:
@@ -74,12 +68,6 @@ public class ProjectFileState extends DAObject {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="PROJECT_FILE_STATE_ID")
 	private long id; 
-	
-    // File status constants
-    public static final int STATE_ADDED = 0x1;
-    public static final int STATE_MODIFIED = 0x2;
-    public static final int STATE_DELETED  = 0x4;
-    public static final int STATE_REPLACED  = 0x8;
     
     @Column(name="STATUS")
     @XmlElement
@@ -88,72 +76,9 @@ public class ProjectFileState extends DAObject {
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval=true, mappedBy="state")
     private Set<ProjectFile> files;
     
-    public String toString() {
-        switch (status) {
-        case STATE_ADDED:
-            return "ADDED";
-        case STATE_MODIFIED:
-            return "MODIFIED";
-        case STATE_DELETED:
-            return "DELETED";
-        case STATE_REPLACED:
-            return "REPLACED";
-        }
-        return null;
-    }
-    
-    public static ProjectFileState added() {
-        return fromStatus(STATE_ADDED);
-    }
-    
-    public static ProjectFileState modified() {
-        return fromStatus(STATE_MODIFIED);
-    }
-    
-    public static ProjectFileState deleted() {
-        return fromStatus(STATE_DELETED);
-    }
-    
-    public static ProjectFileState replaced() {
-        return fromStatus(STATE_REPLACED);
-    }
-    
-    public static ProjectFileState fromStatus(int status) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        if (!dbs.isDBSessionActive())
-            return null;
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("status", status);
-        List<ProjectFileState> pfs = dbs.findObjectsByProperties(
-                ProjectFileState.class, params);
-
-        if (!pfs.isEmpty()) {
-            return pfs.get(0);
-        }
-
-        ProjectFileState state = new ProjectFileState();
-        state.setStatus(status);
-
-        dbs.addRecord(state);
-
-        return fromStatus(status);
-    }
-
-    public static ProjectFileState fromPathChangeType(PathChangeType pct) {
-        switch (pct) {
-        case ADDED:
-            return fromStatus(STATE_ADDED);
-        case MODIFIED:
-            return fromStatus(STATE_MODIFIED);
-        case DELETED:
-            return fromStatus(STATE_DELETED);    
-        case REPLACED:
-            return fromStatus(STATE_REPLACED);
-        default:
-            return null;
-        }
+    @Override
+	public String toString() {
+    	return FileState.fromInt(this.status).toString();
     }
     
     public int getStatus() {
@@ -162,6 +87,14 @@ public class ProjectFileState extends DAObject {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+    
+    public FileState getFileStatus() {
+    	return FileState.fromInt(this.status);
+    }
+    
+    public void setFileStatus(FileState s) {
+    	this.status = s.getState();
     }
 
     public Set<ProjectFile> getFiles() {

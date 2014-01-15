@@ -56,9 +56,11 @@ import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
-import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.db.util.MetricsUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
+import eu.sqooss.service.db.util.ProjectVersionUtils;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
@@ -245,29 +247,30 @@ public class WcImplementation extends AbstractMetric {
         } catch (IOException e) {
             log.warn("Failed to read file <" + pf.getFileName() +">",e);
         }
-        
+
+        MetricsUtils mu = new MetricsUtils(db);
 
         // Store the results
         List<Metric> toUpdate = new ArrayList<Metric>();
-        Metric metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOC);
+        Metric metric = mu.getMetricByMnemonic(MNEMONIC_WC_LOC);
         ProjectFileMeasurement locm = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[0]));
         db.addRecord(locm);
         toUpdate.add(metric);
 
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
+        metric = mu.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
         ProjectFileMeasurement locc = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[1]));
         db.addRecord(locc);
         toUpdate.add(metric);
         
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LONB);
+        metric = mu.getMetricByMnemonic(MNEMONIC_WC_LONB);
         ProjectFileMeasurement lonb = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[2]));
         db.addRecord(lonb);
         toUpdate.add(metric);
 
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_WORDS);
+        metric = mu.getMetricByMnemonic(MNEMONIC_WC_WORDS);
         ProjectFileMeasurement words_measure = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[3]));
         db.addRecord(words_measure);
@@ -408,9 +411,10 @@ public class WcImplementation extends AbstractMetric {
         String paramState = "paramState";
         Map<String, Object> params = new HashMap<String, Object>();
        
+        ProjectFileUtils pfu = new ProjectFileUtils(db);
         /* Get all measurements for live version files for metrics LoC and LoCom*/ 
         StringBuffer q = new StringBuffer("select pfm ");
-        if (v.getSequence() == ProjectVersion.getLastProjectVersion(v.getProject()).getSequence()) {
+        if (v.getSequence() == new ProjectVersionUtils(db, pfu).getLastProjectVersion(v.getProject()).getSequence()) {
             q.append(" from ProjectFile pf, ProjectFileMeasurement pfm");
             q.append(" where pf.validUntil is null ");
         } else {
@@ -434,10 +438,12 @@ public class WcImplementation extends AbstractMetric {
         q.append(" and (pfm.metric.id = :").append(paramMetricLoC);
         q.append(" or pfm.metric.id = :").append(paramMetricLoCom).append(")");
 
-        params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC).getId());
-        params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM).getId());
+        MetricsUtils mu = new MetricsUtils(db);
+        
+        params.put(paramMetricLoC, mu.getMetricByMnemonic(MNEMONIC_WC_LOC).getId());
+        params.put(paramMetricLoCom, mu.getMetricByMnemonic(MNEMONIC_WC_LOCOM).getId());
         params.put(paramIsDirectory, Boolean.FALSE);
-        params.put(paramState, ProjectFileState.deleted());
+        params.put(paramState, pfu.deleted());
         
         List<ProjectFileMeasurement> results = 
             (List<ProjectFileMeasurement>) db.doHQL(q.toString(), params);
@@ -451,7 +457,7 @@ public class WcImplementation extends AbstractMetric {
         
         params.remove(paramMetricLoCom);
         params.remove(paramMetricLoC);
-        nof = v.getLiveFilesCount();
+        nof = new ProjectVersionUtils(db, new ProjectFileUtils(db)).getLiveFilesCount(v);
         
         for (ProjectFileMeasurement pfm : results) {
             String fname = pfm.getProjectFile().getName();
@@ -485,7 +491,7 @@ public class WcImplementation extends AbstractMetric {
     }
     
     private Metric addPVMeasurement(String s, ProjectVersion pv, int value) {
-        Metric m = Metric.getMetricByMnemonic(s); 
+        Metric m = new MetricsUtils(db).getMetricByMnemonic(s); 
         ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(m , pv, 
                 String.valueOf(value));
         db.addRecord(pvm);

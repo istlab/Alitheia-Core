@@ -40,11 +40,16 @@ import java.util.Set;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.util.PluginUtils;
 import eu.sqooss.service.util.StringUtils;
 
 /**
@@ -119,8 +124,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   <li>{@link FileGroupMetric}</li>
      * </ul>
      */
-    Set<Class<? extends DAObject>> activationTypes =
-        new HashSet<Class<? extends DAObject>>();
+    Set<Class<? extends DAObject>> activationTypes = new HashSet<>();
 
     /**
      * The hash code's value of the associated metric metric plug-in.
@@ -142,8 +146,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * A list containing the current set of configuration parameters of the
      * associated metric plug-in
      */
-    private Set<PluginConfiguration> config =
-        new HashSet<PluginConfiguration>();
+    private Set<PluginConfiguration> config = new HashSet<>();
 
     /**
      * This flag is set to <code>false<code> on a newly registered metric
@@ -379,7 +382,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
         newParam.setMsg((description != null) ? description : "");
         newParam.setType(type);
         newParam.setValue(value);
-        Plugin p = Plugin.getPluginByHashcode(hashcode);
+        Plugin p = new PluginUtils(AlitheiaCore.getInstance().getDBService()).getPluginByHashcode(hashcode);
         newParam.setPlugin(p);
         return p.getConfigurations().add(newParam);
 }
@@ -591,7 +594,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
             b.append ((
                     ((classNames != null)
                             && (classNames.length > 0))
-                    ? (StringUtils.join(classNames, ","))
+                    ? (Joiner.on(",").join(classNames))
                             : "UNKNOWN"));
         }
         else {

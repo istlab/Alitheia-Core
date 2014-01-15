@@ -77,6 +77,10 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.MetricType.Type;
+import eu.sqooss.service.db.util.MailingListUtils;
+import eu.sqooss.service.db.util.MetricsUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
+import eu.sqooss.service.db.util.ProjectVersionUtils;
 import eu.sqooss.service.fds.FileTypeMatcher;
 import eu.sqooss.service.metricactivator.MetricActivationException;
 import eu.sqooss.service.pa.PluginInfo;
@@ -264,7 +268,7 @@ public class ContributionMetricImpl extends AbstractMetric {
      */
     public List<Result> getResult(Developer d, Metric m) {
         ArrayList<Result> results = new ArrayList<Result>();
-        ProjectVersion newestPV = ProjectVersion.getLastProjectVersion(d.getStoredProject());
+        ProjectVersion newestPV = new ProjectVersionUtils(this.db, new ProjectFileUtils(this.db)).getLastProjectVersion(d.getStoredProject());
         
         double result = 0;
         
@@ -304,8 +308,8 @@ public class ContributionMetricImpl extends AbstractMetric {
     }
 
     public void run(MailingListThread t) throws AlreadyProcessingException {
-        Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
-        List<MailMessage> emails = t.getMessagesByArrivalOrder();
+        Metric contrib = new MetricsUtils(this.db).getMetricByMnemonic(METRIC_CONTRIB);
+        List<MailMessage> emails = new MailingListUtils(this.db).getMessagesByArrivalOrder(t);
         MailMessage lastProcessed = null;
         
         //Find the last email in this thread
@@ -343,7 +347,7 @@ public class ContributionMetricImpl extends AbstractMetric {
             } else {
                 if (mm.getDepth() == 1) {
                   //First reply to a thread
-                    MailMessage firstMessage = t.getMessagesAtLevel(1).get(0);
+                    MailMessage firstMessage = new MailingListUtils(this.db).getMessagesAtLevel(t, 1).get(0);
                     if (firstMessage.equals(mm))
                         updateField(mm, mm.getSender(), ActionType.MFR, true, 1);
                 }
@@ -367,7 +371,7 @@ public class ContributionMetricImpl extends AbstractMetric {
         AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin("Wc.loc");
         
         if (plugin != null) {
-            locMetric.add(Metric.getMetricByMnemonic("Wc.loc"));
+            locMetric.add(new MetricsUtils(this.db).getMetricByMnemonic("Wc.loc"));
         } else {
             err("Could not find the WC plugin", pv);
             return;
@@ -438,15 +442,16 @@ public class ContributionMetricImpl extends AbstractMetric {
                 continue;
             }
             
+            ProjectFileUtils pfu = new ProjectFileUtils(this.db);
             //Commit of a source file
             if (ftm.isTextType(pf.getFileName())) {
                 //Source file changed, calc number of lines commited
                 try {
                     if (pf.isDeleted()) {
-                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
+                    	int locPrev = getLOCResult(pfu.getPreviousFileVersion(pf), plugin, locMetric);
                         updateField(pv, dev, ActionType.CREM, true, locPrev);
                     } else if(pf.isReplaced()) {
-                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
+                    	int locPrev = getLOCResult(pfu.getPreviousFileVersion(pf), plugin, locMetric);
                         updateField(pv, dev, ActionType.CREM, true, locPrev);
                         updateField(pv, dev, ActionType.CNS, true, 1);
                         updateField(pv, dev, ActionType.CADD, true, 
@@ -459,7 +464,7 @@ public class ContributionMetricImpl extends AbstractMetric {
                         		getLOCResult(pf, plugin, locMetric));
                     } else {
                         //Existing file, get lines of previous version
-                        ProjectFile prevFile = pf.getPreviousFileVersion();
+                        ProjectFile prevFile = pfu.getPreviousFileVersion(pf);
                         
                         if (prevFile == null) {
                         	warn("Could not find previous version", pf);

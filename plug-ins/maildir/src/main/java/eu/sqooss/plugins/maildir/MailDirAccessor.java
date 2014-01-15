@@ -55,6 +55,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 
 /**
  * This is the implementation of the simple access to mailing
@@ -106,7 +107,7 @@ public class MailDirAccessor implements MailAccessor {
     private static List<URI> supportedSchemes;
     
     static {
-        supportedSchemes = new ArrayList<URI>();
+        supportedSchemes = new ArrayList<>();
         supportedSchemes.add(URI.create("maildir://www.sqo-oss.org"));
     }
     
@@ -119,7 +120,7 @@ public class MailDirAccessor implements MailAccessor {
     public void init(URI dataURL, String name) throws AccessorException {
         url = dataURL.toString();
         this.name = name;
-        logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
+        logger = AlitheiaCore.getInstance().getLogManager().createLogger(LoggerName.TDS);
         maildirRoot = new File(dataURL.getPath());
         
         if (!maildirRoot.exists()) {
@@ -285,7 +286,7 @@ public class MailDirAccessor implements MailAccessor {
     public final List < String > getMessages(final String listId)
         throws FileNotFoundException {
         File listDir = getFolder(listId);
-        List < String > l = new LinkedList < String >();
+        List < String > l = new LinkedList<>();
 
         for (String s : subdirs) {
             File msgFile = new File(listDir, s);
@@ -305,7 +306,7 @@ public class MailDirAccessor implements MailAccessor {
     public final List<String> getNewMessages(final String listId)
         throws FileNotFoundException {
     File listDir = getFolder(listId);
-    List < String > l = new LinkedList < String >();
+    List < String > l = new LinkedList<>();
     String s = "new";
     File msgFile = new File(listDir, s);
     if (msgFile.exists() && msgFile.isDirectory()) {
@@ -325,7 +326,7 @@ public class MailDirAccessor implements MailAccessor {
         throws FileNotFoundException {
         File listDir = getFolder(listId);
         List < String > allMessages = getMessages(listId);
-        List < String > goodMessages = new LinkedList < String >();
+        List < String > goodMessages = new LinkedList<>();
         DateFormat dateParser = DateFormat.getInstance();
         for (String m : allMessages) {
             String dateHdr = null;
@@ -405,7 +406,7 @@ public class MailDirAccessor implements MailAccessor {
       * mailist1, maillist2 are serving as ListId
       */
     public List<String> getMailingLists() {
-        List<String> lists = new ArrayList<String>();
+        List<String> lists = new ArrayList<>();
         
         //scan for list directories
         if(maildirRoot.isDirectory()) {

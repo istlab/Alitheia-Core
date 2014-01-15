@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -65,6 +64,7 @@ import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricMeasurement;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.db.NameSpaceMeasurement;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -73,13 +73,15 @@ import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectMeasurement;
 import eu.sqooss.service.db.MetricType.Type;
+import eu.sqooss.service.db.util.MetricsUtils;
+import eu.sqooss.service.db.util.PluginUtils;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 import eu.sqooss.service.metricactivator.MetricActivationException;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.util.Pair;
 
 /**
  * A base class for all metrics. Implements basic functionality such as
@@ -108,23 +110,23 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /**
      * The scheduler job that executes this metric. 
      */
-    protected ThreadLocal<Job> job = new ThreadLocal<Job>();
+    protected ThreadLocal<Job> job = new ThreadLocal<>();
 
     /** 
      * Metric mnemonics for the metrics required to be present for this 
      * metric to operate.
      */
-    private Set<String> dependencies = new HashSet<String>();
+    private Set<String> dependencies = new HashSet<>();
     
     /** Set of declared metrics indexed by their mnemonic*/
-    private Map<String, Metric> metrics = new HashMap<String, Metric>();
+    private Map<String, Metric> metrics = new HashMap<>();
     
     /** The list of this plug-in's activators*/
     private Set<Class<? extends DAObject>> activators =
-        new HashSet<Class<? extends DAObject>>();
+        new HashSet<>();
 
     private Map<Metric, List<Class<? extends DAObject>>> metricActType =
-    	new HashMap<Metric, List<Class<? extends DAObject>>>();
+    	new HashMap<>();
     
     protected static final String QRY_SYNC_PV = "select pv.id from ProjectVersion pv " +
     		"where pv.project = :project and not exists(" +
@@ -221,7 +223,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
         this.bc = bc;
        
-        log = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_METRIC);
+        log = AlitheiaCore.getInstance().getLogManager().createLogger(LoggerName.METRIC);
 
         if (log == null) {
             System.out.println("ERROR: Got no logger");
@@ -256,7 +258,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 				m.setMnemonic(metric.mnemonic());
 				m.setMetricType(new MetricType(MetricType.fromActivator(metric.activators()[0])));
 			
-				List<Class<? extends DAObject>> activs = new ArrayList<Class<? extends DAObject>>();				
+				List<Class<? extends DAObject>> activs = new ArrayList<>();				
 				for (Class<? extends DAObject> o : metric.activators()) {
 					activs.add(o);
 				}
@@ -314,10 +316,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Retrieve the installation date for this plug-in version
      */
     public final Date getDateInstalled() {
-        return Plugin.getPluginByHashcode(getUniqueKey()).getInstalldate();
+        return new PluginUtils(this.db).getPluginByHashcode(getUniqueKey()).getInstalldate();
     }
-
-    Map<Long,Pair<Object,Long>> blockerObjects = new ConcurrentHashMap<Long,Pair<Object,Long>>();
 
     /**
      * Call the appropriate getResult() method according to
@@ -337,13 +337,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      @SuppressWarnings("unchecked")
      public List<Result> getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
         boolean found = false;        
-        List<Result> result = new ArrayList<Result>();
+        List<Result> result = new ArrayList<>();
         
         for (Metric m : l) {
             if (!metrics.containsKey(m.getMnemonic())) {
                 throw new MetricMismatchException("Metric " + m.getMnemonic()
                         + " not defined by plugin "
-                        + Plugin.getPluginByHashcode(getUniqueKey()).getName());
+                        + new PluginUtils(this.db).getPluginByHashcode(getUniqueKey()).getName());
             }
             List<Result> re = null;
             try {
@@ -437,16 +437,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return r;
     }
 
-    private Map<Long,Pair<Object,Integer>> locks = new HashMap<Long,Pair<Object,Integer>>();
+    private Map<Long, LockPair> locks = new HashMap<>();
     
     private Object lockObject(DAObject o) throws AlreadyProcessingException {
     	synchronized (locks) {
             if (!locks.containsKey(o.getId())) {
                 locks.put(o.getId(), 
-                        new Pair<Object, Integer>(new Object(),0));
+                        new LockPair(new Object(), 0L));
             }
-            Pair<Object, Integer> p = locks.get(o.getId());
-            if (p.second + 1 > 1) {
+            LockPair p = locks.get(o.getId());
+            if (p.getRight() + 1 > 1) {
                 /*
                  * Break and reschedule the calculation of each call to the
                  * getResult method if it originates from another thread than
@@ -464,16 +464,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                     ma.runMetric(o, this);
                 }
             }
-            p.second = p.second + 1;
-            return p.first;
+            p.setRight(p.getRight() + 1);
+            return p.getLeft();
         }
     }
     
     private void unlockObject(DAObject o) {
     	synchronized(locks) {
-    		Pair<Object,Integer> p = locks.get(o.getId());
-    		p.second = p.second - 1;
-    		if (p.second == 0) {
+    		LockPair p = locks.get(o.getId());
+    		p.setRight(p.getRight() - 1);
+    		if (p.getRight() == 0) {
     			locks.remove(o.getId());
     		} else {
     		log.debug("Unlocking DAO Id:" + o.getId());
@@ -559,14 +559,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     public List<Metric> getAllSupportedMetrics() {
         String qry = "from Metric m where m.plugin=:plugin";
         Map<String,Object> params = new HashMap<String,Object>();
-        params.put("plugin", Plugin.getPluginByHashcode(getUniqueKey()));
+        params.put("plugin", new PluginUtils(this.db).getPluginByHashcode(getUniqueKey()));
         
         return (List<Metric>)db.doHQL(qry, params);
     }
     
     /** {@inheritDoc} */
     public List<Metric> getSupportedMetrics(Class<? extends DAObject> activator) {
-        List<Metric> m = new ArrayList<Metric>();
+        List<Metric> m = new ArrayList<>();
 
         //Query the database just once
         List<Metric> all = getAllSupportedMetrics();
@@ -595,7 +595,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             return false;
         }
         
-        HashMap<String, Object> h = new HashMap<String, Object>();
+        HashMap<String, Object> h = new HashMap<>();
         h.put("name", this.getName());
 
         List<Plugin> plugins = db.findObjectsByProperties(Plugin.class, h);
@@ -620,7 +620,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         for (String mnem :metrics.keySet()) {
         	Metric m = metrics.get(mnem);
         	Type type = Type.fromString(m.getMetricType().getType());
-        	MetricType newType = MetricType.getMetricType(type);
+        	MetricType newType = new MetricsUtils(db).getMetricType(type);
         	if (newType == null) {
                 newType = new MetricType(type);
                 db.addRecord(newType);
@@ -641,7 +641,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Subclasses should also clean up any custom tables created.
      */
     public boolean remove() {
-        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
+        Plugin p = new PluginUtils(db).getPluginByHashcode(getUniqueKey());
         return db.deleteRecord(p);
     }
     
@@ -825,8 +825,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return null;
     }
     
-    private static Map<Class<? extends MetricMeasurement>, String> resultFieldNames = 
-        new HashMap<Class<? extends MetricMeasurement>, String>();
+    private static Map<Class<? extends MetricMeasurement>, String> resultFieldNames = new HashMap<>();
     
     static {
         resultFieldNames.put(StoredProjectMeasurement.class, "storedProject");
@@ -845,16 +844,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     protected List<Result> getResult(DAObject o, Class<? extends MetricMeasurement> clazz, 
             Metric m, Result.ResultType type) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String, Object> props = new HashMap<String, Object>();
+        Map<String, Object> props = new HashMap<>();
         
         props.put(resultFieldNames.get(clazz), o);
         props.put("metric", m);
         List resultat = dbs.findObjectsByProperties(clazz, props);
         
         if (resultat.isEmpty())
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
-        ArrayList<Result> result = new ArrayList<Result>();
+        ArrayList<Result> result = new ArrayList<>();
         result.add(new Result(o, m, ((MetricMeasurement)resultat.get(0)).getResult(), type));
         return result;
         
@@ -893,9 +892,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     public Map<MetricType.Type, SortedSet<Long>> getObjectIdsToSync(StoredProject sp, Metric m) 
     throws MetricActivationException {
 
-    	Map<MetricType.Type, SortedSet<Long>> IDs = new HashMap<Type, SortedSet<Long>>();
+    	Map<MetricType.Type, SortedSet<Long>> IDs = new HashMap<>();
     	
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("project", sp);
         params.put("metric", m.getId());
 
@@ -930,7 +929,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 	    	}
 	    	
 	    	List<Long> objectIds = (List<Long>) db.doHQL(q, params);
-	    	TreeSet<Long> ids = new TreeSet<Long>();
+	    	TreeSet<Long> ids = new TreeSet<>();
 	    	ids.addAll(objectIds);
 	    	IDs.put(MetricType.fromActivator(at), ids);
     	}

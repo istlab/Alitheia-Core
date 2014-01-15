@@ -43,6 +43,8 @@ import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectConfig;
+import eu.sqooss.service.db.util.ConfigurationOptionUtils;
+import eu.sqooss.service.db.util.StoredProjectUtils;
 import eu.sqooss.service.scheduler.Job;
 
 public class ProjectDeleteJob extends Job {
@@ -71,7 +73,7 @@ public class ProjectDeleteJob extends Job {
 
         sp = dbs.attachObjectToDBSession(sp);
         // Delete any associated invocation rules first
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put("project", sp);
 
         //Cleanup plugin results
@@ -102,7 +104,7 @@ public class ProjectDeleteJob extends Job {
         }
                
         //Delete the project's config options
-        List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(sp);
+        List<StoredProjectConfig> confParams = new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).fromProject(sp);
         if (!confParams.isEmpty()) {
         	success &= dbs.deleteRecords(confParams);
         }

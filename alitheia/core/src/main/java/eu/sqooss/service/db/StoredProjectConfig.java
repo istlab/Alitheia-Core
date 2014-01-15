@@ -33,10 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -48,8 +44,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 @XmlRootElement(name="project-config")
 @Entity
@@ -112,14 +106,5 @@ public class StoredProjectConfig extends DAObject {
 	
 	public void setValue(String value) {
 		this.value = value;
-	}
-	
-	public static List<StoredProjectConfig> fromProject(StoredProject sp) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("project", sp);
-		
-		return dbs.findObjectsByProperties(StoredProjectConfig.class, params);
 	}
 }

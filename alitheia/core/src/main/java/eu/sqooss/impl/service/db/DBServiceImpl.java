@@ -36,8 +36,8 @@ package eu.sqooss.impl.service.db;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.URL;
 import java.net.URI;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -48,21 +48,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.QueryException;
 import org.hibernate.JDBCException;
+import org.hibernate.LockMode;
 import org.hibernate.Query;
+import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.cfg.Configuration;	
+import org.hibernate.cfg.Configuration;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCoreService;
+import eu.sqooss.properties.PropertiesWorker;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
@@ -79,7 +80,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
     private static DBService instance;
     
-    public static Map<String, String> drivers = new HashMap<String, String>();
+    public static Map<String, String> drivers = new HashMap<>();
     
     static {
         drivers.put("mysql", "com.mysql.jdbc.Driver");
@@ -88,7 +89,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         drivers.put("h2", "org.h2.Driver");
     }
     
-    public static Map<String, String> connString = new HashMap<String, String>();
+    public static Map<String, String> connString = new HashMap<>();
     
     static {
         connString.put("mysql", "jdbc:mysql://<HOST>/<SCHEMA>?useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=utf8");
@@ -97,7 +98,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         connString.put("h2", "jdbc:h2:<SCHEMA>");
     }
 
-    public static Map<String, String> hbmDialects = new HashMap<String, String>();
+    public static Map<String, String> hbmDialects = new HashMap<>();
     
     static {
         hbmDialects.put("mysql", "org.hibernate.dialect.MySQLInnoDBDialect");
@@ -106,7 +107,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         hbmDialects.put("h2", "org.h2.Driver");
     }
 
-    public static Map<String, String> conPools = new HashMap<String, String>();
+    public static Map<String, String> conPools = new HashMap<>();
     
     static {
         conPools.put("default", "org.hibernate.connection.DriverManagerConnectionProvider");
@@ -124,7 +125,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     private SessionFactory sessionFactory = null;
     private BundleContext bc = null;
     private AtomicBoolean isInitialised = new AtomicBoolean(false);
-    private Properties conProp = new Properties();
+    private PropertiesWorker conProp = new PropertiesWorker();
     
     private void logSQLException(SQLException e) {
 
@@ -142,8 +143,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
             logSQLException(jdbce.getSQLException());
         }
         logger.warn("Exception caught during database session: " + e.getMessage() 
-                + ". Rolling back current transaction and terminating session...");
-        e.printStackTrace();
+                + ". Rolling back current transaction and terminating session...", e);
         Session s = null;
         try {
             s = sessionFactory.getCurrentSession();
@@ -173,7 +173,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     }
     
     private boolean getJDBCConnection() {
-        String driver = conProp.getProperty("hibernate.connection.driver_class");
+        String driver = conProp.getProperty(ConfigurationKey.DRIVER_CLASS);
         try {
             Driver d = (Driver)Class.forName(driver).newInstance();
             DriverManager.registerDriver(d);
@@ -194,17 +194,15 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
             return false;
         }
         
-        try {
-            Connection c = DriverManager.getConnection(
-                    conProp.getProperty("hibernate.connection.url"),
-                    conProp.getProperty("hibernate.connection.username"),
-                    conProp.getProperty("hibernate.connection.password"));
+        try (Connection c = DriverManager.getConnection(
+                    conProp.getProperty(ConfigurationKey.URL),
+                    conProp.getProperty(ConfigurationKey.USERNAME),
+                    conProp.getProperty(ConfigurationKey.PASSWORD))) {
             c.setAutoCommit(false);
-            c.close();
             return true;
         } catch (SQLException e) {
             logger.error("Unable to connect to DB URL " +
-                    conProp.getProperty("hibernate.connection.url"));
+                    conProp.getProperty(ConfigurationKey.URL));
             logSQLException(e);
             return false;
         }
@@ -221,14 +219,14 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
             Configuration c = new AnnotationConfiguration().configure(configFileURL); 
             // c now holds the configuration from hibernate.cfg.xml, need
             // to override some of those properties.            
-            for(Object s : conProp.keySet()) {
-                c.setProperty(s.toString(), conProp.getProperty(s.toString()));
+            for(Entry<Object, Object> s : conProp.entrySet()) {
+                c.setProperty(s.getKey().toString(), s.getValue().toString());
             }
             
 			// Get the list of eu.sqo-oss.metrics.* jars and add them to the
 			// config
 			String osgiInst = System.getProperty("osgi.install.area");
-			List<String> dirsToSearch = new ArrayList<String>();
+			List<String> dirsToSearch = new ArrayList<>();
 			if (osgiInst != null) {
 				dirsToSearch.add(osgiInst);
 				dirsToSearch.add(osgiInst + "/..");
@@ -239,7 +237,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 						"from metrics bundles won't be initialized.");
 			}
 			
-			List<String> inited = new ArrayList<String>();
+			List<String> inited = new ArrayList<>();
 			
             for (String dir : dirsToSearch) {
 
@@ -285,7 +283,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
     
     public DBServiceImpl() { }
     
-    public DBServiceImpl(Properties p, URL configFileURL, Logger l) { 
+    public DBServiceImpl(PropertiesWorker p, URL configFileURL, Logger l) { 
         this.conProp = p;
         this.logger = l;
         initHibernate(configFileURL);
@@ -336,7 +334,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
         // TODO maybe check that the properties are valid (e.g. with java.bean.PropertyDescriptor)
 
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        Map<String,Object> parameterMap = new HashMap<>();
         StringBuffer whereClause = new StringBuffer();
         for (String key : properties.keySet()) {
             whereClause.append( whereClause.length() == 0 ? " where " : " and " );
@@ -527,7 +525,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
      * @see eu.sqooss.service.db.DBService#addRecord(eu.sqooss.service.db.DAObject)
      */
     public boolean addRecord(DAObject record) {
-        ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
+        ArrayList<DAObject> tmpList = new ArrayList<>(1);
         tmpList.add(record);
         return addRecords(tmpList);
     }
@@ -536,7 +534,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
      * @see eu.sqooss.service.db.DBService#deleteRecord(eu.sqooss.service.db.DAObject)
      */
     public boolean deleteRecord(DAObject record) {
-        ArrayList<DAObject> tmpList = new ArrayList<DAObject>(1);
+        ArrayList<DAObject> tmpList = new ArrayList<>(1);
         tmpList.add(record);
         return deleteRecords(tmpList);
     }
@@ -780,12 +778,12 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         cs = cs.replaceAll("<HOST>", bc.getProperty(DB_HOST));
         cs = cs.replaceAll("<SCHEMA>", bc.getProperty(DB_SCHEMA));
             
-        conProp.setProperty("hibernate.connection.driver_class",  drivers.get(db));
-        conProp.setProperty("hibernate.connection.url", cs);
-        conProp.setProperty("hibernate.connection.username", bc.getProperty(DB_USERNAME));
-        conProp.setProperty("hibernate.connection.password", bc.getProperty(DB_PASSWORD));
-        conProp.setProperty("hibernate.connection.dialect",  hbmDialects.get(db));
-        conProp.setProperty("hibernate.connection.provider_class", conPools.get(bc.getProperty(DB_CONPOOL)));
+        conProp.setProperty(ConfigurationKey.DRIVER_CLASS,  drivers.get(db));
+        conProp.setProperty(ConfigurationKey.URL, cs);
+        conProp.setProperty(ConfigurationKey.USERNAME, bc.getProperty(DB_USERNAME));
+        conProp.setProperty(ConfigurationKey.PASSWORD, bc.getProperty(DB_PASSWORD));
+        conProp.setProperty(ConfigurationKey.DIALECT,  hbmDialects.get(db));
+        conProp.setProperty(ConfigurationKey.PROVIDER_CLASS, conPools.get(bc.getProperty(DB_CONPOOL)));
         
         if (!getJDBCConnection()) {
             logger.error("DB service got no JDBC connectors.");
@@ -798,7 +796,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
         isInitialised.compareAndSet(false, true);
         return true; 
     }
-
+    
     @Override
     public void shutDown() {
     	logger.info("Shutting down database service");

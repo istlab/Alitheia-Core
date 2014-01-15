@@ -67,6 +67,7 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
 import eu.sqooss.service.tds.CommitCopyEntry;
@@ -105,7 +106,7 @@ public class GitAccessor implements SCMAccessor {
     private Map<String, List<String>> childrenOf;
     
     static {
-        supportedSchemes = new ArrayList<URI>();
+        supportedSchemes = new ArrayList<>();
         supportedSchemes.add(URI.create("git-file://www.sqo-oss.org"));
     }
     
@@ -124,7 +125,7 @@ public class GitAccessor implements SCMAccessor {
 	throws AccessorException {
 
         doInit(dataURL, projectName);
-	    this.logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
+	    this.logger = AlitheiaCore.getInstance().getLogManager().createLogger(LoggerName.TDS);
         info("Created SCMAccessor for " + uri.toASCIIString());
         this.projectname = projectName;
 	}
@@ -446,7 +447,7 @@ public class GitAccessor implements SCMAccessor {
      */
     public Map<String, String> allTags() {
     	Map<String, Ref> all = git.getAllRefs();
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<>();
 		
 		for (String ref : all.keySet()) {
 			if (!ref.contains("/tags/"))
@@ -472,7 +473,7 @@ public class GitAccessor implements SCMAccessor {
      */
     public String[] getCommitChidren(String revisionId) throws AccessorException {
     	if (childrenOf == null) {
-            childrenOf = new HashMap<String, List<String>>();
+            childrenOf = new HashMap<>();
     		resolveChildren();
     	}
     	
@@ -561,8 +562,8 @@ public class GitAccessor implements SCMAccessor {
     	if (!resolve)
     		return new GitRevision(commit, this);
     	    
-        Map<String, PathChangeType> events = new HashMap<String, PathChangeType>();
-        List<CommitCopyEntry> copies = new ArrayList<CommitCopyEntry>();
+        Map<String, PathChangeType> events = new HashMap<>();
+        List<CommitCopyEntry> copies = new ArrayList<>();
         
         //Special case for first revision, use a tree walk and mark all files
         //as added. 

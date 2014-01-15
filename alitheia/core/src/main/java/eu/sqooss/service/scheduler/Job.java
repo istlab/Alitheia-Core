@@ -36,17 +36,11 @@ package eu.sqooss.service.scheduler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
-
-import java.lang.Comparable;
-import java.lang.InterruptedException;
+import java.util.List;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.util.Pair;
-
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.scheduler.SchedulerException;
 
 /**
  * Abstract base class for all jobs running by the scheduler.
@@ -77,7 +71,7 @@ public abstract class Job implements Comparable<Job> {
      * As soon as the \a first job is finished, the pair is removed from
      * the list.
      */
-    protected List<Pair<Job,Job>> m_dependencies;
+    protected List<JobDependency> m_dependencies;
     
     /**
      * List of jobs which depend on this job
@@ -142,10 +136,10 @@ public abstract class Job implements Comparable<Job> {
         }
 
         if (m_dependencies == null)
-            m_dependencies = new LinkedList<Pair<Job,Job>>();
+            m_dependencies = new LinkedList<>();
         
         synchronized (m_dependencies) {
-            Pair<Job,Job> newDependency = new Pair<Job,Job>(other, this);
+            JobDependency newDependency = new JobDependency(other, this);
             m_dependencies.add(newDependency);
             other.addDependee(this);
         }
@@ -160,9 +154,9 @@ public abstract class Job implements Comparable<Job> {
         if (m_dependencies == null)
             return;
         synchronized(m_dependencies) {
-            List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
-            for (Pair<Job,Job> p: m_dependencies ) {
-                if ( (p.first == other) && (p.second == this) ) {
+            List<JobDependency> doomed = new LinkedList<>();
+            for (JobDependency p: m_dependencies ) {
+                if ( (p.getFrom() == other) && (p.getTo() == this) ) {
                     doomed.add(p);
                     removeDependee(other);
                 }
@@ -181,10 +175,10 @@ public abstract class Job implements Comparable<Job> {
         if (m_dependencies == null)
             return false;
         synchronized(m_dependencies) {
-            for (Pair<Job,Job> p: m_dependencies ) {
-                if ( (p.first == other) && (p.second == this) ) {
+            for (JobDependency p: m_dependencies ) {
+                if ( (p.getFrom() == other) && (p.getTo() == this) ) {
                     return true;
-                } else if ( (p.second == this) && p.first.dependsOn(other)) {
+                } else if ( (p.getTo() == this) && p.getFrom().dependsOn(other)) {
                     return true;
                 }
             }
@@ -194,7 +188,7 @@ public abstract class Job implements Comparable<Job> {
 
     private final synchronized void addDependee(Job other) {
         if (m_dependees == null)
-            m_dependees = new ArrayList<Job>();
+            m_dependees = new ArrayList<>();
         synchronized (m_dependees) {
             m_dependees.add(other);
         }
@@ -290,13 +284,13 @@ public abstract class Job implements Comparable<Job> {
      */
     public final List<Job> dependencies() {
         if (m_dependencies == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
-        List<Job> result = new LinkedList<Job>();
+        List<Job> result = new LinkedList<>();
         synchronized (m_dependencies) {
-            for (Pair<Job,Job> p: m_dependencies) {
-                if (p.second == this) {
-                    result.add(p.first);
+            for (JobDependency p: m_dependencies) {
+                if (p.getTo() == this) {
+                    result.add(p.getFrom());
                 }
             }
         }
@@ -393,13 +387,13 @@ public abstract class Job implements Comparable<Job> {
 
         if ((m_state == State.Finished || m_state == State.Error) && m_dependencies != null) {
             // remove the job from the dependency list
-            List<Job> unblockedJobs = new LinkedList<Job>();
+            List<Job> unblockedJobs = new LinkedList<>();
             synchronized (m_dependencies) {
-                List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
-                for (Pair<Job,Job> p: m_dependencies) {
-                    if (p.first == this) {
+                List<JobDependency> doomed = new LinkedList<>();
+                for (JobDependency p: m_dependencies) {
+                    if (p.getFrom() == this) {
                         doomed.add(p);
-                        unblockedJobs.add(p.second);
+                        unblockedJobs.add(p.getTo());
                     }
                 }
                 m_dependencies.removeAll(doomed);
@@ -551,7 +545,7 @@ public abstract class Job implements Comparable<Job> {
      */
     public final synchronized void addJobStateListener(JobStateListener l) {
         if (listeners == null)
-            listeners = new ArrayList<JobStateListener>();
+            listeners = new ArrayList<>();
         listeners.add(l);
     }
     

@@ -33,9 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -50,11 +47,8 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * An object that encapsulates a single configuration option.
- * Includes methods to get the values for a specific project.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
@@ -78,7 +72,7 @@ public class ConfigurationOption extends DAObject {
 	private String description;
 
 	@OneToMany(fetch=FetchType.LAZY, mappedBy="confOpt", cascade=CascadeType.ALL)
-	public Set<StoredProjectConfig> configurations;
+	private Set<StoredProjectConfig> configurations;
 	
     public ConfigurationOption() {}
 	
@@ -119,104 +113,7 @@ public class ConfigurationOption extends DAObject {
         this.configurations = configurations;
     }
 
-    /**
-     * Set an array of values for this configuration option for the specified
-     * project.
-     * 
-     * @param sp The project to add the configuration value
-     * @param value The value to set
-     * @param overwrite If the key already has a value in the config database,
-     *  the method determines whether to overwrite the value or append the
-     *  provided value to the existing list of values.
-     */
-	public void setValues(StoredProject sp, List<String> values,
-			boolean overwrite) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
-		String paramProject = "paramProject";
-		String paramConfOpt = "paramConfOpt";
-		
-		StringBuilder query = new StringBuilder();
-		query.append(" select spc ");
-		query.append(" from StoredProjectConfig spc,");
-		query.append("      ConfigurationOption co ");
-		query.append(" where spc.confOpt = co ");
-		query.append(" and spc.project =:").append(paramProject);
-		query.append(" and spc.confOpt =:").append(paramConfOpt);
-
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put(paramProject, sp);
-		params.put(paramConfOpt, this);
-
-		List<StoredProjectConfig> curValues = 
-			(List<StoredProjectConfig>) dbs.doHQL(query.toString(),params);
-		boolean found = false;
-		if (overwrite) {
-			dbs.deleteRecords(curValues);
-			for (String newValue : values) {
-				StoredProjectConfig newspc = new StoredProjectConfig(
-						this, newValue, sp);
-				dbs.addRecord(newspc);
-			}
-		} else { //Merge values
-			for (String newValue : values) {
-				for (StoredProjectConfig conf : curValues) {
-					if (conf.getValue().equals(newValue)) {
-						found = true;
-					}
-				}
-				if (!found) {
-					StoredProjectConfig newspc = new StoredProjectConfig(
-							this, newValue, sp);
-					dbs.addRecord(newspc);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Get the configured values for a project.
-	 * @param sp The project to retrieve the configuration values for
-	 * @return A list of configuration values that correspond to the provided
-	 * project
-	 */
-	public List<String> getValues(StoredProject sp) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
-		String paramProject = "paramProject";
-		String paramConfOpt = "paramConfOpt";
-		
-		StringBuilder query = new StringBuilder();
-		query.append(" select spc.value ");
-		query.append(" from StoredProjectConfig spc, ConfigurationOption co ");
-		query.append(" where spc.confOpt = co ");
-		query.append(" and spc.project =:").append(paramProject);
-		query.append(" and spc.confOpt =:").append(paramConfOpt);
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put(paramProject, sp);
-		params.put(paramConfOpt, this);
-		
-		return (List<String>) dbs.doHQL(query.toString(), params);
-	}
-	
-	public static ConfigurationOption fromKey(String key) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
-		String paramKey = "key";
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put(paramKey, key);
-		
-		List<ConfigurationOption> opts =  dbs.findObjectsByProperties(ConfigurationOption.class, params);
-		
-		if (opts.isEmpty())
-			return null;
-		
-		return opts.get(0);
-	}
-	
-	public String toString() {
+    public String toString() {
 		return key + " - " + description; 
 	}
 }

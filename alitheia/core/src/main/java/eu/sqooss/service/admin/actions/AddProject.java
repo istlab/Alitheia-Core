@@ -3,16 +3,18 @@ package eu.sqooss.service.admin.actions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Properties;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.properties.PropertiesWorker;
 import eu.sqooss.service.admin.AdminActionBase;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ConfigOption;
-import eu.sqooss.service.db.ConfigurationOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.ConfigurationOptionUtils;
+import eu.sqooss.service.db.util.StoredProjectUtils;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
@@ -63,7 +65,7 @@ public class AddProject extends AdminActionBase {
 
 	public static final String MNEMONIC = "addpr";
 	
-    Properties p;
+    PropertiesWorker p;
     
     @Override
     public String mnemonic() {
@@ -85,12 +87,12 @@ public class AddProject extends AdminActionBase {
         if (args.containsKey("dir")) { 
             addProjectDir(args.get("dir").toString());
             
-            name = p.getProperty(ConfigOption.PROJECT_NAME.getName());
-            bts = p.getProperty(ConfigOption.PROJECT_BTS_URL.getName());
-            scm = p.getProperty(ConfigOption.PROJECT_SCM_URL.getName());
-            mail = p.getProperty(ConfigOption.PROJECT_ML_URL.getName());
-            contact = p.getProperty(ConfigOption.PROJECT_CONTACT.getName());
-            web = p.getProperty(ConfigOption.PROJECT_WEBSITE.getName());
+            name = p.getProperty(ConfigOption.PROJECT_NAME);
+            bts = p.getProperty(ConfigOption.PROJECT_BTS_URL);
+            scm = p.getProperty(ConfigOption.PROJECT_SCM_URL);
+            mail = p.getProperty(ConfigOption.PROJECT_ML_URL);
+            contact = p.getProperty(ConfigOption.PROJECT_CONTACT);
+            web = p.getProperty(ConfigOption.PROJECT_WEBSITE);
         } else {
             name = (args.get("name") == null)?"":args.get("name").toString();
             bts = (args.get("bts") == null)?"":args.get("bts").toString();
@@ -99,13 +101,13 @@ public class AddProject extends AdminActionBase {
             contact = (args.get("contact") == null)?"":args.get("contact").toString();
             web = (args.get("web") == null)?"":args.get("web").toString();
             
-            p = new Properties();
-            p.put(ConfigOption.PROJECT_NAME.getName(), name);
-            p.put(ConfigOption.PROJECT_WEBSITE.getName(), web);
-            p.put(ConfigOption.PROJECT_CONTACT.getName(), contact);
-            p.put(ConfigOption.PROJECT_BTS_URL.getName(), bts);
-            p.put(ConfigOption.PROJECT_ML_URL.getName(), mail);
-            p.put(ConfigOption.PROJECT_SCM_URL.getName(), scm);
+            p = new PropertiesWorker();
+            p.setProperty(ConfigOption.PROJECT_NAME, name);
+            p.setProperty(ConfigOption.PROJECT_WEBSITE, web);
+            p.setProperty(ConfigOption.PROJECT_CONTACT, contact);
+            p.setProperty(ConfigOption.PROJECT_BTS_URL, bts);
+            p.setProperty(ConfigOption.PROJECT_ML_URL, mail);
+            p.setProperty(ConfigOption.PROJECT_SCM_URL, scm);
         }
 
         // Avoid missing-entirely kinds of parameters.
@@ -120,7 +122,7 @@ public class AddProject extends AdminActionBase {
 
         /* Run a few checks before actually storing the project */
         // 1. Duplicate project
-        HashMap<String, Object> props = new HashMap<String, Object>();
+        HashMap<String, Object> props = new HashMap<>();
         props.put("name",  name);
         if (!db.findObjectsByProperties(StoredProject.class, props).isEmpty()) {
             error("project.exists", "A project with the same name already exists");
@@ -181,9 +183,10 @@ public class AddProject extends AdminActionBase {
         //The project is now ready to be added 
         db.addRecord(sp);
         
+        StoredProjectUtils spu = new StoredProjectUtils(db, new ConfigurationOptionUtils(db));
         //Store all known properties to the database
         for (ConfigOption co : ConfigOption.values()) {
-            String s = p.getProperty(co.getName());
+            String s = p.getProperty(co);
             
             if (s == null)
                 continue;
@@ -192,7 +195,7 @@ public class AddProject extends AdminActionBase {
             if (co.equals(ConfigOption.PROJECT_BTS_URL) ||
             		co.equals(ConfigOption.PROJECT_ML_URL) ||
             		co.equals(ConfigOption.PROJECT_SCM_URL)) {
-            	sp.addConfig(co, s);
+            	spu.addConfig(sp, co, s);
             	continue;
             }
 
@@ -200,7 +203,7 @@ public class AddProject extends AdminActionBase {
             
             for (String subopt : subopts) {
                 if (subopt.trim().length() > 0)
-                    sp.addConfig(co, subopt.trim());
+                	spu.addConfig(sp, co, subopt.trim());
             }
         }
        
@@ -255,22 +258,22 @@ public class AddProject extends AdminActionBase {
             f = infoFile;
         }
 
-        p = new Properties();
-        try {
-            p.load(new FileInputStream(f));
+        p = new PropertiesWorker();
+        try (InputStream stream = new FileInputStream(f)) {
+            p.load(stream);
         } catch (Exception e1) {
             error("not.properties", "The provided path is not a valid project.properties file");
         }
 
-        if (p.getProperty(ConfigOption.PROJECT_NAME.getName()) == null)
-            p.setProperty(ConfigOption.PROJECT_NAME.getName(), f.getParentFile().getName());
+        if (p.getProperty(ConfigOption.PROJECT_NAME) == null)
+            p.setProperty(ConfigOption.PROJECT_NAME, f.getParentFile().getName());
 
         String parent = f.getParentFile().getAbsolutePath();
         debug("Project dir URI: " + f.getParentFile().toURI());
         
-        p.setProperty(ConfigOption.PROJECT_BTS_URL.getName(),
+        p.setProperty(ConfigOption.PROJECT_BTS_URL,
                 "bugzilla-xml:///" + parent + File.separator + "bugs");
-        p.setProperty(ConfigOption.PROJECT_ML_URL.getName(), 
+        p.setProperty(ConfigOption.PROJECT_ML_URL, 
                 "maildir:///" + parent + File.separator + "mail");
 
         for (File file: infoFile.listFiles()) {
@@ -278,10 +281,10 @@ public class AddProject extends AdminActionBase {
                 continue;
             
             if(file.getName().equals("svn")) {
-                p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(),
+                p.setProperty(ConfigOption.PROJECT_SCM_URL,
                         "svn-file:///" + parent + File.separator +"svn");
             } else if (file.getName().equals("git")) {
-                p.setProperty(ConfigOption.PROJECT_SCM_URL.getName(),
+                p.setProperty(ConfigOption.PROJECT_SCM_URL,
                         "git-file:///" + parent + File.separator + "git");
             }
         }

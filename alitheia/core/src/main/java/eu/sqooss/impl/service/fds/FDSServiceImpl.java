@@ -691,8 +691,8 @@ public class FDSServiceImpl implements FDSService, Runnable {
         tds = AlitheiaCore.getInstance().getTDSService();
         logger.info("Got TDS service for FDS.");
 
-        checkoutCache = new ConcurrentHashMap<String, OnDiskCheckout>();
-        checkoutHandles = new ConcurrentHashMap<OnDiskCheckout, Integer>();
+        checkoutCache = new ConcurrentHashMap<>();
+        checkoutHandles = new ConcurrentHashMap<>();
         // Get the checkout root from the properties file.
         String s = bc.getProperty("eu.sqooss.fds.root");
         if (s == null) {

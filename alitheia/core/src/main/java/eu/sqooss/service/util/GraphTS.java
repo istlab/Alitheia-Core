@@ -61,7 +61,7 @@ public class GraphTS<T> {
 	    vertexList = (Vertex[]) Array.newInstance(Vertex.class, MAX_VERTS);
 		matrix = new int[MAX_VERTS][MAX_VERTS];
 		numVerts = 0;
-		sortedArray = new ArrayList<T>(numvertices);
+		sortedArray = new ArrayList<>(numvertices);
 		for (int i = 0; i < MAX_VERTS; i++) {
 			for (int k = 0; k < MAX_VERTS; k++)
 				matrix[i][k] = 0;

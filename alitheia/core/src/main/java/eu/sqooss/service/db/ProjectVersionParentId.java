@@ -7,9 +7,9 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 public class ProjectVersionParentId implements Serializable {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -6504741641332955526L;
 
-    public ProjectVersionParentId() {}
+	public ProjectVersionParentId() {}
     
     @Column(name = "PARENT_ID")
     private Long parentid;

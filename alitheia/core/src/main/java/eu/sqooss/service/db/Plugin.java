@@ -34,9 +34,6 @@
 package eu.sqooss.service.db;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -47,8 +44,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Instances of this class represent data related to Alitheia Core
@@ -186,35 +181,6 @@ public class Plugin extends DAObject {
 
     public void setSupportedMetrics(Set<Metric> supportedMetrics) {
         this.supportedMetrics = supportedMetrics;
-    }
-
-    public static List<Plugin> getPluginByName(String name) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        HashMap<String, Object> s = new HashMap<String, Object>();
-        s.put("name", name);
-        return db.findObjectsByProperties(Plugin.class, s);
-    }
-        
-    /**
-     * Get Plugin by hashcode
-     * 
-     * @param hashcode
-     *                The object's hashcode for the plugin class that implements
-     *                the
-     *                {@link eu.sqooss.service.abstractmetric.AlitheiaPlugin}
-     *                interface
-     * @return A Plugin object if the hashcode was found in the DB; null
-     *         otherwise
-     */
-    public static Plugin getPluginByHashcode(String hashcode) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        HashMap<String, Object> s = new HashMap<String, Object>();
-        s.put("hashcode", hashcode);
-        List<Plugin> l = db.findObjectsByProperties(Plugin.class, s); 
-        if (!l.isEmpty())
-            return l.get(0);
-        
-        return null;
     }
 }
 

@@ -33,9 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -46,8 +43,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * States a bug resolution process can be into.
@@ -147,57 +142,7 @@ public class BugStatus extends DAObject {
     }
     
     
-    /**
-     * Return or create and return the status code DB representation 
-     * corresponding to the provided status code
-     * @param s The status code to check for
-     * @return A BugStatus DAO or null if an error occurred while creating
-     * the status code line to the database
-     */
-    public static BugStatus getBugStatus(BugStatus.Status s) {
-        return getBugStatus(s.toString(), true);
-    }
-    
-    /**
-     * Return or create and return the status code DB representation 
-     * corresponding to the provided String
-     * @param status The bug status code representation 
-     * @param create If true, create a DB entry for the  
-     * @return A BugStatus DAO or null when the DAO was not found 
-     * and the create field was set to null or when an error occurred
-     * while modifying the DB.
-     */
-    public static BugStatus getBugStatus(String status, boolean create) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-        Map<String,Object> params = new HashMap<String,Object>();
-        params.put("status", status);
-        
-        List<BugStatus> st = dbs.findObjectsByProperties(BugStatus.class,
-                params);
-        
-        if (!st.isEmpty()) {
-            return st.get(0);
-        }
-        
-        if (!create) {
-            return null;
-        }
-        
-        if (Status.fromString(status) == null) {
-            return null;
-        }
-        
-        BugStatus bs = new BugStatus();
-        bs.setStatus(status);
-        
-        if (!dbs.addRecord(bs))
-            return null;
-        
-        return bs;
-    }
-
-	public void setBugs(Set<Bug> bugs) {
+    public void setBugs(Set<Bug> bugs) {
 		this.bugs = bugs;
 	}
 

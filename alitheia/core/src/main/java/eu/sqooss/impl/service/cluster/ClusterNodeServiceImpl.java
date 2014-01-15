@@ -56,6 +56,9 @@ import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.ClusterNodeUtils;
+import eu.sqooss.service.db.util.ConfigurationOptionUtils;
+import eu.sqooss.service.db.util.StoredProjectUtils;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.UpdaterService;
 
@@ -161,7 +164,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
      */
     public boolean assignProject(String projectname) throws ClusterNodeActionException {
     	dbs.startDBSession();
-    	StoredProject project = StoredProject.getProjectByName(projectname);
+    	StoredProject project = new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).getProjectByName(projectname);
     	dbs.rollbackDBSession();
         if (project == null) {
             //the project was not found, can't be assign
@@ -263,7 +266,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
             return;
         }
         
-          
+        ClusterNodeUtils clu = new ClusterNodeUtils(dbs);
         // Perform Actions
         switch (action){
          case ASSIGN_PROJECT :
@@ -276,7 +279,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
         	 // Example: http://localhost:8088/clusternode?action=assign_project&projectname=iTALC&clusternode=sqoserver1
 
         	 dbs.startDBSession();
-         	 project = StoredProject.getProjectByName(projectname);
+         	 project = new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).getProjectByName(projectname);
          	 dbs.rollbackDBSession();
          	 if (project==null) {
          		 if (projectid!=null)  {
@@ -307,7 +310,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
          	     node = thisNode;	 
          	 } else {
          	     dbs.startDBSession();
-         	     node = ClusterNode.getClusteNodeByName(clusternode);
+         	     node = clu.getClusterNodeByName(clusternode);
          	     dbs.rollbackDBSession();
          	     if (node==null) {
                      content = createXMLResponse(null,"ClusterNode " + clusternode + " not found", HttpServletResponse.SC_NOT_FOUND);
@@ -336,7 +339,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
            	     node = thisNode;	 
            	 } else {
            	     dbs.startDBSession();
-           	     node = ClusterNode.getClusteNodeByName(clusternode);
+           	     node = clu.getClusterNodeByName(clusternode);
            	     dbs.rollbackDBSession();
            	 }
          	 if (node==null){
@@ -431,7 +434,7 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
 		if (thisNode == null) { // paranoia check
 			dbs.startDBSession();
 			// Check if previously registered in DB
-			Map<String, Object> serverProps = new HashMap<String, Object>(1);
+			Map<String, Object> serverProps = new HashMap<>(1);
 			serverProps.put("name", localServerName);
 			List<ClusterNode> s = dbs.findObjectsByProperties(
 					ClusterNode.class, serverProps);

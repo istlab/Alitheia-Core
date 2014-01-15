@@ -6,10 +6,10 @@ import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.DirectoryUtils;
 import eu.sqooss.service.fds.FileTypeMatcher;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.MetadataUpdater;
@@ -47,7 +47,7 @@ public class ModuleResolver implements MetadataUpdater {
     public void update() throws Exception {
         db.startDBSession();
 
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("sp", sp);
         List<ProjectVersion> toProcess = (List<ProjectVersion>) db.doHQL(notProcessed, params);
 
@@ -65,8 +65,8 @@ public class ModuleResolver implements MetadataUpdater {
             for (ProjectFile pf : pv.allDirs()) {
 
                 List<ProjectFile> pfs = pf.getProjectVersion().getFiles(
-                        Directory.getDirectory(pf.getFileName(), false),
-                        ProjectVersion.MASK_FILES);
+                        new DirectoryUtils(this.db).getDirectoryByPath(pf.getFileName(), false),
+                        ProjectVersion.MASK.FILES);
 
                 FileTypeMatcher ftm = FileTypeMatcher.getInstance();
                 for (ProjectFile f : pfs) {

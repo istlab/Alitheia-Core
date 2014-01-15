@@ -29,7 +29,6 @@
  */
 package eu.sqooss.service.updater;
 
-import java.util.List;
 import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCoreService;

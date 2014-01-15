@@ -33,11 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -51,8 +46,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Instances of this class represent the basic details of a project
@@ -137,89 +130,6 @@ public class MailingList extends DAObject {
     public void setThreads(Set<MailingListThread> threads) {
         this.threads = threads;
     }
-    
-    /**
-     * Get messages in this mailing list whose arrival date
-     * is newer that the provided date.
-     * 
-     * @param d The date to compare the arrival date with
-     * @return A list of messages newer than <tt>d</tt>
-     */
-    public List<MailMessage> getMessagesNewerThan(Date d) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramDate = "paramDate";
-        String paramMailingList = "paramML";
-        
-        String query =  " select mm " +
-            " from MailMessage mm, MailingList ml " +
-            " where mm.list = ml " +
-            " and mm.list = :" + paramMailingList +
-            " and mm.sendDate > :" + paramDate;
-        
-        Map<String,Object> params = new HashMap<String, Object>();
-        params.put(paramDate, d);
-        params.put(paramMailingList, this);
-        
-        List<MailMessage> msgs = (List<MailMessage>) dbs.doHQL(query, params);
-        
-        if (msgs == null || msgs.size() == 0)
-            return Collections.emptyList();
-            
-        return msgs;
-    }
-    
-    /**
-     * Get the latest mail message in this mailing list.
-     */
-    public MailMessage getLatestEmail() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramMailingList = "paramML";
-        
-        String query =  " select mm " +
-            " from MailMessage mm, MailingList ml " +
-            " where mm.list = ml " +
-            " and mm.list = :" + paramMailingList +
-            " order by mm.sendDate desc";
-        
-        Map<String,Object> params = new HashMap<String, Object>();
-        params.put(paramMailingList, this);
-        
-        
-        List<MailMessage> ml = (List<MailMessage>) dbs.doHQL(query, params, 1);
-        
-        if (ml.isEmpty())
-            return null;
-        
-        return ml.get(0); 
-    }
-    
-    /**
-     * Get the latest updated thread in this mailing list.
-     */
-    public MailingListThread getLatestThread() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramMailingList = "paramML";
-        
-        String query =  " select mt " +
-            " from MailThread mt, MailingList ml " +
-            " where mt.list = ml " +
-            " and mm.list = :" + paramMailingList +
-            " order by mt.lastUpdated desc";
-        
-        Map<String,Object> params = new HashMap<String, Object>();
-        params.put(paramMailingList, this);
-        
-        List<MailingListThread> ml = (List<MailingListThread>) dbs.doHQL(query, params, 1);
-        
-        if (ml.isEmpty())
-            return null;
-        
-        return ml.get(0); 
-    }
-    
     
     @Override
     public String toString() {

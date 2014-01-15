@@ -69,7 +69,7 @@ class TimelineImpl implements Timeline {
     }
 
     private SortedSet<RepositoryEvent> getScmTimeLine(Calendar from, Calendar to) {
-        SortedSet<RepositoryEvent> result = new TreeSet<RepositoryEvent>();
+        SortedSet<RepositoryEvent> result = new TreeSet<>();
         
         final long begin = from.getTimeInMillis();
         final long end = to.getTimeInMillis();
@@ -80,7 +80,7 @@ class TimelineImpl implements Timeline {
         query.append("where pv.timestamp < :paramTo ");
         query.append("and pv.timestamp > :paramFrom ");
         query.append("and pv.project = :paramProject ");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("paramTo", end);
         params.put("paramFrom", begin);
         params.put("paramProject", project);
@@ -94,7 +94,7 @@ class TimelineImpl implements Timeline {
     }
     
     private SortedSet<MailingListEvent> getMailTimeLine(Calendar from, Calendar to) {
-        SortedSet<MailingListEvent> result = new TreeSet<MailingListEvent>();
+        SortedSet<MailingListEvent> result = new TreeSet<>();
         
         final Date begin = from.getTime();
         final Date end = to.getTime();
@@ -105,7 +105,7 @@ class TimelineImpl implements Timeline {
         query.append("where mm.sendDate < :paramTo ");
         query.append("and mm.sendDate > :paramFrom ");
         query.append("and mm.list = :paramList ");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("paramTo", end);
         params.put("paramFrom", begin);        
         
@@ -126,7 +126,7 @@ class TimelineImpl implements Timeline {
     }
 
     private SortedSet<BugDBEvent> getBugTimeLine(Calendar from, Calendar to) {
-        SortedSet<BugDBEvent> result = new TreeSet<BugDBEvent>();
+        SortedSet<BugDBEvent> result = new TreeSet<>();
 
         final Date begin = from.getTime();
         final Date end = to.getTime();
@@ -137,7 +137,7 @@ class TimelineImpl implements Timeline {
         query.append("where b.creationTS < :paramTo ");
         query.append("and b.creationTS > :paramFrom ");
         query.append("and b.project = :paramProject ");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("paramTo", end);
         params.put("paramFrom", begin);
         params.put("paramProject", project);
@@ -156,7 +156,7 @@ class TimelineImpl implements Timeline {
     }
 
     public SortedSet<ProjectEvent> getTimeLine(Calendar from, Calendar to, EnumSet<ResourceType> rts) {
-        SortedSet<ProjectEvent> result = new TreeSet<ProjectEvent>();
+        SortedSet<ProjectEvent> result = new TreeSet<>();
 
         if (rts.contains(ResourceType.SCM)) {
             result.addAll(getScmTimeLine(from, to));

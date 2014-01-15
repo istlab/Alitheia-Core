@@ -5,6 +5,7 @@ import java.util.Map;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 
 public abstract class AdminActionBase implements AdminAction {
 
@@ -20,7 +21,7 @@ public abstract class AdminActionBase implements AdminAction {
     protected AdminActionBase() {
         status = AdminActionStatus.CREATED;
         if (AlitheiaCore.getInstance() != null)
-            log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
+            log = AlitheiaCore.getInstance().getLogManager().createLogger(LoggerName.ADMIN);
     }
 
     @Override
@@ -45,13 +46,13 @@ public abstract class AdminActionBase implements AdminAction {
     
     public final void result (String key, Object value) {
         if (result == null)
-            result = new HashMap<String, Object>();
+            result = new HashMap<>();
         result.put(key, value);
     }
     
     public final void warn (String key, Object value) {
         if (warnings == null)
-            warnings = new HashMap<String, Object>();
+            warnings = new HashMap<>();
         warnings.put(key, value);
     }
     
@@ -78,7 +79,7 @@ public abstract class AdminActionBase implements AdminAction {
     @Override
     public final void addArg(String key, Object value) {
     	if (args == null)
-    		args = new HashMap<String, Object>();
+    		args = new HashMap<>();
     	args.put(key, value);
     }
     
@@ -101,7 +102,7 @@ public abstract class AdminActionBase implements AdminAction {
     
     protected final void error(String key, Object o) throws Exception {
         if (error == null)
-            error = new HashMap<String, Object>();
+            error = new HashMap<>();
         error.put(key, o);
         changeStatus(AdminActionStatus.ERROR);
         throw new Exception(o.toString());
@@ -109,7 +110,7 @@ public abstract class AdminActionBase implements AdminAction {
 
     protected final void error(Exception e) throws Exception {
         if (error == null)
-            error = new HashMap<String, Object>();
+            error = new HashMap<>();
         error.put("exception", e);
         
         changeStatus(AdminActionStatus.ERROR);

@@ -113,7 +113,7 @@ public interface Scheduler extends AlitheiaCoreService {
      * Get statistics
      * @return A copy of the current statistics object
      */
-    SchedulerStats getSchedulerStats();
+    SchedulerStatsView getSchedulerStats();
     
     /**
      * Get a copy of the failed job queue
@@ -149,4 +149,9 @@ public interface Scheduler extends AlitheiaCoreService {
      */
     void yield(Job j, ResumePoint p) throws SchedulerException;
     
+    /**
+     * Get the currently running jobs
+     * @return a list of jobs currently running
+     */
+    List<String> getRunJobs();
 }

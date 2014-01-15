@@ -72,6 +72,7 @@ import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
 import eu.sqooss.service.tds.CommitLog;
@@ -79,7 +80,6 @@ import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffFactory;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNode;
@@ -100,7 +100,7 @@ public class SVNAccessorImpl implements SCMAccessor {
         SVNRepositoryFactoryImpl.setup();
         FSRepositoryFactory.setup();
         
-        supportedSchemes = new ArrayList<URI>();
+        supportedSchemes = new ArrayList<>();
         supportedSchemes.add(URI.create("svn-file://www.sqo-oss.org"));
         supportedSchemes.add(URI.create("svn://www.sqo-oss.org"));
         supportedSchemes.add(URI.create("svn-http://www.sqo-oss.org"));
@@ -115,7 +115,7 @@ public class SVNAccessorImpl implements SCMAccessor {
     }
 
     public void init(URI dataURL, String name) throws AccessorException {
-        logger = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_TDS);
+        logger = AlitheiaCore.getInstance().getLogManager().createLogger(LoggerName.TDS);
 
         this.url = convertURI(dataURL);
         this.projectname = name;
@@ -312,7 +312,7 @@ public class SVNAccessorImpl implements SCMAccessor {
                 return spr;
             }
             
-            List<SVNLogEntry> log = Collections.EMPTY_LIST;
+            List<SVNLogEntry> log = Collections.emptyList();
             if (svnrev.getSVNRevision() + 1 < getHeadSVNRevision())
                 log = getSVNLog("", svnrev.getSVNRevision(), svnrev.getSVNRevision() + 1);
             else 
@@ -331,7 +331,7 @@ public class SVNAccessorImpl implements SCMAccessor {
 
     private List<SVNLogEntry> getSVNLog(String repoPath, long revstart,
             long revend) throws InvalidRepositoryException {
-        ArrayList<SVNLogEntry> l = new ArrayList<SVNLogEntry>();
+        ArrayList<SVNLogEntry> l = new ArrayList<>();
         try {
             svnRepository.log(new String[] { repoPath }, l, revstart, revend,
                     true, true);
@@ -795,7 +795,7 @@ public class SVNAccessorImpl implements SCMAccessor {
 			 return contents;
 		 }
 		 
-		 Collection<SVNDirEntry> svnContents = new Vector<SVNDirEntry>();
+		 Collection<SVNDirEntry> svnContents = new Vector<>();
 		 
 		 try {
 			svnRepository.getDir(dir.getPath(), 
@@ -846,7 +846,7 @@ public class SVNAccessorImpl implements SCMAccessor {
 		if (!s.getType().equals(SCMNodeType.FILE))
 			return Collections.emptyList();
 		
-		List<AnnotatedLine> annotations = new ArrayList<AnnotatedLine>();
+		List<AnnotatedLine> annotations = new ArrayList<>();
 		SVNLogClient log = new SVNLogClient(SVNWCUtil.createDefaultAuthenticationManager(), null);
 		SVNAnnotator annotator = new SVNAnnotator();
 		try {
@@ -869,7 +869,7 @@ public class SVNAccessorImpl implements SCMAccessor {
 	/** Used by the #getNodeAnnotations method to annotate a file */
 	private class SVNAnnotator implements ISVNAnnotateHandler {
 
-		private List<AnnotatedLine> annotate = new ArrayList<AnnotatedLine>();
+		private List<AnnotatedLine> annotate = new ArrayList<>();
 		
 		public void handleEOF() {}
 

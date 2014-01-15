@@ -48,7 +48,7 @@ public class GitCommitLog implements CommitLog {
     private LinkedList<Revision> entries;
     
     public GitCommitLog() {
-        entries = new LinkedList<Revision>();
+        entries = new LinkedList<>();
     }
     
     public List<Revision> entries() {

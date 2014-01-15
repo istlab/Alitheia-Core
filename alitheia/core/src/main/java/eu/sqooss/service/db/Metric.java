@@ -33,9 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -51,8 +48,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Instances of this object type represent the basic information on Metrics
@@ -249,65 +244,6 @@ public class Metric extends DAObject {
         this.mmMeasurements = mmMeasurements;
     }
 
-	/**
-	 * Check whether the metric was ever run on the provided project.
-	 */
-	public boolean isEvaluated (StoredProject p) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		StringBuffer query = new StringBuffer();
-
-		switch (metricType.getEnumType()) {
-		case PROJECT_VERSION:
-			query.append("select pvm from ProjectVersionMeasurement pvm ")
-				 .append("where pvm.metric=:metric and pvm.projectVersion.project=:project");
-			break;
-		case SOURCE_FILE:
-		case SOURCE_DIRECTORY:
-			query.append("select pfm from ProjectFileMeasurement pfm ")
-				 .append("where pfm.metric=:metric ")
-				 .append("and pfm.projectFile.projectVersion.project=:project");
-			break;
-		case MAILTHREAD:
-			query.append("select mltm from MailingListThreadMeasurement mltm ")
-				 .append("where mltm.metric=:metric ")
-				 .append("and mltm.thread.list.storedProject=:project");
-			break;
-		case MAILMESSAGE:
-			query.append("select mmm from MailMessageMeasurement mmm ")
-				.append("where mmm.metric=:metric")
-				.append("and mmm.mail.list.storedProject=:project");
-			break;
-		case ENCAPSUNIT:
-		    query.append("select eum from EncapsulationUnitMeasurement eum ")
-                .append("where eum=:metric ")
-                .append("and eum.encapsulationUnit.file.projectVersion.project=:project");
-            break;
-		case EXECUNIT:
-		    query.append("select eum from EncapsulationUnitMeasurement eum ")
-                .append("where eum=:metric ")
-                .append("and eum.encapsulationUnit.file.projectVersion.project=:project");
-            break;
-		case NAMESPACE:
-		    query.append("select nm from NameSpaceMeasurement nm ")
-                .append("where nm=:metric ")
-                .append("and nm.namespace.changeVersion.project=:project");
-            break;
-		case BUG:
-		case MAILING_LIST:
-		case DEVELOPER:
-			return false; //No DAO result types for those types yet
-		}
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("project", p);
-		params.put("metric", this);
-		
-		if (dbs.doHQL(query.toString(), params, 1).size() >= 1)
-			return true;
-		
-		return false;
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if ((obj == null) || (!(obj instanceof Metric))) {
@@ -332,40 +268,6 @@ public class Metric extends DAObject {
 
 	public String toString() {
 		return "Metric(" + getId() + ",\"" + getMnemonic() + "\")";
-	}
-
-	/**
-	 * Get a metric from its mnemonic name
-	 * 
-	 * @param mnem
-	 *            - The metric mnemonic name to search for
-	 * @return A Metric object or null when no metric can be found for the
-	 *         provided mnemonic
-	 */
-	public static Metric getMetricByMnemonic(String mnem) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("mnemonic", mnem);
-
-		List<Metric> result = dbs.findObjectsByProperties(Metric.class,
-				properties);
-
-		if (result.size() <= 0)
-			return null;
-
-		return result.get(0);
-	}
-
-	/**
-	 * Get a list of all installed metrics.
-	 * 
-	 * @return A list of all installed metrics, which might be empty if no
-	 *         metric is installed.
-	 */
-	public static List<Metric> getAllMetrics() {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		return (List<Metric>) dbs.doHQL("from Metric");
 	}
 }
 

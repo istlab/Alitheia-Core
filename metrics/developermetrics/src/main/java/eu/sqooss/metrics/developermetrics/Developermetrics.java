@@ -44,13 +44,14 @@ import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.Result.ResultType;
 import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectDirectory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.db.util.DirectoryUtils;
+import eu.sqooss.service.db.util.MetricsUtils;
 
 /**
  * Basic developer-related statistics, like team size in various
@@ -104,17 +105,18 @@ public class Developermetrics extends AbstractMetric {
         long threeMonths = (long)(90 * 24 * 60 * 60 * 1000L);
         long sixMonths = (long)(180 * 24 * 60 * 60 * 1000L);
         
-        Metric m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE1);
+        MetricsUtils mu = new MetricsUtils(db);
+        Metric m = mu.getMetricByMnemonic(MNEM_TEAMSIZE1);
         ProjectVersionMeasurement pvmOne = new ProjectVersionMeasurement(
                 m, v, String.valueOf(commSize(v, oneMonth)));
         db.addRecord(pvmOne);
         
-        m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE3);
+        m = mu.getMetricByMnemonic(MNEM_TEAMSIZE3);
         ProjectVersionMeasurement pvmThree = new ProjectVersionMeasurement(
                 m, v, String.valueOf(commSize(v, threeMonths)));
         db.addRecord(pvmThree);
         
-        m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE6);
+        m = mu.getMetricByMnemonic(MNEM_TEAMSIZE6);
         ProjectVersionMeasurement pvmSix = new ProjectVersionMeasurement(
                 m, v, String.valueOf(commSize(v, sixMonths)));
         db.addRecord(pvmSix);
@@ -136,10 +138,11 @@ public class Developermetrics extends AbstractMetric {
     public void run(ProjectFile a) throws AlreadyProcessingException {
         int eyeballs = 0;
         Metric m = null;
+        MetricsUtils mu = new MetricsUtils(db);
         if (a.getIsDirectory()) {
             List<ProjectFile> files = a.getProjectVersion().getFiles(
-                    Directory.getDirectory(a.getFileName(), false), 
-                    ProjectVersion.MASK_FILES);
+                    new DirectoryUtils(db).getDirectoryByPath(a.getFileName(), false), 
+                    ProjectVersion.MASK.FILES);
             
             Set<Developer> distinctdevs = new HashSet<Developer>(); 
             
@@ -147,11 +150,11 @@ public class Developermetrics extends AbstractMetric {
                 distinctdevs.addAll(fileEyeballs(pf));
             }
             eyeballs = distinctdevs.size();
-            m = Metric.getMetricByMnemonic(MNEM_EYEBALL_MOD);
+            m = mu.getMetricByMnemonic(MNEM_EYEBALL_MOD);
         }
         else { 
             eyeballs = fileEyeballs(a).size();
-            m = Metric.getMetricByMnemonic(MNEM_EYEBALL);
+            m = mu.getMetricByMnemonic(MNEM_EYEBALL);
         }
         
         ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, a, 

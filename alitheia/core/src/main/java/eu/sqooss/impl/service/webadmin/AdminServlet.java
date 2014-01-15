@@ -33,21 +33,10 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
-import eu.sqooss.service.admin.AdminAction;
-import eu.sqooss.service.admin.AdminService;
-import eu.sqooss.service.admin.actions.AddProject;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.util.Pair;
-import eu.sqooss.service.webadmin.WebadminService;
-
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.util.Hashtable;
 import java.util.Locale;
 
@@ -57,13 +46,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
-
+import org.apache.velocity.app.VelocityEngine;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.AddProject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.webadmin.WebadminService;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -77,7 +72,7 @@ public class AdminServlet extends HttpServlet {
 
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
-    private Hashtable<String, Pair<String, String>> staticContentMap = null;
+    private Hashtable<String, String> staticContentMap = null;
 
     // Dynamic substitutions
     VelocityContext vc = null;
@@ -107,25 +102,25 @@ public class AdminServlet extends HttpServlet {
         db = core.getDBService();
         
         // Create the static content map
-        staticContentMap = new Hashtable<String, Pair<String, String>>();
-        addStaticContent("/screen.css", "text/css");
-        addStaticContent("/webadmin.css", "text/css");
-        addStaticContent("/sqo-oss.png", "image/x-png");
-        addStaticContent("/queue.png", "image/x-png");
-        addStaticContent("/uptime.png", "image/x-png");
-        addStaticContent("/greyBack.jpg", "image/x-jpg");
-        addStaticContent("/projects.png", "image/x-png");
-        addStaticContent("/logs.png", "image/x-png");
-        addStaticContent("/metrics.png", "image/x-png");
-        addStaticContent("/gear.png", "image/x-png");
-        addStaticContent("/header-repeat.png", "image/x-png");
-        addStaticContent("/add_user.png", "image/x-png");
-        addStaticContent("/edit.png", "image/x-png");
-        addStaticContent("/jobs.png", "image/x-png");
-        addStaticContent("/rules.png", "image/x-png");
+        staticContentMap = new Hashtable<>();
+        staticContentMap.put("/screen.css", "text/css");
+        staticContentMap.put("/webadmin.css", "text/css");
+        staticContentMap.put("/sqo-oss.png", "image/x-png");
+        staticContentMap.put("/queue.png", "image/x-png");
+        staticContentMap.put("/uptime.png", "image/x-png");
+        staticContentMap.put("/greyBack.jpg", "image/x-jpg");
+        staticContentMap.put("/projects.png", "image/x-png");
+        staticContentMap.put("/logs.png", "image/x-png");
+        staticContentMap.put("/metrics.png", "image/x-png");
+        staticContentMap.put("/gear.png", "image/x-png");
+        staticContentMap.put("/header-repeat.png", "image/x-png");
+        staticContentMap.put("/add_user.png", "image/x-png");
+        staticContentMap.put("/edit.png", "image/x-png");
+        staticContentMap.put("/jobs.png", "image/x-png");
+        staticContentMap.put("/rules.png", "image/x-png");
 
         // Create the dynamic content map
-        dynamicContentMap = new Hashtable<String, String>();
+        dynamicContentMap = new Hashtable<>();
         dynamicContentMap.put("/", "index.html");
         dynamicContentMap.put("/index", "index.html");
         dynamicContentMap.put("/projects", "projects.html");
@@ -144,14 +139,6 @@ public class AdminServlet extends HttpServlet {
         // Create the various view objects
         pluginsView = new PluginsView(bc, vc);
         projectsView = new ProjectsView(bc, vc);
-    }
-
-    /**
-     * Add content to the static map
-     */
-    private void addStaticContent(String path, String type) {
-        Pair<String, String> p = new Pair<String, String> (path,type);
-        staticContentMap.put(path, p);
     }
 
     protected void doGet(HttpServletRequest request,
@@ -190,7 +177,7 @@ public class AdminServlet extends HttpServlet {
                 return;
             }
             else if ((query != null) && (staticContentMap.containsKey(query))) {
-                sendResource(response, staticContentMap.get(query));
+                sendResource(response, query, staticContentMap.get(query));
             }
             else if ((query != null) && (dynamicContentMap.containsKey(query))) {
                 sendPage(response, request, dynamicContentMap.get(query));
@@ -253,19 +240,19 @@ public class AdminServlet extends HttpServlet {
      *
      * TODO: How to simulate conditions that will cause IOException
      */
-    protected void sendResource(HttpServletResponse response, Pair<String,String> source)
+    protected void sendResource(HttpServletResponse response, String path, String type)
         throws ServletException, IOException {
         
-        InputStream istream = getClass().getResourceAsStream(source.first);
+        InputStream istream = getClass().getResourceAsStream(path);
         if ( istream == null ) {
-            throw new IOException("Path not found: " + source.first);
+            throw new IOException("Path not found: " + path);
         }
 
         byte[] buffer = new byte[1024];
         int bytesRead = 0;
         int totalBytes = 0;
 
-        response.setContentType(source.second);
+        response.setContentType(type);
         ServletOutputStream ostream = response.getOutputStream();
         while ((bytesRead = istream.read(buffer)) > 0) {
             ostream.write(buffer,0,bytesRead);

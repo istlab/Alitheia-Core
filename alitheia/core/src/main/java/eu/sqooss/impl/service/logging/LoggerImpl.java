@@ -34,6 +34,7 @@
 package eu.sqooss.impl.service.logging;
 
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 
 public class LoggerImpl implements Logger {
 
@@ -41,7 +42,7 @@ public class LoggerImpl implements Logger {
     private Object lockObject = new Object();
 
     // The name of this logger.
-    private String name;
+    private LoggerName name;
 
     // The actual backend logger being used.
     private org.apache.log4j.Logger theLogger;
@@ -49,51 +50,56 @@ public class LoggerImpl implements Logger {
     // Reference count this logger. Used by LogManager.
     private int takingsNumber;
 
-    public LoggerImpl(String name) {
+    public LoggerImpl(LoggerName name) {
         this.name = name;
         takingsNumber = 0;
-        theLogger = org.apache.log4j.Logger.getLogger(name);
+        theLogger = org.apache.log4j.Logger.getLogger(name.getName());
     }
 
-    public String getName() {
+    @Override
+	public LoggerName getName() {
         return name;
     }
 
-    public void debug(String message) {
+    @Override
+	public void debug(String message) {
         synchronized (lockObject) {
             theLogger.debug(message);
         }
     }
 
-    public void info(String message) {
+    @Override
+	public void info(String message) {
         synchronized (lockObject) {
             theLogger.info(message);
         }
     }
 
-    public void warn(String message) {
+    @Override
+	public void warn(String message) {
         synchronized (lockObject) {
             theLogger.warn(message);
         }
     }
 
-    public void warn(String message, Exception e) {
+    @Override
+	public void warn(String message, Exception e) {
         synchronized (lockObject) {
-            theLogger.warn(message);
-            theLogger.warn(renderStackTrace(e));
+            theLogger.warn(message, e);
         }
     }
 
-    public void error(String message) {
+    @Override
+	public void error(String message) {
         synchronized (lockObject) {
             theLogger.error(message);
         }
     }
 
-    public void error(String message, Exception e) {
+    @Override
+	public void error(String message, Exception e) {
         synchronized (lockObject) {
-            theLogger.error(message);
-            theLogger.error(renderStackTrace(e));
+            theLogger.error(message, e);
         }
     }
 
@@ -103,28 +109,6 @@ public class LoggerImpl implements Logger {
 
     protected int unget() {
         return --takingsNumber;
-    }
-
-    private static String renderStackTrace(Exception e) {
-        if (e==null) {
-            return "";
-        }
-
-        StringBuilder b = new StringBuilder();
-        b.append(e.getMessage());
-        b.append(":\n");
-        StackTraceElement stack[] = e.getStackTrace();
-        if ((b==null) || (stack==null)) {
-            return "";
-        }
-        for (StackTraceElement s : stack) {
-            if (s!=null) {
-                b.append("    ");
-                b.append(s.toString());
-                b.append("\n");
-            }
-        }
-        return b.toString();
     }
 }
 

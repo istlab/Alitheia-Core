@@ -58,6 +58,7 @@ import org.xml.sax.InputSource;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.BTSEntry;
@@ -81,14 +82,13 @@ public class BugzillaXMLParser implements BTSAccessor {
     private static final List<URI> supportedSchemes;
     
     static {
-        supportedSchemes = new ArrayList<URI>();
+        supportedSchemes = new ArrayList<>();
         supportedSchemes.add(URI.create("bugzilla-xml://www.sqo-oss.org"));
     }
 
     /** {@inheritDoc} */
     public void init(URI dataURL, String name) throws AccessorException {
-        logger = AlitheiaCore.getInstance().getLogManager().createLogger(
-                Logger.NAME_SQOOSS_TDS);
+        logger = AlitheiaCore.getInstance().getLogManager().createLogger(LoggerName.TDS);
         this.name = name;
 
         URI converted = convertURI(dataURL);
@@ -149,7 +149,7 @@ public class BugzillaXMLParser implements BTSAccessor {
     public List<String> getBugsNewerThan(Date d) {
         BugzillaXMLFileFilter filter = new BugzillaXMLFileFilter(d.getTime());
         File[] files = location.listFiles(filter);
-        List<String> bugIds = new ArrayList<String>();
+        List<String> bugIds = new ArrayList<>();
         
         for (File f : files) {
             //At this point we know that all files are named like 123.xml
@@ -163,7 +163,7 @@ public class BugzillaXMLParser implements BTSAccessor {
     /** {@inheritDoc} */
     public List<String> getAllBugs() {
         File[] files = location.listFiles();
-        List<String> bugIds = new ArrayList<String>();
+        List<String> bugIds = new ArrayList<>();
         
         for (File f : files) {
             //At this point we know that all files are named like 123.xml

@@ -42,13 +42,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.RuntimeErrorException;
-
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNLogEntryPath;
 
 import eu.sqooss.service.tds.CommitCopyEntry;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 
@@ -113,14 +110,14 @@ public class SVNProjectRevision implements Revision {
         author = l.getAuthor();
         message = l.getMessage();
         date = l.getDate();
-        changedPaths = new LinkedHashMap<String, PathChangeType>();
-        copyOps = new ArrayList<CommitCopyEntry>();
+        changedPaths = new LinkedHashMap<>();
+        copyOps = new ArrayList<>();
         revision = l.getRevision();
         
         Map<String, SVNLogEntryPath> paths = 
             (Map<String, SVNLogEntryPath>) l.getChangedPaths();
         
-        for (Iterator i = paths.keySet().iterator(); i.hasNext();) {
+        for (Iterator<String> i = paths.keySet().iterator(); i.hasNext();) {
             String path = (String) i.next();
             if (path.startsWith(root)) {
                 changedPaths.put(
@@ -137,7 +134,7 @@ public class SVNProjectRevision implements Revision {
                         this));
             }
         }
-        parents = new HashSet<String>();
+        parents = new HashSet<>();
         if (l.getRevision() >= 1)
             parents.add(String.valueOf((l.getRevision() - 1)));
     }

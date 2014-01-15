@@ -59,6 +59,7 @@ import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.LoggerName;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.rest.RestService;
@@ -93,8 +94,8 @@ public class AlitheiaCore {
     private static Map<Class<? extends AlitheiaCoreService>, Class<?>> implementations;
 
     static {
-        services = new Vector<Class<? extends AlitheiaCoreService>>();
-        implementations = new HashMap<Class<? extends AlitheiaCoreService>, Class<?>>();
+        services = new Vector<>();
+        implementations = new HashMap<>();
 
     	/* 
     	 * Order matters here as services are initialised 
@@ -139,7 +140,7 @@ public class AlitheiaCore {
         instance = this;
         err("Instance Created");
         
-        instances = new HashMap<Class<? extends AlitheiaCoreService>, Object>();
+        instances = new HashMap<>();
         init();
     }
 
@@ -208,7 +209,7 @@ public class AlitheiaCore {
         err("Service " + LogManagerImpl.class.getName() + " started");
 
         DBService db = DBServiceImpl.getInstance();
-        db.setInitParams(bc, logger.createLogger("sqooss.db"));
+        db.setInitParams(bc, logger.createLogger(LoggerName.DB));
         if (!db.startUp()) {
             err("Cannot start the DB service, aborting");
         }
@@ -244,7 +245,7 @@ public class AlitheiaCore {
 
             /* Logger names are constructed as per */
             s.cast(o).setInitParams(bc,
-                    logger.createLogger("sqooss." + paths[3]));
+                    logger.createLogger(this.hackfix("sqooss." + paths[3])));
 
             if (!s.cast(o).startUp()) {
                 err("Service " + s + " could not be started");
@@ -257,10 +258,25 @@ public class AlitheiaCore {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Looks up the associated {@link LoggerName} of the name.
+     * @param name The name of the logger
+     * @return the associated LoggerName
+     * @author Richard van Heest
+     */
+    private LoggerName hackfix(String name) {
+    	for (LoggerName loggername : LoggerName.values()) {
+    		if (name.equals(loggername.getName())) {
+    			return loggername;
+    		}
+    	}
+    	throw new IllegalArgumentException("The name '" + name + "' does not occur in LoggerName enum.");
+    }
 
     public void shutDown() {
     	List<Class<? extends AlitheiaCoreService>> revServices = 
-    		new ArrayList<Class<? extends AlitheiaCoreService>>(services);
+    		new ArrayList<>(services);
     	Collections.reverse(revServices);
     	
     	for (Class<? extends AlitheiaCoreService> s : revServices) {

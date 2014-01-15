@@ -43,6 +43,7 @@ import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.MailingListUtils;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.MailAccessor;
@@ -108,8 +109,8 @@ public class MailThreadResolver implements MetadataUpdater {
         ml = dbs.attachObjectToDBSession(ml);
         int newThreads = 0, updatedThreads = 0, processedEmails = 0;
         MailMessage lastEmail = null;
-        lastEmail = ml.getLatestEmail();
-        HashMap<String, MimeMessage> processed = new HashMap<String, MimeMessage>();
+        lastEmail = new MailingListUtils(dbs).getLatestEmail(ml);
+        HashMap<String, MimeMessage> processed = new HashMap<>();
         
         if (lastEmail == null) {
             info("No mail messages for list " + ml);
@@ -125,7 +126,7 @@ public class MailThreadResolver implements MetadataUpdater {
             " and mm.thread is null " +
             " order by mm.sendDate asc"; 
             
-        Map<String,Object> params = new HashMap<String, Object>(1);
+        Map<String,Object> params = new HashMap<>(1);
         params.put(paramMl, ml);
         
         List<Long> mmList = (List<Long>) dbs.doHQL(query, params);
@@ -177,7 +178,7 @@ public class MailThreadResolver implements MetadataUpdater {
 
             MailingListThread mlt = null;
             /* Get the parent mail object */
-            MailMessage parentMail = MailMessage.getMessageById(parentId);
+            MailMessage parentMail = new MailingListUtils(dbs).getMessageById(parentId);
 
             if (parentId != null) { 
                 /* Parent-less child, parent might have arrived later */
@@ -232,7 +233,7 @@ public class MailThreadResolver implements MetadataUpdater {
                         childExists = true;
 
                         /* Get message whose parent is the discovered child */
-                        MailMessage childMM = MailMessage.getMessageById(child.getMessageID());
+                        MailMessage childMM = new MailingListUtils(dbs).getMessageById(child.getMessageID());
                         
                         if (childMM == null) {
                             warn("Supposedly processed child of message "

@@ -37,7 +37,7 @@ public class RestServiceRegistry {
 	private static RestServiceRegistry instance;
 	
 	private RestServiceRegistry() {
-		resources = new HashSet<Class<?>>();
+		resources = new HashSet<>();
 	}
 	
 	public static RestServiceRegistry getInstance() {

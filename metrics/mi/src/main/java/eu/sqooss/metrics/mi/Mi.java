@@ -44,14 +44,16 @@ import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.db.DAObject;
-import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectDirectory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
-import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.db.util.DirectoryUtils;
+import eu.sqooss.service.db.util.MetricsUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
+import eu.sqooss.service.db.util.ProjectVersionUtils;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
 /**
@@ -105,8 +107,9 @@ public class Mi extends AbstractMetric {
         if (!pf.getIsDirectory())
             return;
         
+        MetricsUtils mu = new MetricsUtils(db);
         AlitheiaPlugin modulemetrics = pa.getImplementingPlugin(MNEM_ISSRC);
-        Metric issrc = Metric.getMetricByMnemonic(MNEM_ISSRC);
+        Metric issrc = mu.getMetricByMnemonic(MNEM_ISSRC);
         Integer result = getResult(modulemetrics, issrc, pf, Integer.class);
 
         if (result == null || result == 0)
@@ -114,16 +117,16 @@ public class Mi extends AbstractMetric {
 
         /* We now know that we are working with a dir*/
         List<ProjectFile> fileList = pf.getProjectVersion().getFiles(
-                Directory.getDirectory(pf.getFileName(), false), 
-                ProjectVersion.MASK_FILES);
+                new DirectoryUtils(db).getDirectoryByPath(pf.getFileName(), false), 
+                ProjectVersion.MASK.FILES);
         
         AlitheiaPlugin loc =  pa.getImplementingPlugin(MNEM_LOC);
-        Metric locmetric = Metric.getMetricByMnemonic(MNEM_LOC);
-        Metric locommetric = Metric.getMetricByMnemonic(MNEM_LOCOM);
+        Metric locmetric = mu.getMetricByMnemonic(MNEM_LOC);
+        Metric locommetric = mu.getMetricByMnemonic(MNEM_LOCOM);
         
         AlitheiaPlugin structure = pa.getImplementingPlugin(MNEM_HV);
-        Metric hvmetric = Metric.getMetricByMnemonic(MNEM_HV);
-        Metric eccmetric = Metric.getMetricByMnemonic(MNEM_ECC);
+        Metric hvmetric = mu.getMetricByMnemonic(MNEM_HV);
+        Metric eccmetric = mu.getMetricByMnemonic(MNEM_ECC);
         
         /*Empty directory*/
         if (fileList.size() == 0)
@@ -205,7 +208,7 @@ public class Mi extends AbstractMetric {
             16.2 * Math.log(aveLOC) + 
             50 * Math.sin(Math.sqrt(2.4 * perCM));
         
-        Metric m = Metric.getMetricByMnemonic(MNEMONIC_MODMI);
+        Metric m = mu.getMetricByMnemonic(MNEMONIC_MODMI);
         ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf, 
                 String.valueOf(MI));
         db.addRecord(pfm);
@@ -227,7 +230,8 @@ public class Mi extends AbstractMetric {
         StringBuffer q = new StringBuffer("select pfm ");
         Map<String,Object> params = new HashMap<String,Object>();
 
-        if (pv.getSequence() == ProjectVersion.getLastProjectVersion(pv.getProject()).getSequence()) {
+        ProjectFileUtils pfu = new ProjectFileUtils(db);
+        if (pv.getSequence() == new ProjectVersionUtils(db, pfu).getLastProjectVersion(pv.getProject()).getSequence()) {
             q.append(" from ProjectFile pf, ProjectFileMeasurement pfm");
             q.append(" where pf.validUntil is null ");
         } else {
@@ -256,11 +260,12 @@ public class Mi extends AbstractMetric {
         q.append(" where pfm1.projectFile = pfm.projectFile ");
         q.append(" and pfm1.metric = :").append(paramISSRCDIR).append(")");
         
+        MetricsUtils mu = new MetricsUtils(db);
 
-        params.put(paramState, ProjectFileState.deleted());
+        params.put(paramState, pfu.deleted());
         params.put(paramIsDirectory, true);
-        params.put(paramMNOL, Metric.getMetricByMnemonic(MNEMONIC_MODMI));
-        params.put(paramISSRCDIR, Metric.getMetricByMnemonic(MNEM_ISSRC));
+        params.put(paramMNOL, mu.getMetricByMnemonic(MNEMONIC_MODMI));
+        params.put(paramISSRCDIR, mu.getMetricByMnemonic(MNEM_ISSRC));
         
         // Get the list of folders which exist in this project version.
         List<ProjectFileMeasurement> srcDirs = 
@@ -279,7 +284,7 @@ public class Mi extends AbstractMetric {
         
         if (miTotal > 0) {
 
-            Metric metric = Metric.getMetricByMnemonic(MNEMONIC_MI);
+            Metric metric = mu.getMetricByMnemonic(MNEMONIC_MI);
             ProjectVersionMeasurement ams = new ProjectVersionMeasurement(
                     metric, pv, String.valueOf(0));
             

@@ -35,6 +35,7 @@ package eu.sqooss.impl.service.scheduler;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.ResumePoint;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -125,14 +126,14 @@ class WorkerThreadImpl extends Thread implements WorkerThread {
 			}
 		} catch (ClassCastException cce) { 
 		    AlitheiaCore.getInstance().getLogManager().createLogger(
-		            Logger.NAME_SQOOSS_SCHEDULING).error("Job " + j + " is not resumable");
+		            LoggerName.SCHEDULER).error("Job " + j + " is not resumable");
 		} catch (Exception e) {
 			// no error handling needed here, the job
 			// itself takes care of that.
 		} finally {
 		    if (perfLog) {
 		        AlitheiaCore.getInstance().getLogManager().
-		            createLogger("sqooss.jobtimer").
+		            createLogger(LoggerName.JOBTIMER).
 		            debug(m_job.toString() + ", time: " + time + " ms");
 		    }
 			m_job = oldJob;

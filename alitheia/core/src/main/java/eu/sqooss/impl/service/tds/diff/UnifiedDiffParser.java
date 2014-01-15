@@ -88,8 +88,8 @@ public class UnifiedDiffParser implements Diff {
         
         theDiff = diff;
         this.basePath = basePath;
-        changedPaths = new HashSet<String>();
-        diffChunks = new HashMap<String, List<DiffChunk>>();
+        changedPaths = new HashSet<>();
+        diffChunks = new HashMap<>();
         this.parsed = false;
     }
     
@@ -178,7 +178,7 @@ public class UnifiedDiffParser implements Diff {
 					m.matches();
 					curPath = FileUtils.appendPath(basePath, m.group(1));
 					changedPaths.add(curPath);
-					curChunkList = new ArrayList<DiffChunk>();
+					curChunkList = new ArrayList<>();
 					diffStart = true;
 					continue;
 				}
@@ -211,7 +211,7 @@ public class UnifiedDiffParser implements Diff {
 					 * parsing and init some variables first. 
 					 */
 					if (!diffStart) {
-						curChunkList = new ArrayList<DiffChunk>();
+						curChunkList = new ArrayList<>();
 						diffStart = true;
 						m = propChunk.matcher(line);
 						m.matches();

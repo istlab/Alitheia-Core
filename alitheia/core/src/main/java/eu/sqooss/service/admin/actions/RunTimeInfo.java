@@ -32,7 +32,7 @@ package eu.sqooss.service.admin.actions;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.AdminActionBase;
-import eu.sqooss.service.scheduler.SchedulerStats;
+import eu.sqooss.service.scheduler.SchedulerStatsView;
 
 public class RunTimeInfo extends AdminActionBase {
 
@@ -57,7 +57,7 @@ public class RunTimeInfo extends AdminActionBase {
     public void execute() throws Exception {
         super.execute();
         try {
-            SchedulerStats s = AlitheiaCore.getInstance().getScheduler()
+            SchedulerStatsView s = AlitheiaCore.getInstance().getScheduler()
                     .getSchedulerStats();
             result.put("sched.jobs.failed", s.getFailedJobs());
             result.put("sched.jobs.wait", s.getWaitingJobs());

@@ -46,7 +46,6 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
-import eu.sqooss.service.util.Pair;
 
 /**
  * Heuristic based matcher for developer identities. Uses a combination of 
@@ -66,14 +65,14 @@ public class DeveloperMatcher implements MetadataUpdater {
     private Logger logger;
     private float progress;
     
-    private Map<String, Developer> emailToDev = new TreeMap<String, Developer>();
-    private Map<String, Developer> unameToDev = new TreeMap<String, Developer>();
-    private Map<String, Developer> nameToDev = new TreeMap<String, Developer>();
-    private Map<String, Developer> emailprefToDev = new TreeMap<String, Developer>();
+    private Map<String, Developer> emailToDev = new TreeMap<>();
+    private Map<String, Developer> unameToDev = new TreeMap<>();
+    private Map<String, Developer> nameToDev = new TreeMap<>();
+    private Map<String, Developer> emailprefToDev = new TreeMap<>();
     
-    private Map<String, List<String>> mtphoneToUname = new TreeMap<String, List<String>>();
+    private Map<String, List<String>> mtphoneToUname = new TreeMap<>();
     
-    private Map<Pair<Long, Long>, Integer> matches = new HashMap<Pair<Long, Long>, Integer>();
+    private Map<Match, Integer> matches = new HashMap<>();
     
     public DeveloperMatcher() {
         dbs = AlitheiaCore.getInstance().getDBService();
@@ -95,7 +94,7 @@ public class DeveloperMatcher implements MetadataUpdater {
         dbs.startDBSession();
         project = dbs.attachObjectToDBSession(project);
         DoubleMetaphone dm = new DoubleMetaphone();
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("storedProject", project);
         List<Developer> devs = dbs.findObjectsByPropertiesForUpdate(Developer.class, params);
         long ts = System.currentTimeMillis();
@@ -174,29 +173,29 @@ public class DeveloperMatcher implements MetadataUpdater {
         }
         
         progress = 60;
-        List<String> updates = new ArrayList<String>(); 
+        List<String> updates = new ArrayList<>(); 
         updates.add("update ProjectVersion set committer = :new where committer = :old");
         updates.add("update MailMessage set sender = :new where sender = :old");
         updates.add("update Bug set reporter = :new where reporter = :old");
         updates.add("update BugReportMessage set reporter = :new where reporter = :old");
 
-        List<String> deletes = new ArrayList<String>(); 
+        List<String> deletes = new ArrayList<>(); 
         deletes.add("delete from DeveloperAlias d where d.developer.id = :oldid");
         deletes.add("delete from Developer d where d.id = :oldid");
         
-        for (Pair<Long, Long> match : matches.keySet()) {
+        for (Match match : matches.keySet()) {
             
             //if (matches.get(match) < 30)
                // continue;
             
-            Developer byEmail = Developer.loadDAObyId(match.first, Developer.class);
-            Developer byUsrName = Developer.loadDAObyId(match.second, Developer.class);
+            Developer byEmail = Developer.loadDAObyId(match.getLeft(), Developer.class);
+            Developer byUsrName = Developer.loadDAObyId(match.getRight(), Developer.class);
             
-            Map<String, Object> updParam = new HashMap<String, Object>();
+            Map<String, Object> updParam = new HashMap<>();
             updParam.put("old", byEmail);
             updParam.put("new", byUsrName);
             
-            Map<String, Object> delParam = new HashMap<String, Object>();
+            Map<String, Object> delParam = new HashMap<>();
             delParam.put("oldid", byEmail.getId());
             
             //Copy emails
@@ -221,8 +220,8 @@ public class DeveloperMatcher implements MetadataUpdater {
                 debug(del + " old:" + byEmail.getId() + lines + " changed");
             }
 
-            debug("Replaced dev " + match.first + "->" 
-                    + match.second + ", score: " + matches.get(match));
+            debug("Replaced dev " + match.getLeft() + "->" 
+                    + match.getRight() + ", score: " + matches.get(match));
         }
         
         info("Matched " + matches.size() + " developers in " 
@@ -236,7 +235,7 @@ public class DeveloperMatcher implements MetadataUpdater {
      * a given real name
      */
     private List<String> getPossibleUnames(String realName) {
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         realName = cleanup(realName);
         
         String[] nameParts = realName.split(" ");
@@ -304,8 +303,8 @@ public class DeveloperMatcher implements MetadataUpdater {
         if (id1.longValue() == id2.longValue())
             return;
         
-        Pair<Long, Long> match = new Pair<Long, Long>(id1, id2);
-        Pair<Long, Long> revMatch = new Pair<Long, Long>(id2, id1);
+        Match match = new Match(id1, id2);
+        Match revMatch = new Match(id2, id1);
         boolean foundRevMatch = false;
         
         if (matches.containsKey(match)) {
@@ -336,7 +335,7 @@ public class DeveloperMatcher implements MetadataUpdater {
                 unames.add(username);
             }
         } else {
-            unames = new ArrayList<String>();
+            unames = new ArrayList<>();
             unames.add(username);
             mtphoneToUname.put(code, unames);
         }

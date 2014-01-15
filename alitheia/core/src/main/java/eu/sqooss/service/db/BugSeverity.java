@@ -33,9 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -46,8 +43,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * The bug resolution severity.
@@ -85,7 +80,7 @@ public class BugSeverity extends DAObject {
         return Severity.fromString(getSeverity());
     }
     
-    public void setBugseverity(Severity s) {
+    public void setBugSeverity(Severity s) {
         this.severity = s.toString();
     }
     
@@ -147,59 +142,7 @@ public class BugSeverity extends DAObject {
         }
     }    
     
-    /**
-     * Return or create and return the severity code DB representation 
-     * corresponding to the provided severity code
-     * @param s The severity code to check for
-     * @return A Bugseverity DAO or null if an error occurred while creating
-     * the severity code line to the database
-     */
-    public static BugSeverity getBugseverity(Severity s) {
-        return getBugSeverity(s.toString(), true);
-    }
-    
-    /**
-     * Return or create and return the severity code DB representation 
-     * corresponding to the provided String
-     * 
-     * @param severity The bug severity code representation 
-     * @param create If true, create a DB entry for the provided severity 
-     * code
-     * @return A BugSeverity DAO or null when the DAO was not found 
-     * and the create field was set to null or when an error occurred
-     * while modifying the DB.
-     */
-    public static BugSeverity getBugSeverity(String severity, boolean create) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-        Map<String,Object> params = new HashMap<String,Object>();
-        params.put("severity", severity);
-        
-        List<BugSeverity> st = dbs.findObjectsByProperties(BugSeverity.class,
-                params);
-        
-        if (!st.isEmpty()) {
-            return st.get(0);
-        }
-        
-        if (!create) {
-            return null;
-        }
-        
-        if (Severity.fromString(severity) == null) {
-            return null;
-        }
-        
-        BugSeverity bs = new BugSeverity();
-        bs.setSeverity(severity);
-        
-        if (!dbs.addRecord(bs))
-            return null;
-        
-        return bs;
-    }
-
-	public void setBugs(Set<Bug> bugs) {
+    public void setBugs(Set<Bug> bugs) {
 		this.bugs = bugs;
 	}
 

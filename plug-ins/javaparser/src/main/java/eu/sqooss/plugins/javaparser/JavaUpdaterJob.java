@@ -18,7 +18,6 @@ import eu.sqooss.parsers.java.EntityExtractor;
 import eu.sqooss.parsers.java.JavaTreeLexer;
 import eu.sqooss.parsers.java.JavaTreeParser;
 import eu.sqooss.parsers.java.SpanningNodeAdaptor;
-
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.EncapsulationUnit;
@@ -28,6 +27,8 @@ import eu.sqooss.service.db.NameSpace;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.NameSpaceUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
@@ -117,7 +118,7 @@ public class JavaUpdaterJob extends Job {
             walker.addProcessor(ee);
             walker.walk(t);
 
-            NameSpace ns = NameSpace.findByVersionName(pf.getProjectVersion(), 
+            NameSpace ns = new NameSpaceUtils(db).getNameSpaceByVersionName(pf.getProjectVersion(), 
                     ee.getPackageName());
             
             if (ns == null) {
@@ -161,7 +162,7 @@ public class JavaUpdaterJob extends Job {
                InvalidRepositoryException, FileNotFoundException {
         Long ts = System.currentTimeMillis();
         List<String> changedMethods = new ArrayList<String>();
-        ProjectFile prev = pf.getPreviousFileVersion();
+        ProjectFile prev = new ProjectFileUtils(db).getPreviousFileVersion(pf);
         
         if (prev == null) {
             if (!pf.isAdded())
