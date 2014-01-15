@@ -38,29 +38,53 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.commons.collections.list.SynchronizedList;
 
+@XmlRootElement(name = "scheduler-stats")
 public class SchedulerStats {
+	
     // the number of jobs currently in the scheduler
+	@XmlElement
     private long totalJobs = 0;
+	
     // the number of jobs which were finished
+	@XmlElement
     private long finishedJobs = 0;
-    // the number of jobs currently waiting
-    private long waitingJobs = 0;
+    
+	// the number of jobs currently waiting
+	@XmlElement
+	private long waitingJobs = 0;
+	
     // the number of jobs currently running
-    private long runningJobs = 0;
-    // the total number of threads available for scheduling
-    private long workerThreads = 0;
-    // the number of threads being idle at the moment
-    private long idleWorkerThreads = 0;
-    // the number of jobs which failed
-    private long failedJobs = 0;
-    //Classname->Failed Jobs 
-    private HashMap<String, Integer> failedJobTypes = new HashMap<String, Integer>();
+	@XmlElement
+	private long runningJobs = 0;
+
+	// the total number of threads available for scheduling
+	@XmlElement
+	private long workerThreads = 0;
+
+	// the number of threads being idle at the moment
+	@XmlElement
+	private long idleWorkerThreads = 0;
+    
+	// the number of jobs which failed
+	@XmlElement
+	private long failedJobs = 0;
+    
+	//Classname->Failed Jobs 
+	@XmlElement
+	private HashMap<String, Integer> failedJobTypes = new HashMap<String, Integer>();
+    
     //Classname->Num jobs waiting
-    private HashMap<String, Integer> waitingJobTypes = new HashMap<String, Integer>();
-    //Running jobs
-    private List<Job> runJobs = new Vector<Job>();
+	@XmlElement
+	private HashMap<String, Integer> waitingJobTypes = new HashMap<String, Integer>();
+    
+	//Running jobs
+	@XmlElement
+	private List<Job> runJobs = new Vector<Job>();
     
     public synchronized void incTotalJobs() {
         totalJobs++;
