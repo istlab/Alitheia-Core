@@ -28,6 +28,7 @@ import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.MailAccessor;
@@ -47,10 +48,10 @@ public class UpdaterServiceImplTest {
 	private AlitheiaCore core;
 
 	@Test
-	// TODO Can't get past line 447 :/
     public void testUpdateProjectWithInstiantiableUpdater() throws InvalidAccessorException {
 		// -- Given
 		setUpCoreStubs();
+		Mockito.when(core.getScheduler()).thenReturn(Mockito.mock(Scheduler.class));
 		// -- When
 		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
 		// -- Then
@@ -60,8 +61,8 @@ public class UpdaterServiceImplTest {
 		//2 info messages from correctly added services
 		//1 info message from starting an update
 		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
-		//Our mocked loggers cannot actually be instantiated
-		assertEquals(false, b);
+		//This should work without problems
+		assertEquals(true, b);
     }
 	
 	@Test
@@ -539,7 +540,7 @@ public class UpdaterServiceImplTest {
     		protocols = {"testscheme"},
     		stage = UpdaterStage.PARSE
     )
-    private class MetadataUpdaterStub implements MetadataUpdater{
+    public static class MetadataUpdaterStub implements MetadataUpdater{
 		@Override
 		public void setUpdateParams(StoredProject sp, Logger l) {
 		}
@@ -557,7 +558,7 @@ public class UpdaterServiceImplTest {
     		protocols = {"testscheme2"},
     		stage = UpdaterStage.PARSE
     )
-    private class MetadataUpdaterStub2 implements MetadataUpdater{
+    public static class MetadataUpdaterStub2 implements MetadataUpdater{
 		@Override
 		public void setUpdateParams(StoredProject sp, Logger l) {
 		}
