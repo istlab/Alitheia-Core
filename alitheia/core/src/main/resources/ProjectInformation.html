@@ -1,0 +1,14 @@
+<fieldset>
+    <legend>Project information</legend>
+    <table class="borderless">
+        ## normalInfoRow expects $infoRows with a title and a value
+        #foreach( $field in $infoRows)
+            #parse("normalInfoRow.html")
+        #end
+        <tr>
+            <td colspan="2" class="borderless">
+                <input type="button" class="install" style="width: 100px;" value="$backButtonText" onclick="$onClickInstall">
+            </td>
+        </tr>
+    </table>
+</fieldset>

@@ -33,6 +33,7 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -43,6 +44,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -335,9 +337,9 @@ public abstract class AbstractView {
     
     protected Map<String,String> normalInputRowMap(String title, String parName, String parValue){
     	Map<String,String> field = new HashMap<String,String>(3);
-    	field.put("title",title);
-    	field.put("name",parName);
-    	field.put("value",parValue);
+    	field.put("title",(title != null) ? title : "");
+    	field.put("name",(parName != null) ? parName : "");
+    	field.put("value",(parValue != null) ? parValue : "");
     	return field;
     }
 
@@ -374,6 +376,20 @@ public abstract class AbstractView {
         
         // Return the generated content
         return b.toString();
+    }
+    
+    protected Map<String,String> normalInfoRowMap(String title, String value){
+    	Map<String,String> field = new HashMap<String,String>(2);
+    	field.put("title",(title != null) ? title : "");
+    	field.put("value",(value != null) ? value : "");
+    	return field;
+    }
+    
+    protected String velocityContextToString(VelocityContext context, String templateName){
+        Template template = AdminServlet.getVelocityEngine().getTemplate(templateName);
+        StringWriter writer = new StringWriter();
+        template.merge(context, writer);
+        return writer.toString();
     }
 
     /**

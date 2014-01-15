@@ -331,50 +331,29 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         if ((reqValAction.equals(ACT_REQ_SHOW_PROJECT))
                 && (selProject != null)) {
-            // Create the field-set
-            b.append(sp(in++) + "<fieldset>\n");
-            b.append(sp(in) + "<legend>"
-                    + "Project information"
-                    + "</legend>\n");
-            b.append(sp(in++) + "<table class=\"borderless\">\n");
-            // Create the input fields
-            b.append(normalInfoRow(
-                    "Project name", selProject.getName(), in));
-            b.append(normalInfoRow(
-                    "Homepage", selProject.getWebsiteUrl(), in));
-            b.append(normalInfoRow(
-                    "Contact e-mail", selProject.getContactUrl(), in));
-            b.append(normalInfoRow(
-                    "Bug database", selProject.getBtsUrl(), in));
-            b.append(normalInfoRow(
-                    "Mailing list", selProject.getMailUrl(), in));
-            b.append(normalInfoRow(
-                    "Source code", selProject.getScmUrl(), in));
+        	VelocityContext vcLocal = new VelocityContext();
 
-            //------------------------------------------------------------
-            // Tool-bar
-            //------------------------------------------------------------
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in++)
-                    + "<td colspan=\"2\" class=\"borderless\">\n");
-            // Back button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("btn_back") + "\""
-                    + " onclick=\"javascript:"
-                    + SUBMIT + "\">\n");
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</table>\n");
-            b.append(sp(--in) + "</fieldset>\n");
+        	// Create the field-container
+          	List<Map<String,String>> rows = new ArrayList<Map<String,String>>();
+            // Create the input fields
+            rows.add(normalInfoRowMap("Project name", selProject.getName()));
+            rows.add(normalInfoRowMap("Homepage", selProject.getWebsiteUrl()));
+            rows.add(normalInfoRowMap("Contact e-mail", selProject.getContactUrl()));
+            rows.add(normalInfoRowMap("Bug database", selProject.getBtsUrl()));
+            rows.add(normalInfoRowMap("Mailing list", selProject.getMailUrl()));
+            rows.add(normalInfoRowMap("Source code", selProject.getScmUrl()));
+            vcLocal.put("infoRows", rows);
+            vcLocal.put("backButtonText", getLbl("btn_back"));
+            vcLocal.put("onClickInstall", "javascript:"+SUBMIT);
+            b.append(velocityContextToString(vcLocal,"ProjectInformation.html"));
+
         }
         // ===================================================================
         // "Add project" editor
         // ===================================================================
         else if (reqValAction.equals(ACT_REQ_ADD_PROJECT)) {
-            // Create the field-container
         	VelocityContext vcLocal = new VelocityContext();
+        	// Create the field-container
         	List<Map<String,String>> fields = new ArrayList<Map<String,String>>();
             // Create the input fields
             fields.add(normalInputRowMap("Project name", REQ_PAR_PRJ_NAME, ""));
@@ -384,55 +363,25 @@ public class ProjectsView extends AbstractView {
             fields.add(normalInputRowMap("Mailing list", REQ_PAR_PRJ_MAIL, ""));
             fields.add(normalInputRowMap("Source code", REQ_PAR_PRJ_CODE, ""));
             vcLocal.put("formFields", fields);
-            Template template = AdminServlet.getVelocityEngine().getTemplate("addProjectEditor.html");
-            StringWriter writer = new StringWriter();
-            template.merge(vcLocal, writer);
-            b.append(writer.toString());
+            b.append(velocityContextToString(vcLocal,"addProjectEditor.html"));
         }
         // ===================================================================
         // "Delete project" confirmation view
         // ===================================================================
         else if ((reqValAction.equals(ACT_REQ_REM_PROJECT))
                 && (selProject != null)) {
-            b.append(sp(in++) + "<fieldset>\n");
-            b.append(sp(in) + "<legend>" + getLbl("l0059")
-                    + ": " + selProject.getName()
-                    + "</legend>\n");
-            b.append(sp(in++) + "<table class=\"borderless\">");
-            // Confirmation message
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in) + "<td class=\"borderless\">"
-                    + "<b>" + getMsg("delete_project") + "</b>"
-                    + "</td>\n");
-
-            b.append(sp(--in) + "</tr>\n");
-            //------------------------------------------------------------
-            // Tool-bar
-            //------------------------------------------------------------
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in++)
-                    + "<td class=\"borderless\">\n");
-            // Confirm button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0006") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_CON_REM_PROJECT + "';"
-                    + SUBMIT + "\">\n");
-            // Cancel button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0004") + "\""
-                    + " onclick=\"javascript:"
-                    + SUBMIT + "\">\n");
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</table>");
-            b.append(sp(in) + "</fieldset>\n");
+        	VelocityContext vcLocal = new VelocityContext();
+        	vcLocal.put("deleteLabel", getLbl("l0059"));
+        	vcLocal.put("projectName", (selProject.getName() == null)? "null" : selProject.getName() );
+            vcLocal.put("message", getMsg("delete_project"));
+            vcLocal.put("onClickDelete","javascript:document.getElementById('"+ 
+            								REQ_PAR_ACTION + "').value='"+ 
+            								ACT_CON_REM_PROJECT + "';"+ 
+            								SUBMIT);
+            vcLocal.put("onClickCancel","javascript:"+SUBMIT);
+            vcLocal.put("confirmValue",getLbl("l0006"));
+            vcLocal.put("cancelValue", getLbl("l0004"));
+            b.append(velocityContextToString(vcLocal, "confirmProjectDelete.html"));
         }
         // ===================================================================
         // Projects list view
