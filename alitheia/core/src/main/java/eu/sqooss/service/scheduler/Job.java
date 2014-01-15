@@ -100,7 +100,6 @@ public abstract class Job implements Comparable<Job> {
     
     private Scheduler m_scheduler;
 
-    
     private WorkerThread m_worker;
     
     private int restarts = 0;
