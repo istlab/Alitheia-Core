@@ -1,0 +1,20 @@
+<tr class="$project.cssClass" onclick="javascript:document.getElementById('$project.onClickSelectElementId').value='$project.onClickSelectProjectId';$project.onClickSelectSubmit">
+  <td class="trans">$project.projectId</td>
+  <td class="trans">
+	  #if($project.selected)
+	  	<input 	type="button"
+	  			class="install"
+	  			style="width: 100px;"
+	  			value="$project.selectedProjectSubmitValue"
+	  			onclick="javascript:document.getElementById('$project.selectedProjectAction').value='$project.selectedProjectActionValue';$project.onClickSelectSubmit">
+	  #else
+	  	<img src="/edit.png" alt="[Edit]">
+	  #end
+	  	&nbsp;$project.projectName
+  </td>
+  <td class="trans">$project.projectVersion</td>
+  <td class="trans">$project.projectLastMailDate</td>
+  <td class="trans">$project.projectLastBugId</td>
+  <td class="trans">$project.projectEvaluationState</td>
+  <td class="trans">$project.projectNode</td>
+</tr>

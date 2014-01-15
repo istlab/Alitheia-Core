@@ -1,0 +1,47 @@
+<tr class="subhead">
+    <td>View</td>
+    <td colspan="6">
+        <input type="button"  class="install"  style="width: 100px;"  value="$refreshButton"  onclick="javascript:window.location='/projects$postArgument';">
+    </td>
+</tr>
+<tr class="subhead">
+    <td>Manage</td>
+    <td colspan='6'>
+        <input type="button"  class="install"  style="width: 100px;"  value="$addProjectButton"  onclick="javascript:document.getElementById('$REQ_PAR_ACTION').value='$addProjectValue';$onClickSubmit">
+        <input type="button"  class="install"  style="width: 100px;"  value="$deleteProjectButton"  onclick="javascript:document.getElementById('$REQ_PAR_ACTION').value='$removeProjectValue';$onClickSubmit"$removeDisabled>
+    </td>
+</tr>
+<tr class='subhead'>
+    <td>Update</td>
+    <td colspan='4'>
+        #if ($projectSelected)
+        <select name="$REQ_PAR_UPD" id="$REQ_PAR_UPD" >
+            <optgroup label="Import Stage">
+                #foreach($updater in $importUpdaters)
+                <option value="$updater.mnem">$updater.description</option>
+                #end
+            </optgroup>
+            <optgroup label="Parse Stage">
+                #foreach($updater in $parseUpdaters)
+                <option value="$updater.mnem">$updater.description</option>
+                #end
+            </optgroup>
+            <optgroup label="Inference Stage">
+                #foreach($updater in $inferenceUpdaters)
+                <option value="$updater.mnem">$updater.description</option>
+                #end
+            </optgroup>
+            <optgroup label="Default Stage">
+                #foreach($updater in $defaultUpdaters)
+                <option value="$updater.mnem">$updater.description</option>
+                #end
+            </optgroup>
+        </select>
+        #end
+        <input type="button" class="install" value="Run Updater" onclick="javascript:document.getElementById('$REQ_PAR_ACTION').value='$ACT_CON_UPD';$onClickSubmit"$removeDisabled>
+        <input type="button"  class="install"  value="Run All Updaters" onclick="javascript:document.getElementById('$REQ_PAR_ACTION').value='$ACT_CON_UPD_ALL';$onClickSubmit"$removeDisabled>
+    </td>
+    <td colspan="2" align="right">
+        <input type="button"  class="install" value="Update all on $clusterName"  onclick="javascript:document.getElementById('$REQ_PAR_ACTION').value='$ACT_CON_UPD_ALL_NODE';$onClickSubmit">
+    </td>
+</tr>

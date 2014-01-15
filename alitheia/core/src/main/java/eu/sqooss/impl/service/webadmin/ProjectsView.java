@@ -33,16 +33,15 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
@@ -342,9 +341,10 @@ public class ProjectsView extends AbstractView {
             rows.add(normalInfoRowMap("Bug database", selProject.getBtsUrl()));
             rows.add(normalInfoRowMap("Mailing list", selProject.getMailUrl()));
             rows.add(normalInfoRowMap("Source code", selProject.getScmUrl()));
+            //add info fields to velocity context
             vcLocal.put("infoRows", rows);
             vcLocal.put("backButtonText", getLbl("btn_back"));
-            vcLocal.put("onClickInstall", "javascript:"+SUBMIT);
+            vcLocal.put("onClickInstall", SUBMIT);
             b.append(velocityContextToString(vcLocal,"ProjectInformation.html"));
 
         }
@@ -372,13 +372,14 @@ public class ProjectsView extends AbstractView {
                 && (selProject != null)) {
         	VelocityContext vcLocal = new VelocityContext();
         	vcLocal.put("deleteLabel", getLbl("l0059"));
-        	vcLocal.put("projectName", (selProject.getName() == null)? "null" : selProject.getName() );
+        	//concat with empty string to convert null value to "null" string.
+        	vcLocal.put("projectName", ""+selProject.getName() );
             vcLocal.put("message", getMsg("delete_project"));
-            vcLocal.put("onClickDelete","javascript:document.getElementById('"+ 
+            vcLocal.put("onClickDelete","document.getElementById('"+ 
             								REQ_PAR_ACTION + "').value='"+ 
             								ACT_CON_REM_PROJECT + "';"+ 
             								SUBMIT);
-            vcLocal.put("onClickCancel","javascript:"+SUBMIT);
+            vcLocal.put("onClickCancel",SUBMIT);
             vcLocal.put("confirmValue",getLbl("l0006"));
             vcLocal.put("cancelValue", getLbl("l0004"));
             b.append(velocityContextToString(vcLocal, "confirmProjectDelete.html"));
@@ -387,109 +388,107 @@ public class ProjectsView extends AbstractView {
         // Projects list view
         // ===================================================================
         else {
-            addHeaderRow(b,in);
+            VelocityContext vcLocal = new VelocityContext();
+            vcLocal.put("idHeader",getLbl("l0066"));
+            vcLocal.put("nameHeader",getLbl("l0067"));
+            vcLocal.put("versionHeader",getLbl("l0068"));
+            vcLocal.put("emailHeader",getLbl("l0069"));
+            vcLocal.put("bugHeader",getLbl("l0070"));
+            vcLocal.put("evaluatedHeader",getLbl("l0071"));
+            vcLocal.put("hostHeader",getLbl("l0073"));
+            vcLocal.put("no_projects", getMsg("no_projects"));
+            vcLocal.put("noProjectsAvailable",projects.isEmpty());
+            
+            //------------------------------------------------------------
+            // Create the content rows
+            //------------------------------------------------------------
+        	List<Map<String,String>> projectRows = new ArrayList<Map<String,String>>();
 
-            if (projects.isEmpty()) {
-                b.append(sp(in++) + "<tr>\n");
-                b.append(sp(in) + "<td colspan=\"6\" class=\"noattr\">\n"
-                        + getMsg("no_projects")
-                        + "</td>\n");
-                b.append(sp(--in) + "</tr>\n");
-            }
-            else {
-                //------------------------------------------------------------
-                // Create the content rows
-                //------------------------------------------------------------
-                b.append(sp(in++) + "<tbody>\n");
-                for (StoredProject nextPrj : projects) {
-                    boolean selected = false;
-                    if ((selProject != null)
-                            && (selProject.getId() == nextPrj.getId())) {
-                        selected = true;
-                    }
-                    b.append(sp(in++) + "<tr class=\""
-                            + ((selected) ? "selected" : "edit") + "\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + REQ_PAR_PROJECT_ID + "').value='"
-                            + ((selected) ? "" : nextPrj.getId())
-                            + "';"
-                            + SUBMIT + "\">\n");
-                    // Project Id
-                    b.append(sp(in) + "<td class=\"trans\">"
-                            + nextPrj.getId()
-                            + "</td>\n");
-                    // Project name
-                    b.append(sp(in) + "<td class=\"trans\">"
-                            + ((selected)
-                                    ? "<input type=\"button\""
-                                        + " class=\"install\""
-                                        + " style=\"width: 100px;\""
-                                        + " value=\""
-                                        + getLbl("btn_info")
-                                        + "\""
-                                        + " onclick=\"javascript:"
-                                        + "document.getElementById('"
-                                        + REQ_PAR_ACTION + "').value='" 
-                                        + ACT_REQ_SHOW_PROJECT + "';"
-                                        + SUBMIT + "\">"
-                                    : "<img src=\"/edit.png\""
-                                        + " alt=\"[Edit]\"/>")
-                            + "&nbsp;"
-                            + nextPrj.getName()
-                            + "</td>\n");
-                    // Last project version
-                    String lastVersion = getLbl("l0051");
-                    ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
-                    if (v != null) {
-                        lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
-                    }
-                    b.append(sp(in) + "<td class=\"trans\">"
-                            + lastVersion
-                            + "</td>\n");
-                    // Date of the last known email
-                    MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
-                    b.append(sp(in) + "<td class=\"trans\">"
-                            + ((mm == null)?getLbl("l0051"):mm.getSendDate())
-                            + "</td>\n");
-                    // ID of the last known bug entry
-                    Bug bug = Bug.getLastUpdate(nextPrj);
-                    b.append(sp(in) + "<td class=\"trans\">"
-                            + ((bug == null)?getLbl("l0051"):bug.getBugID())
-                            + "</td>\n");
-                    // Evaluation state
-                    String evalState = getLbl("project_not_evaluated");
-                    if (nextPrj.isEvaluated()) {
-                    	evalState = getLbl("project_is_evaluated");
-                    }
-                    b.append(sp(in) + "<td class=\"trans\">"
-                            + evalState
-                            + "</td>\n");
-                    
-                    // Cluster node
-                    String nodename = null;
-                    if (null != nextPrj.getClusternode()) {
-                        nodename = nextPrj.getClusternode().getName();
-                    } else {
-                        nodename = "(local)";
-                    }
-                    b.append(sp(in) + "<td class=\"trans\">" + nodename + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
-                    if ((selected) && (metrics.isEmpty() == false)) {
-                        showLastAppliedVersion(nextPrj, metrics, b);
+            for (StoredProject nextPrj : projects) {
+                Map<String,String> projectRow = new HashMap<String,String>(9);
+            	boolean selected = false;
+                if ((selProject != null)
+                        && (selProject.getId() == nextPrj.getId())) {
+                    selected = true;
+                }
+                
+                // Last project version             
+                String lastVersion = getLbl("l0051");
+                ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
+                if (v != null) {
+                    lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
+                }
+                // Date of the last known email                
+                MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
+                String lastMail = (mm == null)?getLbl("l0051"):mm.getSendDate()+"";
+                
+                // ID of the last known bug entry
+                Bug bug = Bug.getLastUpdate(nextPrj);
+                String lastBug = (bug == null)?getLbl("l0051"):bug.getBugID()+"";
+
+                // Evaluation state
+                String evalState = getLbl("project_not_evaluated");
+                if (nextPrj.isEvaluated()) {
+                	evalState = getLbl("project_is_evaluated");
+                }
+                
+                // Cluster node
+                String nodeName = null;
+                if (null != nextPrj.getClusternode()) {
+                    nodeName = nextPrj.getClusternode().getName()+"";
+                } else {
+                    nodeName = "(local)";
+                }
+                
+                if(selected)
+                	projectRow.put("selected","selected");
+                projectRow.put("cssClass", (selected) ? "selected" : "edit");
+                projectRow.put("onClickSelectElementId",REQ_PAR_PROJECT_ID);
+                projectRow.put("onClickSelectProjectId",selected ? "" : nextPrj.getId()+"");
+                projectRow.put("onClickSelectSubmit",SUBMIT);		
+                projectRow.put("projectId",nextPrj.getId()+"");
+                projectRow.put("projectName",nextPrj.getName()+"");
+                projectRow.put("projectVersion",lastVersion);
+                projectRow.put("projectLastMailDate",lastMail);
+                projectRow.put("projectLastBugId",lastBug);
+                projectRow.put("projectEvaluationState",evalState);
+                projectRow.put("projectNode",nodeName);
+                
+                if(selected){
+                	projectRow.put("selectedProjectAction", REQ_PAR_ACTION);
+                    projectRow.put("selectedProjectActionValue", ACT_REQ_SHOW_PROJECT);
+                    projectRow.put("selectedProjectSubmitValue",getLbl("btn_info"));
+                    projectRow.put("selectedProjectHasMetrics",!metrics.isEmpty() ? "metrics" : "");
+                    if(!metrics.isEmpty()){
+                    	List<Map<String,String>> metricRows = new ArrayList<Map<String,String>>();
+                        boolean showMetric = false;
+                    	for(PluginInfo m : metrics) {
+                            if (m.installed) {
+                            	showMetric = true;
+                            	Map<String,String>metricRow = new HashMap<String,String>(2);
+                            	metricRow.put("name", m.getPluginName());
+                            	metricRow.put("hashCode", m.getHashcode());
+                            }
+                        }
+                    	vc.put("showMetric", showMetric);
+                    	if(showMetric){
+                    		vc.put("metricList", metricRows);
+                    		vc.put("onClickSubmit",SUBMIT);
+                    		vc.put("metricElementId",REQ_PAR_SYNC_PLUGIN);
+                    	}   	
                     }
                 }
+                projectRows.add(projectRow);
             }
+            
+            vcLocal.put("projectList", projectRows);
+            
+            
             //----------------------------------------------------------------
             // Tool-bar
             //----------------------------------------------------------------
-            addToolBar(selProject,b,in);
-
-            //----------------------------------------------------------------
-            // Close the table
-            //----------------------------------------------------------------
-            b.append(sp(--in) + "</tbody>\n");
-            b.append(sp(--in) + "</table>\n");
+            addToolBar(selProject,vcLocal);
+            b.append(velocityContextToString(vcLocal, "projectList.html"));
             b.append(sp(--in) + "</fieldset>\n");
         }
 
@@ -522,117 +521,58 @@ public class ProjectsView extends AbstractView {
                 "' value=''>\n");
     }
     
-    private void addToolBar(StoredProject selProject,
-            StringBuilder b,
-            long in) {
-        b.append(sp(in++) + "<tr class=\"subhead\">\n");
-        b.append(sp(in++) + "<td>View</td><td colspan=\"6\">\n");
-        // Refresh button
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0008") + "\"" + " onclick=\"javascript:" + "window.location='/projects" + ((selProject != null)
-                ? "?" + REQ_PAR_PROJECT_ID + "=" + selProject.getId()
-                : "") + "';\"" + ">");
-        b.append("</td></tr><tr class=\"subhead\"><td>Manage</td><td colspan='6'>\n");
-        // Add project button
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("add_project") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_ADD_PROJECT + "';" + SUBMIT + "\">\n");
-        // Remove project button
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0059") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_REM_PROJECT + "';" + SUBMIT + "\"" + ((selProject != null) ? "" : " disabled") + ">");
-        b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
+    private VelocityContext addToolBar(StoredProject selProject, VelocityContext origin) {
+    	VelocityContext vcLocal = origin;
+
+    	String postArgument = ((selProject != null)
+    	        ? "?" + REQ_PAR_PROJECT_ID + "=" + selProject.getId()
+    	        : "");
+    	vcLocal.put("postArgument",postArgument);
+    	vcLocal.put("removeDisabled", ((selProject != null) ? "" : " disabled"));
+    	vcLocal.put("onClickSubmit", SUBMIT);
+    	vcLocal.put("refreshButton", getLbl("l0008"));
+    	vcLocal.put("addProjectButton", getLbl("add_project"));
+    	vcLocal.put("deleteProjectButton", getLbl("l0059"));
+    	vcLocal.put("REQ_PAR_ACTION", ProjectsView.REQ_PAR_ACTION);
+    	vcLocal.put("addProjectValue", ACT_REQ_ADD_PROJECT);
+    	vcLocal.put("removeProjectValue", ACT_REQ_REM_PROJECT);
+    	vcLocal.put("REQ_PAR_UPD", ProjectsView.REQ_PAR_UPD);
+    	vcLocal.put("ACT_CON_UPD_ALL_NODE", ProjectsView.ACT_CON_UPD_ALL_NODE);
+    	vcLocal.put("clusterName", sobjClusterNode.getClusterNodeName());
+    	vcLocal.put("projectSelected",selProject != null);
+    	vcLocal.put("ACT_CON_UPD",ACT_CON_UPD);
+    	vcLocal.put("ACT_CON_UPD_ALL",ACT_CON_UPD_ALL);
         
         if (selProject != null) {
-            b.append(sp(in) + "<select name=\"" + REQ_PAR_UPD + "\" id=\"" + REQ_PAR_UPD + "\" " + ((selProject != null) ? "" : " disabled=\"disabled\"") + ">\n");
-            b.append(sp(in) + "<optgroup label=\"Import Stage\">");
+        	List<Map<String,String>> importUpdaters = new ArrayList<Map<String,String>>();
+        	List<Map<String,String>> parseUpdaters = new ArrayList<Map<String,String>>();
+        	List<Map<String,String>> inferenceUpdaters = new ArrayList<Map<String,String>>();
+        	List<Map<String,String>> defaultUpdaters = new ArrayList<Map<String,String>>();
             for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.IMPORT)) {
-                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
+                importUpdaters.add(getUpdaterOptionMap(u));
             }
-            b.append(sp(in) + "</optgroup>");
-            b.append(sp(in) + "<optgroup label=\"Parse Stage\">");
             for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.PARSE)) {
-                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
+                parseUpdaters.add(getUpdaterOptionMap(u));
             }
-            b.append(sp(in) + "</optgroup>");
-            b.append(sp(in) + "<optgroup label=\"Inference Stage\">");
             for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.INFERENCE)) {
-                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
+                inferenceUpdaters.add(getUpdaterOptionMap(u));
             }
-            b.append(sp(in) + "</optgroup>");
-            b.append(sp(in) + "<optgroup label=\"Default Stage\">");
             for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.DEFAULT)) {
-                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
+                defaultUpdaters.add(getUpdaterOptionMap(u));
             }
-            b.append(sp(in) + "</optgroup>");
-            b.append(sp(in) + "</select>");
+            vcLocal.put("importUpdaters", importUpdaters);
+            vcLocal.put("parseUpdaters",parseUpdaters);
+            vcLocal.put("inferenceUpdaters",inferenceUpdaters);
+            vcLocal.put("defaultUpdaters", defaultUpdaters);
         }
-
-        // Trigger updater
-        b.append(sp(in) + "<input type=\"button\" class=\"install\" value=\"Run Updater\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD + "';" + SUBMIT + "\"" + ((selProject != null)? "" : " disabled") + ">\n");
-        // Trigger all updates
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " value=\"Run All Updaters\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null))
-                ? "" : " disabled") + ">\n");
-        b.append(sp(--in) + "</td>\n");
-        b.append(sp(--in) + "<td colspan=\"2\" align=\"right\">\n");
-     // Trigger updates on host
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ sobjClusterNode.getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\">\n");
-        b.append(sp(--in) + "</td>\n");
-        b.append(sp(--in) + "</tr>\n");
+        return vcLocal;
     }
     
-    private void showLastAppliedVersion(
-            StoredProject project,
-            Collection<PluginInfo> metrics,
-            StringBuilder b) {
-        for(PluginInfo m : metrics) {
-            if (m.installed) {
-                b.append("<tr>\n");
-                b.append(sp(1) + "<td colspan=\"7\""
-                        + " class=\"noattr\">\n"
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Synchronise\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + REQ_PAR_SYNC_PLUGIN + "').value='"
-                        + m.getHashcode() + "';"
-                        + SUBMIT + "\""
-                        + ">"
-                        + "&nbsp;"
-                        + m.getPluginName()
-                        + "</td>\n");
-                b.append("</tr>\n");
-            }
-        }
-    }
-
-    private void addHeaderRow(StringBuilder b, long in) {
-        //----------------------------------------------------------------
-        // Create the header row
-        //----------------------------------------------------------------
-        b.append(sp(in++) + "<table>\n");
-        b.append(sp(in++) + "<thead>\n");
-        b.append(sp(in++) + "<tr class=\"head\">\n");
-        b.append(sp(in) + "<td class='head'  style='width: 10%;'>"
-                + getLbl("l0066")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 35%;'>"
-                + getLbl("l0067")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
-                + getLbl("l0068")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
-                + getLbl("l0069")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
-                + getLbl("l0070")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 10%;'>"
-                + getLbl("l0071")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 10%;'>"
-                + getLbl("l0073")
-                + "</td>\n");
-        b.append(sp(--in) + "</tr>\n");
-        b.append(sp(--in) + "</thead>\n");
+    private Map<String,String> getUpdaterOptionMap(Updater u){
+    	Map<String,String> updaterMap = new HashMap<String,String>(2);
+    	updaterMap.put("mnem", u.mnem());
+    	updaterMap.put("description",u.descr());
+    	return updaterMap;
     }
 }
 

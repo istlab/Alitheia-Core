@@ -1,0 +1,41 @@
+<table>
+	<thead>
+		<tr class="head">
+			<td class='head'  style='width: 10%;'>$idHeader</td>
+			<td class='head' style='width: 35%;'>$nameHeader</td>
+			<td class='head' style='width: 15%;'>$versionHeader</td>
+			<td class='head' style='width: 15%;'>$emailHeader</td>
+			<td class='head' style='width: 15%;'>$bugHeader</td>
+			<td class='head' style='width: 10%;'>$evaluatedHeader</td>
+			<td class='head' style='width: 10%;'>$hostHeader</td>
+		</tr>
+	</thead>
+	#if ($noProjectsAvailable)
+	<tr>
+		<td colspan="6" class="noattr">$no_projects</td>
+	</tr>
+	#else
+	<tbody>
+		#foreach($project in $projectList)
+			#parse("projectRow.html")
+		#end
+		#if($showMetric)
+			#foreach($metric in $metricList)
+	        <tr>
+	         <td colspan="7"
+	                 class="noattr">
+	                <input type="button"
+	                 class="install"
+	                 style="width: 100px;"
+	                 value="Synchronise"
+	                 onclick="javascript:
+	                document.getElementById('$metricElementId').value='$metric.hashCode';$onClickSubmit">
+	                &nbsp;$metric.name
+	                </td>
+	        </tr>
+			#end
+		#end
+	#end
+	#parse("toolbar.html")
+	</tbody>
+</table>
