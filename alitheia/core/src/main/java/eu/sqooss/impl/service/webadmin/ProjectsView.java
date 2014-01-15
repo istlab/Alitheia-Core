@@ -33,13 +33,16 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
@@ -370,48 +373,21 @@ public class ProjectsView extends AbstractView {
         // "Add project" editor
         // ===================================================================
         else if (reqValAction.equals(ACT_REQ_ADD_PROJECT)) {
-            // Create the field-set
-            b.append(sp(in++) + "<table class=\"borderless\" width='100%'>\n");
+            // Create the field-container
+        	VelocityContext vcLocal = new VelocityContext();
+        	List<Map<String,String>> fields = new ArrayList<Map<String,String>>();
             // Create the input fields
-            b.append(normalInputRow(
-                    "Project name", REQ_PAR_PRJ_NAME, "", in));
-            b.append(normalInputRow(
-                    "Homepage", REQ_PAR_PRJ_WEB, "", in));
-            b.append(normalInputRow(
-                    "Contact e-mail", REQ_PAR_PRJ_CONT, "", in));
-            b.append(normalInputRow(
-                    "Bug database", REQ_PAR_PRJ_BUG, "", in));
-            b.append(normalInputRow(
-                    "Mailing list", REQ_PAR_PRJ_MAIL, "", in));
-            b.append(normalInputRow(
-                    "Source code", REQ_PAR_PRJ_CODE, "", in));
-
-            //------------------------------------------------------------
-            // Tool-bar
-            //------------------------------------------------------------
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in++)
-                    + "<td colspan=\"2\" class=\"borderless\">\n");
-            // Apply button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("project_add") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_CON_ADD_PROJECT + "';"
-                    + SUBMIT + "\">\n");
-            // Cancel button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("cancel") + "\""
-                    + " onclick=\"javascript:"
-                    + SUBMIT + "\">\n");
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</table>\n");
+            fields.add(normalInputRowMap("Project name", REQ_PAR_PRJ_NAME, ""));
+            fields.add(normalInputRowMap("Homepage", REQ_PAR_PRJ_WEB, ""));
+            fields.add(normalInputRowMap("Contact e-mail", REQ_PAR_PRJ_CONT, ""));
+            fields.add(normalInputRowMap("Bug database", REQ_PAR_PRJ_BUG, ""));
+            fields.add(normalInputRowMap("Mailing list", REQ_PAR_PRJ_MAIL, ""));
+            fields.add(normalInputRowMap("Source code", REQ_PAR_PRJ_CODE, ""));
+            vcLocal.put("formFields", fields);
+            Template template = AdminServlet.getVelocityEngine().getTemplate("addProjectEditor.html");
+            StringWriter writer = new StringWriter();
+            template.merge(vcLocal, writer);
+            b.append(writer.toString());
         }
         // ===================================================================
         // "Delete project" confirmation view

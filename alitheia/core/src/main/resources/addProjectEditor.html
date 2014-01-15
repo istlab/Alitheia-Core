@@ -1,0 +1,10 @@
+<table class="borderless" width='100%'>
+  ## normalInputRow expects $formFields with a title,name and (optional) value
+  #parse("normalInputRow.html")
+  <tr>
+    <td colspan="2" class="borderless">
+      <input type="button" class="install" style="width: 100px;" value="project_add" onclick="javascript:document.getElementById('reqAction').value='conAddProject';document.projects.submit();">
+      <input type="button" class="install" style="width: 100px;" value="cancel" onclick="javascript:document.projects.submit();">
+    </td>
+  </tr>
+</table>

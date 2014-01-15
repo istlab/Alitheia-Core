@@ -76,7 +76,7 @@ public class AdminServlet extends HttpServlet {
 
     // Dynamic substitutions
     VelocityContext vc = null;
-    VelocityEngine ve = null;
+    private static VelocityEngine ve = null;
 
     // Renderer of content
     WebAdminRenderer adminView = null;
@@ -94,7 +94,8 @@ public class AdminServlet extends HttpServlet {
             Logger logger,
             VelocityEngine ve) {
         AdminServlet.bc = bc;
-        this.ve = ve;
+        //VE is only static for refactoring purposes.
+        AdminServlet.ve = ve;
         this.logger = logger;
         
         AlitheiaCore core = AlitheiaCore.getInstance();
@@ -147,6 +148,15 @@ public class AdminServlet extends HttpServlet {
     private void addStaticContent(String path, String type) {
         Pair<String, String> p = new Pair<String, String> (path,type);
         staticContentMap.put(path, p);
+    }
+    
+    /**
+     * Temporary method for testing and refactoring. Should be removed
+     * when the views don't return strings, but Velocity Contexts.
+     * @return
+     */
+    public static VelocityEngine getVelocityEngine(){
+    	return ve;
     }
 
     protected void doGet(HttpServletRequest request,

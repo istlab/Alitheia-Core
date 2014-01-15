@@ -34,7 +34,9 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
@@ -329,6 +331,14 @@ public abstract class AbstractView {
 
         // Return the generated content
         return b.toString();
+    }
+    
+    protected Map<String,String> normalInputRowMap(String title, String parName, String parValue){
+    	Map<String,String> field = new HashMap<String,String>(3);
+    	field.put("title",title);
+    	field.put("name",parName);
+    	field.put("value",parValue);
+    	return field;
     }
 
     /**

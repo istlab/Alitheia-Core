@@ -1,0 +1,8 @@
+#foreach( $field in $formFields)
+<tr>
+  <td class="borderless" style="width:100px;"><b>$field.title</b></td>
+  <td class="borderless">
+    <input type="text" class="form" id="$field.name" name="$field.name" value="$field.value" size="60">
+  </td>
+</tr>
+#end
