@@ -33,8 +33,11 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -229,7 +232,7 @@ public class PluginsView extends AbstractView{
             // Plug-in editor
             // ===============================================================
             else if (selPI != null) {
-                in = pluginEditForm(b, in, reqParAction, reqParHashcode,
+                pluginEditForm(b, in, reqParAction, reqParHashcode,
 						reqParPropName, reqParPropDescr, reqParPropType,
 						reqParPropValue, actValInstall, actValUninstall,
 						actValSync, actValReqAddProp, actValReqUpdProp, selPI);
@@ -471,279 +474,67 @@ public class PluginsView extends AbstractView{
 	 * @param selPI
 	 * @return
 	 */
-	private long pluginEditForm(StringBuilder b, long in, String reqParAction,
+	private void pluginEditForm(StringBuilder b, long in, String reqParAction,
 			String reqParHashcode, String reqParPropName,
 			String reqParPropDescr, String reqParPropType,
 			String reqParPropValue, String actValInstall,
 			String actValUninstall, String actValSync, String actValReqAddProp,
 			String actValReqUpdProp, PluginInfo selPI) {
 		// Create the plug-in field-set
-		b.append(sp(in) + "<fieldset>\n");
-		b.append(sp(++in) + "<legend>"
-		        + selPI.getPluginName()
-		        + "</legend>\n");
-		//------------------------------------------------------------
-		// Create the plug-in info table
-		//------------------------------------------------------------
-		b.append(sp(in) + "<table>\n");
-		b.append(sp(++in) + "<thead>\n");
-		b.append(sp(++in) + "<tr class=\"head\">\n");
-		b.append(sp(++in) + "<td class=\"head\""
-		        + " style=\"width: 80px;\">"
-		        + "Status</td>\n");
-		b.append(sp(in) + "<td class=\"head\""
-		        + " style=\"width: 30%;\">"
-		        + "Name</td>\n");
-		b.append(sp(in) + "<td class=\"head\""
-		        + " style=\"width: 40%;\">"
-		        + "Class</td>\n");
-		b.append(sp(in) + "<td class=\"head\">Version</td>\n");
-		b.append(sp(--in) + "</tr>\n");
-		b.append(sp(--in) + "</thead>\n");
-		// Display the plug-in's info
-		b.append(sp(in) + "<tbody>\n");
-		b.append(sp(in++) + "<tr>\n");
-		// Plug-in state
-		b.append(sp(++in) + "<td>"
-		        + ((selPI.installed) 
-		                ? "Installed" : "Registered")
-		                + "</td>\n");
-		// Plug-in name
-		b.append(sp(in) + "<td>"
-		        + selPI.getPluginName() + "</td>\n");
-		// Plug-in class
-		b.append(sp(in) + "<td>"
-		        + StringUtils.join((String[]) (
-		                selPI.getServiceRef().getProperty(
-		                        Constants.OBJECTCLASS)),",")
-		                        + "</td>\n");
-		// Plug-in version
-		b.append(sp(in) + "<td>"
-		        + selPI.getPluginVersion() + "</td>\n");
-		b.append(sp(--in) + "</tr>\n");
-		// Plug-in tool-bar
-		b.append(sp(in++) + "<tr>\n");
-		b.append(sp(in++) + "<td colspan=\"4\">\n");
-		b.append(sp(in) + "<input type=\"button\""
-		        + " class=\"install\""
-		        + " style=\"width: 100px;\""
-		        + " value=\"Plug-ins list\""
-		        + " onclick=\"javascript:"
-		        + "document.getElementById('"
-		        + reqParHashcode + "').value='';"
-		        + "document.metrics.submit();\""
-		        + ">\n");
-		if (selPI.installed) {
-		    b.append(sp(in) + "<input type=\"button\""
-		            + " class=\"install\""
-		            + " style=\"width: 100px;\""
-		            + " value=\"Uninstall\""
-		            + " onclick=\"javascript:"
-		            + "document.getElementById('"
-		            + reqParAction + "').value='"
-		            + actValUninstall + "';"
-		            + "document.getElementById('"
-		            + reqParHashcode +"').value='"
-		            + selPI.getHashcode() + "';"
-		            + "document.metrics.submit();\""
-		            + ">\n");
-		    b.append(sp(in) + "<input type=\"button\""
-		            + " class=\"install\""
-		            + " style=\"width: 100px;\""
-		            + " value=\"Synchronise\""
-		            + " onclick=\"javascript:"
-		            + "document.getElementById('"
-		            + reqParAction + "').value='"
-		            + actValSync + "';"
-		            + "document.getElementById('"
-		            + reqParHashcode +"').value='"
-		            + selPI.getHashcode() + "';"
-		            + "document.metrics.submit();\""
-		            + ">\n");
+		VelocityContext vcLocal = new VelocityContext();
+		vcLocal.put("pluginStatus",(selPI.installed) ? "Installed" : "Registered");
+		vcLocal.put("pluginName", selPI.getPluginName()+"");
+		vcLocal.put("pluginClass", StringUtils.join((String[]) (selPI.getServiceRef().getProperty(Constants.OBJECTCLASS)),",")+"");
+		vcLocal.put("pluginVersion", selPI.getPluginVersion()+"");
+		vcLocal.put("installed", selPI.installed);
+		vcLocal.put("pluginHashcode", selPI.getHashcode()+"");
+		vcLocal.put("reqParAction",reqParAction);
+		vcLocal.put("reqParHashcode",reqParHashcode);
+		vcLocal.put("reqParPropName",reqParPropName);
+		vcLocal.put("reqParPropDescr",reqParPropDescr);
+		vcLocal.put("reqParPropType",reqParPropType);
+		vcLocal.put("reqParPropValue",reqParPropValue);
+		vcLocal.put("actValInstall",actValInstall);
+		vcLocal.put("actValUninstall",actValUninstall);
+		vcLocal.put("actValSync",actValSync);
+		vcLocal.put("actValReqAddProp",actValReqAddProp);
+		vcLocal.put("actValReqUpdProp",actValReqUpdProp);
+		if(selPI.installed){
+			List<Map<String,String>> pluginConfigurations = new ArrayList<Map<String,String>>();
+			for(PluginConfiguration config  : Plugin.getPluginByHashcode(selPI.getHashcode()).getConfigurations())
+				pluginConfigurations.add(addPluginConfiguration(config));
+			vcLocal.put("pluginConfigurations", pluginConfigurations);
+			
+			List<Map<String,String>> metricList = new ArrayList<Map<String,String>>();
+			List<Metric> metrics = sobjPA.getPlugin(selPI).getAllSupportedMetrics();
+			if(metrics != null){
+				for(Metric metric : metrics)
+					metricList.add(addMetricProperties(metric));
+				vcLocal.put("metricList", metricList);
+			}
 		}
-		else {
-		    b.append(sp(in) + "<input type=\"button\""
-		            + " class=\"install\""
-		            + " style=\"width: 100px;\""
-		            + " value=\"Install\""
-		            + " onclick=\"javascript:"
-		            + "document.getElementById('"
-		            + reqParAction + "').value='"
-		            + actValInstall + "';"
-		            + "document.getElementById('"
-		            + reqParHashcode +"').value='"
-		            + selPI.getHashcode() + "';"
-		            + "document.metrics.submit();\""
-		            + ">\n");
-		}
-		b.append(sp(--in) + "</td>\n");
-		b.append(sp(--in) + "</tr>\n");
-		// Close the plug-in table
-		b.append(sp(--in) + "</tbody>\n");
-		b.append(sp(--in) + "</table>\n");
-
-		//------------------------------------------------------------
-		// Registered metrics, activators and configuration 
-		//------------------------------------------------------------
-		if (selPI.installed) {
-		    //--------------------------------------------------------
-		    // Create the metrics field-set
-		    //--------------------------------------------------------
-		    b.append(sp(++in) + "<fieldset>\n");
-		    b.append(sp(++in) + "<legend>"
-		            + "Supported metrics"
-		            + "</legend>\n");
-		    // Create the metrics table
-		    b.append(sp(in) + "<table>\n");
-		    b.append(sp(++in) + "<thead>\n");
-		    b.append(sp(++in) + "<tr class=\"head\">\n");
-		    b.append(sp(++in) + "<td class=\"head\""
-		            + " style=\"width: 10%;\">"
-		            + "Id</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 25%;\">"
-		            + "Name</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 25%;\">"
-		            + "Type</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 40%;\">"
-		            + "Description</td>\n");
-		    b.append(sp(--in) + "</tr>\n");
-		    b.append(sp(--in) + "</thead>\n");
-		    // Display the list of supported metrics
-		    b.append(sp(in++) + "<tbody>\n");
-		    // Get the list of supported metrics
-		    List<Metric> metrics =
-		        sobjPA.getPlugin(selPI).getAllSupportedMetrics();
-		    if ((metrics == null) || (metrics.isEmpty())) {
-		        b.append(sp(in++) + "<tr>");
-		        b.append(sp(in) + "<td colspan=\"4\" class=\"noattr\">"
-		                + "This plug-in does not support metrics."
-		                + "</td>\n");
-		        b.append(sp(--in)+ "</tr>\n");
-		    }
-		    else {
-		        for (Metric metric: metrics) {
-		            b.append(sp(in++) + "<tr>\n");
-		            b.append(sp(in) + "<td>"
-		                    + metric.getId() + "</td>\n");
-		            b.append(sp(in) + "<td>"
-		                    + metric.getMnemonic() + "</td>\n");
-		            b.append(sp(in) + "<td>"
-		                    + metric.getMetricType().getType()
-		                    + "</td>\n");
-		            b.append(sp(in) + "<td>"
-		                    + metric.getDescription() + "</td>\n");
-		            b.append(sp(--in)+ "</tr>\n");
-		        }
-		    }
-		    // Close the metrics table
-		    b.append(sp(--in) + "</tbody>\n");
-		    // Close the metrics table
-		    b.append(sp(--in) + "</table>\n");
-		    // Close the metric field-set
-		    b.append(sp(--in) + "</fieldset>\n");
-		    //--------------------------------------------------------
-		    // Create the properties field-set
-		    //--------------------------------------------------------
-		    b.append(sp(++in) + "<fieldset>\n");
-		    b.append(sp(++in) + "<legend>"
-		            + "Configuration properties"
-		            + "</legend>\n");
-		    // Create the properties table
-		    b.append(sp(in) + "<table>\n");
-		    b.append(sp(++in) + "<thead>\n");
-		    b.append(sp(++in) + "<tr class=\"head\">\n");
-		    b.append(sp(++in) + "<td class=\"head\""
-		            + " style=\"width: 30%;\">"
-		            + "Name</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 20%;\">"
-		            + "Type</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 50%;\">"
-		            + "Value</td>\n");
-		    b.append(sp(--in) + "</tr>\n");
-		    b.append(sp(--in) + "</thead>\n");
-		    // Display the set of configuration properties
-		    b.append(sp(in++) + "<tbody>\n");
-		    // Get the plug-in's configuration set
-		    Set<PluginConfiguration> config = Plugin.getPluginByHashcode(selPI.getHashcode()).getConfigurations();
-		    if ((config == null) || (config.isEmpty())) {
-		        b.append(sp(in++) + "<tr>");
-		        b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
-		                + "This plug-in has no configuration properties."
-		                + "</td>\n");
-		        b.append(sp(--in)+ "</tr>\n");
-		    }
-		    else {
-		        for (PluginConfiguration param : config) {
-		            b.append(sp(in++) + "<tr class=\"edit\""
-		                    + " onclick=\"javascript:"
-		                    + "document.getElementById('"
-		                    + reqParAction + "').value='"
-		                    + actValReqUpdProp + "';"
-		                    + "document.getElementById('"
-		                    + reqParPropName + "').value='"
-		                    + param.getName() + "';"
-		                    + "document.getElementById('"
-		                    + reqParPropType + "').value='"
-		                    + param.getType() + "';"
-		                    + "document.getElementById('"
-		                    + reqParPropDescr + "').value='"
-		                    + param.getMsg() + "';"
-		                    + "document.getElementById('"
-		                    + reqParPropValue + "').value='"
-		                    + param.getValue() + "';"
-		                    + "document.metrics.submit();\""
-		                    + ">\n");
-		            // Property's name and description
-		            String description = param.getMsg();
-		            if (param.getMsg() == null)
-		                description = "No description available.";
-		            b.append(sp(in) + "<td class=\"trans\""
-		                    + " title=\"" + description + "\">"
-		                    + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-		                    + "&nbsp;" + param.getName()
-		                    + "</td>\n");
-		            // Property's type
-		            b.append(sp(in) + "<td class=\"trans\">"
-		                    + param.getType()
-		                    + "</td>\n");
-		            // Property's value
-		            b.append(sp(in) + "<td class=\"trans\">"
-		                    + param.getValue()
-		                    + "</td>\n");
-		            b.append(sp(--in)+ "</tr>\n");
-		        }
-		    }
-		    // Command tool-bar
-		    b.append(sp(in) + "<tr>\n");
-		    b.append(sp(++in) + "<td colspan=\"3\">\n");
-		    b.append(sp(++in) + "<input type=\"button\""
-		            + " class=\"install\""
-		            + " style=\"width: 100px;\""
-		            + " value=\"Add property\""
-		            + " onclick=\"javascript:"
-		            + "document.getElementById('"
-		            + reqParAction + "').value='"
-		            + actValReqAddProp + "';"
-		            + "document.metrics.submit();\""
-		            + ">\n");
-		    b.append(sp(--in) + "</td>\n");
-		    b.append(sp(--in) + "</tr>\n");
-		    // Close the properties table
-		    b.append(sp(--in) + "</tbody>\n");
-		    // Close the properties table
-		    b.append(sp(--in) + "</table>\n");
-		    // Close the properties field-set
-		    b.append(sp(--in) + "</fieldset>\n");
-		}
-
-		// Close the plug-in field-set
-		b.append(sp(--in) + "</fieldset>\n");
-		return in;
+		b.append(velocityContextToString(vcLocal, "pluginEditor.html"));
+	}
+	
+	private Map<String,String> addMetricProperties(Metric metric){
+		Map<String,String> result = new HashMap<String,String>();
+		//append empty string to convert null to string
+		result.put("id",metric.getId()+"");
+		result.put("mnemonic",metric.getMnemonic()+"");
+		result.put("type",metric.getMetricType().getType()+"");
+		result.put("description",metric.getDescription()+"");
+		return result;
+	}
+	
+	private Map<String,String> addPluginConfiguration(PluginConfiguration config){
+		Map<String,String> result = new HashMap<String,String>();
+		//append empty string to convert null to string
+		result.put("name", config.getName()+"");
+		result.put("message", config.getMsg()+"");
+		result.put("type", config.getType()+"");
+		result.put("value",config.getValue()+"");
+		result.put("description",config.getMsg() == null ? "No description available." : config.getMsg());
+		return result;
 	}
 
 	/**

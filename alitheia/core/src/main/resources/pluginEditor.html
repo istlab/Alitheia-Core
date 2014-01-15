@@ -1,0 +1,99 @@
+<fieldset>
+	<legend>$pluginName</legend>
+	<table>
+		<thead>
+			<tr class="head">
+				<td class="head" style="width: 80px;">Status</td>
+				<td class="head" style="width: 30%;">Name</td>
+				<td class="head" style="width: 40%;">Class</td>
+				<td class="head">Version</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>$pluginStatus</td>
+				<td>$pluginName</td>
+				<td>$pluginClass</td>
+				<td>$pluginVersion</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<input type="button" class="install" style="width: 100px;" value="Plug-ins list" onclick="javascript:document.getElementById('$reqParHashcode').value='';document.metrics.submit();">
+				#if ($installed)
+					<input type="button" class="install" style="width: 100px;" value="Uninstall" onclick="javascript:document.getElementById('$reqParAction').value='$actValUninstall';document.getElementById('$reqParHashcode').value='$pluginHashcode';document.metrics.submit();">
+					<input type="button" class="install" style="width: 100px;" value="Synchronise" onclick="javascript:document.getElementById('$reqParAction').value='$actValSync';document.getElementById('$reqParHashcode').value='$pluginHashcode';document.metrics.submit();">
+				#else
+					<input type="button" class="install" style="width: 100px;" value="Install" onclick="javascript:document.getElementById('$reqParAction').value='$actValInstall';document.getElementById('$reqParHashcode').value='$pluginHashcode';document.metrics.submit();">
+				#end
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	#if($installed)
+	<fieldset>
+	<legend>Supported metrics</legend>
+	<table>
+		<thead>
+			<tr class="head">
+				<td class="head" style="width: 10%;">Id</td>
+				<td class="head" style="width: 25%;">Name</td>
+				<td class="head" style="width: 25%;">Type</td>
+				<td class="head" style="width: 40%;">Description</td>
+			</tr>
+		</thead>
+		<tbody>
+			#if(!$metricList || $metricList.isEmpty())
+			<tr>
+				<td colspan="4" class="noattr">This plug-in does not support metrics.</td>
+			</tr>
+			#else
+				#foreach($metric in $metricList)
+					<tr>
+						<td>$metric.id</td>
+						<td>$metric.mnemonic</td>
+						<td>$metric.type</td>
+						<td>$metric.description</td>
+					</tr>
+				#end
+			#end
+		</tbody>
+	</table>
+	</fieldset>
+	<fieldset>
+	<legend>Configuration properties</legend>
+	<table>
+		<thead>
+			<tr class="head">
+				<td class="head" style="width: 30%;">Name</td>
+				<td class="head" style="width: 20%;">Type</td>
+				<td class="head" style="width: 50%;">Value</td>
+			</tr>
+		</thead>
+		<tbody>
+			#if( !$pluginConfigurations || $pluginConfigurations.isEmpty())
+				<tr>
+					<td colspan="3" class="noattr">This plug-in has no configuration properties.</td>
+				</tr>
+			#else
+				#foreach($configuration in $pluginConfigurations)
+					<tr class="edit" onclick="javascript:document.getElementById('$reqParAction').value='$actValReqUpdProp';document.getElementById('$reqParPropName').value='$configuration.name';document.getElementById('$reqParPropType').value='$configuration.type';document.getElementById('$reqParPropDescr').value='$configuration.message';document.getElementById('$reqParPropValue').value='$configuration.value';document.metrics.submit();">
+						<td class="trans" title="$configuration.description">
+							<img src="/edit.png" alt="[Edit]"/>
+							&nbsp;$configuration.name
+						</td>
+						<td class="trans">$configuration.type</td>
+						<td class="trans">$configuration.value</td>
+					</tr>
+				#end
+			#end
+			<tr>
+				<td colspan="3">
+					<input type="button" class="install" style="width: 100px;" value="Add property" onclick="javascript:document.getElementById('$reqParAction').value='$actValReqAddProp';document.metrics.submit();">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	</fieldset>
+	#end
+</fieldset>
