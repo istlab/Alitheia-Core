@@ -23,6 +23,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
+import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
@@ -45,17 +47,195 @@ public class UpdaterServiceImplTest {
 	private AlitheiaCore core;
 	
 	@Test
+    public void testUpdateJustProjectWithSelfDepUpdater() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		impl.registerUpdaterService(MetadataUpdaterExtensionSelfDependency.class);
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//3 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(6)).info(Mockito.anyString());
+		//Our mocked loggers cannot actually be instantiated
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateJustProjectWithValidDepUpdater() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		impl.registerUpdaterService(MetadataUpdaterExtensionValidDependency.class);
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//3 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(6)).info(Mockito.anyString());
+		//Our mocked loggers cannot actually be instantiated
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateJustProjectWithInvalidDepUpdater() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		impl.registerUpdaterService(MetadataUpdaterExtensionInvalidDependency.class);
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.INFERENCE);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//3 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(6)).info(Mockito.anyString());
+		//Our dependencies are not met (wrong stage dependency)
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateJustProjectWithNonExistentDepUpdater() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		impl.registerUpdaterService(MetadataUpdaterExtensionNonExistentDependency.class);
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//3 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(6)).info(Mockito.anyString());
+		//Our dependencies are not met
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateJustProjectWithStage() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+		//Our mocked loggers cannot actually be instantiated
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateJustProjectWithClusterNotAssigned() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		StoredProject sp = Mockito.mock(StoredProject.class);
+		Mockito.when(sp.getClusternode()).thenReturn(Mockito.mock(ClusterNode.class));
+		ClusterNodeService cns = Mockito.mock(ClusterNodeService.class);
+		Mockito.when(core.getClusterNodeService()).thenReturn(cns);
+		Mockito.when(cns.isProjectAssigned(Mockito.any(StoredProject.class))).thenReturn(false);
+		// -- When
+		boolean b = impl.update(sp);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		Mockito.verify(mockedLogger, Mockito.times(4)).info(Mockito.anyString());
+		//This update is handled by another node, our update succeeds
+		assertEquals(true, b);
+    }
+	
+	@Test
+    public void testUpdateJustProjectWithClusterAssigned() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		StoredProject sp = Mockito.mock(StoredProject.class);
+		Mockito.when(sp.getClusternode()).thenReturn(Mockito.mock(ClusterNode.class));
+		ClusterNodeService cns = Mockito.mock(ClusterNodeService.class);
+		Mockito.when(core.getClusterNodeService()).thenReturn(cns);
+		Mockito.when(cns.isProjectAssigned(Mockito.any(StoredProject.class))).thenReturn(true);
+		// -- When
+		boolean b = impl.update(sp);
+		// -- Then
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+		//Our mocked loggers cannot actually be instantiated
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateJustProjectWithCluster() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		Mockito.when(core.getClusterNodeService()).thenReturn(Mockito.mock(ClusterNodeService.class));
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class));
+		// -- Then
+		//1 warning from not having the project assigned to the clusternode service
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+		//Our mocked loggers cannot actually be instantiated
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateJustProject() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class));
+		// -- Then
+		//1 warning from not having a clusternode service
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+		//Our mocked loggers cannot actually be instantiated
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testBadProject() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		// -- When
+		boolean b = impl.update(null);
+		// -- Then
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from a bad project (null)
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+    }
+	
+	@Test
+    public void testIsUpdateRunningNoUpdate() {
+		// -- When
+		boolean b = impl.isUpdateRunning(Mockito.mock(StoredProject.class), null);
+		// -- Then
+		assertEquals(false, b);
+    }
+	
+	@Test
     public void testGetUpdatersByStage() throws InvalidAccessorException, URISyntaxException {
 		// -- Given
-		impl.registerUpdaterService(MetadataUpdaterExtension2.class);
-		impl.registerUpdaterService(MetadataUpdaterExtension.class);
-		TDSService tdss = Mockito.mock(TDSService.class);
-		ProjectAccessor pa = Mockito.mock(ProjectAccessor.class);
-		Mockito.when(core.getTDSService()).thenReturn(tdss);
-		Mockito.when(tdss.getAccessor(Mockito.anyLong())).thenReturn(pa);
-		Mockito.when(pa.getSCMAccessor()).thenReturn(Mockito.mock(SCMAccessor.class));
-		Mockito.when(pa.getBTSAccessor()).thenReturn(Mockito.mock(BTSAccessor.class));
-		Mockito.when(pa.getMailAccessor()).thenReturn(Mockito.mock(MailAccessor.class));
+		setUpCoreMocks();
 		// -- When
 		Set<Updater> updaters = impl.getUpdaters(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
 		// -- Then
@@ -107,15 +287,19 @@ public class UpdaterServiceImplTest {
     }
 	
 	@Test
+    public void testUpdateWithNonExistentUpdater() throws InvalidAccessorException{
+		// -- Given
+		setUpCoreMocks();
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), (Updater) null);
+		// -- Then
+		assertEquals(false, b);
+    }
+	
+	@Test
     public void testUpdateWithNonExistentProject() throws InvalidAccessorException {
 		// -- Given
-		TDSService tdss = Mockito.mock(TDSService.class);
-		ProjectAccessor pa = Mockito.mock(ProjectAccessor.class);
-		Mockito.when(core.getTDSService()).thenReturn(tdss);
-		Mockito.when(tdss.getAccessor(Mockito.anyLong())).thenReturn(pa);
-		Mockito.when(pa.getSCMAccessor()).thenReturn(Mockito.mock(SCMAccessor.class));
-		Mockito.when(pa.getBTSAccessor()).thenReturn(Mockito.mock(BTSAccessor.class));
-		Mockito.when(pa.getMailAccessor()).thenReturn(Mockito.mock(MailAccessor.class));
+		setUpCoreMocks();
 		// -- When
 		boolean b = impl.update(Mockito.mock(StoredProject.class), MetadataUpdaterExtension.class.getAnnotation(Updater.class));
 		// -- Then
@@ -231,6 +415,18 @@ public class UpdaterServiceImplTest {
     public void tearDown() {
 
     }
+    
+    private void setUpCoreMocks() throws InvalidAccessorException{
+    	impl.registerUpdaterService(MetadataUpdaterExtension2.class);
+		impl.registerUpdaterService(MetadataUpdaterExtension.class);
+		TDSService tdss = Mockito.mock(TDSService.class);
+		ProjectAccessor pa = Mockito.mock(ProjectAccessor.class);
+		Mockito.when(core.getTDSService()).thenReturn(tdss);
+		Mockito.when(tdss.getAccessor(Mockito.anyLong())).thenReturn(pa);
+		Mockito.when(pa.getSCMAccessor()).thenReturn(Mockito.mock(SCMAccessor.class));
+		Mockito.when(pa.getBTSAccessor()).thenReturn(Mockito.mock(BTSAccessor.class));
+		Mockito.when(pa.getMailAccessor()).thenReturn(Mockito.mock(MailAccessor.class));
+    }
 	
     private interface EmptyMetadataUpdaterExtension extends MetadataUpdater{}
 
@@ -244,7 +440,35 @@ public class UpdaterServiceImplTest {
     @Updater(
     		mnem = "TESTUPDATER2",
     	    protocols = {"testschemec","testschemed"},
-    	    stage = UpdaterStage.IMPORT
+    	    stage = UpdaterStage.IMPORT,
+    	    dependencies = {"TESTUPDATER"}
     )
     private interface MetadataUpdaterExtension2 extends MetadataUpdater{}
+    
+    @Updater(
+    		mnem = "TESTUPDATER3",
+    	    dependencies = {"IDONTEXIST"}
+    )
+    private interface MetadataUpdaterExtensionNonExistentDependency extends MetadataUpdater{}
+    
+    @Updater(
+    		mnem = "TESTUPDATER4",
+    		stage = UpdaterStage.INFERENCE,
+    	    dependencies = {"TESTUPDATER"}
+    )
+    private interface MetadataUpdaterExtensionInvalidDependency extends MetadataUpdater{}
+    
+    @Updater(
+    		mnem = "TESTUPDATER5",
+    		stage = UpdaterStage.PARSE,
+    	    dependencies = {"TESTUPDATER"}
+    )
+    private interface MetadataUpdaterExtensionValidDependency extends MetadataUpdater{}
+    
+    @Updater(
+    		mnem = "TESTUPDATER6",
+    		stage = UpdaterStage.PARSE,
+    	    dependencies = {"TESTUPDATER6"}
+    )
+    private interface MetadataUpdaterExtensionSelfDependency extends MetadataUpdater{}
 }
