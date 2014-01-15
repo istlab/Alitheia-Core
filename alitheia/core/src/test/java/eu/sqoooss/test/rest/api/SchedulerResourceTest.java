@@ -56,8 +56,7 @@ public class SchedulerResourceTest {
 	public void tearDown() {
 		s = null;
 	}
-	//FIXME the annotation of m_Exception in Job has to be skipped other wise error.
-	@Ignore
+	     
 	@Test
 	public void testGetSchedulerStats() throws Exception {
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"

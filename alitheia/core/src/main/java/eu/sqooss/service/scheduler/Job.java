@@ -43,6 +43,7 @@ import java.lang.InterruptedException;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.Pair;
@@ -74,7 +75,7 @@ public abstract class Job implements Comparable<Job> {
     @XmlElement
     private State m_state;
     
-    @XmlElement
+    @XmlTransient
     private Exception m_errorException;
 
     /**
