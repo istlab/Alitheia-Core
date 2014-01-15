@@ -1,0 +1,9 @@
+<form 	id="projects"
+	    name="projects"
+        method="post"
+        action="/projects">
+	#parse("$currentProjectTemplate")
+	<input type='hidden' id='$REQ_PAR_ACTION' name='$REQ_PAR_ACTION' value=''>
+    <input type='hidden' id='$REQ_PAR_PROJECT_ID' name='$REQ_PAR_PROJECT_ID' value='$selectedProjectId'>
+	<input type='hidden' id='$REQ_PAR_SYNC_PLUGIN' name='$REQ_PAR_SYNC_PLUGIN' value=''>
+</form>

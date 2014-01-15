@@ -115,9 +115,6 @@ public class ProjectsView extends AbstractView {
         // Indentation spacer
         int in = 6;
 
-        // Initialize the resource bundles with the request's locale
-        initResources(req.getLocale());
-
         // Request values
         String reqValAction        = "";
         Long   reqValProjectId     = null;
@@ -129,6 +126,9 @@ public class ProjectsView extends AbstractView {
         // Parse the servlet's request object
         // ===============================================================
         if (req != null) {
+            
+        	// Initialize the resource bundles with the request's locale
+            initResources(req.getLocale());
             // DEBUG: Dump the servlet's request parameter
             if (DEBUG) {
                 b.append(debugRequest(req));
@@ -307,19 +307,14 @@ public class ProjectsView extends AbstractView {
      */
     private void createForm(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
-
-        // ===============================================================
-        // Create the form
-        // ===============================================================
-        b.append(sp(in) + "<form id=\"projects\""
-                + " name=\"projects\""
-                + " method=\"post\""
-                + " action=\"/projects\">\n");
-
         // ===============================================================
         // Display the accumulated error messages (if any)
         // ===============================================================
         b.append(errorFieldset(e, ++in));
+    	
+    	VelocityContext vcLocal = new VelocityContext();
+
+
 
         // Get the complete list of projects stored in the SQO-OSS framework
         Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
@@ -330,7 +325,6 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         if ((reqValAction.equals(ACT_REQ_SHOW_PROJECT))
                 && (selProject != null)) {
-        	VelocityContext vcLocal = new VelocityContext();
 
         	// Create the field-container
           	List<Map<String,String>> rows = new ArrayList<Map<String,String>>();
@@ -345,14 +339,13 @@ public class ProjectsView extends AbstractView {
             vcLocal.put("infoRows", rows);
             vcLocal.put("backButtonText", getLbl("btn_back"));
             vcLocal.put("onClickInstall", SUBMIT);
-            b.append(velocityContextToString(vcLocal,"ProjectInformation.html"));
+            vcLocal.put("currentProjectTemplate", "ProjectInformation.html");
 
         }
         // ===================================================================
         // "Add project" editor
         // ===================================================================
         else if (reqValAction.equals(ACT_REQ_ADD_PROJECT)) {
-        	VelocityContext vcLocal = new VelocityContext();
         	// Create the field-container
         	List<Map<String,String>> fields = new ArrayList<Map<String,String>>();
             // Create the input fields
@@ -363,14 +356,13 @@ public class ProjectsView extends AbstractView {
             fields.add(normalInputRowMap("Mailing list", REQ_PAR_PRJ_MAIL, ""));
             fields.add(normalInputRowMap("Source code", REQ_PAR_PRJ_CODE, ""));
             vcLocal.put("formFields", fields);
-            b.append(velocityContextToString(vcLocal,"addProjectEditor.html"));
+            vcLocal.put("currentProjectTemplate", "addProjectEditor.html");
         }
         // ===================================================================
         // "Delete project" confirmation view
         // ===================================================================
         else if ((reqValAction.equals(ACT_REQ_REM_PROJECT))
                 && (selProject != null)) {
-        	VelocityContext vcLocal = new VelocityContext();
         	vcLocal.put("deleteLabel", getLbl("l0059"));
         	//concat with empty string to convert null value to "null" string.
         	vcLocal.put("projectName", ""+selProject.getName() );
@@ -382,13 +374,12 @@ public class ProjectsView extends AbstractView {
             vcLocal.put("onClickCancel",SUBMIT);
             vcLocal.put("confirmValue",getLbl("l0006"));
             vcLocal.put("cancelValue", getLbl("l0004"));
-            b.append(velocityContextToString(vcLocal, "confirmProjectDelete.html"));
+            vcLocal.put("currentProjectTemplate", "confirmProjectDelete.html");
         }
         // ===================================================================
         // Projects list view
         // ===================================================================
         else {
-            VelocityContext vcLocal = new VelocityContext();
             vcLocal.put("idHeader",getLbl("l0066"));
             vcLocal.put("nameHeader",getLbl("l0067"));
             vcLocal.put("versionHeader",getLbl("l0068"));
@@ -440,8 +431,6 @@ public class ProjectsView extends AbstractView {
                     nodeName = "(local)";
                 }
                 
-                if(selected)
-                	projectRow.put("selected","selected");
                 projectRow.put("cssClass", (selected) ? "selected" : "edit");
                 projectRow.put("onClickSelectElementId",REQ_PAR_PROJECT_ID);
                 projectRow.put("onClickSelectProjectId",selected ? "" : nextPrj.getId()+"");
@@ -455,6 +444,7 @@ public class ProjectsView extends AbstractView {
                 projectRow.put("projectNode",nodeName);
                 
                 if(selected){
+                	projectRow.put("selected","selected");
                 	projectRow.put("selectedProjectAction", REQ_PAR_ACTION);
                     projectRow.put("selectedProjectActionValue", ACT_REQ_SHOW_PROJECT);
                     projectRow.put("selectedProjectSubmitValue",getLbl("btn_info"));
@@ -488,45 +478,34 @@ public class ProjectsView extends AbstractView {
             // Tool-bar
             //----------------------------------------------------------------
             addToolBar(selProject,vcLocal);
-            b.append(velocityContextToString(vcLocal, "projectList.html"));
-            b.append(sp(--in) + "</fieldset>\n");
+            vcLocal.put("currentProjectTemplate", "projectList.html");
         }
 
         // ===============================================================
         // INPUT FIELDS
         // ===============================================================
-        addHiddenFields(selProject,b,in);
-
-        // ===============================================================
-        // Close the form
-        // ===============================================================
-        b.append(sp(--in) + "</form>\n");
-    }
-
-
-    private void addHiddenFields(StoredProject selProject,
-            StringBuilder b,
-            long in) {
         // "Action type" input field
-        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_ACTION + 
-                "' name='" + REQ_PAR_ACTION + "' value=''>\n");
+    	vcLocal.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
+    	
         // "Project Id" input field
-        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_PROJECT_ID +
-                "' name='" + REQ_PAR_PROJECT_ID +
-                "' value='" + ((selProject != null) ? selProject.getId() : "") +
-                "'>\n");
-        // "Plug-in hashcode" input field
-        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_SYNC_PLUGIN +
-                "' name='" + REQ_PAR_SYNC_PLUGIN + 
-                "' value=''>\n");
+    	vcLocal.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
+    	vcLocal.put("selectedProjectId", ((selProject != null) ? selProject.getId() : ""));
+        
+    	// "Plug-in hashcode" input field
+    	vcLocal.put("REQ_PAR_SYNC_PLUGIN", REQ_PAR_SYNC_PLUGIN);
+        
+        //create actual string.
+        b.append(velocityContextToString(vcLocal, "projectsView.html"));
     }
+
     
     private VelocityContext addToolBar(StoredProject selProject, VelocityContext origin) {
     	VelocityContext vcLocal = origin;
 
-    	String postArgument = ((selProject != null)
-    	        ? "?" + REQ_PAR_PROJECT_ID + "=" + selProject.getId()
-    	        : "");
+    	String postArgument = "";
+    	if(selProject != null){
+    		postArgument = "?" + REQ_PAR_PROJECT_ID + "=" + selProject.getId();
+    	}
     	vcLocal.put("postArgument",postArgument);
     	vcLocal.put("removeDisabled", ((selProject != null) ? "" : " disabled"));
     	vcLocal.put("onClickSubmit", SUBMIT);
@@ -568,6 +547,12 @@ public class ProjectsView extends AbstractView {
         return vcLocal;
     }
     
+    /**
+     * This function creates a map with the values that 
+     * the velocity template expects from an updater.
+     * @param u The updater from which values will be grabed and put in a map
+     * @return A map with values that are known by the template that uses it.
+     */
     private Map<String,String> getUpdaterOptionMap(Updater u){
     	Map<String,String> updaterMap = new HashMap<String,String>(2);
     	updaterMap.put("mnem", u.mnem());
