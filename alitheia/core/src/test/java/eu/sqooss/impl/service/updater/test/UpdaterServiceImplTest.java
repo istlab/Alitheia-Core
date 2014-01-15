@@ -69,7 +69,7 @@ public class UpdaterServiceImplTest {
     public void testUpdateProjectWithInstiantiableUpdaterInvalidSelfCall() throws InvalidAccessorException {
 		// -- Given
 		setUpCoreMocks();
-		impl.registerUpdaterService(MetadataUpdaterStub.class);
+		impl.registerUpdaterService(BadMetadataUpdaterStub.class);
 		// -- When
 		boolean b = impl.update(Mockito.mock(StoredProject.class), "TESTMETADATAUPDATER");
 		// -- Then
@@ -534,6 +534,24 @@ public class UpdaterServiceImplTest {
     	    dependencies = {"TESTUPDATER6"}
     )
     private interface MetadataUpdaterExtensionSelfDependency extends MetadataUpdater{}
+    
+    @Updater(
+    		mnem = "TESTMETADATAUPDATER",
+    		protocols = {"testscheme"},
+    		stage = UpdaterStage.PARSE
+    )
+    private class BadMetadataUpdaterStub implements MetadataUpdater{
+		@Override
+		public void setUpdateParams(StoredProject sp, Logger l) {
+		}
+		@Override
+		public void update() throws Exception {
+		}
+		@Override
+		public int progress() {
+			return 0;
+		}
+    }
     
     @Updater(
     		mnem = "TESTMETADATAUPDATER",
