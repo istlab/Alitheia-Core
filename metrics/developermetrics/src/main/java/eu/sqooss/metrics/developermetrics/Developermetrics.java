@@ -104,20 +104,16 @@ public class Developermetrics extends AbstractMetric {
         long threeMonths = (long)(90 * 24 * 60 * 60 * 1000L);
         long sixMonths = (long)(180 * 24 * 60 * 60 * 1000L);
         
-        Metric m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE1);
-        ProjectVersionMeasurement pvmOne = new ProjectVersionMeasurement(
-                m, v, String.valueOf(commSize(v, oneMonth)));
-        db.addRecord(pvmOne);
-        
-        m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE3);
-        ProjectVersionMeasurement pvmThree = new ProjectVersionMeasurement(
-                m, v, String.valueOf(commSize(v, threeMonths)));
-        db.addRecord(pvmThree);
-        
-        m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE6);
-        ProjectVersionMeasurement pvmSix = new ProjectVersionMeasurement(
-                m, v, String.valueOf(commSize(v, sixMonths)));
-        db.addRecord(pvmSix);
+        runForPeriod(oneMonth, MNEM_TEAMSIZE1, v);
+        runForPeriod(threeMonths, MNEM_TEAMSIZE3, v);
+        runForPeriod(sixMonths, MNEM_TEAMSIZE6, v);
+    }
+    
+    private void runForPeriod(long monthCount, String TeamIdentifier, ProjectVersion v )
+    {
+    	 Metric m = Metric.getMetricByMnemonic(TeamIdentifier);
+         ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(m, v, String.valueOf(commSize(v, monthCount)));
+         db.addRecord(pvm);
     }
     
     private long commSize(ProjectVersion v, long ts) {
