@@ -132,9 +132,7 @@ public class SVNProjectRevision implements Revision {
             Long   copyRev = paths.get(path).getCopyRevision();
             
             if ((copyPath != null) && (copyRev != -1)) {
-                copyOps.add(new CommitCopyEntry(copyPath, 
-                        (Revision)(new SVNProjectRevision(copyRev)), path, 
-                        this));
+                copyOps.add(createCommitCopyEntry(path, copyPath, copyRev));
             }
         }
         parents = new HashSet<String>();
@@ -142,7 +140,14 @@ public class SVNProjectRevision implements Revision {
             parents.add(String.valueOf((l.getRevision() - 1)));
     }
 
-    private PathChangeType parseSVNLogEntryPath(char entryPathType) {
+	protected CommitCopyEntry createCommitCopyEntry(String path,
+			String copyPath, Long copyRev) {
+		return new CommitCopyEntry(copyPath, 
+		        (Revision)(new SVNProjectRevision(copyRev)), path, 
+		        this);
+	}
+
+    PathChangeType parseSVNLogEntryPath(char entryPathType) {
         if (entryPathType == SVNLogEntryPath.TYPE_ADDED) {
             return PathChangeType.ADDED;
         } else if (entryPathType == SVNLogEntryPath.TYPE_DELETED) {
@@ -207,14 +212,12 @@ public class SVNProjectRevision implements Revision {
         return copyOps;
     }  
     
-    /** {@inheritDoc} */
-    public String toString() {
-        if (!isResolved())
-            return null;
-        return "r" + revision + " - (" + getAuthor() + "): " + getMessage();
-    }
-    
-    /** {@inheritDoc} */
+    @Override
+	public Set<String> getParentIds() {
+	    return parents;
+	}
+
+	/** {@inheritDoc} */
     public int compareTo(Revision o) {
         if (!(o instanceof SVNProjectRevision))
             throw new RuntimeException("Revision not of type: " + this.getClass().getName());
@@ -233,13 +236,15 @@ public class SVNProjectRevision implements Revision {
     }
 
     @Override
-    public Set<String> getParentIds() {
-        return parents;
-    }
-
-	@Override
 	public int compare(Revision o1, Revision o2) {
 		return o1.compareTo(o2);
+	}
+
+	/** {@inheritDoc} */
+	public String toString() {
+	    if (!isResolved())
+	        return null;
+	    return "r" + revision + " - (" + getAuthor() + "): " + getMessage();
 	}  
 }
 

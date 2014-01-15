@@ -37,13 +37,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import eu.sqooss.plugins.tds.scm.SCMCommitLog;
 import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Revision;
 
 /**
  * A simplistic implementation of the CommitLog interface.
  */
-public class SVNCommitLogImpl implements CommitLog {
+public class SVNCommitLogImpl extends SCMCommitLog {
     private LinkedList<Revision> entries;
 
     public SVNCommitLogImpl() {

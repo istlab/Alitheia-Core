@@ -86,7 +86,7 @@ import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.util.FileUtils;
 
-public class SVNAccessorImpl implements SCMAccessor {
+public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
     private String url;
     private String projectname;
     private SVNRepository svnRepository = null;
