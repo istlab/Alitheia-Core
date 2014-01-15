@@ -1,5 +1,6 @@
 package eu.sqooss.impl.service.webadmin;
 
+import static eu.sqooss.impl.service.webadmin.HTMLTestUtils.sanitizeHTML;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
@@ -83,8 +84,6 @@ public class ProjectsViewTest {
 
 	private static final String CLUSTER_NODE_NAME = "CLUSTER_NODE1";
 	
-	private static final String INPUT_REGEX = "<input([\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\/\\\\]*[\\(\\) a-zA-Z=\\-_\\\"\\\':;0-9\\.\\?\\\\]+)>";
-
 	private ProjectsView projectsView;
 	private Map<UpdaterStage, Set<Updater>> updaters;
 	
@@ -167,7 +166,7 @@ public class ProjectsViewTest {
 		
 		String result = projectsView.render(request);
 		
-		String html = sanitizeHTML(result);
+		String html = HTMLTestUtils.sanitizeHTML(result);
 		// RENG: disregard unbalanced fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -185,7 +184,7 @@ public class ProjectsViewTest {
 		
 		String result = projectsView.render(request);
 		
-		String html = sanitizeHTML(result);
+		String html = HTMLTestUtils.sanitizeHTML(result);
 		// RENG: disregard unbalanced fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -209,7 +208,7 @@ public class ProjectsViewTest {
 		
 		verify(adminService).execute(addAction);
 		
-		String html = sanitizeHTML(result);
+		String html = HTMLTestUtils.sanitizeHTML(result);
 		// RENG: disregard unbalanced fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -231,7 +230,7 @@ public class ProjectsViewTest {
 		
 		verify(scheduler).enqueue(any(ProjectDeleteJob.class));
 		
-		String html = sanitizeHTML(result);
+		String html = HTMLTestUtils.sanitizeHTML(result);
 		// RENG: disregard unbalanced fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -258,7 +257,7 @@ public class ProjectsViewTest {
 		verify(updateAction).addArg("updater", "updater");
 		verify(adminService).execute(updateAction);
 		
-		String html = sanitizeHTML(result);
+		String html = HTMLTestUtils.sanitizeHTML(result);
 		// RENG: disregard unbalanced fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -284,7 +283,7 @@ public class ProjectsViewTest {
 		verify(updateAction, times(0)).addArg(eq("updater"), anyString());
 		verify(adminService).execute(updateAction);
 		
-		String html = sanitizeHTML(result);
+		String html = HTMLTestUtils.sanitizeHTML(result);
 		// RENG: disregard unbalanced fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -314,7 +313,7 @@ public class ProjectsViewTest {
 	 	verify(adminService).execute(action1);
 	 	verify(adminService).execute(action2);
 	 	
-	 	String html = sanitizeHTML(result);
+	 	String html = HTMLTestUtils.sanitizeHTML(result);
 		// RENG: disregard unbalanced fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -341,7 +340,7 @@ public class ProjectsViewTest {
 		
 		verify(metricActivator).syncMetric(somePlugin, project1);
 		
-		String html = sanitizeHTML(result);
+		String html = HTMLTestUtils.sanitizeHTML(result);
 		// RENG: disregard unbalanced fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -583,7 +582,7 @@ public class ProjectsViewTest {
 		
 		projectsView.createForm(builder, null, project1, ProjectsView.ACT_REQ_SHOW_PROJECT, 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		// test that the form exists
 		assertThat(the(html), hasXPath("/root/form[@id='projects' and @name='projects' and @method='post' and @action='/projects']"));
@@ -596,7 +595,7 @@ public class ProjectsViewTest {
 		
 		projectsView.createForm(builder, errors, project1, ProjectsView.ACT_REQ_SHOW_PROJECT, 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		// test that the form contains a fieldset that contains the error message.
 		assertThat(the(html), hasXPath("string-join(//form[@id='projects']/fieldset[legend[text()='Errors']]/text(), '')", equalToIgnoringWhiteSpace("Fatal_Error")));
@@ -608,7 +607,7 @@ public class ProjectsViewTest {
 		
 		projectsView.createForm(builder, null, project1, ProjectsView.ACT_REQ_SHOW_PROJECT, 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 
 		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[td[1]//*[contains(text(), 'Project name')]]/td[2]", equalToIgnoringWhiteSpace(PROJECT_NAME)));
 		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[text()='Project information']]/table/tr[td[1]//*[contains(text(), 'Homepage')]]/td[2]", equalToIgnoringWhiteSpace(PROJECT_WEBSITE)));
@@ -630,7 +629,7 @@ public class ProjectsViewTest {
 		
 		projectsView.createForm(builder, null, project1, ProjectsView.ACT_REQ_ADD_PROJECT, 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[td[1]//*[contains(text(), 'Project name')]]/td[2]/input[@type='text' and @id='" + ProjectsView.REQ_PAR_PRJ_NAME + "' and @value='']"));
 		assertThat(the(html), hasXPath("//form[@id='projects']/table/tr[td[1]//*[contains(text(), 'Homepage')]]/td[2]/input[@type='text' and @id='" + ProjectsView.REQ_PAR_PRJ_WEB + "' and @value='']"));
@@ -653,7 +652,7 @@ public class ProjectsViewTest {
 		
 		projectsView.createForm(builder, null, project1, ProjectsView.ACT_REQ_REM_PROJECT, 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[contains(text(), '" + PROJECT_NAME + "')]]/table/tr/td/input[@type='button'][1]/@onclick", equalTo("javascript:document.getElementById('" + ProjectsView.REQ_PAR_ACTION + "').value='" + ProjectsView.ACT_CON_REM_PROJECT +"';" + ProjectsView.SUBMIT)));
 		assertThat(the(html), hasXPath("//form[@id='projects']/fieldset[legend[contains(text(), '" + PROJECT_NAME + "')]]/table/tr/td/input[@type='button'][2]/@onclick", equalTo("javascript:" + ProjectsView.SUBMIT)));
@@ -670,7 +669,7 @@ public class ProjectsViewTest {
 		projectSet.clear();
 		projectsView.createForm(builder, null, project1, "some_non_existing_action", 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		// RENG: same for fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
@@ -687,7 +686,7 @@ public class ProjectsViewTest {
 		
 		projectsView.createForm(builder, null, project1, "some_non_existing_action", 0);
 
-		String html = sanitizeHTML(builder.toString());		
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());		
 		// RENG: Ignore an uneven number of fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -739,7 +738,7 @@ public class ProjectsViewTest {
 		
 		projectsView.createForm(builder, null, project1, "some_non_existing_action", 0);
 
-		String html = sanitizeHTML(builder.toString());		
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());		
 		// RENG: Ignore an uneven number of fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
@@ -756,7 +755,7 @@ public class ProjectsViewTest {
 		
 		projectsView.addHiddenFields(null, builder, 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_ACTION + "' and @name='" + ProjectsView.REQ_PAR_ACTION + "' and @value='']"));
 		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "' and @name='" + ProjectsView.REQ_PAR_PROJECT_ID + "' and @value='']"));
@@ -768,26 +767,18 @@ public class ProjectsViewTest {
 		StringBuilder builder = new StringBuilder();
 		projectsView.addHiddenFields(project1 , builder, 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		assertThat(the(html), hasXPath("/root/input[@type='hidden' and @id='" + ProjectsView.REQ_PAR_PROJECT_ID + "' and @name='" + ProjectsView.REQ_PAR_PROJECT_ID + "']/@value", equalTo("1234")));
 	}
 
-	protected String sanitizeHTML(String string) {
-		String html = "<root>" + string + "</root>";		
-		html = html.replaceAll(INPUT_REGEX, "<input$1/>");
-		html = html.replaceAll("&nbsp;", " ");
-		html = html.replaceAll("disabled(\\s*[^=])", "disabled='true'$1");
-		return html;
-	}
-	
 	@Test
 	public void shouldShowBasicToolbarIfNoProjectSelected() {
 		StringBuilder builder = new StringBuilder();
 		
 		projectsView.addToolBar(null, builder, 0);
 		
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		// the toolbar should have three rows.
 		assertThat(the(html), hasXPath("count(/root/tr)", equalTo("3")));
@@ -837,7 +828,7 @@ public class ProjectsViewTest {
 		projectsView.addToolBar(project1, builder, 0);
 
 		// sanitize html input
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 
 		// the first row should have a button that goes to the project page
 		String onclick1 = "javascript:window.location='/projects?" + ProjectsView.REQ_PAR_PROJECT_ID + "=" + project1.getId() + "';";
@@ -920,7 +911,7 @@ public class ProjectsViewTest {
 		projectsView.showLastAppliedVersion(null, metrics, builder);
 
 		// Assert
-		String html = sanitizeHTML(builder.toString());
+		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		String onclick1 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "').value='" + hash1 +"';" + ProjectsView.SUBMIT;
 		String onclick2 = "javascript:document.getElementById('" + ProjectsView.REQ_PAR_SYNC_PLUGIN + "').value='" + hash2 +"';" + ProjectsView.SUBMIT;
