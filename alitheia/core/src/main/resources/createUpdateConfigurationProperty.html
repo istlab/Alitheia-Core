@@ -1,0 +1,70 @@
+<fieldset>
+	<legend>$updateText $pluginName</legend>
+	<table class="borderless">
+		<tr>
+			<td class="borderless" style="width:100px;">
+				<b>Name</b>
+			</td>
+			<td class="borderless">
+				#if($update)
+					$propertyNameValue
+				#else
+					<input 	type="text" class="form" id="$propertyName" name="$propertyName" value="$propertyNameValue">
+				#end
+			</td>
+		</tr>
+		<tr>
+			<td class="borderless" style="width:100px;">
+				<b>Description</b>
+			</td>
+			<td class="borderless">
+				#if($update)
+					$propertyDescriptionValue
+				#else
+					<input 	type="text" class="form" id="$propertyDescription" name="$propertyDescription" value="$propertyDescriptionValue">
+				#end
+			</td>
+		</tr>
+		<tr>
+			<td class="borderless" style="width:100px;">
+				<b>Type</b>
+			</td>
+			<td class="borderless">
+				#if($update)
+					$propertyTypeValue
+				#else
+					<select class="form" id="$propertyType" name="$propertyType">
+						#foreach($type in $configurationTypes)
+							<option value="$type.toString()"
+								#if($type.toString() == $propertyTypeValue)
+									selected
+								#end
+							>
+								$type.toString()
+							</option>
+						#end
+					</select>
+				#end
+			</td>
+		</tr>
+		<tr>
+			<td class="borderless" style="width:100px;">
+				<b>Value</b>
+			</td>
+			<td class="borderless">
+				<input 	type="text" class="form" id="$propertyValue" name="$propertyValue" value="$propertyValueValue">
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" class="borderless">
+				<input 	type="button" class="install" style="width: 100px;" value="$createButtonText" onclick="	javascript:document.getElementById('$actionId').value='$actionAdd';document.metrics.submit();">
+				&nbsp;
+				#if($update)
+					<input 	type="button" class="install" style="width: 100px;" value="Remove" onclick="javascript:document.getElementById('$actionId').value='$actionRemove';document.metrics.submit();">
+					&nbsp;
+				#end
+				<input 	type="button" class="install" style="width: 100px;" value="Cancel" onclick="javascript:document.metrics.submit();">
+			</td>
+		</tr>
+	</table>
+</fieldset>
