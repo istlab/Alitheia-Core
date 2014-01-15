@@ -85,6 +85,7 @@ public class SchedulerResource {
         for (String s : rjobs)
         	l.add(new JaxbString(s));
         
+        //TODO remove these
 		l.add(new JaxbString("test1"));
 		l.add(new JaxbString("test2"));
 		

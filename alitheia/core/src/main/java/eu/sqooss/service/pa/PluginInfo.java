@@ -37,6 +37,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -59,6 +62,7 @@ import eu.sqooss.service.util.StringUtils;
  * the service's information are copied into this new <code>PluginInfo</code>
  * instance.
  */
+@XmlRootElement(name="plugininfo")
 public class PluginInfo implements Comparable<PluginInfo> {
 
     /**
@@ -99,11 +103,13 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * The name of the associated  metric plug-in
      */
+    @XmlElement
     private String pluginName = null;
 
     /**
      * The version of the associated metric plug-in
      */
+    @XmlElement
     private String pluginVersion = null;
 
     /**
@@ -136,6 +142,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * the hash code's value, that this metric plug-in stored in its database
      * record.
      */
+    @XmlElement
     private String hashcode;
 
     /**
