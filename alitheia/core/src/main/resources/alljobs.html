@@ -1,13 +1,4 @@
-#set($section=4)
-#parse("header.inc")
-      <div id="main">
-#parse("menu.inc")
-
-	<div id="contents">
-          <h2>Failed Jobs (Last 1000)</h2>
-          <div id="bundles">
-            $admin.renderFailedJobs()
-          </div>
-	</div>
-      </div>
-#parse("sidebar.inc")
+<h2>Failed Jobs (Last 1000)</h2>
+<div id="bundles">
+  $admin.renderFailedJobs()
+</div>

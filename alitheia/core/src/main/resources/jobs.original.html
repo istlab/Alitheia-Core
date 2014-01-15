@@ -1,0 +1,32 @@
+#set($section=4)
+#parse("header.inc")
+      <div id="main">
+#parse("menu.inc")
+        <div id="contents">
+          <h2>Job statistics</h2>
+          <ul>
+            <li>Jobs Executing: $scheduler.RunningJobs</li>
+            <li>Jobs Waiting: $scheduler.WaitingJobs</li>
+            <li>Failed Jobs: $scheduler.FailedJobs</li>
+            <li>Worker Threads: $scheduler.WorkerThreads</li>
+            <li>Total Jobs: $scheduler.TotalJobs</li>
+          </ul>
+        
+          <h2>Running Jobs</h2>
+          <div id="bundles">
+            $admin.renderJobRunStats()
+          </div>
+
+          <h2>Waiting Jobs statistics</h2>
+          <div id="bundles">
+            $admin.renderJobWaitStats()
+          </div>
+
+          <h2>Job failure statistics</h2> 
+          <a href="alljobs">Details ...</a>
+          <div id="bundles">
+    	    $admin.renderJobFailStats()
+    	  </div>
+	</div>
+      </div>
+#parse("sidebar.inc")

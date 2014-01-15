@@ -1,12 +1,4 @@
-#set($section=2)
-#parse("header.inc")
-      <div id="main">
-#parse("menu.inc")
-	<div id="contents">
-          <h2>Alitheia Logs</h2>
-          <ul class="logs">
-            $admin.renderLogs()
-          </ul>
-	</div>
-      </div>
-#parse("sidebar.inc")
+<h2>Alitheia Logs</h2>
+<ul class="logs">
+  $admin.renderLogs()
+</ul>

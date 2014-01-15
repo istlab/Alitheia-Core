@@ -33,6 +33,8 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Set;
 
@@ -99,6 +101,9 @@ public class ProjectsView extends AbstractView {
      * @param req the servlet's request object
      *
      * @return The HTML presentation of the generated view.
+     * TODO rename this function to its new function:
+     *  - rendering well be performed through velocity templates
+     *  - this method will be used to setup all the variables and put them into VelocityContext vc
      */
     public String render(HttpServletRequest req) {
         // Stores the assembled HTML content
@@ -155,7 +160,28 @@ public class ProjectsView extends AbstractView {
         		syncPlugin(e, selProject, reqValSyncPlugin);
             }
         }
-        createFrom(b, e, selProject, reqValAction , in);
+        
+        // add variables needed in templates to vc
+        // @TODO perhaps these vars must be grouped 
+        // for example:
+        // - a group for Action parameter's values
+        // - a group for Servlet parameters
+        // 
+//        vc.put("projectsView", this); //already in AdminServlet as 'projects'
+        vc.put("reqValAction", reqValAction);
+        vc.put("selProject", selProject);
+        vc.put("ACT_REQ_SHOW_PROJECT",ACT_REQ_SHOW_PROJECT);
+        vc.put("ACT_REQ_ADD_PROJECT", ACT_REQ_ADD_PROJECT);
+        vc.put("SUBMIT", SUBMIT);
+        vc.put("REQ_PAR_PRJ_NAME",REQ_PAR_PRJ_NAME);
+        vc.put("REQ_PAR_PRJ_WEB",REQ_PAR_PRJ_WEB);
+        vc.put("REQ_PAR_PRJ_CONT",REQ_PAR_PRJ_CONT);
+        vc.put("REQ_PAR_PRJ_BUG",REQ_PAR_PRJ_BUG);
+        vc.put("REQ_PAR_PRJ_MAIL",REQ_PAR_PRJ_MAIL);
+        vc.put("REQ_PAR_PRJ_CODE",REQ_PAR_PRJ_CODE);
+        vc.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
+        vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
+        createForm(b, e, selProject, reqValAction , in);
         return b.toString();
     }
   
@@ -263,7 +289,21 @@ public class ProjectsView extends AbstractView {
 		}
     }
     
-    private void createFrom(StringBuilder b, StringBuilder e, 
+    /*
+     * @author elwin
+     * Function for template to get a set of projects. 
+     * @return Set<StoredProject> set of stored projects for current node
+     */
+    public Set<StoredProject> getProjects() {
+    	return ClusterNode.thisNode().getProjects();
+    }
+    
+    /* 
+     * TODO this function which renders the main form for the list of projects is
+     * going to be replaced by projectlist velocity template
+     * == to be deprecated ==
+     */
+    private void createForm(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
 
         // ===============================================================

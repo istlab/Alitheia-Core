@@ -1,0 +1,35 @@
+#set($section=3)
+#parse("header.inc")
+      <div id="main">
+#parse("menu.inc")
+        <div id="contents">
+          <h2>$tr.label("projects_mngm")</h2>
+#set($projectlist = $projects.getProjects())
+#if($projectlist.size()<1)
+            $tr.label("no_projects_available")
+#else
+            <table>
+  #foreach($project in $projectlist)
+              <tr>
+                <td>$project.getId()</td>
+                <td>$project.getName()</td>
+                <td>
+    #if ($project.isEvaluated())
+                  $tr.label("project_is_evaluated")
+    #else
+                  $tr.label("project_not_evaluated")
+    #end
+                </td>
+              </tr>
+  #end
+            </table>
+#end
+          <h2>$tr.label("install_new_project")</h2>
+          <form id="addprojectdir" method="post" action="diraddproject">
+            $tr.label("project_info_txt")
+            <input name="info" type="text" alt="$tr.label("project_info_txt_help")" class="form" size="40"/>
+            <input type="submit" value="$tr.label("project_info_txt_install")"/>
+          </form>
+        </div>
+      </div>
+#parse("sidebar.inc")

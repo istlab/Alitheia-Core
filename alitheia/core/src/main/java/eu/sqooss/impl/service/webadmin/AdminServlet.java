@@ -63,6 +63,7 @@ import eu.sqooss.service.webadmin.WebadminService;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private final String globalTemplateLocation = "global.html";
     private static BundleContext bc = null;
     /// Logger given by our owner to write log messages to.
     private Logger logger = null;
@@ -269,16 +270,31 @@ public class AdminServlet extends HttpServlet {
             HttpServletRequest request,
             String path)
         throws ServletException, IOException {
+    	
         Template t = null;
+        String loc = null;
         try {
-            t = ve.getTemplate( path );
+        	// get global template for all specific pages except 
+        	// jobstat (a seperate html template showed in iframe in sidebar
+        	if ( path.toLowerCase().contains("jobstat") ) {
+        		loc = path;
+        	} else {
+        		loc = globalTemplateLocation;
+        	}
+            t = ve.getTemplate( loc );
         } catch (Exception e) {
-            logger.warn("Failed to get template <" + path + ">");
+        	logger.warn("Failed to get template <" + loc + ">");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         }
         StringWriter writer = new StringWriter();
         PrintWriter print = response.getWriter();
+        
+        // put requested page into velocity context
+        vc.put("CONTENTS", path);
+        
+        // 
+        projectsView.render(request);
 
         // Do any substitutions that may be required
         createSubstitutions(request);

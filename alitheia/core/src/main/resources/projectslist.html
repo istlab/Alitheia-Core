@@ -1,35 +1,331 @@
-#set($section=3)
-#parse("header.inc")
-      <div id="main">
-#parse("menu.inc")
-        <div id="contents">
-          <h2>$tr.label("projects_mngm")</h2>
-#set($projectlist = $projects.getProjects())
-#if($projectlist.size()<1)
-            $tr.label("no_projects_available")
-#else      
-            <table>
-  #foreach($project in $projectlist)
-              <tr>
-                <td>$project.getId()</td>
-                <td>$project.getName()</td>
-                <td>
-    #if ($project.isEvaluated())
-                  $tr.label("project_is_evaluated")
+#.
+Note to sijmen
+regel 258 heb ik even een voorbeeldje getest met een project row in een
+aparte template
+works like a charm, variabele gaan netjes mee
+dus dat is een mooi mechanisme om deze (en anderee) templates mee op te schonen
+repeterende code kan dus in subtemplates
+op regel 259 begint een blok met nog niet omgezet materiaal
+.#
+
+<h2>$tr.label("projects_mngm")</h2>
+<div id="table">
+  <form id="projects" name="projects" method="post" action="/projects">
+    <h1>TODO: Display the accumulated error messages (if any)</h1>
+    #if ($selProject && $reqValAction == $ACT_REQ_SHOW_PROJECT)
+      ## "Show project info" view
+      <fieldset>
+        <legend>Project information</legend>
+        <table class="borderless">
+          <tr>
+            <td class="borderless" style="width:100px;">
+              <b>Project name</b>
+            </td>
+            <td class="borderless">
+              $selProject.getName()
+            </td>
+          </tr>
+          <tr>
+            <td class="borderless" style="width:100px;">
+              <b>Homepage</b>
+            </td>
+            <td class="borderless">
+              $selProject.getWebsiteUrl()
+            </td>
+          </tr>
+           <tr>
+            <td class="borderless" style="width:100px;">
+              <b>Contact e-mail</b>
+            </td>
+            <td class="borderless">
+              $selProject.getContactUrl()
+            </td>
+          </tr>
+          <tr>
+            <td class="borderless" style="width:100px;">
+              <b>Bug database</b>
+            </td>
+            <td class="borderless">
+              $selProject.getBtsUrl()
+            </td>
+          </tr>
+          <tr>
+            <td class="borderless" style="width:100px;">
+              <b>Mailing list</b>
+            </td>
+            <td class="borderless">
+              $selProject.getMailUrl()
+            </td>
+          </tr>
+          <tr>
+            <td class="borderless" style="width:100px;">
+              <b>Source code</b>
+            </td>
+            <td class="borderless">
+              $selProject.getScmUrl()
+            </td>
+          </tr>
+
+          ## Tool-bar @TODO check if getLbl function works
+          <tr>
+            <td colspan="2" class="borderless">
+              <input
+                type="button"
+                class="install"
+                style="width: 100px;"
+                value="$projects.getLbl("btn_back")"
+                onclick="javascript: $SUBMIT"
+              />
+            </td>
+          </tr>
+        </table>
+      </fieldset>
+    ## End: "Show project info" view
+
+    # elseif ($reqValAction == $ACT_REQ_ADD_PROJECT)
+      ## "Add project" editor
+      <table class="borderless" width="100%">
+        <tr>
+          <td class="borderless" style="width:100px;">
+            <b>Project name</b>
+          </td>
+          <td class="borderless">
+            <input
+              type="text"
+              class="form"
+              id="$REQ_PAR_PRJ_NAME"
+              name="$REQ_PAR_PRJ_NAME"
+              value=""
+              size="60"
+            >
+          </td>
+        </tr>
+        <tr>
+          <td class="borderless" style="width:100px;">
+            <b>Homepage</b>
+          </td>
+          <td class="borderless">
+            <input
+              type="text"
+              class="form"
+              id="$REQ_PAR_PRJ_WEB"
+              name="$REQ_PAR_PRJ_WEB"
+              value=""
+              size="60"
+            >
+          </td>
+        </tr>
+        <tr>
+          <td class="borderless" style="width:100px;">
+            <b>Contact e-mail</b>
+          </td>
+          <td class="borderless">
+            <input
+              type="text"
+              class="form"
+              id="$REQ_PAR_PRJ_CONT"
+              name="$REQ_PAR_PRJ_CONT"
+              value=""
+              size="60"
+            >
+          </td>
+        </tr>
+        <tr>
+          <td class="borderless" style="width:100px;">
+            <b>Bug database</b>
+          </td>
+          <td class="borderless">
+            <input
+              type="text"
+              class="form"
+              id="$REQ_PAR_PRJ_BUG"
+              name="$REQ_PAR_PRJ_BUG"
+              value=""
+              size="60"
+            >
+          </td>
+        </tr>
+        <tr>
+          <td class="borderless" style="width:100px;">
+            <b>Mailing list</b>
+          </td>
+          <td class="borderless">
+            <input
+              type="text"
+              class="form"
+              id="$REQ_PAR_PRJ_MAIL"
+              name="$REQ_PAR_PRJ_MAIL"
+              value=""
+              size="60"
+            >
+          </td>
+        </tr>
+        <tr>
+          <td class="borderless" style="width:100px;">
+            <b>Source code</b>
+          </td>
+          <td class="borderless">
+            <input
+              type="text"
+              class="form"
+              id="$REQ_PAR_PRJ_CODE"
+              name="$REQ_PAR_PRJ_CODE"
+              value=""
+              size="60"
+            >
+          </td>
+        </tr>
+
+        ## Tool-bar @TODO check if getLbl function works
+        <tr>
+          <td colspan="2" class="borderless">
+            <input
+              type="button"
+              class="install"
+              style="width: 100px;"
+              value="$projects.getLbl("project_add")"
+              onclick="javascript: document.getElementById('$REQ_PAR_ACTION').value='$ACT_CON_ADD_PROJECT'; $SUBMIT"
+            >
+            <input
+              type="button"
+              class="install"
+              style="width: 100px;"
+              value="$projects.getLbl("cancel")"
+              onclick="javascript: SUBMIT"
+            >
+          </td>
+        </tr>
+      </table>
+    ## End "Add project" editor
+
+    #elseif ($selProject && $reqValAction == $ACT_REQ_REM_PROJECT)
+      ## "Delete project" confirmation view
+      @TODO TODO @FIXME missing implementation
+
+    ## End "Delete project" confirmation view"
+
     #else
-                  $tr.label("project_not_evaluated")
+      ## Projects list view
+      <table>
+        <thead>
+          <tr class="head">
+            <td class='head' style='width: 10%;'>
+              $projects.getLbl("l0066")
+            </td>
+            <td class='head' style='width: 35%;'>
+              $projects.getLbl("l0067")
+            </td>
+            <td class='head' style='width: 15%;'>
+              $projects.getLbl("l0068")
+            </td>
+            <td class='head' style='width: 15%;'>
+              $projects.getLbl("l0069")
+            </td>
+            <td class='head' style='width: 15%;'>
+              $projects.getLbl("l0070")
+            </td>
+            <td class='head' style='width: 10%;'>
+              $projects.getLbl("l0071")
+            </td>
+            <td class='head' style='width: 10%;'>
+              $projects.getLbl("l0073")
+            </td>
+          </tr>
+        </thead>
+        #set($projectlist = $projects.getProjects())
+        #if ($projectlist.size() <1)
+          ## TODO discuss with Sijmen
+          ## original in projectlist: $tr.label("no_projects_available")
+          <tr>
+            <td colspan="6" class="noattr">
+              $projects.getMsg("no_projects")
+            </td>
+          </tr>
+        #else
+          <tbody>
+            #foreach($project in $projectlist)
+
+              #if ($selProject && ($selProject.getId() == $project.getId()))
+                #set($selected = true)
+                #set($myClass = "selected")
+                #set($myId = "")
+              #else
+                #set($selected = false)
+                #set($myClass = "edit")
+                #set($myId = $project.getId())
+              #end
+
+              #parse("projectRow.inc")
+                #*
+                // Last project version
+                String lastVersion = getLbl("l0051");
+                ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
+                if (v != null) {
+                    lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
+                }
+                b.append(sp(in) + "<td class="trans">"
+                        + lastVersion
+                        + "</td>\n");
+                // Date of the last known email
+                MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
+                b.append(sp(in) + "<td class="trans">"
+                        + ((mm == null)?getLbl("l0051"):mm.getSendDate())
+                        + "</td>\n");
+                // ID of the last known bug entry
+                Bug bug = Bug.getLastUpdate(nextPrj);
+                b.append(sp(in) + "<td class="trans">"
+                        + ((bug == null)?getLbl("l0051"):bug.getBugID())
+                        + "</td>\n");
+                // Evaluation state
+                String evalState = getLbl("project_not_evaluated");
+                if (nextPrj.isEvaluated()) {
+                  evalState = getLbl("project_is_evaluated");
+                }
+                b.append(sp(in) + "<td class="trans">"
+                        + evalState
+                        + "</td>\n");
+
+                  // Cluster node
+                  String nodename = null;
+                  if (null != nextPrj.getClusternode()) {
+                      nodename = nextPrj.getClusternode().getName();
+                  } else {
+                      nodename = "(local)";
+                  }
+                  b.append(sp(in) + "<td class="trans">" + nodename + "</td>\n");
+                  b.append(sp(--in) + "</tr>\n");
+                  if ((selected) && (metrics.isEmpty() == false)) {
+                      showLastAppliedVersion(nextPrj, metrics, b);
+                  }
+              }
+          }
+          //----------------------------------------------------------------
+          // Tool-bar
+          //----------------------------------------------------------------
+          addToolBar(selProject,b,in);
+          *#
+              ## </tr>
+            #end
+          </tbody>
+        #end
+      </table>
+      ## end fieldset ?? (original code here: b.append(sp(--in) + "</fieldset>\n");)
+    ## End Projects list view
     #end
-                </td>
-              </tr>
-  #end
-            </table>
+  </form>
+</div>
+<h2>$tr.label("install_new_project")</h2>
+<form id="addprojectdir" method="post" action="diraddproject">
+  <!-- $tr.label("project_info_txt") -->
+  project.properties file location
+  <input name="properties" type="text" alt="Enter the path to the project.properties file of the project you want to install" class="form" size="40"/>
+  <input type="submit" value="Install Project"/>
+</form>
+
+## Only print help if we're doing an addProject -- this is a complication
+## because we use this one template for a gazillion different things. The
+## extra clause before && is to handle null returns.
+#if ($request.getParameter("reqAction") && ("reqAddProject" == $request.getParameter("reqAction")))
+  <h2>$tr.label("help")</h2>
+  $tr.message("project_help")
 #end
-          <h2>$tr.label("install_new_project")</h2>
-          <form id="addprojectdir" method="post" action="diraddproject">
-            $tr.label("project_info_txt")
-            <input name="info" type="text" alt="$tr.label("project_info_txt_help")" class="form" size="40"/>
-            <input type="submit" value="$tr.label("project_info_txt_install")"/>
-          </form>
-        </div>
-      </div>
-#parse("sidebar.inc")
