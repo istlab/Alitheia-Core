@@ -1,0 +1,31 @@
+Completed step one of migration phase.
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	deleted:    ../git/alitheia.log
+#	deleted:    ../git/hibernate.log
+#	deleted:    ../git/perf.log
+#	modified:   ../git/pom.xml
+#	deleted:    ../git/rest.log
+#	modified:   ../git/src/main/java/eu/sqooss/plugins/git/Activator.java
+#	modified:   ../git/src/main/java/eu/sqooss/plugins/tds/git/GitAccessor.java
+#	modified:   ../git/src/main/java/eu/sqooss/plugins/tds/git/GitCommitLog.java
+#	modified:   ../git/src/main/java/eu/sqooss/plugins/tds/git/GitRevision.java
+#	modified:   ../git/src/main/java/eu/sqooss/plugins/updater/git/GitUpdater.java
+#	deleted:    ../git/updater.log
+#	deleted:    ../git/webadmin.log
+#	new file:   pom.xml
+#	new file:   src/main/java/eu/sqooss/plugins/scm/SCMActivator.java
+#	new file:   src/main/java/eu/sqooss/plugins/tds/scm/SCMAccessor.java
+#	new file:   src/main/java/eu/sqooss/plugins/tds/scm/SCMCommitLog.java
+#	new file:   src/main/java/eu/sqooss/plugins/tds/scm/SCMProjectRevision.java
+#	new file:   src/main/java/eu/sqooss/plugins/updater/scm/SCMUpdater.java
+#	modified:   ../svn/src/main/java/eu/sqooss/plugins/svn/Activator.java
+#	modified:   ../svn/src/main/java/eu/sqooss/plugins/tds/svn/SVNAccessorImpl.java
+#	modified:   ../svn/src/main/java/eu/sqooss/plugins/tds/svn/SVNCommitLogImpl.java
+#	modified:   ../svn/src/main/java/eu/sqooss/plugins/tds/svn/SVNProjectRevision.java
+#	modified:   ../svn/src/main/java/eu/sqooss/plugins/updater/svn/SVNUpdaterImpl.java
+#
