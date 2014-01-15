@@ -14,6 +14,7 @@ import java.util.Set;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -25,10 +26,12 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Job.State;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.BTSAccessor;
@@ -48,7 +51,56 @@ public class UpdaterServiceImplTest {
 	private UpdaterServiceImpl impl;
 	private Logger mockedLogger;
 	private AlitheiaCore core;
+	private DBService dbserve;
 
+	@Test
+    public void testJobStateChangedTwice() throws InvalidAccessorException, SchedulerException {
+		// -- Given
+		setUpCoreStubs();
+		Scheduler schd = Mockito.mock(Scheduler.class);
+		ArgumentCaptor<List<Job>> captor = ArgumentCaptor.forClass((Class<List<Job>>)(Class<?>)List.class);
+		Mockito.when(core.getScheduler()).thenReturn(schd);
+		Mockito.when(dbserve.isDBSessionActive()).thenReturn(true);
+		impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		Mockito.verify(schd).enqueueBlock(captor.capture());
+		Job job = captor.getValue().get(0);
+		// -- When
+		impl.jobStateChanged(job, State.Created);
+		impl.jobStateChanged(job, State.Finished);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		//1 warning from loading a null project from the database
+		Mockito.verify(mockedLogger, Mockito.times(2)).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+    }
+	
+	@Test
+    public void testJobStateChanged() throws InvalidAccessorException, SchedulerException {
+		// -- Given
+		setUpCoreStubs();
+		Scheduler schd = Mockito.mock(Scheduler.class);
+		ArgumentCaptor<List<Job>> captor = ArgumentCaptor.forClass((Class<List<Job>>)(Class<?>)List.class);
+		Mockito.when(core.getScheduler()).thenReturn(schd);
+		Mockito.when(dbserve.isDBSessionActive()).thenReturn(true);
+		impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		Mockito.verify(schd).enqueueBlock(captor.capture());
+		List<Job> jobs = captor.getValue();
+		// -- When
+		impl.jobStateChanged(jobs.get(0), State.Error);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		//1 warning from loading a null project from the database
+		//1 warning for changing the state to the error state
+		Mockito.verify(mockedLogger, Mockito.times(3)).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+    }
+	
 	@SuppressWarnings("unchecked")
 	@Test
     public void testUpdateProjectScheduleException() throws InvalidAccessorException, SchedulerException {
@@ -510,6 +562,8 @@ public class UpdaterServiceImplTest {
 		mockStatic(AlitheiaCore.class);
 		core = Mockito.mock(AlitheiaCore.class);
 		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
+		dbserve = Mockito.mock(DBService.class);
+		Mockito.when(core.getDBService()).thenReturn(dbserve);
 		//Start the UpdaterService with the fake core
 		impl.startUp();
     }
