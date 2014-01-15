@@ -46,11 +46,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
 
 @Entity
 @Table(name="PLUGIN_CONFIGURATION")
+@XmlRootElement(name="plugin_configuration")
 public class PluginConfiguration extends DAObject {
 	
     @Id

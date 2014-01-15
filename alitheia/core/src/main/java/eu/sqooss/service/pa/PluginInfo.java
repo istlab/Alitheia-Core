@@ -37,8 +37,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -62,7 +65,8 @@ import eu.sqooss.service.util.StringUtils;
  * the service's information are copied into this new <code>PluginInfo</code>
  * instance.
  */
-@XmlRootElement(name="plugininfo")
+@XmlRootElement(name="plugin_info")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PluginInfo implements Comparable<PluginInfo> {
 
     /**
@@ -98,12 +102,12 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * The service reference of the service that registered this metric
      * plug-in
      */
+    @XmlTransient
     private ServiceReference serviceRef = null;
 
     /**
      * The name of the associated  metric plug-in
      */
-    @XmlElement
     private String pluginName = null;
 
     /**
@@ -125,6 +129,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   <li>{@link FileGroupMetric}</li>
      * </ul>
      */
+    @XmlTransient
     Set<Class<? extends DAObject>> activationTypes =
         new HashSet<Class<? extends DAObject>>();
 
@@ -149,6 +154,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * A list containing the current set of configuration parameters of the
      * associated metric plug-in
      */
+    @XmlTransient
     private Set<PluginConfiguration> config =
         new HashSet<PluginConfiguration>();
 
@@ -157,13 +163,14 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * plug-ins, and changed to <code>true</code> after the metric plug-in's
      * <code>install()</code> method is called (and successfully performed).
      */
+    @XmlElement
     public boolean installed = false;
 
     /**
      * Empty constructor.
      */
     public PluginInfo() {
-
+    	//setPluginConfiguration(new HashSet<PluginConfiguration>());
     }
 
     /**
@@ -222,12 +229,15 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @return The property's Id, or <code>null</code> if the property does
      *   not exist.
      */
-    public Long getConfPropId (String name, String type) {
+    public Long getConfPropId (String name, String type) throws Exception{
         // Check if all values are valid
         if ((name == null) || (type == null)) {
             return null;
         }
         // Search for a matching property
+        if(config == null)
+        	throw new Exception("Config is null");
+        
         for (PluginConfiguration property : config) {
             if ((property.getName().equals(name))
                     && (property.getType().equals(type))) {
@@ -248,7 +258,13 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   or <code>false</code> otherwise.
      */
     public boolean hasConfProp (String name, String type) {
-        return ((getConfPropId(name, type) == null) ? false : true);
+        try {
+			return ((getConfPropId(name, type) == null) ? false : true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return false;
     }
 
     /**
@@ -382,6 +398,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
         // Add the new configuration property
         PluginConfiguration newParam =
             new PluginConfiguration();
+        
+        db.addRecord(newParam);
+        
         newParam.setName(name);
         newParam.setMsg((description != null) ? description : "");
         newParam.setType(type);
