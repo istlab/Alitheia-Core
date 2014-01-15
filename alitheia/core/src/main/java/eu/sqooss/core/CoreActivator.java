@@ -33,12 +33,15 @@
 
 package eu.sqooss.core;
 
+import javax.inject.Inject;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 import com.google.inject.Guice;
 
+import static org.ops4j.peaberry.Peaberry.osgiModule;
 import eu.sqooss.impl.service.admin.AdminServiceModule;
 import eu.sqooss.impl.service.cluster.ClusterNodeModule;
 import eu.sqooss.impl.service.db.DBServiceModule;
@@ -56,21 +59,22 @@ import eu.sqooss.impl.service.webadmin.WebAdminModule;
 public class CoreActivator implements BundleActivator {
 
     /** Keeps the <code>AlitheaCore</code> instance. */
+    @Inject
     private AlitheiaCore core;
     
     /** Keeps the <code>AlitheaCore</code>'s service registration instance. */
     private ServiceRegistration sregCore;
 
     public void start(BundleContext bc) throws Exception {
-        core = new AlitheiaCore(bc);
         try {
-            Guice.createInjector(new DBServiceModule(), new FDSServiceModule(),
+            Guice.createInjector(new AlitheiaCoreModule(), new DBServiceModule(),
                                  new MetricActivatorModule(), new RestServiceModule(),
                                  new SchedulerServiceModule(), new WebAdminModule(),
                                  new UpdaterServiceModule(), new AdminServiceModule(),
                                  new ClusterNodeModule(), new LogManagerModule(),
-                                 new PluginAdminModule(), new TDSServiceModule()
-            ).injectMembers(core);
+                                 new PluginAdminModule(), new TDSServiceModule(),
+                                 new FDSServiceModule(), osgiModule(bc)
+            ).injectMembers(this);
         } catch (Throwable t) {
             t.printStackTrace();
         }

@@ -96,6 +96,7 @@ public class AlitheiaCore {
     private AdminService adminService;
     
     /** The parent bundle's context object. */
+    @Inject
     private BundleContext bc;
     
     /** The Core is singleton-line because it has a special instance */
@@ -115,13 +116,11 @@ public class AlitheiaCore {
      * 
      * @param bc The parent bundle's context object.
      */
-    public AlitheiaCore(BundleContext bc) {
-        this.bc = bc;
+    public AlitheiaCore() {
         instance = this;
         err("Instance Created");
         
         instances = new HashMap<Class<? extends AlitheiaCoreService>, Object>();
-        // init();
     }
 
     /**
@@ -139,7 +138,7 @@ public class AlitheiaCore {
     
     /*Create a temp instance to use for testing.*/
     public static AlitheiaCore testInstance() {
-        instance = new AlitheiaCore(null);
+        instance = new AlitheiaCore();
         return instance;
     }
     
@@ -177,7 +176,6 @@ public class AlitheiaCore {
      * block the instatiation process).
      */
     public void init() {
-
         err("Required services online, initialising");
 
         logger.setInitParams(bc, null);
