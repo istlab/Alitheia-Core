@@ -1,25 +1,21 @@
-package eu.sqooss.plugins.git.test;
+package eu.sqooss.plugins.git;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.plugins.git.Activator;
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(AlitheiaCore.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ActivatorTest {
 	private Activator activator;
 	
@@ -27,23 +23,27 @@ public class ActivatorTest {
 	private TDSService tdsService;
 	private UpdaterService upService;
 	
+	class TestableActivator extends Activator {
+		@Override
+		protected AlitheiaCore getAlitheiaCoreInstance() {
+			return core;
+		}
+	}
+	
 	@Before
 	public void setUp() {
-		activator = new Activator();
-
-		mockStatic(AlitheiaCore.class);
+		activator = new TestableActivator();
 		
-		core =  mock(AlitheiaCore.class);
+		core = mock(AlitheiaCore.class);
 		tdsService = mock(TDSService.class);
 		upService = mock(UpdaterService.class);
+		
+		when(core.getTDSService()).thenReturn(tdsService);
+		when(core.getUpdater()).thenReturn(upService);
 	}
 	
 	@Test 
 	public void testStart() throws Exception {		
-		when(AlitheiaCore.getInstance()).thenReturn(core);
-		when(core.getTDSService()).thenReturn(tdsService);
-		when(core.getUpdater()).thenReturn(upService);
-		
 		activator.start(null);
 		
 		verify(tdsService).registerPlugin(new String[] {"git-file"}, GitAccessor.class);
@@ -52,10 +52,6 @@ public class ActivatorTest {
 	
 	@Test
 	public void testStop() throws Exception {
-		when(AlitheiaCore.getInstance()).thenReturn(core);
-		when(core.getTDSService()).thenReturn(tdsService);
-		when(core.getUpdater()).thenReturn(upService);
-		
 		activator.stop(null);
 		
 		verify(tdsService).unregisterPlugin(GitAccessor.class);

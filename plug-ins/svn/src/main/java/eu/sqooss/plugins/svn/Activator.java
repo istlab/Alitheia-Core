@@ -46,19 +46,23 @@ public class Activator implements BundleActivator {
     
     public void start(BundleContext bc) throws Exception {
         String[] protocols = {"svn", "svn-http", "svn-file"};
-        UpdaterService us = AlitheiaCore.getInstance().getUpdater();
+        UpdaterService us = getAlitheiaCoreInstance().getUpdater();
         
         us.registerUpdaterService(SVNUpdaterImpl.class);
         
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
+        TDSService tds = getAlitheiaCoreInstance().getTDSService();
         tds.registerPlugin(protocols, SVNAccessorImpl.class);
     }
   
     public void stop(BundleContext bc) throws Exception {
-        UpdaterService us = AlitheiaCore.getInstance().getUpdater();
+        UpdaterService us = getAlitheiaCoreInstance().getUpdater();
         us.unregisterUpdaterService(SVNUpdaterImpl.class);
         
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
+        TDSService tds = getAlitheiaCoreInstance().getTDSService();
         tds.unregisterPlugin(SVNAccessorImpl.class);
     }
+
+	protected AlitheiaCore getAlitheiaCoreInstance() {
+		return AlitheiaCore.getInstance();
+	}
 }

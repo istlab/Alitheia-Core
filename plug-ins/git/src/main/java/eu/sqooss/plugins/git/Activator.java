@@ -51,24 +51,29 @@ public class Activator implements BundleActivator {
         /*
          * Register the plug-in accessor to the TDS service 
          */
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
+        TDSService tds = getAlitheiaCoreInstance().getTDSService();
         tds.registerPlugin(protocols, GitAccessor.class);
 
         /*
          * Register the plug-in to the updater service
          */
-        UpdaterService us = AlitheiaCore.getInstance().getUpdater();
+        UpdaterService us = getAlitheiaCoreInstance().getUpdater();
         
         us.registerUpdaterService(GitUpdater.class);
     }
-
+    
     public void stop(BundleContext context) throws Exception {
-        UpdaterService us = AlitheiaCore.getInstance().getUpdater();
+        UpdaterService us = getAlitheiaCoreInstance().getUpdater();
         us.unregisterUpdaterService(GitUpdater.class);
         
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
+        TDSService tds = getAlitheiaCoreInstance().getTDSService();
         tds.unregisterPlugin(GitAccessor.class);
     }
+
+	protected AlitheiaCore getAlitheiaCoreInstance() {
+		return AlitheiaCore.getInstance();
+	}
+
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
