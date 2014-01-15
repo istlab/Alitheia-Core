@@ -215,7 +215,7 @@
       	<activeByDefault>true</activeByDefault>
       	<property>
           <name>tests</name>
-          <value>0</value>
+          <value>1</value>
         </property>
       </activation>
       <build>
@@ -225,7 +225,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <version>2.7.1</version>
             <configuration>
-              <skipTests>true</skipTests>
+              <skipTests>false</skipTests>
             </configuration>
           </plugin>
         </plugins>
