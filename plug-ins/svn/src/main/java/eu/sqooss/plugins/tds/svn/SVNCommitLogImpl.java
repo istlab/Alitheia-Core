@@ -38,7 +38,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.sqooss.plugins.tds.scm.SCMCommitLog;
-import eu.sqooss.service.tds.CommitLog;
 import eu.sqooss.service.tds.Revision;
 
 /**

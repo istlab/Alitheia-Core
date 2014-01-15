@@ -33,36 +33,32 @@
 
 package eu.sqooss.plugins.svn;
 
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.scm.SCMActivator;
+import eu.sqooss.plugins.tds.scm.SCMAccessor;
 import eu.sqooss.plugins.tds.svn.SVNAccessorImpl;
+import eu.sqooss.plugins.updater.scm.SCMUpdater;
 import eu.sqooss.plugins.updater.svn.SVNUpdaterImpl;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 
-public class Activator extends SCMActivator  {
-    
-    public void start(BundleContext bc) throws Exception {
-        String[] protocols = {"svn", "svn-http", "svn-file"};
-        UpdaterService us = getAlitheiaCoreInstance().getUpdater();
-        
-        us.registerUpdaterService(SVNUpdaterImpl.class);
-        
-        TDSService tds = getAlitheiaCoreInstance().getTDSService();
-        tds.registerPlugin(protocols, SVNAccessorImpl.class);
-    }
+public class Activator extends SCMActivator {
   
-    public void stop(BundleContext bc) throws Exception {
-        UpdaterService us = getAlitheiaCoreInstance().getUpdater();
-        us.unregisterUpdaterService(SVNUpdaterImpl.class);
-        
-        TDSService tds = getAlitheiaCoreInstance().getTDSService();
-        tds.unregisterPlugin(SVNAccessorImpl.class);
-    }
+	@Override
+	protected String[] getProtocols() {
+		return new String[] {"svn", "svn-http", "svn-file"};
+	}
 
-	protected AlitheiaCore getAlitheiaCoreInstance() {
-		return AlitheiaCore.getInstance();
+	@Override
+	protected Class<? extends SCMUpdater> getUpdaterClass() {
+		return SVNUpdaterImpl.class;
+	}
+
+	@Override
+	protected Class<? extends SCMAccessor> getAccessorClass() {
+		return SVNAccessorImpl.class;
 	}
 }
