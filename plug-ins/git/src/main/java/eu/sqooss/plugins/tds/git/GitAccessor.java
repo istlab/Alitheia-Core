@@ -66,6 +66,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.tds.scm.SCMCommitLog;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
@@ -359,16 +360,16 @@ public class GitAccessor extends eu.sqooss.plugins.tds.scm.SCMAccessor {
             
             Iterator<RevCommit> i = rw.iterator();
 
-            GitCommitLog log = new GitCommitLog();
+            SCMCommitLog log = new GitCommitLog();
 
             while (i.hasNext()) {
                 Revision r = getRevision(i.next(), false);
-                log.entries().add(r);
+                log.getEntries().add(r);
                 if (r2 == null)
                     break;
             }
 
-            Collections.reverse(log.entries());
+            Collections.reverse(log.getEntries());
             return log;
 
         } catch (IOException ew) {

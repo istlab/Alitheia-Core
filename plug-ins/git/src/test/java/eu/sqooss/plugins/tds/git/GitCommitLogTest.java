@@ -1,6 +1,7 @@
 package eu.sqooss.plugins.tds.git;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URISyntaxException;
@@ -15,13 +16,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.sqooss.plugins.tds.git.GitCommitLog;
 import eu.sqooss.plugins.tds.git.GitRevision;
+import eu.sqooss.plugins.tds.scm.SCMCommitLog;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.Revision;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GitCommitLogTest {
 	
-	private GitCommitLog gitCommitLog;
+	private SCMCommitLog gitCommitLog;
 	
 	private List<Revision> entries;
 	@Mock
@@ -34,7 +36,7 @@ public class GitCommitLogTest {
 	@Before
     public void setUp() throws AccessorException, URISyntaxException {
 		gitCommitLog = new GitCommitLog();
-		entries = gitCommitLog.entries();
+		entries = gitCommitLog.getEntries();
 		entries.add(gitRevision1);
 		entries.add(gitRevision2);
 		entries.add(gitRevision3);
@@ -42,7 +44,7 @@ public class GitCommitLogTest {
 	
 	@Test
 	public void testGetEntries() {
-		List<Revision> entries = gitCommitLog.entries();
+		List<Revision> entries = gitCommitLog.getEntries();
 		assertTrue(entries.equals(this.entries));
 	}
 	
@@ -58,10 +60,22 @@ public class GitCommitLogTest {
 	public void testGetFirst() {
 		assertEquals(gitCommitLog.first(), gitRevision1);
 	}
+
+	@Test
+	public void testGetFirstEmptyList() {
+		entries.clear();
+		assertNull(gitCommitLog.first());
+	}
 	
 	@Test
 	public void testGetLast() {
 		assertEquals(gitCommitLog.last(), gitRevision3);
+	}
+
+	@Test
+	public void testGetLastEmptyList() {
+		entries.clear();
+		assertNull(gitCommitLog.last());
 	}
 	
 	@Test

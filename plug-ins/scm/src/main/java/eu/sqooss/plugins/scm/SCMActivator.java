@@ -13,10 +13,15 @@ public abstract class SCMActivator implements BundleActivator {
 	
 	public final void start(BundleContext bc) {
 		String[] protocols = getProtocols();
-        UpdaterService us = getAlitheiaCoreInstance().getUpdater();
-        
+		/*
+         * Register the plug-in to the updater service
+         */
+		UpdaterService us = getAlitheiaCoreInstance().getUpdater();
         us.registerUpdaterService(getUpdaterClass());
         
+        /*
+         * Register the plug-in accessor to the TDS service 
+         */
         TDSService tds = getAlitheiaCoreInstance().getTDSService();
         tds.registerPlugin(protocols, getAccessorClass());
 	}
@@ -33,6 +38,10 @@ public abstract class SCMActivator implements BundleActivator {
 		return AlitheiaCore.getInstance();
 	}
 	
+	/**
+     * Returns a list of data protocols implemented by the specific plug-in
+     * Only one accessor implementation per protocol is permitted.
+     */
 	protected abstract String[] getProtocols();
 	
 	protected abstract Class<? extends SCMUpdater> getUpdaterClass();
