@@ -2,6 +2,7 @@ package eu.sqooss.impl.service.webadmin;
 
 import static eu.sqooss.impl.service.webadmin.HTMLTestUtils.sanitizeHTML;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.hamcrest.text.IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.assertThat;
@@ -16,12 +17,16 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.velocity.VelocityContext;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -30,13 +35,31 @@ import eu.sqooss.service.pa.PluginInfo;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PluginsViewTest { 
-	@Mock
-	private PluginAdmin pluginAdmin;
+	@Mock private PluginAdmin pluginAdmin;
+	@Mock private ServiceReference serviceReference1;
+	@Mock private ServiceReference serviceReference2;
 	private PluginsView pluginsView;
+	private PluginInfo pluginInfo1;
+	private PluginInfo pluginInfo2;
 
 	@Before
 	public void setUp() {
 		pluginsView = new TestablePluginsView(null, null);
+		
+		pluginInfo1 = new PluginInfo();
+		pluginInfo1.setHashcode("plugin1");
+		pluginInfo1.setPluginName("plugin1");
+		pluginInfo1.setServiceRef(serviceReference1);
+		pluginInfo1.setPluginVersion("v1");
+		when(serviceReference1.getProperty(Constants.OBJECTCLASS)).thenReturn(new String[] { "a", "b" });
+		pluginInfo2 = new PluginInfo();
+		pluginInfo2.installed = true;
+		pluginInfo2.setHashcode("plugin2");
+		pluginInfo2.setPluginName("plugin2");
+		pluginInfo2.setServiceRef(serviceReference2);
+		when(serviceReference2.getProperty(Constants.OBJECTCLASS)).thenReturn(new String[] { "c", "d" });
+		pluginInfo2.setPluginVersion("v2");
+		when(pluginAdmin.listPlugins()).thenReturn(Arrays.asList(pluginInfo1, pluginInfo2));
 	}
 	
 	@Test
@@ -51,6 +74,42 @@ public class PluginsViewTest {
 		assertThat(the(html), hasXPath("/root/fieldset[legend/text()='All plug-ins']/span[contains(text(), 'No plug-ins found!')]"));
 	}
 	
+	@Test
+	public void shouldRenderFormWhenPluginsFoundButNoRequest() throws Exception {
+		String output = pluginsView.render(null);
+		
+		String html = sanitizeHTML(output);
+		
+		// the form is created
+		assertThat(the(html), hasXPath("//form[@id='metrics' and @name='metrics' and @method='post' and @action='/index']"));
+	}
+	
+	@Test
+	public void shouldRenderPluginsListWhenPluginsFoundButNoRequest() throws Exception {
+		String output = pluginsView.render(null);
+		
+		String html = sanitizeHTML(output);
+		
+		// there is a fieldset listing all plugins
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']"));
+		// the table has a header row
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/thead"));
+		// the table body
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody"));
+
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[1]/@onclick", equalTo("javascript:document.getElementById('" + PluginsView.REQ_PAR_HASHCODE + "').value='plugin1';document.metrics.submit();")));
+		assertThat(the(html), hasXPath("string-join(//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[1]/td[1]/text(), '')", containsString("Registered")));
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[1]/td[2]/text()", equalTo("plugin1")));
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[1]/td[3]/text()", equalTo("a,b")));
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[1]/td[4]/text()", equalTo("v1")));
+
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[2]/@onclick", equalTo("javascript:document.getElementById('" + PluginsView.REQ_PAR_HASHCODE + "').value='plugin2';document.metrics.submit();")));
+		assertThat(the(html), hasXPath("string-join(//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[2]/td[1]/text(), '')", containsString("Installed")));
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[2]/td[2]/text()", equalTo("plugin2")));
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[2]/td[3]/text()", equalTo("c,d")));
+		assertThat(the(html), hasXPath("//form/fieldset[legend/text()='All plug-ins']/table/tbody/tr[2]/td[4]/text()", equalTo("v2")));
+	}
+		
 	@Test
 	public void shouldNotOutputAnythingIfNotShowingPropertiesAndActivators() {
 		String output = PluginsView.renderPluginAttributes(null, false, false, 0);

@@ -54,7 +54,9 @@ import eu.sqooss.service.util.StringUtils;
 
 public class PluginsView extends AbstractView{
 
-    public PluginsView(BundleContext bundlecontext, VelocityContext vc) {
+    protected static final String REQ_PAR_HASHCODE = "pluginHashcode";
+
+	public PluginsView(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
     }
 
@@ -75,7 +77,6 @@ public class PluginsView extends AbstractView{
 
         // Request parameters
         String reqParAction        = "action";
-        String reqParHashcode      = "pluginHashcode";
         String reqParPropName      = "propertyName";
         String reqParPropDescr     = "propertyDescription";
         String reqParPropType      = "propertyType";
@@ -154,7 +155,7 @@ public class PluginsView extends AbstractView{
                     reqValPropValue = req.getParameter(reqParPropValue);
                 }
                 // Retrieve the selected plug-in's hash code
-                reqValHashcode = req.getParameter(reqParHashcode);
+                reqValHashcode = req.getParameter(REQ_PAR_HASHCODE);
                 // Plug-in based actions
                 if (reqValHashcode != null) {
                     // =======================================================
@@ -510,7 +511,7 @@ public class PluginsView extends AbstractView{
                         + " value=\"Plug-ins list\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
-                        + reqParHashcode + "').value='';"
+                        + REQ_PAR_HASHCODE + "').value='';"
                         + "document.metrics.submit();\""
                         + ">\n");
                 if (selPI.installed) {
@@ -523,7 +524,7 @@ public class PluginsView extends AbstractView{
                             + reqParAction + "').value='"
                             + actValUninstall + "';"
                             + "document.getElementById('"
-                            + reqParHashcode +"').value='"
+                            + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
                             + "document.metrics.submit();\""
                             + ">\n");
@@ -536,7 +537,7 @@ public class PluginsView extends AbstractView{
                             + reqParAction + "').value='"
                             + actValSync + "';"
                             + "document.getElementById('"
-                            + reqParHashcode +"').value='"
+                            + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
                             + "document.metrics.submit();\""
                             + ">\n");
@@ -551,7 +552,7 @@ public class PluginsView extends AbstractView{
                             + reqParAction + "').value='"
                             + actValInstall + "';"
                             + "document.getElementById('"
-                            + reqParHashcode +"').value='"
+                            + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
                             + "document.metrics.submit();\""
                             + ">\n");
@@ -763,7 +764,7 @@ public class PluginsView extends AbstractView{
                         b.append(sp(in) + "<tr class=\"edit\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
-                                + reqParHashcode + "').value='"
+                                + REQ_PAR_HASHCODE + "').value='"
                                 + i.getHashcode() + "';"
                                 + "document.metrics.submit();\""
                                 + ">\n");
@@ -798,7 +799,7 @@ public class PluginsView extends AbstractView{
                         b.append(sp(in) + "<tr class=\"edit\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
-                                + reqParHashcode + "').value='"
+                                + REQ_PAR_HASHCODE + "').value='"
                                 + i.getHashcode() + "';"
                                 + "document.metrics.submit();\""
                                 + ">\n");
@@ -841,7 +842,7 @@ public class PluginsView extends AbstractView{
                         + "document.getElementById('"
                         + reqParShowProp + "').value = this.checked;"
                         + "document.getElementById('"
-                        + reqParHashcode + "').value='';"
+                        + REQ_PAR_HASHCODE + "').value='';"
                         + "document.metrics.submit();\""
                         + ">Display properties\n");
                 b.append(sp(++in) + "<input"
@@ -851,7 +852,7 @@ public class PluginsView extends AbstractView{
                         + "document.getElementById('"
                         + reqParShowActv + "').value = this.checked;"
                         + "document.getElementById('"
-                        + reqParHashcode + "').value='';"
+                        + REQ_PAR_HASHCODE + "').value='';"
                         + "document.metrics.submit();\""
                         + ">Display activators\n");
                 b.append(sp(--in) + "</span>\n");
@@ -869,8 +870,8 @@ public class PluginsView extends AbstractView{
                     + " value=\"\">\n");
             // "Selected plug-in's hash code" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParHashcode + "\""
-                    + " name=\"" + reqParHashcode + "\""
+                    + " id=\"" + REQ_PAR_HASHCODE + "\""
+                    + " name=\"" + REQ_PAR_HASHCODE + "\""
                     + " value=\""
                     + ((reqValHashcode != null) ? reqValHashcode : "")
                     + "\">\n");
