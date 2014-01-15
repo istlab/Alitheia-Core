@@ -228,7 +228,6 @@ public class WebAdminRenderer  extends AbstractView {
     public static String getUptime() {
         long remainder;
         long timeRunning = getRunningTime();
-
         // Get the elapsed time in days, hours, mins, secs
         int days = new Long(timeRunning / 86400000).intValue();
         remainder = timeRunning % 86400000;

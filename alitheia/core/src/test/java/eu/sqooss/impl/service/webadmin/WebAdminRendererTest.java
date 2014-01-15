@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
 
@@ -13,18 +15,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer.TestableWebAdminRenderer;
 import eu.sqooss.service.scheduler.Job;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(WebAdminRenderer.class)
 public class WebAdminRendererTest {
-	
+
 	@Mock
 	TestJob test;
 
@@ -521,7 +524,7 @@ public class WebAdminRendererTest {
 				hasXPath("count(/root/table/tbody/tr/td)", equalTo("4")));
 		// Check that the first td has the name of the test
 		assertThat(the(html),
-				hasXPath("/root/table/tbody/tr/td[1]", equalTo("test")));
+				hasXPath("/root/table/tbody/tr/td[1]", equalTo("testJob")));
 		// Check that the exception type matches the exception
 		assertThat(
 				the(html),
@@ -539,15 +542,19 @@ public class WebAdminRendererTest {
 						containsString("WebAdminRendererTest")));
 	}
 
-	@Ignore
 	@Test
 	public void testGetUptime() {
 		// Arrange
-		WebAdminRenderer web = new WebAdminRenderer(null, null);
-		TestableWebAdminRenderer render = web.new TestableWebAdminRenderer(
-				null, null, null, null, null, null, null, null);
-		assertEquals("0:00:00:00", render.getUptime());
+		mockStatic(WebAdminRenderer.class);
+		when(WebAdminRenderer.getRunningTime()).thenReturn((long) 100000);
+		when(WebAdminRenderer.getUptime()).thenCallRealMethod();
 
+		// Act
+		String uptime = WebAdminRenderer.getUptime();
+
+		// Assert
+		// Check that the returned string has the correct format and values
+		assertEquals("0:00:01:40", uptime);
 	}
 
 	public class TestJob extends Job {
