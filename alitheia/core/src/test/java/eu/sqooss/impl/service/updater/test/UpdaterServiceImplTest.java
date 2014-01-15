@@ -45,9 +45,45 @@ public class UpdaterServiceImplTest {
 	private UpdaterServiceImpl impl;
 	private Logger mockedLogger;
 	private AlitheiaCore core;
+
+	@Test
+	// TODO Can't get past line 447 :/
+    public void testUpdateProjectWithInstiantiableUpdater() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreStubs();
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+		//Our mocked loggers cannot actually be instantiated
+		assertEquals(false, b);
+    }
 	
 	@Test
-    public void testUpdateJustProjectWithSelfDepUpdater() throws InvalidAccessorException {
+    public void testUpdateProjectWithInstiantiableUpdaterInvalidSelfCall() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreMocks();
+		impl.registerUpdaterService(MetadataUpdaterStub.class);
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), "TESTMETADATAUPDATER");
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//3 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(6)).info(Mockito.anyString());
+		//Our mocked loggers cannot actually be instantiated
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateProjectWithSelfDepUpdater() throws InvalidAccessorException {
 		// -- Given
 		setUpCoreMocks();
 		impl.registerUpdaterService(MetadataUpdaterExtensionSelfDependency.class);
@@ -65,7 +101,7 @@ public class UpdaterServiceImplTest {
     }
 	
 	@Test
-    public void testUpdateJustProjectWithValidDepUpdater() throws InvalidAccessorException {
+    public void testUpdateProjectWithValidDepUpdater() throws InvalidAccessorException {
 		// -- Given
 		setUpCoreMocks();
 		impl.registerUpdaterService(MetadataUpdaterExtensionValidDependency.class);
@@ -83,7 +119,7 @@ public class UpdaterServiceImplTest {
     }
 	
 	@Test
-    public void testUpdateJustProjectWithInvalidDepUpdater() throws InvalidAccessorException {
+    public void testUpdateProjectWithInvalidDepUpdater() throws InvalidAccessorException {
 		// -- Given
 		setUpCoreMocks();
 		impl.registerUpdaterService(MetadataUpdaterExtensionInvalidDependency.class);
@@ -101,7 +137,7 @@ public class UpdaterServiceImplTest {
     }
 	
 	@Test
-    public void testUpdateJustProjectWithNonExistentDepUpdater() throws InvalidAccessorException {
+    public void testUpdateProjectWithNonExistentDepUpdater() throws InvalidAccessorException {
 		// -- Given
 		setUpCoreMocks();
 		impl.registerUpdaterService(MetadataUpdaterExtensionNonExistentDependency.class);
@@ -119,7 +155,7 @@ public class UpdaterServiceImplTest {
     }
 	
 	@Test
-    public void testUpdateJustProjectWithStage() throws InvalidAccessorException {
+    public void testUpdateProjectWithStage() throws InvalidAccessorException {
 		// -- Given
 		setUpCoreMocks();
 		// -- When
@@ -398,7 +434,7 @@ public class UpdaterServiceImplTest {
 	}
 	
 	@Before
-    public void setUp() throws InvalidAccessorException {
+    public void onSetUp() throws InvalidAccessorException {
 		impl = new UpdaterServiceImpl();
 		//Set up logger
 		mockedLogger = Mockito.mock(Logger.class);
@@ -412,13 +448,39 @@ public class UpdaterServiceImplTest {
     }
  
     @After
-    public void tearDown() {
-
+    public void onTearDown() {
+    	removeServiceSafe(EmptyMetadataUpdaterExtension.class);
+    	removeServiceSafe(MetadataUpdaterExtension.class);
+    	removeServiceSafe(MetadataUpdaterExtension2.class);
+    	removeServiceSafe(MetadataUpdaterExtensionNonExistentDependency.class);
+    	removeServiceSafe(MetadataUpdaterExtensionInvalidDependency.class);
+    	removeServiceSafe(MetadataUpdaterExtensionValidDependency.class);
+    	removeServiceSafe(MetadataUpdaterExtensionSelfDependency.class);
+    	removeServiceSafe(MetadataUpdaterStub.class);
+    	removeServiceSafe(MetadataUpdaterStub2.class);
+    }
+    
+    private void removeServiceSafe(Class<? extends MetadataUpdater> clazz){
+    	try{
+    		impl.unregisterUpdaterService(clazz);
+    	} catch (NullPointerException e){}
     }
     
     private void setUpCoreMocks() throws InvalidAccessorException{
     	impl.registerUpdaterService(MetadataUpdaterExtension2.class);
 		impl.registerUpdaterService(MetadataUpdaterExtension.class);
+		TDSService tdss = Mockito.mock(TDSService.class);
+		ProjectAccessor pa = Mockito.mock(ProjectAccessor.class);
+		Mockito.when(core.getTDSService()).thenReturn(tdss);
+		Mockito.when(tdss.getAccessor(Mockito.anyLong())).thenReturn(pa);
+		Mockito.when(pa.getSCMAccessor()).thenReturn(Mockito.mock(SCMAccessor.class));
+		Mockito.when(pa.getBTSAccessor()).thenReturn(Mockito.mock(BTSAccessor.class));
+		Mockito.when(pa.getMailAccessor()).thenReturn(Mockito.mock(MailAccessor.class));
+    }
+    
+    private void setUpCoreStubs() throws InvalidAccessorException{
+    	impl.registerUpdaterService(MetadataUpdaterStub2.class);
+		impl.registerUpdaterService(MetadataUpdaterStub.class);
 		TDSService tdss = Mockito.mock(TDSService.class);
 		ProjectAccessor pa = Mockito.mock(ProjectAccessor.class);
 		Mockito.when(core.getTDSService()).thenReturn(tdss);
@@ -471,4 +533,40 @@ public class UpdaterServiceImplTest {
     	    dependencies = {"TESTUPDATER6"}
     )
     private interface MetadataUpdaterExtensionSelfDependency extends MetadataUpdater{}
+    
+    @Updater(
+    		mnem = "TESTMETADATAUPDATER",
+    		protocols = {"testscheme"},
+    		stage = UpdaterStage.PARSE
+    )
+    private class MetadataUpdaterStub implements MetadataUpdater{
+		@Override
+		public void setUpdateParams(StoredProject sp, Logger l) {
+		}
+		@Override
+		public void update() throws Exception {
+		}
+		@Override
+		public int progress() {
+			return 0;
+		}
+    }
+    
+    @Updater(
+    		mnem = "TESTMETADATAUPDATER2",
+    		protocols = {"testscheme2"},
+    		stage = UpdaterStage.PARSE
+    )
+    private class MetadataUpdaterStub2 implements MetadataUpdater{
+		@Override
+		public void setUpdateParams(StoredProject sp, Logger l) {
+		}
+		@Override
+		public void update() throws Exception {
+		}
+		@Override
+		public int progress() {
+			return 0;
+		}
+    }
 }
