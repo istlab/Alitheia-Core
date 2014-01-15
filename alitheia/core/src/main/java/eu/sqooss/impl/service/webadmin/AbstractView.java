@@ -322,7 +322,7 @@ public abstract class AbstractView {
      * @return The string that contains the table's row, or an empty string
      *   upon invalid (<code>null</code>) name of the input element.
      */
-    protected static String normalInputRow (
+    protected String normalInputRow (
             String title, String parName, String parValue, long in) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
@@ -365,7 +365,7 @@ public abstract class AbstractView {
      * 
      * @return The string that contains the table's row.
      */
-    protected static String normalInfoRow (
+    protected String normalInfoRow (
             String title, String value, long in) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
@@ -396,14 +396,14 @@ public abstract class AbstractView {
      * 
      * @return The HTML presentation.
      */
-    protected static String normalFieldset (
+    protected String normalFieldset (
             String name,
             String css,
             StringBuilder content,
             long in) {
         if ((content != null) && (content.toString().length() > 0)) {
             return (sp(in) + "<fieldset"
-                    + ((css != null) ? "class=\"" + css + "\"": "")
+                    + ((css != null) ? " class=\"" + css + "\"": "")
                     + ">\n"
                     + sp(++in) + "<legend>"
                     + ((name != null) ? name : "NONAME")
@@ -415,7 +415,7 @@ public abstract class AbstractView {
     }
 
     // TODO: Remove this method, since it is not I18n compatible.
-    protected static String errorFieldset (StringBuilder errors, long in) {
+    protected String errorFieldset (StringBuilder errors, long in) {
         return normalFieldset("Errors", null, errors, in);
     }
 
@@ -428,7 +428,7 @@ public abstract class AbstractView {
      * 
      * @return The <code>Long</code> value.
      */
-    protected static Long fromString (String value) {
+    protected Long fromString (String value) {
         try {
             return (new Long(value));
         }
@@ -449,7 +449,7 @@ public abstract class AbstractView {
      * @return <code>true</code> upon successful validation,
      *   or <code>false</code> otherwise.
      */
-    protected static boolean checkName (String text) {
+    protected boolean checkName (String text) {
         if (text == null) return false;
 
         // Check for head or foot occurrence of deprecated signs

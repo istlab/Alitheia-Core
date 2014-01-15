@@ -4,13 +4,24 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
 
-import org.apache.velocity.VelocityContext;
-import org.junit.Test;
-import org.osgi.framework.BundleContext;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(TestAbstractView.class)
 public class AbstractViewTest {
 
 	@Test
@@ -455,13 +466,34 @@ public class AbstractViewTest {
 
 	}
 
-	// Test class to test Abstractview
-	class TestAbstractView extends AbstractView {
+	@Test
+	public void testSp() {
+		// Arrange
 
-		public TestAbstractView(BundleContext bundlecontext, VelocityContext vc) {
-			super(bundlecontext, vc);
-		}
+		// Act
+		String sp = TestAbstractView.sp(2L);
 
+		// Assert
+		assertEquals(4, sp.length());
+	}
+	
+	@Test
+	public void testDebugRequest() {
+		//Arrange
+		HttpServletRequest req = mock(HttpServletRequest.class);
+		Enumeration<?> enumeration = new StringTokenizer("this test");
+		when(req.getParameterNames()).thenReturn(enumeration);
+		String param1 = "this";
+		String param2 = "test";
+		when(req.getParameter("this")).thenReturn(param1);
+		when(req.getParameter("test")).thenReturn(param2);
+		
+		//Act
+		String debugRequest = TestAbstractView.debugRequest(req);
+		
+		//Assert
+		assertTrue(debugRequest.contains(param1));
+		assertTrue(debugRequest.contains(param2));
 	}
 
 }
