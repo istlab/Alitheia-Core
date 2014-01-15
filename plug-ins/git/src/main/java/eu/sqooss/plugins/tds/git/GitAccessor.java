@@ -93,7 +93,7 @@ import eu.sqooss.service.tds.SCMNodeType;
  * 
  * @author Georgios Gousios - <gousiosg@gmail.com>
  */
-public class GitAccessor implements SCMAccessor {
+public class GitAccessor extends eu.sqooss.plugins.tds.scm.SCMAccessor {
     public static String ACCESSOR_NAME = "GitAccessor";
     private static List<URI> supportedSchemes;
     

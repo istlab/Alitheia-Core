@@ -137,6 +137,11 @@
       <version>1.5.3</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>eu.sqooss.plugins</groupId>
+      <artifactId>scm</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   
 </project>

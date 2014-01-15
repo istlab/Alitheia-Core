@@ -42,6 +42,7 @@ import javax.mail.internet.InternetAddress;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.plugins.tds.git.GitAccessor;
+import eu.sqooss.plugins.updater.scm.SCMUpdater;
 import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
@@ -62,7 +63,6 @@ import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNodeType;
-import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 import eu.sqooss.service.util.FileUtils;
@@ -75,7 +75,7 @@ import eu.sqooss.service.util.Pair;
         mnem ="GIT", 
         protocols = {"git-file"}, 
         stage = UpdaterStage.IMPORT)
-public class GitUpdater implements MetadataUpdater {
+public class GitUpdater extends SCMUpdater {
     
     private StoredProject project;
     private Logger log;

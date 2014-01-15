@@ -1,2 +1,0 @@
-INFO - Initializing Hibernate with URL <file:/E:/TUDelft/MasterYear1/SoftwareReengineering/Workspace Alitheia/Alitheia-Core/alitheia/core/src/main/resources/hibernate.cfg.xml>
-ERROR - Failed to initialize Hibernate: org.slf4j.helpers.MessageFormatter.format(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;

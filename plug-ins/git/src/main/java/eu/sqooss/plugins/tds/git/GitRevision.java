@@ -40,6 +40,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
@@ -49,7 +50,7 @@ import eu.sqooss.service.tds.Revision;
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
-public class GitRevision implements Revision {
+public class GitRevision extends SCMProjectRevision {
 
     private String id;
     private Date date;

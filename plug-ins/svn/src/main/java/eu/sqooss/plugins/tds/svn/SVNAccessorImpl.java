@@ -79,14 +79,12 @@ import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffFactory;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
-import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNode;
 import eu.sqooss.service.tds.SCMNodeType;
 import eu.sqooss.service.util.FileUtils;
 
-public class SVNAccessorImpl implements eu.sqooss.service.tds.SCMAccessor {
+public class SVNAccessorImpl extends eu.sqooss.plugins.tds.scm.SCMAccessor {
     private String url;
     private String projectname;
     private SVNRepository svnRepository = null;

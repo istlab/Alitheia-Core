@@ -33,7 +33,6 @@
 
 package eu.sqooss.plugins.svn;
 
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -43,7 +42,7 @@ import eu.sqooss.plugins.updater.svn.SVNUpdaterImpl;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 
-public class Activator implements BundleActivator  {
+public class Activator extends SCMActivator  {
     
     public void start(BundleContext bc) throws Exception {
         String[] protocols = {"svn", "svn-http", "svn-file"};

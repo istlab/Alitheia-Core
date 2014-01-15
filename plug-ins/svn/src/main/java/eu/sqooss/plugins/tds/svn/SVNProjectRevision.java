@@ -47,6 +47,7 @@ import javax.management.RuntimeErrorException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNLogEntryPath;
 
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.PathChangeType;
@@ -68,7 +69,7 @@ import eu.sqooss.service.tds.Revision;
  * attached to the revision). The InvalidProjectRevisionException is used to
  * indicate problems like that.
  */
-public class SVNProjectRevision implements Revision {
+public class SVNProjectRevision extends SCMProjectRevision {
 
     private long revision;
     private Date date;
