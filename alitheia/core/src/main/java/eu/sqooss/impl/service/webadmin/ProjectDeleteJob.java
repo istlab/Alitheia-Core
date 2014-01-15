@@ -43,6 +43,7 @@ import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectConfig;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Job;
 
 public class ProjectDeleteJob extends Job {
@@ -63,7 +64,7 @@ public class ProjectDeleteJob extends Job {
     @SuppressWarnings("unchecked")
     @Override
     protected void run() throws Exception {
-        DBService dbs = core.getDBService();
+        DBService dbs = getDatabaseService();
 
         if (!dbs.isDBSessionActive()) {
             dbs.startDBSession();
@@ -77,8 +78,8 @@ public class ProjectDeleteJob extends Job {
         //Cleanup plugin results
         List<Plugin> ps = (List<Plugin>) dbs.doHQL("from Plugin");        
         
-        for (Plugin p : ps ) {
-            AlitheiaPlugin ap = core.getPluginAdmin().getPlugin(core.getPluginAdmin().getPluginInfo(p.getHashcode()));
+        for (Plugin p : ps) {
+            AlitheiaPlugin ap = getPluginAdmin().getPlugin(getPluginAdmin().getPluginInfo(p.getHashcode()));
             if (ap == null) {
             	//logger.warn("Plugin with hashcode: "+ p.getHashcode() + 
             	//		" not installed");
@@ -102,7 +103,7 @@ public class ProjectDeleteJob extends Job {
         }
                
         //Delete the project's config options
-        List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(sp);
+        List<StoredProjectConfig> confParams = getProjectConfigs(sp);
         if (!confParams.isEmpty()) {
         	success &= dbs.deleteRecords(confParams);
         }
@@ -117,6 +118,18 @@ public class ProjectDeleteJob extends Job {
         }
 
     }
+
+	protected List<StoredProjectConfig> getProjectConfigs(StoredProject project) {
+		return StoredProjectConfig.fromProject(project);
+	}
+
+	protected PluginAdmin getPluginAdmin() {
+		return core.getPluginAdmin();
+	}
+
+	protected DBService getDatabaseService() {
+		return core.getDBService();
+	}
     
     @Override
     public String toString() {
