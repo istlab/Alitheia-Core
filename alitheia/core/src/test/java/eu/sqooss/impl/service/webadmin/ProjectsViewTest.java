@@ -672,17 +672,13 @@ public class ProjectsViewTest {
 		
 		String html = sanitizeHTML(builder.toString());
 		
-		// RENG: if the tbody's are unbalanced, disregard them for now
-		if (StringUtils.countMatches(html, "<tbody>") != StringUtils.countMatches(html, "</tbody>")) {
-			html = html.replaceAll("<tbody>", "").replaceAll("</tbody>", "");
-		}
 		// RENG: same for fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
 		}
 		
 		assertThat(the(html), hasXPath("count(//form[@id='projects']/table/thead/tr/td)", returningANumber(), equalTo(7.0)));
-		assertThat(the(html), hasXPath("count(//form[@id='projects']/table/tr[1]/td)", returningANumber(), equalTo(1.0)));
+		assertThat(the(html), hasXPath("count(//form[@id='projects']/table/tbody/tr[1]/td)", returningANumber(), equalTo(1.0)));
 	}
 	
 	@Test
@@ -950,8 +946,11 @@ public class ProjectsViewTest {
 	@Test
 	public void shouldCreateTableHeaderRow() {
 		StringBuilder builder = new StringBuilder();
+		long in = 0;
 
-		projectsView.addHeaderRow(builder, 0);
+		// RENG: This method opens table, but doesn't close it. Move this out?
+		builder.append(ProjectsView.sp(in++) + "<table>\n");
+		projectsView.addHeaderRow(builder, in);
 
 		String html = builder.toString() + "</table>";
 		
