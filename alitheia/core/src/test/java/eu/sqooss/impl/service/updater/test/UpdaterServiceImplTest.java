@@ -28,7 +28,9 @@ import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.BTSAccessor;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.MailAccessor;
@@ -47,6 +49,70 @@ public class UpdaterServiceImplTest {
 	private Logger mockedLogger;
 	private AlitheiaCore core;
 
+	@SuppressWarnings("unchecked")
+	@Test
+    public void testUpdateProjectScheduleException() throws InvalidAccessorException, SchedulerException {
+		// -- Given
+		setUpCoreStubs();
+		Scheduler schd = Mockito.mock(Scheduler.class);
+		Mockito.when(core.getScheduler()).thenReturn(schd);
+		Mockito.doThrow(new SchedulerException("")).when(schd).enqueueBlock((List<Job>) Mockito.anyList());
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		// -- Then
+		//1 warning from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//1 info message from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+		//This should work without problems
+		assertEquals(false, b);
+    }
+	
+	@Test
+    public void testUpdateProjectsMultiple() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreStubs();
+		Mockito.when(core.getScheduler()).thenReturn(Mockito.mock(Scheduler.class));
+		StoredProject sp = Mockito.mock(StoredProject.class);
+		Mockito.when(sp.getId()).thenReturn(1L);
+		// -- When
+		boolean b = impl.update(sp, UpdaterStage.PARSE);
+		boolean b2 = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		// -- Then
+		//2 warnings from ignoring the update by not being assigned to this node
+		Mockito.verify(mockedLogger, Mockito.times(2)).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//2 info messages from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(6)).info(Mockito.anyString());
+		//This should work without problems
+		assertEquals(true, b);
+		assertEquals(true, b2);
+    }
+	
+	@Test
+    public void testUpdateProjectDuplicate() throws InvalidAccessorException {
+		// -- Given
+		setUpCoreStubs();
+		Mockito.when(core.getScheduler()).thenReturn(Mockito.mock(Scheduler.class));
+		// -- When
+		boolean b = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		boolean b2 = impl.update(Mockito.mock(StoredProject.class), UpdaterStage.PARSE);
+		// -- Then
+		//2 warnings from ignoring the update by not being assigned to this node
+		//2 warnings from a duplicate update not being scheduled
+		Mockito.verify(mockedLogger, Mockito.times(4)).warn(Mockito.anyString());
+		//2 info messages from startUp()
+		//2 info messages from correctly added services
+		//2 info messages from starting an update
+		Mockito.verify(mockedLogger, Mockito.times(6)).info(Mockito.anyString());
+		//This should work without problems
+		assertEquals(true, b);
+		assertEquals(true, b2);
+    }
+	
 	@Test
     public void testUpdateProjectWithInstiantiableUpdater() throws InvalidAccessorException {
 		// -- Given
@@ -457,6 +523,7 @@ public class UpdaterServiceImplTest {
     	removeServiceSafe(MetadataUpdaterExtensionInvalidDependency.class);
     	removeServiceSafe(MetadataUpdaterExtensionValidDependency.class);
     	removeServiceSafe(MetadataUpdaterExtensionSelfDependency.class);
+    	removeServiceSafe(BadMetadataUpdaterStub.class);
     	removeServiceSafe(MetadataUpdaterStub.class);
     	removeServiceSafe(MetadataUpdaterStub2.class);
     }
@@ -574,7 +641,8 @@ public class UpdaterServiceImplTest {
     @Updater(
     		mnem = "TESTMETADATAUPDATER2",
     		protocols = {"testscheme2"},
-    		stage = UpdaterStage.PARSE
+    		stage = UpdaterStage.PARSE,
+    		dependencies = {"TESTMETADATAUPDATER"}
     )
     public static class MetadataUpdaterStub2 implements MetadataUpdater{
 		@Override
