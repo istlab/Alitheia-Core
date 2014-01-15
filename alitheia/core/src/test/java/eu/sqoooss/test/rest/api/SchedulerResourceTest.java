@@ -23,22 +23,21 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import eu.sqoooss.test.rest.api.utils.TestUtils;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.rest.api.SchedulerResource;
-import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerStats;
 
-@PrepareForTest({ Scheduler.class, AlitheiaCore.class })
+@PrepareForTest({ Scheduler.class, AlitheiaCore.class, Job.class })
 @RunWith(PowerMockRunner.class)
 public class SchedulerResourceTest {
 
-	private DBService db;
 	private Scheduler s;
 	
 	private void httpRequestFireAndTestAssertations(String api_path, String r)
 			throws URISyntaxException {
 		MockHttpResponse response = TestUtils.fireMockHttpRequest(
 				SchedulerResource.class, api_path);
-		//System.out.println("Aqui: " + response.getContentAsString());
+		System.out.println(response.getContentAsString());
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 		assertEquals(r, response.getContentAsString());
 	}
@@ -50,28 +49,32 @@ public class SchedulerResourceTest {
 		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
 
 		s = PowerMockito.mock(Scheduler.class);
-		Mockito.when(AlitheiaCore.getInstance().getScheduler()).thenReturn(s);
-
-		db = PowerMockito.mock(DBService.class);
-		Mockito.when(core.getDBService()).thenReturn(db);
-
+		Mockito.when(core.getScheduler()).thenReturn(s);
 	}
 
 	@After
 	public void tearDown() {
-		db = null;
 		s = null;
 	}
-
-	//FIXME
+	//FIXME the annotation of m_Exception in Job has to be skipped other wise error.
 	@Ignore
+	@Test
+	public void testGetSchedulerStats() throws Exception {
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<scheduler-stats><totalJobs>0</totalJobs><finishedJobs>0</finishedJobs><waitingJobs>0</waitingJobs><runningJobs>0</runningJobs><workerThreads>0</workerThreads><idleWorkerThreads>0</idleWorkerThreads><failedJobs>0</failedJobs><failedJobTypes/><waitingJobTypes/></scheduler-stats>";
+		
+		SchedulerStats ss = new SchedulerStats();
+		Mockito.when(s.getSchedulerStats()).thenReturn(ss);
+		httpRequestFireAndTestAssertations("api/scheduler/stats", r);
+	}
+
 	@Test
 	public void testGetFailedJobTypes() throws Exception {
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<collection><map_entry>"
-				+ "<key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
-				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value>"
-				+ "</map_entry></collection>";
+					+ "<collection><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
+					+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
+					+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test2</key>"
+					+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">2</value></map_entry></collection>";
 
 		SchedulerStats ss = PowerMockito.mock(SchedulerStats.class);
 		Mockito.when(s.getSchedulerStats()).thenReturn(ss);
@@ -84,15 +87,13 @@ public class SchedulerResourceTest {
 				"api/scheduler/stats/jobtypes/failed", r);
 	}
 
-	//FIXME
-	@Ignore
 	@Test
 	public void testGetWaitingJobTypes() throws Exception {
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<collection><map_entry>"
-				+ "<key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
-				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value>"
-				+ "</map_entry></collection>";
+				+ "<collection><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
+				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
+				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test2</key>"
+				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">2</value></map_entry></collection>";
 
 		SchedulerStats ss = PowerMockito.mock(SchedulerStats.class);
 		Mockito.when(s.getSchedulerStats()).thenReturn(ss);
@@ -105,12 +106,10 @@ public class SchedulerResourceTest {
 				"api/scheduler/stats/jobtypes/waiting", r);
 	}
 
-	//FIXME
-	@Ignore
 	@Test
 	public void testGetRunJobs() throws Exception {
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<collection><string><value>Test</value></string></collection>";
+				+ "<collection><string><value>Test</value></string><string><value>test1</value></string><string><value>test2</value></string></collection>";
 
 		SchedulerStats ss = PowerMockito.mock(SchedulerStats.class);
 		Mockito.when(s.getSchedulerStats()).thenReturn(ss);
@@ -122,33 +121,20 @@ public class SchedulerResourceTest {
 		httpRequestFireAndTestAssertations("api/scheduler/stats/jobs/run", r);
 	}
 
-	/**
-	 * Suggested refactoring, change types Job[] and String[] on WebAdminRenderer->renderFailedJobs()
-	 * to List<> in order to keep consistancy. Only called once.
-	 */
-	/*@Test
+	//TODO - JAXBMARSHALL EXception type of variable
+	@Ignore
+	@Test
 	public void testGetFailedQueue() throws Exception {
-		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
-		Job j = new Job() {
-			
-			@Override
-			protected void run() throws Exception {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public long priority() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		};
-		Job[] jobs =  {j};
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection><job><restarts>0</restarts></job></collection>";
+		PowerMockito.mockStatic(Job.class, Mockito.CALLS_REAL_METHODS);
+		Job j = PowerMockito.mock(Job.class);
+		Job[] jobs = {j};
 		
 		Mockito.when(s.getFailedQueue()).thenReturn(jobs);
 
-		httpRequestFireAndTestAssertations("api/scheduler/queue/failed", r);
-	}*/
+		httpRequestFireAndTestAssertations("api/scheduler/failed_queue", r);
+	}
 	
 	
 }

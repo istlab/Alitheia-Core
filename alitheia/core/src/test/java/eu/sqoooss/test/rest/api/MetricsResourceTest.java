@@ -13,13 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.OngoingStubbing;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -37,7 +33,8 @@ import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.pa.PluginAdmin;
 
 @PrepareForTest({ AlitheiaCore.class, Metric.class, MetricType.class,
-		DAObject.class, Type.class, AlitheiaPlugin.class, PluginAdmin.class, Class.class, Long.class })
+		DAObject.class, Type.class, AlitheiaPlugin.class, PluginAdmin.class,
+		Class.class, Long.class })
 @RunWith(PowerMockRunner.class)
 public class MetricsResourceTest {
 	private DBService db;
@@ -47,7 +44,7 @@ public class MetricsResourceTest {
 			throws URISyntaxException {
 		MockHttpResponse response = TestUtils.fireMockHttpRequest(
 				MetricsResource.class, api_path);
-		System.out.println(response.getContentAsString());
+		//System.out.println(response.getContentAsString());
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 		assertEquals(r, response.getContentAsString());
 	}
@@ -119,44 +116,51 @@ public class MetricsResourceTest {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
-	public void testGetMetricResultNullMetric() throws Exception {
-		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+	public void testGetMetricResult() throws Exception {
+		
+		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
 
 		PowerMockito.mockStatic(DAObject.class);
 		Mockito.when(
 				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
 				.thenReturn(null);
-		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/test", r);
-	}
-
-	// FIXME
-	/*@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Test
-	public void testGetMetricResultWithMetric() throws Exception {
+		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/test", r1);
+	
 		Metric m = new Metric();
 		m.setDescription("Test");
 
-		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<collection/>";
+		String s = "";
+		s += "1,";
+		for(int i=0; i<64; i++)
+			s += "02222255633252,";
+		s += "02222255633252";
+		
+		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection><r/><r/><r/><r/></collection>";
 
 		PowerMockito.mockStatic(DAObject.class);
 		Mockito.when(
 				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
 				.thenReturn(m);
 
-		MetricsResource api = PowerMockito.mock(MetricsResource.class);
+		testGetResult();
+		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/" + s, r2);
 	
-		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/test", r);
-	}*/
-
-	// TODO testGetResult
-	public void testGetResult() throws Exception {
-		Long l = new Long("02222255633252");
 		
+	}
+
+	public void testGetResult() throws Exception {
+		testGetResultHelper();
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testGetResultHelper() throws Exception {
+		Long l = new Long("02222255633252");
+
 		PowerMockito.mockStatic(Long.class);
 		Mockito.when(Long.parseLong(Mockito.anyString())).thenReturn(l);
-		
+
 		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
 		PowerMockito.mockStatic(AlitheiaCore.class);
 		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
@@ -167,19 +171,20 @@ public class MetricsResourceTest {
 		AlitheiaPlugin ap = PowerMockito.mock(AlitheiaPlugin.class);
 		Mockito.when(pa.getImplementingPlugin(Mockito.anyString())).thenReturn(
 				ap);
-		
+
 		Metric m = PowerMockito.mock(Metric.class);
 		MetricType mt = PowerMockito.mock(MetricType.class);
 		m.setMetricType(mt);
 		Mockito.when(m.getMetricType()).thenReturn(mt);
 
 		PowerMockito.mockStatic(DAObject.class);
-		Mockito.<Class<? extends DAObject>>when(mt.toActivator()).thenReturn(m.getClass());
-		
+		Mockito.<Class<? extends DAObject>> when(mt.toActivator()).thenReturn(
+				m.getClass());
+
 		Mockito.when(
 				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
 				.thenReturn(m);
-		
+
 		List<Metric> mts = new ArrayList<Metric>();
 		mts.add(m);
 		Result r1 = new Result();
@@ -187,7 +192,9 @@ public class MetricsResourceTest {
 		List<Result> list = new ArrayList<Result>();
 		list.add(r1);
 		list.add(r2);
-		Mockito.when(ap.getResultIfAlreadyCalculated((DAObject)Mockito.any(), (List<Metric>) Mockito.anyList())).thenReturn(list);
+		Mockito.when(
+				ap.getResultIfAlreadyCalculated((DAObject) Mockito.any(),
+						(List<Metric>) Mockito.anyList())).thenReturn(list);
 	}
 
 	@Test
@@ -203,10 +210,10 @@ public class MetricsResourceTest {
 		httpRequestFireAndTestAssertations("api/metrics/by-mnem/mnemonic", r);
 	}
 
-	@Test
-	public void testGetMetricResultByMnemNullMetric() throws Exception {
 
-		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+	@Test
+	public void testGetMetricResultByMnemWithMetric() throws Exception {
+		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
 
 		PowerMockito.mockStatic(Metric.class);
@@ -214,18 +221,16 @@ public class MetricsResourceTest {
 				.thenReturn(null);
 
 		httpRequestFireAndTestAssertations(
-				"api/metrics/by-mnem/mnemonic/result/test", r);
-	}
+				"api/metrics/by-mnem/mnemonic/result/02222255633252,02222255633252",
+				r1);
 
-	@Test
-	public void testGetMetricResultByMnemWithMetric() throws Exception {
-		Result r1 = new Result();
-		Result r2 = new Result();
+		Result res1 = new Result();
+		Result res2 = new Result();
 		List<Result> l = new ArrayList<Result>();
-		l.add(r1);
-		l.add(r2);
+		l.add(res1);
+		l.add(res2);
 
-		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><r/><r/></collection>";
 
 		Metric m = new Metric();
@@ -237,7 +242,8 @@ public class MetricsResourceTest {
 				.thenReturn(m);
 		testGetResult();
 		httpRequestFireAndTestAssertations(
-				"api/metrics/by-mnem/mnemonic/result/02222255633252,02222255633252", r);
+				"api/metrics/by-mnem/mnemonic/result/02222255633252,02222255633252",
+				r2);
 
 	}
 
