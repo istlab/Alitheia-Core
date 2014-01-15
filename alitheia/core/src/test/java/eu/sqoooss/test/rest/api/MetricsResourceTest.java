@@ -13,9 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.OngoingStubbing;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -32,20 +36,21 @@ import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.pa.PluginAdmin;
 
-@PrepareForTest({ AlitheiaCore.class, Metric.class, MetricType.class, DAObject.class, Type.class, AlitheiaPlugin.class, PluginAdmin.class})
+@PrepareForTest({ AlitheiaCore.class, Metric.class, MetricType.class,
+		DAObject.class, Type.class, AlitheiaPlugin.class, PluginAdmin.class, Class.class, Long.class })
 @RunWith(PowerMockRunner.class)
 public class MetricsResourceTest {
 	private DBService db;
 
-	/************Auxiliar methods**************/
-	private void httpRequestFireAndTestAssertations(String api_path, String r) throws URISyntaxException {
+	/************ Auxiliar methods **************/
+	private void httpRequestFireAndTestAssertations(String api_path, String r)
+			throws URISyntaxException {
 		MockHttpResponse response = TestUtils.fireMockHttpRequest(
 				MetricsResource.class, api_path);
-		System.out.println("Aqui: " + response.getContentAsString());
+		System.out.println(response.getContentAsString());
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 		assertEquals(r, response.getContentAsString());
 	}
-	
 
 	@Before
 	public void setUp() {
@@ -63,44 +68,43 @@ public class MetricsResourceTest {
 	public void tearDown() {
 		db = null;
 	}
-	
-	@SuppressWarnings({"rawtypes", "unchecked"})
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testGetMetrics() throws Exception {
-		
-		Metric m1 = PowerMockito.mock(Metric.class);
-		Metric m2 = PowerMockito.mock(Metric.class);;
+
+		Metric m1 = new Metric();
+		Metric m2 = new Metric();
 		List l = new ArrayList<Metric>();
 		l.add(m1);
 		l.add(m2);
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-		+ "<collection><metric><id>0</id></metric><metric><id>0</id></metric></collection>";
-			
+				+ "<collection><metric><id>0</id></metric><metric><id>0</id></metric></collection>";
+
 		Mockito.when(db.doHQL(Mockito.anyString())).thenReturn(l);
-		
 		httpRequestFireAndTestAssertations("api/metrics/", r);
 	}
-	
-	@SuppressWarnings({"rawtypes", "unchecked"})
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testGetMetricTypes() throws Exception {
-		MetricType mt1 = PowerMockito.mock(MetricType.class);
-		MetricType mt2 = PowerMockito.mock(MetricType.class);
+		MetricType mt1 = new MetricType();
+		MetricType mt2 = new MetricType();
 		List l = new ArrayList<MetricType>();
 		l.add(mt1);
 		l.add(mt2);
-		
+
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><metrictype><id>0</id></metrictype><metrictype><id>0</id></metrictype></collection>";
-		
+
 		Mockito.when(db.doHQL(Mockito.anyString())).thenReturn(l);
 		httpRequestFireAndTestAssertations("api/metrics/types", r);
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testGetMetricById() throws Exception {
-		
+
 		Metric m = new Metric();
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<metric><id>0</id></metric>";
@@ -112,106 +116,145 @@ public class MetricsResourceTest {
 
 		httpRequestFireAndTestAssertations("api/metrics/by-id/5", r);
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testGetMetricResultNullMetric() throws Exception {
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-		
+
 		PowerMockito.mockStatic(DAObject.class);
 		Mockito.when(
 				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
-				.thenReturn(null);		
+				.thenReturn(null);
 		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/test", r);
 	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
+	// FIXME
+	/*@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testGetMetricResultWithMetric() throws Exception {
-		
-		Result r1 = new Result();
-		Result r2 = new Result();
-		List l = new ArrayList<Result>();
-		l.add(r1);
-		l.add(r2);
-				
+		Metric m = new Metric();
+		m.setDescription("Test");
+
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-		
+
+		PowerMockito.mockStatic(DAObject.class);
+		Mockito.when(
+				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
+				.thenReturn(m);
+
 		MetricsResource api = PowerMockito.mock(MetricsResource.class);
-		Mockito.when(api.getResult(Mockito.any(Metric.class), Mockito.anyString())).thenReturn(l);
-		
+	
 		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/test", r);
-	}
-	
-	//TODO testGetResult
-	@Test
+	}*/
+
+	// TODO testGetResult
 	public void testGetResult() throws Exception {
-	}
-	
+		Long l = new Long("02222255633252");
 		
+		PowerMockito.mockStatic(Long.class);
+		Mockito.when(Long.parseLong(Mockito.anyString())).thenReturn(l);
+		
+		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
+		PowerMockito.mockStatic(AlitheiaCore.class);
+		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
+
+		PluginAdmin pa = PowerMockito.mock(PluginAdmin.class);
+		Mockito.when(core.getPluginAdmin()).thenReturn(pa);
+
+		AlitheiaPlugin ap = PowerMockito.mock(AlitheiaPlugin.class);
+		Mockito.when(pa.getImplementingPlugin(Mockito.anyString())).thenReturn(
+				ap);
+		
+		Metric m = PowerMockito.mock(Metric.class);
+		MetricType mt = PowerMockito.mock(MetricType.class);
+		m.setMetricType(mt);
+		Mockito.when(m.getMetricType()).thenReturn(mt);
+
+		PowerMockito.mockStatic(DAObject.class);
+		Mockito.<Class<? extends DAObject>>when(mt.toActivator()).thenReturn(m.getClass());
+		
+		Mockito.when(
+				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
+				.thenReturn(m);
+		
+		List<Metric> mts = new ArrayList<Metric>();
+		mts.add(m);
+		Result r1 = new Result();
+		Result r2 = new Result();
+		List<Result> list = new ArrayList<Result>();
+		list.add(r1);
+		list.add(r2);
+		Mockito.when(ap.getResultIfAlreadyCalculated((DAObject)Mockito.any(), (List<Metric>) Mockito.anyList())).thenReturn(list);
+	}
+
 	@Test
 	public void testGetMetricByMnem() throws Exception {
 		Metric m = new Metric();
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<metric><id>0</id></metric>";
-		
+
 		PowerMockito.mockStatic(Metric.class);
-		Mockito.when(Metric.getMetricByMnemonic(Mockito.anyString())).thenReturn(m);
-		
+		Mockito.when(Metric.getMetricByMnemonic(Mockito.anyString()))
+				.thenReturn(m);
+
 		httpRequestFireAndTestAssertations("api/metrics/by-mnem/mnemonic", r);
 	}
-	
+
 	@Test
 	public void testGetMetricResultByMnemNullMetric() throws Exception {
-				
+
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-	
+
 		PowerMockito.mockStatic(Metric.class);
-		Mockito.when(Metric.getMetricByMnemonic(Mockito.anyString())).thenReturn(null);
-		
-		httpRequestFireAndTestAssertations("api/metrics/by-mnem/mnemonic/result/test", r);
+		Mockito.when(Metric.getMetricByMnemonic(Mockito.anyString()))
+				.thenReturn(null);
+
+		httpRequestFireAndTestAssertations(
+				"api/metrics/by-mnem/mnemonic/result/test", r);
 	}
-	
-	//FIXME
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	@Test
 	public void testGetMetricResultByMnemWithMetric() throws Exception {
 		Result r1 = new Result();
 		Result r2 = new Result();
-		List l = new ArrayList<Result>();
+		List<Result> l = new ArrayList<Result>();
 		l.add(r1);
 		l.add(r2);
-		
+
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<collection/>";
-		
-		
-		/*PowerMockito.mockStatic(Metric.class);
+				+ "<collection><r/><r/></collection>";
+
 		Metric m = new Metric();
-		Mockito.when(Metric.getMetricByMnemonic(Mockito.anyString())).thenReturn(m);*/
-		
-		MetricsResource api = PowerMockito.mock(MetricsResource.class);
-		Mockito.when(api.getResult(Mockito.any(Metric.class), Mockito.anyString())).thenReturn(l);
-		
-		httpRequestFireAndTestAssertations("api/metrics/by-mnem/mnemonic/result/test", r);
+		MetricType mt = new MetricType();
+		mt.setEnumType(Type.DEVELOPER);
+		m.setMetricType(mt);
+		PowerMockito.mockStatic(Metric.class);
+		Mockito.when(Metric.getMetricByMnemonic(Mockito.anyString()))
+				.thenReturn(m);
+		testGetResult();
+		httpRequestFireAndTestAssertations(
+				"api/metrics/by-mnem/mnemonic/result/02222255633252,02222255633252", r);
+
 	}
-	
+
 	@Test
 	public void testGetMetricByTypeNullMetric() throws Exception {
-		
+
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-	
 		PowerMockito.mockStatic(MetricType.class);
 		PowerMockito.mockStatic(Type.class);
-		Mockito.when(MetricType.getMetricType(Type.fromString(Mockito.anyString()))).thenReturn(null);
-		
+		Mockito.when(
+				MetricType.getMetricType(Type.fromString(Mockito.anyString())))
+				.thenReturn(null);
+
 		httpRequestFireAndTestAssertations("api/metrics/by-type/test", r);
 	}
-	
+
 	@Test
 	public void testGetMetricByTypeWithMetric() throws Exception {
 		Set<Metric> s = new HashSet<Metric>();
@@ -219,17 +262,19 @@ public class MetricsResourceTest {
 		Metric m2 = PowerMockito.mock(Metric.class);
 		s.add(m1);
 		s.add(m2);
-		
-		MetricType mt = PowerMockito.mock(MetricType.class);
+
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><metric><id>0</id></metric><metric><id>0</id></metric></collection>";
-	
+
+		MetricType mt = PowerMockito.mock(MetricType.class);
 		PowerMockito.mockStatic(MetricType.class);
 		PowerMockito.mockStatic(Type.class);
-		Mockito.when(MetricType.getMetricType(Type.fromString(Mockito.anyString()))).thenReturn(mt);
-		
+		Mockito.when(
+				MetricType.getMetricType(Type.fromString(Mockito.anyString())))
+				.thenReturn(mt);
+
 		Mockito.when(mt.getMetrics()).thenReturn(s);
-		
+
 		httpRequestFireAndTestAssertations("api/metrics/by-type/test", r);
 	}
 }
