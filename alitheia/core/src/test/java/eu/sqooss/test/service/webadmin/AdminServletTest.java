@@ -22,6 +22,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Hashtable;
+import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +47,7 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.AbstractView;
 import eu.sqooss.impl.service.webadmin.AdminServlet;
 import eu.sqooss.impl.service.webadmin.PluginsView;
+import eu.sqooss.impl.service.webadmin.ProjectsView;
 import eu.sqooss.impl.service.webadmin.TranslationProxy;
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
 import eu.sqooss.service.admin.AdminAction;
@@ -363,11 +365,14 @@ public class AdminServletTest {
 		PrintWriter print = Mockito.mock(PrintWriter.class);
 		WebAdminRenderer adminView = Mockito.mock(WebAdminRenderer.class);
 		AdminServlet adminServlet = new AdminServlet(bc, webadmin, logger, ve);
+		ProjectsView projectsView = Mockito.mock(ProjectsView.class);
 		
 		
 		AdminServlet spy = spy(adminServlet);
 		
 		Whitebox.setInternalState(spy, "adminView", adminView);
+		Whitebox.setInternalState(spy, ProjectsView.class, projectsView);
+		when(projectsView.render(any(HttpServletRequest.class))).thenReturn("");
 //		doNothing().when(spy,"createSubstitutions",eq(request));
 		
 		Template t = Mockito.mock(Template.class);
@@ -378,8 +383,9 @@ public class AdminServletTest {
 		Whitebox.setInternalState(adminView, Scheduler.class, scheduler);
 		
 		when(response.getWriter()).thenReturn(print);
+		when(request.getLocale()).thenReturn(Locale.ENGLISH);
 		Whitebox.invokeMethod(spy, "sendPage", response, request, "/projects");
-		verify(ve,times(1)).getTemplate("/projects");
+		verify(ve,times(1)).getTemplate("global.html");
 		verifyPrivate(spy,times(1)).invoke("createSubstitutions",request);
 	}
 	
