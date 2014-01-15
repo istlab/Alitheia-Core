@@ -137,8 +137,7 @@ public class ProjectsView extends AbstractView {
             // Retrieve the selected project's DAO (if any)
             reqValProjectId = fromString(req.getParameter(REQ_PAR_PROJECT_ID));
             if (reqValProjectId != null) {
-                selProject = sobjDB.findObjectById(
-                        StoredProject.class, reqValProjectId);
+                selProject = getProjectById(reqValProjectId);
             }
             
             if (reqValAction == null) {
@@ -162,6 +161,11 @@ public class ProjectsView extends AbstractView {
         createForm(b, e, selProject, reqValAction , in);
         return b.toString();
     }
+
+	protected StoredProject getProjectById(long reqValProjectId) {
+		return sobjDB.findObjectById(
+		        StoredProject.class, reqValProjectId);
+	}
 
 	protected void initializeResources(HttpServletRequest req) {
 		initResources(req.getLocale());
@@ -257,7 +261,7 @@ public class ProjectsView extends AbstractView {
 
         if (aa.hasErrors()) {
             getVelocityContext().put("RESULTS", aa.errors());
-        } else { 
+        } else {
             getVelocityContext().put("RESULTS", aa.results());
         }
 	}
@@ -265,10 +269,11 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources on all projects of a node
 	// ---------------------------------------------------------------
-    private void triggerAllUpdateNode(StringBuilder e,
+    protected void triggerAllUpdateNode(StringBuilder e,
 			StoredProject selProject, int in) {
 		Set<StoredProject> projectList = getThisNodeProjects();
 		
+		// RENG: would this not only put the results of the last update in velocity?
 		for (StoredProject project : projectList) {
 			triggerAllUpdate(e, project, in);
 		}
@@ -462,7 +467,12 @@ public class ProjectsView extends AbstractView {
         // Projects list view
         // ===================================================================
         else {
-            addHeaderRow(b,in);
+        	//----------------------------------------------------------------
+            // Open the table
+            //----------------------------------------------------------------
+			b.append(sp(in++) + "<table>\n");
+			addHeaderRow(b, in + 1);
+			b.append(sp(in++) + "<tbody>\n");			
 
             if (projects.isEmpty()) {
                 b.append(sp(in++) + "<tr>\n");
@@ -475,8 +485,6 @@ public class ProjectsView extends AbstractView {
                 //------------------------------------------------------------
                 // Create the content rows
                 //------------------------------------------------------------
-            	// RENG: this tbody is not opened in the other case of the if, but always closed.
-                b.append(sp(in++) + "<tbody>\n");
                 for (StoredProject nextPrj : projects) {
                     boolean selected = false;
                     if ((selProject != null)
@@ -707,13 +715,11 @@ public class ProjectsView extends AbstractView {
     }
 
     protected void addHeaderRow(StringBuilder b, long in) {
-        //----------------------------------------------------------------
-        // Create the header row
-        //----------------------------------------------------------------
-    	
-    	// RENG: This method opens table, but doesn't close it. Move this out?
-        b.append(sp(in++) + "<table>\n");
-        b.append(sp(in++) + "<thead>\n");
+		//----------------------------------------------------------------
+		// Create the header row
+		//----------------------------------------------------------------
+
+		b.append(sp(in++) + "<thead>\n");
         b.append(sp(in++) + "<tr class=\"head\">\n");
         b.append(sp(in) + "<td class='head'  style='width: 10%;'>"
                 + getLbl("l0066")
@@ -738,7 +744,7 @@ public class ProjectsView extends AbstractView {
                 + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
         b.append(sp(--in) + "</thead>\n");
-    }
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

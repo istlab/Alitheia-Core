@@ -162,6 +162,197 @@ public class ProjectsViewTest {
 	}
 	
 	@Test
+	public void shouldRenderProjectListWithEmptyRequest() {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		
+		String result = projectsView.render(request);
+		
+		String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
+	}
+
+	@Test
+	public void shouldRenderProjectListWithRequestProjectId() {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PROJECT_ID)).thenReturn(Long.toString(PROJECT_ID));
+		
+		String result = projectsView.render(request);
+		
+		String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
+	}
+	
+	@Test
+	public void shouldRenderProjectWithRequestProjectIdIfConfirmAdd() {		
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PROJECT_ID)).thenReturn(Long.toString(PROJECT_ID));
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn(PROJECT_NAME);
+		when(request.getParameter(ProjectsView.REQ_PAR_ACTION)).thenReturn(ProjectsView.ACT_CON_ADD_PROJECT);
+		AdminAction addAction = mock(AdminAction.class);
+		when(adminService.create(AddProject.MNEMONIC)).thenReturn(addAction);
+		
+		String result = projectsView.render(request);
+		
+		verify(adminService).execute(addAction);
+		
+		String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
+	}
+	
+	@Test
+	public void shouldRenderProjectsWithRequestProjectIdIfConfirmRemove() throws Exception {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PROJECT_ID)).thenReturn(Long.toString(PROJECT_ID));
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn(PROJECT_NAME);
+		when(request.getParameter(ProjectsView.REQ_PAR_ACTION)).thenReturn(ProjectsView.ACT_CON_REM_PROJECT);
+		
+		String result = projectsView.render(request);
+		
+		verify(scheduler).enqueue(any(ProjectDeleteJob.class));
+		
+		String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
+	}
+	
+	@Test
+	public void shouldTriggerUpdateForSelectedProject() {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PROJECT_ID)).thenReturn(Long.toString(PROJECT_ID));
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn(PROJECT_NAME);
+		when(request.getParameter(ProjectsView.REQ_PAR_ACTION)).thenReturn(ProjectsView.ACT_CON_UPD);
+		when(request.getParameter(ProjectsView.REQ_PAR_UPD)).thenReturn("updater");
+		AdminAction updateAction = mock(AdminAction.class);
+		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(updateAction);
+		
+		String result = projectsView.render(request);
+		
+		verify(updateAction).addArg("project", PROJECT_ID);
+		verify(updateAction).addArg("updater", "updater");
+		verify(adminService).execute(updateAction);
+		
+		String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
+	}
+	
+	@Test
+	public void shouldTriggerUpdateAllForSelectedProject() {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PROJECT_ID)).thenReturn(Long.toString(PROJECT_ID));
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn(PROJECT_NAME);
+		when(request.getParameter(ProjectsView.REQ_PAR_ACTION)).thenReturn(ProjectsView.ACT_CON_UPD_ALL);
+		AdminAction updateAction = mock(AdminAction.class);
+		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(updateAction);
+		
+		String result = projectsView.render(request);
+		
+		verify(updateAction).addArg("project", PROJECT_ID);
+		verify(updateAction, times(0)).addArg(eq("updater"), anyString());
+		verify(adminService).execute(updateAction);
+		
+		String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
+	}
+	
+	@Test
+	public void shouldTriggerUpdateActionForAllProjects() {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PROJECT_ID)).thenReturn(Long.toString(PROJECT_ID));
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn(PROJECT_NAME);
+		when(request.getParameter(ProjectsView.REQ_PAR_ACTION)).thenReturn(ProjectsView.ACT_CON_UPD_ALL_NODE);
+		AdminAction action1 = mock(AdminAction.class);
+		AdminAction action2 = mock(AdminAction.class);
+		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(action1).thenReturn(action2);
+		
+		String result = projectsView.render(request);
+		
+		verify(action1).addArg("project", PROJECT_ID);
+		verify(action1, times(0)).addArg(eq("updater"), anyString());
+	 	verify(action2).addArg("project", PROJECT_ID + 1);
+	 	verify(action2, times(0)).addArg(eq("updater"), anyString());
+	 	verify(adminService).execute(action1);
+	 	verify(adminService).execute(action2);
+	 	
+	 	String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
+	}
+	
+	@Test
+	public void shouldTriggerSyncPlugin() {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getParameter(ProjectsView.REQ_PAR_PROJECT_ID)).thenReturn(Long.toString(PROJECT_ID));
+		when(request.getParameter(ProjectsView.REQ_PAR_PRJ_NAME)).thenReturn(PROJECT_NAME);
+		when(request.getParameter(ProjectsView.REQ_PAR_ACTION)).thenReturn("no_action_in_particular");
+		
+		when(request.getParameter(ProjectsView.REQ_PAR_SYNC_PLUGIN)).thenReturn("plugin1");
+		PluginInfo pluginInfo = mock(PluginInfo.class);
+		when(pluginAdmin.getPluginInfo("plugin1")).thenReturn(pluginInfo);
+		when(pluginAdmin.getPlugin(pluginInfo)).thenReturn(somePlugin);
+		
+		String result = projectsView.render(request);
+		
+		verify(metricActivator).syncMetric(somePlugin, project1);
+		
+		String html = sanitizeHTML(result);
+		// RENG: disregard unbalanced fieldset.
+		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
+			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
+		}
+		
+		// verify that it renders all projects
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + PROJECT_ID + "']"));
+		assertThat(the(html), hasXPath("//form[@id='projects']//td[text()='" + (PROJECT_ID + 1) + "']"));
+	}
+	
+	@Test
 	public void shouldExecuteAddActionAndPutResults() {
 		AdminAction action = mock(AdminAction.class);
 		HttpServletRequest request = mock(HttpServletRequest.class);
@@ -322,6 +513,22 @@ public class ProjectsViewTest {
 	}
 	
 	@Test
+	public void shouldExecuteUpdateActionForAllProjects() {
+		AdminAction action1 = mock(AdminAction.class);
+		AdminAction action2 = mock(AdminAction.class);
+		when(adminService.create(UpdateProject.MNEMONIC)).thenReturn(action1).thenReturn(action2);
+		
+		projectsView.triggerAllUpdateNode(null, null, 0);
+		
+		verify(action1).addArg("project", PROJECT_ID);
+		verify(action1, times(0)).addArg(eq("updater"), anyString());
+	 	verify(action2).addArg("project", PROJECT_ID + 1);
+	 	verify(action2, times(0)).addArg(eq("updater"), anyString());
+	 	verify(adminService).execute(action1);
+	 	verify(adminService).execute(action2);
+	}
+	
+	@Test
 	public void syncNothingIfNoPluginSelected() {
 		projectsView.syncPlugin(null, null, null);
 		
@@ -465,17 +672,13 @@ public class ProjectsViewTest {
 		
 		String html = sanitizeHTML(builder.toString());
 		
-		// RENG: if the tbody's are unbalanced, disregard them for now
-		if (StringUtils.countMatches(html, "<tbody>") != StringUtils.countMatches(html, "</tbody>")) {
-			html = html.replaceAll("<tbody>", "").replaceAll("</tbody>", "");
-		}
 		// RENG: same for fieldset.
 		if (StringUtils.countMatches(html, "<fieldset>") != StringUtils.countMatches(html, "</fieldset>")) {
 			html = html.replaceAll("<fieldset>", "").replaceAll("</fieldset>", "");
 		}
 		
 		assertThat(the(html), hasXPath("count(//form[@id='projects']/table/thead/tr/td)", returningANumber(), equalTo(7.0)));
-		assertThat(the(html), hasXPath("count(//form[@id='projects']/table/tr[1]/td)", returningANumber(), equalTo(1.0)));
+		assertThat(the(html), hasXPath("count(//form[@id='projects']/table/tbody/tr[1]/td)", returningANumber(), equalTo(1.0)));
 	}
 	
 	@Test
@@ -743,8 +946,11 @@ public class ProjectsViewTest {
 	@Test
 	public void shouldCreateTableHeaderRow() {
 		StringBuilder builder = new StringBuilder();
+		long in = 0;
 
-		projectsView.addHeaderRow(builder, 0);
+		// RENG: This method opens table, but doesn't close it. Move this out?
+		builder.append(ProjectsView.sp(in++) + "<table>\n");
+		projectsView.addHeaderRow(builder, in);
 
 		String html = builder.toString() + "</table>";
 		
@@ -760,6 +966,26 @@ public class ProjectsViewTest {
 			super(bundlecontext, vc);
 		}
 		
+		@Override
+		protected StoredProject getProjectById(long projectId) {
+			for (StoredProject project : projectSet) {
+				if (project.getId() == projectId) {
+					return project;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected StoredProject getProjectByName(String parameter) {
+			for (StoredProject project : projectSet) {
+				if (project.getName().equals(parameter)) {
+					return project;
+				}
+			}
+			return null;
+		}
+
 		@Override
 		protected void initializeResources(HttpServletRequest req) {
 			// do nothing.
@@ -802,14 +1028,6 @@ public class ProjectsViewTest {
 			return projectSet;
 		}
 
-		@Override
-		protected StoredProject getProjectByName(String parameter) {
-			if (parameter != null && parameter.equals(project1.getName())) {
-				return project1;
-			} else {
-				return null;
-			}
-		}
 
 		@Override
 		protected Scheduler getScheduler() {
