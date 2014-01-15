@@ -475,7 +475,7 @@ public abstract class AbstractView {
      * @return <code>true</code> upon successful validation,
      *   or <code>false</code> otherwise.
      */
-    protected static boolean checkProjectName (String text) {
+    protected boolean checkProjectName (String text) {
         if (text == null) return false;
 
         // Check for head or foot occurrence of deprecated signs
@@ -502,7 +502,7 @@ public abstract class AbstractView {
      * @return <code>true</code> upon successful validation,
      *   or <code>false</code> otherwise.
      */
-    protected static boolean checkEmail (String text) {
+    protected boolean checkEmail (String text) {
         if (text == null) return false;
 
         // Check for adjacent dot signs
