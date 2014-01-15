@@ -42,6 +42,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /**
@@ -102,7 +103,7 @@ public class WebadminServiceImpl implements WebadminService {
             ve.setProperty("runtime.log.logsystem.class",
                            "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
             ve.setProperty("runtime.log.logsystem.log4j.category",
-                           Logger.NAME_SQOOSS_WEBADMIN);
+                           LoggerName.WEBADMIN.getName());
             String resourceLoader = "classpath";
             ve.setProperty(RuntimeConstants.RESOURCE_LOADER, resourceLoader);
             ve.setProperty(resourceLoader + "." + RuntimeConstants.RESOURCE_LOADER + ".class",

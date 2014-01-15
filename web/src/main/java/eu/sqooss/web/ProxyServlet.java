@@ -21,7 +21,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 public class ProxyServlet extends HttpServlet {
 
-    private String targetServer = "";
+	private static final long serialVersionUID = -4333506727689218191L;
+
+	private String targetServer = "";
 
     @Override
     public void init() throws ServletException {

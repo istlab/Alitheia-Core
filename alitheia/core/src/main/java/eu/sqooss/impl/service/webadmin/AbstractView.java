@@ -33,7 +33,6 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.net.URI;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -51,6 +50,7 @@ import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -104,7 +104,7 @@ public abstract class AbstractView {
      */
     public AbstractView(BundleContext bundlecontext, VelocityContext vc) {
         // Keep the Velocity context instance
-        this.vc = vc;
+        AbstractView.vc = vc;
         this.bc = bundlecontext;
        
         sobjCore = AlitheiaCore.getInstance();
@@ -115,8 +115,7 @@ public abstract class AbstractView {
             sobjLogManager = sobjCore.getLogManager();
             if (sobjLogManager != null) {
                 // Instantiate a dedicated logger 
-                sobjLogger = sobjLogManager.createLogger(
-                        Logger.NAME_SQOOSS_WEBADMIN);
+                sobjLogger = sobjLogManager.createLogger(LoggerName.WEBADMIN);
             }
 
             // Get the database component's instance

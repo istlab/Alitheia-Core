@@ -53,7 +53,7 @@ public class DataAccessorFactory {
     
     DataAccessorFactory(Logger l) {
         DataAccessorFactory.log = l;
-        implementations = new ConcurrentHashMap<String, Class<?>>();
+        implementations = new ConcurrentHashMap<>();
     }
     
     /**

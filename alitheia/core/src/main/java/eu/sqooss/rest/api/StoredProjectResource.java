@@ -48,10 +48,15 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Directory;
-import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.ConfigurationOptionUtils;
+import eu.sqooss.service.db.util.DirectoryUtils;
+import eu.sqooss.service.db.util.MetricsUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
+import eu.sqooss.service.db.util.ProjectVersionUtils;
+import eu.sqooss.service.db.util.StoredProjectUtils;
 
 @Path("/api")
 public class StoredProjectResource {
@@ -76,8 +81,10 @@ public class StoredProjectResource {
 		StoredProject sp = null;
 		if (id.matches("^[0-9]*$")) //numeric id
 			sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
-		else 
-			sp = StoredProject.getProjectByName(id);
+		else {
+			DBService dbs = AlitheiaCore.getInstance().getDBService();
+			sp = new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).getProjectByName(id);
+		}
 		return sp;
 	}
 	
@@ -98,9 +105,9 @@ public class StoredProjectResource {
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
 	
 		if (sp == null)
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		
-		Set<String>  ids = new HashSet<String>();
+		Set<String>  ids = new HashSet<>();
 	    int count = 0;
 	    for (String resourceId : vid.split(",")) {
 	        ids.add(resourceId);
@@ -110,10 +117,10 @@ public class StoredProjectResource {
 	        }
 	    }
 		
-	    List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+	    List<ProjectVersion> versions = new ArrayList<>();
 	    
 	    for (String verid : ids) {
-	    	ProjectVersion pv = ProjectVersion.getVersionByRevision(sp, verid);
+	    	ProjectVersion pv = new ProjectVersionUtils(AlitheiaCore.getInstance().getDBService(), new ProjectFileUtils(AlitheiaCore.getInstance().getDBService())).getVersionByRevision(sp, verid);
 	    	if (pv != null)
 	    	    versions.add(pv);
 	    }
@@ -127,15 +134,16 @@ public class StoredProjectResource {
 	public ProjectVersion getVersion(@PathParam("id") String prid,
 			@PathParam("vid") String verid) {
 		
+		ProjectVersionUtils pvu = new ProjectVersionUtils(AlitheiaCore.getInstance().getDBService(), new ProjectFileUtils(AlitheiaCore.getInstance().getDBService()));
 	    if (verid.equals("first")) 
-	        return ProjectVersion.getFirstProjectVersion(getProject(prid));
+	        return pvu.getFirstProjectVersion(getProject(prid));
 	    
 	    if (verid.equals("latest"))
-	        return ProjectVersion.getLastMeasuredVersion (
-	                Metric.getMetricByMnemonic("TLOC"), //This can break, FIXME
-	                getProject(prid));
+	        return pvu.getLastMeasuredVersion (
+	                getProject(prid), //This can break, FIXME
+	                new MetricsUtils(AlitheiaCore.getInstance().getDBService()).getMetricByMnemonic("TLOC"));
 	    
-		return ProjectVersion.getVersionByRevision(getProject(prid), verid);
+		return pvu.getVersionByRevision(getProject(prid), verid);
 	}
 
 	@Path("/project/{id}/version/{vid}/files/")
@@ -146,9 +154,9 @@ public class StoredProjectResource {
         
 	    ProjectVersion pv = getVersion(prid, verid);
 	    if (pv == null)
-	        return Collections.EMPTY_LIST;
+	        return Collections.emptyList();
 	        
-        return pv.getFiles((Directory)null, ProjectVersion.MASK_FILES);
+        return pv.getFiles((Directory)null, ProjectVersion.MASK.FILES);
     }
 
 	@Path("/project/{id}/version/{vid}/files/{dir: .+}")
@@ -160,13 +168,13 @@ public class StoredProjectResource {
         
         ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         if (!path.startsWith("/"))
             path = "/" + path;
         
-        return pv.getFiles(Directory.getDirectory(path, false), 
-                ProjectVersion.MASK_FILES);
+        return pv.getFiles(new DirectoryUtils(AlitheiaCore.getInstance().getDBService()).getDirectoryByPath(path, false), 
+                ProjectVersion.MASK.FILES);
     }
 
 	@Path("/project/{id}/version/{vid}/files/changed")
@@ -177,7 +185,7 @@ public class StoredProjectResource {
         
         ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         
         return pv.getVersionFiles();
     }
@@ -190,10 +198,10 @@ public class StoredProjectResource {
         
 	    ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
  
         return pv.getFiles((Directory)null,
-                ProjectVersion.MASK_DIRECTORIES);
+                ProjectVersion.MASK.DIRECTORIES);
 	}
 
 	@Path("/project/{id}/version/{vid}/dirs/{dir: .+}")
@@ -205,12 +213,12 @@ public class StoredProjectResource {
         
         ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         if (!path.startsWith("/"))
             path = "/" + path;
         
-        return pv.getFiles(Directory.getDirectory(path, false), 
-                ProjectVersion.MASK_DIRECTORIES);
+        return pv.getFiles(new DirectoryUtils(AlitheiaCore.getInstance().getDBService()).getDirectoryByPath(path, false), 
+                ProjectVersion.MASK.DIRECTORIES);
 	}
 }

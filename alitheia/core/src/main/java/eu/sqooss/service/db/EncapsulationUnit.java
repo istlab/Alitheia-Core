@@ -36,7 +36,7 @@ public class EncapsulationUnit extends DAObject {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ENCAPSULATION_UNIT_ID")
     @XmlElement
-    long id;
+    private long id;
 
     @Column(name = "NAME")
     @XmlElement
@@ -91,7 +91,7 @@ public class EncapsulationUnit extends DAObject {
 
     public Set<ExecutionUnit> getExecUnits() {
         if (execUnits == null)
-            return new HashSet<ExecutionUnit>();
+            return new HashSet<>();
         return execUnits;
     }
 

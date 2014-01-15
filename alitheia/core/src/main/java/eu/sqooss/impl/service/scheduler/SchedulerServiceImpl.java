@@ -33,11 +33,13 @@
 
 package eu.sqooss.impl.service.scheduler;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -50,6 +52,7 @@ import eu.sqooss.service.scheduler.ResumePoint;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.scheduler.SchedulerStats;
+import eu.sqooss.service.scheduler.SchedulerStatsView;
 import eu.sqooss.service.scheduler.WorkerThread;
 
 public class SchedulerServiceImpl implements Scheduler {
@@ -60,15 +63,18 @@ public class SchedulerServiceImpl implements Scheduler {
     private Logger logger = null;
     private boolean perfLog = false;
 
-    private SchedulerStats stats = new SchedulerStats();
+    private SchedulerStats stats = new SchedulerStatsImpl();
+
+    //Running jobs
+    private List<Job> runJobs = new Vector<>();
 
     // thread safe job queue
-    private PriorityQueue<Job> blockedQueue = new PriorityQueue<Job>(1,
+    private PriorityQueue<Job> blockedQueue = new PriorityQueue<>(1,
             new JobPriorityComparator());
-    private BlockingQueue<Job> workQueue = new PriorityBlockingQueue<Job>(1,
+    private BlockingQueue<Job> workQueue = new PriorityBlockingQueue<>(1,
             new JobPriorityComparator());
 
-    private BlockingQueue<Job> failedQueue = new ArrayBlockingQueue<Job>(1000);
+    private BlockingQueue<Job> failedQueue = new ArrayBlockingQueue<>(1000);
 
     private List<WorkerThread> myWorkerThreads = null;
     
@@ -81,7 +87,6 @@ public class SchedulerServiceImpl implements Scheduler {
             job.callAboutToBeEnqueued(this);
             blockedQueue.add(job);
             stats.addWaitingJob(job.getClass().toString());
-            stats.incTotalJobs();
         }
         jobDependenciesChanged(job);
     }
@@ -94,7 +99,6 @@ public class SchedulerServiceImpl implements Scheduler {
                 job.callAboutToBeEnqueued(this);
                 workQueue.add(job);
                 stats.addWaitingJob(job.getClass().toString());
-                stats.incTotalJobs();
             }
         }
     }
@@ -106,7 +110,6 @@ public class SchedulerServiceImpl implements Scheduler {
                 job.callAboutToBeEnqueued(this);
                 blockedQueue.add(job);
                 stats.addWaitingJob(job.getClass().toString());
-                stats.incTotalJobs();
             }
         }
         for (Job job : jobs)
@@ -158,13 +161,13 @@ public class SchedulerServiceImpl implements Scheduler {
         }
 
         if (state == Job.State.Finished) {
-            stats.removeRunJob(job);
+            this.removeRunJob(job);
             stats.incFinishedJobs();
         } else if (state == Job.State.Running) {
             stats.removeWaitingJob(job.getClass().toString());
-            stats.addRunJob(job);
+            this.addRunJob(job);
         } else if (state == Job.State.Yielded) {
-            stats.removeRunJob(job);
+            this.removeRunJob(job);
             stats.addWaitingJob(job.getClass().toString());
         } else if (state == Job.State.Error) {
 
@@ -172,7 +175,7 @@ public class SchedulerServiceImpl implements Scheduler {
                 failedQueue.remove();
             failedQueue.add(job);
             
-            stats.removeRunJob(job);
+            this.removeRunJob(job);
             stats.addFailedJob(job.getClass().toString());
         }
     }
@@ -194,7 +197,7 @@ public class SchedulerServiceImpl implements Scheduler {
             logger.info("Starting " + n + " worker threads");
         synchronized (this) {
             if (myWorkerThreads == null) {
-                myWorkerThreads = new LinkedList<WorkerThread>();
+                myWorkerThreads = new LinkedList<>();
             }
 
             for (int i = 0; i < n; ++i) {
@@ -231,7 +234,7 @@ public class SchedulerServiceImpl implements Scheduler {
         }
     }
 
-    public SchedulerStats getSchedulerStats() {
+    public SchedulerStatsView getSchedulerStats() {
         return stats;
     }
 
@@ -307,6 +310,27 @@ public class SchedulerServiceImpl implements Scheduler {
         workQueue.remove(j);
         blockedQueue.add(j);
     }
+
+    @Override
+    public synchronized List<String> getRunJobs() {
+        Job[] jobs = new Job[runJobs.size()];
+        runJobs.toArray(jobs);
+        List<String> jobDescr = new ArrayList<>();
+        for (Job j : jobs) {
+            jobDescr.add(j.toString());
+        }
+        return jobDescr;
+    }
+	
+	private void addRunJob(Job job) {
+        stats.addRunJob(job);
+        this.runJobs.add(job);
+	}
+	
+	private void removeRunJob(Job job) {
+        stats.removeRunJob(job);
+        this.runJobs.remove(job);
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

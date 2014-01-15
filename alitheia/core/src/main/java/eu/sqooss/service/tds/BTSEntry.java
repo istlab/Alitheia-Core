@@ -64,8 +64,8 @@ public class BTSEntry {
     public List<BTSEntryAttachement> attachementlist;
     
     public BTSEntry() {
-        commentslist = new ArrayList<BTSEntryComment>();
-        attachementlist = new ArrayList<BTSEntryAttachement>();
+        commentslist = new ArrayList<>();
+        attachementlist = new ArrayList<>();
     }
     
     public enum BugSeverity {

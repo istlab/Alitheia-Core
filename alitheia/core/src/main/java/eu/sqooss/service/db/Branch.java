@@ -65,12 +65,6 @@ import eu.sqooss.core.AlitheiaCore;
 @Table(name="BRANCH", uniqueConstraints=@UniqueConstraint(columnNames="BRANCH_NAME"))
 public class Branch extends DAObject {
 	
-	private static final String qBranchByName = 
-		"from Branch b where b.name = :name and b.project = :project";
-	
-	private static final String qNextSequence = 
-	    "select count(b) from Branch b where b.project = :project";
-	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="BRANCH_ID")
@@ -91,14 +85,14 @@ public class Branch extends DAObject {
       name="BRANCH_INCOMING",
       inverseJoinColumns={@JoinColumn(name="PROJECT_VERSION_ID", referencedColumnName="PROJECT_VERSION_ID")},
       joinColumns={@JoinColumn(name="BRANCH_ID", referencedColumnName="BRANCH_ID")})
-    private Set<ProjectVersion> branchIncoming = new HashSet<ProjectVersion>();
+    private Set<ProjectVersion> branchIncoming = new HashSet<>();
 	
     @ManyToMany
     @JoinTable(
       name="BRANCH_OUTGOING",
       inverseJoinColumns={@JoinColumn(name="PROJECT_VERSION_ID", referencedColumnName="PROJECT_VERSION_ID")},
       joinColumns={@JoinColumn(name="BRANCH_ID", referencedColumnName="BRANCH_ID")})
-    private Set<ProjectVersion> branchOutgoing = new HashSet<ProjectVersion>();
+    private Set<ProjectVersion> branchOutgoing = new HashSet<>();
 	
     public Branch() {}
     
@@ -144,39 +138,5 @@ public class Branch extends DAObject {
 
     public void setBranchOutgoing(Set<ProjectVersion> branchOutgoing) {
         this.branchOutgoing = branchOutgoing;
-    }
-	
-	public static Branch fromName(StoredProject sp, String name, boolean create) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-		Map<String, Object> params = new HashMap<String, Object>();
-		
-		params.put("name", name);
-		params.put("project", sp);
-		
-		List<Branch> branches = (List<Branch>)db.doHQL(qBranchByName, params);
-		if (branches.isEmpty()) {
-		    if (!create)
-		        return null;
-		    Branch b = new Branch();
-		    b.setProject(sp);
-		    b.setName(name);
-		    db.addRecord(b);
-		    return fromName(sp, name, false);
-		}
-		
-		return branches.get(0);
-	}
-
-    public static String suggestName(StoredProject sp) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("project", sp);
-
-        List<Long> ids = (List<Long>) db.doHQL(qNextSequence, params);
-        if (ids.isEmpty())
-            return "1";
-        else
-            return String.valueOf(ids.get(0) + 1);
     }
 }

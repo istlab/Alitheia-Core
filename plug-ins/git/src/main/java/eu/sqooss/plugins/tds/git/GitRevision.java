@@ -69,7 +69,7 @@ public class GitRevision implements Revision {
         this.msg = obj.getFullMessage();
         this.git = git;
         this.commit = obj;
-        this.parents = new HashSet<String>();
+        this.parents = new HashSet<>();
 
         for (RevCommit s : obj.getParents()) {
             parents.add(s.getName());
@@ -86,7 +86,7 @@ public class GitRevision implements Revision {
         this.msg = obj.getFullMessage();
         this.changedPaths = paths;
         this.copyOps = copies;
-        this.parents = new HashSet<String>();
+        this.parents = new HashSet<>();
 
         for (RevCommit s : obj.getParents()) {
             parents.add(s.getName());

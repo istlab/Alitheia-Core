@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import eu.sqooss.parsers.java.*;
 import eu.sqooss.service.fds.FDSService;
+
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.Tree;
@@ -28,6 +29,8 @@ import eu.sqooss.service.db.ExecutionUnitMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.util.MetricsUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.ResumePoint;
 import eu.sqooss.service.scheduler.Scheduler;
@@ -52,6 +55,8 @@ public class JavaMetrics extends AbstractMetric {
     //Class -> Base 
     private ConcurrentMap<String, String> reducer;
     private DBService db;
+    
+    private MetricsUtils mu;
 
     public JavaMetrics(BundleContext bc) {
         super(bc);
@@ -86,6 +91,7 @@ public class JavaMetrics extends AbstractMetric {
 
     public void run(ProjectVersion pv) throws Exception {
         db = AlitheiaCore.getInstance().getDBService();
+        mu = new MetricsUtils(db);
         pv = db.attachObjectToDBSession(pv);
         this.pv = pv;
 
@@ -122,8 +128,8 @@ public class JavaMetrics extends AbstractMetric {
             changedClasses.addAll(pf.getEncapsulationUnits());
         }
 
-        Metric DIT = Metric.getMetricByMnemonic("DIT");
-        Metric NOC = Metric.getMetricByMnemonic("NOC");
+        Metric DIT = mu.getMetricByMnemonic("DIT");
+        Metric NOC = mu.getMetricByMnemonic("NOC");
 
         for (EncapsulationUnit clazz : changedClasses) {
             String classname = clazz.getName();
@@ -189,7 +195,7 @@ public class JavaMetrics extends AbstractMetric {
         walker.walk(t);
 
         //Data for associated classes/methods
-        List<ExecutionUnit> methods = pf.getChangedExecutionUnits();
+        List<ExecutionUnit> methods = new ProjectFileUtils(db).getChangedExecutionUnits(pf);
         Set<EncapsulationUnit> classes = pf.getEncapsulationUnits();
         Set<String> foundClasses = entityExtractor.getResults().keySet();
 
@@ -202,13 +208,13 @@ public class JavaMetrics extends AbstractMetric {
         }
 
         // LCOM results
-        writeClassResults(classes, lcomCalculator.getResults(), Metric.getMetricByMnemonic("LCOM"));
+        writeClassResults(classes, lcomCalculator.getResults(), mu.getMetricByMnemonic("LCOM"));
 
         // CBO results
-        writeClassResults(classes, cboCalculator.getResults(), Metric.getMetricByMnemonic("CBO"));
+        writeClassResults(classes, cboCalculator.getResults(), mu.getMetricByMnemonic("CBO"));
 
         // WMC + MCCABE results in one go
-        Metric m = Metric.getMetricByMnemonic("WMC");
+        Metric m = mu.getMetricByMnemonic("WMC");
         SortedMap<String, Integer> MCCABEresults = mcCabeCalculator.getResults();
         for (EncapsulationUnit clazz : classes) {
             Integer wmc = 0;
@@ -222,7 +228,7 @@ public class JavaMetrics extends AbstractMetric {
                 }
                 wmc += res;
                 ExecutionUnitMeasurement eum = new ExecutionUnitMeasurement(
-                        method, Metric.getMetricByMnemonic("MCCABE"),
+                        method, mu.getMetricByMnemonic("MCCABE"),
                         res.toString());
                 db.addRecord(eum);
             }
@@ -236,7 +242,7 @@ public class JavaMetrics extends AbstractMetric {
         for (EncapsulationUnit clazz : classes) {
             EncapsulationUnitMeasurement eum =
                     new EncapsulationUnitMeasurement(clazz,
-                            Metric.getMetricByMnemonic("NUMM"),
+                            mu.getMetricByMnemonic("NUMM"),
                             clazz.getExecUnits().toString());
             db.addRecord(eum);
         }

@@ -33,10 +33,7 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -50,8 +47,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * This class represents the data relating to a directory within an
@@ -112,49 +107,13 @@ public class Directory extends DAObject {
         this.files = files;
     }
     
+    /**
+     * TODO implement?
+     */
     public boolean isSubDirOf(Directory d) {
-        //
         return false;
     }
 
-    /**
-     * Return the entry in the Directory table that corresponds to the
-     * passed argument. If the entry does not exist, it will optionally be 
-     * created and saved, depending on the second parameter
-     *  
-     * @param path The path of the Directory to search for
-     * @param create Whether or not the directory entry will be created if
-     * not found. If true, it will be created.
-     * @return A Directory record for the specified path or null on failure
-     */
-    public static synchronized Directory getDirectory(String path, boolean create) {
-        
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("path", path);
-        
-        List<Directory> dirs = dbs.findObjectsByProperties(Directory.class,
-                parameterMap);
-        
-        /* Dir path in table, return it */
-        if ( !dirs.isEmpty() ) {
-            return dirs.get(0);
-        }
-        
-        if (create) {
-            /* Dir path not in table, create it */ 
-            Directory d = new Directory();
-            d.setPath(path);
-            if (!dbs.addRecord(d)) {
-                return null;
-            }
-        
-            return d;
-        }
-        //Dir not found and not created
-        return null;
-    }
-    
     public String toString() {
         return this.path;
     }

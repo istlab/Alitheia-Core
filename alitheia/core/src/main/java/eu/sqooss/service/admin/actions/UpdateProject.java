@@ -2,7 +2,10 @@ package eu.sqooss.service.admin.actions;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.AdminActionBase;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.ConfigurationOptionUtils;
+import eu.sqooss.service.db.util.StoredProjectUtils;
 import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
@@ -77,7 +80,8 @@ public class UpdateProject extends AdminActionBase {
 
         if (projectid == null) {
             // The project was provided by name
-            sp = StoredProject.getProjectByName(project);
+        	DBService db = AlitheiaCore.getInstance().getDBService();
+            sp = new StoredProjectUtils(db, new ConfigurationOptionUtils(db)).getProjectByName(project);
         } else {
             sp = StoredProject.loadDAObyId(projectid, StoredProject.class);
         }

@@ -34,9 +34,6 @@
 package eu.sqooss.service.db;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -46,8 +43,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Holds data imported from Ohloh to help with resolving repository account
@@ -133,31 +128,5 @@ public class OhlohDeveloper extends DAObject {
 
     public void setOhlohId(String ohlohId) {
         this.ohlohId = ohlohId;
-    }
-    
-    public static OhlohDeveloper getByOhlohId(String id) {
-       return getBy("ohlohId", id);
-    }
-    
-    public static OhlohDeveloper getByEmailHash(String hash) {
-        return getBy("emailHash", hash);
-    }
-    
-    public static List<OhlohDeveloper> getByUserName(String uname) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("uname", uname);
-        return dbs.findObjectsByProperties(OhlohDeveloper.class, params);
-    }
-    
-    private static OhlohDeveloper getBy(String name, String value) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put(name, value);
-        List<OhlohDeveloper> l = dbs.findObjectsByProperties(OhlohDeveloper.class, params);
-        
-        if (!l.isEmpty())
-            return l.get(0);
-        return null;
     }
 }

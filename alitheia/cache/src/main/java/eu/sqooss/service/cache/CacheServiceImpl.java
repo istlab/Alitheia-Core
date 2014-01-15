@@ -18,7 +18,7 @@ public class CacheServiceImpl implements CacheService {
     private static List<Class<? extends CacheService>> impls;
     
     static {
-        impls = new ArrayList<Class<? extends CacheService>>();
+        impls = new ArrayList<>();
         impls.add(OnDiskCache.class);
         impls.add(InMemoryCache.class);
     }
@@ -77,7 +77,7 @@ public class CacheServiceImpl implements CacheService {
             impl = "eu.sqooss.service.cache.OnDiskCache";
         
         try {
-            Class clazz = Thread.currentThread().getContextClassLoader().loadClass(impl);
+            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(impl);
             c = (CacheService) clazz.newInstance();
         } catch (ClassNotFoundException e) {
             log.error("Cannot load cache implementation:" + impl);

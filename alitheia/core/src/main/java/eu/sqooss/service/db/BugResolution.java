@@ -33,9 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -46,8 +43,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * States a bug resolution process can be into.
@@ -140,59 +135,7 @@ public class BugResolution extends DAObject {
         }
     }    
     
-    /**
-     * Return or create and return the resolution code DB representation 
-     * corresponding to the provided resolution code
-     * @param s The resolution code to check for
-     * @return A BugResolution DAO or null if an error occurred while creating
-     * the resolution code line to the database
-     */
-    public static BugResolution getBugResolution(BugResolution.Resolution s) {
-        return getBugResolution(s.toString(), true);
-    }
-    
-    /**
-     * Return or create and return the resolution code DB representation 
-     * corresponding to the provided String
-     * 
-     * @param resolution The bug resolution code representation 
-     * @param create If true, create a DB entry for the provided resolution 
-     * code
-     * @return A BugResolution DAO or null when the DAO was not found 
-     * and the create field was set to null or when an error occurred
-     * while modifying the DB.
-     */
-    public static BugResolution getBugResolution(String resolution, boolean create) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
-        Map<String,Object> params = new HashMap<String,Object>();
-        params.put("resolution", resolution);
-        
-        List<BugResolution> st = dbs.findObjectsByProperties(BugResolution.class,
-                params);
-        
-        if (!st.isEmpty()) {
-            return st.get(0);
-        }
-        
-        if (!create) {
-            return null;
-        }
-        
-        if (Resolution.fromString(resolution) == null) {
-            return null;
-        }
-        
-        BugResolution bs = new BugResolution();
-        bs.setResolution(resolution);
-        
-        if (!dbs.addRecord(bs))
-            return null;
-        
-        return bs;
-    }
-
-	public void setBugs(Set<Bug> bugs) {
+    public void setBugs(Set<Bug> bugs) {
 		this.bugs = bugs;
 	}
 

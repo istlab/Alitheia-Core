@@ -249,7 +249,7 @@ public class WebAdminRenderer  extends AbstractView {
 
     public static String renderJobRunStats() {
         StringBuilder result = new StringBuilder();
-        List<String> rjobs = sobjSched.getSchedulerStats().getRunJobs();
+        List<String> rjobs = sobjSched.getRunJobs();
         if (rjobs.size() == 0) {
             return "No running jobs";
         }

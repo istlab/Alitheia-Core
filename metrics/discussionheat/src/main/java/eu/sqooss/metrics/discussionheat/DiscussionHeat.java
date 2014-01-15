@@ -56,6 +56,10 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.MailingListUtils;
+import eu.sqooss.service.db.util.MetricsUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
+import eu.sqooss.service.db.util.ProjectVersionUtils;
 
 /**
  * Discussion heat plug-in. 
@@ -110,8 +114,10 @@ public class DiscussionHeat extends AbstractMetric {
         List<Integer> thrDepths = (List<Integer>)db.doHQL(thrDepth, params);
         List<Long> mailsPerList = (List<Long>)db.doHQL(numMails, params);
         
+        MailingListUtils mlu = new MailingListUtils(dbs);
+        MetricsUtils mu = new MetricsUtils(dbs);
         //Get one day's worth of messages
-        List<MailMessage> msgs = m.getMessagesByArrivalOrder();
+        List<MailMessage> msgs = mlu.getMessagesByArrivalOrder(m);
         List<MailMessage> oneDayMsgs = new ArrayList<MailMessage>();
         int depth = 0; MailMessage first = null;
         
@@ -132,7 +138,7 @@ public class DiscussionHeat extends AbstractMetric {
         int score = getQuartile(thrDepths, depth) 
                 + getQuartile(mailsPerList, oneDayMsgs.size());
         
-        Metric hotness = Metric.getMetricByMnemonic("HOTNESS");
+        Metric hotness = mu.getMetricByMnemonic("HOTNESS");
         
         MailingListThreadMeasurement mm = new MailingListThreadMeasurement(
                 hotness, m, String.valueOf(score));
@@ -143,7 +149,7 @@ public class DiscussionHeat extends AbstractMetric {
             return;
         
         //Get the version closest to thread start
-        ProjectVersion pv = getVersionByDate(m.getStartingEmail().getSendDate(), 
+        ProjectVersion pv = getVersionByDate(mlu.getStartingEmail(m).getSendDate(), 
                 m.getList().getStoredProject());
         
         int locsLastMonth = getLocsForVersions(getPreviousMonthVersions(pv));
@@ -151,7 +157,7 @@ public class DiscussionHeat extends AbstractMetric {
         
         int result = (locsLastMonth/30) - (locsNextWeek/7);
         
-        Metric hoteffect = Metric.getMetricByMnemonic("HOTEFFECT");
+        Metric hoteffect = mu.getMetricByMnemonic("HOTEFFECT");
         MailingListThreadMeasurement mltm = new MailingListThreadMeasurement(
                 hoteffect, m, String.valueOf(result));
         
@@ -159,7 +165,7 @@ public class DiscussionHeat extends AbstractMetric {
     }
     
     private int getLocsForVersions(List<ProjectVersion> versions) throws AlreadyProcessingException {
-        Metric metric = Metric.getMetricByMnemonic("VERLOC");
+        Metric metric = new MetricsUtils(dbs).getMetricByMnemonic("VERLOC");
         List<Metric> metricList = new ArrayList<Metric>();
         metricList.add(metric);
         int result = 0;
@@ -183,7 +189,8 @@ public class DiscussionHeat extends AbstractMetric {
     private List<ProjectVersion> getPreviousMonthVersions(ProjectVersion pv) {
         List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
         versions.add(pv);
-        ProjectVersion prev = pv.getPreviousVersion();
+        ProjectVersionUtils pvu = new ProjectVersionUtils(dbs, new ProjectFileUtils(dbs));
+        ProjectVersion prev = pvu.getPreviousVersion(pv);
         long monthsecs = 3600 * 24 * 30;
         while (true) {
             //Diff in seconds
@@ -193,14 +200,15 @@ public class DiscussionHeat extends AbstractMetric {
             } else {
                 break;
             }
-            prev = prev.getPreviousVersion();
+            prev = pvu.getPreviousVersion(prev);
         }
         return versions;
     }
     
     private List<ProjectVersion> getNextWeekVersions(ProjectVersion pv) {
         List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
-        ProjectVersion next = pv.getNextVersion();
+        ProjectVersionUtils pvu = new ProjectVersionUtils(dbs, new ProjectFileUtils(dbs));
+        ProjectVersion next = pvu.getNextVersion(pv);
         long weeksecs = 3600 * 24 * 7;
         while (true) {
             long diff = (next.getTimestamp() - pv.getTimestamp()) / 1000;
@@ -209,7 +217,7 @@ public class DiscussionHeat extends AbstractMetric {
             } else {
                 break;
             }
-            next = next.getNextVersion();
+            next = pvu.getNextVersion(next);
         }
         
         return versions;
@@ -243,12 +251,14 @@ public class DiscussionHeat extends AbstractMetric {
     }
 
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
-        Metric m = Metric.getMetricByMnemonic("VERLOC");
+    	MetricsUtils mu = new MetricsUtils(dbs);
+    	ProjectFileUtils pfu = new ProjectFileUtils(dbs);
+        Metric m = mu.getMetricByMnemonic("VERLOC");
         List<Metric> locMetric = new ArrayList<Metric>();
         AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin("Wc.loc");
         
         if (plugin != null) {
-            locMetric.add(Metric.getMetricByMnemonic("Wc.loc"));
+            locMetric.add(mu.getMetricByMnemonic("Wc.loc"));
         } else {
             return;
         }
@@ -260,14 +270,14 @@ public class DiscussionHeat extends AbstractMetric {
                 if (pf.getIsDirectory())
                     continue;
                 if (pf.isDeleted()) {
-                    linesChanged += getLOCResult(pf.getPreviousFileVersion(),
+                    linesChanged += getLOCResult(pfu.getPreviousFileVersion(pf),
                             plugin, locMetric);
                 } else if (pf.isAdded()) {
                     linesChanged += getLOCResult(pf, plugin, locMetric);
                 } else { // MODIFIED or REPLACED
                     linesChanged += Math.abs(
                             getLOCResult(pf, plugin, locMetric)
-                            - getLOCResult(pf.getPreviousFileVersion(),
+                            - getLOCResult(pfu.getPreviousFileVersion(pf),
                             plugin, locMetric));
                 }
             }

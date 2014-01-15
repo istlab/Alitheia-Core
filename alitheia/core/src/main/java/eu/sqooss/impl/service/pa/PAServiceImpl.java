@@ -55,6 +55,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.util.PluginUtils;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
@@ -96,8 +97,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * Keeps a list of registered metric plug-in's services, indexed by the
      * plugin's hash code (stored in the database).
      */
-    private ConcurrentHashMap<String, PluginInfo> registeredPlugins =
-        new ConcurrentHashMap<String, PluginInfo>();
+    private ConcurrentHashMap<String, PluginInfo> registeredPlugins = new ConcurrentHashMap<>();
 
     public PAServiceImpl () { }
 
@@ -286,7 +286,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         // Return the DAO object associated with this plug-in
         if (sobjPlugin != null) {
-            return Plugin.getPluginByHashcode(sobjPlugin.getUniqueKey());
+            return new PluginUtils(this.sobjDB).getPluginByHashcode(sobjPlugin.getUniqueKey());
         }
 
         return null;
@@ -522,7 +522,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     public <T extends DAObject> List<PluginInfo> listPluginProviders(Class<T> o) {
 
         Iterator<PluginInfo> plugins = registeredPlugins.values().iterator();
-        ArrayList<PluginInfo> matching = new ArrayList<PluginInfo>();
+        ArrayList<PluginInfo> matching = new ArrayList<>();
 
         while (plugins.hasNext()) {
             PluginInfo pi = plugins.next();

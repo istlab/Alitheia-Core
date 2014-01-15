@@ -39,9 +39,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.BugUtils;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Job.State;
@@ -97,15 +97,16 @@ public class BugzillaUpdater implements MetadataUpdater, JobStateListener  {
 
         this.bts = AlitheiaCore.getInstance().getTDSService().getAccessor(
                 project.getId()).getBTSAccessor();
-        if (Bug.getLastUpdate(project) != null) {
-            bugIds = bts.getBugsNewerThan(Bug.getLastUpdate(project).getUpdateRun());
+        BugUtils bu = new BugUtils(dbs);
+        if (bu.getLastBugUpdate(project) != null) {
+            bugIds = bts.getBugsNewerThan(bu.getLastBugUpdate(project).getUpdateRun());
         } else {
             bugIds = bts.getAllBugs();
         }
         logger.info(project.getName() + ": Got " + bugIds.size() + " new bugs");
         logger.info(project.getName() + ": Spawing jobs");
 
-        Set<Job> jobs = new HashSet<Job>();
+        Set<Job> jobs = new HashSet<>();
         
         // Update
         for (String bugID : bugIds) {

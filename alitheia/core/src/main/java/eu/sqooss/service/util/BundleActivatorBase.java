@@ -40,8 +40,9 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 
 /**
  * This class provides the base functionality for the activation of an
@@ -52,13 +53,13 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
     private BundleContext bc = null;
     private LogManager logManager = null;
     private Logger logger = null;
-    private String loggerName = null;
+    private LoggerName loggerName = null;
     private static String loggerClass = LogManager.class.getName();
    
     /**
      * Starts the execution of the Alitheia Core plugin
      */
-    protected void start(final BundleContext bc, String loggerName) {
+    protected void start(final BundleContext bc, LoggerName loggerName) {
         this.bc = bc;
         this.loggerName = loggerName;
         getLogger();
@@ -205,7 +206,7 @@ public abstract class BundleActivatorBase implements Logger, ServiceListener {
      *
      * @return the name of the logger
      */
-    public String getName() {
+    public LoggerName getName() {
         if (logger != null) {
             return logger.getName();
         }

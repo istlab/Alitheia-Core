@@ -34,8 +34,6 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,9 +49,16 @@ import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.UpdateProject;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.BugUtils;
+import eu.sqooss.service.db.util.ConfigurationOptionUtils;
+import eu.sqooss.service.db.util.MailingListUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
+import eu.sqooss.service.db.util.ProjectVersionUtils;
+import eu.sqooss.service.db.util.StoredProjectUtils;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.Updater;
@@ -176,7 +181,8 @@ public class ProjectsView extends AbstractView {
             return null;
     	} else { 
             vc.put("RESULTS", aa.results());
-            return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
+            DBService dbs = AlitheiaCore.getInstance().getDBService();
+            return new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
     	}
     }
     
@@ -477,7 +483,7 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Last project version
                     String lastVersion = getLbl("l0051");
-                    ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
+                    ProjectVersion v = new ProjectVersionUtils(AlitheiaCore.getInstance().getDBService(), new ProjectFileUtils(AlitheiaCore.getInstance().getDBService())).getLastProjectVersion(nextPrj);
                     if (v != null) {
                         lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
                     }
@@ -485,12 +491,12 @@ public class ProjectsView extends AbstractView {
                             + lastVersion
                             + "</td>\n");
                     // Date of the last known email
-                    MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
+                    MailMessage mm = new MailingListUtils(AlitheiaCore.getInstance().getDBService()).getLatestMailMessage(nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((mm == null)?getLbl("l0051"):mm.getSendDate())
                             + "</td>\n");
                     // ID of the last known bug entry
-                    Bug bug = Bug.getLastUpdate(nextPrj);
+                    Bug bug = new BugUtils(AlitheiaCore.getInstance().getDBService()).getLastBugUpdate(nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((bug == null)?getLbl("l0051"):bug.getBugID())
                             + "</td>\n");

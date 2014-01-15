@@ -171,8 +171,8 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
         new DataAccessorFactory(logger);
 
         //Init accessor store
-        accessorPool = new ConcurrentHashMap<Long,ProjectDataAccessorImpl>();
-        accessorClaims = new ConcurrentHashMap<ProjectDataAccessorImpl, Integer>();
+        accessorPool = new ConcurrentHashMap<>();
+        accessorClaims = new ConcurrentHashMap<>();
        
         logger.info("TDS service created.");
         

@@ -38,7 +38,7 @@ public class OnDiskCacheTest {
     @Test
     public void testStress() throws InterruptedException {
         Thread old = null;
-        List<Thread> threads = new ArrayList<Thread>();
+        List<Thread> threads = new ArrayList<>();
         
         for (int i = 0; i < 8; i++) {
             StresserThread t = new StresserThread(cache);

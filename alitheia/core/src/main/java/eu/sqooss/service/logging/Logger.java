@@ -69,96 +69,7 @@ package eu.sqooss.service.logging;
  * will cause an exception to be thrown when used.
  */
 public interface Logger {
-    /**
-     * Represents SQO-OSS system logger name.
-     */
-    public static final String NAME_SQOOSS              = "sqooss";
-
-    /**
-     * Represents service system logger name.
-     */
-    public static final String NAME_SQOOSS_SERVICE      = "sqooss.service";
-
-    /**
-     * Represents database connectivity logger name.
-     */
-    public static final String NAME_SQOOSS_DATABASE     = "sqooss.database";
-
-    /**
-     * Represents security logger name.
-     */
-    public static final String NAME_SQOOSS_SECURITY     = "sqooss.security";
-
-    /**
-     * Represents messaging logger name.
-     */
-    public static final String NAME_SQOOSS_MESSAGING    = "sqooss.messaging";
-
-    /**
-     * Represents web services logger name.
-     */
-    public static final String NAME_SQOOSS_WEB_SERVICES = "sqooss.webservice";
-
-    /**
-     * Represents scheduling logger name.
-     */
-    public static final String NAME_SQOOSS_SCHEDULING   = "sqooss.scheduler";
-
-    /**
-     * Represents updater logger name.
-     */
-    public static final String NAME_SQOOSS_UPDATER      = "sqooss.updater";
-
-    /**
-     * Represents clusternode logger name.
-     */
-    public static final String NAME_SQOOSS_CLUSTERNODE   = "sqooss.clusternode";
-
-    /**
-     * Represents web UI logger name.
-     */
-    public static final String NAME_SQOOSS_WEBADMIN     = "sqooss.webadmin";
-
-    /**
-     * Represents TDS logger name.
-     */
-    public static final String NAME_SQOOSS_TDS          = "sqooss.tds";
-
-    /**
-     * Represents FDS logger name.
-     */
-    public static final String NAME_SQOOSS_FDS          = "sqooss.fds";
-    
-    /**
-     * Represents PluginAdmin logger name.
-     */
-    public static final String NAME_SQOOSS_PA           = "sqooss.pa";
-
-    /**
-     * Represents Metric logger name.
-     */
-    public static final String NAME_SQOOSS_METRIC       = "sqooss.metric";
-
-    /**
-     * Represents Metric logger name.
-     */
-    public static final String NAME_SQOOSS_TESTER       = "sqooss.tester";
-
-    /**
-     * Represents Metric logger name.
-     */
-    public static final String NAME_SQOOSS_METRICACTIVATOR = "sqooss.metricactivator";
-    
-    /**
-     * Represents Parser logger name.
-     */
-    public static final String NAME_SQOOSS_PARSER = "sqooss.parser";
-    
-    /**
-     * Represents Parser logger name.
-     */
-    public static final String NAME_SQOOSS_ADMINACTION = "sqooss.adminaction";
-    
+	
     /**
     * Log a message with debug (lower than lowest) logging level.
     * The debug level is used for micro-steps in an algorithm, for
@@ -213,7 +124,7 @@ public interface Logger {
     * Returns a name of the logger.
     * @return the logger's name
     */
-    public String getName();
+    public LoggerName getName();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -46,32 +46,51 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.logging.LoggerName;
 
 public class LogManagerImpl implements LogManager {
-    // Our singleton manager
+
+	// Our singleton manager
     public static LogManagerImpl logManager = null;
 
     // Our OSGi context; used to indicate initialization status.
     private BundleContext bc;
 
     // This map stores all of the valid and active loggers in the system.
-    private Map<String,LoggerImpl> loggers = null;
+    private Map<LoggerName, LoggerImpl> loggers = null;
 
     private CyclicLogger cyclicLogger = null;
+    
+    private org.apache.log4j.Logger logger = org.apache.log4j.Logger.getRootLogger();
 
     public LogManagerImpl() {}
 
     public LogManagerImpl(boolean testInit) {
         logManager = new LogManagerImpl();
-        loggers = new HashMap<String, LoggerImpl>();
+        loggers = new HashMap<>();
     }
     
-    public Logger createLogger(String name) {
+    /**
+     * Constructor for a LogManagerImpl, with a {@link BundleContext} and a
+     * {@link org.apache.log4j.Logger logger} as input parameter.
+     * Currently this constructor is used for test purposes, but when in the future this
+     * class will fully support dependency injection, this can be its base.
+     * @param bc The bundle context from OSGI
+     * @param logger This logger will be used by the class itself, to log its activities.
+     * @author Richard van Heest
+     */
+    public LogManagerImpl(BundleContext bc, org.apache.log4j.Logger logger) {
+    	this.bc = bc;
+    	this.logger = logger;
+    	this.startUp();
+    }
+    
+    @Override
+	public Logger createLogger(LoggerName name) {
         LoggerImpl logger = loggers.get(name);
 
         if (logger == null) {
-            org.apache.log4j.Logger.getRootLogger().info(
-                "Creating logger <" + name + ">");
+            this.logger.info("Creating logger <" + name + ">");
             logger = new LoggerImpl(name);
             loggers.put(name, logger);
         }
@@ -80,28 +99,29 @@ public class LogManagerImpl implements LogManager {
         return logger;
     }
 
-    public void releaseLogger(String name) {
+    @Override
+	public void releaseLogger(LoggerName name) {
         LoggerImpl logger;
         if (!loggers.containsKey(name)) {
-            org.apache.log4j.Logger.getRootLogger().error("Release for bogus logger <" + name + ">");
+        	this.logger.error("Release for bogus logger <" + name + ">");
             return;
         }
 
         logger = loggers.get(name);
         if (logger == null) {
-            org.apache.log4j.Logger.getRootLogger().error("Release on unallocated logger <" + name + ">");
+        	this.logger.error("Release on unallocated logger <" + name + ">");
             return;
         }
 
         if (logger.unget() == 0) {
-            org.apache.log4j.Logger.getRootLogger().info(
-                    "Released last logger for <" + name + ">");
+        	this.logger.info("Released last logger for <" + name + ">");
 
             loggers.put(name, null);
         }
     }
 
-    public String[] getRecentEntries() {
+    @Override
+	public String[] getRecentEntries() {
         return cyclicLogger.getEntries();
     }
 
@@ -124,8 +144,8 @@ public class LogManagerImpl implements LogManager {
 	}
 
 	@Override
-	public boolean startUp() {
-	    loggers = new HashMap<String, LoggerImpl>();
+	public final boolean startUp() {
+	    loggers = new HashMap<>();
 		// The configuration is read automatically from the file log4j.properties
         // in the bundle .jar ; this is much like calling:
         //     PropertyConfigurator.configure("/log4j.properties");
@@ -137,22 +157,22 @@ public class LogManagerImpl implements LogManager {
             props = getClass().getClassLoader().getResources("log4j.properties");
             p.load(props.nextElement().openStream());
         } catch (Exception e) {
-            System.err.println("Logging initialisation failed, " +
+            this.logger.error("Logging initialisation failed, " +
                     "cannot find log4j.properties file:" + e);
         }
         PropertyConfigurator.configure(p);
-        org.apache.log4j.Logger.getRootLogger().info("Logging initialized.");
+        this.logger.info("Logging initialized.");
         CyclicLogger l = new CyclicLogger();
         String pattern = bc.getProperty("eu.sqooss.logbuffer.pattern");
         if (pattern != null) {
-            org.apache.log4j.Logger.getRootLogger().info("Logging to buffer with pattern <" + pattern + ">");
+        	this.logger.info("Logging to buffer with pattern <" + pattern + ">");
             l.setLayout(new PatternLayout(pattern));
         } else {
-            org.apache.log4j.Logger.getRootLogger().info("Logging to buffer with simple layout.");
+        	this.logger.info("Logging to buffer with simple layout.");
             l.setLayout(new SimpleLayout());
         }
         l.setThreshold(org.apache.log4j.Level.WARN);
-        org.apache.log4j.Logger.getRootLogger().addAppender(l);
+        this.logger.addAppender(l);
         cyclicLogger = l;
 
         logManager = this;

@@ -48,6 +48,7 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.MetricType.Type;
+import eu.sqooss.service.db.util.MetricsUtils;
 
 /**
  *  @author Georgios Gousios <gousiosg@gmail.com>
@@ -94,13 +95,13 @@ public class MetricsResource {
 	    Metric m = DAObject.loadDAObyId(id, Metric.class);
 	    
 	    if (m == null)
-	        return Collections.EMPTY_LIST;  
+	        return Collections.emptyList();  
 	    
 	   return getResult(m, resourceIds);
     }
 	
 	public List<Result> getResult(Metric m, String resourceIds) {
-	    Set<Long>  ids = new HashSet<Long>();
+	    Set<Long>  ids = new HashSet<>();
         int count = 0;
         for (String resourceId : resourceIds.split(",")) {
             try {
@@ -114,20 +115,20 @@ public class MetricsResource {
             }
         }
         
-        List<Metric> metricList = new ArrayList<Metric>();
+        List<Metric> metricList = new ArrayList<>();
         metricList.add(m);
         
         AlitheiaPlugin ap = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin(m.getMnemonic());
         
         if (ap == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         Class<? extends DAObject> clazz = m.getMetricType().toActivator();
         
         if (clazz == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
-        List<Result> result = new ArrayList<Result>();
+        List<Result> result = new ArrayList<>();
         
         for (Long daoId : ids) {
             try {
@@ -144,7 +145,7 @@ public class MetricsResource {
         }
         
         if (result.isEmpty())
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         return result; 
 	}
@@ -153,7 +154,7 @@ public class MetricsResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Metric getMetricByMnem(@PathParam("mnem") String name) {
-		return Metric.getMetricByMnemonic(name);
+		return new MetricsUtils(AlitheiaCore.getInstance().getDBService()).getMetricByMnemonic(name);
 	}
 	
 	@Path("/metrics/by-mnem/{mnem}/result/{rid: .+}")
@@ -162,10 +163,10 @@ public class MetricsResource {
     public List<Result> getMetricResultByMnem(@PathParam("mnem") String name,
             @PathParam("rid") String resourceIds) {
         
-        Metric m = Metric.getMetricByMnemonic(name);
+        Metric m = new MetricsUtils(AlitheiaCore.getInstance().getDBService()).getMetricByMnemonic(name);
         
         if (m == null)
-            return Collections.EMPTY_LIST;  
+            return Collections.emptyList();  
         
        return getResult(m, resourceIds);
     }
@@ -174,10 +175,10 @@ public class MetricsResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Set<Metric> getMetricByType(@PathParam("type") String type) {
-		MetricType mt = MetricType.getMetricType(Type.fromString(type));
+		MetricType mt = new MetricsUtils(AlitheiaCore.getInstance().getDBService()).getMetricType(Type.fromString(type));
 		
 		if (mt == null) //No metric of this type has been installed yet
-		    return Collections.EMPTY_SET;
+		    return Collections.emptySet();
 		
 		return mt.getMetrics();
 	}

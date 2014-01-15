@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 public final class FileTypeMatcher {
 
 	private static FileTypeMatcher instance;
-	private static HashMap<String, FileType> lookupTable = new HashMap<String, FileType>();
+	private static HashMap<String, FileType> lookupTable = new HashMap<>();
 
 	private static Pattern doc;
 	private static Pattern locale;
@@ -153,7 +153,7 @@ public final class FileTypeMatcher {
 			+ "es_MX|es_NI|es_PA|es_PY|es_PE|es_PR|es_UY|es_VE|tr_TR|uk_UA";
 
 	static {
-		lookupTable = new HashMap<String, FileType>();
+		lookupTable = new HashMap<>();
 
 		for (String s : srcMimes)
 			lookupTable.put(s, FileType.SRC);

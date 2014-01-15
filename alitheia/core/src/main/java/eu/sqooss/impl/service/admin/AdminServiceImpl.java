@@ -66,7 +66,7 @@ import eu.sqooss.service.logging.Logger;
 public class AdminServiceImpl extends Thread implements AdminService {
 
 	static {
-		services = new HashMap<String, Class<? extends AdminAction>>();
+		services = new HashMap<>();
 	}
 	
     static Map<String, Class<? extends AdminAction>> services;
@@ -76,7 +76,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
     Logger log;
 
     public AdminServiceImpl() {
-        liveactions = new ConcurrentHashMap<Long, ActionContainer>();
+        liveactions = new ConcurrentHashMap<>();
         id = new AtomicLong();
         //if (AlitheiaCore.getInstance() != null)
         //    log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
@@ -129,7 +129,7 @@ public class AdminServiceImpl extends Thread implements AdminService {
     @Path("/actions/")
     @Override
     public Set<AdminAction> getAdminActions() {
-        Set<AdminAction> actions = new HashSet<AdminAction>();
+        Set<AdminAction> actions = new HashSet<>();
         for (Class<? extends AdminAction> aa : services.values()) {
             try {
                 actions.add(aa.newInstance());

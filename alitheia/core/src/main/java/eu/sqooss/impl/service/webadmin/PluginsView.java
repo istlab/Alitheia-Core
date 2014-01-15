@@ -43,13 +43,15 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
+import com.google.common.base.Joiner;
+
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.util.PluginUtils;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
-import eu.sqooss.service.util.StringUtils;
 
 public class PluginsView extends AbstractView{
 
@@ -492,9 +494,7 @@ public class PluginsView extends AbstractView{
                         + selPI.getPluginName() + "</td>\n");
                 // Plug-in class
                 b.append(sp(in) + "<td>"
-                        + StringUtils.join((String[]) (
-                                selPI.getServiceRef().getProperty(
-                                        Constants.OBJECTCLASS)),",")
+                		+ Joiner.on(",").join((String[]) (selPI.getServiceRef().getProperty(Constants.OBJECTCLASS)))
                                         + "</td>\n");
                 // Plug-in version
                 b.append(sp(in) + "<td>"
@@ -648,7 +648,7 @@ public class PluginsView extends AbstractView{
                     // Display the set of configuration properties
                     b.append(sp(in++) + "<tbody>\n");
                     // Get the plug-in's configuration set
-                    Set<PluginConfiguration> config = Plugin.getPluginByHashcode(selPI.getHashcode()).getConfigurations();
+                    Set<PluginConfiguration> config = new PluginUtils(AlitheiaCore.getInstance().getDBService()).getPluginByHashcode(selPI.getHashcode()).getConfigurations();
                     if ((config == null) || (config.isEmpty())) {
                         b.append(sp(in++) + "<tr>");
                         b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
@@ -776,9 +776,7 @@ public class PluginsView extends AbstractView{
                             + "</td>\n");
                         // Plug-in class
                         b.append(sp(in) + "<td class=\"trans\">"
-                                + StringUtils.join((String[]) (
-                                        i.getServiceRef().getProperty(
-                                                Constants.OBJECTCLASS)),",")
+                        		+ Joiner.on(",").join((String[]) (i.getServiceRef().getProperty(Constants.OBJECTCLASS)))
                                                 + "</td>\n");
                         // Plug-in version
                         b.append(sp(in) + "<td class=\"trans\">"
@@ -811,9 +809,7 @@ public class PluginsView extends AbstractView{
                                 + "</td>\n");
                         // Plug-in class
                         b.append(sp(in) + "<td class=\"trans\">"
-                                + StringUtils.join((String[]) (
-                                        i.getServiceRef().getProperty(
-                                                Constants.OBJECTCLASS)),",")
+                        		+ Joiner.on(",").join((String[]) (i.getServiceRef().getProperty(Constants.OBJECTCLASS)))
                                                 + "</td>\n");
                         // Plug-in version
                         b.append(sp(in) + "<td class=\"trans\">"

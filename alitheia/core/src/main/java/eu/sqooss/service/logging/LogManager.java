@@ -52,14 +52,14 @@ public interface LogManager extends AlitheiaCoreService {
     * @return logger
     * @exception IllegalArgumentException - if the name is not valid logger name
     */
-    public Logger createLogger(String name);
+    public Logger createLogger(LoggerName name);
 
     /**
     * Releases the logger.
     * @param name
     * @exception NullPointerException - if the name is null
     */
-    public void releaseLogger(String name);
+    public void releaseLogger(LoggerName name);
 
     /**
      * Returns recent entries to the loggers.

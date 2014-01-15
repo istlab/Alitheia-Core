@@ -48,14 +48,16 @@ import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectDirectory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
-import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.db.util.DirectoryUtils;
+import eu.sqooss.service.db.util.MetricsUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
+import eu.sqooss.service.db.util.ProjectVersionUtils;
 import eu.sqooss.service.fds.FileTypeMatcher;
 
 @MetricDeclarations(metrics = {
@@ -110,8 +112,8 @@ public class ModuleMetricsImplementation extends AbstractMetric {
         int mnol = 0;
         
         List<ProjectFile> pfs = pf.getProjectVersion().getFiles(
-                Directory.getDirectory(pf.getFileName(), false), 
-                ProjectVersion.MASK_FILES);
+                new DirectoryUtils(db).getDirectoryByPath(pf.getFileName(), false), 
+                ProjectVersion.MASK.FILES);
         
         boolean foundSource = false; 
         FileTypeMatcher ftm = FileTypeMatcher.getInstance();
@@ -131,19 +133,20 @@ public class ModuleMetricsImplementation extends AbstractMetric {
             }
         }
         
+        MetricsUtils mu = new MetricsUtils(db);
         //Only store results for source dirs
         if (foundSource) {
-            Metric m = Metric.getMetricByMnemonic(MET_ISSRCMOD);
+            Metric m = mu.getMetricByMnemonic(MET_ISSRCMOD);
 
             ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf, String.valueOf(1));
             db.addRecord(pfm);
             
-            m = Metric.getMetricByMnemonic(MET_MNOL);
+            m = mu.getMetricByMnemonic(MET_MNOL);
             pfm = new ProjectFileMeasurement(m, pf,
                     String.valueOf(mnol));
             db.addRecord(pfm);
             
-            m = Metric.getMetricByMnemonic(MET_MNOF);
+            m = mu.getMetricByMnemonic(MET_MNOF);
             pfm = new ProjectFileMeasurement(m, pf,
                     String.valueOf(mnof));
             db.addRecord(pfm);
@@ -161,8 +164,9 @@ public class ModuleMetricsImplementation extends AbstractMetric {
         String paramState = "paramStatus";
         Map<String,Object> params = new HashMap<String,Object>();
 
+        ProjectFileUtils pfu = new ProjectFileUtils(db);
         StringBuffer q = new StringBuffer("select pfm ");
-        if (pv.getSequence() == ProjectVersion.getLastProjectVersion(pv.getProject()).getSequence()) {
+        if (pv.getSequence() == new ProjectVersionUtils(db, pfu).getLastProjectVersion(pv.getProject()).getSequence()) {
             q.append(" from ProjectFile pf, ProjectFileMeasurement pfm");
             q.append(" where pf.validUntil is null ");
         } else {
@@ -191,10 +195,12 @@ public class ModuleMetricsImplementation extends AbstractMetric {
         q.append(" where pfm1.projectFile = pfm.projectFile ");
         q.append(" and pfm1.metric = :").append(paramISSRCDIR).append(")");
         
-        params.put(paramState, ProjectFileState.deleted());
+        MetricsUtils mu = new MetricsUtils(db);
+        
+        params.put(paramState, pfu.deleted());
         params.put(paramIsDirectory, true);
-        params.put(paramMNOL, Metric.getMetricByMnemonic(MET_MNOL));
-        params.put(paramISSRCDIR, Metric.getMetricByMnemonic(MET_ISSRCMOD));
+        params.put(paramMNOL, mu.getMetricByMnemonic(MET_MNOL));
+        params.put(paramISSRCDIR, mu.getMetricByMnemonic(MET_ISSRCMOD));
         
         // Get the list of folders which exist in this project version.
         List<ProjectFileMeasurement> srcDirs = 
@@ -214,7 +220,7 @@ public class ModuleMetricsImplementation extends AbstractMetric {
 
         if (locs > 0) {
             // Store the "AMS" metric result
-            Metric metric = Metric.getMetricByMnemonic(MET_AMS);
+            Metric metric = mu.getMetricByMnemonic(MET_AMS);
             ProjectVersionMeasurement ams = new ProjectVersionMeasurement(
                     metric, pv, String.valueOf(0));
             
@@ -230,7 +236,7 @@ public class ModuleMetricsImplementation extends AbstractMetric {
         if (plugin == null) {
             log.error("Could not find the " + mnemonic + " metric's plug-in");
         }
-        metric.add(Metric.getMetricByMnemonic(mnemonic));
+        metric.add(new MetricsUtils(db).getMetricByMnemonic(mnemonic));
         
         try {
             return Integer.parseInt(plugin.getResult(f, metric).get(0).getResult().toString());

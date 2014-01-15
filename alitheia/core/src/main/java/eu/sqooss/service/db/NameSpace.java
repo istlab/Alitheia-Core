@@ -1,8 +1,6 @@
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -22,8 +20,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * A representation of a namespace. According to Wikipedia, a namespace is an
@@ -48,41 +44,36 @@ import eu.sqooss.core.AlitheiaCore;
 @Table(name = "NAMESPACE")
 public class NameSpace extends DAObject {
 
-    private static final String nsByVersion = 
-    		"from NameSpace ns " +
-    		"where ns.changeVersion = :pv " +
-    		"and ns.name = :name";
-    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "NAMESPACE_ID")
     @XmlElement
-    long id;
+    private long id;
 
     /** The namespace name */
     @Column(name = "NAME")
     @XmlElement
-    String name;
+    private String name;
 
     /** Version until this namespace instance is valid */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CHANGE_VERSION_ID")
-    ProjectVersion changeVersion;
+    private ProjectVersion changeVersion;
 
     /** Encapsulation units, if any, */
     @OneToMany(mappedBy = "namespace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    Set<EncapsulationUnit> encapsulationUnits;
+    private Set<EncapsulationUnit> encapsulationUnits;
 
     /** Encapsulation units belonging to this namespace */
     @OneToMany(mappedBy = "namespace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    Set<ExecutionUnit> executionUnits;
+    private Set<ExecutionUnit> executionUnits;
 
     /** The namespace language */
     @Enumerated(EnumType.STRING)
     @XmlElement
     @Index(name = "IDX_NAMESPACE_LANG")
     @Column(name = "LANG")
-    Language lang;
+    private Language lang;
 
     /** Measurements for this namespace*/
     @OneToMany(mappedBy = "namespace", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -116,7 +107,7 @@ public class NameSpace extends DAObject {
     
     public Set<EncapsulationUnit> getEncapsulationUnits() {
         if (encapsulationUnits == null)
-            encapsulationUnits = new HashSet<EncapsulationUnit>();
+            encapsulationUnits = new HashSet<>();
         return encapsulationUnits;
     }
 
@@ -130,7 +121,7 @@ public class NameSpace extends DAObject {
 
     public void setExecutionUnits(Set<ExecutionUnit> executionUnits) {
         if (executionUnits == null)
-            executionUnits = new HashSet<ExecutionUnit>();
+            executionUnits = new HashSet<>();
         this.executionUnits = executionUnits;
     }
 
@@ -148,18 +139,5 @@ public class NameSpace extends DAObject {
 
     public Set<NameSpaceMeasurement> getMeasurements() {
         return measurements;
-    }
-    
-    public static NameSpace findByVersionName(ProjectVersion pv, String name) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("pv", pv);
-        params.put("name", name);
-        
-        List<NameSpace> ns = (List<NameSpace>) dbs.doHQL(nsByVersion, params);
-        
-        if (ns.isEmpty())
-            return null;
-        return ns.get(0);
     }
 }

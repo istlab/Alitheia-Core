@@ -65,6 +65,12 @@
       <version>0.95-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>eu.sqooss.alitheia</groupId>
+      <artifactId>core</artifactId>
+      <version>0.95-SNAPSHOT</version>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
       <version>4.2.0</version>

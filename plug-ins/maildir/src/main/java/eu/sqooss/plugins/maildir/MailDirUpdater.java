@@ -148,7 +148,7 @@ public class MailDirUpdater implements MetadataUpdater {
                 dbs.addRecord(nml);
             }
         }
-        List<Long> listIds = new ArrayList<Long>();
+        List<Long> listIds = new ArrayList<>();
         List<MailingList> mailingLists = getMailingLists(this.project);
         
         for (MailingList ml : mailingLists) {
@@ -159,7 +159,7 @@ public class MailDirUpdater implements MetadataUpdater {
     }
     
     private List<MailingList> getMailingLists(StoredProject sp) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("storedProject", sp);
         return dbs.findObjectsByProperties(MailingList.class, params);
     }
@@ -185,7 +185,7 @@ public class MailDirUpdater implements MetadataUpdater {
             warn("Mailing list <" + listId + "> vanished: " + e.getMessage());
         }
 
-        Set<Job> jobs = new HashSet<Job>();
+        Set<Job> jobs = new HashSet<>();
         debug("Processing list:" + ml.getListId() + " " + fileNames.size() + " new emails");
         for (String fileName : fileNames) {
             

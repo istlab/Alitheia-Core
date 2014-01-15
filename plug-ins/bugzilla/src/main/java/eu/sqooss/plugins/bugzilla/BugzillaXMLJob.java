@@ -39,11 +39,7 @@ import java.util.Set;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Bug;
-import eu.sqooss.service.db.BugPriority;
 import eu.sqooss.service.db.BugReportMessage;
-import eu.sqooss.service.db.BugResolution;
-import eu.sqooss.service.db.BugSeverity;
-import eu.sqooss.service.db.BugStatus;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.StoredProject;
@@ -51,6 +47,8 @@ import eu.sqooss.service.db.BugPriority.Priority;
 import eu.sqooss.service.db.BugResolution.Resolution;
 import eu.sqooss.service.db.BugSeverity.Severity;
 import eu.sqooss.service.db.BugStatus.Status;
+import eu.sqooss.service.db.util.BugUtils;
+import eu.sqooss.service.db.util.DeveloperUtils;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.BTSAccessor;
@@ -97,9 +95,9 @@ public class BugzillaXMLJob extends Job {
         if (bugExists(project, bugID)) {
             logger.debug(project.getName() + ": Updating existing bug "
                     + bugID);
-            List<BugReportMessage> msgs = bug.getAllReportComments();
+            List<BugReportMessage> msgs = new BugUtils(dbs).getBugReportComments(bug);
             Set<BugReportMessage> newmsgs = bug.getReportMessages();
-            Set<BugReportMessage> toadd = new LinkedHashSet<BugReportMessage>();
+            Set<BugReportMessage> toadd = new LinkedHashSet<>();
 
             for (BugReportMessage newmsg : newmsgs) {
                 boolean found = false;
@@ -135,29 +133,30 @@ public class BugzillaXMLJob extends Job {
         bug.setCreationTS(b.creationTimestamp);
         bug.setDeltaTS(b.latestUpdateTimestamp);
         
+        BugUtils bu = new BugUtils(dbs);
         if (b.priority != null) {
-            bug.setPriority(BugPriority.getBugPriority(Priority.fromString(b.priority.toString())));
+            bug.setPriority(bu.getBugPriority(Priority.fromString(b.priority.toString())));
         } else {
-            bug.setPriority(BugPriority.getBugPriority(Priority.UNKNOWN));
+            bug.setPriority(bu.getBugPriority(Priority.UNKNOWN));
         }   
         bug.setProject(project);
         
         if (b.resolution != null) {
-            bug.setResolution(BugResolution.getBugResolution(Resolution.fromString(b.resolution.toString())));
+            bug.setResolution(bu.getBugResolution(Resolution.fromString(b.resolution.toString())));
         } else {
-            bug.setResolution(BugResolution.getBugResolution(Resolution.UNKNOWN));
+            bug.setResolution(bu.getBugResolution(Resolution.UNKNOWN));
         }
         
         if (b.severity != null) {
-            bug.setSeverity(BugSeverity.getBugseverity(Severity.fromString(b.severity.toString())));
+            bug.setSeverity(bu.getBugSeverity(Severity.fromString(b.severity.toString())));
         } else {
-            bug.setSeverity(BugSeverity.getBugseverity(Severity.UNKNOWN));
+            bug.setSeverity(bu.getBugSeverity(Severity.UNKNOWN));
         }
         
         if (b.state != null) {
-            bug.setStatus(BugStatus.getBugStatus(Status.fromString(b.state.toString())));
+            bug.setStatus(bu.getBugStatus(Status.fromString(b.state.toString())));
         } else {
-            bug.setStatus(BugStatus.getBugStatus(Status.UNKNOWN));
+            bug.setStatus(bu.getBugStatus(Status.UNKNOWN));
         }
         
         bug.setShortDesc(b.shortDescr);
@@ -165,7 +164,7 @@ public class BugzillaXMLJob extends Job {
         
         bug.setReporter(getDeveloper(b.reporter));
      
-        Set<BugReportMessage> commentList = new LinkedHashSet<BugReportMessage>();
+        Set<BugReportMessage> commentList = new LinkedHashSet<>();
         
         for (BTSEntryComment c : b.commentslist) {
             BugReportMessage bugmessage = new BugReportMessage(bug);
@@ -187,10 +186,11 @@ public class BugzillaXMLJob extends Job {
      */
     private Developer getDeveloper(String name) {
         Developer d = null;
+        DeveloperUtils du = new DeveloperUtils(dbs);
         if (name.contains("@")) {
-            d = Developer.getDeveloperByEmail(name, project);
+            d = du.getDeveloperByEmail(name, project);
         } else {
-            d = Developer.getDeveloperByUsername(name, project);
+            d = du.getDeveloperByUsername(name, project);
         }
         return d;
     }
@@ -200,7 +200,7 @@ public class BugzillaXMLJob extends Job {
      */
     private boolean bugExists(StoredProject sp, String bugId) {
         
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("project", sp);
         params.put("bugID", bugId);
         

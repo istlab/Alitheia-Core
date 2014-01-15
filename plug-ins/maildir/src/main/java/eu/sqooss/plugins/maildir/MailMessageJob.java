@@ -46,6 +46,8 @@ import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.util.DeveloperUtils;
+import eu.sqooss.service.db.util.MailingListUtils;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.tds.MailAccessor;
@@ -125,9 +127,10 @@ public class MailMessageJob extends Job{
 
         Developer sender = null;
 
+        DeveloperUtils du = new DeveloperUtils(dbs);
         // Try to find developer from name first
         if (devName != null) {
-            sender = Developer.getDeveloperByName(devName,
+            sender = du.getDeveloperByName(devName,
                     ml.getStoredProject(), false);
         }
 
@@ -140,7 +143,7 @@ public class MailMessageJob extends Job{
                 return;
             }
 
-            sender = Developer.getDeveloperByEmail(senderEmail,
+            sender = du.getDeveloperByEmail(senderEmail,
                     ml.getStoredProject(), true);
 
             // Found dev by email, but not by name
@@ -161,7 +164,7 @@ public class MailMessageJob extends Job{
             return;
         }
 
-        MailMessage mmsg = MailMessage.getMessageById(fileName);
+        MailMessage mmsg = new MailingListUtils(dbs).getMessageById(fileName);
         if (mmsg == null) {
             // if the message does not exist in the database, then
             // write a new one

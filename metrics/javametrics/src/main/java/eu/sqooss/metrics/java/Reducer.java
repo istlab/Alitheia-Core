@@ -2,8 +2,6 @@ package eu.sqooss.metrics.java;
 
 import java.util.List;
 
-import eu.sqooss.service.util.Pair;
-
 /**
  * A generic data reducer. Allows concurrent data appending from
  * multiple mappers. Reduction may take place while data is appended, but
@@ -18,19 +16,19 @@ import eu.sqooss.service.util.Pair;
  */
 public abstract class Reducer<T, V> {
 
-    List<Pair<T, V>> reducedata;
+    List<ReducePair<T, V>> reducedata;
     
     public void addEntry(T subkey, V value) {
-        Pair<T, V> keyvalue = new Pair<T, V>(subkey, value);
+    	ReducePair<T, V> keyvalue = new ReducePair<T, V>(subkey, value);
         reducedata.add(keyvalue);
     }
 
     public V reduce(T key) {
         V value = null;
      
-        for (Pair<T, V> pair : reducedata) {
-            if (pair.first.equals(key))
-                value = reduce(value, pair.second);
+        for (ReducePair<T, V> pair : reducedata) {
+            if (pair.getLeft().equals(key))
+                value = reduce(value, pair.getRight());
         }
         return value;
     }

@@ -75,9 +75,8 @@ public class FileUtils {
             }
         }
 
-        try {
-            java.io.InputStream i = new java.io.FileInputStream(f);
-            ByteArrayOutputStream o = new ByteArrayOutputStream(ilength);
+        try (InputStream i = new FileInputStream(f);
+            ByteArrayOutputStream o = new ByteArrayOutputStream(ilength)) {
 
             // Read in chunks at a time.
             // TODO: optimize this away and create one byte array of the
@@ -192,7 +191,7 @@ public class FileUtils {
      * provided pattern
      */
     public static List<File> findGrep(File path, Pattern p) {
-        List<File> result = new ArrayList<File>();
+        List<File> result = new ArrayList<>();
 
         File[] c = path.listFiles();
         for (File file : c) {
@@ -213,7 +212,7 @@ public class FileUtils {
      */
     public static File findBreadthFirst(File path, Pattern p) {
         File[] c = path.listFiles();
-        List<File> dirs = new ArrayList<File>();
+        List<File> dirs = new ArrayList<>();
         for (File file : c) {
             if (file.isDirectory()) {
                 dirs.add(file);
@@ -238,7 +237,7 @@ public class FileUtils {
     }
 
     public static List<File> find(File path, FindOpt what) {
-        Set<File> toReturn = new HashSet<File>();
+        Set<File> toReturn = new HashSet<>();
 
         boolean dirs = (what == FindOpt.DIRS || what == FindOpt.ALL);
         boolean files = (what == FindOpt.FILES || what == FindOpt.ALL);
@@ -254,7 +253,7 @@ public class FileUtils {
             }
         }
 
-        List<File> result = new ArrayList<File>(toReturn);
+        List<File> result = new ArrayList<>(toReturn);
 
         Collections.sort(result, new Comparator<File>() {
             @Override
@@ -273,24 +272,15 @@ public class FileUtils {
         if (!dest.exists()) {
             dest.createNewFile();
         }
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = new FileInputStream(source);
-            out = new FileOutputStream(dest);
+
+        try (InputStream in = new FileInputStream(source);
+        	OutputStream out = new FileOutputStream(dest)) {
 
             // Transfer bytes from in to out
             byte[] buf = new byte[1024];
             int len;
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
-            }
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-            if (out != null) {
-                out.close();
             }
         }
     }

@@ -34,9 +34,6 @@
 package eu.sqooss.service.db;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -51,8 +48,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * DAO Object for the MailMessage database table
@@ -226,62 +221,6 @@ public class MailMessage extends DAObject {
 	public Set<MailMessageMeasurement> getMeasurements() {
 		return measurements;
 	}
-    
-    /**
-     * Return a stored mail message based on messageId
-     */
-    public static MailMessage getMessageById(String messageId) {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
-    	Map<String,Object> properties = new HashMap<String, Object>(1);
-    	properties.put("messageId", messageId);
-    	List<MailMessage> msgList = dbs.findObjectsByProperties(MailMessage.class, properties);
-    	
-    	if ((msgList == null) || (msgList.isEmpty())) {
-    	    return null;
-    	}
-    	
-    	return msgList.get(0);
-    }
-    
-    /**
-     * Return a stored mail message based on filename
-     */
-    public static MailMessage getMessageByFileName(String filename) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        Map<String,Object> properties = new HashMap<String, Object>(1);
-        properties.put("fileName", filename);
-        List<MailMessage> msgList = dbs.findObjectsByProperties(MailMessage.class, properties);
-        
-        if ((msgList == null) || (msgList.isEmpty())) {
-            return null;
-        }
-        
-        return msgList.get(0);
-    }
-    
-    /**
-     * Get the latest known mail message for the provided project, or null.  
-     */
-    public static MailMessage getLatestMailMessage(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        String paramStoredProject = "paramStoredProject";
-
-        String query = "select mm " 
-                + " from MailMessage mm, MailingList ml "
-                + " where mm.list = ml " 
-                + " and ml.storedProject = :" + paramStoredProject 
-                + " order by mm.sendDate desc";
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put(paramStoredProject, sp);
-
-        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params, 1);
-
-        if (!mm.isEmpty())
-            return mm.get(0);
-
-        return null;
-    }
     
     @Override
     public String toString() {

@@ -70,7 +70,7 @@ public class SCMNode {
         this.revision = revision;
         
         if (type.equals(SCMNodeType.DIR)) {
-            children = new ArrayList<SCMNode>();
+            children = new ArrayList<>();
         }
     }
     
@@ -187,7 +187,7 @@ public class SCMNode {
      * @return A list of nodes, possibly empty if the provided node is null
      */
     public List<SCMNode> getSCMNodeList(SCMNode node) {
-        List<SCMNode> nodeList = new ArrayList<SCMNode>();
+        List<SCMNode> nodeList = new ArrayList<>();
         
         if (node == null) {
             return nodeList;

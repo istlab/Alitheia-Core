@@ -33,8 +33,6 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -47,8 +45,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Instances of this class represent to what forms of data a metric
@@ -163,34 +159,16 @@ public class MetricType extends DAObject {
         this.metrics = metrics;
     }
 
-    /**
-     * Get the corresponding DAO for the provided metric type.
-     * 
-     * @return A MetricType DAO representing the metric type
-     */
-    public static MetricType getMetricType(Type t) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        HashMap<String, Object> s = new HashMap<String, Object>();
-        s.put("type", t.toString());
-        List<MetricType> result = db.findObjectsByProperties(MetricType.class, s);
-        if (result.isEmpty()) {
-            return null;
-        }
-        else {
-            return result.get(0);
-        }
-    }
-
-    /**
-     * Single point of truth for conversions between the activation types 
-     * known to plug-ins and metric types used internally.
-     */
-	public static MetricType.Type fromActivator(Class<? extends DAObject> activator) {
+	/**
+	 * Single point of truth for conversions between the activation types 
+	 * known to plug-ins and metric types used internally.
+	 */
+	public static Type fromActivator(Class<? extends DAObject> activator) {
 	    
 	   if (activator.equals(ProjectFile.class))
 	       return Type.SOURCE_FILE;
 	   if (activator.equals(ProjectDirectory.class))
-           return Type.SOURCE_DIRECTORY;
+	       return Type.SOURCE_DIRECTORY;
 	   if (activator.equals(ProjectVersion.class))
 	       return Type.PROJECT_VERSION;
 	   if (activator.equals(StoredProject.class))
@@ -206,15 +184,15 @@ public class MetricType extends DAObject {
 	   if (activator.equals(Developer.class))
 		   return Type.DEVELOPER;
 	   if (activator.equals(NameSpace.class))
-           return Type.NAMESPACE;
+	       return Type.NAMESPACE;
 	   if (activator.equals(EncapsulationUnit.class))
-           return Type.ENCAPSUNIT;
+	       return Type.ENCAPSUNIT;
 	   if (activator.equals(ExecutionUnit.class))
-           return Type.EXECUNIT;
+	       return Type.EXECUNIT;
 	   return null;
 	}
-	
-	public Class<? extends DAObject> toActivator() {
+
+    public Class<? extends DAObject> toActivator() {
 	    switch(Type.fromString(this.type)) {
 	        case SOURCE_DIRECTORY:
 	            return ProjectDirectory.class;

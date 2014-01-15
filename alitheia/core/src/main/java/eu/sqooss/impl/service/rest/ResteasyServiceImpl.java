@@ -61,7 +61,7 @@ public class ResteasyServiceImpl implements RestService {
 	private void registerApp() {
 		HttpService http = getHttpService();
 
-		Dictionary<String, String> params = new Hashtable<String, String>();
+		Dictionary<String, String> params = new Hashtable<>();
 		params.put("resteasy.scan", "false");
 		params.put("javax.ws.rs.Application", "eu.sqooss.service.rest.RestServiceApp");
 

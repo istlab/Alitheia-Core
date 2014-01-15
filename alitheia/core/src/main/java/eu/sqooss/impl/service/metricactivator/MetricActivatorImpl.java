@@ -156,7 +156,7 @@ public class MetricActivatorImpl  implements MetricActivator {
     public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
         if (!canRunOnHost(sp))
             return;
-        Set<AlitheiaPlugin> deps = new HashSet<AlitheiaPlugin>();
+        Set<AlitheiaPlugin> deps = new HashSet<>();
         deps.add(m);
         
         for (String s: m.getDependencies()) {
@@ -167,7 +167,7 @@ public class MetricActivatorImpl  implements MetricActivator {
         
         try {
             Collections.reverse(toExec);
-        	List<Job> jobs = new ArrayList<Job>();
+        	List<Job> jobs = new ArrayList<>();
         	Job old = null;
         	for (AlitheiaPlugin a : toExec) {
         		Job j = new MetricSchedulerJob(a, sp);
@@ -221,10 +221,10 @@ public class MetricActivatorImpl  implements MetricActivator {
     }
     
     private List<AlitheiaPlugin> getExecutionOrder(Set<AlitheiaPlugin> unordered) {
-    	Map<AlitheiaPlugin, Integer> idx = new HashMap<AlitheiaPlugin, Integer>();
-    	Map<Integer, AlitheiaPlugin> invidx = new HashMap<Integer, AlitheiaPlugin>();
+    	Map<AlitheiaPlugin, Integer> idx = new HashMap<>();
+    	Map<Integer, AlitheiaPlugin> invidx = new HashMap<>();
     	
-    	GraphTS<AlitheiaPlugin> graph = new GraphTS<AlitheiaPlugin>(unordered.size());
+    	GraphTS<AlitheiaPlugin> graph = new GraphTS<>(unordered.size());
     	
     	//Build the adjacency matrix
     	for (AlitheiaPlugin p : unordered) {
@@ -299,7 +299,7 @@ public class MetricActivatorImpl  implements MetricActivator {
 
             List<Metric> metrics = pa.getPlugin(mi).getAllSupportedMetrics();
             
-            Map<MetricType.Type, TreeSet<Long>> objectIds = new HashMap<MetricType.Type, TreeSet<Long>>();
+            Map<MetricType.Type, TreeSet<Long>> objectIds = new HashMap<>();
 
             for (Metric m : metrics) {
             	Map<MetricType.Type, SortedSet<Long>> IDs = 
@@ -316,7 +316,7 @@ public class MetricActivatorImpl  implements MetricActivator {
             
             AbstractMetric metric = 
                 (AbstractMetric) bc.getService(mi.getServiceRef());
-            HashSet<Job> jobs = new HashSet<Job>();
+            HashSet<Job> jobs = new HashSet<>();
             
             /*Check what is the default activation ordering as suggested by the metric*/
             Class<? extends DAObject>[] activOrder;
@@ -346,9 +346,9 @@ public class MetricActivatorImpl  implements MetricActivator {
                 TreeSet<Long> ids = objectIds.get(actType);
                 TreeSet<Long> tmp = null;
                 if (invOrder.equals(InvocationOrder.NEWFIRST)) {
-                    tmp = new TreeSet<Long>(new DecreasingLongComparator());
+                    tmp = new TreeSet<>(new DecreasingLongComparator());
                 } else if (invOrder.equals(InvocationOrder.RANDOM)) {
-                    tmp = new TreeSet<Long>(new RandomizedComparator());
+                    tmp = new TreeSet<>(new RandomizedComparator());
                 }
 
                 if (tmp != null) {
@@ -400,7 +400,7 @@ public class MetricActivatorImpl  implements MetricActivator {
 		this.bc = bc;
 		this.logger = l;
 		
-        metricTypesToActivators = new HashMap<Type, Class<? extends DAObject>>();
+        metricTypesToActivators = new HashMap<>();
         metricTypesToActivators.put(Type.NAMESPACE, NameSpace.class);
         metricTypesToActivators.put(Type.ENCAPSUNIT, EncapsulationUnit.class);
         metricTypesToActivators.put(Type.EXECUNIT, ExecutionUnit.class);

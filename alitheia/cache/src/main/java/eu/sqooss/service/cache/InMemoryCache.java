@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryCache extends CacheServiceImpl {
 
-    ConcurrentHashMap<String, byte[]> cache = new ConcurrentHashMap<String, byte[]>(1024);
+    ConcurrentHashMap<String, byte[]> cache = new ConcurrentHashMap<>(1024);
     
     public InMemoryCache() {}
     

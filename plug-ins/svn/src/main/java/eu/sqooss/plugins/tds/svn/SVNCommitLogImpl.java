@@ -47,7 +47,7 @@ public class SVNCommitLogImpl implements CommitLog {
     private LinkedList<Revision> entries;
 
     public SVNCommitLogImpl() {
-        entries = new LinkedList<Revision>();
+        entries = new LinkedList<>();
     }
 
     public List<Revision> getEntries() {

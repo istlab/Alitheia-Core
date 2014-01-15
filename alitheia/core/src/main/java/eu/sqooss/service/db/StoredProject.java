@@ -33,11 +33,8 @@
 
 package eu.sqooss.service.db;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -55,7 +52,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.BugStatus.Status;
+import eu.sqooss.service.db.util.ConfigurationOptionUtils;
+import eu.sqooss.service.db.util.StoredProjectUtils;
 
 /**
  * This class represents a project that Alitheia "knows about".
@@ -137,43 +135,48 @@ public class StoredProject extends DAObject {
     }
 
     public String getWebsiteUrl() {
-        return getConfigValue(ConfigOption.PROJECT_WEBSITE.getName());
+        return getConfigValue(ConfigOption.PROJECT_WEBSITE.getKey());
     }
 
     public void setWebsiteUrl(String url) {
-    	addConfig(ConfigOption.PROJECT_WEBSITE, url);
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).addConfig(this, ConfigOption.PROJECT_WEBSITE, url);
     }
 
     public String getContactUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_CONTACT.getName());
+    	return getConfigValue(ConfigOption.PROJECT_CONTACT.getKey());
     }
 
     public void setContactUrl(String url) {
-    	addConfig(ConfigOption.PROJECT_CONTACT, url);
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).addConfig(this, ConfigOption.PROJECT_CONTACT, url);
     }
 
     public String getBtsUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_BTS_URL.getName());
+    	return getConfigValue(ConfigOption.PROJECT_BTS_URL.getKey());
     }
 
     public void setBtsUrl(String url) {
-    	addConfig(ConfigOption.PROJECT_BTS_URL, url);
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).addConfig(this, ConfigOption.PROJECT_BTS_URL, url);
     }
 
     public String getScmUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_SCM_URL.getName());
+    	return getConfigValue(ConfigOption.PROJECT_SCM_URL.getKey());
     }
 
     public void setScmUrl(String url) {
-    	addConfig(ConfigOption.PROJECT_SCM_URL, url);
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).addConfig(this, ConfigOption.PROJECT_SCM_URL, url);
     }
 
     public String getMailUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_ML_URL.getName());
+    	return getConfigValue(ConfigOption.PROJECT_ML_URL.getKey());
     }
 
     public void setMailUrl(String url) {
-    	addConfig(ConfigOption.PROJECT_ML_URL, url);
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).addConfig(this, ConfigOption.PROJECT_ML_URL, url);
     }
     
     public List<ProjectVersion> getProjectVersions() {
@@ -181,7 +184,8 @@ public class StoredProject extends DAObject {
     }
 
     public List<ProjectVersion> getTaggedVersions() {
-        return Tag.getTaggedVersions(this);
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    	return new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).getTaggedVersions(this);
     }
     
     public void setProjectVersions(List<ProjectVersion> projectVersions) {
@@ -251,7 +255,7 @@ public class StoredProject extends DAObject {
      * @return The configuration value or null, if the option is not set
      */
     public String getConfigValue (ConfigOption key) {
-    	return getConfigValue(key.getName());
+    	return getConfigValue(key.getKey());
     }
     
     /**
@@ -273,7 +277,7 @@ public class StoredProject extends DAObject {
      * @return A list of values for the provided configuration option 
      */
     public List<String> getConfigValues (ConfigOption co) {
-    	return getConfigValues(co.getName());
+    	return getConfigValues(co.getKey());
     }
     
     /** 
@@ -282,196 +286,24 @@ public class StoredProject extends DAObject {
      * @param key The key whose value we want to retrieve
      */
     public List<String> getConfigValues (String key) {
-    	ConfigurationOption co = ConfigurationOption.fromKey(key);
+    	ConfigurationOption co = new ConfigurationOptionUtils(AlitheiaCore.getInstance().getDBService()).getConfigurationOptionByKey(key);
     	
     	if (co == null)
     		return Collections.emptyList();
     	
-    	return co.getValues(this);
-    }
-    
-    /**
-	 * Set the value for a project configuration key. If the key does not exist
-	 * in the configuration key table, it will be created with and empty
-	 * description. The schema allows multiple values per key, so there is no
-	 * need to encode multiple key values in a single configuration entry.
-	 * 
-	 * @param key The key to set the value for
-	 * @param value The value to be set 
-	 */
-    public void setConfigValue (String key, String value) {
-    	updateConfigValue(null, key, value, true);
-    }
-    
-    
-    /**
-	 * Append a value to a project configuration key. If the key does not exist
-	 * in the configuration key table, it will be created with and empty
-	 * description. The schema allows multiple values per key, so there is no
-	 * need to encode multiple key values in a single configuration entry.
-	 * 
-	 * @param key The key to set the value for
-	 * @param value The value to be set 
-	 */
-    public void addConfigValue(String key, String value) {
-    	updateConfigValue(null, key, value, false);
-    }
-    
-    /**
-	 * Append a value to a project configuration option. If the configuration
-	 * option does not exist in the database, it will be created. The schema
-	 * allows multiple values per key, so there is no need to encode multiple
-	 * key values in a single configuration entry.
-	 * 
-	 * @param co The configuration option to store a value for
-	 * @param value The value to set to the configuration option
-	 */
-	public void addConfig(ConfigOption co, String value) {
-		updateConfigValue(co, null, value, false);
-	}
-    
-    private void updateConfigValue (ConfigOption configOpt, String key, 
-    		String value, boolean update) {
     	DBService dbs = AlitheiaCore.getInstance().getDBService();
-    	ConfigurationOption co = null;
-    	
-    	if (configOpt == null) {
-    		co = ConfigurationOption.fromKey(key);
-    	
-    		if (co == null) {
-    			co = new ConfigurationOption(key, "");
-    			dbs.addRecord(co);
-    		}
-    	} else {
-    		co = ConfigurationOption.fromKey(configOpt.getName());
-        	
-    		if (co == null) {
-    			co = new ConfigurationOption(configOpt.getName(), 
-    					configOpt.getDesc());
-    			dbs.addRecord(co);
-    		}
-    	}
-    	
-    	List<String> values = new ArrayList<String>();
-    	values.add(value);
-    	co.setValues(this, values, update);
-    }
-
-    //================================================================
-    // Static table information accessors
-    //================================================================
-    
-
-    /**
-     * Convenience method to retrieve a stored project from the
-     * database by name; this is different from the constructor
-     * that takes a name parameter. This method actually searches
-     * the database, whereas the constructor makes a new project
-     * with the given name.
-     * 
-     * @param name Name of the project to search for
-     * @return StoredProject object or null if not found
-     */
-    public static StoredProject getProjectByName(String name) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("name",name);
-        List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
-        return (prList == null || prList.isEmpty()) ? null : prList.get(0);
+    	return new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).getValues(this, co);
     }
 
     /**
-     * Count the total number of projects in the database.
-     * 
-     * @return number of stored projects in the database
-     */
-    public static int getProjectCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        List<?> l = dbs.doHQL("SELECT COUNT(*) FROM StoredProject");
-        if ((l == null) || (l.size() < 1)) {
-            return 0;
-        }
-        Long i = (Long) l.get(0);
-        return i.intValue();
-    }
-
-    /**
-     * Returns the total number of versions for the project with the given Id.
-     *
-     * @param projectId - the project's identifier
-     *
-     * @return The total number of version for that project.
-     */
-    public long getVersionsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> pvList = dbs.doHQL("select count(*)"
-                + " from ProjectVersion pv"
-                + " where pv.project.id=:pid",
-                parameterMap);
-
-        return (pvList == null || pvList.isEmpty()) ? 0 : (Long) pvList.get(0);
-    }
-
-    /**
-     * Returns the total number of mails which belong to the project with the
-     * given Id.
-     *
-     * @param projectId - the project's identifier
-     *
-     * @return The total number of mails associated with that project.
-     */
-    public long getMailsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> res = dbs.doHQL("select count(*)"
-                + " from MailMessage mm, MailingList ml"
-                + " where ml.storedProject.id=:pid"
-                + " and mm.list.id=ml.id",
-                parameterMap);
-
-        return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
-    }
-
-    /**
-     * Returns the total number of bugs which belong to the project with the
-     * given Id.
-     *
-     * @return The total number of bugs associated with that project.
-     */
-    public long getBugsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> res = dbs.doHQL("select count(*)"
-                + " from Bug bg"
-                + " where bg.project.id=:pid"
-                + " and bg.status.status='" + Status.NEW + "'",
-                parameterMap);
-
-        return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
-    }
-    
-    /**
-     * Check whether any metric has run on the given project.
-     * @return
+     * @see {@link StoredProjectUtils#isEvaluated(StoredProject)}
      */
     public boolean isEvaluated() {
     	DBService dbs = AlitheiaCore.getInstance().getDBService();
-    	for (Metric m : Metric.getAllMetrics()) {
-    		if (m.isEvaluated(this))
-    			return true;
-    	}
-    	return false;
+    	return new StoredProjectUtils(dbs, new ConfigurationOptionUtils(dbs)).isEvaluated(this);
     }
 
-    @Override
+	@Override
     public String toString() {
         return getName();
     }

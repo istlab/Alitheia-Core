@@ -1,13 +1,16 @@
 package eu.sqooss.service.db;
 
+import eu.sqooss.properties.PropertyKey;
+
 /**
  * Stores all standard project-wide configuration options that
  * the system knows about.  
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
+ * @author Richard van Heest
  *
  */
-public enum ConfigOption {
+public enum ConfigOption implements PropertyKey {
     
 	/**
      * The project's original BTS URL
@@ -83,8 +86,9 @@ public enum ConfigOption {
     private final String propname;
     private final String desc;
     
-    public String getName() {
-        return propname;
+    @Override
+	public String getKey() {
+    	return this.propname;
     }
 
     public String getDesc() {

@@ -46,12 +46,18 @@ import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
+import eu.sqooss.service.db.FileState;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.Tag;
+import eu.sqooss.service.db.util.BranchUtils;
+import eu.sqooss.service.db.util.DirectoryUtils;
+import eu.sqooss.service.db.util.DeveloperUtils;
+import eu.sqooss.service.db.util.ProjectFileUtils;
+import eu.sqooss.service.db.util.ProjectVersionUtils;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.CommitCopyEntry;
@@ -66,7 +72,6 @@ import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 import eu.sqooss.service.util.FileUtils;
-import eu.sqooss.service.util.Pair;
 
 /**
  * A metadata updater converts raw data to Alitheia Core database metadata.
@@ -82,49 +87,53 @@ public class GitUpdater implements MetadataUpdater {
     private GitAccessor git;
     private DBService dbs;
     private float progress;
+
+	private ProjectFileUtils pfu;
+	private DirectoryUtils du;
+	private ProjectVersionUtils pvu;
     
     /*
      * Possible set of valid file state transitions
      */
-    private static List<Pair<Integer, Integer>> validStateTransitions;
+    private static List<Transition> validStateTransitions;
     
     /*
      * Heuristic fixes for invalid state transitions. They may or may not
      * work, depending on the examined case.
      */
-    private static Map<Integer, Integer> invTransitionFix;
+    private static Map<FileState, FileState> invTransitionFix;
     
     /* 
      * State weights to use when evaluating duplicate project file entries
      * in a single revision
      */
-    private static Map<Integer, Integer> stateWeights ;
+    private static Map<FileState, Integer> stateWeights ;
     
     static {
-        stateWeights = new HashMap<Integer, Integer>();
+        stateWeights = new HashMap<>();
 
-        stateWeights.put(ProjectFileState.STATE_MODIFIED, 2);
-        stateWeights.put(ProjectFileState.STATE_ADDED, 4);
-        stateWeights.put(ProjectFileState.STATE_REPLACED, 8);
-        stateWeights.put(ProjectFileState.STATE_DELETED, 16);
+        stateWeights.put(FileState.MODIFIED, 2);
+        stateWeights.put(FileState.ADDED, 4);
+        stateWeights.put(FileState.REPLACED, 8);
+        stateWeights.put(FileState.DELETED, 16);
         
-        validStateTransitions = new ArrayList<Pair<Integer,Integer>>();
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_MODIFIED, ProjectFileState.STATE_MODIFIED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_MODIFIED, ProjectFileState.STATE_DELETED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_ADDED, ProjectFileState.STATE_MODIFIED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_ADDED, ProjectFileState.STATE_DELETED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_DELETED, ProjectFileState.STATE_ADDED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_MODIFIED, ProjectFileState.STATE_REPLACED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_ADDED, ProjectFileState.STATE_REPLACED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_REPLACED, ProjectFileState.STATE_DELETED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_REPLACED, ProjectFileState.STATE_REPLACED));
-        validStateTransitions.add(new Pair(ProjectFileState.STATE_REPLACED, ProjectFileState.STATE_MODIFIED));
+        validStateTransitions = new ArrayList<>();
+        validStateTransitions.add(new Transition(FileState.MODIFIED, FileState.MODIFIED));
+        validStateTransitions.add(new Transition(FileState.MODIFIED, FileState.DELETED));
+        validStateTransitions.add(new Transition(FileState.ADDED, FileState.MODIFIED));
+        validStateTransitions.add(new Transition(FileState.ADDED, FileState.DELETED));
+        validStateTransitions.add(new Transition(FileState.DELETED, FileState.ADDED));
+        validStateTransitions.add(new Transition(FileState.MODIFIED, FileState.REPLACED));
+        validStateTransitions.add(new Transition(FileState.ADDED, FileState.REPLACED));
+        validStateTransitions.add(new Transition(FileState.REPLACED, FileState.DELETED));
+        validStateTransitions.add(new Transition(FileState.REPLACED, FileState.REPLACED));
+        validStateTransitions.add(new Transition(FileState.REPLACED, FileState.MODIFIED));
         
-        invTransitionFix = new HashMap<Integer, Integer>();
-        invTransitionFix.put(ProjectFileState.STATE_MODIFIED, ProjectFileState.STATE_MODIFIED);
-        invTransitionFix.put(ProjectFileState.STATE_ADDED, ProjectFileState.STATE_MODIFIED);
-        invTransitionFix.put(ProjectFileState.STATE_DELETED, ProjectFileState.STATE_ADDED);
-        invTransitionFix.put(ProjectFileState.STATE_REPLACED, ProjectFileState.STATE_MODIFIED);
+        invTransitionFix = new HashMap<>();
+        invTransitionFix.put(FileState.MODIFIED, FileState.MODIFIED);
+        invTransitionFix.put(FileState.ADDED, FileState.MODIFIED);
+        invTransitionFix.put(FileState.DELETED, FileState.ADDED);
+        invTransitionFix.put(FileState.REPLACED, FileState.MODIFIED);
     }
     
     public GitUpdater() {}
@@ -134,6 +143,10 @@ public class GitUpdater implements MetadataUpdater {
         this.git = git;
         this.log = log;
         this.project = sp;
+        
+        pfu = new ProjectFileUtils(dbs);   
+        du  = new DirectoryUtils(dbs);     
+        pvu = new ProjectVersionUtils(dbs, pfu);
     }
     
     public void setUpdateParams(StoredProject sp, Logger l) {
@@ -158,7 +171,7 @@ public class GitUpdater implements MetadataUpdater {
                 + " ID " + project.getId());
         
         //Compare latest DB version with the repository
-        ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(project);
+        ProjectVersion latestVersion = new ProjectVersionUtils(this.dbs, new ProjectFileUtils(this.dbs)).getLastProjectVersion(project);
         Revision next;
         if (latestVersion != null) {  
             Revision r = git.getHeadRevision();
@@ -190,15 +203,16 @@ public class GitUpdater implements MetadataUpdater {
         CommitLog commitLog = git.getCommitLog("", from, to);
         if(!dbs.isDBSessionActive()) dbs.startDBSession();
 
+        ProjectVersionUtils pvu = new ProjectVersionUtils(dbs, new ProjectFileUtils(this.dbs));
         for (Revision entry : commitLog) {
-        	if (ProjectVersion.getVersionByRevision(project, entry.getUniqueId()) != null) {
+        	if (pvu.getVersionByRevision(project, entry.getUniqueId()) != null) {
         		info("Skipping processed revision: " + entry.getUniqueId());
         		continue;
         	}
         	
             ProjectVersion pv = processOneRevision(entry);
             
-            processCopiedFiles(git, entry, pv, pv.getPreviousVersion());
+            processCopiedFiles(git, entry, pv, pvu.getPreviousVersion(pv));
             
             processRevisionFiles(git, entry, pv);
             
@@ -247,22 +261,24 @@ public class GitUpdater implements MetadataUpdater {
             pv.getTags().add(t);
         }
         
+        ProjectVersionUtils pvu = new ProjectVersionUtils(dbs, new ProjectFileUtils(dbs));
         //Sequencing
-        ProjectVersion prev = pv.getPreviousVersion();
+        ProjectVersion prev = pvu.getPreviousVersion(pv);
         if (prev != null)
             pv.setSequence(prev.getSequence() + 1);
         else 
             pv.setSequence(1);
               
+        BranchUtils bu = new BranchUtils(AlitheiaCore.getInstance().getDBService());
         //Branches and parent-child relationships
         for (String parentId : entry.getParentIds()) {
-            ProjectVersion parent = ProjectVersion.getVersionByRevision(project, parentId);
+            ProjectVersion parent = pvu.getVersionByRevision(project, parentId);
             ProjectVersionParent pvp = new ProjectVersionParent(pv, parent);
             pv.getParents().add(pvp);
             
             //Parent is a branch
             if (git.getCommitChidren(parentId).length > 1) {
-                Branch b = new Branch(project, Branch.suggestName(project));
+                Branch b = new Branch(project, bu.suggestBranchName(project));
                 dbs.addRecord(b);
                 parent.getOutgoingBranches().add(b);
                 pv.getIncomingBranches().add(b);
@@ -273,12 +289,12 @@ public class GitUpdater implements MetadataUpdater {
 
         if (entry.getParentIds().size() > 1) {
             //A merge commit
-            Branch b = new Branch(project, Branch.suggestName(project));
+            Branch b = new Branch(project, bu.suggestBranchName(project));
             pv.getOutgoingBranches().add(b);
         } else {
             //New line of development
             if (entry.getParentIds().size() == 0) {
-                Branch b = new Branch(project, Branch.suggestName(project));
+                Branch b = new Branch(project, bu.suggestBranchName(project));
                 dbs.addRecord(b);
                 pv.getOutgoingBranches().add(b);
             } else {
@@ -323,8 +339,9 @@ public class GitUpdater implements MetadataUpdater {
 
         Developer d = null;
         
+        DeveloperUtils du = new DeveloperUtils(dbs);
         if (email != null) {
-            d = Developer.getDeveloperByEmail(email, sp, true);
+            d = du.getDeveloperByEmail(email, sp, true);
             
             if (name != null) {
                 if (name.contains(" ")) {
@@ -335,9 +352,9 @@ public class GitUpdater implements MetadataUpdater {
             }
         } else {
             if (name.contains(" ")) {
-                d = Developer.getDeveloperByName(name, sp, true); 
+                d = du.getDeveloperByName(name, sp, true); 
             } else {
-                d = Developer.getDeveloperByUsername(name, sp, true);
+                d = du.getDeveloperByUsername(name, sp, true);
             }
         }
         return d;
@@ -363,7 +380,7 @@ public class GitUpdater implements MetadataUpdater {
         	}
         	
             ProjectFile copyFrom = null;
-            copyFrom = ProjectFile.findFile(project.getId(), 
+            copyFrom = pfu.findFile(project.getId(), 
                         FileUtils.basename(cce.fromPath()), 
                         FileUtils.dirname(cce.fromPath()), 
                         cce.fromRev().getUniqueId());
@@ -399,25 +416,27 @@ public class GitUpdater implements MetadataUpdater {
                 continue;
             } */ //TODO: Take care of this later on
             
+            ProjectFileUtils pfu = new ProjectFileUtils(this.dbs);
+            
             debug("copyFiles(): Copying " + cce.fromPath() + "->" + cce.toPath());
             if (copyFrom.getIsDirectory()) {
                     
-                Directory from = Directory.getDirectory(cce.fromPath(), false);
-                Directory to = Directory.getDirectory(cce.toPath(), true);
+                Directory from = du.getDirectoryByPath(cce.fromPath(), false);
+                Directory to = du.getDirectoryByPath(cce.toPath(), true);
 
                 /*
                  * Recursively copy contents and mark files as modified
                  * and directories as added
                  */
                 handleDirCopy(curVersion, 
-                        ProjectVersion.getVersionByRevision(curVersion.getProject(),
+                		pvu.getVersionByRevision(curVersion.getProject(),
                         cce.fromRev().getUniqueId()), from, to, copyFrom);
             } else {
                 /*
                  * Create a new entry at the new location and mark the new 
                  * entry as ADDED
                  */
-                addFile(curVersion, cce.toPath(), ProjectFileState.added(), 
+                addFile(curVersion, cce.toPath(), pfu.added(), 
                 		SCMNodeType.FILE, copyFrom);
             }
             
@@ -427,7 +446,7 @@ public class GitUpdater implements MetadataUpdater {
             		curVersion.getVersionFiles().addAll(handleDirDeletion(copyFrom, curVersion));
             	else 
             		addFile(curVersion, cce.fromPath(), 
-            				ProjectFileState.deleted(), SCMNodeType.FILE, null);
+            				pfu.deleted(), SCMNodeType.FILE, null);
             }
         }
     }
@@ -442,13 +461,12 @@ public class GitUpdater implements MetadataUpdater {
     
     private void processRevisionFiles(SCMAccessor scm, Revision entry,
             ProjectVersion curVersion) throws InvalidRepositoryException {
-       
         for (String chPath : entry.getChangedPaths()) {
             
             SCMNodeType t = scm.getNodeType(chPath, entry);
 
             ProjectFile file = addFile(curVersion, chPath,
-                    ProjectFileState.fromPathChangeType(entry.getChangedPathsStatus().get(chPath)), 
+            		new ProjectFileUtils(this.dbs).fromPathChangeType(entry.getChangedPathsStatus().get(chPath)), 
                     t, null);
             /*
              * Before entering the next block, examine whether the deleted
@@ -458,13 +476,13 @@ public class GitUpdater implements MetadataUpdater {
              * entry, it may be shared with another project; this case is
              * examined upon entering
              */
-            if (file.isDeleted() && (Directory.getDirectory(chPath, false) != null)) {
+            if (file.isDeleted() && (du.getDirectoryByPath(chPath, false) != null)) {
                 /*
                  * Directories, when they are deleted, do not have type DIR,
                  * but something else. So we need to check on deletes
                  * whether this name was most recently a directory.
                  */
-                ProjectFile lastVersion = file.getPreviousFileVersion();
+                ProjectFile lastVersion = pfu.getPreviousFileVersion(file);
                 
                 /*
                  * If a directory is deleted and its previous incarnation cannot
@@ -509,7 +527,7 @@ public class GitUpdater implements MetadataUpdater {
     
     private void replayLog(ProjectVersion curVersion) {
     	 /*Find duplicate projectfile entries*/
-        HashMap<String, Integer> numOccurs = new HashMap<String, Integer>();
+        HashMap<String, Integer> numOccurs = new HashMap<>();
         for (ProjectFile pf : curVersion.getVersionFiles()) {
             if (numOccurs.get(pf.getFileName()) != null) {
                 numOccurs.put(pf.getFileName(), numOccurs.get(pf.getFileName()).intValue() + 1);
@@ -521,7 +539,7 @@ public class GitUpdater implements MetadataUpdater {
         /* Copy list of files to be added to the DB in a tmp array,
          * to use for iterating
          */
-        List<ProjectFile> tmpFiles = new ArrayList<ProjectFile>();
+        List<ProjectFile> tmpFiles = new ArrayList<>();
         tmpFiles.addAll(curVersion.getVersionFiles());
         
         for (String fpath : numOccurs.keySet()) {
@@ -570,15 +588,16 @@ public class GitUpdater implements MetadataUpdater {
 			 * might indicated the replacement of a Git submodule with a
 			 * locally versioned path. 
 			 */
-            if (winner.getState().getStatus() == ProjectFileState.STATE_DELETED) {
+            ProjectFileUtils pfu = new ProjectFileUtils(this.dbs);
+            if (winner.getState().getFileStatus() == FileState.DELETED) {
             	for (ProjectFile f: curVersion.getVersionFiles()) {
             		if (!f.equals(winner) &&
             			 f.getFileName().startsWith(winner.getFileName()) &&
-            			 f.getState().getStatus() != ProjectFileState.STATE_DELETED) {
+            			 f.getState().getFileStatus() != FileState.DELETED) {
             			debug("replayLog(): Setting status of " + winner + " to " 
-            					+ ProjectFileState.replaced() + " as " +
+            					+ pfu.replaced() + " as " +
             					"file " + f + " uses its path");
-            			winner.setState(ProjectFileState.replaced());
+            			winner.setState(pfu.replaced());
             			winner.setIsDirectory(true);
             			break;
             		}
@@ -613,20 +632,22 @@ public class GitUpdater implements MetadataUpdater {
          * file has been processed before whithin this revision
          * or the previous file version
          */
-        ProjectFile cur = ProjectFile.findFile(project.getId(), fname,
+        ProjectFileUtils pfu = new ProjectFileUtils(dbs);
+    	DirectoryUtils du = new DirectoryUtils(dbs);
+        ProjectFile cur = pfu.findFile(project.getId(), fname,
         		path, version.getRevisionId(), true);
 
         if (cur != null && 
         	!cur.getProjectVersion().getRevisionId().equals(version.getRevisionId()) &&
         	!isValidStateTransition(cur.getState(), status)) {
-        	ProjectFileState newstatus = ProjectFileState.fromStatus(invTransitionFix.get(cur.getState().getStatus()));
+        	ProjectFileState newstatus = pfu.fromStatus(invTransitionFix.get(cur.getState().getFileStatus()));
         	debug("addFile(): Invalid state transition (" + cur.getState() + 
         			"->" + status + ") for path " + fPath + ". Setting " + 
         			"status to " + newstatus);
         	status = newstatus;
         }
         
-        Directory dir = Directory.getDirectory(path, true);
+        Directory dir = du.getDirectoryByPath(path, true);
         pf.setName(fname);
         pf.setDir(dir);
         pf.setState(status);
@@ -637,7 +658,7 @@ public class GitUpdater implements MetadataUpdater {
         SCMNodeType decided = null;
         
 		if (t == SCMNodeType.UNKNOWN) {
-			if (status.getStatus() == ProjectFileState.STATE_DELETED)
+			if (status.getFileStatus() == FileState.DELETED)
 				decided = (cur.getIsDirectory() == true ? 
 						SCMNodeType.DIR : SCMNodeType.FILE);
 			else 
@@ -663,33 +684,33 @@ public class GitUpdater implements MetadataUpdater {
      * mkdir -p cmd line command.
      */
     public Set<ProjectFile> mkdirs(final ProjectVersion pv, String path) {
-    	Set<ProjectFile> files = new HashSet<ProjectFile>();
+    	Set<ProjectFile> files = new HashSet<>();
     	String pathname = FileUtils.dirname(path);
     	String filename = FileUtils.basename(path);
     	
-    	ProjectVersion previous = pv.getPreviousVersion();
+    	ProjectVersion previous = pvu.getPreviousVersion(pv);
 
         if (previous == null) { // Special case for first version
             previous = pv;
         }
         
-    	ProjectFile prev = ProjectFile.findFile(project.getId(),
+    	ProjectFile prev = pfu.findFile(project.getId(),
     			filename, pathname, previous.getRevisionId());
     	
     	ProjectFile pf = new ProjectFile(pv);
     	
     	if (prev == null) {
-            pf.setState(ProjectFileState.added());
+            pf.setState(pfu.added());
             //Recursion reached the root directory
             if (!(pathname.equals("/") && filename.equals(""))) 
             	files.addAll(mkdirs(pv, pathname));
 
     	} else {
-    		pf.setState(ProjectFileState.modified());
+    		pf.setState(pfu.modified());
     	}
 
         pf.setDirectory(true);
-        pf.setDir(Directory.getDirectory(pathname, true));
+        pf.setDir(du.getDirectoryByPath(pathname, true));
         pf.setName(filename);
         pf.setValidFrom(pv);
         
@@ -703,11 +724,11 @@ public class GitUpdater implements MetadataUpdater {
      */
     private void updateValidUntil(ProjectVersion pv, Set<ProjectFile> versionFiles) {
 
-        ProjectVersion previous = pv.getPreviousVersion();
+        ProjectVersion previous = pvu.getPreviousVersion(pv);
 
         for (ProjectFile pf : versionFiles) {
             if (!pf.isAdded()) {
-                ProjectFile old = pf.getPreviousFileVersion();
+                ProjectFile old = pfu.getPreviousFileVersion(pf);
                 old.setValidUntil(previous);
             }
 
@@ -724,7 +745,7 @@ public class GitUpdater implements MetadataUpdater {
      * @param pf The project file representing the deleted directory
      */
     private Set<ProjectFile> handleDirDeletion(final ProjectFile pf, final ProjectVersion pv) {
-    	Set<ProjectFile> files = new HashSet<ProjectFile>();
+    	Set<ProjectFile> files = new HashSet<>();
 
 		if (pf == null || pv == null) {
 			return files;
@@ -736,7 +757,7 @@ public class GitUpdater implements MetadataUpdater {
         
         debug("Deleting directory " + pf.getFileName() + " ID "
                 + pf.getId());
-        Directory d = Directory.getDirectory(pf.getFileName(), false);
+        Directory d = du.getDirectoryByPath(pf.getFileName(), false);
         if (d == null) {
             warn("Directory entry " + pf.getFileName() + " in project "
                     + pf.getProjectVersion().getProject().getName()
@@ -744,7 +765,7 @@ public class GitUpdater implements MetadataUpdater {
             return files;
         }
 
-        ProjectVersion prev = pv.getPreviousVersion();
+        ProjectVersion prev = pvu.getPreviousVersion(pv);
         
         List<ProjectFile> dirFiles = prev.getFiles(d);
         
@@ -753,7 +774,7 @@ public class GitUpdater implements MetadataUpdater {
                 files.addAll(handleDirDeletion(f, pv));
             }
             ProjectFile deleted = new ProjectFile(f, pv);
-            deleted.setState(ProjectFileState.deleted());
+            deleted.setState(pfu.deleted());
             files.add(deleted);
         }
         return files;
@@ -764,9 +785,9 @@ public class GitUpdater implements MetadataUpdater {
      * Alitheia Core expects.
      */
     private boolean isValidStateTransition(ProjectFileState a, ProjectFileState b) {
-    	for (Pair<Integer, Integer> p: validStateTransitions) {
-    		if (p.first == a.getStatus())
-    			if (p.second == b.getStatus())
+    	for (Transition p: validStateTransitions) {
+    		if (p.getLeft() == a.getFileStatus())
+    			if (p.getRight() == b.getFileStatus())
     				return true;
     	}
     	return false;
@@ -780,22 +801,23 @@ public class GitUpdater implements MetadataUpdater {
         
         if (!canProcessCopy(from.getPath(), to.getPath())) 
             return;
-       
-        addFile(pv, to.getPath(), ProjectFileState.added(), SCMNodeType.DIR, copyFrom);
+        
+        ProjectFileUtils pfu = new ProjectFileUtils(this.dbs);
+        addFile(pv, to.getPath(), pfu.added(), SCMNodeType.DIR, copyFrom);
         
         /*Recursively copy directories*/
-        List<ProjectFile> fromPF = fromVersion.getFiles(from, ProjectVersion.MASK_DIRECTORIES);
+        List<ProjectFile> fromPF = fromVersion.getFiles(from, ProjectVersion.MASK.DIRECTORIES);
         
         for (ProjectFile f : fromPF) {
-            handleDirCopy(pv, fromVersion, Directory.getDirectory(f.getFileName(), false), 
-            		Directory.getDirectory(to.getPath() + "/" + f.getName(), true), f);
+            handleDirCopy(pv, fromVersion, du.getDirectoryByPath(f.getFileName(), false), 
+            		du.getDirectoryByPath(to.getPath() + "/" + f.getName(), true), f);
         }
         
-        fromPF = fromVersion.getFiles(from, ProjectVersion.MASK_FILES);
+        fromPF = fromVersion.getFiles(from, ProjectVersion.MASK.FILES);
         
         for (ProjectFile f : fromPF) {
             addFile(pv, to.getPath() + "/" + f.getName(),
-                    ProjectFileState.added(), SCMNodeType.FILE, f);
+                    pfu.added(), SCMNodeType.FILE, f);
         }
     }
     

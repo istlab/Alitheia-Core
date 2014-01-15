@@ -33,11 +33,7 @@
 
 package eu.sqooss.service.db;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -52,8 +48,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import eu.sqooss.core.AlitheiaCore;
 
 /**
  * Entity that holds information about a mailing list thread.
@@ -150,108 +144,7 @@ public class MailingListThread extends DAObject {
         this.lastUpdated = lastUpdated;
     }
     
-    /**
-     * Get the email that kickstarted this thread.
-     */
-    public MailMessage getStartingEmail() {
-
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("thread", this);
-        params.put("depth", 0);
-        
-        List<MailMessage> mm = dbs.findObjectsByProperties(MailMessage.class,
-                params);
-
-        if (!mm.isEmpty())
-            return mm.get(0);
-
-        return null;
-    }
-    
-    /**
-     * Get all messages in this thread by order of arrival.
-     * 
-     * @return The last MailMessage in a thread.
-     */
-    public List<MailMessage> getMessagesByArrivalOrder() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramThread = "paramThread";
-        
-        String query = "select mm " +
-                " from MailMessage mm, MailingListThread mt " +
-                " where mm.thread = mt " +
-                " and mt = :" + paramThread + 
-                " order by mm.sendDate asc" ;
-        Map<String,Object> params = new HashMap<String, Object>(1);
-        params.put(paramThread, this);
-        
-        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params);
-        
-        if (mm == null || mm.isEmpty())
-            return Collections.emptyList();
-        
-        return mm;
-    }
-    
-    /**
-     * Get the number of levels in the reply tree.
-     */
-    public int getThreadDepth() {
-        
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramThread = "paramThread";
-        
-        String query = "select max(mm.depth) " +
-                " from MailMessage mm, MailingListThread mt " +
-                " where mt = :" + paramThread +
-                " and mm.thread = mt";
-        Map<String,Object> params = new HashMap<String, Object>(1);
-        params.put(paramThread, this);
-        
-        List<Integer> mm = (List<Integer>) dbs.doHQL(query, params, 1);
-        
-        if (mm == null || mm.isEmpty())
-            return 0;
-        
-        return mm.get(0).intValue();
-    }
-    
-    /**
-     * Get all emails at the provided depth, ordered by arrival time
-     * @param level The thread depth level for which to select emails.
-     * @return The emails at the specified thread depth.
-     */
-    public List<MailMessage> getMessagesAtLevel(int level) {
-        
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        String paramThread = "paramThread";
-        String paramDepth = "paramDepth";
-        
-        String query = "select mm " +
-                " from MailMessage mm, MailingListThread mlt " +
-                " where mm.thread = mlt" +
-                " and mlt = :" + paramThread + 
-                " and mm.depth = :" + paramDepth +
-                " order by mm.sendDate asc";
-        
-        Map<String,Object> params = new HashMap<String, Object>(1);
-        params.put(paramThread, this);
-        params.put(paramDepth, level);
-        
-        List<MailMessage> mm = (List<MailMessage>) dbs.doHQL(query, params);
-        
-        if (mm == null || mm.isEmpty())
-            return Collections.emptyList();
-        
-        return mm;
-    }
-
-	public void setMeasurements(Set<MailingListThreadMeasurement> measurements) {
+    public void setMeasurements(Set<MailingListThreadMeasurement> measurements) {
 		this.measurements = measurements;
 	}
 
