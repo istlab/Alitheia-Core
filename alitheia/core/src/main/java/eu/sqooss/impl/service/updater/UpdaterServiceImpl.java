@@ -50,6 +50,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.updater.exceptions.UpdaterException;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
@@ -91,7 +92,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     		u = manager.addUpdater(clazz);
     	}
     	catch (UpdaterException e) {
-    		logger.error(e.toString());
+    		logger.error(e.getMessage());
     		return;
     	}
             
