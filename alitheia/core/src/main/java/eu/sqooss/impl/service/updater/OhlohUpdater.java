@@ -105,24 +105,31 @@ public class OhlohUpdater extends UpdaterBaseJob {
             }
             
             while (i.hasNext()) {
-                Element account = (Element) i.next();
-                String id = getString(account.element("id"));
-                String uname = getString(account.element("name"));
-                String mailhash = getString(account.element("email_sha1"));
-                
-                OhlohDeveloper od = OhlohDeveloper.getByOhlohId(id);
-                if (od != null) { //Exists, update fields to track updates
-                    od.setEmailHash(mailhash);
-                    od.setTimestamp(new Date());
-                    od.setUname(uname);
-                } else {
-                    od = new OhlohDeveloper(uname, mailhash, id);
-                    dbs.addRecord(od);
-                }
+                addAccount((Element) i.next());
             }
+            
             dbs.commitDBSession();
         }
     }
+    /**
+     * Adding a single account
+     * @param account Element that is account
+     */
+	private void addAccount(Element account) {
+		String id = getString(account.element("id"));
+		String uname = getString(account.element("name"));
+		String mailhash = getString(account.element("email_sha1"));
+		
+		OhlohDeveloper od = OhlohDeveloper.getByOhlohId(id);
+		if (od != null) { //Exists, update fields to track updates
+		    od.setEmailHash(mailhash);
+		    od.setTimestamp(new Date());
+		    od.setUname(uname);
+		} else {
+		    od = new OhlohDeveloper(uname, mailhash, id);
+		    dbs.addRecord(od);
+		}
+	}
     
     /**
      * Construct a Document from an XML file in a certain folder.
