@@ -41,31 +41,23 @@ import java.io.FilenameFilter;
  */
 
 public class Folder {
-	/**
-	 * path of the folder
-	 */
-	private String path;
-
+	
 	/**
 	 * The decorated file
 	 */
 	private File f;
 
 	/**
-	 * Constructor
+	 * Construct a new Folder for a given path
 	 * 
-	 * @param path
-	 *            A path to the folder
+	 * @param path A path to the folder
+	 * @throws NullPointerException If the path is null
 	 */
-	public Folder(String path) {
-		f = null;
-		this.path = path;
-
+	public Folder(String path) throws NullPointerException{
 		if (path == null)
 			throw new NullPointerException("Path is null");
 
 		f = new File(path);
-
 	}
 
 	/**
