@@ -462,7 +462,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                         new ArrayList<Class<? extends MetadataUpdater>>();
 
                     for (String s : u.dependencies()) {
-                        dependencies.add(updaters.get(manager.getUpdaterByMnemonic(s)));
+                        dependencies.add(manager.getMetadataUpdaterByMnemonic(s));
                     }
 
                     for (Class<? extends MetadataUpdater> d : dependencies) {

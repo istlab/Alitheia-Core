@@ -1,5 +1,6 @@
 package eu.sqooss.impl.service.updater;
 
+import java.util.Collection;
 import java.util.Set;
 
 import eu.sqooss.service.updater.MetadataUpdater;
@@ -49,5 +50,7 @@ public class UpdaterManager {
                 return upd;
         }
         return null;
-    }
+    }    
+    public Class<? extends MetadataUpdater> getMetadataUpdaterByMnemonic(String s) { 
+    	return updaters.get(getUpdaterByMnemonic(s)); }
 }
