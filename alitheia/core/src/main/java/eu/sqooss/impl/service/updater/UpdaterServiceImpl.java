@@ -46,6 +46,7 @@ import java.util.Set;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.updater.exceptions.DependencyException;
 import eu.sqooss.impl.service.updater.exceptions.UpdaterException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
@@ -403,14 +404,14 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         } catch (IllegalAccessException e) {
             logger.error("Cannot load updater class:" + e.getMessage(), e);
             return false;
-        } catch (Exception e) {
-			return false; /*TODO make exception */
+        } catch (DependencyException d) {
+			return false;
 		}
         
         return true;
     }
 
-	private List<Updater> topoSort(Set<Updater> updaters) throws Exception {
+	private List<Updater> topoSort(Set<Updater> updaters) throws DependencyException {
 		// Topologically sort updaters within the same stage
 		List<Updater> updForStage = new ArrayList<Updater>();
 		updForStage.addAll(updaters);
@@ -422,7 +423,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 		//Construct a adjacency matrix for dependencies
 		for (Updater u : updForStage) {
 		    if (!checkDependencies(u))
-		        throw new Exception();  /*TODO make exception*/
+		        throw new DependencyException("Dependencies of an updater do not exist");  
 		    if (!idx.containsKey(u)) {
 		        int n = graph.addVertex(u);
 		        idx.put(u, n);
