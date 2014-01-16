@@ -151,11 +151,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         ProjectAccessor pa = tds.getAccessor(project.getId());
 		Set<URI> schemes = new HashSet<URI>();
 
-        //Import phase updaters
         try {
-            schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
-            schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
-            schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
+        	addAllSupportedURLSchemes(pa, schemes);
         } catch (InvalidAccessorException e) {
             logger.warn("Project " + project
                     + " does not include a Mail accessor: " + e.getMessage());
@@ -165,6 +162,13 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             upds.addAll(manager.getUpdatersByProtocol(uri.getScheme()));
         }
         return upds;
+	}
+
+	private void addAllSupportedURLSchemes(ProjectAccessor pa, Set<URI> schemes) throws InvalidAccessorException {
+		//Import phase updaters
+            schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
+            schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
+            schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
 	}
     
     /**{@inheritDoc}*/
