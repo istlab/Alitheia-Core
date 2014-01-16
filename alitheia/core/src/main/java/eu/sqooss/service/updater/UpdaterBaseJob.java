@@ -34,7 +34,7 @@
 package eu.sqooss.service.updater;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
+import eu.sqooss.impl.service.ohloh.UpdaterServiceImpl;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
