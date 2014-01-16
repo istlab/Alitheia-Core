@@ -49,8 +49,9 @@ public class WebAdminRendererTest extends AbstractViewTestBase {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		velocityContext = new VelocityContext();
 		webAdminRenderer = new WebAdminRenderer(mock(BundleContext.class),velocityContext);
-		velocityContext = mock(VelocityContext.class);
+//		velocityContext = mock(VelocityContext.class);
 		super.setUp(webAdminRenderer);
 	}
 

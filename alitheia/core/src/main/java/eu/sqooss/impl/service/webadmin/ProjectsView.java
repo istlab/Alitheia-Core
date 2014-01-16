@@ -113,9 +113,10 @@ public class ProjectsView extends AbstractView {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
         // some test errors
-        errorMessages.add("test error 1");
-        errorMessages.add("test error 2");
-        errorMessages.add(getErr("e0034"));
+
+//        errorMessages.add("test error 1");
+//        errorMessages.add("test error 2");
+//        errorMessages.add(getErr("e0034"));
 
         // Request values
         String reqValAction = "";

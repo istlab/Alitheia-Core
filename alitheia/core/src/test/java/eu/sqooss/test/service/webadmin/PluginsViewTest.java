@@ -73,7 +73,7 @@ public class PluginsViewTest extends AbstractViewTestBase {
 	@Before
 	public void setUp() throws Exception {
 		bundleContext = mock(BundleContext.class);
-		velocityContext = mock(VelocityContext.class);
+		velocityContext = new VelocityContext();
 		pluginsView = new PluginsView(bundleContext,velocityContext);
 		super.setUp(pluginsView);
 		when(logManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN)).thenReturn(logger);
