@@ -67,7 +67,8 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 	@Before
 	public void setUp() throws Exception {
 		bundleContext = mock(BundleContext.class);
-		velocityContext = mock(VelocityContext.class);
+		velocityContext = new VelocityContext();
+		projectsView = new ProjectsView(bundleContext, velocityContext);
 		super.setUp(projectsView);
 	}
 
@@ -284,8 +285,7 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 	 */
 	@Test
 	public void testRender() {
-		VelocityContext vc = new VelocityContext();
-		projectsView = new ProjectsView(bundleContext, vc);
+//		VelocityContext vc = new VelocityContext();
 		
 		VelocityEngine ve = null;
 		try {
