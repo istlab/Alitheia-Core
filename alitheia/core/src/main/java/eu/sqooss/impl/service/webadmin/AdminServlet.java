@@ -123,8 +123,8 @@ public class AdminServlet extends HttpServlet {
         dynamicContentMap = new Hashtable<String, String>();
         dynamicContentMap.put("/", "index.html");
         dynamicContentMap.put("/index", "index.html");
-        dynamicContentMap.put("/projects", "projects.html");
-        dynamicContentMap.put("/projectlist", "projectslist.html");
+        dynamicContentMap.put("/projects", "projectsView.html");
+        dynamicContentMap.put("/projectlist", "projectslist.html");//TODO remove?not used anymore
         dynamicContentMap.put("/logs", "logs.html");
         dynamicContentMap.put("/jobs", "jobs.html");
         dynamicContentMap.put("/alljobs", "alljobs.html");
@@ -303,7 +303,7 @@ public class AdminServlet extends HttpServlet {
         // put requested page into velocity context
         vc.put("CONTENTS", path);
         
-        // 
+        // put velocity engine
         projectsView.render(request);
 
         // Do any substitutions that may be required

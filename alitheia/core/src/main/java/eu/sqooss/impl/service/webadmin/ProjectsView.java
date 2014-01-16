@@ -183,7 +183,7 @@ public class ProjectsView extends AbstractView {
         vc.put("REQ_PAR_PRJ_CODE",REQ_PAR_PRJ_CODE);
         vc.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
         vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
-        createForm(b, e, selProject, reqValAction , in);
+        createForm(b, e, selProject, reqValAction);
         return b.toString();
     }
   
@@ -306,13 +306,14 @@ public class ProjectsView extends AbstractView {
      * == to be deprecated ==
      */
     private void createForm(StringBuilder b, StringBuilder e, 
-    		StoredProject selProject, String reqValAction, int in) {
+    		StoredProject selProject, String reqValAction) {
         // ===============================================================
         // Display the accumulated error messages (if any)
         // ===============================================================
-        b.append(errorFieldset(e, ++in));
+//        b.append(errorFieldset(e, ++in));TODO FIXME add the errors to VC
     	
-    	VelocityContext vcLocal = new VelocityContext();
+//    	VelocityContext vcLocal = new VelocityContext();
+//    	VelocityContext vc = vc;
 
 
 
@@ -336,10 +337,10 @@ public class ProjectsView extends AbstractView {
             rows.add(normalInfoRowMap("Mailing list", selProject.getMailUrl()));
             rows.add(normalInfoRowMap("Source code", selProject.getScmUrl()));
             //add info fields to velocity context
-            vcLocal.put("infoRows", rows);
-            vcLocal.put("backButtonText", getLbl("btn_back"));
-            vcLocal.put("onClickInstall", SUBMIT);
-            vcLocal.put("currentProjectTemplate", "ProjectInformation.html");
+            vc.put("infoRows", rows);
+            vc.put("backButtonText", getLbl("btn_back"));
+            vc.put("onClickInstall", SUBMIT);
+            vc.put("currentProjectTemplate", "ProjectInformation.html");
 
         }
         // ===================================================================
@@ -355,40 +356,40 @@ public class ProjectsView extends AbstractView {
             fields.add(normalInputRowMap("Bug database", REQ_PAR_PRJ_BUG, ""));
             fields.add(normalInputRowMap("Mailing list", REQ_PAR_PRJ_MAIL, ""));
             fields.add(normalInputRowMap("Source code", REQ_PAR_PRJ_CODE, ""));
-            vcLocal.put("formFields", fields);
-            vcLocal.put("currentProjectTemplate", "addProjectEditor.html");
+            vc.put("formFields", fields);
+            vc.put("currentProjectTemplate", "addProjectEditor.html");
         }
         // ===================================================================
         // "Delete project" confirmation view
         // ===================================================================
         else if ((reqValAction.equals(ACT_REQ_REM_PROJECT))
                 && (selProject != null)) {
-        	vcLocal.put("deleteLabel", getLbl("l0059"));
+        	vc.put("deleteLabel", getLbl("l0059"));
         	//concat with empty string to convert null value to "null" string.
-        	vcLocal.put("projectName", ""+selProject.getName() );
-            vcLocal.put("message", getMsg("delete_project"));
-            vcLocal.put("onClickDelete","document.getElementById('"+ 
+        	vc.put("projectName", ""+selProject.getName() );
+            vc.put("message", getMsg("delete_project"));
+            vc.put("onClickDelete","document.getElementById('"+ 
             								REQ_PAR_ACTION + "').value='"+ 
             								ACT_CON_REM_PROJECT + "';"+ 
             								SUBMIT);
-            vcLocal.put("onClickCancel",SUBMIT);
-            vcLocal.put("confirmValue",getLbl("l0006"));
-            vcLocal.put("cancelValue", getLbl("l0004"));
-            vcLocal.put("currentProjectTemplate", "confirmProjectDelete.html");
+            vc.put("onClickCancel",SUBMIT);
+            vc.put("confirmValue",getLbl("l0006"));
+            vc.put("cancelValue", getLbl("l0004"));
+            vc.put("currentProjectTemplate", "confirmProjectDelete.html");
         }
         // ===================================================================
         // Projects list view
         // ===================================================================
         else {
-            vcLocal.put("idHeader",getLbl("l0066"));
-            vcLocal.put("nameHeader",getLbl("l0067"));
-            vcLocal.put("versionHeader",getLbl("l0068"));
-            vcLocal.put("emailHeader",getLbl("l0069"));
-            vcLocal.put("bugHeader",getLbl("l0070"));
-            vcLocal.put("evaluatedHeader",getLbl("l0071"));
-            vcLocal.put("hostHeader",getLbl("l0073"));
-            vcLocal.put("no_projects", getMsg("no_projects"));
-            vcLocal.put("noProjectsAvailable",projects.isEmpty());
+            vc.put("idHeader",getLbl("l0066"));
+            vc.put("nameHeader",getLbl("l0067"));
+            vc.put("versionHeader",getLbl("l0068"));
+            vc.put("emailHeader",getLbl("l0069"));
+            vc.put("bugHeader",getLbl("l0070"));
+            vc.put("evaluatedHeader",getLbl("l0071"));
+            vc.put("hostHeader",getLbl("l0073"));
+            vc.put("no_projects", getMsg("no_projects"));
+            vc.put("noProjectsAvailable",projects.isEmpty());
             
             //------------------------------------------------------------
             // Create the content rows
@@ -471,56 +472,57 @@ public class ProjectsView extends AbstractView {
                 projectRows.add(projectRow);
             }
             
-            vcLocal.put("projectList", projectRows);
+            vc.put("projectList", projectRows);
             
             
             //----------------------------------------------------------------
             // Tool-bar
             //----------------------------------------------------------------
-            addToolBar(selProject,vcLocal);
-            vcLocal.put("currentProjectTemplate", "projectList.html");
+            addToolBar(selProject);
+            vc.put("currentProjectTemplate", "projectList.html");
         }
 
         // ===============================================================
         // INPUT FIELDS
         // ===============================================================
         // "Action type" input field
-    	vcLocal.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
+    	vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
     	
         // "Project Id" input field
-    	vcLocal.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
-    	vcLocal.put("selectedProjectId", ((selProject != null) ? selProject.getId() : ""));
+    	vc.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
+    	vc.put("selectedProjectId", ((selProject != null) ? selProject.getId() : ""));
         
     	// "Plug-in hashcode" input field
-    	vcLocal.put("REQ_PAR_SYNC_PLUGIN", REQ_PAR_SYNC_PLUGIN);
+    	vc.put("REQ_PAR_SYNC_PLUGIN", REQ_PAR_SYNC_PLUGIN);
         
-        //create actual string.
-        b.append(velocityContextToString(vcLocal, "projectsView.html"));
+    	// return the local velocity context
+//        return vc; 
+    	//create actual string.
+    	b.append(velocityContextToString(vc, "projectsView.html"));
     }
 
     
-    private VelocityContext addToolBar(StoredProject selProject, VelocityContext origin) {
-    	VelocityContext vcLocal = origin;
+    private void addToolBar(StoredProject selProject) {
 
     	String postArgument = "";
     	if(selProject != null){
     		postArgument = "?" + REQ_PAR_PROJECT_ID + "=" + selProject.getId();
     	}
-    	vcLocal.put("postArgument",postArgument);
-    	vcLocal.put("removeDisabled", ((selProject != null) ? "" : " disabled"));
-    	vcLocal.put("onClickSubmit", SUBMIT);
-    	vcLocal.put("refreshButton", getLbl("l0008"));
-    	vcLocal.put("addProjectButton", getLbl("add_project"));
-    	vcLocal.put("deleteProjectButton", getLbl("l0059"));
-    	vcLocal.put("REQ_PAR_ACTION", ProjectsView.REQ_PAR_ACTION);
-    	vcLocal.put("addProjectValue", ACT_REQ_ADD_PROJECT);
-    	vcLocal.put("removeProjectValue", ACT_REQ_REM_PROJECT);
-    	vcLocal.put("REQ_PAR_UPD", ProjectsView.REQ_PAR_UPD);
-    	vcLocal.put("ACT_CON_UPD_ALL_NODE", ProjectsView.ACT_CON_UPD_ALL_NODE);
-    	vcLocal.put("clusterName", sobjClusterNode.getClusterNodeName());
-    	vcLocal.put("projectSelected",selProject != null);
-    	vcLocal.put("ACT_CON_UPD",ACT_CON_UPD);
-    	vcLocal.put("ACT_CON_UPD_ALL",ACT_CON_UPD_ALL);
+    	vc.put("postArgument",postArgument);
+    	vc.put("removeDisabled", ((selProject != null) ? "" : " disabled"));
+    	vc.put("onClickSubmit", SUBMIT);
+    	vc.put("refreshButton", getLbl("l0008"));
+    	vc.put("addProjectButton", getLbl("add_project"));
+    	vc.put("deleteProjectButton", getLbl("l0059"));
+    	vc.put("REQ_PAR_ACTION", ProjectsView.REQ_PAR_ACTION);
+    	vc.put("addProjectValue", ACT_REQ_ADD_PROJECT);
+    	vc.put("removeProjectValue", ACT_REQ_REM_PROJECT);
+    	vc.put("REQ_PAR_UPD", ProjectsView.REQ_PAR_UPD);
+    	vc.put("ACT_CON_UPD_ALL_NODE", ProjectsView.ACT_CON_UPD_ALL_NODE);
+    	vc.put("clusterName", sobjClusterNode.getClusterNodeName());
+    	vc.put("projectSelected",selProject != null);
+    	vc.put("ACT_CON_UPD",ACT_CON_UPD);
+    	vc.put("ACT_CON_UPD_ALL",ACT_CON_UPD_ALL);
         
         if (selProject != null) {
         	List<Map<String,String>> importUpdaters = new ArrayList<Map<String,String>>();
@@ -539,12 +541,11 @@ public class ProjectsView extends AbstractView {
             for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.DEFAULT)) {
                 defaultUpdaters.add(getUpdaterOptionMap(u));
             }
-            vcLocal.put("importUpdaters", importUpdaters);
-            vcLocal.put("parseUpdaters",parseUpdaters);
-            vcLocal.put("inferenceUpdaters",inferenceUpdaters);
-            vcLocal.put("defaultUpdaters", defaultUpdaters);
+            vc.put("importUpdaters", importUpdaters);
+            vc.put("parseUpdaters",parseUpdaters);
+            vc.put("inferenceUpdaters",inferenceUpdaters);
+            vc.put("defaultUpdaters", defaultUpdaters);
         }
-        return vcLocal;
     }
     
     /**
