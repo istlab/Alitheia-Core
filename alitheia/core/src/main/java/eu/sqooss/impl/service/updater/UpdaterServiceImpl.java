@@ -294,20 +294,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 + " updater:" + (updater == null?updater:"all"));
         
         //Construct a list of updater stages to iterate later
-        List<UpdaterStage> stages = new ArrayList<UpdaterStage>(); 
-        
-        if (updater == null) {
-            if (stage == null) {
-                stages.add(UpdaterStage.IMPORT);
-                stages.add(UpdaterStage.PARSE);
-                stages.add(UpdaterStage.INFERENCE);
-                stages.add(UpdaterStage.DEFAULT);
-            } else {
-                stages.add(stage);
-            }
-        } else {
-            stages.add(updater.stage());
-        }
+        List<UpdaterStage> stages = getUpdaterStagesFor(stage, updater);
         
         /*
          * For each update stage add updaters in topologically sorted order. Add
@@ -518,6 +505,33 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         } 
         
         return null;
+    }
+    
+    /**
+     * Construct a list of stages to iterate over for a certain
+     * Updater + UpdaterStage combination.
+     * 
+     * @param stage The stage to use if updater is null, will use all if null
+     * @param updater The updater to infer the stage from
+     * @return A list of stages to check for this combination
+     */
+    private List<UpdaterStage> getUpdaterStagesFor(UpdaterStage stage, Updater updater){
+    	List<UpdaterStage> stages = new ArrayList<UpdaterStage>(); 
+        
+        if (updater == null) {
+            if (stage == null) {
+                stages.add(UpdaterStage.IMPORT);
+                stages.add(UpdaterStage.PARSE);
+                stages.add(UpdaterStage.INFERENCE);
+                stages.add(UpdaterStage.DEFAULT);
+            } else {
+                stages.add(stage);
+            }
+        } else {
+            stages.add(updater.stage());
+        }
+        
+        return stages;
     }
 
     /**
