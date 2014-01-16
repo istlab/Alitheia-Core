@@ -22,6 +22,7 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.URIish;
+import org.powermock.reflect.Whitebox;
 
 import eu.sqooss.plugins.tds.git.GitAccessor;
 import eu.sqooss.service.tds.AccessorException;
@@ -86,6 +87,10 @@ public class TestGitSetup {
     
     public static void getGitRepo() throws AccessorException, URISyntaxException {
         git = new GitAccessor();
-        git.testInit(new URI("git-file://" + localrepo), projectName);
+        try {
+			Whitebox.invokeMethod(GitAccessor.class, "doInit", new URI("git-file://" + localrepo), projectName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 }
