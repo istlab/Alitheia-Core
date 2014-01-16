@@ -53,7 +53,6 @@ import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
 import eu.sqooss.service.util.StringUtils;
 
 public class PluginsView extends AbstractView{
-
     public PluginsView(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
     }
@@ -254,7 +253,7 @@ public class PluginsView extends AbstractView{
             vc.put("reqValShowProp",reqValShowProp);
             vc.put("reqValShowActv",reqValShowActv);
         }
-        
+
 
         return velocityContextToString("pluginsView.html");
     }
