@@ -59,33 +59,33 @@ import eu.sqooss.service.util.Folder;
  * @author Quinten Stokkink
  */
 public class OhlohUpdater extends UpdaterBaseJob {
-    
+
 	/**
 	 * The System property that stores the Ohloh path
 	 */
-    private static final String OHLOH_PATH = "eu.sqooss.updater.ohloh.path";
-    
-    /**
-     * The actual Ohloh path the Ohloh XML files are located in
-     */
-    private String ohlohPath;
-    
-    /**
-     * Construct a new Ohloh updater.
-     */
-    public OhlohUpdater() {
-        ohlohPath = System.getProperty(OHLOH_PATH); 
-    }
+	private static final String OHLOH_PATH = "eu.sqooss.updater.ohloh.path";
 
-    @Override
-    /**
-     * Updating developer information is a low priority process.
-     */
-    public long priority() {
-        return 3;
-    }
+	/**
+	 * The actual Ohloh path the Ohloh XML files are located in
+	 */
+	private String ohlohPath;
 
-    @SuppressWarnings("unchecked")
+	/**
+	 * Construct a new Ohloh updater.
+	 */
+	public OhlohUpdater() {
+		ohlohPath = System.getProperty(OHLOH_PATH); 
+	}
+
+	@Override
+	/**
+	 * Updating developer information is a low priority process.
+	 */
+	public long priority() {
+		return 3;
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	/**
 	 * For all the files in the Ohloh XML folder add the specified accounts
@@ -93,114 +93,114 @@ public class OhlohUpdater extends UpdaterBaseJob {
 	 * 
 	 * throws FileNotFoundException If the Ohloh XML folder could not be read
 	 */
-    protected void run() throws FileNotFoundException{
-        Folder folder = openFolder();
-        
-        for (String file : folder.listFilesExt(".xml")) {
-            dbs.startDBSession();
-            
-            Document document = docFromXMLFile(folder, file);
-            if (document == null)
-            	continue;
-            
-            Element root = document.getRootElement();
+	protected void run() throws FileNotFoundException{
+		Folder folder = openFolder();
+
+		for (String file : folder.listFilesExt(".xml")) {
+			dbs.startDBSession();
+
+			Document document = docFromXMLFile(folder, file);
+			if (document == null)
+				continue;
+
+			Element root = document.getRootElement();
 			Iterator<Element> i = root.element("result").elementIterator("account");
-            
-            if (i == null || !i.hasNext())
-                logger.warn("Cannot find <account> element in file " + document.getPath());
-            
-            while (i.hasNext())
-                addAccount(i.next());
-            
-            dbs.commitDBSession();
-        }
-    }
-    /**
-     * Adding a single account
-     * @param account Element that is account
-     */
+
+			if (i == null || !i.hasNext())
+				logger.warn("Cannot find <account> element in file " + document.getPath());
+
+			while (i.hasNext())
+				addAccount(i.next());
+
+			dbs.commitDBSession();
+		}
+	}
+	/**
+	 * Adding a single account
+	 * @param account Element that is account
+	 */
 	private void addAccount(Element account) {
 		String id = getString(account.element("id"));
 		String uname = getString(account.element("name"));
 		String mailhash = getString(account.element("email_sha1"));
-		
+
 		OhlohDeveloper od = OhlohDeveloper.getByOhlohId(id);
 		if (od != null) { //Exists, update fields to track updates
-		    od.setEmailHash(mailhash);
-		    od.setTimestamp(new Date());
-		    od.setUname(uname);
+			od.setEmailHash(mailhash);
+			od.setTimestamp(new Date());
+			od.setUname(uname);
 		} else {
-		    od = new OhlohDeveloper(uname, mailhash, id);
-		    dbs.addRecord(od);
+			od = new OhlohDeveloper(uname, mailhash, id);
+			dbs.addRecord(od);
 		}
 	}
-    
-    /**
-     * Construct a Document from an XML file in a certain folder.
-     * 
-     * @param folder The folder the file resides in
-     * @param file The file identifier relative to the folder
-     * @return The parsed Document DOM-tree corresponding to the file
-     */
-    private Document docFromXMLFile(Folder folder, String file){
-    	String absFolder = folder.getAbsolutePath();
-    	String xmlFilePath = FileUtils.appendPath(absFolder, file);
-        XMLReader xmlReader = new XMLReader(xmlFilePath);
 
-        Document document = null;
-        try {
-            document = xmlReader.parse();
-        } catch (FileNotFoundException fex) {
-            logger.warn("Cannot read file " + absFolder + fex.toString());
-        } catch (DocumentException e) {
-            logger.warn("Cannot parse Ohloh file " + absFolder + " " + e.getMessage());
-        }
-        
-        return document;
-    }
+	/**
+	 * Construct a Document from an XML file in a certain folder.
+	 * 
+	 * @param folder The folder the file resides in
+	 * @param file The file identifier relative to the folder
+	 * @return The parsed Document DOM-tree corresponding to the file
+	 */
+	private Document docFromXMLFile(Folder folder, String file){
+		String absFolder = folder.getAbsolutePath();
+		String xmlFilePath = FileUtils.appendPath(absFolder, file);
+		XMLReader xmlReader = new XMLReader(xmlFilePath);
 
-    /**
-     * Private method for opening directory
-     * @return new Object
-     * @throws FileNotFoundException
-     */
+		Document document = null;
+		try {
+			document = xmlReader.parse();
+		} catch (FileNotFoundException fex) {
+			logger.warn("Cannot read file " + absFolder + fex.toString());
+		} catch (DocumentException e) {
+			logger.warn("Cannot parse Ohloh file " + absFolder + " " + e.getMessage());
+		}
+
+		return document;
+	}
+
+	/**
+	 * Private method for opening directory
+	 * @return new Object
+	 * @throws FileNotFoundException
+	 */
 	private Folder openFolder() throws FileNotFoundException {
 		Folder folder = null;
-		
+
 		try {
 			folder = new Folder(ohlohPath); 
-        	      	
-            if (!folder.exists()) {
-                logger.error("Path" + ohlohPath
-                        + " does not exist or is not a directory");
-                throw new FileNotFoundException("Cannot find Ohloh XML files");
-            }
-        }
-        catch(NullPointerException n) {
-            logger.error("Cannot continue without a valid path to look into");
-            throw new FileNotFoundException("Cannot find Ohloh XML files");
-        }
+
+			if (!folder.exists()) {
+				logger.error("Path" + ohlohPath
+						+ " does not exist or is not a directory");
+				throw new FileNotFoundException("Cannot find Ohloh XML files");
+			}
+		}
+		catch(NullPointerException n) {
+			logger.error("Cannot continue without a valid path to look into");
+			throw new FileNotFoundException("Cannot find Ohloh XML files");
+		}
 
 		return folder;
 	}
-    
-    /**
-     * Return the String value of some Element
-     * 
-     * @param element The element to apply getStringValue() to
-     * @return element.getStringValue() if element is not null, "" otherwise
-     */
-    private String getString(Element element) {
-        if (element != null)
-            return element.getStringValue();
-        return "";
-    }
 
-    @Override
-    /**
-     * Return this job
-     */
-    public Job getJob() {
-        return this;
-    }
+	/**
+	 * Return the String value of some Element
+	 * 
+	 * @param element The element to apply getStringValue() to
+	 * @return element.getStringValue() if element is not null, "" otherwise
+	 */
+	private String getString(Element element) {
+		if (element != null)
+			return element.getStringValue();
+		return "";
+	}
+
+	@Override
+	/**
+	 * Return this job
+	 */
+	public Job getJob() {
+		return this;
+	}
 }
