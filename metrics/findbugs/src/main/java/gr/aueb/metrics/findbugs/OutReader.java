@@ -35,4 +35,16 @@ public class OutReader extends Thread {
             e.printStackTrace();
         }
     }
+    
+    public static int runReadOutput(Process pr, String name) throws IOException {
+        OutReader outReader = new OutReader(pr.getInputStream(), name);
+        outReader.start();
+        int retVal = -1;
+        while (retVal == -1) {
+            try {
+                retVal = pr.waitFor();
+            } catch (Exception ignored) {}
+        }
+        return retVal;
+    }
 }

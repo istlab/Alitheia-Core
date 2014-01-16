@@ -1,6 +1,7 @@
 package gr.aueb.metrics.findbugs;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +14,9 @@ import eu.sqooss.service.util.FileUtils;
 
 public class AntBuildSystem extends AbstractBuildSystem {
 	
-	public AntBuildSystem(BundleContext bc)
+	public AntBuildSystem(ProjectVersion pv, Pattern buildPattern, File checkout, String out)
 	{
-		super(bc);
+		super(pv, buildPattern, checkout, out);
 		
 		if (System.getProperty("ant.path") != null)
             PATH = System.getProperty("ant.path");
@@ -23,9 +24,9 @@ public class AntBuildSystem extends AbstractBuildSystem {
             PATH = "ant";
 	}
 	
-	public List<File> compile(ProjectVersion pv, Pattern buildxml, File checkout, String out) throws IOException
+	public List<File> compile(BundleContext bc) throws IOException
 	{
-		File antFile = FileUtils.findBreadthFirst(checkout, buildxml);
+		File antFile = getBuildFile(buildPattern, checkout);
 
         if (antFile == null) {
             log.warn(pv + " No build.xml found in checkout?!");
@@ -35,7 +36,7 @@ public class AntBuildSystem extends AbstractBuildSystem {
         ProcessBuilder ant = new ProcessBuilder(PATH);
         ant.directory(antFile.getParentFile());
         ant.redirectErrorStream(true);
-        int retVal = runReadOutput(ant.start(), out);
+        int retVal = OutReader.runReadOutput(ant.start(), out);
 
         if (retVal != 0) {
             log.warn("Build with ant failed. See file:" + out);

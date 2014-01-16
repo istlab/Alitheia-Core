@@ -35,8 +35,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.*;
@@ -113,8 +115,6 @@ import javax.xml.xpath.*;
 @SchedulerHints(invocationOrder = InvocationOrder.NEWFIRST, activationOrder = {ProjectVersion.class})
 public class FindbugsMetrics extends AbstractMetric {
 
-    static String MAVEN_PATH = "";
-    static String ANT_PATH = "";
     static String FINDBUGS_PATH = "";
 
     static {
@@ -122,14 +122,6 @@ public class FindbugsMetrics extends AbstractMetric {
             FINDBUGS_PATH = System.getProperty("findbugs.path");
         else
             FINDBUGS_PATH = "findbugs";
-        if (System.getProperty("mvn.path") != null)
-            MAVEN_PATH = System.getProperty("mvn.path");
-        else
-            MAVEN_PATH = "mvn";
-        if (System.getProperty("ant.path") != null)
-            ANT_PATH = System.getProperty("ant.path");
-        else
-            ANT_PATH = "ant";
     }
 
 	public FindbugsMetrics(BundleContext bc) {
@@ -156,7 +148,7 @@ public class FindbugsMetrics extends AbstractMetric {
         Pattern buildxml = Pattern.compile("build.xml$");
         Pattern trunk = Pattern.compile("/trunk");
         boolean foundTrunk = false, foundPom = false,
-                foundBuild = false, maven_build = true;
+                foundBuild = false;
 
         for(ProjectFile pf: files) {
             if (pom.matcher(pf.getFileName()).find())
@@ -174,27 +166,17 @@ public class FindbugsMetrics extends AbstractMetric {
             return;
         }
         
-        Pattern buildPattern = null;
-        if (foundPom)
+        if(!foundPom && !foundBuild)
         {
-            maven_build = true; // Prefer maven over ant
-        	buildPattern = pom;
+        	log.info("Skipping version " + pv + " as neither pom.xml " +
+                    "nor build.xml could be found");
+            return;
         }
-        else
-            if (foundBuild)
-            {
-                maven_build = false;
-        		buildPattern = buildxml;
-            }
-            else {
-                log.info("Skipping version " + pv + " as neither pom.xml " +
-                        "nor build.xml could be found");
-                return;
-            }
-
+        
         FDSService fds = AlitheiaCore.getInstance().getFDSService();
 
         OnDiskCheckout odc = null;
+        
         try {
             odc = fds.getCheckout(pv, "/trunk");
             File checkout = odc.getRoot();
@@ -203,51 +185,26 @@ public class FindbugsMetrics extends AbstractMetric {
                     "-" + pv.getId() + "-out.txt";
 
             AbstractBuildSystem buildSystem = null;
-            if (maven_build)
+            if (foundPom)
             {
-            	buildSystem = new MavenBuildSystem(bc);
+            	buildSystem = new MavenBuildSystem(pv, pom, checkout, out);
             }
             else
             {
-            	buildSystem = new AntBuildSystem(bc);
+            	buildSystem = new AntBuildSystem(pv, buildxml, checkout, out);
             }
             
-            List<File> jars = buildSystem.compile(pv, buildPattern, checkout, out);
+            List<File> jars = buildSystem.compile(bc);
+            jars.addAll(buildSystem.getDependencies(bc));
 
-            for(File jar: jars) {
-
-                //String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
-                //        ProjectVersion.MASK_FILES));
-                //pkgs = pkgs.substring(0, pkgs.length() - 1);
-                String findbugsOut = pv.getRevisionId()+"-" + jar.getName() + "-" +pv.getProject().getName() + ".xml";
-
-                List<String> findbugsArgs = new ArrayList<String>();
-                findbugsArgs.add(FINDBUGS_PATH);
-                findbugsArgs.add("-textui");
-                //findbugsArgs.add("-onlyAnalyze");
-                //findbugsArgs.add(pkgs);
-                findbugsArgs.add("-xml");
-                findbugsArgs.add("-output");
-                findbugsArgs.add(findbugsOut);
-                findbugsArgs.add(jar.getAbsolutePath());
-
-                ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
-                findbugs.redirectErrorStream(true);
-                int retVal = buildSystem.runReadOutput(findbugs.start(), out);
-
-                if (retVal != 0) {
-                    log.warn("Findbugs failed. See file:" + out);
-                }
-
-                File f = new File(findbugsOut);
-                storeResults(parseFindbugsResults(f), files, pv);
-
+            for(File jar: jars)
+            {
+            	storeResults(jar, pv, out);
             }
+            
         } catch (CheckoutException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }  catch (IOException e) {
             e.printStackTrace();
         } catch (Throwable t) {
             t.printStackTrace();
@@ -255,6 +212,42 @@ public class FindbugsMetrics extends AbstractMetric {
             if (odc != null)
                 fds.releaseCheckout(odc);
         }
+    }
+
+    private void storeResults(File jar, ProjectVersion pv, String out)
+    {
+    	try
+    	{
+	    	//String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
+	        //        ProjectVersion.MASK_FILES));
+	        //pkgs = pkgs.substring(0, pkgs.length() - 1);
+	        String findbugsOut = pv.getRevisionId()+"-" + jar.getName() + "-" +pv.getProject().getName() + ".xml";
+	
+	        List<String> findbugsArgs = new ArrayList<String>();
+	        findbugsArgs.add(FINDBUGS_PATH);
+	        findbugsArgs.add("-textui");
+	        //findbugsArgs.add("-onlyAnalyze");
+	        //findbugsArgs.add(pkgs);
+	        findbugsArgs.add("-xml");
+	        findbugsArgs.add("-output");
+	        findbugsArgs.add(findbugsOut);
+	        findbugsArgs.add(jar.getAbsolutePath());
+	
+	        ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
+	        findbugs.redirectErrorStream(true);
+	        int retVal = OutReader.runReadOutput(findbugs.start(), out);
+	
+	        if (retVal != 0) {
+	            log.warn("Findbugs failed. See file:" + out);
+	        }
+	
+	        File f = new File(findbugsOut);
+	        storeResults(parseFindbugsResults(f), pv.getFiles(), pv);
+    	}
+    	catch(IOException e)
+    	{
+    		e.printStackTrace();
+    	}
     }
 
     public String getPkgs(List<ProjectFile> files) {

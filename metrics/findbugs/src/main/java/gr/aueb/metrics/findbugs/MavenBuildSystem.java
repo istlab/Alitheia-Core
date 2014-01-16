@@ -1,6 +1,7 @@
 package gr.aueb.metrics.findbugs;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +17,9 @@ import eu.sqooss.service.util.FileUtils;
 
 public class MavenBuildSystem extends AbstractBuildSystem {
 	
-	public MavenBuildSystem(BundleContext bc)
+	public MavenBuildSystem(ProjectVersion pv, Pattern buildPattern, File checkout, String out)
 	{
-		super(bc);
+		super(pv, buildPattern, checkout, out);
 		
 		if (System.getProperty("mvn.path") != null)
             PATH = System.getProperty("mvn.path");
@@ -27,9 +28,9 @@ public class MavenBuildSystem extends AbstractBuildSystem {
 	}
 
 	
-	public List<File> compile(ProjectVersion pv, Pattern pom, File checkout, String out) throws IOException
+	public List<File> compile(BundleContext bc) throws IOException
 	{
-		File pomFile = FileUtils.findBreadthFirst(checkout, pom);
+		File pomFile = getBuildFile(buildPattern, checkout);
 
         if (pomFile == null) {
             log.warn(pv + " No pom.xml found in checkout?!");
@@ -39,15 +40,23 @@ public class MavenBuildSystem extends AbstractBuildSystem {
         ProcessBuilder maven = new ProcessBuilder(PATH, "install", "-DskipTests=true");
         maven.directory(pomFile.getParentFile());
         maven.redirectErrorStream(true);
-        int retVal = runReadOutput(maven.start(), out);
+        int retVal = OutReader.runReadOutput(maven.start(), out);
 
-        // project dependencies
-        List<File> deps = new ArrayList<File>();
         if (retVal != 0) {
             log.warn("Build with maven failed. See file:" + out);
-            return deps;
+            return new ArrayList<File>();
         }
-        // Copy the script that gathers the dependency from
+
+        return getJars(checkout);
+	}
+
+	@Override
+	public List<File> getDependencies(BundleContext bc) throws FileNotFoundException, IOException {
+		
+		List<File> deps = new ArrayList<File>();
+		File pomFile = getBuildFile(buildPattern, checkout);
+		
+		// Copy the script that gathers the dependency from
         // the resource bundle
         File copyDepsScript = new File(pomFile.getParentFile(), "copy-dependencies");
         FileOutputStream fos = new FileOutputStream(copyDepsScript);
@@ -66,18 +75,15 @@ public class MavenBuildSystem extends AbstractBuildSystem {
         ProcessBuilder copyDeps = new ProcessBuilder("./copy-dependencies");
         copyDeps.directory(pomFile.getParentFile());
         copyDeps.redirectErrorStream(true);
-        int retVal2 = runReadOutput(copyDeps.start(), out);
+        int retVal2 = OutReader.runReadOutput(copyDeps.start(), out);
         if (retVal2 == 0) {
             File allDeps = new File(checkout.getPath() + "/all-deps");
             if (allDeps.exists() && allDeps.isDirectory()) {
                 deps = Arrays.asList(allDeps.listFiles());
             }
         }
-
-        List<File> jars = getJars(checkout);
-        jars.addAll(deps);
-
-        return jars;
+        
+		return deps;
 	}
 	
 	public List<File> getJars(File checkout)
