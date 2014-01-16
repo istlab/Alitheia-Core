@@ -113,13 +113,7 @@ public class OhlohUpdater extends UpdaterBaseJob {
             //updater.removeUpdater(p, t);
         }
         
-        String[] files = f.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".xml");
-            }            
-        });
-        
-        for (String file : files) {
+        for (String file : f.listFilesExt(".xml")) {
             dbs.startDBSession();
             
             String xmlFilePath = FileUtils.appendPath(f.getAbsolutePath(), file);
