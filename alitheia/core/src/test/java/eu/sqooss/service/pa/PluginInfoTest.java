@@ -75,7 +75,7 @@ public class PluginInfoTest extends TestCase {
 		when(property.getId()).thenReturn(expected);
 		when(property.getName()).thenReturn(name);
 		when(property.getType()).thenReturn(type);
-		config.add(property);
+		assertTrue(config.add(property));
 		
 		final String otherName = "wrongName";
 		final ConfigurationType otherType = ConfigurationType.BOOLEAN; 
@@ -104,7 +104,7 @@ public class PluginInfoTest extends TestCase {
 		when(property.getId()).thenReturn(expected);
 		when(property.getName()).thenReturn(name);
 		when(property.getType()).thenReturn(type);
-		config.add(property);
+		assertTrue(config.add(property));
 		
 		final String otherName = "wrongName";
 		final ConfigurationType otherType = ConfigurationType.BOOLEAN; 
@@ -121,138 +121,58 @@ public class PluginInfoTest extends TestCase {
 	 * the DBService will be used to set the newVal for that name, after a type-check.
 	 */
 	public void testUpdateConfigEntry() {
-		final DBService db = mock(DBService.class);
-		try {
-			assertFalse(instance.updateConfigEntry(db,null,null,null));
-		} catch (Exception e) {
-			assertNull(e);
+		try{
+			instance.updateConfigEntry(null,null);
+			assertTrue(false);
+		} catch( IllegalArgumentException e ){
+			assertNotNull(e);
 		}
-		
-		final String name = "testName";
-		try {
-			assertFalse(instance.updateConfigEntry(db,name,null,null));
-		} catch (Exception e) {
-			assertNull(e);
+		final DBService db = mock(DBService.class);
+		try{
+			instance.updateConfigEntry(db,null);
+			assertTrue(false);
+		} catch( IllegalArgumentException e ){
+			assertNotNull(e);
 		}
 		
 		final PluginConfiguration property = mock(PluginConfiguration.class);
-		when(db.attachObjectToDBSession(property)).thenReturn(property);
+		when(db.attachObjectToDBSession(property)).thenReturn(property);		
+		final String name = "true";
 		when(property.getName()).thenReturn(name);
 		ConfigurationType type = ConfigurationType.BOOLEAN;
-		when(property.getType()).thenReturn(type);
-		config.add(property);
-		try {
-			assertFalse(instance.updateConfigEntry(db,name,null,null));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-	
-		final String otherName = "otherName";
-		final ConfigurationType otherType = ConfigurationType.BOOLEAN;
-		try {
-			assertFalse(instance.updateConfigEntry(db,otherName,otherType,null));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		try {
-			assertFalse(instance.updateConfigEntry(db,otherName,type,null));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		try {
-			instance.updateConfigEntry(db,name,otherType,null);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
+		when(property.getType()).thenReturn(type);		
 		
-		String newVal = "test";
-		try {
-			instance.updateConfigEntry(db,name,type,newVal);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		newVal = "true";
-		try {
-			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
-			verify(property,times(1)).setValue(newVal);
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		newVal = "false";
-		try {
-			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
-			verify(property,times(1)).setValue(newVal);
-		} catch (Exception e) {
-			assertNull(e);
-		}
+		assertTrue(config.add(property));
+		assertTrue(instance.updateConfigEntry(db,property));
+		verify(db,times(1)).attachObjectToDBSession(property);
 		
-		type = ConfigurationType.INTEGER;
-		when(property.getType()).thenReturn(type);
-		newVal = "test";
-		try {
-			instance.updateConfigEntry(db,name,type,newVal);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		newVal = "1";
-		try {
-			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
-			verify(property,times(1)).setValue(newVal);
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		
-		type = ConfigurationType.DOUBLE;
-		when(property.getType()).thenReturn(type);
-		newVal = "test";
-		try {
-			instance.updateConfigEntry(db,name,type,newVal);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		newVal = "1.0";
-		try {
-			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
-			verify(property,times(1)).setValue(newVal);
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		
-		type = ConfigurationType.STRING;
-		when(property.getType()).thenReturn(type);
-		newVal = "test";
-		try {
-			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
-			verify(property,times(1)).setValue(newVal);
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		
+		final String otherName = "1.0";
+		final ConfigurationType otherType = ConfigurationType.DOUBLE;		
 		final PluginConfiguration second = mock(PluginConfiguration.class);
 		when(db.attachObjectToDBSession(second)).thenReturn(second);
 		when(second.getName()).thenReturn(otherName);
 		when(second.getType()).thenReturn(type);
-		config.add(second);
+		assertTrue(config.add(second));
 		final PluginConfiguration third = mock(PluginConfiguration.class);
 		when(db.attachObjectToDBSession(third)).thenReturn(third);
 		when(third.getName()).thenReturn(name);
 		when(third.getType()).thenReturn(otherType);
-		config.add(third);
+		assertTrue(config.add(third));
 		final PluginConfiguration fourth = mock(PluginConfiguration.class);
 		when(db.attachObjectToDBSession(fourth)).thenReturn(fourth);
 		when(fourth.getName()).thenReturn(otherName);
 		when(fourth.getType()).thenReturn(otherType);
-		config.add(fourth);
-		newVal = "true";
-		try {
-			assertTrue(instance.updateConfigEntry(db,otherName,otherType,newVal));
-			verify(property,times(1)).setValue(newVal);
-		} catch (Exception e) {
-			assertNull(e);
-		}		
+		assertTrue(config.add(fourth));
+		
+		assertTrue(instance.updateConfigEntry(db,second));
+		verify(db,times(1)).attachObjectToDBSession(second);
+		assertTrue(instance.updateConfigEntry(db,third));
+		verify(db,times(1)).attachObjectToDBSession(third);
+		assertTrue(instance.updateConfigEntry(db,fourth));
+		verify(db,times(1)).attachObjectToDBSession(fourth);
+		
+		assertTrue(config.remove(property));
+		assertFalse(instance.updateConfigEntry(db,property));
 	}
 
 	/**
@@ -267,105 +187,33 @@ public class PluginInfoTest extends TestCase {
 	 */
 	@SuppressWarnings("unchecked")
 	public void testAddConfigEntry() {
+		try{
+			instance.addConfigEntry(null,null);
+			assertTrue(false);
+		} catch( IllegalArgumentException e ){
+			assertNotNull(e);
+		}
 		final DBService db = mock(DBService.class);
-		try {
-			instance.addConfigEntry(db,null,null,null);
+		try{
+			instance.addConfigEntry(db,null);
 			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		try {
-			instance.addConfigEntry(db,"",null,null);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
+		} catch( IllegalArgumentException e ){
+			assertNotNull(e);
 		}
 		
-		final String name = "testName";
-		try {
-			instance.addConfigEntry(db,name,null,null);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
+		final PluginConfiguration property = mock(PluginConfiguration.class);
+		when(db.addRecord(property)).thenReturn(false);		
+		final String name = "1";
+		when(property.getName()).thenReturn(name);
+		final ConfigurationType type = ConfigurationType.INTEGER;
+		when(property.getType()).thenReturn(type);
 		
-		ConfigurationType type = ConfigurationType.BOOLEAN;
-		try {
-			instance.addConfigEntry(db,name,type,null);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		String newVal = "test";
-		try {
-			instance.addConfigEntry(db,name,type,newVal);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		
-		newVal = "true";
-		try {
-			assertFalse(instance.addConfigEntry(db,name,type,newVal));
-			verify(db,times(1)).addRecord(Mockito.any(DAObject.class));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		when(db.addRecord(Mockito.any(DAObject.class))).thenReturn(true);
-		try {
-			assertTrue(instance.addConfigEntry(db,name,type,newVal));
-			verify(db,times(2)).addRecord(Mockito.any(DAObject.class));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		newVal = "false";
-		try {
-			assertTrue(instance.addConfigEntry(db,name,type,newVal));
-			verify(db,times(3)).addRecord(Mockito.any(DAObject.class));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		
-		type = ConfigurationType.INTEGER;
-		newVal = "test";
-		try {
-			instance.addConfigEntry(db,name,type,newVal);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		newVal = "1";
-		try {
-			assertTrue(instance.addConfigEntry(db,name,type,newVal));
-			verify(db,times(4)).addRecord(Mockito.any(DAObject.class));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		
-		type = ConfigurationType.DOUBLE;
-		newVal = "test";
-		try {
-			instance.addConfigEntry(db,name,type,newVal);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		newVal = "1.0";
-		try {
-			assertTrue(instance.addConfigEntry(db,name,type,newVal));
-			verify(db,times(5)).addRecord(Mockito.any(DAObject.class));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		
-		type = ConfigurationType.STRING;
-		newVal = "test";
-		try {
-			assertTrue(instance.addConfigEntry(db,name,type,newVal,"description"));
-			verify(db,times(6)).addRecord(Mockito.any(DAObject.class));
-		} catch (Exception e) {
-			assertNull(e);
-		}
+		assertFalse(instance.addConfigEntry(db,property));
+		verify(db,times(1)).addRecord(property);
+
+		when(db.addRecord(property)).thenReturn(true);		
+		assertTrue(instance.addConfigEntry(db,property));
+		verify(db,times(2)).addRecord(property);
 	}
 
 	/**
@@ -375,27 +223,59 @@ public class PluginInfoTest extends TestCase {
 	 * and when found, to delete it using the given DBService.
 	 */
 	public void testRemoveConfigEntry() {
+		try{
+			instance.removeConfigEntry(null,null);
+			assertTrue(false);
+		} catch( IllegalArgumentException e ){
+			assertNotNull(e);
+		}
 		final DBService db = mock(DBService.class);
-		assertFalse(instance.removeConfigEntry(db,null,null));
-		
-		final String name = "testName";
-		assertFalse(instance.removeConfigEntry(db,name,null));
-		
-		ConfigurationType type = ConfigurationType.STRING; // doesn't matter
-		assertFalse(instance.removeConfigEntry(db,name,type));
+		try{
+			instance.removeConfigEntry(db,null);
+			assertTrue(false);
+		} catch( IllegalArgumentException e ){
+			assertNotNull(e);
+		}
 		
 		final PluginConfiguration property = mock(PluginConfiguration.class);
+		when(db.deleteRecord(property)).thenReturn(true);
 		final Long id = Long.MAX_VALUE; 
 		when(property.getId()).thenReturn(id);
+		final String name = "testName";
 		when(property.getName()).thenReturn(name);
+		final ConfigurationType type = ConfigurationType.STRING;
 		when(property.getType()).thenReturn(type);
-		config.add(property);
-		assertFalse(instance.removeConfigEntry(db,name,type));
+		assertFalse(instance.removeConfigEntry(db,property));
 		
-		when(db.findObjectById(PluginConfiguration.class, id)).thenReturn(property);
-		assertFalse(instance.removeConfigEntry(db,name,type));
-		when(db.deleteRecord(property)).thenReturn(true);
-		assertTrue(instance.removeConfigEntry(db,name,type));
+		assertTrue(config.add(property));
+		assertTrue(instance.removeConfigEntry(db,property));
+		verify(db,times(1)).deleteRecord(property);
+		assertTrue( config.add(property) ); // re-add
+		
+		final String otherName = "1.0";
+		final ConfigurationType otherType = ConfigurationType.DOUBLE;		
+		final PluginConfiguration second = mock(PluginConfiguration.class);
+		when(db.deleteRecord(second)).thenReturn(true);
+		when(second.getName()).thenReturn(otherName);
+		when(second.getType()).thenReturn(type);
+		assertTrue(config.add(second));
+		final PluginConfiguration third = mock(PluginConfiguration.class);
+		when(db.deleteRecord(third)).thenReturn(true);
+		when(third.getName()).thenReturn(name);
+		when(third.getType()).thenReturn(otherType);
+		assertTrue(config.add(third));
+		final PluginConfiguration fourth = mock(PluginConfiguration.class);
+		when(db.deleteRecord(fourth)).thenReturn(true);
+		when(fourth.getName()).thenReturn(otherName);
+		when(fourth.getType()).thenReturn(otherType);
+		assertTrue(config.add(fourth));
+		
+		assertTrue(instance.removeConfigEntry(db,second));
+		verify(db,times(1)).deleteRecord(second);
+		assertTrue(instance.removeConfigEntry(db,third));
+		verify(db,times(1)).deleteRecord(third);
+		assertTrue(instance.removeConfigEntry(db,fourth));
+		verify(db,times(1)).deleteRecord(fourth);
 	}
 
 	/**

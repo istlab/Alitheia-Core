@@ -78,8 +78,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     private String pluginVersion = null;
 
     /**
-     * This list include all activation interfaces supported by the associated
-     * metric plug-in.
+     * This list include all activation interfaces supported by the associated plug-in.
      * <br/>
      * The list of permitted activation interfaces is described in the
      * {@link AlitheiaPlugin} interface and currently includes:
@@ -94,31 +93,27 @@ public class PluginInfo implements Comparable<PluginInfo> {
         new HashSet<Class<? extends DAObject>>();
 
     /**
-     * The hash code's value of the associated metric metric plug-in.
+     * The hash code's value of the associated plug-in.
      * <br/>
-     * After a new metric plug-in is registered as service in the OSGi
-     * framework, the <code>PluginAdmin</code> initializes this field with
-     * the service's ID value, by calling the <code>setHashcode(String)</code>
-     * method.
+     * After a new plug-in is registered as service in the OSGi framework, 
+     * the <code>PluginAdmin</code> initializes this field with the service's ID value, 
+     * by calling the <code>setHashcode(String)</code> method.
      * <br/>
      * Once the metric plug-in's <code>install()</code> method is called,
-     * the <code>PluginAdmin</code> replaces the old <code>PluginInfo</code>
-     * with a new one, whose <code>hashcode</code> field is initialized with
-     * the hash code's value, that this metric plug-in stored in its database
-     * record.
+     * the <code>PluginAdmin</code> replaces the old <code>PluginInfo</code> with a new one, 
+     * whose <code>hashcode</code> field is initialized with the hash code's value, 
+     * that this metric plug-in stored in its database record.
      */
     private String hashcode;
 
     /**
-     * A list containing the current set of configuration parameters of the
-     * associated metric plug-in
+     * A list containing the current set of configuration parameters of the metric plug-in
      */
-    private Set<PluginConfiguration> config =
-        new HashSet<PluginConfiguration>();
+    private Set<PluginConfiguration> config = new HashSet<PluginConfiguration>();
 
     /**
-     * This flag is set to <code>false<code> on a newly registered metric
-     * plug-ins, and changed to <code>true</code> after the metric plug-in's
+     * This flag is set to <code>false<code> on a newly registered metric plug-ins, 
+     * and changed to <code>true</code> after the metric plug-in's 
      * <code>install()</code> method is called (and successfully performed).
      */
     private boolean installed = false;
@@ -132,8 +127,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
     /**
      * Simple constructor, that creates a new <code>PluginInfo</code> instance
-     * and initializes it with the given metric plug-in's configuration
-     * parameters.
+     * and initializes it with the given metric plug-in's configuration parameters.
      *
      * @param c - the list of configuration parameters
      */
@@ -144,10 +138,10 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Creates a new <code>PluginInfo</code> instance, and initializes it with
      * the given metric plug-in's configuration parameters and the description
-     * fields found in the given plug-in instance.
+     * fields found in the given corresponding plug-in instance.
      *
-     * @param c - the list of configuration parameters
-     * @param p the <code>AlitheiaPlugin</code> instance
+     * @param c the list of configuration parameters
+     * @param p the corresponding <code>AlitheiaPlugin</code> instance
      */
     public PluginInfo(Set<PluginConfiguration> c, AlitheiaPlugin p) {
         setPluginConfiguration(c);
@@ -167,7 +161,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
     
     /**
-     * Gets the name, version and activationtypes of the given plug-in
+     * Gets the name, version and activation types of the given plug-in
      * and sets those values to the local fields. 
      * 
      * @param p the plug-in 
@@ -178,14 +172,25 @@ public class PluginInfo implements Comparable<PluginInfo> {
         this.activationTypes = p.getActivationTypes();
     }
     
+    /**
+     * Returns if the corresponding plug-in is installed or not.
+     *
+     * @return True or false
+     */
     public boolean isInstalled() {
     	return this.installed;
     }
     
+    /** 
+     * Flags the corresponding plug-in as installed 
+     */
     public void install(){
     	this.installed = true;
     }
     
+    /** 
+     * Flags the corresponding plug-in as uninstalled 
+     */
     public void uninstall(){
     	this.installed = false;
     }
@@ -200,7 +205,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Returns the Id of the given name/type combination.
+     * Returns the Id of the given name/type combination,
+     * identifying a unique configuration property {@link PluginConfiguration}
      *
      * @param name the property's name
      * @param type the property's type
@@ -221,7 +227,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Verifies if the specified configuration property exist.
+     * Checks if the specified configuration property exist.
      *
      * @param name the property's name
      * @param type the property's type
@@ -234,40 +240,33 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Sets a new value of existing metric plugin's configuration property
-     * by creating a new database record.
+     * Sets a new value of an existing configuration property by updating the database record.
      *
      * @param db the DB components object
-     * @param name the configuration property's name
-     * @param type the configuration property's type
-     * @param newVal the new value, that should be assigned to the
-     *   selected configuration property
+     * @param entry the configuration property to update
      *
      * @return <code>true</code> upon successful update, of <code>false</code>
      *   when a corresponding database record does not exist.
      *
-     * @throws <code>Exception</code> upon incorrect value's syntax, or
-     *   invalid property's type.
+     * @throws <code>IllegalArgumentException</code> upon invalid db or entry
      */
     public boolean updateConfigEntry(DBService db, PluginConfiguration entry)
     throws IllegalArgumentException {
-        // Check for invalid (null) properties
-    	if ( db == null ) {
-        	throw new IllegalArgumentException("Database cannot be null!");
-        } else if( entry == null ) {
-        	throw new IllegalArgumentException("Entry cannot be null!");
-        }
-	    // Check if such configuration property exists here
+    	// Check for invalid (null) properties
+    	validate(db,entry);
+    	
+	    // Check if the configuration property exists here
     	PluginConfiguration foundPC = null, newPC = null;
 	    for (PluginConfiguration pc : config) {
 	       if (pc.equals(entry)) {	                
-	           // Update the given configuration property
+	           // Update the given configuration property (db)
 	    	   foundPC = pc;
 	    	   newPC = db.attachObjectToDBSession(entry);
 	    	   break;
 	       }
 	    }
-    	if( foundPC != null && newPC != null ){
+    	if( newPC != null ){
+	        // Update the given configuration property (local)
     		config.remove(foundPC);
     		config.add(newPC);
     		return true;
@@ -277,35 +276,26 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Adds a new configuration property for this metric plug-in by creating
-     * a new database record for it.
+     * Adds a new configuration property for by creating a new database record for it.
      *
      * @param db the DB components object
-     * @param name the configuration property's name
-     * @param type the configuration property's type
-     * @param value the configuration property's value
-     * @param description the configuration property's description
+     * @param entry the configuration property to create
      *
-     * @return <code>true</code> upon successful append, of <code>false</code>
+     * @return <code>true</code> upon successful append, or <code>false</code>
      *   when a corresponding database record can not be created.
      *
-     * @throws <code>Exception</code> upon incorrect value's syntax,
-     *   invalid property's type, or invalid property's name.
+     * @throws <code>IllegalArgumentException</code> upon invalid db or entry
      */
     public boolean addConfigEntry( DBService db, PluginConfiguration entry)
     throws IllegalArgumentException {
         // Check for invalid (null) properties
-    	if ( db == null ) {
-        	throw new IllegalArgumentException("Database cannot be null!");
-        } else if( entry == null ) {
-        	throw new IllegalArgumentException("Entry cannot be null!");
-        }
+    	validate(db,entry);
 
-        // Add the new configuration property
-        try{
-        	entry.setPlugin(Plugin.getPluginByHashcode(this.hashcode));
-        } catch( Exception ignore) { }
+        // Set the property's plug-in by using our hashcode
+        try{ entry.setPlugin(Plugin.getPluginByHashcode(this.hashcode)); } 
+        catch( Exception ignore ) { }
         
+        // Add the new configuration property (db+local)
         if( db.addRecord(entry))
         	return config.add(entry);
         else
@@ -313,32 +303,53 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Removes an existing configuration property of this metric plug-in by
-     * deleting its database record.
+     * Removes an existing configuration property of by deleting its database record.
      *
      * @param db the DB components object
-     * @param name the configuration property's name
-     * @param type the configuration property's type
+     * @param entry the configuration property
      *
      * @return <code>true</code> upon successful remove, or <code>false</code>
      *   when a corresponding database record can not be found.
      *
-     * @throws <code>Exception</code> upon invalid property's type or name.
+     * @throws <code>IllegalArgumentException</code> upon invalid db or entry
      */
     public boolean removeConfigEntry(DBService db, PluginConfiguration entry)
     throws IllegalArgumentException {
+    	// Check for invalid (null) properties
+    	validate(db,entry);
+    	
+    	// Check if the configuration property exists here
+    	boolean removed = false;
+	    for (PluginConfiguration pc : config) {
+	       if (pc.equals(entry)) {
+	           // Remove the given configuration property (db)
+	    	   removed = db.deleteRecord(entry);
+	    	   break;
+	       }
+	    }
+	    
+	    if( removed )
+	        // Remove the given configuration property (local)
+	    	return config.remove(entry);
+	    else 
+	    	return false;
+    }
+    
+    /**
+     * Helper function to throw IllegalArgumentExceptions for nullpointer-arguments
+     *
+     * @param db the DB components object
+     * @param entry the configuration property
+     *
+     * @throws <code>IllegalArgumentException</code> upon invalid db or entry
+     */
+    private static void validate(DBService db, PluginConfiguration entry)
+    	    throws IllegalArgumentException {
     	if ( db == null ) {
         	throw new IllegalArgumentException("Database cannot be null!");
         } else if( entry == null ) {
         	throw new IllegalArgumentException("Entry cannot be null!");
         }
-
-        // Remove the specified configuration property
-        PluginConfiguration prop = db.findObjectById(PluginConfiguration.class, entry.getId());
-        if (prop != null )
-            return db.deleteRecord(prop);
-        else
-        	return false;
     }
 
     /**
@@ -421,9 +432,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
     /**
      * Sets the hash code's value of this <code>PluginInfo</code> instance.
      * <br/>
-     * The value must be unique, which means that no other
-     * <code>PluginInfo</code> with the same hash code should be kept by
-     * the <code>PluginAdmin</code> instance that created this object.
+     * The value must be unique, which means that no other <code>PluginInfo</code> 
+     * with the same hash code shoud be kept by the <code>PluginAdmin</code> 
+     * instance that created this object.
      *
      * @param hashcode - the hash code's value of this object
      */
@@ -432,7 +443,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Returns the hash code's value of this <code>MetricInfo</code> instance.
+     * Returns the (raw) hash code's value of this instance.
      *
      * @return The hash code's value of this object.
      */
@@ -440,12 +451,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
         return hashcode;
     }
 
-    /**
-     * Creates a text representation of this <code>MetricInfo</code>
-     * instance.
-     *
-     * @return The text representation of this object.
-     */
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
