@@ -54,6 +54,7 @@ import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.util.FileUtils;
 import eu.sqooss.service.util.XMLReader;
+import eu.sqooss.service.util.Folder;
 
 /**
  * Parses Ohloh account description files and stores them in the OhlohDeveloper
@@ -94,24 +95,25 @@ public class OhlohUpdater extends UpdaterBaseJob {
      * 3.4. Commit the changes (for all of the developer accounts in this file) <br>
      */
     protected void run() throws Exception {
-        File f = null;
+        Folder f = null;
         try {
-            if (ohlohPath == null) {
-                logger.error("Cannot continue without a valid path to look into");
-                throw new FileNotFoundException("Cannot find Ohloh XML files");
-            }
-
-            f = new File(ohlohPath);
-            if (!f.exists() || !f.isDirectory()) {
+        	f = new Folder(ohlohPath); 
+        	      	
+            if (!f.exists()) {
                 logger.error("Path" + ohlohPath
                         + " does not exist or is not a directory");
                 throw new FileNotFoundException("Cannot find Ohloh XML files");
             }
-        } finally {
+        }
+        catch(NullPointerException n) {
+            logger.error("Cannot continue without a valid path to look into");
+            throw new FileNotFoundException("Cannot find Ohloh XML files");
+        }
+        finally {
             //updater.removeUpdater(p, t);
         }
         
-        String[] files = f.list(new FilenameFilter() {
+        String[] files = f.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.endsWith(".xml");
             }            
