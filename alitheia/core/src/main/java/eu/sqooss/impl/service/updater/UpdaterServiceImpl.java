@@ -147,8 +147,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
 	private Set<Updater> getUpdatersForScheme(StoredProject project) {
 		Set<Updater> upds = new HashSet<Updater>();
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
-        ProjectAccessor pa = tds.getAccessor(project.getId());
 		Set<URI> schemes = getAllSupportedURLSchemes(project);
 
         for (URI uri : schemes) {
