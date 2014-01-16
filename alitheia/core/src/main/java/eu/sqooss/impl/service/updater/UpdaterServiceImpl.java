@@ -106,7 +106,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /** {@inheritDoc} */
     @Override
     public void unregisterUpdaterService(Class<? extends MetadataUpdater> clazz) {
-        updaters.remove(updaters.getKey(clazz));
+        manager.removeUpdater(clazz);
         logger.info("Unregistering updater class " + clazz.getCanonicalName());
     }
     
