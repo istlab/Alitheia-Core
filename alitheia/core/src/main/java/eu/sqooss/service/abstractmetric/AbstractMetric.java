@@ -56,19 +56,28 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
+import eu.sqooss.service.db.EncapsulationUnit;
 import eu.sqooss.service.db.EncapsulationUnitMeasurement;
+import eu.sqooss.service.db.ExecutionUnit;
 import eu.sqooss.service.db.ExecutionUnitMeasurement;
+import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.MailMessageMeasurement;
+import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.MailingListThreadMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricMeasurement;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.NameSpace;
 import eu.sqooss.service.db.NameSpaceMeasurement;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionMeasurement;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectMeasurement;
@@ -334,9 +343,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
      */
-     @SuppressWarnings("unchecked")
-     public List<Result> getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
-        boolean found = false;        
+     public List<Result> getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {        
         List<Result> result = new ArrayList<Result>();
         
         for (Metric m : l) {
@@ -347,18 +354,43 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             }
             List<Result> re = null;
             try {
-                Method method = findGetResultMethod(o.getClass());
-                re = (List<Result>) method.invoke(this, o, m);
+            	if(o instanceof EncapsulationUnit) {
+        			re = getResult((EncapsulationUnit) o, m);
+        		}
+        		else if (o instanceof ExecutionUnit) {
+        			re = getResult((ExecutionUnit) o, m);
+        		}
+        		else if (o instanceof MailingListThread) {
+        			re = getResult((MailingListThread) o, m);
+        		}
+        		else if (o instanceof MailMessage) {
+        			re = getResult((MailMessage) o, m);
+        		}
+        		else if (o instanceof Metric) {
+        			re = getResult((Metric) o, m);
+        		}
+        		else if (o instanceof NameSpace) {
+        			re = getResult((NameSpace) o, m);
+        		}
+        		else if (o instanceof ProjectFile) {
+        			re = getResult((ProjectFile) o, m);
+        		}
+        		else if (o instanceof ProjectVersion) {
+        			re = getResult((ProjectVersion) o, m);
+        		}
+        		else if (o instanceof StoredProject) {
+        			re = getResult((StoredProject) o, m);
+        		}
+        		else if (o instanceof Developer) {
+        			re = getResult((Developer) o, m);
+        		}
+        		else if (o instanceof Bug) {
+        			re = getResult((Bug) o, m);
+        		}
+            	
             } catch (SecurityException e) {
                 logErr("getResult", o, e);
-            } catch (NoSuchMethodException e) {
-                log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type "
-                        + this.getClass().getName());
             } catch (IllegalArgumentException e) {
-                logErr("getResult", o, e);
-            } catch (IllegalAccessException e) {
-                logErr("getResult", o, e);
-            } catch (InvocationTargetException e) {
                 logErr("getResult", o, e);
             }
             if (re != null && !re.isEmpty()) {
@@ -369,22 +401,53 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return result;
     }
 
-     private Method findGetResultMethod(Class<?> clazz) 
-     throws NoSuchMethodException {
-     Method m = null;
+     //getResult methods with default implementation
+     //plugin needs to override the methods for the dataobjects it supports
+     public List<Result> getResult(EncapsulationUnit o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(ExecutionUnit o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(MailingListThread o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(MailMessage o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(Metric o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(NameSpace o, Metric m)  {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(ProjectFile o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(ProjectVersion o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(StoredProject o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(Developer o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(Bug o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
      
-     try {
-         m = this.getClass().getMethod("getResult", clazz, Metric.class);                
-     } catch (NoSuchMethodException nsme) {
-         try {
-             m = this.getClass().getMethod("getResult", clazz.getSuperclass(), Metric.class);
-         } catch (NoSuchMethodException nsme1) {
-             throw nsme;
-         }
-     }
-
-     return m;
-     }
      
     /**
      * Call the appropriate getResult() method according to
@@ -501,48 +564,85 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
 
         try {
-            Method m = findRunMethod("run", o.getClass());
-            m.invoke(this, o);
+        	if(o instanceof EncapsulationUnit) {
+    			run((EncapsulationUnit) o);
+    		}
+    		else if (o instanceof ExecutionUnit) {
+    			run((ExecutionUnit) o);
+    		}
+    		else if (o instanceof MailingListThread) {
+    			run((MailingListThread) o);
+    		}
+    		else if (o instanceof MailMessage) {
+    			run((MailMessage) o);
+    		}
+    		else if (o instanceof Metric) {
+    			run((Metric) o);
+    		}
+    		else if (o instanceof NameSpace) {
+    			run((NameSpace) o);
+    		}
+    		else if (o instanceof ProjectFile) {
+    			run((ProjectFile) o);
+    		}
+    		else if (o instanceof ProjectVersion) {
+    			run((ProjectVersion) o);
+    		}
+    		else if (o instanceof StoredProject) {
+    			run((StoredProject) o);
+    		}
+    		else if (o instanceof Developer) {
+    			run((Developer) o);
+    		}
+    		else if (o instanceof Bug) {
+    			run((Bug) o);
+    		}
         } catch (SecurityException e) {
-            logErr("run", o, e);
-        } catch (NoSuchMethodException e) {
             logErr("run", o, e);
         } catch (IllegalArgumentException e) {
             logErr("run", o, e);
-        } catch (IllegalAccessException e) {
-            logErr("run", o, e);
-        } catch (InvocationTargetException e) {
+        } catch (AlreadyProcessingException e) {
             // Forward exception to metric job exception handler
-            if (e.getCause() instanceof AlreadyProcessingException) {
-                throw (AlreadyProcessingException) e.getCause();
-            } else {
-                if (e != null && e.getCause() != null) {
-                    logErr("run", o, e);
-                    if (e.getCause() != null)
-                        throw new Exception(e.getCause());
-                    else
-                        throw new Exception(e);
-                }
-            }
+            throw (AlreadyProcessingException) e.getCause();
         }
     }
     
-    private Method findRunMethod(String name, Class<?> clazz) 
-        throws NoSuchMethodException {
-        Method m = null;
-        
-        try {
-            m = this.getClass().getMethod(name, clazz);                
-        } catch (NoSuchMethodException nsme) {
-            try {
-                m = this.getClass().getMethod(name, clazz.getSuperclass());
-            } catch (NoSuchMethodException nsme1) {
-                throw nsme;
-            }
-        }
-       
-        return m;
+    //run methods with default implementation
+    //plugin needs to override the methods for the dataobjects it supports
+    public void run(EncapsulationUnit o) throws AlreadyProcessingException, Exception {
+    	log.error("No method run for " + o);    	 
     }
+	public void run(ExecutionUnit o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(MailingListThread o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(MailMessage o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(Metric o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(NameSpace o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(ProjectFile o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(ProjectVersion o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(StoredProject o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	/*public void run(Developer o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(Bug o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}*/
+    
     
     private void logErr(String method, DAObject o, Exception e) {
         log.error("Plugin:" + this.getClass().toString() + 
