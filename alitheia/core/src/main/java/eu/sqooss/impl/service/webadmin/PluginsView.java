@@ -241,7 +241,7 @@ public class PluginsView extends AbstractView{
             // Plug-ins list
             // ===============================================================
             else {
-                in = pluginList(b, in, reqParHashcode, reqParShowProp,
+                pluginList(b, in, reqParHashcode, reqParShowProp,
 						reqParShowActv, reqValShowProp, reqValShowActv);
             }
 
@@ -322,139 +322,38 @@ public class PluginsView extends AbstractView{
 	 * @param reqValShowActv
 	 * @return
 	 */
-	private long pluginList(StringBuilder b, long in, String reqParHashcode,
+	private void pluginList(StringBuilder b, long in, String reqParHashcode,
 			String reqParShowProp, String reqParShowActv,
 			boolean reqValShowProp, boolean reqValShowActv) {
-		// Create the field-set
-		b.append(sp(in) + "<fieldset>\n");
-		b.append(sp(++in) + "<legend>All plug-ins</legend>\n");
+
 		// Retrieve information for all registered metric plug-ins
 		Collection<PluginInfo> l = sobjPA.listPlugins();
-		//------------------------------------------------------------
-		// Create the header row
-		//------------------------------------------------------------
-		b.append(sp(in) + "<table>\n");
-		b.append(sp(++in) + "<thead>\n");
-		b.append(sp(++in) + "<tr class=\"head\">\n");
-		b.append(sp(++in) + "<td class=\"head\""
-		        + " style=\"width: 80px;\">"
-		        + "Status</td>\n");
-		b.append(sp(in) + "<td class=\"head\""
-		        + " style=\"width: 30%;\">"
-		        + "Name</td>\n");
-		b.append(sp(in) + "<td class=\"head\""
-		        + " style=\"width: 40%;\">"
-		        + "Class</td>\n");
-		b.append(sp(in) + "<td class=\"head\">Version</td>\n");
-		b.append(sp(--in) + "</tr>\n");
-		b.append(sp(--in) + "</thead>\n");
-		//------------------------------------------------------------
-		// Create the content row
-		//------------------------------------------------------------
-		b.append(sp(in++) + "<tbody>\n");
-		//------------------------------------------------------------
-		// Display not-installed plug-ins first
-		//------------------------------------------------------------
+		List<Map<String,Object>> installedPlugins = new ArrayList<Map<String,Object>>();
+		List<Map<String,Object>> notInstalledPlugins = new ArrayList<Map<String,Object>>();
+		VelocityContext vcLocal = new VelocityContext();
+		vcLocal.put("reqParHashcode", reqParHashcode);
 		for(PluginInfo i : l) {
-		    if (i.installed == false) {
-		        b.append(sp(in) + "<tr class=\"edit\""
-		                + " onclick=\"javascript:"
-		                + "document.getElementById('"
-		                + reqParHashcode + "').value='"
-		                + i.getHashcode() + "';"
-		                + "document.metrics.submit();\""
-		                + ">\n");
-		        // Plug-in state
-		        b.append(sp(++in) + "<td class=\"trans\">"
-		                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-		                + "&nbsp;Registered</td>\n");
-		        // Plug-in name
-		        b.append(sp(in) + "<td class=\"trans\">"
-		            + i.getPluginName()
-		            + "</td>\n");
-		        // Plug-in class
-		        b.append(sp(in) + "<td class=\"trans\">"
-		                + StringUtils.join((String[]) (
-		                        i.getServiceRef().getProperty(
-		                                Constants.OBJECTCLASS)),",")
-		                                + "</td>\n");
-		        // Plug-in version
-		        b.append(sp(in) + "<td class=\"trans\">"
-		                + i.getPluginVersion() + "</td>\n");
-		        b.append(sp(--in) + "</tr>\n");
-		        // Extended plug-in information
-		        b.append(renderPluginAttributes(
-		                i, reqValShowProp, reqValShowActv, in));
-		    }
+			Map<String,Object> plugin= new HashMap<String,Object>();
+	    	plugin.put("name", i.getPluginName()+"");
+	    	plugin.put("pluginClass", StringUtils.join((String[]) (i.getServiceRef().getProperty(Constants.OBJECTCLASS)),",")+"");
+	    	plugin.put("hashcode",i.getHashcode()+"");
+	    	plugin.put("version",i.getPluginVersion()+"");
+	        plugin.put("pluginConfiguration",i.getConfiguration());
+	        plugin.put("activators",i.getActivationTypes());
+	        if(!i.installed){
+	        	notInstalledPlugins.add(plugin);
+	        }else{
+	        	installedPlugins.add(plugin);
+	        }
+	        
 		}
-		//------------------------------------------------------------
-		// Installed plug-ins
-		//------------------------------------------------------------
-		for(PluginInfo i : l) {
-		    if (i.installed) {
-		        b.append(sp(in) + "<tr class=\"edit\""
-		                + " onclick=\"javascript:"
-		                + "document.getElementById('"
-		                + reqParHashcode + "').value='"
-		                + i.getHashcode() + "';"
-		                + "document.metrics.submit();\""
-		                + ">\n");
-		        // Plug-in state
-		        b.append(sp(++in) + "<td class=\"trans\">"
-		                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-		                + "&nbsp;Installed</td>\n");
-		        // Plug-in name
-		        b.append(sp(in) + "<td class=\"trans\">"
-		                + i.getPluginName()
-		                + "</td>\n");
-		        // Plug-in class
-		        b.append(sp(in) + "<td class=\"trans\">"
-		                + StringUtils.join((String[]) (
-		                        i.getServiceRef().getProperty(
-		                                Constants.OBJECTCLASS)),",")
-		                                + "</td>\n");
-		        // Plug-in version
-		        b.append(sp(in) + "<td class=\"trans\">"
-		                + i.getPluginVersion() + "</td>\n");
-		        b.append(sp(--in) + "</tr>\n");
-		        // Extended plug-in information
-		        b.append(renderPluginAttributes(
-		                i, reqValShowProp, reqValShowActv, in));
-		    }
-		}
-		//------------------------------------------------------------
-		// Close the table
-		//------------------------------------------------------------
-		b.append(sp(--in) + "</tbody>\n");
-		b.append(sp(--in) + "</table>\n");
-		//------------------------------------------------------------
-		// Display flags
-		//------------------------------------------------------------
-		b.append(sp(in) + "<span>\n");
-		b.append(sp(++in) + "<input"
-		        + " type=\"checkbox\""
-		        + ((reqValShowProp) ? "checked" : "")
-		        + " onclick=\"javascript:"
-		        + "document.getElementById('"
-		        + reqParShowProp + "').value = this.checked;"
-		        + "document.getElementById('"
-		        + reqParHashcode + "').value='';"
-		        + "document.metrics.submit();\""
-		        + ">Display properties\n");
-		b.append(sp(++in) + "<input"
-		        + " type=\"checkbox\""
-		        + ((reqValShowActv) ? "checked" : "")
-		        + " onclick=\"javascript:"
-		        + "document.getElementById('"
-		        + reqParShowActv + "').value = this.checked;"
-		        + "document.getElementById('"
-		        + reqParHashcode + "').value='';"
-		        + "document.metrics.submit();\""
-		        + ">Display activators\n");
-		b.append(sp(--in) + "</span>\n");
-		// Close the field-set
-		b.append(sp(--in) + "</fieldset>\n");
-		return in;
+		vcLocal.put("reqParShowProp", reqParShowProp);
+		vcLocal.put("reqParShowActv", reqParShowActv);
+		vcLocal.put("installedPlugins",installedPlugins);
+		vcLocal.put("notInstalledPlugins", notInstalledPlugins);
+		vcLocal.put("showActivitiesChecked",(reqValShowActv) ? "checked" : "");
+		vcLocal.put("showPropertiesChecked",(reqValShowProp) ? "checked" : "");
+		b.append(velocityContextToString(vcLocal, "pluginList.html"));
 	}
 
 	/**

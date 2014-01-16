@@ -1,0 +1,36 @@
+<tr class="edit" onclick="javascript:document.getElementById('$reqParHashcode').value='$plugin.hashcode';document.metrics.submit();">
+    <td class="trans">
+         <img src="/edit.png" alt="[Edit]"/>
+         &nbsp;$installedStatusText
+    </td>
+  <td class="trans">$plugin.name</td>
+  <td class="trans">$plugin.pluginClass</td>
+  <td class="trans">$plugin.version</td>
+</tr>
+#if ($showProperties) {
+    #if ($pluginConfiguration && !$pluginConfiguration.isEmpty())) {
+        #foreach($property in $pluginConfiguration)
+              <tr>
+                <td>&nbsp;</td>
+              <td colspan="3" class="attr">
+                     <b>Property:</b> $property.getName()
+                     &nbsp;<b>Type:</b> $property.getType()
+                     &nbsp;<b>Value:</b> $property.getValue()
+                     </td>
+             </tr>
+        #end
+    #end
+#end
+#if ($showActivators) {
+    #if ($activators && !$activators.isEmpty()) {
+        #foreach($activator in $activators)
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="3" class="attr">
+                         <b>Activator:</b>
+                         $activator.getName()
+                 </td>
+            </tr>
+        #end
+    #end
+#end

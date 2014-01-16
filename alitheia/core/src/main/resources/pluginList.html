@@ -1,0 +1,32 @@
+<fieldset>
+<legend>All plug-ins</legend>
+<table>
+	<thead>
+	<tr class="head">
+		<td class="head" style="width: 80px;">Status</td>
+		<td class="head" style="width: 30%;">Name</td>
+		<td class="head" style="width: 40%;">Class</td>
+		<td class="head">Version</td>
+	</tr>
+	</thead>
+	<tbody>
+		#foreach($plugin in $notInstalledPlugins)
+				#set($installedStatusText = "Registered")
+				#set($activators = $plugin.activators)
+				#set($pluginConfiguration = $plugin.pluginConfiguration)
+				#parse("pluginAttributes.html")
+
+		#end
+		#foreach($plugin in $installedPlugins)
+				#set($installedStatusText = "Installed")
+				#set($activators = $plugin.activators)
+				#set($pluginConfiguration = $plugin.pluginConfiguration)
+				#parse("pluginAttributes.html")
+		#end
+	</tbody>
+</table>
+<span>
+	<input type="checkbox" $showPropertiesChecked onclick="javascript:document.getElementById('$reqParShowProp').value = this.checked;document.getElementById('$reqParHashcode').value='';document.metrics.submit();">Display properties
+	<input type="checkbox" $showActivitiesChecked onclick="javascript:document.getElementById('$reqParShowActv').value = this.checked;document.getElementById('$reqParHashcode').value='';document.metrics.submit();">Display activators
+</span>
+</fieldset>
