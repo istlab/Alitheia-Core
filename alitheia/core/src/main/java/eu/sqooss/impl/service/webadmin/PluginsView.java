@@ -38,7 +38,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,7 +45,6 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -69,7 +67,7 @@ public class PluginsView extends AbstractView{
      */
     public String render(HttpServletRequest req) {
         // Stores the assembled HTML content
-        StringBuilder b = new StringBuilder("\n");
+        VelocityContext vcLocal = new VelocityContext();//this.vc;
         // Stores the accumulated error messages
         StringBuilder e = new StringBuilder();
         // Indentation spacer
@@ -106,18 +104,13 @@ public class PluginsView extends AbstractView{
 
         // Proceed only when at least one plug-in is registered
         if (sobjPA.listPlugins().isEmpty()) {
-            noPlugins(b, in);
+        	vcLocal.put("noPluginsAvailable",true);
         }
         else {
             // ===============================================================
             // Parse the servlet's request object
             // ===============================================================
             if (req != null) {
-                // DEBUG: Dump the servlet's request parameter
-                if (DEBUG) {
-                    b.append(debugRequest(req));
-                }
-
                 // Retrieve the selected editor's action (if any)
                 reqValAction = req.getParameter(reqParAction);
                 if (reqValAction == null) {
@@ -203,18 +196,11 @@ public class PluginsView extends AbstractView{
                 }
             }
 
-            // ===============================================================
-            // Create the form
-            // ===============================================================
-            b.append(sp(in++) + "<form id=\"metrics\""
-                    + " name=\"metrics\""
-                    + " method=\"post\""
-                    + " action=\"/index\">\n");
 
             // ===============================================================
             // Display the accumulated error messages (if any)
             // ===============================================================
-            b.append(errorFieldset(e, in));
+            vcLocal.put("ERRORS",errorFieldset(e, in));
 
             // ===============================================================
             // "Create/update configuration property" editor
@@ -222,7 +208,7 @@ public class PluginsView extends AbstractView{
             if ((selPI != null) && (selPI.installed)
                     && ((reqValAction.equals(actValReqAddProp))
                             || (reqValAction.equals(actValReqUpdProp)))) {
-                createUpdateConfigurationProperty(b, in, reqParAction,
+                createUpdateConfigurationProperty(vcLocal, in, reqParAction,
 						reqParPropName, reqParPropDescr, reqParPropType,
 						reqParPropValue, actValConAddProp, actValConRemProp,
 						reqValPropName, reqValPropDescr, reqValPropType,
@@ -232,7 +218,7 @@ public class PluginsView extends AbstractView{
             // Plug-in editor
             // ===============================================================
             else if (selPI != null) {
-                pluginEditForm(b, in, reqParAction, reqParHashcode,
+                pluginEditForm(vcLocal, in, reqParAction, reqParHashcode,
 						reqParPropName, reqParPropDescr, reqParPropType,
 						reqParPropValue, actValInstall, actValUninstall,
 						actValSync, actValReqAddProp, actValReqUpdProp, selPI);
@@ -241,75 +227,36 @@ public class PluginsView extends AbstractView{
             // Plug-ins list
             // ===============================================================
             else {
-                pluginList(b, in, reqParHashcode, reqParShowProp,
+                pluginList(vcLocal, in, reqParHashcode, reqParShowProp,
 						reqParShowActv, reqValShowProp, reqValShowActv);
             }
-
-            // ===============================================================
-            // INPUT FIELDS
-            // ===============================================================
-            // "Action type" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParAction + "\""
-                    + " name=\"" + reqParAction + "\""
-                    + " value=\"\">\n");
-            // "Selected plug-in's hash code" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParHashcode + "\""
-                    + " name=\"" + reqParHashcode + "\""
-                    + " value=\""
-                    + ((reqValHashcode != null) ? reqValHashcode : "")
-                    + "\">\n");
-            // "Configuration attribute's name" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParPropName + "\""
-                    + " name=\"" + reqParPropName + "\""
-                    + " value=\""
-                    + ((reqValPropName != null) ? reqValPropName : "")
-                    + "\">\n");
-            // "Configuration attribute's description" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParPropDescr + "\""
-                    + " name=\"" + reqParPropDescr + "\""
-                    + " value=\""
-                    + ((reqValPropDescr != null) ? reqValPropDescr : "")
-                    + "\">\n");
-            // "Configuration attribute's type" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParPropType + "\""
-                    + " name=\"" + reqParPropType + "\""
-                    + " value=\""
-                    + ((reqValPropType != null) ? reqValPropType : "")
-                    + "\">\n");
-            // "Configuration attribute's value" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParPropValue + "\""
-                    + " name=\"" + reqParPropValue + "\""
-                    + " value=\""
-                    + ((reqValPropValue != null) ? reqValPropValue : "")
-                    + "\">\n");
-            // "Show configuration properties" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParShowProp + "\""
-                    + " name=\"" + reqParShowProp + "\""
-                    + " value=\""
-                    + reqValShowProp
-                    + "\">\n");
-            // "Show activators" input field
-            b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParShowActv + "\""
-                    + " name=\"" + reqParShowActv + "\""
-                    + " value=\""
-                    + reqValShowActv
-                    + "\">\n");
-
-            // ===============================================================
-            // Close the form
-            // ===============================================================
-            b.append(sp(--in) + "</form>\n");
+            
+            vcLocal.put("reqParAction",reqParAction);
+            vcLocal.put("reqParHashcode",reqParHashcode);
+            vcLocal.put("reqParPropName",reqParPropName);
+            vcLocal.put("reqParPropDescr",reqParPropDescr);
+            vcLocal.put("reqParPropType",reqParPropType);
+            vcLocal.put("reqParPropValue",reqParPropValue);
+            vcLocal.put("reqParShowProp",reqParShowProp);
+            vcLocal.put("reqParShowActv",reqParShowActv);
+            vcLocal.put("actValInstall",actValInstall);
+            vcLocal.put("actValUninstall",actValUninstall);
+            vcLocal.put("actValSync",actValSync);
+            vcLocal.put("actValReqAddProp",actValReqAddProp);
+            vcLocal.put("actValReqUpdProp",actValReqUpdProp);
+            vcLocal.put("actValConAddProp",actValConAddProp);
+            vcLocal.put("actValConRemProp",actValConRemProp);
+            vcLocal.put("reqValAction",reqValAction);
+            vcLocal.put("reqValHashcode",reqValHashcode);
+            vcLocal.put("reqValPropName",reqValPropName);
+            vcLocal.put("reqValPropDescr",reqValPropDescr);
+            vcLocal.put("reqValPropType",reqValPropType);
+            vcLocal.put("reqValPropValue",reqValPropValue);
+            vcLocal.put("reqValShowProp",reqValShowProp);
+            vcLocal.put("reqValShowActv",reqValShowActv);
         }
 
-        return b.toString();
+        return velocityContextToString(vcLocal, "pluginsView.html");
     }
 
 	/**
@@ -322,7 +269,7 @@ public class PluginsView extends AbstractView{
 	 * @param reqValShowActv
 	 * @return
 	 */
-	private void pluginList(StringBuilder b, long in, String reqParHashcode,
+	private void pluginList(VelocityContext vcLocal, long in, String reqParHashcode,
 			String reqParShowProp, String reqParShowActv,
 			boolean reqValShowProp, boolean reqValShowActv) {
 
@@ -330,7 +277,7 @@ public class PluginsView extends AbstractView{
 		Collection<PluginInfo> l = sobjPA.listPlugins();
 		List<Map<String,Object>> installedPlugins = new ArrayList<Map<String,Object>>();
 		List<Map<String,Object>> notInstalledPlugins = new ArrayList<Map<String,Object>>();
-		VelocityContext vcLocal = new VelocityContext();
+//		VelocityContext vcLocal = new VelocityContext();
 		vcLocal.put("reqParHashcode", reqParHashcode);
 		for(PluginInfo i : l) {
 			Map<String,Object> plugin= new HashMap<String,Object>();
@@ -353,7 +300,9 @@ public class PluginsView extends AbstractView{
 		vcLocal.put("notInstalledPlugins", notInstalledPlugins);
 		vcLocal.put("showActivitiesChecked",(reqValShowActv) ? "checked" : "");
 		vcLocal.put("showPropertiesChecked",(reqValShowProp) ? "checked" : "");
-		b.append(velocityContextToString(vcLocal, "pluginList.html"));
+		vcLocal.put("showActivators",reqValShowActv);
+		vcLocal.put("showProperties",reqValShowProp);
+		vcLocal.put("currentPluginTemplate", "pluginList.html");
 	}
 
 	/**
@@ -373,14 +322,13 @@ public class PluginsView extends AbstractView{
 	 * @param selPI
 	 * @return
 	 */
-	private void pluginEditForm(StringBuilder b, long in, String reqParAction,
+	private void pluginEditForm(VelocityContext vcLocal, long in, String reqParAction,
 			String reqParHashcode, String reqParPropName,
 			String reqParPropDescr, String reqParPropType,
 			String reqParPropValue, String actValInstall,
 			String actValUninstall, String actValSync, String actValReqAddProp,
 			String actValReqUpdProp, PluginInfo selPI) {
 		// Create the plug-in field-set
-		VelocityContext vcLocal = new VelocityContext();
 		vcLocal.put("pluginStatus",(selPI.installed) ? "Installed" : "Registered");
 		vcLocal.put("pluginName", selPI.getPluginName()+"");
 		vcLocal.put("pluginClass", StringUtils.join((String[]) (selPI.getServiceRef().getProperty(Constants.OBJECTCLASS)),",")+"");
@@ -412,7 +360,7 @@ public class PluginsView extends AbstractView{
 				vcLocal.put("metricList", metricList);
 			}
 		}
-		b.append(velocityContextToString(vcLocal, "pluginEditor.html"));
+		vcLocal.put("currentPluginTemplate","pluginEditor.html");
 	}
 	
 	private Map<String,String> addMetricProperties(Metric metric){
@@ -453,7 +401,7 @@ public class PluginsView extends AbstractView{
 	 * @param selPI
 	 * @return
 	 */
-	private void createUpdateConfigurationProperty(StringBuilder b, long in,
+	private void createUpdateConfigurationProperty(VelocityContext vcLocal, long in,
 			String reqParAction, String reqParPropName, String reqParPropDescr,
 			String reqParPropType, String reqParPropValue,
 			String actValConAddProp, String actValConRemProp,
@@ -463,7 +411,6 @@ public class PluginsView extends AbstractView{
 		// Check for a property update request
 		boolean update = selPI.hasConfProp(
 		        reqValPropName, reqValPropType);
-		VelocityContext vcLocal = new VelocityContext();
 		if(update)
 			vcLocal.put("update",update);
 		vcLocal.put("updateText", (update) ? "Update property of ": "Create property for ");
@@ -481,7 +428,7 @@ public class PluginsView extends AbstractView{
 		vcLocal.put("actionId",reqParAction);
 		vcLocal.put("actionRemove",actValConRemProp);
 		vcLocal.put("actionAdd", actValConAddProp);
-		b.append(velocityContextToString(vcLocal, "createUpdateConfigurationProperty.html"));
+		vcLocal.put("currentPluginTemplate", "createUpdateConfigurationProperty.html");
 	}
 
 	/**
@@ -621,83 +568,6 @@ public class PluginsView extends AbstractView{
 		    sobjPA.pluginUpdated(sobjPA.getPlugin(pInfo));
 		}
 	}
-
-	/**
-	 * @param b
-	 * @param in
-	 */
-	private void noPlugins(StringBuilder b, long in) {
-		b.append(normalFieldset(
-		        "All plug-ins",
-		        null,
-		        new StringBuilder("<span>"
-		                + "No plug-ins found!&nbsp;"
-		                + "<input type=\"button\""
-		                + " class=\"install\""
-		                + " style=\"width: 100px;\""
-		                + " value=\"Refresh\""
-		                + " onclick=\"javascript:"
-		                + "window.location.reload(true);"
-		                + "\">"
-		                + "</span>"),
-		        in));
-	}
-
-    /**
-     * Creates a set of table rows populated with the plug-in properties and
-     * activators, as found in the given <code>PluginInfo</code> object
-     * 
-     * @param pluginInfo the plug-in's <code>PluginInfo</code> object
-     * @param showProperties display flag
-     * @param showActivators display flag
-     * @param in indentation value for the generated HTML content
-     * 
-     * @return The table as HTML presentation.
-     */
-    private String renderPluginAttributes(
-            PluginInfo pluginInfo,
-            boolean showProperties,
-            boolean showActivators,
-            long in) {
-        // Stores the assembled HTML content
-        StringBuilder b = new StringBuilder();
-        // List the metric plug-in's configuration properties
-        if (showProperties) {
-            Set<PluginConfiguration> l =
-                pluginInfo.getConfiguration();
-            // Skip if this plug-ins has no configuration
-            if ((l != null) && (l.isEmpty() == false)) {
-                for (PluginConfiguration property : l) {
-                    b.append(sp(in++) + "<tr>");
-                    b.append(sp(in) + "<td>&nbsp;</td>\n");
-                    b.append(sp(in) + "<td colspan=\"3\" class=\"attr\">"
-                            + "<b>Property:</b> " + property.getName()
-                            + "&nbsp;<b>Type:</b> " + property.getType()
-                            + "&nbsp;<b>Value:</b> " + property.getValue()
-                            + "</td>\n");
-                    b.append(sp(--in)+ "</tr>\n");
-                }
-            }
-        }
-        // List the metric plug-in's activator types
-        if (showActivators) {
-            Set<Class<? extends DAObject>> activators =
-                pluginInfo.getActivationTypes();
-            // Skip if this plug-ins has no activators
-            if (activators != null) {
-                for (Class<? extends DAObject> activator : activators) {
-                    b.append("<tr>");
-                    b.append("<td>&nbsp;</td>\n");
-                    b.append("<td colspan=\"3\" class=\"attr\">"
-                            + "<b>Activator:</b> "
-                            + activator.getName()
-                            + "</td>");
-                    b.append("</tr>\n");
-                }
-            }
-        }
-        return b.toString();
-    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

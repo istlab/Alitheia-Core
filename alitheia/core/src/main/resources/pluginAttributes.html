@@ -7,8 +7,8 @@
   <td class="trans">$plugin.pluginClass</td>
   <td class="trans">$plugin.version</td>
 </tr>
-#if ($showProperties) {
-    #if ($pluginConfiguration && !$pluginConfiguration.isEmpty())) {
+#if ($showProperties)
+    #if ($pluginConfiguration && !$pluginConfiguration.isEmpty()))
         #foreach($property in $pluginConfiguration)
               <tr>
                 <td>&nbsp;</td>
@@ -21,8 +21,8 @@
         #end
     #end
 #end
-#if ($showActivators) {
-    #if ($activators && !$activators.isEmpty()) {
+#if ($showActivators)
+    #if ($activators && !$activators.isEmpty())
         #foreach($activator in $activators)
             <tr>
                 <td>&nbsp;</td>
