@@ -1,0 +1,13 @@
+      </div>
+      <div id="sidebar">
+        <iframe width="22%" height="300" frameborder="0" scrolling="no" src="/status">
+        </iframe>
+      </div>
+      <div id="footer">
+        <p>
+		  <a href="http://www.sqo-oss.org/">SQO-OSS homepage</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

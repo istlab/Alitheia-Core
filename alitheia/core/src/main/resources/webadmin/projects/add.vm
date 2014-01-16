@@ -1,0 +1,82 @@
+#set($section=3)
+#parse("/webadmin/inc/header.vm")
+
+        <div id="contents">
+          <h2>$tr.label("projects_mngm")</h2>
+          
+          ## Display form to add a project
+          <div id="table">
+            
+            <form id="projects" name="projects" method="post" action="/projects/action">
+              <table class="borderless" width='100%'>
+
+                <tr>
+                  <td class="borderless" style="width:100px;"><b>Project name</b></td>
+                  <td class="borderless">
+                    <input type="text" class="form" id="REQ_PAR_PRJ_NAME" name="REQ_PAR_PRJ_NAME" value="" size="60">
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="borderless" style="width:100px;"><b>Homepage</b></td>
+                  <td class="borderless">
+                    <input type="text" class="form" id="REQ_PAR_PRJ_WEB" name="REQ_PAR_PRJ_WEB" value="" size="60">
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="borderless" style="width:100px;"><b>Contact e-mail</b></td>
+                  <td class="borderless">
+                    <input type="text" class="form" id="REQ_PAR_PRJ_CONT" name="REQ_PAR_PRJ_CONT" value="" size="60">
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="borderless" style="width:100px;"><b>Bug database</b></td>
+                  <td class="borderless">
+                    <input type="text" class="form" id="REQ_PAR_PRJ_BUG" name="REQ_PAR_PRJ_BUG" value="" size="60">
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="borderless" style="width:100px;"><b>Mailing list</b></td>
+                  <td class="borderless">
+                    <input type="text" class="form" id="REQ_PAR_PRJ_MAIL" name="REQ_PAR_PRJ_MAIL" value="" size="60">
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="borderless" style="width:100px;"><b>Source code</b></td>
+                  <td class="borderless">
+                    <input type="text" class="form" id="REQ_PAR_PRJ_CODE" name="REQ_PAR_PRJ_CODE" value="" size="60">
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" class="borderless">
+                    <input type="button" class="install" style="width: 100px;" value="Add Project" onclick="javascript:document.getElementById('action').value='installbyform';document.projects.submit();">
+                    <input type="button" class="install" style="width: 100px;" value="Cancel" onclick="javascript:window.location = '/projects';">
+                  </td>
+                </tr>
+              </table>
+              <input type="hidden" id="action" name="action" value="">
+              <input type="hidden" id="REQ_PAR_PROJECT_ID" name="REQ_PAR_PROJECT_ID" value="">
+              <input type="hidden" id="REQ_PAR_SYNC_PLUGIN" name="REQ_PAR_SYNC_PLUGIN" value="">
+            </form>
+          </div>
+          
+          ## Display a fast way to add a project
+          <h2>$tr.label("install_new_project")</h2>
+          <form id="addprojectdir" method="post" action="/projects/action">
+            project.properties file location
+            <input name="properties" type="text" alt="Enter the path to the project.properties file of the project you want to install" class="form" size="40" />
+            <input type="hidden" id="action" name="action" value="installbyproperties" />
+            <input type="submit" value="Install Project" />
+          </form>
+          
+          ## Print some help
+          <h2>$tr.label("help")</h2>
+          $tr.message("project_help")
+          
+        </div>
+
+#parse("/webadmin/inc/footer.vm")

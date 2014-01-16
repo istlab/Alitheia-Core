@@ -1,0 +1,81 @@
+#set($section=1)
+#parse("/webadmin/inc/header.vm")
+            
+        <div id="contents">
+          <div id="table">
+          <h2>$tr.label("plugins_mngm")</h2>
+            #if ($pluginList.isEmpty())
+	      		<span>
+	      		  No plug-ins found!&nbsp;
+	      		  <input type="button" class="install" style="width: 100px;" value="Refresh" onclick="javascript:window.location.reload(true);">
+	            </span>
+            #else
+	        <form id="metrics" name="metrics" method="get" action="$path">
+	          <fieldset>
+	            <legend>All plug-ins</legend>
+	            <table>
+	              <thead>
+	                <tr class="head">
+	                  <td class="head" style="width: 80px;">Status</td>
+	                  <td class="head" style="width: 30%;">Name</td>
+	                  <td class="head" style="width: 40%;">Class</td>
+	                  <td class="head">Version</td>
+	                </tr>
+	              </thead>
+	              <tbody>
+	                #foreach ($p in $pluginList)
+	                <tr class="edit" onclick="window.location.href = '/plugins/plugin?hash=$p.getHashcode()';">
+	                  <td class="trans"><img src="/edit.png" alt="[Edit]"/>&nbsp;#if ($p.isInstalled()) Installed #else Registered #end</td>
+	                  <td class="trans">$p.getPluginName()</td>
+	                  <td class="trans">$p.getClassName()</td>
+	                  <td class="trans">$p.getPluginVersion()</td>
+	                </tr>
+	                
+	                ## Show properties if needed
+	                #if ($showProperties)
+	                  #set ($properties = $configurations.get($p.getHashcode()))
+		              #foreach ($property in $properties)
+		              <tr>
+	                    <td>&nbsp;</td>
+	                    <td colspan="3" class="attr">
+	                      <b>Property:</b> $property.getName() &nbsp;
+	                      <b>Type:</b> $property.getType() &nbsp;
+	                      <b>Value:</b> $property.getValue()
+	                    </td>
+	                  </tr>
+		              #end
+	                #end
+	                
+	                ## Show activators if needed
+	                #if ($showActivators)
+		                #foreach ($activator in $p.getActivationTypes())
+		                <tr>
+	                  	  <td>&nbsp;</td>
+	                      <td colspan="3" class="attr">
+	                        <b>Activator:</b>$activator.getName()
+	                      </td>
+	                  	</tr>
+		                #end
+	                #end
+
+	                #end
+                  </tbody>
+                </table>
+                <span>
+                  <input type="checkbox"
+                  	#if ($showProperties) checked="checked" #end
+                  	onclick="document.getElementById('showProperties').value = this.checked;
+                  			 document.metrics.submit();">Display properties
+                  <input type="checkbox"
+                  	#if ($showActivators) checked="checked" #end
+                  	onclick="document.getElementById('showActivators').value = this.checked;
+                  			 document.metrics.submit();">Display activators
+                </span>
+              </fieldset>
+              <input type="hidden" id="showProperties" name="showProperties" #if($showProperties) value="true" #else value="false" #end >
+              <input type="hidden" id="showActivators" name="showActivators" #if($showActivators) value="true" #else value="false" #end >
+             </form>	
+	      </div>
+          #end
+        </div>           
+#parse("/webadmin/inc/footer.vm")            

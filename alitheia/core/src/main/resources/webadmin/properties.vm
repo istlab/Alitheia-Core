@@ -1,0 +1,70 @@
+#set($section=1)
+#parse("/webadmin/inc/header.vm")
+
+        <div id="contents">
+          <h2>$tr.label("plugins_mngm")</h2>
+          <div id="table">  
+            <form id="property" name="property" method="post" action="/properties/action">
+              <fieldset>
+                <legend>Create property for $plugin.getPluginName()</legend>
+                
+                #if ($null.isNull($property))
+                  #set ($name = "")
+                  #set ($message = "")
+                  #set ($type = "")
+                  #set ($value = "")
+                #else
+                  #set ($name = $property.getName())
+                  #set ($message = $property.getMsg())
+                  #set ($type = $property.getType())
+                  #set ($value = $property.getValue())
+                #end
+                <table class="borderless">                
+                  <tr>
+                    <td class="borderless" style="width:100px;"><b>Name</b></td>
+                    <td class="borderless"><input type="text" class="form" id="reqParPropName" name="reqParPropName" value="$name"></td>
+                  </tr>
+                  <tr> 
+                    <td class="borderless" style="width:100px;"><b>Description</b></td>
+                    <td class="borderless"><input type="text" class="form" id="reqParPropDescr" name="reqParPropDescr" value="$message"></td>
+                  </tr>
+                  <tr>
+                    <td class="borderless" style="width:100px;"><b>Type</b></td>
+                    <td class="borderless">
+                      <select class="form" id="reqParPropType" name="reqParPropType">
+                        #foreach ($t in $types)
+                          #if ($t == $type) 
+                            #set ($selected = " selected")
+                          #else
+                            #set ($selected = "")
+                          #end
+                          <option value="$t"$selected>$t</option>
+                        #end
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="borderless" style="width:100px;"><b>Value</b></td>
+                    <td class="borderless"><input type="text" class="form" id="reqParPropValue" name="reqParPropValue" value="$value"></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" class="borderless">
+					  #if ($update)
+					    <input type="button" class="install" style="width: 100px;" value="Update" onclick="javascript:document.getElementById('action').value='update'; document.property.submit();" />&nbsp;
+					  	<input type="button" class="install" style="width: 100px;" value="Remove" onclick="javascript:document.getElementById('action').value='remove'; document.property.submit();" />
+					  #else
+					    <input type="button" class="install" style="width: 100px;" value="Create" onclick="javascript:document.getElementById('action').value='create'; document.property.submit();" />&nbsp;
+					  #end
+					  <input type="button" class="install" style="width: 100px;" value="Cancel" onclick="javascript:window.location = '/plugins/plugin?hash=$plugin.getHashcode()'" />
+					</td>                    					                     
+                  </tr>
+                </table>            
+              </fieldset>
+              <input type="hidden" id="action" name="action" value="" />
+              <input type="hidden" id="hash" name="hash" value="$plugin.getHashcode()" />
+              <input type="hidden" id="propertyId" name="propertyId" value="$property.getId()" />
+            </form>
+          </div>    
+        </div>
+
+#parse("/webadmin/inc/footer.vm")

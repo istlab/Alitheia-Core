@@ -1,0 +1,70 @@
+#set($section=4)
+#parse("/webadmin/inc/header.vm")
+
+        <div id="contents">
+          <h2>Failed Jobs (Last 1000)</h2>
+          <div id="bundles">
+            <table width="100%" cellpadding="0" cellspacing="0">
+	          <thead>
+		        <tr>
+			      <td>Job Type</td>
+			      <td>Exception type</td>
+			      <td>Exception text</td>
+			      <td>Exception backtrace</td>
+		        </tr>
+	          </thead>
+	          <tbody>
+	            #if ($failedJobs.isEmpty())
+		          <tr>
+		            <td colspan="4">No failed jobs.</td>
+		          </tr>
+	            #else
+		          #foreach ($job in $failedJobs)
+			      <tr>
+				    <td>
+				      #if ($null.isNull($job))
+				        NA
+				      #else
+				        $job
+				      #end
+				    </td>
+				    #set ($exception = $job.getErrorException())
+				    #if ($null.isNull($exception))
+				      <td>NA</td>
+				      <td>NA</td>
+				      <td>NA</td>
+				    #else
+				      <td>
+				        #set ($string = $exception.getClass().getPackage().getName() + ". " + $exception.getClass().getSimpleName()) 
+				        $string
+				      </td>
+				      <td>
+				        
+				        #if ($null.isNull($exception.getMessage()))
+				          NA
+				        #else
+				          $exception.getMessage()
+				        #end
+				      </td>
+				      <td>
+				        #if ($null.isNotNull($exception.getStackTrace()))
+				          #foreach ($m in $exception.getStackTrace())
+				            #if ($null.isNotNull($m))
+				              #set ($string = $m.getClassName() + ". " + $m.getMethodName() + "(), (" + $m.getFileName() + ":" + $m.getLineNumber() + ")<br />")
+				              $string
+				            #end
+				          #end 
+				        #else
+				          NA
+				        #end				      
+				      </td>
+				    #end
+			      </tr>
+			      #end
+		        #end
+		      </tbody>
+            </table>
+          </div>
+        </div>
+
+#parse("/webadmin/inc/footer.vm")

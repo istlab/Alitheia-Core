@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence-diagram version="1.1.4" icons="true" automaticImage="PNG">  
+  <object id="1" language="java" name="org.osgi.service.http.HttpService" project="core" 
+    file="C:/Users/David/.m2/repository/org/osgi/org.osgi.compendium/4.2.0/org.osgi.compendium-4.2.0.jar" binary="true" 
+    label="httpService" type="interface" autoSize="true">    
+    <position height="-1" width="-1" x="383" y="0"/>    
+    <execution id="2">      
+      <position height="165" width="117" x="5" y="166"/>    
+    </execution>  
+  </object>  
+  <object id="5" language="java" name="eu.sqooss.impl.service.webadmin.servlets.PluginsServlet" project="core" 
+    file="/core/src/main/java/eu/sqooss/impl/service/webadmin/servlets/PluginsServlet.java" binary="false" 
+    label="pluginsServlet" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="569" y="0"/>    
+    <execution id="4">      
+      <position height="117" width="242" x="126" y="190"/>    
+    </execution>    
+    <execution id="7">      
+      <position height="24" width="242" x="126" y="259"/>    
+    </execution>    
+    <execution id="8">      
+      <position height="399" width="0" x="0" y="308"/>    
+    </execution>    
+    <execution id="10">      
+      <position height="245" width="0" x="0" y="356"/>    
+    </execution>    
+    <execution id="18">      
+      <position height="108" width="0" x="0" y="469"/>    
+    </execution>    
+    <execution id="20">      
+      <position height="24" width="0" x="0" y="529"/>    
+    </execution>  
+  </object>  
+  <object id="21" language="java" name="javax.servlet.http.HttpServletRequest" project="core" 
+    file="C:/Users/David/.m2/repository/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar" binary="true" label="req" 
+    type="interface" autoSize="true">    
+    <position height="0" width="0" x="0" y="0"/>    
+    <execution id="16">      
+      <position height="24" width="0" x="0" y="392"/>    
+    </execution>  
+  </object>  
+  <object id="22" language="java" name="javax.servlet.http.HttpServletResponse" project="core" 
+    file="C:/Users/David/.m2/repository/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar" binary="true" 
+    label="httpServletResponse" type="interface" autoSize="true">    
+    <position height="-1" width="-1" x="1215" y="0"/>    
+    <execution id="12">      
+      <position height="24" width="177" x="541" y="627"/>    
+    </execution>  
+  </object>  
+  <object id="23" language="java" name="org.apache.velocity.Template" project="core" 
+    file="C:/Users/David/.m2/repository/org/apache/velocity/velocity/1.7/velocity-1.7.jar" binary="true" 
+    label="template" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="1323" y="0"/>    
+    <execution id="14">      
+      <position height="24" width="111" x="722" y="659"/>    
+    </execution>  
+  </object>  
+  <message id="3" operation="service(javax.servlet.ServletRequest,javax.servlet.ServletResponse):void">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="4"/>  
+  </message>  
+  <message id="6" operation="doGet(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse):void">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="7"/>  
+  </message>  
+  <message id="9" 
+    operation="render(javax.servlet.http.HttpServletRequest,org.apache.velocity.VelocityContext):org.apache.velocity.Template">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="10"/>  
+  </message>  
+  <message id="11" operation="getWriter():java.io.PrintWriter">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="12"/>  
+  </message>  
+  <message id="13" operation="merge(org.apache.velocity.context.Context,java.io.Writer):void">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="14"/>  
+  </message>  
+  <message id="15" operation="getRequestURI():java.lang.String">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="16"/>  
+  </message>  
+  <message id="17" 
+    operation="PagePluginsList(javax.servlet.http.HttpServletRequest,org.apache.velocity.VelocityContext):org.apache.velocity.Template">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="18"/>  
+  </message>  
+  <message id="19" operation="loadTemplate(java.lang.String):org.apache.velocity.Template">    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="20"/>  
+  </message>
+</sequence-diagram>

@@ -86,7 +86,8 @@ public interface ClusterNodeService extends AlitheiaCoreService {
     }
 
     
- 
+    // return this Node
+    ClusterNode getClusterNode();
     
     // return this Node's name
     String getClusterNodeName();

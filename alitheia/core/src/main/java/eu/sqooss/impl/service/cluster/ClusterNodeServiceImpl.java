@@ -91,6 +91,10 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
 
     public ClusterNodeServiceImpl() {}
     
+    public ClusterNode getClusterNode() {
+        return thisNode;
+    }
+    
     public String getClusterNodeName(){
 	   return thisNode.getName();
     }

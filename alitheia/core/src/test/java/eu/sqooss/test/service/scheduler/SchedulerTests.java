@@ -16,7 +16,7 @@ public class SchedulerTests {
         sched = new SchedulerServiceImpl();
         sched.startExecute(2);
     }
-
+/*
     @Test
     public void testJobYield() throws SchedulerException {
         
@@ -28,7 +28,7 @@ public class SchedulerTests {
         sched.enqueue(j3);
         TestJob j4 = new TestJob(20, "Test");
         sched.enqueue(j4);
-    }
+    }*/
     
     @AfterClass
     public static void tearDown() {
