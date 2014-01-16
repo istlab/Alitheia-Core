@@ -529,18 +529,9 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
      */
     public synchronized void jobStateChanged(Job j, State newState) {
 
-        Long projectId = scheduledUpdates.getProjectFor(j);
-
-        Map<Updater, UpdaterJob> updates = scheduledUpdates.getScheduleFor(projectId);
-        Updater ut = null;
-        for (Updater t : updates.keySet()) {
-            if (updates.get(t).equals(j)) {
-                ut = t;
-                break;
-            }
-        }
-
         if (newState.equals(State.Error) || newState.equals(State.Finished)) {
+        	Updater ut = scheduledUpdates.getUpdaterFor(j);
+        	
             if (ut == null) {
                 logger.error("Update job finished with state " + newState
                         + " but was not scheduled. That's weird...");
@@ -549,7 +540,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
             if (!dbs.isDBSessionActive())
                 dbs.startDBSession();
-            StoredProject sp = StoredProject.loadDAObyId(projectId, StoredProject.class);
+            StoredProject sp = StoredProject.loadDAObyId(scheduledUpdates.getProjectFor(j), StoredProject.class);
             removeUpdater(sp, ut);
 
             if (newState.equals(State.Error)) {

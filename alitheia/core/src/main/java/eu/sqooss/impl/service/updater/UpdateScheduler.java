@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.updater;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -175,6 +176,23 @@ public class UpdateScheduler {
         }
         
         return projectId;
+	}
+	
+	/**
+	 * Retrieve the Updater corresponding to a job
+	 * 
+	 * @param job The job to find the Updater for
+	 * @return The Updater the job belongs to, otherwise null 
+	 */
+	public Updater getUpdaterFor(Job job){
+        for (Map<Updater, UpdaterJob> map : scheduledUpdates.values()) {
+        	for (Entry<Updater, UpdaterJob> entry : map.entrySet())
+        		if (entry.getValue().equals(job)) {
+        			return entry.getKey();
+            }
+        }
+        
+        return null;
 	}
 	
 	/**
