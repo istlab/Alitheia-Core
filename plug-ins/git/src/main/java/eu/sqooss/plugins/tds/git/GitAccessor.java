@@ -522,14 +522,6 @@ public class GitAccessor implements SCMAccessor {
     	debug("resolveChildren(): " + msec + " msec");
     }
     
-    /* Accessor internal methods*/
-    
-    /*Init a test repository when unit testing*/
-    public void testInit(URI dataURL, String projectName) 
-    throws AccessorException {
-        doInit(dataURL, projectName);
-    }
-    
     /*
      * Actual repo initialization code, construct a repository instance per
      * tracked project.
