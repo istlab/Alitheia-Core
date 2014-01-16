@@ -43,20 +43,32 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.core.AlitheiaCore;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.UpdateProject;
+import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 
 public class ProjectsView extends AbstractView {
@@ -85,14 +97,46 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
     private static String REQ_PAR_UPD           = "reqUpd";
     
+    private static ProjectDeleteJobFactory pdjFactory;
+    private static Provider<AdminService> adminProvider;
+    private static DBService dbs;
+    private static Scheduler sched;
+    private static PluginAdmin pa;
+    private static UpdaterService up;
+    private static ClusterNodeService cns;
+    private static Logger logger;
+    private static MetricActivator ma;
+    
     /**
      * Instantiates a new projects view.
      *
      * @param bundlecontext the <code>BundleContext</code> object
      * @param vc the <code>VelocityContext</code> object
      */
-    public ProjectsView(BundleContext bundlecontext, VelocityContext vc) {
-        super(bundlecontext, vc);
+    
+    @Inject
+    public ProjectsView(ProjectDeleteJobFactory pdjFactoryC,
+    		Provider<AdminService> adminProviderC,
+    		Provider<TDSService> tdsProvider,
+    		Provider<DBService> dbsProvider,
+    		Provider<Scheduler> schedProvider,
+    		Provider<PluginAdmin> paProvider,
+    		Provider<UpdaterService> updateProvider,
+    		Provider<ClusterNodeService> cnsProvider,
+    		Provider<LogManager> logMProvider,
+    		Provider<MetricActivator> maProvider,
+    		@Assisted BundleContext bundlecontext, 
+    		@Assisted VelocityContext vc) {
+        super(bundlecontext, vc, tdsProvider);
+        pdjFactory = pdjFactoryC;
+        adminProvider = adminProviderC;
+        dbs = dbsProvider.get();
+        sched = schedProvider.get();
+        pa = paProvider.get();
+        up = updateProvider.get();
+        cns = cnsProvider.get();
+        logger = logMProvider.get().createLogger(Logger.NAME_SQOOSS_WEBADMIN);
+        ma = maProvider.get();
     }
 
     /**
@@ -135,7 +179,7 @@ public class ProjectsView extends AbstractView {
             // Retrieve the selected project's DAO (if any)
             reqValProjectId = fromString(req.getParameter(REQ_PAR_PROJECT_ID));
             if (reqValProjectId != null) {
-                selProject = sobjDB.findObjectById(
+                selProject = dbs.findObjectById(
                         StoredProject.class, reqValProjectId);
             }
             
@@ -162,7 +206,7 @@ public class ProjectsView extends AbstractView {
     }
   
     private static StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
-        AdminService as = AlitheiaCore.getInstance().getAdminService();
+        AdminService as = adminProvider.get();
     	AdminAction aa = as.create(AddProject.MNEMONIC);
     	aa.addArg("scm", r.getParameter(REQ_PAR_PRJ_CODE));
     	aa.addArg("name", r.getParameter(REQ_PAR_PRJ_NAME));
@@ -188,9 +232,9 @@ public class ProjectsView extends AbstractView {
     	if (selProject != null) {
 			// Deleting large projects in the foreground is
 			// very slow
-			ProjectDeleteJob pdj = new ProjectDeleteJob(sobjCore, selProject);
+			ProjectDeleteJob pdj = pdjFactory.create(selProject);
 			try {
-				sobjSched.enqueue(pdj);
+				sched.enqueue(pdj);
 			} catch (SchedulerException e1) {
 				e.append(sp(indent)).append(getErr("e0034")).append("<br/>\n");
 			}
@@ -206,7 +250,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerUpdate(StringBuilder e,
 			StoredProject selProject, int indent, String mnem) {
-		AdminService as = AlitheiaCore.getInstance().getAdminService();
+		AdminService as = adminProvider.get();
 		AdminAction aa = as.create(UpdateProject.MNEMONIC);
 		aa.addArg("project", selProject.getId());
 		aa.addArg("updater", mnem);
@@ -224,7 +268,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	private static void triggerAllUpdate(StringBuilder e,
 			StoredProject selProject, int indent) {
-	    AdminService as = AlitheiaCore.getInstance().getAdminService();
+	    AdminService as = adminProvider.get();
         AdminAction aa = as.create(UpdateProject.MNEMONIC);
         aa.addArg("project", selProject.getId());
         as.execute(aa);
@@ -253,12 +297,12 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
     private static void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
 		if ((reqValSyncPlugin != null) && (selProject != null)) {
-			PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);
+			PluginInfo pInfo = pa.getPluginInfo(reqValSyncPlugin);
 			if (pInfo != null) {
-				AlitheiaPlugin pObj = sobjPA.getPlugin(pInfo);
+				AlitheiaPlugin pObj = pa.getPlugin(pInfo);
 				if (pObj != null) {
-					compMA.syncMetric(pObj, selProject);
-					sobjLogger.debug("Syncronise plugin (" + pObj.getName()
+					ma.syncMetric(pObj, selProject);
+					logger.debug("Syncronise plugin (" + pObj.getName()
 							+ ") on project (" + selProject.getName() + ").");
 				}
 			}
@@ -283,7 +327,7 @@ public class ProjectsView extends AbstractView {
 
         // Get the complete list of projects stored in the SQO-OSS framework
         Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
-        Collection<PluginInfo> metrics = sobjPA.listPlugins();
+        Collection<PluginInfo> metrics = pa.listPlugins();
 
         // ===================================================================
         // "Show project info" view
@@ -578,22 +622,22 @@ public class ProjectsView extends AbstractView {
         if (selProject != null) {
             b.append(sp(in) + "<select name=\"" + REQ_PAR_UPD + "\" id=\"" + REQ_PAR_UPD + "\" " + ((selProject != null) ? "" : " disabled=\"disabled\"") + ">\n");
             b.append(sp(in) + "<optgroup label=\"Import Stage\">");
-            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.IMPORT)) {
+            for (Updater u : up.getUpdaters(selProject, UpdaterStage.IMPORT)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
             }
             b.append(sp(in) + "</optgroup>");
             b.append(sp(in) + "<optgroup label=\"Parse Stage\">");
-            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.PARSE)) {
+            for (Updater u : up.getUpdaters(selProject, UpdaterStage.PARSE)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
             }
             b.append(sp(in) + "</optgroup>");
             b.append(sp(in) + "<optgroup label=\"Inference Stage\">");
-            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.INFERENCE)) {
+            for (Updater u : up.getUpdaters(selProject, UpdaterStage.INFERENCE)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
             }
             b.append(sp(in) + "</optgroup>");
             b.append(sp(in) + "<optgroup label=\"Default Stage\">");
-            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.DEFAULT)) {
+            for (Updater u : up.getUpdaters(selProject, UpdaterStage.DEFAULT)) {
                 b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
             }
             b.append(sp(in) + "</optgroup>");
@@ -608,7 +652,7 @@ public class ProjectsView extends AbstractView {
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "<td colspan=\"2\" align=\"right\">\n");
      // Trigger updates on host
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ sobjClusterNode.getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\">\n");
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ cns.getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\">\n");
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
     }

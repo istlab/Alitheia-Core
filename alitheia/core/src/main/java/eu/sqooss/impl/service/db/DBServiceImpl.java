@@ -62,7 +62,6 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;	
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.core.AlitheiaCoreService;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
@@ -75,7 +74,7 @@ import eu.sqooss.service.util.URIUtills;
  * @author Romain Pokrzywka, Georgios Gousios
  * 
  */
-public class DBServiceImpl implements DBService, AlitheiaCoreService {
+public class DBServiceImpl implements DBService {
 
     private static DBService instance;
     

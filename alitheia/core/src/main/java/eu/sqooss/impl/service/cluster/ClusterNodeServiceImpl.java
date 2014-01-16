@@ -50,7 +50,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
-import eu.sqooss.core.AlitheiaCore;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
@@ -81,15 +83,22 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
 	}
 
     private Logger logger = null;
-    private AlitheiaCore core = null;
     private HttpService httpService = null;
     private BundleContext context;
     private DBService dbs = null;
     private UpdaterService upds = null;
     
     private ClusterNode thisNode = null;
+    
+    private final Provider<DBService> dbsProvider;
+    private final Provider<UpdaterService> updateProvider;
 
-    public ClusterNodeServiceImpl() {}
+    @Inject
+    public ClusterNodeServiceImpl(Provider<DBService> dbsProvider,
+    								Provider<UpdaterService> updateProvider) {
+    	this.dbsProvider = dbsProvider;
+    	this.updateProvider = updateProvider;
+    }
     
     public String getClusterNodeName(){
 	   return thisNode.getName();
@@ -397,10 +406,9 @@ public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeSe
 		
 		/* Get a reference to the core service*/
         ServiceReference serviceRef = null;
-      
-        core = AlitheiaCore.getInstance();
-        dbs = core.getDBService();
-        upds = core.getUpdater();
+
+        dbs = dbsProvider.get();
+        upds = updateProvider.get();
         if (logger != null) {
             logger.info("Got a valid reference to the logger");
         } else {

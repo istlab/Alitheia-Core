@@ -41,6 +41,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 
+import com.google.inject.Inject;
+
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.webadmin.WebadminService;
 
@@ -71,9 +73,14 @@ public class WebadminServiceImpl implements WebadminService {
      */
     private String messageOfTheDay = null;
 
+    private final AdminServletFactory adminServletFactory;
+    
     private BundleContext bc;
 
-    public WebadminServiceImpl() { }
+    @Inject
+    public WebadminServiceImpl(AdminServletFactory adminServletFactory) { 
+    	this.adminServletFactory = adminServletFactory;
+    }
 
     /**
      * Retrieves the "message of the day" String
@@ -145,7 +152,7 @@ public class WebadminServiceImpl implements WebadminService {
             try {
                 sobjHTTPService.registerServlet(
                     "/",
-                    new AdminServlet(bc, this, logger, ve),
+                    adminServletFactory.create(bc, this, logger, ve),
                     new Hashtable(),
                     null);
             }

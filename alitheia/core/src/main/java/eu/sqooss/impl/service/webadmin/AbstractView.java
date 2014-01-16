@@ -46,35 +46,15 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.cluster.ClusterNodeService;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.logging.LogManager;
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.PluginAdmin;
-import eu.sqooss.service.scheduler.Scheduler;
+import com.google.inject.Provider;
+
 import eu.sqooss.service.tds.TDSService;
-import eu.sqooss.service.updater.UpdaterService;
 
 public abstract class AbstractView {
     // Core components
-    protected static AlitheiaCore sobjCore = null;
     protected static ServiceReference srefCore = null;
 
-    // Critical logging components
-    protected static LogManager sobjLogManager = null;
-    protected static Logger sobjLogger = null;
-
-    // Service components
-    protected static DBService sobjDB = null;
-    protected static MetricActivator compMA = null;
-    protected static PluginAdmin sobjPA = null;
-    protected static Scheduler sobjSched = null;
-    protected static TDSService sobjTDS = null;
-    protected static UpdaterService sobjUpdater = null;
-    protected static ClusterNodeService sobjClusterNode = null;
-    protected static SecurityManager sobjSecurity = null;
+    private static TDSService tds;
 
     // Velocity stuff
     protected static VelocityContext vc = null;
@@ -102,64 +82,12 @@ public abstract class AbstractView {
      * @param bundlecontext the parent bundle's context
      * @param vc the Velocity instance's context
      */
-    public AbstractView(BundleContext bundlecontext, VelocityContext vc) {
+    public AbstractView(BundleContext bundlecontext, VelocityContext vcc,
+    		Provider<TDSService> tdsProvider) {
         // Keep the Velocity context instance
-        this.vc = vc;
+        vc = vcc;
         this.bc = bundlecontext;
-       
-        sobjCore = AlitheiaCore.getInstance();
-        
-        // Retrieve the instances of the core components
-        if (sobjCore != null) {
-            //Get the log manager's instance
-            sobjLogManager = sobjCore.getLogManager();
-            if (sobjLogManager != null) {
-                // Instantiate a dedicated logger 
-                sobjLogger = sobjLogManager.createLogger(
-                        Logger.NAME_SQOOSS_WEBADMIN);
-            }
-
-            // Get the database component's instance
-            sobjDB = sobjCore.getDBService();
-            if ((sobjDB == null) && (sobjLogger != null))
-                sobjLogger.debug("Could not get the database component's instance.");
-
-            // Get the plug-in admin's instance
-            sobjPA = sobjCore.getPluginAdmin();
-            if ((sobjPA == null) && (sobjLogger != null))
-                sobjLogger.debug("Could not get the plug-in admin's instance.");
-
-            // Get the scheduler's instance
-            sobjSched = sobjCore.getScheduler();
-            if ((sobjSched == null) && (sobjLogger != null))
-                sobjLogger.debug("Could not get the scheduler's instance.");
-
-            // Get the metric activator's instance
-            compMA = sobjCore.getMetricActivator();
-            if ((compMA == null) && (sobjLogger != null))
-                sobjLogger.debug("Could not get the metric activator's instance.");
-
-            // Get the TDS component's instance
-            sobjTDS = sobjCore.getTDSService();
-            if ((sobjTDS == null) && (sobjLogger != null))
-                sobjLogger.debug("Could not get the TDS component's instance.");
-
-            // Get the updater component's instance
-            sobjUpdater = sobjCore.getUpdater();
-            if ((sobjUpdater == null) && (sobjLogger != null))
-                sobjLogger.debug("Could not get the updater component's instance.");
-
-            // Get the ClusterNodeService component's instance
-            sobjClusterNode = sobjCore.getClusterNodeService();
-            if ((sobjClusterNode != null) && (sobjLogger != null))
-                sobjLogger.debug("Got the ClusterNodeService component's instance.");
-
-            
-            // Get the security manager's instance
-            sobjSecurity = sobjCore.getSecurityManager();
-            if ((sobjSecurity == null) && (sobjLogger != null))
-                sobjLogger.debug("Could not get the security manager's instance.");
-        }
+        tds = tdsProvider.get();
     }
 
     /**
@@ -535,7 +463,7 @@ public abstract class AbstractView {
      * provided string is not a URL.
      */
     protected static boolean checkTDSUrl (String url) {
-        return sobjTDS.isURLSupported(url);
+        return tds.isURLSupported(url);
     }
 }
 

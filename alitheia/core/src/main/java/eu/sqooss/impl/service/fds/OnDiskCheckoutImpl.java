@@ -37,7 +37,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.concurrent.locks.ReentrantLock;
 
-import eu.sqooss.core.AlitheiaCore;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.fds.CheckoutException;
@@ -64,11 +67,18 @@ class OnDiskCheckoutImpl implements OnDiskCheckout {
     private ProjectVersion revision;
     private SCMAccessor scm;
     
+    private final Provider<DBService> dbsProvider;
+    
     private boolean initCheckout = false;
 
-    OnDiskCheckoutImpl(SCMAccessor accessor, String path,
-                       ProjectVersion pv, File root) {
-        repoPath = path;
+    @Inject
+    OnDiskCheckoutImpl(	Provider<DBService> dbsProviderC,
+    					@Assisted SCMAccessor accessor,
+    					@Assisted String path, 
+    					@Assisted ProjectVersion pv,
+    					@Assisted File root) {
+        dbsProvider = dbsProviderC;
+    	repoPath = path;
         localRoot = root;
         revision = pv;
         scm = accessor;
@@ -121,7 +131,7 @@ class OnDiskCheckoutImpl implements OnDiskCheckout {
     
     /** {@inheritDoc} */
     public ProjectVersion getProjectVersion() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        DBService dbs = dbsProvider.get();
         revision = dbs.attachObjectToDBSession(revision);
         return revision;
     }
