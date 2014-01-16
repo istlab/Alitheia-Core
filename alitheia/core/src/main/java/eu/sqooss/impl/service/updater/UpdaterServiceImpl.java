@@ -80,9 +80,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
      * each update target*/
     private ConcurrentMap<Long,Map<Updater, UpdaterJob>> scheduledUpdates;
     
-    /* List of registered updaters */
-    private BidiMap<Updater, Class<? extends MetadataUpdater>> updaters;
-    
     private UpdaterManager manager;
 
     /* UpdaterService interface methods*/
@@ -231,7 +228,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     private List<Updater> getUpdatersByProtocol(String protocol) {
         List<Updater> upds = new ArrayList<Updater>();
         
-        for (Updater u : updaters.keySet()) {
+        for (Updater u : manager.getUpdaters()) {
             for (String p : u.protocols()) {
                 if (protocol.equals(p)) {
                     upds.add(u);
@@ -246,7 +243,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     private List<Updater> getUpdatersByStage(UpdaterStage u) {
         List<Updater> upds = new ArrayList<Updater>();
        
-        for (Updater upd : updaters.keySet()) {
+        for (Updater upd : manager.getUpdaters()) {
             if (upd.stage().equals(u))
                 upds.add(upd);
         }
@@ -269,7 +266,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         boolean met = true;
         for (String dep : upd.dependencies()) {
             boolean found = false;
-            for (Updater other : updaters.keySet()) {
+            for (Updater other : manager.getUpdaters()) {
                 if (dep.equals(other.mnem())) {
                     if (other.stage().equals(upd.stage())) {
                         found = true;
@@ -428,7 +425,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     }
 
                     // Create an updater job
-                    MetadataUpdater upd = updaters.get(u).newInstance();
+                    MetadataUpdater upd = manager.getMetadataUpdater(u);
                     upd.setUpdateParams(project, logger);
 
                     UpdaterJob uj = null;
