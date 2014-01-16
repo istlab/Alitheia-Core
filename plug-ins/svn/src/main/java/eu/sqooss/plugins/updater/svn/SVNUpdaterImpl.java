@@ -42,7 +42,9 @@ import java.util.Map;
 import org.apache.commons.collections.LRUMap;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.updater.scm.SCMUpdater;
 import eu.sqooss.service.db.Branch;
+import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.Directory;
@@ -51,7 +53,6 @@ import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.ProjectVersionParent;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.ConfigOption;
 import eu.sqooss.service.db.Tag;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.CommitCopyEntry;
@@ -78,7 +79,7 @@ import eu.sqooss.service.util.FileUtils;
         protocols = {"svn", "svn-http", "svn-file"},
         stage = UpdaterStage.IMPORT, 
         mnem = "SVN")
-public class SVNUpdaterImpl implements MetadataUpdater {
+public class SVNUpdaterImpl extends SCMUpdater {
     
     private StoredProject project;
     

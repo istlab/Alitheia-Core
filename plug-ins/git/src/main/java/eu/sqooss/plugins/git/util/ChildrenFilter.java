@@ -50,19 +50,29 @@ public class ChildrenFilter extends RevFilter {
 	public boolean include(RevWalk walker, RevCommit cmit)
 			throws StopWalkException, MissingObjectException,
 			IncorrectObjectTypeException, IOException {
-		RevCommit[] p = cmit.getParents();
+		RevCommit[] p = getParents(cmit);
 		
 		for (int i = 0; i < p.length; i++) {
-			if (p[i].compareTo(c) == 0)
+			RevCommit parent = p[i];
+			if (compareRevCommits(parent) == 0)
 				return true;
 		}
 		
 		return false;
 	}
 
+	protected int compareRevCommits(RevCommit parent) {
+		return parent.compareTo(c);
+	}
+
+	protected RevCommit[] getParents(RevCommit cmit) {
+		return cmit.getParents();
+	}
+
+
+	// TODO Unused and unimplemented method
 	@Override
 	public RevFilter clone() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

@@ -42,13 +42,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.RuntimeErrorException;
-
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNLogEntryPath;
 
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.tds.CommitCopyEntry;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 
@@ -68,16 +66,10 @@ import eu.sqooss.service.tds.Revision;
  * attached to the revision). The InvalidProjectRevisionException is used to
  * indicate problems like that.
  */
-public class SVNProjectRevision implements Revision {
+public class SVNProjectRevision extends SCMProjectRevision {
 
-    private long revision;
-    private Date date;
-    private String author;
-    private String message;
-    private Map<String, PathChangeType> changedPaths;
-    private List<CommitCopyEntry> copyOps;
-    private Set<String> parents;
-    
+	public long revision;
+	
     /**
      * Default constructor, creating an invalid revision.
      */
@@ -117,10 +109,21 @@ public class SVNProjectRevision implements Revision {
         copyOps = new ArrayList<CommitCopyEntry>();
         revision = l.getRevision();
         
-        Map<String, SVNLogEntryPath> paths = 
+        initializeChangedPaths(l, root);
+        initializeParents(l);
+    }
+
+	private void initializeParents(SVNLogEntry l) {
+		parents = new HashSet<String>();
+        if (l.getRevision() >= 1)
+            parents.add(String.valueOf((l.getRevision() - 1)));
+	}
+
+	private void initializeChangedPaths(SVNLogEntry l, String root) {
+		Map<String, SVNLogEntryPath> paths = 
             (Map<String, SVNLogEntryPath>) l.getChangedPaths();
         
-        for (Iterator i = paths.keySet().iterator(); i.hasNext();) {
+        for (Iterator<String> i = paths.keySet().iterator(); i.hasNext();) {
             String path = (String) i.next();
             if (path.startsWith(root)) {
                 changedPaths.put(
@@ -129,20 +132,22 @@ public class SVNProjectRevision implements Revision {
             }
             
             String copyPath = paths.get(path).getCopyPath();
-            Long   copyRev = paths.get(path).getCopyRevision();
+            Long copyRev = paths.get(path).getCopyRevision();
             
             if ((copyPath != null) && (copyRev != -1)) {
-                copyOps.add(new CommitCopyEntry(copyPath, 
-                        (Revision)(new SVNProjectRevision(copyRev)), path, 
-                        this));
+                copyOps.add(createCommitCopyEntry(path, copyPath, copyRev));
             }
         }
-        parents = new HashSet<String>();
-        if (l.getRevision() >= 1)
-            parents.add(String.valueOf((l.getRevision() - 1)));
-    }
+	}
 
-    private PathChangeType parseSVNLogEntryPath(char entryPathType) {
+	protected CommitCopyEntry createCommitCopyEntry(String path,
+			String copyPath, Long copyRev) {
+		return new CommitCopyEntry(copyPath, 
+		        (Revision)(new SVNProjectRevision(copyRev)), path, 
+		        this);
+	}
+
+    PathChangeType parseSVNLogEntryPath(char entryPathType) {
         if (entryPathType == SVNLogEntryPath.TYPE_ADDED) {
             return PathChangeType.ADDED;
         } else if (entryPathType == SVNLogEntryPath.TYPE_DELETED) {
@@ -164,62 +169,28 @@ public class SVNProjectRevision implements Revision {
         return revision;
     }
 
+    public void resolve() {
+    	// Do nothing.
+    }
+
     public boolean isResolved() {
         return (revision >= 0 
                 && date != null
                 && author != null
                 && message != null);
     }
-    
-    //Interface methods
-    /** {@inheritDoc}} */
-    public Date getDate() {
-        return date;
-    }
-    
-    /** {@inheritDoc} */
-    public String getUniqueId() {
-        return String.valueOf(revision);
-    }
-    
-    @Override
-    public String getAuthor() {
-        return author;
-    }
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    @Override
-    public Set<String> getChangedPaths() {
-        return changedPaths.keySet();
-    }
-
-    @Override
-    public Map<String, PathChangeType> getChangedPathsStatus() {
-        return changedPaths;
-    }
-
-    @Override
-    public List<CommitCopyEntry> getCopyOperations() {
-        return copyOps;
-    }  
-    
-    /** {@inheritDoc} */
-    public String toString() {
-        if (!isResolved())
-            return null;
-        return "r" + revision + " - (" + getAuthor() + "): " + getMessage();
-    }
+	/** {@inheritDoc} */
+	public String getUniqueId() {
+	    return String.valueOf(revision);
+	}
     
     /** {@inheritDoc} */
     public int compareTo(Revision o) {
         if (!(o instanceof SVNProjectRevision))
             throw new RuntimeException("Revision not of type: " + this.getClass().getName());
         
-        if (!((SVNProjectRevision)o).isResolved()) {
+        if (!((SCMProjectRevision)o).isResolved()) {
             throw new RuntimeException("Revision not resoved " 
                     + getUniqueId());
         }
@@ -232,15 +203,12 @@ public class SVNProjectRevision implements Revision {
         return (int) (revision - (((SVNProjectRevision)o).revision)); 
     }
 
-    @Override
-    public Set<String> getParentIds() {
-        return parents;
-    }
-
-	@Override
-	public int compare(Revision o1, Revision o2) {
-		return o1.compareTo(o2);
-	}  
+	/** {@inheritDoc} */
+	public String toString() {
+	    if (!isResolved())
+	        return null;
+	    return "r" + revision + " - (" + getAuthor() + "): " + getMessage();
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

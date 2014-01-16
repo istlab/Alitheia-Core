@@ -66,6 +66,8 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.tds.scm.SCMCommitLog;
+import eu.sqooss.plugins.tds.scm.SCMProjectRevision;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.AnnotatedLine;
@@ -93,7 +95,7 @@ import eu.sqooss.service.tds.SCMNodeType;
  * 
  * @author Georgios Gousios - <gousiosg@gmail.com>
  */
-public class GitAccessor implements SCMAccessor {
+public class GitAccessor extends eu.sqooss.plugins.tds.scm.SCMAccessor {
     public static String ACCESSOR_NAME = "GitAccessor";
     private static List<URI> supportedSchemes;
     
@@ -142,6 +144,7 @@ public class GitAccessor implements SCMAccessor {
          * return the revision we are looking for. 
          */
         RevWalk rw = new RevWalk(git);
+
         RevFilter exact = CommitTimeRevFilter.between(new Date(d.getTime() - 1), 
                 new Date(d.getTime() + 1));
         rw.setRevFilter(exact);
@@ -150,7 +153,7 @@ public class GitAccessor implements SCMAccessor {
             RevCommit root = rw.parseCommit(headId);
             rw.markStart(root);
             RevCommit r = rw.next();
-            
+
             if (r == null) {
                 err("Cannot resolve commit with timestamp: " + d);
                 return null;
@@ -165,6 +168,10 @@ public class GitAccessor implements SCMAccessor {
         }
         return null;
     }
+
+    public RevWalk createRevWalk(Repository git) {
+		return new RevWalk(git);
+	}
 
     /** {@inheritDoc} */
     public Revision newRevision(String uniqueId) {
@@ -289,10 +296,10 @@ public class GitAccessor implements SCMAccessor {
         if (!(r instanceof GitRevision))
             return false;
         
-        if (!((GitRevision)r).isResolved())
+        if (!((SCMProjectRevision)r).isResolved())
         	r.getChangedPaths(); //This should trigger a resolution
         
-        return ((GitRevision)r).isResolved();
+        return ((SCMProjectRevision)r).isResolved();
     }
     
     public void getCheckout(String repoPath, Revision revision, File localPath)
@@ -327,11 +334,11 @@ public class GitAccessor implements SCMAccessor {
                 r1 = getHeadRevision();
             } 
            
-            if (!((GitRevision) r1).isResolved())
+            if (!((SCMProjectRevision) r1).isResolved())
                 throw new InvalidProjectRevisionException(r1.getUniqueId(),
                         this.getClass());
 
-            if (r2 != null && !((GitRevision) r2).isResolved())
+            if (r2 != null && !((SCMProjectRevision) r2).isResolved())
                 throw new InvalidProjectRevisionException(r2.getUniqueId(),
                         this.getClass());
             
@@ -354,16 +361,16 @@ public class GitAccessor implements SCMAccessor {
             
             Iterator<RevCommit> i = rw.iterator();
 
-            GitCommitLog log = new GitCommitLog();
+            SCMCommitLog log = new GitCommitLog();
 
             while (i.hasNext()) {
                 Revision r = getRevision(i.next(), false);
-                log.entries().add(r);
+                log.getEntries().add(r);
                 if (r2 == null)
                     break;
             }
 
-            Collections.reverse(log.entries());
+            Collections.reverse(log.getEntries());
             return log;
 
         } catch (IOException ew) {

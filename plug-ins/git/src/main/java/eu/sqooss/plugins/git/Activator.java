@@ -30,45 +30,34 @@
 
 package eu.sqooss.plugins.git;
 
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.plugins.scm.SCMActivator;
 import eu.sqooss.plugins.tds.git.GitAccessor;
+import eu.sqooss.plugins.tds.scm.SCMAccessor;
 import eu.sqooss.plugins.updater.git.GitUpdater;
+import eu.sqooss.plugins.updater.scm.SCMUpdater;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 
-public class Activator implements BundleActivator {
+public class Activator extends SCMActivator {
 
-    public void start(BundleContext bc) throws Exception {
-        /* 
-         * List of data protocols implemented by this plug-in
-         * Only one accessor implementation per protocol is permitted.
-         */
-        String[] protocols = {"git-file"};
+	@Override
+	protected String[] getProtocols() {
+		return new String[] {"git-file"};
+	}
 
-        /*
-         * Register the plug-in accessor to the TDS service 
-         */
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
-        tds.registerPlugin(protocols, GitAccessor.class);
+	@Override
+	protected Class<? extends SCMUpdater> getUpdaterClass() {
+		return GitUpdater.class;
+	}
 
-        /*
-         * Register the plug-in to the updater service
-         */
-        UpdaterService us = AlitheiaCore.getInstance().getUpdater();
-        
-        us.registerUpdaterService(GitUpdater.class);
-    }
+	@Override
+	protected Class<? extends SCMAccessor> getAccessorClass() {
+		return GitAccessor.class;
+	}
 
-    public void stop(BundleContext context) throws Exception {
-        UpdaterService us = AlitheiaCore.getInstance().getUpdater();
-        us.unregisterUpdaterService(GitUpdater.class);
-        
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
-        tds.unregisterPlugin(GitAccessor.class);
-    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

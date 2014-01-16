@@ -33,54 +33,14 @@
 
 package eu.sqooss.plugins.tds.svn;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import eu.sqooss.service.tds.CommitLog;
-import eu.sqooss.service.tds.Revision;
+import eu.sqooss.plugins.tds.scm.SCMCommitLog;
 
 /**
  * A simplistic implementation of the CommitLog interface.
  */
-public class SVNCommitLogImpl implements CommitLog {
-    private LinkedList<Revision> entries;
-
+public class SVNCommitLogImpl extends SCMCommitLog {
     public SVNCommitLogImpl() {
-        entries = new LinkedList<Revision>();
-    }
-
-    public List<Revision> getEntries() {
-        return entries;
-    }
-
-    // Interface methods
-    /**{@inheritDoc}}*/
-    public Revision first() {
-        if (entries.size() < 1) {
-            return null;
-        }
-        
-        return entries.getFirst();
-    }
-    
-    /**{@inheritDoc}}*/
-    public Revision last() {
-        if (entries.size() < 1) {
-            return null;
-        }
-        
-        return entries.getLast();
-    }
-    
-    /**{@inheritDoc}}*/
-    public int size() {
-        return entries.size();
-    }
-
-    /**{@inheritDoc}}*/
-    public Iterator<Revision> iterator() {
-        return entries.iterator();
+        super();
     }
 }
 

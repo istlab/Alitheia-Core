@@ -1,4 +1,4 @@
-package eu.sqooss.plugins.git.test;
+package eu.sqooss.plugins.git.initial;
 
 import static org.junit.Assert.*;
 
@@ -22,6 +22,7 @@ import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.sqooss.core.AlitheiaCore;
@@ -43,6 +44,7 @@ import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
 
+@Ignore
 public class TestGitUpdater extends TestGitSetup {
 
     static DBService db;
