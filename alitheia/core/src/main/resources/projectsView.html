@@ -3,6 +3,14 @@
 <h2>$tr.label("projects_mngm")</h2>
 <div id="table">
 	<form id="projects"	name="projects" method="post" action="/projects">
+		#if ($debugMessages.size() > 0)
+			<ul>
+			#foreach ($debug in $debugMessages)
+				<li>$debug</li>
+			#end
+			</ul>
+		#end
+
 		#if ($errorMessages.size() > 0)
 			<ul>
 			#foreach ($error in $errorMessages)
