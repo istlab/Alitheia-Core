@@ -149,7 +149,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 		Set<Updater> upds = new HashSet<Updater>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
-		Set<URI> schemes = getAllSupportedURLSchemes(pa, project);
+		Set<URI> schemes = getAllSupportedURLSchemes(project);
 
         for (URI uri : schemes) {
             upds.addAll(manager.getUpdatersByProtocol(uri.getScheme()));
@@ -158,9 +158,9 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         return upds;
 	}
 
-	private Set<URI> getAllSupportedURLSchemes(ProjectAccessor pa, StoredProject project){
+	private Set<URI> getAllSupportedURLSchemes(StoredProject project){
 		Set<URI> schemes = new HashSet<URI>();
-		
+		ProjectAccessor pa = AlitheiaCore.getInstance().getTDSService().getAccessor(project.getId());
 		try {
 			//Import phase updaters
 	        schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
