@@ -42,7 +42,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.osgi.framework.BundleContext;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.updater.exceptions.UpdaterException;
 import eu.sqooss.service.cluster.ClusterNodeService;
@@ -309,41 +311,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         try {
             for (UpdaterStage us : stages) {
                 
-                // Topologically sort updaters within the same stage
-                List<Updater> updForStage = new ArrayList<Updater>();
-                updForStage.addAll(getUpdaters(project, us));
-                GraphTS<Updater> graph = 
-                    new GraphTS<Updater>(updForStage.size());
-                BidiMap<Updater, Integer> idx = 
-                    new BidiMap<Updater, Integer>();
-
-                //Construct a adjacency matrix for dependencies
-                for (Updater u : updForStage) {
-                    if (!checkDependencies(u))
-                        return false;
-                    if (!idx.containsKey(u)) {
-                        int n = graph.addVertex(u);
-                        idx.put(u, n);
-                    }
-
-                    for (String dependency : u.dependencies()) {
-                        Updater dep = manager.getUpdaterByMnemonic(dependency);
-
-                        // Updaters are allowed to introduce self depedencies
-                        if (u.equals(dep)) {
-                            continue;
-                        }
-
-                        if (!idx.containsKey(dep)) {
-                            int n = graph.addVertex(dep);
-                            idx.put(dep, n);
-                        }
-                        graph.addEdge(idx.get(u), idx.get(dep));
-                    }
-                }
-
-                // Topo-sort
-                updForStage = graph.topo();
+                List<Updater> updForStage = topoSort(getUpdaters(project, us));
 
                 // We now have updaters in correct execution order
                 DependencyJob depJob = new DependencyJob(us.toString());
@@ -457,10 +425,51 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         } catch (IllegalAccessException e) {
             logger.error("Cannot load updater class:" + e.getMessage(), e);
             return false;
-        }
+        } catch (Exception e) {
+			return false; /*TODO make exception */
+		}
         
         return true;
     }
+
+	private List<Updater> topoSort(Set<Updater> updaters) throws Exception {
+		// Topologically sort updaters within the same stage
+		List<Updater> updForStage = new ArrayList<Updater>();
+		updForStage.addAll(updaters);
+		GraphTS<Updater> graph = 
+		    new GraphTS<Updater>(updForStage.size());
+		BidiMap<Updater, Integer> idx = 
+		    new BidiMap<Updater, Integer>();
+
+		//Construct a adjacency matrix for dependencies
+		for (Updater u : updForStage) {
+		    if (!checkDependencies(u))
+		        throw new Exception();  /*TODO make exception*/
+		    if (!idx.containsKey(u)) {
+		        int n = graph.addVertex(u);
+		        idx.put(u, n);
+		    }
+
+		    for (String dependency : u.dependencies()) {
+		        Updater dep = manager.getUpdaterByMnemonic(dependency);
+
+		        // Updaters are allowed to introduce self depedencies
+		        if (u.equals(dep)) {
+		            continue;
+		        }
+
+		        if (!idx.containsKey(dep)) {
+		            int n = graph.addVertex(dep);
+		            idx.put(dep, n);
+		        }
+		        graph.addEdge(idx.get(u), idx.get(dep));
+		    }
+		}
+
+		// Topo-sort
+		updForStage = graph.topo();
+		return updForStage;
+	}
     
     /**
      * Check a combination of a StoredProject, an UpdaterStage and
