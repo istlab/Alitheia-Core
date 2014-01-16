@@ -245,37 +245,41 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     }
 
     /**
-     * 1. For each dependency in upd.dependencies(): <br>
-     * 1.1. For each known updater: <br>
-     * 1.1.1. If the unique String id equals dependency <br> 
-     * 1.1.1.a. If the updater stage equals the upd stage, continue with the next dependency <br>
-     * 1.1.1.b. Otherwise log an error and return false <br>
-     * 2. Return true
+     * Check if all the dependencies of an updater exist 
      *  
      * @param upd The Updater to have its dependencies checked
      * @return True if, and only if all of the dependencies of upd are contained in our set of updaters 
      */
     private boolean checkDependencies(Updater upd) {
-        boolean met = true;
         for (String dep : upd.dependencies()) {
-            boolean found = false;
-            for (Updater other : manager.getUpdaters()) {
-                if (dep.equals(other.mnem())) {
-                    if (other.stage().equals(upd.stage())) {
-                        found = true;
-                        break;
-                    } else {
-                        logger.error("Updater <" + upd.mnem() + ">-" + 
-                                upd.stage() + 
-                                " depends on other stage updater <" 
-                                + other.mnem() + ">-" + other.stage());
-                        return false;
-                    }
-                }
-            }
-            met &= found;
+            if (!dependencyExists(dep, upd))
+            	return false;
         }
-        return met;
+        return true;
+    }
+    
+    /**
+     * Check if a mnemonic corresponds to a known updater, given
+     * a source updater.
+     * 
+     * @param dependency The mnemonic to check the existance of
+     * @param updater The updater the dependency mnemonic belongs to
+     * @return Whether this dependency mnemonic is known
+     */
+    private boolean dependencyExists(String dependency, Updater updater){
+    	for (Updater other : manager.getUpdaters()) {
+            if (dependency.equals(other.mnem())) {
+                if (!other.stage().equals(updater.stage())) {
+                    logger.error("Updater <" + updater.mnem() + ">-" + 
+                            updater.stage() + 
+                            " depends on other stage updater <" 
+                            + other.mnem() + ">-" + other.stage());
+                    return false;
+                }
+                return true;
+            }
+        }
+    	return false;
     }
     
     /**
