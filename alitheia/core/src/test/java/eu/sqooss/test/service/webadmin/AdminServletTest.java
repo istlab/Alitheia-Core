@@ -136,15 +136,15 @@ public class AdminServletTest {
 		
 		// check for correct elements in dynamicContentMap
 		assertEquals("index.html", dynamicContentMap.get("/"));
-		assertEquals("/index", "index.html", dynamicContentMap.get("/index"));
-		assertEquals("/projects", "projects.html", dynamicContentMap.get("/projects"));
-		assertEquals("/projectlist", "projectslist.html", dynamicContentMap.get("/projectlist"));
-		assertEquals("/logs", "logs.html", dynamicContentMap.get("/logs"));
-		assertEquals("/jobs", "jobs.html", dynamicContentMap.get("/jobs"));
-		assertEquals("/alljobs", "alljobs.html", dynamicContentMap.get("/alljobs"));
-		assertEquals("/users", "users.html", dynamicContentMap.get("/users"));
-		assertEquals("/rules", "rules.html", dynamicContentMap.get("/rules"));
-		assertEquals("/jobstat", "jobstat.html", dynamicContentMap.get("/jobstat"));
+		assertEquals("index.html", dynamicContentMap.get("/index"));
+		assertEquals("projectsView.html", dynamicContentMap.get("/projects"));
+		assertEquals("projectslist.html", dynamicContentMap.get("/projectlist"));
+		assertEquals("logs.html", dynamicContentMap.get("/logs"));
+		assertEquals("jobs.html", dynamicContentMap.get("/jobs"));
+		assertEquals("alljobs.html", dynamicContentMap.get("/alljobs"));
+		assertEquals("users.html", dynamicContentMap.get("/users"));
+		assertEquals("rules.html", dynamicContentMap.get("/rules"));
+		assertEquals("jobstat.html", dynamicContentMap.get("/jobstat"));
 		
 		// vc, admindView, pluginsView and projectsView should be initialized
 		assertNotNull(Whitebox.getInternalState(adminServlet, "vc")); 
@@ -391,6 +391,7 @@ public class AdminServletTest {
 	
 	@Test
 	public void testTranslationProxy() {
+		vc = new VelocityContext();
 		AbstractView view = new PluginsView(bc,vc);
 		TranslationProxy tp = new TranslationProxy(view);
 		assertEquals("myLabel",tp.label("myLabel"));

@@ -278,7 +278,7 @@ public abstract class AbstractView {
     protected String debugRequest (HttpServletRequest request) {
         StringBuilder b = new StringBuilder();
         Enumeration<?> e = request.getParameterNames();
-        while (e.hasMoreElements()) {
+        while (e != null && e.hasMoreElements()) {
             String key = (String) e.nextElement();
             b.append(key + "=" + request.getParameter(key) + "<br/>\n");
         }
