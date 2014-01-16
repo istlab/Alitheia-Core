@@ -107,7 +107,7 @@ public abstract class AbstractView {
         this.vc = vc;
         this.bc = bundlecontext;
        
-        sobjCore = AlitheiaCore.getInstance();
+        sobjCore = getInstance();
         
         // Retrieve the instances of the core components
         if (sobjCore != null) {
@@ -162,6 +162,10 @@ public abstract class AbstractView {
         }
     }
 
+	protected AlitheiaCore getInstance() {
+		return AlitheiaCore.getInstance();
+	}
+
     /**
      * Initializes the various resource bundle with the specified locale.
      * 
@@ -184,9 +188,9 @@ public abstract class AbstractView {
      *   parameter, when such property is missing.
      */
     public static String getLbl (String name) {
-        if (resLbl != null) {
+        if (getResLbl() != null) {
             try {
-                return resLbl.getString(name);
+                return getResLbl().getString(name);
             }
             catch (NullPointerException ex) {
                 return NULL_PARAM_NAME;
@@ -197,6 +201,10 @@ public abstract class AbstractView {
         }
         return name;
     }
+
+	protected static ResourceBundle getResLbl() {
+		return resLbl;
+	}
 
     /**
      * Retrieves the value of the given resource property from the
@@ -209,9 +217,9 @@ public abstract class AbstractView {
      *   parameter, when such property is missing.
      */
     public static String getErr (String name) {
-        if (resErr != null) {
+        if (getResErr() != null) {
             try {
-                return resErr.getString(name);
+                return getResErr().getString(name);
             }
             catch (NullPointerException ex) {
                 return NULL_PARAM_NAME;
@@ -222,6 +230,10 @@ public abstract class AbstractView {
         }
         return name;
     }
+
+	protected static ResourceBundle getResErr() {
+		return resErr;
+	}
 
     /**
      * Retrieves the value of the given resource property from the
@@ -234,9 +246,9 @@ public abstract class AbstractView {
      *   parameter, when such property is missing.
      */
     public static String getMsg (String name) {
-        if (resMsg != null) {
+        if (getResMsg() != null) {
             try {
-                return resMsg.getString(name);
+                return getResMsg().getString(name);
             }
             catch (NullPointerException ex) {
                 return NULL_PARAM_NAME;
@@ -247,6 +259,10 @@ public abstract class AbstractView {
         }
         return name;
     }
+    
+   	protected static ResourceBundle getResMsg() {
+		return resMsg;
+	}
 
     // TODO: Move this method's logic in the initResources() once all views
     // are using the new methods.
