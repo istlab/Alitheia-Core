@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -46,7 +45,6 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
-import eu.sqooss.service.pa.ConfigurationType.InvalidValueForTypeException;
 import eu.sqooss.service.util.StringUtils;
 
 /**
@@ -202,17 +200,16 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Returns the Id of the given configuration property.
+     * Returns the Id of the given name/type combination.
      *
      * @param name the property's name
      * @param type the property's type
      *
-     * @return The property's Id, or <code>null</code> if the property does
-     *   not exist.
+     * @return The property's Id, or <code>null</code> if the property does not exist.
      */
-    public Long getConfPropId (String name, ConfigurationType type) {
+    public Long getConfPropId(String name, ConfigurationType type) {
         // Check if all values are valid before going into a loop
-        if (isValidName(name) && type != null) {
+        if (name != null && type != null) {
 	        // Search for a matching property
 	        for (PluginConfiguration property : config) {
 	            if (property.getName().equals(name) && property.getType().equals(type)) {
@@ -224,8 +221,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Verifies, if the specified configuration property exist in this
-     * plug-in's information object.
+     * Verifies if the specified configuration property exist.
      *
      * @param name the property's name
      * @param type the property's type
@@ -233,7 +229,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @return <code>true</code>, if such property is found,
      *   or <code>false</code> otherwise.
      */
-    public boolean hasConfProp (String name, ConfigurationType type) {
+    public boolean hasConfProp(String name, ConfigurationType type) {
         return (getConfPropId(name, type) == null) ? false : true;
     }
 
@@ -253,31 +249,38 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @throws <code>Exception</code> upon incorrect value's syntax, or
      *   invalid property's type.
      */
-    public boolean updateConfigEntry(DBService db, String name, ConfigurationType type, String newVal)
-        throws InvalidValueForTypeException {
-    	// Check if all values are valid before going into a loop
-        if (isValidName(name) && type != null) {
-	        // Check if such configuration property exists
-	        for (PluginConfiguration pc : config) {
-	            if (pc.getName().equals(name) && pc.getType().equals(type)) {	                
-	                // Validate the new value for the type
-	                type.checkValue(newVal);
-	
-	                // Update the given configuration property
-	                pc = db.attachObjectToDBSession(pc);
-	                pc.setValue(newVal);
-	                return true;
-	            }
-	        }
+    public boolean updateConfigEntry(DBService db, PluginConfiguration entry)
+    throws IllegalArgumentException {
+        // Check for invalid (null) properties
+    	if ( db == null ) {
+        	throw new IllegalArgumentException("Database cannot be null!");
+        } else if( entry == null ) {
+        	throw new IllegalArgumentException("Entry cannot be null!");
         }
-        return false;
+	    // Check if such configuration property exists here
+    	PluginConfiguration foundPC = null, newPC = null;
+	    for (PluginConfiguration pc : config) {
+	       if (pc.equals(entry)) {	                
+	           // Update the given configuration property
+	    	   foundPC = pc;
+	    	   newPC = db.attachObjectToDBSession(entry);
+	    	   break;
+	       }
+	    }
+    	if( foundPC != null && newPC != null ){
+    		config.remove(foundPC);
+    		config.add(newPC);
+    		return true;
+    	} else {
+    		return false;
+    	}
     }
 
     /**
      * Adds a new configuration property for this metric plug-in by creating
      * a new database record for it.
      *
-     * @param p the relevant plug-in
+     * @param db the DB components object
      * @param name the configuration property's name
      * @param type the configuration property's type
      * @param value the configuration property's value
@@ -289,40 +292,24 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @throws <code>Exception</code> upon incorrect value's syntax,
      *   invalid property's type, or invalid property's name.
      */
-    public boolean addConfigEntry(
-            Plugin p,
-            String name,
-            ConfigurationType type,
-            String value,
-            String description)
-    throws IllegalArgumentException, InvalidValueForTypeException {
+    public boolean addConfigEntry( DBService db, PluginConfiguration entry)
+    throws IllegalArgumentException {
         // Check for invalid (null) properties
-    	if (!isValidName(name)) {
-        	throw new IllegalArgumentException("Name cannot be null or empty!");
-        } else if( type == null ) {
-        	throw new IllegalArgumentException("Type cannot be null!");
+    	if ( db == null ) {
+        	throw new IllegalArgumentException("Database cannot be null!");
+        } else if( entry == null ) {
+        	throw new IllegalArgumentException("Entry cannot be null!");
         }
 
-        // Validate the value for the type
-        type.checkValue(value);
-
         // Add the new configuration property
-        PluginConfiguration newParam = new PluginConfiguration();
-        newParam.setName(name);
-        newParam.setMsg((description != null) ? description : "");
-        newParam.setType(type);
-        newParam.setValue(value);
-        newParam.setPlugin(p);
-        return p.getConfigurations().add(newParam);
-    }
-    
-    public boolean addConfigEntry(
-            Plugin p,
-            String name,
-            ConfigurationType type,
-            String value)
-    throws IllegalArgumentException, InvalidValueForTypeException {
-    	return this.addConfigEntry(p,name,type,value,null);
+        try{
+        	entry.setPlugin(Plugin.getPluginByHashcode(this.hashcode));
+        } catch( Exception ignore) { }
+        
+        if( db.addRecord(entry))
+        	return config.add(entry);
+        else
+        	return false;
     }
 
     /**
@@ -338,21 +325,20 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @throws <code>Exception</code> upon invalid property's type or name.
      */
-    public boolean removeConfigEntry(
-            DBService db,
-            String name,
-            ConfigurationType type) {
-        // Get the property's Id
-        Long propId = getConfPropId(name, type);
-        if (propId != null) {
-            // Remove the specified configuration property
-            PluginConfiguration prop = db.findObjectById(
-                    PluginConfiguration.class, propId);
-            if (prop != null )
-                return db.deleteRecord(prop);
+    public boolean removeConfigEntry(DBService db, PluginConfiguration entry)
+    throws IllegalArgumentException {
+    	if ( db == null ) {
+        	throw new IllegalArgumentException("Database cannot be null!");
+        } else if( entry == null ) {
+        	throw new IllegalArgumentException("Entry cannot be null!");
         }
 
-        return false;
+        // Remove the specified configuration property
+        PluginConfiguration prop = db.findObjectById(PluginConfiguration.class, entry.getId());
+        if (prop != null )
+            return db.deleteRecord(prop);
+        else
+        	return false;
     }
 
     /**
@@ -465,26 +451,19 @@ public class PluginInfo implements Comparable<PluginInfo> {
         StringBuilder b = new StringBuilder();
         // Add the metric plug-in's name
         b.append((
-                ((getPluginName() != null)
-                        && (getPluginName().length() > 0))
-                ? getPluginName()
-                        : "[UNKNOWN]"));
+                ((getPluginName() != null) && (getPluginName().length() > 0))
+                ? getPluginName() : "[UNKNOWN]"));
         // Add the metric plug-in's version
         b.append((
-                ((getPluginVersion() != null)
-                        && (getPluginVersion().length() > 0))
-                ? getPluginVersion()
-                        : "[UNKNOWN]"));
+                ((getPluginVersion() != null) && (getPluginVersion().length() > 0))
+                ? getPluginVersion() : "[UNKNOWN]"));
         // Add the metric plug-in's class name
         b.append(" [");
-        if (getServiceRef() != null) {
-            String[] classNames =
-                (String[]) serviceRef.getProperty(Constants.OBJECTCLASS);
-            b.append ((
-                    ((classNames != null)
-                            && (classNames.length > 0))
-                    ? (StringUtils.join(classNames, ","))
-                            : "UNKNOWN"));
+        if (serviceRef != null) {
+            String[] classNames = (String[])serviceRef.getProperty(Constants.OBJECTCLASS);
+            b.append((
+                    ((classNames != null) && (classNames.length > 0))
+                    ? (StringUtils.join(classNames, ",")) : "UNKNOWN"));
         }
         else {
             b.append("UNKNOWN");
@@ -532,10 +511,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
 			}
 			return true;
 		}
-	}
-
-	private static boolean isValidName(String name){
-		return name != null && !name.trim().isEmpty();
 	}
 }
 

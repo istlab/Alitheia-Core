@@ -735,8 +735,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         // Modify the plug-in's configuration
         try {
             // Update property
-            if (pi.hasConfProp(name, type)) {
-                if (pi.updateConfigEntry(db, name, type, defValue)) {
+        	Long propID = pi.getConfPropId(name, type);
+            if (propID != null) {
+            	PluginConfiguration prop = db.findObjectById(PluginConfiguration.class, propID);
+            	prop.setValue(type, defValue);
+                if (pi.updateConfigEntry(db, prop)) {
                     // Update the Plug-in Admin's information
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
@@ -746,8 +749,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             }
             // Create property
             else {
-                if (pi.addConfigEntry(
-                        Plugin.getPluginByHashcode(pi.getHashcode()), name, type, defValue, msg)) {
+            	PluginConfiguration prop = new PluginConfiguration();
+            	prop.setMsg((msg != null) ? msg : "");
+            	prop.setName(name);
+            	prop.setValue(type,defValue);
+                if (pi.addConfigEntry(db, prop)) {
                     // Update the Plug-in Admin's information
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
@@ -766,7 +772,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Remove an entry from the plug-in's configuration schema
      *
      * @param name The name of the configuration property to remove
-     * @param name The type of the configuration property to remove
+     * @param type The type of the configuration property to remove
      */
     protected final void removeConfigEntry(
             String name,
@@ -782,8 +788,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
         // Modify the plug-in's configuration
         try {
-            if (pi.hasConfProp(name, type)) {
-                if (pi.removeConfigEntry(db, name, type)) {
+        	Long propID = pi.getConfPropId(name, type);
+            if (propID != null) {
+            	PluginConfiguration prop = db.findObjectById(PluginConfiguration.class, propID);
+                if (pi.removeConfigEntry(db, prop)) {
                     // Update the Plug-in Admin's information
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }

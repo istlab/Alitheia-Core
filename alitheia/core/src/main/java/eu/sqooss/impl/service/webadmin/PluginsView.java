@@ -199,19 +199,16 @@ public class PluginsView extends AbstractView{
                     // Plug-in's configuration property removal
                     // =======================================================
                     else if (reqValAction.equals(actValConRemProp)) {
-                        if (selPI.hasConfProp(
-                                reqValPropName, reqValPropType)) {
+                    	Long propID = selPI.getConfPropId(reqValPropName, reqValPropType);
+                        if (propID != null) {
                             try {
-                                if (selPI.removeConfigEntry(
-                                        sobjDB,
-                                        reqValPropName,
-                                        reqValPropType)) {
+                            	PluginConfiguration prop = 
+                            			sobjDB.findObjectById(PluginConfiguration.class, propID);
+                                if (selPI.removeConfigEntry(sobjDB,prop)) {
                                     // Update the Plug-in Admin's information
-                                    sobjPA.pluginUpdated(
-                                            sobjPA.getPlugin(selPI));
+                                    sobjPA.pluginUpdated(sobjPA.getPlugin(selPI));
                                     // Reload the PluginInfo object
-                                    selPI = sobjPA.getPluginInfo(
-                                            reqValHashcode);
+                                    selPI = sobjPA.getPluginInfo(reqValHashcode);
                                 }
                                 else {
                                     e.append("Property removal"
@@ -236,22 +233,18 @@ public class PluginsView extends AbstractView{
                     // =======================================================
                     else if (reqValAction.equals(actValConAddProp)) {
                         // Check for a property update
-                        boolean update = selPI.hasConfProp(
-                                reqValPropName, reqValPropType);
+                    	Long propID = selPI.getConfPropId(reqValPropName, reqValPropType);
                         // Update configuration property
-                        if (update) {
+                        if (propID != null) {
                             try {
-                                if (selPI.updateConfigEntry(
-                                        sobjDB,
-                                        reqValPropName,
-                                        reqValPropType,
-                                        reqValPropValue)) {
+                            	PluginConfiguration prop = 
+                            			sobjDB.findObjectById(PluginConfiguration.class, propID);
+                            	prop.setValue(reqValPropType, reqValPropValue);
+                                if (selPI.updateConfigEntry(sobjDB,prop)) {
                                     // Update the Plug-in Admin's information
-                                    sobjPA.pluginUpdated(
-                                            sobjPA.getPlugin(selPI));
+                                    sobjPA.pluginUpdated(sobjPA.getPlugin(selPI));
                                     // Reload the PluginInfo object
-                                    selPI =
-                                        sobjPA.getPluginInfo(reqValHashcode);
+                                    selPI = sobjPA.getPluginInfo(reqValHashcode);
                                 }
                                 else {
                                     e.append("Property update"
@@ -266,18 +259,15 @@ public class PluginsView extends AbstractView{
                         // Create configuration property
                         else {
                             try {
-                                if (selPI.addConfigEntry(
-                                		Plugin.getPluginByHashcode(selPI.getHashcode()),
-                                        reqValPropName,
-                                        reqValPropType,
-                                        reqValPropValue,
-                                        reqValPropDescr)) {
+                            	PluginConfiguration prop = new PluginConfiguration();
+                            	prop.setMsg((reqValPropDescr != null) ? reqValPropDescr : "");
+                            	prop.setName(reqValPropName);
+                            	prop.setValue(reqValPropType,reqValPropValue);
+                            	if (selPI.addConfigEntry(sobjDB,prop)) {
                                     // Update the Plug-in Admin's information
-                                    sobjPA.pluginUpdated(
-                                            sobjPA.getPlugin(selPI));
+                                    sobjPA.pluginUpdated(sobjPA.getPlugin(selPI));
                                     // Reload the PluginInfo object
-                                    selPI =
-                                        sobjPA.getPluginInfo(reqValHashcode);
+                                    selPI = sobjPA.getPluginInfo(reqValHashcode);
                                 }
                                 else {
                                     e.append("Property creation"
@@ -291,7 +281,7 @@ public class PluginsView extends AbstractView{
                         }
                         // Return to the create/update view upon error
                         if (e.toString().length() > 0) {
-                            if (update) reqValAction = actValReqUpdProp;
+                            if (propID != null) reqValAction = actValReqUpdProp;
                             else reqValAction = actValReqAddProp;
                         }
                     }

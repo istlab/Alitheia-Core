@@ -49,6 +49,7 @@ import javax.persistence.Table;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.pa.ConfigurationType;
+import eu.sqooss.service.pa.ConfigurationType.InvalidValueForTypeException;
 
 @Entity
 @Table(name="PLUGIN_CONFIGURATION")
@@ -87,16 +88,16 @@ public class PluginConfiguration extends DAObject {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(ConfigurationType type, String value) throws 
+    IllegalArgumentException, InvalidValueForTypeException{
+    	if( type == null )
+    		throw new IllegalArgumentException( "Type cannot be null or empty!");
+    	type.checkValue(value); // throws InvalidValueForTypeException if invalid
         this.value = value;
     }
 
     public ConfigurationType getType() {
         return ConfigurationType.valueOf(type);
-    }
-
-    public void setType(ConfigurationType type) {
-        this.type = type.name();
     }
 
     public Plugin getPlugin() {
@@ -111,8 +112,11 @@ public class PluginConfiguration extends DAObject {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String name) throws IllegalArgumentException {
+    	if( name == null || name.isEmpty() )
+    		throw new IllegalArgumentException( "Name cannot be null or empty!");
+    	else
+    		this.name = name;
     }
     
     public String getMsg() {
@@ -122,6 +126,46 @@ public class PluginConfiguration extends DAObject {
     public void setMsg(String msg) {
         this.msg = msg;
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		else if (obj == null) {
+			return false;
+		}
+		else if (!(obj instanceof PluginConfiguration)) {
+			return false;
+		}
+		else {
+			PluginConfiguration other = (PluginConfiguration) obj;
+			if (name == null) {
+				if (other.name != null) {
+					return false;
+				}
+			} else if (!name.equals(other.name)) {
+				return false;
+			}
+			if (type == null) {
+				if (other.type != null) {
+					return false;
+				}
+			} else if (!type.equals(other.type)) {
+				return false;
+			}
+			return true;
+		}
+	}
 
 	/**
      * Get a PluginConfiguration entry DAO or null in 

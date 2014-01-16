@@ -267,15 +267,15 @@ public class PluginInfoTest extends TestCase {
 	 */
 	@SuppressWarnings("unchecked")
 	public void testAddConfigEntry() {
-		final Plugin p = mock(Plugin.class);
+		final DBService db = mock(DBService.class);
 		try {
-			instance.addConfigEntry(p,null,null,null);
+			instance.addConfigEntry(db,null,null,null);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		try {
-			instance.addConfigEntry(p,"",null,null);
+			instance.addConfigEntry(db,"",null,null);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
@@ -283,7 +283,7 @@ public class PluginInfoTest extends TestCase {
 		
 		final String name = "testName";
 		try {
-			instance.addConfigEntry(p,name,null,null);
+			instance.addConfigEntry(db,name,null,null);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
@@ -291,34 +291,37 @@ public class PluginInfoTest extends TestCase {
 		
 		ConfigurationType type = ConfigurationType.BOOLEAN;
 		try {
-			instance.addConfigEntry(p,name,type,null);
+			instance.addConfigEntry(db,name,type,null);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		String newVal = "test";
 		try {
-			instance.addConfigEntry(p,name,type,newVal);
+			instance.addConfigEntry(db,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		
-		Set mockSet = mock(Set.class);
-		when(mockSet.add(Mockito.anyObject())).thenReturn(true);
-		when(p.getConfigurations()).thenReturn(mockSet);
-		
 		newVal = "true";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,type,newVal));
-			verify(mockSet,times(1)).add(Mockito.anyObject());
+			assertFalse(instance.addConfigEntry(db,name,type,newVal));
+			verify(db,times(1)).addRecord(Mockito.any(DAObject.class));
+		} catch (Exception e) {
+			assertNull(e);
+		}
+		when(db.addRecord(Mockito.any(DAObject.class))).thenReturn(true);
+		try {
+			assertTrue(instance.addConfigEntry(db,name,type,newVal));
+			verify(db,times(2)).addRecord(Mockito.any(DAObject.class));
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		newVal = "false";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,type,newVal));
-			verify(mockSet,times(2)).add(Mockito.anyObject());
+			assertTrue(instance.addConfigEntry(db,name,type,newVal));
+			verify(db,times(3)).addRecord(Mockito.any(DAObject.class));
 		} catch (Exception e) {
 			assertNull(e);
 		}
@@ -326,15 +329,15 @@ public class PluginInfoTest extends TestCase {
 		type = ConfigurationType.INTEGER;
 		newVal = "test";
 		try {
-			instance.addConfigEntry(p,name,type,newVal);
+			instance.addConfigEntry(db,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		newVal = "1";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,type,newVal));
-			verify(mockSet,times(3)).add(Mockito.anyObject());
+			assertTrue(instance.addConfigEntry(db,name,type,newVal));
+			verify(db,times(4)).addRecord(Mockito.any(DAObject.class));
 		} catch (Exception e) {
 			assertNull(e);
 		}
@@ -342,15 +345,15 @@ public class PluginInfoTest extends TestCase {
 		type = ConfigurationType.DOUBLE;
 		newVal = "test";
 		try {
-			instance.addConfigEntry(p,name,type,newVal);
+			instance.addConfigEntry(db,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		newVal = "1.0";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,type,newVal));
-			verify(mockSet,times(4)).add(Mockito.anyObject());
+			assertTrue(instance.addConfigEntry(db,name,type,newVal));
+			verify(db,times(5)).addRecord(Mockito.any(DAObject.class));
 		} catch (Exception e) {
 			assertNull(e);
 		}
@@ -358,8 +361,8 @@ public class PluginInfoTest extends TestCase {
 		type = ConfigurationType.STRING;
 		newVal = "test";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,type,newVal,"description"));
-			verify(mockSet,times(5)).add(Mockito.anyObject());
+			assertTrue(instance.addConfigEntry(db,name,type,newVal,"description"));
+			verify(db,times(6)).addRecord(Mockito.any(DAObject.class));
 		} catch (Exception e) {
 			assertNull(e);
 		}
