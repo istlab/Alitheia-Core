@@ -425,29 +425,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             }
 
             //Enqueue jobs
-            List<Job> toQueue = new ArrayList<Job>();
-            for (Job job : jobs) {
-                //Don't schedule a job that has been scheduled before
-                Collection<UpdaterJob> schedJobs = scheduledUpdates.getJobsFor(project);
-                boolean dontSchedule = false;
-                for (Job j : schedJobs) {
-                    if (job.equals(j)) {
-                        dontSchedule = true; 
-                        break;
-                    }
-                }
-
-                if (dontSchedule) {
-                    logger.warn("Job " + job + " has been scheduled before, ignoring");
-                    continue;
-                }
-                toQueue.add(job);
-                //DependencyJobs don't need to be tracked
-                if (!(job instanceof UpdaterJob))
-                    continue;
-                scheduledUpdates.addUpdater(project, toSchedule.getKey(job), (UpdaterJob) job);
-            }
-            AlitheiaCore.getInstance().getScheduler().enqueueBlock(toQueue);
+            enqueueJobs(project, toSchedule, jobs);
         } catch (SchedulerException e) {
             logger.error("Cannot schedule update job(s):" + e.getMessage(), e);
             return false;
@@ -532,6 +510,52 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         }
         
         return stages;
+    }
+    
+    /**
+     * Feed jobs to the scheduler (if they haven't been scheduled yet and
+     * if they are valid jobs).
+     * 
+     * @param project The project the jobs come from
+     * @param toSchedule The job to updater mapping
+     * @param jobs Another copy of the list of jobs
+     * @throws SchedulerException
+     */
+    private void enqueueJobs(StoredProject project, BidiMap<Updater, Job> toSchedule, List<Job> jobs) throws SchedulerException{
+    	List<Job> toQueue = new ArrayList<Job>();
+    	
+        for (Job job : jobs) {
+            //Don't schedule a job that has been scheduled before
+            if (!shouldSchedule(job, project)) {
+                logger.warn("Job " + job + " has been scheduled before, ignoring");
+                continue;
+            }
+            
+            toQueue.add(job);
+            //DependencyJobs don't need to be tracked
+            if (!(job instanceof UpdaterJob))
+                continue;
+            
+            scheduledUpdates.addUpdater(project, toSchedule.getKey(job), (UpdaterJob) job);
+        }
+        AlitheiaCore.getInstance().getScheduler().enqueueBlock(toQueue);
+    }
+    
+    /**
+     * Check if a job is hasn't been scheduled yet.
+     * 
+     * @param job The job to check
+     * @param project The project it belongs to
+     * @return Whether or not the job still has to be scheduled for this project
+     */
+    private boolean shouldSchedule(Job job, StoredProject project){
+    	Collection<UpdaterJob> schedJobs = scheduledUpdates.getJobsFor(project);
+        for (Job j : schedJobs) {
+            if (job.equals(j)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
