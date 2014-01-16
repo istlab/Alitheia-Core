@@ -87,8 +87,6 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
     private static String REQ_PAR_UPD           = "reqUpd";
     
-    // Error messages container
-    ArrayList<String> errorMessages;
     
     /**
      * Instantiates a new projects view.
@@ -114,9 +112,6 @@ public class ProjectsView extends AbstractView {
     public String setupVelocityContext(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
-        
-        errorMessages = new ArrayList<String>();
-        
         // some test errors
         errorMessages.add("test error 1");
         errorMessages.add("test error 2");
@@ -189,7 +184,6 @@ public class ProjectsView extends AbstractView {
         vc.put("REQ_PAR_PRJ_CODE",REQ_PAR_PRJ_CODE);
         vc.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
         vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
-        vc.put("errorMessages", errorMessages);
         
         // add error messages to velocity Context
         createForm(b, selProject, reqValAction);

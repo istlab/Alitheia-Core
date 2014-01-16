@@ -34,8 +34,10 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -93,8 +95,14 @@ public abstract class AbstractView {
     private ResourceBundle resMsg = null;
     private ResourceBundle resErr = null;
 
+    
+    // Error messages container
+    List<String> errorMessages;
+    List<String> debugMessages;
+    
+    
     // Debug flag - global for all views
-    protected static final boolean DEBUG = false;
+    protected static final boolean DEBUG = true;
     
     // Some constants that are used internally
     private String NULL_PARAM_NAME = "Undefined parameter name!";
@@ -111,6 +119,10 @@ public abstract class AbstractView {
         this.bc = bundlecontext;
        
         sobjCore = AlitheiaCore.getInstance();
+        errorMessages = new ArrayList<String>();
+        debugMessages = new ArrayList<String>();
+        vc.put("errorMessages", errorMessages);
+        vc.put("debugMessages", debugMessages);
         
         // Retrieve the instances of the core components
         if (sobjCore != null) {
