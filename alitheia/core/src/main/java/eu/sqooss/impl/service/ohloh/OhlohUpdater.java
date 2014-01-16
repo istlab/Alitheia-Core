@@ -93,7 +93,7 @@ public class OhlohUpdater extends UpdaterBaseJob {
 	 * 
 	 * throws FileNotFoundException If the Ohloh XML folder could not be read
 	 */
-	protected void run() throws FileNotFoundException{
+	protected void run() throws FileNotFoundException {
 		Folder folder = openFolder();
 
 		for (String file : folder.listFilesExt(".xml")) {
@@ -106,11 +106,12 @@ public class OhlohUpdater extends UpdaterBaseJob {
 			Element root = document.getRootElement();
 			Iterator<Element> i = root.element("result").elementIterator("account");
 
-			if (i == null || !i.hasNext())
+			if (i == null || !i.hasNext()) {
 				logger.warn("Cannot find <account> element in file " + document.getPath());
-
-			while (i.hasNext())
-				addAccount(i.next());
+			} else {
+				while (i.hasNext())
+					addAccount(i.next());
+			}
 
 			dbs.commitDBSession();
 		}
