@@ -56,8 +56,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.EncapsulationUnit;
 import eu.sqooss.service.db.EncapsulationUnitMeasurement;
 import eu.sqooss.service.db.ExecutionUnit;
@@ -379,6 +381,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         		else if (o instanceof StoredProject) {
         			re = getResult((StoredProject) o, m);
         		}
+        		else if (o instanceof Developer) {
+        			re = getResult((Developer) o, m);
+        		}
+        		else if (o instanceof Bug) {
+        			re = getResult((Bug) o, m);
+        		}
+            	
             } catch (SecurityException e) {
                 logErr("getResult", o, e);
             } catch (IllegalArgumentException e) {
@@ -427,6 +436,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     	 return new ArrayList<Result>();
      }
      public List<Result> getResult(StoredProject o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(Developer o, Metric m) {
+    	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
+    	 return new ArrayList<Result>();
+     }
+     public List<Result> getResult(Bug o, Metric m) {
     	 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type " + this.getClass().getName());    	 
     	 return new ArrayList<Result>();
      }
@@ -574,6 +591,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     		else if (o instanceof StoredProject) {
     			run((StoredProject) o);
     		}
+    		else if (o instanceof Developer) {
+    			run((Developer) o);
+    		}
+    		else if (o instanceof Bug) {
+    			run((Bug) o);
+    		}
         } catch (SecurityException e) {
             logErr("run", o, e);
         } catch (IllegalArgumentException e) {
@@ -613,6 +636,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 	public void run(StoredProject o) throws AlreadyProcessingException, Exception {
 		log.error("No method run for " + o); 
 	}
+	/*public void run(Developer o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}
+	public void run(Bug o) throws AlreadyProcessingException, Exception {
+		log.error("No method run for " + o); 
+	}*/
     
     
     private void logErr(String method, DAObject o, Exception e) {
