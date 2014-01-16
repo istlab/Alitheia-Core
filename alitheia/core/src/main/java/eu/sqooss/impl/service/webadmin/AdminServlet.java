@@ -33,13 +33,13 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.webadmin.WebadminService;
 
@@ -65,6 +65,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static BundleContext bc = null;
@@ -73,12 +77,14 @@ public class AdminServlet extends HttpServlet {
     /// Logger given by our owner to write log messages to.
     private Logger logger = null;
     
+    private final Provider<AdminService> adminProvider;
     private DBService db = null;
+    private Scheduler sched;
 
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
     private Hashtable<String, Pair<String, String>> staticContentMap = null;
-
+    
     // Dynamic substitutions
     VelocityContext vc = null;
     VelocityEngine ve = null;
@@ -94,17 +100,25 @@ public class AdminServlet extends HttpServlet {
 
     TranslationProxy tr = new TranslationProxy();
     
-    public AdminServlet(BundleContext bc,
-            WebadminService webadmin,
-            Logger logger,
-            VelocityEngine ve) {
+    @Inject
+    public AdminServlet(ProjectsViewFactory projectsViewFactory,
+    		PluginsViewFactory pluginsViewFactory,
+    		WebAdminRendererFactory warFactory,
+    		Provider<DBService> dbsProvider,
+    		Provider<AdminService> adminProvider,
+    		Provider<Scheduler> schedProvider,
+    		@Assisted BundleContext bc,
+            @Assisted WebadminService webadmin,
+            @Assisted Logger logger,
+            @Assisted VelocityEngine ve) {
         AdminServlet.webadmin = webadmin;
         AdminServlet.bc = bc;
         this.ve = ve;
         this.logger = logger;
         
-        AlitheiaCore core = AlitheiaCore.getInstance();
-        db = core.getDBService();
+        db = dbsProvider.get();
+        this.adminProvider = adminProvider;
+        sched = schedProvider.get();
         
         // Create the static content map
         staticContentMap = new Hashtable<String, Pair<String, String>>();
@@ -139,11 +153,11 @@ public class AdminServlet extends HttpServlet {
 
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
-        adminView = new WebAdminRenderer(bc, vc);
+        adminView = warFactory.create(bc, vc);
 
         // Create the various view objects
-        pluginsView = new PluginsView(bc, vc);
-        projectsView = new ProjectsView(bc, vc);
+        pluginsView = pluginsViewFactory.create(bc, vc);
+        projectsView = projectsViewFactory.create(bc, vc);
     }
 
     /**
@@ -220,7 +234,7 @@ public class AdminServlet extends HttpServlet {
                 //addProject(request);
                 sendPage(response, request, "/results.html");
             } else if (query.startsWith("/diraddproject")) {
-                AdminService as = AlitheiaCore.getInstance().getAdminService();
+                AdminService as = adminProvider.get();
                 AdminAction aa = as.create(AddProject.MNEMONIC);
                 aa.addArg("dir", request.getParameter("properties"));
                 as.execute(aa);
@@ -312,7 +326,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("UPTIME", WebAdminRenderer.getUptime());
 
         // Object-based substitutions
-        vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
+        vc.put("scheduler", sched.getSchedulerStats());
         vc.put("tr",tr); // translations proxy
         vc.put("admin",adminView);
         vc.put("projects",projectsView);

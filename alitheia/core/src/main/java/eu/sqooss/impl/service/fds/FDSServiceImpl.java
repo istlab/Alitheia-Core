@@ -48,7 +48,9 @@ import eu.sqooss.service.util.FileUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.core.AlitheiaCore;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
@@ -75,6 +77,12 @@ public class FDSServiceImpl implements FDSService, Runnable {
     /** We use the TDS for raw data access. */
     private TDSService tds = null;
 
+    private static Provider<TDSService> tdsProvider;
+    private final Provider<DBService> dbsProvider;
+    
+    private final OnDiskCheckoutFactory odcFactory;
+    private final TimelineFactory tlFactory;
+    
     /**
      * The FDS is configured to place checkouts -- which are the main things
      * that the FDS is supposed to manage -- somewhere in the filesystem. This
@@ -121,7 +129,16 @@ public class FDSServiceImpl implements FDSService, Runnable {
      */
     private static final int INT_AS_HEX_LENGTH = 8;
 
-    public FDSServiceImpl() { }
+    @Inject
+    public FDSServiceImpl(Provider<TDSService> tdsProviderC, 
+    						Provider<DBService> dbsProvider,
+    						OnDiskCheckoutFactory odcFactory,
+    						TimelineFactory tlFactory) {
+    	tdsProvider = tdsProviderC;
+    	this.dbsProvider = dbsProvider;
+    	this.odcFactory = odcFactory;
+    	this.tlFactory = tlFactory;
+    }
 
     /**
      * The FDS considers its checkout root to be 'private' and will write all
@@ -175,7 +192,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
 
         // Now checkoutRoot exists and is a directory.
         logger.info("Created checkout root <" + checkoutRoot + ">");
-        OnDiskCheckoutImpl c = new OnDiskCheckoutImpl(scm, path, pv, checkoutRoot);
+        OnDiskCheckout c = odcFactory.create(scm, path, pv, checkoutRoot);
         return c;
     }
 
@@ -390,7 +407,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
         if (key == null || key.length() == 0)
             return null;
 
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        DBService dbs = dbsProvider.get();
 
         Long id = Long.parseLong(key.split("|")[1]);
         return dbs.findObjectById(ProjectVersion.class, id);
@@ -400,7 +417,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
      * Convert between database and SCM revision representations
      */
     private static Revision projectVersionToRevision(ProjectVersion pv) {
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
+        TDSService tds = tdsProvider.get();
         SCMAccessor scm = null;
 
         if (tds.accessorExists(pv.getProject().getId())) {
@@ -610,8 +627,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
             return true;
         }
 
-        SCMAccessor scm = (SCMAccessor) AlitheiaCore.getInstance()
-                .getTDSService().getAccessor(pv.getProject().getId());
+        SCMAccessor scm = (SCMAccessor) tdsProvider.get().getAccessor(pv.getProject().getId());
         try {
             scm.updateCheckout(cimpl.getRepositoryPath(),
                     projectVersionToRevision(cimpl.getProjectVersion()),
@@ -662,7 +678,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
     }
 
     public Timeline getTimeline(StoredProject c) {
-        return new TimelineImpl(c);
+        return tlFactory.create(c);
     }
 
     public void run() {
@@ -688,7 +704,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
 
     @Override
     public boolean startUp() {
-        tds = AlitheiaCore.getInstance().getTDSService();
+        tds = tdsProvider.get();
         logger.info("Got TDS service for FDS.");
 
         checkoutCache = new ConcurrentHashMap<String, OnDiskCheckout>();

@@ -42,18 +42,26 @@ import java.util.Vector;
 
 import org.osgi.framework.BundleContext;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import eu.sqooss.impl.service.admin.AdminServiceImpl;
 import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.fds.FDSServiceImpl;
+import eu.sqooss.impl.service.fds.FDSServiceModule;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
+import eu.sqooss.impl.service.metricactivator.MetricActivatorModule;
 import eu.sqooss.impl.service.pa.PAServiceImpl;
 import eu.sqooss.impl.service.rest.ResteasyServiceImpl;
+import eu.sqooss.impl.service.rest.RestServiceModule;
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
+import eu.sqooss.impl.service.scheduler.SchedulerServiceModule;
 import eu.sqooss.impl.service.tds.TDSServiceImpl;
 import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
+import eu.sqooss.impl.service.webadmin.WebAdminServiceModule;
 import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.DBService;
@@ -84,6 +92,9 @@ public class AlitheiaCore {
     
     /** The Core is singleton-line because it has a special instance */
     private static AlitheiaCore instance = null;
+    
+    /** The injector used to create objects that require injection */
+    private Injector injector;
     
     /** Holds initialised service instances */
     private HashMap<Class<? extends AlitheiaCoreService>, Object> instances;
@@ -137,10 +148,22 @@ public class AlitheiaCore {
     public AlitheiaCore(BundleContext bc) {
         this.bc = bc;
         instance = this;
-        err("Instance Created");
+
+        try {
+        	injector = Guice.createInjector(new CoreModule(), 
+        									new SchedulerServiceModule(),
+        									new RestServiceModule(),
+        									new FDSServiceModule(),
+        									new MetricActivatorModule(),
+        									new WebAdminServiceModule());
+        	err("Instance Created");
         
-        instances = new HashMap<Class<? extends AlitheiaCoreService>, Object>();
-        init();
+        	instances = new HashMap<Class<? extends AlitheiaCoreService>, Object>();
+        	init();
+        }
+        catch (Throwable t) {
+        	t.printStackTrace();
+        }
     }
 
     /**
@@ -176,7 +199,7 @@ public class AlitheiaCore {
         if (!services.contains(service))
             services.add(service);
         implementations.put(service, clazz);
-        initService(service);
+        initRegularService(service);
     }
 
     /**
@@ -199,15 +222,16 @@ public class AlitheiaCore {
 
         err("Required services online, initialising");
 
-        logger = new LogManagerImpl();
+        logger = injector.getInstance(LogManagerImpl.class);
         logger.setInitParams(bc, null);
+
         if (!logger.startUp()) {
             err("Cannot start the log service, aborting");
         }
         instances.put(LogManager.class, logger);
         err("Service " + LogManagerImpl.class.getName() + " started");
 
-        DBService db = DBServiceImpl.getInstance();
+        DBService db = injector.getInstance(DBServiceImpl.class);
         db.setInitParams(bc, logger.createLogger("sqooss.db"));
         if (!db.startUp()) {
             err("Cannot start the DB service, aborting");
@@ -216,22 +240,43 @@ public class AlitheiaCore {
         err("Service " + DBServiceImpl.class.getName() + " started");
 
         for (Class<? extends AlitheiaCoreService> s : services) {
-            initService(s);
+        	initInjectedService(s);
         }
 
     }
-
-    private synchronized void initService(Class<? extends AlitheiaCoreService> s) {
-        Class<?> impl = implementations.get(s);
+    
+    private void initInjectedService(Class<? extends AlitheiaCoreService> s) {
+    	Class<?> impl = implementations.get(s);
 
         if (impl == null) {
             err("No implementation found for service " + s);
             return;
         }
 
-        try {
-            Object o = impl.newInstance();
+        Object newInjectedInstance = injector.getInstance(impl);
+        initService(s, newInjectedInstance);
+    }
+    
+    private void initRegularService(Class<? extends AlitheiaCoreService> s) {
+    	Class<?> impl = implementations.get(s);
 
+        if (impl == null) {
+            err("No implementation found for service " + s);
+            return;
+        }
+        
+        try {
+        	Object newInstance = impl.newInstance();
+            initService(s, newInstance);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private synchronized void initService(Class<? extends AlitheiaCoreService> s, Object o) {
+        Class<?> impl = implementations.get(s);
+
+        try {
             if (o == null) {
                 err("Service object for service " + s
                         + " could not be created");
@@ -307,8 +352,8 @@ public class AlitheiaCore {
      * @return The DB component's instance.
      */
     public DBService getDBService() {
-        //return (DBServiceImpl)instances.get(DBService.class);
-        return DBServiceImpl.getInstance(); // <-- Ugly but required for testing.
+        return (DBServiceImpl)instances.get(DBService.class);
+        //return DBServiceImpl.getInstance(); // <-- Ugly but required for testing.
     }
     
     /**

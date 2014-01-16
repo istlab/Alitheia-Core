@@ -4,8 +4,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static org.mockito.Mockito.*;
+
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
+import eu.sqooss.impl.service.scheduler.WorkerThreadFactory;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.scheduler.WorkerThread;
 
 public class SchedulerTests {
     
@@ -13,7 +18,10 @@ public class SchedulerTests {
     
     @BeforeClass
     public static void setUp() {
-        sched = new SchedulerServiceImpl();
+    	WorkerThreadFactory wtf = mock(WorkerThreadFactory.class);
+    	WorkerThread wt = mock(WorkerThread.class);
+    	when(wtf.create(any(Scheduler.class), anyInt())).thenReturn(wt);
+        sched = new SchedulerServiceImpl(wtf);
         sched.startExecute(2);
     }
 

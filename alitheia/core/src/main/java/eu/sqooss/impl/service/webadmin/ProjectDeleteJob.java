@@ -36,23 +36,32 @@ package eu.sqooss.impl.service.webadmin;
 import java.util.HashMap;
 import java.util.List;
 
-import eu.sqooss.core.AlitheiaCore;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectConfig;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Job;
 
 public class ProjectDeleteJob extends Job {
 
 	private StoredProject sp;
-    private AlitheiaCore core;
-
-    ProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
+    private final Provider<DBService> dbsProvider;
+    private final Provider<PluginAdmin> paProvider;
+    
+    @Inject
+    ProjectDeleteJob(Provider<DBService> dbsProvider,
+    		Provider<PluginAdmin> paProvider,
+    		@Assisted StoredProject sp) {
         this.sp = sp;
-        this.core = core;
+        this.dbsProvider = dbsProvider;
+        this.paProvider = paProvider;
     }
 
     @Override
@@ -63,7 +72,7 @@ public class ProjectDeleteJob extends Job {
     @SuppressWarnings("unchecked")
     @Override
     protected void run() throws Exception {
-        DBService dbs = core.getDBService();
+        DBService dbs = dbsProvider.get();
 
         if (!dbs.isDBSessionActive()) {
             dbs.startDBSession();
@@ -78,7 +87,7 @@ public class ProjectDeleteJob extends Job {
         List<Plugin> ps = (List<Plugin>) dbs.doHQL("from Plugin");        
         
         for (Plugin p : ps ) {
-            AlitheiaPlugin ap = core.getPluginAdmin().getPlugin(core.getPluginAdmin().getPluginInfo(p.getHashcode()));
+            AlitheiaPlugin ap = paProvider.get().getPlugin(paProvider.get().getPluginInfo(p.getHashcode()));
             if (ap == null) {
             	//logger.warn("Plugin with hashcode: "+ p.getHashcode() + 
             	//		" not installed");

@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -48,7 +51,6 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
@@ -89,8 +91,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
     // Required SQO-OSS components
     private Logger logger;
-    private DBService sobjDB = null;
-    private AlitheiaCore sobjCore = null;
+    private final Provider<DBService> dbsProvider;
+    private final Provider<Scheduler> schedProvider;
     
     /**
      * Keeps a list of registered metric plug-in's services, indexed by the
@@ -99,7 +101,13 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
     private ConcurrentHashMap<String, PluginInfo> registeredPlugins =
         new ConcurrentHashMap<String, PluginInfo>();
 
-    public PAServiceImpl () { }
+    @Inject
+    public PAServiceImpl (Provider<DBService> dbsProvider,
+    						Provider<Scheduler> schedProvider) {
+
+    	this.dbsProvider = dbsProvider;
+    	this.schedProvider = schedProvider;
+    }
 
     /**
      * Retrieves the service Id of the specified service reference.
@@ -397,7 +405,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         // Get a reference to the affected service
         ServiceReference affectedService = event.getServiceReference();
 
-        sobjDB.startDBSession();
+        dbsProvider.get().startDBSession();
         
         // Find out what happened to the service
         switch (event.getType()) {
@@ -415,7 +423,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         }
 
         // Close the DB session
-        sobjDB.commitDBSession();
+        dbsProvider.get().commitDBSession();
     }
 
 /* ===[ Implementation of the PluginAdmin interface ]===================== */
@@ -504,7 +512,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
      * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.Long)
      */
     public boolean uninstallPlugin(Long serviceID) {
-        Scheduler s = AlitheiaCore.getInstance().getScheduler();
+        Scheduler s = schedProvider.get();
         try {
             PluginUninstallJob puj = new PluginUninstallJob(serviceID);
             s.enqueue(puj);
@@ -645,7 +653,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 + " failed : ";
 
             try {
-                DBService dbs = AlitheiaCore.getInstance().getDBService();
+                DBService dbs = dbsProvider.get();
                 dbs.startDBSession();
                 // Get the metric plug-in's service
                 ServiceReference srefPlugin = getPluginService(serviceID);
@@ -690,27 +698,19 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 	public boolean startUp() {
 	    logger.info("Starting the PluginAdmin component.");
 
-        // Get the AlitheiaCore's object
-        sobjCore = AlitheiaCore.getInstance();
 
-        if (sobjCore != null) {
-            // Obtain the required core components
-            sobjDB = sobjCore.getDBService();
-            if (sobjDB == null) {
-                logger.error("Can not obtain the DB object!");
-            }
+	    if (dbsProvider.get() == null) {
+	    	logger.error("Can not obtain the DB object!");
+        }
 
-            try {
-                bc.addServiceListener(this, SREF_FILTER_PLUGIN);
-            } catch (InvalidSyntaxException e) {
-                logger.error("Invalid filter syntax ", e);
-            }
+        try {
+            bc.addServiceListener(this, SREF_FILTER_PLUGIN);
+        } catch (InvalidSyntaxException e) {
+            logger.error("Invalid filter syntax ", e);
+        }
             
-            logger.debug("The PluginAdmin component was successfully started.");
-        }
-        else {
-            logger.error("Can not obtain the Core object!");
-        }
+        logger.debug("The PluginAdmin component was successfully started.");
+
 		return true;
 	}
 

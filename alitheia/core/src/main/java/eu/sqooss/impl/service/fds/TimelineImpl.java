@@ -43,7 +43,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import eu.sqooss.core.AlitheiaCore;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
@@ -62,10 +65,15 @@ import eu.sqooss.service.fds.Timeline;
  */
 class TimelineImpl implements Timeline {
    
+	private final Provider<DBService> dbsProvider;
+	
     private StoredProject project;
 
-    public TimelineImpl(StoredProject project) {
-        this.project = project;
+    @Inject
+    public TimelineImpl(Provider<DBService> dbsProvider,
+    					@Assisted StoredProject project) {
+        this.dbsProvider = dbsProvider;
+    	this.project = project;
     }
 
     private SortedSet<RepositoryEvent> getScmTimeLine(Calendar from, Calendar to) {
@@ -74,7 +82,7 @@ class TimelineImpl implements Timeline {
         final long begin = from.getTimeInMillis();
         final long end = to.getTimeInMillis();
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        DBService dbs = dbsProvider.get();
         StringBuilder query = new StringBuilder("select pv ");
         query.append("from ProjectVersion pv ");
         query.append("where pv.timestamp < :paramTo ");
@@ -99,7 +107,7 @@ class TimelineImpl implements Timeline {
         final Date begin = from.getTime();
         final Date end = to.getTime();
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        DBService dbs = dbsProvider.get();
         StringBuilder query = new StringBuilder("select mm ");
         query.append("from MailMessage mm ");
         query.append("where mm.sendDate < :paramTo ");
@@ -131,7 +139,7 @@ class TimelineImpl implements Timeline {
         final Date begin = from.getTime();
         final Date end = to.getTime();
 
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        DBService dbs = dbsProvider.get();
         StringBuilder query = new StringBuilder("select b ");
         query.append("from Bug b ");
         query.append("where b.creationTS < :paramTo ");

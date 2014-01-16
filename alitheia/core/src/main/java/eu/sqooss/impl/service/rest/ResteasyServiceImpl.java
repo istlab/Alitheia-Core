@@ -39,10 +39,19 @@ import org.osgi.service.http.HttpService;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.rest.RestService;
 
+import com.google.inject.Inject;
+
 public class ResteasyServiceImpl implements RestService {
 
 	private BundleContext bc;
     private Logger log ;
+    
+    private final ResteasyServletFactory reServletFactory;
+    
+    @Inject
+    public ResteasyServiceImpl(ResteasyServletFactory reServletFactory) {
+    	this.reServletFactory = reServletFactory;
+    }
    
 	@Override
 	public void addResource(Class<?> resource) {
@@ -65,7 +74,7 @@ public class ResteasyServiceImpl implements RestService {
 		params.put("resteasy.scan", "false");
 		params.put("javax.ws.rs.Application", "eu.sqooss.service.rest.RestServiceApp");
 
-		ResteasyServlet bridge = new ResteasyServlet();
+		ResteasyServlet bridge = reServletFactory.create();
 		try {
 			http.registerServlet("/api", bridge, params, null);
 		} catch (Exception e) {
