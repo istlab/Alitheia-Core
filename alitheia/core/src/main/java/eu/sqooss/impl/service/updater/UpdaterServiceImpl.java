@@ -115,6 +115,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /**{@inheritDoc}*/
     @Override
     public boolean update(StoredProject sp, Updater u) {
+    	if (!getUpdaters(sp).contains(u))
+            return false;
         return update(sp, null, u);
     }
     
@@ -122,6 +124,10 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     @Override
     public boolean update(StoredProject sp, String updater) {
         Updater u = manager.getUpdaterByMnemonic(updater);
+        if (u == null) {
+            logger.warn("No such updater: " + updater);
+            return false;
+        }
         return update(sp, u);
     }
 
@@ -480,19 +486,11 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
      */
     private Boolean returnValueForUpdate(StoredProject project, UpdaterStage stage, Updater updater){
     	
-    	if (updater == null) {
-            logger.warn("No such updater: " + updater);
-            return false;
-        }
-    	
     	if (project == null) {
             logger.info("Bad project name for update.");
             return false;
         } 
-    	
-    	if (!getUpdaters(project).contains(updater))
-            return false;
-    	
+
     	ClusterNodeService cns = null;
         /// ClusterNode Checks - Clone to MetricActivatorImpl
         cns = core.getClusterNodeService();
