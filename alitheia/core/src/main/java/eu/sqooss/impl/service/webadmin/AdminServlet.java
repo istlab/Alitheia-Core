@@ -319,7 +319,6 @@ public class AdminServlet extends HttpServlet {
         pluginsView.initResources(Locale.ENGLISH);
 
         // Simple string substitutions
-        vc.put("APP_NAME", pluginsView.getLbl("app_name"));
         vc.put("COPYRIGHT",
                 "Copyright 2007-2008"
                 + "<a href=\"http://www.sqo-oss.eu/about/\">"

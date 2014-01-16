@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,8 +86,8 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_PRJ_CODE      = "projectSCM";
     private static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
     private static String REQ_PAR_UPD           = "reqUpd";
-    
-    
+
+
     /**
      * Instantiates a new projects view.
      *
@@ -99,7 +99,7 @@ public class ProjectsView extends AbstractView {
     }
 
     /**
-     * Setup variables needed for templates and 
+     * Setup variables needed for templates and
      * put them into VelocityContext
      *
      * @param req the servlet's request object
@@ -107,7 +107,7 @@ public class ProjectsView extends AbstractView {
      * @return The HTML presentation of the generated view.
      * TODO rename this function to its new function:
      *  - rendering well be performed through velocity templates
-     *  - this method will be used to 
+     *  - this method will be used to
      */
     public String setupVelocityContext(HttpServletRequest req) {
         // Stores the assembled HTML content
@@ -116,7 +116,7 @@ public class ProjectsView extends AbstractView {
         errorMessages.add("test error 1");
         errorMessages.add("test error 2");
         errorMessages.add(getErr("e0034"));
-        
+
         // Request values
         String reqValAction = "";
         Long reqValProjectId = null;
@@ -128,7 +128,7 @@ public class ProjectsView extends AbstractView {
         // Parse the servlet's request object
         // ===============================================================
         if (req != null) {
-            
+
         	// Initialize the resource bundles with the request's locale
             initResources(req.getLocale()); //TODO check
             // DEBUG: Dump the servlet's request parameter
@@ -138,14 +138,14 @@ public class ProjectsView extends AbstractView {
 
             // Retrieve the selected editor's action (if any)
             reqValAction = req.getParameter(REQ_PAR_ACTION);
-            
+
             // Retrieve the selected project's DAO (if any)
             reqValProjectId = fromString(req.getParameter(REQ_PAR_PROJECT_ID));
             if (reqValProjectId != null) {
                 selProject = sobjDB.findObjectById(
                         StoredProject.class, reqValProjectId);
             }
-            
+
             if (reqValAction == null) {
                 reqValAction = "";
             } else if (reqValAction.equals(ACT_CON_ADD_PROJECT)) {
@@ -164,13 +164,13 @@ public class ProjectsView extends AbstractView {
         		syncPlugin(selProject, reqValSyncPlugin);
             }
         }
-        
+
         // add variables needed in templates to vc
-        // @TODO perhaps these vars must be grouped 
+        // @TODO perhaps these vars must be grouped
         // for example:
         // - a group for Action parameter's values
         // - a group for Servlet parameters
-        // 
+        //
         vc.put("reqValAction", reqValAction);
         vc.put("selProject", selProject);
         vc.put("ACT_REQ_SHOW_PROJECT",ACT_REQ_SHOW_PROJECT);
@@ -184,12 +184,12 @@ public class ProjectsView extends AbstractView {
         vc.put("REQ_PAR_PRJ_CODE",REQ_PAR_PRJ_CODE);
         vc.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
         vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
-        
+
         // add error messages to velocity Context
         createForm(b, selProject, reqValAction);
         return b.toString();
     }
-  
+
     private StoredProject addProject(HttpServletRequest r) {
         AdminService as = AlitheiaCore.getInstance().getAdminService();
     	AdminAction aa = as.create(AddProject.MNEMONIC);
@@ -199,16 +199,16 @@ public class ProjectsView extends AbstractView {
     	aa.addArg("mail", r.getParameter(REQ_PAR_PRJ_MAIL));
     	aa.addArg("web", r.getParameter(REQ_PAR_PRJ_WEB));
     	as.execute(aa);
-    	
+
     	if (aa.hasErrors()) {
             vc.put("RESULTS", aa.errors());
             return null;
-    	} else { 
+    	} else {
             vc.put("RESULTS", aa.results());
             return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
     	}
     }
-    
+
     // ---------------------------------------------------------------
     // Remove project
     // ---------------------------------------------------------------
@@ -241,7 +241,7 @@ public class ProjectsView extends AbstractView {
 
 		if (aa.hasErrors()) {
             vc.put("RESULTS", aa.errors());
-        } else { 
+        } else {
             vc.put("RESULTS", aa.results());
         }
 	}
@@ -257,22 +257,22 @@ public class ProjectsView extends AbstractView {
 
         if (aa.hasErrors()) {
             vc.put("RESULTS", aa.errors());
-        } else { 
+        } else {
             vc.put("RESULTS", aa.results());
         }
 	}
-	
+
 	// ---------------------------------------------------------------
 	// Trigger update on all resources on all projects of a node
 	// ---------------------------------------------------------------
     private void triggerAllUpdateNode(StoredProject selProject) {
 		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
-		
+
 		for (StoredProject project : projectList) {
 			triggerAllUpdate(project);
 		}
 	}
-	
+
 	// ---------------------------------------------------------------
 	// Trigger synchronize on the selected plug-in for that project
 	// ---------------------------------------------------------------
@@ -289,17 +289,17 @@ public class ProjectsView extends AbstractView {
 			}
 		}
     }
-    
+
     /*
      * @author elwin
-     * Function for template to get a set of projects. 
+     * Function for template to get a set of projects.
      * @return Set<StoredProject> set of stored projects for current node
      */
     public Set<StoredProject> getProjects() {
     	return ClusterNode.thisNode().getProjects();
     }
-    
-    /* 
+
+    /*
      * TODO this function which renders the main form for the list of projects is
      * going to be replaced by projectlist velocity template
      * == to be deprecated ==
@@ -331,7 +331,6 @@ public class ProjectsView extends AbstractView {
             rows.add(normalInfoRowMap("Source code", selProject.getScmUrl()));
             //add info fields to velocity context
             vc.put("infoRows", rows);
-            vc.put("backButtonText", getLbl("btn_back"));
             vc.put("onClickInstall", SUBMIT);
             vc.put("currentProjectTemplate", "ProjectInformation.html");
 
@@ -357,33 +356,21 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         else if ((reqValAction.equals(ACT_REQ_REM_PROJECT))
                 && (selProject != null)) {
-        	vc.put("deleteLabel", getLbl("l0059"));
         	//concat with empty string to convert null value to "null" string.
         	vc.put("projectName", ""+selProject.getName() );
-            vc.put("message", getMsg("delete_project"));
-            vc.put("onClickDelete","document.getElementById('"+ 
-            								REQ_PAR_ACTION + "').value='"+ 
-            								ACT_CON_REM_PROJECT + "';"+ 
+            vc.put("onClickDelete","document.getElementById('"+
+            								REQ_PAR_ACTION + "').value='"+
+            								ACT_CON_REM_PROJECT + "';"+
             								SUBMIT);
             vc.put("onClickCancel",SUBMIT);
-            vc.put("confirmValue",getLbl("l0006"));
-            vc.put("cancelValue", getLbl("l0004"));
             vc.put("currentProjectTemplate", "confirmProjectDelete.html");
         }
         // ===================================================================
         // Projects list view
         // ===================================================================
         else {
-            vc.put("idHeader",getLbl("l0066"));
-            vc.put("nameHeader",getLbl("l0067"));
-            vc.put("versionHeader",getLbl("l0068"));
-            vc.put("emailHeader",getLbl("l0069"));
-            vc.put("bugHeader",getLbl("l0070"));
-            vc.put("evaluatedHeader",getLbl("l0071"));
-            vc.put("hostHeader",getLbl("l0073"));
-            vc.put("no_projects", getMsg("no_projects"));
             vc.put("noProjectsAvailable",projects.isEmpty());
-            
+
             //------------------------------------------------------------
             // Create the content rows
             //------------------------------------------------------------
@@ -396,39 +383,44 @@ public class ProjectsView extends AbstractView {
                         && (selProject.getId() == nextPrj.getId())) {
                     selected = true;
                 }
-                
-                // Last project version             
-                String lastVersion = getLbl("l0051");
+
+                // Last project version
+                String lastVersion = null;
                 ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
                 if (v != null) {
                     lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
                 }
-                // Date of the last known email                
+                // Date of the last known email
                 MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
-                String lastMail = (mm == null)?getLbl("l0051"):mm.getSendDate()+"";
-                
+                String lastMail = null;
+                if (mm != null) {
+                    lastMail = mm.getSendDate()+"";
+                }
+
                 // ID of the last known bug entry
                 Bug bug = Bug.getLastUpdate(nextPrj);
-                String lastBug = (bug == null)?getLbl("l0051"):bug.getBugID()+"";
+
+                String lastBug = null;
+                if (bug != null) {
+                    lastBug = bug.getBugID()+"";
+                }
 
                 // Evaluation state
-                String evalState = getLbl("project_not_evaluated");
-                if (nextPrj.isEvaluated()) {
-                	evalState = getLbl("project_is_evaluated");
-                }
-                
+                String evalState = nextPrj.isEvaluated()+"";
+
                 // Cluster node
                 String nodeName = null;
+
                 if (null != nextPrj.getClusternode()) {
                     nodeName = nextPrj.getClusternode().getName()+"";
                 } else {
                     nodeName = "(local)";
                 }
-                
+
                 projectRow.put("cssClass", (selected) ? "selected" : "edit");
                 projectRow.put("onClickSelectElementId",REQ_PAR_PROJECT_ID);
                 projectRow.put("onClickSelectProjectId",selected ? "" : nextPrj.getId()+"");
-                projectRow.put("onClickSelectSubmit",SUBMIT);		
+                projectRow.put("onClickSelectSubmit",SUBMIT);
                 projectRow.put("projectId",nextPrj.getId()+"");
                 projectRow.put("projectName",nextPrj.getName()+"");
                 projectRow.put("projectVersion",lastVersion);
@@ -436,12 +428,11 @@ public class ProjectsView extends AbstractView {
                 projectRow.put("projectLastBugId",lastBug);
                 projectRow.put("projectEvaluationState",evalState);
                 projectRow.put("projectNode",nodeName);
-                
+
                 if(selected){
                 	projectRow.put("selected","selected");
                 	projectRow.put("selectedProjectAction", REQ_PAR_ACTION);
                     projectRow.put("selectedProjectActionValue", ACT_REQ_SHOW_PROJECT);
-                    projectRow.put("selectedProjectSubmitValue",getLbl("btn_info"));
                     projectRow.put("selectedProjectHasMetrics",!metrics.isEmpty() ? "metrics" : "");
                     if(!metrics.isEmpty()){
                     	List<Map<String,String>> metricRows = new ArrayList<Map<String,String>>();
@@ -459,15 +450,15 @@ public class ProjectsView extends AbstractView {
                     		vc.put("metricList", metricRows);
                     		vc.put("onClickSubmit",SUBMIT);
                     		vc.put("metricElementId",REQ_PAR_SYNC_PLUGIN);
-                    	}   	
+                    	}
                     }
                 }
                 projectRows.add(projectRow);
             }
-            
+
             vc.put("projectList", projectRows);
-            
-            
+
+
             //----------------------------------------------------------------
             // Tool-bar
             //----------------------------------------------------------------
@@ -480,21 +471,21 @@ public class ProjectsView extends AbstractView {
         // ===============================================================
         // "Action type" input field
     	vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
-    	
+
         // "Project Id" input field
     	vc.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
     	vc.put("selectedProjectId", ((selProject != null) ? selProject.getId() : ""));
-        
+
     	// "Plug-in hashcode" input field
     	vc.put("REQ_PAR_SYNC_PLUGIN", REQ_PAR_SYNC_PLUGIN);
-        
+
     	// test partial template for testcases
     	b.append(velocityContextToString("projectsView.html"));
-    	
+
     	// nothing to return
     }
 
-    
+
     private void addToolBar(StoredProject selProject) {
 
     	String postArgument = "";
@@ -504,9 +495,6 @@ public class ProjectsView extends AbstractView {
     	vc.put("postArgument",postArgument);
     	vc.put("removeDisabled", ((selProject != null) ? "" : " disabled"));
     	vc.put("onClickSubmit", SUBMIT);
-    	vc.put("refreshButton", getLbl("l0008"));
-    	vc.put("addProjectButton", getLbl("add_project"));
-    	vc.put("deleteProjectButton", getLbl("l0059"));
     	vc.put("REQ_PAR_ACTION", ProjectsView.REQ_PAR_ACTION);
     	vc.put("addProjectValue", ACT_REQ_ADD_PROJECT);
     	vc.put("removeProjectValue", ACT_REQ_REM_PROJECT);
@@ -516,7 +504,7 @@ public class ProjectsView extends AbstractView {
     	vc.put("projectSelected",selProject != null);
     	vc.put("ACT_CON_UPD",ACT_CON_UPD);
     	vc.put("ACT_CON_UPD_ALL",ACT_CON_UPD_ALL);
-        
+
         if (selProject != null) {
         	List<Map<String,String>> importUpdaters = new ArrayList<Map<String,String>>();
         	List<Map<String,String>> parseUpdaters = new ArrayList<Map<String,String>>();
@@ -540,9 +528,9 @@ public class ProjectsView extends AbstractView {
             vc.put("defaultUpdaters", defaultUpdaters);
         }
     }
-    
+
     /**
-     * This function creates a map with the values that 
+     * This function creates a map with the values that
      * the velocity template expects from an updater.
      * @param u The updater from which values will be grabed and put in a map
      * @return A map with values that are known by the template that uses it.
