@@ -33,46 +33,85 @@
 package eu.sqooss.service.util;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 
+/**
+ * Folder class is for accessing the folder with the given path
+ * 
+ */
+
 public class Folder {
+	/**
+	 * path of the folder
+	 */
 	private String path;
+
+	/**
+	 * The decorated file
+	 */
 	private File f;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param path
+	 *            A path to the folder
+	 */
 	public Folder(String path) {
 		f = null;
 		this.path = path;
-		
+
 		if (path == null)
-			throw new NullPointerException("Cannot find Ohloh XML files");
+			throw new NullPointerException("Path is null");
 
 		f = new File(path);
 
 	}
-	
+
+	/**
+	 * Checks if the folder exists and is directory
+	 * 
+	 * @return True iff folder exists and is directory, false in any other case
+	 */
 	public boolean exists() {
 		return f.exists() && f.isDirectory();
 	}
-	
-	public String[] listFiles (FilenameFilter fnFilter) {
+
+	/**
+	 * Generates a list of files in folder, from Filename Filter
+	 * 
+	 * @param fnFilter
+	 * @return A list of files in folder
+	 */
+	public String[] listFiles(FilenameFilter fnFilter) {
 		return f.list(fnFilter);
 	}
-	
+
+	/**
+	 * Generates a list of files in folder
+	 * 
+	 * @return A list of files in folder
+	 */
 	public String[] listFiles() {
 		return f.list();
 	}
-	
+
+	/**
+	 * Generates a list of files with the given extension in folder
+	 * 
+	 * @param ext
+	 *            Extension of the files
+	 * @return A list of files in folder with the given extension
+	 */
 	public String[] listFilesExt(String ext) {
 		final String s = ext;
 		return f.list(new FilenameFilter() {
-			
+
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(s);
 			}
 		});
 	}
-
 
 }
