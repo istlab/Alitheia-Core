@@ -56,7 +56,6 @@ import eu.sqooss.service.scheduler.JobStateListener;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.ProjectAccessor;
-import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService;
@@ -550,18 +549,5 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             dbs.commitDBSession();
         }
     }
-    
-    /*Dummy jobs to ensure correct sequencing of jobs within updater stages */
-    private class DependencyJob extends Job {
-        private String name;
-        private DependencyJob(){};
-        public DependencyJob(String name) { this.name = name;}
-        public long priority() {return 0;}
-        protected void run() throws Exception {}
-        
-        @Override
-        public String toString() {
-            return "Dependency Job: " + name;
-        }
-    }
+
 }
