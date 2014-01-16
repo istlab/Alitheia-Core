@@ -527,12 +527,7 @@ public class UpdaterServiceImplTest {
 		Mockito.verify(mockedLogger).error(Mockito.anyString());
     }
 	
-	@Test(expected = NullPointerException.class)
-	/**
-	 * TODO - This is actually a bug that requires fixing, we
-	 * would expect startUp() to return false if it didn't start
-	 * correctly. Instead it errors out with a NullPointerException.
-	 */
+	@Test
 	public void testStartUpWithoutLoggerError(){
 		// -- Given
 		impl.setInitParams(null, null);

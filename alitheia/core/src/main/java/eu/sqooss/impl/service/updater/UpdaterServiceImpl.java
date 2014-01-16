@@ -138,9 +138,9 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         Set<Updater> upds = getUpdatersForScheme(project);
         
         //Other updaters
-        upds.addAll(getUpdatersByStage(UpdaterStage.PARSE));
-        upds.addAll(getUpdatersByStage(UpdaterStage.INFERENCE));
-        upds.addAll(getUpdatersByStage(UpdaterStage.DEFAULT));
+        upds.addAll(manager.getUpdatersByStage(UpdaterStage.PARSE));
+        upds.addAll(manager.getUpdatersByStage(UpdaterStage.INFERENCE));
+        upds.addAll(manager.getUpdatersByStage(UpdaterStage.DEFAULT));
         
         return upds;
     }
@@ -162,7 +162,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         }
 
         for (URI uri : schemes) {
-            upds.addAll(getUpdatersByProtocol(uri.getScheme()));
+            upds.addAll(manager.getUpdatersByProtocol(uri.getScheme()));
         }
         return upds;
 	}
@@ -206,6 +206,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             logger.info("Got a valid reference to the logger");
         } else {
             System.out.println("ERROR: Updater got no logger");
+            return false;
         }
         
         dbs = core.getDBService();
@@ -222,32 +223,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         this.logger = l;
     }
 
-    /*Private service methods*/
-    private List<Updater> getUpdatersByProtocol(String protocol) {
-        List<Updater> upds = new ArrayList<Updater>();
-        
-        for (Updater u : manager.getUpdaters()) {
-            for (String p : u.protocols()) {
-                if (protocol.equals(p)) {
-                    upds.add(u);
-                    break;
-                }
-            }
-        }
-        
-        return upds;
-    }
- 
-    private List<Updater> getUpdatersByStage(UpdaterStage u) {
-        List<Updater> upds = new ArrayList<Updater>();
-       
-        for (Updater upd : manager.getUpdaters()) {
-            if (upd.stage().equals(u))
-                upds.add(upd);
-        }
-        
-        return upds;
-    }
 
     /**
      * Check if all the dependencies of an updater exist 

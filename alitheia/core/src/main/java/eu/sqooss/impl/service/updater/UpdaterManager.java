@@ -32,6 +32,8 @@
  */
 package eu.sqooss.impl.service.updater;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import eu.sqooss.impl.service.updater.exceptions.MissingAnnotationException;
@@ -39,6 +41,7 @@ import eu.sqooss.impl.service.updater.exceptions.MnemonicUsedException;
 import eu.sqooss.impl.service.updater.exceptions.UpdaterException;
 import eu.sqooss.service.updater.MetadataUpdater;
 import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
 import eu.sqooss.service.util.BidiMap;
 /**
  * Updater Manager
@@ -109,8 +112,16 @@ public class UpdaterManager {
 	public MetadataUpdater getMetadataUpdater(Updater u) throws InstantiationException, IllegalAccessException {
 		return updaters.get(u).newInstance();
 	}
-	
-	/**
+
+    /**
+     * Getting MetadataUpdater specified by Mnemonic
+     * @param s String (Mnemonic)
+     * @return MetadataUpdater
+     */
+    public Class<? extends MetadataUpdater> getMetadataUpdaterByMnemonic(String s) { 
+    	return updaters.get(getUpdaterByMnemonic(s)); }
+    
+    /**
 	 * Getting Updater specified by Mnemonic
 	 * @param updater String (Mnemonic)
 	 * @return Updater
@@ -124,10 +135,41 @@ public class UpdaterManager {
     } 
     
     /**
-     * Getting MetadataUpdater specified by Mnemonic
-     * @param s String (Mnemonic)
-     * @return MetadataUpdater
+     * Given a protocol, retrieve a list of the corresponding
+     * updaters.
+     * 
+     * @param protocol The protocol to find support for
+     * @return The known Updaters that support the protocol
      */
-    public Class<? extends MetadataUpdater> getMetadataUpdaterByMnemonic(String s) { 
-    	return updaters.get(getUpdaterByMnemonic(s)); }
+    public List<Updater> getUpdatersByProtocol(String protocol) {
+        List<Updater> upds = new ArrayList<Updater>();
+        
+        for (Updater u : getUpdaters()) {
+            for (String p : u.protocols()) {
+                if (protocol.equals(p)) {
+                    upds.add(u);
+                    break;
+                }
+            }
+        }
+        
+        return upds;
+    }
+ 
+    /**
+     * Retrieve a list of all known Updaters with a certain stage.
+     * 
+     * @param u The UpdaterStage to check for
+     * @return The known Updaters that have the same UpdaterStage
+     */
+    public List<Updater> getUpdatersByStage(UpdaterStage u) {
+        List<Updater> upds = new ArrayList<Updater>();
+       
+        for (Updater upd : getUpdaters()) {
+            if (upd.stage().equals(u))
+                upds.add(upd);
+        }
+        
+        return upds;
+    }
 }
