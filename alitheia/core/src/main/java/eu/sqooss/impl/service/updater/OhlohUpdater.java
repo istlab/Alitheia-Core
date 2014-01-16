@@ -116,22 +116,9 @@ public class OhlohUpdater extends UpdaterBaseJob {
         for (String file : f.listFilesExt(".xml")) {
             dbs.startDBSession();
             
-            String xmlFilePath = FileUtils.appendPath(f.getAbsolutePath(), file);
-            XMLReader xmlReader = new XMLReader(xmlFilePath);
-
-            //Parse the file
-            Document document = null;
-            try {
-                document = xmlReader.parse();
-            } catch (FileNotFoundException fex) {
-                logger.warn("Cannot read file " + f.getAbsolutePath() + 
-                        fex.toString());
-                continue;
-            } catch (DocumentException e) {
-                logger.warn("Cannot parse Ohloh file " + f.getAbsolutePath() 
-                        + " " + e.getMessage());
-                continue;
-            }
+            Document document = docFromXMLFile(f, file);
+            if (document == null)
+            	continue;
             
             Element root = (Element) document.getRootElement();
             Iterator i = root.element("result").elementIterator("account");
@@ -158,6 +145,30 @@ public class OhlohUpdater extends UpdaterBaseJob {
             }
             dbs.commitDBSession();
         }
+    }
+    
+    /**
+     * Construct a Document from an XML file in a certain folder.
+     * 
+     * @param folder The folder the file resides in
+     * @param file The file identifier relative to the folder
+     * @return The parsed Document DOM-tree corresponding to the file
+     */
+    private Document docFromXMLFile(Folder folder, String file){
+    	String absFolder = folder.getAbsolutePath();
+    	String xmlFilePath = FileUtils.appendPath(absFolder, file);
+        XMLReader xmlReader = new XMLReader(xmlFilePath);
+
+        Document document = null;
+        try {
+            document = xmlReader.parse();
+        } catch (FileNotFoundException fex) {
+            logger.warn("Cannot read file " + absFolder + fex.toString());
+        } catch (DocumentException e) {
+            logger.warn("Cannot parse Ohloh file " + absFolder + " " + e.getMessage());
+        }
+        
+        return document;
     }
     
     /**
