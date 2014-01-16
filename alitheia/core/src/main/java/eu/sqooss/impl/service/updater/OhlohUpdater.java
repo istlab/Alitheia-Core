@@ -53,6 +53,7 @@ import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.updater.UpdaterBaseJob;
 import eu.sqooss.service.util.FileUtils;
+import eu.sqooss.service.util.XMLReader;
 
 /**
  * Parses Ohloh account description files and stores them in the OhlohDeveloper
@@ -116,32 +117,16 @@ public class OhlohUpdater extends UpdaterBaseJob {
             }            
         });
         
-        
         for (String file : files) {
             dbs.startDBSession();
             
-            SAXReader reader = new SAXReader(false);
-            Document document = null;
-            
-            //Dummy entity resolver to avoid downloading the bugzilla DTD from 
-            //the web on parsing a bug
-            EntityResolver resolver = new EntityResolver() {
-                public InputSource resolveEntity(String publicId, String systemId) {
-                    InputStream in = new ByteArrayInputStream("".getBytes());
-                    return new InputSource(in);
-                }
-            };
-            
-            reader.setValidation(false);
-            reader.setEntityResolver(resolver);
-            reader.setIncludeExternalDTDDeclarations(false);
-            reader.setIncludeInternalDTDDeclarations(false);
-            reader.setStripWhitespaceText(true);
-            
+            String xmlFilePath = FileUtils.appendPath(f.getAbsolutePath(), file);
+            XMLReader xmlReader = new XMLReader(xmlFilePath);
+
             //Parse the file
+            Document document = null;
             try {
-                document = reader.read(new FileReader(
-                        FileUtils.appendPath(f.getAbsolutePath(), file)));
+                document = xmlReader.parse();
             } catch (FileNotFoundException fex) {
                 logger.warn("Cannot read file " + f.getAbsolutePath() + 
                         fex.toString());
