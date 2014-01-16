@@ -67,31 +67,31 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     private Logger logger = null;
     private AlitheiaCore core = null;
-    private BundleContext context;
     private DBService dbs = null;
     
-    /* Maps project-ids to the jobs that have been scheduled for 
-     * each update target*/
+    /** 
+     * Maps project-ids to the jobs that have been scheduled for 
+     * each update target
+     */
     private UpdateScheduler scheduledUpdates;
     
+    /**
+     * Maps updaters to their annotated properties
+     */
     private UpdaterManager manager;
 
     /* UpdaterService interface methods*/
     /** {@inheritDoc} */
     @Override
     public void registerUpdaterService(Class<? extends MetadataUpdater> clazz) {
-    	Updater u;
     	try {
-    		u = manager.addUpdater(clazz);
-    	}
-    	catch (UpdaterException e) {
+    		Updater u = manager.addUpdater(clazz);
+    		logger.info("Registering updater class " + clazz.getCanonicalName() + 
+                    " for protocols (" + Arrays.toString(u.protocols()) +
+                    ") and stage " + u.stage());
+    	} catch (UpdaterException e) {
     		logger.error(e.getMessage());
-    		return;
     	}
-            
-        logger.info("Registering updater class " + clazz.getCanonicalName() + 
-                " for protocols (" + Arrays.toString(u.protocols()) +
-                ") and stage " + u.stage());
     }
 
     /** {@inheritDoc} */
@@ -214,7 +214,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     @Override
     public void setInitParams(BundleContext bc, Logger l) {
-        this.context = bc;
         this.logger = l;
     }
 
