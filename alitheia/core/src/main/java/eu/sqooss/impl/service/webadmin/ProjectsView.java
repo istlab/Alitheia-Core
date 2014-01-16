@@ -495,10 +495,10 @@ public class ProjectsView extends AbstractView {
     	// "Plug-in hashcode" input field
     	vc.put("REQ_PAR_SYNC_PLUGIN", REQ_PAR_SYNC_PLUGIN);
         
-    	// return the local velocity context
-//        return vc; 
-    	//create actual string.
-    	b.append(velocityContextToString(vc, "projectsView.html"));
+    	// test partial template for testcases
+    	b.append(velocityContextToString("projectsView.html"));
+    	
+    	// nothing to return
     }
 
     

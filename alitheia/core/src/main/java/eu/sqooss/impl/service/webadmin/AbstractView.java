@@ -385,7 +385,7 @@ public abstract class AbstractView {
     	return field;
     }
     
-    protected String velocityContextToString(VelocityContext context, String templateName){
+    protected String velocityContextToString(String templateName){
         Template template = AdminServlet.getVelocityEngine().getTemplate(templateName);
         StringWriter writer = new StringWriter();
         template.merge(vc, writer);

@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,14 +60,13 @@ public class PluginsView extends AbstractView{
 
     /**
      * Renders the various plug-in's views.
-     * 
+     *
      * @param req the servlet's request object
-     * 
+     *
      * @return The HTML presentation of the generated view.
      */
     public String render(HttpServletRequest req) {
         // Stores the assembled HTML content
-        VelocityContext vcLocal = new VelocityContext();//this.vc;
         // Stores the accumulated error messages
         StringBuilder e = new StringBuilder();
         // Indentation spacer
@@ -104,7 +103,7 @@ public class PluginsView extends AbstractView{
 
         // Proceed only when at least one plug-in is registered
         if (sobjPA.listPlugins().isEmpty()) {
-        	vcLocal.put("noPluginsAvailable",true);
+        	vc.put("noPluginsAvailable",true);
         }
         else {
             // ===============================================================
@@ -150,7 +149,7 @@ public class PluginsView extends AbstractView{
                     // =======================================================
                     else if (reqValAction.equals(actValUninstall)) {
                         pluginUninstallRequest(e, reqValHashcode);
-                    } 
+                    }
                 }
                 // Retrieve the selected plug-in's info object
                 if (reqValHashcode != null) {
@@ -200,7 +199,7 @@ public class PluginsView extends AbstractView{
             // ===============================================================
             // Display the accumulated error messages (if any)
             // ===============================================================
-            vcLocal.put("ERRORS",errorFieldset(e, in));
+            vc.put("ERRORS",errorFieldset(e, in));
 
             // ===============================================================
             // "Create/update configuration property" editor
@@ -208,7 +207,7 @@ public class PluginsView extends AbstractView{
             if ((selPI != null) && (selPI.installed)
                     && ((reqValAction.equals(actValReqAddProp))
                             || (reqValAction.equals(actValReqUpdProp)))) {
-                createUpdateConfigurationProperty(vcLocal, in, reqParAction,
+                createUpdateConfigurationProperty(in, reqParAction,
 						reqParPropName, reqParPropDescr, reqParPropType,
 						reqParPropValue, actValConAddProp, actValConRemProp,
 						reqValPropName, reqValPropDescr, reqValPropType,
@@ -218,7 +217,7 @@ public class PluginsView extends AbstractView{
             // Plug-in editor
             // ===============================================================
             else if (selPI != null) {
-                pluginEditForm(vcLocal, in, reqParAction, reqParHashcode,
+                pluginEditForm(in, reqParAction, reqParHashcode,
 						reqParPropName, reqParPropDescr, reqParPropType,
 						reqParPropValue, actValInstall, actValUninstall,
 						actValSync, actValReqAddProp, actValReqUpdProp, selPI);
@@ -227,36 +226,37 @@ public class PluginsView extends AbstractView{
             // Plug-ins list
             // ===============================================================
             else {
-                pluginList(vcLocal, in, reqParHashcode, reqParShowProp,
+                pluginList(in, reqParHashcode, reqParShowProp,
 						reqParShowActv, reqValShowProp, reqValShowActv);
             }
-            
-            vcLocal.put("reqParAction",reqParAction);
-            vcLocal.put("reqParHashcode",reqParHashcode);
-            vcLocal.put("reqParPropName",reqParPropName);
-            vcLocal.put("reqParPropDescr",reqParPropDescr);
-            vcLocal.put("reqParPropType",reqParPropType);
-            vcLocal.put("reqParPropValue",reqParPropValue);
-            vcLocal.put("reqParShowProp",reqParShowProp);
-            vcLocal.put("reqParShowActv",reqParShowActv);
-            vcLocal.put("actValInstall",actValInstall);
-            vcLocal.put("actValUninstall",actValUninstall);
-            vcLocal.put("actValSync",actValSync);
-            vcLocal.put("actValReqAddProp",actValReqAddProp);
-            vcLocal.put("actValReqUpdProp",actValReqUpdProp);
-            vcLocal.put("actValConAddProp",actValConAddProp);
-            vcLocal.put("actValConRemProp",actValConRemProp);
-            vcLocal.put("reqValAction",reqValAction);
-            vcLocal.put("reqValHashcode",reqValHashcode);
-            vcLocal.put("reqValPropName",reqValPropName);
-            vcLocal.put("reqValPropDescr",reqValPropDescr);
-            vcLocal.put("reqValPropType",reqValPropType);
-            vcLocal.put("reqValPropValue",reqValPropValue);
-            vcLocal.put("reqValShowProp",reqValShowProp);
-            vcLocal.put("reqValShowActv",reqValShowActv);
-        }
 
-        return velocityContextToString(vcLocal, "pluginsView.html");
+            vc.put("reqParAction",reqParAction);
+            vc.put("reqParHashcode",reqParHashcode);
+            vc.put("reqParPropName",reqParPropName);
+            vc.put("reqParPropDescr",reqParPropDescr);
+            vc.put("reqParPropType",reqParPropType);
+            vc.put("reqParPropValue",reqParPropValue);
+            vc.put("reqParShowProp",reqParShowProp);
+            vc.put("reqParShowActv",reqParShowActv);
+            vc.put("actValInstall",actValInstall);
+            vc.put("actValUninstall",actValUninstall);
+            vc.put("actValSync",actValSync);
+            vc.put("actValReqAddProp",actValReqAddProp);
+            vc.put("actValReqUpdProp",actValReqUpdProp);
+            vc.put("actValConAddProp",actValConAddProp);
+            vc.put("actValConRemProp",actValConRemProp);
+            vc.put("reqValAction",reqValAction);
+            vc.put("reqValHashcode",reqValHashcode);
+            vc.put("reqValPropName",reqValPropName);
+            vc.put("reqValPropDescr",reqValPropDescr);
+            vc.put("reqValPropType",reqValPropType);
+            vc.put("reqValPropValue",reqValPropValue);
+            vc.put("reqValShowProp",reqValShowProp);
+            vc.put("reqValShowActv",reqValShowActv);
+        }
+        
+
+        return velocityContextToString("pluginsView.html");
     }
 
 	/**
@@ -269,7 +269,7 @@ public class PluginsView extends AbstractView{
 	 * @param reqValShowActv
 	 * @return
 	 */
-	private void pluginList(VelocityContext vcLocal, long in, String reqParHashcode,
+	private void pluginList(long in, String reqParHashcode,
 			String reqParShowProp, String reqParShowActv,
 			boolean reqValShowProp, boolean reqValShowActv) {
 
@@ -277,8 +277,7 @@ public class PluginsView extends AbstractView{
 		Collection<PluginInfo> l = sobjPA.listPlugins();
 		List<Map<String,Object>> installedPlugins = new ArrayList<Map<String,Object>>();
 		List<Map<String,Object>> notInstalledPlugins = new ArrayList<Map<String,Object>>();
-//		VelocityContext vcLocal = new VelocityContext();
-		vcLocal.put("reqParHashcode", reqParHashcode);
+		vc.put("reqParHashcode", reqParHashcode);
 		for(PluginInfo i : l) {
 			Map<String,Object> plugin= new HashMap<String,Object>();
 	    	plugin.put("name", i.getPluginName()+"");
@@ -292,17 +291,17 @@ public class PluginsView extends AbstractView{
 	        }else{
 	        	installedPlugins.add(plugin);
 	        }
-	        
+
 		}
-		vcLocal.put("reqParShowProp", reqParShowProp);
-		vcLocal.put("reqParShowActv", reqParShowActv);
-		vcLocal.put("installedPlugins",installedPlugins);
-		vcLocal.put("notInstalledPlugins", notInstalledPlugins);
-		vcLocal.put("showActivitiesChecked",(reqValShowActv) ? "checked" : "");
-		vcLocal.put("showPropertiesChecked",(reqValShowProp) ? "checked" : "");
-		vcLocal.put("showActivators",reqValShowActv);
-		vcLocal.put("showProperties",reqValShowProp);
-		vcLocal.put("currentPluginTemplate", "pluginList.html");
+		vc.put("reqParShowProp", reqParShowProp);
+		vc.put("reqParShowActv", reqParShowActv);
+		vc.put("installedPlugins",installedPlugins);
+		vc.put("notInstalledPlugins", notInstalledPlugins);
+		vc.put("showActivitiesChecked",(reqValShowActv) ? "checked" : "");
+		vc.put("showPropertiesChecked",(reqValShowProp) ? "checked" : "");
+		vc.put("showActivators",reqValShowActv);
+		vc.put("showProperties",reqValShowProp);
+		vc.put("currentPluginTemplate", "pluginList.html");
 	}
 
 	/**
@@ -322,47 +321,47 @@ public class PluginsView extends AbstractView{
 	 * @param selPI
 	 * @return
 	 */
-	private void pluginEditForm(VelocityContext vcLocal, long in, String reqParAction,
+	private void pluginEditForm(long in, String reqParAction,
 			String reqParHashcode, String reqParPropName,
 			String reqParPropDescr, String reqParPropType,
 			String reqParPropValue, String actValInstall,
 			String actValUninstall, String actValSync, String actValReqAddProp,
 			String actValReqUpdProp, PluginInfo selPI) {
 		// Create the plug-in field-set
-		vcLocal.put("pluginStatus",(selPI.installed) ? "Installed" : "Registered");
-		vcLocal.put("pluginName", selPI.getPluginName()+"");
-		vcLocal.put("pluginClass", StringUtils.join((String[]) (selPI.getServiceRef().getProperty(Constants.OBJECTCLASS)),",")+"");
-		vcLocal.put("pluginVersion", selPI.getPluginVersion()+"");
-		vcLocal.put("installed", selPI.installed);
-		vcLocal.put("pluginHashcode", selPI.getHashcode()+"");
-		vcLocal.put("reqParAction",reqParAction);
-		vcLocal.put("reqParHashcode",reqParHashcode);
-		vcLocal.put("reqParPropName",reqParPropName);
-		vcLocal.put("reqParPropDescr",reqParPropDescr);
-		vcLocal.put("reqParPropType",reqParPropType);
-		vcLocal.put("reqParPropValue",reqParPropValue);
-		vcLocal.put("actValInstall",actValInstall);
-		vcLocal.put("actValUninstall",actValUninstall);
-		vcLocal.put("actValSync",actValSync);
-		vcLocal.put("actValReqAddProp",actValReqAddProp);
-		vcLocal.put("actValReqUpdProp",actValReqUpdProp);
+		vc.put("pluginStatus",(selPI.installed) ? "Installed" : "Registered");
+		vc.put("pluginName", selPI.getPluginName()+"");
+		vc.put("pluginClass", StringUtils.join((String[]) (selPI.getServiceRef().getProperty(Constants.OBJECTCLASS)),",")+"");
+		vc.put("pluginVersion", selPI.getPluginVersion()+"");
+		vc.put("installed", selPI.installed);
+		vc.put("pluginHashcode", selPI.getHashcode()+"");
+		vc.put("reqParAction",reqParAction);
+		vc.put("reqParHashcode",reqParHashcode);
+		vc.put("reqParPropName",reqParPropName);
+		vc.put("reqParPropDescr",reqParPropDescr);
+		vc.put("reqParPropType",reqParPropType);
+		vc.put("reqParPropValue",reqParPropValue);
+		vc.put("actValInstall",actValInstall);
+		vc.put("actValUninstall",actValUninstall);
+		vc.put("actValSync",actValSync);
+		vc.put("actValReqAddProp",actValReqAddProp);
+		vc.put("actValReqUpdProp",actValReqUpdProp);
 		if(selPI.installed){
 			List<Map<String,String>> pluginConfigurations = new ArrayList<Map<String,String>>();
 			for(PluginConfiguration config  : Plugin.getPluginByHashcode(selPI.getHashcode()).getConfigurations())
 				pluginConfigurations.add(addPluginConfiguration(config));
-			vcLocal.put("pluginConfigurations", pluginConfigurations);
-			
+			vc.put("pluginConfigurations", pluginConfigurations);
+
 			List<Map<String,String>> metricList = new ArrayList<Map<String,String>>();
 			List<Metric> metrics = sobjPA.getPlugin(selPI).getAllSupportedMetrics();
 			if(metrics != null){
 				for(Metric metric : metrics)
 					metricList.add(addMetricProperties(metric));
-				vcLocal.put("metricList", metricList);
+				vc.put("metricList", metricList);
 			}
 		}
-		vcLocal.put("currentPluginTemplate","pluginEditor.html");
+		vc.put("currentPluginTemplate","pluginEditor.html");
 	}
-	
+
 	private Map<String,String> addMetricProperties(Metric metric){
 		Map<String,String> result = new HashMap<String,String>();
 		//append empty string to convert null to string
@@ -372,7 +371,7 @@ public class PluginsView extends AbstractView{
 		result.put("description",metric.getDescription()+"");
 		return result;
 	}
-	
+
 	private Map<String,String> addPluginConfiguration(PluginConfiguration config){
 		Map<String,String> result = new HashMap<String,String>();
 		//append empty string to convert null to string
@@ -401,7 +400,7 @@ public class PluginsView extends AbstractView{
 	 * @param selPI
 	 * @return
 	 */
-	private void createUpdateConfigurationProperty(VelocityContext vcLocal, long in,
+	private void createUpdateConfigurationProperty(long in,
 			String reqParAction, String reqParPropName, String reqParPropDescr,
 			String reqParPropType, String reqParPropValue,
 			String actValConAddProp, String actValConRemProp,
@@ -412,23 +411,23 @@ public class PluginsView extends AbstractView{
 		boolean update = selPI.hasConfProp(
 		        reqValPropName, reqValPropType);
 		if(update)
-			vcLocal.put("update",update);
-		vcLocal.put("updateText", (update) ? "Update property of ": "Create property for ");
-		vcLocal.put("pluginName", selPI.getPluginName()+"");
-		vcLocal.put("propertyName", reqParPropName);
-		vcLocal.put("propertyNameValue", (reqValPropName != null) ? reqValPropName : "");
-		vcLocal.put("propertyDescriptionValue",  (reqValPropName != null) ? reqValPropName : "");
-		vcLocal.put("propertyDescription", reqParPropDescr);
-		vcLocal.put("propertyTypeValue", (reqValPropType != null) ? reqValPropType : "");
-		vcLocal.put("propertyType",reqParPropType);
-		vcLocal.put("configurationTypes", ConfigurationType.values());
-		vcLocal.put("propertyValueValue", (reqValPropValue != null) ? reqValPropValue : "");
-		vcLocal.put("propertyValue", reqParPropValue);
-		vcLocal.put("createButtonText", ((update) ? "Update" : "Create"));
-		vcLocal.put("actionId",reqParAction);
-		vcLocal.put("actionRemove",actValConRemProp);
-		vcLocal.put("actionAdd", actValConAddProp);
-		vcLocal.put("currentPluginTemplate", "createUpdateConfigurationProperty.html");
+			vc.put("update",update);
+		vc.put("updateText", (update) ? "Update property of ": "Create property for ");
+		vc.put("pluginName", selPI.getPluginName()+"");
+		vc.put("propertyName", reqParPropName);
+		vc.put("propertyNameValue", (reqValPropName != null) ? reqValPropName : "");
+		vc.put("propertyDescriptionValue",  (reqValPropName != null) ? reqValPropName : "");
+		vc.put("propertyDescription", reqParPropDescr);
+		vc.put("propertyTypeValue", (reqValPropType != null) ? reqValPropType : "");
+		vc.put("propertyType",reqParPropType);
+		vc.put("configurationTypes", ConfigurationType.values());
+		vc.put("propertyValueValue", (reqValPropValue != null) ? reqValPropValue : "");
+		vc.put("propertyValue", reqParPropValue);
+		vc.put("createButtonText", ((update) ? "Update" : "Create"));
+		vc.put("actionId",reqParAction);
+		vc.put("actionRemove",actValConRemProp);
+		vc.put("actionAdd", actValConAddProp);
+		vc.put("currentPluginTemplate", "createUpdateConfigurationProperty.html");
 	}
 
 	/**
