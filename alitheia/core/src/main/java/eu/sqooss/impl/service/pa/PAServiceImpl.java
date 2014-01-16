@@ -233,8 +233,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 new PluginInfo(sobjPlugin.getConfigurationSchema(), sobjPlugin);
             pluginInfo.setServiceRef(srefPlugin);
             pluginInfo.setHashcode(sobjPlugin.getUniqueKey());
-            // Mark as not installed
-            pluginInfo.installed = false;
+            pluginInfo.uninstall();
             return pluginInfo;
         }
 
@@ -263,8 +262,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
                 new PluginInfo(p.getConfigurations(), sobjPlugin);
             pluginInfo.setServiceRef(srefPlugin);
             pluginInfo.setHashcode(p.getHashcode());
-            // Mark as installed
-            pluginInfo.installed = true;
+            pluginInfo.install();
             return pluginInfo;
         }
 
@@ -526,7 +524,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         while (plugins.hasNext()) {
             PluginInfo pi = plugins.next();
-            if ((pi.installed)
+            if ((pi.isInstalled())
                     && (pi.isActivationType(o))
                     && (pi.getServiceRef() != null)) {
                 matching.add(pi);
@@ -576,7 +574,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
             return;
         }
         // Check for installed metric plug-in
-        if (pi.installed) {
+        if (pi.isInstalled()) {
             ServiceReference srefPlugin = pi.getServiceRef();
             Plugin pDao = pluginRefToPluginDAO(srefPlugin);
             pi = createInstalledPI(srefPlugin, pDao);
@@ -603,7 +601,7 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
         while (i.hasNext()) {
             PluginInfo pi = registeredPlugins.get(i.next());
             // Skip metric plug-ins that are registered but not installed
-            if (pi.installed) {
+            if (pi.isInstalled()) {
                 ServiceReference sr = pi.getServiceRef();
                 Plugin p = pluginRefToPluginDAO(sr);
                 Set<Metric> lm = p.getSupportedMetrics();

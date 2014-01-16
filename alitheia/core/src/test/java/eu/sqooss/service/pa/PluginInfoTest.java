@@ -4,7 +4,6 @@ import static org.powermock.api.mockito.PowerMockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,13 +15,10 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
-import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
 import junit.framework.TestCase;
 
 /**
  * The class <code>PluginInfoTest</code> contains tests for the class {@link <code>PluginInfo</code>}
- * 
- * @todo The PluginInfo class has a public 'installed' attribute, which is unused in the class itself...
  */
 public class PluginInfoTest extends TestCase {	
 	/**
@@ -67,10 +63,11 @@ public class PluginInfoTest extends TestCase {
 	 */
 	public void testGetConfPropId() {
 		assertNull(instance.getConfPropId(null, null));
+		assertNull(instance.getConfPropId("", null));
 		final String name = "testName";
 		assertNull(instance.getConfPropId(name, null));
-		final String type = "testType";
-		assertNull(instance.getConfPropId(type, null));
+		final ConfigurationType type = ConfigurationType.STRING;
+		assertNull(instance.getConfPropId(null, type));
 		assertNull(instance.getConfPropId(name, type));
 		
 		final PluginConfiguration property = mock(PluginConfiguration.class);
@@ -80,9 +77,11 @@ public class PluginInfoTest extends TestCase {
 		when(property.getType()).thenReturn(type);
 		config.add(property);
 		
-		assertNull(instance.getConfPropId("wrongName", "wrongType"));
-		assertNull(instance.getConfPropId(name, "wrongType"));
-		assertNull(instance.getConfPropId("wrongName", type));
+		final String otherName = "wrongName";
+		final ConfigurationType otherType = ConfigurationType.BOOLEAN; 
+		assertNull(instance.getConfPropId(otherName,otherType));
+		assertNull(instance.getConfPropId(name, otherType));
+		assertNull(instance.getConfPropId(otherName, type));
 		assertEquals(expected,instance.getConfPropId(name, type));
 	}
 
@@ -93,10 +92,11 @@ public class PluginInfoTest extends TestCase {
 	 */
 	public void testHasConfProp() {
 		assertFalse(instance.hasConfProp(null, null));
+		assertFalse(instance.hasConfProp("", null));
 		final String name = "testName";
 		assertFalse(instance.hasConfProp(name, null));
-		final String type = "testType";
-		assertFalse(instance.hasConfProp(type, null));
+		final ConfigurationType type = ConfigurationType.STRING;
+		assertFalse(instance.hasConfProp(null, type));
 		assertFalse(instance.hasConfProp(name, type));
 		
 		final PluginConfiguration property = mock(PluginConfiguration.class);
@@ -106,9 +106,11 @@ public class PluginInfoTest extends TestCase {
 		when(property.getType()).thenReturn(type);
 		config.add(property);
 		
-		assertFalse(instance.hasConfProp("wrongName", "wrongType"));
-		assertFalse(instance.hasConfProp(name, "wrongType"));
-		assertFalse(instance.hasConfProp("wrongName", type));
+		final String otherName = "wrongName";
+		final ConfigurationType otherType = ConfigurationType.BOOLEAN; 
+		assertFalse(instance.hasConfProp(otherName,otherType));
+		assertFalse(instance.hasConfProp(name, otherType));
+		assertFalse(instance.hasConfProp(otherName, type));
 		assertTrue(instance.hasConfProp(name, type));
 	}
 
@@ -117,23 +119,18 @@ public class PluginInfoTest extends TestCase {
 	 * 
 	 * If a PluginConfiguration with the given name exists in the current instance,
 	 * the DBService will be used to set the newVal for that name, after a type-check.
-	 * 
-	 * @todo Why general Exceptions (bad on themselves) AND a boolean return status?
-	 * @todo Why is the ConfigurationType used here, but not in PluginConfiguration->getType?
-	 * @todo When newvall is null, this might result in nullpointer exceptions (not checked)
 	 */
 	public void testUpdateConfigEntry() {
 		final DBService db = mock(DBService.class);
 		try {
-			instance.updateConfigEntry(db,null,null);
-			assertTrue(false);
+			assertFalse(instance.updateConfigEntry(db,null,null,null));
 		} catch (Exception e) {
-			assertNotNull(e); // expected
+			assertNull(e);
 		}
 		
 		final String name = "testName";
 		try {
-			assertFalse(instance.updateConfigEntry(db,name,null));
+			assertFalse(instance.updateConfigEntry(db,name,null,null));
 		} catch (Exception e) {
 			assertNull(e);
 		}
@@ -141,84 +138,121 @@ public class PluginInfoTest extends TestCase {
 		final PluginConfiguration property = mock(PluginConfiguration.class);
 		when(db.attachObjectToDBSession(property)).thenReturn(property);
 		when(property.getName()).thenReturn(name);
-		when(property.getType()).thenReturn("");
+		ConfigurationType type = ConfigurationType.BOOLEAN;
+		when(property.getType()).thenReturn(type);
 		config.add(property);
 		try {
-			instance.updateConfigEntry(db,name,null);
-			assertTrue(false);
+			assertFalse(instance.updateConfigEntry(db,name,null,null));
+		} catch (Exception e) {
+			assertNull(e);
+		}
+	
+		final String otherName = "otherName";
+		final ConfigurationType otherType = ConfigurationType.BOOLEAN;
+		try {
+			assertFalse(instance.updateConfigEntry(db,otherName,otherType,null));
+		} catch (Exception e) {
+			assertNull(e);
+		}
+		try {
+			assertFalse(instance.updateConfigEntry(db,otherName,type,null));
+		} catch (Exception e) {
+			assertNull(e);
+		}
+		try {
+			instance.updateConfigEntry(db,name,otherType,null);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		
-		when(property.getType()).thenReturn(ConfigurationType.BOOLEAN.toString());
-		try {
-			assertFalse(instance.updateConfigEntry(db,"wrongName",null));
-		} catch (Exception e) {
-			assertNull(e);
-		}
-		
 		String newVal = "test";
 		try {
-			instance.updateConfigEntry(db,name,newVal);
+			instance.updateConfigEntry(db,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		newVal = "true";
 		try {
-			assertTrue(instance.updateConfigEntry(db,name,newVal));
+			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
 			verify(property,times(1)).setValue(newVal);
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		newVal = "false";
 		try {
-			assertTrue(instance.updateConfigEntry(db,name,newVal));
+			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
 			verify(property,times(1)).setValue(newVal);
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		
-		when(property.getType()).thenReturn(ConfigurationType.INTEGER.toString());
+		type = ConfigurationType.INTEGER;
+		when(property.getType()).thenReturn(type);
 		newVal = "test";
 		try {
-			instance.updateConfigEntry(db,name,newVal);
+			instance.updateConfigEntry(db,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		newVal = "1";
 		try {
-			assertTrue(instance.updateConfigEntry(db,name,newVal));
+			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
 			verify(property,times(1)).setValue(newVal);
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		
-		when(property.getType()).thenReturn(ConfigurationType.DOUBLE.toString());
+		type = ConfigurationType.DOUBLE;
+		when(property.getType()).thenReturn(type);
 		newVal = "test";
 		try {
-			instance.updateConfigEntry(db,name,newVal);
+			instance.updateConfigEntry(db,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		newVal = "1.0";
 		try {
-			assertTrue(instance.updateConfigEntry(db,name,newVal));
+			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
 			verify(property,times(1)).setValue(newVal);
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		
-		when(property.getType()).thenReturn(ConfigurationType.STRING.toString());
+		type = ConfigurationType.STRING;
+		when(property.getType()).thenReturn(type);
 		newVal = "test";
 		try {
-			assertTrue(instance.updateConfigEntry(db,name,newVal));
+			assertTrue(instance.updateConfigEntry(db,name,type,newVal));
 			verify(property,times(1)).setValue(newVal);
 		} catch (Exception e) {
 			assertNull(e);
 		}
+		
+		final PluginConfiguration second = mock(PluginConfiguration.class);
+		when(db.attachObjectToDBSession(second)).thenReturn(second);
+		when(second.getName()).thenReturn(otherName);
+		when(second.getType()).thenReturn(type);
+		config.add(second);
+		final PluginConfiguration third = mock(PluginConfiguration.class);
+		when(db.attachObjectToDBSession(third)).thenReturn(third);
+		when(third.getName()).thenReturn(name);
+		when(third.getType()).thenReturn(otherType);
+		config.add(third);
+		final PluginConfiguration fourth = mock(PluginConfiguration.class);
+		when(db.attachObjectToDBSession(fourth)).thenReturn(fourth);
+		when(fourth.getName()).thenReturn(otherName);
+		when(fourth.getType()).thenReturn(otherType);
+		config.add(fourth);
+		newVal = "true";
+		try {
+			assertTrue(instance.updateConfigEntry(db,otherName,otherType,newVal));
+			verify(property,times(1)).setValue(newVal);
+		} catch (Exception e) {
+			assertNull(e);
+		}		
 	}
 
 	/**
@@ -227,23 +261,21 @@ public class PluginInfoTest extends TestCase {
 	 * When the given parameters are correct (type-checked and all), a new
 	 * PluginConfiguration using those parameters is created and passed to the given Plugin.
 	 * 
-	 * @note Replaced The first DBService entry (unused!) with a Plugin entry (non-static)
-	 * for testing purposes (and it seems better anyway)
-	 * 
 	 * @todo No DBService is actually used, only through some given Plugin or something? 
 	 * This is also inconsistent with the add/delete methods, and gives trouble when calling this...
-	 * @todo Way too many parameters, and why is type a string and not a ConfigurationType?
-	 * @todo Why general Exceptions (bad on themselves) AND a boolean return status?
-	 * @todo No local field is used; this should probably be in the PluginConfiguration class, 
-	 * as it creates a new PluginConfiguration (unchecked > untestable)
-	 * @todo Code duplication for the type-checking (with updateConfigEntry)
-	 * @todo Description is the third parameter but it is optional (and no overload present)
+	 * @todo Way too many parameters, and no local field is used
 	 */
 	@SuppressWarnings("unchecked")
 	public void testAddConfigEntry() {
 		final Plugin p = mock(Plugin.class);
 		try {
-			instance.addConfigEntry(p,null,null,null,null);
+			instance.addConfigEntry(p,null,null,null);
+			assertTrue(false);
+		} catch (Exception e) {
+			assertNotNull(e); // expected
+		}
+		try {
+			instance.addConfigEntry(p,"",null,null);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
@@ -251,29 +283,22 @@ public class PluginInfoTest extends TestCase {
 		
 		final String name = "testName";
 		try {
-			instance.addConfigEntry(p,name,null,null,null);
+			instance.addConfigEntry(p,name,null,null);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		
-		String type = "";
+		ConfigurationType type = ConfigurationType.BOOLEAN;
 		try {
-			instance.addConfigEntry(p,name,null,type,null);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		type = ConfigurationType.BOOLEAN.toString();
-		try {
-			instance.addConfigEntry(p,name,null,type,null);
+			instance.addConfigEntry(p,name,type,null);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		String newVal = "test";
 		try {
-			instance.addConfigEntry(p,name,null,type,newVal);
+			instance.addConfigEntry(p,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
@@ -285,55 +310,55 @@ public class PluginInfoTest extends TestCase {
 		
 		newVal = "true";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,null,type,newVal));
+			assertTrue(instance.addConfigEntry(p,name,type,newVal));
 			verify(mockSet,times(1)).add(Mockito.anyObject());
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		newVal = "false";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,null,type,newVal));
+			assertTrue(instance.addConfigEntry(p,name,type,newVal));
 			verify(mockSet,times(2)).add(Mockito.anyObject());
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		
-		type = ConfigurationType.INTEGER.toString();
+		type = ConfigurationType.INTEGER;
 		newVal = "test";
 		try {
-			instance.addConfigEntry(p,name,null,type,newVal);
+			instance.addConfigEntry(p,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		newVal = "1";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,null,type,newVal));
+			assertTrue(instance.addConfigEntry(p,name,type,newVal));
 			verify(mockSet,times(3)).add(Mockito.anyObject());
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		
-		type = ConfigurationType.DOUBLE.toString();
+		type = ConfigurationType.DOUBLE;
 		newVal = "test";
 		try {
-			instance.addConfigEntry(p,name,null,type,newVal);
+			instance.addConfigEntry(p,name,type,newVal);
 			assertTrue(false);
 		} catch (Exception e) {
 			assertNotNull(e); // expected
 		}
 		newVal = "1.0";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,null,type,newVal));
+			assertTrue(instance.addConfigEntry(p,name,type,newVal));
 			verify(mockSet,times(4)).add(Mockito.anyObject());
 		} catch (Exception e) {
 			assertNull(e);
 		}
 		
-		type = ConfigurationType.STRING.toString();
+		type = ConfigurationType.STRING;
 		newVal = "test";
 		try {
-			assertTrue(instance.addConfigEntry(p,name,"description",type,newVal));
+			assertTrue(instance.addConfigEntry(p,name,type,newVal,"description"));
 			verify(mockSet,times(5)).add(Mockito.anyObject());
 		} catch (Exception e) {
 			assertNull(e);
@@ -345,40 +370,16 @@ public class PluginInfoTest extends TestCase {
 	 * 
 	 * The given name and type are used to look-up an existing PluginConfiguration entry,
 	 * and when found, to delete it using the given DBService.
-	 * 
-	 * @todo Again, why is type a string?
-	 * @todo This uses getConfPropId, which already duplicates some of the parameter-checks done here
 	 */
 	public void testRemoveConfigEntry() {
 		final DBService db = mock(DBService.class);
-		try {
-			instance.removeConfigEntry(db,null,null);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
+		assertFalse(instance.removeConfigEntry(db,null,null));
 		
 		final String name = "testName";
-		try {
-			instance.removeConfigEntry(db,name,null);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
-		String type = "testType";
-		try {
-			instance.removeConfigEntry(db,name,type);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertNotNull(e); // expected
-		}
+		assertFalse(instance.removeConfigEntry(db,name,null));
 		
-		type = ConfigurationType.STRING.toString(); // doesn't matter
-		try {
-			assertFalse(instance.removeConfigEntry(db,name,type));
-		} catch (Exception e) {
-			assertNull(e);
-		}
+		ConfigurationType type = ConfigurationType.STRING; // doesn't matter
+		assertFalse(instance.removeConfigEntry(db,name,type));
 		
 		final PluginConfiguration property = mock(PluginConfiguration.class);
 		final Long id = Long.MAX_VALUE; 
@@ -386,24 +387,12 @@ public class PluginInfoTest extends TestCase {
 		when(property.getName()).thenReturn(name);
 		when(property.getType()).thenReturn(type);
 		config.add(property);
-		try {
-			assertFalse(instance.removeConfigEntry(db,name,type));
-		} catch (Exception e) {
-			assertNull(e);
-		}
+		assertFalse(instance.removeConfigEntry(db,name,type));
 		
 		when(db.findObjectById(PluginConfiguration.class, id)).thenReturn(property);
-		try {
-			assertFalse(instance.removeConfigEntry(db,name,type));
-		} catch (Exception e) {
-			assertNull(e);
-		}
+		assertFalse(instance.removeConfigEntry(db,name,type));
 		when(db.deleteRecord(property)).thenReturn(true);
-		try {
-			assertTrue(instance.removeConfigEntry(db,name,type));
-		} catch (Exception e) {
-			assertNull(e);
-		}
+		assertTrue(instance.removeConfigEntry(db,name,type));
 	}
 
 	/**
@@ -495,20 +484,50 @@ public class PluginInfoTest extends TestCase {
 	/**
 	 * Run the int compareTo(PluginInfo) method test
 	 * 
-	 * @todo Class implements getHashCode and compareTo, but no equals?
-	 * @todo This explicitly assumes both of the objects have a hashCode set (which is optional),
-	 * possibly leading to nullpointer exceptions.
+	 * Tests equals/hashcode as well
 	 */
 	public void testCompareTo() {
+		assertFalse(instance.equals(null));
+		assertFalse(instance.equals(""));
+		assertTrue(instance.equals(instance));
+		assertEquals(0,instance.hashCode());
+		
 		PluginInfo second = new PluginInfo();		
 		final String hash = "1";
 		second.setHashcode(hash);
 		
 		instance.setHashcode("");
+		assertFalse(instance.equals(second));
 		assertEquals(-1,instance.compareTo(second));
 		assertEquals(1,second.compareTo(instance));
 		
 		instance.setHashcode(hash);
+		assertTrue(instance.equals(second));
+		assertEquals(instance.hashCode(),second.hashCode());
 		assertEquals(0,instance.compareTo(second));
+		
+		instance.setHashcode(null);
+		assertFalse(instance.equals(second));
+		assertEquals(-1,instance.compareTo(second));
+		assertEquals(1,second.compareTo(instance));
+		second.setHashcode(null);
+		assertTrue(instance.equals(second));
+		assertEquals(instance.hashCode(),second.hashCode());
+		assertEquals(0,instance.compareTo(second));
+	}
+	
+	/**
+	 * Run the boolean isInstalled() method test
+	 * 
+	 * Automatically tests install/uninstall as well
+	 * 
+	 * installed is also a very simple flag; there's just a get and two set (3 lines of code)
+	 */
+	public void testIsInstalled() {
+		assertFalse(instance.isInstalled());
+		instance.install();
+		assertTrue(instance.isInstalled());
+		instance.uninstall();
+		assertFalse(instance.isInstalled());
 	}
 }

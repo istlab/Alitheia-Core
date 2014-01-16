@@ -47,8 +47,8 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.pa.ConfigurationType;
 import eu.sqooss.service.pa.PluginInfo;
-import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
 import eu.sqooss.service.util.StringUtils;
 
 public class PluginsView extends AbstractView{
@@ -94,7 +94,7 @@ public class PluginsView extends AbstractView{
         String reqValHashcode      = null;
         String reqValPropName      = null;
         String reqValPropDescr     = null;
-        String reqValPropType      = null;
+        ConfigurationType reqValPropType      = null;
         String reqValPropValue     = null;
         boolean reqValShowProp     = false;         // Show plug-in properties
         boolean reqValShowActv     = false;         // Show plug-in activators
@@ -149,7 +149,7 @@ public class PluginsView extends AbstractView{
                     // Name, description, type and value
                     reqValPropName  = req.getParameter(reqParPropName);
                     reqValPropDescr = req.getParameter(reqParPropDescr);
-                    reqValPropType  = req.getParameter(reqParPropType);
+                    reqValPropType  = ConfigurationType.valueOf(req.getParameter(reqParPropType)); 
                     reqValPropValue = req.getParameter(reqParPropValue);
                 }
                 // Retrieve the selected plug-in's hash code
@@ -188,7 +188,7 @@ public class PluginsView extends AbstractView{
                     selPI = sobjPA.getPluginInfo(reqValHashcode);
                 }
                 // Plug-in info based actions
-                if ((selPI != null) && (selPI.installed)) {
+                if ((selPI != null) && (selPI.isInstalled())) {
                     // =======================================================
                     // Plug-in synchronize (on all projects) request
                     // =======================================================
@@ -244,6 +244,7 @@ public class PluginsView extends AbstractView{
                                 if (selPI.updateConfigEntry(
                                         sobjDB,
                                         reqValPropName,
+                                        reqValPropType,
                                         reqValPropValue)) {
                                     // Update the Plug-in Admin's information
                                     sobjPA.pluginUpdated(
@@ -268,9 +269,9 @@ public class PluginsView extends AbstractView{
                                 if (selPI.addConfigEntry(
                                 		Plugin.getPluginByHashcode(selPI.getHashcode()),
                                         reqValPropName,
-                                        reqValPropDescr,
                                         reqValPropType,
-                                        reqValPropValue)) {
+                                        reqValPropValue,
+                                        reqValPropDescr)) {
                                     // Update the Plug-in Admin's information
                                     sobjPA.pluginUpdated(
                                             sobjPA.getPlugin(selPI));
@@ -313,7 +314,7 @@ public class PluginsView extends AbstractView{
             // ===============================================================
             // "Create/update configuration property" editor
             // ===============================================================
-            if ((selPI != null) && (selPI.installed)
+            if ((selPI != null) && (selPI.isInstalled())
                     && ((reqValAction.equals(actValReqAddProp))
                             || (reqValAction.equals(actValReqUpdProp)))) {
                 // Input field values are stored here
@@ -365,7 +366,7 @@ public class PluginsView extends AbstractView{
                                     + "</td>\n"
                                     + sp(--in) + "</tr>\n");
                 // Property's type
-                value = ((reqValPropType != null) ? reqValPropType : "");
+                value = ((reqValPropType != null) ? reqValPropType.toString() : "");
                 b.append(sp(in) + "<tr>\n"
                         + sp(++in)
                         + "<td class=\"borderless\" style=\"width:100px;\">"
@@ -484,7 +485,7 @@ public class PluginsView extends AbstractView{
                 b.append(sp(in++) + "<tr>\n");
                 // Plug-in state
                 b.append(sp(++in) + "<td>"
-                        + ((selPI.installed) 
+                        + ((selPI.isInstalled()) 
                                 ? "Installed" : "Registered")
                                 + "</td>\n");
                 // Plug-in name
@@ -512,7 +513,7 @@ public class PluginsView extends AbstractView{
                         + reqParHashcode + "').value='';"
                         + "document.metrics.submit();\""
                         + ">\n");
-                if (selPI.installed) {
+                if (selPI.isInstalled()) {
                     b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
@@ -564,7 +565,7 @@ public class PluginsView extends AbstractView{
                 //------------------------------------------------------------
                 // Registered metrics, activators and configuration 
                 //------------------------------------------------------------
-                if (selPI.installed) {
+                if (selPI.isInstalled()) {
                     //--------------------------------------------------------
                     // Create the metrics field-set
                     //--------------------------------------------------------
@@ -758,7 +759,7 @@ public class PluginsView extends AbstractView{
                 // Display not-installed plug-ins first
                 //------------------------------------------------------------
                 for(PluginInfo i : l) {
-                    if (i.installed == false) {
+                    if (!i.isInstalled()) {
                         b.append(sp(in) + "<tr class=\"edit\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"
@@ -793,7 +794,7 @@ public class PluginsView extends AbstractView{
                 // Installed plug-ins
                 //------------------------------------------------------------
                 for(PluginInfo i : l) {
-                    if (i.installed) {
+                    if (i.isInstalled()) {
                         b.append(sp(in) + "<tr class=\"edit\""
                                 + " onclick=\"javascript:"
                                 + "document.getElementById('"

@@ -76,6 +76,7 @@ import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivationException;
 import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.ConfigurationType;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
@@ -721,7 +722,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @param type The type of the configuration property
      */
     protected final void addConfigEntry(String name, String defValue,
-            String msg, PluginInfo.ConfigurationType type) {
+            String msg, ConfigurationType type) {
         // Retrieve the plug-in's info object
         PluginInfo pi = pa.getPluginInfo(getUniqueKey());
         // Will happen if called during bundle's startup
@@ -734,8 +735,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         // Modify the plug-in's configuration
         try {
             // Update property
-            if (pi.hasConfProp(name, type.toString())) {
-                if (pi.updateConfigEntry(db, name, defValue)) {
+            if (pi.hasConfProp(name, type)) {
+                if (pi.updateConfigEntry(db, name, type, defValue)) {
                     // Update the Plug-in Admin's information
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
@@ -746,7 +747,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             // Create property
             else {
                 if (pi.addConfigEntry(
-                        Plugin.getPluginByHashcode(pi.getHashcode()), name, msg, type.toString(), defValue)) {
+                        Plugin.getPluginByHashcode(pi.getHashcode()), name, type, defValue, msg)) {
                     // Update the Plug-in Admin's information
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }
@@ -769,7 +770,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     protected final void removeConfigEntry(
             String name,
-            PluginInfo.ConfigurationType type) {
+            ConfigurationType type) {
         // Retrieve the plug-in's info object
         PluginInfo pi = pa.getPluginInfo(getUniqueKey());
         // Will happen if called during bundle's startup
@@ -781,8 +782,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         }
         // Modify the plug-in's configuration
         try {
-            if (pi.hasConfProp(name, type.toString())) {
-                if (pi.removeConfigEntry(db, name, type.toString())) {
+            if (pi.hasConfProp(name, type)) {
+                if (pi.removeConfigEntry(db, name, type)) {
                     // Update the Plug-in Admin's information
                     pa.pluginUpdated(pa.getPlugin(pi));
                 }

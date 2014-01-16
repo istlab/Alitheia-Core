@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -45,6 +46,7 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.pa.ConfigurationType.InvalidValueForTypeException;
 import eu.sqooss.service.util.StringUtils;
 
 /**
@@ -60,35 +62,6 @@ import eu.sqooss.service.util.StringUtils;
  * instance.
  */
 public class PluginInfo implements Comparable<PluginInfo> {
-
-    /**
-     * This enumeration includes all permitted types of configuration values,
-     * that a metrics can support. The various configuration parameters and
-     * their values are used mostly from internal metric processes, like
-     * results rendering and validation.
-     */
-    public enum ConfigurationType {
-        INTEGER,
-        STRING,
-        BOOLEAN,
-        DOUBLE;
-
-        public static ConfigurationType fromString(String config) {
-            if (config.equals(BOOLEAN.toString()))
-                return BOOLEAN;
-
-            if (config.equals(STRING.toString()))
-                return STRING;
-
-            if (config.equals(INTEGER.toString()))
-                return INTEGER;
-           
-            if (config.equals(DOUBLE.toString()))
-            	return DOUBLE;
-
-            return null;
-        }
-    };
 
     /**
      * The service reference of the service that registered this metric
@@ -119,7 +92,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   <li>{@link FileGroupMetric}</li>
      * </ul>
      */
-    Set<Class<? extends DAObject>> activationTypes =
+    private Set<Class<? extends DAObject>> activationTypes =
         new HashSet<Class<? extends DAObject>>();
 
     /**
@@ -150,13 +123,13 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * plug-ins, and changed to <code>true</code> after the metric plug-in's
      * <code>install()</code> method is called (and successfully performed).
      */
-    public boolean installed = false;
+    private boolean installed = false;
 
     /**
      * Empty constructor.
      */
     public PluginInfo() {
-
+    	this(null,null);
     }
 
     /**
@@ -167,7 +140,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @param c - the list of configuration parameters
      */
     public PluginInfo(Set<PluginConfiguration> c) {
-        setPluginConfiguration(c);
+        this(c,null);
     }
 
     /**
@@ -202,9 +175,21 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @param p the plug-in 
      */
     public void setAlitheiaPlugin(AlitheiaPlugin p){
-    	setPluginName(p.getName());
-        setPluginVersion(p.getVersion());
-        setActivationTypes(p.getActivationTypes());
+    	this.pluginName = p.getName();
+        this.pluginVersion = p.getVersion();
+        this.activationTypes = p.getActivationTypes();
+    }
+    
+    public boolean isInstalled() {
+    	return this.installed;
+    }
+    
+    public void install(){
+    	this.installed = true;
+    }
+    
+    public void uninstall(){
+    	this.installed = false;
     }
 
     /**
@@ -225,17 +210,15 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @return The property's Id, or <code>null</code> if the property does
      *   not exist.
      */
-    public Long getConfPropId (String name, String type) {
-        // Check if all values are valid
-        if ((name == null) || (type == null)) {
-            return null;
-        }
-        // Search for a matching property
-        for (PluginConfiguration property : config) {
-            if ((property.getName().equals(name))
-                    && (property.getType().equals(type))) {
-                return property.getId();
-            }
+    public Long getConfPropId (String name, ConfigurationType type) {
+        // Check if all values are valid before going into a loop
+        if (isValidName(name) && type != null) {
+	        // Search for a matching property
+	        for (PluginConfiguration property : config) {
+	            if (property.getName().equals(name) && property.getType().equals(type)) {
+	                return property.getId();
+	            }
+	        }
         }
         return null;
     }
@@ -250,8 +233,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @return <code>true</code>, if such property is found,
      *   or <code>false</code> otherwise.
      */
-    public boolean hasConfProp (String name, String type) {
-        return ((getConfPropId(name, type) == null) ? false : true);
+    public boolean hasConfProp (String name, ConfigurationType type) {
+        return (getConfPropId(name, type) == null) ? false : true;
     }
 
     /**
@@ -260,6 +243,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @param db the DB components object
      * @param name the configuration property's name
+     * @param type the configuration property's type
      * @param newVal the new value, that should be assigned to the
      *   selected configuration property
      *
@@ -269,52 +253,22 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @throws <code>Exception</code> upon incorrect value's syntax, or
      *   invalid property's type.
      */
-    public boolean updateConfigEntry(DBService db, String name, String newVal)
-        throws Exception {
-        // Check for an invalid name
-        if (name == null) {
-            throw new Exception("Invalid name!");
-        }
-        // Check if such configuration property exists
-        for (PluginConfiguration pc : config) {
-            if (pc.getName().equals(name)) {
-                // Retrieve the configuration property's type
-                ConfigurationType type =
-                    ConfigurationType.fromString(pc.getType());
-                // Check for invalid type
-                if (type == null) {
-                    throw new Exception("Invalid property's type!");
-                }
-                // Check for a boolean type
-                else if (type.equals(ConfigurationType.BOOLEAN)) {
-                    if ((newVal.equals("true") == false)
-                            && (newVal.equals("false") == false)) {
-                        throw new Exception("Not a valid boolean value!");
-                    }
-                }
-                // Check for an integer type
-                else if (type.equals(ConfigurationType.INTEGER)) {
-                    try {
-                        Integer.valueOf(newVal);
-                    } catch (NumberFormatException nfe) {
-                        throw new Exception("Not a valid integer value!");
-                    }
-                }
-                
-                // Check for a double type
-                else if (type.equals(ConfigurationType.DOUBLE)) {
-                    try {
-                        Double.valueOf(newVal);
-                    } catch (NumberFormatException nfe) {
-                        throw new Exception("Not a valid double value!");
-                    }
-                }
-
-                // Update the given configuration property
-                pc = db.attachObjectToDBSession(pc);
-                pc.setValue(newVal);
-                return true;
-            }
+    public boolean updateConfigEntry(DBService db, String name, ConfigurationType type, String newVal)
+        throws InvalidValueForTypeException {
+    	// Check if all values are valid before going into a loop
+        if (isValidName(name) && type != null) {
+	        // Check if such configuration property exists
+	        for (PluginConfiguration pc : config) {
+	            if (pc.getName().equals(name) && pc.getType().equals(type)) {	                
+	                // Validate the new value for the type
+	                type.checkValue(newVal);
+	
+	                // Update the given configuration property
+	                pc = db.attachObjectToDBSession(pc);
+	                pc.setValue(newVal);
+	                return true;
+	            }
+	        }
         }
         return false;
     }
@@ -325,9 +279,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @param p the relevant plug-in
      * @param name the configuration property's name
-     * @param description the configuration property's description
      * @param type the configuration property's type
      * @param value the configuration property's value
+     * @param description the configuration property's description
      *
      * @return <code>true</code> upon successful append, of <code>false</code>
      *   when a corresponding database record can not be created.
@@ -338,60 +292,38 @@ public class PluginInfo implements Comparable<PluginInfo> {
     public boolean addConfigEntry(
             Plugin p,
             String name,
-            String description,
-            String type,
-            String value)
-    throws Exception {
-        // Check for an invalid name
-        if (name == null) {
-            throw new Exception("Invalid name!");
+            ConfigurationType type,
+            String value,
+            String description)
+    throws IllegalArgumentException, InvalidValueForTypeException {
+        // Check for invalid (null) properties
+    	if (!isValidName(name)) {
+        	throw new IllegalArgumentException("Name cannot be null or empty!");
+        } else if( type == null ) {
+        	throw new IllegalArgumentException("Type cannot be null!");
         }
 
-        // Check for invalid type
-        if ((type == null)
-                || (ConfigurationType.fromString(type) == null)) {
-            throw new Exception("Invalid type!");
-        }
-
-        // Check for invalid value
-        if (value == null) {
-            throw new Exception("Invalid value!");
-        }
-        // Check for invalid boolean value
-        else if (type.equals(ConfigurationType.BOOLEAN.toString())) {
-            if ((value.equals("true") == false)
-                    && (value.equals("false") == false)) {
-                throw new Exception("Not a valid boolean value!");
-            }
-        }
-        // Check for an invalid integer value
-        else if (type.equals(ConfigurationType.INTEGER.toString())) {
-            try {
-                Integer.valueOf(value);
-            } catch (NumberFormatException nfe) {
-                throw new Exception("Not a valid integer value!");
-            }
-        }
-     
-     // Check for an invalid double value
-        else if (type.equals(ConfigurationType.DOUBLE.toString())) {
-            try {
-                Double.valueOf(value);
-            } catch (NumberFormatException nfe) {
-                throw new Exception("Not a valid double value!");
-            }
-        }
+        // Validate the value for the type
+        type.checkValue(value);
 
         // Add the new configuration property
-        PluginConfiguration newParam =
-            new PluginConfiguration();
+        PluginConfiguration newParam = new PluginConfiguration();
         newParam.setName(name);
         newParam.setMsg((description != null) ? description : "");
         newParam.setType(type);
         newParam.setValue(value);
         newParam.setPlugin(p);
         return p.getConfigurations().add(newParam);
-}
+    }
+    
+    public boolean addConfigEntry(
+            Plugin p,
+            String name,
+            ConfigurationType type,
+            String value)
+    throws IllegalArgumentException, InvalidValueForTypeException {
+    	return this.addConfigEntry(p,name,type,value,null);
+    }
 
     /**
      * Removes an existing configuration property of this metric plug-in by
@@ -409,91 +341,41 @@ public class PluginInfo implements Comparable<PluginInfo> {
     public boolean removeConfigEntry(
             DBService db,
             String name,
-            String type)
-    throws Exception {
-        // Check for an invalid name
-        if (name == null) {
-            throw new Exception("Invalid name!");
-        }
-
-        // Check for invalid type
-        if ((type == null)
-                || (ConfigurationType.fromString(type) == null)) {
-            throw new Exception("Invalid type!");
-        }
-
+            ConfigurationType type) {
         // Get the property's Id
         Long propId = getConfPropId(name, type);
         if (propId != null) {
             // Remove the specified configuration property
             PluginConfiguration prop = db.findObjectById(
                     PluginConfiguration.class, propId);
-            if ((prop != null) && (db.deleteRecord(prop))) {
-                return true;
-            }
+            if (prop != null )
+                return db.deleteRecord(prop);
         }
 
         return false;
-}
-
-    /**
-     * Sets the metric's name. In practice the <code>metricName</code>
-     * parameter must be equal with the name of the associated metric
-     * plug-in.
-     *
-     * @param metricName - the metric name
-     */
-    public void setPluginName(String metricName) {
-        this.pluginName = metricName;
     }
 
     /**
-     * Returns the metric name stored in this <code>MetricInfo</code>
-     * object.
+     * Returns the plugin's name stored in this object.
      *
-     * @return Metric name.
+     * @return Corresponding plug-in's name.
      */
     public String getPluginName() {
         return pluginName;
     }
 
     /**
-     * Sets the metric's version. In practice the <code>metricVersion</code>
-     * parameter must be equal with the version of the associated metric
-     * plug-in.
+     * Returns the version stored in this <object.
      *
-     * @param metricVersion - a metric version
-     */
-    public void setPluginVersion(String metricVersion) {
-        this.pluginVersion = metricVersion;
-    }
-
-    /**
-     * Returns the metric version stored in this <code>MetricInfo</code>
-     * object.
-     *
-     * @return Metric version.
+     * @return Corresponding plug-in's version.
      */
     public String getPluginVersion() {
         return pluginVersion;
     }
 
     /**
-     * Sets the list of supported activation interfaces (types). In practice
-     * the given list must contain the same entries like those supported by
-     * the associated metric plug-in.<br/>
-     * <br/>
-     * Note: Any previous entries in this list will be deleted by this action.
-     *
-     * @param l - the list of supported activation interfaces
-     */
-    public void setActivationTypes(Set<Class<? extends DAObject>> l) {
-        this.activationTypes = l;
-    }
-
-    /**
-     * Returns the list off all activation interfaces (types) supported by the
-     * associated metric plug-in.
+     * Returns the list off all activation interfaces (types) 
+     * supported by the associated plug-in.
      *
      * @return - the list of supported activation interfaces
      */
@@ -519,8 +401,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * in the list, or <code>false</code> otherwise.
      */
     public boolean isActivationType(Class<? extends DAObject> o) {
-        // Compare the activation list's entries to the given activation
-        // interface, until a match is found
+        // Compare the activation list's entries to the given activation interface, 
+    	// until a match is found
         Iterator<Class<? extends DAObject>> i =
             this.activationTypes.iterator();
         while (i.hasNext()) {
@@ -551,10 +433,10 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     /**
-     * Sets the hash code's value of this <code>MetricInfo</code> instance.
+     * Sets the hash code's value of this <code>PluginInfo</code> instance.
      * <br/>
      * The value must be unique, which means that no other
-     * <code>MetricInfo</code> with the same hash code should be kept by
+     * <code>PluginInfo</code> with the same hash code should be kept by
      * the <code>PluginAdmin</code> instance that created this object.
      *
      * @param hashcode - the hash code's value of this object
@@ -578,6 +460,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *
      * @return The text representation of this object.
      */
+    @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
         // Add the metric plug-in's name
@@ -610,8 +493,49 @@ public class PluginInfo implements Comparable<PluginInfo> {
         return b.toString();
     }
 
+    @Override
 	public int compareTo(PluginInfo pi) {
-		return hashcode.compareTo(pi.hashcode);
+		String other = pi.getHashcode();
+		if( hashcode == null && other == null ){
+			return 0;
+		} else if (hashcode == null ^ other == null) {
+	        return (hashcode == null) ? -1 : 1;
+	    } else {
+	    	return hashcode.compareTo(other);
+	    }
+	}
+	
+	@Override
+	public int hashCode() {
+		return (hashcode == null) ? 0 : hashcode.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		else if (obj == null) {
+			return false;
+		}
+		else if (!(obj instanceof PluginInfo)) {
+			return false;
+		}
+		else {
+			PluginInfo other = (PluginInfo) obj;
+			if (hashcode == null) {
+				if (other.hashcode != null) {
+					return false;
+				}
+			} else if (!hashcode.equals(other.hashcode)) {
+				return false;
+			}
+			return true;
+		}
+	}
+
+	private static boolean isValidName(String name){
+		return name != null && !name.trim().isEmpty();
 	}
 }
 

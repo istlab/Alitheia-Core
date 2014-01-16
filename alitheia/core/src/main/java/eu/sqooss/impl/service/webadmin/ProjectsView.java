@@ -618,7 +618,7 @@ public class ProjectsView extends AbstractView {
             Collection<PluginInfo> metrics,
             StringBuilder b) {
         for(PluginInfo m : metrics) {
-            if (m.installed) {
+            if (m.isInstalled()) {
                 b.append("<tr>\n");
                 b.append(sp(1) + "<td colspan=\"7\""
                         + " class=\"noattr\">\n"

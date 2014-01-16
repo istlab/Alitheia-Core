@@ -48,6 +48,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.pa.ConfigurationType;
 
 @Entity
 @Table(name="PLUGIN_CONFIGURATION")
@@ -90,12 +91,12 @@ public class PluginConfiguration extends DAObject {
         this.value = value;
     }
 
-    public String getType() {
-        return type;
+    public ConfigurationType getType() {
+        return ConfigurationType.valueOf(type);
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setType(ConfigurationType type) {
+        this.type = type.name();
     }
 
     public Plugin getPlugin() {
@@ -121,8 +122,8 @@ public class PluginConfiguration extends DAObject {
     public void setMsg(String msg) {
         this.msg = msg;
     }
-    
-    /**
+
+	/**
      * Get a PluginConfiguration entry DAO or null in 
      */
     public static PluginConfiguration getConfigurationEntry(Plugin p, HashMap<String, Object> names) {
