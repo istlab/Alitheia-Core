@@ -96,22 +96,8 @@ public class OhlohUpdater extends UpdaterBaseJob {
      */
     protected void run() throws Exception {
         Folder f = null;
-        try {
-        	f = new Folder(ohlohPath); 
-        	      	
-            if (!f.exists()) {
-                logger.error("Path" + ohlohPath
-                        + " does not exist or is not a directory");
-                throw new FileNotFoundException("Cannot find Ohloh XML files");
-            }
-        }
-        catch(NullPointerException n) {
-            logger.error("Cannot continue without a valid path to look into");
-            throw new FileNotFoundException("Cannot find Ohloh XML files");
-        }
-        finally {
-            //updater.removeUpdater(p, t);
-        }
+        
+        f = openFolder();
         
         for (String file : f.listFilesExt(".xml")) {
             dbs.startDBSession();
@@ -159,6 +145,32 @@ public class OhlohUpdater extends UpdaterBaseJob {
             dbs.commitDBSession();
         }
     }
+    
+    /**
+     * Private method for opening directory
+     * @return new Object
+     * @throws FileNotFoundException
+     */
+	private Folder openFolder() throws FileNotFoundException {
+		Folder f = null;
+		try {
+        	f = new Folder(ohlohPath); 
+        	      	
+            if (!f.exists()) {
+                logger.error("Path" + ohlohPath
+                        + " does not exist or is not a directory");
+                throw new FileNotFoundException("Cannot find Ohloh XML files");
+            }
+        }
+        catch(NullPointerException n) {
+            logger.error("Cannot continue without a valid path to look into");
+            throw new FileNotFoundException("Cannot find Ohloh XML files");
+        }
+        finally {
+            //updater.removeUpdater(p, t);
+        }
+		return f;
+	}
     
     /**
      * Return the String value of some Element
