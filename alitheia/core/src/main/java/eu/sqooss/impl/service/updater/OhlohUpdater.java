@@ -175,9 +175,6 @@ public class OhlohUpdater extends UpdaterBaseJob {
             logger.error("Cannot continue without a valid path to look into");
             throw new FileNotFoundException("Cannot find Ohloh XML files");
         }
-        finally {
-            //updater.removeUpdater(p, t);
-        }
 		return f;
 	}
     
