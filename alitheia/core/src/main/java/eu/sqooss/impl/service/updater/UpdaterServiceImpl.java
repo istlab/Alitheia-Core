@@ -82,29 +82,21 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     
     /* List of registered updaters */
     private BidiMap<Updater, Class<? extends MetadataUpdater>> updaters;
+    
+    private UpdaterManager manager;
 
     /* UpdaterService interface methods*/
     /** {@inheritDoc} */
     @Override
     public void registerUpdaterService(Class<? extends MetadataUpdater> clazz) {
-
-        Updater u = clazz.getAnnotation(Updater.class);
-
-        if (u == null) {
-            logger.error("Class " + clazz + " is missing required annotation" +
-            		" @Updater");
-            return;
-        }
-
-        if (getUpdaterByMnemonic(u.mnem()) != null) {
-            logger.error("Mnemonic already used by updater " 
-                    + updaters.get(getUpdaterByMnemonic(u.mnem())));
-            return;
-        }
-        
-        
-        
-        updaters.put(u, clazz);
+    	Updater u;
+    	try {
+    		u = manager.addUpdater(clazz);
+    	}
+    	catch (UpdaterException e) {
+    		logger.error(e.toString());
+    		return;
+    	}
             
         logger.info("Registering updater class " + clazz.getCanonicalName() + 
                 " for protocols (" + Arrays.toString(u.protocols()) +
@@ -141,7 +133,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /**{@inheritDoc}*/
     @Override
     public boolean update(StoredProject sp, String updater) {
-        Updater u = getUpdaterByMnemonic(updater);
+        Updater u = manager.getUpdaterByMnemonic(updater);
         if (u == null) {
             logger.warn("No such updater: " + updater);
             return false;
@@ -222,7 +214,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         
         dbs = core.getDBService();
         
-        updaters = new BidiMap<Updater, Class<? extends MetadataUpdater>>();
+        manager = new UpdaterManager();
         scheduledUpdates = new ConcurrentHashMap<Long, Map<Updater, UpdaterJob>>();
         
         logger.info("Succesfully started updater service");
@@ -260,14 +252,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         }
         
         return upds;
-    }
-    
-    private Updater getUpdaterByMnemonic(String updater) {
-        for (Updater upd : updaters.keySet()) {
-            if (upd.mnem().equals(updater))
-                return upd;
-        }
-        return null;
     }
 
     /**
@@ -405,7 +389,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     }
 
                     for (String dependency : u.dependencies()) {
-                        Updater dep = getUpdaterByMnemonic(dependency);
+                        Updater dep = manager.getUpdaterByMnemonic(dependency);
 
                         // Updaters are allowed to introduce self depedencies
                         if (u.equals(dep)) {
@@ -481,7 +465,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                         new ArrayList<Class<? extends MetadataUpdater>>();
 
                     for (String s : u.dependencies()) {
-                        dependencies.add(updaters.get(getUpdaterByMnemonic(s)));
+                        dependencies.add(updaters.get(manager.getUpdaterByMnemonic(s)));
                     }
 
                     for (Class<? extends MetadataUpdater> d : dependencies) {
