@@ -169,12 +169,12 @@ public class OhlohUpdater extends UpdaterBaseJob {
      * @throws FileNotFoundException
      */
 	private Folder openFolder() throws FileNotFoundException {
-		Folder f = null;
+		Folder folder = null;
 		
 		try {
-        	f = new Folder(ohlohPath); 
+			folder = new Folder(ohlohPath); 
         	      	
-            if (!f.exists()) {
+            if (!folder.exists()) {
                 logger.error("Path" + ohlohPath
                         + " does not exist or is not a directory");
                 throw new FileNotFoundException("Cannot find Ohloh XML files");
@@ -184,8 +184,8 @@ public class OhlohUpdater extends UpdaterBaseJob {
             logger.error("Cannot continue without a valid path to look into");
             throw new FileNotFoundException("Cannot find Ohloh XML files");
         }
-		
-		return f;
+
+		return folder;
 	}
     
     /**
