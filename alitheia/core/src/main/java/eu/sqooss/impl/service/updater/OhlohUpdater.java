@@ -55,6 +55,8 @@ import eu.sqooss.service.util.Folder;
  * @see <a href="https://www.ohloh.net/api/reference/account">Ohloh Account API</a>
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
+ * @author Igor Levaja
+ * @author Quinten Stokkink
  */
 public class OhlohUpdater extends UpdaterBaseJob {
     
@@ -85,19 +87,13 @@ public class OhlohUpdater extends UpdaterBaseJob {
 
     @SuppressWarnings("unchecked")
 	@Override
-    /**
-     * 1. Retrieve the Ohloh XML-file directory, otherwise throw a FileNotFoundException <br>
-     * 2. Retrieve all XML files in this folder (stored in 'files') <br>
-     * 3. For every file in this folder: <br>
-     * 3.1. Set up a SAXReader (XML file parser) <br>
-     * 3.2. Read the file into a Document (log a warning and skip this file on fail) <br>
-     * 3.3. For each "\<account\>" tag in the "\<result\>" of the Document (log a warning when there is no "\<account\>" tag at all): <br>
-     * 3.3.1. Retrieve the userid "\<id\>", username "\<name\>" and e-mail hash "\<email_sha1\>" <br>
-     * 3.3.2. If the userid is already in the database, update the e-mail address and the username entries for this record <br>
-     * and provide a timestamp with the current date. Otherwise construct a new OhlohDeveloper record. <br>
-     * 3.4. Commit the changes (for all of the developer accounts in this file) <br>
-     */
-    protected void run() throws Exception {
+	/**
+	 * For all the files in the Ohloh XML folder add the specified accounts
+	 * in the file to our database (or update them if they already exist).
+	 * 
+	 * throws FileNotFoundException If the Ohloh XML folder could not be read
+	 */
+    protected void run() throws FileNotFoundException{
         Folder folder = openFolder();
         
         for (String file : folder.listFilesExt(".xml")) {

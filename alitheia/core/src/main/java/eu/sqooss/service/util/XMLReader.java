@@ -49,6 +49,9 @@ import org.xml.sax.InputSource;
  * XMLReader is a utility class for reading XML files.
  * It uses a SAXReader back-end to facilitate turning
  * XML files into Document DOM trees. 
+ * 
+ * @author Igor Levaja
+ * @author Quinten Stokkink
  */
 public class XMLReader {
 

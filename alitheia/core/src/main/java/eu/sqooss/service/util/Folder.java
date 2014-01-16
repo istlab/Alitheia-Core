@@ -38,6 +38,8 @@ import java.io.FilenameFilter;
 /**
  * Folder class is for accessing the folder with the given path
  * 
+ * @author Igor Levaja
+ * @author Quinten Stokkink
  */
 
 public class Folder {
