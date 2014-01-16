@@ -2,6 +2,8 @@ package eu.sqooss.impl.service.updater.test;
 
 import static org.mockito.Mockito.*;
 
+import java.io.FileNotFoundException;
+
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.updater.OhlohUpdater;
 import eu.sqooss.service.db.DBService;
@@ -11,7 +13,7 @@ import eu.sqooss.service.logging.Logger;
 public class OhlohUpdaterWrapper extends OhlohUpdater{
 
 	@Override
-	public void run() throws Exception{
+	public void run() throws FileNotFoundException{
 		super.run();
 	}
 	
