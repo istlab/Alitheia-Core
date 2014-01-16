@@ -115,7 +115,7 @@ public class GitRevision extends SCMProjectRevision {
 
     public void resolve() {
 	    if (isResolved == false) {
-	        SCMProjectRevision r = git.getRevision(commit, true);
+	        GitRevision r = git.getRevision(commit, true);
 	        this.changedPaths = r.changedPaths;
 	        this.copyOps = r.copyOps;
 	        // We don't need these now that the commit is resolved.

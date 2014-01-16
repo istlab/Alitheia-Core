@@ -109,10 +109,21 @@ public class SVNProjectRevision extends SCMProjectRevision {
         copyOps = new ArrayList<CommitCopyEntry>();
         revision = l.getRevision();
         
-        Map<String, SVNLogEntryPath> paths = 
+        initializeChangedPaths(l, root);
+        initializeParents(l);
+    }
+
+	private void initializeParents(SVNLogEntry l) {
+		parents = new HashSet<String>();
+        if (l.getRevision() >= 1)
+            parents.add(String.valueOf((l.getRevision() - 1)));
+	}
+
+	private void initializeChangedPaths(SVNLogEntry l, String root) {
+		Map<String, SVNLogEntryPath> paths = 
             (Map<String, SVNLogEntryPath>) l.getChangedPaths();
         
-        for (Iterator i = paths.keySet().iterator(); i.hasNext();) {
+        for (Iterator<String> i = paths.keySet().iterator(); i.hasNext();) {
             String path = (String) i.next();
             if (path.startsWith(root)) {
                 changedPaths.put(
@@ -121,16 +132,13 @@ public class SVNProjectRevision extends SCMProjectRevision {
             }
             
             String copyPath = paths.get(path).getCopyPath();
-            Long   copyRev = paths.get(path).getCopyRevision();
+            Long copyRev = paths.get(path).getCopyRevision();
             
             if ((copyPath != null) && (copyRev != -1)) {
                 copyOps.add(createCommitCopyEntry(path, copyPath, copyRev));
             }
         }
-        parents = new HashSet<String>();
-        if (l.getRevision() >= 1)
-            parents.add(String.valueOf((l.getRevision() - 1)));
-    }
+	}
 
 	protected CommitCopyEntry createCommitCopyEntry(String path,
 			String copyPath, Long copyRev) {

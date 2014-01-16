@@ -187,14 +187,6 @@ public class SVNCheckoutEditorTest {
 	}
 
 	@Test
-	public void testTextDeltaEndFail() {
-		doThrow(new NullPointerException()).when(svnDeltaProcessor).textDeltaEnd();
-		
-		svnCheckoutEditor = new TestableSVNCheckoutEditor(targetRevision, localPath);
-		svnCheckoutEditor.textDeltaEnd(path);
-	}
-
-	@Test
 	public void testDeleteEntryNullLocalPath() {
 		long revision = 0l;
 		
@@ -310,30 +302,12 @@ public class SVNCheckoutEditorTest {
 	}
 	
 	@Test
-	public void testChangeDirProperty() {
-		String name = "name";
-		String value = "value";
-		
-		svnCheckoutEditor = new TestableSVNCheckoutEditor(targetRevision, localPath);
-		svnCheckoutEditor.changeDirProperty(name, value);
-	}
-
-	@Test
 	public void testChangeDirPropertyWithSVNPropertyValue() throws SVNException {
 		String arg0 = "arg0";
 		SVNPropertyValue svnPropertyValue = mock(SVNPropertyValue.class);
 		
 		svnCheckoutEditor = new TestableSVNCheckoutEditor(targetRevision, localPath);
 		svnCheckoutEditor.changeDirProperty(arg0, svnPropertyValue);
-	}
-
-	@Test
-	public void testChangeFileProperty() {
-		String name = "name";
-		String value = "value";
-		
-		svnCheckoutEditor = new TestableSVNCheckoutEditor(targetRevision, localPath);
-		svnCheckoutEditor.changeFileProperty(path, name, value);
 	}
 
 	@Test

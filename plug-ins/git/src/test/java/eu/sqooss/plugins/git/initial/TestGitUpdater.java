@@ -1,4 +1,4 @@
-package eu.sqooss.plugins.git.rubbish;
+package eu.sqooss.plugins.git.initial;
 
 import static org.junit.Assert.*;
 

@@ -69,9 +69,10 @@ public class ChildrenFilter extends RevFilter {
 		return cmit.getParents();
 	}
 
+
+	// TODO Unused and unimplemented method
 	@Override
 	public RevFilter clone() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

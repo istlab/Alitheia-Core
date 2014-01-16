@@ -138,10 +138,7 @@ public class SVNCheckoutEditor implements ISVNEditor {
 	}
 
 	public void textDeltaEnd(String path) {
-	    try {
-	        deltaProcessor.textDeltaEnd();
-	    } catch (NullPointerException e) {
-	    }
+		deltaProcessor.textDeltaEnd();
 	}
 
 	public void deleteEntry(String path, long revision) {
@@ -161,66 +158,69 @@ public class SVNCheckoutEditor implements ISVNEditor {
 	    }
 	}
 
+	// TODO: Provide implementation for this interface method
 	public void openRoot(long revision) {
     }
 
+	// TODO: Provide implementation for this interface method
     public void addDir(String path, String sourcePath, long sourceRevision) {
         logger.info("Server adds directory " + path);
     }
 
+	// TODO: Provide implementation for this interface method
     public void openDir(String path, long revision) {
         logger.info("Server changed to directory " + path);
     }
 
+	// TODO: Provide implementation for this interface method
     public void closeDir() {
 		logger.info("Server left the last directory.");
 	}
 
+	// TODO: Provide implementation for this interface method
 	public void absentDir(String path) {
 	    logger.info("Server absents " + path);
 	}
 
+	// TODO: Provide implementation for this interface method
 	public void addFile(String path, String sourcePath, long sourceRevision) {
 	    repoFilePathName = normalisePath(path);
 	    logger.info("Server adds file " + path + " (as " + repoFilePathName + ")");
 	}
 
+	// TODO: Provide implementation for this interface method
 	public void openFile(String path, long revision) {
         logger.info("Server opens file " + path);
     }
 
+	// TODO: Provide implementation for this interface method
     public void closeFile(String path, String checksum) {
         logger.info("Server closes dir " + path);
     }
 
+	// TODO: Provide implementation for this interface method
     public void absentFile(String path) {
 	    logger.info("Server absents " + path);
 	}
 
+	// TODO: Provide implementation for this interface method
 	public SVNCommitInfo closeEdit() {
         logger.info("Checked out " + filecount + " files.");
         return null;
     }
 
+	// TODO: Provide implementation for this interface method
     public void abortEdit() {
     }
 
-	public void changeDirProperty(String name, String value) {
-	}
-
+	// TODO: Provide implementation for this interface method
 	public void changeDirProperty(String arg0, SVNPropertyValue arg1)
 			throws SVNException {
-		// TODO Auto-generated method stub
-		
 	}
 
-	public void changeFileProperty(String path, String name, String value) {
-	}
-
+	// TODO: Provide implementation for this interface method
 	public void changeFileProperty(String arg0, String arg1,
 			SVNPropertyValue arg2) throws SVNException {
-		// TODO Auto-generated method stub
-		
 	}
 }
 
