@@ -372,7 +372,7 @@ public class AdminServletTest {
 		
 		Whitebox.setInternalState(spy, "adminView", adminView);
 		Whitebox.setInternalState(spy, ProjectsView.class, projectsView);
-		when(projectsView.render(any(HttpServletRequest.class))).thenReturn("");
+		when(projectsView.setupVelocityContext(any(HttpServletRequest.class))).thenReturn("");
 //		doNothing().when(spy,"createSubstitutions",eq(request));
 		
 		Template t = Mockito.mock(Template.class);

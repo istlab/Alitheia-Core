@@ -304,7 +304,7 @@ public class AdminServlet extends HttpServlet {
         vc.put("CONTENTS", path);
         
         // put velocity engine
-        projectsView.render(request);
+        projectsView.setupVelocityContext(request);
 
         // Do any substitutions that may be required
         createSubstitutions(request);

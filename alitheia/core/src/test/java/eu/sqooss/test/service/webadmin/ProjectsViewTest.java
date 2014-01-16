@@ -277,7 +277,7 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 	}
 
 	/**
-	 * Test method for {@link eu.sqooss.impl.service.webadmin.ProjectsView#render(javax.servlet.http.HttpServletRequest)}.
+	 * Test method for {@link eu.sqooss.impl.service.webadmin.ProjectsView#setupVelocityContext(javax.servlet.http.HttpServletRequest)}.
 	 */
 	@Test
 	public void testRender() {
@@ -303,7 +303,7 @@ public class ProjectsViewTest extends AbstractViewTestBase {
 		when(req.getLocale()).thenReturn(Locale.ENGLISH);
 		
 		
-		String result = projectsView.render(req);
+		String result = projectsView.setupVelocityContext(req);
 		
 		String expected = "\n<h2>$tr.label(\"projects_mngm\")</h2><div id=\"table\"><form id=\"projects\" name=\"projects\" method=\"post\" action=\"/projects\">\n              <table>\n                <thead>\n                  <tr class=\"head\">\n                    <td class='head'  style='width: 10%;'>Project Id</td>\n                    <td class='head' style='width: 35%;'>Project Name</td>\n                    <td class='head' style='width: 15%;'>Last Version</td>\n                    <td class='head' style='width: 15%;'>Last Email</td>\n                    <td class='head' style='width: 15%;'>Last Bug</td>\n                    <td class='head' style='width: 10%;'>Evaluated</td>\n                    <td class='head' style='width: 10%;'>Host</td>\n                  </tr>\n                </thead>\n              <tr>\n                <td colspan=\"6\" class=\"noattr\">\nNo projects found.</td>\n              </tr>\n              <tr class=\"subhead\">\n                <td>View</td><td colspan=\"6\">\n                  <input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Refresh\" onclick=\"javascript:window.location='/projects';\"></td></tr><tr class=\"subhead\"><td>Manage</td><td colspan='6'>\n                  <input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Add project\" onclick=\"javascript:document.getElementById('reqAction').value='reqAddProject';document.projects.submit();\">\n                  <input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Delete project\" onclick=\"javascript:document.getElementById('reqAction').value='reqRemProject';document.projects.submit();\" disabled></td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n                  <input type=\"button\" class=\"install\" value=\"Run Updater\" onclick=\"javascript:document.getElementById('reqAction').value='conUpdate';document.projects.submit();\" disabled>\n                  <input type=\"button\" class=\"install\" value=\"Run All Updaters\" onclick=\"javascript:document.getElementById('reqAction').value='conUpdateAll';document.projects.submit();\" disabled>\n                </td>\n              <td colspan=\"2\" align=\"right\">\n              <input type=\"button\" class=\"install\" value=\"Update all on ClusterNodeName\" onclick=\"javascript:document.getElementById('reqAction').value='conUpdateAllOnNode';document.projects.submit();\">\n            </td>\n          </tr>\n            </tbody>\n          </table>\n        <input type='hidden' id='reqAction' name='reqAction' value=''>\n        <input type='hidden' id='projectId' name='projectId' value=''>\n        <input type='hidden' id='reqParSyncPlugin' name='reqParSyncPlugin' value=''>\n      </form>\n";
 		assertEquals(expected.replaceAll("\\t|\\n","").replaceAll(" +"," ").replaceAll("> <","><").trim(),result.replaceAll("\\t|\\n","").replaceAll(" +"," ").replaceAll("> <","><").trim());

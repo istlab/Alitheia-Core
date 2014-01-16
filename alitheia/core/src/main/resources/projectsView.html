@@ -3,7 +3,13 @@
 <h2>$tr.label("projects_mngm")</h2>
 <div id="table">
 	<form id="projects"	name="projects" method="post" action="/projects">
-		<h1>TODO: Display the accumulated error messages (if any)</h1>
+		#if ($errorMessages.size() > 0)
+			<ul>
+			#foreach ($error in $errorMessages)
+				<li>$error</li>
+			#end
+			</ul>
+		#end
 		#parse("$currentProjectTemplate")
 
 		<input type='hidden' id='$REQ_PAR_ACTION' name='$REQ_PAR_ACTION' value=''>

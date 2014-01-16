@@ -87,6 +87,9 @@ public class ProjectsView extends AbstractView {
     private static String REQ_PAR_SYNC_PLUGIN   = "reqParSyncPlugin";
     private static String REQ_PAR_UPD           = "reqUpd";
     
+    // Error messages container
+    ArrayList<String> errorMessages;
+    
     /**
      * Instantiates a new projects view.
      *
@@ -98,26 +101,30 @@ public class ProjectsView extends AbstractView {
     }
 
     /**
-     * Renders the various project's views.
+     * Setup variables needed for templates and 
+     * put them into VelocityContext
      *
      * @param req the servlet's request object
      *
      * @return The HTML presentation of the generated view.
      * TODO rename this function to its new function:
      *  - rendering well be performed through velocity templates
-     *  - this method will be used to setup all the variables and put them into VelocityContext vc
+     *  - this method will be used to 
      */
-    public String render(HttpServletRequest req) {
+    public String setupVelocityContext(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
-        // Stores the accumulated error messages
-        StringBuilder e = new StringBuilder();
-        // Indentation spacer
-        int in = 6;
-
+        
+        errorMessages = new ArrayList<String>();
+        
+        // some test errors
+        errorMessages.add("test error 1");
+        errorMessages.add("test error 2");
+        errorMessages.add(getErr("e0034"));
+        
         // Request values
-        String reqValAction        = "";
-        Long   reqValProjectId     = null;
+        String reqValAction = "";
+        Long reqValProjectId = null;
 
         // Selected project
         StoredProject selProject = null;
@@ -128,10 +135,10 @@ public class ProjectsView extends AbstractView {
         if (req != null) {
             
         	// Initialize the resource bundles with the request's locale
-            initResources(req.getLocale());
+            initResources(req.getLocale()); //TODO check
             // DEBUG: Dump the servlet's request parameter
             if (DEBUG) {
-                b.append(debugRequest(req));
+                b.append(debugRequest(req));//TODO do something with this
             }
 
             // Retrieve the selected editor's action (if any)
@@ -147,19 +154,19 @@ public class ProjectsView extends AbstractView {
             if (reqValAction == null) {
                 reqValAction = "";
             } else if (reqValAction.equals(ACT_CON_ADD_PROJECT)) {
-            	selProject = addProject(e, req, in);
+            	selProject = addProject(req);
             } else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {
-            	selProject = removeProject(e, selProject, in);
+            	selProject = removeProject(selProject);
             } else if (reqValAction.equals(ACT_CON_UPD)) {
-            	triggerUpdate(e, selProject, in, req.getParameter(REQ_PAR_UPD));
+            	triggerUpdate(selProject, req.getParameter(REQ_PAR_UPD));
             } else if (reqValAction.equals(ACT_CON_UPD_ALL)) {
-            	triggerAllUpdate(e, selProject, in);
+            	triggerAllUpdate(selProject);
             } else if (reqValAction.equals(ACT_CON_UPD_ALL_NODE)) {
-            	triggerAllUpdateNode(e, selProject, in);
+            	triggerAllUpdateNode(selProject);
             } else {
             	// Retrieve the selected plug-in's hash-code
         		String reqValSyncPlugin = req.getParameter(REQ_PAR_SYNC_PLUGIN);
-        		syncPlugin(e, selProject, reqValSyncPlugin);
+        		syncPlugin(selProject, reqValSyncPlugin);
             }
         }
         
@@ -169,7 +176,6 @@ public class ProjectsView extends AbstractView {
         // - a group for Action parameter's values
         // - a group for Servlet parameters
         // 
-//        vc.put("projectsView", this); //already in AdminServlet as 'projects'
         vc.put("reqValAction", reqValAction);
         vc.put("selProject", selProject);
         vc.put("ACT_REQ_SHOW_PROJECT",ACT_REQ_SHOW_PROJECT);
@@ -183,11 +189,14 @@ public class ProjectsView extends AbstractView {
         vc.put("REQ_PAR_PRJ_CODE",REQ_PAR_PRJ_CODE);
         vc.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
         vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
-        createForm(b, e, selProject, reqValAction);
+        vc.put("errorMessages", errorMessages);
+        
+        // add error messages to velocity Context
+        createForm(b, selProject, reqValAction);
         return b.toString();
     }
   
-    private StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
+    private StoredProject addProject(HttpServletRequest r) {
         AdminService as = AlitheiaCore.getInstance().getAdminService();
     	AdminAction aa = as.create(AddProject.MNEMONIC);
     	aa.addArg("scm", r.getParameter(REQ_PAR_PRJ_CODE));
@@ -209,8 +218,7 @@ public class ProjectsView extends AbstractView {
     // ---------------------------------------------------------------
     // Remove project
     // ---------------------------------------------------------------
-    private StoredProject removeProject(StringBuilder e, 
-    		StoredProject selProject, int indent) {
+    private StoredProject removeProject(StoredProject selProject) {
     	if (selProject != null) {
 			// Deleting large projects in the foreground is
 			// very slow
@@ -218,11 +226,11 @@ public class ProjectsView extends AbstractView {
 			try {
 				sobjSched.enqueue(pdj);
 			} catch (SchedulerException e1) {
-				e.append(sp(indent)).append(getErr("e0034")).append("<br/>\n");
+				errorMessages.add(getErr("e0034"));
 			}
 			selProject = null;
 		} else {
-			e.append(sp(indent) + getErr("e0034") + "<br/>\n");
+			errorMessages.add(getErr("e0034"));
 		}
     	return selProject;
     }
@@ -230,8 +238,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger an update
 	// ---------------------------------------------------------------
-	private void triggerUpdate(StringBuilder e,
-			StoredProject selProject, int indent, String mnem) {
+	private void triggerUpdate(StoredProject selProject, String mnem) {
 		AdminService as = AlitheiaCore.getInstance().getAdminService();
 		AdminAction aa = as.create(UpdateProject.MNEMONIC);
 		aa.addArg("project", selProject.getId());
@@ -248,8 +255,7 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources for that project
 	// ---------------------------------------------------------------
-	private void triggerAllUpdate(StringBuilder e,
-			StoredProject selProject, int indent) {
+	private void triggerAllUpdate(StoredProject selProject) {
 	    AdminService as = AlitheiaCore.getInstance().getAdminService();
         AdminAction aa = as.create(UpdateProject.MNEMONIC);
         aa.addArg("project", selProject.getId());
@@ -265,19 +271,18 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
 	// Trigger update on all resources on all projects of a node
 	// ---------------------------------------------------------------
-    private void triggerAllUpdateNode(StringBuilder e,
-			StoredProject selProject, int in) {
+    private void triggerAllUpdateNode(StoredProject selProject) {
 		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
 		
 		for (StoredProject project : projectList) {
-			triggerAllUpdate(e, project, in);
+			triggerAllUpdate(project);
 		}
 	}
 	
 	// ---------------------------------------------------------------
 	// Trigger synchronize on the selected plug-in for that project
 	// ---------------------------------------------------------------
-    private void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
+    private void syncPlugin(StoredProject selProject, String reqValSyncPlugin) {
 		if ((reqValSyncPlugin != null) && (selProject != null)) {
 			PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);
 			if (pInfo != null) {
@@ -305,17 +310,11 @@ public class ProjectsView extends AbstractView {
      * going to be replaced by projectlist velocity template
      * == to be deprecated ==
      */
-    private void createForm(StringBuilder b, StringBuilder e, 
-    		StoredProject selProject, String reqValAction) {
+    private void createForm(StringBuilder b, StoredProject selProject, String reqValAction) {
         // ===============================================================
         // Display the accumulated error messages (if any)
         // ===============================================================
 //        b.append(errorFieldset(e, ++in));TODO FIXME add the errors to VC
-    	
-//    	VelocityContext vcLocal = new VelocityContext();
-//    	VelocityContext vc = vc;
-
-
 
         // Get the complete list of projects stored in the SQO-OSS framework
         Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
