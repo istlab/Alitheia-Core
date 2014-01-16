@@ -132,7 +132,7 @@ public class FindbugsMetrics extends AbstractMetric {
             ANT_PATH = "ant";
     }
 
-    public FindbugsMetrics(BundleContext bc) {
+	public FindbugsMetrics(BundleContext bc) {
         super(bc);
     }
 
@@ -173,12 +173,19 @@ public class FindbugsMetrics extends AbstractMetric {
             log.info("Skipping version " + pv + "/trunk directory could be found");
             return;
         }
-
+        
+        Pattern buildPattern = null;
         if (foundPom)
+        {
             maven_build = true; // Prefer maven over ant
+        	buildPattern = pom;
+        }
         else
             if (foundBuild)
+            {
                 maven_build = false;
+        		buildPattern = buildxml;
+            }
             else {
                 log.info("Skipping version " + pv + " as neither pom.xml " +
                         "nor build.xml could be found");
@@ -195,11 +202,17 @@ public class FindbugsMetrics extends AbstractMetric {
             String out = pv.getProject().getName() + "-" + pv.getRevisionId() +
                     "-" + pv.getId() + "-out.txt";
 
-            List<File> jars = null;
+            AbstractBuildSystem buildSystem = null;
             if (maven_build)
-                jars = compileMaven(pv, pom, checkout, out);
+            {
+            	buildSystem = new MavenBuildSystem(bc);
+            }
             else
-                jars = compileAnt(pv, buildxml, checkout, out);
+            {
+            	buildSystem = new AntBuildSystem(bc);
+            }
+            
+            List<File> jars = buildSystem.compile(pv, buildPattern, checkout, out);
 
             for(File jar: jars) {
 
@@ -220,7 +233,7 @@ public class FindbugsMetrics extends AbstractMetric {
 
                 ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
                 findbugs.redirectErrorStream(true);
-                int retVal = runReadOutput(findbugs.start(), out);
+                int retVal = buildSystem.runReadOutput(findbugs.start(), out);
 
                 if (retVal != 0) {
                     log.warn("Findbugs failed. See file:" + out);
@@ -244,83 +257,6 @@ public class FindbugsMetrics extends AbstractMetric {
         }
     }
 
-    private List<File> compileMaven(ProjectVersion pv, Pattern pom,
-                                    File checkout, String out) throws IOException {
-
-        File pomFile = FileUtils.findBreadthFirst(checkout, pom);
-
-        if (pomFile == null) {
-            log.warn(pv + " No pom.xml found in checkout?!");
-            return new ArrayList<File>();
-        }
-
-        ProcessBuilder maven = new ProcessBuilder(MAVEN_PATH, "install", "-DskipTests=true");
-        maven.directory(pomFile.getParentFile());
-        maven.redirectErrorStream(true);
-        int retVal = runReadOutput(maven.start(), out);
-
-        // project dependencies
-        List<File> deps = new ArrayList<File>();
-        if (retVal != 0) {
-            log.warn("Build with maven failed. See file:" + out);
-            return deps;
-        }
-        // Copy the script that gathers the dependency from
-        // the resource bundle
-        File copyDepsScript = new File(pomFile.getParentFile(), "copy-dependencies");
-        FileOutputStream fos = new FileOutputStream(copyDepsScript);
-        InputStream in = bc.getBundle().getResource("copy-dependencies").openStream();
-
-        int read;
-        byte[] buff = new byte[1024];
-        while ((read = in.read(buff)) != -1) {
-            fos.write(buff, 0, read);
-        }
-
-        copyDepsScript.setExecutable(true);
-        fos.close();
-        in.close();
-
-        ProcessBuilder copyDeps = new ProcessBuilder("./copy-dependencies");
-        copyDeps.directory(pomFile.getParentFile());
-        copyDeps.redirectErrorStream(true);
-        int retVal2 = runReadOutput(copyDeps.start(), out);
-        if (retVal2 == 0) {
-            File allDeps = new File(checkout.getPath() + "/all-deps");
-            if (allDeps.exists() && allDeps.isDirectory()) {
-                deps = Arrays.asList(allDeps.listFiles());
-            }
-        }
-
-        List<File> jars = getMavenJars(checkout);
-        jars.addAll(deps);
-
-        return jars;
-    }
-
-    private List<File> compileAnt(ProjectVersion pv, Pattern buildxml,
-                                    File checkout, String out) throws IOException {
-
-        File antFile = FileUtils.findBreadthFirst(checkout, buildxml);
-
-        if (antFile == null) {
-            log.warn(pv + " No build.xml found in checkout?!");
-            return new ArrayList<File>();
-        }
-
-        ProcessBuilder ant = new ProcessBuilder(ANT_PATH);
-        ant.directory(antFile.getParentFile());
-        ant.redirectErrorStream(true);
-        int retVal = runReadOutput(ant.start(), out);
-
-        if (retVal != 0) {
-            log.warn("Build with ant failed. See file:" + out);
-            return new ArrayList<File>();
-        }
-
-        return getAntJars(checkout);
-    }
-
     public String getPkgs(List<ProjectFile> files) {
         Set<String> pkgs = new HashSet<String>();
         Pattern p = Pattern.compile("src/main/java/(.*\\.java)");
@@ -337,47 +273,6 @@ public class FindbugsMetrics extends AbstractMetric {
             sb.append(pkg).append(",");
 
         return sb.toString();
-    }
-    
-    public List<File> getMavenJars(File checkout) {
-        List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
-        List<File> result = new ArrayList<File>();
-        //Exclude common maven artifacts which don't contain bytecode
-        for(File f: jars) {
-            if (f.getName().endsWith("-sources.jar"))
-                continue;
-            if (f.getName().endsWith("with-dependencies.jar"))
-                continue;
-            if (f.getName().endsWith("-javadoc.jar"))
-                continue;
-            result.add(f);
-        }
-        return result;
-    }
-
-    public List<File> getAntJars(File checkout) {
-        List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
-        List<File> result = new ArrayList<File>();
-        //Exclude common maven artifacts which don't contain bytecode
-        for(File f: jars) {
-            // Exclude libraries commonly included in Maven repositories
-            if (f.getAbsolutePath().contains("/lib/"))
-                continue;
-            result.add(f);
-        }
-        return result;
-    }
-
-    public int runReadOutput(Process pr, String name) throws IOException {
-        OutReader outReader = new OutReader(pr.getInputStream(), name);
-        outReader.start();
-        int retVal = -1;
-        while (retVal == -1) {
-            try {
-                retVal = pr.waitFor();
-            } catch (Exception ignored) {}
-        }
-        return retVal;
     }
 
     /**
@@ -544,36 +439,6 @@ public class FindbugsMetrics extends AbstractMetric {
         if (version)
             return "T" + result.toString();
         return result.toString();
-    }
-
-    private class OutReader extends Thread {
-        String name;
-        InputStream input;
-
-        public OutReader(InputStream in, String name) {
-            this.name = name;
-            this.input = in;
-        }
-
-        public void run() {
-            try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(input));
-                FileWriter out = new FileWriter(new File(name), true);
-
-                char[] buf = new char[8192];
-                while (true) {
-                    int length = in.read(buf);
-                    if (length < 0)
-                        break;
-                    out.write(buf, 0, length);
-                    out.flush();
-                }
-                in.close();
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
 
