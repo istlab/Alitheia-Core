@@ -36,10 +36,12 @@ package eu.sqooss.impl.service.updater;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.updater.Updater;
 
 /**
@@ -60,6 +62,15 @@ public class UpdateScheduler {
 	 */
 	public UpdateScheduler(){
 		scheduledUpdates = new ConcurrentHashMap<Long, Map<Updater, UpdaterJob>>();
+	}
+	
+	/**
+	 * Retrieve all known project ids
+	 * 
+	 * @return All registered project ids
+	 */
+	public Set<Long> getProjectIds(){
+		return scheduledUpdates.keySet();
 	}
 	
 	/**
@@ -111,7 +122,19 @@ public class UpdateScheduler {
 	 * @return The UpdaterJob belonging to the specified project and updater
 	 */
 	public UpdaterJob getJobFor(StoredProject sp, Updater u){
-		return getScheduleFor(sp).get(u);
+		return getJobFor(sp.getId(), u);
+	}
+	
+	/**
+	 * Retrieve the UpdaterJob associated with a certain 
+	 * Updater for a certain project.
+	 * 
+	 * @param projectid The project id the UpdaterJob belongs to
+	 * @param u The Updater the UpdaterJob belongs to
+	 * @return The UpdaterJob belonging to the specified project and updater
+	 */
+	public UpdaterJob getJobFor(long projectid, Updater u){
+		return getScheduleFor(projectid).get(u);
 	}
 	
 	/**
@@ -121,7 +144,37 @@ public class UpdateScheduler {
 	 * @return A collection of UpdaterJobs for this project
 	 */
 	public Collection<UpdaterJob> getJobsFor(StoredProject sp){
-		return getScheduleFor(sp).values();
+		return getJobsFor(sp.getId());
+	}
+	
+	/**
+	 * Get all the scheduled jobs for a certain project.
+	 * 
+	 * @param projectid The project id to retrieve all the jobs for
+	 * @return A collection of UpdaterJobs for this project
+	 */
+	public Collection<UpdaterJob> getJobsFor(long projectid){
+		initialize(projectid);
+		return getScheduleFor(projectid).values();
+	}
+	
+	/**
+	 * Retrieve a project id corresponding to a job
+	 * 
+	 * @param job The job to find a project id for
+	 * @return The project id the job belongs to, otherwise null 
+	 */
+	public Long getProjectFor(Job job){
+		Long projectId = null;
+
+        for (Long pid : getProjectIds()) {
+            if (getJobsFor(pid).contains(job)) {
+                projectId = pid;
+                break;
+            }
+        }
+        
+        return projectId;
 	}
 	
 	/**
@@ -130,8 +183,17 @@ public class UpdateScheduler {
 	 * @param sp The project to initialize
 	 */
 	private void initialize(StoredProject sp){
-		if (!scheduledUpdates.containsKey(sp.getId()))
-            scheduledUpdates.put(sp.getId(), new HashMap<Updater, UpdaterJob>());
+		initialize(sp.getId());
+	}
+	
+	/**
+	 * Create a new schedule for this project if it does not exist.
+	 * 
+	 * @param projectid The project to initialize
+	 */
+	private void initialize(long projectid){
+		if (!scheduledUpdates.containsKey(projectid))
+            scheduledUpdates.put(projectid, new HashMap<Updater, UpdaterJob>());
 	}
 	
 	/**

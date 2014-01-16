@@ -37,20 +37,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
@@ -78,7 +71,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     
     /* Maps project-ids to the jobs that have been scheduled for 
      * each update target*/
-    private ConcurrentMap<Long,Map<Updater, UpdaterJob>> scheduledUpdates;
+    private UpdateScheduler scheduledUpdates;
     
     private UpdaterManager manager;
 
@@ -182,7 +175,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     /** {@inheritDoc}}*/
     public synchronized boolean isUpdateRunning(StoredProject p, Updater u) {
-        Map<Updater, UpdaterJob> m = scheduledUpdates.get(p.getId());
+        Map<Updater, UpdaterJob> m = scheduledUpdates.getScheduleFor(p);
         if (m == null) {
             // Nothing in progress
             return false;
@@ -212,7 +205,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         dbs = core.getDBService();
         
         manager = new UpdaterManager();
-        scheduledUpdates = new ConcurrentHashMap<Long, Map<Updater, UpdaterJob>>();
+        scheduledUpdates = new UpdateScheduler();
         
         logger.info("Succesfully started updater service");
         return true;
@@ -438,7 +431,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                      * execution, the dependee will just continue execution.
                      */
                     if (isUpdateRunning(project, u)) {
-                        uj = scheduledUpdates.get(project.getId()).get(u);
+                        uj = scheduledUpdates.getJobFor(project, u);
                     } else {
                         uj = new UpdaterJob(upd);
                         uj.addJobStateListener(this);
@@ -486,12 +479,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             //Enqueue jobs
             List<Job> toQueue = new ArrayList<Job>();
             for (Job job : jobs) {
-                if (!scheduledUpdates.containsKey(project.getId()))
-                    scheduledUpdates.put(project.getId(),
-                            new HashMap<Updater, UpdaterJob>());
-
                 //Don't schedule a job that has been scheduled before
-                Collection<UpdaterJob> schedJobs = scheduledUpdates.get(project.getId()).values();
+                Collection<UpdaterJob> schedJobs = scheduledUpdates.getJobsFor(project);
                 boolean dontSchedule = false;
                 for (Job j : schedJobs) {
                     if (job.equals(j)) {
@@ -508,8 +497,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 //DependencyJobs don't need to be tracked
                 if (!(job instanceof UpdaterJob))
                     continue;
-                scheduledUpdates.get(project.getId()).put(
-                        toSchedule.getKey(job), (UpdaterJob)job);
+                scheduledUpdates.addUpdater(project, toSchedule.getKey(job), (UpdaterJob) job);
             }
             AlitheiaCore.getInstance().getScheduler().enqueueBlock(toQueue);
         } catch (SchedulerException e) {
@@ -540,7 +528,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
             return;
         }
         
-        Map<Updater, UpdaterJob> m = scheduledUpdates.get(p.getId());
+        Map<Updater, UpdaterJob> m = scheduledUpdates.getScheduleFor(p);
         if (m != null) {
             m.remove(u);
         }
@@ -552,16 +540,9 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
      */
     public synchronized void jobStateChanged(Job j, State newState) {
 
-        Long projectId = null;
+        Long projectId = scheduledUpdates.getProjectFor(j);
 
-        for (Long pid : scheduledUpdates.keySet()) {
-            if (scheduledUpdates.get(pid).containsValue(j)) {
-                projectId = pid;
-                break;
-            }
-        }
-
-        Map<Updater, UpdaterJob> updates = scheduledUpdates.get(projectId);
+        Map<Updater, UpdaterJob> updates = scheduledUpdates.getScheduleFor(projectId);
         Updater ut = null;
         for (Updater t : updates.keySet()) {
             if (updates.get(t).equals(j)) {
