@@ -6,6 +6,7 @@ public class HTMLTestUtils {
 	public static String sanitizeHTML(String string) {
 		String html = "<root>" + string + "</root>";		
 		html = html.replaceAll(HTMLTestUtils.INPUT_REGEX, "<input$1/>");
+		html = html.replaceAll("checkbox\"checked", "checkbox\" checked='true'");
 		html = html.replaceAll("&nbsp;", " ");
 		html = html.replaceAll("disabled(\\s*[^=])", "disabled='true'$1");
 		return html;

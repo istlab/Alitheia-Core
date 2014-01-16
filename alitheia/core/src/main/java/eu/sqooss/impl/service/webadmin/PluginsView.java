@@ -47,6 +47,7 @@ import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
@@ -54,7 +55,22 @@ import eu.sqooss.service.util.StringUtils;
 
 public class PluginsView extends AbstractView{
 
-    protected static final String REQ_PAR_HASHCODE = "pluginHashcode";
+	protected static final String ACT_VAL_UNINSTALL_PLUGIN = "uninstallPlugin";
+	protected static final String ACT_VAL_CON_PROP = "confirmProperty";
+	protected static final String ACT_VAL_CON_REM_PROP = "removeProperty";
+	protected static final String ACT_VAL_SYNC_PLUGIN = "syncPlugin";
+	protected static final String REQ_PAR_SHOW_ACTV = "showActivators";
+	protected static final String ACT_VAL_INSTALL_PLUGIN = "installPlugin";
+	protected static final String REQ_PAR_ACTION = "action";
+    protected static final String REQ_PAR_PROP_VALUE = "propertyValue";
+	protected static final String REQ_PAR_PROP_DESC = "propertyDescription";
+	protected static final String REQ_PAR_PROP_TYPE = "propertyType";
+	protected static final String REQ_PAR_PROP_NAME = "propertyName";
+	protected static final String REQ_PAR_HASHCODE = "pluginHashcode";
+	protected static final String REQ_PAR_SHOW_PROP = "showProperties";
+	
+	protected static final String ACT_VAL_REQ_ADD_PROP = "createProperty";
+	protected static final String ACT_VAL_REQ_UPD_PROP = "updateProperty";
 
 	public PluginsView(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
@@ -75,22 +91,6 @@ public class PluginsView extends AbstractView{
         // Indentation spacer
         long in = 6;
 
-        // Request parameters
-        String reqParAction        = "action";
-        String reqParPropName      = "propertyName";
-        String reqParPropDescr     = "propertyDescription";
-        String reqParPropType      = "propertyType";
-        String reqParPropValue     = "propertyValue";
-        String reqParShowProp      = "showProperties";
-        String reqParShowActv      = "showActivators";
-        // Recognized "action" parameter's values
-        String actValInstall       = "installPlugin";
-        String actValUninstall     = "uninstallPlugin";
-        String actValSync          = "syncPlugin";
-        String actValReqAddProp    = "createProperty";
-        String actValReqUpdProp    = "updateProperty";
-        String actValConAddProp    = "confirmProperty";
-        String actValConRemProp    = "removeProperty";
         // Request values
         String reqValAction        = "";
         String reqValHashcode      = null;
@@ -131,28 +131,28 @@ public class PluginsView extends AbstractView{
                 }
 
                 // Retrieve the selected editor's action (if any)
-                reqValAction = req.getParameter(reqParAction);
+                reqValAction = req.getParameter(REQ_PAR_ACTION);
                 if (reqValAction == null) {
                     reqValAction = "";
-                };
+                }
                 // Retrieve the various display flags
-                if ((req.getParameter(reqParShowProp) != null)
-                        && (req.getParameter(reqParShowProp).equals("true"))) {
+                if ((req.getParameter(REQ_PAR_SHOW_PROP) != null)
+                        && (req.getParameter(REQ_PAR_SHOW_PROP).equals("true"))) {
                     reqValShowProp = true;
                 }
-                if ((req.getParameter(reqParShowActv) != null)
-                        && (req.getParameter(reqParShowActv).equals("true"))) {
+                if ((req.getParameter(REQ_PAR_SHOW_ACTV) != null)
+                        && (req.getParameter(REQ_PAR_SHOW_ACTV).equals("true"))) {
                     reqValShowActv = true;
                 }
                 // Retrieve the selected configuration property's values
-                if ((reqValAction.equals(actValConAddProp))
-                        || (reqValAction.equals(actValReqUpdProp))
-                        || (reqValAction.equals(actValConRemProp))) {
+                if ((reqValAction.equals(ACT_VAL_CON_PROP))
+                        || (reqValAction.equals(ACT_VAL_REQ_UPD_PROP))
+                        || (reqValAction.equals(ACT_VAL_CON_REM_PROP))) {
                     // Name, description, type and value
-                    reqValPropName  = req.getParameter(reqParPropName);
-                    reqValPropDescr = req.getParameter(reqParPropDescr);
-                    reqValPropType  = req.getParameter(reqParPropType);
-                    reqValPropValue = req.getParameter(reqParPropValue);
+                    reqValPropName  = req.getParameter(REQ_PAR_PROP_NAME);
+                    reqValPropDescr = req.getParameter(REQ_PAR_PROP_DESC);
+                    reqValPropType  = req.getParameter(REQ_PAR_PROP_TYPE);
+                    reqValPropValue = req.getParameter(REQ_PAR_PROP_VALUE);
                 }
                 // Retrieve the selected plug-in's hash code
                 reqValHashcode = req.getParameter(REQ_PAR_HASHCODE);
@@ -161,7 +161,7 @@ public class PluginsView extends AbstractView{
                     // =======================================================
                     // Plug-in install request
                     // =======================================================
-                    if (reqValAction.equals(actValInstall)) {
+                    if (reqValAction.equals(ACT_VAL_INSTALL_PLUGIN)) {
                         if (getPluginAdmin().installPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be installed!"
                                     + " Check log for details.");
@@ -176,7 +176,7 @@ public class PluginsView extends AbstractView{
                     // =======================================================
                     // Plug-in un-install request
                     // =======================================================
-                    else if (reqValAction.equals(actValUninstall)) {
+                    else if (reqValAction.equals(ACT_VAL_UNINSTALL_PLUGIN)) {
                         if (getPluginAdmin().uninstallPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be uninstalled."
                                     + " Check log for details.");
@@ -194,13 +194,13 @@ public class PluginsView extends AbstractView{
                     // =======================================================
                     // Plug-in synchronize (on all projects) request
                     // =======================================================
-                    if (reqValAction.equals(actValSync)) {
-                        compMA.syncMetrics(getPluginAdmin().getPlugin(selPI));
+                    if (reqValAction.equals(ACT_VAL_SYNC_PLUGIN)) {
+                        getMetricActivator().syncMetrics(getPluginAdmin().getPlugin(selPI));
                     }
                     // =======================================================
                     // Plug-in's configuration property removal
                     // =======================================================
-                    else if (reqValAction.equals(actValConRemProp)) {
+                    else if (reqValAction.equals(ACT_VAL_CON_REM_PROP)) {
                         if (selPI.hasConfProp(
                                 reqValPropName, reqValPropType)) {
                             try {
@@ -230,13 +230,13 @@ public class PluginsView extends AbstractView{
                         }
                         // Return to the update view upon error
                         if (e.toString().length() > 0) {
-                            reqValAction = actValReqUpdProp;
+                            reqValAction = ACT_VAL_REQ_UPD_PROP;
                         }
                     }
                     // =======================================================
                     // Plug-in's configuration property creation/update
                     // =======================================================
-                    else if (reqValAction.equals(actValConAddProp)) {
+                    else if (reqValAction.equals(ACT_VAL_CON_PROP)) {
                         // Check for a property update
                         boolean update = selPI.hasConfProp(
                                 reqValPropName, reqValPropType);
@@ -292,8 +292,8 @@ public class PluginsView extends AbstractView{
                         }
                         // Return to the create/update view upon error
                         if (e.toString().length() > 0) {
-                            if (update) reqValAction = actValReqUpdProp;
-                            else reqValAction = actValReqAddProp;
+                            if (update) reqValAction = ACT_VAL_REQ_UPD_PROP;
+                            else reqValAction = ACT_VAL_REQ_ADD_PROP;
                         }
                     }
                 }
@@ -316,8 +316,8 @@ public class PluginsView extends AbstractView{
             // "Create/update configuration property" editor
             // ===============================================================
             if ((selPI != null) && (selPI.installed)
-                    && ((reqValAction.equals(actValReqAddProp))
-                            || (reqValAction.equals(actValReqUpdProp)))) {
+                    && ((reqValAction.equals(ACT_VAL_REQ_ADD_PROP))
+                            || (reqValAction.equals(ACT_VAL_REQ_UPD_PROP)))) {
                 // Input field values are stored here
                 String value = null;
                 // Create the field-set
@@ -344,8 +344,8 @@ public class PluginsView extends AbstractView{
                         + ((update) ? value
                                 : "<input type=\"text\""
                                     + " class=\"form\""
-                                    + " id=\"" + reqParPropName + "\""
-                                    + " name=\"" + reqParPropName + "\""
+                                    + " id=\"" + REQ_PAR_PROP_NAME + "\""
+                                    + " name=\"" + REQ_PAR_PROP_NAME + "\""
                                     + " value=\"" + value + "\">")
                                     + "</td>\n"
                                     + sp(--in) + "</tr>\n");
@@ -361,8 +361,8 @@ public class PluginsView extends AbstractView{
                         + ((update) ? value
                                 : "<input type=\"text\""
                                     + " class=\"form\""
-                                    + " id=\"" + reqParPropDescr + "\""
-                                    + " name=\"" + reqParPropDescr + "\""
+                                    + " id=\"" + REQ_PAR_PROP_DESC + "\""
+                                    + " name=\"" + REQ_PAR_PROP_DESC + "\""
                                     + " value=\"" + value + "\">")
                                     + "</td>\n"
                                     + sp(--in) + "</tr>\n");
@@ -381,8 +381,8 @@ public class PluginsView extends AbstractView{
                 }
                 else {
                     b.append("<select class=\"form\""
-                            + " id=\"" + reqParPropType + "\""
-                            + " name=\"" + reqParPropType + "\">\n");
+                            + " id=\"" + REQ_PAR_PROP_TYPE + "\""
+                            + " name=\"" + REQ_PAR_PROP_TYPE + "\">\n");
                     for (ConfigurationType type : ConfigurationType.values()) {
                         boolean selected = type.toString().equals(value);
                         b.append(sp(in) + "<option"
@@ -409,8 +409,8 @@ public class PluginsView extends AbstractView{
                         + "<td class=\"borderless\">"
                         + "<input type=\"text\""
                         + " class=\"form\""
-                        + " id=\"" + reqParPropValue + "\""
-                        + " name=\"" + reqParPropValue + "\""
+                        + " id=\"" + REQ_PAR_PROP_VALUE + "\""
+                        + " name=\"" + REQ_PAR_PROP_VALUE + "\""
                         + " value=\"" + value +"\">"
                         + "</td>\n"
                         + sp(--in)
@@ -426,8 +426,8 @@ public class PluginsView extends AbstractView{
                         + " value=\"" + value + "\""
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
-                        + reqParAction + "').value='"
-                        + actValConAddProp + "';"
+                        + REQ_PAR_ACTION + "').value='"
+                        + ACT_VAL_CON_PROP + "';"
                         + "document.metrics.submit();\">"
                         + "&nbsp;");
                 if (update) {
@@ -437,8 +437,8 @@ public class PluginsView extends AbstractView{
                             + " value=\"Remove\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValConRemProp + "';"
+                            + REQ_PAR_ACTION + "').value='"
+                            + ACT_VAL_CON_REM_PROP + "';"
                             + "document.metrics.submit();\">"
                             + "&nbsp;");
                 }
@@ -521,8 +521,8 @@ public class PluginsView extends AbstractView{
                             + " value=\"Uninstall\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValUninstall + "';"
+                            + REQ_PAR_ACTION + "').value='"
+                            + ACT_VAL_UNINSTALL_PLUGIN + "';"
                             + "document.getElementById('"
                             + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
@@ -534,8 +534,8 @@ public class PluginsView extends AbstractView{
                             + " value=\"Synchronise\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValSync + "';"
+                            + REQ_PAR_ACTION + "').value='"
+                            + ACT_VAL_SYNC_PLUGIN + "';"
                             + "document.getElementById('"
                             + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
@@ -549,8 +549,8 @@ public class PluginsView extends AbstractView{
                             + " value=\"Install\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValInstall + "';"
+                            + REQ_PAR_ACTION + "').value='"
+                            + ACT_VAL_INSTALL_PLUGIN + "';"
                             + "document.getElementById('"
                             + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
@@ -650,12 +650,12 @@ public class PluginsView extends AbstractView{
                     // Display the set of configuration properties
                     b.append(sp(in++) + "<tbody>\n");
                     // Get the plug-in's configuration set
-                    Set<PluginConfiguration> config = Plugin.getPluginByHashcode(selPI.getHashcode()).getConfigurations();
+                    Set<PluginConfiguration> config = getPluginByHashcode(selPI.getHashcode()).getConfigurations();
                     if ((config == null) || (config.isEmpty())) {
                         b.append(sp(in++) + "<tr>");
                         b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
                                 + "This plug-in has no configuration properties."
-                                + "</td>\n");
+                                + "</td>\n");	
                         b.append(sp(--in)+ "</tr>\n");
                     }
                     else {
@@ -663,19 +663,19 @@ public class PluginsView extends AbstractView{
                             b.append(sp(in++) + "<tr class=\"edit\""
                                     + " onclick=\"javascript:"
                                     + "document.getElementById('"
-                                    + reqParAction + "').value='"
-                                    + actValReqUpdProp + "';"
+                                    + REQ_PAR_ACTION + "').value='"
+                                    + ACT_VAL_REQ_UPD_PROP + "';"
                                     + "document.getElementById('"
-                                    + reqParPropName + "').value='"
+                                    + REQ_PAR_PROP_NAME + "').value='"
                                     + param.getName() + "';"
                                     + "document.getElementById('"
-                                    + reqParPropType + "').value='"
+                                    + REQ_PAR_PROP_TYPE + "').value='"
                                     + param.getType() + "';"
                                     + "document.getElementById('"
-                                    + reqParPropDescr + "').value='"
+                                    + REQ_PAR_PROP_DESC + "').value='"
                                     + param.getMsg() + "';"
                                     + "document.getElementById('"
-                                    + reqParPropValue + "').value='"
+                                    + REQ_PAR_PROP_VALUE + "').value='"
                                     + param.getValue() + "';"
                                     + "document.metrics.submit();\""
                                     + ">\n");
@@ -708,8 +708,8 @@ public class PluginsView extends AbstractView{
                             + " value=\"Add property\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
-                            + reqParAction + "').value='"
-                            + actValReqAddProp + "';"
+                            + REQ_PAR_ACTION + "').value='"
+                            + ACT_VAL_REQ_ADD_PROP + "';"
                             + "document.metrics.submit();\""
                             + ">\n");
                     b.append(sp(--in) + "</td>\n");
@@ -820,7 +820,7 @@ public class PluginsView extends AbstractView{
                         // Plug-in version
                         b.append(sp(in) + "<td class=\"trans\">"
                                 + i.getPluginVersion() + "</td>\n");
-                        b.append(sp(--in) + "</tr>\n");
+                        b.append(sp(--in) + "</tr>\n");	
                         // Extended plug-in information
                         b.append(renderPluginAttributes(
                                 i, reqValShowProp, reqValShowActv, in));
@@ -840,7 +840,7 @@ public class PluginsView extends AbstractView{
                         + ((reqValShowProp) ? "checked" : "")
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
-                        + reqParShowProp + "').value = this.checked;"
+                        + REQ_PAR_SHOW_PROP + "').value = this.checked;"
                         + "document.getElementById('"
                         + REQ_PAR_HASHCODE + "').value='';"
                         + "document.metrics.submit();\""
@@ -850,7 +850,7 @@ public class PluginsView extends AbstractView{
                         + ((reqValShowActv) ? "checked" : "")
                         + " onclick=\"javascript:"
                         + "document.getElementById('"
-                        + reqParShowActv + "').value = this.checked;"
+                        + REQ_PAR_SHOW_ACTV + "').value = this.checked;"
                         + "document.getElementById('"
                         + REQ_PAR_HASHCODE + "').value='';"
                         + "document.metrics.submit();\""
@@ -865,8 +865,8 @@ public class PluginsView extends AbstractView{
             // ===============================================================
             // "Action type" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParAction + "\""
-                    + " name=\"" + reqParAction + "\""
+                    + " id=\"" + REQ_PAR_ACTION + "\""
+                    + " name=\"" + REQ_PAR_ACTION + "\""
                     + " value=\"\">\n");
             // "Selected plug-in's hash code" input field
             b.append(sp(in) + "<input type=\"hidden\""
@@ -877,43 +877,43 @@ public class PluginsView extends AbstractView{
                     + "\">\n");
             // "Configuration attribute's name" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParPropName + "\""
-                    + " name=\"" + reqParPropName + "\""
+                    + " id=\"" + REQ_PAR_PROP_NAME + "\""
+                    + " name=\"" + REQ_PAR_PROP_NAME + "\""
                     + " value=\""
                     + ((reqValPropName != null) ? reqValPropName : "")
                     + "\">\n");
             // "Configuration attribute's description" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParPropDescr + "\""
-                    + " name=\"" + reqParPropDescr + "\""
+                    + " id=\"" + REQ_PAR_PROP_DESC + "\""
+                    + " name=\"" + REQ_PAR_PROP_DESC + "\""
                     + " value=\""
                     + ((reqValPropDescr != null) ? reqValPropDescr : "")
                     + "\">\n");
             // "Configuration attribute's type" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParPropType + "\""
-                    + " name=\"" + reqParPropType + "\""
+                    + " id=\"" + REQ_PAR_PROP_TYPE + "\""
+                    + " name=\"" + REQ_PAR_PROP_TYPE + "\""
                     + " value=\""
                     + ((reqValPropType != null) ? reqValPropType : "")
                     + "\">\n");
             // "Configuration attribute's value" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParPropValue + "\""
-                    + " name=\"" + reqParPropValue + "\""
+                    + " id=\"" + REQ_PAR_PROP_VALUE + "\""
+                    + " name=\"" + REQ_PAR_PROP_VALUE + "\""
                     + " value=\""
                     + ((reqValPropValue != null) ? reqValPropValue : "")
                     + "\">\n");
             // "Show configuration properties" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParShowProp + "\""
-                    + " name=\"" + reqParShowProp + "\""
+                    + " id=\"" + REQ_PAR_SHOW_PROP + "\""
+                    + " name=\"" + REQ_PAR_SHOW_PROP + "\""
                     + " value=\""
                     + reqValShowProp
                     + "\">\n");
             // "Show activators" input field
             b.append(sp(in) + "<input type=\"hidden\""
-                    + " id=\"" + reqParShowActv + "\""
-                    + " name=\"" + reqParShowActv + "\""
+                    + " id=\"" + REQ_PAR_SHOW_ACTV + "\""
+                    + " name=\"" + REQ_PAR_SHOW_ACTV + "\""
                     + " value=\""
                     + reqValShowActv
                     + "\">\n");
@@ -926,6 +926,14 @@ public class PluginsView extends AbstractView{
 
         return b.toString();
     }
+
+	protected MetricActivator getMetricActivator() {
+		return compMA;
+	}
+
+	protected Plugin getPluginByHashcode(String hashcode) {
+		return Plugin.getPluginByHashcode(hashcode);
+	}
 
 	protected PluginAdmin getPluginAdmin() {
 		return sobjPA;
