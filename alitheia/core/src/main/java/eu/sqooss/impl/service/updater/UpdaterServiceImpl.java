@@ -135,10 +135,21 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /**{@inheritDoc}*/
     @Override
     public Set<Updater> getUpdaters(StoredProject project) {
-        Set<Updater> upds = new HashSet<Updater>();
+        Set<Updater> upds = getUpdatersForScheme(project);
+        
+        //Other updaters
+        upds.addAll(getUpdatersByStage(UpdaterStage.PARSE));
+        upds.addAll(getUpdatersByStage(UpdaterStage.INFERENCE));
+        upds.addAll(getUpdatersByStage(UpdaterStage.DEFAULT));
+        
+        return upds;
+    }
+
+	private Set<Updater> getUpdatersForScheme(StoredProject project) {
+		Set<Updater> upds = new HashSet<Updater>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
-        Set<URI> schemes = new HashSet<URI>();
+		Set<URI> schemes = new HashSet<URI>();
 
         //Import phase updaters
         try {
@@ -153,14 +164,8 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
         for (URI uri : schemes) {
             upds.addAll(getUpdatersByProtocol(uri.getScheme()));
         }
-        
-        //Other updaters
-        upds.addAll(getUpdatersByStage(UpdaterStage.PARSE));
-        upds.addAll(getUpdatersByStage(UpdaterStage.INFERENCE));
-        upds.addAll(getUpdatersByStage(UpdaterStage.DEFAULT));
-        
         return upds;
-    }
+	}
     
     /**{@inheritDoc}*/
     @Override
