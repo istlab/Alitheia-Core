@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.xmlmatchers.transform.XmlConverters.the;
 import static org.xmlmatchers.xpath.HasXPath.hasXPath;
@@ -21,13 +22,13 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(TestAbstractView.class)
+@PrepareForTest(AbstractView.class)
 public class AbstractViewTest {
 
 	@Test
 	public void testCheckMailNull() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkEmail(null);
@@ -39,7 +40,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckMailSubsequentDots() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkEmail("a..@gmail.com");
@@ -51,7 +52,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckMailMultipleAt() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkEmail("a@yahoo@gmail.com");
@@ -63,7 +64,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckMailHeadOrTailDot() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkEmail(".a.@yahoogmail.com.");
@@ -75,7 +76,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckMailCorrectPattern() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkEmail("a@yahoomail.com");
@@ -87,7 +88,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckMailIncorrectPattern1() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkEmail("a\"b@yahoomail.com");
@@ -99,7 +100,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckMailIncorrectPattern2() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkEmail("a@yahoomail%.com");
@@ -111,7 +112,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckProjectNameNull() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkProjectName(null);
@@ -123,7 +124,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckProjectNameHead() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkProjectName("_project");
@@ -135,7 +136,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckProjectNameFoot() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkProjectName("project_");
@@ -147,7 +148,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckNameNull() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkName(null);
@@ -159,7 +160,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckNameHead() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkName("_project");
@@ -171,7 +172,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckNameFoot() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkName("project_");
@@ -183,7 +184,7 @@ public class AbstractViewTest {
 	@Test
 	public void testCheckProjectNameCorrectName() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		boolean check = view.checkProjectName("project");
@@ -195,7 +196,7 @@ public class AbstractViewTest {
 	@Test
 	public void testFromStringIncorrectString() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		Long check = view.fromString("project");
@@ -207,7 +208,7 @@ public class AbstractViewTest {
 	@Test
 	public void testFromStringCorrectString() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		Long check = view.fromString("400000");
@@ -219,7 +220,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalFieldSetNullContent() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 
 		// Act
 		String fieldSet = view.normalFieldset("name", "test", null, 3L);
@@ -231,7 +232,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalFieldSetNoContent() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 
 		// Act
@@ -244,7 +245,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalFieldSetNullCSS() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String name = "name";
@@ -261,7 +262,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalFieldSetNullName() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String name = null;
@@ -280,7 +281,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalInfoRowSetStrings() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String title = "title";
@@ -305,7 +306,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalInfoRowNullTitle() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String title = null;
@@ -330,7 +331,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalInfoRowNullValue() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String title = "title";
@@ -355,7 +356,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalInputRowSetStrings() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String title = "title";
@@ -387,7 +388,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalInputRowNullTitle() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String title = null;
@@ -419,7 +420,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalInputRowNullParValue() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String title = "title";
@@ -451,7 +452,7 @@ public class AbstractViewTest {
 	@Test
 	public void testNormalInputRowNullParName() {
 		// Arrange
-		TestAbstractView view = new TestAbstractView(null, null);
+		TestAbstractView view = new TestAbstractView(null, null, null);
 		StringBuilder content = new StringBuilder();
 		content.append(" ");
 		String title = "title";
@@ -476,10 +477,10 @@ public class AbstractViewTest {
 		// Assert
 		assertEquals(4, sp.length());
 	}
-	
+
 	@Test
 	public void testDebugRequest() {
-		//Arrange
+		// Arrange
 		HttpServletRequest req = mock(HttpServletRequest.class);
 		Enumeration<?> enumeration = new StringTokenizer("this test");
 		when(req.getParameterNames()).thenReturn(enumeration);
@@ -487,13 +488,112 @@ public class AbstractViewTest {
 		String param2 = "test";
 		when(req.getParameter("this")).thenReturn(param1);
 		when(req.getParameter("test")).thenReturn(param2);
-		
-		//Act
+
+		// Act
 		String debugRequest = TestAbstractView.debugRequest(req);
-		
-		//Assert
+
+		// Assert
 		assertTrue(debugRequest.contains(param1));
 		assertTrue(debugRequest.contains(param2));
 	}
+
+	@Test
+	public void testGetMsg() throws Exception {
+		// Arrange
+		mockStatic(AbstractView.class);
+		TestBundle bundle = new TestBundle();
+		when(AbstractView.getResMsg()).thenReturn(bundle);
+		String name = "s1";
+		when(AbstractView.getMsg(name)).thenCallRealMethod();
+		
+
+		// Act
+		String message = TestAbstractView.getMsg(name);
+
+		// Assert
+		assertEquals("test1", message);
+	}
+	
+	@Test
+	public void testGetMsgMissingRes() throws Exception {
+		// Arrange
+		mockStatic(AbstractView.class);
+		when(AbstractView.getResMsg()).thenReturn(null);
+		String name = "s1";
+		when(AbstractView.getMsg(name)).thenCallRealMethod();
+
+		// Act
+		String message = TestAbstractView.getMsg(name);
+
+		// Assert
+		assertEquals(name, message);
+	}
+	
+	@Test
+	public void testGetErr() throws Exception {
+		// Arrange
+		mockStatic(AbstractView.class);
+		TestBundle bundle = new TestBundle();
+		when(AbstractView.getResErr()).thenReturn(bundle);
+		String name = "s1";
+		when(AbstractView.getErr(name)).thenCallRealMethod();
+		
+
+		// Act
+		String message = TestAbstractView.getErr(name);
+
+		// Assert
+		assertEquals("test1", message);
+	}
+	
+	@Test
+	public void testGetErrMissingRes() throws Exception {
+		// Arrange
+		mockStatic(AbstractView.class);
+		when(AbstractView.getResErr()).thenReturn(null);
+		String name = "s1";
+		when(AbstractView.getErr(name)).thenCallRealMethod();
+
+		// Act
+		String message = TestAbstractView.getErr(name);
+
+		// Assert
+		assertEquals(name, message);
+	}
+	
+	@Test
+	public void testGetLbl() throws Exception {
+		// Arrange
+		mockStatic(AbstractView.class);
+		TestBundle bundle = new TestBundle();
+		when(AbstractView.getResLbl()).thenReturn(bundle);
+		String name = "s1";
+		when(AbstractView.getLbl(name)).thenCallRealMethod();
+		
+
+		// Act
+		String message = TestAbstractView.getLbl(name);
+
+		// Assert
+		assertEquals("test1", message);
+	}
+	
+	@Test
+	public void testGetLblMissingRes() throws Exception {
+		// Arrange
+		mockStatic(AbstractView.class);
+		when(AbstractView.getResLbl()).thenReturn(null);
+		String name = "s1";
+		when(AbstractView.getLbl(name)).thenCallRealMethod();
+
+		// Act
+		String message = TestAbstractView.getLbl(name);
+
+		// Assert
+		assertEquals(name, message);
+	}
+	
+	
+
 
 }
