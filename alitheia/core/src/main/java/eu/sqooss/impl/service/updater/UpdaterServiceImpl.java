@@ -149,26 +149,29 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 		Set<Updater> upds = new HashSet<Updater>();
         TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
-		Set<URI> schemes = new HashSet<URI>();
-
-        try {
-        	addAllSupportedURLSchemes(pa, schemes);
-        } catch (InvalidAccessorException e) {
-            logger.warn("Project " + project
-                    + " does not include a Mail accessor: " + e.getMessage());
-        }
+		Set<URI> schemes = getAllSupportedURLSchemes(pa, project);
 
         for (URI uri : schemes) {
             upds.addAll(manager.getUpdatersByProtocol(uri.getScheme()));
         }
+        
         return upds;
 	}
 
-	private void addAllSupportedURLSchemes(ProjectAccessor pa, Set<URI> schemes) throws InvalidAccessorException {
-		//Import phase updaters
-            schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
-            schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
-            schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
+	private Set<URI> getAllSupportedURLSchemes(ProjectAccessor pa, StoredProject project){
+		Set<URI> schemes = new HashSet<URI>();
+		
+		try {
+			//Import phase updaters
+	        schemes.addAll(pa.getSCMAccessor().getSupportedURLSchemes());
+	        schemes.addAll(pa.getBTSAccessor().getSupportedURLSchemes());
+	        schemes.addAll(pa.getMailAccessor().getSupportedURLSchemes());
+		} catch (InvalidAccessorException e) {
+            logger.warn("Project " + project
+                    + " does not include a Mail accessor: " + e.getMessage());
+        }
+		
+		return schemes;
 	}
     
     /**{@inheritDoc}*/
