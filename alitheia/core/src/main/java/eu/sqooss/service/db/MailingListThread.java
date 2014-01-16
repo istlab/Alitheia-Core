@@ -137,10 +137,6 @@ public class MailingListThread extends DAObject {
 	public void setId(long id) {
 		this.id = id;
 	}
-
-	public void setFlameWar(boolean isFlameWar) {
-		this.isFlameWar = isFlameWar;
-	}
     
     public Date getLastUpdated() {
         return lastUpdated;

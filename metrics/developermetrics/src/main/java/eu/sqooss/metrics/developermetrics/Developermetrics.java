@@ -109,9 +109,9 @@ public class Developermetrics extends AbstractMetric {
         runForPeriod(sixMonths, MNEM_TEAMSIZE6, v);
     }
     
-    private void runForPeriod(long monthCount, String TeamIdentifier, ProjectVersion v )
+    private void runForPeriod(long monthCount, String teamIdentifier, ProjectVersion v )
     {
-    	 Metric m = Metric.getMetricByMnemonic(TeamIdentifier);
+    	 Metric m = Metric.getMetricByMnemonic(teamIdentifier);
          ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(m, v, String.valueOf(commSize(v, monthCount)));
          db.addRecord(pvm);
     }
