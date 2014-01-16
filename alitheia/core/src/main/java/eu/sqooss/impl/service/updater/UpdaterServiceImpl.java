@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import org.osgi.framework.BundleContext;
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.updater.exceptions.UpdaterException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
@@ -84,7 +85,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     		u = manager.addUpdater(clazz);
     	}
     	catch (UpdaterException e) {
-    		logger.error(e.toString());
+    		logger.error(e.getMessage());
     		return;
     	}
             

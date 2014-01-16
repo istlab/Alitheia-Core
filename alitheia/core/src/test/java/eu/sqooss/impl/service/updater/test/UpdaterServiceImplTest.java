@@ -1,10 +1,8 @@
 package eu.sqooss.impl.service.updater.test;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -13,9 +11,7 @@ import java.util.Set;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -27,7 +23,6 @@ import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
@@ -53,6 +48,7 @@ public class UpdaterServiceImplTest {
 	private AlitheiaCore core;
 	private DBService dbserve;
 
+	@SuppressWarnings("unchecked")
 	@Test
     public void testJobStateChangedTwice() throws InvalidAccessorException, SchedulerException {
 		// -- Given
@@ -77,6 +73,7 @@ public class UpdaterServiceImplTest {
 		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
     }
 	
+	@SuppressWarnings("unchecked")
 	@Test
     public void testJobStateChanged() throws InvalidAccessorException, SchedulerException {
 		// -- Given
@@ -377,6 +374,7 @@ public class UpdaterServiceImplTest {
 		//2 info messages from correctly added services
 		//1 info message from a bad project (null)
 		Mockito.verify(mockedLogger, Mockito.times(5)).info(Mockito.anyString());
+		assertEquals(false, b);
     }
 	
 	@Test
