@@ -90,10 +90,10 @@ public class XMLReader {
 	private void initSAXReader(){
 		reader = new SAXReader(false);
 		reader.setValidation(false);
-        reader.setEntityResolver(createDummyResolver());
-        reader.setIncludeExternalDTDDeclarations(false);
-        reader.setIncludeInternalDTDDeclarations(false);
-        reader.setStripWhitespaceText(true);
+		reader.setEntityResolver(createDummyResolver());
+		reader.setIncludeExternalDTDDeclarations(false);
+		reader.setIncludeInternalDTDDeclarations(false);
+		reader.setStripWhitespaceText(true);
 	}
 	
 	/**
