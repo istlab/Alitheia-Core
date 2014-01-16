@@ -248,30 +248,18 @@ public class WcImplementation extends AbstractMetric {
         
 
         // Store the results
-        List<Metric> toUpdate = new ArrayList<Metric>();
-        Metric metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOC);
+        storeMetricResult(MNEMONIC_WC_LOC,pf, String.valueOf(results[0]));
+        storeMetricResult(MNEMONIC_WC_LOCOM,pf, String.valueOf(results[1]));
+        storeMetricResult(MNEMONIC_WC_LONB,pf, String.valueOf(results[2]));
+        storeMetricResult(MNEMONIC_WC_WORDS,pf, String.valueOf(results[3]));
+    }
+    
+    private void storeMetricResult(String metricType, ProjectFile pf, String value)
+    {
+    	Metric metric = Metric.getMetricByMnemonic(metricType);
         ProjectFileMeasurement locm = new ProjectFileMeasurement(
-                metric,pf,String.valueOf(results[0]));
+                metric,pf,value);
         db.addRecord(locm);
-        toUpdate.add(metric);
-
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
-        ProjectFileMeasurement locc = new ProjectFileMeasurement(
-                metric,pf,String.valueOf(results[1]));
-        db.addRecord(locc);
-        toUpdate.add(metric);
-        
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LONB);
-        ProjectFileMeasurement lonb = new ProjectFileMeasurement(
-                metric,pf,String.valueOf(results[2]));
-        db.addRecord(lonb);
-        toUpdate.add(metric);
-
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_WORDS);
-        ProjectFileMeasurement words_measure = new ProjectFileMeasurement(
-                metric,pf,String.valueOf(results[3]));
-        db.addRecord(words_measure);
-        toUpdate.add(metric);
     }
 
     /**
@@ -473,23 +461,20 @@ public class WcImplementation extends AbstractMetric {
             }
         }
         
-        List<Metric> toUpdate = new ArrayList<Metric>();
-        
-        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_NODF, v, nodf));
-        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_NOF, v, (int)nof));
-        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_NOSF, v, nosf));
-        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TL, v, totalLocDoc + totalLoC));
-        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLDOC, v, totalLocDoc));
-        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLOC, v, totalLoC));
-        toUpdate.add(addPVMeasurement(MNEMONIC_WC_PV_TLOCOM, v, totalLoComm));
+        addPVMeasurement(MNEMONIC_WC_PV_NODF, v, nodf);
+        addPVMeasurement(MNEMONIC_WC_PV_NOF, v, (int)nof);
+        addPVMeasurement(MNEMONIC_WC_PV_NOSF, v, nosf);
+        addPVMeasurement(MNEMONIC_WC_PV_TL, v, totalLocDoc + totalLoC);
+        addPVMeasurement(MNEMONIC_WC_PV_TLDOC, v, totalLocDoc);
+        addPVMeasurement(MNEMONIC_WC_PV_TLOC, v, totalLoC);
+        addPVMeasurement(MNEMONIC_WC_PV_TLOCOM, v, totalLoComm);
     }
     
-    private Metric addPVMeasurement(String s, ProjectVersion pv, int value) {
+    private void addPVMeasurement(String s, ProjectVersion pv, int value) {
         Metric m = Metric.getMetricByMnemonic(s); 
         ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(m , pv, 
                 String.valueOf(value));
         db.addRecord(pvm);
-        return m;
     }
 }
 
