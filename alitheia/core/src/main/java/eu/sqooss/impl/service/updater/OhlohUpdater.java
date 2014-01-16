@@ -33,22 +33,13 @@
 
 package eu.sqooss.impl.service.updater;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.Iterator;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-
 import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.updater.UpdaterBaseJob;
@@ -96,22 +87,8 @@ public class OhlohUpdater extends UpdaterBaseJob {
      */
     protected void run() throws Exception {
         Folder f = null;
-        try {
-        	f = new Folder(ohlohPath); 
-        	      	
-            if (!f.exists()) {
-                logger.error("Path" + ohlohPath
-                        + " does not exist or is not a directory");
-                throw new FileNotFoundException("Cannot find Ohloh XML files");
-            }
-        }
-        catch(NullPointerException n) {
-            logger.error("Cannot continue without a valid path to look into");
-            throw new FileNotFoundException("Cannot find Ohloh XML files");
-        }
-        finally {
-            //updater.removeUpdater(p, t);
-        }
+        
+        f = openFolder();
         
         for (String file : f.listFilesExt(".xml")) {
             dbs.startDBSession();
@@ -170,6 +147,32 @@ public class OhlohUpdater extends UpdaterBaseJob {
         
         return document;
     }
+
+    /**
+     * Private method for opening directory
+     * @return new Object
+     * @throws FileNotFoundException
+     */
+	private Folder openFolder() throws FileNotFoundException {
+		Folder f = null;
+		try {
+        	f = new Folder(ohlohPath); 
+        	      	
+            if (!f.exists()) {
+                logger.error("Path" + ohlohPath
+                        + " does not exist or is not a directory");
+                throw new FileNotFoundException("Cannot find Ohloh XML files");
+            }
+        }
+        catch(NullPointerException n) {
+            logger.error("Cannot continue without a valid path to look into");
+            throw new FileNotFoundException("Cannot find Ohloh XML files");
+        }
+        finally {
+            //updater.removeUpdater(p, t);
+        }
+		return f;
+	}
     
     /**
      * Return the String value of some Element
