@@ -105,5 +105,12 @@ public class Folder {
 			}
 		});
 	}
+	/**
+	 * Getting Absolute Path of the directory
+	 * @return String, that is absolute path
+	 */
+	public String getAbsolutePath() {
+		return f.getAbsolutePath();
+	}
 
 }
