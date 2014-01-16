@@ -75,10 +75,6 @@ public class BugPriority extends DAObject {
     public String getPriority() {
         return priority;
     }
-
-    public void setpriority(String priority) {
-        this.priority = priority;
-    }
     
     public Priority getBugPriority() {
         return Priority.fromString(getPriority());
@@ -181,7 +177,7 @@ public class BugPriority extends DAObject {
         }
         
         BugPriority bs = new BugPriority();
-        bs.setpriority(priority);
+        bs.setPriority(priority);
         
         if (!dbs.addRecord(bs))
             return null;

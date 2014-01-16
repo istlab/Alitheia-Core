@@ -270,7 +270,7 @@ public class Bug extends DAObject {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramBugID = "paramBugID";
-        String paramStoredProject = "stroredProject";
+        String paramStoredProject = "storedProject";
         
         String query = "select brm " +
         		"from Bug b, BugReportMessage brm " +
@@ -293,7 +293,7 @@ public class Bug extends DAObject {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramBugID = "paramBugID";
-        String paramStoredProject = "stroredProject";
+        String paramStoredProject = "storedProject";
         
         String query = "select b " +
         	        "from Bug b " +
