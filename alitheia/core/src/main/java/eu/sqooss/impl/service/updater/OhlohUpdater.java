@@ -58,21 +58,33 @@ import eu.sqooss.service.util.Folder;
  */
 public class OhlohUpdater extends UpdaterBaseJob {
     
+	/**
+	 * The System property that stores the Ohloh path
+	 */
     private static final String OHLOH_PATH = "eu.sqooss.updater.ohloh.path";
-    //private static final String OHLOH_PATH = "eu.sqooss.updater.ohloh.path";
     
+    /**
+     * The actual Ohloh path the Ohloh XML files are located in
+     */
     private String ohlohPath;
     
+    /**
+     * Construct a new Ohloh updater.
+     */
     public OhlohUpdater() {
         ohlohPath = System.getProperty(OHLOH_PATH); 
     }
 
     @Override
+    /**
+     * Updating developer information is a low priority process.
+     */
     public long priority() {
         return 3;
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     /**
      * 1. Retrieve the Ohloh XML-file directory, otherwise throw a FileNotFoundException <br>
      * 2. Retrieve all XML files in this folder (stored in 'files') <br>
@@ -86,27 +98,23 @@ public class OhlohUpdater extends UpdaterBaseJob {
      * 3.4. Commit the changes (for all of the developer accounts in this file) <br>
      */
     protected void run() throws Exception {
-        Folder f = null;
+        Folder folder = openFolder();
         
-        f = openFolder();
-        
-        for (String file : f.listFilesExt(".xml")) {
+        for (String file : folder.listFilesExt(".xml")) {
             dbs.startDBSession();
             
-            Document document = docFromXMLFile(f, file);
+            Document document = docFromXMLFile(folder, file);
             if (document == null)
             	continue;
             
-            Element root = (Element) document.getRootElement();
-            Iterator i = root.element("result").elementIterator("account");
+            Element root = document.getRootElement();
+			Iterator<Element> i = root.element("result").elementIterator("account");
             
-            if (i == null || !i.hasNext()) {
+            if (i == null || !i.hasNext())
                 logger.warn("Cannot find <account> element in file " + document.getPath());
-            }
             
-            while (i.hasNext()) {
-                addAccount((Element) i.next());
-            }
+            while (i.hasNext())
+                addAccount(i.next());
             
             dbs.commitDBSession();
         }
@@ -162,6 +170,7 @@ public class OhlohUpdater extends UpdaterBaseJob {
      */
 	private Folder openFolder() throws FileNotFoundException {
 		Folder f = null;
+		
 		try {
         	f = new Folder(ohlohPath); 
         	      	
@@ -175,9 +184,7 @@ public class OhlohUpdater extends UpdaterBaseJob {
             logger.error("Cannot continue without a valid path to look into");
             throw new FileNotFoundException("Cannot find Ohloh XML files");
         }
-        finally {
-            //updater.removeUpdater(p, t);
-        }
+		
 		return f;
 	}
     
@@ -188,14 +195,15 @@ public class OhlohUpdater extends UpdaterBaseJob {
      * @return element.getStringValue() if element is not null, "" otherwise
      */
     private String getString(Element element) {
-        if (element != null) {
+        if (element != null)
             return element.getStringValue();
-        } else {
-            return "";
-        }
+        return "";
     }
 
     @Override
+    /**
+     * Return this job
+     */
     public Job getJob() {
         return this;
     }
