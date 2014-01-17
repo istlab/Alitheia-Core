@@ -42,9 +42,9 @@ public class MetricsResourceTest {
 	/************ Auxiliar methods **************/
 	private void httpRequestFireAndTestAssertations(String api_path, String r)
 			throws URISyntaxException {
-		MockHttpResponse response = TestUtils.fireMockHttpRequest(
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
 				MetricsResource.class, api_path);
-		//System.out.println(response.getContentAsString());
+		// System.out.println(response.getContentAsString());
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 		assertEquals(r, response.getContentAsString());
 	}
@@ -117,7 +117,7 @@ public class MetricsResourceTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testGetMetricResult() throws Exception {
-		
+
 		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
 
@@ -125,17 +125,18 @@ public class MetricsResourceTest {
 		Mockito.when(
 				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
 				.thenReturn(null);
-		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/test", r1);
-	
+		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/test",
+				r1);
+
 		Metric m = new Metric();
 		m.setDescription("Test");
 
 		String s = "";
 		s += "1,";
-		for(int i=0; i<64; i++)
+		for (int i = 0; i < 64; i++)
 			s += "02222255633252,";
 		s += "02222255633252";
-		
+
 		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><r/><r/><r/><r/></collection>";
 
@@ -144,14 +145,11 @@ public class MetricsResourceTest {
 				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
 				.thenReturn(m);
 
-		testGetResult();
-		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/" + s, r2);
-	
-		
-	}
 
-	public void testGetResult() throws Exception {
 		testGetResultHelper();
+		httpRequestFireAndTestAssertations("api/metrics/by-id/5/result/" + s,
+				r2);
+
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -210,7 +208,6 @@ public class MetricsResourceTest {
 		httpRequestFireAndTestAssertations("api/metrics/by-mnem/mnemonic", r);
 	}
 
-
 	@Test
 	public void testGetMetricResultByMnemWithMetric() throws Exception {
 		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -240,7 +237,7 @@ public class MetricsResourceTest {
 		PowerMockito.mockStatic(Metric.class);
 		Mockito.when(Metric.getMetricByMnemonic(Mockito.anyString()))
 				.thenReturn(m);
-		testGetResult();
+		testGetResultHelper();
 		httpRequestFireAndTestAssertations(
 				"api/metrics/by-mnem/mnemonic/result/02222255633252,02222255633252",
 				r2);

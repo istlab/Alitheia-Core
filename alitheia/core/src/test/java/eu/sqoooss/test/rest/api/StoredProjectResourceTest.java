@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.PathParam;
 
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.junit.After;
@@ -17,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.stubbing.OngoingStubbing;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -25,6 +23,10 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import eu.sqoooss.test.rest.api.utils.TestUtils;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.rest.api.StoredProjectResource;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Directory;
@@ -32,21 +34,27 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Scheduler;
 
 @PrepareForTest({ AlitheiaCore.class, DAObject.class, ProjectVersion.class,
-		StoredProject.class, Directory.class })
+		StoredProject.class, Directory.class, ClusterNode.class })
 @RunWith(PowerMockRunner.class)
 public class StoredProjectResourceTest {
 
+	private AdminService as;
 	private DBService db;
 
 	/************ Help methods **************/
 	private void httpRequestFireAndTestAssertations(String api_path, String r)
 			throws URISyntaxException {
-		MockHttpResponse response = TestUtils.fireMockHttpRequest(
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
 				StoredProjectResource.class, api_path);
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
-		System.out.println(response.getContentAsString());
 		assertEquals(r, response.getContentAsString());
 	}
 
@@ -122,6 +130,9 @@ public class StoredProjectResourceTest {
 
 		db = PowerMockito.mock(DBService.class);
 		Mockito.when(core.getDBService()).thenReturn(db);
+		
+		as = PowerMockito.mock(AdminService.class);
+		Mockito.when(core.getAdminService()).thenReturn(as);
 
 	}
 
@@ -147,7 +158,7 @@ public class StoredProjectResourceTest {
 
 		Mockito.when(db.doHQL(Mockito.anyString())).thenReturn(l);
 
-		httpRequestFireAndTestAssertations("api/project/", r);
+		httpRequestFireAndTestAssertations("api/projects/", r);
 
 	}
 
@@ -363,9 +374,125 @@ public class StoredProjectResourceTest {
 				"api/project/0123/version/random/dirs//bab", r2);
 	}
 
-	public static void main(String[] args) throws Exception {
-		StoredProjectResourceTest t = new StoredProjectResourceTest();
-		System.out.println("Hello, World.");
+	@Test
+	public void testUpdateAllOnNode() throws Exception {
+		PowerMockito.mockStatic(ClusterNode.class);
+		ClusterNode c = PowerMockito.mock(ClusterNode.class);
+		Mockito.when(ClusterNode.thisNode()).thenReturn(c);
+		
+		StoredProject p1 = PowerMockito.mock(StoredProject.class);
+		StoredProject p2 = PowerMockito.mock(StoredProject.class);
+		Set<StoredProject> l = new HashSet<StoredProject>();
+		l.add(p1);
+		l.add(p2);
+		
+		AdminAction aa = PowerMockito.mock(AdminAction.class);
+		Mockito.when(as.create(Mockito.anyString())).thenReturn(aa);
+		Mockito.when(c.getProjects()).thenReturn(l);
+		
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/projects/updateAllResources");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+	}
+	
+	@Test
+	public void testAddProject() throws Exception {
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<project><id>0</id><name>TestProject1</name></project>";
+		StoredProject sp = new StoredProject("TestProject1");
+		AdminAction aa = PowerMockito.mock(AdminAction.class);
+		Mockito.when(as.create(Mockito.anyString())).thenReturn(aa);
+		PowerMockito.mockStatic(StoredProject.class);
+		Mockito.when(StoredProject.getProjectByName(Mockito.anyString())).thenReturn(sp);
+	
+		MockHttpResponse response = TestUtils.fireMockPOSTHttpRequest(
+				StoredProjectResource.class, "api/projects/add/bla/bla/bla/bla/bla/bla");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testDeleteProject() throws Exception {
+		PowerMockito.mockStatic(DAObject.class);
+		PowerMockito.mockStatic(AlitheiaCore.class);
+		
+		StoredProject sp = PowerMockito.mock(StoredProject.class);
+		Mockito.when(DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any())).thenReturn(sp);
+		
+		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
+		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
+		
+		Scheduler sch = PowerMockito.mock(Scheduler.class);
+		Mockito.when(core.getScheduler()).thenReturn(sch);
+		
+		//Mockito.when(sch.enqueue(Mockito.any(ProjectDeleteJob.class))).then;
+		MockHttpResponse response = TestUtils.fireMockDELETEHttpRequest(
+				StoredProjectResource.class, "api/project/1/delete");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+	}
+	
+	@Test
+	public void testUpdateProjectResource() throws Exception {
+		PowerMockito.mockStatic(AlitheiaCore.class);
+		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
+		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
+		
+		Mockito.when(core.getAdminService()).thenReturn(as);
+		AdminAction aa = PowerMockito.mock(AdminAction.class);
+		Mockito.when(as.create(Mockito.anyString())).thenReturn(aa);
+		
+		MockHttpResponse response = TestUtils.fireMockPOSTHttpRequest(
+				StoredProjectResource.class, "api/project/1/updateResource/bla");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 	}
 
+	@Test
+	public void testUpdateAllProjectResources() throws Exception {
+		PowerMockito.mockStatic(AlitheiaCore.class);
+		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
+		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
+		
+		Mockito.when(core.getAdminService()).thenReturn(as);
+		AdminAction aa = PowerMockito.mock(AdminAction.class);
+		Mockito.when(as.create(Mockito.anyString())).thenReturn(aa);
+		
+		MockHttpResponse response = TestUtils.fireMockPOSTHttpRequest(
+				StoredProjectResource.class, "api/project/1/updateAllResources");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testSyncPlugin() throws Exception {
+		PowerMockito.mockStatic(DAObject.class);
+		PowerMockito.mockStatic(AlitheiaCore.class);
+		
+		StoredProject sp = PowerMockito.mock(StoredProject.class);
+		Mockito.when(DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any())).thenReturn(sp);
+		
+		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
+		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
+		
+		PluginAdmin pa = PowerMockito.mock(PluginAdmin.class);
+		PluginInfo pluginInfo = PowerMockito.mock(PluginInfo.class);
+		AlitheiaPlugin ap = PowerMockito.mock(AlitheiaPlugin.class);
+		
+		Mockito.when(core.getPluginAdmin()).thenReturn(pa);
+		Mockito.when(pa.getPluginInfo(Mockito.anyString())).thenReturn(pluginInfo);
+		Mockito.when(pa.getPlugin(pluginInfo)).thenReturn(ap);
+		
+		MetricActivator mta = PowerMockito.mock(MetricActivator.class);
+		Mockito.when(core.getMetricActivator()).thenReturn(mta);
+		
+		LogManager log = PowerMockito.mock(LogManager.class);
+		Mockito.when(core.getLogManager()).thenReturn(log);
+		
+		Logger l = PowerMockito.mock(Logger.class);
+		Mockito.when(log.createLogger(Mockito.anyString())).thenReturn(l);
+		
+		MockHttpResponse response = TestUtils.fireMockPOSTHttpRequest(
+				StoredProjectResource.class, "api/project/1/syncPlugin/bla");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+	}
 }

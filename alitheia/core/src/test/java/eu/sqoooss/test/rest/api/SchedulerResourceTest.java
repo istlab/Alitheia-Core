@@ -35,9 +35,8 @@ public class SchedulerResourceTest {
 	
 	private void httpRequestFireAndTestAssertations(String api_path, String r)
 			throws URISyntaxException {
-		MockHttpResponse response = TestUtils.fireMockHttpRequest(
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
 				SchedulerResource.class, api_path);
-		System.out.println(response.getContentAsString());
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 		assertEquals(r, response.getContentAsString());
 	}
@@ -120,19 +119,26 @@ public class SchedulerResourceTest {
 		httpRequestFireAndTestAssertations("api/scheduler/stats/jobs/run", r);
 	}
 
-	//TODO - JAXBMARSHALL EXception type of variable
-	@Ignore
 	@Test
 	public void testGetFailedQueue() throws Exception {
-		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<collection><job><restarts>0</restarts></job></collection>";
-		PowerMockito.mockStatic(Job.class, Mockito.CALLS_REAL_METHODS);
-		Job j = PowerMockito.mock(Job.class);
-		Job[] jobs = {j};
 		
+		Job j = null;
+		Job[] jobs = {j};
+		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection/>";
 		Mockito.when(s.getFailedQueue()).thenReturn(jobs);
 
-		httpRequestFireAndTestAssertations("api/scheduler/failed_queue", r);
+		httpRequestFireAndTestAssertations("api/scheduler/failed_queue", r1);
+		
+		PowerMockito.mockStatic(Job.class, Mockito.CALLS_REAL_METHODS);
+		j = PowerMockito.mock(Job.class);
+		Job[] jobs2 = {j};
+		
+		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection><job/></collection>";
+		Mockito.when(s.getFailedQueue()).thenReturn(jobs2);
+
+		httpRequestFireAndTestAssertations("api/scheduler/failed_queue", r2);
 	}
 	
 	

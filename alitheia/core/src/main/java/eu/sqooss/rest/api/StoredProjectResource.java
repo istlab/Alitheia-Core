@@ -39,12 +39,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.webadmin.ProjectDeleteJob;
+import eu.sqooss.rest.api.wrappers.ResponseBuilder;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.AddProject;
+import eu.sqooss.service.admin.actions.UpdateProject;
+import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Directory;
@@ -52,6 +63,9 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.SchedulerException;
 
 @Path("/api")
 public class StoredProjectResource {
@@ -60,12 +74,25 @@ public class StoredProjectResource {
 	
 	@GET
 	@Produces({"application/xml", "application/json"})
-	@Path("/project/")
+	@Path("/projects/")
 	public List<StoredProject> getProjects() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from StoredProject";
 		List<StoredProject> sp = (List<StoredProject>) db.doHQL(q);
 		return sp;
+	}
+	
+	@Path("/projects/updateAllResources")
+	@GET
+	@Produces({"application/xml", "application/json"})
+	public Response updateAllProjectsOnThisNode() {
+		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
+		
+		for (StoredProject project : projectList) {
+			updateAllResourcesProject(Long.toString(project.getId()));
+		}
+		
+		return ResponseBuilder.simpleResponse(200, "All resources of this node projects, have been updated");
 	}
 
 	@Path("/project/{id}")
@@ -81,12 +108,104 @@ public class StoredProjectResource {
 		return sp;
 	}
 	
+	@Path("/projects/add/{scm}/{name}/{bts}/{mail}/{contact}/{web}")
+	@POST
+	@Produces({"application/xml", "application/json"})
+	public StoredProject addProject(@PathParam("scm") String scm, @PathParam("name") String name,
+			@PathParam("bts") String bts, @PathParam("mail") String mail, 
+			@PathParam("contact") String contact, @PathParam("web") String web) {
+		
+		AdminService as = AlitheiaCore.getInstance().getAdminService();
+    	AdminAction aa = as.create(AddProject.MNEMONIC);
+    	aa.addArg("scm", scm);
+    	aa.addArg("name", name);
+    	aa.addArg("bts", bts);
+    	aa.addArg("mail", mail);
+    	aa.addArg("web", web);
+    	as.execute(aa);
+    	
+    	if (aa.hasErrors()) {
+            return null;
+    	} else { 
+            return StoredProject.getProjectByName(name);
+    	}
+	}
+	
+	@Path("/project/{id}/delete")
+	@DELETE
+	@Produces({"application/xml", "application/json"})
+	public Response deleteProject(@PathParam("id") String id) {
+		StoredProject sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
+		if(sp != null){
+			AlitheiaCore core = AlitheiaCore.getInstance();
+			ProjectDeleteJob pdj = new ProjectDeleteJob(core, sp);
+			try {
+				core.getScheduler().enqueue(pdj);
+			} catch (SchedulerException e1) {
+				return ResponseBuilder.internalServerErrorResponse("Project delete failed with error: " + e1.getMessage());
+			}
+		} else {
+			return ResponseBuilder.internalServerErrorResponse("Project does not exist");
+		}
+		return ResponseBuilder.simpleResponse(200, "Project deleted with success");
+	}
+	
+	@Path("/project/{id}/updateResource/{mnem}")
+	@POST
+	@Produces({"application/xml", "application/json"})
+	public Response updateResourceProject(@PathParam("id") String id, @PathParam("mnem") String mnem) {
+		AdminService as = AlitheiaCore.getInstance().getAdminService();
+		AdminAction aa = as.create(UpdateProject.MNEMONIC);
+		aa.addArg("project", id);
+		aa.addArg("updater", mnem);
+		as.execute(aa);
+
+		if (aa.hasErrors()) {
+			return ResponseBuilder.internalServerErrorResponse("Update resource on project failed");
+        } else { 
+        	return ResponseBuilder.simpleResponse(200, "Project resource updated with success");
+        }
+	}
+	
+	@Path("/project/{id}/updateAllResources")
+	@POST
+	@Produces({"application/xml", "application/json"})
+	public Response updateAllResourcesProject(@PathParam("id") String id) {
+		AdminService as = AlitheiaCore.getInstance().getAdminService();
+		AdminAction aa = as.create(UpdateProject.MNEMONIC);
+		aa.addArg("project", id);
+		as.execute(aa);
+
+		if (aa.hasErrors()) {
+			return ResponseBuilder.internalServerErrorResponse("Update project resources failed");
+        } else { 
+        	return ResponseBuilder.simpleResponse(200, "Project resources updated with success");
+        }
+	}
+	
+	@Path("/project/{id}/syncPlugin/{plugin}")
+	@POST
+	@Produces({"application/xml", "application/json"})
+	public Response syncPlugin(@PathParam("id") String id, @PathParam("plugin") String plugin) {
+		StoredProject sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
+		AlitheiaCore core = AlitheiaCore.getInstance();
+		PluginInfo pInfo = core.getPluginAdmin().getPluginInfo(plugin);
+		if (pInfo != null) {
+			AlitheiaPlugin pObj = core.getPluginAdmin().getPlugin(pInfo);
+			if (pObj != null) {
+				core.getMetricActivator().syncMetric(pObj, sp);
+				core.getLogManager().createLogger(Logger.NAME_SQOOSS_WEBADMIN).debug("Syncronise plugin (" + pObj.getName()
+						+ ") on project (" + sp.getName() + ").");
+			}
+		}
+		return ResponseBuilder.simpleResponse("Plugin synced with success");
+	}
+	
 	@Path("/project/{id}/versions")
 	@GET
 	@Produces({"application/xml", "application/json"})
 	public List<ProjectVersion> getAllVersions(@PathParam("id") Long id) {
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
-		
 		return sp.getProjectVersions();
 	}
 	

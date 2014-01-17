@@ -33,7 +33,7 @@ public class LogManagerResourceTest {
 	/************ Auxiliar methods **************/
 	private void httpRequestFireAndTestAssertations(String api_path, String r)
 			throws URISyntaxException {
-		MockHttpResponse response = TestUtils.fireMockHttpRequest(
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
 				LogManagerResource.class, api_path);
 		//System.out.println(response.getContentAsString());
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
