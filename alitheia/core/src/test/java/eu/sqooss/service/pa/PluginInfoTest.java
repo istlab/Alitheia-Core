@@ -7,7 +7,6 @@ import static org.mockito.Mockito.times;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.mockito.Mockito;
 import org.osgi.framework.ServiceReference;
 
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
