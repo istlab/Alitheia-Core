@@ -38,20 +38,15 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -77,11 +72,8 @@ import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivationException;
 import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.ConfigurationType;
 import eu.sqooss.service.pa.PluginAdmin;
-import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.util.Pair;
 
 /**
  * A base class for all metrics. Implements basic functionality such as
@@ -90,129 +82,35 @@ import eu.sqooss.service.util.Pair;
  * the {@link eu.sqooss.abstractmetric.AlitheiaPlugin} interface instead of 
  * extending this class.
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /** Reference to the metric bundle context */
     protected BundleContext bc;
 
     /** Logger for administrative operations */
-    protected Logger log = null;
+    protected Logger log;
 
     /** Reference to the DB service, not to be passed to metric jobs */
     protected DBService db;
 
-    /** 
-     * Reference to the plugin administrator service, not to be passed to 
-     * metric jobs 
-     */
+    /** Reference to the plugin administrator service, not to be passed to metric jobs */
     protected PluginAdmin pa;
+
+    /** Reference to the collection of actual Metric objects */
+    protected MetricCollection metrics;
     
-    /**
-     * The scheduler job that executes this metric. 
-     */
+    /** Reference to the collection of PluginConfigurations */
+    protected MetricConfiguration config;
+    
+    /** A manager for locks of actions */
+    protected LockManager locks;
+    
+    /** A referenced to the actual Metric's class */
+    protected Class<? extends AbstractMetric> implementor;
+    
+    /** The scheduler job that executes this metric */
     protected ThreadLocal<Job> job = new ThreadLocal<Job>();
-
-    /** 
-     * Metric mnemonics for the metrics required to be present for this 
-     * metric to operate.
-     */
-    protected Set<String> dependencies = new HashSet<String>();
-    
-    /** Set of declared metrics indexed by their mnemonic*/
-    protected Map<String, Metric> metrics = new HashMap<String, Metric>();
-    
-    /** The list of this plug-in's activators*/
-    protected Set<Class<? extends DAObject>> activators =
-        new HashSet<Class<? extends DAObject>>();
-
-    protected Map<Metric, List<Class<? extends DAObject>>> metricActType =
-    	new HashMap<Metric, List<Class<? extends DAObject>>>();
-    
-    protected static final String QRY_SYNC_PV = "select pv.id from ProjectVersion pv " +
-    		"where pv.project = :project and not exists(" +
-    		"	select pvm.projectVersion from ProjectVersionMeasurement pvm " +
-    		"	where pvm.projectVersion.id = pv.id and pvm.metric.id = :metric) " +
-    		"order by pv.sequence asc";
-    
-    protected static final String QRY_SYNC_PF = "select pf.id " +
-    		"from ProjectVersion pv, ProjectFile pf " +
-    		"where pf.projectVersion=pv and pv.project = :project " +
-    		"and not exists (" +
-    		"	select pfm.projectFile " +
-    		"	from ProjectFileMeasurement pfm " +
-    		"	where pfm.projectFile.id = pf.id " +
-    		"	and pfm.metric.id = :metric) " +
-    		"	and pf.isDirectory = false)  " +
-    		"order by pv.sequence asc";
-    
-    protected static final String QRY_SYNC_PD = "select pf.id " +
-		"from ProjectVersion pv, ProjectFile pf " +
-		"where pf.projectVersion=pv and pv.project = :project " +
-		"and not exists (" +
-		"	select pfm.projectFile " +
-		"	from ProjectFileMeasurement pfm " +
-		"	where pfm.projectFile.id = pf.id " +
-		"	and pfm.metric.id = :metric) " +
-		"	and pf.isDirectory = true)  " +
-		"order by pv.sequence asc";
-    
-    protected static final String QRY_SYNC_MM = "select mm.id " +
-    		"from MailMessage mm " +
-    		"where mm.list.storedProject = :project " +
-    		"and mm.id not in (" +
-    		"	select mmm.mail.id " +
-    		"	from MailMessageMeasurement mmm " +
-    		"	where mmm.metric.id =:metric and mmm.mail.id = mm.id))";
-    
-    protected static final String QRY_SYNC_MT = "select mlt.id " +
-    		"from MailingListThread mlt " +
-    		"where mlt.list.storedProject = :project " +
-    		"and mlt.id not in (" +
-    		"	select mltm.thread.id " +
-    		"	from MailingListThreadMeasurement mltm " +
-    		"	where mltm.metric.id =:metric and mltm.thread.id = mlt.id)";
-    
-    protected static final String QRY_SYNC_DEV = "select d.id " +
-    		"from Developer d " +
-    		"where d.storedProject = :project";
-    
-    protected static final String QRY_SYNC_NS = "select ns.id " +
-            "from NameSpace ns, ProjectVersion pv " +
-            "where pv = ns.changeVersion " +
-            "and pv.project = :project " +
-            "and not exists ( " +
-            "   select nsm " + 
-            "   from NameSpaceMeasurement nsm " + 
-            "   where nsm.metric.id = :metric " +
-            "   and nsm.namespace = ns) " +
-            "order by pv.sequence asc";
-    
-    protected static final String QRY_SYNC_ENCUNT = "select encu.id " +
-            "from EncapsulationUnit encu, ProjectVersion pv, ProjectFile pf " +
-            " where pf.projectVersion = pv " +
-            " and encu.file = pf " +
-            "and pv.project = :project " +
-            "and not exists ( " +
-            "    select eum " +
-            "    from EncapsulationUnitMeasurement eum " +
-            "    where eum.encapsulationUnit = encu " +
-            "    and eum.metric.id = :metric " +
-            " ) order by pv.sequence asc ";
-    
-    protected static final String QRY_SYNC_EXECUNT = "select exu.id " +
-    		"from ExecutionUnit exu, EncapsulationUnit encu, " +
-    		"     ProjectVersion pv, ProjectFile pf " +
-            "where pf.projectVersion = pv " +
-            "and encu.file = pf " +
-            "and pv.project = :project " +
-            "and exu.changed = true " +
-            "and exu.encapsulationUnit = encu " +
-            "and not exists ( " +
-            "    select eum  " +
-            "    from ExecutionUnitMeasurement eum " +
-            "    where eum.executionUnit = exu " +
-            "    and eum.metric.id = :metric) " +
-            "order by pv.sequence asc";
     
     /**
      * Init basic services common to all implementing classes
@@ -221,6 +119,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
     protected AbstractMetric(BundleContext bc) {
     	this.bc = bc;
+    	
+    	implementor = getClass();
         
         log = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_METRIC);
 
@@ -239,42 +139,14 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             log.error("Could not get a reference to the Plugin Administation "
                     + "service");
         
-    	discoverMetrics(getClass().getAnnotation(MetricDeclarations.class));
+        metrics = new MetricCollection(this,log);
+    	metrics.discoverMetrics(implementor.getAnnotation(MetricDeclarations.class));
+    	
+    	config = new MetricConfiguration(this,log,pa);
+    	
+    	locks = new LockManager(this,log);
     }
-    
-    protected void discoverMetrics(MetricDeclarations md){
-		if (md != null && md.metrics().length > 0) {
-			for (MetricDecl metric : md.metrics()) {
-				log.debug("Found metric: " + metric.mnemonic() + " with "
-						+ metric.activators().length + " activators");
-
-				if (metrics.containsKey(metric.mnemonic())) {
-				    log.error("Duplicate metric mnemonic " + metric.mnemonic());
-				    continue;
-				}
-				
-				Metric m = new Metric();
-				m.setDescription(metric.descr());
-				m.setMnemonic(metric.mnemonic());
-				m.setMetricType(new MetricType(MetricType.fromActivator(metric.activators()[0])));
-			
-				List<Class<? extends DAObject>> activs = new ArrayList<Class<? extends DAObject>>();				
-				for (Class<? extends DAObject> o : metric.activators()) {
-					activs.add(o);
-				}
-				
-				metricActType.put(m, activs);
-				
-				activators.addAll(Arrays.asList(metric.activators()));
-				
-				metrics.put(m.getMnemonic(), m);
-				if (metric.dependencies().length > 0)
-					dependencies.addAll(Arrays.asList(metric.dependencies()));
-			}
-		} else {
-			log.warn("Plug-in " + getName() + " declares no metrics");
-		}
-     }
+   
 
     /**
      * Retrieve author information from the plug-in bundle
@@ -307,15 +179,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         return (String) bc.getBundle().getHeaders().get(
                 Constants.BUNDLE_VERSION);
     }
-
+    
     /**
-     * Retrieve the installation date for this plug-in version
+     * Retrieve the plug-in's current tate as specified in the metric bundle
      */
-    public final Date getDateInstalled() {
-        return Plugin.getPluginByHashcode(getUniqueKey()).getInstalldate();
+    public int getState(){
+    	return bc.getBundle().getState();
     }
-
-    Map<Long,Pair<Object,Long>> blockerObjects = new ConcurrentHashMap<Long,Pair<Object,Long>>();
 
     /**
      * Call the appropriate getResult() method according to
@@ -332,14 +202,12 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * @throws MetricMismatchException if the DAO is of a type
      *      not supported by this metric.
      */
-     @SuppressWarnings("unchecked")
      public List<Result> getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {      
         List<Result> result = new ArrayList<Result>();
         for (Metric m : l) {
-            if (!metrics.containsKey(m.getMnemonic())) {
+            if (!metrics.contains(m)) {
                 throw new MetricMismatchException("Metric " + m.getMnemonic()
-                        + " not defined by plugin "
-                        + Plugin.getPluginByHashcode(getUniqueKey()).getName());
+                        + " not defined by " + getName());
             }
             List<Result> re = null;
             try {
@@ -347,7 +215,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
                 re = (List<Result>) method.invoke(this, o, m);
             } catch (NoSuchMethodException e) {
                 log.error("No method getResult(" + m.getMetricType().toActivator() + ") for type "
-                        + getClass().getName());
+                        + implementor.getName());
             } catch (Exception e) {
                 logErr("getResult", o, e);
             }
@@ -362,10 +230,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      throws NoSuchMethodException {
 	     Method m = null;
 	     try {
-	         m = getClass().getMethod("getResult", clazz, Metric.class);                
+	         m = implementor.getMethod("getResult", clazz, Metric.class);                
 	     } catch (NoSuchMethodException nsme) {
 	         try {
-	             m = getClass().getMethod("getResult", clazz.getSuperclass(), Metric.class);
+	             m = implementor.getMethod("getResult", clazz.getSuperclass(), Metric.class);
 	         } catch (NoSuchMethodException nsme1) {
 	             throw nsme;
 	         }
@@ -393,79 +261,43 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     public List<Result> getResult(DAObject o, List<Metric> l) 
     throws MetricMismatchException, AlreadyProcessingException, Exception {
         List<Result> r = getResultIfAlreadyCalculated(o, l);
-
-        // the result hasn't been calculated yet. Do so.
-        if (r == null || r.size() == 0) {
-           /*
-             * To ensure that no two instances of the metric operate on the same
-             * DAO lock on the DAO. Working on the same DAO can happen often
-             * when a plugin starts the calculation of another metric as a
-             * result of a plugin dependency association. This lock has the side
-             * effect that no two Plugins can be invoked with the same DAO as an
-             * argument even if the plug-ins do not depend on each other.
-             */
-            synchronized (lockObject(o)) {
-                try {
-                    run(o);
-                    
-                    r = getResultIfAlreadyCalculated(o, l);
-                    if (r == null || r.size() == 0) {
-                        if (job.get() == null || job.get().state() != Job.State.Yielded)
-                            log.debug("Metric " + getClass() + " didn't return"
-                                + "a result even after running it. DAO: "
-                                + o.getId());
-                    }
-                } finally {
-                    unlockObject(o);
-                }
-            }
+        if (r == null || r.isEmpty() ) {
+        	// the result hasn't been calculated yet. Do so.
+            r = getResultIfNotCalculated(o, l);
         }
-
         return r;
     }
-
-    private Map<Long,Pair<Object,Integer>> locks = new HashMap<Long,Pair<Object,Integer>>();
     
-    private Object lockObject(DAObject o) throws AlreadyProcessingException {
-    	synchronized (locks) {
-            if (!locks.containsKey(o.getId())) {
-                locks.put(o.getId(), 
-                        new Pair<Object, Integer>(new Object(),0));
-            }
-            Pair<Object, Integer> p = locks.get(o.getId());
-            if (p.second + 1 > 1) {
-                /*
-                 * Break and reschedule the calculation of each call to the
-                 * getResult method if it originates from another thread than
-                 * the thread that has currently locked the DAO object. 
-                 * This is required for the DB transaction in the stopped
-                 * job to see the results of the calculation of the original
-                 * job.
-                 */ 
-                log.debug("DAO Id:" + o.getId() + 
-                        " Already locked - failing job");
-                try {
-                    throw new AlreadyProcessingException();
-                } finally {
-                    MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();
-                    ma.runMetric(o, this);
+    private List<Result> getResultIfNotCalculated(DAObject o, List<Metric> l)
+    throws MetricMismatchException, AlreadyProcessingException, Exception {
+    	List<Result> r = null;
+        /*
+         * To ensure that no two instances of the metric operate on the same
+         * DAO lock on the DAO. Working on the same DAO can happen often
+         * when a plugin starts the calculation of another metric as a
+         * result of a plugin dependency association. This lock has the side
+         * effect that no two Plugins can be invoked with the same DAO as an
+         * argument even if the plug-ins do not depend on each other.
+         */
+    	synchronized (locks.lockObject(o)) {
+            try {
+                run(o);
+                r = getResultIfAlreadyCalculated(o, l);
+                if ( (r == null || r.isEmpty()) &&
+                     (job.get() == null || job.get().state() != Job.State.Yielded) ) {
+                        log.debug("Metric " + o.getClass() + " didn't return"
+                            + "a result even after running it. DAO: "
+                            + o.getId());
                 }
+            } finally {
+                locks.unlockObject(o);
             }
-            p.second = p.second + 1;
-            return p.first;
         }
+    	return r;
     }
     
-    private void unlockObject(DAObject o) {
-    	synchronized(locks) {
-    		Pair<Object,Integer> p = locks.get(o.getId());
-    		p.second = p.second - 1;
-    		if (p.second == 0) {
-    			locks.remove(o.getId());
-    		} else {
-    		log.debug("Unlocking DAO Id:" + o.getId());
-    		}
-    	}
+    public boolean checkDependencies() {
+    	return metrics.checkDependencies(pa);
     }
     
     /**
@@ -514,10 +346,10 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         Method m = null;
         
         try {
-            m = getClass().getMethod(name, clazz);                
+            m = implementor.getMethod(name, clazz);                
         } catch (NoSuchMethodException nsme) {
             try {
-                m = getClass().getMethod(name, clazz.getSuperclass());
+                m = implementor.getMethod(name, clazz.getSuperclass());
             } catch (NoSuchMethodException nsme1) {
                 throw nsme;
             }
@@ -527,7 +359,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
     
     private void logErr(String method, DAObject o, Exception e) {
-        log.error("Plugin:" + this.getClass().toString() + 
+        log.error("Plugin:" + implementor.toString() + 
                 "\nDAO id: " + o.getId() + 
                 "\nDAO class: " + o.getClass() +
                 "\nDAO toString(): " + o.toString() +
@@ -538,93 +370,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
 
     /** {@inheritDoc} */
-    public List<Metric> getAllSupportedMetrics() {
+    public final List<Metric> getAllSupportedMetrics() {
         String qry = "from Metric m where m.plugin=:plugin";
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("plugin", Plugin.getPluginByHashcode(getUniqueKey()));
-        
         return (List<Metric>)db.doHQL(qry, params);
     }
     
     /** {@inheritDoc} */
-    public List<Metric> getSupportedMetrics(Class<? extends DAObject> activator) {
-        List<Metric> m = new ArrayList<Metric>();
-
-        //Query the database just once
-        List<Metric> all = getAllSupportedMetrics();
-        
-        if (all == null || all.isEmpty())
-            return m;
-        
-        for (Metric metric : all) {
-            if (getMetricActivationTypes(metric).contains(activator)) {
-                m.add(metric);
-            }
-        }
-        
-        return m;
-    }
-   
-    /**
-     * Register the metric to the DB. Subclasses can run their custom
-     * initialization routines (i.e. registering DAOs or tables) after calling
-     * super().install()
-     */
-    public boolean install() {
-        //1. check if dependencies are satisfied
-        if (!checkDependencies()) {
-            log.error("Plug-in installation failed");
-            return false;
-        }
-        
-        HashMap<String, Object> h = new HashMap<String, Object>();
-        h.put("name", this.getName());
-
-        List<Plugin> plugins = db.findObjectsByProperties(Plugin.class, h);
-
-        if (!plugins.isEmpty()) {
-            log.warn("A plugin with name <" + getName()
-                    + "> is already installed, won't re-install.");
-            return false;
-        }
-
-
-        //2. Add the plug-in
-        Plugin p = new Plugin();
-        p.setName(getName());
-        p.setInstalldate(new Date(System.currentTimeMillis()));
-        p.setVersion(getVersion());
-        p.setActive(true);
-        p.setHashcode(getUniqueKey());
-        boolean result =  db.addRecord(p);
-        
-        //3. Add the metrics
-        for (String mnem :metrics.keySet()) {
-        	Metric m = metrics.get(mnem);
-        	Type type = Type.fromString(m.getMetricType().getType());
-        	MetricType newType = MetricType.getMetricType(type);
-        	if (newType == null) {
-                newType = new MetricType(type);
-                db.addRecord(newType);
-                m.setMetricType(newType);
-            }
-        	
-        	m.setMetricType(newType);
-        	m.setPlugin(p);
-        	db.addRecord(m);
-        }
-        
-        return result;
-    }
-
-    /**
-     * Remove a plug-in's record from the DB. The DB's referential integrity
-     * mechanisms are expected to automatically remove associated records.
-     * Subclasses should also clean up any custom tables created.
-     */
-    public boolean remove() {
-        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
-        return db.deleteRecord(p);
+    public final List<Metric> getSupportedMetrics(Class<? extends DAObject> activator) {
+        return metrics.getSupportedMetrics(activator);
     }
     
     /**
@@ -633,8 +388,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * {@inheritDoc}
      */
     public boolean cleanup(DAObject sp) {
-        log.warn("Empty cleanup method for plug-in " 
-                + this.getClass().getName());
+        log.warn("Empty cleanup method for plug-in " + implementor.getName());
         return true; 
     }
 
@@ -652,7 +406,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /**{@inheritDoc}*/
     public final Set<Class<? extends DAObject>> getActivationTypes() {    
-        return activators;
+        return metrics.getActivationTypes();
     }
 
     /**
@@ -666,7 +420,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 			log.error("Cannot find a valid implementation of the MD5 " +
 					"hash algorithm");
 		}
-    	String name = this.getClass().getCanonicalName();
+    	String name = implementor.getCanonicalName();
 		byte[] data = name.getBytes(); 
 		m.update(data,0,data.length);
 		BigInteger i = new BigInteger(1,m.digest());
@@ -675,142 +429,21 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 
     /** {@inheritDoc} */
     public final Set<PluginConfiguration> getConfigurationSchema() {
-        // Retrieve the plug-in's info object
-        PluginInfo pi = pa.getPluginInfo(getUniqueKey());
-        if (pi == null) {
-            // The plug-in's info object is always null during bundle startup,
-            // but if it is not available when the bundle is active, something
-            // is possibly wrong.
-            if (bc.getBundle().getState() == Bundle.ACTIVE) {
-                log.warn("Plugin <" + getName() + "> is loaded but not installed.");
-            }
-            return Collections.emptySet();
-        }
-        return pi.getConfiguration();
-    }
-
-    /**
-     * Add an entry to this plug-in's configuration schema.
-     *
-     * @param name The name of the configuration property
-     * @param defValue The default value for the configuration property
-     * @param msg The description of the configuration property
-     * @param type The type of the configuration property
-     */
-    protected final void addConfigEntry(String name, String defValue,
-            String msg, ConfigurationType type) {
-        // Retrieve the plug-in's info object
-        PluginInfo pi = pa.getPluginInfo(getUniqueKey());
-        // Will happen if called during bundle's startup
-        if (pi == null) {
-            log.warn("Adding configuration key <" + name +
-                "> to plugin <" + getName() + "> failed: " +
-                "no PluginInfo.");
-            return;
-        }
-        // Modify the plug-in's configuration
-        try {
-            // Update property
-        	Long propID = pi.getConfPropId(name, type);
-            if (propID != null) {
-            	PluginConfiguration prop = db.findObjectById(PluginConfiguration.class, propID);
-            	prop.setValue(type, defValue);
-                if (pi.updateConfigEntry(db, prop)) {
-                    // Update the Plug-in Admin's information
-                    pa.pluginUpdated(pa.getPlugin(pi));
-                }
-                else {
-                    log.error("Property (" + name +") update has failed!");
-                }
-            }
-            // Create property
-            else {
-            	PluginConfiguration prop = new PluginConfiguration();
-            	prop.setMsg((msg != null) ? msg : "");
-            	prop.setName(name);
-            	prop.setValue(type,defValue);
-                if (pi.addConfigEntry(db, prop)) {
-                    // Update the Plug-in Admin's information
-                    pa.pluginUpdated(pa.getPlugin(pi));
-                }
-                else {
-                    log.error("Property (" + name +") append has failed!");
-                }
-            }
-        }
-        catch (Exception ex){
-            log.error("Can not modify property (" + name +") for plugin ("
-                    + getName(), ex);
-        }
-    }
-
-    /**
-     * Remove an entry from the plug-in's configuration schema
-     *
-     * @param name The name of the configuration property to remove
-     * @param type The type of the configuration property to remove
-     */
-    protected final void removeConfigEntry(
-            String name,
-            ConfigurationType type) {
-        // Retrieve the plug-in's info object
-        PluginInfo pi = pa.getPluginInfo(getUniqueKey());
-        // Will happen if called during bundle's startup
-        if (pi == null) {
-            log.warn("Removing configuration key <" + name +
-                "> from plugin <" + getName() + "> failed: " +
-                "no PluginInfo.");
-            return;
-        }
-        // Modify the plug-in's configuration
-        try {
-        	Long propID = pi.getConfPropId(name, type);
-            if (propID != null) {
-            	PluginConfiguration prop = db.findObjectById(PluginConfiguration.class, propID);
-                if (pi.removeConfigEntry(db, prop)) {
-                    // Update the Plug-in Admin's information
-                    pa.pluginUpdated(pa.getPlugin(pi));
-                }
-                else {
-                    log.error("Property (" + name +") remove has failed!");
-                }
-            }
-            else {
-                log.error("Property (" + name +") does not exist!");
-            }
-        }
-        catch (Exception ex){
-            log.error("Can not remove property (" + name +") from plugin ("
-                    + getName() + ")", ex);
-        }
+        return config.getConfigurationSchema();
     }
     
     /**
-     * Get a configuration option for this metric from the plugin configuration
-     * store
+     * Get a configuration option for this metric from the plugin configuration store
      * 
-     * @param config The configuration option to retrieve
+     * @param option The configuration option to retrieve
      * @return The configuration entry corresponding the provided description or
      * null if not found in the plug-in's configuration schema
      */
-    public PluginConfiguration getConfigurationOption(String config) {
-        Set<PluginConfiguration> conf = 
-            pa.getPluginInfo(getUniqueKey()).getConfiguration();
-        
-        Iterator<PluginConfiguration> i = conf.iterator();
-        
-        while (i.hasNext()) {
-            PluginConfiguration pc = i.next();
-            if (pc.getName().equals(config)) {
-                return pc;
-            }
-        }
-        
-        /* Config option not found */
-        return null;
+    public PluginConfiguration getConfigurationOption(String option) {
+    	return config.getConfigurationOption(option);
     }
     
-    private static Map<Class<? extends MetricMeasurement>, String> resultFieldNames = 
+    private static final Map<Class<? extends MetricMeasurement>, String> resultFieldNames = 
         new HashMap<Class<? extends MetricMeasurement>, String>();
     
     static {
@@ -842,82 +475,40 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         ArrayList<Result> result = new ArrayList<Result>();
         result.add(new Result(o, m, ((MetricMeasurement)resultat.get(0)).getResult(), type));
         return result;
-        
     }
 
     /**{@inheritDoc}*/
     @Override
     public final List<Class<? extends DAObject>> getMetricActivationTypes (Metric m) {
-        return metricActType.get(m);
-    }
-    
-    /**
-     * Check if the plug-in dependencies are satisfied
-     */
-    private boolean checkDependencies() {
-        for (String mnemonic : dependencies) {
-        	//Check thyself first
-        	if (metrics.containsKey(mnemonic))
-        		continue;
-        	
-            if (pa.getImplementingPlugin(mnemonic) == null) {
-                log.error("No plug-in implements metric "  + mnemonic + 
-                        " which is required by " + getName());
-                return false;
-            }
-        }
-        return true;
+        return metrics.getActivationTypes(m);
     }
     
     /** {@inheritDoc} */
-    public Set<String> getDependencies() {
-        return dependencies;
+    public final Set<String> getDependencies() {
+        return metrics.getDependencies();
     }
+    
+    public final Collection<Metric> getMetrics() {
+    	return metrics.getMetrics();
+    }
+    
 
     @Override
     public Map<MetricType.Type, SortedSet<Long>> getObjectIdsToSync(StoredProject sp, Metric m) 
     throws MetricActivationException {
     	Map<MetricType.Type, SortedSet<Long>> IDs = new HashMap<Type, SortedSet<Long>>();
-    	
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("project", sp);
         params.put("metric", m.getId());
 
-    	String q = null;
-    	
     	for (Class<? extends DAObject> at : getMetricActivationTypes(m)) {
-    	
-	    	if (MetricType.fromActivator(at) == Type.PROJECT_VERSION) {
-	    		q = QRY_SYNC_PV;
-	    	} else if (MetricType.fromActivator(at) == Type.SOURCE_FILE) {
-	    		q = QRY_SYNC_PF;
-	    	} else if (MetricType.fromActivator(at) == Type.SOURCE_DIRECTORY) {
-	    		q = QRY_SYNC_PD;
-	     	} else if (MetricType.fromActivator(at) == Type.MAILING_LIST) {
-	    		throw new MetricActivationException("Metric synchronisation with MAILING_LIST objects not implemented");
-	    	} else if (MetricType.fromActivator(at) == Type.MAILMESSAGE) {
-	    		q = QRY_SYNC_MM;
-	    	} else if (MetricType.fromActivator(at) == Type.MAILTHREAD) {
-	    		q = QRY_SYNC_MT;
-	    	} else if (MetricType.fromActivator(at) == Type.BUG) {
-	    		throw new MetricActivationException("Metric synchronisation with BUG objects not implemented");
-	    	} else if (MetricType.fromActivator(at) == Type.DEVELOPER) {
-	    		q = QRY_SYNC_DEV;
-	    	} else if (MetricType.fromActivator(at) == Type.NAMESPACE) {
-                q = QRY_SYNC_NS;
-            } else if (MetricType.fromActivator(at) == Type.ENCAPSUNIT) {
-                q = QRY_SYNC_ENCUNT;
-            } else if (MetricType.fromActivator(at) == Type.EXECUNIT) {
-                q = QRY_SYNC_EXECUNT;
-            } else {
-	    		throw new MetricActivationException("Metric synchronisation with GENERIC objects not implemented");
-	    	}
-	    	
-	    	List<Long> objectIds = (List<Long>) db.doHQL(q, params);
+	    	String q = MetricQueries.getQuery(at);
+			List<Long> objectIds = (List<Long>) db.doHQL(q, params);
 	    	TreeSet<Long> ids = new TreeSet<Long>();
 	    	ids.addAll(objectIds);
 	    	IDs.put(MetricType.fromActivator(at), ids);
     	}
+    	
     	return IDs;
     }
     
