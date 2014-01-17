@@ -777,7 +777,6 @@ public class ProjectsViewTest {
 	@Test
 	public void shouldShowBasicToolbarIfNoProjectSelected() {
 		StringBuilder builder = new StringBuilder();
-		
 		Collection<HTMLTableRowBuilder> toolbar = projectsView.toolbar(null);
 		for (HTMLTableRowBuilder row : toolbar) {
 			builder.append(row.build((long) 0));

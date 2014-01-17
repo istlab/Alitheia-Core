@@ -456,26 +456,27 @@ public class ProjectsView extends AbstractView {
         // Projects list view
         // ===================================================================
         else {
-        	StringBuilder projectsList = new StringBuilder();
 
+        	Collection<GenericHTMLBuilder<?>> rows = new ArrayList<GenericHTMLBuilder<?>>();
             if (projects.isEmpty()) {
-                projectsList.append(sp(in++) + "<tr>\n");
-                projectsList.append(sp(in) + "<td colspan=\"6\" class=\"noattr\">\n"
-                        + getMsg("no_projects")
-                        + "</td>\n");
-                projectsList.append(sp(--in) + "</tr>\n");
+            	rows.add(
+            		tableRow().with(
+            			tableColumn().withColspan(6).withClass("noattr").with(text(getMsg("no_projects")))
+            		)
+            	);
             }
             else {
                 //------------------------------------------------------------
                 // Create the content rows
                 //------------------------------------------------------------
                 for (StoredProject nextPrj : projects) {
+                	StringBuilder projectsListRow = new StringBuilder();
                     boolean selected = false;
                     if ((selProject != null)
                             && (selProject.getId() == nextPrj.getId())) {
                         selected = true;
                     }
-                    projectsList.append(sp(in++) + "<tr class=\""
+                    projectsListRow.append(sp(in++) + "<tr class=\""
                             + ((selected) ? "selected" : "edit") + "\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
@@ -484,11 +485,11 @@ public class ProjectsView extends AbstractView {
                             + "';"
                             + SUBMIT + "\">\n");
                     // Project Id
-                    projectsList.append(sp(in) + "<td class=\"trans\">"
+                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
                             + nextPrj.getId()
                             + "</td>\n");
                     // Project name
-                    projectsList.append(sp(in) + "<td class=\"trans\">"
+                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
                             + ((selected)
                                     ? "<input type=\"button\""
                                         + " class=\"install\""
@@ -512,17 +513,17 @@ public class ProjectsView extends AbstractView {
                     if (v != null) {
                         lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
                     }
-                    projectsList.append(sp(in) + "<td class=\"trans\">"
+                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
                             + lastVersion
                             + "</td>\n");
                     // Date of the last known email
                     MailMessage mm = getLastMailMessage(nextPrj);
-                    projectsList.append(sp(in) + "<td class=\"trans\">"
+                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
                             + ((mm == null)?getLbl("l0051"):mm.getSendDate())
                             + "</td>\n");
                     // ID of the last known bug entry
                     Bug bug = getLastBug(nextPrj);
-                    projectsList.append(sp(in) + "<td class=\"trans\">"
+                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
                             + ((bug == null)?getLbl("l0051"):bug.getBugID())
                             + "</td>\n");
                     // Evaluation state
@@ -530,7 +531,7 @@ public class ProjectsView extends AbstractView {
                     if (nextPrj.isEvaluated()) {
                     	evalState = getLbl("project_is_evaluated");
                     }
-                    projectsList.append(sp(in) + "<td class=\"trans\">"
+                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
                             + evalState
                             + "</td>\n");
                     
@@ -541,26 +542,25 @@ public class ProjectsView extends AbstractView {
                     } else {
                         nodename = "(local)";
                     }
-                    projectsList.append(sp(in) + "<td class=\"trans\">" + nodename + "</td>\n");
-                    projectsList.append(sp(--in) + "</tr>\n");
+                    projectsListRow.append(sp(in) + "<td class=\"trans\">" + nodename + "</td>\n");
+                    projectsListRow.append(sp(--in) + "</tr>\n");
                     if ((selected) && (metrics.isEmpty() == false)) {
-                        showLastAppliedVersion(nextPrj, metrics, projectsList);
+                        showLastAppliedVersion(nextPrj, metrics, projectsListRow);
                     }
+                    
+                    rows.add(text(projectsListRow.toString()));
                 }
             }
             //----------------------------------------------------------------
             // Tool-bar
             //----------------------------------------------------------------
-            Collection<HTMLTableRowBuilder> toolbar = toolbar(selProject);
-			for (HTMLTableRowBuilder row : toolbar) {
-				projectsList.append(row.build((long) in));
-			}
-
             b_internal.append(
             	table().with(
             		headerRow(),
             		node("tbody").with(
-            			text(projectsList.toString())
+            			rows.toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+            		).with(
+            			toolbar(selProject).toArray(GenericHTMLBuilder.EMPTY_ARRAY)
             		)
             	)
             	.build()
