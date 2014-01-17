@@ -146,7 +146,7 @@ public class WebadminServiceImpl implements WebadminService {
                 sobjHTTPService.registerServlet(
                     "/",
                     new AdminServlet(bc, this, logger, ve),
-                    new Hashtable(),
+                    new Hashtable<Object, Object>(),
                     null);
             }
             catch (Exception e) {

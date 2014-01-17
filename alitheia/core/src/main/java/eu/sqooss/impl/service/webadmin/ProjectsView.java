@@ -506,21 +506,20 @@ public class ProjectsView extends AbstractView {
         // ===============================================================
         // Create the form
         // ===============================================================
-        HTMLFormBuilder formBuilder = 
+        b.append(
         	form().withId("projects").withName("projects").withMethod(POST).withAction("/projects").with(
         		// display accumulated error messages
         		errorFieldsetBuilder(e)
         	).with(
         		(output == null)
-        			? GenericHTMLBuilder.EMPTY_ARRAY
-        			: new GenericHTMLBuilder<?>[]{output}
-        	)
+					? GenericHTMLBuilder.EMPTY_ARRAY
+					: new GenericHTMLBuilder<?>[]{output}
+        		)
         	// input fields
         	.with(
         		hiddenFields(selProject).toArray(GenericHTMLBuilder.EMPTY_ARRAY)
-        	);
-        
-        b.append(formBuilder.build());
+        	).build()
+        );
     }
 
 	protected static String doSetFieldAndSubmitString(String field, String value) {

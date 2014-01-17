@@ -40,7 +40,6 @@ import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.tableColumn;
 import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.tableRow;
 import static eu.sqooss.impl.service.webadmin.HTMLTextBuilder.text;
 
-import java.net.URI;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -111,7 +110,7 @@ public abstract class AbstractView {
      */
     public AbstractView(BundleContext bundlecontext, VelocityContext vc) {
         // Keep the Velocity context instance
-        this.vc = vc;
+        AbstractView.vc = vc;
         this.bc = bundlecontext;
        
         sobjCore = getInstance();

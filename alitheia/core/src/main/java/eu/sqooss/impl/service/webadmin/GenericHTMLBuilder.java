@@ -49,7 +49,6 @@ public class GenericHTMLBuilder<CHILD extends GenericHTMLBuilder<CHILD>> {
 		return this.withAttribute("style", style);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public CHILD appendContent(String content) {
 		return this.with(text(content));
 	}
