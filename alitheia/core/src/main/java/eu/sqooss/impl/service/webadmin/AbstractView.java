@@ -182,7 +182,6 @@ public abstract class AbstractView {
      */
     public void initResources (Locale locale) {
         resErr = ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
-        vc.put("tr",new TranslationProxy(locale));
     }
 
     
