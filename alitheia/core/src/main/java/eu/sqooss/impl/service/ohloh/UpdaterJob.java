@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2009 - 2010 - Organization for Free and Open Source Software,  
- *                Athens, Greece.
+ * Copyright 2010 - Organization for Free and Open Source Software,
+ *                 Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,60 +31,41 @@
  *
  */
 
-package eu.sqooss.service.updater;
+package eu.sqooss.impl.service.ohloh;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.ohloh.UpdaterServiceImpl;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.updater.MetadataUpdater;
 
 /**
- * A base class for all updater jobs. Just a placeholder for some variables
- * and a few log methods.
+ * Job that encapsulates an updater run.
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  *
  */
-public abstract class UpdaterBaseJob extends Job {
+public class UpdaterJob extends Job {
 
-    protected Logger logger;
-    protected DBService dbs;
-    protected StoredProject project;
-    protected UpdaterServiceImpl updater;
+    MetadataUpdater mu;
     
-    public void setUpdateParams(StoredProject sp, Logger l) {
-        this.project = sp;
-        this.logger = l;
-        dbs = AlitheiaCore.getInstance().getDBService();
+    public UpdaterJob(MetadataUpdater updater) {
+        mu = updater;
     }
     
     @Override
-    public abstract long priority();
+    public final long priority() {
+        return 0;
+    }
 
     @Override
-    protected abstract void run() throws Exception; 
-    
-    public abstract Job getJob();
-    
-    /** Convenience method to write warning messages per project */
-    protected void warn(String message) {
-        logger.warn(project.getName() + ":" + message);
+    protected void run() throws Exception {
+        mu.update();
     }
     
-    /** Convenience method to write error messages per project */
-    protected void err(String message) {
-        logger.error(project.getName() + ":" + message);
+    public MetadataUpdater getUpdater() {
+        return mu;
     }
     
-    /** Convenience method to write info messages per project */
-    protected void info(String message) {
-        logger.info(project.getName() + ":" + message);
-    }
-    
-    /** Convenience method to write debug messages per project */
-    protected void debug(String message) {
-        logger.debug(project.getName() + ":" + message);
+    @Override
+    public String toString() {
+        return mu.toString();
     }
 }

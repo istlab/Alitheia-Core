@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2010 - Organization for Free and Open Source Software,
- *                 Athens, Greece.
+ * Copyright 2009 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,42 +30,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-package eu.sqooss.impl.service.updater;
-
-import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.updater.MetadataUpdater;
-
+package eu.sqooss.impl.service.ohloh.exceptions;
 /**
- * Job that encapsulates an updater run.
- * 
- * @author Georgios Gousios <gousiosg@gmail.com>
- *
+ * Parent class for Exceptions
+ * @author Igor Levaja
+ * @author Quinten Stokkink
  */
-public class UpdaterJob extends Job {
-
-    MetadataUpdater mu;
-    
-    public UpdaterJob(MetadataUpdater updater) {
-        mu = updater;
-    }
-    
-    @Override
-    public final long priority() {
-        return 0;
-    }
-
-    @Override
-    protected void run() throws Exception {
-        mu.update();
-    }
-    
-    public MetadataUpdater getUpdater() {
-        return mu;
-    }
-    
-    @Override
-    public String toString() {
-        return mu.toString();
-    }
+public class UpdaterException extends Exception {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private String error;
+	
+	public UpdaterException(String s) {
+		error = s;
+	}
+	public String getMessage() {
+		return error;
+	}
 }
