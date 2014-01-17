@@ -13,7 +13,7 @@ public class SchedulerTests {
     
     @BeforeClass
     public static void setUp() {
-        sched = new SchedulerServiceImpl();
+        sched = new SchedulerServiceImpl(null);
         sched.startExecute(2);
     }
 

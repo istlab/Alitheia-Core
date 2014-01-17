@@ -46,11 +46,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.cluster.ClusterNodeActionException;
+import org.osgi.framework.BundleContext;
+
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
@@ -59,6 +59,7 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Job.State;
 import eu.sqooss.service.scheduler.JobStateListener;
+import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.ProjectAccessor;
@@ -69,12 +70,16 @@ import eu.sqooss.service.updater.UpdaterService;
 import eu.sqooss.service.util.BidiMap;
 import eu.sqooss.service.util.GraphTS;
 
+@Singleton
 public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
-    private Logger logger = null;
-    private AlitheiaCore core = null;
+    private Logger logger;
     private BundleContext context;
-    private DBService dbs = null;
+    private DBService dbs;
+    private TDSService tds;
+    private Scheduler sched;
+    private ClusterNodeService cns;
+    private UpdaterJobFactory updaterJobFactory;
     
     /* Maps project-ids to the jobs that have been scheduled for 
      * each update target*/
@@ -83,6 +88,17 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /* List of registered updaters */
     private BidiMap<Updater, Class<? extends MetadataUpdater>> updaters;
 
+    @Inject
+    public UpdaterServiceImpl(DBService dbs, TDSService tds, 
+            Scheduler sched, ClusterNodeService cns, 
+            UpdaterJobFactory updaterJobFactory) {
+        this.dbs = dbs;
+        this.tds = tds;
+        this.sched = sched;
+        this.cns = cns;
+        this.updaterJobFactory = updaterJobFactory;
+    }
+    
     /* UpdaterService interface methods*/
     /** {@inheritDoc} */
     @Override
@@ -153,7 +169,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     @Override
     public Set<Updater> getUpdaters(StoredProject project) {
         Set<Updater> upds = new HashSet<Updater>();
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
         ProjectAccessor pa = tds.getAccessor(project.getId());
         Set<URI> schemes = new HashSet<URI>();
 
@@ -213,14 +228,11 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     @Override
     public boolean startUp() {
-        core = AlitheiaCore.getInstance();
         if (logger != null) {
             logger.info("Got a valid reference to the logger");
         } else {
             System.out.println("ERROR: Updater got no logger");
         }
-        
-        dbs = core.getDBService();
         
         updaters = new BidiMap<Updater, Class<? extends MetadataUpdater>>();
         scheduledUpdates = new ConcurrentHashMap<Long, Map<Updater, UpdaterJob>>();
@@ -297,16 +309,12 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
      * Add an update job of the given type or the specific updater for the project. 
      */
     private boolean update(StoredProject project, UpdaterStage stage, Updater updater) {
-        
-        ClusterNodeService cns = null;
-        
         if (project == null) {
             logger.info("Bad project name for update.");
             return false;
         }     
         
          /// ClusterNode Checks - Clone to MetricActivatorImpl
-        cns = core.getClusterNodeService();
         if (cns==null) {
             logger.warn("ClusterNodeService reference not found " +
             		"- ClusterNode assignment checks will be ignored");
@@ -434,7 +442,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                     if (isUpdateRunning(project, u)) {
                         uj = scheduledUpdates.get(project.getId()).get(u);
                     } else {
-                        uj = new UpdaterJob(upd);
+                        uj = updaterJobFactory.create(upd);
                         uj.addJobStateListener(this);
                         toSchedule.put(u, uj);
                     }
@@ -505,7 +513,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
                 scheduledUpdates.get(project.getId()).put(
                         toSchedule.getKey(job), (UpdaterJob)job);
             }
-            AlitheiaCore.getInstance().getScheduler().enqueueBlock(toQueue);
+            sched.enqueueBlock(toQueue);
         } catch (SchedulerException e) {
             logger.error("Cannot schedule update job(s):" + e.getMessage(), e);
             return false;
@@ -587,8 +595,16 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /*Dummy jobs to ensure correct sequencing of jobs within updater stages */
     private class DependencyJob extends Job {
         private String name;
-        private DependencyJob(){};
-        public DependencyJob(String name) { this.name = name;}
+        
+        private DependencyJob() {
+            super(dbs);
+        };
+        
+        public DependencyJob(String name) {
+            super(dbs);
+            this.name = name;
+        }
+        
         public long priority() {return 0;}
         protected void run() throws Exception {}
         

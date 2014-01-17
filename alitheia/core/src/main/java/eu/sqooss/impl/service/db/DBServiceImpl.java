@@ -51,6 +51,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Singleton;
+
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.QueryException;
@@ -75,6 +77,7 @@ import eu.sqooss.service.util.URIUtills;
  * @author Romain Pokrzywka, Georgios Gousios
  * 
  */
+@Singleton
 public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
     private static DBService instance;

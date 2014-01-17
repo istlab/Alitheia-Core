@@ -37,24 +37,39 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
+import com.google.inject.assistedinject.Assisted;
+
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
 import eu.sqooss.service.util.StringUtils;
 
-public class PluginsView extends AbstractView{
+public class PluginsView extends AbstractView {
 
-    public PluginsView(BundleContext bundlecontext, VelocityContext vc) {
+    private DBService db;
+    private MetricActivator ma;
+    private PluginAdmin pa;
+
+    @Inject
+    public PluginsView(@Assisted BundleContext bundlecontext, @Assisted VelocityContext vc, 
+            DBService db, MetricActivator ma, PluginAdmin pa) {
         super(bundlecontext, vc);
+        this.db = db;
+        this.ma = ma;
+        this.pa = pa;
     }
 
     /**
@@ -64,7 +79,7 @@ public class PluginsView extends AbstractView{
      * 
      * @return The HTML presentation of the generated view.
      */
-    public static String render(HttpServletRequest req) {
+    public String render(HttpServletRequest req) {
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder("\n");
         // Stores the accumulated error messages
@@ -102,7 +117,7 @@ public class PluginsView extends AbstractView{
         PluginInfo selPI           = null;
 
         // Proceed only when at least one plug-in is registered
-        if (sobjPA.listPlugins().isEmpty()) {
+        if (pa.listPlugins().isEmpty()) {
             b.append(normalFieldset(
                     "All plug-ins",
                     null,
@@ -160,22 +175,22 @@ public class PluginsView extends AbstractView{
                     // Plug-in install request
                     // =======================================================
                     if (reqValAction.equals(actValInstall)) {
-                        if (sobjPA.installPlugin(reqValHashcode) == false) {
+                        if (pa.installPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be installed!"
                                     + " Check log for details.");
                         }
                         // Persist the DB changes
                         else {
                             PluginInfo pInfo =
-                                sobjPA.getPluginInfo(reqValHashcode);
-                            sobjPA.pluginUpdated(sobjPA.getPlugin(pInfo));
+                                pa.getPluginInfo(reqValHashcode);
+                            pa.pluginUpdated(pa.getPlugin(pInfo));
                         }
                     }
                     // =======================================================
                     // Plug-in un-install request
                     // =======================================================
                     else if (reqValAction.equals(actValUninstall)) {
-                        if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
+                        if (pa.uninstallPlugin(reqValHashcode) == false) {
                             e.append("Plug-in can not be uninstalled."
                                     + " Check log for details.");
                         } else {
@@ -185,7 +200,7 @@ public class PluginsView extends AbstractView{
                 }
                 // Retrieve the selected plug-in's info object
                 if (reqValHashcode != null) {
-                    selPI = sobjPA.getPluginInfo(reqValHashcode);
+                    selPI = pa.getPluginInfo(reqValHashcode);
                 }
                 // Plug-in info based actions
                 if ((selPI != null) && (selPI.installed)) {
@@ -193,7 +208,7 @@ public class PluginsView extends AbstractView{
                     // Plug-in synchronize (on all projects) request
                     // =======================================================
                     if (reqValAction.equals(actValSync)) {
-                        compMA.syncMetrics(sobjPA.getPlugin(selPI));
+                        ma.syncMetrics(pa.getPlugin(selPI));
                     }
                     // =======================================================
                     // Plug-in's configuration property removal
@@ -203,14 +218,14 @@ public class PluginsView extends AbstractView{
                                 reqValPropName, reqValPropType)) {
                             try {
                                 if (selPI.removeConfigEntry(
-                                        sobjDB,
+                                        db,
                                         reqValPropName,
                                         reqValPropType)) {
                                     // Update the Plug-in Admin's information
-                                    sobjPA.pluginUpdated(
-                                            sobjPA.getPlugin(selPI));
+                                    pa.pluginUpdated(
+                                            pa.getPlugin(selPI));
                                     // Reload the PluginInfo object
-                                    selPI = sobjPA.getPluginInfo(
+                                    selPI = pa.getPluginInfo(
                                             reqValHashcode);
                                 }
                                 else {
@@ -242,15 +257,15 @@ public class PluginsView extends AbstractView{
                         if (update) {
                             try {
                                 if (selPI.updateConfigEntry(
-                                        sobjDB,
+                                        db,
                                         reqValPropName,
                                         reqValPropValue)) {
                                     // Update the Plug-in Admin's information
-                                    sobjPA.pluginUpdated(
-                                            sobjPA.getPlugin(selPI));
+                                    pa.pluginUpdated(
+                                            pa.getPlugin(selPI));
                                     // Reload the PluginInfo object
                                     selPI =
-                                        sobjPA.getPluginInfo(reqValHashcode);
+                                        pa.getPluginInfo(reqValHashcode);
                                 }
                                 else {
                                     e.append("Property update"
@@ -266,17 +281,17 @@ public class PluginsView extends AbstractView{
                         else {
                             try {
                                 if (selPI.addConfigEntry(
-                                        sobjDB,
+                                        db,
                                         reqValPropName,
                                         reqValPropDescr,
                                         reqValPropType,
                                         reqValPropValue)) {
                                     // Update the Plug-in Admin's information
-                                    sobjPA.pluginUpdated(
-                                            sobjPA.getPlugin(selPI));
+                                    pa.pluginUpdated(
+                                            pa.getPlugin(selPI));
                                     // Reload the PluginInfo object
                                     selPI =
-                                        sobjPA.getPluginInfo(reqValHashcode);
+                                        pa.getPluginInfo(reqValHashcode);
                                 }
                                 else {
                                     e.append("Property creation"
@@ -594,7 +609,7 @@ public class PluginsView extends AbstractView{
                     b.append(sp(in++) + "<tbody>\n");
                     // Get the list of supported metrics
                     List<Metric> metrics =
-                        sobjPA.getPlugin(selPI).getAllSupportedMetrics();
+                        pa.getPlugin(selPI).getAllSupportedMetrics();
                     if ((metrics == null) || (metrics.isEmpty())) {
                         b.append(sp(in++) + "<tr>");
                         b.append(sp(in) + "<td colspan=\"4\" class=\"noattr\">"
@@ -731,7 +746,7 @@ public class PluginsView extends AbstractView{
                 b.append(sp(in) + "<fieldset>\n");
                 b.append(sp(++in) + "<legend>All plug-ins</legend>\n");
                 // Retrieve information for all registered metric plug-ins
-                Collection<PluginInfo> l = sobjPA.listPlugins();
+                Collection<PluginInfo> l = pa.listPlugins();
                 //------------------------------------------------------------
                 // Create the header row
                 //------------------------------------------------------------

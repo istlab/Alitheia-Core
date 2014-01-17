@@ -49,6 +49,7 @@ import org.dom4j.io.SAXReader;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.OhlohDeveloper;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.updater.UpdaterBaseJob;
@@ -70,7 +71,8 @@ public class OhlohUpdater extends UpdaterBaseJob {
     
     private String ohlohPath;
     
-    public OhlohUpdater() {
+    public OhlohUpdater(DBService db) {
+        super(db);
         ohlohPath = System.getProperty(OHLOH_PATH); 
     }
 

@@ -21,7 +21,7 @@ public class AdminServiceImplTest {
 
     @BeforeClass
     public static void setUp() {
-        impl = new AdminServiceImpl();
+        impl = new AdminServiceImpl(null);
     }
 
     @Test

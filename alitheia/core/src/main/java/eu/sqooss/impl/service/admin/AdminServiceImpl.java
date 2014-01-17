@@ -39,6 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -46,10 +48,9 @@ import javax.ws.rs.Produces;
 
 import org.osgi.framework.BundleContext;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.AdminAction;
-import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.AdminAction.AdminActionStatus;
+import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.RunTimeInfo;
 import eu.sqooss.service.admin.actions.UpdateProject;
@@ -62,24 +63,24 @@ import eu.sqooss.service.logging.Logger;
  * 
  * @author Georgios Gousios <gousiosg@gmail.com>
  */
+@Singleton
 @Path("/api")
 public class AdminServiceImpl extends Thread implements AdminService {
-
-	static {
-		services = new HashMap<String, Class<? extends AdminAction>>();
-	}
 	
-    static Map<String, Class<? extends AdminAction>> services;
+    static Map<String, Class<? extends AdminAction>> services =
+            new HashMap<String, Class<? extends AdminAction>>();
     ConcurrentMap<Long, ActionContainer> liveactions;
     AtomicLong id;
 
     Logger log;
+    
+    private DBService db;
 
-    public AdminServiceImpl() {
+    @Inject
+    public AdminServiceImpl(DBService db) {
+        this.db = db;
         liveactions = new ConcurrentHashMap<Long, ActionContainer>();
         id = new AtomicLong();
-        //if (AlitheiaCore.getInstance() != null)
-        //    log = AlitheiaCore.getInstance().getLogManager().createLogger("sqooss.admin");
         start();
     }
 
@@ -96,14 +97,11 @@ public class AdminServiceImpl extends Thread implements AdminService {
 
     @Override
     public void execute(AdminAction a) {
-        boolean commitDB = false;
-        DBService db = null;
-        if (AlitheiaCore.getInstance() != null) {
-            db = AlitheiaCore.getInstance().getDBService();
-            if (db.isDBSessionActive() != true) {
-                commitDB = true;
-                db.startDBSession();
-            }
+        boolean commitDB = false; // TODO: is this really necessary?
+
+        if (db.isDBSessionActive() != true) {
+            commitDB = true;
+            db.startDBSession();
         }
         
         debug("Executing action : " + a.id() + " ");

@@ -43,7 +43,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import eu.sqooss.core.AlitheiaCore;
+import javax.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
@@ -64,8 +66,12 @@ class TimelineImpl implements Timeline {
    
     private StoredProject project;
 
-    public TimelineImpl(StoredProject project) {
+    private DBService dbs;
+
+    @Inject
+    public TimelineImpl(@Assisted StoredProject project, DBService dbs) {
         this.project = project;
+        this.dbs = dbs;
     }
 
     private SortedSet<RepositoryEvent> getScmTimeLine(Calendar from, Calendar to) {
@@ -74,7 +80,6 @@ class TimelineImpl implements Timeline {
         final long begin = from.getTimeInMillis();
         final long end = to.getTimeInMillis();
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
         StringBuilder query = new StringBuilder("select pv ");
         query.append("from ProjectVersion pv ");
         query.append("where pv.timestamp < :paramTo ");
@@ -99,7 +104,6 @@ class TimelineImpl implements Timeline {
         final Date begin = from.getTime();
         final Date end = to.getTime();
         
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
         StringBuilder query = new StringBuilder("select mm ");
         query.append("from MailMessage mm ");
         query.append("where mm.sendDate < :paramTo ");
@@ -131,7 +135,6 @@ class TimelineImpl implements Timeline {
         final Date begin = from.getTime();
         final Date end = to.getTime();
 
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
         StringBuilder query = new StringBuilder("select b ");
         query.append("from Bug b ");
         query.append("where b.creationTS < :paramTo ");

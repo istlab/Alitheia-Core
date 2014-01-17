@@ -67,6 +67,7 @@ public class MailMessageJob extends Job{
     int progress = 0;
     
     public MailMessageJob(MailingList ml, String f, Logger l) {
+        super(AlitheiaCore.getInstance().getDBService());
         this.logger = l;
         this.ml = ml;
         this.fileName = f;

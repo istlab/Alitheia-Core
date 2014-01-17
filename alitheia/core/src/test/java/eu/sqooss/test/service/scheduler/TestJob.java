@@ -51,6 +51,7 @@ class TestJob extends Job
      * Contructor creating a job printing string \a s \a n times.
      */
     public TestJob(int n, String s) {
+        super(null);
         this.n = n;
         this.s = s;
     }

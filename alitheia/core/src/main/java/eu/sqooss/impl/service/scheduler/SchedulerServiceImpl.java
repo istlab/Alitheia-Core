@@ -44,6 +44,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import org.osgi.framework.BundleContext;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.ResumePoint;
@@ -52,6 +55,7 @@ import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.scheduler.SchedulerStats;
 import eu.sqooss.service.scheduler.WorkerThread;
 
+@Singleton
 public class SchedulerServiceImpl implements Scheduler {
 
     private static final String START_THREADS_PROPERTY = "eu.sqooss.scheduler.numthreads";
@@ -72,7 +76,12 @@ public class SchedulerServiceImpl implements Scheduler {
 
     private List<WorkerThread> myWorkerThreads = null;
     
-    public SchedulerServiceImpl() { }
+    private WorkerThreadFactory workerThreadFactory;
+    
+    @Inject
+    public SchedulerServiceImpl(WorkerThreadFactory workerThreadFactory) {
+        this.workerThreadFactory = workerThreadFactory;
+    }
 
     public void enqueue(Job job) throws SchedulerException {
         synchronized (this) {
@@ -198,7 +207,7 @@ public class SchedulerServiceImpl implements Scheduler {
             }
 
             for (int i = 0; i < n; ++i) {
-                WorkerThread t = new WorkerThreadImpl(this, i);
+                WorkerThread t = workerThreadFactory.create(this, i);
                 t.start();
                 myWorkerThreads.add(t);
                 stats.incWorkerThreads();
@@ -245,7 +254,7 @@ public class SchedulerServiceImpl implements Scheduler {
     }
 
     public void startOneShotWorkerThread() {
-        WorkerThread t = new WorkerThreadImpl(this, true);
+        WorkerThread t = workerThreadFactory.create(this, true);
         t.start();
     }
 
