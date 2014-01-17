@@ -358,13 +358,13 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     	
     	this.exclPaths = project.getConfigValues(ConfigOption.PROJECT_SCM_PATHS_EXCL);
     	
-    	String branch = project.getConfigValue(dbs, PROJECT_SCM_PATHS_BRANCH);
+    	String branch = project.getConfigValue(PROJECT_SCM_PATHS_BRANCH);
     	this.branchesPath = (branch == null)?"/branches":branch;
     	
-    	String trunk = project.getConfigValue(dbs, PROJECT_SCM_PATHS_TRUNK);
+    	String trunk = project.getConfigValue(PROJECT_SCM_PATHS_TRUNK);
     	this.trunkPath = (trunk == null)?"/trunk":trunk;
     	
-    	String tag = project.getConfigValue(dbs, PROJECT_SCM_PATHS_TAG);
+    	String tag = project.getConfigValue(PROJECT_SCM_PATHS_TAG);
     	this.tagsPath = (tag == null)?"/tags":tag;
 	}
 

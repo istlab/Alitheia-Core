@@ -1,4 +1,4 @@
-package eu.sqooss.service.db.test;
+package eu.sqooss.service.db;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -42,11 +42,11 @@ public class TestStoredProject extends TestDAObject {
         assertTrue(db.addRecord(sp));
         
         // There shouldn't be any values associated with this configuration
-        assertEquals(0, sp.getConfigValues(db, configKey).size());
-        assertEquals(null, sp.getConfigValue(db, configKey));
+        assertEquals(0, sp.getConfigValues(configKey).size());
+        assertEquals(null, sp.getConfigValue(configKey));
         
         // Add a configuration value
-        sp.addConfigValue(db, configKey, configValue1);
+        sp.addConfigValue(configKey, configValue1);
         assertTrue(db.addRecord(sp));
         
         List<StoredProject> dbSpc = db.findObjectsByProperties(StoredProject.class, emptyMap);
@@ -54,30 +54,30 @@ public class TestStoredProject extends TestDAObject {
         assertEquals(sp, dbSpc.get(0));
         
         sp = dbSpc.get(0);
-        assertEquals(configValue1, sp.getConfigValue(db, configKey));
-        assertEquals(1, sp.getConfigValues(db, configKey).size());
-        assertEquals(configValue1, sp.getConfigValues(db, configKey).get(0));
+        assertEquals(configValue1, sp.getConfigValue(configKey));
+        assertEquals(1, sp.getConfigValues(configKey).size());
+        assertEquals(configValue1, sp.getConfigValues(configKey).iterator().next());
         
         // Add another configuration value
-        sp.addConfigValue(db, configKey, configValue2);
+        sp.addConfigValue(configKey, configValue2);
         
         dbSpc = db.findObjectsByProperties(StoredProject.class, emptyMap);
         assertEquals(1, dbSpc.size());
         assertEquals(sp, dbSpc.get(0));
         
         sp = dbSpc.get(0);
-        assertThat(sp.getConfigValue(db, configKey), either(is(configValue1)).or(is(configValue2)));
-        assertEquals(2, sp.getConfigValues(db, configKey).size());
-        assertTrue(sp.getConfigValues(db, configKey).contains(configValue1));
-        assertTrue(sp.getConfigValues(db, configKey).contains(configValue2));
+        assertThat(sp.getConfigValue(configKey), either(is(configValue1)).or(is(configValue2)));
+        assertEquals(2, sp.getConfigValues(configKey).size());
+        assertTrue(sp.getConfigValues(configKey).contains(configValue1));
+        assertTrue(sp.getConfigValues(configKey).contains(configValue2));
     }
     
     @Test
     public void testGetConfigValuesNonExistentKey() {
         StoredProject sp = new StoredProject("Test Project");
         
-        assertEquals(0, sp.getConfigValues(db, "NonExistentKey").size());
-        assertEquals(null, sp.getConfigValue(db, "NonExistentKey"));
+        assertEquals(0, sp.getConfigValues("NonExistentKey").size());
+        assertEquals(null, sp.getConfigValue("NonExistentKey"));
     }
     
     @Test
@@ -136,12 +136,12 @@ public class TestStoredProject extends TestDAObject {
         assertEquals(null, sp.getConfigValue(configOpt));
         
         // Add a configuration value
-        sp.setConfigValue(db, configKey, configValue1);
-        assertEquals(configValue1, sp.getConfigValue(db, configKey));
+        sp.setConfigValue(configKey, configValue1);
+        assertEquals(configValue1, sp.getConfigValue(configKey));
         
         // Change configuration value
-        sp.setConfigValue(db, configKey, configValue2);
-        assertEquals(configValue2, sp.getConfigValue(db, configKey));
+        sp.setConfigValue(configKey, configValue2);
+        assertEquals(configValue2, sp.getConfigValue(configKey));
     }
     
     @Test

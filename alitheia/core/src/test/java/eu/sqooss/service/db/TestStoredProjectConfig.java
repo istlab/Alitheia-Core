@@ -1,4 +1,4 @@
-package eu.sqooss.service.db.test;
+package eu.sqooss.service.db;
 
 import static org.junit.Assert.*;
 
@@ -43,6 +43,8 @@ public class TestStoredProjectConfig extends TestDAObject {
         StoredProject sp1 = new StoredProject("Test Project");
         Set<String> values1 = new HashSet<String>(Arrays.asList("Value 1", "Value 2"));
         
+        assertTrue(db.addRecord(sp1));
+        
         StoredProjectConfig spc1 = new StoredProjectConfig();
         spc1.setProject(sp1);
         spc1.setConfOpt(co1);
@@ -61,6 +63,8 @@ public class TestStoredProjectConfig extends TestDAObject {
         StoredProject sp1 = new StoredProject("Test Project");
         Set<String> values1 = new HashSet<String>(Arrays.asList("Value 1", "Value 2"));
         
+        assertTrue(db.addRecord(sp1));
+        
         StoredProjectConfig spc1 = new StoredProjectConfig(co1, values1, sp1);
         assertTrue(db.addRecord(spc1));
         
@@ -69,36 +73,5 @@ public class TestStoredProjectConfig extends TestDAObject {
         assertFalse(db.addRecord(spc2));
         // So don't let @after know that it doesn't have to roll back
         dontRollback();
-    }
-    
-    @Test
-    public void testFromProject() {
-        ConfigOption co1 = ConfigOption.PROJECT_WEBSITE;
-        StoredProject sp1 = new StoredProject("Test Project 1");
-        Set<String> values1 = new HashSet<String>(Arrays.asList("Value 1", "Value 2"));
-        StoredProjectConfig spc1 = new StoredProjectConfig(co1, values1, sp1);
-        assertTrue(db.addRecord(spc1));
-        
-        ConfigOption co2 = ConfigOption.PROJECT_SCM_URL;
-        Set<String> values2 = new HashSet<String>(Arrays.asList("scm://test"));
-        StoredProjectConfig spc2 = new StoredProjectConfig(co2, values2, sp1);
-        assertTrue(db.addRecord(spc2));
-        
-        StoredProject sp2 = new StoredProject("Test Project 2");
-        ConfigOption co3 = ConfigOption.PROJECT_WEBSITE;
-        Set<String> values3 = new HashSet<String>(Arrays.asList("sqooss.org"));
-        StoredProjectConfig spc3 = new StoredProjectConfig(co3, values3, sp2);
-        assertTrue(db.addRecord(spc3));
-        
-        List<StoredProjectConfig> dbSpcs = StoredProjectConfig.fromProject(db, sp1);
-        assertEquals(2, dbSpcs.size());
-        assertTrue(dbSpcs.contains(spc1));
-        assertTrue(dbSpcs.contains(spc2));
-        assertFalse(dbSpcs.contains(spc3));
-        
-        dbSpcs = StoredProjectConfig.fromProject(db, sp2);
-        assertEquals(1, dbSpcs.size());
-        assertTrue(dbSpcs.contains(spc3));
-        assertEquals(values3, dbSpcs.get(0).getValues());
     }
 }

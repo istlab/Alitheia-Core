@@ -270,11 +270,8 @@ public class StoredProject extends DAObject {
      * @param key The key to retrieve a value for
      * @return The configuration value or null, if the option is not set
      */
-    public String getConfigValue (DBService dbs, String key) {
-        List<String> values = getConfigValues(dbs, key);
-        if (values.isEmpty())
-            return null;
-        return values.get(0);
+    public String getConfigValue (String key) {
+        return getConfigValue(ConfigOption.fromKey(key));
     }
     
     /**
@@ -297,13 +294,9 @@ public class StoredProject extends DAObject {
      * 
      * @param key The key whose value we want to retrieve
      */
-    public List<String> getConfigValues (DBService dbs, String key) {
+    public Set<String> getConfigValues (String key) {
     	ConfigOption co = ConfigOption.fromKey(key);
-    	
-    	if (co == null)
-    		return Collections.emptyList();
-    	
-    	return co.getValues(dbs, this);
+    	return getConfigValues(co);
     }
     
     /**
@@ -315,8 +308,8 @@ public class StoredProject extends DAObject {
 	 * @param key The key to set the value for
 	 * @param value The value to be set 
 	 */
-    public void setConfigValue (DBService dbs, String key, String value) {
-    	updateConfigValue(dbs, null, key, value, true);
+    public void setConfigValue (String key, String value) {
+    	updateConfigValue(null, key, value, true);
     }
     
     
@@ -329,8 +322,8 @@ public class StoredProject extends DAObject {
 	 * @param key The key to set the value for
 	 * @param value The value to be set 
 	 */
-    public void addConfigValue(DBService dbs, String key, String value) {
-    	updateConfigValue(dbs, null, key, value, false);
+    public void addConfigValue(String key, String value) {
+    	updateConfigValue(null, key, value, false);
     }
     
     /**
@@ -353,15 +346,24 @@ public class StoredProject extends DAObject {
 		spc.getValues().add(value);
 	}
     
-    private void updateConfigValue (DBService dbs, ConfigOption configOpt, String key,
+    private void updateConfigValue (ConfigOption configOpt, String key,
     		String value, boolean update) {
     	if (configOpt == null) {
     		configOpt = ConfigOption.fromKey(key);
     	}
     	
-    	List<String> values = new ArrayList<String>();
-    	values.add(value);
-    	configOpt.setValues(dbs, this, values, update);
+    	if (update) {
+    		configOpts.remove(configOpt);
+    	}
+    	
+    	if(configOpts.containsKey(configOpt)) {
+    		configOpts.get(configOpt).getValues().add(value);
+    	} else {
+        	Set<String> values = new HashSet<String>();
+        	values.add(value);
+    		StoredProjectConfig spc = new StoredProjectConfig(configOpt, values, this);
+    		configOpts.put(configOpt, spc);
+    	}
     }
 
     //================================================================
@@ -420,15 +422,13 @@ public class StoredProject extends DAObject {
      * @return The total number of mails associated with that project.
      */
     public long getMailsCount(DBService dbs) {
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> res = dbs.doHQL("select count(*)"
-                + " from MailMessage mm, MailingList ml"
-                + " where ml.storedProject.id=:pid"
-                + " and mm.list.id=ml.id",
-                parameterMap);
+        long count = 0;
 
-        return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
+        for (MailingList l : mailingLists) {
+            count += l.getMessages().size();
+        }
+
+        return count;
     }
 
     /**
@@ -438,15 +438,15 @@ public class StoredProject extends DAObject {
      * @return The total number of bugs associated with that project.
      */
     public long getBugsCount(DBService dbs) {
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> res = dbs.doHQL("select count(*)"
-                + " from Bug bg"
-                + " where bg.project.id=:pid"
-                + " and bg.status.status='" + Status.NEW + "'",
-                parameterMap);
+        long count = 0;
 
-        return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
+        for (Bug b : bugs) {
+            if(b.getStatus().getBugStatus() == Status.NEW) {
+                count += 1;
+            }
+        }
+
+        return count;
     }
     
     /**

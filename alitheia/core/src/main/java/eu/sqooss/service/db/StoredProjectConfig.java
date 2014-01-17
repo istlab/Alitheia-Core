@@ -33,10 +33,7 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -56,14 +53,12 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.NaturalId;
 
 @XmlRootElement(name="project-config")
 @Entity
 @Table(name="STORED_PROJECT_CONFIG")
-public class StoredProjectConfig extends DAObject {
+class StoredProjectConfig extends DAObject {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -77,9 +72,8 @@ public class StoredProjectConfig extends DAObject {
 
 	@NaturalId
 	@ManyToOne(fetch = FetchType.LAZY)
-	// Only cascade persistence and save, do not cascade deletion
-	@Cascade(value = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.SAVE_UPDATE})
 	@JoinColumn(name="STORED_PROJECT_ID")
+	// Don't cascade changes, as we are never used directly
 	private StoredProject project;
 
 	@ElementCollection(fetch = FetchType.LAZY)
@@ -129,13 +123,6 @@ public class StoredProjectConfig extends DAObject {
 		this.values = value;
 	}
 	
-	public static List<StoredProjectConfig> fromProject(DBService dbs, StoredProject sp) {
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("project", sp);
-		
-		return dbs.findObjectsByProperties(StoredProjectConfig.class, params);
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof StoredProjectConfig

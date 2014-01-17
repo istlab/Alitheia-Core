@@ -1,11 +1,5 @@
 package eu.sqooss.service.db;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Stores all standard project-wide configuration options that
  * the system knows about.  
@@ -101,84 +95,6 @@ public enum ConfigOption {
         this.propname = name;
         this.desc = desc;
     }
-    
-    /**
-     * Set an array of values for this configuration option for the specified
-     * project.
-     * 
-     * @param sp The project to add the configuration value
-     * @param value The value to set
-     * @param overwrite If the key already has a value in the config database,
-     *  the method determines whether to overwrite the value or append the
-     *  provided value to the existing list of values.
-     */
-	public void setValues(DBService dbs, StoredProject sp, List<String> values,
-			boolean overwrite) {
-		String paramProject = "paramProject";
-		String paramConfOpt = "paramConfOpt";
-		
-		StringBuilder query = new StringBuilder();
-		query.append(" select spc ");
-		query.append(" from StoredProjectConfig spc");
-		query.append(" where spc.project =:").append(paramProject);
-		query.append(" and spc.confOpt =:").append(paramConfOpt);
-
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put(paramProject, sp);
-		params.put(paramConfOpt, this);
-
-		@SuppressWarnings("unchecked")
-		List<StoredProjectConfig> curValues =
-				(List<StoredProjectConfig>) dbs.doHQL(query.toString(),params);
-		
-		assert curValues.size() <= 1 : "At most one StoredProjectConfig should exist for a project and option combination.";
-		
-		if (overwrite) {
-			dbs.deleteRecords(curValues);
-			curValues.clear();
-		}
-		
-		StoredProjectConfig spc;
-		if(curValues.isEmpty()) {
-			spc = new StoredProjectConfig(this, new HashSet<String>(values), sp);
-			dbs.addRecord(spc);
-		} else {
-			curValues.get(0).getValues().addAll(values);
-		}
-		
-	}
-	
-	/**
-	 * Get the configured values for a project.
-	 * @param sp The project to retrieve the configuration values for
-	 * @return A list of configuration values that correspond to the provided
-	 * project
-	 */
-	public List<String> getValues(DBService dbs, StoredProject sp) {
-		String paramProject = "paramProject";
-		String paramConfOpt = "paramConfOpt";
-		
-		StringBuilder query = new StringBuilder();
-		query.append(" select spc ");
-		query.append(" from StoredProjectConfig spc ");
-		query.append(" where spc.project =:").append(paramProject);
-		query.append(" and spc.confOpt =:").append(paramConfOpt);
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put(paramProject, sp);
-		params.put(paramConfOpt, this);
-		
-		@SuppressWarnings("unchecked")
-		List<StoredProjectConfig> spcs = (List<StoredProjectConfig>)dbs.doHQL(query.toString(), params);
-		
-		assert spcs.size() <= 1 : "At most one StoredProjectConfig should exist for a project and option combination.";
-		
-		if(spcs.size() == 0) {
-			return new ArrayList<String>();
-		} else {
-			return new ArrayList<String>(spcs.get(0).getValues());
-		}
-	}
 	
 	public static ConfigOption fromKey(String key) {
 		for(ConfigOption opt : ConfigOption.values()) {

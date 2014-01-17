@@ -42,7 +42,6 @@ import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.StoredProjectConfig;
 import eu.sqooss.service.scheduler.Job;
 
 public class ProjectDeleteJob extends Job {
@@ -99,12 +98,6 @@ public class ProjectDeleteJob extends Job {
                 
             }*/
             pv.getParents().clear();
-        }
-               
-        //Delete the project's config options
-        List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(dbs, sp);
-        if (!confParams.isEmpty()) {
-        	success &= dbs.deleteRecords(confParams);
         }
         
         // Delete the selected project
