@@ -55,6 +55,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import eu.sqooss.core.AlitheiaCore;
+
 /**
  * A DAObject representing a developer belonging to a project.
  * 
@@ -212,7 +214,7 @@ public class Developer extends DAObject {
      */
     public static Developer getDeveloperByEmail(String email, 
             StoredProject sp) {
-    	DBService dbs = null;
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
         return getDeveloperByEmail(dbs, email, sp, true);
     }
     

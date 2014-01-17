@@ -47,6 +47,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
+import eu.sqooss.core.AlitheiaCore;
+
 /**
  * States a bug resolution process can be into.
  * 
@@ -153,7 +155,7 @@ public class BugStatus extends DAObject {
      * the status code line to the database
      */
     public static BugStatus getBugStatus(BugStatus.Status s) {
-    	DBService dbs = null;
+    	DBService dbs = AlitheiaCore.getInstance().getDBService();
         return getBugStatus(dbs, s.toString(), true);
     }
     
