@@ -33,6 +33,13 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.TEXT;
+import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.input;
+import static eu.sqooss.impl.service.webadmin.HTMLNodeBuilder.node;
+import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.tableColumn;
+import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.tableRow;
+import static eu.sqooss.impl.service.webadmin.HTMLTextBuilder.text;
+
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -366,6 +373,30 @@ public abstract class AbstractView {
         return b.toString();
     }
 
+    protected GenericHTMLBuilder<?> normalInputRowBuilder(String title, String parName, String parValue) {
+    	if (parName == null) {
+    		return text("");
+    	} else {
+    		return
+    			tableRow().with(
+    				tableColumn().withClass("borderless").withStyle("width: 100px;").with(
+    					node("b").with(text(
+    						title == null
+    							? ""
+    							: title
+    					))
+    				),
+    				tableColumn().withClass("borderless").with(
+    					input().withType(TEXT).withClass("form").withId(parName).withName(parName).withValue(
+    						parValue == null
+    							? ""
+    							: parValue
+    					).withAttribute("size", "60")
+    				)
+    			);
+    	}
+    }
+    
     /**
      * Generates a simple table row (<i>with two columns</i>) that represents
      * a single text message with a title line. The title line will be
@@ -400,6 +431,23 @@ public abstract class AbstractView {
         // Return the generated content
         return b.toString();
     }
+    
+    protected GenericHTMLBuilder<?> normalInfoRowBuilder(String title, String value) {
+    	return tableRow().with(
+    		tableColumn().withClass("borderless").withStyle("width: 100px;").with(
+    			node("b").with(text(
+    				title == null
+    					? ""
+    					: title
+    			))
+    		),
+    		tableColumn().withClass("borderless").with(text(
+    			value == null
+    				? ""
+    				: value
+    		))
+    	);
+    }
 
     /**
      * Produces an HTML fieldset tag which encapsulates the HTML
@@ -429,10 +477,29 @@ public abstract class AbstractView {
         }
         return ("");
     }
+    
+    protected GenericHTMLBuilder<?> normalFieldsetBuilder(String name, String clazz, StringBuilder content) {
+    	if (content == null || content.toString().isEmpty()) {
+    		return text("");
+    	} else {
+    		return node("fieldset").withClass(clazz).with(
+    			node("legend").with(text(
+    				name == null
+    					? "NONAME"
+    					: name
+    			)),
+    			text(content.toString())
+    		);
+    	}
+    }
 
     // TODO: Remove this method, since it is not I18n compatible.
     protected String errorFieldset (StringBuilder errors, long in) {
         return normalFieldset("Errors", null, errors, in);
+    }
+    
+    protected GenericHTMLBuilder<?> errorFieldsetBuilder(StringBuilder errors) {
+    	return normalFieldsetBuilder("Errors", null, errors);
     }
 
     /**

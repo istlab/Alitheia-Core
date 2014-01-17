@@ -42,6 +42,8 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,6 +71,8 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;
 import eu.sqooss.service.updater.Updater;
 import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
+
+import static org.hamcrest.collection.IsEmptyCollection.empty;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectsViewTest {
@@ -755,7 +759,9 @@ public class ProjectsViewTest {
 	public void shouldAddEmptyHiddenFieldsWithoutProject() {
 		StringBuilder builder = new StringBuilder();
 		
-		projectsView.addHiddenFields(null, builder, 0);
+		for (HTMLInputBuilder input : projectsView.hiddenFields(null)) {
+			builder.append(input.build((long) 0));
+		}
 		
 		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
@@ -767,7 +773,9 @@ public class ProjectsViewTest {
 	@Test
 	public void shouldAddProjectIdWithProject() {
 		StringBuilder builder = new StringBuilder();
-		projectsView.addHiddenFields(project1 , builder, 0);
+		for (HTMLInputBuilder input : projectsView.hiddenFields(project1)) {
+			builder.append(input.build((long) 0));
+		}
 		
 		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
@@ -873,24 +881,20 @@ public class ProjectsViewTest {
 	
 	@Test
 	public void shouldShowNoLastAppliedVersionForEmptyList() {
-		StringBuilder html = new StringBuilder();
+		Collection<GenericHTMLBuilder<?>> rows = projectsView.lastAppliedVersion(null, new ArrayList<PluginInfo>());
 
-		projectsView.showLastAppliedVersion(null, new ArrayList<PluginInfo>(),
-				html);
-
-		assertEquals("", html.toString());
+		assertThat(rows, empty());
 	}
 
 	@Test
 	public void shouldNotShowNotInstalledPlugins() {
-		StringBuilder html = new StringBuilder();
 		PluginInfo pi = new PluginInfo();
 		pi.installed = false;
 		Collection<PluginInfo> metrics = Arrays.asList(pi);
 
-		projectsView.showLastAppliedVersion(null, metrics, html);
+		Collection<GenericHTMLBuilder<?>> rows = projectsView.lastAppliedVersion(null, metrics);
 
-		assertEquals("", html.toString());
+		assertThat(rows, empty());
 	}
 	
 	@Test
@@ -915,7 +919,10 @@ public class ProjectsViewTest {
 		Collection<PluginInfo> metrics = Arrays.asList(p1, p2);
 
 		// Act
-		projectsView.showLastAppliedVersion(null, metrics, builder);
+		Collection<GenericHTMLBuilder<?>> rows = projectsView.lastAppliedVersion(null, metrics);
+		for (GenericHTMLBuilder<?> row : rows) { 
+			builder.append(row.build());
+		}
 
 		// Assert
 		String html = HTMLTestUtils.sanitizeHTML(builder.toString());

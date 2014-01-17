@@ -2,6 +2,8 @@ package eu.sqooss.impl.service.webadmin;
 
 public class HTMLInputBuilder extends GenericHTMLBuilder<HTMLInputBuilder> {
 	public static final String BUTTON = "button";
+	public static final String HIDDEN = "hidden";
+	public static final String TEXT = "text";
 	
 	protected HTMLInputBuilder() {
 		super("input");

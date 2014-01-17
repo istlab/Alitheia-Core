@@ -36,6 +36,7 @@ package eu.sqooss.impl.service.webadmin;
 import static eu.sqooss.impl.service.webadmin.HTMLFormBuilder.POST;
 import static eu.sqooss.impl.service.webadmin.HTMLFormBuilder.form;
 import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.BUTTON;
+import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.HIDDEN;
 import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.input;
 import static eu.sqooss.impl.service.webadmin.HTMLNodeBuilder.node;
 import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.table;
@@ -319,97 +320,59 @@ public class ProjectsView extends AbstractView {
 	protected PluginAdmin getPluginAdmin() {
 		return sobjPA;
 	}
-    
+	
     protected void createForm(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
 
-    	StringBuilder b_internal = new StringBuilder();
-    	
-        // ===============================================================
-        // Create the form
-        // ===============================================================
-    	HTMLFormBuilder formBuilder = form().withId("projects").withName("projects").withMethod(POST).withAction("/projects");
-
-        // ===============================================================
-        // Display the accumulated error messages (if any)
-        // ===============================================================
-        b_internal.append(errorFieldset(e, ++in));
-
-        // Get the complete list of projects stored in the SQO-OSS framework
+    	// Get the complete list of projects stored in the SQO-OSS framework
         Set<StoredProject> projects = getThisNodeProjects();
         Collection<PluginInfo> metrics = getPluginAdmin().listPlugins();
 
+        GenericHTMLBuilder<?> output = null;
         // ===================================================================
         // "Show project info" view
         // ===================================================================
         if ((ACT_REQ_SHOW_PROJECT.equals(reqValAction))
                 && (selProject != null)) {
-            // Create the input fields
-            StringBuilder infoRows = new StringBuilder();            
-            infoRows.append(normalInfoRow(
-                    "Project name", selProject.getName(), in));
-            infoRows.append(normalInfoRow(
-                    "Homepage", selProject.getWebsiteUrl(), in));
-            infoRows.append(normalInfoRow(
-                    "Contact e-mail", selProject.getContactUrl(), in));
-            infoRows.append(normalInfoRow(
-                    "Bug database", selProject.getBtsUrl(), in));
-            infoRows.append(normalInfoRow(
-                    "Mailing list", selProject.getMailUrl(), in));
-            infoRows.append(normalInfoRow(
-                    "Source code", selProject.getScmUrl(), in));
-            b_internal.append(infoRows.toString());
-
-            b_internal.append(
-        		node("fieldset")
-        			.with(node("legend")
+            output = 
+            	node("fieldset").with(
+            		node("legend")
         				.appendContent("Project information")
-        			)
-        			.with(table().withClass("borderless")
-        				.appendContent(infoRows.toString())
-        				// toolbar
-        				.with(
-        					tableRow()
-        					.with(
-        						tableColumn().withColspan(2).withClass("borderless")
-        						.with(defaultButton()
-        							.withValue(getLbl("btn_back"))
-        							.withAttribute("onclick", doSubmitString())
-        						)
-        					)
-        				)
-        			)
-        		.build()
-        	);
+        		).with(
+    				table().withClass("borderless").with(
+    					normalInfoRowBuilder("Project name", selProject.getName()),
+    					normalInfoRowBuilder("Homepage", selProject.getWebsiteUrl()),
+    					normalInfoRowBuilder("Contact e-mail", selProject.getContactUrl()),
+    					normalInfoRowBuilder("Bug database", selProject.getBtsUrl()),
+    					normalInfoRowBuilder("Mailing list", selProject.getMailUrl()),
+    					normalInfoRowBuilder("Source code", selProject.getScmUrl()),
+    					// toolbar
+    					tableRow().with(
+    						tableColumn().withColspan(2).withClass("borderless")
+    						.with(defaultButton()
+    							.withValue(getLbl("btn_back"))
+    							.withAttribute("onclick", doSubmitString())
+    						)
+    					)
+    				)
+    			);
         }
         // ===================================================================
         // "Add project" editor
         // ===================================================================
         else if (ACT_REQ_ADD_PROJECT.equals(reqValAction)) {
-            // Create the field-set
-            // Create the input fields
-            StringBuilder infoRows = new StringBuilder();  
-            infoRows.append(normalInputRow(
-                    "Project name", REQ_PAR_PRJ_NAME, "", in));
-            infoRows.append(normalInputRow(
-                    "Homepage", REQ_PAR_PRJ_WEB, "", in));
-            infoRows.append(normalInputRow(
-                    "Contact e-mail", REQ_PAR_PRJ_CONT, "", in));
-            infoRows.append(normalInputRow(
-                    "Bug database", REQ_PAR_PRJ_BUG, "", in));
-            infoRows.append(normalInputRow(
-                    "Mailing list", REQ_PAR_PRJ_MAIL, "", in));
-            infoRows.append(normalInputRow(
-                    "Source code", REQ_PAR_PRJ_CODE, "", in));
-
-            b_internal.append(
-            	table().withClass("borderless").withStyle("width: 100%").
-		        with(
-		        	text(infoRows.toString()),
+            output =
+            	table().withClass("borderless").withStyle("width: 100%").with(
+		        	// input rows
+		        	normalInputRowBuilder("Project name", REQ_PAR_PRJ_NAME, ""),
+		        	normalInputRowBuilder("Homepage", REQ_PAR_PRJ_WEB, ""),
+		        	normalInputRowBuilder("Contact e-mail", REQ_PAR_PRJ_CONT, ""),
+		        	normalInputRowBuilder("Bug database", REQ_PAR_PRJ_BUG, ""),
+		        	normalInputRowBuilder("Mailing list", REQ_PAR_PRJ_MAIL, ""),
+		        	normalInputRowBuilder("Source code", REQ_PAR_PRJ_CODE, ""),
 		        	// toolbar
 		        	tableRow().with(
-		        		tableColumn().withColspan(2).withClass("borderless").
-		        		with(
+		        		tableColumn().withColspan(2).withClass("borderless").with(
 		        			defaultButton()
 		        				.withValue(getLbl("project_add"))
 		        				.withAttribute("onclick", doSetActionAndSubmitString(ACT_CON_ADD_PROJECT)),
@@ -418,15 +381,14 @@ public class ProjectsView extends AbstractView {
 		        				.withAttribute("onclick", doSubmitString())
 		        		)
 		        	)
-		        ).build()
-        	);
+            	);
         }
         // ===================================================================
         // "Delete project" confirmation view
         // ===================================================================
         else if ((ACT_REQ_REM_PROJECT.equals(reqValAction))
                 && (selProject != null)) {
-            b_internal.append(
+            output =
             	node("fieldset").with(
 	            	node("legend").with(
 	            		text(getLbl("l0059") + ": " + selProject.getName())),
@@ -449,19 +411,19 @@ public class ProjectsView extends AbstractView {
 	            			)
 	            		)
 	            	)
-            	).build()
-            );
+            	);
         }
         // ===================================================================
         // Projects list view
         // ===================================================================
         else {
-
         	Collection<GenericHTMLBuilder<?>> rows = new ArrayList<GenericHTMLBuilder<?>>();
             if (projects.isEmpty()) {
             	rows.add(
             		tableRow().with(
-            			tableColumn().withColspan(6).withClass("noattr").with(text(getMsg("no_projects")))
+            			tableColumn().withColspan(6).withClass("noattr").with(text(
+            				getMsg("no_projects")
+            			))
             		)
             	);
             }
@@ -469,92 +431,68 @@ public class ProjectsView extends AbstractView {
                 //------------------------------------------------------------
                 // Create the content rows
                 //------------------------------------------------------------
-                for (StoredProject nextPrj : projects) {
-                	StringBuilder projectsListRow = new StringBuilder();
-                    boolean selected = false;
-                    if ((selProject != null)
-                            && (selProject.getId() == nextPrj.getId())) {
-                        selected = true;
-                    }
-                    projectsListRow.append(sp(in++) + "<tr class=\""
-                            + ((selected) ? "selected" : "edit") + "\""
-                            + " onclick=\"javascript:"
-                            + "document.getElementById('"
-                            + REQ_PAR_PROJECT_ID + "').value='"
-                            + ((selected) ? "" : nextPrj.getId())
-                            + "';"
-                            + SUBMIT + "\">\n");
-                    // Project Id
-                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
-                            + nextPrj.getId()
-                            + "</td>\n");
-                    // Project name
-                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
-                            + ((selected)
-                                    ? "<input type=\"button\""
-                                        + " class=\"install\""
-                                        + " style=\"width: 100px;\""
-                                        + " value=\""
-                                        + getLbl("btn_info")
-                                        + "\""
-                                        + " onclick=\"javascript:"
-                                        + "document.getElementById('"
-                                        + REQ_PAR_ACTION + "').value='" 
-                                        + ACT_REQ_SHOW_PROJECT + "';"
-                                        + SUBMIT + "\" />"
-                                    : "<img src=\"/edit.png\""
-                                        + " alt=\"[Edit]\"/>")
-                            + "&nbsp;"
-                            + nextPrj.getName()
-                            + "</td>\n");
-                    // Last project version
-                    String lastVersion = getLbl("l0051");
-                    ProjectVersion v = getLastProjectVersion(nextPrj);
-                    if (v != null) {
-                        lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
-                    }
-                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
-                            + lastVersion
-                            + "</td>\n");
-                    // Date of the last known email
-                    MailMessage mm = getLastMailMessage(nextPrj);
-                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
-                            + ((mm == null)?getLbl("l0051"):mm.getSendDate())
-                            + "</td>\n");
-                    // ID of the last known bug entry
-                    Bug bug = getLastBug(nextPrj);
-                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
-                            + ((bug == null)?getLbl("l0051"):bug.getBugID())
-                            + "</td>\n");
-                    // Evaluation state
-                    String evalState = getLbl("project_not_evaluated");
-                    if (nextPrj.isEvaluated()) {
-                    	evalState = getLbl("project_is_evaluated");
-                    }
-                    projectsListRow.append(sp(in) + "<td class=\"trans\">"
-                            + evalState
-                            + "</td>\n");
+                for (StoredProject currentProject : projects) {
+                	boolean selected = (selProject != null) && (selProject.getId() == currentProject.getId());
                     
-                    // Cluster node
-                    String nodename = null;
-                    if (null != nextPrj.getClusternode()) {
-                        nodename = nextPrj.getClusternode().getName();
-                    } else {
-                        nodename = "(local)";
-                    }
-                    projectsListRow.append(sp(in) + "<td class=\"trans\">" + nodename + "</td>\n");
-                    projectsListRow.append(sp(--in) + "</tr>\n");
-                    if ((selected) && (metrics.isEmpty() == false)) {
-                        showLastAppliedVersion(nextPrj, metrics, projectsListRow);
-                    }
-                    
-                    rows.add(text(projectsListRow.toString()));
+                    String projectId = Long.toString(currentProject.getId());
+                    ProjectVersion lastProjectVersion = getLastProjectVersion(currentProject);
+					MailMessage lastMailMessage = getLastMailMessage(currentProject);
+					Bug lastBug = getLastBug(currentProject);
+					ClusterNode clusterNode = currentProject.getClusternode();
+					
+					rows.add(
+                    	tableRow().withClass(selected ? "selected" : "edit")
+                    		.withAttribute("onclick", doSetFieldAndSubmitString(REQ_PAR_PROJECT_ID, selected ? "" : projectId))
+                    	.with(
+                    		// project ID
+                    		tableColumn().withClass("trans").with(text(projectId)),
+                    		// project Name
+                    		tableColumn().withClass("trans").with(
+                    			selected
+                    				? defaultButton().withValue(getLbl("btn_info")).withAttribute("onclick", doSetActionAndSubmitString(ACT_REQ_SHOW_PROJECT))
+                    				: node("img").withAttribute("src", "edit.png").withAttribute("alt", "[Edit]"),
+                    			text("&nbsp;"),
+                    			text(currentProject.getName())
+                    		),
+                    		// project Last Version
+                    		tableColumn().withClass("trans").with(
+                    			lastProjectVersion == null
+                    				? text(getLbl("l0051"))
+                    				: text(String.valueOf(lastProjectVersion.getSequence()) + "(" + lastProjectVersion.getRevisionId() + ")") 
+                    		),
+                    		// Date of last mail
+                    		tableColumn().withClass("trans").with(
+                    			lastMailMessage == null
+                    				? text(getLbl("l0051"))
+                    				: text(lastMailMessage.getSendDate().toString())
+                    		),
+                    		// ID of the last known bug entry
+                    		tableColumn().withClass("trans").with(
+                    			lastBug == null
+                    				? text(getLbl("l0051"))
+                    				: text(lastBug.getBugID())
+                    		),
+                    		// Evaluation state
+                    		tableColumn().withClass("trans").with(
+                    			currentProject.isEvaluated()
+                    				? text(getLbl("project_is_evaluated"))
+                    				: text(getLbl("project_not_evaluated"))
+                    		),
+                    		// Cluster node
+                    		tableColumn().withClass("trans").with(
+                    			clusterNode == null
+                    				? text("(local)")
+                    				: text(clusterNode.getName())
+                    		)
+                    	)
+                    );
+
+					if (selected && (metrics.isEmpty() == false)) {
+						rows.addAll(lastAppliedVersion(currentProject, metrics));
+					}
                 }
             }
-            //----------------------------------------------------------------
-            // Tool-bar
-            //----------------------------------------------------------------
-            b_internal.append(
+            output =
             	table().with(
             		headerRow(),
             		node("tbody").with(
@@ -562,27 +500,39 @@ public class ProjectsView extends AbstractView {
             		).with(
             			toolbar(selProject).toArray(GenericHTMLBuilder.EMPTY_ARRAY)
             		)
-            	)
-            	.build()
-            );
+            	);
         }
 
         // ===============================================================
-        // INPUT FIELDS
+        // Create the form
         // ===============================================================
-        addHiddenFields(selProject,b_internal,in);
-
-        formBuilder.appendContent(b_internal.toString());
+        HTMLFormBuilder formBuilder = 
+        	form().withId("projects").withName("projects").withMethod(POST).withAction("/projects").with(
+        		// display accumulated error messages
+        		errorFieldsetBuilder(e)
+        	).with(
+        		(output == null)
+        			? GenericHTMLBuilder.EMPTY_ARRAY
+        			: new GenericHTMLBuilder<?>[]{output}
+        	)
+        	// input fields
+        	.with(
+        		hiddenFields(selProject).toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+        	);
         
         b.append(formBuilder.build());
     }
+
+	protected static String doSetFieldAndSubmitString(String field, String value) {
+		return "javascript:document.getElementById('" + field + "').value='" + value + "';" + SUBMIT;
+	}
 
 	protected static String doSubmitString() {
 		return "javascript:" + SUBMIT;
 	}
 	
 	protected static String doSetActionAndSubmitString(String action) {
-		return "javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + action + "';" + SUBMIT;
+		return doSetFieldAndSubmitString(REQ_PAR_ACTION, action);
 	}
 
 	protected static HTMLInputBuilder defaultButton() {
@@ -608,24 +558,31 @@ public class ProjectsView extends AbstractView {
 		return ClusterNode.thisNode().getProjects();
 	}
 
-
-    protected void addHiddenFields(StoredProject selProject,
-            StringBuilder b,
-            long in) {
-        // "Action type" input field
-        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_ACTION + 
-                "' name='" + REQ_PAR_ACTION + "' value='' />\n");
-        // "Project Id" input field
-        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_PROJECT_ID +
-                "' name='" + REQ_PAR_PROJECT_ID +
-                "' value='" + ((selProject != null) ? selProject.getId() : "") +
-                "' />\n");
-        // "Plug-in hashcode" input field
-        b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_SYNC_PLUGIN +
-                "' name='" + REQ_PAR_SYNC_PLUGIN + 
-                "' value='' />\n");
-    }
-    
+	protected Collection<HTMLInputBuilder> hiddenFields(StoredProject project) {
+		ArrayList<HTMLInputBuilder> list = new ArrayList<HTMLInputBuilder>();
+		
+		String projectId = (project == null) ? "" : Long.toString(project.getId());
+		list.addAll(Arrays.asList(
+			input()
+				.withType(HIDDEN)
+				.withId(REQ_PAR_ACTION)
+				.withName(REQ_PAR_ACTION)
+				.withValue(""),
+			input()
+				.withType(HIDDEN)
+				.withId(REQ_PAR_PROJECT_ID)
+				.withName(REQ_PAR_PROJECT_ID)
+				.withValue(projectId),
+			input()
+				.withType(HIDDEN)
+				.withId(REQ_PAR_SYNC_PLUGIN)
+				.withName(REQ_PAR_SYNC_PLUGIN)
+				.withValue("")
+		));
+		
+		return list;
+	}
+	
     protected Collection<HTMLTableRowBuilder> toolbar(StoredProject project) {
     	String projectID = (project != null) ? "?" + REQ_PAR_PROJECT_ID + "=" + project.getId() : "";
 		return Arrays.asList(
@@ -719,33 +676,28 @@ public class ProjectsView extends AbstractView {
 	protected String getClusterNodeName() {
 		return sobjClusterNode.getClusterNodeName();
 	}
-    
-    protected void showLastAppliedVersion(
-            StoredProject project,
-            Collection<PluginInfo> metrics,
-            StringBuilder b) {
-        for(PluginInfo m : metrics) {
-            if (m.installed) {
-                b.append("<tr>\n");
-                b.append(sp(1) + "<td colspan=\"7\""
-                        + " class=\"noattr\">\n"
-                        + "<input type=\"button\""
-                        + " class=\"install\""
-                        + " style=\"width: 100px;\""
-                        + " value=\"Synchronise\""
-                        + " onclick=\"javascript:"
-                        + "document.getElementById('"
-                        + REQ_PAR_SYNC_PLUGIN + "').value='"
-                        + m.getHashcode() + "';"
-                        + SUBMIT + "\""
-                        + "/>"
-                        + "&nbsp;"
-                        + m.getPluginName()
-                        + "</td>\n");
-                b.append("</tr>\n");
-            }
-        }
-    }
+	
+	protected Collection<GenericHTMLBuilder<?>> lastAppliedVersion(StoredProject project, Collection<PluginInfo> metrics) {
+		List<GenericHTMLBuilder<?>> list = new ArrayList<GenericHTMLBuilder<?>>();
+		
+		for (PluginInfo metric : metrics) {
+			if (metric.installed) {
+				list.add(
+					tableRow().with(
+						tableColumn().withColspan(7).withClass("noattr").with(
+							defaultButton()
+								.withValue("Synchronise")
+								.withAttribute("onclick", doSetFieldAndSubmitString(REQ_PAR_SYNC_PLUGIN, metric.getHashcode())),
+							text("&nbsp;"),
+							text(metric.getPluginName())
+						)
+					)
+				);
+			}
+		}
+		
+		return list;		
+	}
     
     protected static HTMLNodeBuilder headerRow() {
     	return

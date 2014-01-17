@@ -27,7 +27,9 @@ public class GenericHTMLBuilder<CHILD extends GenericHTMLBuilder<CHILD>> {
 	
 	@SuppressWarnings("unchecked")
 	public CHILD withAttribute(String attribute, String value) {
-		attributes.add(new String[]{ attribute, value });
+		if (value != null) {
+			attributes.add(new String[]{ attribute, value });
+		}
 		return (CHILD) this;
 	}
 
