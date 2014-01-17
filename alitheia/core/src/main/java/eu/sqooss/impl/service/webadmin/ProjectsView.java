@@ -365,7 +365,7 @@ public class ProjectsView extends AbstractView {
                     + " style=\"width: 100px;\""
                     + " value=\"" + getLbl("btn_back") + "\""
                     + " onclick=\"javascript:"
-                    + SUBMIT + "\">\n");
+                    + SUBMIT + "\" />\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</table>\n");
@@ -406,14 +406,14 @@ public class ProjectsView extends AbstractView {
                     + "document.getElementById('"
                     + REQ_PAR_ACTION + "').value='"
                     + ACT_CON_ADD_PROJECT + "';"
-                    + SUBMIT + "\">\n");
+                    + SUBMIT + "\" />\n");
             // Cancel button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
                     + " value=\"" + getLbl("cancel") + "\""
                     + " onclick=\"javascript:"
-                    + SUBMIT + "\">\n");
+                    + SUBMIT + "\" />\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</table>\n");
@@ -450,14 +450,14 @@ public class ProjectsView extends AbstractView {
                     + "document.getElementById('"
                     + REQ_PAR_ACTION + "').value='"
                     + ACT_CON_REM_PROJECT + "';"
-                    + SUBMIT + "\">\n");
+                    + SUBMIT + "\" />\n");
             // Cancel button
             b.append(sp(in) + "<input type=\"button\""
                     + " class=\"install\""
                     + " style=\"width: 100px;\""
                     + " value=\"" + getLbl("l0004") + "\""
                     + " onclick=\"javascript:"
-                    + SUBMIT + "\">\n");
+                    + SUBMIT + "\" />\n");
             b.append(sp(--in) + "</td>\n");
             b.append(sp(--in) + "</tr>\n");
             b.append(sp(--in) + "</table>");
@@ -516,7 +516,7 @@ public class ProjectsView extends AbstractView {
                                         + "document.getElementById('"
                                         + REQ_PAR_ACTION + "').value='" 
                                         + ACT_REQ_SHOW_PROJECT + "';"
-                                        + SUBMIT + "\">"
+                                        + SUBMIT + "\" />"
                                     : "<img src=\"/edit.png\""
                                         + " alt=\"[Edit]\"/>")
                             + "&nbsp;"
@@ -611,16 +611,16 @@ public class ProjectsView extends AbstractView {
             long in) {
         // "Action type" input field
         b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_ACTION + 
-                "' name='" + REQ_PAR_ACTION + "' value=''>\n");
+                "' name='" + REQ_PAR_ACTION + "' value='' />\n");
         // "Project Id" input field
         b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_PROJECT_ID +
                 "' name='" + REQ_PAR_PROJECT_ID +
                 "' value='" + ((selProject != null) ? selProject.getId() : "") +
-                "'>\n");
+                "' />\n");
         // "Plug-in hashcode" input field
         b.append(sp(in) + "<input type='hidden' id='" + REQ_PAR_SYNC_PLUGIN +
                 "' name='" + REQ_PAR_SYNC_PLUGIN + 
-                "' value=''>\n");
+                "' value='' />\n");
     }
     
     protected void addToolBar(StoredProject selProject,
@@ -631,12 +631,12 @@ public class ProjectsView extends AbstractView {
         // Refresh button
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0008") + "\"" + " onclick=\"javascript:" + "window.location='/projects" + ((selProject != null)
                 ? "?" + REQ_PAR_PROJECT_ID + "=" + selProject.getId()
-                : "") + "';\"" + ">");
+                : "") + "';\"" + " />");
         b.append("</td></tr><tr class=\"subhead\"><td>Manage</td><td colspan='6'>\n");
         // Add project button
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("add_project") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_ADD_PROJECT + "';" + SUBMIT + "\">\n");
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("add_project") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_ADD_PROJECT + "';" + SUBMIT + "\" />\n");
         // Remove project button
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0059") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_REM_PROJECT + "';" + SUBMIT + "\"" + ((selProject != null) ? "" : " disabled") + ">");
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0059") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_REM_PROJECT + "';" + SUBMIT + "\"" + ((selProject != null) ? "" : " disabled") + " />");
         b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
         
         if (selProject != null) {
@@ -666,14 +666,14 @@ public class ProjectsView extends AbstractView {
         }
 
         // Trigger updater
-        b.append(sp(in) + "<input type=\"button\" class=\"install\" value=\"Run Updater\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD + "';" + SUBMIT + "\"" + ((selProject != null)? "" : " disabled") + ">\n");
+        b.append(sp(in) + "<input type=\"button\" class=\"install\" value=\"Run Updater\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD + "';" + SUBMIT + "\"" + ((selProject != null)? "" : " disabled") + " />\n");
         // Trigger all updates
         b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " value=\"Run All Updaters\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null))
-                ? "" : " disabled") + ">\n");
+                ? "" : " disabled") + " />\n");
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "<td colspan=\"2\" align=\"right\">\n");
      // Trigger updates on host
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\">\n");
+        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\" />\n");
         b.append(sp(--in) + "</td>\n");
         b.append(sp(--in) + "</tr>\n");
     }

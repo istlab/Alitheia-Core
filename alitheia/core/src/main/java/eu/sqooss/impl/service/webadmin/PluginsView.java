@@ -116,7 +116,7 @@ public class PluginsView extends AbstractView{
                             + " value=\"Refresh\""
                             + " onclick=\"javascript:"
                             + "window.location.reload(true);"
-                            + "\">"
+                            + "\" />"
                             + "</span>"),
                     in));
         }
@@ -346,7 +346,7 @@ public class PluginsView extends AbstractView{
                                     + " class=\"form\""
                                     + " id=\"" + REQ_PAR_PROP_NAME + "\""
                                     + " name=\"" + REQ_PAR_PROP_NAME + "\""
-                                    + " value=\"" + value + "\">")
+                                    + " value=\"" + value + "\" />")
                                     + "</td>\n"
                                     + sp(--in) + "</tr>\n");
                 // Property's description
@@ -363,7 +363,7 @@ public class PluginsView extends AbstractView{
                                     + " class=\"form\""
                                     + " id=\"" + REQ_PAR_PROP_DESC + "\""
                                     + " name=\"" + REQ_PAR_PROP_DESC + "\""
-                                    + " value=\"" + value + "\">")
+                                    + " value=\"" + value + "\" />")
                                     + "</td>\n"
                                     + sp(--in) + "</tr>\n");
                 // Property's type
@@ -411,7 +411,7 @@ public class PluginsView extends AbstractView{
                         + " class=\"form\""
                         + " id=\"" + REQ_PAR_PROP_VALUE + "\""
                         + " name=\"" + REQ_PAR_PROP_VALUE + "\""
-                        + " value=\"" + value +"\">"
+                        + " value=\"" + value +"\" />"
                         + "</td>\n"
                         + sp(--in)
                         + "</tr>\n");
@@ -428,7 +428,7 @@ public class PluginsView extends AbstractView{
                         + "document.getElementById('"
                         + REQ_PAR_ACTION + "').value='"
                         + ACT_VAL_CON_PROP + "';"
-                        + "document.metrics.submit();\">"
+                        + "document.metrics.submit();\" />"
                         + "&nbsp;");
                 if (update) {
                     b.append(sp(in) + "<input type=\"button\""
@@ -439,7 +439,7 @@ public class PluginsView extends AbstractView{
                             + "document.getElementById('"
                             + REQ_PAR_ACTION + "').value='"
                             + ACT_VAL_CON_REM_PROP + "';"
-                            + "document.metrics.submit();\">"
+                            + "document.metrics.submit();\" />"
                             + "&nbsp;");
                 }
                 b.append(sp(in) + "<input type=\"button\""
@@ -447,7 +447,7 @@ public class PluginsView extends AbstractView{
                         + " style=\"width: 100px;\""
                         + " value=\"Cancel\""
                         + " onclick=\"javascript:"
-                        + "document.metrics.submit();\">"
+                        + "document.metrics.submit();\" />"
                         + "</td>\n"
                         + sp(--in)
                         + "</tr>\n");
@@ -492,7 +492,7 @@ public class PluginsView extends AbstractView{
                 // Plug-in name
                 b.append(sp(in) + "<td>"
                         + selPI.getPluginName() + "</td>\n");
-                // Plug-in class
+                //  Plug-in class
                 b.append(sp(in) + "<td>"
                         + StringUtils.join((String[]) (
                                 selPI.getServiceRef().getProperty(
@@ -513,7 +513,7 @@ public class PluginsView extends AbstractView{
                         + "document.getElementById('"
                         + REQ_PAR_HASHCODE + "').value='';"
                         + "document.metrics.submit();\""
-                        + ">\n");
+                        + " />\n");
                 if (selPI.installed) {
                     b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
@@ -527,7 +527,7 @@ public class PluginsView extends AbstractView{
                             + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
                             + "document.metrics.submit();\""
-                            + ">\n");
+                            + " />\n");
                     b.append(sp(in) + "<input type=\"button\""
                             + " class=\"install\""
                             + " style=\"width: 100px;\""
@@ -540,7 +540,7 @@ public class PluginsView extends AbstractView{
                             + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
                             + "document.metrics.submit();\""
-                            + ">\n");
+                            + " />\n");
                 }
                 else {
                     b.append(sp(in) + "<input type=\"button\""
@@ -555,7 +555,7 @@ public class PluginsView extends AbstractView{
                             + REQ_PAR_HASHCODE +"').value='"
                             + selPI.getHashcode() + "';"
                             + "document.metrics.submit();\""
-                            + ">\n");
+                            + " />\n");
                 }
                 b.append(sp(--in) + "</td>\n");
                 b.append(sp(--in) + "</tr>\n");
@@ -711,7 +711,7 @@ public class PluginsView extends AbstractView{
                             + REQ_PAR_ACTION + "').value='"
                             + ACT_VAL_REQ_ADD_PROP + "';"
                             + "document.metrics.submit();\""
-                            + ">\n");
+                            + " />\n");
                     b.append(sp(--in) + "</td>\n");
                     b.append(sp(--in) + "</tr>\n");
                     // Close the properties table
@@ -844,7 +844,7 @@ public class PluginsView extends AbstractView{
                         + "document.getElementById('"
                         + REQ_PAR_HASHCODE + "').value='';"
                         + "document.metrics.submit();\""
-                        + ">Display properties\n");
+                        + " />Display properties\n");
                 b.append(sp(++in) + "<input"
                         + " type=\"checkbox\""
                         + ((reqValShowActv) ? "checked" : "")
@@ -854,7 +854,7 @@ public class PluginsView extends AbstractView{
                         + "document.getElementById('"
                         + REQ_PAR_HASHCODE + "').value='';"
                         + "document.metrics.submit();\""
-                        + ">Display activators\n");
+                        + " />Display activators\n");
                 b.append(sp(--in) + "</span>\n");
                 // Close the field-set
                 b.append(sp(--in) + "</fieldset>\n");
@@ -867,56 +867,56 @@ public class PluginsView extends AbstractView{
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + REQ_PAR_ACTION + "\""
                     + " name=\"" + REQ_PAR_ACTION + "\""
-                    + " value=\"\">\n");
+                    + " value=\"\" />\n");
             // "Selected plug-in's hash code" input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + REQ_PAR_HASHCODE + "\""
                     + " name=\"" + REQ_PAR_HASHCODE + "\""
                     + " value=\""
                     + ((reqValHashcode != null) ? reqValHashcode : "")
-                    + "\">\n");
+                    + "\" />\n");
             // "Configuration attribute's name" input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + REQ_PAR_PROP_NAME + "\""
                     + " name=\"" + REQ_PAR_PROP_NAME + "\""
                     + " value=\""
                     + ((reqValPropName != null) ? reqValPropName : "")
-                    + "\">\n");
+                    + "\" />\n");
             // "Configuration attribute's description" input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + REQ_PAR_PROP_DESC + "\""
                     + " name=\"" + REQ_PAR_PROP_DESC + "\""
                     + " value=\""
                     + ((reqValPropDescr != null) ? reqValPropDescr : "")
-                    + "\">\n");
+                    + "\" />\n");
             // "Configuration attribute's type" input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + REQ_PAR_PROP_TYPE + "\""
                     + " name=\"" + REQ_PAR_PROP_TYPE + "\""
                     + " value=\""
                     + ((reqValPropType != null) ? reqValPropType : "")
-                    + "\">\n");
+                    + "\" />\n");
             // "Configuration attribute's value" input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + REQ_PAR_PROP_VALUE + "\""
                     + " name=\"" + REQ_PAR_PROP_VALUE + "\""
                     + " value=\""
                     + ((reqValPropValue != null) ? reqValPropValue : "")
-                    + "\">\n");
+                    + "\" />\n");
             // "Show configuration properties" input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + REQ_PAR_SHOW_PROP + "\""
                     + " name=\"" + REQ_PAR_SHOW_PROP + "\""
                     + " value=\""
                     + reqValShowProp
-                    + "\">\n");
+                    + "\" />\n");
             // "Show activators" input field
             b.append(sp(in) + "<input type=\"hidden\""
                     + " id=\"" + REQ_PAR_SHOW_ACTV + "\""
                     + " name=\"" + REQ_PAR_SHOW_ACTV + "\""
                     + " value=\""
                     + reqValShowActv
-                    + "\">\n");
+                    + "\" />\n");
 
             // ===============================================================
             // Close the form
