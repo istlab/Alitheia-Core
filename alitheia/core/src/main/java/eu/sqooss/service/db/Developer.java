@@ -282,7 +282,7 @@ public class Developer extends DAObject {
         
         /* Try Ohloh */
         String hash = DigestUtils.shaHex(email);
-        OhlohDeveloper od = OhlohDeveloper.getByEmailHash(hash);
+        OhlohDeveloper od = OhlohDeveloper.getByEmailHash(dbs, hash);
         
         if (od != null) {
             Developer d = getDeveloperByUsername(dbs, od.getUname(), sp, false);
@@ -319,9 +319,9 @@ public class Developer extends DAObject {
      * @param sp The StoredProject this Developer belongs to
      * @return A Developer record for the specified Developer or null on failure
      */
-    public static Developer getDeveloperByUsername(String username, 
+    public static Developer getDeveloperByUsername(DBService dbs, String username, 
             StoredProject sp) {
-        return getDeveloperByUsername(null, username, sp, true);
+        return getDeveloperByUsername(dbs, username, sp, true);
     }
     
     /**

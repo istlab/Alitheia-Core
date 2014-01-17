@@ -202,7 +202,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
             } else {
                 //Add revision 0 and / (root) file entry
                 ProjectVersion zero = new ProjectVersion(project);
-                zero.setCommitter(Developer.getDeveloperByUsername("sqo-oss", project));
+                zero.setCommitter(Developer.getDeveloperByUsername(dbs, "sqo-oss", project));
                 zero.setTimestamp(scm.getFirstRevision().getDate().getTime());
                 zero.setCommitMsg("Artificial revision to include / directory");
                 zero.setRevisionId("0");
@@ -377,7 +377,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         curVersion.setRevisionId(entry.getUniqueId());
         curVersion.setTimestamp(entry.getDate().getTime());
 
-        Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
+        Developer d  = Developer.getDeveloperByUsername(dbs, entry.getAuthor(), project);
        
         curVersion.setCommitter(d);
 

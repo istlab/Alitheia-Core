@@ -154,7 +154,7 @@ public class OhlohUpdater extends UpdaterBaseJob {
                 String uname = getString(account.element("name"));
                 String mailhash = getString(account.element("email_sha1"));
                 
-                OhlohDeveloper od = OhlohDeveloper.getByOhlohId(id);
+                OhlohDeveloper od = OhlohDeveloper.getByOhlohId(dbs, id);
                 if (od != null) { //Exists, update fields to track updates
                     od.setEmailHash(mailhash);
                     od.setTimestamp(new Date());

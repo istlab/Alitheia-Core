@@ -175,7 +175,7 @@ public class StoredProjectResource {
         if (!path.startsWith("/"))
             path = "/" + path;
         
-        return pv.getFiles(dbs, Directory.getDirectory(null, path, false), 
+        return pv.getFiles(dbs, Directory.getDirectory(dbs, path, false), 
                 ProjectVersion.MASK_FILES);
     }
 
@@ -222,7 +222,7 @@ public class StoredProjectResource {
         if (!path.startsWith("/"))
             path = "/" + path;
         
-        return pv.getFiles(dbs, Directory.getDirectory( null, path, false), 
+        return pv.getFiles(dbs, Directory.getDirectory(dbs, path, false), 
                 ProjectVersion.MASK_DIRECTORIES);
 	}
 }

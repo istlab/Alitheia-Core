@@ -179,7 +179,9 @@ public class MetricsResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Set<Metric> getMetricByType(@PathParam("type") String type) {
-		MetricType mt = MetricType.getMetricType(null, Type.fromString(type));
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		
+		MetricType mt = MetricType.getMetricType(dbs, Type.fromString(type));
 		
 		if (mt == null) //No metric of this type has been installed yet
 		    return Collections.EMPTY_SET;

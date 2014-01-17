@@ -145,7 +145,6 @@ public class Branch extends DAObject {
     }
 	
 	public static Branch fromName(DBService db, StoredProject sp, String name, boolean create) {
-		//DBService db = AlitheiaCore.getInstance().getDBService();
 		Map<String, Object> params = new HashMap<String, Object>();
 		
 		params.put("name", name);
@@ -159,15 +158,13 @@ public class Branch extends DAObject {
 		    b.setProject(sp);
 		    b.setName(name);
 		    db.addRecord(b);
-		    return fromName(null, sp, name, false);
+		    return fromName(db, sp, name, false);
 		}
 		
 		return branches.get(0);
 	}
 
     public static String suggestName(DBService db, StoredProject sp) {
-         //DBService db = AlitheiaCore.getInstance().getDBService();
-
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("project", sp);
         @SuppressWarnings("unchecked")

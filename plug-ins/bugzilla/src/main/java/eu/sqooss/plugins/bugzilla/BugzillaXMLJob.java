@@ -129,7 +129,9 @@ public class BugzillaXMLJob extends Job {
     private Bug BTSEntryToBug (BTSEntry b) {
         if (b == null)
             return null;
-        DBService dbs = null;
+        
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
         Bug bug = new Bug();
         bug.setBugID(b.bugID);
         bug.setCreationTS(b.creationTimestamp);
@@ -186,11 +188,13 @@ public class BugzillaXMLJob extends Job {
      * Get or create a developer entry for a username
      */
     private Developer getDeveloper(String name) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
         Developer d = null;
         if (name.contains("@")) {
             d = Developer.getDeveloperByEmail(name, project);
         } else {
-            d = Developer.getDeveloperByUsername(name, project);
+            d = Developer.getDeveloperByUsername(dbs, name, project);
         }
         return d;
     }
