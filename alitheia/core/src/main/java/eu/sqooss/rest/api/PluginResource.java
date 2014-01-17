@@ -72,7 +72,7 @@ public class PluginResource {
 			PluginInfo pInfo = pluginAdmin.getPluginInfo(pluginhashcode);
 			pluginAdmin.pluginUpdated(pluginAdmin.getPlugin(pInfo));
 			return ResponseBuilder
-					.simpleResponse("Plugin installation successful");
+					.simpleResponse(200, "Plugin installation successful");
 		} else
 			return ResponseBuilder
 					.internalServerErrorResponse("Plugin installation was unsuccessful");
@@ -83,7 +83,7 @@ public class PluginResource {
 	public Response uninstallPlugin(@PathParam("hashcode") String pluginhashcode) {
 		if (pluginAdmin.uninstallPlugin(pluginhashcode)) {
 			return ResponseBuilder
-					.simpleResponse("A Job has beeen scheduled to remove the Plugin");
+					.simpleResponse(200, "A Job has beeen scheduled to remove the Plugin");
 		} else
 			return ResponseBuilder
 					.internalServerErrorResponse("Plugin cannot be uninstalled");
@@ -98,7 +98,7 @@ public class PluginResource {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		try {
 			if(pluginAdmin.getPluginInfo(hashcode).removeConfigEntry(db, pname, ptype))
-				return ResponseBuilder.simpleResponse("PluginInfo configuration entry correctly updated.");
+				return ResponseBuilder.simpleResponse(200, "PluginInfo configuration entry correctly updated.");
 		} catch (Exception e) {
 			return ResponseBuilder.simpleResponse(500, e.getMessage());
 		}
