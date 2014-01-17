@@ -66,11 +66,11 @@ public class JobsTest extends AbstractWebadminServletTest {
 		// Warning: this is always true when the number 851, 861, 871, 881
 		// and 891 occur in the HTML code itself. In that case change this
 		// number to a unique number.
-		assertTrue(output.matches(".*851.*"));
-		assertTrue(output.matches(".*861.*"));
-		assertTrue(output.matches(".*871.*"));
-		assertTrue(output.matches(".*881.*"));
-		assertTrue(output.matches(".*891.*"));
+		assertTrue(output.contains("851"));
+		assertTrue(output.contains("861"));
+		assertTrue(output.contains("871"));
+		assertTrue(output.contains("881"));
+		assertTrue(output.contains("891"));
 	}
 
 	// Test if running jobs are displayed correctly
