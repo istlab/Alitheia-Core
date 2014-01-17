@@ -36,8 +36,8 @@ package eu.sqooss.service.webadmin;
 import eu.sqooss.core.AlitheiaCoreService;
 
 public interface WebadminService extends AlitheiaCoreService {
-    public String getMessageOfTheDay();
-    public void setMessageOfTheDay(String s);
+    //public String getMessageOfTheDay();
+    //public void setMessageOfTheDay(String s);
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

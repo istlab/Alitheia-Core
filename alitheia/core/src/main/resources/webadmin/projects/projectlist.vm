@@ -1,0 +1,186 @@
+#set($section=3)
+#parse("/webadmin/inc/header.vm")
+
+        <div id="contents">
+          <h2>$tr.label("projects_mngm")</h2>
+          
+          ## Display project list
+          <div id="table">
+            
+            <form id="projects" name="projects" method="post" action="/projects/action">
+              <table>
+                <thead>
+                  <tr class="head">
+                    <td class="head" style="width: 10%;">Project Id</td>
+                    <td class="head" style="width: 35%;">Project Name</td>
+                    <td class="head" style="width: 15%;">Last Version</td>
+                    <td class="head" style="width: 15%;">Last Email</td>
+                    <td class="head" style="width: 15%;">Last Bug</td>
+                    <td class="head" style="width: 10%;">Evaluated</td>
+                    <td class="head" style="width: 10%;">Host</td>
+                  </tr>
+                </thead>
+                <tbody>
+                
+           	  ## Display projects
+          	  #if ($null.isNull($selProject))
+	            #set ($selProjectId = "")
+	          #else
+	            #set ($selProjectId = $selProject.getId())
+	          #end
+          	  #if ($projectList.isEmpty())
+              	  <tr>
+                    <td colspan="6" class="noattr">
+                      No projects found.
+                    </td>
+                  </tr>
+          	  #else
+                  #foreach ($project in $projectList)
+	                  #set ($isSelProj = $selProjectId == $project.getId())
+	                  #if (!$isSelProj) 
+	                    #set ($projectIdVal = "?REQ_PAR_PROJECT_ID=" + $project.getId()) 
+	                  #else
+	                    #set ($projectIdVal = "")
+	                  #end
+	                  <tr class="#if ($isSelProj) selected #else edit #end" onclick="javascript:window.location = '/projects$projectIdVal';">
+                        <td class="trans">$project.getId()</td>
+	                    <td class="trans">
+	                      <a href="projects/view?REQ_PAR_PROJECT_ID=$project.getId()"><img src="/edit.png" alt="[Edit]" border="0" /></a>
+	                      #if ($isSelProj)
+	                      	<input type="button" class="install" style="width: 100px;" value="Info" onclick="event.cancelBubble = true; javascript:window.location = '/projects/view?REQ_PAR_PROJECT_ID=$project.getId()';">
+	                      #end
+	                      &nbsp;$project.getName()
+	                    </td>
+	                    <td class="trans">
+	                      #set ($pv = $ProjectVersion.getLastProjectVersion($project))
+	                      #if ($null.isNull($pw))
+	                        n/a
+	                      #else
+	                        $pv.getSequence() ($pv.getRevisionId())
+	                      #end
+	                    </td>
+	                    <td class="trans">
+	                      #set ($mm = $MailMessage.getLatestMailMessage($project))
+	                      #if ($null.isNull($mm))
+	                        n/a
+	                      #else
+	                        $mm.getSendDate()
+	                      #end
+	                    </td>
+	                    <td class="trans">
+	                      #set ($bu = $Bug.getLastUpdate($project))
+	                      #if ($null.isNull($bu))
+	                        n/a
+	                      #else
+	                        $bu.getBugID()
+	                      #end
+	                    </td>
+	                    <td class="trans">
+	                      #if ($project.isEvaluated())
+	                      	$tr.label("project_is_evaluated")
+	                      #else
+	                      	$tr.label("project_not_evaluated")
+	                      #end
+	                    </td>
+	                    <td class="trans"> 
+	                      #if ($null.isNull($project.getClusterNode()))
+	                        (local)
+	                      #else
+	                        $project.getClusterNode().getName()
+	                      #end
+	                    </td>
+	                  </tr>
+	                  
+	                  ## Add metric if this project is opened
+	                  #if ($isSelProj)
+		                  #foreach ($metric in $installedMetrics)
+			                  <tr>
+			                    <td colspan="7" class="noattr">
+			                      <input type="button" class="install" style="width: 100px;" value="Synchronise" onclick="javascript:document.getElementById('action').value='synchronize';javascript:document.getElementById('REQ_PAR_SYNC_PLUGIN').value='$metric.getHashcode()';document.projects.submit();">&nbsp;$metric.getPluginName()
+			                    </td>
+			                  </tr>
+	                      #end
+                      #end
+	                  
+	              #end
+	          #end
+                
+                  ## Add toolbar
+              #if ($null.isNull($selProject))
+                  #set ($disabled = "disabled")
+                  #set ($projectLocation = "")
+              #else
+                  #set ($disabled = "")
+                  #set ($projectLocation = "?" + "REQ_PAR_PROJECT_ID" + "=" + $selProjectId)
+              #end
+                  
+                  <tr class="subhead">
+                    <td>View</td><td colspan="6">
+                      <input type="button" class="install" style="width: 100px;" value="Refresh" onclick="javascript:window.location = '/projects$projectLocation';">
+                    </td>
+                  </tr>
+                  
+                  <tr class="subhead">
+                    <td>Manage</td>
+                    <td colspan='6'>
+                      <input type="button" class="install" style="width: 100px;" value="Add project" onclick="javascript:window.location = '/projects/add';">
+                      <input type="button" class="install" style="width: 100px;" value="Delete project" onclick="javascript:window.location = '/projects/delete$projectLocation';" $disabled>
+                    </td>
+                  </tr>
+                  
+                  <tr class='subhead'>
+                    <td>Update</td>
+                    <td colspan='4'>
+                      ## Loop through all updaters and display them in a select
+                      #if ($null.isNotNull($selProject))
+                        <select name="reqUpd" id="reqUpd">
+                          #foreach ($stage in $updaterStages)
+						    ## First, derive the right label
+						    #if ($stage == "DEFAULT")
+						      #set ($stageLabel = "Default Stage")
+						    #elseif ($stage == "IMPORT")
+						      #set ($stageLabel = "Import Stage")
+						    #elseif ($stage == "PARSE")
+						      #set ($stageLabel = "Parse Stage")
+						    #elseif ($stage == "INFERENCE")
+						      #set ($stageLabel = "Inference Stage")
+						    #else
+						      #set ($stageLabel = "Unknown Stage")
+						    #end
+						    ## Second, print the option group
+						    <optgroup label="$stageLabel">
+						      #foreach ($updater in $sobjUpdater.getUpdaters($selProject, $stage))
+					            <option value="$updater.mnem()">$updater.descr()</option>
+				              #end
+					        </optgroup>
+					      #end
+					    </select>
+					  #end
+                      <input type="button" class="install" value="Run Updater" onclick="javascript:document.getElementById('action').value='triggerupdate';document.projects.submit();" $disabled />
+                      <input type="button" class="install" value="Run All Updaters" onclick="javascript:document.getElementById('action').value='triggerallupdate';document.projects.submit();" $disabled />
+                    </td>
+                    <td colspan="2" align="right">
+                      <input type="button" class="install" value="Update all on $sobjClusterNode.getClusterNodeName()" onclick="javascript:document.getElementById('action').value='triggerallupdatenode';document.projects.submit();" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+          
+              <input type="hidden" id="action" name="action" value="" />
+              <input type="hidden" id="REQ_PAR_PROJECT_ID" name="REQ_PAR_PROJECT_ID" value="$selProjectId" />
+              <input type="hidden" id="REQ_PAR_SYNC_PLUGIN" name="REQ_PAR_SYNC_PLUGIN" value="" />
+            </form>
+
+          </div>
+          
+          ## Display fast way to install new project
+          <h2>$tr.label("install_new_project")</h2>
+          <form id="addprojectdir" method="post" action="projects/action">
+            $tr.label("project_info_txt")
+            <input type="text" name="properties" alt="$tr.label("project_info_txt_help")" class="form" size="40" />
+            <input type="hidden" id="action" name="action" value="installbyproperties" />
+            <input type="submit" value="$tr.label("project_info_txt_install")"/>
+          </form>
+        </div>
+
+#parse("/webadmin/inc/footer.vm")

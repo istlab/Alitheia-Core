@@ -1,0 +1,53 @@
+#set($section=3)
+#parse("/webadmin/inc/header.vm")
+
+        <div id="contents">
+          <h2>$tr.label("projects_mngm")</h2>
+          
+          <div id="table">
+            <form id="projects" name="projects" method="post" action="/projects">
+              
+              ## Display project information
+              <fieldset>
+              <legend>Project information</legend>
+                <table class="borderless">
+                  <tr>
+                    <td class="borderless" style="width:100px;">Project name</td>
+                    <td class="borderless">$selProject.getName()</td>
+                  </tr>
+                  <tr>
+                    <td class="borderless" style="width:100px;">Homepage</td>
+                    <td class="borderless">$selProject.getWebsiteUrl()</td>
+                  </tr>
+                  <tr>
+                    <td class="borderless" style="width:100px;">Contact e-mail</td>
+                    <td class="borderless">$selProject.getContactUrl()</td>
+                  </tr>
+                  <tr>
+                    <td class="borderless" style="width:100px;">Bug database</td>
+                    <td class="borderless">$selProject.getBtsUrl()</td>
+                  </tr>
+                  <tr>
+                    <td class="borderless" style="width:100px;">Mailing list</td>
+                    <td class="borderless">$selProject.getMailUrl()</td>
+                  </tr>
+                  <tr>
+                    <td class="borderless" style="width:100px;">Source code</td>
+                    <td class="borderless">$selProject.getScmUrl()</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" class="borderless">
+                      <input type="button" class="install" style="width: 100px;" value="Back" onclick="javascript:window.location = '/projects';" />
+                    </td>
+                  </tr>
+                </table>
+              </fieldset>
+              
+              <input type="hidden" id="action" name="action" value="" />
+              <input type="hidden" id="REQ_PAR_PROJECT_ID" name="REQ_PAR_PROJECT_ID" value="$selProject.getId()" />
+              <input type="hidden" id="REQ_PAR_SYNC_PLUGIN" name="REQ_PAR_SYNC_PLUGIN" value="" />
+            </form>
+          </div>
+        </div>
+
+#parse("/webadmin/inc/footer.vm")

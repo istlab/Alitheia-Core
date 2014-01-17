@@ -1,0 +1,90 @@
+#set($section=4)
+#parse("/webadmin/inc/header.vm")
+
+        <div id="contents">
+          ## Display job statistics
+          <h2>Job statistics</h2>
+          <ul>
+            <li>Jobs Executing: $scheduler.RunningJobs</li>
+            <li>Jobs Waiting: $scheduler.WaitingJobs</li>
+            <li>Failed Jobs: $scheduler.FailedJobs</li>
+            <li>Worker Threads: $scheduler.WorkerThreads</li>
+            <li>Total Jobs: $scheduler.TotalJobs</li>
+          </ul>
+        
+          ## Display running jobs
+          <h2>Running Jobs</h2>
+          <div id="bundles">
+            #set ($runningJobs = $scheduler.getRunJobs())
+            #if ($runningJobs.isEmpty())
+              No running jobs
+            #else
+	          <ul>
+	            #foreach ($job in $runningJobs)
+	              <li>$job</li>
+	            #end
+	          </ul>
+            #end
+          </div>
+
+          ## Display waiting jobs statistics
+          <h2>Waiting Jobs statistics</h2>
+          <div id="bundles">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <thead>
+                <tr>
+                  <td>Job Type</td>
+                  <td>Num Jobs Waiting</td>
+                </tr>
+              </thead>
+              <tbody>
+                #set ($waitingJobs = $scheduler.getWaitingJobTypes())
+                #if ($waitingJobs.isEmpty())
+                  <tr>
+                    <td>No waiting</td>
+                    <td>&nbsp;</td>
+                  </tr>
+                #else
+                  #foreach ($job in $waitingJobs.entrySet())
+                    <tr>
+                      <td>$job.key</td>
+                      <td>$job.value</td>
+                    </tr>
+                  #end
+                #end
+              </tbody>
+            </table>
+          </div>
+
+          ## Display job failure statistics
+          <h2>Job failure statistics</h2> 
+          <a href="jobs/failed">Details ...</a>
+          <div id="bundles">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <thead>
+                <tr>
+                  <td>Job Type</td>
+                  <td>Num Jobs Failed</td>
+                </tr>
+              </thead>
+              <tbody>
+                #set ($failedJobs = $scheduler.getFailedJobTypes())
+    	        #if ($failedJobs.isEmpty())
+                  <tr>
+                    <td>No failures</td>
+                    <td>&nbsp;</td>
+                  </tr>
+                #else
+                  #foreach ($job in $failedJobs.entrySet())
+                  <tr>
+                    <td>$job.key</td>
+                    <td>$job.value</td>
+                  </tr>
+                  #end
+                #end
+              </tbody>
+            </table>
+    	  </div>
+	    </div>
+
+#parse("/webadmin/inc/footer.vm")

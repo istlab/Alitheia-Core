@@ -129,7 +129,10 @@ public class StoredProject extends DAObject {
 	}
     
     public String getName() {
-        return name;
+        if (name == null)
+            return "";
+        else
+            return name;
     }
 
     public void setName(String name) {
@@ -137,7 +140,11 @@ public class StoredProject extends DAObject {
     }
 
     public String getWebsiteUrl() {
-        return getConfigValue(ConfigOption.PROJECT_WEBSITE.getName());
+        String string = getConfigValue(ConfigOption.PROJECT_WEBSITE.getName());
+        if (string == null)
+            return "";
+        else
+            return string;
     }
 
     public void setWebsiteUrl(String url) {
@@ -145,7 +152,11 @@ public class StoredProject extends DAObject {
     }
 
     public String getContactUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_CONTACT.getName());
+        String string = getConfigValue(ConfigOption.PROJECT_CONTACT.getName());
+        if (string == null)
+            return "";
+        else
+            return string;
     }
 
     public void setContactUrl(String url) {
@@ -153,7 +164,11 @@ public class StoredProject extends DAObject {
     }
 
     public String getBtsUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_BTS_URL.getName());
+    	String string = getConfigValue(ConfigOption.PROJECT_BTS_URL.getName());
+        if (string == null)
+            return "";
+        else
+            return string;
     }
 
     public void setBtsUrl(String url) {
@@ -161,7 +176,11 @@ public class StoredProject extends DAObject {
     }
 
     public String getScmUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_SCM_URL.getName());
+    	String string = getConfigValue(ConfigOption.PROJECT_SCM_URL.getName());
+        if (string == null)
+            return "";
+        else
+            return string;
     }
 
     public void setScmUrl(String url) {
@@ -169,7 +188,11 @@ public class StoredProject extends DAObject {
     }
 
     public String getMailUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_ML_URL.getName());
+        String string = getConfigValue(ConfigOption.PROJECT_ML_URL.getName());
+        if (string == null)
+            return "";
+        else
+            return string;
     }
 
     public void setMailUrl(String url) {

@@ -11,7 +11,7 @@ with Eclipse Kepler (4.3) and IntelliJ 12.1 on MacOSX.
 2. Do the following
   ```bash
     mvn clean install
-    mvn -DdownloadJavadoc -Ddownloadsources eclipse:eclipse
+    mvn eclipse:eclipse
   ```
 
 3. In Eclipse, choose `Import->General->Existing` Projects into Workspace.

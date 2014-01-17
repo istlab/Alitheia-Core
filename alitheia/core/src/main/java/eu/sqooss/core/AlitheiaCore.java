@@ -111,9 +111,9 @@ public class AlitheiaCore {
     	services.add(FDSService.class);
     	services.add(MetricActivator.class);
     	services.add(UpdaterService.class);
+        services.add(AdminService.class);
     	services.add(WebadminService.class);
     	services.add(RestService.class);
-    	services.add(AdminService.class);
 
     	implementations.put(LogManager.class, LogManagerImpl.class);
     	implementations.put(DBService.class, DBServiceImpl.class);	 
@@ -124,9 +124,9 @@ public class AlitheiaCore {
     	implementations.put(FDSService.class, FDSServiceImpl.class);
     	implementations.put(MetricActivator.class, MetricActivatorImpl.class);
     	implementations.put(UpdaterService.class, UpdaterServiceImpl.class);
-    	implementations.put(WebadminService.class, WebadminServiceImpl.class);
         implementations.put(RestService.class, ResteasyServiceImpl.class);
     	implementations.put(AdminService.class, AdminServiceImpl.class);
+        implementations.put(WebadminService.class, WebadminServiceImpl.class);    	
     }
    
     /**

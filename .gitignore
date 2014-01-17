@@ -17,3 +17,7 @@ bin/
 *.ipr
 *.iws
 *.db
+alitheia/core/.checkstyle
+/metrics/contrib/maven-eclipse.xml
+/runner
+*.log

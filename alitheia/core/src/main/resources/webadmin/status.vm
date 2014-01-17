@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <meta http-equiv="refresh" content="10" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/screen.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/webadmin.css" />
+  </head>
+  <body bgcolor="#ffffff" style="font-size: 10pt;">      
+    <div id="sidebar">
+      ## Display status
+      <fieldset id="status">
+        <legend>$tr.label("status")</legend>
+        <ul>
+          <li class="uptime">$tr.label("uptime") : $uptime</li>
+          <li class="queue">$tr.label("queue_length") : $scheduler.WaitingJobs</li>
+        </ul>
+        <table>
+          <tr>
+            <td style="width: 50%; padding: 0;">
+              <form target="_top" id="start" method="post" action="/system/restart">
+                <input onclick="javascript: if(!confirm('Press OK to restart Alitheia')) { return false; }" type="submit" style="width: 100%;" value="$tr.label("restart")" />
+              </form>
+            </td>
+            <td style="width: 50%; padding: 0;">
+              <form target="_top" id="stop" method="post" action="/system/shutdown">
+                <input onclick="javascript: if(!confirm('Press OK to stop Alitheia')) { return false; }" type="submit" style="width: 100%;" value="$tr.label("stop")" />
+              </form>
+            </td>
+          </tr>
+        </table>
+      </fieldset>
+    
+      ## Display job info
+      <fieldset id="jobs">
+        <legend>$tr.label("job_info")</legend>
+          <table style="width: 100%;" cellspacing="0" cellpadding="3">
+            <tr>
+              <td>$tr.label("executing") :</td>
+              <td class="number">$scheduler.RunningJobs</td>
+            </tr>
+            <tr>
+              <td>$tr.label("waiting") :</td>
+              <td class="number">$scheduler.WaitingJobs</td>
+            </tr>
+            <tr>
+              <td>$tr.label("failed") :</td>
+              <td class="number">$scheduler.FailedJobs</td>
+            </tr>
+            <tr>
+              <td>$tr.label("total") :</td>
+              <td class="number">$scheduler.TotalJobs</td>
+            </tr>
+            <tr class="newgroup">
+              <td>$tr.label("workers") :</td>
+              <td class="number">$scheduler.WorkerThreads</td>
+            </tr>
+          </table>
+      </fieldset>
+    </div>
+  </body>
+</html>

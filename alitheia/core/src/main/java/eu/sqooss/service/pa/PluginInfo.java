@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,546 +61,549 @@ import eu.sqooss.service.util.StringUtils;
  */
 public class PluginInfo implements Comparable<PluginInfo> {
 
-    /**
-     * This enumeration includes all permitted types of configuration values,
-     * that a metrics can support. The various configuration parameters and
-     * their values are used mostly from internal metric processes, like
-     * results rendering and validation.
-     */
-    public enum ConfigurationType {
-        INTEGER,
-        STRING,
-        BOOLEAN,
-        DOUBLE;
+	/**
+	 * This enumeration includes all permitted types of configuration values,
+	 * that a metrics can support. The various configuration parameters and
+	 * their values are used mostly from internal metric processes, like
+	 * results rendering and validation.
+	 */
+	public enum ConfigurationType {
+		INTEGER,
+		STRING,
+		BOOLEAN,
+		DOUBLE;
 
-        public static ConfigurationType fromString(String config) {
-            if (config.equals(BOOLEAN.toString()))
-                return BOOLEAN;
+		public static ConfigurationType fromString(String config) {
+			if (config.equals(BOOLEAN.toString()))
+				return BOOLEAN;
 
-            if (config.equals(STRING.toString()))
-                return STRING;
+			if (config.equals(STRING.toString()))
+				return STRING;
 
-            if (config.equals(INTEGER.toString()))
-                return INTEGER;
-           
-            if (config.equals(DOUBLE.toString()))
-            	return DOUBLE;
+			if (config.equals(INTEGER.toString()))
+				return INTEGER;
 
-            return null;
-        }
-    };
+			if (config.equals(DOUBLE.toString()))
+				return DOUBLE;
 
-    /**
-     * The service reference of the service that registered this metric
-     * plug-in
-     */
-    private ServiceReference serviceRef = null;
+			return null;
+		}
+	};
 
-    /**
-     * The name of the associated  metric plug-in
-     */
-    private String pluginName = null;
+	/**
+	 * The service reference of the service that registered this metric
+	 * plug-in
+	 */
+	private ServiceReference serviceRef = null;
 
-    /**
-     * The version of the associated metric plug-in
-     */
-    private String pluginVersion = null;
+	/**
+	 * The name of the associated  metric plug-in
+	 */
+	private String pluginName = null;
 
-    /**
-     * This list include all activation interfaces supported by the associated
-     * metric plug-in.
-     * <br/>
-     * The list of permitted activation interfaces is described in the
-     * {@link AlitheiaPlugin} interface and currently includes:
-     * <ul>
-     *   <li>{@link StoredProjectMetric}</li>
-     *   <li>{@link ProjectVersionMetric}</li>
-     *   <li>{@link ProjectFileMetric}</li>
-     *   <li>{@link FileGroupMetric}</li>
-     * </ul>
-     */
-    Set<Class<? extends DAObject>> activationTypes =
-        new HashSet<Class<? extends DAObject>>();
+	/**
+	 * The version of the associated metric plug-in
+	 */
+	private String pluginVersion = null;
 
-    /**
-     * The hash code's value of the associated metric metric plug-in.
-     * <br/>
-     * After a new metric plug-in is registered as service in the OSGi
-     * framework, the <code>PluginAdmin</code> initializes this field with
-     * the service's ID value, by calling the <code>setHashcode(String)</code>
-     * method.
-     * <br/>
-     * Once the metric plug-in's <code>install()</code> method is called,
-     * the <code>PluginAdmin</code> replaces the old <code>PluginInfo</code>
-     * with a new one, whose <code>hashcode</code> field is initialized with
-     * the hash code's value, that this metric plug-in stored in its database
-     * record.
-     */
-    private String hashcode;
+	/**
+	 * This list include all activation interfaces supported by the associated
+	 * metric plug-in.
+	 * <br/>
+	 * The list of permitted activation interfaces is described in the
+	 * {@link AlitheiaPlugin} interface and currently includes:
+	 * <ul>
+	 *   <li>{@link StoredProjectMetric}</li>
+	 *   <li>{@link ProjectVersionMetric}</li>
+	 *   <li>{@link ProjectFileMetric}</li>
+	 *   <li>{@link FileGroupMetric}</li>
+	 * </ul>
+	 */
+	Set<Class<? extends DAObject>> activationTypes =
+			new HashSet<Class<? extends DAObject>>();
 
-    /**
-     * A list containing the current set of configuration parameters of the
-     * associated metric plug-in
-     */
-    private Set<PluginConfiguration> config =
-        new HashSet<PluginConfiguration>();
+	/**
+	 * The hash code's value of the associated metric metric plug-in.
+	 * <br/>
+	 * After a new metric plug-in is registered as service in the OSGi
+	 * framework, the <code>PluginAdmin</code> initializes this field with
+	 * the service's ID value, by calling the <code>setHashcode(String)</code>
+	 * method.
+	 * <br/>
+	 * Once the metric plug-in's <code>install()</code> method is called,
+	 * the <code>PluginAdmin</code> replaces the old <code>PluginInfo</code>
+	 * with a new one, whose <code>hashcode</code> field is initialized with
+	 * the hash code's value, that this metric plug-in stored in its database
+	 * record.
+	 */
+	private String hashcode;
 
-    /**
-     * This flag is set to <code>false<code> on a newly registered metric
-     * plug-ins, and changed to <code>true</code> after the metric plug-in's
-     * <code>install()</code> method is called (and successfully performed).
-     */
-    public boolean installed = false;
+	/**
+	 * A list containing the current set of configuration parameters of the
+	 * associated metric plug-in
+	 */
+	private Set<PluginConfiguration> config =
+			new HashSet<PluginConfiguration>();
 
-    /**
-     * Empty constructor.
-     */
-    public PluginInfo() {
+	/**
+	 * This flag is set to <code>false<code> on a newly registered metric
+	 * plug-ins, and changed to <code>true</code> after the metric plug-in's
+	 * <code>install()</code> method is called (and successfully performed).
+	 */
+	public boolean installed = false;
 
-    }
+	/**
+	 * Empty constructor.
+	 */
+	public PluginInfo() {
 
-    /**
-     * Simple constructor, that creates a new <code>PluginInfo</code> instance
-     * and initializes it with the given metric plug-in's configuration
-     * parameters.
-     *
-     * @param c - the list of configuration parameters
-     */
-    public PluginInfo(Set<PluginConfiguration> c) {
-        setPluginConfiguration(c);
-    }
+	}
 
-    /**
-     * Creates a new <code>PluginInfo</code> instance, and initializes it with
-     * the given metric plug-in's configuration parameters and the description
-     * fields found in the given plug-in instance.
-     *
-     * @param c - the list of configuration parameters
-     * @param p the <code>AlitheiaPlugin</code> instance
-     */
-    public PluginInfo(Set<PluginConfiguration> c, AlitheiaPlugin p) {
-        setPluginConfiguration(c);
-        if (p != null) {
-            setPluginName(p.getName());
-            setPluginVersion(p.getVersion());
-            setActivationTypes(p.getActivationTypes());
-        }
-    }
+	/**
+	 * Simple constructor, that creates a new <code>PluginInfo</code> instance
+	 * and initializes it with the given metric plug-in's configuration
+	 * parameters.
+	 *
+	 * @param c - the list of configuration parameters
+	 */
+	public PluginInfo(Set<PluginConfiguration> c) {
+		setPluginConfiguration(c);
+	}
+
+	/**
+	 * Creates a new <code>PluginInfo</code> instance, and initializes it with
+	 * the given metric plug-in's configuration parameters and the description
+	 * fields found in the given plug-in instance.
+	 *
+	 * @param c - the list of configuration parameters
+	 * @param p the <code>AlitheiaPlugin</code> instance
+	 */
+	public PluginInfo(Set<PluginConfiguration> c, AlitheiaPlugin p) {
+		setPluginConfiguration(c);
+		if (p != null) {
+			setPluginName(p.getName());
+			setPluginVersion(p.getVersion());
+			setActivationTypes(p.getActivationTypes());
+		}
+	}
 
 
-    /**
-     * Initializes the configuration set that is available for this plug-in.
-     * 
-     * @param c the plug-in configuration set
-     */
-    public void setPluginConfiguration (Set<PluginConfiguration> c) {
-        this.config = c;
-    }
+	/**
+	 * Initializes the configuration set that is available for this plug-in.
+	 * 
+	 * @param c the plug-in configuration set
+	 */
+	public void setPluginConfiguration (Set<PluginConfiguration> c) {
+		config = c;
+	}
 
-    /**
-     * Returns the list of existing metric configuration parameters.
-     *
-     * @return The list of configuration parameters.
-     */
-    public Set<PluginConfiguration> getConfiguration() {
-        return this.config;
-    }
+	/**
+	 * Returns the list of existing metric configuration parameters.
+	 *
+	 * @return The list of configuration parameters.
+	 */
+	public Set<PluginConfiguration> getConfiguration() {
+		return config;
+	}
 
-    /**
-     * Returns the Id of the given configuration property.
-     *
-     * @param name the property's name
-     * @param type the property's type
-     *
-     * @return The property's Id, or <code>null</code> if the property does
-     *   not exist.
-     */
-    public Long getConfPropId (String name, String type) {
-        // Check if all values are valid
-        if ((name == null) || (type == null)) {
-            return null;
-        }
-        // Search for a matching property
-        for (PluginConfiguration property : config) {
-            if ((property.getName().equals(name))
-                    && (property.getType().equals(type))) {
-                return property.getId();
-            }
-        }
-        return null;
-    }
+	/**
+	 * Returns the Id of the given configuration property.
+	 *
+	 * @param name the property's name
+	 * @param type the property's type
+	 *
+	 * @return The property's Id, or <code>null</code> if the property does
+	 *   not exist.
+	 */
+	public Long getConfPropId (String name, String type) {
+		// Check if all values are valid
+		if ((name == null) || (type == null))
+			return null;
+		// Search for a matching property
+		for (PluginConfiguration property : config) {
+			if ((property.getName().equals(name))
+					&& (property.getType().equals(type)))
+				return property.getId();
+		}
+		return null;
+	}
 
-    /**
-     * Verifies, if the specified configuration property exist in this
-     * plug-in's information object.
-     *
-     * @param name the property's name
-     * @param type the property's type
-     *
-     * @return <code>true</code>, if such property is found,
-     *   or <code>false</code> otherwise.
-     */
-    public boolean hasConfProp (String name, String type) {
-        return ((getConfPropId(name, type) == null) ? false : true);
-    }
+	/**
+	 * Verifies, if the specified configuration property exist in this
+	 * plug-in's information object.
+	 *
+	 * @param name the property's name
+	 * @param type the property's type
+	 *
+	 * @return <code>true</code>, if such property is found,
+	 *   or <code>false</code> otherwise.
+	 */
+	public boolean hasConfProp (String name, String type) {
+		return ((getConfPropId(name, type) == null) ? false : true);
+	}
 
-    /**
-     * Sets a new value of existing metric plugin's configuration property
-     * by creating a new database record.
-     *
-     * @param db the DB components object
-     * @param name the configuration property's name
-     * @param newVal the new value, that should be assigned to the
-     *   selected configuration property
-     *
-     * @return <code>true</code> upon successful update, of <code>false</code>
-     *   when a corresponding database record does not exist.
-     *
-     * @throws <code>Exception</code> upon incorrect value's syntax, or
-     *   invalid property's type.
-     */
-    public boolean updateConfigEntry(DBService db, String name, String newVal)
-        throws Exception {
-        // Check for an invalid name
-        if (name == null) {
-            throw new Exception("Invalid name!");
-        }
-        // Check if such configuration property exists
-        for (PluginConfiguration pc : config) {
-            if (pc.getName().equals(name)) {
-                // Retrieve the configuration property's type
-                ConfigurationType type =
-                    ConfigurationType.fromString(pc.getType());
-                // Check for invalid type
-                if (type == null) {
-                    throw new Exception("Invalid property's type!");
-                }
-                // Check for a boolean type
-                else if (type.equals(ConfigurationType.BOOLEAN)) {
-                    if ((newVal.equals("true") == false)
-                            && (newVal.equals("false") == false)) {
-                        throw new Exception("Not a valid boolean value!");
-                    }
-                }
-                // Check for an integer type
-                else if (type.equals(ConfigurationType.INTEGER)) {
-                    try {
-                        Integer.valueOf(newVal);
-                    } catch (NumberFormatException nfe) {
-                        throw new Exception("Not a valid integer value!");
-                    }
-                }
-                
-                // Check for a double type
-                else if (type.equals(ConfigurationType.DOUBLE)) {
-                    try {
-                        Double.valueOf(newVal);
-                    } catch (NumberFormatException nfe) {
-                        throw new Exception("Not a valid double value!");
-                    }
-                }
+	/**
+	 * Sets a new value of existing metric plugin's configuration property
+	 * by creating a new database record.
+	 *
+	 * @param db the DB components object
+	 * @param name the configuration property's name
+	 * @param newVal the new value, that should be assigned to the
+	 *   selected configuration property
+	 *
+	 * @return <code>true</code> upon successful update, of <code>false</code>
+	 *   when a corresponding database record does not exist.
+	 *
+	 * @throws <code>Exception</code> upon incorrect value's syntax, or
+	 *   invalid property's type.
+	 */
+	public boolean updateConfigEntry(DBService db, String name, String newVal)
+			throws Exception {
+		// Check for an invalid name
+		if (name == null)
+			throw new Exception("Invalid name!");
+		// Check if such configuration property exists
+		for (PluginConfiguration pc : config) {
+			if (pc.getName().equals(name)) {
+				// Retrieve the configuration property's type
+				ConfigurationType type =
+						ConfigurationType.fromString(pc.getType());
+				// Check for invalid type
+				if (type == null)
+					throw new Exception("Invalid property's type!");
+				else if (type.equals(ConfigurationType.BOOLEAN)) {
+					if ((newVal.equals("true") == false)
+							&& (newVal.equals("false") == false))
+						throw new Exception("Not a valid boolean value!");
+				}
+				// Check for an integer type
+				else if (type.equals(ConfigurationType.INTEGER)) {
+					try {
+						Integer.valueOf(newVal);
+					} catch (NumberFormatException nfe) {
+						throw new Exception("Not a valid integer value!");
+					}
+				}
 
-                // Update the given configuration property
-                pc = db.attachObjectToDBSession(pc);
-                pc.setValue(newVal);
-                return true;
-            }
-        }
-        return false;
-    }
+				// Check for a double type
+				else if (type.equals(ConfigurationType.DOUBLE)) {
+					try {
+						Double.valueOf(newVal);
+					} catch (NumberFormatException nfe) {
+						throw new Exception("Not a valid double value!");
+					}
+				}
 
-    /**
-     * Adds a new configuration property for this metric plug-in by creating
-     * a new database record for it.
-     *
-     * @param db the DB components object
-     * @param name the configuration property's name
-     * @param description the configuration property's description
-     * @param type the configuration property's type
-     * @param value the configuration property's value
-     *
-     * @return <code>true</code> upon successful append, of <code>false</code>
-     *   when a corresponding database record can not be created.
-     *
-     * @throws <code>Exception</code> upon incorrect value's syntax,
-     *   invalid property's type, or invalid property's name.
-     */
-    public boolean addConfigEntry(
-            DBService db,
-            String name,
-            String description,
-            String type,
-            String value)
-    throws Exception {
-        // Check for an invalid name
-        if (name == null) {
-            throw new Exception("Invalid name!");
-        }
+				// Update the given configuration property
+				pc = db.attachObjectToDBSession(pc);
+				pc.setValue(newVal);
+				return true;
+			}
+		}
+		return false;
+	}
 
-        // Check for invalid type
-        if ((type == null)
-                || (ConfigurationType.fromString(type) == null)) {
-            throw new Exception("Invalid type!");
-        }
+	/**
+	 * Adds a new configuration property for this metric plug-in by creating
+	 * a new database record for it.
+	 *
+	 * @param db the DB components object
+	 * @param name the configuration property's name
+	 * @param description the configuration property's description
+	 * @param type the configuration property's type
+	 * @param value the configuration property's value
+	 *
+	 * @return <code>true</code> upon successful append, of <code>false</code>
+	 *   when a corresponding database record can not be created.
+	 *
+	 * @throws <code>Exception</code> upon incorrect value's syntax,
+	 *   invalid property's type, or invalid property's name.
+	 */
+	public boolean addConfigEntry(
+			DBService db,
+			String name,
+			String description,
+			String type,
+			String value)
+					throws Exception {
+		// Check for an invalid name
+		if (name == null)
+			throw new Exception("Invalid name!");
 
-        // Check for invalid value
-        if (value == null) {
-            throw new Exception("Invalid value!");
-        }
-        // Check for invalid boolean value
-        else if (type.equals(ConfigurationType.BOOLEAN.toString())) {
-            if ((value.equals("true") == false)
-                    && (value.equals("false") == false)) {
-                throw new Exception("Not a valid boolean value!");
-            }
-        }
-        // Check for an invalid integer value
-        else if (type.equals(ConfigurationType.INTEGER.toString())) {
-            try {
-                Integer.valueOf(value);
-            } catch (NumberFormatException nfe) {
-                throw new Exception("Not a valid integer value!");
-            }
-        }
-     
-     // Check for an invalid double value
-        else if (type.equals(ConfigurationType.DOUBLE.toString())) {
-            try {
-                Double.valueOf(value);
-            } catch (NumberFormatException nfe) {
-                throw new Exception("Not a valid double value!");
-            }
-        }
+		// Check for invalid type
+		if ((type == null)
+				|| (ConfigurationType.fromString(type) == null))
+			throw new Exception("Invalid type!");
 
-        // Add the new configuration property
-        PluginConfiguration newParam =
-            new PluginConfiguration();
-        newParam.setName(name);
-        newParam.setMsg((description != null) ? description : "");
-        newParam.setType(type);
-        newParam.setValue(value);
-        Plugin p = Plugin.getPluginByHashcode(hashcode);
-        newParam.setPlugin(p);
-        return p.getConfigurations().add(newParam);
-}
+		// Check for invalid value
+		if (value == null)
+			throw new Exception("Invalid value!");
+		else if (type.equals(ConfigurationType.BOOLEAN.toString())) {
+			if ((value.equals("true") == false)
+					&& (value.equals("false") == false))
+				throw new Exception("Not a valid boolean value!");
+		}
+		// Check for an invalid integer value
+		else if (type.equals(ConfigurationType.INTEGER.toString())) {
+			try {
+				Integer.valueOf(value);
+			} catch (NumberFormatException nfe) {
+				throw new Exception("Not a valid integer value!");
+			}
+		}
 
-    /**
-     * Removes an existing configuration property of this metric plug-in by
-     * deleting its database record.
-     *
-     * @param db the DB components object
-     * @param name the configuration property's name
-     * @param type the configuration property's type
-     *
-     * @return <code>true</code> upon successful remove, or <code>false</code>
-     *   when a corresponding database record can not be found.
-     *
-     * @throws <code>Exception</code> upon invalid property's type or name.
-     */
-    public boolean removeConfigEntry(
-            DBService db,
-            String name,
-            String type)
-    throws Exception {
-        // Check for an invalid name
-        if (name == null) {
-            throw new Exception("Invalid name!");
-        }
+		// Check for an invalid double value
+		else if (type.equals(ConfigurationType.DOUBLE.toString())) {
+			try {
+				Double.valueOf(value);
+			} catch (NumberFormatException nfe) {
+				throw new Exception("Not a valid double value!");
+			}
+		}
 
-        // Check for invalid type
-        if ((type == null)
-                || (ConfigurationType.fromString(type) == null)) {
-            throw new Exception("Invalid type!");
-        }
+		// Add the new configuration property
+		PluginConfiguration newParam =
+				new PluginConfiguration();
+		newParam.setName(name);
+		newParam.setMsg((description != null) ? description : "");
+		newParam.setType(type);
+		newParam.setValue(value);
+		Plugin p = Plugin.getPluginByHashcode(hashcode);
+		newParam.setPlugin(p);
+		return p.getConfigurations().add(newParam);
+	}
 
-        // Get the property's Id
-        Long propId = getConfPropId(name, type);
-        if (propId != null) {
-            // Remove the specified configuration property
-            PluginConfiguration prop = db.findObjectById(
-                    PluginConfiguration.class, propId);
-            if ((prop != null) && (db.deleteRecord(prop))) {
-                return true;
-            }
-        }
+	/**
+	 * Removes an existing configuration property of this metric plug-in by
+	 * deleting its database record.
+	 *
+	 * @param db the DB components object
+	 * @param name the configuration property's name
+	 * @param type the configuration property's type
+	 *
+	 * @return <code>true</code> upon successful remove, or <code>false</code>
+	 *   when a corresponding database record can not be found.
+	 *
+	 * @throws <code>Exception</code> upon invalid property's type or name.
+	 */
+	public boolean removeConfigEntry(
+			DBService db,
+			String name,
+			String type)
+					throws Exception {
+		// Check for an invalid name
+		if (name == null)
+			throw new Exception("Invalid name!");
 
-        return false;
-}
+		// Check for invalid type
+		if ((type == null)
+				|| (ConfigurationType.fromString(type) == null))
+			throw new Exception("Invalid type!");
 
-    /**
-     * Sets the metric's name. In practice the <code>metricName</code>
-     * parameter must be equal with the name of the associated metric
-     * plug-in.
-     *
-     * @param metricName - the metric name
-     */
-    public void setPluginName(String metricName) {
-        this.pluginName = metricName;
-    }
+		// Get the property's Id
+		Long propId = getConfPropId(name, type);
+		if (propId != null) {
+			// Remove the specified configuration property
+			PluginConfiguration prop = db.findObjectById(
+					PluginConfiguration.class, propId);
+			if ((prop != null) && (db.deleteRecord(prop)))
+				return true;
+		}
 
-    /**
-     * Returns the metric name stored in this <code>MetricInfo</code>
-     * object.
-     *
-     * @return Metric name.
-     */
-    public String getPluginName() {
-        return pluginName;
-    }
+		return false;
+	}
 
-    /**
-     * Sets the metric's version. In practice the <code>metricVersion</code>
-     * parameter must be equal with the version of the associated metric
-     * plug-in.
-     *
-     * @param metricVersion - a metric version
-     */
-    public void setPluginVersion(String metricVersion) {
-        this.pluginVersion = metricVersion;
-    }
+	/**
+	 * Sets the metric's name. In practice the <code>metricName</code>
+	 * parameter must be equal with the name of the associated metric
+	 * plug-in.
+	 *
+	 * @param metricName - the metric name
+	 */
+	public void setPluginName(String metricName) {
+		pluginName = metricName;
+	}
 
-    /**
-     * Returns the metric version stored in this <code>MetricInfo</code>
-     * object.
-     *
-     * @return Metric version.
-     */
-    public String getPluginVersion() {
-        return pluginVersion;
-    }
+	/**
+	 * Returns the metric name stored in this <code>MetricInfo</code>
+	 * object.
+	 *
+	 * @return Metric name.
+	 */
+	public String getPluginName() {
+		return pluginName;
+	}
 
-    /**
-     * Sets the list of supported activation interfaces (types). In practice
-     * the given list must contain the same entries like those supported by
-     * the associated metric plug-in.<br/>
-     * <br/>
-     * Note: Any previous entries in this list will be deleted by this action.
-     *
-     * @param l - the list of supported activation interfaces
-     */
-    public void setActivationTypes(Set<Class<? extends DAObject>> l) {
-        this.activationTypes = l;
-    }
+	/**
+	 * Sets the metric's version. In practice the <code>metricVersion</code>
+	 * parameter must be equal with the version of the associated metric
+	 * plug-in.
+	 *
+	 * @param metricVersion - a metric version
+	 */
+	public void setPluginVersion(String metricVersion) {
+		pluginVersion = metricVersion;
+	}
 
-    /**
-     * Returns the list off all activation interfaces (types) supported by the
-     * associated metric plug-in.
-     *
-     * @return - the list of supported activation interfaces
-     */
-    public Set<Class<? extends DAObject>> getActivationTypes() {
-        return this.activationTypes;
-    }
+	/**
+	 * Returns the metric version stored in this <code>MetricInfo</code>
+	 * object.
+	 *
+	 * @return Metric version.
+	 */
+	public String getPluginVersion() {
+		return pluginVersion;
+	}
 
-    /**
-     * Adds one or more additional activation interfaces (types) to the
-     * locally stored list of supported activation interfaces.
-     *
-     * @param activator - the list of additional activation interfaces
-     */
-    public void addActivationType(Class<? extends DAObject> activator) {
-        this.activationTypes.add(activator);
-    }
+	/**
+	 * Sets the list of supported activation interfaces (types). In practice
+	 * the given list must contain the same entries like those supported by
+	 * the associated metric plug-in.<br/>
+	 * <br/>
+	 * Note: Any previous entries in this list will be deleted by this action.
+	 *
+	 * @param l - the list of supported activation interfaces
+	 */
+	public void setActivationTypes(Set<Class<? extends DAObject>> l) {
+		activationTypes = l;
+	}
 
-    /**
-     * Compares the provided activation interface to the locally stored list
-     * of supported activation interfaces.
-     *
-     * @return <code>true</code> when the given activation interface is found
-     * in the list, or <code>false</code> otherwise.
-     */
-    public boolean isActivationType(Class<? extends DAObject> o) {
-        // Compare the activation list's entries to the given activation
-        // interface, until a match is found
-        Iterator<Class<? extends DAObject>> i =
-            this.activationTypes.iterator();
-        while (i.hasNext()) {
-            if (i.next().equals(o))
-                return true;
-        }
-        return false;
-    }
+	/**
+	 * Returns the list off all activation interfaces (types) supported by the
+	 * associated metric plug-in.
+	 *
+	 * @return - the list of supported activation interfaces
+	 */
+	public Set<Class<? extends DAObject>> getActivationTypes() {
+		return activationTypes;
+	}
 
-    /**
-     * Initializes the corresponding local field with the reference to the
-     * service, that registered the associated metric plug-in.
-     *
-     * @param serviceRef - the service reference
-     */
-    public void setServiceRef(ServiceReference serviceRef) {
-        this.serviceRef = serviceRef;
-    }
+	/**
+	 * Adds one or more additional activation interfaces (types) to the
+	 * locally stored list of supported activation interfaces.
+	 *
+	 * @param activator - the list of additional activation interfaces
+	 */
+	public void addActivationType(Class<? extends DAObject> activator) {
+		activationTypes.add(activator);
+	}
 
-    /**
-     * Returns the service reference that points to the associated metric
-     * plug-in.
-     *
-     * @return The service reference.
-     */
-    public ServiceReference getServiceRef() {
-        return serviceRef;
-    }
+	/**
+	 * Compares the provided activation interface to the locally stored list
+	 * of supported activation interfaces.
+	 *
+	 * @return <code>true</code> when the given activation interface is found
+	 * in the list, or <code>false</code> otherwise.
+	 */
+	public boolean isActivationType(Class<? extends DAObject> o) {
+		// Compare the activation list's entries to the given activation
+		// interface, until a match is found
+		Iterator<Class<? extends DAObject>> i =
+				activationTypes.iterator();
+		while (i.hasNext()) {
+			if (i.next().equals(o))
+				return true;
+		}
+		return false;
+	}
 
-    /**
-     * Sets the hash code's value of this <code>MetricInfo</code> instance.
-     * <br/>
-     * The value must be unique, which means that no other
-     * <code>MetricInfo</code> with the same hash code should be kept by
-     * the <code>PluginAdmin</code> instance that created this object.
-     *
-     * @param hashcode - the hash code's value of this object
-     */
-    public void setHashcode(String hashcode) {
-        this.hashcode = hashcode;
-    }
+	/**
+	 * Initializes the corresponding local field with the reference to the
+	 * service, that registered the associated metric plug-in.
+	 *
+	 * @param serviceRef - the service reference
+	 */
+	public void setServiceRef(ServiceReference serviceRef) {
+		this.serviceRef = serviceRef;
+	}
 
-    /**
-     * Returns the hash code's value of this <code>MetricInfo</code> instance.
-     *
-     * @return The hash code's value of this object.
-     */
-    public String getHashcode() {
-        return hashcode;
-    }
+	/**
+	 * Returns the service reference that points to the associated metric
+	 * plug-in.
+	 *
+	 * @return The service reference.
+	 */
+	public ServiceReference getServiceRef() {
+		return serviceRef;
+	}
 
-    /**
-     * Creates a text representation of this <code>MetricInfo</code>
-     * instance.
-     *
-     * @return The text representation of this object.
-     */
-    public String toString() {
-        StringBuilder b = new StringBuilder();
-        // Add the metric plug-in's name
-        b.append((
-                ((getPluginName() != null)
-                        && (getPluginName().length() > 0))
-                ? getPluginName()
-                        : "[UNKNOWN]"));
-        // Add the metric plug-in's version
-        b.append((
-                ((getPluginVersion() != null)
-                        && (getPluginVersion().length() > 0))
-                ? getPluginVersion()
-                        : "[UNKNOWN]"));
-        // Add the metric plug-in's class name
-        b.append(" [");
-        if (getServiceRef() != null) {
-            String[] classNames =
-                (String[]) serviceRef.getProperty(Constants.OBJECTCLASS);
-            b.append ((
-                    ((classNames != null)
-                            && (classNames.length > 0))
-                    ? (StringUtils.join(classNames, ","))
-                            : "UNKNOWN"));
-        }
-        else {
-            b.append("UNKNOWN");
-        }
-        b.append("]");
-        return b.toString();
-    }
+	/**
+	 * Returns whether this plugin is installed (true) or registered (false)
+	 * @return Plugin installed status
+	 */
+	public boolean isInstalled() {
+		return installed;
+	}
 
+	/**
+	 * @return The class name of the plugin
+	 */
+	public String getClassName() {
+		return StringUtils.join((String[]) (getServiceRef().getProperty(Constants.OBJECTCLASS)),",");
+	}
+
+	/**
+	 * Sets the hash code's value of this <code>MetricInfo</code> instance.
+	 * <br/>
+	 * The value must be unique, which means that no other
+	 * <code>MetricInfo</code> with the same hash code should be kept by
+	 * the <code>PluginAdmin</code> instance that created this object.
+	 *
+	 * @param hashcode - the hash code's value of this object
+	 */
+	public void setHashcode(String hashcode) {
+		this.hashcode = hashcode;
+	}
+
+	/**
+	 * Returns the hash code's value of this <code>MetricInfo</code> instance.
+	 *
+	 * @return The hash code's value of this object.
+	 */
+	public String getHashcode() {
+		return hashcode;
+	}
+
+	/**
+	 * Creates a text representation of this <code>MetricInfo</code>
+	 * instance.
+	 *
+	 * @return The text representation of this object.
+	 */
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		// Add the metric plug-in's name
+		b.append((
+				((getPluginName() != null)
+						&& (getPluginName().length() > 0))
+						? getPluginName()
+								: "[UNKNOWN]"));
+		// Add the metric plug-in's version
+		b.append((
+				((getPluginVersion() != null)
+						&& (getPluginVersion().length() > 0))
+						? getPluginVersion()
+								: "[UNKNOWN]"));
+		// Add the metric plug-in's class name
+		b.append(" [");
+		if (getServiceRef() != null) {
+			String[] classNames =
+					(String[]) serviceRef.getProperty(Constants.OBJECTCLASS);
+			b.append ((
+					((classNames != null)
+							&& (classNames.length > 0))
+							? (StringUtils.join(classNames, ","))
+									: "UNKNOWN"));
+		}
+		else {
+			b.append("UNKNOWN");
+		}
+		b.append("]");
+		return b.toString();
+	}
+
+	@Override
 	public int compareTo(PluginInfo pi) {
 		return hashcode.compareTo(pi.hashcode);
 	}

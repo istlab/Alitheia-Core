@@ -1,0 +1,135 @@
+#set($section=1)
+#parse("/webadmin/inc/header.vm")
+
+        <div id="contents">
+          <div id="table">
+            <h2>$tr.label("plugins_mngm")</h2>
+            <form id="pluginform" name="pluginform" method="post" action="/plugins/plugin/action">
+              <input type="hidden" id="action" name="action" value="" />
+              <input type="hidden" id="hash" name="hash" value="$plugin.getHashcode()" />
+            </form>
+            <form id="propertyform" name="propertyform" method="post" action="/properties">
+              <input type="hidden" id="hash" name="hash" value="$plugin.getHashcode()" />
+              <input type="hidden" id="propertyId" name="propertyId" value="" />
+            </form>
+            
+              
+              ## Display plugin info
+              <fieldset>
+                <legend>$plugin.getPluginName()</legend>
+                <table>
+                  <thead>
+                    <tr class="head">
+                      <td class="head" style="width: 80px;">Status</td>
+                      <td class="head" style="width: 30%;">Name</td>
+                      <td class="head" style="width: 40%;">Class</td>
+                      <td class="head">Version</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        #if ($plugin.isInstalled())
+                          Installed
+                        #else
+                          Registered
+                        #end
+                      </td>
+                      <td>$plugin.getPluginName()</td>
+                      <td>$plugin.getClassName()</td>
+                      <td>$plugin.getPluginVersion()</td>
+                    </tr>
+                    <tr>
+                      <td colspan="4">
+                        #if ($plugin.isInstalled())
+                          <input type="button" class="install" style="width: 100px;" value="Uninstall" onclick="javascript:document.getElementById('action').value='uninstall';document.pluginform.submit();">
+                          <input type="button" class="install" style="width: 100px;" value="Synchronize" onclick="javascript:document.getElementById('action').value='synchronize';document.pluginform.submit();">
+                        #else
+                          <input type="button" class="install" style="width: 100px;" value="Install" onclick="javascript:document.getElementById('action').value='install';document.pluginform.submit();">
+                        #end
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                
+                #if ($plugin.isInstalled())
+	                ## Display supported metrics
+	                <fieldset>
+	                  <legend>Supported metrics</legend>
+	                  <table>
+	                    <thead>
+	                      <tr class="head">
+	                        <td class="head" style="width: 10%;">Id</td>
+	                        <td class="head" style="width: 25%;">Name</td>
+	                        <td class="head" style="width: 25%;">Type</td>
+	                        <td class="head" style="width: 40%;">Description</td>
+	                      </tr>
+	                    </thead>
+	                    <tbody>
+	                      #if ($metrics.isEmpty())
+		                      <tr>
+		                        <td colspan="4" class="noattr">
+		                          This plug-in does not support metrics.
+		                        </td>
+		                      </tr>
+	                      #else
+		                      #foreach ($metric in $metrics) 
+			                      <tr>
+			                        <td>$metric.getId()</td>
+			                        <td>$metric.getMnemonic()</td>
+			                        <td>$metric.getMetricType().getType()</td>
+			                        <td>$metric.getDescription()</td>
+			                      </tr>
+		                      #end
+	                      #end
+	                    </tbody>
+	                  </table>
+	                </fieldset>
+	                
+	                ## Display configuration properties
+	                <fieldset>
+	                  <legend>Configuration properties</legend>
+	                  <table>
+	                    <thead>
+	                      <tr class="head">
+	                        <td class="head" style="width: 30%;">Name</td>
+	                        <td class="head" style="width: 20%;">Type</td>
+	                        <td class="head" style="width: 50%;">Value</td>
+	                      </tr>
+	                    </thead>
+	                    <tbody>
+	                      #if ($configPropList.isEmpty())
+		                      <tr>                            
+		                        <td colspan="3" class="noattr">This plug-in has no configuration properties.</td>
+		                      </tr>
+	                      #else
+		                      #foreach ($configProp in $configPropList)
+		                      <tr class="edit">
+		                        <td class="trans" title="$configProp.getMsg()" onClick="javascript:document.getElementById('propertyId').value='$configProp.getId()'; document.propertyform.submit();">
+		                          <a href="/properties?propertyId=$configProp.getId()"><img src="/edit.png" alt="[Edit]" border="0" /></a>&nbsp;
+		                          $configProp.getName()
+		                        </td>
+		                        <td class="trans">
+		                          $configProp.getType()
+		                        </td>
+		                        <td class="trans">
+		                          $configProp.getValue()
+		                        </td>
+		                      </tr>
+		                      #end
+	                      #end
+	                      <tr>
+	                        <td colspan="3">
+	                          <input type="button" class="install" style="width: 100px;" value="Add property" onclick="javascript:window.location = '/properties?hash=$plugin.getHashcode()'" />
+	                        </td>
+	                      </tr>
+	                    </tbody>
+	                  </table>
+	                </fieldset>
+                #end
+              </fieldset>
+            </form>
+          </div>
+        </div>
+                
+#parse("/webadmin/inc/footer.vm")

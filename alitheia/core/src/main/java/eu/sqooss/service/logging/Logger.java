@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,151 +69,150 @@ package eu.sqooss.service.logging;
  * will cause an exception to be thrown when used.
  */
 public interface Logger {
-    /**
-     * Represents SQO-OSS system logger name.
-     */
-    public static final String NAME_SQOOSS              = "sqooss";
+	/**
+	 * Represents SQO-OSS system logger name.
+	 */
+	public static final String NAME_SQOOSS              = "sqooss";
 
-    /**
-     * Represents service system logger name.
-     */
-    public static final String NAME_SQOOSS_SERVICE      = "sqooss.service";
+	/**
+	 * Represents service system logger name.
+	 */
+	public static final String NAME_SQOOSS_SERVICE      = "sqooss.service";
 
-    /**
-     * Represents database connectivity logger name.
-     */
-    public static final String NAME_SQOOSS_DATABASE     = "sqooss.database";
+	/**
+	 * Represents database connectivity logger name.
+	 */
+	public static final String NAME_SQOOSS_DATABASE     = "sqooss.database";
 
-    /**
-     * Represents security logger name.
-     */
-    public static final String NAME_SQOOSS_SECURITY     = "sqooss.security";
+	/**
+	 * Represents security logger name.
+	 */
+	public static final String NAME_SQOOSS_SECURITY     = "sqooss.security";
 
-    /**
-     * Represents messaging logger name.
-     */
-    public static final String NAME_SQOOSS_MESSAGING    = "sqooss.messaging";
+	/**
+	 * Represents messaging logger name.
+	 */
+	public static final String NAME_SQOOSS_MESSAGING    = "sqooss.messaging";
 
-    /**
-     * Represents web services logger name.
-     */
-    public static final String NAME_SQOOSS_WEB_SERVICES = "sqooss.webservice";
+	/**
+	 * Represents web services logger name.
+	 */
+	public static final String NAME_SQOOSS_WEB_SERVICES = "sqooss.webservice";
 
-    /**
-     * Represents scheduling logger name.
-     */
-    public static final String NAME_SQOOSS_SCHEDULING   = "sqooss.scheduler";
+	/**
+	 * Represents scheduling logger name.
+	 */
+	public static final String NAME_SQOOSS_SCHEDULING   = "sqooss.scheduler";
 
-    /**
-     * Represents updater logger name.
-     */
-    public static final String NAME_SQOOSS_UPDATER      = "sqooss.updater";
+	/**
+	 * Represents updater logger name.
+	 */
+	public static final String NAME_SQOOSS_UPDATER      = "sqooss.updater";
 
-    /**
-     * Represents clusternode logger name.
-     */
-    public static final String NAME_SQOOSS_CLUSTERNODE   = "sqooss.clusternode";
+	/**
+	 * Represents clusternode logger name.
+	 */
+	public static final String NAME_SQOOSS_CLUSTERNODE   = "sqooss.clusternode";
 
-    /**
-     * Represents web UI logger name.
-     */
-    public static final String NAME_SQOOSS_WEBADMIN     = "sqooss.webadmin";
+	/**
+	 * Represents web UI logger name.
+	 */
+	public static final String NAME_SQOOSS_WEBADMIN     = "sqooss.webadmin";
 
-    /**
-     * Represents TDS logger name.
-     */
-    public static final String NAME_SQOOSS_TDS          = "sqooss.tds";
+	/**
+	 * Represents TDS logger name.
+	 */
+	public static final String NAME_SQOOSS_TDS          = "sqooss.tds";
 
-    /**
-     * Represents FDS logger name.
-     */
-    public static final String NAME_SQOOSS_FDS          = "sqooss.fds";
-    
-    /**
-     * Represents PluginAdmin logger name.
-     */
-    public static final String NAME_SQOOSS_PA           = "sqooss.pa";
+	/**
+	 * Represents FDS logger name.
+	 */
+	public static final String NAME_SQOOSS_FDS          = "sqooss.fds";
 
-    /**
-     * Represents Metric logger name.
-     */
-    public static final String NAME_SQOOSS_METRIC       = "sqooss.metric";
+	/**
+	 * Represents PluginAdmin logger name.
+	 */
+	public static final String NAME_SQOOSS_PA           = "sqooss.pa";
 
-    /**
-     * Represents Metric logger name.
-     */
-    public static final String NAME_SQOOSS_TESTER       = "sqooss.tester";
+	/**
+	 * Represents Metric logger name.
+	 */
+	public static final String NAME_SQOOSS_METRIC       = "sqooss.metric";
 
-    /**
-     * Represents Metric logger name.
-     */
-    public static final String NAME_SQOOSS_METRICACTIVATOR = "sqooss.metricactivator";
-    
-    /**
-     * Represents Parser logger name.
-     */
-    public static final String NAME_SQOOSS_PARSER = "sqooss.parser";
-    
-    /**
-     * Represents Parser logger name.
-     */
-    public static final String NAME_SQOOSS_ADMINACTION = "sqooss.adminaction";
-    
-    /**
-    * Log a message with debug (lower than lowest) logging level.
-    * The debug level is used for micro-steps in an algorithm, for
-    * logging individual computations and for providing ongoing
-    * status information. It really only makes sense in log files
-    * when examining specific issues.
-    *
-    * @param message a log message
-    * @note In the default configuration, debug messages will never
-    *   be seen anywhere.
-    */
-    public void debug(String message);
+	/**
+	 * Represents Metric logger name.
+	 */
+	public static final String NAME_SQOOSS_TESTER       = "sqooss.tester";
 
-    /**
-    * Logs a message with a info (lowest) logging level. The info
-    * level is used to give an idea of what is going on in the system
-    * at a global level.
-    *
-    * @param message a log message
-    */
-    public void info(String message);
+	/**
+	 * Represents Metric logger name.
+	 */
+	public static final String NAME_SQOOSS_METRICACTIVATOR = "sqooss.metricactivator";
 
-    /**
-    * Logs a message with a warning logging level
-    * @param message a log message
-    */
-    public void warn(String message);
+	/**
+	 * Represents Parser logger name.
+	 */
+	public static final String NAME_SQOOSS_PARSER = "sqooss.parser";
+	/**
+	 * Represents Admin Action logger name.
+	 */
+	public static final String NAME_SQOOSS_ADMINACTION = "sqooss.adminaction";
 
-    /**
-    * Logs a message with a warning logging level and
-    * a stack trace from the exception explaining why.
-    * @param message a log message
-    * @param e exception that caused the message
-    */
-    public void warn(String message, Exception e);
+	/**
+	 * Log a message with debug (lower than lowest) logging level.
+	 * The debug level is used for micro-steps in an algorithm, for
+	 * logging individual computations and for providing ongoing
+	 * status information. It really only makes sense in log files
+	 * when examining specific issues.
+	 *
+	 * @param message a log message
+	 * @note In the default configuration, debug messages will never
+	 *   be seen anywhere.
+	 */
+	public void debug(String message);
 
-    /**
-    * Logs a message with a severe(highest) logging level
-    * @param message a log message
-    */
-    public void error(String message);
+	/**
+	 * Logs a message with a info (lowest) logging level. The info
+	 * level is used to give an idea of what is going on in the system
+	 * at a global level.
+	 *
+	 * @param message a log message
+	 */
+	public void info(String message);
 
-    /**
-    * Logs a message with a severe(highest) logging level and
-    * a stack trace from the exception explaining why.
-    * @param message a log message
-    * @param e exception that caused the message
-    */
-    public void error(String message, Exception e);
+	/**
+	 * Logs a message with a warning logging level
+	 * @param message a log message
+	 */
+	public void warn(String message);
 
-    /**
-    * Returns a name of the logger.
-    * @return the logger's name
-    */
-    public String getName();
+	/**
+	 * Logs a message with a warning logging level and
+	 * a stack trace from the exception explaining why.
+	 * @param message a log message
+	 * @param e exception that caused the message
+	 */
+	public void warn(String message, Exception e);
+
+	/**
+	 * Logs a message with a severe(highest) logging level
+	 * @param message a log message
+	 */
+	public void error(String message);
+
+	/**
+	 * Logs a message with a severe(highest) logging level and
+	 * a stack trace from the exception explaining why.
+	 * @param message a log message
+	 * @param e exception that caused the message
+	 */
+	public void error(String message, Exception e);
+
+	/**
+	 * Returns a name of the logger.
+	 * @return the logger's name
+	 */
+	public String getName();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
