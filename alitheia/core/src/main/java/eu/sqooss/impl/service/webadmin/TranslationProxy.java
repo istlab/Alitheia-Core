@@ -60,7 +60,7 @@ public class TranslationProxy {
 	 *   corresponding resource bundle, OR the provided property name's
 	 *   parameter, when such property is missing.
 	 */
-	public String getMsg (String name) {
+	public String message (String name) {
 	    if (resMsg != null) {
 	        try {
 	            return resMsg.getString(name);

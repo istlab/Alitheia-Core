@@ -87,7 +87,7 @@ public class AdminServlet extends HttpServlet {
     // Projects view
     ProjectsView projectsView = null;
 
-    TranslationProxy tr;
+    TranslationProxy translation;
     
     public AdminServlet(BundleContext bc,
             WebadminService webadmin,
@@ -136,7 +136,7 @@ public class AdminServlet extends HttpServlet {
         vc = new VelocityContext();
         
         // Create translation proxy
-        tr = new TranslationProxy(Locale.ENGLISH);
+        translation = new TranslationProxy(Locale.ENGLISH);
         
         adminView = new WebAdminRenderer(bc, vc);
 
@@ -333,7 +333,7 @@ public class AdminServlet extends HttpServlet {
 
         // Object-based substitutions
         vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
-        vc.put("tr",tr); // translations proxy
+        vc.put("tr",translation); // translations proxy
         vc.put("admin",adminView);
         vc.put("projects",projectsView);
         vc.put("metrics",pluginsView);
