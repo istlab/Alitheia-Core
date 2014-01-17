@@ -36,28 +36,18 @@ package eu.sqooss.impl.service.fds;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 
 import eu.sqooss.service.util.FileUtils;
-import org.apache.commons.codec.binary.Hex;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
-import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.OnDiskCheckout;
-import eu.sqooss.service.fds.Timeline;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
@@ -69,7 +59,7 @@ import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.TDSService;
 
 /** {@inheritDoc} */
-public class FDSServiceImpl implements FDSService, Runnable {
+public class FDSServiceImpl implements FDSService {
     /** The logger for the FDS. */
     private Logger logger = null;
     /** We use the TDS for raw data access. */
@@ -82,45 +72,9 @@ public class FDSServiceImpl implements FDSService, Runnable {
      * directory, and then checkouts of that project live under there.
      */
     private File fdsCheckoutRoot = null;
-    /**
-     * Checkouts are done in directories with a random prefix; this is done to
-     * avoid the suggestion that the checkouts are tied to specific revisions.
-     * We generate the random prefixes with this random generator.
-     */
-    private Random randomCheckout = null;
-
-    /**
-     * Cache checkouts in a live system. The cache will not be re-populated from
-     * on disk data if the system is shutdown.
-     */
-    private ConcurrentHashMap<String, OnDiskCheckout> checkoutCache;
-
-    /**
-     * Number of handles acquired on each cached checkout.
-     */
-    private ConcurrentHashMap<OnDiskCheckout, Integer> checkoutHandles;
 
     private BundleContext bc;
     
-    /*
-     * The following constants influence the formatting of checkout and project
-     * directory names.
-     */
-    /**
-     * Project IDs are formatted as decimals (with leading zeroes) of this
-     * length; 8 covers the expected range of IDs.
-     */
-    private static final int INT_AS_DECIMAL_LENGTH = 8;
-    /**
-     * Each checkout gets a random hex string prefixed to a guaranteed unique
-     * identifier. The length of the prefix is defined here.
-     */
-    private static final int RANDOM_PREFIX_LENGTH = 8;
-    /**
-     * States how many hex digits are needed to express an int.
-     */
-    private static final int INT_AS_HEX_LENGTH = 8;
-
     public FDSServiceImpl() { }
 
     /**
@@ -304,114 +258,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
         return true;
     }
 
-    // Checkout cache ops
-    /**
-     * Atomic get from cache and increment handle count.
-     */
-    private synchronized OnDiskCheckout getCheckoutFromCache(ProjectVersion pv) {
-
-        if (pv == null || pv.getId() == 0) {
-            return null;
-        }
-
-        OnDiskCheckout co = checkoutCache.get(cacheKey(pv));
-
-        if (co == null)
-            return null;
-
-        checkoutHandles.put(co, checkoutHandles.get(co) + 1);
-
-        return co;
-    }
-
-    /**
-     * Atomic decrement of checkout handle counts.
-     */
-    private synchronized void returnCheckout(OnDiskCheckout c) {
-        if (c == null)
-            return;
-
-        if (checkoutHandles.contains(c))
-            checkoutHandles.put(c, checkoutHandles.get(c) - 1);
-    }
-
-    /**
-     * Atomic add checkout to both cache tables
-     */
-    private synchronized void addCheckoutToCache(ProjectVersion pv,
-            OnDiskCheckout c) {
-        checkoutCache.putIfAbsent(cacheKey(pv), c);
-        checkoutHandles.putIfAbsent(c, 0);
-    }
-
-    /**
-     * Atomically check whether the checkout can be updated
-     */
-    private synchronized boolean isUpdatable(OnDiskCheckout c) {
-        if (checkoutHandles.get(c) > 0)
-            return false;
-        return true;
-    }
-
-    /**
-     * Check if there is a checkout for a specific project version.
-     */
-    private synchronized boolean cacheContains(ProjectVersion pv) {
-        if (checkoutCache.keySet().contains(cacheKey(pv)))
-            return true;
-        return false;
-    }
-
-    // Cache key ops
-    /**
-     * Munge together info from the provided project version to create a unique
-     * key for indexing cache checkouts.
-     */
-    private String cacheKey(ProjectVersion pv) {
-        return pv.getProject().getName() + "|" + pv.getId() + "|"
-                + pv.getRevisionId();
-    }
-
-    /**
-     * Retrieve the project name part of the provided cache key.
-     */
-    private String cacheKeyProject(String key) {
-        if (key == null || key.length() == 0)
-            return null;
-
-        return key.split("|")[0];
-    }
-
-    /**
-     * Retrieve from the provided cache key and resolve from the DB the
-     * ProjectVersion object attached to a checkout.
-     */
-    private ProjectVersion cacheKeyProjectVersion(String key) {
-        if (key == null || key.length() == 0)
-            return null;
-
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Long id = Long.parseLong(key.split("|")[1]);
-        return dbs.findObjectById(ProjectVersion.class, id);
-    }
-
-    /**
-     * Convert between database and SCM revision representations
-     */
-    private static Revision projectVersionToRevision(ProjectVersion pv) {
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
-        SCMAccessor scm = null;
-
-        if (tds.accessorExists(pv.getProject().getId())) {
-            scm = (SCMAccessor) tds.getAccessor(pv.getProject().getId());
-        } else {
-            return null;
-        }
-
-        return scm.newRevision(pv.getRevisionId());
-    }
-
     // ===[ INTERFACE METHODS ]===============================================
 
     /** {@inheritDoc} */
@@ -494,37 +340,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
     }
 
     /** {@inheritDoc} */
-    public InMemoryCheckout getInMemoryCheckout(ProjectVersion pv)
-            throws CheckoutException {
-        return getInMemoryCheckout(pv, Pattern.compile(".*"));
-    }
-
-    /** {@inheritDoc} */
-    public InMemoryCheckout getInMemoryCheckout(ProjectVersion pv,
-            Pattern pattern) throws CheckoutException {
-
-        if (!canCheckout(pv)) {
-            return null;
-        }
-
-        long projectId = pv.getProject().getId();
-        SCMAccessor svn = null;
-        try {
-            svn = tds.getAccessor(projectId).getSCMAccessor();
-        } catch (InvalidAccessorException e) {
-            throw new CheckoutException("Invalid SCM accessor for project "
-                    + pv.getProject().getName() + ": " + e.getMessage());
-        }
-        svn.newRevision(pv.getRevisionId());
-        logger
-                .info("Finding available checkout for "
-                        + pv.getProject().getName() + " revision "
-                        + pv.getRevisionId());
-
-        return new InMemoryCheckoutImpl(pv, pattern);
-    }
-
-    /** {@inheritDoc} */
     public OnDiskCheckout getCheckout(ProjectVersion pv, String path)
             throws CheckoutException {
 
@@ -544,112 +359,11 @@ public class FDSServiceImpl implements FDSService, Runnable {
         svn.newRevision(pv.getRevisionId());
 
         logger.info("Finding available checkout for " + pv);
-        OnDiskCheckout co = getCheckoutFromCache(pv);
-
-        if (co != null) {
-            // Checkout acquired from cache, return it.
-            return co;
-        }
-
-        // Search for a cached checkout that could be updated
-        /*Set<String> c = checkoutCache.keySet();
-        OnDiskCheckoutImpl updatable = null;
-
-        for (String s : c) {
-            if (cacheKeyProject(s).equals(pv.getProject())) {
-                ProjectVersion cached = cacheKeyProjectVersion(s);
-                if (cached.lt(pv)) {
-                    updatable = (OnDiskCheckoutImpl) getCheckoutFromCache(cached);
-
-                    if (checkoutHandles.get(updatable) == 1) {
-                        try {
-                            updateCheckout(updatable, pv);
-                        } finally {
-                            releaseCheckout(updatable);
-                        }
-                        return getCheckoutFromCache(pv);
-                    }
-                    releaseCheckout(updatable);
-                    updatable = null;
-                }
-            }
-        }
-
-        // No updatable checkout found, create
-        synchronized (pv) {
-            if (!cacheContains(pv))
-                addCheckoutToCache(pv, createCheckout(svn, pv));
-        } */
-        //return getCheckoutFromCache(pv);
         return createCheckout(svn, pv, path);
     }
 
     /** {@inheritDoc} */
-    public boolean updateCheckout(OnDiskCheckout c, ProjectVersion pv)
-            throws CheckoutException {
-
-        if (c != null) {
-            return false;
-        }
-
-        // Check if the checkout is held by another client before updating
-        if (!isUpdatable(c)) {
-            return false;
-        }
-
-        OnDiskCheckoutImpl cimpl = (OnDiskCheckoutImpl) c;
-        cimpl.lock();
-
-        // Check if an update took place while waiting for the lock to become
-        // available
-        if (cimpl.getProjectVersion().gt(pv)) {
-            logger.error("Error updating checkout. Checkout has been"
-                    + " already updated to a newer version");
-            throw new CheckoutException("Checkout already updated");
-        } else if (cimpl.getProjectVersion().eq(pv)) {
-            return true;
-        }
-
-        SCMAccessor scm = (SCMAccessor) AlitheiaCore.getInstance()
-                .getTDSService().getAccessor(pv.getProject().getId());
-        try {
-            scm.updateCheckout(cimpl.getRepositoryPath(),
-                    projectVersionToRevision(cimpl.getProjectVersion()),
-                    projectVersionToRevision(pv), cimpl.getRoot());
-            cimpl.setRevision(pv);
-
-        } catch (InvalidProjectRevisionException e) {
-            throw new CheckoutException("Project version " + pv
-                    + " does not map to an SCM revision. Error was:"
-                    + e.getMessage());
-        } catch (InvalidRepositoryException e) {
-            throw new CheckoutException("Error accessing repository "
-                    + scm.toString() + ". Error was:" + e.getMessage());
-        } catch (FileNotFoundException e) {
-            throw new CheckoutException("Error accessing checkout root. "
-                    + e.getMessage());
-        } finally {
-            cimpl.unlock();
-        }
-        return true;
-    }
-
-    /** {@inheritDoc} */
     public void releaseCheckout(OnDiskCheckout c) {
-
-        /*
-        if (c == null) {
-            logger.warn("Attempting to release null checkout");
-            return;
-        }
-
-        if (!checkoutCache.contains(c)) {
-            logger.warn("Attempting to release not cached checkout");
-            return;
-        }
-
-        returnCheckout(c);
-        */
         File root = null;
         try {
             root = c.getRoot();
@@ -659,14 +373,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
                     root.getAbsolutePath());
         }
         c = null;
-    }
-
-    public Timeline getTimeline(StoredProject c) {
-        return new TimelineImpl(c);
-    }
-
-    public void run() {
-
     }
 
     @Override
@@ -691,8 +397,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
         tds = AlitheiaCore.getInstance().getTDSService();
         logger.info("Got TDS service for FDS.");
 
-        checkoutCache = new ConcurrentHashMap<String, OnDiskCheckout>();
-        checkoutHandles = new ConcurrentHashMap<OnDiskCheckout, Integer>();
         // Get the checkout root from the properties file.
         String s = bc.getProperty("eu.sqooss.fds.root");
         if (s == null) {
@@ -702,7 +406,6 @@ public class FDSServiceImpl implements FDSService, Runnable {
             logger.info("FDS root directory " + s);
         }
         fdsCheckoutRoot = new File(s);
-        randomCheckout = new Random();
 
         return true;
     }

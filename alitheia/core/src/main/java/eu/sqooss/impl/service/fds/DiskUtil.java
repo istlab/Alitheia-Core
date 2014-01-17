@@ -34,19 +34,12 @@
 package eu.sqooss.impl.service.fds;
 
 import java.io.File;
-import java.io.IOException;
-
-import eu.sqooss.service.logging.Logger;
 
 /**
  * This class contains common static functionality for manipulating
  * directory trees on-disk.
  */
 public final class DiskUtil {
-    /** Constructor. This is a utility class, no constructor wanted. */
-    private DiskUtil() {
-    }
-
     /**
      * Remove all files within a directory d.
      * @param d directory to remove all files from
@@ -84,63 +77,6 @@ public final class DiskUtil {
         }
         return false;
     }
-
-    /**
-     * Create a bunch of junk files underneath a given directory.
-     * Recurse into any directories created this way (and create
-     * fewer files and directories in the subdirs, so that the
-     * recursion terminates).
-     *
-     * @param r root under which to create junk.
-     * @param mf maximum number of files to create under r.
-     * @param md maximum number of directories to create under r.
-     *
-     * @return number of files + directories created under r.
-     */
-    private static int createTestFiles(final File r,
-        final int mf, final int md) {
-        // Horribly contused way of getting a random integer in
-        // the range 0..mf-1, but alternatives seem to require
-        // creating our own Random object.
-        int numberOfFiles = (int) Math.round(Math.floor(
-            Math.random() * (double) mf));
-        int numberOfSubDirs = (int) Math.round(Math.floor(
-            Math.random() * (double) md));
-        int count = 0;
-
-        for (int i = 0; i < numberOfFiles; ++i) {
-            File f = new File(r, new Double(Math.random()).toString());
-            try {
-                if (f.createNewFile()) {
-                    ++count;
-                }
-            } catch (IOException e) {
-                // Ignore the exception
-                count += 0;
-            }
-        }
-        for (int i = 0; i < numberOfSubDirs; ++i) {
-            File f = new File(r, new Double(Math.random()).toString());
-            if (f.mkdir()) {
-                ++count;
-                count += createTestFiles(f, mf / 2, md - 1);
-            }
-        }
-        return count;
-    }
-
-    /**
-     * For the self test, maximum number of subdirectories under the
-     * top-level directory. Maximum number of subdirectories per
-     * level decreases exponentially.
-     */
-    private static final int STARTING_MAX_SUBDIRS = 8;
-    /**
-     * For the self-test, maximum number of files in any directory.
-     * This should be more than log(STARTING_MAX_SUBDIRS) for the
-     * createTestFiles() code to work properly.
-     */
-    private static final int STARTING_MAX_FILES = 16;
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

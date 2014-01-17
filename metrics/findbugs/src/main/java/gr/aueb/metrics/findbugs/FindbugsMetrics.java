@@ -35,8 +35,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.*;
@@ -113,8 +115,6 @@ import javax.xml.xpath.*;
 @SchedulerHints(invocationOrder = InvocationOrder.NEWFIRST, activationOrder = {ProjectVersion.class})
 public class FindbugsMetrics extends AbstractMetric {
 
-    static String MAVEN_PATH = "";
-    static String ANT_PATH = "";
     static String FINDBUGS_PATH = "";
 
     static {
@@ -122,17 +122,9 @@ public class FindbugsMetrics extends AbstractMetric {
             FINDBUGS_PATH = System.getProperty("findbugs.path");
         else
             FINDBUGS_PATH = "findbugs";
-        if (System.getProperty("mvn.path") != null)
-            MAVEN_PATH = System.getProperty("mvn.path");
-        else
-            MAVEN_PATH = "mvn";
-        if (System.getProperty("ant.path") != null)
-            ANT_PATH = System.getProperty("ant.path");
-        else
-            ANT_PATH = "ant";
     }
 
-    public FindbugsMetrics(BundleContext bc) {
+	public FindbugsMetrics(BundleContext bc) {
         super(bc);
     }
 
@@ -156,7 +148,7 @@ public class FindbugsMetrics extends AbstractMetric {
         Pattern buildxml = Pattern.compile("build.xml$");
         Pattern trunk = Pattern.compile("/trunk");
         boolean foundTrunk = false, foundPom = false,
-                foundBuild = false, maven_build = true;
+                foundBuild = false;
 
         for(ProjectFile pf: files) {
             if (pom.matcher(pf.getFileName()).find())
@@ -173,21 +165,18 @@ public class FindbugsMetrics extends AbstractMetric {
             log.info("Skipping version " + pv + "/trunk directory could be found");
             return;
         }
-
-        if (foundPom)
-            maven_build = true; // Prefer maven over ant
-        else
-            if (foundBuild)
-                maven_build = false;
-            else {
-                log.info("Skipping version " + pv + " as neither pom.xml " +
-                        "nor build.xml could be found");
-                return;
-            }
-
+        
+        if(!foundPom && !foundBuild)
+        {
+        	log.info("Skipping version " + pv + " as neither pom.xml " +
+                    "nor build.xml could be found");
+            return;
+        }
+        
         FDSService fds = AlitheiaCore.getInstance().getFDSService();
 
         OnDiskCheckout odc = null;
+        
         try {
             odc = fds.getCheckout(pv, "/trunk");
             File checkout = odc.getRoot();
@@ -195,46 +184,27 @@ public class FindbugsMetrics extends AbstractMetric {
             String out = pv.getProject().getName() + "-" + pv.getRevisionId() +
                     "-" + pv.getId() + "-out.txt";
 
-            List<File> jars = null;
-            if (maven_build)
-                jars = compileMaven(pv, pom, checkout, out);
-            else
-                jars = compileAnt(pv, buildxml, checkout, out);
-
-            for(File jar: jars) {
-
-                //String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
-                //        ProjectVersion.MASK_FILES));
-                //pkgs = pkgs.substring(0, pkgs.length() - 1);
-                String findbugsOut = pv.getRevisionId()+"-" + jar.getName() + "-" +pv.getProject().getName() + ".xml";
-
-                List<String> findbugsArgs = new ArrayList<String>();
-                findbugsArgs.add(FINDBUGS_PATH);
-                findbugsArgs.add("-textui");
-                //findbugsArgs.add("-onlyAnalyze");
-                //findbugsArgs.add(pkgs);
-                findbugsArgs.add("-xml");
-                findbugsArgs.add("-output");
-                findbugsArgs.add(findbugsOut);
-                findbugsArgs.add(jar.getAbsolutePath());
-
-                ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
-                findbugs.redirectErrorStream(true);
-                int retVal = runReadOutput(findbugs.start(), out);
-
-                if (retVal != 0) {
-                    log.warn("Findbugs failed. See file:" + out);
-                }
-
-                File f = new File(findbugsOut);
-                storeResults(parseFindbugsResults(f), files, pv);
-
+            AbstractBuildSystem buildSystem = null;
+            if (foundPom)
+            {
+            	buildSystem = new MavenBuildSystem(pv, pom, checkout, out);
             }
+            else
+            {
+            	buildSystem = new AntBuildSystem(pv, buildxml, checkout, out);
+            }
+            
+            List<File> jars = buildSystem.compile(bc);
+            jars.addAll(buildSystem.getDependencies(bc));
+
+            for(File jar: jars)
+            {
+            	storeResults(jar, pv, out);
+            }
+            
         } catch (CheckoutException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }  catch (IOException e) {
             e.printStackTrace();
         } catch (Throwable t) {
             t.printStackTrace();
@@ -244,81 +214,40 @@ public class FindbugsMetrics extends AbstractMetric {
         }
     }
 
-    private List<File> compileMaven(ProjectVersion pv, Pattern pom,
-                                    File checkout, String out) throws IOException {
-
-        File pomFile = FileUtils.findBreadthFirst(checkout, pom);
-
-        if (pomFile == null) {
-            log.warn(pv + " No pom.xml found in checkout?!");
-            return new ArrayList<File>();
-        }
-
-        ProcessBuilder maven = new ProcessBuilder(MAVEN_PATH, "install", "-DskipTests=true");
-        maven.directory(pomFile.getParentFile());
-        maven.redirectErrorStream(true);
-        int retVal = runReadOutput(maven.start(), out);
-
-        // project dependencies
-        List<File> deps = new ArrayList<File>();
-        if (retVal != 0) {
-            log.warn("Build with maven failed. See file:" + out);
-            return deps;
-        }
-        // Copy the script that gathers the dependency from
-        // the resource bundle
-        File copyDepsScript = new File(pomFile.getParentFile(), "copy-dependencies");
-        FileOutputStream fos = new FileOutputStream(copyDepsScript);
-        InputStream in = bc.getBundle().getResource("copy-dependencies").openStream();
-
-        int read;
-        byte[] buff = new byte[1024];
-        while ((read = in.read(buff)) != -1) {
-            fos.write(buff, 0, read);
-        }
-
-        copyDepsScript.setExecutable(true);
-        fos.close();
-        in.close();
-
-        ProcessBuilder copyDeps = new ProcessBuilder("./copy-dependencies");
-        copyDeps.directory(pomFile.getParentFile());
-        copyDeps.redirectErrorStream(true);
-        int retVal2 = runReadOutput(copyDeps.start(), out);
-        if (retVal2 == 0) {
-            File allDeps = new File(checkout.getPath() + "/all-deps");
-            if (allDeps.exists() && allDeps.isDirectory()) {
-                deps = Arrays.asList(allDeps.listFiles());
-            }
-        }
-
-        List<File> jars = getMavenJars(checkout);
-        jars.addAll(deps);
-
-        return jars;
-    }
-
-    private List<File> compileAnt(ProjectVersion pv, Pattern buildxml,
-                                    File checkout, String out) throws IOException {
-
-        File antFile = FileUtils.findBreadthFirst(checkout, buildxml);
-
-        if (antFile == null) {
-            log.warn(pv + " No build.xml found in checkout?!");
-            return new ArrayList<File>();
-        }
-
-        ProcessBuilder ant = new ProcessBuilder(ANT_PATH);
-        ant.directory(antFile.getParentFile());
-        ant.redirectErrorStream(true);
-        int retVal = runReadOutput(ant.start(), out);
-
-        if (retVal != 0) {
-            log.warn("Build with ant failed. See file:" + out);
-            return new ArrayList<File>();
-        }
-
-        return getAntJars(checkout);
+    private void storeResults(File jar, ProjectVersion pv, String out)
+    {
+    	try
+    	{
+	    	//String pkgs = getPkgs(pv.getFiles(Pattern.compile("src/main/java/"),
+	        //        ProjectVersion.MASK_FILES));
+	        //pkgs = pkgs.substring(0, pkgs.length() - 1);
+	        String findbugsOut = pv.getRevisionId()+"-" + jar.getName() + "-" +pv.getProject().getName() + ".xml";
+	
+	        List<String> findbugsArgs = new ArrayList<String>();
+	        findbugsArgs.add(FINDBUGS_PATH);
+	        findbugsArgs.add("-textui");
+	        //findbugsArgs.add("-onlyAnalyze");
+	        //findbugsArgs.add(pkgs);
+	        findbugsArgs.add("-xml");
+	        findbugsArgs.add("-output");
+	        findbugsArgs.add(findbugsOut);
+	        findbugsArgs.add(jar.getAbsolutePath());
+	
+	        ProcessBuilder findbugs = new ProcessBuilder(findbugsArgs);
+	        findbugs.redirectErrorStream(true);
+	        int retVal = OutReader.runReadOutput(findbugs.start(), out);
+	
+	        if (retVal != 0) {
+	            log.warn("Findbugs failed. See file:" + out);
+	        }
+	
+	        File f = new File(findbugsOut);
+	        storeResults(parseFindbugsResults(f), pv.getFiles(), pv);
+    	}
+    	catch(IOException e)
+    	{
+    		e.printStackTrace();
+    	}
     }
 
     public String getPkgs(List<ProjectFile> files) {
@@ -337,47 +266,6 @@ public class FindbugsMetrics extends AbstractMetric {
             sb.append(pkg).append(",");
 
         return sb.toString();
-    }
-    
-    public List<File> getMavenJars(File checkout) {
-        List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
-        List<File> result = new ArrayList<File>();
-        //Exclude common maven artifacts which don't contain bytecode
-        for(File f: jars) {
-            if (f.getName().endsWith("-sources.jar"))
-                continue;
-            if (f.getName().endsWith("with-dependencies.jar"))
-                continue;
-            if (f.getName().endsWith("-javadoc.jar"))
-                continue;
-            result.add(f);
-        }
-        return result;
-    }
-
-    public List<File> getAntJars(File checkout) {
-        List<File> jars = FileUtils.findGrep(checkout, Pattern.compile("target/.*\\.jar$"));
-        List<File> result = new ArrayList<File>();
-        //Exclude common maven artifacts which don't contain bytecode
-        for(File f: jars) {
-            // Exclude libraries commonly included in Maven repositories
-            if (f.getAbsolutePath().contains("/lib/"))
-                continue;
-            result.add(f);
-        }
-        return result;
-    }
-
-    public int runReadOutput(Process pr, String name) throws IOException {
-        OutReader outReader = new OutReader(pr.getInputStream(), name);
-        outReader.start();
-        int retVal = -1;
-        while (retVal == -1) {
-            try {
-                retVal = pr.waitFor();
-            } catch (Exception ignored) {}
-        }
-        return retVal;
     }
 
     /**
@@ -544,36 +432,6 @@ public class FindbugsMetrics extends AbstractMetric {
         if (version)
             return "T" + result.toString();
         return result.toString();
-    }
-
-    private class OutReader extends Thread {
-        String name;
-        InputStream input;
-
-        public OutReader(InputStream in, String name) {
-            this.name = name;
-            this.input = in;
-        }
-
-        public void run() {
-            try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(input));
-                FileWriter out = new FileWriter(new File(name), true);
-
-                char[] buf = new char[8192];
-                while (true) {
-                    int length = in.read(buf);
-                    if (length < 0)
-                        break;
-                    out.write(buf, 0, length);
-                    out.flush();
-                }
-                in.close();
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
 
