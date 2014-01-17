@@ -568,7 +568,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
             if (!dbs.isDBSessionActive())
                 dbs.startDBSession();
-            StoredProject sp = StoredProject.loadDAObyId(projectId, StoredProject.class);
+            StoredProject sp = StoredProject.loadDAObyId(dbs, projectId, StoredProject.class);
             removeUpdater(sp, ut);
 
             if (newState.equals(State.Error)) {

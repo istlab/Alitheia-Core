@@ -47,8 +47,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * The bug resolution severity.
  * 

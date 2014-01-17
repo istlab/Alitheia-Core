@@ -43,7 +43,9 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -648,7 +650,8 @@ public class PluginsView extends AbstractView{
                     // Display the set of configuration properties
                     b.append(sp(in++) + "<tbody>\n");
                     // Get the plug-in's configuration set
-                    Set<PluginConfiguration> config = Plugin.getPluginByHashcode(selPI.getHashcode()).getConfigurations();
+                    DBService dbs = AlitheiaCore.getInstance().getDBService();
+                    Set<PluginConfiguration> config = Plugin.getPluginByHashcode(dbs, selPI.getHashcode()).getConfigurations();
                     if ((config == null) || (config.isEmpty())) {
                         b.append(sp(in++) + "<tr>");
                         b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"

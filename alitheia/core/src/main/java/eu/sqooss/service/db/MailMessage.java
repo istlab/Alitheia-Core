@@ -52,8 +52,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * DAO Object for the MailMessage database table
  * @assoc 1 - n MailMessageMeasurement

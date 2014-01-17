@@ -50,9 +50,6 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DAObject;
-
 /**
  * A node in a Alitheia Core cluster installation
  * 

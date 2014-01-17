@@ -97,7 +97,7 @@ public class BugzillaXMLJob extends Job {
         if (bugExists(project, bugID)) {
             logger.debug(project.getName() + ": Updating existing bug "
                     + bugID);
-            List<BugReportMessage> msgs = bug.getAllReportComments();
+            List<BugReportMessage> msgs = bug.getAllReportComments(dbs);
             Set<BugReportMessage> newmsgs = bug.getReportMessages();
             Set<BugReportMessage> toadd = new LinkedHashSet<BugReportMessage>();
 
@@ -143,9 +143,9 @@ public class BugzillaXMLJob extends Job {
         bug.setProject(project);
         
         if (b.resolution != null) {
-            bug.setResolution(BugResolution.getBugResolution(Resolution.fromString(b.resolution.toString())));
+            bug.setResolution(BugResolution.getBugResolution(dbs, Resolution.fromString(b.resolution.toString())));
         } else {
-            bug.setResolution(BugResolution.getBugResolution(Resolution.UNKNOWN));
+            bug.setResolution(BugResolution.getBugResolution(dbs, Resolution.UNKNOWN));
         }
         
         if (b.severity != null) {

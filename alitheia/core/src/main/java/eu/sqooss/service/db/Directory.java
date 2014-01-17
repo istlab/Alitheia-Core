@@ -51,8 +51,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * This class represents the data relating to a directory within an
  * inserted project's SVN tree, stored in the database

@@ -52,8 +52,6 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * Instances of this object type represent the basic information on Metrics
  * stored in the database
@@ -344,9 +342,7 @@ public class Metric extends DAObject {
 	 * @return A Metric object or null when no metric can be found for the
 	 *         provided mnemonic
 	 */
-	public static Metric getMetricByMnemonic(String mnem) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+	public static Metric getMetricByMnemonic(DBService dbs, String mnem) {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("mnemonic", mnem);
 
@@ -366,8 +362,7 @@ public class Metric extends DAObject {
 	 *         metric is installed.
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Metric> getAllMetrics() {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
+	public static List<Metric> getAllMetrics(DBService dbs) {
 		return (List<Metric>) dbs.doHQL("from Metric");
 	}
 }

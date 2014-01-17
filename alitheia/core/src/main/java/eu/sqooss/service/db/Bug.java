@@ -54,8 +54,6 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.hibernate.annotations.Cascade;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * This class represents the data relating to bugs, stored in the database
  * 

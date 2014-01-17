@@ -127,7 +127,7 @@ public class MailMessageJob extends Job{
 
         // Try to find developer from name first
         if (devName != null) {
-            sender = Developer.getDeveloperByName(devName,
+            sender = Developer.getDeveloperByName(dbs, devName,
                     ml.getStoredProject(), false);
         }
 

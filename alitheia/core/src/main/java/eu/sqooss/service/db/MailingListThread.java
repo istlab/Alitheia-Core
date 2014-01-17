@@ -53,8 +53,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * Entity that holds information about a mailing list thread.
  * 

@@ -76,12 +76,12 @@ public class UpdateProject extends AdminActionBase {
 
         StoredProject sp = null;
 
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         if (projectid == null) {
             // The project was provided by name
-            DBService dbs = AlitheiaCore.getInstance().getDBService();
             sp = StoredProject.getProjectByName(dbs, project);
         } else {
-            sp = StoredProject.loadDAObyId(projectid, StoredProject.class);
+            sp = StoredProject.loadDAObyId(dbs, projectid, StoredProject.class);
         }
 
         if (sp == null) {

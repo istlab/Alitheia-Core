@@ -77,7 +77,7 @@ public class StoredProjectResource {
 		
 		StoredProject sp = null;
 		if (id.matches("^[0-9]*$")) //numeric id
-			sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
+			sp = DAObject.loadDAObyId(db, Long.valueOf(id), StoredProject.class);
 		else 
 			sp = StoredProject.getProjectByName(db, id);
 		return sp;
@@ -87,7 +87,9 @@ public class StoredProjectResource {
 	@GET
 	@Produces({"application/xml", "application/json"})
 	public List<ProjectVersion> getAllVersions(@PathParam("id") Long id) {
-		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		
+		StoredProject sp = DAObject.loadDAObyId(dbs, id, StoredProject.class);
 	
 		return sp.getProjectVersions();
 	}
@@ -97,7 +99,9 @@ public class StoredProjectResource {
 	@Produces({"application/xml", "application/json"})
 	public List<ProjectVersion> getVersions(@PathParam("id") Long id,
 			@PathParam("vid") String vid) {
-		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		
+		StoredProject sp = DAObject.loadDAObyId(dbs, id, StoredProject.class);
 	
 		if (sp == null)
 			return Collections.EMPTY_LIST;
@@ -115,7 +119,7 @@ public class StoredProjectResource {
 	    List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
 	    
 	    for (String verid : ids) {
-	    	ProjectVersion pv = ProjectVersion.getVersionByRevision(sp, verid);
+	    	ProjectVersion pv = ProjectVersion.getVersionByRevision(dbs, sp, verid);
 	    	if (pv != null)
 	    	    versions.add(pv);
 	    }
@@ -128,16 +132,18 @@ public class StoredProjectResource {
 	@Produces({"application/xml", "application/json"})
 	public ProjectVersion getVersion(@PathParam("id") String prid,
 			@PathParam("vid") String verid) {
-		
+	    DBService dbs = AlitheiaCore.getInstance().getDBService();
+	    
 	    if (verid.equals("first")) 
-	        return ProjectVersion.getFirstProjectVersion(getProject(prid));
+	        return ProjectVersion.getFirstProjectVersion(dbs, getProject(prid));
 	    
 	    if (verid.equals("latest"))
 	        return ProjectVersion.getLastMeasuredVersion (
-	                Metric.getMetricByMnemonic("TLOC"), //This can break, FIXME
+	                dbs,
+	                Metric.getMetricByMnemonic(dbs, "TLOC"), //This can break, FIXME
 	                getProject(prid));
 	    
-		return ProjectVersion.getVersionByRevision(getProject(prid), verid);
+		return ProjectVersion.getVersionByRevision(dbs, getProject(prid), verid);
 	}
 
 	@Path("/project/{id}/version/{vid}/files/")
@@ -145,12 +151,13 @@ public class StoredProjectResource {
     @Produces({"application/xml", "application/json"})
     public List<ProjectFile> getAllFiles(@PathParam("id") String prid,
             @PathParam("vid") String verid) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
 	    ProjectVersion pv = getVersion(prid, verid);
 	    if (pv == null)
 	        return Collections.EMPTY_LIST;
 	        
-        return pv.getFiles((Directory)null, ProjectVersion.MASK_FILES);
+        return pv.getFiles(dbs, (Directory)null, ProjectVersion.MASK_FILES);
     }
 
 	@Path("/project/{id}/version/{vid}/files/{dir: .+}")
@@ -159,6 +166,7 @@ public class StoredProjectResource {
     public List<ProjectFile> getFilesInDir(@PathParam("id") String prid,
             @PathParam("vid") String verid,
             @PathParam("dir") String path) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
@@ -167,7 +175,7 @@ public class StoredProjectResource {
         if (!path.startsWith("/"))
             path = "/" + path;
         
-        return pv.getFiles(Directory.getDirectory(null, path, false), 
+        return pv.getFiles(dbs, Directory.getDirectory(null, path, false), 
                 ProjectVersion.MASK_FILES);
     }
 
@@ -189,12 +197,13 @@ public class StoredProjectResource {
     @Produces({"application/xml", "application/json"})
     public List<ProjectFile> getDirs(@PathParam("id") String prid,
             @PathParam("vid") String verid) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
 	    ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
             return Collections.EMPTY_LIST;
  
-        return pv.getFiles((Directory)null,
+        return pv.getFiles(dbs, (Directory)null,
                 ProjectVersion.MASK_DIRECTORIES);
 	}
 
@@ -204,6 +213,7 @@ public class StoredProjectResource {
     public List<ProjectFile> getDirs(@PathParam("id") String prid,
             @PathParam("vid") String verid,
             @PathParam("dir") String path) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
@@ -212,7 +222,7 @@ public class StoredProjectResource {
         if (!path.startsWith("/"))
             path = "/" + path;
         
-        return pv.getFiles(Directory.getDirectory( null, path, false), 
+        return pv.getFiles(dbs, Directory.getDirectory( null, path, false), 
                 ProjectVersion.MASK_DIRECTORIES);
 	}
 }

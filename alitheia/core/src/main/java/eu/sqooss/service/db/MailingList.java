@@ -52,8 +52,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * Instances of this class represent the basic details of a project
  * mailing list stored in the database

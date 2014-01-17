@@ -34,7 +34,6 @@
 package eu.sqooss.service.db;
 
 import eu.sqooss.core.AlitheiaCoreService;
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.logging.Logger;
 
 import java.sql.SQLException;

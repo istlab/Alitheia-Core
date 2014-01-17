@@ -314,7 +314,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Retrieve the installation date for this plug-in version
      */
     public final Date getDateInstalled() {
-        return Plugin.getPluginByHashcode(getUniqueKey()).getInstalldate();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        return Plugin.getPluginByHashcode(dbs, getUniqueKey()).getInstalldate();
     }
 
     Map<Long,Pair<Object,Long>> blockerObjects = new ConcurrentHashMap<Long,Pair<Object,Long>>();
@@ -340,9 +342,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         
         for (Metric m : l) {
             if (!metrics.containsKey(m.getMnemonic())) {
+                DBService dbs = AlitheiaCore.getInstance().getDBService();
+                
                 throw new MetricMismatchException("Metric " + m.getMnemonic()
                         + " not defined by plugin "
-                        + Plugin.getPluginByHashcode(getUniqueKey()).getName());
+                        + Plugin.getPluginByHashcode(dbs, getUniqueKey()).getName());
             }
             List<Result> re = null;
             try {
@@ -557,9 +561,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** {@inheritDoc} */
     @SuppressWarnings("unchecked")
 	public List<Metric> getAllSupportedMetrics() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
         String qry = "from Metric m where m.plugin=:plugin";
         Map<String,Object> params = new HashMap<String,Object>();
-        params.put("plugin", Plugin.getPluginByHashcode(getUniqueKey()));
+        params.put("plugin", Plugin.getPluginByHashcode(dbs, getUniqueKey()));
         
         return (List<Metric>)db.doHQL(qry, params);
     }
@@ -641,7 +647,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Subclasses should also clean up any custom tables created.
      */
     public boolean remove() {
-        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Plugin p = Plugin.getPluginByHashcode(dbs, getUniqueKey());
         return db.deleteRecord(p);
     }
     

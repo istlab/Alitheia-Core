@@ -55,9 +55,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DAObject;
-
 /**
  * A DAObject representing a developer belonging to a project.
  * 

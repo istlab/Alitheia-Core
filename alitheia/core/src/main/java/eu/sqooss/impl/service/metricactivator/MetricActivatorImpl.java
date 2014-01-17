@@ -287,7 +287,7 @@ public class MetricActivatorImpl  implements MetricActivator {
         protected void run() throws Exception {
             DBService dbs = AlitheiaCore.getInstance().getDBService();
             dbs.startDBSession();
-            sp = DAObject.loadDAObyId(sp.getId(), StoredProject.class);
+            sp = DAObject.loadDAObyId(dbs, sp.getId(), StoredProject.class);
             PluginInfo mi = pa.getPluginInfo(m);
             Set<Class<? extends DAObject>> actTypes = mi.getActivationTypes();
             

@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
@@ -132,6 +133,7 @@ public class InMemoryDirectory {
      * @return A reference to a ProjectFile
      */
     public ProjectFile getFile(String name) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         /*Recursively traverse the directories of the provided file path*/
         if (name.indexOf('/') != -1 ) {
@@ -142,6 +144,7 @@ public class InMemoryDirectory {
         }
 
         return ProjectFile.findFile(
+                dbs,
                 getCheckout().getProjectVersion().getProject().getId(),
                 FileUtils.basename(name), 
                 FileUtils.dirname(name),
@@ -155,8 +158,8 @@ public class InMemoryDirectory {
     public List<ProjectFile> getFiles() {
         @SuppressWarnings("unused")
         ArrayList<ProjectFile> result = new ArrayList<ProjectFile>(files.size());
-        DBService dbs = null;
-        return getCheckout().getProjectVersion().getFiles(
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        return getCheckout().getProjectVersion().getFiles(dbs,
                 Directory.getDirectory(dbs, getPath(), false), 
                 ProjectVersion.MASK_FILES);
     }

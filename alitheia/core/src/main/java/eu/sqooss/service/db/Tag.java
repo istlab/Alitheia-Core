@@ -48,9 +48,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DAObject;
-
 /**
  * Instances of this class represent the data of an SVN tag for a
  * project, as stored in the database
@@ -138,9 +135,7 @@ public class Tag extends DAObject {
     }
     
     @SuppressWarnings("unchecked")
-	public static List<ProjectVersion> getTaggedVersions(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+	public static List<ProjectVersion> getTaggedVersions(DBService dbs, StoredProject sp) {
         String paramProject = "project_id";
 
         String query = "select pv " 

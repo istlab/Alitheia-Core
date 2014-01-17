@@ -186,7 +186,7 @@ public class TestGitUpdater extends TestGitSetup {
             
             db.startDBSession();
             sp = db.attachObjectToDBSession(sp);
-            ProjectVersion pv = ProjectVersion.getVersionByRevision(sp, from.getUniqueId());
+            ProjectVersion pv = ProjectVersion.getVersionByRevision(dbs, sp, from.getUniqueId());
             assertNotNull(pv);
             
             //Compare repository files against database files
@@ -195,13 +195,13 @@ public class TestGitUpdater extends TestGitSetup {
                 //System.err.println("Tree entry: " + path);
                 String basename = eu.sqooss.service.util.FileUtils.basename(path);
                 String dirname = eu.sqooss.service.util.FileUtils.dirname(path);
-                ProjectFile pf = ProjectFile.findFile(sp.getId(), basename, dirname, pv.getRevisionId());
+                ProjectFile pf = ProjectFile.findFile(dbs, sp.getId(), basename, dirname, pv.getRevisionId());
                 testVersionedProjectFile(pf);
                 if (!pf.getIsDirectory())
                 	foundFiles.add(pf);
             }
 
-            List<ProjectFile> allfiles = pv.allFiles();
+            List<ProjectFile> allfiles = pv.allFiles(dbs);
             for (ProjectFile pf : allfiles) {
             	if (!foundFiles.contains(pf)) {
             		System.err.println("File " + pf + " not in repository");
@@ -243,7 +243,7 @@ public class TestGitUpdater extends TestGitSetup {
     	}
     	
     	//Check that old and new versions of a file point to the same path
-		ProjectFile old = pf.getPreviousFileVersion();
+		ProjectFile old = pf.getPreviousFileVersion(db);
 		assertNotNull(old);
 		assertEquals(old.getFileName(), pf.getFileName());
 		if (old.getIsDirectory() != pf.getIsDirectory()) {

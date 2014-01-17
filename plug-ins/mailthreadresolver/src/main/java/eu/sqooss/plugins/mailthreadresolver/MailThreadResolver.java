@@ -140,7 +140,7 @@ public class MailThreadResolver implements MetadataUpdater {
         for (Long mailId : mmList) {
             if (!dbs.isDBSessionActive())
                 dbs.startDBSession();
-            MailMessage mail = MailMessage.loadDAObyId(mailId, MailMessage.class);
+            MailMessage mail = MailMessage.loadDAObyId(dbs, mailId, MailMessage.class);
             
             // Message has been already added to thread
             if (mail.getThread() != null)
@@ -178,7 +178,7 @@ public class MailThreadResolver implements MetadataUpdater {
 
             MailingListThread mlt = null;
             /* Get the parent mail object */
-            MailMessage parentMail = MailMessage.getMessageById(parentId);
+            MailMessage parentMail = MailMessage.getMessageById(dbs, parentId);
 
             if (parentId != null) { 
                 /* Parent-less child, parent might have arrived later */
@@ -233,7 +233,7 @@ public class MailThreadResolver implements MetadataUpdater {
                         childExists = true;
 
                         /* Get message whose parent is the discovered child */
-                        MailMessage childMM = MailMessage.getMessageById(child.getMessageID());
+                        MailMessage childMM = MailMessage.getMessageById(dbs, child.getMessageID());
                         
                         if (childMM == null) {
                             warn("Supposedly processed child of message "

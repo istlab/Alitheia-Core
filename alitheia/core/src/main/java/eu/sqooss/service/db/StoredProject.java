@@ -185,8 +185,8 @@ public class StoredProject extends DAObject {
         return projectVersions;
     }
 
-    public List<ProjectVersion> getTaggedVersions() {
-        return Tag.getTaggedVersions(this);
+    public List<ProjectVersion> getTaggedVersions(DBService dbs) {
+        return Tag.getTaggedVersions(dbs, this);
     }
     
     public void setProjectVersions(List<ProjectVersion> projectVersions) {
@@ -454,7 +454,7 @@ public class StoredProject extends DAObject {
      * @return
      */
     public boolean isEvaluated(DBService dbs) {
-    	for (Metric m : Metric.getAllMetrics()) {
+    	for (Metric m : Metric.getAllMetrics(dbs)) {
     		if (m.isEvaluated(dbs, this))
     			return true;
     	}
