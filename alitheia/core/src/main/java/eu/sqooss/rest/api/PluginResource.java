@@ -22,6 +22,16 @@ import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 
+
+/**
+ * Note: this class offers a REST Resource for Plugin information;
+ * 		 Due to an internal bug, the produced xml/json files will
+ * 		 not return any reference to PluginConfiguration, which is 
+ * 		 the cause of the internal bug.
+ * 		 In this way, we prevent any client developer to make use
+ * 		 of a broken functionality that could affect the system in
+ * 		 unexpected ways.	 
+ */
 @Path("/api/plugin/")
 public class PluginResource {
 
@@ -36,7 +46,6 @@ public class PluginResource {
 	@Path("info/list")
 	public Collection<PluginInfo> listPluginsInfo() {
 		
-		/*TOFIX: PluginConfiguration removed due to internal errors*/
 		Collection<PluginInfo> ps = pluginAdmin.listPlugins();
 		
 		return ps;
@@ -88,7 +97,13 @@ public class PluginResource {
 			return ResponseBuilder
 					.internalServerErrorResponse("Plugin cannot be uninstalled");
 	}
-
+	
+	
+	/**
+	 * The following method will work only if the internal error concerning the PluginConfiguration is fixed.
+	 * As of now I will just leave it commented. 
+	 */
+	/*
 	@POST
 	@Produces({"application/xml", "application/json"})
 	@Path("info/{hashcode}/removeConfigEntry/{pname}/{ptype}")
@@ -104,5 +119,6 @@ public class PluginResource {
 		}
 		return ResponseBuilder.simpleResponse(500, "Errors updating PluginInfo configuration entry");
 	}
+	*/
 
 }
