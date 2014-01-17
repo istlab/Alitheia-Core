@@ -20,7 +20,9 @@ public class GenericHTMLBuilder<CHILD extends GenericHTMLBuilder<CHILD>> {
 	@SuppressWarnings("unchecked")
 	public CHILD with(GenericHTMLBuilder<?> ... children) {
 		for (GenericHTMLBuilder<?> child : children) {
-			this.children.add(child);
+			if (child != null) {
+				this.children.add(child);
+			}
 		}
 		return (CHILD) this;
 	}
@@ -77,19 +79,23 @@ public class GenericHTMLBuilder<CHILD extends GenericHTMLBuilder<CHILD>> {
 		
 		if (this.children.isEmpty()) {
 			builder.append("/>");
-		} else if (this.children.size() == 1 && this.children.get(0) instanceof HTMLTextBuilder) { // RENG: temp, very ugly
-			builder.append(">");
-			builder.append(this.children.get(0).build(in+1));
-			builder.append("</");
-			builder.append(this.nodeName);
-			builder.append(">");
 		} else {
-			builder.append(">\n");
+			builder.append(">");
+			GenericHTMLBuilder<?> prev = null;
 			for (GenericHTMLBuilder<?> child : this.children) {
+				if (!(child instanceof HTMLTextBuilder)
+						&& (prev == null || !(prev instanceof HTMLTextBuilder))) {
+					builder.append("\n");
+				}
+				
 				builder.append(child.build(in+1));
-				builder.append("\n");
+				
+				prev = child;
 			}
-			builder.append(indent);
+			if (!(prev instanceof HTMLTextBuilder)) {
+				builder.append("\n");
+				builder.append(indent);
+			}
 			builder.append("</");
 			builder.append(this.nodeName);
 			builder.append(">");

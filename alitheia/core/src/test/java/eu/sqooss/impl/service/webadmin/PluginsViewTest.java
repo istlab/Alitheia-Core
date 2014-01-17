@@ -337,7 +337,7 @@ public class PluginsViewTest {
 		String onclick1 = "javascript:" + setAction1 + setPropName1 + setPropType1 + setPropDesc1 + setPropVal1 + submit;
 		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[1]/@onclick", equalTo(onclick1)));
 		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[1]/td[1]/@title", equalTo("pcd1")));
-		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[1]/td[1]/text()", containsString("pc1")));
+		assertThat(the(html), hasXPath("string-join(/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[1]/td[1]/text(), '')", containsString("pc1")));
 		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[1]/td[2]/text()", equalTo("pct1")));
 		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[1]/td[3]/text()", equalTo("pcv1")));
 		
@@ -349,7 +349,7 @@ public class PluginsViewTest {
 		String onclick2 = "javascript:" + setAction2 + setPropName2 + setPropType2 + setPropDesc2 + setPropVal2 + submit;
 		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[2]/@onclick", equalTo(onclick2)));
 		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[2]/td[1]/@title", equalTo("No description available.")));
-		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[2]/td[1]/text()", containsString("pc2")));
+		assertThat(the(html), hasXPath("string-join(/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[2]/td[1]/text(), '')", containsString("pc2")));
 		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[2]/td[2]/text()", equalTo("pct2")));
 		assertThat(the(html), hasXPath("/root/form/fieldset/fieldset[legend/text()='Configuration properties']/table/tbody/tr[2]/td[3]/text()", equalTo("pcv2")));
 		

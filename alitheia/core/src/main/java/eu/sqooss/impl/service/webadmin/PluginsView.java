@@ -33,6 +33,18 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import static eu.sqooss.impl.service.webadmin.HTMLFormBuilder.POST;
+import static eu.sqooss.impl.service.webadmin.HTMLFormBuilder.form;
+import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.BUTTON;
+import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.TEXT;
+import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.input;
+import static eu.sqooss.impl.service.webadmin.HTMLNodeBuilder.node;
+import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.table;
+import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.tableColumn;
+import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.tableRow;
+import static eu.sqooss.impl.service.webadmin.HTMLTextBuilder.text;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +55,7 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
+import eu.sqooss.impl.service.webadmin.HTMLTableBuilder.HTMLTableRowBuilder;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
@@ -53,7 +66,8 @@ import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.pa.PluginInfo.ConfigurationType;
 import eu.sqooss.service.util.StringUtils;
 
-public class PluginsView extends AbstractView{
+public class PluginsView extends AbstractView {
+	protected static final String SUBMIT = "document.metrics.submit();";
 
 	protected static final String ACT_VAL_UNINSTALL_PLUGIN = "uninstallPlugin";
 	protected static final String ACT_VAL_CON_PROP = "confirmProperty";
@@ -317,626 +331,621 @@ public class PluginsView extends AbstractView{
 			String reqValPropDescr, String reqValPropType,
 			String reqValPropValue, boolean reqValShowProp,
 			boolean reqValShowActv, PluginInfo selPI, long in) {
-		b.append(sp(in++) + "<form id=\"metrics\""
-		        + " name=\"metrics\""
-		        + " method=\"post\""
-		        + " action=\"/index\">\n");
-
-		// ===============================================================
-		// Display the accumulated error messages (if any)
-		// ===============================================================
-		b.append(errorFieldset(e, in));
-
+		
+		StringBuilder b_internal = new StringBuilder();
+		
 		// ===============================================================
 		// "Create/update configuration property" editor
 		// ===============================================================
 		if ((selPI != null) && (selPI.installed)
 		        && ((ACT_VAL_REQ_ADD_PROP.equals(reqValAction))
 		                || (ACT_VAL_REQ_UPD_PROP.equals(reqValAction)))) {
-		    // Input field values are stored here
-		    String value = null;
-		    // Create the field-set
-		    b.append(sp(in) + "<fieldset>\n");
-		    // Check for a property update request
-		    boolean update = selPI.hasConfProp(
-		            reqValPropName, reqValPropType);
-		    b.append(sp(++in) + "<legend>"
-		            + ((update)
-		                    ? "Update property of "
-		                    : "Create property for ")
-		            + selPI.getPluginName()
-		            + "</legend>\n");
-		    b.append(sp(in) + "<table class=\"borderless\">");
-		    // Property's name
-		    value = ((reqValPropName != null) ? reqValPropName : "");
-		    b.append(sp(in) + "<tr>\n"
-		            + sp(++in)
-		            + "<td class=\"borderless\" style=\"width:100px;\">"
-		            + "<b>Name</b>"
-		            + "</td>\n"
-		            + sp(in)
-		            + "<td class=\"borderless\">"
-		            + ((update) ? value
-		                    : "<input type=\"text\""
-		                        + " class=\"form\""
-		                        + " id=\"" + REQ_PAR_PROP_NAME + "\""
-		                        + " name=\"" + REQ_PAR_PROP_NAME + "\""
-		                        + " value=\"" + value + "\" />")
-		                        + "</td>\n"
-		                        + sp(--in) + "</tr>\n");
-		    // Property's description
-		    value = ((reqValPropDescr != null) ? reqValPropDescr : "");
-		    b.append(sp(in) + "<tr>\n"
-		            + sp(++in)
-		            + "<td class=\"borderless\" style=\"width:100px;\">"
-		            + "<b>Description</b>"
-		            + "</td>\n"
-		            + sp(in)
-		            + "<td class=\"borderless\">"
-		            + ((update) ? value
-		                    : "<input type=\"text\""
-		                        + " class=\"form\""
-		                        + " id=\"" + REQ_PAR_PROP_DESC + "\""
-		                        + " name=\"" + REQ_PAR_PROP_DESC + "\""
-		                        + " value=\"" + value + "\" />")
-		                        + "</td>\n"
-		                        + sp(--in) + "</tr>\n");
-		    // Property's type
-		    value = ((reqValPropType != null) ? reqValPropType : "");
-		    b.append(sp(in) + "<tr>\n"
-		            + sp(++in)
-		            + "<td class=\"borderless\" style=\"width:100px;\">"
-		            + "<b>Type</b>"
-		            + "</td>\n"
-		            + sp(in)
-		            + "<td class=\"borderless\">\n"
-		            + sp(++in));
-		    if (update) {
-		        b.append(value);
-		    }
-		    else {
-		        b.append("<select class=\"form\""
-		                + " id=\"" + REQ_PAR_PROP_TYPE + "\""
-		                + " name=\"" + REQ_PAR_PROP_TYPE + "\">\n");
-		        for (ConfigurationType type : ConfigurationType.values()) {
-		            boolean selected = type.toString().equals(value);
-		            b.append(sp(in) + "<option"
-		                    + " value=\"" + type.toString() + "\""
-		                    + ((selected) ? " selected" : "")
-		                    + ">"
-		                    + type.toString()
-		                    + "</option>\n");
-		        }
-		        b.append(sp(in) + "</select>\n");
-		    }
-		    b.append(sp(--in)
-		            + "</td>\n"
-		            + sp(--in)
-		            + "</tr>\n");
-		    // Property's value
-		    value = ((reqValPropValue != null) ? reqValPropValue : "");
-		    b.append(sp(in) + "<tr>\n"
-		            + sp(++in)
-		            + "<td class=\"borderless\" style=\"width:100px;\">"
-		            + "<b>Value</b>"
-		            + "</td>\n"
-		            + sp(in)
-		            + "<td class=\"borderless\">"
-		            + "<input type=\"text\""
-		            + " class=\"form\""
-		            + " id=\"" + REQ_PAR_PROP_VALUE + "\""
-		            + " name=\"" + REQ_PAR_PROP_VALUE + "\""
-		            + " value=\"" + value +"\" />"
-		            + "</td>\n"
-		            + sp(--in)
-		            + "</tr>\n");
-		    // Command tool-bar
-		    value = ((update) ? "Update" : "Create");
-		    b.append(sp(in) + "<tr>\n"
-		            + sp(++in)
-		            + "<td colspan=\"2\" class=\"borderless\">"
-		            + "<input type=\"button\""
-		            + " class=\"install\""
-		            + " style=\"width: 100px;\""
-		            + " value=\"" + value + "\""
-		            + " onclick=\"javascript:"
-		            + "document.getElementById('"
-		            + REQ_PAR_ACTION + "').value='"
-		            + ACT_VAL_CON_PROP + "';"
-		            + "document.metrics.submit();\" />"
-		            + "&nbsp;");
-		    if (update) {
-		        b.append(sp(in) + "<input type=\"button\""
-		                + " class=\"install\""
-		                + " style=\"width: 100px;\""
-		                + " value=\"Remove\""
-		                + " onclick=\"javascript:"
-		                + "document.getElementById('"
-		                + REQ_PAR_ACTION + "').value='"
-		                + ACT_VAL_CON_REM_PROP + "';"
-		                + "document.metrics.submit();\" />"
-		                + "&nbsp;");
-		    }
-		    b.append(sp(in) + "<input type=\"button\""
-		            + " class=\"install\""
-		            + " style=\"width: 100px;\""
-		            + " value=\"Cancel\""
-		            + " onclick=\"javascript:"
-		            + "document.metrics.submit();\" />"
-		            + "</td>\n"
-		            + sp(--in)
-		            + "</tr>\n");
-		    b.append(sp(--in) + "</table>");
-		    b.append(sp(--in) + "</fieldset>\n");
+		    renderPluginPropertyEditor(selPI, b_internal, in,
+					reqValPropName, reqValPropDescr, reqValPropType,
+					reqValPropValue);
 		}
 		// ===============================================================
 		// Plug-in editor
 		// ===============================================================
 		else if (selPI != null) {
-		    // Create the plug-in field-set
-		    b.append(sp(in) + "<fieldset>\n");
-		    b.append(sp(++in) + "<legend>"
-		            + selPI.getPluginName()
-		            + "</legend>\n");
-		    //------------------------------------------------------------
-		    // Create the plug-in info table
-		    //------------------------------------------------------------
-		    b.append(sp(in) + "<table>\n");
-		    b.append(sp(++in) + "<thead>\n");
-		    b.append(sp(++in) + "<tr class=\"head\">\n");
-		    b.append(sp(++in) + "<td class=\"head\""
-		            + " style=\"width: 80px;\">"
-		            + "Status</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 30%;\">"
-		            + "Name</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 40%;\">"
-		            + "Class</td>\n");
-		    b.append(sp(in) + "<td class=\"head\">Version</td>\n");
-		    b.append(sp(--in) + "</tr>\n");
-		    b.append(sp(--in) + "</thead>\n");
-		    // Display the plug-in's info
-		    b.append(sp(in) + "<tbody>\n");
-		    b.append(sp(in++) + "<tr>\n");
-		    // Plug-in state
-		    b.append(sp(++in) + "<td>"
-		            + ((selPI.installed) 
-		                    ? "Installed" : "Registered")
-		                    + "</td>\n");
-		    // Plug-in name
-		    b.append(sp(in) + "<td>"
-		            + selPI.getPluginName() + "</td>\n");
-		    //  Plug-in class
-		    b.append(sp(in) + "<td>"
-		            + StringUtils.join((String[]) (
-		                    selPI.getServiceRef().getProperty(
-		                            Constants.OBJECTCLASS)),",")
-		                            + "</td>\n");
-		    // Plug-in version
-		    b.append(sp(in) + "<td>"
-		            + selPI.getPluginVersion() + "</td>\n");
-		    b.append(sp(--in) + "</tr>\n");
-		    // Plug-in tool-bar
-		    b.append(sp(in++) + "<tr>\n");
-		    b.append(sp(in++) + "<td colspan=\"4\">\n");
-		    b.append(sp(in) + "<input type=\"button\""
-		            + " class=\"install\""
-		            + " style=\"width: 100px;\""
-		            + " value=\"Plug-ins list\""
-		            + " onclick=\"javascript:"
-		            + "document.getElementById('"
-		            + REQ_PAR_HASHCODE + "').value='';"
-		            + "document.metrics.submit();\""
-		            + " />\n");
-		    if (selPI.installed) {
-		        b.append(sp(in) + "<input type=\"button\""
-		                + " class=\"install\""
-		                + " style=\"width: 100px;\""
-		                + " value=\"Uninstall\""
-		                + " onclick=\"javascript:"
-		                + "document.getElementById('"
-		                + REQ_PAR_ACTION + "').value='"
-		                + ACT_VAL_UNINSTALL_PLUGIN + "';"
-		                + "document.getElementById('"
-		                + REQ_PAR_HASHCODE +"').value='"
-		                + selPI.getHashcode() + "';"
-		                + "document.metrics.submit();\""
-		                + " />\n");
-		        b.append(sp(in) + "<input type=\"button\""
-		                + " class=\"install\""
-		                + " style=\"width: 100px;\""
-		                + " value=\"Synchronise\""
-		                + " onclick=\"javascript:"
-		                + "document.getElementById('"
-		                + REQ_PAR_ACTION + "').value='"
-		                + ACT_VAL_SYNC_PLUGIN + "';"
-		                + "document.getElementById('"
-		                + REQ_PAR_HASHCODE +"').value='"
-		                + selPI.getHashcode() + "';"
-		                + "document.metrics.submit();\""
-		                + " />\n");
-		    }
-		    else {
-		        b.append(sp(in) + "<input type=\"button\""
-		                + " class=\"install\""
-		                + " style=\"width: 100px;\""
-		                + " value=\"Install\""
-		                + " onclick=\"javascript:"
-		                + "document.getElementById('"
-		                + REQ_PAR_ACTION + "').value='"
-		                + ACT_VAL_INSTALL_PLUGIN + "';"
-		                + "document.getElementById('"
-		                + REQ_PAR_HASHCODE +"').value='"
-		                + selPI.getHashcode() + "';"
-		                + "document.metrics.submit();\""
-		                + " />\n");
-		    }
-		    b.append(sp(--in) + "</td>\n");
-		    b.append(sp(--in) + "</tr>\n");
-		    // Close the plug-in table
-		    b.append(sp(--in) + "</tbody>\n");
-		    b.append(sp(--in) + "</table>\n");
-
-		    //------------------------------------------------------------
-		    // Registered metrics, activators and configuration 
-		    //------------------------------------------------------------
-		    if (selPI.installed) {
-		        //--------------------------------------------------------
-		        // Create the metrics field-set
-		        //--------------------------------------------------------
-		        b.append(sp(++in) + "<fieldset>\n");
-		        b.append(sp(++in) + "<legend>"
-		                + "Supported metrics"
-		                + "</legend>\n");
-		        // Create the metrics table
-		        b.append(sp(in) + "<table>\n");
-		        b.append(sp(++in) + "<thead>\n");
-		        b.append(sp(++in) + "<tr class=\"head\">\n");
-		        b.append(sp(++in) + "<td class=\"head\""
-		                + " style=\"width: 10%;\">"
-		                + "Id</td>\n");
-		        b.append(sp(in) + "<td class=\"head\""
-		                + " style=\"width: 25%;\">"
-		                + "Name</td>\n");
-		        b.append(sp(in) + "<td class=\"head\""
-		                + " style=\"width: 25%;\">"
-		                + "Type</td>\n");
-		        b.append(sp(in) + "<td class=\"head\""
-		                + " style=\"width: 40%;\">"
-		                + "Description</td>\n");
-		        b.append(sp(--in) + "</tr>\n");
-		        b.append(sp(--in) + "</thead>\n");
-		        // Display the list of supported metrics
-		        b.append(sp(in++) + "<tbody>\n");
-		        // Get the list of supported metrics
-		        List<Metric> metrics =
-		            getPluginAdmin().getPlugin(selPI).getAllSupportedMetrics();
-		        if ((metrics == null) || (metrics.isEmpty())) {
-		            b.append(sp(in++) + "<tr>");
-		            b.append(sp(in) + "<td colspan=\"4\" class=\"noattr\">"
-		                    + "This plug-in does not support metrics."
-		                    + "</td>\n");
-		            b.append(sp(--in)+ "</tr>\n");
-		        }
-		        else {
-		            for (Metric metric: metrics) {
-		                b.append(sp(in++) + "<tr>\n");
-		                b.append(sp(in) + "<td>"
-		                        + metric.getId() + "</td>\n");
-		                b.append(sp(in) + "<td>"
-		                        + metric.getMnemonic() + "</td>\n");
-		                b.append(sp(in) + "<td>"
-		                        + metric.getMetricType().getType()
-		                        + "</td>\n");
-		                b.append(sp(in) + "<td>"
-		                        + metric.getDescription() + "</td>\n");
-		                b.append(sp(--in)+ "</tr>\n");
-		            }
-		        }
-		        // Close the metrics table
-		        b.append(sp(--in) + "</tbody>\n");
-		        // Close the metrics table
-		        b.append(sp(--in) + "</table>\n");
-		        // Close the metric field-set
-		        b.append(sp(--in) + "</fieldset>\n");
-		        //--------------------------------------------------------
-		        // Create the properties field-set
-		        //--------------------------------------------------------
-		        b.append(sp(++in) + "<fieldset>\n");
-		        b.append(sp(++in) + "<legend>"
-		                + "Configuration properties"
-		                + "</legend>\n");
-		        // Create the properties table
-		        b.append(sp(in) + "<table>\n");
-		        b.append(sp(++in) + "<thead>\n");
-		        b.append(sp(++in) + "<tr class=\"head\">\n");
-		        b.append(sp(++in) + "<td class=\"head\""
-		                + " style=\"width: 30%;\">"
-		                + "Name</td>\n");
-		        b.append(sp(in) + "<td class=\"head\""
-		                + " style=\"width: 20%;\">"
-		                + "Type</td>\n");
-		        b.append(sp(in) + "<td class=\"head\""
-		                + " style=\"width: 50%;\">"
-		                + "Value</td>\n");
-		        b.append(sp(--in) + "</tr>\n");
-		        b.append(sp(--in) + "</thead>\n");
-		        // Display the set of configuration properties
-		        b.append(sp(in++) + "<tbody>\n");
-		        // Get the plug-in's configuration set
-		        Set<PluginConfiguration> config = getPluginByHashcode(selPI.getHashcode()).getConfigurations();
-		        if ((config == null) || (config.isEmpty())) {
-		            b.append(sp(in++) + "<tr>");
-		            b.append(sp(in) + "<td colspan=\"3\" class=\"noattr\">"
-		                    + "This plug-in has no configuration properties."
-		                    + "</td>\n");	
-		            b.append(sp(--in)+ "</tr>\n");
-		        }
-		        else {
-		            for (PluginConfiguration param : config) {
-		                b.append(sp(in++) + "<tr class=\"edit\""
-		                        + " onclick=\"javascript:"
-		                        + "document.getElementById('"
-		                        + REQ_PAR_ACTION + "').value='"
-		                        + ACT_VAL_REQ_UPD_PROP + "';"
-		                        + "document.getElementById('"
-		                        + REQ_PAR_PROP_NAME + "').value='"
-		                        + param.getName() + "';"
-		                        + "document.getElementById('"
-		                        + REQ_PAR_PROP_TYPE + "').value='"
-		                        + param.getType() + "';"
-		                        + "document.getElementById('"
-		                        + REQ_PAR_PROP_DESC + "').value='"
-		                        + param.getMsg() + "';"
-		                        + "document.getElementById('"
-		                        + REQ_PAR_PROP_VALUE + "').value='"
-		                        + param.getValue() + "';"
-		                        + "document.metrics.submit();\""
-		                        + ">\n");
-		                // Property's name and description
-		                String description = param.getMsg();
-		                if (param.getMsg() == null)
-		                    description = "No description available.";
-		                b.append(sp(in) + "<td class=\"trans\""
-		                        + " title=\"" + description + "\">"
-		                        + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-		                        + "&nbsp;" + param.getName()
-		                        + "</td>\n");
-		                // Property's type
-		                b.append(sp(in) + "<td class=\"trans\">"
-		                        + param.getType()
-		                        + "</td>\n");
-		                // Property's value
-		                b.append(sp(in) + "<td class=\"trans\">"
-		                        + param.getValue()
-		                        + "</td>\n");
-		                b.append(sp(--in)+ "</tr>\n");
-		            }
-		        }
-		        // Command tool-bar
-		        b.append(sp(in) + "<tr>\n");
-		        b.append(sp(++in) + "<td colspan=\"3\">\n");
-		        b.append(sp(++in) + "<input type=\"button\""
-		                + " class=\"install\""
-		                + " style=\"width: 100px;\""
-		                + " value=\"Add property\""
-		                + " onclick=\"javascript:"
-		                + "document.getElementById('"
-		                + REQ_PAR_ACTION + "').value='"
-		                + ACT_VAL_REQ_ADD_PROP + "';"
-		                + "document.metrics.submit();\""
-		                + " />\n");
-		        b.append(sp(--in) + "</td>\n");
-		        b.append(sp(--in) + "</tr>\n");
-		        // Close the properties table
-		        b.append(sp(--in) + "</tbody>\n");
-		        // Close the properties table
-		        b.append(sp(--in) + "</table>\n");
-		        // Close the properties field-set
-		        b.append(sp(--in) + "</fieldset>\n");
-		    }
-
-		    // Close the plug-in field-set
-		    b.append(sp(--in) + "</fieldset>\n");
+		    in = renderPluginEditor(selPI, in, b_internal);
 		}
 		// ===============================================================
 		// Plug-ins list
 		// ===============================================================
 		else {
-		    // Create the field-set
-		    b.append(sp(in) + "<fieldset>\n");
-		    b.append(sp(++in) + "<legend>All plug-ins</legend>\n");
-		    // Retrieve information for all registered metric plug-ins
-		    Collection<PluginInfo> l = getPluginAdmin().listPlugins();
-		    //------------------------------------------------------------
-		    // Create the header row
-		    //------------------------------------------------------------
-		    b.append(sp(in) + "<table>\n");
-		    b.append(sp(++in) + "<thead>\n");
-		    b.append(sp(++in) + "<tr class=\"head\">\n");
-		    b.append(sp(++in) + "<td class=\"head\""
-		            + " style=\"width: 80px;\">"
-		            + "Status</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 30%;\">"
-		            + "Name</td>\n");
-		    b.append(sp(in) + "<td class=\"head\""
-		            + " style=\"width: 40%;\">"
-		            + "Class</td>\n");
-		    b.append(sp(in) + "<td class=\"head\">Version</td>\n");
-		    b.append(sp(--in) + "</tr>\n");
-		    b.append(sp(--in) + "</thead>\n");
-		    //------------------------------------------------------------
-		    // Create the content row
-		    //------------------------------------------------------------
-		    b.append(sp(in++) + "<tbody>\n");
-		    //------------------------------------------------------------
-		    // Display not-installed plug-ins first
-		    //------------------------------------------------------------
-		    for(PluginInfo i : l) {
-		        if (i.installed == false) {
-		            b.append(sp(in) + "<tr class=\"edit\""
-		                    + " onclick=\"javascript:"
-		                    + "document.getElementById('"
-		                    + REQ_PAR_HASHCODE + "').value='"
-		                    + i.getHashcode() + "';"
-		                    + "document.metrics.submit();\""
-		                    + ">\n");
-		            // Plug-in state
-		            b.append(sp(++in) + "<td class=\"trans\">"
-		                    + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-		                    + "&nbsp;Registered</td>\n");
-		            // Plug-in name
-		            b.append(sp(in) + "<td class=\"trans\">"
-		                + i.getPluginName()
-		                + "</td>\n");
-		            // Plug-in class
-		            b.append(sp(in) + "<td class=\"trans\">"
-		                    + StringUtils.join((String[]) (
-		                            i.getServiceRef().getProperty(
-		                                    Constants.OBJECTCLASS)),",")
-		                                    + "</td>\n");
-		            // Plug-in version
-		            b.append(sp(in) + "<td class=\"trans\">"
-		                    + i.getPluginVersion() + "</td>\n");
-		            b.append(sp(--in) + "</tr>\n");
-		            // Extended plug-in information
-		            b.append(renderPluginAttributes(
-		                    i, reqValShowProp, reqValShowActv, in));
-		        }
-		    }
-		    //------------------------------------------------------------
-		    // Installed plug-ins
-		    //------------------------------------------------------------
-		    for(PluginInfo i : l) {
-		        if (i.installed) {
-		            b.append(sp(in) + "<tr class=\"edit\""
-		                    + " onclick=\"javascript:"
-		                    + "document.getElementById('"
-		                    + REQ_PAR_HASHCODE + "').value='"
-		                    + i.getHashcode() + "';"
-		                    + "document.metrics.submit();\""
-		                    + ">\n");
-		            // Plug-in state
-		            b.append(sp(++in) + "<td class=\"trans\">"
-		                    + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
-		                    + "&nbsp;Installed</td>\n");
-		            // Plug-in name
-		            b.append(sp(in) + "<td class=\"trans\">"
-		                    + i.getPluginName()
-		                    + "</td>\n");
-		            // Plug-in class
-		            b.append(sp(in) + "<td class=\"trans\">"
-		                    + StringUtils.join((String[]) (
-		                            i.getServiceRef().getProperty(
-		                                    Constants.OBJECTCLASS)),",")
-		                                    + "</td>\n");
-		            // Plug-in version
-		            b.append(sp(in) + "<td class=\"trans\">"
-		                    + i.getPluginVersion() + "</td>\n");
-		            b.append(sp(--in) + "</tr>\n");	
-		            // Extended plug-in information
-		            b.append(renderPluginAttributes(
-		                    i, reqValShowProp, reqValShowActv, in));
-		        }
-		    }
-		    //------------------------------------------------------------
-		    // Close the table
-		    //------------------------------------------------------------
-		    b.append(sp(--in) + "</tbody>\n");
-		    b.append(sp(--in) + "</table>\n");
-		    //------------------------------------------------------------
-		    // Display flags
-		    //------------------------------------------------------------
-		    b.append(sp(in) + "<span>\n");
-		    b.append(sp(++in) + "<input"
-		            + " type=\"checkbox\""
-		            + ((reqValShowProp) ? "checked" : "")
-		            + " onclick=\"javascript:"
-		            + "document.getElementById('"
-		            + REQ_PAR_SHOW_PROP + "').value = this.checked;"
-		            + "document.getElementById('"
-		            + REQ_PAR_HASHCODE + "').value='';"
-		            + "document.metrics.submit();\""
-		            + " />Display properties\n");
-		    b.append(sp(++in) + "<input"
-		            + " type=\"checkbox\""
-		            + ((reqValShowActv) ? "checked" : "")
-		            + " onclick=\"javascript:"
-		            + "document.getElementById('"
-		            + REQ_PAR_SHOW_ACTV + "').value = this.checked;"
-		            + "document.getElementById('"
-		            + REQ_PAR_HASHCODE + "').value='';"
-		            + "document.metrics.submit();\""
-		            + " />Display activators\n");
-		    b.append(sp(--in) + "</span>\n");
-		    // Close the field-set
-		    b.append(sp(--in) + "</fieldset>\n");
+		    renderPluginList(reqValShowProp, reqValShowActv, in,
+					b_internal);
 		}
 
 		// ===============================================================
 		// INPUT FIELDS
 		// ===============================================================
 		// "Action type" input field
-		b.append(sp(in) + "<input type=\"hidden\""
+		b_internal.append(sp(in) + "<input type=\"hidden\""
 		        + " id=\"" + REQ_PAR_ACTION + "\""
 		        + " name=\"" + REQ_PAR_ACTION + "\""
 		        + " value=\"\" />\n");
 		// "Selected plug-in's hash code" input field
-		b.append(sp(in) + "<input type=\"hidden\""
+		b_internal.append(sp(in) + "<input type=\"hidden\""
 		        + " id=\"" + REQ_PAR_HASHCODE + "\""
 		        + " name=\"" + REQ_PAR_HASHCODE + "\""
 		        + " value=\""
 		        + ((reqValHashcode != null) ? reqValHashcode : "")
 		        + "\" />\n");
 		// "Configuration attribute's name" input field
-		b.append(sp(in) + "<input type=\"hidden\""
+		b_internal.append(sp(in) + "<input type=\"hidden\""
 		        + " id=\"" + REQ_PAR_PROP_NAME + "\""
 		        + " name=\"" + REQ_PAR_PROP_NAME + "\""
 		        + " value=\""
 		        + ((reqValPropName != null) ? reqValPropName : "")
 		        + "\" />\n");
 		// "Configuration attribute's description" input field
-		b.append(sp(in) + "<input type=\"hidden\""
+		b_internal.append(sp(in) + "<input type=\"hidden\""
 		        + " id=\"" + REQ_PAR_PROP_DESC + "\""
 		        + " name=\"" + REQ_PAR_PROP_DESC + "\""
 		        + " value=\""
 		        + ((reqValPropDescr != null) ? reqValPropDescr : "")
 		        + "\" />\n");
 		// "Configuration attribute's type" input field
-		b.append(sp(in) + "<input type=\"hidden\""
+		b_internal.append(sp(in) + "<input type=\"hidden\""
 		        + " id=\"" + REQ_PAR_PROP_TYPE + "\""
 		        + " name=\"" + REQ_PAR_PROP_TYPE + "\""
 		        + " value=\""
 		        + ((reqValPropType != null) ? reqValPropType : "")
 		        + "\" />\n");
 		// "Configuration attribute's value" input field
-		b.append(sp(in) + "<input type=\"hidden\""
+		b_internal.append(sp(in) + "<input type=\"hidden\""
 		        + " id=\"" + REQ_PAR_PROP_VALUE + "\""
 		        + " name=\"" + REQ_PAR_PROP_VALUE + "\""
 		        + " value=\""
 		        + ((reqValPropValue != null) ? reqValPropValue : "")
 		        + "\" />\n");
 		// "Show configuration properties" input field
-		b.append(sp(in) + "<input type=\"hidden\""
+		b_internal.append(sp(in) + "<input type=\"hidden\""
 		        + " id=\"" + REQ_PAR_SHOW_PROP + "\""
 		        + " name=\"" + REQ_PAR_SHOW_PROP + "\""
 		        + " value=\""
 		        + reqValShowProp
 		        + "\" />\n");
 		// "Show activators" input field
-		b.append(sp(in) + "<input type=\"hidden\""
+		b_internal.append(sp(in) + "<input type=\"hidden\""
 		        + " id=\"" + REQ_PAR_SHOW_ACTV + "\""
 		        + " name=\"" + REQ_PAR_SHOW_ACTV + "\""
 		        + " value=\""
 		        + reqValShowActv
 		        + "\" />\n");
+		
+		// Create the form
+		b.append(
+			form().withId("metrics").withName("metrics").withMethod(POST).withAction("/index").with(
+				// display the accumulated errors
+				errorFieldsetBuilder(e),
+				text(b_internal.toString())
+			).build(in)
+		);
+	}
 
-		// ===============================================================
-		// Close the form
-		// ===============================================================
-		b.append(sp(--in) + "</form>\n");
+	protected void renderPluginList(boolean reqValShowProp,
+			boolean reqValShowActv, long in, StringBuilder b) {
+		StringBuilder b_internal = new StringBuilder();
+		
+		// Retrieve information for all registered metric plug-ins
+		Collection<PluginInfo> l = getPluginAdmin().listPlugins();
+
+		List<HTMLTableRowBuilder> pluginRows = new ArrayList<HTMLTableRowBuilder>();
+		//------------------------------------------------------------
+		// Display not-installed plug-ins first
+		//------------------------------------------------------------
+		for(PluginInfo i : l) {
+		    if (i.installed == false) {
+		    	pluginRows.add(
+		    		tableRow()
+						.withClass("edit")
+						.withAttribute("onclick", doSetFieldAndSubmitString(REQ_PAR_HASHCODE, i.getHashcode()))
+					.with(
+						tableColumn().withClass("trans").with(
+							node("img").withAttribute("src", "/edit.png").withAttribute("alt", "[Edit]"),
+							text("&nbsp;"),
+							text("Registered")
+						),
+						tableColumn().withClass("trans").with(
+							text(i.getPluginName())
+						),
+						tableColumn().withClass("trans").with(
+							text(StringUtils.join((String[]) (
+		                        i.getServiceRef().getProperty(
+		                                Constants.OBJECTCLASS)),","))
+						),
+						tableColumn().withClass("trans").with(
+							text(i.getPluginVersion())
+						)
+					)
+		    	);
+				pluginRows.addAll(pluginAttributesBuilders(
+						i, reqValShowProp, reqValShowActv));
+		    }
+		}
+		//------------------------------------------------------------
+		// Installed plug-ins
+		//------------------------------------------------------------
+		for(PluginInfo i : l) {
+		    if (i.installed) {
+		        b_internal.append(sp(in) + "<tr class=\"edit\""
+		                + " onclick=\"javascript:"
+		                + "document.getElementById('"
+		                + REQ_PAR_HASHCODE + "').value='"
+		                + i.getHashcode() + "';"
+		                + "document.metrics.submit();\""
+		                + ">\n");
+		        // Plug-in state
+		        b_internal.append(sp(++in) + "<td class=\"trans\">"
+		                + "<img src=\"/edit.png\" alt=\"[Edit]\"/>"
+		                + "&nbsp;Installed</td>\n");
+		        // Plug-in name
+		        b_internal.append(sp(in) + "<td class=\"trans\">"
+		                + i.getPluginName()
+		                + "</td>\n");
+		        // Plug-in class
+		        b_internal.append(sp(in) + "<td class=\"trans\">"
+		                + StringUtils.join((String[]) (
+		                        i.getServiceRef().getProperty(
+		                                Constants.OBJECTCLASS)),",")
+		                                + "</td>\n");
+		        // Plug-in version
+		        b_internal.append(sp(in) + "<td class=\"trans\">"
+		                + i.getPluginVersion() + "</td>\n");
+		        b_internal.append(sp(--in) + "</tr>\n");	
+		        // Extended plug-in information
+		        b_internal.append(renderPluginAttributes(
+		                i, reqValShowProp, reqValShowActv, in));
+		    }
+		}
+		
+		//------------------------------------------------------------
+		// Display flags
+		//------------------------------------------------------------
+		StringBuilder span = new StringBuilder();
+		span.append(sp(in) + "<span>\n");
+		span.append(sp(++in) + "<input"
+		        + " type=\"checkbox\""
+		        + ((reqValShowProp) ? "checked" : "")
+		        + " onclick=\"javascript:"
+		        + "document.getElementById('"
+		        + REQ_PAR_SHOW_PROP + "').value = this.checked;"
+		        + "document.getElementById('"
+		        + REQ_PAR_HASHCODE + "').value='';"
+		        + "document.metrics.submit();\""
+		        + " />Display properties\n");
+		span.append(sp(++in) + "<input"
+		        + " type=\"checkbox\""
+		        + ((reqValShowActv) ? "checked" : "")
+		        + " onclick=\"javascript:"
+		        + "document.getElementById('"
+		        + REQ_PAR_SHOW_ACTV + "').value = this.checked;"
+		        + "document.getElementById('"
+		        + REQ_PAR_HASHCODE + "').value='';"
+		        + "document.metrics.submit();\""
+		        + " />Display activators\n");
+		span.append(sp(--in) + "</span>\n");
+		
+		b.append(
+			node("fieldset").with(
+				node("legend").with(text("All plug-ins")),
+				table().with(
+					node("thead").with(
+						tableRow().withClass("head").with(
+							tableColumn().withClass("head").withStyle("width: 80px;").with(
+								text("Status")
+							),
+							tableColumn().withClass("head").withStyle("width: 30%;").with(
+								text("Name")
+							),
+							tableColumn().withClass("head").withStyle("width: 40%;").with(
+								text("Class")
+							),
+							tableColumn().withClass("head").with(
+								text("Version")
+							)
+						)
+					),
+					node("tbody").with(
+						pluginRows.toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+					).with(
+						text(b_internal.toString())
+					)
+				),
+				text(span.toString())
+			).build(in)
+		);
+	}
+
+	protected long renderPluginEditor(PluginInfo selPI, long in,
+			StringBuilder b) {
+		StringBuilder b_internal = new StringBuilder();
+		
+		//------------------------------------------------------------
+		// Create the plug-in info table
+		//------------------------------------------------------------
+		in = renderPluginInfoTable(selPI, in, b_internal);
+
+		//------------------------------------------------------------
+		// Registered metrics, activators and configuration 
+		//------------------------------------------------------------
+		if (selPI.installed) {
+		    renderMetricsFieldSet(selPI, in, b_internal);
+		    renderPropertiesFieldset(selPI, in, b_internal);
+		}
+		
+		b.append(
+			node("fieldset").with(
+				node("legend").with(text(selPI.getPluginName())),
+				text(b_internal.toString())
+			).build(in)
+		);
+		return in;
+	}
+
+	protected void renderPropertiesFieldset(PluginInfo selPI, long in,
+			StringBuilder b) {
+		Set<PluginConfiguration> config = getPluginByHashcode(selPI.getHashcode()).getConfigurations();
+		List<HTMLTableRowBuilder> propertyRows = new ArrayList<HTMLTableRowBuilder>();
+		if ((config == null) || (config.isEmpty())) {
+			propertyRows.add(
+				tableRow().with(
+					tableColumn().withColspan(3).withClass("noattr").with(
+						text("This plug-in has no configuration properties.")
+					)
+				)
+			);
+		}
+		else {
+		    for (PluginConfiguration param : config) {
+		    	propertyRows.add(
+		    		tableRow()
+			    		.withClass("edit")
+			    		.withAttribute("onclick",
+			    				"javascript:"
+			    				+ doSetString(REQ_PAR_ACTION, ACT_VAL_REQ_UPD_PROP)
+			    				+ doSetString(REQ_PAR_PROP_NAME, param.getName())
+			    				+ doSetString(REQ_PAR_PROP_TYPE, param.getType())
+			    				+ doSetString(REQ_PAR_PROP_DESC, param.getMsg())
+			    				+ doSetString(REQ_PAR_PROP_VALUE, param.getValue())
+			    				+ SUBMIT)
+			    	.with(
+			    		tableColumn()
+			    			.withClass("trans")
+			    			.withAttribute("title",
+			    					param.getMsg() == null
+			    						? "No description available."
+			    						: param.getMsg())
+			    		.with(
+			    			node("img").withAttribute("src", "/edit.png").withAttribute("alt", "[Edit]"),
+			    			text("&nbsp;"),
+			    			text(param.getName())
+			    		),
+			    		tableColumn().withClass("trans").with(
+			    			text(param.getType())
+			    		),
+			    		tableColumn().withClass("trans").with(
+		    				text(param.getValue())
+	    				)
+			    	)
+			    );
+		    }
+		}
+		b.append(
+			node("fieldset").with(
+				node("legend").with(
+					text("Configuration properties")
+				),
+				table().with(
+					node("thead").with(
+						tableRow().withClass("head").with(
+							tableColumn().withClass("head").withStyle("width: 30%;").with(
+								text("Name")
+							),
+							tableColumn().withClass("head").withStyle("width: 20%;").with(
+								text("Type")
+							),
+							tableColumn().withClass("head").withStyle("width: 50%;").with(
+								text("Value")
+							)
+						)
+					),
+					node("tbody").with(
+						propertyRows.toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+					).with(
+						// toolbar
+						tableRow().with(
+							tableColumn().withColspan(3).with(
+								input()
+									.withType(BUTTON)
+									.withClass("install")
+									.withStyle("width: 100px;")
+									.withValue("Add property")
+									.withAttribute("onclick", doSetActionAndSubmitString(ACT_VAL_REQ_ADD_PROP))
+							)
+						)
+					)
+				)
+			).build(in)
+		);
+	}
+
+	protected void renderMetricsFieldSet(PluginInfo selPI, long in,
+			StringBuilder b) {
+		// Get the list of supported metrics
+		List<Metric> metrics = getPluginAdmin().getPlugin(selPI).getAllSupportedMetrics();
+		List<HTMLTableRowBuilder> metricRows = new ArrayList<HTMLTableRowBuilder>();
+		if ((metrics == null) || (metrics.isEmpty())) {
+			metricRows.add(
+				tableRow().with(
+					tableColumn().withColspan(4).withClass("noattr").with(
+						text("This plug-in does not support metrics.")
+					)
+				)
+			);
+		}
+		else {
+		    for (Metric metric: metrics) {
+		    	metricRows.add(
+		    		tableRow().with(
+		    			tableColumn().with(
+		    				text(Long.toString(metric.getId()))
+		    			),
+		    			tableColumn().with(
+		    				text(metric.getMnemonic())
+		    			),
+		    			tableColumn().with(
+		    				text(metric.getMetricType().getType())
+		    			),
+		    			tableColumn().with(
+		    				text(metric.getDescription())
+		    			)
+		    		)
+		    	);
+		    }
+		}
+		
+		b.append(
+			node("fieldset").with(
+				node("legend").with(text("Supported metrics")),
+				table().with(
+					node("thead").with(
+						tableRow().withClass("head").with(
+							tableColumn().withClass("head").withStyle("width: 10%").with(
+								text("Id")
+							),
+							tableColumn().withClass("head").withStyle("width: 25%").with(
+								text("Name")
+							),
+							tableColumn().withClass("head").withStyle("width: 25%").with(
+								text("Type")
+							),
+							tableColumn().withClass("head").withStyle("width: 40%").with(
+								text("Description")
+							)
+						)
+					),
+					node("tbody").with(
+						metricRows.toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+					)
+				)
+			).build(in)
+		);
+	}
+
+	protected long renderPluginInfoTable(PluginInfo selPI, long in,
+			StringBuilder b) {
+		b.append(
+			table().with(
+				// header
+				node("thead").with(
+					tableRow().withClass("head").with(
+						tableColumn().withClass("head").withStyle("width: 80px;").with(
+							text("Status")
+						),
+						tableColumn().withClass("head").withStyle("width: 30%;").with(
+							text("Name")
+						),
+						tableColumn().withClass("head").withStyle("width: 40%;").with(
+							text("Class")
+						),
+						tableColumn().withClass("head").with(
+							text("Version")
+						)
+					)
+				),
+				// body
+				node("tbody").with(
+					// plugin info
+					tableRow().with(
+						tableColumn().with(
+							selPI.installed
+								? text("Installed")
+								: text("Registered")
+						),
+						tableColumn().with(text(
+							selPI.getPluginName()
+						)),
+						tableColumn().with(text(
+							 StringUtils.join((String[]) (
+				                selPI.getServiceRef().getProperty(
+			                        Constants.OBJECTCLASS)),",")
+						)),
+						tableColumn().with(text(
+							selPI.getPluginVersion()
+						))
+					),
+					// toolbar buttons
+					tableRow().with(
+						tableColumn().withColspan(4).with(
+							input()
+								.withType(BUTTON)
+								.withClass("install")
+								.withStyle("width: 100px;")
+								.withValue("Plug-ins list")
+								.withAttribute("onclick", doSetFieldAndSubmitString(REQ_PAR_HASHCODE, "")),
+							selPI.installed
+								? input()
+										.withType(BUTTON)
+										.withClass("install")
+										.withStyle("width: 100px;")
+										.withValue("Uninstall")
+										.withAttribute("onclick", doSetActionAndFieldAndSubmitString(ACT_VAL_UNINSTALL_PLUGIN, REQ_PAR_HASHCODE, selPI.getHashcode()))
+								: null,
+							selPI.installed
+							? input()
+									.withType(BUTTON)
+									.withClass("install")
+									.withStyle("width: 100px;")
+									.withValue("Synchronise")
+									.withAttribute("onclick", doSetActionAndFieldAndSubmitString(ACT_VAL_SYNC_PLUGIN, REQ_PAR_HASHCODE, selPI.getHashcode()))
+									: null,
+							selPI.installed
+							? null
+							: input()
+									.withType(BUTTON)
+									.withClass("install")
+									.withStyle("width: 100px;")
+									.withValue("Install")
+									.withAttribute("onclick", doSetActionAndFieldAndSubmitString(ACT_VAL_INSTALL_PLUGIN, REQ_PAR_HASHCODE, selPI.getHashcode()))
+						)
+					)
+				)
+			).build(in)
+		);
+		
+		return in;
+	}
+
+	protected void renderPluginPropertyEditor(PluginInfo selPI,
+			StringBuilder b, long in, String reqValPropName,
+			String reqValPropDescr, String reqValPropType,
+			String reqValPropValue) {
+		
+		// Check for a property update request
+		boolean update = selPI.hasConfProp(reqValPropName, reqValPropType);
+		
+		// Property's name
+		String propNameValue = ((reqValPropName != null) ? reqValPropName : "");
+		HTMLTableRowBuilder propertyName = propertyInfoOrUpdaterRowBuilder(update, REQ_PAR_PROP_NAME, "Name", propNameValue);
+		
+		// Property's description
+		String propDescValue = ((reqValPropDescr != null) ? reqValPropDescr : "");
+		HTMLTableRowBuilder propertyDescription = propertyInfoOrUpdaterRowBuilder(update, REQ_PAR_PROP_DESC, "Description", propDescValue);
+		
+		// Property's type
+		String propTypeValue = ((reqValPropType != null) ? reqValPropType : "");
+		GenericHTMLBuilder<?> propertyType =
+			tableRow().with(
+				tableColumn().withClass("borderless").withStyle("width: 100px;").with(
+					node("b").with(text("Type"))
+				),
+				tableColumn().withClass("borderless").with(
+					update
+						? text("value")
+						: node("select")
+								.withClass("form")
+								.withId(REQ_PAR_PROP_TYPE)
+								.withName(REQ_PAR_PROP_TYPE).with(
+									generateOptions(ConfigurationType.values(),propTypeValue)
+										.toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+								)
+				)
+			);
+		
+		// Property's value
+		String propValue = ((reqValPropValue != null) ? reqValPropValue : "");
+		GenericHTMLBuilder<?> propertyValue = propertyInfoOrUpdaterRowBuilder(false, REQ_PAR_PROP_VALUE, "Value", propValue);
+		
+		// Command tool-bar
+		String command = ((update) ? "Update" : "Create");
+		GenericHTMLBuilder<?> toolbar =
+			tableRow().with(
+				tableColumn().withColspan(2).withClass("borderless").with(
+					input()
+						.withType(BUTTON)
+						.withClass("install")
+						.withStyle("width: 100px;")
+						.withValue(command)
+						.withAttribute("onclick", doSetActionAndSubmitString(ACT_VAL_CON_PROP)),
+					text("&nbsp;")
+				).with(
+					update
+						? new GenericHTMLBuilder<?>[] {
+							input()
+								.withType(BUTTON)
+								.withClass("install")
+								.withStyle("width: 100px;")
+								.withValue("Remove")
+								.withAttribute("onclick", doSetActionAndSubmitString(ACT_VAL_CON_REM_PROP)),
+							text("&nbsp;")
+						}
+						: GenericHTMLBuilder.EMPTY_ARRAY
+				).with(
+					input()
+						.withType(BUTTON)
+						.withClass("install")
+						.withStyle("width: 100px;")
+						.withValue("Cancel")
+						.withAttribute("onclick", doSubmitString())
+					
+				)
+			);
+		
+		b.append(
+			node("fieldset").with(
+				node("fieldset").with(text(
+					(update
+						? "Update property of "
+						: "Create property for ") + selPI.getPluginName()
+				)),
+				table().withClass("borderless").with(
+					propertyName,
+					propertyDescription,
+					propertyType,
+					propertyValue,
+					toolbar
+				)
+			).build(in)
+		);
+	}
+
+	protected Collection<GenericHTMLBuilder<?>> generateOptions(
+			Object[] values, String selected) {
+		Collection<GenericHTMLBuilder<?>> typeOptions = new ArrayList<GenericHTMLBuilder<?>>();
+		for (Object type : values) {
+			HTMLNodeBuilder option = 
+				node("option").withAttribute("value", type.toString()).with(
+					text(type.toString())
+				);
+			if (type.toString().equals(selected)) {
+				option = option.withAttribute("selected", "selected");
+			}
+			typeOptions.add(option);
+		}
+		return typeOptions;
+	}
+
+	protected HTMLTableRowBuilder propertyInfoOrUpdaterRowBuilder(boolean update,
+			String propertyName, String propertyLabel, String propertyValue) {
+		return tableRow().with(
+			tableColumn().withClass("borderless").withStyle("width: 100px;").with(
+				node("b").with(text(propertyLabel))
+			),
+			tableColumn().withClass("borderless").with(
+				update
+					? text(propertyValue)
+					: input()
+						.withType(TEXT)
+						.withClass("form")
+						.withId(propertyName)
+						.withName(propertyName)
+						.withValue(propertyValue)
+			)
+		);
 	}
 
 	protected MetricActivator getMetricActivator() {
@@ -970,42 +979,102 @@ public class PluginsView extends AbstractView{
         // Stores the assembled HTML content
         StringBuilder b = new StringBuilder();
         // List the metric plug-in's configuration properties
-        if (showProperties) {
-            Set<PluginConfiguration> l =
-                pluginInfo.getConfiguration();
-            // Skip if this plug-ins has no configuration
-            if ((l != null) && (l.isEmpty() == false)) {
-                for (PluginConfiguration property : l) {
-                    b.append(sp(in++) + "<tr>");
-                    b.append(sp(in) + "<td>&nbsp;</td>\n");
-                    b.append(sp(in) + "<td colspan=\"3\" class=\"attr\">"
-                            + "<b>Property:</b> " + property.getName()
-                            + "&nbsp;<b>Type:</b> " + property.getType()
-                            + "&nbsp;<b>Value:</b> " + property.getValue()
-                            + "</td>\n");
-                    b.append(sp(--in)+ "</tr>\n");
-                }
-            }
-        }
-        // List the metric plug-in's activator types
-        if (showActivators) {
-            Set<Class<? extends DAObject>> activators =
-                pluginInfo.getActivationTypes();
-            // Skip if this plug-ins has no activators
-            if (activators != null) {
-                for (Class<? extends DAObject> activator : activators) {
-                    b.append("<tr>");
-                    b.append("<td>&nbsp;</td>\n");
-                    b.append("<td colspan=\"3\" class=\"attr\">"
-                            + "<b>Activator:</b> "
-                            + activator.getName()
-                            + "</td>");
-                    b.append("</tr>\n");
-                }
-            }
+        ArrayList<HTMLTableRowBuilder> rows = pluginAttributesBuilders(
+				pluginInfo, showProperties, showActivators);
+        
+        for (HTMLTableRowBuilder builder : rows) {
+        	b.append(builder.build(in));
         }
         return b.toString();
     }
+
+	protected static ArrayList<HTMLTableRowBuilder> pluginAttributesBuilders(
+			PluginInfo pluginInfo, boolean showProperties,
+			boolean showActivators) {
+		ArrayList<HTMLTableRowBuilder> rows = new ArrayList<HTMLTableRowBuilder>();
+        if (showProperties) {
+            rows.addAll(pluginPropertiesBuilders(pluginInfo));
+        }
+        // List the metric plug-in's activator types
+        if (showActivators) {
+			rows.addAll(pluginActivatorBuilders(pluginInfo));
+        }
+		return rows;
+	}
+
+	protected static ArrayList<HTMLTableRowBuilder> pluginActivatorBuilders(
+			PluginInfo pluginInfo) {
+		Set<Class<? extends DAObject>> activators =
+		    pluginInfo.getActivationTypes();
+		// Skip if this plug-ins has no activators
+		ArrayList<HTMLTableRowBuilder> activatorRow = new ArrayList<HTMLTableRowBuilder>();
+		if (activators != null) {
+		    for (Class<? extends DAObject> activator : activators) {
+		    	activatorRow.add(
+		    		tableRow().with(
+		    			tableColumn().with(
+		    				text("&nbsp;")
+		    			),
+		    			tableColumn().withColspan(3).withClass("attr").with(
+							node("b").with(text("Activator:")),
+							text(activator.getName())
+		    			)
+		    		)
+		    	);
+		    }
+		}
+		return activatorRow;
+	}
+	
+	protected static String doSetFieldAndSubmitString(String field, String value) {
+		return "javascript:" + doSetString(field, value) + SUBMIT;
+	}
+
+	protected static String doSubmitString() {
+		return "javascript:" + SUBMIT;
+	}
+	
+	protected static String doSetActionAndSubmitString(String action) {
+		return doSetFieldAndSubmitString(REQ_PAR_ACTION, action);
+	}
+	
+	private static String doSetActionAndFieldAndSubmitString(String action, String field, String value) {
+		return "javascript:" + doSetString(REQ_PAR_ACTION, action) + doSetString(field, value) + SUBMIT;
+	}
+	
+	private static String doSetString(String field, String value) {
+		return "document.getElementById('" + field + "').value='" + value + "';";
+	}
+
+	protected static ArrayList<HTMLTableRowBuilder> pluginPropertiesBuilders(
+			PluginInfo pluginInfo) {
+		Set<PluginConfiguration> configurations =
+		    pluginInfo.getConfiguration();
+		// Skip if this plug-ins has no configuration
+		ArrayList<HTMLTableRowBuilder> propertyRows = new ArrayList<HTMLTableRowBuilder>();
+		if ((configurations != null) && !configurations.isEmpty()) {
+		    for (PluginConfiguration config : configurations) {
+		    	propertyRows.add(
+		    		tableRow().with(
+			    		tableColumn().with(
+			    			text("&nbsp;")
+			    		),
+			    		tableColumn().withColspan(3).withClass("attr").with(
+			    			node("b").with(text("Property:")),
+			    			text(config.getName()),
+			    			text("&nbsp;"),
+			    			node("b").with(text("Type:")),
+			    			text(config.getType()),
+			    			text("&nbsp;"),
+			    			node("b").with(text("Value:")),
+			    			text(config.getValue())
+			    		)
+			    	)
+		    	);
+		    }
+		}
+		return propertyRows;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
