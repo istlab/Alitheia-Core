@@ -154,7 +154,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * A list containing the current set of configuration parameters of the
      * associated metric plug-in
      */
-    @XmlTransient
+	@XmlTransient
     private Set<PluginConfiguration> config =
         new HashSet<PluginConfiguration>();
 
@@ -229,15 +229,13 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * @return The property's Id, or <code>null</code> if the property does
      *   not exist.
      */
-    public Long getConfPropId (String name, String type) throws Exception{
+    public Long getConfPropId (String name, String type) {
         // Check if all values are valid
         if ((name == null) || (type == null)) {
             return null;
         }
-        // Search for a matching property
-        if(config == null)
-        	throw new Exception("Config is null");
         
+        // Search for a matching property
         for (PluginConfiguration property : config) {
             if ((property.getName().equals(name))
                     && (property.getType().equals(type))) {
@@ -258,13 +256,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      *   or <code>false</code> otherwise.
      */
     public boolean hasConfProp (String name, String type) {
-        try {
-			return ((getConfPropId(name, type) == null) ? false : true);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        return false;
+		return ((getConfPropId(name, type) == null) ? false : true);
     }
 
     /**
@@ -398,9 +390,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
         // Add the new configuration property
         PluginConfiguration newParam =
             new PluginConfiguration();
-        
-        db.addRecord(newParam);
-        
         newParam.setName(name);
         newParam.setMsg((description != null) ? description : "");
         newParam.setType(type);
