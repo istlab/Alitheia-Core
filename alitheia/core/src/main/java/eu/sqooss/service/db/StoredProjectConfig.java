@@ -33,12 +33,16 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -49,36 +53,41 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
+import org.hibernate.annotations.NaturalId;
 
 @XmlRootElement(name="project-config")
 @Entity
 @Table(name="STORED_PROJECT_CONFIG")
-public class StoredProjectConfig extends DAObject {
+class StoredProjectConfig extends DAObject {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="STORED_PROJECT_CONFIG_ID")
 	private long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="CONFIG_OPTION_ID")
-	private ConfigurationOption confOpt;
+	@NaturalId
+	@Column(name="STORED_PROJECT_CONFIG_OPTION")
+	@Enumerated(EnumType.STRING)
+	private ConfigOption confOpt;
 
+	@NaturalId
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="STORED_PROJECT_ID")
+	// Don't cascade changes, as we are never used directly
 	private StoredProject project;
 
+	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(name="STORED_PROJECT_CONFIG_VALUES")
 	@Column(name="VALUE")
 	@XmlElement(name="value")
-	private String value;
+	private Set<String> values = new HashSet<>();
 
 	public StoredProjectConfig() {}
 	
-	public StoredProjectConfig(ConfigurationOption co, String value, 
+	public StoredProjectConfig(ConfigOption co, Set<String> values,
 			StoredProject sp) {
 		this.confOpt = co;
-		this.value = value;
+		this.values = values;
 		this.project = sp;
 	}
 	
@@ -90,11 +99,11 @@ public class StoredProjectConfig extends DAObject {
 		this.id = id;
 	}
 	
-	public ConfigurationOption getConfOpt() {
+	public ConfigOption getConfOpt() {
 		return confOpt;
 	}
 	
-	public void setConfOpt(ConfigurationOption confOpt) {
+	public void setConfOpt(ConfigOption confOpt) {
 		this.confOpt = confOpt;
 	}
 	
@@ -106,20 +115,23 @@ public class StoredProjectConfig extends DAObject {
 		this.project = project;
 	}
 	
-	public String getValue() {
-		return value;
+	public Set<String> getValues() {
+		return values;
 	}
 	
-	public void setValue(String value) {
-		this.value = value;
+	public void setValues(Set<String> value) {
+		this.values = value;
 	}
 	
-	public static List<StoredProjectConfig> fromProject(StoredProject sp) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("project", sp);
-		
-		return dbs.findObjectsByProperties(StoredProjectConfig.class, params);
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof StoredProjectConfig
+				&& ((StoredProjectConfig) obj).getConfOpt().equals( getConfOpt() )
+				&& ((StoredProjectConfig) obj).getProject().equals( getProject() );
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getConfOpt(), getProject());
 	}
 }

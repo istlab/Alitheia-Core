@@ -51,6 +51,7 @@ import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.UpdateProject;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -176,7 +177,8 @@ public class ProjectsView extends AbstractView {
             return null;
     	} else { 
             vc.put("RESULTS", aa.results());
-            return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
+            DBService dbs = AlitheiaCore.getInstance().getDBService();
+            return StoredProject.getProjectByName(dbs, r.getParameter(REQ_PAR_PRJ_NAME));
     	}
     }
     
@@ -241,7 +243,8 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
     private static void triggerAllUpdateNode(StringBuilder e,
 			StoredProject selProject, int in) {
-		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		Set<StoredProject> projectList = ClusterNode.thisNode(dbs).getProjects();
 		
 		for (StoredProject project : projectList) {
 			triggerAllUpdate(e, project, in);
@@ -282,7 +285,8 @@ public class ProjectsView extends AbstractView {
         b.append(errorFieldset(e, ++in));
 
         // Get the complete list of projects stored in the SQO-OSS framework
-        Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Set<StoredProject> projects = ClusterNode.thisNode(dbs).getProjects();
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
         // ===================================================================

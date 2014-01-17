@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.LRUMap;
 
@@ -102,8 +103,8 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     private HandleCopies hc = HandleCopies.BRANCHES;
     
     /* List of paths included or excluded from processing*/
-    private List<String> inclPaths;
-    private List<String> exclPaths;
+    private Set<String> inclPaths;
+    private Set<String> exclPaths;
     
     /* 
      * Location of common svn paths, used to identify a sub project

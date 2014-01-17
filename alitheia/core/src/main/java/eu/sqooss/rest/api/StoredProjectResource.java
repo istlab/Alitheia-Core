@@ -72,12 +72,13 @@ public class StoredProjectResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public StoredProject getProject(@PathParam("id") String id) {
+		DBService db = AlitheiaCore.getInstance().getDBService();
 		
 		StoredProject sp = null;
 		if (id.matches("^[0-9]*$")) //numeric id
 			sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
 		else 
-			sp = StoredProject.getProjectByName(id);
+			sp = StoredProject.getProjectByName(db, id);
 		return sp;
 	}
 	

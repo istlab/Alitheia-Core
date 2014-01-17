@@ -10,7 +10,6 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.AdminActionBase;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.ConfigOption;
-import eu.sqooss.service.db.ConfigurationOption;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.tds.BTSAccessor;
@@ -18,6 +17,7 @@ import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.MailAccessor;
 import eu.sqooss.service.tds.ProjectAccessor;
+import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.TDSService;
 
 /**
@@ -65,6 +65,19 @@ public class AddProject extends AdminActionBase {
 	
     Properties p;
     
+    DBService db;
+    TDSService tds;
+    
+    public AddProject() {
+    	db = AlitheiaCore.getInstance().getDBService();
+    	tds = AlitheiaCore.getInstance().getTDSService();
+    }
+    
+    public AddProject(DBService db, TDSService tds) {
+    	this.db = db;
+    	this.tds = tds;
+    }
+    
     @Override
     public String mnemonic() {
         return MNEMONIC;
@@ -79,8 +92,6 @@ public class AddProject extends AdminActionBase {
     public void execute() throws Exception {
         super.execute();
         String name = null, bts = null, scm = null, mail = null, contact = null, web = null;
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        TDSService tds = AlitheiaCore.getInstance().getTDSService();
         
         if (args.containsKey("dir")) { 
             addProjectDir(args.get("dir").toString());
@@ -148,9 +159,13 @@ public class AddProject extends AdminActionBase {
         
         try {
         	debug("Testing SCM accessor for project: " + name);
-            a.getSCMAccessor().getHeadRevision();
-            debug("SCM accessor OK. SCM Head: " + 
-            		a.getSCMAccessor().getHeadRevision().getUniqueId());
+            Revision head = a.getSCMAccessor().getHeadRevision();
+            if(head != null) {
+                debug("SCM accessor OK. SCM Head: " +
+                        head.getUniqueId());
+            } else {
+                debug("SCM accessor OK. No SCM Head.");
+            }
             
             debug("Testing BTS accessor for project: " + name);
             BTSAccessor ba = a.getBTSAccessor();
@@ -207,7 +222,7 @@ public class AddProject extends AdminActionBase {
         tds.addAccessor(sp.getId(), sp.getName(), sp.getBtsUrl(), sp.getMailUrl(), 
                 sp.getScmUrl());
 
-        sp.setClusternode(ClusterNode.thisNode());
+        sp.setClusternode(ClusterNode.thisNode(db));
         
         log("Added a new project <" + name + "> with ID " + sp.getId());
         

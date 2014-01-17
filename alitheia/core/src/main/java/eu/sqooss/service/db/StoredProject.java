@@ -36,6 +36,7 @@ package eu.sqooss.service.db;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,12 +50,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
+import org.hibernate.annotations.NaturalId;
+
 import eu.sqooss.service.db.BugStatus.Status;
 
 /**
@@ -82,6 +85,7 @@ public class StoredProject extends DAObject {
 	@XmlElement
 	private long id;
 
+	@NaturalId
 	@XmlElement
 	@Column(name="PROJECT_NAME")
 	private String name;
@@ -90,29 +94,30 @@ public class StoredProject extends DAObject {
      * The versions that this project contains
      */
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
-    private List<ProjectVersion> projectVersions;
+    private List<ProjectVersion> projectVersions = new ArrayList<>();
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
-    private Set<Developer> developers;
+    private Set<Developer> developers = new HashSet<>();
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
-    private Set<MailingList> mailingLists;
+    private Set<MailingList> mailingLists = new HashSet<>();
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="storedProject", cascade=CascadeType.ALL)
-    private Set<StoredProjectMeasurement> measurements;
+    private Set<StoredProjectMeasurement> measurements = new HashSet<>();
     
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
-	private Set<Bug> bugs;
+	private Set<Bug> bugs = new HashSet<>();
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy="project", cascade=CascadeType.ALL)
-	private Set<StoredProjectConfig> configOpts;
+    @MapKey(name="confOpt")
+	private Map<ConfigOption, StoredProjectConfig> configOpts = new HashMap<>();
    
     @ManyToOne(fetch=FetchType.LAZY, optional = true)
     @JoinColumn(name="CLUSTERNODE_ID")
     private ClusterNode clusternode;
 	
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="project")
-	private Set<Branch> branches;
+	private Set<Branch> branches = new HashSet<>();
 
     public StoredProject() {}
     
@@ -137,7 +142,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getWebsiteUrl() {
-        return getConfigValue(ConfigOption.PROJECT_WEBSITE.getName());
+        return getConfigValue(ConfigOption.PROJECT_WEBSITE);
     }
 
     public void setWebsiteUrl(String url) {
@@ -145,7 +150,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getContactUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_CONTACT.getName());
+        return getConfigValue(ConfigOption.PROJECT_CONTACT);
     }
 
     public void setContactUrl(String url) {
@@ -153,7 +158,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getBtsUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_BTS_URL.getName());
+        return getConfigValue(ConfigOption.PROJECT_BTS_URL);
     }
 
     public void setBtsUrl(String url) {
@@ -161,7 +166,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getScmUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_SCM_URL.getName());
+        return getConfigValue(ConfigOption.PROJECT_SCM_URL);
     }
 
     public void setScmUrl(String url) {
@@ -169,7 +174,7 @@ public class StoredProject extends DAObject {
     }
 
     public String getMailUrl() {
-    	return getConfigValue(ConfigOption.PROJECT_ML_URL.getName());
+        return getConfigValue(ConfigOption.PROJECT_ML_URL);
     }
 
     public void setMailUrl(String url) {
@@ -212,11 +217,11 @@ public class StoredProject extends DAObject {
         this.measurements = measurements;
     }
 
-    public Set<StoredProjectConfig> getConfigOpts() {
+    public Map<ConfigOption, StoredProjectConfig> getConfigOpts() {
         return configOpts;
     }
 
-    public void setConfigOpts(Set<StoredProjectConfig> configOpts) {
+    public void setConfigOpts(Map<ConfigOption, StoredProjectConfig> configOpts) {
         this.configOpts = configOpts;
     }
 
@@ -251,7 +256,12 @@ public class StoredProject extends DAObject {
      * @return The configuration value or null, if the option is not set
      */
     public String getConfigValue (ConfigOption key) {
-    	return getConfigValue(key.getName());
+        Set<String> values = getConfigValues(key);
+
+        if(values.isEmpty())
+            return null;
+
+        return values.iterator().next();
     }
     
     /**
@@ -261,10 +271,7 @@ public class StoredProject extends DAObject {
      * @return The configuration value or null, if the option is not set
      */
     public String getConfigValue (String key) {
-    	List<String> values = getConfigValues(key);
-    	if (values.isEmpty())
-    		return null;
-    	return values.get(0);
+        return getConfigValue(ConfigOption.fromKey(key));
     }
     
     /**
@@ -272,8 +279,14 @@ public class StoredProject extends DAObject {
      * @param co The {@link ConfigOption} to look the value for
      * @return A list of values for the provided configuration option 
      */
-    public List<String> getConfigValues (ConfigOption co) {
-    	return getConfigValues(co.getName());
+    public Set<String> getConfigValues (ConfigOption co) {
+        StoredProjectConfig projectConfig = configOpts.get(co);
+        
+        if(projectConfig == null) {
+            return Collections.emptySet();
+        }
+        
+        return projectConfig.getValues();
     }
     
     /** 
@@ -281,13 +294,9 @@ public class StoredProject extends DAObject {
      * 
      * @param key The key whose value we want to retrieve
      */
-    public List<String> getConfigValues (String key) {
-    	ConfigurationOption co = ConfigurationOption.fromKey(key);
-    	
-    	if (co == null)
-    		return Collections.emptyList();
-    	
-    	return co.getValues(this);
+    public Set<String> getConfigValues (String key) {
+    	ConfigOption co = ConfigOption.fromKey(key);
+    	return getConfigValues(co);
     }
     
     /**
@@ -326,35 +335,35 @@ public class StoredProject extends DAObject {
 	 * @param co The configuration option to store a value for
 	 * @param value The value to set to the configuration option
 	 */
-	public void addConfig(ConfigOption co, String value) {
-		updateConfigValue(co, null, value, false);
+	public void addConfig(ConfigOption opt, String value) {
+		StoredProjectConfig spc = configOpts.get(opt);
+
+		if(spc == null) {
+			spc = new StoredProjectConfig(opt, new HashSet<String>(), this);
+			configOpts.put(opt, spc);
+		}
+
+		spc.getValues().add(value);
 	}
     
-    private void updateConfigValue (ConfigOption configOpt, String key, 
+    private void updateConfigValue (ConfigOption configOpt, String key,
     		String value, boolean update) {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
-    	ConfigurationOption co = null;
-    	
     	if (configOpt == null) {
-    		co = ConfigurationOption.fromKey(key);
-    	
-    		if (co == null) {
-    			co = new ConfigurationOption(key, "");
-    			dbs.addRecord(co);
-    		}
-    	} else {
-    		co = ConfigurationOption.fromKey(configOpt.getName());
-        	
-    		if (co == null) {
-    			co = new ConfigurationOption(configOpt.getName(), 
-    					configOpt.getDesc());
-    			dbs.addRecord(co);
-    		}
+    		configOpt = ConfigOption.fromKey(key);
     	}
     	
-    	List<String> values = new ArrayList<String>();
-    	values.add(value);
-    	co.setValues(this, values, update);
+    	if (update) {
+    		configOpts.remove(configOpt);
+    	}
+    	
+    	if(configOpts.containsKey(configOpt)) {
+    		configOpts.get(configOpt).getValues().add(value);
+    	} else {
+        	Set<String> values = new HashSet<String>();
+        	values.add(value);
+    		StoredProjectConfig spc = new StoredProjectConfig(configOpt, values, this);
+    		configOpts.put(configOpt, spc);
+    	}
     }
 
     //================================================================
@@ -372,9 +381,7 @@ public class StoredProject extends DAObject {
      * @param name Name of the project to search for
      * @return StoredProject object or null if not found
      */
-    public static StoredProject getProjectByName(String name) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public static StoredProject getProjectByName(DBService dbs, String name) {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("name",name);
         List<StoredProject> prList = dbs.findObjectsByProperties(StoredProject.class, parameterMap);
@@ -386,8 +393,7 @@ public class StoredProject extends DAObject {
      * 
      * @return number of stored projects in the database
      */
-    public static int getProjectCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static int getProjectCount(DBService dbs) {
         List<?> l = dbs.doHQL("SELECT COUNT(*) FROM StoredProject");
         if ((l == null) || (l.size() < 1)) {
             return 0;
@@ -404,16 +410,7 @@ public class StoredProject extends DAObject {
      * @return The total number of version for that project.
      */
     public long getVersionsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> pvList = dbs.doHQL("select count(*)"
-                + " from ProjectVersion pv"
-                + " where pv.project.id=:pid",
-                parameterMap);
-
-        return (pvList == null || pvList.isEmpty()) ? 0 : (Long) pvList.get(0);
+        return projectVersions.size();
     }
 
     /**
@@ -424,18 +421,14 @@ public class StoredProject extends DAObject {
      *
      * @return The total number of mails associated with that project.
      */
-    public long getMailsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public long getMailsCount(DBService dbs) {
+        long count = 0;
 
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> res = dbs.doHQL("select count(*)"
-                + " from MailMessage mm, MailingList ml"
-                + " where ml.storedProject.id=:pid"
-                + " and mm.list.id=ml.id",
-                parameterMap);
+        for (MailingList l : mailingLists) {
+            count += l.getMessages().size();
+        }
 
-        return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
+        return count;
     }
 
     /**
@@ -444,18 +437,16 @@ public class StoredProject extends DAObject {
      *
      * @return The total number of bugs associated with that project.
      */
-    public long getBugsCount() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public long getBugsCount(DBService dbs) {
+        long count = 0;
 
-        Map<String,Object> parameterMap = new HashMap<String,Object>();
-        parameterMap.put("pid", this.getId());
-        List<?> res = dbs.doHQL("select count(*)"
-                + " from Bug bg"
-                + " where bg.project.id=:pid"
-                + " and bg.status.status='" + Status.NEW + "'",
-                parameterMap);
+        for (Bug b : bugs) {
+            if(b.getStatus().getBugStatus() == Status.NEW) {
+                count += 1;
+            }
+        }
 
-        return (res == null || res.isEmpty()) ? 0 : (Long) res.get(0);
+        return count;
     }
     
     /**
@@ -463,7 +454,6 @@ public class StoredProject extends DAObject {
      * @return
      */
     public boolean isEvaluated() {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
     	for (Metric m : Metric.getAllMetrics()) {
     		if (m.isEvaluated(this))
     			return true;

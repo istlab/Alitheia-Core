@@ -51,10 +51,26 @@ import eu.sqooss.service.util.URIUtills;
 
 public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
     private Logger logger = null;
+    private DBService db;
     private ConcurrentHashMap<Long, ProjectDataAccessorImpl> accessorPool;
     private ConcurrentHashMap<ProjectDataAccessorImpl, Integer> accessorClaims;
     
-    public TDSServiceImpl() {}
+    /**
+     * Standard constructor.
+     */
+    public TDSServiceImpl() {
+    	this.db = AlitheiaCore.getInstance().getDBService();
+    }
+    
+    /**
+     * Constructor for tests. Run startUp after construction.
+     * @param db
+     * @param l
+     */
+    public TDSServiceImpl(DBService db, Logger l) {
+    	this.db = db;
+    	this.logger = l;
+    }
 
     // Interface methods
 
@@ -144,11 +160,10 @@ public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
      */
     private void stuffer() {
         logger.info("TDS is now running the stuffer.");
-        DBService db = AlitheiaCore.getInstance().getDBService();
         
-        if (db != null && db.startDBSession()) {
+        if (db != null && db.startDBSession() && ClusterNode.thisNode(db) != null) {
             
-            for (StoredProject p : ClusterNode.thisNode().getProjects()) {
+            for (StoredProject p : ClusterNode.thisNode(db).getProjects()) {
                 addAccessor(p.getId(), p.getName(), p.getBtsUrl(), 
                         p.getMailUrl(), p.getScmUrl());
             }
