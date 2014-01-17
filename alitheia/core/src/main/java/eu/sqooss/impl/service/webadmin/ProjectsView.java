@@ -132,7 +132,7 @@ public class ProjectsView extends AbstractView {
             }
 
             // Retrieve the selected editor's action (if any)
-            reqValAction = req.getParameter(REQ_PAR_ACTION);
+            reqValAction = (req.getParameter(REQ_PAR_ACTION) != null) ? req.getParameter(REQ_PAR_ACTION) : "";
             
             // Retrieve the selected project's DAO (if any)
             reqValProjectId = fromString(req.getParameter(REQ_PAR_PROJECT_ID));
@@ -140,17 +140,15 @@ public class ProjectsView extends AbstractView {
                 selProject = getProjectById(reqValProjectId);
             }
             
-            if (reqValAction == null) {
-                reqValAction = "";
-            } else if (reqValAction.equals(ACT_CON_ADD_PROJECT)) {
+            if (ACT_CON_ADD_PROJECT.equals(reqValAction)) {
             	selProject = addProject(e, req, in);
-            } else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {
+            } else if (ACT_CON_REM_PROJECT.equals(reqValAction)) {
             	selProject = removeProject(e, selProject, in);
-            } else if (reqValAction.equals(ACT_CON_UPD)) {
+            } else if (ACT_CON_UPD.equals(reqValAction)) {
             	triggerUpdate(e, selProject, in, req.getParameter(REQ_PAR_UPD));
-            } else if (reqValAction.equals(ACT_CON_UPD_ALL)) {
+            } else if (ACT_CON_UPD_ALL.equals(reqValAction)) {
             	triggerAllUpdate(e, selProject, in);
-            } else if (reqValAction.equals(ACT_CON_UPD_ALL_NODE)) {
+            } else if (ACT_CON_UPD_ALL_NODE.equals(reqValAction)) {
             	triggerAllUpdateNode(e, selProject, in);
             } else {
             	// Retrieve the selected plug-in's hash-code
@@ -158,7 +156,7 @@ public class ProjectsView extends AbstractView {
         		syncPlugin(e, selProject, reqValSyncPlugin);
             }
         }
-        createForm(b, e, selProject, reqValAction , in);
+        createForm(b, e, selProject, reqValAction, in);
         return b.toString();
     }
 
@@ -331,7 +329,7 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         // "Show project info" view
         // ===================================================================
-        if ((reqValAction.equals(ACT_REQ_SHOW_PROJECT))
+        if ((ACT_REQ_SHOW_PROJECT.equals(reqValAction))
                 && (selProject != null)) {
             // Create the field-set
             b.append(sp(in++) + "<fieldset>\n");
@@ -374,7 +372,7 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         // "Add project" editor
         // ===================================================================
-        else if (reqValAction.equals(ACT_REQ_ADD_PROJECT)) {
+        else if (ACT_REQ_ADD_PROJECT.equals(reqValAction)) {
             // Create the field-set
             b.append(sp(in++) + "<table class=\"borderless\" width='100%'>\n");
             // Create the input fields
@@ -421,7 +419,7 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         // "Delete project" confirmation view
         // ===================================================================
-        else if ((reqValAction.equals(ACT_REQ_REM_PROJECT))
+        else if ((ACT_REQ_REM_PROJECT.equals(reqValAction))
                 && (selProject != null)) {
             b.append(sp(in++) + "<fieldset>\n");
             b.append(sp(in) + "<legend>" + getLbl("l0059")
