@@ -123,6 +123,7 @@ public abstract class AbstractView {
         debugMessages = new ArrayList<String>();
         vc.put("errorMessages", errorMessages);
         vc.put("debugMessages", debugMessages);
+        vc.put("tr", new TranslationProxy(this));
         
         // Retrieve the instances of the core components
         if (sobjCore != null) {
@@ -203,7 +204,8 @@ public abstract class AbstractView {
     public String getLbl (String name) {
         if (resLbl != null) {
             try {
-                return resLbl.getString(name);
+            	return name + "ok#";
+//                return resLbl.getString(name);
             }
             catch (NullPointerException ex) {
                 return NULL_PARAM_NAME;

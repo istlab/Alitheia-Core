@@ -5,7 +5,7 @@
 	  	<input 	type="button"
 	  			class="install"
 	  			style="width: 100px;"
-	  			value="$tr.getLbl("btn_info")"
+	  			value="$tr.label("btn_info")"
 	  			onclick="javascript:document.getElementById('$project.selectedProjectAction').value='$project.selectedProjectActionValue';$project.onClickSelectSubmit">
 	  #else
 	  	<img src="/edit.png" alt="[Edit]">
@@ -16,31 +16,28 @@
   	#if ($project.projectVersion)
   		$project.projectVersion
   	#else
-  		$tr.getLbl("l0051");
+  		$tr.label("l0051");
   	#end
-  </td>
-  <td class="trans">
-  	$project.projectLastMailDate
   </td>
   <td class="trans">
   	#if ($project.projectLastMailDate)
   		$project.projectLastMailDate
   	#else
-  		$tr.getLbl("l0051");
+  		$tr.label("l0051");
   	#end
   </td>
 	<td class="trans">
   	#if ($project.lastBug)
   		$project.lastBug
   	#else
-  		$tr.getLbl("l0051");
+  		$tr.label("l0051");
   	#end
   </td>
   <td class="trans">
   	#if ($project.projectEvaluationState)
-  		$tr.getLbl("project_is_evaluated");
+  		$tr.label("project_is_evaluated");
   	#else
-  		$tr.getLbl("project_not_evaluated");
+  		$tr.label("project_not_evaluated");
   	#end
   </td>
 
