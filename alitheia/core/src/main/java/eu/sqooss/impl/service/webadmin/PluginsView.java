@@ -45,6 +45,8 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.ErrorMessages;
+
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.PluginConfiguration;
@@ -67,9 +69,6 @@ public class PluginsView extends AbstractView{
     public String render(HttpServletRequest req) {
         // Stores the assembled HTML content
         // Stores the accumulated error messages
-        StringBuilder e = new StringBuilder();
-        // Indentation spacer
-        long in = 6;
 
         // Request parameters
         String reqParAction        = "action";
@@ -141,13 +140,13 @@ public class PluginsView extends AbstractView{
                     // Plug-in install request
                     // =======================================================
                     if (reqValAction.equals(actValInstall)) {
-                        pluginInstallRequest(e, reqValHashcode);
+                        pluginInstallRequest(reqValHashcode);
                     }
                     // =======================================================
                     // Plug-in un-install request
                     // =======================================================
                     else if (reqValAction.equals(actValUninstall)) {
-                        pluginUninstallRequest(e, reqValHashcode);
+                        pluginUninstallRequest(reqValHashcode);
                     }
                 }
                 // Retrieve the selected plug-in's info object
@@ -166,10 +165,10 @@ public class PluginsView extends AbstractView{
                     // Plug-in's configuration property removal
                     // =======================================================
                     else if (reqValAction.equals(actValConRemProp)) {
-                        selPI = pluginConfigPropertyRemoval(e, reqValHashcode,
+                        selPI = pluginConfigPropertyRemoval(reqValHashcode,
 								reqValPropName, reqValPropType, selPI);
                         // Return to the update view upon error
-                        if (e.toString().length() > 0) {
+                        if (errorMessages.size() > 0) {
                             reqValAction = actValReqUpdProp;
                         }
                     }
@@ -181,12 +180,12 @@ public class PluginsView extends AbstractView{
                         boolean update = selPI.hasConfProp(
                                 reqValPropName, reqValPropType);
                         // Update configuration property
-                        selPI = pluginConfigurationUpdateCreateProperty(e,
+                        selPI = pluginConfigurationUpdateCreateProperty(
 								reqValHashcode, reqValPropName,
 								reqValPropDescr, reqValPropType,
 								reqValPropValue, selPI, update);
                         // Return to the create/update view upon error
-                        if (e.toString().length() > 0) {
+                        if (errorMessages.size() > 0) { 
                             if (update) reqValAction = actValReqUpdProp;
                             else reqValAction = actValReqAddProp;
                         }
@@ -194,19 +193,13 @@ public class PluginsView extends AbstractView{
                 }
             }
 
-
-            // ===============================================================
-            // Display the accumulated error messages (if any)
-            // ===============================================================
-            vc.put("ERRORS",errorFieldset(e, in));
-
             // ===============================================================
             // "Create/update configuration property" editor
             // ===============================================================
             if ((selPI != null) && (selPI.installed)
                     && ((reqValAction.equals(actValReqAddProp))
                             || (reqValAction.equals(actValReqUpdProp)))) {
-                createUpdateConfigurationProperty(in, reqParAction,
+                createUpdateConfigurationProperty(reqParAction,
 						reqParPropName, reqParPropDescr, reqParPropType,
 						reqParPropValue, actValConAddProp, actValConRemProp,
 						reqValPropName, reqValPropDescr, reqValPropType,
@@ -216,7 +209,7 @@ public class PluginsView extends AbstractView{
             // Plug-in editor
             // ===============================================================
             else if (selPI != null) {
-                pluginEditForm(in, reqParAction, reqParHashcode,
+                pluginEditForm(reqParAction, reqParHashcode,
 						reqParPropName, reqParPropDescr, reqParPropType,
 						reqParPropValue, actValInstall, actValUninstall,
 						actValSync, actValReqAddProp, actValReqUpdProp, selPI);
@@ -225,7 +218,7 @@ public class PluginsView extends AbstractView{
             // Plug-ins list
             // ===============================================================
             else {
-                pluginList(in, reqParHashcode, reqParShowProp,
+                pluginList(reqParHashcode, reqParShowProp,
 						reqParShowActv, reqValShowProp, reqValShowActv);
             }
 
@@ -268,7 +261,7 @@ public class PluginsView extends AbstractView{
 	 * @param reqValShowActv
 	 * @return
 	 */
-	private void pluginList(long in, String reqParHashcode,
+	private void pluginList(String reqParHashcode,
 			String reqParShowProp, String reqParShowActv,
 			boolean reqValShowProp, boolean reqValShowActv) {
 
@@ -320,7 +313,7 @@ public class PluginsView extends AbstractView{
 	 * @param selPI
 	 * @return
 	 */
-	private void pluginEditForm(long in, String reqParAction,
+	private void pluginEditForm(String reqParAction,
 			String reqParHashcode, String reqParPropName,
 			String reqParPropDescr, String reqParPropType,
 			String reqParPropValue, String actValInstall,
@@ -399,7 +392,7 @@ public class PluginsView extends AbstractView{
 	 * @param selPI
 	 * @return
 	 */
-	private void createUpdateConfigurationProperty(long in,
+	private void createUpdateConfigurationProperty(
 			String reqParAction, String reqParPropName, String reqParPropDescr,
 			String reqParPropType, String reqParPropValue,
 			String actValConAddProp, String actValConRemProp,
@@ -440,7 +433,7 @@ public class PluginsView extends AbstractView{
 	 * @param update
 	 * @return
 	 */
-	private PluginInfo pluginConfigurationUpdateCreateProperty(StringBuilder e,
+	private PluginInfo pluginConfigurationUpdateCreateProperty(
 			String reqValHashcode, String reqValPropName,
 			String reqValPropDescr, String reqValPropType,
 			String reqValPropValue, PluginInfo selPI, boolean update) {
@@ -458,13 +451,11 @@ public class PluginsView extends AbstractView{
 		                sobjPA.getPluginInfo(reqValHashcode);
 		        }
 		        else {
-		            e.append("Property update"
-		                    + " has failed!"
-		                    + " Check log for details.");
+		        	errorMessages.add("Property update" + " has failed!" + " Check log for details.");
 		        }
 		    }
 		    catch (Exception ex) {
-		        e.append(ex.getMessage());
+		    	errorMessages.add(ex.getMessage());
 		    }
 		}
 		// Create configuration property
@@ -484,13 +475,13 @@ public class PluginsView extends AbstractView{
 		                sobjPA.getPluginInfo(reqValHashcode);
 		        }
 		        else {
-		            e.append("Property creation"
+		        	errorMessages.add("Property creation"
 		                    + " has failed!"
 		                    + " Check log for details.");
 		        }
 		    }
 		    catch (Exception ex) {
-		        e.append(ex.getMessage());
+		    	errorMessages.add(ex.getMessage());
 		    }
 		}
 		return selPI;
@@ -504,7 +495,7 @@ public class PluginsView extends AbstractView{
 	 * @param selPI
 	 * @return
 	 */
-	private PluginInfo pluginConfigPropertyRemoval(StringBuilder e,
+	private PluginInfo pluginConfigPropertyRemoval(
 			String reqValHashcode, String reqValPropName,
 			String reqValPropType, PluginInfo selPI) {
 		if (selPI.hasConfProp(
@@ -522,17 +513,17 @@ public class PluginsView extends AbstractView{
 		                    reqValHashcode);
 		        }
 		        else {
-		            e.append("Property removal"
+		        	errorMessages.add("Property removal"
 		                    + " has failed!"
 		                    + " Check log for details.");
 		        }
 		    }
 		    catch (Exception ex) {
-		        e.append(ex.getMessage());
+		    	errorMessages.add(ex.getMessage());
 		    }
 		}
 		else {
-		    e.append ("Unknown configuration property!");
+			errorMessages.add ("Unknown configuration property!");
 		}
 		return selPI;
 	}
@@ -541,12 +532,12 @@ public class PluginsView extends AbstractView{
 	 * @param e
 	 * @param reqValHashcode
 	 */
-	private void pluginUninstallRequest(StringBuilder e, String reqValHashcode) {
+	private void pluginUninstallRequest(String reqValHashcode) {
 		if (sobjPA.uninstallPlugin(reqValHashcode) == false) {
-		    e.append("Plug-in can not be uninstalled."
+			errorMessages.add("Plug-in can not be uninstalled."
 		            + " Check log for details.");
 		} else {
-		    e.append("A job was scheduled to remove the plug-in");
+			errorMessages.add("A job was scheduled to remove the plug-in");
 		}
 	}
 
@@ -554,9 +545,9 @@ public class PluginsView extends AbstractView{
 	 * @param e
 	 * @param reqValHashcode
 	 */
-	private void pluginInstallRequest(StringBuilder e, String reqValHashcode) {
+	private void pluginInstallRequest(String reqValHashcode) {
 		if (sobjPA.installPlugin(reqValHashcode) == false) {
-		    e.append("Plug-in can not be installed!"
+			errorMessages.add("Plug-in can not be installed!"
 		            + " Check log for details.");
 		}
 		// Persist the DB changes

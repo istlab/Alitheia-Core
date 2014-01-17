@@ -95,11 +95,9 @@ public abstract class AbstractView {
     private ResourceBundle resMsg = null;
     private ResourceBundle resErr = null;
 
-    
     // Error messages container
     List<String> errorMessages;
     List<String> debugMessages;
-    
     
     // Debug flag - global for all views
     protected static final boolean DEBUG = true;
@@ -304,51 +302,7 @@ public abstract class AbstractView {
         return b.toString();
     }
     
-   /**
-     * Generates a simple table row (<i>with two columns</i>) that represents
-     * a single text input element with a title line. The title line will be
-     * stored in the first cell, while the text input will be placed in the
-     * second cell.
-     * <br/>
-     * <i>This method is used by the various views for generating simple input
-     * screens.</i>
-     * 
-     * @param title the title that will preceed the input element
-     * @param parName the input element's name
-     * @param parValue the input element's initial value
-     * @param in the indentation depth
-     * 
-     * @return The string that contains the table's row, or an empty string
-     *   upon invalid (<code>null</code>) name of the input element.
-     */
-    protected String normalInputRow (
-            String title, String parName, String parValue, long in) {
-        // Stores the assembled HTML content
-        StringBuilder b = new StringBuilder("\n");
-
-        // Create the input field's row
-        if (parName != null) {
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in) + "<td class=\"borderless\""
-                    + " style=\"width:100px;\">"
-                    + "<b>" + ((title != null) ? title : "") + "</b>"
-                    + "</td>\n");
-            b.append(sp(in++) + "<td class=\"borderless\">\n");
-            b.append(sp(in) + "<input type=\"text\""
-                    + " class=\"form\""
-                    + " id=\"" + parName + "\""
-                    + " name=\"" + parName + "\""
-                    + " value=\""
-                    + ((parValue != null) ? parValue : "" )
-                    + "\" size=\"60\">\n");
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-        }
-
-        // Return the generated content
-        return b.toString();
-    }
-    
+  
     protected Map<String,String> normalInputRowMap(String title, String parName, String parValue){
     	Map<String,String> field = new HashMap<String,String>(3);
     	field.put("title",(title != null) ? title : "");
@@ -357,41 +311,6 @@ public abstract class AbstractView {
     	return field;
     }
 
-    /**
-     * Generates a simple table row (<i>with two columns</i>) that represents
-     * a single text message with a title line. The title line will be
-     * stored in the first cell, while the message will be placed in the
-     * second cell.
-     * <br/>
-     * <i>This method is used by the various views for generating simple info
-     * screens.</i>
-     * 
-     * @param title the title that will preceed the text message
-     * @param value the text message
-     * @param in the indentation depth
-     * 
-     * @return The string that contains the table's row.
-     */
-    protected String normalInfoRow (
-            String title, String value, long in) {
-        // Stores the assembled HTML content
-        StringBuilder b = new StringBuilder("\n");
-
-        // Create the info row
-        b.append(sp(in++) + "<tr>\n");
-        b.append(sp(in) + "<td class=\"borderless\""
-                + " style=\"width:100px;\">"
-                + "<b>" + ((title != null) ? title : "") + "</b>"
-                + "</td>\n");
-        b.append(sp(in++) + "<td class=\"borderless\">\n");
-        b.append(sp(in) + ((value != null) ? value : "") + "\n");
-        b.append(sp(--in) + "</td>\n");
-        b.append(sp(--in) + "</tr>\n");
-        
-        // Return the generated content
-        return b.toString();
-    }
-    
     protected Map<String,String> normalInfoRowMap(String title, String value){
     	Map<String,String> field = new HashMap<String,String>(2);
     	field.put("title",(title != null) ? title : "");
@@ -404,40 +323,6 @@ public abstract class AbstractView {
         StringWriter writer = new StringWriter();
         template.merge(vc, writer);
         return writer.toString();
-    }
-
-    /**
-     * Produces an HTML fieldset tag which encapsulates the HTML
-     * content that is stored in the given <code>StringBuilder</code> object.
-     * 
-     * @param name the fieldset legend's name
-     * @param css the CSS class name to use
-     * @param content the HTML content
-     * @param in the indentation depth
-     * 
-     * @return The HTML presentation.
-     */
-    protected String normalFieldset (
-            String name,
-            String css,
-            StringBuilder content,
-            long in) {
-        if ((content != null) && (content.toString().length() > 0)) {
-            return (sp(in) + "<fieldset"
-                    + ((css != null) ? " class=\"" + css + "\"": "")
-                    + ">\n"
-                    + sp(++in) + "<legend>"
-                    + ((name != null) ? name : "NONAME")
-                    + "</legend>\n"
-                    + sp(in)+content.toString()+"\n"
-                    + sp(--in) + "</fieldset>\n");
-        }
-        return ("");
-    }
-
-    // TODO: Remove this method, since it is not I18n compatible.
-    protected String errorFieldset (StringBuilder errors, long in) {
-        return normalFieldset("Errors", null, errors, in);
     }
 
     /**
