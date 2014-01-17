@@ -148,7 +148,7 @@ public class TestabilityImplementation extends AbstractMetric {
             lnr.close();
 
             // Store the results
-            Metric metric = Metric.getMetricByMnemonic(MNEMONIC_NCASES);
+            Metric metric = Metric.getMetricByMnemonic(db, MNEMONIC_NCASES);
             ProjectFileMeasurement ncases = new ProjectFileMeasurement(
                     metric,pf,String.valueOf(numTestCases));
             db.addRecord(ncases);

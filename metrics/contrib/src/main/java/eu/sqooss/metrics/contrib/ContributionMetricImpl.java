@@ -264,7 +264,7 @@ public class ContributionMetricImpl extends AbstractMetric {
      */
     public List<Result> getResult(Developer d, Metric m) {
         ArrayList<Result> results = new ArrayList<Result>();
-        ProjectVersion newestPV = ProjectVersion.getLastProjectVersion(d.getStoredProject());
+        ProjectVersion newestPV = ProjectVersion.getLastProjectVersion(db, d.getStoredProject());
         
         double result = 0;
         
@@ -304,8 +304,8 @@ public class ContributionMetricImpl extends AbstractMetric {
     }
 
     public void run(MailingListThread t) throws AlreadyProcessingException {
-        Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
-        List<MailMessage> emails = t.getMessagesByArrivalOrder();
+        Metric contrib = Metric.getMetricByMnemonic(db, METRIC_CONTRIB);
+        List<MailMessage> emails = t.getMessagesByArrivalOrder(db);
         MailMessage lastProcessed = null;
         
         //Find the last email in this thread
@@ -316,7 +316,7 @@ public class ContributionMetricImpl extends AbstractMetric {
             ContribAction old = getResult(emails.get(i));
             if (old != null) {
                 lastProcessed = DAObject.loadDAObyId(
-                        old.getChangedResourceId(), MailMessage.class);
+                        db, old.getChangedResourceId(), MailMessage.class);
             }
         }
         
@@ -343,7 +343,7 @@ public class ContributionMetricImpl extends AbstractMetric {
             } else {
                 if (mm.getDepth() == 1) {
                   //First reply to a thread
-                    MailMessage firstMessage = t.getMessagesAtLevel(1).get(0);
+                    MailMessage firstMessage = t.getMessagesAtLevel(db, 1).get(0);
                     if (firstMessage.equals(mm))
                         updateField(mm, mm.getSender(), ActionType.MFR, true, 1);
                 }
@@ -367,7 +367,7 @@ public class ContributionMetricImpl extends AbstractMetric {
         AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin("Wc.loc");
         
         if (plugin != null) {
-            locMetric.add(Metric.getMetricByMnemonic("Wc.loc"));
+            locMetric.add(Metric.getMetricByMnemonic(db, "Wc.loc"));
         } else {
             err("Could not find the WC plugin", pv);
             return;
@@ -443,10 +443,10 @@ public class ContributionMetricImpl extends AbstractMetric {
                 //Source file changed, calc number of lines commited
                 try {
                     if (pf.isDeleted()) {
-                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
+                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(db), plugin, locMetric);
                         updateField(pv, dev, ActionType.CREM, true, locPrev);
                     } else if(pf.isReplaced()) {
-                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
+                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(db), plugin, locMetric);
                         updateField(pv, dev, ActionType.CREM, true, locPrev);
                         updateField(pv, dev, ActionType.CNS, true, 1);
                         updateField(pv, dev, ActionType.CADD, true, 
@@ -459,7 +459,7 @@ public class ContributionMetricImpl extends AbstractMetric {
                         		getLOCResult(pf, plugin, locMetric));
                     } else {
                         //Existing file, get lines of previous version
-                        ProjectFile prevFile = pf.getPreviousFileVersion();
+                        ProjectFile prevFile = pf.getPreviousFileVersion(db);
                         
                         if (prevFile == null) {
                         	warn("Could not find previous version", pf);

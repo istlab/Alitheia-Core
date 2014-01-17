@@ -186,7 +186,7 @@ public class TestGitUpdater extends TestGitSetup {
             
             db.startDBSession();
             sp = db.attachObjectToDBSession(sp);
-            ProjectVersion pv = ProjectVersion.getVersionByRevision(dbs, sp, from.getUniqueId());
+            ProjectVersion pv = ProjectVersion.getVersionByRevision(db, sp, from.getUniqueId());
             assertNotNull(pv);
             
             //Compare repository files against database files
@@ -195,13 +195,13 @@ public class TestGitUpdater extends TestGitSetup {
                 //System.err.println("Tree entry: " + path);
                 String basename = eu.sqooss.service.util.FileUtils.basename(path);
                 String dirname = eu.sqooss.service.util.FileUtils.dirname(path);
-                ProjectFile pf = ProjectFile.findFile(dbs, sp.getId(), basename, dirname, pv.getRevisionId());
+                ProjectFile pf = ProjectFile.findFile(db, sp.getId(), basename, dirname, pv.getRevisionId());
                 testVersionedProjectFile(pf);
                 if (!pf.getIsDirectory())
                 	foundFiles.add(pf);
             }
 
-            List<ProjectFile> allfiles = pv.allFiles(dbs);
+            List<ProjectFile> allfiles = pv.allFiles(db);
             for (ProjectFile pf : allfiles) {
             	if (!foundFiles.contains(pf)) {
             		System.err.println("File " + pf + " not in repository");
@@ -232,7 +232,7 @@ public class TestGitUpdater extends TestGitSetup {
     	
     	//Check that each file entry is accompanied with an enclosing directory
     	//entry with an added or modified state
-    	ProjectFile dir = pf.getEnclosingDirectory();
+    	ProjectFile dir = pf.getEnclosingDirectory(db);
     	assertNotNull(dir);
     	assertEquals(pf.getProjectVersion().getRevisionId(), pf.getProjectVersion().getRevisionId());
     	assertFalse(dir.getState().getStatus() == ProjectFileState.STATE_DELETED);

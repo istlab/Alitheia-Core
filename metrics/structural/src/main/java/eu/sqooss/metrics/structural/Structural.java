@@ -619,7 +619,7 @@ public class Structural extends AbstractMetric {
     }
     
     private void addRecord(String mnem, ProjectFile pf, String value) {
-        Metric m = Metric.getMetricByMnemonic(mnem);
+        Metric m = Metric.getMetricByMnemonic(db, mnem);
         ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, pf, value);
         db.addRecord(pfm); 
     }

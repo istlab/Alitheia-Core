@@ -249,25 +249,25 @@ public class WcImplementation extends AbstractMetric {
 
         // Store the results
         List<Metric> toUpdate = new ArrayList<Metric>();
-        Metric metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOC);
+        Metric metric = Metric.getMetricByMnemonic(db, MNEMONIC_WC_LOC);
         ProjectFileMeasurement locm = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[0]));
         db.addRecord(locm);
         toUpdate.add(metric);
 
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM);
+        metric = Metric.getMetricByMnemonic(db, MNEMONIC_WC_LOCOM);
         ProjectFileMeasurement locc = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[1]));
         db.addRecord(locc);
         toUpdate.add(metric);
         
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_LONB);
+        metric = Metric.getMetricByMnemonic(db, MNEMONIC_WC_LONB);
         ProjectFileMeasurement lonb = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[2]));
         db.addRecord(lonb);
         toUpdate.add(metric);
 
-        metric = Metric.getMetricByMnemonic(MNEMONIC_WC_WORDS);
+        metric = Metric.getMetricByMnemonic(db, MNEMONIC_WC_WORDS);
         ProjectFileMeasurement words_measure = new ProjectFileMeasurement(
                 metric,pf,String.valueOf(results[3]));
         db.addRecord(words_measure);
@@ -410,7 +410,7 @@ public class WcImplementation extends AbstractMetric {
        
         /* Get all measurements for live version files for metrics LoC and LoCom*/ 
         StringBuffer q = new StringBuffer("select pfm ");
-        if (v.getSequence() == ProjectVersion.getLastProjectVersion(v.getProject()).getSequence()) {
+        if (v.getSequence() == ProjectVersion.getLastProjectVersion(db, v.getProject()).getSequence()) {
             q.append(" from ProjectFile pf, ProjectFileMeasurement pfm");
             q.append(" where pf.validUntil is null ");
         } else {
@@ -434,10 +434,10 @@ public class WcImplementation extends AbstractMetric {
         q.append(" and (pfm.metric.id = :").append(paramMetricLoC);
         q.append(" or pfm.metric.id = :").append(paramMetricLoCom).append(")");
 
-        params.put(paramMetricLoC, Metric.getMetricByMnemonic(MNEMONIC_WC_LOC).getId());
-        params.put(paramMetricLoCom, Metric.getMetricByMnemonic(MNEMONIC_WC_LOCOM).getId());
+        params.put(paramMetricLoC, Metric.getMetricByMnemonic(db, MNEMONIC_WC_LOC).getId());
+        params.put(paramMetricLoCom, Metric.getMetricByMnemonic(db, MNEMONIC_WC_LOCOM).getId());
         params.put(paramIsDirectory, Boolean.FALSE);
-        params.put(paramState, ProjectFileState.deleted());
+        params.put(paramState, ProjectFileState.deleted(db));
         
         List<ProjectFileMeasurement> results = 
             (List<ProjectFileMeasurement>) db.doHQL(q.toString(), params);
@@ -451,7 +451,7 @@ public class WcImplementation extends AbstractMetric {
         
         params.remove(paramMetricLoCom);
         params.remove(paramMetricLoC);
-        nof = v.getLiveFilesCount();
+        nof = v.getLiveFilesCount(db);
         
         for (ProjectFileMeasurement pfm : results) {
             String fname = pfm.getProjectFile().getName();
@@ -485,7 +485,7 @@ public class WcImplementation extends AbstractMetric {
     }
     
     private Metric addPVMeasurement(String s, ProjectVersion pv, int value) {
-        Metric m = Metric.getMetricByMnemonic(s); 
+        Metric m = Metric.getMetricByMnemonic(db, s); 
         ProjectVersionMeasurement pvm = new ProjectVersionMeasurement(m , pv, 
                 String.valueOf(value));
         db.addRecord(pvm);

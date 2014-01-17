@@ -151,7 +151,7 @@ public class FindbugsMetrics extends AbstractMetric {
 
     public void run(ProjectVersion pv) {
 
-        List<ProjectFile> files = pv.getFiles();
+        List<ProjectFile> files = pv.getFiles(db);
         Pattern pom = Pattern.compile("pom.xml$");
         Pattern buildxml = Pattern.compile("build.xml$");
         Pattern trunk = Pattern.compile("/trunk");

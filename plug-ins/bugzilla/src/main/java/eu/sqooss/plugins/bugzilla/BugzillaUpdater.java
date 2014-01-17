@@ -97,8 +97,8 @@ public class BugzillaUpdater implements MetadataUpdater, JobStateListener  {
 
         this.bts = AlitheiaCore.getInstance().getTDSService().getAccessor(
                 project.getId()).getBTSAccessor();
-        if (Bug.getLastUpdate(project) != null) {
-            bugIds = bts.getBugsNewerThan(Bug.getLastUpdate(project).getUpdateRun());
+        if (Bug.getLastUpdate(dbs, project) != null) {
+            bugIds = bts.getBugsNewerThan(Bug.getLastUpdate(dbs, project).getUpdateRun());
         } else {
             bugIds = bts.getAllBugs();
         }

@@ -101,7 +101,7 @@ public class MailDirUpdater implements MetadataUpdater {
             listIds = processMailingLists(mailAccessor);
             
             for (Long mlId : listIds) {
-                MailingList ml = DAObject.loadDAObyId(mlId, MailingList.class);
+                MailingList ml = DAObject.loadDAObyId(dbs, mlId, MailingList.class);
                 List<String> msgs = mailAccessor.getNewMessages(ml.getListId());
                 total += msgs.size();
             }
@@ -112,7 +112,7 @@ public class MailDirUpdater implements MetadataUpdater {
             }
             
             for (Long mlId : listIds) {
-                ml = DAObject.loadDAObyId(mlId, MailingList.class);
+                ml = DAObject.loadDAObyId(dbs, mlId, MailingList.class);
                 processList(mailAccessor);
             }
         } catch (IllegalArgumentException e) {
