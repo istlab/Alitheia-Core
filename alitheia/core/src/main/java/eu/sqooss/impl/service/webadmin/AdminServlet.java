@@ -134,12 +134,16 @@ public class AdminServlet extends HttpServlet {
 
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
+        
+        // Create translation proxy
+        tr = new TranslationProxy(Locale.ENGLISH);
+        
         adminView = new WebAdminRenderer(bc, vc);
 
         // Create the various view objects
         pluginsView = new PluginsView(bc, vc);
         projectsView = new ProjectsView(bc, vc);
-        tr = new TranslationProxy(adminView);
+        
     }
 
     /**
@@ -317,7 +321,7 @@ public class AdminServlet extends HttpServlet {
     private void createSubstitutions(HttpServletRequest request) {
         // Initialize the resource bundles with the provided locale
         pluginsView.initResources(Locale.ENGLISH);
-
+        
         // Simple string substitutions
         vc.put("COPYRIGHT",
                 "Copyright 2007-2008"

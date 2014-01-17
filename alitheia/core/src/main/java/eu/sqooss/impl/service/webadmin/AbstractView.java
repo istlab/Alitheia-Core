@@ -86,13 +86,11 @@ public abstract class AbstractView {
     protected BundleContext bc = null;
 
     // Names of the various resource files
-    private String RES_LABELS_FILE   = "ResourceLabels";
     private String RES_ERRORS_FILE   = "ResourceErrors";
-    private String RES_MESSAGES_FILE = "ResourceMessages";
+    
+    private String NULL_PARAM_NAME = "Undefined parameter name!";
 
-    // Resource bundles
-    private ResourceBundle resLbl = null;
-    private ResourceBundle resMsg = null;
+    // Resource bundle
     private ResourceBundle resErr = null;
 
     // Error messages container
@@ -103,7 +101,7 @@ public abstract class AbstractView {
     protected static final boolean DEBUG = true;
     
     // Some constants that are used internally
-    private String NULL_PARAM_NAME = "Undefined parameter name!";
+
 
     /**
      * Instantiates a new <code>AbstractView</code> object.
@@ -121,7 +119,6 @@ public abstract class AbstractView {
         debugMessages = new ArrayList<String>();
         vc.put("errorMessages", errorMessages);
         vc.put("debugMessages", debugMessages);
-        vc.put("tr", new TranslationProxy(this));
         
         // Retrieve the instances of the core components
         if (sobjCore != null) {
@@ -184,36 +181,11 @@ public abstract class AbstractView {
      * @param locale the user's locale
      */
     public void initResources (Locale locale) {
-        resLbl = ResourceBundle.getBundle(RES_LABELS_FILE, locale);
         resErr = ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
-        resMsg = ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);;
+        vc.put("tr",new TranslationProxy(locale));
     }
 
-    /**
-     * Retrieves the value of the given resource property from the
-     * resource bundle that stores all label strings.
-     * 
-     * @param name the name of the resource property
-     * 
-     * @return The property's value, when that property can be found in the
-     *   corresponding resource bundle, OR the provided property name's
-     *   parameter, when such property is missing.
-     */
-    public String getLbl (String name) {
-        if (resLbl != null) {
-            try {
-            	return name + "ok#";
-//                return resLbl.getString(name);
-            }
-            catch (NullPointerException ex) {
-                return NULL_PARAM_NAME;
-            }
-            catch (MissingResourceException ex) {
-                return name;
-            }
-        }
-        return name;
-    }
+    
 
     /**
      * Retrieves the value of the given resource property from the
@@ -240,30 +212,7 @@ public abstract class AbstractView {
         return name;
     }
 
-    /**
-     * Retrieves the value of the given resource property from the
-     * resource bundle that stores all message strings.
-     * 
-     * @param name the name of the resource property
-     * 
-     * @return The property's value, when that property can be found in the
-     *   corresponding resource bundle, OR the provided property name's
-     *   parameter, when such property is missing.
-     */
-    public String getMsg (String name) {
-        if (resMsg != null) {
-            try {
-                return resMsg.getString(name);
-            }
-            catch (NullPointerException ex) {
-                return NULL_PARAM_NAME;
-            }
-            catch (MissingResourceException ex) {
-                return name;
-            }
-        }
-        return name;
-    }
+
 
 
     /**

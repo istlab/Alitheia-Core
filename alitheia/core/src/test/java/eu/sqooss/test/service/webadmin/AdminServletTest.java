@@ -393,7 +393,7 @@ public class AdminServletTest {
 	public void testTranslationProxy() {
 		vc = new VelocityContext();
 		AbstractView view = new PluginsView(bc,vc);
-		TranslationProxy tp = new TranslationProxy(view);
+		TranslationProxy tp = new TranslationProxy(Locale.ENGLISH);
 		assertEquals("myLabel",tp.label("myLabel"));
 		assertEquals("myMessage",tp.label("myMessage"));
 		assertEquals("myError",tp.label("myError"));

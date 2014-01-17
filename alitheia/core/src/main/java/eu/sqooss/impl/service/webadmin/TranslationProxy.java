@@ -1,5 +1,9 @@
 package eu.sqooss.impl.service.webadmin;
 
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 /**
  * This is a class whose sole purpose is to provide a useful API from
  * within Velocity templates for the translation functions offered by
@@ -8,23 +12,66 @@ package eu.sqooss.impl.service.webadmin;
  * methods of the view.
  */
 public class TranslationProxy {
-    AbstractView view;
-	public TranslationProxy(AbstractView view) { 
-    	this.view = view;
+    private ResourceBundle resLbl = null;
+    private ResourceBundle resMsg = null;
+    
+    private String RES_LABELS_FILE = "ResourceLabels";
+    private String RES_MESSAGES_FILE = "ResourceMessages";
+    private String NULL_PARAM_NAME = "Undefined parameter name!";
+    
+	public TranslationProxy(Locale locale) {
+        resLbl = ResourceBundle.getBundle(RES_LABELS_FILE, locale);
+        resMsg = ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);
     }
     
-    /** Translate a label */
-    public String label(String s) {
-        return view.getLbl(s);
-    }
+	/**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all label strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
+     */
+	public String label(String s) {
+		if (resLbl != null) {
+			try {
+				return resLbl.getString(s);
+			}
+			catch (NullPointerException ex) {
+				return NULL_PARAM_NAME;
+			}
+			catch (MissingResourceException ex) {
+				return s;
+			}
+		}
+		return s;
+	}
     
-    /** Translate a (multi-line, html formatted) message */
-    public String message(String s) {
-        return view.getMsg(s);
-    }
     
-    /** Translate an error message */
-    public String error(String s) {
-        return view.getErr(s);
-    }
+	/**
+	 * Retrieves the value of the given resource property from the
+	 * resource bundle that stores all message strings.
+	 * 
+	 * @param name the name of the resource property
+	 * 
+	 * @return The property's value, when that property can be found in the
+	 *   corresponding resource bundle, OR the provided property name's
+	 *   parameter, when such property is missing.
+	 */
+	public String getMsg (String name) {
+	    if (resMsg != null) {
+	        try {
+	            return resMsg.getString(name);
+	        }
+	        catch (NullPointerException ex) {
+	            return NULL_PARAM_NAME;
+	        }
+	        catch (MissingResourceException ex) {
+	            return name;
+	        }
+	    }
+	    return name;
+	}
 }
