@@ -3,14 +3,14 @@ package eu.sqoooss.test.rest.api;
 import static org.junit.Assert.assertEquals;
 
 import java.net.URISyntaxException;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -21,7 +21,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import eu.sqoooss.test.rest.api.utils.TestUtils;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.rest.api.PluginResource;
-import eu.sqooss.rest.api.StoredProjectResource;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.pa.PluginAdmin;
@@ -64,44 +63,62 @@ public class PluginResourceTest {
 		pa = null;
 	}
 	
-	//FIXME returns error 500 due to PluginConfig bug I believe
 	@Test
-	@Ignore
 	public void testListPlugins() throws Exception {
-		String r = "";
-		Collection<PluginInfo> c = (Collection<PluginInfo>) PowerMockito.mock(Collection.class);
-		Mockito.when(pa.listPlugins()).thenReturn(c);
+		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<collection><plugin_info><installed>false</installed></plugin_info></collection>";
+		
+		PluginInfo pI = PowerMockito.mock(PluginInfo.class);
+		List<PluginInfo> l = new ArrayList<PluginInfo>();
+		l.add(pI);
+		Mockito.when(pa.listPlugins()).thenReturn(l);
 		
 		httpRequestFireAndTestAssertations("api/plugin/info/list", r);
 	}
 	
 	@Test
 	public void testGetPluginInfoHash() throws Exception {
-		PluginInfo pI = PowerMockito.mock(PluginInfo.class);
+		PluginInfo pI = new PluginInfo();
 		Mockito.when(pa.getPluginInfo(Mockito.anyString())).thenReturn(pI);
 	
 		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
-				PluginResource.class, "api/plugin/info/bla");
+				PluginResource.class, "api/plugin/info/123");
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
-	}
-	
-	@Ignore
-	@Test
-	public void testGetPluginInfo() throws Exception {
-		
 	}
 	
 	@Test
 	public void testInstallPlugin() throws Exception {
-		PluginInfo pInfo = PowerMockito.mock(PluginInfo.class);
+		PluginInfo pInfo = new PluginInfo();
+		//first branch
+		Mockito.when(pa.installPlugin(Mockito.anyString())).thenReturn(false);
+		MockHttpResponse response = TestUtils.fireMockPUTHttpRequest(
+				PluginResource.class, "api/plugin/install/123");
+		assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response.getStatus());
+		
+		//second branch
 		Mockito.when(pa.installPlugin(Mockito.anyString())).thenReturn(true);
 		Mockito.when(pa.getPluginInfo(Mockito.anyString())).thenReturn(pInfo);
 		
 		AlitheiaPlugin ap = PowerMockito.mock(AlitheiaPlugin.class);
 		Mockito.when(pa.getPlugin(Mockito.any(PluginInfo.class))).thenReturn(ap);
 	
-		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
-				PluginResource.class, "api/plugin/install/bla");
-		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		MockHttpResponse response2 = TestUtils.fireMockPUTHttpRequest(
+				PluginResource.class, "api/plugin/install/123");
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
+	}
+	
+	@Test
+	public void testUnistallPlugin() throws Exception {
+		//first branch
+		Mockito.when(pa.uninstallPlugin(Mockito.anyString())).thenReturn(false);
+		MockHttpResponse response = TestUtils.fireMockDELETEHttpRequest(
+				PluginResource.class, "api/plugin/uninstall/123");
+		assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response.getStatus());
+		
+		//second branch
+		Mockito.when(pa.uninstallPlugin(Mockito.anyString())).thenReturn(true);
+		MockHttpResponse response2 = TestUtils.fireMockDELETEHttpRequest(
+				PluginResource.class, "api/plugin/uninstall/123");
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
 	}
 }

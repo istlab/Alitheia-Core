@@ -70,9 +70,7 @@ public class SchedulerResourceTest {
 	public void testGetFailedJobTypes() throws Exception {
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 					+ "<collection><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
-					+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
-					+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test2</key>"
-					+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">2</value></map_entry></collection>";
+					+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry></collection>";
 
 		SchedulerStats ss = PowerMockito.mock(SchedulerStats.class);
 		Mockito.when(s.getSchedulerStats()).thenReturn(ss);
@@ -89,9 +87,7 @@ public class SchedulerResourceTest {
 	public void testGetWaitingJobTypes() throws Exception {
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
-				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test1</key>"
-				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry><map_entry><key xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:string\">test2</key>"
-				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">2</value></map_entry></collection>";
+				+ "<value xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:type=\"xs:int\">1</value></map_entry></collection>";
 
 		SchedulerStats ss = PowerMockito.mock(SchedulerStats.class);
 		Mockito.when(s.getSchedulerStats()).thenReturn(ss);
@@ -107,7 +103,7 @@ public class SchedulerResourceTest {
 	@Test
 	public void testGetRunJobs() throws Exception {
 		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<collection><string><value>Test</value></string><string><value>test1</value></string><string><value>test2</value></string></collection>";
+				+ "<collection><string><value>Test</value></string></collection>";
 
 		SchedulerStats ss = PowerMockito.mock(SchedulerStats.class);
 		Mockito.when(s.getSchedulerStats()).thenReturn(ss);

@@ -197,6 +197,12 @@ public class StoredProjectResource {
 				core.getLogManager().createLogger(Logger.NAME_SQOOSS_WEBADMIN).debug("Syncronise plugin (" + pObj.getName()
 						+ ") on project (" + sp.getName() + ").");
 			}
+			else{
+				return ResponseBuilder.internalServerErrorResponse("Plugin failed to sync!");
+			}
+		}
+		else{
+			return ResponseBuilder.internalServerErrorResponse("Plugin failed to sync!");
 		}
 		return ResponseBuilder.simpleResponse("Plugin synced with success");
 	}

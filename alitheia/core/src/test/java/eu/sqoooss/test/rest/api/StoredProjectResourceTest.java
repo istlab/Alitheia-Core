@@ -2,7 +2,6 @@ package eu.sqoooss.test.rest.api;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,10 +38,13 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
+import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
 
 @PrepareForTest({ AlitheiaCore.class, DAObject.class, ProjectVersion.class,
-		StoredProject.class, Directory.class, ClusterNode.class })
+		StoredProject.class, Directory.class, ClusterNode.class,
+		SchedulerException.class })
 @RunWith(PowerMockRunner.class)
 public class StoredProjectResourceTest {
 
@@ -50,14 +52,6 @@ public class StoredProjectResourceTest {
 	private DBService db;
 
 	/************ Help methods **************/
-	private void httpRequestFireAndTestAssertations(String api_path, String r)
-			throws URISyntaxException {
-		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
-				StoredProjectResource.class, api_path);
-		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
-		assertEquals(r, response.getContentAsString());
-	}
-
 	public void testNullProjectVersion() throws Exception {
 		StoredProjectResource api = PowerMockito
 				.mock(StoredProjectResource.class);
@@ -96,7 +90,10 @@ public class StoredProjectResourceTest {
 		Mockito.when(
 				ProjectVersion.getFirstProjectVersion(api.getProject(Mockito
 						.anyString()))).thenReturn(pv);
-		httpRequestFireAndTestAssertations("api/project/0123/version/first", r);
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/0123/version/first");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
 	}
 
 	public void testGetMiddleVersion(ProjectVersion pv, String r)
@@ -105,7 +102,10 @@ public class StoredProjectResourceTest {
 				ProjectVersion.getVersionByRevision(
 						(StoredProject) Mockito.any(), Mockito.anyString()))
 				.thenReturn(pv);
-		httpRequestFireAndTestAssertations("api/project/0123/version/random", r);
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/0123/version/random");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
 	}
 
 	public void testGetLastVersion(ProjectVersion pv, String r)
@@ -116,7 +116,10 @@ public class StoredProjectResourceTest {
 				ProjectVersion.getLastMeasuredVersion(
 						Metric.getMetricByMnemonic("TLOC"),
 						api.getProject(Mockito.anyString()))).thenReturn(pv);
-		httpRequestFireAndTestAssertations("api/project/0123/version/latest", r);
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/0123/version/latest");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
 	}
 
 	/************************************/
@@ -130,7 +133,7 @@ public class StoredProjectResourceTest {
 
 		db = PowerMockito.mock(DBService.class);
 		Mockito.when(core.getDBService()).thenReturn(db);
-		
+
 		as = PowerMockito.mock(AdminService.class);
 		Mockito.when(core.getAdminService()).thenReturn(as);
 
@@ -157,8 +160,10 @@ public class StoredProjectResourceTest {
 				+ "</collection>";
 
 		Mockito.when(db.doHQL(Mockito.anyString())).thenReturn(l);
-
-		httpRequestFireAndTestAssertations("api/projects/", r);
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/projects/");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
 
 	}
 
@@ -175,9 +180,10 @@ public class StoredProjectResourceTest {
 		Mockito.when(
 				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
 				.thenReturn(sp);
-
-		httpRequestFireAndTestAssertations("api/project/0123", r);
-
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/0123");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
 	}
 
 	@Test
@@ -191,9 +197,10 @@ public class StoredProjectResourceTest {
 		PowerMockito.mockStatic(StoredProject.class);
 		Mockito.when(StoredProject.getProjectByName(Mockito.anyString()))
 				.thenReturn(sp);
-
-		httpRequestFireAndTestAssertations("api/project/aaa", r);
-
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/aaa");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -216,7 +223,10 @@ public class StoredProjectResourceTest {
 				.thenReturn(tmp);
 
 		Mockito.when(tmp.getProjectVersions()).thenReturn(l);
-		httpRequestFireAndTestAssertations("api/project/0123/versions", r);
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/0123/versions");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r, response.getContentAsString());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -229,7 +239,11 @@ public class StoredProjectResourceTest {
 		Mockito.when(
 				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
 				.thenReturn(null);
-		httpRequestFireAndTestAssertations("api/project/0123/versions/vid", r1);
+
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/0123/versions/vid");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r1, response.getContentAsString());
 
 		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><version><id>0</id><timestamp>0</timestamp><sequence>0</sequence></version></collection>";
@@ -252,10 +266,16 @@ public class StoredProjectResourceTest {
 		s += "vid";
 
 		testGetVersionsHelper(pv);
-		httpRequestFireAndTestAssertations("api/project/0123/versions/" + s, r2);
+		MockHttpResponse response2 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/0123/versions/" + s);
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
 
 		testGetVersionsHelper(null);
-		httpRequestFireAndTestAssertations("api/project/0123/versions/" + s, r1);
+		MockHttpResponse response3 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class, "api/project/0123/versions/" + s);
+		assertEquals(HttpServletResponse.SC_OK, response3.getStatus());
+		assertEquals(r1, response3.getContentAsString());
 	}
 
 	public void testGetVersionsHelper(ProjectVersion pv) throws Exception {
@@ -283,14 +303,22 @@ public class StoredProjectResourceTest {
 		testNullProjectVersion();
 		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/files/", r1);
+
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/files/");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r1, response.getContentAsString());
 
 		testWithProjectVersion();
 		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><file><id>0</id><isdir>false</isdir></file><file><id>0</id><isdir>false</isdir></file></collection>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/files/", r2);
+
+		MockHttpResponse response2 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/files/");
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
 	}
 
 	@Test
@@ -298,17 +326,27 @@ public class StoredProjectResourceTest {
 		testNullProjectVersion();
 		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/first/files/bla", r1);
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/files/bla");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r1, response.getContentAsString());
 
 		testWithProjectVersion();
 		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><file><id>0</id><isdir>false</isdir></file><file><id>0</id><isdir>false</isdir></file></collection>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/files/bla", r2);
 
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/files//blah", r2);
+		MockHttpResponse response2 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/files/bla");
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
+
+		MockHttpResponse response3 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/files//bla");
+		assertEquals(HttpServletResponse.SC_OK, response3.getStatus());
+		assertEquals(r2, response3.getContentAsString());
 	}
 
 	@Test
@@ -316,8 +354,12 @@ public class StoredProjectResourceTest {
 		testNullProjectVersion();
 		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/first/files/changed", r1);
+
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/files/changed");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r1, response.getContentAsString());
 
 		ProjectVersion pv = PowerMockito.mock(ProjectVersion.class);
 		Set<ProjectFile> s = new HashSet<ProjectFile>();
@@ -338,8 +380,12 @@ public class StoredProjectResourceTest {
 				ProjectVersion.getLastProjectVersion(Mockito
 						.any(StoredProject.class))).thenReturn(pv);
 		Mockito.when(pv.getVersionFiles()).thenReturn(s);
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/files/changed", r2);
+
+		MockHttpResponse response2 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/files/changed");
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
 	}
 
 	@Test
@@ -347,14 +393,22 @@ public class StoredProjectResourceTest {
 		testNullProjectVersion();
 		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/first/dirs/", r1);
+
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/dirs/");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r1, response.getContentAsString());
 
 		testWithProjectVersion();
 		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><file><id>0</id><isdir>false</isdir></file><file><id>0</id><isdir>false</isdir></file></collection>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/dirs/", r2);
+
+		MockHttpResponse response2 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/dirs/");
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
 	}
 
 	@Test
@@ -362,16 +416,28 @@ public class StoredProjectResourceTest {
 		testNullProjectVersion();
 		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection/>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/dirs/bab", r1);
+
+		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/dirs/bab");
+		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(r1, response.getContentAsString());
 
 		testWithProjectVersion();
 		String r2 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<collection><file><id>0</id><isdir>false</isdir></file><file><id>0</id><isdir>false</isdir></file></collection>";
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/dirs/bab", r2);
-		httpRequestFireAndTestAssertations(
-				"api/project/0123/version/random/dirs//bab", r2);
+
+		MockHttpResponse response2 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/dirs/bab");
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
+
+		MockHttpResponse response3 = TestUtils.fireMockGETHttpRequest(
+				StoredProjectResource.class,
+				"api/project/0123/version/random/dirs//bab");
+		assertEquals(HttpServletResponse.SC_OK, response3.getStatus());
+		assertEquals(r2, response3.getContentAsString());
 	}
 
 	@Test
@@ -379,120 +445,188 @@ public class StoredProjectResourceTest {
 		PowerMockito.mockStatic(ClusterNode.class);
 		ClusterNode c = PowerMockito.mock(ClusterNode.class);
 		Mockito.when(ClusterNode.thisNode()).thenReturn(c);
-		
+
 		StoredProject p1 = PowerMockito.mock(StoredProject.class);
 		StoredProject p2 = PowerMockito.mock(StoredProject.class);
 		Set<StoredProject> l = new HashSet<StoredProject>();
 		l.add(p1);
 		l.add(p2);
-		
+
 		AdminAction aa = PowerMockito.mock(AdminAction.class);
 		Mockito.when(as.create(Mockito.anyString())).thenReturn(aa);
 		Mockito.when(c.getProjects()).thenReturn(l);
-		
+
 		MockHttpResponse response = TestUtils.fireMockGETHttpRequest(
 				StoredProjectResource.class, "api/projects/updateAllResources");
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 	}
-	
+
 	@Test
 	public void testAddProject() throws Exception {
-		String r = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+		// first branch
+		String r1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<project><id>0</id><name>TestProject1</name></project>";
 		StoredProject sp = new StoredProject("TestProject1");
 		AdminAction aa = PowerMockito.mock(AdminAction.class);
 		Mockito.when(as.create(Mockito.anyString())).thenReturn(aa);
 		PowerMockito.mockStatic(StoredProject.class);
-		Mockito.when(StoredProject.getProjectByName(Mockito.anyString())).thenReturn(sp);
-	
+
+		Mockito.when(StoredProject.getProjectByName(Mockito.anyString()))
+				.thenReturn(sp);
+
 		MockHttpResponse response = TestUtils.fireMockPOSTHttpRequest(
-				StoredProjectResource.class, "api/projects/add/bla/bla/bla/bla/bla/bla");
+				StoredProjectResource.class,
+				"api/projects/add/bla/bla/bla/bla/bla/bla");
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
-		assertEquals(r, response.getContentAsString());
+		assertEquals(r1, response.getContentAsString());
+
+		// second branch
+		String r2 = "";
+
+		Mockito.when(aa.hasErrors()).thenReturn(true);
+
+		MockHttpResponse response2 = TestUtils.fireMockPOSTHttpRequest(
+				StoredProjectResource.class,
+				"api/projects/add/bla/bla/bla/bla/bla/bla");
+		assertEquals(HttpServletResponse.SC_NO_CONTENT, response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testDeleteProject() throws Exception {
+		// first branch
 		PowerMockito.mockStatic(DAObject.class);
 		PowerMockito.mockStatic(AlitheiaCore.class);
-		
+
 		StoredProject sp = PowerMockito.mock(StoredProject.class);
-		Mockito.when(DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any())).thenReturn(sp);
-		
-		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
-		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
-		
-		Scheduler sch = PowerMockito.mock(Scheduler.class);
-		Mockito.when(core.getScheduler()).thenReturn(sch);
-		
-		//Mockito.when(sch.enqueue(Mockito.any(ProjectDeleteJob.class))).then;
+		Mockito.when(
+				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
+				.thenReturn(null);
+
 		MockHttpResponse response = TestUtils.fireMockDELETEHttpRequest(
 				StoredProjectResource.class, "api/project/1/delete");
-		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+				response.getStatus());
+
+		// second branch
+		Mockito.when(
+				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
+				.thenReturn(sp);
+
+		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
+		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
+		Scheduler sch = PowerMockito.mock(Scheduler.class);
+		Mockito.when(core.getScheduler()).thenReturn(sch);
+
+		MockHttpResponse response2 = TestUtils.fireMockDELETEHttpRequest(
+				StoredProjectResource.class, "api/project/1/delete");
+		assertEquals(HttpServletResponse.SC_OK, response2.getStatus());
 	}
-	
+
 	@Test
 	public void testUpdateProjectResource() throws Exception {
+		// first branch
 		PowerMockito.mockStatic(AlitheiaCore.class);
 		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
 		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
-		
+
 		Mockito.when(core.getAdminService()).thenReturn(as);
 		AdminAction aa = PowerMockito.mock(AdminAction.class);
 		Mockito.when(as.create(Mockito.anyString())).thenReturn(aa);
-		
-		MockHttpResponse response = TestUtils.fireMockPOSTHttpRequest(
-				StoredProjectResource.class, "api/project/1/updateResource/bla");
+
+		MockHttpResponse response = TestUtils
+				.fireMockPOSTHttpRequest(StoredProjectResource.class,
+						"api/project/1/updateResource/bla");
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+
+		// second branch
+		String r2 = "Update resource on project failed";
+		Mockito.when(aa.hasErrors()).thenReturn(true);
+		MockHttpResponse response2 = TestUtils
+				.fireMockPOSTHttpRequest(StoredProjectResource.class,
+						"api/project/1/updateResource/bla");
+		assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+				response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
 	}
 
 	@Test
 	public void testUpdateAllProjectResources() throws Exception {
+		// first branch
 		PowerMockito.mockStatic(AlitheiaCore.class);
 		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
 		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
-		
+
 		Mockito.when(core.getAdminService()).thenReturn(as);
 		AdminAction aa = PowerMockito.mock(AdminAction.class);
 		Mockito.when(as.create(Mockito.anyString())).thenReturn(aa);
-		
-		MockHttpResponse response = TestUtils.fireMockPOSTHttpRequest(
-				StoredProjectResource.class, "api/project/1/updateAllResources");
+
+		MockHttpResponse response = TestUtils
+				.fireMockPOSTHttpRequest(StoredProjectResource.class,
+						"api/project/1/updateAllResources");
 		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+
+		// second branch
+		String r2 = "Update project resources failed";
+		Mockito.when(aa.hasErrors()).thenReturn(true);
+		MockHttpResponse response2 = TestUtils
+				.fireMockPOSTHttpRequest(StoredProjectResource.class,
+						"api/project/1/updateAllResources");
+		assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+				response2.getStatus());
+		assertEquals(r2, response2.getContentAsString());
+
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testSyncPlugin() throws Exception {
+		//first branch
 		PowerMockito.mockStatic(DAObject.class);
 		PowerMockito.mockStatic(AlitheiaCore.class);
-		
+
 		StoredProject sp = PowerMockito.mock(StoredProject.class);
-		Mockito.when(DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any())).thenReturn(sp);
-		
+		Mockito.when(
+				DAObject.loadDAObyId(Mockito.anyLong(), (Class) Mockito.any()))
+				.thenReturn(sp);
+
 		AlitheiaCore core = PowerMockito.mock(AlitheiaCore.class);
 		Mockito.when(AlitheiaCore.getInstance()).thenReturn(core);
-		
+
 		PluginAdmin pa = PowerMockito.mock(PluginAdmin.class);
 		PluginInfo pluginInfo = PowerMockito.mock(PluginInfo.class);
 		AlitheiaPlugin ap = PowerMockito.mock(AlitheiaPlugin.class);
-		
+
 		Mockito.when(core.getPluginAdmin()).thenReturn(pa);
-		Mockito.when(pa.getPluginInfo(Mockito.anyString())).thenReturn(pluginInfo);
-		Mockito.when(pa.getPlugin(pluginInfo)).thenReturn(ap);
-		
-		MetricActivator mta = PowerMockito.mock(MetricActivator.class);
-		Mockito.when(core.getMetricActivator()).thenReturn(mta);
-		
-		LogManager log = PowerMockito.mock(LogManager.class);
-		Mockito.when(core.getLogManager()).thenReturn(log);
-		
-		Logger l = PowerMockito.mock(Logger.class);
-		Mockito.when(log.createLogger(Mockito.anyString())).thenReturn(l);
+		Mockito.when(pa.getPluginInfo(Mockito.anyString())).thenReturn(
+				null);
 		
 		MockHttpResponse response = TestUtils.fireMockPOSTHttpRequest(
 				StoredProjectResource.class, "api/project/1/syncPlugin/bla");
-		assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response.getStatus());
+		
+		//second branch
+		Mockito.when(pa.getPluginInfo(Mockito.anyString())).thenReturn(
+				pluginInfo);
+		Mockito.when(pa.getPlugin(pluginInfo)).thenReturn(null);
+		MockHttpResponse response2 = TestUtils.fireMockPOSTHttpRequest(
+				StoredProjectResource.class, "api/project/1/syncPlugin/bla");
+		assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response2.getStatus());
+		
+		//third branch
+		Mockito.when(pa.getPlugin(pluginInfo)).thenReturn(ap);
+		MetricActivator mta = PowerMockito.mock(MetricActivator.class);
+		Mockito.when(core.getMetricActivator()).thenReturn(mta);
+
+		LogManager log = PowerMockito.mock(LogManager.class);
+		Mockito.when(core.getLogManager()).thenReturn(log);
+
+		Logger l = PowerMockito.mock(Logger.class);
+		Mockito.when(log.createLogger(Mockito.anyString())).thenReturn(l);
+
+		MockHttpResponse response3 = TestUtils.fireMockPOSTHttpRequest(
+				StoredProjectResource.class, "api/project/1/syncPlugin/bla");
+		assertEquals(HttpServletResponse.SC_OK, response3.getStatus());
 	}
 }

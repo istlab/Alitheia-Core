@@ -1,12 +1,9 @@
 package eu.sqooss.rest.api;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -14,11 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.rest.api.wrappers.JaxbString;
 import eu.sqooss.rest.api.wrappers.ResponseBuilder;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.pa.PluginInfo;
 
@@ -45,9 +38,7 @@ public class PluginResource {
 	@Produces({ "application/xml", "application/json" })
 	@Path("info/list")
 	public Collection<PluginInfo> listPluginsInfo() {
-		
 		Collection<PluginInfo> ps = pluginAdmin.listPlugins();
-		
 		return ps;
 	}
 
@@ -56,22 +47,6 @@ public class PluginResource {
 	@Path("info/{hashcode}")
 	public PluginInfo getPluginInfo(@PathParam("hashcode") String pluginhashcode) {
 		return pluginAdmin.getPluginInfo(pluginhashcode);
-	}
-
-	@POST
-	@Produces({ "application/xml", "application/json" })
-	@Consumes({ "application/xml", "application/json" })
-	@Path("info")
-	public PluginInfo getPluginInfo(AlitheiaPlugin p) {
-		return pluginAdmin.getPluginInfo(p);
-	}
-
-	@POST
-	@Produces({ "application/xml", "application/json" })
-	@Consumes({ "application/xml", "application/json" })
-	@Path("get")
-	public AlitheiaPlugin getPluginInfo(PluginInfo pinfo) {
-		return pluginAdmin.getPlugin(pinfo);
 	}
 	
 	@PUT

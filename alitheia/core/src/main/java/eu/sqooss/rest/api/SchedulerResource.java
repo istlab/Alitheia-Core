@@ -46,10 +46,6 @@ public class SchedulerResource {
 		for ( String k :  keySet )
 			l.add(new JaxbMapEntry<String, Integer>(k, map.get(k)));
 		
-        //TODO remove these
-		l.add(new JaxbMapEntry<String, Integer>("test1", 1));
-		l.add(new JaxbMapEntry<String, Integer>("test2", 2));
-		
 		return l;
 		
 	}
@@ -66,10 +62,6 @@ public class SchedulerResource {
 		for ( String k :  keySet )
 			l.add(new JaxbMapEntry<String, Integer>(k, map.get(k)));
 		
-        //TODO remove these
-		l.add(new JaxbMapEntry<String, Integer>("test1", 1));
-		l.add(new JaxbMapEntry<String, Integer>("test2", 2));
-		
 		return l;
 		
 	}
@@ -85,10 +77,6 @@ public class SchedulerResource {
         for (String s : rjobs)
         	l.add(new JaxbString(s));
         
-        //TODO remove these
-		l.add(new JaxbString("test1"));
-		l.add(new JaxbString("test2"));
-		
 		return l;
 		
 	}
