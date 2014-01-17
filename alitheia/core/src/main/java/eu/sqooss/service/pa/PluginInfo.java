@@ -170,7 +170,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
      * Empty constructor.
      */
     public PluginInfo() {
-    	//setPluginConfiguration(new HashSet<PluginConfiguration>());
+    	setPluginConfiguration(new HashSet<PluginConfiguration>());
     }
 
     /**
