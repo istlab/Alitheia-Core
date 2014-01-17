@@ -247,6 +247,7 @@ public class ProjectsView extends AbstractView {
 		aa.addArg("updater", mnem);
 		as.execute(aa);
 
+		// RENG: this could overwrite previous results!?
 		if (aa.hasErrors()) {
             getVelocityContext().put("RESULTS", aa.errors());
         } else { 
@@ -272,6 +273,7 @@ public class ProjectsView extends AbstractView {
         aa.addArg("project", selProject.getId());
         as.execute(aa);
 
+        // RENG: this could overwrite previous results!?
         if (aa.hasErrors()) {
             getVelocityContext().put("RESULTS", aa.errors());
         } else {
