@@ -33,7 +33,20 @@
 
 package eu.sqooss.impl.service.webadmin;
 
+import static eu.sqooss.impl.service.webadmin.HTMLFormBuilder.POST;
+import static eu.sqooss.impl.service.webadmin.HTMLFormBuilder.form;
+import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.BUTTON;
+import static eu.sqooss.impl.service.webadmin.HTMLInputBuilder.input;
+import static eu.sqooss.impl.service.webadmin.HTMLNodeBuilder.node;
+import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.table;
+import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.tableColumn;
+import static eu.sqooss.impl.service.webadmin.HTMLTableBuilder.tableRow;
+import static eu.sqooss.impl.service.webadmin.HTMLTextBuilder.text;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +55,7 @@ import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.webadmin.HTMLTableBuilder.HTMLTableRowBuilder;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
@@ -309,18 +323,17 @@ public class ProjectsView extends AbstractView {
     protected void createForm(StringBuilder b, StringBuilder e, 
     		StoredProject selProject, String reqValAction, int in) {
 
+    	StringBuilder b_internal = new StringBuilder();
+    	
         // ===============================================================
         // Create the form
         // ===============================================================
-        b.append(sp(in) + "<form id=\"projects\""
-                + " name=\"projects\""
-                + " method=\"post\""
-                + " action=\"/projects\">\n");
+    	HTMLFormBuilder formBuilder = form().withId("projects").withName("projects").withMethod(POST).withAction("/projects");
 
         // ===============================================================
         // Display the accumulated error messages (if any)
         // ===============================================================
-        b.append(errorFieldset(e, ++in));
+        b_internal.append(errorFieldset(e, ++in));
 
         // Get the complete list of projects stored in the SQO-OSS framework
         Set<StoredProject> projects = getThisNodeProjects();
@@ -331,153 +344,126 @@ public class ProjectsView extends AbstractView {
         // ===================================================================
         if ((ACT_REQ_SHOW_PROJECT.equals(reqValAction))
                 && (selProject != null)) {
-            // Create the field-set
-            b.append(sp(in++) + "<fieldset>\n");
-            b.append(sp(in) + "<legend>"
-                    + "Project information"
-                    + "</legend>\n");
-            b.append(sp(in++) + "<table class=\"borderless\">\n");
             // Create the input fields
-            b.append(normalInfoRow(
+            StringBuilder infoRows = new StringBuilder();            
+            infoRows.append(normalInfoRow(
                     "Project name", selProject.getName(), in));
-            b.append(normalInfoRow(
+            infoRows.append(normalInfoRow(
                     "Homepage", selProject.getWebsiteUrl(), in));
-            b.append(normalInfoRow(
+            infoRows.append(normalInfoRow(
                     "Contact e-mail", selProject.getContactUrl(), in));
-            b.append(normalInfoRow(
+            infoRows.append(normalInfoRow(
                     "Bug database", selProject.getBtsUrl(), in));
-            b.append(normalInfoRow(
+            infoRows.append(normalInfoRow(
                     "Mailing list", selProject.getMailUrl(), in));
-            b.append(normalInfoRow(
+            infoRows.append(normalInfoRow(
                     "Source code", selProject.getScmUrl(), in));
+            b_internal.append(infoRows.toString());
 
-            //------------------------------------------------------------
-            // Tool-bar
-            //------------------------------------------------------------
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in++)
-                    + "<td colspan=\"2\" class=\"borderless\">\n");
-            // Back button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("btn_back") + "\""
-                    + " onclick=\"javascript:"
-                    + SUBMIT + "\" />\n");
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</table>\n");
-            b.append(sp(--in) + "</fieldset>\n");
+            b_internal.append(
+        		node("fieldset")
+        			.with(node("legend")
+        				.appendContent("Project information")
+        			)
+        			.with(table().withClass("borderless")
+        				.appendContent(infoRows.toString())
+        				// toolbar
+        				.with(
+        					tableRow()
+        					.with(
+        						tableColumn().withColspan(2).withClass("borderless")
+        						.with(defaultButton()
+        							.withValue(getLbl("btn_back"))
+        							.withAttribute("onclick", doSubmitString())
+        						)
+        					)
+        				)
+        			)
+        		.build()
+        	);
         }
         // ===================================================================
         // "Add project" editor
         // ===================================================================
         else if (ACT_REQ_ADD_PROJECT.equals(reqValAction)) {
             // Create the field-set
-            b.append(sp(in++) + "<table class=\"borderless\" width='100%'>\n");
             // Create the input fields
-            b.append(normalInputRow(
+            StringBuilder infoRows = new StringBuilder();  
+            infoRows.append(normalInputRow(
                     "Project name", REQ_PAR_PRJ_NAME, "", in));
-            b.append(normalInputRow(
+            infoRows.append(normalInputRow(
                     "Homepage", REQ_PAR_PRJ_WEB, "", in));
-            b.append(normalInputRow(
+            infoRows.append(normalInputRow(
                     "Contact e-mail", REQ_PAR_PRJ_CONT, "", in));
-            b.append(normalInputRow(
+            infoRows.append(normalInputRow(
                     "Bug database", REQ_PAR_PRJ_BUG, "", in));
-            b.append(normalInputRow(
+            infoRows.append(normalInputRow(
                     "Mailing list", REQ_PAR_PRJ_MAIL, "", in));
-            b.append(normalInputRow(
+            infoRows.append(normalInputRow(
                     "Source code", REQ_PAR_PRJ_CODE, "", in));
 
-            //------------------------------------------------------------
-            // Tool-bar
-            //------------------------------------------------------------
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in++)
-                    + "<td colspan=\"2\" class=\"borderless\">\n");
-            // Apply button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("project_add") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_CON_ADD_PROJECT + "';"
-                    + SUBMIT + "\" />\n");
-            // Cancel button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("cancel") + "\""
-                    + " onclick=\"javascript:"
-                    + SUBMIT + "\" />\n");
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</table>\n");
+            b_internal.append(
+            	table().withClass("borderless").withStyle("width: 100%").
+		        with(
+		        	text(infoRows.toString()),
+		        	// toolbar
+		        	tableRow().with(
+		        		tableColumn().withColspan(2).withClass("borderless").
+		        		with(
+		        			defaultButton()
+		        				.withValue(getLbl("project_add"))
+		        				.withAttribute("onclick", doSetActionAndSubmitString(ACT_CON_ADD_PROJECT)),
+		        			defaultButton()
+		        				.withValue(getLbl("cancel"))
+		        				.withAttribute("onclick", doSubmitString())
+		        		)
+		        	)
+		        ).build()
+        	);
         }
         // ===================================================================
         // "Delete project" confirmation view
         // ===================================================================
         else if ((ACT_REQ_REM_PROJECT.equals(reqValAction))
                 && (selProject != null)) {
-            b.append(sp(in++) + "<fieldset>\n");
-            b.append(sp(in) + "<legend>" + getLbl("l0059")
-                    + ": " + selProject.getName()
-                    + "</legend>\n");
-            b.append(sp(in++) + "<table class=\"borderless\">");
-            // Confirmation message
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in) + "<td class=\"borderless\">"
-                    + "<b>" + getMsg("delete_project") + "</b>"
-                    + "</td>\n");
-
-            b.append(sp(--in) + "</tr>\n");
-            //------------------------------------------------------------
-            // Tool-bar
-            //------------------------------------------------------------
-            b.append(sp(in++) + "<tr>\n");
-            b.append(sp(in++)
-                    + "<td class=\"borderless\">\n");
-            // Confirm button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0006") + "\""
-                    + " onclick=\"javascript:"
-                    + "document.getElementById('"
-                    + REQ_PAR_ACTION + "').value='"
-                    + ACT_CON_REM_PROJECT + "';"
-                    + SUBMIT + "\" />\n");
-            // Cancel button
-            b.append(sp(in) + "<input type=\"button\""
-                    + " class=\"install\""
-                    + " style=\"width: 100px;\""
-                    + " value=\"" + getLbl("l0004") + "\""
-                    + " onclick=\"javascript:"
-                    + SUBMIT + "\" />\n");
-            b.append(sp(--in) + "</td>\n");
-            b.append(sp(--in) + "</tr>\n");
-            b.append(sp(--in) + "</table>");
-            b.append(sp(in) + "</fieldset>\n");
+            b_internal.append(
+            	node("fieldset").with(
+	            	node("legend").with(
+	            		text(getLbl("l0059") + ": " + selProject.getName())),
+	            	table().withClass("borderless").with(
+	            		// confirmation message
+	            		tableRow().with(
+            				tableColumn().withClass("borderless").with(
+            					node("b").with(text(getMsg("delete_project")))
+            				)
+	            		),
+            			// toolbar
+	            		tableRow().with(
+	            			tableColumn().withClass("borderless").with(
+	            				defaultButton()
+	            					.withValue(getLbl("l0006"))
+	            					.withAttribute("onclick", doSetActionAndSubmitString(ACT_CON_REM_PROJECT)),
+	            				defaultButton()
+		            				.withValue(getLbl("l0004"))
+		            				.withAttribute("onclick", doSubmitString())
+	            			)
+	            		)
+	            	)
+            	).build()
+            );
         }
         // ===================================================================
         // Projects list view
         // ===================================================================
         else {
-        	//----------------------------------------------------------------
-            // Open the table
-            //----------------------------------------------------------------
-			b.append(sp(in++) + "<table>\n");
-			addHeaderRow(b, in + 1);
-			b.append(sp(in++) + "<tbody>\n");			
+        	StringBuilder projectsList = new StringBuilder();
 
             if (projects.isEmpty()) {
-                b.append(sp(in++) + "<tr>\n");
-                b.append(sp(in) + "<td colspan=\"6\" class=\"noattr\">\n"
+                projectsList.append(sp(in++) + "<tr>\n");
+                projectsList.append(sp(in) + "<td colspan=\"6\" class=\"noattr\">\n"
                         + getMsg("no_projects")
                         + "</td>\n");
-                b.append(sp(--in) + "</tr>\n");
+                projectsList.append(sp(--in) + "</tr>\n");
             }
             else {
                 //------------------------------------------------------------
@@ -489,7 +475,7 @@ public class ProjectsView extends AbstractView {
                             && (selProject.getId() == nextPrj.getId())) {
                         selected = true;
                     }
-                    b.append(sp(in++) + "<tr class=\""
+                    projectsList.append(sp(in++) + "<tr class=\""
                             + ((selected) ? "selected" : "edit") + "\""
                             + " onclick=\"javascript:"
                             + "document.getElementById('"
@@ -498,11 +484,11 @@ public class ProjectsView extends AbstractView {
                             + "';"
                             + SUBMIT + "\">\n");
                     // Project Id
-                    b.append(sp(in) + "<td class=\"trans\">"
+                    projectsList.append(sp(in) + "<td class=\"trans\">"
                             + nextPrj.getId()
                             + "</td>\n");
                     // Project name
-                    b.append(sp(in) + "<td class=\"trans\">"
+                    projectsList.append(sp(in) + "<td class=\"trans\">"
                             + ((selected)
                                     ? "<input type=\"button\""
                                         + " class=\"install\""
@@ -526,17 +512,17 @@ public class ProjectsView extends AbstractView {
                     if (v != null) {
                         lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
                     }
-                    b.append(sp(in) + "<td class=\"trans\">"
+                    projectsList.append(sp(in) + "<td class=\"trans\">"
                             + lastVersion
                             + "</td>\n");
                     // Date of the last known email
                     MailMessage mm = getLastMailMessage(nextPrj);
-                    b.append(sp(in) + "<td class=\"trans\">"
+                    projectsList.append(sp(in) + "<td class=\"trans\">"
                             + ((mm == null)?getLbl("l0051"):mm.getSendDate())
                             + "</td>\n");
                     // ID of the last known bug entry
                     Bug bug = getLastBug(nextPrj);
-                    b.append(sp(in) + "<td class=\"trans\">"
+                    projectsList.append(sp(in) + "<td class=\"trans\">"
                             + ((bug == null)?getLbl("l0051"):bug.getBugID())
                             + "</td>\n");
                     // Evaluation state
@@ -544,7 +530,7 @@ public class ProjectsView extends AbstractView {
                     if (nextPrj.isEvaluated()) {
                     	evalState = getLbl("project_is_evaluated");
                     }
-                    b.append(sp(in) + "<td class=\"trans\">"
+                    projectsList.append(sp(in) + "<td class=\"trans\">"
                             + evalState
                             + "</td>\n");
                     
@@ -555,37 +541,56 @@ public class ProjectsView extends AbstractView {
                     } else {
                         nodename = "(local)";
                     }
-                    b.append(sp(in) + "<td class=\"trans\">" + nodename + "</td>\n");
-                    b.append(sp(--in) + "</tr>\n");
+                    projectsList.append(sp(in) + "<td class=\"trans\">" + nodename + "</td>\n");
+                    projectsList.append(sp(--in) + "</tr>\n");
                     if ((selected) && (metrics.isEmpty() == false)) {
-                        showLastAppliedVersion(nextPrj, metrics, b);
+                        showLastAppliedVersion(nextPrj, metrics, projectsList);
                     }
                 }
             }
             //----------------------------------------------------------------
             // Tool-bar
             //----------------------------------------------------------------
-            addToolBar(selProject,b,in);
+            Collection<HTMLTableRowBuilder> toolbar = toolbar(selProject);
+			for (HTMLTableRowBuilder row : toolbar) {
+				projectsList.append(row.build((long) in));
+			}
 
-            //----------------------------------------------------------------
-            // Close the table
-            //----------------------------------------------------------------
-            b.append(sp(--in) + "</tbody>\n");
-            b.append(sp(--in) + "</table>\n");
-            // RENG: this fieldset is never opened.
-            b.append(sp(--in) + "</fieldset>\n");
+            b_internal.append(
+            	table().with(
+            		headerRow(),
+            		node("tbody").with(
+            			text(projectsList.toString())
+            		)
+            	)
+            	.build()
+            );
         }
 
         // ===============================================================
         // INPUT FIELDS
         // ===============================================================
-        addHiddenFields(selProject,b,in);
+        addHiddenFields(selProject,b_internal,in);
 
-        // ===============================================================
-        // Close the form
-        // ===============================================================
-        b.append(sp(--in) + "</form>\n");
+        formBuilder.appendContent(b_internal.toString());
+        
+        b.append(formBuilder.build());
     }
+
+	protected static String doSubmitString() {
+		return "javascript:" + SUBMIT;
+	}
+	
+	protected static String doSetActionAndSubmitString(String action) {
+		return "javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + action + "';" + SUBMIT;
+	}
+
+	protected static HTMLInputBuilder defaultButton() {
+		return input()
+			.withType(BUTTON)
+			.withClass("install")
+			.withStyle("width: 100px;");
+	}
 
 	protected Bug getLastBug(StoredProject project) {
 		return Bug.getLastUpdate(project);
@@ -621,60 +626,90 @@ public class ProjectsView extends AbstractView {
                 "' value='' />\n");
     }
     
-    protected void addToolBar(StoredProject selProject,
-            StringBuilder b,
-            long in) {
-        b.append(sp(in++) + "<tr class=\"subhead\">\n");
-        b.append(sp(in++) + "<td>View</td><td colspan=\"6\">\n");
-        // Refresh button
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0008") + "\"" + " onclick=\"javascript:" + "window.location='/projects" + ((selProject != null)
-                ? "?" + REQ_PAR_PROJECT_ID + "=" + selProject.getId()
-                : "") + "';\"" + " />");
-        b.append("</td></tr><tr class=\"subhead\"><td>Manage</td><td colspan='6'>\n");
-        // Add project button
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("add_project") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_ADD_PROJECT + "';" + SUBMIT + "\" />\n");
-        // Remove project button
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " style=\"width: 100px;\"" + " value=\"" + getLbl("l0059") + "\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_REQ_REM_PROJECT + "';" + SUBMIT + "\"" + ((selProject != null) ? "" : " disabled") + " />");
-        b.append("</td></tr><tr class='subhead'><td>Update</td><td colspan='4'>\n");
-        
-        if (selProject != null) {
-        	// RENG: the ternary operator can only take one side because of the if.
-            b.append(sp(in) + "<select name=\"" + REQ_PAR_UPD + "\" id=\"" + REQ_PAR_UPD + "\" " + ((selProject != null) ? "" : " disabled=\"disabled\"") + ">\n");
-            b.append(sp(in) + "<optgroup label=\"Import Stage\">");
-            for (Updater u : getUpdaters(selProject, UpdaterStage.IMPORT)) {
-                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
-            }
-            b.append(sp(in) + "</optgroup>");
-            b.append(sp(in) + "<optgroup label=\"Parse Stage\">");
-            for (Updater u : getUpdaters(selProject, UpdaterStage.PARSE)) {
-                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
-            }
-            b.append(sp(in) + "</optgroup>");
-            b.append(sp(in) + "<optgroup label=\"Inference Stage\">");
-            for (Updater u : getUpdaters(selProject, UpdaterStage.INFERENCE)) {
-                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
-            }
-            b.append(sp(in) + "</optgroup>");
-            b.append(sp(in) + "<optgroup label=\"Default Stage\">");
-            for (Updater u : getUpdaters(selProject, UpdaterStage.DEFAULT)) {
-                b.append("<option value=\"").append(u.mnem()).append("\">").append(u.descr()).append("</option>");
-            }
-            b.append(sp(in) + "</optgroup>");
-            b.append(sp(in) + "</select>");
-        }
-
-        // Trigger updater
-        b.append(sp(in) + "<input type=\"button\" class=\"install\" value=\"Run Updater\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD + "';" + SUBMIT + "\"" + ((selProject != null)? "" : " disabled") + " />\n");
-        // Trigger all updates
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\"" + " value=\"Run All Updaters\" onclick=\"javascript:document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL + "';" + SUBMIT + "\"" + (((selProject != null))
-                ? "" : " disabled") + " />\n");
-        b.append(sp(--in) + "</td>\n");
-        b.append(sp(--in) + "<td colspan=\"2\" align=\"right\">\n");
-     // Trigger updates on host
-        b.append(sp(in) + "<input type=\"button\"" + " class=\"install\" value=\"Update all on "+ getClusterNodeName() +"\"" + " onclick=\"javascript:" + "document.getElementById('" + REQ_PAR_ACTION + "').value='" + ACT_CON_UPD_ALL_NODE + "';" + SUBMIT + "\" />\n");
-        b.append(sp(--in) + "</td>\n");
-        b.append(sp(--in) + "</tr>\n");
+    protected Collection<HTMLTableRowBuilder> toolbar(StoredProject project) {
+    	String projectID = (project != null) ? "?" + REQ_PAR_PROJECT_ID + "=" + project.getId() : "";
+		return Arrays.asList(
+    		tableRow().withClass("subhead").with(
+    			tableColumn().with(text("View")),
+    			tableColumn().withColspan(6).with(
+    				defaultButton()
+    					.withValue(getLbl("l0008"))
+    					.withAttribute("onclick",
+    							"javascript:window.location='/projects" + projectID + "';")
+    			)
+    		),
+    		tableRow().withClass("subhead").with(
+    			tableColumn().with(text("Manage")),
+    			tableColumn().withColspan(6).with(
+    				defaultButton()
+    					.withValue(getLbl("add_project"))
+    					.withAttribute("onclick", doSetActionAndSubmitString(ACT_REQ_ADD_PROJECT)),
+    				defaultButton()
+	    				.withValue(getLbl("l0059"))
+	    				.withAttribute("onclick", doSetActionAndSubmitString(ACT_REQ_REM_PROJECT))
+	    				.withDisabled(project == null)
+    			)
+    		),
+    		tableRow().withClass("subhead").with(
+    			tableColumn().with(text("Update")),
+    			tableColumn().withColspan(4)
+    				.with(
+    					(project == null) ? GenericHTMLBuilder.EMPTY_ARRAY : new GenericHTMLBuilder<?>[]{updaterSelector(project)}
+    				).with(
+    					input()
+		    				.withType(BUTTON)
+		    				.withClass("install")
+		    				.withValue("Run Updater")
+		    				.withAttribute("onclick", doSetActionAndSubmitString(ACT_CON_UPD))
+		    				.withDisabled(project == null),
+						input()
+		    				.withType(BUTTON)
+		    				.withClass("install")
+		    				.withValue("Run All Updaters")
+		    				.withAttribute("onclick", doSetActionAndSubmitString(ACT_CON_UPD_ALL))
+		    				.withDisabled(project == null)
+	    			),
+	    		tableColumn().withColspan(2).withAttribute("align", "right").with(
+    				input()
+	    				.withType(BUTTON)
+	    				.withClass("install")
+	    				.withValue("Update all on " + getClusterNodeName())
+	    				.withAttribute("onclick", doSetActionAndSubmitString(ACT_CON_UPD_ALL_NODE))
+	    		)
+    		)
+    	);
     }
+    
+    private GenericHTMLBuilder<?> updaterSelector(StoredProject project) {
+		return
+			node("select").withName(REQ_PAR_UPD).withId(REQ_PAR_UPD).with(
+				node("optgroup").withAttribute("label", "Import Stage").with(
+					getUpdaterOptions(project, UpdaterStage.IMPORT).toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+				),
+				node("optgroup").withAttribute("label", "Parse Stage").with(
+					getUpdaterOptions(project, UpdaterStage.PARSE).toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+				),
+				node("optgroup").withAttribute("label", "Inference Stage").with(
+					getUpdaterOptions(project, UpdaterStage.INFERENCE).toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+				),
+				node("optgroup").withAttribute("label", "Default Stage").with(
+					getUpdaterOptions(project, UpdaterStage.DEFAULT).toArray(GenericHTMLBuilder.EMPTY_ARRAY)
+				)
+			);
+	}
+
+	private Collection<GenericHTMLBuilder<?>> getUpdaterOptions(
+			StoredProject project, UpdaterStage stage) {
+		Collection<GenericHTMLBuilder<?>> options = new ArrayList<GenericHTMLBuilder<?>>();
+		
+		for (Updater u : getUpdaters(project, stage)) {
+			options.add(
+				node("option").withAttribute("value", u.mnem()).with(text(u.descr()))
+			);
+		}
+		
+		return options;
+	}
 
 	protected Set<Updater> getUpdaters(StoredProject selProject,
 			UpdaterStage importStage) {
@@ -711,38 +746,21 @@ public class ProjectsView extends AbstractView {
             }
         }
     }
-
-    protected void addHeaderRow(StringBuilder b, long in) {
-		//----------------------------------------------------------------
-		// Create the header row
-		//----------------------------------------------------------------
-
-		b.append(sp(in++) + "<thead>\n");
-        b.append(sp(in++) + "<tr class=\"head\">\n");
-        b.append(sp(in) + "<td class='head'  style='width: 10%;'>"
-                + getLbl("l0066")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 35%;'>"
-                + getLbl("l0067")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
-                + getLbl("l0068")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
-                + getLbl("l0069")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 15%;'>"
-                + getLbl("l0070")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 10%;'>"
-                + getLbl("l0071")
-                + "</td>\n");
-        b.append(sp(in) + "<td class='head' style='width: 10%;'>"
-                + getLbl("l0073")
-                + "</td>\n");
-        b.append(sp(--in) + "</tr>\n");
-        b.append(sp(--in) + "</thead>\n");
-	}
+    
+    protected static HTMLNodeBuilder headerRow() {
+    	return
+    		node("thead").with(
+				tableRow().withClass("head").with(
+					tableColumn().withClass("head").withStyle("width: 10%").with(text(getLbl("l0066"))),
+					tableColumn().withClass("head").withStyle("width: 35%").with(text(getLbl("l0067"))),
+					tableColumn().withClass("head").withStyle("width: 15%").with(text(getLbl("l0068"))),
+					tableColumn().withClass("head").withStyle("width: 15%").with(text(getLbl("l0069"))),
+					tableColumn().withClass("head").withStyle("width: 15%").with(text(getLbl("l0070"))),
+					tableColumn().withClass("head").withStyle("width: 10%").with(text(getLbl("l0071"))),
+					tableColumn().withClass("head").withStyle("width: 10%").with(text(getLbl("l0073")))
+				)
+			);
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

@@ -50,6 +50,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
+import eu.sqooss.impl.service.webadmin.HTMLTableBuilder.HTMLTableRowBuilder;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.admin.AdminAction;
 import eu.sqooss.service.admin.AdminService;
@@ -585,6 +586,7 @@ public class ProjectsViewTest {
 		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
 		// test that the form exists
+		System.out.println(html);
 		assertThat(the(html), hasXPath("/root/form[@id='projects' and @name='projects' and @method='post' and @action='/projects']"));
 	}
 	
@@ -776,7 +778,10 @@ public class ProjectsViewTest {
 	public void shouldShowBasicToolbarIfNoProjectSelected() {
 		StringBuilder builder = new StringBuilder();
 		
-		projectsView.addToolBar(null, builder, 0);
+		Collection<HTMLTableRowBuilder> toolbar = projectsView.toolbar(null);
+		for (HTMLTableRowBuilder row : toolbar) {
+			builder.append(row.build((long) 0));
+		}
 		
 		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
 		
@@ -825,7 +830,10 @@ public class ProjectsViewTest {
 		Updater defu2 = createUpdater("defu2", "default_updater_2", UpdaterStage.DEFAULT);
 		updaters.put(UpdaterStage.DEFAULT, new HashSet<Updater>(Arrays.asList(defu1, defu2)));
 		
-		projectsView.addToolBar(project1, builder, 0);
+		Collection<HTMLTableRowBuilder> toolbar = projectsView.toolbar(project1);
+		for (HTMLTableRowBuilder row : toolbar) {
+			builder.append(row.build((long) 0));
+		}
 
 		// sanitize html input
 		String html = HTMLTestUtils.sanitizeHTML(builder.toString());
@@ -941,7 +949,7 @@ public class ProjectsViewTest {
 
 		// RENG: This method opens table, but doesn't close it. Move this out?
 		builder.append(ProjectsView.sp(in++) + "<table>\n");
-		projectsView.addHeaderRow(builder, in);
+		builder.append(ProjectsView.headerRow().build(in));
 
 		String html = builder.toString() + "</table>";
 		
