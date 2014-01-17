@@ -104,7 +104,7 @@ public class PluginListTest extends AbstractWebadminServletTest{
 		testee.service(mockReq, mockResp);
 		// Get the output
 		String output = getResponseOutput();
-		System.out.println(output);
+
 		// Assert that all activators are in the output
 		for(Class<?> c : activators) {
 			assertTrue(output.contains(c.getName()));

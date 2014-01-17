@@ -137,7 +137,6 @@ public class JobsTest extends AbstractWebadminServletTest {
 
 		// Get the output
 		String output = stripHTMLandWhitespace(getResponseOutput());
-		System.out.println(output);
 
 		// Verify the jobs names and numbers are displayed correctly
 		assertTrue(output.matches(".*dcjjzfqjox.*931.*ligeismung.*941.*"));
