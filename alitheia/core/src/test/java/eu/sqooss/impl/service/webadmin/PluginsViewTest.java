@@ -466,6 +466,7 @@ public class PluginsViewTest {
 		when(request.getParameter(REQ_PAR_ACTION)).thenReturn(ACT_VAL_INSTALL_PLUGIN);
 		
 		PluginInfo pluginInfo10 = new PluginInfo();
+		pluginInfo10.setServiceRef(serviceReference1);
 		AlitheiaPlugin plugin10 = mock(AlitheiaPlugin.class);
 		when(pluginAdmin.installPlugin("plugin10")).thenReturn(true);
 		when(pluginAdmin.getPluginInfo("plugin10")).thenReturn(pluginInfo10);
