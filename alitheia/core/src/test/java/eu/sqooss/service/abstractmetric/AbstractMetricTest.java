@@ -4,9 +4,11 @@ import static org.powermock.api.mockito.PowerMockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -60,8 +62,14 @@ public class AbstractMetricTest extends TestCase {
 			supported = new LinkedList<Metric>();
 		}
 		
-		public Metric getMetric(String ID){
-			return this.metrics.get(ID);
+		public Metric getMetric(String mnemonic){
+			Iterator<Metric> iterator =  this.metrics.getMetrics().iterator();
+			while (iterator.hasNext()){
+				Metric next = iterator.next();
+				if( next.getMnemonic().equals(mnemonic))
+					return next;
+			}
+			return null;
 		}
 		
 		public List<Result> getResult(Bug b, Metric m){
@@ -121,7 +129,7 @@ public class AbstractMetricTest extends TestCase {
 		final List<MetricDecl> metrics = new LinkedList<MetricDecl>();
 		when(md.metrics()).thenReturn(metrics.toArray(new MetricDecl[metrics.size()]));
 		
-		instance.discoverMetrics(md); // null already called through constructor
+		instance.metrics.discoverMetrics(md); // null already called through constructor
 		verify(log,times(2)).warn(Mockito.anyString());
 		
 		final MetricDecl metric = mock(MetricDecl.class);
@@ -135,15 +143,15 @@ public class AbstractMetricTest extends TestCase {
 		metrics.add(metric);
 		when(md.metrics()).thenReturn(metrics.toArray(new MetricDecl[metrics.size()]));
 		
-		instance.discoverMetrics(md);
+		instance.metrics.discoverMetrics(md);
 		verify(log,times(0)).error(Mockito.anyString());
-		instance.discoverMetrics(md);
+		instance.metrics.discoverMetrics(md);
 		verify(log,times(1)).error(Mockito.anyString());
 		
 		when(metric.mnemonic()).thenReturn("otherMnemonic");
 		when(metric.dependencies()).thenReturn(new String[]{"testDependency"});
 		when(pa.getImplementingPlugin("testDependency")).thenReturn(mock(AlitheiaPlugin.class));
-		instance.discoverMetrics(md);
+		instance.metrics.discoverMetrics(md);
 		verify(log,times(1)).error(Mockito.anyString());
 	}
 

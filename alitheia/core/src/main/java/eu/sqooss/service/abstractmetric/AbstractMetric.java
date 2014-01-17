@@ -40,6 +40,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /** A manager for locks of actions */
     protected LockManager locks;
     
+    /** A manager for the (un)installation of metrics */
+    protected MetricInstallation install;
+    
     /** A referenced to the actual Metric's class */
     protected Class<? extends AbstractMetric> implementor;
     
@@ -139,12 +143,11 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
             log.error("Could not get a reference to the Plugin Administation "
                     + "service");
         
+    	locks = new LockManager(this,log);
+    	config = new MetricConfiguration(this,log,pa);
+    	install = new MetricInstallation(this,log,db);
         metrics = new MetricCollection(this,log);
     	metrics.discoverMetrics(implementor.getAnnotation(MetricDeclarations.class));
-    	
-    	config = new MetricConfiguration(this,log,pa);
-    	
-    	locks = new LockManager(this,log);
     }
    
 
@@ -370,7 +373,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
 
     /** {@inheritDoc} */
-    public final List<Metric> getAllSupportedMetrics() {
+    public List<Metric> getAllSupportedMetrics() {
         String qry = "from Metric m where m.plugin=:plugin";
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("plugin", Plugin.getPluginByHashcode(getUniqueKey()));
@@ -517,4 +520,22 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     public void setJob(Job j) {
         this.job.set(j);
     }
+    
+    /** {@inheritDoc} */
+	@Override
+	public Date getDateInstalled() {
+		return install.getDateInstalled();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public boolean install() {
+		return install.install();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public boolean remove() {
+		return install.remove();
+	}
  }

@@ -22,6 +22,7 @@ public class MetricConfiguration {
     protected PluginAdmin pa;
     
     public MetricConfiguration( AbstractMetric parent, Logger log, PluginAdmin pa ){
+    	this.parent = parent;
     	this.log = log;
     	this.pa = pa;
     }
