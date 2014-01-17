@@ -61,10 +61,6 @@ import eu.sqooss.service.scheduler.Job;
 @PrepareForTest({Job.class,AlitheiaCore.class,StoredProject.class,ClusterNode.class,ProjectVersion.class,MailMessage.class,Bug.class,Plugin.class})
 public class PluginsViewTest extends AbstractViewTestBase {
 	private BundleContext bundleContext;
-//	private VelocityContext velocityContext;
-//	private AlitheiaCore alitheiaCore;
-//	private MetricActivator metricActivator;
-//	private PluginAdmin pluginAdmin;
 	private PluginsView pluginsView;
 	private VelocityEngine ve;
 	/**
