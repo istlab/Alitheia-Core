@@ -332,15 +332,11 @@ public class AdminServlet extends HttpServlet {
     private void setupVelocityContextIfNeeded(String path, HttpServletRequest request) {
     	String cKey;
     	Enumeration<String> viewKeys= views.keys();
-    	System.out.println("check which views are needed for: `"+path+"'");
     	while (viewKeys.hasMoreElements()) {
     		cKey = viewKeys.nextElement();
     		
     		if (views.get(cKey).isUsedForPath(path)) {
-    			System.out.println("`"+cKey + "' is needed");
-    			System.out.println("setup VelocityContext of " + cKey);
     			views.get(cKey).setupVelocityContext(request);
-    			System.out.println("Put view to velocity with key: "+cKey);
     			vc.put(cKey, views.get(cKey));
     		}
     	}
