@@ -191,14 +191,6 @@ public class AbstractViewTest extends AbstractViewTestBase{
 	}
 	
 	@Test
-	public void testSp() throws Exception {
-		abstractView = new PluginsView(bundleContext,velocityContext);
-		assertEquals("", Whitebox.<String>invokeMethod(abstractView,"sp",0l));
-		assertEquals("  ", Whitebox.<String>invokeMethod(abstractView,"sp",1l));
-		assertEquals("    ", Whitebox.<String>invokeMethod(abstractView,"sp",2l));
-	}
-	
-	@Test
 	public void testFromString() throws Exception {
 		abstractView = new PluginsView(bundleContext,velocityContext);
 		assertEquals(new Long(0), Whitebox.<String>invokeMethod(abstractView,"fromString","0"));
