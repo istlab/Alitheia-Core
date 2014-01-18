@@ -46,19 +46,17 @@ public class AbstractViewTest extends AbstractViewTestBase{
 
 	AbstractView abstractView;
 	BundleContext bundleContext;
-//	VelocityContext velocityContext;
-//	AlitheiaCore alitheiaCore;
+	TranslationProxy translation;
 	
 	@Before
 	public void setUp() throws Exception {
+		// setup translation
+		translation = new TranslationProxy(Locale.ENGLISH);
+		
 		bundleContext = Mockito.mock(BundleContext.class);
 		velocityContext = Mockito.mock(VelocityContext.class);
 		abstractView = new PluginsView(bundleContext, velocityContext);
 		super.setUp(abstractView);
-		
-		
-//		alitheiaCore = Mockito.mock(AlitheiaCore.class);
-//		assertNotNull(alitheiaCore);
 	}
 
 	@After
@@ -108,11 +106,6 @@ public class AbstractViewTest extends AbstractViewTestBase{
 	
 	@Test
 	public void testConstructorLogger(){
-//		abstractView = new PluginsView(bundleContext,velocityContext);
-//		when(AlitheiaCore.getInstance()).thenReturn(alitheiaCore);
-
-		
-//		alitheiaCore = Mockito.mock(AlitheiaCore.class);
 		Mockito.when(alitheiaCore.getDBService()).thenReturn(null);
 		Mockito.when(alitheiaCore.getPluginAdmin()).thenReturn(null);
 		Mockito.when(alitheiaCore.getScheduler()).thenReturn(null);
@@ -149,39 +142,7 @@ public class AbstractViewTest extends AbstractViewTestBase{
 
 	@Test
 	public void testGetLbl() throws Exception{
-		abstractView = new PluginsView(bundleContext,velocityContext);
-
-//		assertEquals("test",abstractView.getLbl("test"));FIXME
-		abstractView.initResources(Locale.ENGLISH);
-//		assertEquals("test",abstractView.getLbl("test"));FIXME
-
-		ResourceBundle resourceBundle = new MsgResourceBundle();
-		Whitebox.setInternalState(abstractView, "resLbl", resourceBundle);
-//		assertEquals("resLbl string",abstractView.getLbl("resLbl"));FIXME
-		
-		// resLbl = null
-		Whitebox.setInternalState(abstractView, "resLbl", (ResourceBundle)null);
-//		assertEquals("resLbl is null", abstractView.getLbl("resLbl is null"));FIXME
-		
-//		code below fails. when resourceBundle.getString() is called it actually tries to 
-//		execute it. This is not expected behavior.
-//		Mockito.when(resourceBundle.getString("works")).thenReturn("it works");
-//		Mockito.when(Mockito.mock(ResourceBundle.class).getString("works")).thenReturn("it works");
-//		final ResourceBundle resourceBundle = Mockito.mock(ResourceBundle.class);
-//		Mockito.when(resourceBundle.getString("error")).thenThrow(new NullPointerException("Null test"));
-//		Mockito.when(resourceBundle.getString("works")).thenReturn("it works");
-//		abstractView.setResLbl(resourceBundle);
-//		AbstractView.setResLbl(resourceBundle);
-//		assertEquals("Undefined parameter name!",AbstractView.getLbl("error"));
-//		Mockito.verify(resourceBundle.getString("error"));
-//		assertEquals("it works",AbstractView.getLbl("works"));
-//		Mockito.verify(resourceBundle.getString("works"));
-		//		abstractView = n;
-//		AbstractView abstractView = PowerMockito.spy(new PluginsView(bundleContext,velocityContext));
-        // use PowerMockito to set up your expectation
-//		verifyPrivate(resourceBundle).invoke("privateMethodName", argument1);
-//        PowerMockito.doReturn(value).when(classUnderTest, "methodToMock", "parameter1");
-//		whenNew(ResourceBundle.class).withAnyArguments().thenReturn(resourceBundle);
+		assertEquals("test",translation.label("test"));
 	}
 	
 	@Test
@@ -202,18 +163,7 @@ public class AbstractViewTest extends AbstractViewTestBase{
 	
 	@Test
 	public void testGetMsg() throws Exception{
-		abstractView = new PluginsView(bundleContext,velocityContext);
-//		assertEquals("test",abstractView.getMsg("test"));FIXME
-		abstractView.initResources(Locale.ENGLISH);
-//		assertEquals("test",abstractView.getMsg("test"));FIXME
-
-		ResourceBundle resourceBundle = new MsgResourceBundle();
-		Whitebox.setInternalState(abstractView, "resMsg", resourceBundle);
-//		assertEquals("resMsg string",abstractView.getMsg("resMsg"));FIXMR
-		
-		// resLbl = null
-		Whitebox.setInternalState(abstractView, "resMsg", (ResourceBundle)null);
-//		assertEquals("resMsg is null", abstractView.getMsg("resMsg is null"));FIXME
+		assertEquals("message", translation.message("message"));
 	}
 	
 	@Test
@@ -246,111 +196,6 @@ public class AbstractViewTest extends AbstractViewTestBase{
 		assertEquals("", Whitebox.<String>invokeMethod(abstractView,"sp",0l));
 		assertEquals("  ", Whitebox.<String>invokeMethod(abstractView,"sp",1l));
 		assertEquals("    ", Whitebox.<String>invokeMethod(abstractView,"sp",2l));
-	}
-	
-	@Test
-	public void testNormalInputRow() throws Exception {
-		abstractView = new PluginsView(bundleContext,velocityContext);
-		// start without indentation
-		assertEquals(
-			"\n"+
-			"<tr>\n"+
-			"  <td class=\"borderless\" style=\"width:100px;\"><b>myTitle</b></td>\n" +
-			"  <td class=\"borderless\">\n" +
-			"    <input type=\"text\" class=\"form\" id=\"myParName\" name=\"myParName\" value=\"myParValue\" size=\"60\">\n" +
-			"  </td>\n" +
-			"</tr>"+
-			"\n",
-			Whitebox.<String>invokeMethod(abstractView,"normalInputRow","myTitle", "myParName", "myParValue", 0l)
-		);
-		
-		// start with an indentation of 2 spaces
-		assertEquals(
-			"\n"+
-			"  <tr>\n"+
-			"    <td class=\"borderless\" style=\"width:100px;\"><b>myTitle</b></td>\n" +
-			"    <td class=\"borderless\">\n" +
-			"      <input type=\"text\" class=\"form\" id=\"myParName\" name=\"myParName\" value=\"myParValue\" size=\"60\">\n" +
-			"    </td>\n" +
-			"  </tr>"+
-			"\n",
-			Whitebox.<String>invokeMethod(abstractView,"normalInputRow","myTitle", "myParName", "myParValue", 1l)
-		);
-		
-		// Called with parName = null generates a newline
-		assertEquals("\n", Whitebox.<String>invokeMethod(abstractView,"normalInputRow","myTitle", null, "myParValue", 0l));
-	}
-	
-	@Test
-	public void testnormalInfoRow() throws Exception {
-		abstractView = new PluginsView(bundleContext,velocityContext);
-
-		// start without indentation
-		assertEquals(
-			"\n"+
-			"<tr>\n"+
-			"  <td class=\"borderless\" style=\"width:100px;\"><b>myTitle</b></td>\n" +
-			"  <td class=\"borderless\">\n" +
-			"    myValue\n" +
-			"  </td>\n" +
-			"</tr>"+
-			"\n",
-			Whitebox.<String>invokeMethod(abstractView,"normalInfoRow","myTitle", "myValue", 0l)
-		);
-		
-		// start with an indentation of 2 spaces
-		assertEquals(
-			"\n"+
-			"  <tr>\n"+
-			"    <td class=\"borderless\" style=\"width:100px;\"><b>myTitle</b></td>\n" +
-			"    <td class=\"borderless\">\n" +
-			"      myValue\n" +
-			"    </td>\n" +
-			"  </tr>"+
-			"\n",
-			Whitebox.<String>invokeMethod(abstractView,"normalInfoRow","myTitle", "myValue", 1l)
-		);
-	}
-	
-	@Test
-	public void testNormalFieldSet() throws Exception {
-		abstractView = new PluginsView(bundleContext,velocityContext);
-
-		// Called with content = null generates an empty String
-		assertEquals("", Whitebox.<String>invokeMethod(abstractView,"normalFieldset","myName", "myCss", null, 0l));
-				
-		// Called with an empty string StringBuilder generates an empty String
-		assertEquals("", Whitebox.<String>invokeMethod(abstractView,"normalFieldset","myName", "myCss", new StringBuilder(), 0l));
-				
-		// start without indentation
-		assertEquals(
-			"<fieldset class=\"myCss\">\n"+
-			"  <legend>myName</legend>\n"+
-			"  <p>myContent</p>\n" +
-			"</fieldset>\n",
-			Whitebox.<String>invokeMethod(abstractView,"normalFieldset","myName", "myCss", new StringBuilder("<p>myContent</p>"), 0l)
-		);
-		
-		// start with an indentation of 2 spaces
-		assertEquals(
-			"  <fieldset class=\"myCss\">\n"+
-			"    <legend>myName</legend>\n"+
-			"    <p>myContent</p>\n" +
-			"  </fieldset>\n",
-			Whitebox.<String>invokeMethod(abstractView,"normalFieldset","myName", "myCss", new StringBuilder("<p>myContent</p>"), 1l)
-		);
-	}
-	
-	@Test
-	public void testErrorFieldSet() throws Exception {
-		abstractView = new PluginsView(bundleContext,velocityContext);
-		assertEquals(
-			"<fieldset>\n"+
-			"  <legend>Errors</legend>\n"+
-			"  <p>Errors</p>\n" +
-			"</fieldset>\n",
-			Whitebox.<String>invokeMethod(abstractView,"errorFieldset",new StringBuilder("<p>Errors</p>"), 0l)
-		);
 	}
 	
 	@Test

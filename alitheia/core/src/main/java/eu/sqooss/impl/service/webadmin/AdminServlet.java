@@ -86,9 +86,25 @@ public class AdminServlet extends HttpServlet {
 
     // Projects view
     ProjectsView projectsView = null;
-
+    
     TranslationProxy translation;
     
+    public PluginsView getPluginsView() {
+		return pluginsView;
+	}
+
+	public void setPluginsView(PluginsView pluginsView) {
+		this.pluginsView = pluginsView;
+	}
+
+	public ProjectsView getProjectsView() {
+		return projectsView;
+	}
+
+	public void setProjectsView(ProjectsView projectsView) {
+		this.projectsView = projectsView;
+	}
+
     public AdminServlet(BundleContext bc,
             WebadminService webadmin,
             Logger logger,
@@ -314,6 +330,9 @@ public class AdminServlet extends HttpServlet {
         createSubstitutions(request);
         response.setContentType("text/html");
         t.merge(vc, writer);
+        
+        projectsView.clearDebugMessages();
+        projectsView.clearErrorMessages();
 
         print.print(writer.toString());
     }

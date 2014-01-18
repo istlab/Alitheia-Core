@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +38,7 @@ import org.powermock.reflect.Whitebox;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.webadmin.AdminServlet;
 import eu.sqooss.impl.service.webadmin.PluginsView;
+import eu.sqooss.impl.service.webadmin.TranslationProxy;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
@@ -63,13 +65,16 @@ public class PluginsViewTest extends AbstractViewTestBase {
 	private BundleContext bundleContext;
 	private PluginsView pluginsView;
 	private VelocityEngine ve;
+	TranslationProxy tr;
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
 		bundleContext = mock(BundleContext.class);
+		tr = new TranslationProxy(Locale.ENGLISH);
 		velocityContext = new VelocityContext();
+		velocityContext.put("tr",tr);
 		pluginsView = new PluginsView(bundleContext,velocityContext);
 		super.setUp(pluginsView);
 		when(logManager.createLogger(Logger.NAME_SQOOSS_WEBADMIN)).thenReturn(logger);
@@ -526,8 +531,8 @@ public class PluginsViewTest extends AbstractViewTestBase {
 		String result = pluginsView.render(req).replaceAll("\\t|\\n","").replaceAll(" +"," ").replaceAll("> <","><").trim();
 		String expectedResult = "\n            <form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"/index\">\n              <fieldset>\n                <legend>Errors</legend> \nUnknown configuration property!              </fieldset>\n              <fieldset>\n                <legend>Create property for null</legend> \n                <table class=\"borderless\">                <tr>\n                  <td class=\"borderless\" style=\"width:100px;\"><b>Name</b></td>\n                  <td class=\"borderless\"><input type=\"text\" class=\"form\" id=\"propertyName\" name=\"propertyName\" value=\"removeProperty\"></td>\n                </tr>\n                <tr>\n                  <td class=\"borderless\" style=\"width:100px;\"><b>Description</b></td>\n                  <td class=\"borderless\"><input type=\"text\" class=\"form\" id=\"propertyDescription\" name=\"propertyDescription\" value=\"removeProperty\"></td>\n                </tr>\n                <tr>\n                  <td class=\"borderless\" style=\"width:100px;\"><b>Type</b></td>\n                  <td class=\"borderless\">\n                    <select class=\"form\" id=\"propertyType\" name=\"propertyType\">\n                    <option value=\"INTEGER\">INTEGER</option>\n                    <option value=\"STRING\">STRING</option>\n                    <option value=\"BOOLEAN\">BOOLEAN</option>\n                    <option value=\"DOUBLE\">DOUBLE</option>\n                    </select>\n                  </td>\n                </tr>\n                <tr>\n                  <td class=\"borderless\" style=\"width:100px;\"><b>Value</b></td>\n                  <td class=\"borderless\"><input type=\"text\" class=\"form\" id=\"propertyValue\" name=\"propertyValue\" value=\"removeProperty\"></td>\n                </tr>\n                <tr>\n                  <td colspan=\"2\" class=\"borderless\"><input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Create\" onclick=\"javascript:document.getElementById('action').value='confirmProperty';document.metrics.submit();\">&nbsp;<input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Cancel\" onclick=\"javascript:document.metrics.submit();\"></td>\n                </tr>\n              </table>            </fieldset>\n            <input type=\"hidden\" id=\"action\" name=\"action\" value=\"\">\n            <input type=\"hidden\" id=\"pluginHashcode\" name=\"pluginHashcode\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"propertyName\" name=\"propertyName\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"propertyDescription\" name=\"propertyDescription\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"propertyType\" name=\"propertyType\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"propertyValue\" name=\"propertyValue\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"showProperties\" name=\"showProperties\" value=\"false\">\n            <input type=\"hidden\" id=\"showActivators\" name=\"showActivators\" value=\"false\">\n          </form>\n".replaceAll("\\t|\\n","").replaceAll(" +"," ").replaceAll("> <","><").trim();
 		assertEquals(expectedResult,result);
-		when(pluginInfo.hasConfProp(anyString(), anyString())).thenReturn(true);
 
+		when(pluginInfo.hasConfProp(anyString(), anyString())).thenReturn(true);
 		//rerender
 		result = pluginsView.render(req).replaceAll("\\t|\\n","").replaceAll(" +"," ").replaceAll("> <","><").trim();
 		expectedResult = "\n            <form id=\"metrics\" name=\"metrics\" method=\"post\" action=\"/index\">\n              <fieldset>\n                <legend>Errors</legend> \nProperty removal has failed! Check log for details.              </fieldset>\n              <fieldset>\n                <legend>Update property of null</legend> \n                <table class=\"borderless\">                <tr>\n                  <td class=\"borderless\" style=\"width:100px;\"><b>Name</b></td>\n                  <td class=\"borderless\">removeProperty</td>\n                </tr>\n                <tr>\n                  <td class=\"borderless\" style=\"width:100px;\"><b>Description</b></td>\n                  <td class=\"borderless\">removeProperty</td>\n                </tr>\n                <tr>\n                  <td class=\"borderless\" style=\"width:100px;\"><b>Type</b></td>\n                  <td class=\"borderless\">removeProperty</td>\n                </tr>\n                <tr>\n                  <td class=\"borderless\" style=\"width:100px;\"><b>Value</b></td>\n                  <td class=\"borderless\"><input type=\"text\" class=\"form\" id=\"propertyValue\" name=\"propertyValue\" value=\"removeProperty\"></td>\n                </tr>\n                <tr>\n                  <td colspan=\"2\" class=\"borderless\"><input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Update\" onclick=\"javascript:document.getElementById('action').value='confirmProperty';document.metrics.submit();\">&nbsp;<input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Remove\" onclick=\"javascript:document.getElementById('action').value='removeProperty';document.metrics.submit();\">&nbsp;<input type=\"button\" class=\"install\" style=\"width: 100px;\" value=\"Cancel\" onclick=\"javascript:document.metrics.submit();\"></td>\n                </tr>\n              </table>            </fieldset>\n            <input type=\"hidden\" id=\"action\" name=\"action\" value=\"\">\n            <input type=\"hidden\" id=\"pluginHashcode\" name=\"pluginHashcode\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"propertyName\" name=\"propertyName\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"propertyDescription\" name=\"propertyDescription\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"propertyType\" name=\"propertyType\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"propertyValue\" name=\"propertyValue\" value=\"removeProperty\">\n            <input type=\"hidden\" id=\"showProperties\" name=\"showProperties\" value=\"false\">\n            <input type=\"hidden\" id=\"showActivators\" name=\"showActivators\" value=\"false\">\n          </form>\n".replaceAll("\\t|\\n","").replaceAll(" +"," ").replaceAll("> <","><").trim();

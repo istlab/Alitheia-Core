@@ -2,7 +2,11 @@
     #parse("noPluginsAvailable.inc")
 #else
 <form id="metrics" name="metrics" method="post" action="/index">
-    $!ERRORS
+    #if ($errorMessages.size() > 0)
+        #foreach ($error in $errorMessages)
+            <fieldset><legend>Errors</legend> $error </fieldset>
+        #end
+    #end
     #parse("$currentPluginTemplate")
     <input type="hidden" id="$reqParAction" name="$reqParAction" value="">
     <input type="hidden" id="$reqParHashcode" name="$reqParHashcode" value="$!reqValHashcode">

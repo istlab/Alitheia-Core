@@ -2,7 +2,7 @@
 
 <h2>$tr.label("projects_mngm")</h2>
 <div id="table">
-	<form id="projects"	name="projects" method="post" action="/projects">
+	<form id="projects" name="projects" method="post" action="/projects">
 		#if ($debugMessages.size() > 0)
 			<ul>
 			#foreach ($debug in $debugMessages)
@@ -27,7 +27,6 @@
 </div>
 <h2>$tr.label("install_new_project")</h2>
 <form id="addprojectdir" method="post" action="diraddproject">
-  <!-- $tr.label("project_info_txt") -->
   project.properties file location
   <input name="properties" type="text" alt="Enter the path to the project.properties file of the project you want to install" class="form" size="40"/>
   <input type="submit" value="Install Project"/>

@@ -309,7 +309,6 @@ public class ProjectsView extends AbstractView {
         // ===============================================================
         // Display the accumulated error messages (if any)
         // ===============================================================
-//        b.append(errorFieldset(e, ++in));TODO FIXME add the errors to VC
 
         // Get the complete list of projects stored in the SQO-OSS framework
         Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
