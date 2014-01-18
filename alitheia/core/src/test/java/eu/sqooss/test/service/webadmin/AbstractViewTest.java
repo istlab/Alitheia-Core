@@ -70,7 +70,7 @@ public class AbstractViewTest extends AbstractViewTestBase{
 	@Test
 	public void testInitResources() {
 		abstractView = new PluginsView(bundleContext,velocityContext);
-		abstractView.initResources(Locale.ENGLISH);
+		abstractView.initErrorResources(Locale.ENGLISH);
 		
 	}
 	
@@ -149,7 +149,7 @@ public class AbstractViewTest extends AbstractViewTestBase{
 	public void testGetErr() throws Exception{
 		abstractView = new PluginsView(bundleContext,velocityContext);
 		assertEquals("test",abstractView.getErr("test"));
-		abstractView.initResources(Locale.ENGLISH);
+		abstractView.initErrorResources(Locale.ENGLISH);
 		assertEquals("test",abstractView.getErr("test"));
 
 		ResourceBundle resourceBundle = new MsgResourceBundle();

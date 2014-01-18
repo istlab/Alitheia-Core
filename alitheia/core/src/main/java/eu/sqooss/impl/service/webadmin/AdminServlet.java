@@ -339,7 +339,7 @@ public class AdminServlet extends HttpServlet {
 
     private void createSubstitutions(HttpServletRequest request) {
         // Initialize the resource bundles with the provided locale
-        pluginsView.initResources(Locale.ENGLISH);
+        pluginsView.initErrorResources(Locale.ENGLISH);
         
         // Simple string substitutions
         vc.put("COPYRIGHT",

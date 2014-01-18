@@ -110,8 +110,9 @@ public class ProjectsView extends AbstractView {
      *  - this method will be used to
      */
     public String setupVelocityContext(HttpServletRequest req) {
-        // Stores the assembled HTML content (only used for test-cases at the moment)
-        StringBuilder b = new StringBuilder("\n");
+        // Stores the assembled HTML content 
+    	// (only used for test-cases at the moment)
+        StringBuilder testBuilder = new StringBuilder("\n");
         
         // Clear error message buffer first
     	this.errorMessages.clear();
@@ -119,12 +120,6 @@ public class ProjectsView extends AbstractView {
     	// Clear debug messages
     	this.debugMessages.clear();
         
-        // some test errors
-
-//        errorMessages.add("test error 1");
-//        errorMessages.add("test error 2");
-//        errorMessages.add(getErr("e0034"));
-
         // Request values
         String reqValAction = "";
         Long reqValProjectId = null;
@@ -138,10 +133,10 @@ public class ProjectsView extends AbstractView {
         if (req != null) {
 
         	// Initialize the resource bundles with the request's locale
-            initResources(req.getLocale()); //TODO check
+            initErrorResources(req.getLocale()); //TODO check
             // DEBUG: Dump the servlet's request parameter
             if (DEBUG) {
-                b.append(debugRequest(req));//TODO do something with this
+                testBuilder.append(debugRequest(req));//TODO do something with this
             }
 
             // Retrieve the selected editor's action (if any)
@@ -194,8 +189,8 @@ public class ProjectsView extends AbstractView {
         vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
 
         // add error messages to velocity Context
-        createForm(b, selProject, reqValAction);
-        return b.toString();
+        createForm(testBuilder, selProject, reqValAction);
+        return testBuilder.toString();
     }
 
     private StoredProject addProject(HttpServletRequest r) {

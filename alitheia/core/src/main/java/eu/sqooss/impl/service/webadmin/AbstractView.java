@@ -180,7 +180,7 @@ public abstract class AbstractView {
      * 
      * @param locale the user's locale
      */
-    public void initResources (Locale locale) {
+    public void initErrorResources (Locale locale) {
         resErr = ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
     }
 

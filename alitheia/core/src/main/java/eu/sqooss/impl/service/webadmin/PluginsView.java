@@ -66,7 +66,7 @@ public class PluginsView extends AbstractView{
      *
      * @return The HTML presentation of the generated view.
      */
-    public String render(HttpServletRequest req) {
+    public String setupVelocityContext(HttpServletRequest req) {
         // Clear error message buffer first
     	this.errorMessages.clear();
     	
