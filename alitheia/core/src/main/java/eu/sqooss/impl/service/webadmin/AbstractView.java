@@ -181,20 +181,6 @@ public abstract class AbstractView {
         resErr = ResourceBundle.getBundle(RES_ERRORS_FILE, locale);
     }
 
-    /*
-     * Clear all error messages
-     */
-    public void clearErrorMessages() {
-    	this.errorMessages.clear(); 
-    }
-    
-    /*
-     * Clear all debug messages
-     */
-    public void clearDebugMessages() {
-    	this.debugMessages.clear();
-    }
-
     /**
      * Retrieves the value of the given resource property from the
      * resource bundle that stores all error strings.

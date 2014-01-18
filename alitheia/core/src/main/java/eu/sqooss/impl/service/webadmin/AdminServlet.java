@@ -62,6 +62,7 @@ import eu.sqooss.service.util.Pair;
 import eu.sqooss.service.webadmin.WebadminService;
 
 public class AdminServlet extends HttpServlet {
+	private final Locale LOCALE = Locale.ENGLISH;
     private static final long serialVersionUID = 1L;
     private final String globalTemplateLocation = "global.html";
     private static BundleContext bc = null;
@@ -89,22 +90,6 @@ public class AdminServlet extends HttpServlet {
     
     TranslationProxy translation;
     
-    public PluginsView getPluginsView() {
-		return pluginsView;
-	}
-
-	public void setPluginsView(PluginsView pluginsView) {
-		this.pluginsView = pluginsView;
-	}
-
-	public ProjectsView getProjectsView() {
-		return projectsView;
-	}
-
-	public void setProjectsView(ProjectsView projectsView) {
-		this.projectsView = projectsView;
-	}
-
     public AdminServlet(BundleContext bc,
             WebadminService webadmin,
             Logger logger,
@@ -150,9 +135,6 @@ public class AdminServlet extends HttpServlet {
 
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
-        
-        // Create translation proxy
-        translation = new TranslationProxy(Locale.ENGLISH);
         
         adminView = new WebAdminRenderer(bc, vc);
 
@@ -331,9 +313,6 @@ public class AdminServlet extends HttpServlet {
         response.setContentType("text/html");
         t.merge(vc, writer);
         
-        projectsView.clearDebugMessages();
-        projectsView.clearErrorMessages();
-
         print.print(writer.toString());
     }
 
@@ -352,7 +331,7 @@ public class AdminServlet extends HttpServlet {
 
         // Object-based substitutions
         vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
-        vc.put("tr",translation); // translations proxy
+        vc.put("tr",new TranslationProxy(LOCALE)); // translations proxy
         vc.put("admin",adminView);
         vc.put("projects",projectsView);
         vc.put("metrics",pluginsView);
