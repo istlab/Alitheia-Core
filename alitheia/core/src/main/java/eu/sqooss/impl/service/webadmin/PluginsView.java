@@ -67,8 +67,11 @@ public class PluginsView extends AbstractView{
      * @return The HTML presentation of the generated view.
      */
     public String render(HttpServletRequest req) {
-        // Stores the assembled HTML content
-        // Stores the accumulated error messages
+        // Clear error message buffer first
+    	this.errorMessages.clear();
+    	
+    	// Clear debug messages
+    	this.debugMessages.clear();
 
         // Request parameters
         String reqParAction        = "action";

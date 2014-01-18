@@ -110,8 +110,15 @@ public class ProjectsView extends AbstractView {
      *  - this method will be used to
      */
     public String setupVelocityContext(HttpServletRequest req) {
-        // Stores the assembled HTML content
+        // Stores the assembled HTML content (only used for test-cases at the moment)
         StringBuilder b = new StringBuilder("\n");
+        
+        // Clear error message buffer first
+    	this.errorMessages.clear();
+    	
+    	// Clear debug messages
+    	this.debugMessages.clear();
+        
         // some test errors
 
 //        errorMessages.add("test error 1");
