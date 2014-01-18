@@ -60,11 +60,12 @@ public class PluginsView extends AbstractView{
     }
 
     /**
-     * Renders the various plug-in's views.
+     * Setup variables needed for templates and
+     * put them into VelocityContext
      *
      * @param req the servlet's request object
      *
-     * @return The HTML presentation of the generated view.
+     * @return The HTML presentation of the generated view. Used for test cases.
      */
     public String setupVelocityContext(HttpServletRequest req) {
         // Clear error message buffer first
@@ -82,6 +83,7 @@ public class PluginsView extends AbstractView{
         String reqParPropValue     = "propertyValue";
         String reqParShowProp      = "showProperties";
         String reqParShowActv      = "showActivators";
+        
         // Recognized "action" parameter's values
         String actValInstall       = "installPlugin";
         String actValUninstall     = "uninstallPlugin";
@@ -90,6 +92,7 @@ public class PluginsView extends AbstractView{
         String actValReqUpdProp    = "updateProperty";
         String actValConAddProp    = "confirmProperty";
         String actValConRemProp    = "removeProperty";
+        
         // Request values
         String reqValAction        = "";
         String reqValHashcode      = null;
@@ -99,6 +102,7 @@ public class PluginsView extends AbstractView{
         String reqValPropValue     = null;
         boolean reqValShowProp     = false;         // Show plug-in properties
         boolean reqValShowActv     = false;         // Show plug-in activators
+        
         // Info object of the selected plug-in
         PluginInfo selPI           = null;
 
@@ -250,13 +254,11 @@ public class PluginsView extends AbstractView{
             vc.put("reqValShowActv",reqValShowActv);
         }
 
-
+        // return for test purpose only
         return velocityContextToString("pluginsView.html");
     }
 
 	/**
-	 * @param b
-	 * @param in
 	 * @param reqParHashcode
 	 * @param reqParShowProp
 	 * @param reqParShowActv
@@ -300,8 +302,6 @@ public class PluginsView extends AbstractView{
 	}
 
 	/**
-	 * @param b
-	 * @param in
 	 * @param reqParAction
 	 * @param reqParHashcode
 	 * @param reqParPropName
@@ -379,8 +379,6 @@ public class PluginsView extends AbstractView{
 	}
 
 	/**
-	 * @param b
-	 * @param in
 	 * @param reqParAction
 	 * @param reqParPropName
 	 * @param reqParPropDescr
@@ -426,7 +424,6 @@ public class PluginsView extends AbstractView{
 	}
 
 	/**
-	 * @param e
 	 * @param reqValHashcode
 	 * @param reqValPropName
 	 * @param reqValPropDescr
@@ -491,7 +488,6 @@ public class PluginsView extends AbstractView{
 	}
 
 	/**
-	 * @param e
 	 * @param reqValHashcode
 	 * @param reqValPropName
 	 * @param reqValPropType
@@ -532,7 +528,6 @@ public class PluginsView extends AbstractView{
 	}
 
 	/**
-	 * @param e
 	 * @param reqValHashcode
 	 */
 	private void pluginUninstallRequest(String reqValHashcode) {
@@ -545,7 +540,6 @@ public class PluginsView extends AbstractView{
 	}
 
 	/**
-	 * @param e
 	 * @param reqValHashcode
 	 */
 	private void pluginInstallRequest(String reqValHashcode) {
@@ -561,5 +555,4 @@ public class PluginsView extends AbstractView{
 		}
 	}
 }
-
-//vi: ai nosi sw=4 ts=4 expandtab
+// vi: ai nosi sw=4 ts=4 expandtab

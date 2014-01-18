@@ -104,10 +104,7 @@ public class ProjectsView extends AbstractView {
      *
      * @param req the servlet's request object
      *
-     * @return The HTML presentation of the generated view.
-     * TODO rename this function to its new function:
-     *  - rendering well be performed through velocity templates
-     *  - this method will be used to
+     * @return The HTML presentation of the generated view. Used for test cases.
      */
     public String setupVelocityContext(HttpServletRequest req) {
         // Stores the assembled HTML content 
@@ -168,12 +165,6 @@ public class ProjectsView extends AbstractView {
             }
         }
 
-        // add variables needed in templates to vc
-        // @TODO perhaps these vars must be grouped
-        // for example:
-        // - a group for Action parameter's values
-        // - a group for Servlet parameters
-        //
         vc.put("reqValAction", reqValAction);
         vc.put("selProject", selProject);
         vc.put("ACT_REQ_SHOW_PROJECT",ACT_REQ_SHOW_PROJECT);
@@ -188,8 +179,10 @@ public class ProjectsView extends AbstractView {
         vc.put("REQ_PAR_PROJECT_ID",REQ_PAR_PROJECT_ID);
         vc.put("REQ_PAR_ACTION",REQ_PAR_ACTION);
 
-        // add error messages to velocity Context
-        createForm(testBuilder, selProject, reqValAction);
+        // setup form variables
+        setupForm(testBuilder, selProject, reqValAction);
+        
+        // return testBuilder for the test cases
         return testBuilder.toString();
     }
 
@@ -294,20 +287,9 @@ public class ProjectsView extends AbstractView {
     }
 
     /*
-     * @author elwin
-     * Function for template to get a set of projects.
-     * @return Set<StoredProject> set of stored projects for current node
+     * Setup the variables needed in the template 
      */
-    public Set<StoredProject> getProjects() {
-    	return ClusterNode.thisNode().getProjects();
-    }
-
-    /*
-     * TODO this function which renders the main form for the list of projects is
-     * going to be replaced by projectlist velocity template
-     * == to be deprecated ==
-     */
-    private void createForm(StringBuilder b, StoredProject selProject, String reqValAction) {
+    private void setupForm(StringBuilder b, StoredProject selProject, String reqValAction) {
         // ===============================================================
         // Display the accumulated error messages (if any)
         // ===============================================================
@@ -487,7 +469,6 @@ public class ProjectsView extends AbstractView {
     	// nothing to return
     }
 
-
     private void addToolBar(StoredProject selProject) {
 
     	String postArgument = "";
@@ -544,6 +525,4 @@ public class ProjectsView extends AbstractView {
     	return updaterMap;
     }
 }
-
 // vi: ai nosi sw=4 ts=4 expandtab
-
