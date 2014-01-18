@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -254,8 +255,15 @@ public class PluginsView extends AbstractView{
             vc.put("reqValShowActv",reqValShowActv);
         }
 
+        // init resources
+        this.initErrorResources(Locale.ENGLISH);
+        
         // return for test purpose only
         return velocityContextToString("pluginsView.html");
+    }
+    
+    public boolean isUsedForPath(String path) {
+    	return path.equals("pluginsView.html");
     }
 
 	/**

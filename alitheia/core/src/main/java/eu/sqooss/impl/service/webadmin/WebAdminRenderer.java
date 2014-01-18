@@ -37,6 +37,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
@@ -262,6 +264,18 @@ public class WebAdminRenderer  extends AbstractView {
         result.append("</ul>\n");
         return result.toString();
     }
+
+	@Override
+	public String setupVelocityContext(HttpServletRequest req) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isUsedForPath(String page) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

@@ -98,6 +98,10 @@ public class ProjectsView extends AbstractView {
         super(bundlecontext, vc);
     }
 
+    public boolean isUsedForPath(String path) {
+    	return path.equals("projectsView.html");
+    }
+    
     /**
      * Setup variables needed for templates and
      * put them into VelocityContext

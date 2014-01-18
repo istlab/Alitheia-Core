@@ -62,7 +62,7 @@ import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.tds.TDSService;
 import eu.sqooss.service.updater.UpdaterService;
 
-public abstract class AbstractView {
+public abstract class AbstractView implements IView{
     // Core components
     protected AlitheiaCore sobjCore = null;
     protected ServiceReference srefCore = null;

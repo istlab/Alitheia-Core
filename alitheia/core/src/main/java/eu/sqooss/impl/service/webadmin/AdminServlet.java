@@ -37,7 +37,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.ServletException;
@@ -82,11 +86,12 @@ public class AdminServlet extends HttpServlet {
     // Renderer of content
     WebAdminRenderer adminView = null;
 
-    // Plug-ins view
-    PluginsView pluginsView = null;
-
-    // Projects view
-    ProjectsView projectsView = null;
+//    // Plug-ins view
+//    PluginsView pluginsView = null;
+//
+//    // Projects view
+//    ProjectsView projectsView = null;
+    private Hashtable<String,IView> views = null;
     
     TranslationProxy translation;
     
@@ -122,8 +127,8 @@ public class AdminServlet extends HttpServlet {
 
         // Create the dynamic content map
         dynamicContentMap = new Hashtable<String, String>();
-        dynamicContentMap.put("/", "index.html");
-        dynamicContentMap.put("/index", "index.html");
+        dynamicContentMap.put("/", "pluginsView.html");
+        dynamicContentMap.put("/index", "pluginsView.html");
         dynamicContentMap.put("/projects", "projectsView.html");
         dynamicContentMap.put("/projectlist", "projectslist.html");//TODO remove?not used anymore
         dynamicContentMap.put("/logs", "logs.html");
@@ -136,12 +141,15 @@ public class AdminServlet extends HttpServlet {
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
         
-        adminView = new WebAdminRenderer(bc, vc);
-
-        // Create the various view objects
-        pluginsView = new PluginsView(bc, vc);
-        projectsView = new ProjectsView(bc, vc);
+        // create container for views and add views
+        views = new Hashtable<String,IView>();
         
+        //Add the various view objects to collection
+        views.put("metrics",new PluginsView(bc, vc));
+        views.put("projects",new ProjectsView(bc, vc));
+        
+        //TODO WebAdminRenderer needs to be refactored to be added to the view list as well
+        adminView = new WebAdminRenderer(bc, vc);
     }
 
     /**
@@ -305,8 +313,8 @@ public class AdminServlet extends HttpServlet {
         // put requested page into velocity context
         vc.put("CONTENTS", path);
         
-        // put velocity engine
-        projectsView.setupVelocityContext(request);
+        this.setupVelocityContextIfNeeded(path, request);
+//        projectsView.setupVelocityContext(request);
 
         // Do any substitutions that may be required
         createSubstitutions(request);
@@ -315,10 +323,32 @@ public class AdminServlet extends HttpServlet {
         
         print.print(writer.toString());
     }
+    
+    /*
+     * Check for all views whereas they are needed for the currently requested page
+     * If yes: setup all variables needed for templates by executing setupVelocityContext of view
+     * If no: view can be skipped
+     */
+    private void setupVelocityContextIfNeeded(String path, HttpServletRequest request) {
+    	String cKey;
+    	Enumeration<String> viewKeys= views.keys();
+    	System.out.println("check which views are needed for: `"+path+"'");
+    	while (viewKeys.hasMoreElements()) {
+    		cKey = viewKeys.nextElement();
+    		
+    		if (views.get(cKey).isUsedForPath(path)) {
+    			System.out.println("`"+cKey + "' is needed");
+    			System.out.println("setup VelocityContext of " + cKey);
+    			views.get(cKey).setupVelocityContext(request);
+    			System.out.println("Put view to velocity with key: "+cKey);
+    			vc.put(cKey, views.get(cKey));
+    		}
+    	}
+    }
 
     private void createSubstitutions(HttpServletRequest request) {
         // Initialize the resource bundles with the provided locale
-        pluginsView.initErrorResources(Locale.ENGLISH);
+//        pluginsView.initErrorResources(LOCALE);moved to pluginsview
         
         // Simple string substitutions
         vc.put("COPYRIGHT",
@@ -333,8 +363,8 @@ public class AdminServlet extends HttpServlet {
         vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
         vc.put("tr",new TranslationProxy(LOCALE)); // translations proxy
         vc.put("admin",adminView);
-        vc.put("projects",projectsView);
-        vc.put("metrics",pluginsView);
+//        vc.put("projects",projectsView);
+//        vc.put("metrics",pluginsView);
         vc.put("request", request); // The request can be used by the render() methods
     }
 }

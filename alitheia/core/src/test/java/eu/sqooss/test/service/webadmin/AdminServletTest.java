@@ -135,8 +135,8 @@ public class AdminServletTest {
 		assertEquals(new Pair<String, String> ("/rules.png", "image/x-png"), staticContentMap.get("/rules.png"));
 		
 		// check for correct elements in dynamicContentMap
-		assertEquals("index.html", dynamicContentMap.get("/"));
-		assertEquals("index.html", dynamicContentMap.get("/index"));
+		assertEquals("pluginsView.html", dynamicContentMap.get("/"));
+		assertEquals("pluginsView.html", dynamicContentMap.get("/index"));
 		assertEquals("projectsView.html", dynamicContentMap.get("/projects"));
 		assertEquals("projectslist.html", dynamicContentMap.get("/projectlist"));
 		assertEquals("logs.html", dynamicContentMap.get("/logs"));
@@ -149,8 +149,6 @@ public class AdminServletTest {
 		// vc, admindView, pluginsView and projectsView should be initialized
 		assertNotNull(Whitebox.getInternalState(adminServlet, "vc")); 
 		assertNotNull(Whitebox.getInternalState(adminServlet, "adminView")); 
-		assertNotNull(Whitebox.getInternalState(adminServlet, "pluginsView")); 
-		assertNotNull(Whitebox.getInternalState(adminServlet, "projectsView")); 
 	}
 
 	/**
@@ -371,7 +369,7 @@ public class AdminServletTest {
 		AdminServlet spy = spy(adminServlet);
 		
 		Whitebox.setInternalState(spy, "adminView", adminView);
-		Whitebox.setInternalState(spy, ProjectsView.class, projectsView);
+//		Whitebox.setInternalState(spy, ProjectsView.class, projectsView);
 		when(projectsView.setupVelocityContext(any(HttpServletRequest.class))).thenReturn("");
 //		doNothing().when(spy,"createSubstitutions",eq(request));
 		
