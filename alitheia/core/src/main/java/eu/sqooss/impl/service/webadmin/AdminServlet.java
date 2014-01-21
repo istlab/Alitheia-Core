@@ -143,7 +143,6 @@ public class AdminServlet extends HttpServlet {
         //not all views have moved to an IView.
         sectionMap = new Hashtable<String,Integer>();
         sectionMap.put("pluginsView.html", 1);
-        sectionMap.put("pluginsView.html", 1);
         sectionMap.put("projectsView.html", 3);
         sectionMap.put("logs.html", 2);
         sectionMap.put("jobs.html", 4);
