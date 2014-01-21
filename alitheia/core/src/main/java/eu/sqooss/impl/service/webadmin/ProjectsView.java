@@ -120,7 +120,7 @@ public class ProjectsView extends AbstractView {
     	
     	// Clear debug messages
     	this.debugMessages.clear();
-        
+        vc.put("section", 3);
         // Request values
         String reqValAction = "";
         Long reqValProjectId = null;

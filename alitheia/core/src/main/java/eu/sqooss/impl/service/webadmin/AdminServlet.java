@@ -77,6 +77,7 @@ public class AdminServlet extends HttpServlet {
 
     // Content tables
     private Hashtable<String, String> dynamicContentMap = null;
+    private Hashtable<String,Integer> sectionMap = null;
     private Hashtable<String, Pair<String, String>> staticContentMap = null;
 
     // Dynamic substitutions
@@ -137,6 +138,20 @@ public class AdminServlet extends HttpServlet {
         dynamicContentMap.put("/users", "users.html");
         dynamicContentMap.put("/rules", "rules.html");
         dynamicContentMap.put("/jobstat", "jobstat.html");
+        
+        //should be put by the respective IView. But currently
+        //not all views have moved to an IView.
+        sectionMap = new Hashtable<String,Integer>();
+        sectionMap.put("pluginsView.html", 1);
+        sectionMap.put("pluginsView.html", 1);
+        sectionMap.put("projectsView.html", 3);
+        sectionMap.put("logs.html", 2);
+        sectionMap.put("jobs.html", 4);
+        sectionMap.put("alljobs.html", 5);
+        sectionMap.put("users.html", 6);
+        sectionMap.put("rules.html", 7);
+        sectionMap.put("jobstat.html", 8);
+        
 
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
@@ -312,6 +327,7 @@ public class AdminServlet extends HttpServlet {
         
         // put requested page into velocity context
         vc.put("CONTENTS", path);
+        vc.put("section",sectionMap.get(path));
         
         this.setupVelocityContextIfNeeded(path, request);
 //        projectsView.setupVelocityContext(request);

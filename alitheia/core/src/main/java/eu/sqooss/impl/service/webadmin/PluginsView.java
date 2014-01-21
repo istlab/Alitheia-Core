@@ -106,7 +106,7 @@ public class PluginsView extends AbstractView{
         
         // Info object of the selected plug-in
         PluginInfo selPI           = null;
-
+        vc.put("section", 1);
         // Proceed only when at least one plug-in is registered
         if (sobjPA.listPlugins().isEmpty()) {
         	vc.put("noPluginsAvailable",true);
