@@ -126,7 +126,7 @@ public class TestGitUpdater extends TestGitSetup {
         assertTrue(d.getAliases().contains(new DeveloperAlias("pm@smurfvillage.com", d)));
 
         //A bit of Developer DAO testing
-        assertNotNull(Developer.getDeveloperByEmail("pm@smurfvillage.com", sp));
+        assertNotNull(Developer.getDeveloperByEmail(db, "pm@smurfvillage.com", sp));
         d.addAlias("pm@smurfvillage.com");
         assertEquals(1, d.getAliases().size());
         

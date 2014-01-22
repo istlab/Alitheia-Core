@@ -47,8 +47,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * The bug resolution priority.
  * 
@@ -142,10 +140,9 @@ public class BugPriority extends DAObject {
      * @return A Bugpriority DAO or null if an error occurred while creating
      * the priority code line to the database
      */
-    public static BugPriority getBugPriority(Priority s) {
+    public static BugPriority getBugPriority(DBService dbs, Priority s) {
         if (s == null)
             return null;
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
         return getBugPriority(dbs, s.toString(), true);
     }
     
@@ -161,8 +158,6 @@ public class BugPriority extends DAObject {
      * while modifying the DB.
      */
     public static BugPriority getBugPriority(DBService dbs, String priority, boolean create) {
-       // DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("priority", priority);
         

@@ -55,8 +55,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * A DAObject representing a developer belonging to a project.
  * 
@@ -212,9 +210,8 @@ public class Developer extends DAObject {
      *         <li>The passed email is invalid syntactically</li>
      *         <ul>
      */
-    public static Developer getDeveloperByEmail(String email, 
+    public static Developer getDeveloperByEmail(DBService dbs, String email, 
             StoredProject sp) {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
         return getDeveloperByEmail(dbs, email, sp, true);
     }
     

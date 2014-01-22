@@ -47,8 +47,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * The bug resolution severity.
  * 
@@ -154,8 +152,7 @@ public class BugSeverity extends DAObject {
      * @return A Bugseverity DAO or null if an error occurred while creating
      * the severity code line to the database
      */
-    public static BugSeverity getBugseverity(Severity s) {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static BugSeverity getBugseverity(DBService dbs, Severity s) {
         return getBugSeverity(dbs, s.toString(), true);
     }
     

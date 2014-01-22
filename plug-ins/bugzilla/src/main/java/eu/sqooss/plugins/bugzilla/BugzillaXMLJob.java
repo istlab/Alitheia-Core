@@ -138,9 +138,9 @@ public class BugzillaXMLJob extends Job {
         bug.setDeltaTS(b.latestUpdateTimestamp);
         
         if (b.priority != null) {
-            bug.setPriority(BugPriority.getBugPriority(Priority.fromString(b.priority.toString())));
+            bug.setPriority(BugPriority.getBugPriority(dbs, Priority.fromString(b.priority.toString())));
         } else {
-            bug.setPriority(BugPriority.getBugPriority(Priority.UNKNOWN));
+            bug.setPriority(BugPriority.getBugPriority(dbs, Priority.UNKNOWN));
         }   
         bug.setProject(project);
         
@@ -151,15 +151,15 @@ public class BugzillaXMLJob extends Job {
         }
         
         if (b.severity != null) {
-            bug.setSeverity(BugSeverity.getBugseverity(Severity.fromString(b.severity.toString())));
+            bug.setSeverity(BugSeverity.getBugseverity(dbs, Severity.fromString(b.severity.toString())));
         } else {
-            bug.setSeverity(BugSeverity.getBugseverity(Severity.UNKNOWN));
+            bug.setSeverity(BugSeverity.getBugseverity(dbs, Severity.UNKNOWN));
         }
         
         if (b.state != null) {
-            bug.setStatus(BugStatus.getBugStatus(Status.fromString(b.state.toString())));
+            bug.setStatus(BugStatus.getBugStatus(dbs, Status.fromString(b.state.toString())));
         } else {
-            bug.setStatus(BugStatus.getBugStatus(Status.UNKNOWN));
+            bug.setStatus(BugStatus.getBugStatus(dbs, Status.UNKNOWN));
         }
         
         bug.setShortDesc(b.shortDescr);
@@ -192,7 +192,7 @@ public class BugzillaXMLJob extends Job {
         
         Developer d = null;
         if (name.contains("@")) {
-            d = Developer.getDeveloperByEmail(name, project);
+            d = Developer.getDeveloperByEmail(dbs, name, project);
         } else {
             d = Developer.getDeveloperByUsername(dbs, name, project);
         }
