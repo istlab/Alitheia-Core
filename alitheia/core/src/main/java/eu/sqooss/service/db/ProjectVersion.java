@@ -63,8 +63,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * Instances of this class represent the data about a version of a
  * project as stored in the database
@@ -445,9 +443,7 @@ public class ProjectVersion extends DAObject {
      * 
      * @return Previous version, or null
      */
-    public ProjectVersion getPreviousVersion() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
+    public ProjectVersion getPreviousVersion(DBService dbs) {
         String paramOrder = "versionOrder"; 
         String paramProject = "projectId";
         
@@ -476,9 +472,7 @@ public class ProjectVersion extends DAObject {
      * 
      * @return Next version, or null
      */
-    public ProjectVersion getNextVersion() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
+    public ProjectVersion getNextVersion(DBService dbs) {
         String paramTS = "versionsequence"; 
         String paramProject = "projectId";
         
@@ -513,9 +507,7 @@ public class ProjectVersion extends DAObject {
      * @return ProjectVersion object corresponding to the revision,
      *         or null if there is none.
      */
-    public static ProjectVersion getVersionByRevision(StoredProject project, String revisionId) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-   
+    public static ProjectVersion getVersionByRevision(DBService dbs, StoredProject project, String revisionId) {
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put("project", project);
         parameters.put("revisionId", revisionId);
@@ -546,9 +538,7 @@ public class ProjectVersion extends DAObject {
      *         or <code>null</code> if there is none.
      */
     public static ProjectVersion getVersionByTimestamp(
-            StoredProject project, long timestamp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-   
+            DBService dbs, StoredProject project, long timestamp) {
         Map<String,Object> parameters = new HashMap<String,Object>();
         parameters.put("project", project);
         parameters.put("timestamp", timestamp);
@@ -570,9 +560,7 @@ public class ProjectVersion extends DAObject {
      * @param sp Project to lookup
      * @return The oldest recorded project revision
      */
-    public static ProjectVersion getFirstProjectVersion(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public static ProjectVersion getFirstProjectVersion(DBService dbs, StoredProject sp) {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", sp);
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
@@ -589,9 +577,7 @@ public class ProjectVersion extends DAObject {
      * @return The <code>ProjectVersion</code> DAO for the latest version,
      *   or <code>null</code> if not found
      */
-    public static ProjectVersion getLastProjectVersion(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public static ProjectVersion getLastProjectVersion(DBService dbs, StoredProject sp) {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("sp", sp);
         List<?> pvList = dbs.doHQL("from ProjectVersion pv where pv.project=:sp"
@@ -612,7 +598,7 @@ public class ProjectVersion extends DAObject {
      * @param p Project to look for
      * @return Last version measured, or revision 0.
      */
-    public static ProjectVersion getLastMeasuredVersion(Metric m, StoredProject p) {
+    public static ProjectVersion getLastMeasuredVersion(DBService dbs, Metric m, StoredProject p) {
         String query = "select pv from ProjectVersionMeasurement pvm, ProjectVersion pv" +
            " where pvm.projectVersion = pv" +
            " and pvm.metric = :metric and pv.project = :project" +
@@ -621,8 +607,9 @@ public class ProjectVersion extends DAObject {
         HashMap<String, Object> params = new HashMap<String, Object>(4);
         params.put("metric", m);
         params.put("project", p);
-        List<ProjectVersion> pv = (List<ProjectVersion>) 
-            AlitheiaCore.getInstance().getDBService().doHQL( query, params, 1);
+        @SuppressWarnings("unchecked")
+		List<ProjectVersion> pv = (List<ProjectVersion>) 
+            dbs.doHQL( query, params, 1);
 	    
         if (pv.isEmpty())
             return null;
@@ -638,8 +625,8 @@ public class ProjectVersion extends DAObject {
      * 
      * @return The number of files in that version and that state.
      */
-    public long getFilesCount(ProjectFileState state) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    @SuppressWarnings("null")
+	public long getFilesCount(DBService dbs, ProjectFileState state) {
         // Construct the field names
         String parVersionId     = "project_version_id"; 
         String parFileStatus    = "file_status";
@@ -663,9 +650,7 @@ public class ProjectVersion extends DAObject {
      * Get the number of files (excluding directories and deleted files) in this version. 
      * @return The number of live files in a specific project version.
      */
-    public long getLiveFilesCount() {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public long getLiveFilesCount(DBService dbs) {
     	String paramVersionId = "paramVersion";
         String paramIsDirectory = "paramIsDirectory";
         String paramProjectId = "paramProject";
@@ -674,7 +659,7 @@ public class ProjectVersion extends DAObject {
 
         StringBuffer q = new StringBuffer("select count(pf) ");
         
-        if (this.sequence == ProjectVersion.getLastProjectVersion(this.project).sequence) {
+        if (this.sequence == ProjectVersion.getLastProjectVersion(dbs, this.project).sequence) {
             q.append(" from ProjectFile pf, ProjectVersion pv");
             q.append(" where pv.id = :").append(paramVersionId);
             q.append(" and pf.validUntil is null ");
@@ -698,7 +683,7 @@ public class ProjectVersion extends DAObject {
         
         params.put(paramVersionId, this.getId());
         params.put(paramIsDirectory, Boolean.FALSE);
-        params.put(paramState, ProjectFileState.deleted());
+        params.put(paramState, ProjectFileState.deleted(dbs));
         
         return (Long) dbs.doHQL(q.toString(), params).get(0);
     }
@@ -709,9 +694,7 @@ public class ProjectVersion extends DAObject {
     }
 
 
-    private List<ProjectFile> getVersionFiles(Directory d, int mask) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    private List<ProjectFile> getVersionFiles(DBService dbs, Directory d, int mask) {
         String paramDirectory = "paramDirectory";
         String paramIsDirectory = "is_directory";
         String paramVersionId = "paramVersionId";
@@ -721,7 +704,7 @@ public class ProjectVersion extends DAObject {
         Map<String,Object> params = new HashMap<String,Object>();
         StringBuffer q = new StringBuffer("select distinct pf ");
         
-        if (this.sequence == ProjectVersion.getLastProjectVersion(this.project).sequence) {
+        if (this.sequence == ProjectVersion.getLastProjectVersion(dbs, this.project).sequence) {
             q.append(" from ProjectFile pf, ProjectVersion pv");
             q.append(" where pv.id = :").append(paramVersionId);
             q.append(" and pf.validUntil is null ");
@@ -750,7 +733,7 @@ public class ProjectVersion extends DAObject {
  	    	q.append(" and pf.isDirectory = :").append(paramIsDirectory);
  	    }
     
-     	params.put(paramState, ProjectFileState.deleted());
+     	params.put(paramState, ProjectFileState.deleted(dbs));
      	params.put(paramVersionId, this.getId());
  	    
      	if (d != null) {
@@ -762,7 +745,8 @@ public class ProjectVersion extends DAObject {
  	        params.put(paramIsDirectory, isDirectory);
  	    }
  	    
- 	    List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(q.toString(), params);
+ 	    @SuppressWarnings("unchecked")
+		List<ProjectFile> projectFiles = (List<ProjectFile>) dbs.doHQL(q.toString(), params);
 
  	    if (projectFiles == null) 
  	        return Collections.emptyList();
@@ -774,8 +758,8 @@ public class ProjectVersion extends DAObject {
     /**
      * Returns all files that are live in this version. 
      */
-    public List<ProjectFile> getFiles() {
-    	return getVersionFiles(null, ProjectVersion.MASK_ALL);
+    public List<ProjectFile> getFiles(DBService dbs) {
+        return getVersionFiles(dbs, null, ProjectVersion.MASK_ALL);
     }
 
 	
@@ -789,8 +773,8 @@ public class ProjectVersion extends DAObject {
 	 * directories
 	 * @return List of files visible in that version (may be empty, not null)
 	 */
-	public List<ProjectFile> getFiles(Directory d, int mask) {
-	    return getVersionFiles(d, mask);
+	public List<ProjectFile> getFiles(DBService dbs, Directory d, int mask) {
+	    return getVersionFiles(dbs, d, mask);
 	}
 	
 	/**
@@ -801,8 +785,8 @@ public class ProjectVersion extends DAObject {
 	 * @param d Directory to list
 	 * @return List of files visible in that version (may be empty, not null)
 	 */
-	public List<ProjectFile> getFiles(Directory d) {
-	    return getFiles(d, ProjectVersion.MASK_ALL);
+	public List<ProjectFile> getFiles(DBService dbs, Directory d) {
+	    return getFiles(dbs, d, ProjectVersion.MASK_ALL);
 	}
 	
 	/**
@@ -816,8 +800,8 @@ public class ProjectVersion extends DAObject {
 	 *         specified pattern (may be empty, not null)
 	 * 
 	 */
-	public List<ProjectFile> getFiles(Pattern p) {
-        return getFiles(p, MASK_ALL);
+	public List<ProjectFile> getFiles(DBService dbs, Pattern p) {
+        return getFiles(dbs, p, MASK_ALL);
 	}
 
     /**
@@ -835,8 +819,8 @@ public class ProjectVersion extends DAObject {
      *         specified pattern (may be empty, not null)
      *
      */
-    public List<ProjectFile> getFiles(Pattern p, int mask) {
-        List<ProjectFile> files = getVersionFiles(null, mask);
+    public List<ProjectFile> getFiles(DBService dbs, Pattern p, int mask) {
+        List<ProjectFile> files = getVersionFiles(dbs, null, mask);
         Set<ProjectFile> matchedFiles = new HashSet<ProjectFile>();
 
         for ( ProjectFile pf : files ) {
@@ -857,8 +841,8 @@ public class ProjectVersion extends DAObject {
      * @return List of directories visible in that version (may be empty, 
      * not null)
      */
-    public List<ProjectFile> allDirs() {
-        return getVersionFiles(null, ProjectVersion.MASK_DIRECTORIES);
+    public List<ProjectFile> allDirs(DBService dbs) {
+        return getVersionFiles(dbs, null, ProjectVersion.MASK_DIRECTORIES);
     }
     
     /**
@@ -868,15 +852,14 @@ public class ProjectVersion extends DAObject {
      * @return List of files visible in that version (may be empty, 
      * not null)
      */
-    public List<ProjectFile> allFiles() {
-    	return getVersionFiles(null, ProjectVersion.MASK_FILES);
+    public List<ProjectFile> allFiles(DBService dbs) {
+    	return getVersionFiles(dbs, null, ProjectVersion.MASK_FILES);
     }
     
     /**
      * Return true if this version's actions generated a tag.
      */
-    public boolean isTag() {
-    	DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public boolean isTag(DBService dbs) {
     	Map<String, Object> props = new HashMap<String, Object>();
     	props.put("projectVersion", this);
     	

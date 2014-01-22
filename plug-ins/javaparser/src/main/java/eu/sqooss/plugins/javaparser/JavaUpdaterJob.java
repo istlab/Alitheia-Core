@@ -117,7 +117,7 @@ public class JavaUpdaterJob extends Job {
             walker.addProcessor(ee);
             walker.walk(t);
 
-            NameSpace ns = NameSpace.findByVersionName(pf.getProjectVersion(), 
+            NameSpace ns = NameSpace.findByVersionName(db, pf.getProjectVersion(), 
                     ee.getPackageName());
             
             if (ns == null) {
@@ -161,7 +161,7 @@ public class JavaUpdaterJob extends Job {
                InvalidRepositoryException, FileNotFoundException {
         Long ts = System.currentTimeMillis();
         List<String> changedMethods = new ArrayList<String>();
-        ProjectFile prev = pf.getPreviousFileVersion();
+        ProjectFile prev = pf.getPreviousFileVersion(db);
         
         if (prev == null) {
             if (!pf.isAdded())

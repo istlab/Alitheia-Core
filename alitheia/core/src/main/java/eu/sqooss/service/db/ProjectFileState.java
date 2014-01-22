@@ -49,7 +49,6 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.tds.PathChangeType;
 
 /**
@@ -102,25 +101,23 @@ public class ProjectFileState extends DAObject {
         return null;
     }
     
-    public static ProjectFileState added() {
-        return fromStatus(STATE_ADDED);
+    public static ProjectFileState added(DBService dbs) {
+        return fromStatus(dbs, STATE_ADDED);
     }
     
-    public static ProjectFileState modified() {
-        return fromStatus(STATE_MODIFIED);
+    public static ProjectFileState modified(DBService dbs) {
+        return fromStatus(dbs, STATE_MODIFIED);
     }
     
-    public static ProjectFileState deleted() {
-        return fromStatus(STATE_DELETED);
+    public static ProjectFileState deleted(DBService dbs) {
+        return fromStatus(dbs, STATE_DELETED);
     }
     
-    public static ProjectFileState replaced() {
-        return fromStatus(STATE_REPLACED);
+    public static ProjectFileState replaced(DBService dbs) {
+        return fromStatus(dbs, STATE_REPLACED);
     }
     
-    public static ProjectFileState fromStatus(int status) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public static ProjectFileState fromStatus(DBService dbs, int status) {
         if (!dbs.isDBSessionActive())
             return null;
 
@@ -138,19 +135,19 @@ public class ProjectFileState extends DAObject {
 
         dbs.addRecord(state);
 
-        return fromStatus(status);
+        return fromStatus(dbs, status);
     }
 
-    public static ProjectFileState fromPathChangeType(PathChangeType pct) {
+    public static ProjectFileState fromPathChangeType(DBService dbs, PathChangeType pct) {
         switch (pct) {
         case ADDED:
-            return fromStatus(STATE_ADDED);
+            return fromStatus(dbs, STATE_ADDED);
         case MODIFIED:
-            return fromStatus(STATE_MODIFIED);
+            return fromStatus(dbs, STATE_MODIFIED);
         case DELETED:
-            return fromStatus(STATE_DELETED);    
+            return fromStatus(dbs, STATE_DELETED);    
         case REPLACED:
-            return fromStatus(STATE_REPLACED);
+            return fromStatus(dbs, STATE_REPLACED);
         default:
             return null;
         }

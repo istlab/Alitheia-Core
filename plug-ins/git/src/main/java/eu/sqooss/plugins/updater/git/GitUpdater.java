@@ -71,6 +71,7 @@ import eu.sqooss.service.util.Pair;
 /**
  * A metadata updater converts raw data to Alitheia Core database metadata.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 @Updater(descr = "Metadata updater for Git repositories", 
         mnem ="GIT", 
         protocols = {"git-file"}, 
@@ -158,7 +159,7 @@ public class GitUpdater implements MetadataUpdater {
                 + " ID " + project.getId());
         
         //Compare latest DB version with the repository
-        ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(project);
+        ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(dbs, project);
         Revision next;
         if (latestVersion != null) {  
             Revision r = git.getHeadRevision();
@@ -191,14 +192,14 @@ public class GitUpdater implements MetadataUpdater {
         if(!dbs.isDBSessionActive()) dbs.startDBSession();
 
         for (Revision entry : commitLog) {
-        	if (ProjectVersion.getVersionByRevision(project, entry.getUniqueId()) != null) {
+        	if (ProjectVersion.getVersionByRevision(dbs, project, entry.getUniqueId()) != null) {
         		info("Skipping processed revision: " + entry.getUniqueId());
         		continue;
         	}
         	
             ProjectVersion pv = processOneRevision(entry);
             
-            processCopiedFiles(git, entry, pv, pv.getPreviousVersion());
+            processCopiedFiles(git, entry, pv, pv.getPreviousVersion(dbs));
             
             processRevisionFiles(git, entry, pv);
             
@@ -248,7 +249,7 @@ public class GitUpdater implements MetadataUpdater {
         }
         
         //Sequencing
-        ProjectVersion prev = pv.getPreviousVersion();
+        ProjectVersion prev = pv.getPreviousVersion(dbs);
         if (prev != null)
             pv.setSequence(prev.getSequence() + 1);
         else 
@@ -256,13 +257,13 @@ public class GitUpdater implements MetadataUpdater {
               
         //Branches and parent-child relationships
         for (String parentId : entry.getParentIds()) {
-            ProjectVersion parent = ProjectVersion.getVersionByRevision(project, parentId);
+            ProjectVersion parent = ProjectVersion.getVersionByRevision(dbs, project, parentId);
             ProjectVersionParent pvp = new ProjectVersionParent(pv, parent);
             pv.getParents().add(pvp);
             
             //Parent is a branch
             if (git.getCommitChidren(parentId).length > 1) {
-                Branch b = new Branch(project, Branch.suggestName(project));
+                Branch b = new Branch(project, Branch.suggestName(dbs, project));
                 dbs.addRecord(b);
                 parent.getOutgoingBranches().add(b);
                 pv.getIncomingBranches().add(b);
@@ -273,12 +274,12 @@ public class GitUpdater implements MetadataUpdater {
 
         if (entry.getParentIds().size() > 1) {
             //A merge commit
-            Branch b = new Branch(project, Branch.suggestName(project));
+            Branch b = new Branch(project, Branch.suggestName(dbs, project));
             pv.getOutgoingBranches().add(b);
         } else {
             //New line of development
             if (entry.getParentIds().size() == 0) {
-                Branch b = new Branch(project, Branch.suggestName(project));
+                Branch b = new Branch(project, Branch.suggestName(dbs, project));
                 dbs.addRecord(b);
                 pv.getOutgoingBranches().add(b);
             } else {
@@ -324,7 +325,7 @@ public class GitUpdater implements MetadataUpdater {
         Developer d = null;
         
         if (email != null) {
-            d = Developer.getDeveloperByEmail(email, sp, true);
+            d = Developer.getDeveloperByEmail(dbs, email, sp, true);
             
             if (name != null) {
                 if (name.contains(" ")) {
@@ -335,9 +336,9 @@ public class GitUpdater implements MetadataUpdater {
             }
         } else {
             if (name.contains(" ")) {
-                d = Developer.getDeveloperByName(name, sp, true); 
+                d = Developer.getDeveloperByName(dbs, name, sp, true); 
             } else {
-                d = Developer.getDeveloperByUsername(name, sp, true);
+                d = Developer.getDeveloperByUsername(dbs, name, sp, true);
             }
         }
         return d;
@@ -363,7 +364,7 @@ public class GitUpdater implements MetadataUpdater {
         	}
         	
             ProjectFile copyFrom = null;
-            copyFrom = ProjectFile.findFile(project.getId(), 
+            copyFrom = ProjectFile.findFile(dbs, project.getId(), 
                         FileUtils.basename(cce.fromPath()), 
                         FileUtils.dirname(cce.fromPath()), 
                         cce.fromRev().getUniqueId());
@@ -402,22 +403,22 @@ public class GitUpdater implements MetadataUpdater {
             debug("copyFiles(): Copying " + cce.fromPath() + "->" + cce.toPath());
             if (copyFrom.getIsDirectory()) {
                     
-                Directory from = Directory.getDirectory(cce.fromPath(), false);
-                Directory to = Directory.getDirectory(cce.toPath(), true);
+                Directory from = Directory.getDirectory(dbs, cce.fromPath(), false);
+                Directory to = Directory.getDirectory(dbs, cce.toPath(), true);
 
                 /*
                  * Recursively copy contents and mark files as modified
                  * and directories as added
                  */
                 handleDirCopy(curVersion, 
-                        ProjectVersion.getVersionByRevision(curVersion.getProject(),
+                        ProjectVersion.getVersionByRevision(dbs, curVersion.getProject(),
                         cce.fromRev().getUniqueId()), from, to, copyFrom);
             } else {
                 /*
                  * Create a new entry at the new location and mark the new 
                  * entry as ADDED
                  */
-                addFile(curVersion, cce.toPath(), ProjectFileState.added(), 
+                addFile(curVersion, cce.toPath(), ProjectFileState.added(dbs), 
                 		SCMNodeType.FILE, copyFrom);
             }
             
@@ -427,7 +428,7 @@ public class GitUpdater implements MetadataUpdater {
             		curVersion.getVersionFiles().addAll(handleDirDeletion(copyFrom, curVersion));
             	else 
             		addFile(curVersion, cce.fromPath(), 
-            				ProjectFileState.deleted(), SCMNodeType.FILE, null);
+            				ProjectFileState.deleted(dbs), SCMNodeType.FILE, null);
             }
         }
     }
@@ -448,7 +449,7 @@ public class GitUpdater implements MetadataUpdater {
             SCMNodeType t = scm.getNodeType(chPath, entry);
 
             ProjectFile file = addFile(curVersion, chPath,
-                    ProjectFileState.fromPathChangeType(entry.getChangedPathsStatus().get(chPath)), 
+                    ProjectFileState.fromPathChangeType(dbs, entry.getChangedPathsStatus().get(chPath)), 
                     t, null);
             /*
              * Before entering the next block, examine whether the deleted
@@ -458,13 +459,13 @@ public class GitUpdater implements MetadataUpdater {
              * entry, it may be shared with another project; this case is
              * examined upon entering
              */
-            if (file.isDeleted() && (Directory.getDirectory(chPath, false) != null)) {
+            if (file.isDeleted() && (Directory.getDirectory(dbs, chPath, false) != null)) {
                 /*
                  * Directories, when they are deleted, do not have type DIR,
                  * but something else. So we need to check on deletes
                  * whether this name was most recently a directory.
                  */
-                ProjectFile lastVersion = file.getPreviousFileVersion();
+                ProjectFile lastVersion = file.getPreviousFileVersion(dbs);
                 
                 /*
                  * If a directory is deleted and its previous incarnation cannot
@@ -576,9 +577,9 @@ public class GitUpdater implements MetadataUpdater {
             			 f.getFileName().startsWith(winner.getFileName()) &&
             			 f.getState().getStatus() != ProjectFileState.STATE_DELETED) {
             			debug("replayLog(): Setting status of " + winner + " to " 
-            					+ ProjectFileState.replaced() + " as " +
+            					+ ProjectFileState.replaced(dbs) + " as " +
             					"file " + f + " uses its path");
-            			winner.setState(ProjectFileState.replaced());
+            			winner.setState(ProjectFileState.replaced(dbs));
             			winner.setIsDirectory(true);
             			break;
             		}
@@ -613,20 +614,20 @@ public class GitUpdater implements MetadataUpdater {
          * file has been processed before whithin this revision
          * or the previous file version
          */
-        ProjectFile cur = ProjectFile.findFile(project.getId(), fname,
+        ProjectFile cur = ProjectFile.findFile(dbs, project.getId(), fname,
         		path, version.getRevisionId(), true);
 
         if (cur != null && 
         	!cur.getProjectVersion().getRevisionId().equals(version.getRevisionId()) &&
         	!isValidStateTransition(cur.getState(), status)) {
-        	ProjectFileState newstatus = ProjectFileState.fromStatus(invTransitionFix.get(cur.getState().getStatus()));
+        	ProjectFileState newstatus = ProjectFileState.fromStatus(dbs, invTransitionFix.get(cur.getState().getStatus()));
         	debug("addFile(): Invalid state transition (" + cur.getState() + 
         			"->" + status + ") for path " + fPath + ". Setting " + 
         			"status to " + newstatus);
         	status = newstatus;
         }
         
-        Directory dir = Directory.getDirectory(path, true);
+        Directory dir = Directory.getDirectory(dbs, path, true);
         pf.setName(fname);
         pf.setDir(dir);
         pf.setState(status);
@@ -667,29 +668,29 @@ public class GitUpdater implements MetadataUpdater {
     	String pathname = FileUtils.dirname(path);
     	String filename = FileUtils.basename(path);
     	
-    	ProjectVersion previous = pv.getPreviousVersion();
+    	ProjectVersion previous = pv.getPreviousVersion(dbs);
 
         if (previous == null) { // Special case for first version
             previous = pv;
         }
         
-    	ProjectFile prev = ProjectFile.findFile(project.getId(),
+    	ProjectFile prev = ProjectFile.findFile(dbs, project.getId(),
     			filename, pathname, previous.getRevisionId());
     	
     	ProjectFile pf = new ProjectFile(pv);
     	
     	if (prev == null) {
-            pf.setState(ProjectFileState.added());
+            pf.setState(ProjectFileState.added(dbs));
             //Recursion reached the root directory
             if (!(pathname.equals("/") && filename.equals(""))) 
             	files.addAll(mkdirs(pv, pathname));
 
     	} else {
-    		pf.setState(ProjectFileState.modified());
+    		pf.setState(ProjectFileState.modified(dbs));
     	}
 
         pf.setDirectory(true);
-        pf.setDir(Directory.getDirectory(pathname, true));
+        pf.setDir(Directory.getDirectory(dbs, pathname, true));
         pf.setName(filename);
         pf.setValidFrom(pv);
         
@@ -703,11 +704,11 @@ public class GitUpdater implements MetadataUpdater {
      */
     private void updateValidUntil(ProjectVersion pv, Set<ProjectFile> versionFiles) {
 
-        ProjectVersion previous = pv.getPreviousVersion();
+        ProjectVersion previous = pv.getPreviousVersion(dbs);
 
         for (ProjectFile pf : versionFiles) {
             if (!pf.isAdded()) {
-                ProjectFile old = pf.getPreviousFileVersion();
+                ProjectFile old = pf.getPreviousFileVersion(dbs);
                 old.setValidUntil(previous);
             }
 
@@ -736,7 +737,7 @@ public class GitUpdater implements MetadataUpdater {
         
         debug("Deleting directory " + pf.getFileName() + " ID "
                 + pf.getId());
-        Directory d = Directory.getDirectory(pf.getFileName(), false);
+        Directory d = Directory.getDirectory(dbs, pf.getFileName(), false);
         if (d == null) {
             warn("Directory entry " + pf.getFileName() + " in project "
                     + pf.getProjectVersion().getProject().getName()
@@ -744,16 +745,16 @@ public class GitUpdater implements MetadataUpdater {
             return files;
         }
 
-        ProjectVersion prev = pv.getPreviousVersion();
+        ProjectVersion prev = pv.getPreviousVersion(dbs);
         
-        List<ProjectFile> dirFiles = prev.getFiles(d);
+        List<ProjectFile> dirFiles = prev.getFiles(dbs, d);
         
         for (ProjectFile f : dirFiles) {
             if (f.getIsDirectory()) {
                 files.addAll(handleDirDeletion(f, pv));
             }
             ProjectFile deleted = new ProjectFile(f, pv);
-            deleted.setState(ProjectFileState.deleted());
+            deleted.setState(ProjectFileState.deleted(dbs));
             files.add(deleted);
         }
         return files;
@@ -781,21 +782,21 @@ public class GitUpdater implements MetadataUpdater {
         if (!canProcessCopy(from.getPath(), to.getPath())) 
             return;
        
-        addFile(pv, to.getPath(), ProjectFileState.added(), SCMNodeType.DIR, copyFrom);
+        addFile(pv, to.getPath(), ProjectFileState.added(dbs), SCMNodeType.DIR, copyFrom);
         
         /*Recursively copy directories*/
-        List<ProjectFile> fromPF = fromVersion.getFiles(from, ProjectVersion.MASK_DIRECTORIES);
+        List<ProjectFile> fromPF = fromVersion.getFiles(dbs, from, ProjectVersion.MASK_DIRECTORIES);
         
         for (ProjectFile f : fromPF) {
-            handleDirCopy(pv, fromVersion, Directory.getDirectory(f.getFileName(), false), 
-            		Directory.getDirectory(to.getPath() + "/" + f.getName(), true), f);
+            handleDirCopy(pv, fromVersion, Directory.getDirectory(dbs, f.getFileName(), false), 
+            		Directory.getDirectory(dbs, to.getPath() + "/" + f.getName(), true), f);
         }
         
-        fromPF = fromVersion.getFiles(from, ProjectVersion.MASK_FILES);
+        fromPF = fromVersion.getFiles(dbs, from, ProjectVersion.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
             addFile(pv, to.getPath() + "/" + f.getName(),
-                    ProjectFileState.added(), SCMNodeType.FILE, f);
+                    ProjectFileState.added(dbs), SCMNodeType.FILE, f);
         }
     }
     

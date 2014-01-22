@@ -62,7 +62,8 @@ public class JavaUpdater implements MetadataUpdater, JobStateListener {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("sp", sp);
-        List<ProjectVersion> toProcess = (List<ProjectVersion>) db.doHQL(notProcessed, params);
+        @SuppressWarnings("unchecked")
+		List<ProjectVersion> toProcess = (List<ProjectVersion>) db.doHQL(notProcessed, params);
 
         if (toProcess.size() == 0) {
             log.info("No versions to process");

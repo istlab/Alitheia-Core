@@ -47,8 +47,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * States a bug resolution process can be into.
  * 
@@ -154,8 +152,8 @@ public class BugStatus extends DAObject {
      * @return A BugStatus DAO or null if an error occurred while creating
      * the status code line to the database
      */
-    public static BugStatus getBugStatus(BugStatus.Status s) {
-        return getBugStatus(s.toString(), true);
+    public static BugStatus getBugStatus(DBService dbs, BugStatus.Status s) {
+        return getBugStatus(dbs, s.toString(), true);
     }
     
     /**
@@ -167,8 +165,8 @@ public class BugStatus extends DAObject {
      * and the create field was set to null or when an error occurred
      * while modifying the DB.
      */
-    public static BugStatus getBugStatus(String status, boolean create) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static BugStatus getBugStatus(DBService dbs, String status, boolean create) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("status", status);

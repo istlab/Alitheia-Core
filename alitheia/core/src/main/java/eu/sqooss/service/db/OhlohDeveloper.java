@@ -47,8 +47,6 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * Holds data imported from Ohloh to help with resolving repository account
  * names to emails.
@@ -135,23 +133,23 @@ public class OhlohDeveloper extends DAObject {
         this.ohlohId = ohlohId;
     }
     
-    public static OhlohDeveloper getByOhlohId(String id) {
-       return getBy("ohlohId", id);
+    public static OhlohDeveloper getByOhlohId(DBService dbs, String id) {
+    	return getBy(dbs, "ohlohId", id);
     }
     
-    public static OhlohDeveloper getByEmailHash(String hash) {
-        return getBy("emailHash", hash);
+    public static OhlohDeveloper getByEmailHash(DBService dbs, String hash) {
+    	return getBy(dbs, "emailHash", hash);
     }
     
-    public static List<OhlohDeveloper> getByUserName(String uname) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static List<OhlohDeveloper> getByUserName(String uname, DBService dbs) {
+        // DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("uname", uname);
         return dbs.findObjectsByProperties(OhlohDeveloper.class, params);
     }
     
-    private static OhlohDeveloper getBy(String name, String value) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    private static OhlohDeveloper getBy(DBService dbs, String name, String value) {
+       // DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(name, value);
         List<OhlohDeveloper> l = dbs.findObjectsByProperties(OhlohDeveloper.class, params);

@@ -36,8 +36,6 @@ package eu.sqooss.service.db;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * Base class for describing all DAO, providing a simple id interface
  */
@@ -63,9 +61,8 @@ public abstract class DAObject {
      * @param type The type of the object to look for
      * @return 
      */
-    public static <T extends DAObject> T loadDAObyId(long id, Class<T> type) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        return dbs.findObjectById(type, id);
+    public static <T extends DAObject> T loadDAObyId(DBService dbs, long id, Class<T> type) {
+        return (T) dbs.findObjectById(type, id);
     }
 }
 

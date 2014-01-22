@@ -111,7 +111,7 @@ public class DiscussionHeat extends AbstractMetric {
         List<Long> mailsPerList = (List<Long>)db.doHQL(numMails, params);
         
         //Get one day's worth of messages
-        List<MailMessage> msgs = m.getMessagesByArrivalOrder();
+        List<MailMessage> msgs = m.getMessagesByArrivalOrder(db);
         List<MailMessage> oneDayMsgs = new ArrayList<MailMessage>();
         int depth = 0; MailMessage first = null;
         
@@ -132,7 +132,7 @@ public class DiscussionHeat extends AbstractMetric {
         int score = getQuartile(thrDepths, depth) 
                 + getQuartile(mailsPerList, oneDayMsgs.size());
         
-        Metric hotness = Metric.getMetricByMnemonic("HOTNESS");
+        Metric hotness = Metric.getMetricByMnemonic(db, "HOTNESS");
         
         MailingListThreadMeasurement mm = new MailingListThreadMeasurement(
                 hotness, m, String.valueOf(score));
@@ -143,7 +143,7 @@ public class DiscussionHeat extends AbstractMetric {
             return;
         
         //Get the version closest to thread start
-        ProjectVersion pv = getVersionByDate(m.getStartingEmail().getSendDate(), 
+        ProjectVersion pv = getVersionByDate(m.getStartingEmail(db).getSendDate(), 
                 m.getList().getStoredProject());
         
         int locsLastMonth = getLocsForVersions(getPreviousMonthVersions(pv));
@@ -151,7 +151,7 @@ public class DiscussionHeat extends AbstractMetric {
         
         int result = (locsLastMonth/30) - (locsNextWeek/7);
         
-        Metric hoteffect = Metric.getMetricByMnemonic("HOTEFFECT");
+        Metric hoteffect = Metric.getMetricByMnemonic(db, "HOTEFFECT");
         MailingListThreadMeasurement mltm = new MailingListThreadMeasurement(
                 hoteffect, m, String.valueOf(result));
         
@@ -159,7 +159,7 @@ public class DiscussionHeat extends AbstractMetric {
     }
     
     private int getLocsForVersions(List<ProjectVersion> versions) throws AlreadyProcessingException {
-        Metric metric = Metric.getMetricByMnemonic("VERLOC");
+        Metric metric = Metric.getMetricByMnemonic(db, "VERLOC");
         List<Metric> metricList = new ArrayList<Metric>();
         metricList.add(metric);
         int result = 0;
@@ -183,7 +183,7 @@ public class DiscussionHeat extends AbstractMetric {
     private List<ProjectVersion> getPreviousMonthVersions(ProjectVersion pv) {
         List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
         versions.add(pv);
-        ProjectVersion prev = pv.getPreviousVersion();
+        ProjectVersion prev = pv.getPreviousVersion(db);
         long monthsecs = 3600 * 24 * 30;
         while (true) {
             //Diff in seconds
@@ -193,14 +193,14 @@ public class DiscussionHeat extends AbstractMetric {
             } else {
                 break;
             }
-            prev = prev.getPreviousVersion();
+            prev = prev.getPreviousVersion(db);
         }
         return versions;
     }
     
     private List<ProjectVersion> getNextWeekVersions(ProjectVersion pv) {
         List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
-        ProjectVersion next = pv.getNextVersion();
+        ProjectVersion next = pv.getNextVersion(db);
         long weeksecs = 3600 * 24 * 7;
         while (true) {
             long diff = (next.getTimestamp() - pv.getTimestamp()) / 1000;
@@ -209,7 +209,7 @@ public class DiscussionHeat extends AbstractMetric {
             } else {
                 break;
             }
-            next = next.getNextVersion();
+            next = next.getNextVersion(db);
         }
         
         return versions;
@@ -243,12 +243,12 @@ public class DiscussionHeat extends AbstractMetric {
     }
 
     public void run(ProjectVersion pv) throws AlreadyProcessingException {
-        Metric m = Metric.getMetricByMnemonic("VERLOC");
+        Metric m = Metric.getMetricByMnemonic(db, "VERLOC");
         List<Metric> locMetric = new ArrayList<Metric>();
         AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin("Wc.loc");
         
         if (plugin != null) {
-            locMetric.add(Metric.getMetricByMnemonic("Wc.loc"));
+            locMetric.add(Metric.getMetricByMnemonic(db, "Wc.loc"));
         } else {
             return;
         }
@@ -260,14 +260,14 @@ public class DiscussionHeat extends AbstractMetric {
                 if (pf.getIsDirectory())
                     continue;
                 if (pf.isDeleted()) {
-                    linesChanged += getLOCResult(pf.getPreviousFileVersion(),
+                    linesChanged += getLOCResult(pf.getPreviousFileVersion(db),
                             plugin, locMetric);
                 } else if (pf.isAdded()) {
                     linesChanged += getLOCResult(pf, plugin, locMetric);
                 } else { // MODIFIED or REPLACED
                     linesChanged += Math.abs(
                             getLOCResult(pf, plugin, locMetric)
-                            - getLOCResult(pf.getPreviousFileVersion(),
+                            - getLOCResult(pf.getPreviousFileVersion(db),
                             plugin, locMetric));
                 }
             }

@@ -95,5 +95,15 @@ public enum ConfigOption {
         this.propname = name;
         this.desc = desc;
     }
+	
+	public static ConfigOption fromKey(String key) {
+		for(ConfigOption opt : ConfigOption.values()) {
+			if (opt.getName().equals(key)) {
+				return opt;
+			}
+		}
+		
+		return null;
+	}
 }
 

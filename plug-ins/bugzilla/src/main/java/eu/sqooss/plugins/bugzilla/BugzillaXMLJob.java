@@ -97,7 +97,7 @@ public class BugzillaXMLJob extends Job {
         if (bugExists(project, bugID)) {
             logger.debug(project.getName() + ": Updating existing bug "
                     + bugID);
-            List<BugReportMessage> msgs = bug.getAllReportComments();
+            List<BugReportMessage> msgs = bug.getAllReportComments(dbs);
             Set<BugReportMessage> newmsgs = bug.getReportMessages();
             Set<BugReportMessage> toadd = new LinkedHashSet<BugReportMessage>();
 
@@ -130,34 +130,36 @@ public class BugzillaXMLJob extends Job {
         if (b == null)
             return null;
         
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
         Bug bug = new Bug();
         bug.setBugID(b.bugID);
         bug.setCreationTS(b.creationTimestamp);
         bug.setDeltaTS(b.latestUpdateTimestamp);
         
         if (b.priority != null) {
-            bug.setPriority(BugPriority.getBugPriority(Priority.fromString(b.priority.toString())));
+            bug.setPriority(BugPriority.getBugPriority(dbs, Priority.fromString(b.priority.toString())));
         } else {
-            bug.setPriority(BugPriority.getBugPriority(Priority.UNKNOWN));
+            bug.setPriority(BugPriority.getBugPriority(dbs, Priority.UNKNOWN));
         }   
         bug.setProject(project);
         
         if (b.resolution != null) {
-            bug.setResolution(BugResolution.getBugResolution(Resolution.fromString(b.resolution.toString())));
+            bug.setResolution(BugResolution.getBugResolution(dbs, Resolution.fromString(b.resolution.toString())));
         } else {
-            bug.setResolution(BugResolution.getBugResolution(Resolution.UNKNOWN));
+            bug.setResolution(BugResolution.getBugResolution(dbs, Resolution.UNKNOWN));
         }
         
         if (b.severity != null) {
-            bug.setSeverity(BugSeverity.getBugseverity(Severity.fromString(b.severity.toString())));
+            bug.setSeverity(BugSeverity.getBugseverity(dbs, Severity.fromString(b.severity.toString())));
         } else {
-            bug.setSeverity(BugSeverity.getBugseverity(Severity.UNKNOWN));
+            bug.setSeverity(BugSeverity.getBugseverity(dbs, Severity.UNKNOWN));
         }
         
         if (b.state != null) {
-            bug.setStatus(BugStatus.getBugStatus(Status.fromString(b.state.toString())));
+            bug.setStatus(BugStatus.getBugStatus(dbs, Status.fromString(b.state.toString())));
         } else {
-            bug.setStatus(BugStatus.getBugStatus(Status.UNKNOWN));
+            bug.setStatus(BugStatus.getBugStatus(dbs, Status.UNKNOWN));
         }
         
         bug.setShortDesc(b.shortDescr);
@@ -186,11 +188,13 @@ public class BugzillaXMLJob extends Job {
      * Get or create a developer entry for a username
      */
     private Developer getDeveloper(String name) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
         Developer d = null;
         if (name.contains("@")) {
-            d = Developer.getDeveloperByEmail(name, project);
+            d = Developer.getDeveloperByEmail(dbs, name, project);
         } else {
-            d = Developer.getDeveloperByUsername(name, project);
+            d = Developer.getDeveloperByUsername(dbs, name, project);
         }
         return d;
     }

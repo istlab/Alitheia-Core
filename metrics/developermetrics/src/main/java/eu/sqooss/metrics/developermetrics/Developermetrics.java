@@ -104,17 +104,17 @@ public class Developermetrics extends AbstractMetric {
         long threeMonths = (long)(90 * 24 * 60 * 60 * 1000L);
         long sixMonths = (long)(180 * 24 * 60 * 60 * 1000L);
         
-        Metric m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE1);
+        Metric m = Metric.getMetricByMnemonic(db, MNEM_TEAMSIZE1);
         ProjectVersionMeasurement pvmOne = new ProjectVersionMeasurement(
                 m, v, String.valueOf(commSize(v, oneMonth)));
         db.addRecord(pvmOne);
         
-        m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE3);
+        m = Metric.getMetricByMnemonic(db, MNEM_TEAMSIZE3);
         ProjectVersionMeasurement pvmThree = new ProjectVersionMeasurement(
                 m, v, String.valueOf(commSize(v, threeMonths)));
         db.addRecord(pvmThree);
         
-        m = Metric.getMetricByMnemonic(MNEM_TEAMSIZE6);
+        m = Metric.getMetricByMnemonic(db, MNEM_TEAMSIZE6);
         ProjectVersionMeasurement pvmSix = new ProjectVersionMeasurement(
                 m, v, String.valueOf(commSize(v, sixMonths)));
         db.addRecord(pvmSix);
@@ -138,7 +138,8 @@ public class Developermetrics extends AbstractMetric {
         Metric m = null;
         if (a.getIsDirectory()) {
             List<ProjectFile> files = a.getProjectVersion().getFiles(
-                    Directory.getDirectory(a.getFileName(), false), 
+                    db,
+                    Directory.getDirectory(db, a.getFileName(), false), 
                     ProjectVersion.MASK_FILES);
             
             Set<Developer> distinctdevs = new HashSet<Developer>(); 
@@ -147,11 +148,11 @@ public class Developermetrics extends AbstractMetric {
                 distinctdevs.addAll(fileEyeballs(pf));
             }
             eyeballs = distinctdevs.size();
-            m = Metric.getMetricByMnemonic(MNEM_EYEBALL_MOD);
+            m = Metric.getMetricByMnemonic(db, MNEM_EYEBALL_MOD);
         }
         else { 
             eyeballs = fileEyeballs(a).size();
-            m = Metric.getMetricByMnemonic(MNEM_EYEBALL);
+            m = Metric.getMetricByMnemonic(db, MNEM_EYEBALL);
         }
         
         ProjectFileMeasurement pfm = new ProjectFileMeasurement(m, a, 

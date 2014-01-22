@@ -23,8 +23,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * A representation of a namespace. According to Wikipedia, a namespace is an
  * abstract container or environment created to hold a logical grouping of
@@ -150,13 +148,14 @@ public class NameSpace extends DAObject {
         return measurements;
     }
     
-    public static NameSpace findByVersionName(ProjectVersion pv, String name) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static NameSpace findByVersionName(DBService dbs, ProjectVersion pv, String name) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("pv", pv);
         params.put("name", name);
         
-        List<NameSpace> ns = (List<NameSpace>) dbs.doHQL(nsByVersion, params);
+        @SuppressWarnings("unchecked")
+		List<NameSpace> ns = (List<NameSpace>) dbs.doHQL(nsByVersion, params);
         
         if (ns.isEmpty())
             return null;

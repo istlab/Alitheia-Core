@@ -47,8 +47,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import eu.sqooss.core.AlitheiaCore;
-
 @Entity
 @Table(name="PLUGIN_CONFIGURATION")
 public class PluginConfiguration extends DAObject {
@@ -125,9 +123,7 @@ public class PluginConfiguration extends DAObject {
     /**
      * Get a PluginConfiguration entry DAO or null in 
      */
-    public static PluginConfiguration getConfigurationEntry(Plugin p, HashMap<String, Object> names) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        
+    public static PluginConfiguration getConfigurationEntry(DBService db, Plugin p, HashMap<String, Object> names) {
         names.put("plugin", p);
                 
         List<PluginConfiguration> l = db.findObjectsByProperties(PluginConfiguration.class, names);
@@ -144,9 +140,8 @@ public class PluginConfiguration extends DAObject {
      * successfully true will be returned. If not found or the update 
      * fails, false will be returned.
      */
-    public static boolean updConfigurationEntry(Plugin p, HashMap<String, Object> names) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        PluginConfiguration pc = getConfigurationEntry(p, names);
+    public static boolean updConfigurationEntry(DBService db, Plugin p, HashMap<String, Object> names) {
+        PluginConfiguration pc = getConfigurationEntry(db, p, names);
         
         if (pc == null) {
             return false;

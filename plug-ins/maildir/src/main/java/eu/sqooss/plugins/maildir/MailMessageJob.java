@@ -127,7 +127,7 @@ public class MailMessageJob extends Job{
 
         // Try to find developer from name first
         if (devName != null) {
-            sender = Developer.getDeveloperByName(devName,
+            sender = Developer.getDeveloperByName(dbs, devName,
                     ml.getStoredProject(), false);
         }
 
@@ -140,7 +140,7 @@ public class MailMessageJob extends Job{
                 return;
             }
 
-            sender = Developer.getDeveloperByEmail(senderEmail,
+            sender = Developer.getDeveloperByEmail(dbs, senderEmail,
                     ml.getStoredProject(), true);
 
             // Found dev by email, but not by name
@@ -161,7 +161,7 @@ public class MailMessageJob extends Job{
             return;
         }
 
-        MailMessage mmsg = MailMessage.getMessageById(fileName);
+        MailMessage mmsg = MailMessage.getMessageById(dbs, fileName);
         if (mmsg == null) {
             // if the message does not exist in the database, then
             // write a new one

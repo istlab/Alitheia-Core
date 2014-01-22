@@ -62,10 +62,11 @@ public class ModuleResolver implements MetadataUpdater {
             if (!db.isDBSessionActive()) db.startDBSession();
             pv = db.attachObjectToDBSession(pv);
             log.info("ModuleResolver: Processing version: " + pv);
-            for (ProjectFile pf : pv.allDirs()) {
+            for (ProjectFile pf : pv.allDirs(db)) {
 
                 List<ProjectFile> pfs = pf.getProjectVersion().getFiles(
-                        Directory.getDirectory(pf.getFileName(), false),
+                        db,
+                        Directory.getDirectory(db, pf.getFileName(), false),
                         ProjectVersion.MASK_FILES);
 
                 FileTypeMatcher ftm = FileTypeMatcher.getInstance();

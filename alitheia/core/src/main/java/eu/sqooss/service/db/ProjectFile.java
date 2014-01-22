@@ -56,7 +56,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.util.FileUtils;
 
 /**
@@ -366,9 +365,8 @@ public class ProjectFile extends DAObject{
      * 
      * @return The corresponding <code>Directory</code> DAO
      */
-    public Directory toDirectory() {
+    public Directory toDirectory(DBService dbs) {
         if ((isDirectory) && (getFileName() != null)) {
-            DBService dbs = AlitheiaCore.getInstance().getDBService();
             Map<String, Object> props = new HashMap<String, Object>();
             props.put("path", getFileName());
             List<Directory> matches =
@@ -385,9 +383,7 @@ public class ProjectFile extends DAObject{
      * @return The previous file revision, or null if the file is not found
      * or if the file was added in the provided revision
      */
-    public ProjectFile getPreviousFileVersion() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-
+    public ProjectFile getPreviousFileVersion(DBService dbs) {
         //No need to query if a file was just added
         if (this.isAdded()) {
             return null;
@@ -432,9 +428,7 @@ public class ProjectFile extends DAObject{
      * @return The project version's number where this file was deleted,
      *   or <code>null</code> if this file still exist.
      */
-    public static ProjectVersion getDeletionVersion(ProjectFile pf) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-
+    public static ProjectVersion getDeletionVersion(DBService db, ProjectFile pf) {
         // Skip files which are in a "DELETED" state
         if (pf.isDeleted()) {
             return pf.getProjectVersion();
@@ -473,15 +467,16 @@ public class ProjectFile extends DAObject{
             "           group by pv1) ";
 
         HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put(paramStatusDeleted, ProjectFileState.deleted());
-        params.put(paramStatusAdded, ProjectFileState.added());
+        params.put(paramStatusDeleted, ProjectFileState.deleted(db));
+        params.put(paramStatusAdded, ProjectFileState.added(db));
         params.put(paramName, pf.getName());
         params.put(paramDir, pf.getDir());
         params.put(paramDirectory, pf.getIsDirectory());
         params.put(paramProject, pf.getProjectVersion().getProject());
         params.put(paramOrder, pf.getProjectVersion().getSequence());
 
-        List<ProjectVersion> pvs = (List<ProjectVersion>) db.doHQL(query, params);
+        @SuppressWarnings("unchecked")
+		List<ProjectVersion> pvs = (List<ProjectVersion>) db.doHQL(query, params);
                        
         if (pvs.size() <= 0)
             return null;
@@ -498,9 +493,7 @@ public class ProjectFile extends DAObject{
      *   or <code>null</code> if the given file is located in the project's
      *   root folder (<i>or the given file is the root folder</i> ).
      */
-    public ProjectFile getEnclosingDirectory() {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        
+    public ProjectFile getEnclosingDirectory(DBService db) {
         String paramName = "paramName"; 
         String paramDir = "paramDir";
         String paramIsDir = "paramIsDir"; 
@@ -520,12 +513,13 @@ public class ProjectFile extends DAObject{
         HashMap<String, Object> params = new HashMap<String, Object>();
         
         params.put(paramName, FileUtils.basename(this.getDir().getPath()));
-        params.put(paramDir, Directory.getDirectory(FileUtils.dirname(this.getDir().getPath()), false));
+        params.put(paramDir, Directory.getDirectory(db, FileUtils.dirname(this.getDir().getPath()), false));
         params.put(paramProject, this.getProjectVersion().getProject());
         params.put(paramIsDir, true);
         params.put(paramSequence, this.getProjectVersion().getSequence());
         
-        List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
+        @SuppressWarnings("unchecked")
+		List<ProjectFile> pfs = (List<ProjectFile>) db.doHQL(query, params, 1);
         
         if (pfs.size() <= 0)
             return null;
@@ -544,9 +538,7 @@ public class ProjectFile extends DAObject{
      * @return the modifications hash map
      */
     @SuppressWarnings("unchecked")
-    public static List<ProjectFile> getFileModifications(ProjectFile pf) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
+    public static List<ProjectFile> getFileModifications(DBService dbs, ProjectFile pf) {
         String paramFile = "paramFile";
         String paramDir = "paramDir";
         String paramProject = "paramProject";
@@ -577,9 +569,9 @@ public class ProjectFile extends DAObject{
      * @return A list of ProjectFile objects matching the search arguments
      *  which can be empty if no matching files where found
      */
-    public static ProjectFile findFile(Long projectId, String name,
+    public static ProjectFile findFile(DBService dbs, Long projectId, String name,
             String path, String version) {
-    	return findFile(projectId, name, path, version, false);
+    	return findFile(dbs, projectId, name, path, version, false);
     }
     
     /**
@@ -594,9 +586,8 @@ public class ProjectFile extends DAObject{
      *  which can be empty if no matching files where found
      */
     @SuppressWarnings("unchecked")
-    public static ProjectFile findFile(Long projectId, String name,
+    public static ProjectFile findFile(DBService dbs, Long projectId, String name,
             String path, String version, boolean inclDeleted) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
         List<ProjectFile> pfs = new ArrayList<ProjectFile>();
         Map<String, Object> parameters = new HashMap<String, Object>();
         
@@ -628,7 +619,7 @@ public class ProjectFile extends DAObject{
         query.append(" order by pv.sequence desc");
 
         if (!inclDeleted)
-        	parameters.put(paramStatus, ProjectFileState.deleted());        
+        	parameters.put(paramStatus, ProjectFileState.deleted(dbs));        
         parameters.put(paramProjectId, projectId);
         parameters.put(paramName, name);
         parameters.put(paramPath, path);
@@ -642,8 +633,8 @@ public class ProjectFile extends DAObject{
         return pfs.get(0);
     }
     
-    public List<ExecutionUnit> getChangedExecutionUnits() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    @SuppressWarnings("unchecked")
+	public List<ExecutionUnit> getChangedExecutionUnits(DBService dbs) {
         Map<String, Object> params = new HashMap<String, Object>();
         
         params.put("file", this);

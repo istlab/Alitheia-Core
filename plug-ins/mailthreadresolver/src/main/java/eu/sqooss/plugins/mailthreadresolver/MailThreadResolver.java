@@ -108,7 +108,7 @@ public class MailThreadResolver implements MetadataUpdater {
         ml = dbs.attachObjectToDBSession(ml);
         int newThreads = 0, updatedThreads = 0, processedEmails = 0;
         MailMessage lastEmail = null;
-        lastEmail = ml.getLatestEmail();
+        lastEmail = ml.getLatestEmail(dbs);
         HashMap<String, MimeMessage> processed = new HashMap<String, MimeMessage>();
         
         if (lastEmail == null) {
@@ -128,7 +128,8 @@ public class MailThreadResolver implements MetadataUpdater {
         Map<String,Object> params = new HashMap<String, Object>(1);
         params.put(paramMl, ml);
         
-        List<Long> mmList = (List<Long>) dbs.doHQL(query, params);
+        @SuppressWarnings("unchecked")
+		List<Long> mmList = (List<Long>) dbs.doHQL(query, params);
         
         if (mmList.isEmpty()) {
             info("No unprocessed mail messages found for list " + ml);
@@ -139,7 +140,7 @@ public class MailThreadResolver implements MetadataUpdater {
         for (Long mailId : mmList) {
             if (!dbs.isDBSessionActive())
                 dbs.startDBSession();
-            MailMessage mail = MailMessage.loadDAObyId(mailId, MailMessage.class);
+            MailMessage mail = MailMessage.loadDAObyId(dbs, mailId, MailMessage.class);
             
             // Message has been already added to thread
             if (mail.getThread() != null)
@@ -177,7 +178,7 @@ public class MailThreadResolver implements MetadataUpdater {
 
             MailingListThread mlt = null;
             /* Get the parent mail object */
-            MailMessage parentMail = MailMessage.getMessageById(parentId);
+            MailMessage parentMail = MailMessage.getMessageById(dbs, parentId);
 
             if (parentId != null) { 
                 /* Parent-less child, parent might have arrived later */
@@ -232,7 +233,7 @@ public class MailThreadResolver implements MetadataUpdater {
                         childExists = true;
 
                         /* Get message whose parent is the discovered child */
-                        MailMessage childMM = MailMessage.getMessageById(child.getMessageID());
+                        MailMessage childMM = MailMessage.getMessageById(dbs, child.getMessageID());
                         
                         if (childMM == null) {
                             warn("Supposedly processed child of message "

@@ -16,21 +16,11 @@ import eu.sqooss.service.admin.actions.RunTimeInfo;
 public class AdminServiceImplTest {
 
     static AdminServiceImpl impl;
-    static long failid;
-    static long successid;
 
     @BeforeClass
     public static void setUp() {
         impl = new AdminServiceImpl();
-    }
 
-    @Test
-    public void testAdminServiceImpl() {
-        assertNotNull(impl);
-    }
-
-    @Test
-    public void testRegisterAdminAction() {
         RunTimeInfo rti = new RunTimeInfo();
         impl.registerAdminAction(rti.mnemonic(), RunTimeInfo.class);
         assertEquals(1, impl.getAdminActions().size());
@@ -42,6 +32,11 @@ public class AdminServiceImplTest {
         SucceedingAction su = new SucceedingAction();
         impl.registerAdminAction(su.mnemonic(), SucceedingAction.class);
         assertEquals(3, impl.getAdminActions().size());
+    }
+
+    @Test
+    public void testAdminServiceImpl() {
+        assertNotNull(impl);
     }
 
     @Test
@@ -65,7 +60,6 @@ public class AdminServiceImplTest {
         assertEquals(AdminActionStatus.CREATED, fail.status());
         assertNull(fail.errors());
         assertNull(fail.results());
-        failid = fail.id();
     }
     
     @Test
@@ -77,7 +71,6 @@ public class AdminServiceImplTest {
         assertNull(success.errors());
         assertEquals("#win", success.results().get("1"));
         assertEquals(AdminActionStatus.FINISHED, success.status());
-        successid = success.id();
         
         AdminAction fail = impl.create("fail");
         assertNotNull(fail);
@@ -86,20 +79,15 @@ public class AdminServiceImplTest {
         assertNull(fail.results());
         assertEquals("#fail", fail.errors().get("1"));
         assertEquals(AdminActionStatus.ERROR, fail.status());
-        failid = fail.id();
-    }
-    
-    @Test
-    public void testShow() {
-        AdminAction aa = impl.show(failid);
+        
+        // testShow
+        AdminAction aa = impl.show(fail.id());
         assertNotNull(aa);
         
-        aa = impl.show(successid);
+        aa = impl.show(success.id());
         assertNotNull(aa);
-    }
-    
-    @Test
-    public void testGC() {
+        
+        // testGc
         try {
             Thread.sleep (300);
         } catch (InterruptedException e) {}
@@ -107,7 +95,7 @@ public class AdminServiceImplTest {
         
         assertEquals(collected, 2);
         
-        AdminAction aa = impl.show(failid);
+        aa = impl.show(fail.id());
         assertNull(aa);
     }
 }

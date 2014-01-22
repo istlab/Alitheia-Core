@@ -36,6 +36,8 @@ package eu.sqooss.impl.service.fds;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.fds.InMemoryCheckout;
@@ -62,9 +64,11 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
     }
 
     protected void createCheckout() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
         root = new InMemoryDirectory(this);
         
-        List<ProjectFile> projectFiles = revision.getFiles();
+        List<ProjectFile> projectFiles = revision.getFiles(dbs);
         if (projectFiles != null && projectFiles.size() != 0) {
             for (ProjectFile f : projectFiles) {
                 if (pattern.matcher(f.getFileName()).matches()) {

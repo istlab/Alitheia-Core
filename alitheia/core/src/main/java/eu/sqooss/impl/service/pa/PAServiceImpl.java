@@ -286,7 +286,8 @@ public class PAServiceImpl implements PluginAdmin, ServiceListener {
 
         // Return the DAO object associated with this plug-in
         if (sobjPlugin != null) {
-            return Plugin.getPluginByHashcode(sobjPlugin.getUniqueKey());
+            DBService dbs = AlitheiaCore.getInstance().getDBService();
+            return Plugin.getPluginByHashcode(dbs, sobjPlugin.getUniqueKey());
         }
 
         return null;

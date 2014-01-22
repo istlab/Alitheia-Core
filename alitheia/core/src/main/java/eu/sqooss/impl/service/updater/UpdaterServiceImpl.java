@@ -47,10 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
 import eu.sqooss.service.db.DBService;
@@ -73,7 +70,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     private Logger logger = null;
     private AlitheiaCore core = null;
-    private BundleContext context;
     private DBService dbs = null;
     
     /* Maps project-ids to the jobs that have been scheduled for 
@@ -231,7 +227,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
     @Override
     public void setInitParams(BundleContext bc, Logger l) {
-        this.context = bc;
         this.logger = l;
     }
 
@@ -573,7 +568,7 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
 
             if (!dbs.isDBSessionActive())
                 dbs.startDBSession();
-            StoredProject sp = StoredProject.loadDAObyId(projectId, StoredProject.class);
+            StoredProject sp = StoredProject.loadDAObyId(dbs, projectId, StoredProject.class);
             removeUpdater(sp, ut);
 
             if (newState.equals(State.Error)) {
@@ -587,7 +582,6 @@ public class UpdaterServiceImpl implements UpdaterService, JobStateListener {
     /*Dummy jobs to ensure correct sequencing of jobs within updater stages */
     private class DependencyJob extends Job {
         private String name;
-        private DependencyJob(){};
         public DependencyJob(String name) { this.name = name;}
         public long priority() {return 0;}
         protected void run() throws Exception {}

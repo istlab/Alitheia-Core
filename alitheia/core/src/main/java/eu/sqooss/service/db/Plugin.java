@@ -48,8 +48,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import eu.sqooss.core.AlitheiaCore;
-
 /**
  * Instances of this class represent data related to Alitheia Core
  * plugins, stored in the database
@@ -188,8 +186,7 @@ public class Plugin extends DAObject {
         this.supportedMetrics = supportedMetrics;
     }
 
-    public static List<Plugin> getPluginByName(String name) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
+    public static List<Plugin> getPluginByName(DBService db, String name) {
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("name", name);
         return db.findObjectsByProperties(Plugin.class, s);
@@ -206,8 +203,7 @@ public class Plugin extends DAObject {
      * @return A Plugin object if the hashcode was found in the DB; null
      *         otherwise
      */
-    public static Plugin getPluginByHashcode(String hashcode) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
+    public static Plugin getPluginByHashcode(DBService db, String hashcode) {
         HashMap<String, Object> s = new HashMap<String, Object>();
         s.put("hashcode", hashcode);
         List<Plugin> l = db.findObjectsByProperties(Plugin.class, s); 

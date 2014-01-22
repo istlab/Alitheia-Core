@@ -38,9 +38,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.LRUMap;
-
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.Branch;
 import eu.sqooss.service.db.DBService;
@@ -74,6 +74,7 @@ import eu.sqooss.service.util.FileUtils;
  * the metadata database with the latest version available to the 
  * repository.
  */
+@SuppressWarnings("deprecation")
 @Updater(descr = "Subversion repository importer", 
         protocols = {"svn", "svn-http", "svn-file"},
         stage = UpdaterStage.IMPORT, 
@@ -102,8 +103,8 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     private HandleCopies hc = HandleCopies.BRANCHES;
     
     /* List of paths included or excluded from processing*/
-    private List<String> inclPaths;
-    private List<String> exclPaths;
+    private Set<String> inclPaths;
+    private Set<String> exclPaths;
     
     /* 
      * Location of common svn paths, used to identify a sub project
@@ -186,7 +187,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         
         try {
             // This is the last version we actually know about
-            ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(project);
+            ProjectVersion latestVersion = ProjectVersion.getLastProjectVersion(dbs, project);
             scm = tds.getAccessor(project.getId()).getSCMAccessor();
             if (latestVersion != null) {  
                 Revision r = scm.getHeadRevision();
@@ -201,7 +202,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
             } else {
                 //Add revision 0 and / (root) file entry
                 ProjectVersion zero = new ProjectVersion(project);
-                zero.setCommitter(Developer.getDeveloperByUsername("sqo-oss", project));
+                zero.setCommitter(Developer.getDeveloperByUsername(dbs, "sqo-oss", project));
                 zero.setTimestamp(scm.getFirstRevision().getDate().getTime());
                 zero.setCommitMsg("Artificial revision to include / directory");
                 zero.setRevisionId("0");
@@ -211,13 +212,13 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                 root.setIsDirectory(true);
                 root.setDir(getDirectory("/", true));
                 root.setName("");
-                root.setState(ProjectFileState.added());
+                root.setState(ProjectFileState.added(dbs));
                 root.setValidFrom(zero);
                 root.setValidUntil(zero);
                 dbs.addRecord(root);
                 dbs.commitDBSession();
                 dbs.startDBSession();
-                latestVersion = ProjectVersion.getLastProjectVersion(project);
+                latestVersion = ProjectVersion.getLastProjectVersion(dbs, project);
             }
             commitLog = scm.getCommitLog("", scm.getNextRevision(
                     scm.newRevision(latestVersion.getRevisionId())), 
@@ -240,7 +241,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                  * modifies the files in the copied path. For non copied paths,
                  * this has no effect in any case.
                  */
-                processCopyOps(scm, entry, curVersion, curVersion.getPreviousVersion());
+                processCopyOps(scm, entry, curVersion, curVersion.getPreviousVersion(dbs));
 
                 /*
                  * Now process normal operations.
@@ -268,7 +269,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                 	String msg = "No files processed for version: " 
                 		+ curVersion;
                 	
-                	if (curVersion.isBranch() || curVersion.isTag()) {
+                	if (curVersion.isBranch() || curVersion.isTag(dbs)) {
                 		debug(msg + ". Version creates tag/branch. " +
                 				"Not removing");
                 	} else {
@@ -376,7 +377,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         curVersion.setRevisionId(entry.getUniqueId());
         curVersion.setTimestamp(entry.getDate().getTime());
 
-        Developer d  = Developer.getDeveloperByUsername(entry.getAuthor(), project);
+        Developer d  = Developer.getDeveloperByUsername(dbs, entry.getAuthor(), project);
        
         curVersion.setCommitter(d);
 
@@ -389,7 +390,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         curVersion.setSequence(Integer.MAX_VALUE);
         dbs.addRecord(curVersion);
 
-        ProjectVersion prev = curVersion.getPreviousVersion();
+        ProjectVersion prev = curVersion.getPreviousVersion(dbs);
         curVersion.setSequence(prev.getSequence() + 1);
         ProjectVersionParent pvp = new ProjectVersionParent(curVersion, prev);
         dbs.addRecord(pvp);
@@ -460,7 +461,8 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         	}
         	
             ProjectFile copyFrom = null;
-            copyFrom = ProjectFile.findFile(project.getId(), 
+            copyFrom = ProjectFile.findFile(dbs,
+                        project.getId(), 
                         FileUtils.basename(cce.fromPath()), 
                         FileUtils.dirname(cce.fromPath()), 
                         cce.fromRev().getUniqueId());
@@ -475,7 +477,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                 SCMNodeType type = scm.getNodeType(cce.fromPath(), cce.fromRev());
                 
                 if (type.equals(SCMNodeType.FILE)) {
-                	addFile(curVersion, cce.toPath(), ProjectFileState.added(), 
+                	addFile(curVersion, cce.toPath(), ProjectFileState.added(dbs), 
                 			SCMNodeType.FILE, copyFrom);
                 } else if (type.equals(SCMNodeType.DIR)) {
                 	
@@ -509,14 +511,14 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                         + " (from r" + cce.fromRev().getUniqueId()
                         + ") to " + to.getPath());
                 handleDirCopy(curVersion, 
-                        ProjectVersion.getVersionByRevision(curVersion.getProject(),
+                        ProjectVersion.getVersionByRevision(dbs, curVersion.getProject(),
                         cce.fromRev().getUniqueId()), from, to, copyFrom);
             } else {
                 /*
                  * Create a new entry at the new location and mark the new 
                  * entry as ADDED
                  */
-                addFile(curVersion, cce.toPath(), ProjectFileState.added(), 
+                addFile(curVersion, cce.toPath(), ProjectFileState.added(dbs), 
                 		SCMNodeType.FILE, copyFrom);
             }   
         }
@@ -545,7 +547,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
             ProjectFile toAdd = null;
             
             toAdd = addFile(curVersion, chPath,
-                    ProjectFileState.fromStatus(SCMStatusIDs.get(
+                    ProjectFileState.fromStatus(dbs, SCMStatusIDs.get(
                     entry.getChangedPathsStatus().get(chPath).toString())), 
                     t, null);
 
@@ -563,7 +565,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                  * but something else. So we need to check on deletes
                  * whether this name was most recently a directory.
                  */
-                ProjectFile lastIncarnation = toAdd.getPreviousFileVersion();
+                ProjectFile lastIncarnation = toAdd.getPreviousFileVersion(dbs);
                 
                 /*
                  * If a directory is deleted and its previous incarnation cannot
@@ -685,7 +687,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         List<ProjectFile> chFiles = new ArrayList<ProjectFile>(this.versionFiles);
         
         for (ProjectFile pf : chFiles) {
-            ProjectFile parent = pf.getEnclosingDirectory();
+            ProjectFile parent = pf.getEnclosingDirectory(dbs);
             
             //Parent dir not in the DB, it should be added in this revision
             if (parent == null) {
@@ -705,7 +707,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
             }
             if (!exists) {
                 //Create it!
-                addFile(pv, parent.getFileName(), ProjectFileState.modified(), 
+                addFile(pv, parent.getFileName(), ProjectFileState.modified(dbs), 
                         SCMNodeType.DIR, null);
             }
         }
@@ -783,16 +785,16 @@ public class SVNUpdaterImpl implements MetadataUpdater {
             return;
         }
 
-        ProjectVersion prev = pv.getPreviousVersion();
+        ProjectVersion prev = pv.getPreviousVersion(dbs);
         
-        List<ProjectFile> files = prev.getFiles(d);
+        List<ProjectFile> files = prev.getFiles(dbs, d);
         
         for (ProjectFile f : files) {
             if (f.getIsDirectory()) {
                 handleDirDeletion(f, pv);
             }
             ProjectFile mark = new ProjectFile(f, pv);
-            mark.setState(ProjectFileState.deleted());
+            mark.setState(ProjectFileState.deleted(dbs));
             versionFiles.add(mark);
         }
     }
@@ -811,7 +813,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                 handleCopiedDirDeletion(f);
             }
             ProjectFile mark = new ProjectFile(f, f.getProjectVersion());
-            mark.setState(ProjectFileState.deleted());
+            mark.setState(ProjectFileState.deleted(dbs));
             versionFiles.add(mark);
         }
     }
@@ -844,21 +846,21 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         if (!canProcessCopy(from.getPath(), to.getPath())) 
             return;
        
-        addFile(pv, to.getPath(), ProjectFileState.added(), SCMNodeType.DIR, copyFrom);
+        addFile(pv, to.getPath(), ProjectFileState.added(dbs), SCMNodeType.DIR, copyFrom);
         
         /*Recursively copy directories*/
-        List<ProjectFile> fromPF = fromVersion.getFiles(from, ProjectVersion.MASK_DIRECTORIES);
+        List<ProjectFile> fromPF = fromVersion.getFiles(dbs, from, ProjectVersion.MASK_DIRECTORIES);
         
         for (ProjectFile f : fromPF) {
             handleDirCopy(pv, fromVersion, getDirectory(f.getFileName(), false), 
                     getDirectory(to.getPath() + "/" + f.getName(), true), f);
         }
         
-        fromPF = fromVersion.getFiles(from, ProjectVersion.MASK_FILES);
+        fromPF = fromVersion.getFiles(dbs, from, ProjectVersion.MASK_FILES);
         
         for (ProjectFile f : fromPF) {
             addFile(pv, to.getPath() + "/" + f.getName(),
-                    ProjectFileState.added(), SCMNodeType.FILE, f);
+                    ProjectFileState.added(dbs), SCMNodeType.FILE, f);
         }
     }
     
@@ -870,15 +872,16 @@ public class SVNUpdaterImpl implements MetadataUpdater {
     private void handleDirCopyFromRepository(ProjectVersion pv,
 			SCMNode fromFile, String to) {
 
-    	ProjectFile dest = ProjectFile.findFile(project.getId(), 
+    	ProjectFile dest = ProjectFile.findFile(dbs,
+                project.getId(), 
                 FileUtils.basename(to), 
                 FileUtils.dirname(to), 
                 fromFile.getRevision().getUniqueId());
     	
-    	ProjectFileState pfs = ProjectFileState.added();
+    	ProjectFileState pfs = ProjectFileState.added(dbs);
     	
     	if (dest != null) {
-    		pfs = ProjectFileState.modified();
+    		pfs = ProjectFileState.modified(dbs);
     	}
     	
     	addFile(pv, to, pfs, SCMNodeType.DIR, null);
@@ -901,7 +904,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         		handleDirCopyFromRepository(pv, f, f.getPath());
         	} else {
         		addFile(pv, to + "/" + FileUtils.basename(f.getPath()),
-        				ProjectFileState.added(), SCMNodeType.FILE, null);		
+        				ProjectFileState.added(dbs), SCMNodeType.FILE, null);		
         	}
         }
 	}
@@ -911,11 +914,11 @@ public class SVNUpdaterImpl implements MetadataUpdater {
      */
     private void updateValidUntil(ProjectVersion pv) {
 
-        ProjectVersion previous = pv.getPreviousVersion();
+        ProjectVersion previous = pv.getPreviousVersion(dbs);
 
         for (ProjectFile pf : versionFiles) {
             if (!pf.isAdded()) {
-                ProjectFile old = pf.getPreviousFileVersion();
+                ProjectFile old = pf.getPreviousFileVersion(dbs);
                 old.setValidUntil(previous);
             }
 
@@ -993,7 +996,8 @@ public class SVNUpdaterImpl implements MetadataUpdater {
      * Uses the SCM to get the previous version to avoid timestamp 
      * inconsistencies 
      */
-    private ProjectVersion getPreviousVersion(SCMAccessor scm, ProjectVersion pv) {
+    @SuppressWarnings("unused")
+	private ProjectVersion getPreviousVersion(SCMAccessor scm, ProjectVersion pv) {
         
         Revision p;
         try {
@@ -1007,7 +1011,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         ProjectVersion prev = null;
         
         if (p != null) {
-            prev = ProjectVersion.getVersionByRevision(pv.getProject(), p.getUniqueId());
+            prev = ProjectVersion.getVersionByRevision(dbs, pv.getProject(), p.getUniqueId());
            
         } 
         
@@ -1029,7 +1033,7 @@ public class SVNUpdaterImpl implements MetadataUpdater {
         Directory dir = null;
         dir = (Directory) dirCache.get(path);
         if (dir == null) {
-            dir = Directory.getDirectory(path, create);
+            dir = Directory.getDirectory(dbs, path, create);
             if (dir != null) {
                 dirCache.put(path, dir);
             }

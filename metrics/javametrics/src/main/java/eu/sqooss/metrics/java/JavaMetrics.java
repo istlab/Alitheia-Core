@@ -105,7 +105,7 @@ public class JavaMetrics extends AbstractMetric {
         }
 
         reducer = new ConcurrentHashMap<String, String>();
-        for (ProjectFile pf : pv.getFiles(p))
+        for (ProjectFile pf : pv.getFiles(db, p))
         try {
             if(!db.isDBSessionActive()) db.startDBSession();
             parseFile(pf);
@@ -122,8 +122,8 @@ public class JavaMetrics extends AbstractMetric {
             changedClasses.addAll(pf.getEncapsulationUnits());
         }
 
-        Metric DIT = Metric.getMetricByMnemonic("DIT");
-        Metric NOC = Metric.getMetricByMnemonic("NOC");
+        Metric DIT = Metric.getMetricByMnemonic(db, "DIT");
+        Metric NOC = Metric.getMetricByMnemonic(db, "NOC");
 
         for (EncapsulationUnit clazz : changedClasses) {
             String classname = clazz.getName();
@@ -189,7 +189,7 @@ public class JavaMetrics extends AbstractMetric {
         walker.walk(t);
 
         //Data for associated classes/methods
-        List<ExecutionUnit> methods = pf.getChangedExecutionUnits();
+        List<ExecutionUnit> methods = pf.getChangedExecutionUnits(db);
         Set<EncapsulationUnit> classes = pf.getEncapsulationUnits();
         Set<String> foundClasses = entityExtractor.getResults().keySet();
 
@@ -202,13 +202,13 @@ public class JavaMetrics extends AbstractMetric {
         }
 
         // LCOM results
-        writeClassResults(classes, lcomCalculator.getResults(), Metric.getMetricByMnemonic("LCOM"));
+        writeClassResults(classes, lcomCalculator.getResults(), Metric.getMetricByMnemonic(db, "LCOM"));
 
         // CBO results
-        writeClassResults(classes, cboCalculator.getResults(), Metric.getMetricByMnemonic("CBO"));
+        writeClassResults(classes, cboCalculator.getResults(), Metric.getMetricByMnemonic(db, "CBO"));
 
         // WMC + MCCABE results in one go
-        Metric m = Metric.getMetricByMnemonic("WMC");
+        Metric m = Metric.getMetricByMnemonic(db, "WMC");
         SortedMap<String, Integer> MCCABEresults = mcCabeCalculator.getResults();
         for (EncapsulationUnit clazz : classes) {
             Integer wmc = 0;
@@ -222,7 +222,7 @@ public class JavaMetrics extends AbstractMetric {
                 }
                 wmc += res;
                 ExecutionUnitMeasurement eum = new ExecutionUnitMeasurement(
-                        method, Metric.getMetricByMnemonic("MCCABE"),
+                        method, Metric.getMetricByMnemonic(db, "MCCABE"),
                         res.toString());
                 db.addRecord(eum);
             }
@@ -236,7 +236,7 @@ public class JavaMetrics extends AbstractMetric {
         for (EncapsulationUnit clazz : classes) {
             EncapsulationUnitMeasurement eum =
                     new EncapsulationUnitMeasurement(clazz,
-                            Metric.getMetricByMnemonic("NUMM"),
+                            Metric.getMetricByMnemonic(db, "NUMM"),
                             clazz.getExecUnits().toString());
             db.addRecord(eum);
         }

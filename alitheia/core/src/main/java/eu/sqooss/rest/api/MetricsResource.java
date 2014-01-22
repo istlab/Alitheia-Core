@@ -82,7 +82,8 @@ public class MetricsResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Metric getMetricById(@PathParam("id") Long id) {
-		return DAObject.loadDAObyId(id, Metric.class);
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		return DAObject.loadDAObyId(dbs, id, Metric.class);
 	}
 	
 	@Path("/metrics/by-id/{id}/result/{rid: .+}")
@@ -90,8 +91,9 @@ public class MetricsResource {
     @Produces({"application/xml", "application/json"})
     public List<Result> getMetricResult(@PathParam("id") Long id,
             @PathParam("rid") String resourceIds) {
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
 	    
-	    Metric m = DAObject.loadDAObyId(id, Metric.class);
+	    Metric m = DAObject.loadDAObyId(dbs, id, Metric.class);
 	    
 	    if (m == null)
 	        return Collections.EMPTY_LIST;  
@@ -131,7 +133,8 @@ public class MetricsResource {
         
         for (Long daoId : ids) {
             try {
-                DAObject dao = DAObject.loadDAObyId(daoId, clazz);
+                DBService dbs = AlitheiaCore.getInstance().getDBService();
+                DAObject dao = DAObject.loadDAObyId(dbs, daoId, clazz);
                 
                 if (dao == null)
                     continue;
@@ -153,7 +156,8 @@ public class MetricsResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Metric getMetricByMnem(@PathParam("mnem") String name) {
-		return Metric.getMetricByMnemonic(name);
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		return Metric.getMetricByMnemonic(dbs, name);
 	}
 	
 	@Path("/metrics/by-mnem/{mnem}/result/{rid: .+}")
@@ -161,8 +165,9 @@ public class MetricsResource {
     @Produces({"application/xml", "application/json"})
     public List<Result> getMetricResultByMnem(@PathParam("mnem") String name,
             @PathParam("rid") String resourceIds) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
         
-        Metric m = Metric.getMetricByMnemonic(name);
+        Metric m = Metric.getMetricByMnemonic(dbs, name);
         
         if (m == null)
             return Collections.EMPTY_LIST;  
@@ -174,7 +179,9 @@ public class MetricsResource {
 	@GET
     @Produces({"application/xml", "application/json"})
 	public Set<Metric> getMetricByType(@PathParam("type") String type) {
-		MetricType mt = MetricType.getMetricType(Type.fromString(type));
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		
+		MetricType mt = MetricType.getMetricType(dbs, Type.fromString(type));
 		
 		if (mt == null) //No metric of this type has been installed yet
 		    return Collections.EMPTY_SET;

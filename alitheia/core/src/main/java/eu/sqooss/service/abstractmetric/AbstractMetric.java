@@ -314,7 +314,9 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Retrieve the installation date for this plug-in version
      */
     public final Date getDateInstalled() {
-        return Plugin.getPluginByHashcode(getUniqueKey()).getInstalldate();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        return Plugin.getPluginByHashcode(dbs, getUniqueKey()).getInstalldate();
     }
 
     Map<Long,Pair<Object,Long>> blockerObjects = new ConcurrentHashMap<Long,Pair<Object,Long>>();
@@ -336,14 +338,15 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      */
      @SuppressWarnings("unchecked")
      public List<Result> getResultIfAlreadyCalculated(DAObject o, List<Metric> l) throws MetricMismatchException {
-        boolean found = false;        
         List<Result> result = new ArrayList<Result>();
         
         for (Metric m : l) {
             if (!metrics.containsKey(m.getMnemonic())) {
+                DBService dbs = AlitheiaCore.getInstance().getDBService();
+                
                 throw new MetricMismatchException("Metric " + m.getMnemonic()
                         + " not defined by plugin "
-                        + Plugin.getPluginByHashcode(getUniqueKey()).getName());
+                        + Plugin.getPluginByHashcode(dbs, getUniqueKey()).getName());
             }
             List<Result> re = null;
             try {
@@ -556,10 +559,13 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     }
 
     /** {@inheritDoc} */
-    public List<Metric> getAllSupportedMetrics() {
+    @SuppressWarnings("unchecked")
+	public List<Metric> getAllSupportedMetrics() {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        
         String qry = "from Metric m where m.plugin=:plugin";
         Map<String,Object> params = new HashMap<String,Object>();
-        params.put("plugin", Plugin.getPluginByHashcode(getUniqueKey()));
+        params.put("plugin", Plugin.getPluginByHashcode(dbs, getUniqueKey()));
         
         return (List<Metric>)db.doHQL(qry, params);
     }
@@ -620,7 +626,7 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
         for (String mnem :metrics.keySet()) {
         	Metric m = metrics.get(mnem);
         	Type type = Type.fromString(m.getMetricType().getType());
-        	MetricType newType = MetricType.getMetricType(type);
+        	MetricType newType = MetricType.getMetricType(db, type);
         	if (newType == null) {
                 newType = new MetricType(type);
                 db.addRecord(newType);
@@ -641,7 +647,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
      * Subclasses should also clean up any custom tables created.
      */
     public boolean remove() {
-        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Plugin p = Plugin.getPluginByHashcode(dbs, getUniqueKey());
         return db.deleteRecord(p);
     }
     
@@ -842,14 +849,16 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
     /**
      * Convenience method to get the measurement for a single metric.
      */
-    protected List<Result> getResult(DAObject o, Class<? extends MetricMeasurement> clazz, 
+    @SuppressWarnings("unchecked")
+	protected List<Result> getResult(DAObject o, Class<? extends MetricMeasurement> clazz, 
             Metric m, Result.ResultType type) {
         DBService dbs = AlitheiaCore.getInstance().getDBService();
         Map<String, Object> props = new HashMap<String, Object>();
         
         props.put(resultFieldNames.get(clazz), o);
         props.put("metric", m);
-        List resultat = dbs.findObjectsByProperties(clazz, props);
+        @SuppressWarnings("rawtypes")
+		List resultat = dbs.findObjectsByProperties(clazz, props);
         
         if (resultat.isEmpty())
             return Collections.EMPTY_LIST;
@@ -929,7 +938,8 @@ public abstract class AbstractMetric implements AlitheiaPlugin {
 	    		throw new MetricActivationException("Metric synchronisation with GENERIC objects not implemented");
 	    	}
 	    	
-	    	List<Long> objectIds = (List<Long>) db.doHQL(q, params);
+	    	@SuppressWarnings("unchecked")
+			List<Long> objectIds = (List<Long>) db.doHQL(q, params);
 	    	TreeSet<Long> ids = new TreeSet<Long>();
 	    	ids.addAll(objectIds);
 	    	IDs.put(MetricType.fromActivator(at), ids);

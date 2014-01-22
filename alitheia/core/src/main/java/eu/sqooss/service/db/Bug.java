@@ -52,7 +52,7 @@ import javax.persistence.Table;
 import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlElement;
 
-import eu.sqooss.core.AlitheiaCore;
+import org.hibernate.annotations.Cascade;
 
 /**
  * This class represents the data relating to bugs, stored in the database
@@ -89,6 +89,12 @@ public class Bug extends DAObject {
     
     /** The bug resolution status. */
     @ManyToOne(fetch=FetchType.LAZY)
+    // Only cascade persistence and save, do not cascade deletion
+    @Cascade(value = {
+            org.hibernate.annotations.CascadeType.PERSIST,
+            org.hibernate.annotations.CascadeType.MERGE,
+            org.hibernate.annotations.CascadeType.SAVE_UPDATE
+    })
     @JoinColumn(name="BUG_STATUS_ID")
     private BugStatus status;
     
@@ -236,8 +242,8 @@ public class Bug extends DAObject {
      * Get the latest entry processed by the bug updater
      */
     @SuppressWarnings("unchecked")
-    public static Bug getLastUpdate(StoredProject sp) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static Bug getLastUpdate(DBService dbs, StoredProject sp) {
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
 
         if (sp == null)
             return null;
@@ -266,8 +272,8 @@ public class Bug extends DAObject {
      * ordered by the time the comment was left (old to new).  
      */
     @SuppressWarnings("unchecked")
-    public List<BugReportMessage> getAllReportComments() {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public List<BugReportMessage> getAllReportComments(DBService dbs) {
+         //DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramBugID = "paramBugID";
         String paramStoredProject = "stroredProject";
@@ -289,8 +295,8 @@ public class Bug extends DAObject {
     /**
      * Get the latest entry for the bug with the provided Id.
      */
-    public static Bug getBug(String bugID, StoredProject sp) {    
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+    public static Bug getBug(DBService dbs, String bugID, StoredProject sp) {    
+        //DBService dbs = AlitheiaCore.getInstance().getDBService();
         
         String paramBugID = "paramBugID";
         String paramStoredProject = "stroredProject";
@@ -304,7 +310,7 @@ public class Bug extends DAObject {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(paramBugID, bugID);
         params.put(paramStoredProject, sp);
-        
+        @SuppressWarnings("unchecked")
         List<Bug> bug = (List<Bug>) dbs.doHQL(query, params, 1);
         
         if (bug.isEmpty())

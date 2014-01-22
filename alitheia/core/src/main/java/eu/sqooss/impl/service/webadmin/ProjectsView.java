@@ -34,8 +34,6 @@
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +49,7 @@ import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.UpdateProject;
 import eu.sqooss.service.db.Bug;
 import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.MailMessage;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
@@ -176,7 +175,8 @@ public class ProjectsView extends AbstractView {
             return null;
     	} else { 
             vc.put("RESULTS", aa.results());
-            return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));
+            DBService dbs = AlitheiaCore.getInstance().getDBService();
+            return StoredProject.getProjectByName(dbs, r.getParameter(REQ_PAR_PRJ_NAME));
     	}
     }
     
@@ -241,7 +241,8 @@ public class ProjectsView extends AbstractView {
 	// ---------------------------------------------------------------
     private static void triggerAllUpdateNode(StringBuilder e,
 			StoredProject selProject, int in) {
-		Set<StoredProject> projectList = ClusterNode.thisNode().getProjects();
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		Set<StoredProject> projectList = ClusterNode.thisNode(dbs).getProjects();
 		
 		for (StoredProject project : projectList) {
 			triggerAllUpdate(e, project, in);
@@ -282,7 +283,8 @@ public class ProjectsView extends AbstractView {
         b.append(errorFieldset(e, ++in));
 
         // Get the complete list of projects stored in the SQO-OSS framework
-        Set<StoredProject> projects = ClusterNode.thisNode().getProjects();
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Set<StoredProject> projects = ClusterNode.thisNode(dbs).getProjects();
         Collection<PluginInfo> metrics = sobjPA.listPlugins();
 
         // ===================================================================
@@ -477,7 +479,7 @@ public class ProjectsView extends AbstractView {
                             + "</td>\n");
                     // Last project version
                     String lastVersion = getLbl("l0051");
-                    ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);
+                    ProjectVersion v = ProjectVersion.getLastProjectVersion(dbs, nextPrj);
                     if (v != null) {
                         lastVersion = String.valueOf(v.getSequence()) + "(" + v.getRevisionId() + ")";
                     }
@@ -485,18 +487,18 @@ public class ProjectsView extends AbstractView {
                             + lastVersion
                             + "</td>\n");
                     // Date of the last known email
-                    MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);
+                    MailMessage mm = MailMessage.getLatestMailMessage( dbs, nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((mm == null)?getLbl("l0051"):mm.getSendDate())
                             + "</td>\n");
                     // ID of the last known bug entry
-                    Bug bug = Bug.getLastUpdate(nextPrj);
+                    Bug bug = Bug.getLastUpdate( dbs, nextPrj);
                     b.append(sp(in) + "<td class=\"trans\">"
                             + ((bug == null)?getLbl("l0051"):bug.getBugID())
                             + "</td>\n");
                     // Evaluation state
                     String evalState = getLbl("project_not_evaluated");
-                    if (nextPrj.isEvaluated()) {
+                    if (nextPrj.isEvaluated(dbs)) {
                     	evalState = getLbl("project_is_evaluated");
                     }
                     b.append(sp(in) + "<td class=\"trans\">"

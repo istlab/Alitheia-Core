@@ -50,9 +50,6 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DAObject;
-
 /**
  * A node in a Alitheia Core cluster installation
  * 
@@ -108,17 +105,15 @@ public class ClusterNode extends DAObject {
         this.projects = projects;
     }
     
-    public static ClusterNode getClusteNodeByName(String name) {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        
+    public static ClusterNode getClusteNodeByName(DBService dbs, String name) {
         Map<String,Object> parameterMap = new HashMap<String,Object>();
         parameterMap.put("name",name);
         List<ClusterNode> cnList = dbs.findObjectsByProperties(ClusterNode.class, parameterMap);
         return (cnList == null || cnList.isEmpty()) ? null : cnList.get(0);
     }
     
-    public static ClusterNode thisNode() {
-        String hostname;
+    public static ClusterNode thisNode(DBService dbs) {
+    	String hostname;
         try {
             java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
             hostname = localMachine.getHostName();
@@ -127,6 +122,6 @@ public class ClusterNode extends DAObject {
             hostname = "unknown host";
         }       
         
-        return getClusteNodeByName(hostname);
+        return getClusteNodeByName(dbs, hostname);
     }
 }
