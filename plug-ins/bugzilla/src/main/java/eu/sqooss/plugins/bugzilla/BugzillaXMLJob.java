@@ -83,6 +83,11 @@ public class BugzillaXMLJob extends Job {
             dbs.startDBSession();
         BTSAccessor bts = AlitheiaCore.getInstance().getTDSService().getAccessor(
                 project.getId()).getBTSAccessor();
+
+        // The accessor should exist, for how else did this job get called?
+        if(bts == null) {
+            logger.error("The accessor does not exist for project " + project.getName());
+        }
         project = dbs.attachObjectToDBSession(project);
 
         Bug bug = BTSEntryToBug(bts.getBug(bugID));
