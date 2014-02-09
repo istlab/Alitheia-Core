@@ -1,0 +1,23 @@
+<h2>Plug-ins Management</h2>
+<div id="table">
+#if($noPluginsAvailable)
+    #parse("noPluginsAvailable.inc")
+#else
+<form id="metrics" name="metrics" method="post" action="/index">
+    #if ($errorMessages.size() > 0)
+        #foreach ($error in $errorMessages)
+            <fieldset><legend>Errors</legend> $error </fieldset>
+        #end
+    #end
+    #parse("$currentPluginTemplate")
+    <input type="hidden" id="$reqParAction" name="$reqParAction" value="">
+    <input type="hidden" id="$reqParHashcode" name="$reqParHashcode" value="$!reqValHashcode">
+    <input type="hidden" id="$reqParPropName" name="$reqParPropName" value="$!reqValPropName">
+    <input type="hidden" id="$reqParPropDescr" name="$reqParPropDescr" value="$!reqValPropDescr">
+    <input type="hidden" id="$reqParPropType" name="$reqParPropType" value="$!reqValPropType">
+    <input type="hidden" id="$reqParPropValue" name="$reqParPropValue" value="$!reqValPropValue">
+    <input type="hidden" id="$reqParShowProp" name="$reqParShowProp" value="$!reqValShowProp">
+    <input type="hidden" id="$reqParShowActv" name="$reqParShowActv" value="$!reqValShowActv">
+</form>
+#end
+</div>

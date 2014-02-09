@@ -8,18 +8,18 @@
     <version>0.95-SNAPSHOT</version>
   </parent>
 
-  
+
   <properties>
     <bundle.symbolicName>org.apache.velocity</bundle.symbolicName>
     <wrapped.groupId>org.apache.velocity</wrapped.groupId>
     <wrapped.artifactId>velocity</wrapped.artifactId>
-    <wrapped.version>1.6</wrapped.version>
+    <wrapped.version>1.7</wrapped.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.sqooss.external</groupId>
   <artifactId>org.apache.velocity</artifactId>
-  <version>1.6</version>
+  <version>1.7</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 

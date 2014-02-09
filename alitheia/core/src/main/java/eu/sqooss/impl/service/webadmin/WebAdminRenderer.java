@@ -37,6 +37,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.velocity.VelocityContext;
 import org.osgi.framework.BundleContext;
 
@@ -56,7 +58,7 @@ public class WebAdminRenderer  extends AbstractView {
      * thus the system) was started. This is required for the system
      * uptime display.
      */
-    private static long startTime = new Date().getTime();
+    private long startTime = new Date().getTime();
 
     public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
         super(bundlecontext, vc);
@@ -68,7 +70,7 @@ public class WebAdminRenderer  extends AbstractView {
      *
      * @return a String representing the HTML table
      */
-    public static String renderJobFailStats() {
+    public String renderJobFailStats() {
         StringBuilder result = new StringBuilder();
         HashMap<String,Integer> fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -98,7 +100,7 @@ public class WebAdminRenderer  extends AbstractView {
      * failed and the recorded exceptions
      * @return
      */
-    public static String renderFailedJobs() {
+    public String renderFailedJobs() {
         StringBuilder result = new StringBuilder();
         Job[] jobs = sobjSched.getFailedQueue();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -185,7 +187,7 @@ public class WebAdminRenderer  extends AbstractView {
      *
      * @return a String representing the HTML unordered list items
      */
-    public static String renderLogs() {
+    public String renderLogs() {
         String[] names = sobjLogManager.getRecentEntries();
 
         if ((names != null) && (names.length > 0)) {
@@ -204,7 +206,7 @@ public class WebAdminRenderer  extends AbstractView {
      * Returns a string representing the uptime of the Alitheia core
      * in dd:hh:mm:ss format
      */
-    public static String getUptime() {
+    public String getUptime() {
         long remainder;
         long currentTime = new Date().getTime();
         long timeRunning = currentTime - startTime;
@@ -222,7 +224,7 @@ public class WebAdminRenderer  extends AbstractView {
     }
     
 
-    public static String renderJobWaitStats() {
+    public String renderJobWaitStats() {
         StringBuilder result = new StringBuilder();
         HashMap<String,Integer> wjobs = sobjSched.getSchedulerStats().getWaitingJobTypes();
         result.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
@@ -247,7 +249,7 @@ public class WebAdminRenderer  extends AbstractView {
         return result.toString();
     }
 
-    public static String renderJobRunStats() {
+    public String renderJobRunStats() {
         StringBuilder result = new StringBuilder();
         List<String> rjobs = sobjSched.getSchedulerStats().getRunJobs();
         if (rjobs.size() == 0) {
@@ -262,6 +264,18 @@ public class WebAdminRenderer  extends AbstractView {
         result.append("</ul>\n");
         return result.toString();
     }
+
+	@Override
+	public String setupVelocityContext(HttpServletRequest req) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isUsedForPath(String page) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab

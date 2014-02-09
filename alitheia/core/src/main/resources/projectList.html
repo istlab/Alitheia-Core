@@ -1,0 +1,41 @@
+<table>
+	<thead>
+		<tr class="head">
+			<td class='head'  style='width: 10%;'>$tr.label("l0066")</td>
+			<td class='head' style='width: 35%;'>$tr.label("l0067")</td>
+			<td class='head' style='width: 15%;'>$tr.label("l0068")</td>
+			<td class='head' style='width: 15%;'>$tr.label("l0069")</td>
+			<td class='head' style='width: 15%;'>$tr.label("l0070")</td>
+			<td class='head' style='width: 10%;'>$tr.label("l0071")</td>
+			<td class='head' style='width: 10%;'>$tr.label("l0073")</td>
+		</tr>
+	</thead>
+	#if ($noProjectsAvailable)
+	<tr>
+		<td colspan="6" class="noattr">$tr.message("no_projects")</td>
+	</tr>
+	#else
+	<tbody>
+		#foreach($project in $projectList)
+			#parse("projectRow.html")
+		#end
+		#if($showMetric)
+			#foreach($metric in $metricList)
+	        <tr>
+	         <td colspan="7"
+	                 class="noattr">
+	                <input type="button"
+	                 class="install"
+	                 style="width: 100px;"
+	                 value="Synchronise"
+	                 onclick="javascript:
+	                document.getElementById('$metricElementId').value='$metric.hashCode';$onClickSubmit">
+	                &nbsp;$metric.name
+	                </td>
+	        </tr>
+			#end
+		#end
+	#end
+	#parse("toolbar.html")
+	</tbody>
+</table>

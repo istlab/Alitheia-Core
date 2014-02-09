@@ -33,7 +33,6 @@
 
 package eu.sqooss.service.util;
 
-import java.lang.Comparable;
 
 /**
  * This class is a container for an object pair.

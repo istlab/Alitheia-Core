@@ -48,8 +48,8 @@ import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.admin.AdminAction;
-import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.AdminAction.AdminActionStatus;
+import eu.sqooss.service.admin.AdminService;
 import eu.sqooss.service.admin.actions.AddProject;
 import eu.sqooss.service.admin.actions.RunTimeInfo;
 import eu.sqooss.service.admin.actions.UpdateProject;

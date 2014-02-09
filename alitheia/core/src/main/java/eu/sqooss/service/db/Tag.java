@@ -49,7 +49,6 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DAObject;
 
 /**
  * Instances of this class represent the data of an SVN tag for a
