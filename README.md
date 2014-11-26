@@ -102,8 +102,8 @@ ma>
  2. Edit the MySQL main configuration file (usually named `/etc/my.cnf`) and add the
   following lines:
 ```
-default-­‐storage-­‐engine=innodb
-transaction_isolation=READ-­‐COMMITTED
+default_storage_engine=innodb
+transaction_isolation=READ-COMMITTED
 ```
 The above lines enable innodb as default.
 
