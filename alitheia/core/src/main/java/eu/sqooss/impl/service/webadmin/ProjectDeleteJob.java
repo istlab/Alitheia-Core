@@ -43,14 +43,16 @@ import eu.sqooss.service.db.Plugin;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectConfig;
+import eu.sqooss.service.pa.PluginAdmin;
 import eu.sqooss.service.scheduler.Job;
-
+//TODO add description
 public class ProjectDeleteJob extends Job {
 
 	private StoredProject sp;
     private AlitheiaCore core;
-
-    ProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
+    
+    //TODO added public in constructor for testing purposes
+    public ProjectDeleteJob(AlitheiaCore core, StoredProject sp) {
         this.sp = sp;
         this.core = core;
     }
@@ -60,16 +62,18 @@ public class ProjectDeleteJob extends Job {
         return 0xff;
     }
 
+    //TODO remove suppressed warnings
+    //TODO remove excess code
     @SuppressWarnings("unchecked")
     @Override
     protected void run() throws Exception {
-        DBService dbs = core.getDBService();
+        DBService dbs = core.getDBService(); 
 
         if (!dbs.isDBSessionActive()) {
             dbs.startDBSession();
         }
 
-        sp = dbs.attachObjectToDBSession(sp);
+        sp = dbs.attachObjectToDBSession(sp); 
         // Delete any associated invocation rules first
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put("project", sp);
@@ -77,15 +81,11 @@ public class ProjectDeleteJob extends Job {
         //Cleanup plugin results
         List<Plugin> ps = (List<Plugin>) dbs.doHQL("from Plugin");        
         
+        PluginAdmin pa = core.getPluginAdmin();
         for (Plugin p : ps ) {
-            AlitheiaPlugin ap = core.getPluginAdmin().getPlugin(core.getPluginAdmin().getPluginInfo(p.getHashcode()));
-            if (ap == null) {
-            	//logger.warn("Plugin with hashcode: "+ p.getHashcode() + 
-            	//		" not installed");
-            	continue;
-            }
-            	
-            ap.cleanup(sp);
+            AlitheiaPlugin ap = pa.getPlugin(pa.getPluginInfo(p.getHashcode()));
+            if (ap != null)
+                ap.cleanup(sp);
         }
         
         boolean success = true;
@@ -105,7 +105,7 @@ public class ProjectDeleteJob extends Job {
         List<StoredProjectConfig> confParams = StoredProjectConfig.fromProject(sp);
         if (!confParams.isEmpty()) {
         	success &= dbs.deleteRecords(confParams);
-        }
+        }	
         
         // Delete the selected project
         success &= dbs.deleteRecord(sp);

@@ -1,0 +1,10 @@
+#set ($runningJobs = $jobs.getRunningJobs())
+#if ($runningJobs.size() == 0)
+	No running jobs
+#else
+	<ul>
+	#foreach ($job in $runningJobs)
+			<li>$job	</li>
+	#end
+	</ul>
+#end

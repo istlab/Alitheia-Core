@@ -33,21 +33,10 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
-import eu.sqooss.service.admin.AdminAction;
-import eu.sqooss.service.admin.AdminService;
-import eu.sqooss.service.admin.actions.AddProject;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.util.Pair;
-import eu.sqooss.service.webadmin.WebadminService;
-
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.util.Hashtable;
 import java.util.Locale;
 
@@ -57,18 +46,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
-
+import org.apache.velocity.app.VelocityEngine;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.util.Pair;
+import eu.sqooss.service.webadmin.WebadminService;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static BundleContext bc = null;
-    private static WebadminService webadmin = null;
 
     /// Logger given by our owner to write log messages to.
     private Logger logger = null;
@@ -76,30 +66,17 @@ public class AdminServlet extends HttpServlet {
     private DBService db = null;
 
     // Content tables
-    private Hashtable<String, String> dynamicContentMap = null;
+    private Hashtable<String, Pair<String, AbstractView>> dynamicContentMap = null;
     private Hashtable<String, Pair<String, String>> staticContentMap = null;
 
     // Dynamic substitutions
     VelocityContext vc = null;
     VelocityEngine ve = null;
-
-    // Renderer of content
-    WebAdminRenderer adminView = null;
-
-    // Plug-ins view
-    PluginsView pluginsView = null;
-
-    // Projects view
-    ProjectsView projectsView = null;
-
-    TranslationProxy tr = new TranslationProxy();
     
     public AdminServlet(BundleContext bc,
             WebadminService webadmin,
             Logger logger,
             VelocityEngine ve) {
-        AdminServlet.webadmin = webadmin;
-        AdminServlet.bc = bc;
         this.ve = ve;
         this.logger = logger;
         
@@ -125,25 +102,45 @@ public class AdminServlet extends HttpServlet {
         addStaticContent("/rules.png", "image/x-png");
 
         // Create the dynamic content map
-        dynamicContentMap = new Hashtable<String, String>();
-        dynamicContentMap.put("/", "index.html");
-        dynamicContentMap.put("/index", "index.html");
-        dynamicContentMap.put("/projects", "projects.html");
-        dynamicContentMap.put("/projectlist", "projectslist.html");
-        dynamicContentMap.put("/logs", "logs.html");
-        dynamicContentMap.put("/jobs", "jobs.html");
-        dynamicContentMap.put("/alljobs", "alljobs.html");
-        dynamicContentMap.put("/users", "users.html");
-        dynamicContentMap.put("/rules", "rules.html");
-        dynamicContentMap.put("/jobstat", "jobstat.html");
-
+        dynamicContentMap = new Hashtable<String, Pair<String, AbstractView>>();
+        Pair<String, AbstractView> pluginsPair =  new Pair<String, AbstractView>("index.html", new PluginsView(bc, vc));
+        ProjectsView projectsView = new ProjectsView(bc, vc);
+        Pair<String, AbstractView> projectsPair =  new Pair<String, AbstractView>("projects.html", projectsView);
+        Pair<String, AbstractView> projectsListPair =  new Pair<String, AbstractView>("projectslist.html", projectsView);
+        Pair<String, AbstractView> logsPair =  new Pair<String, AbstractView>("logs.html", new LogsView(bc, vc));
+        JobsView jobsView = new JobsView(bc, vc);
+        Pair<String, AbstractView> jobsPair =  new Pair<String, AbstractView>("jobs.html", jobsView);
+        Pair<String, AbstractView> allJobsPair =  new Pair<String, AbstractView>("jobs_all.html", jobsView);
+        Pair<String, AbstractView> jobStatPair =  new Pair<String, AbstractView>("job_stat.html", jobsView);
+        Pair<String, AbstractView> rulesPair =  new Pair<String, AbstractView>("rules.html", new RulesView(bc, vc));
+        Pair<String, AbstractView> resultsPair =  new Pair<String, AbstractView>("results.html", new ResultsView(bc, vc));
+        
+        dynamicContentMap.put("/", pluginsPair);
+        dynamicContentMap.put("/index", pluginsPair);
+        dynamicContentMap.put("/projects", projectsPair);
+        dynamicContentMap.put("/projectlist", projectsListPair);
+        dynamicContentMap.put("/logs", logsPair);
+        dynamicContentMap.put("/jobs", jobsPair);
+        dynamicContentMap.put("/alljobs", allJobsPair);
+        dynamicContentMap.put("/jobstat", jobStatPair);
+        dynamicContentMap.put("/rules", rulesPair);
+        dynamicContentMap.put("/start", resultsPair);
+        dynamicContentMap.put("/stop", resultsPair);
+        dynamicContentMap.put("/restart", resultsPair);
+        dynamicContentMap.put("/addproject", resultsPair);
+        dynamicContentMap.put("/diraddproject", resultsPair);
+        
         // Now the dynamic substitutions and renderer
         vc = new VelocityContext();
-        adminView = new WebAdminRenderer(bc, vc);
-
-        // Create the various view objects
-        pluginsView = new PluginsView(bc, vc);
-        projectsView = new ProjectsView(bc, vc);
+        
+        // Object-based substitutions
+        vc.put("tr", new TranslationProxy());
+        vc.put("metrics", pluginsPair.second);
+        vc.put("projects", projectsPair.second);
+        vc.put("logs", logsPair.second);
+        vc.put("jobs", jobsPair.second);
+        vc.put("rules", rulesPair.second);
+        vc.put("results", resultsPair.second);
     }
 
     /**
@@ -154,86 +151,60 @@ public class AdminServlet extends HttpServlet {
         staticContentMap.put(path, p);
     }
 
+    /**
+     * Handles http GET requests, delegates most of its functionality to handleRequest
+     */
+    @Override
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException,
                                                               IOException {
-        if (!db.isDBSessionActive()) {
-            db.startDBSession();
-        } 
-        
-        try {
-            String query = request.getPathInfo();
-
-            // Add the request to the log
-            logger.debug("GET:" + query);
-
-            // This is static content
-            if (query.startsWith("/stop")) {
-                vc.put("RESULTS", "<p>Alitheia Core is now shutdown.</p>");
-                sendPage(response, request, "/results.html");
-
-                // Now stop the system
-                logger.info("System stopped by user request to webadmin.");
-                try {
-                    bc.getBundle(0).stop();
-                } catch (BundleException be) {
-                    logger.warn("Could not stop bundle 0.");
-                    // And ignore
-                }
-                return;
-            }
-            if (query.startsWith("/restart")) {
-                vc.put("RESULTS", "<p>Alitheia Core is now restarting.</p>");
-                sendPage(response, request, "/results.html");
-
-                //FIXME: How do we do a restart?
-                return;
-            }
-            else if ((query != null) && (staticContentMap.containsKey(query))) {
-                sendResource(response, staticContentMap.get(query));
-            }
-            else if ((query != null) && (dynamicContentMap.containsKey(query))) {
-                sendPage(response, request, dynamicContentMap.get(query));
-            }
-        } catch (NullPointerException e) {
-            logger.warn("Got a NPE while rendering a page.",e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } finally {
-            if (db.isDBSessionActive()) {
-                db.commitDBSession();
-            }
-        }
+    	if(request != null && request.getPathInfo() != null) {
+    		logger.debug("POST:" +  request.getPathInfo());
+    		handleRequest(request, response);
+    	}
     }
 
+    /**
+     * Handles http POST requests, delegates most of its functionality to handleRequest
+     */
+    @Override
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException,
                                                                IOException {
-        if (!db.isDBSessionActive()) {
+    	if(request != null && request.getPathInfo() != null) {
+    		logger.debug("POST:" +  request.getPathInfo());
+    		handleRequest(request, response);
+    	}
+    }
+    
+    /**
+     * Method that receives incoming requests and delegates further handling to the View classes  
+     * 
+     * @param request the received request
+     * @param response the response that will be sent back
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void handleRequest(HttpServletRequest request,
+                          HttpServletResponse response) throws ServletException,
+                                                               IOException {
+       	if (!db.isDBSessionActive()) {
             db.startDBSession();
         } 
         
         try {
             String query = request.getPathInfo();
-            logger.debug("POST:" + query);
-
-            if (query.startsWith("/addproject")) {
-                //addProject(request);
-                sendPage(response, request, "/results.html");
-            } else if (query.startsWith("/diraddproject")) {
-                AdminService as = AlitheiaCore.getInstance().getAdminService();
-                AdminAction aa = as.create(AddProject.MNEMONIC);
-                aa.addArg("dir", request.getParameter("properties"));
-                as.execute(aa);
-                if (aa.hasErrors())
-                	vc.put("RESULTS", aa.errors());
-                else
-                	vc.put("RESULTS", aa.results());
-                sendPage(response, request, "/results.html");
-            } else {
-                doGet(request,response);
+            if (staticContentMap.containsKey(query)) {
+                sendResource(response, staticContentMap.get(query));
+            }
+            else if (dynamicContentMap.containsKey(query)) {
+            	//Handle appropriate request
+            	dynamicContentMap.get(query).second.exec(request);
+            	//Serve content
+                 sendPage(response, request, dynamicContentMap.get(query).first);
             }
         } catch (NullPointerException e) {
-            logger.warn("Got a NPE while handling POST data.");
+            logger.warn("Got a NPE while handling request data.");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
             if (db.isDBSessionActive()) {
@@ -263,13 +234,11 @@ public class AdminServlet extends HttpServlet {
 
         byte[] buffer = new byte[1024];
         int bytesRead = 0;
-        int totalBytes = 0;
 
         response.setContentType(source.second);
         ServletOutputStream ostream = response.getOutputStream();
         while ((bytesRead = istream.read(buffer)) > 0) {
-            ostream.write(buffer,0,bytesRead);
-            totalBytes += bytesRead;
+            ostream.write(buffer, 0, bytesRead);
         }
     }
 
@@ -309,15 +278,8 @@ public class AdminServlet extends HttpServlet {
                 + "&nbsp;SQO-OSS Consortium Members"
                 + "</a>");
         vc.put("LOGO", "<img src='/logo' id='logo' alt='Logo' />");
-        vc.put("UPTIME", WebAdminRenderer.getUptime());
-
-        // Object-based substitutions
-        vc.put("scheduler", adminView.sobjSched.getSchedulerStats());
-        vc.put("tr",tr); // translations proxy
-        vc.put("admin",adminView);
-        vc.put("projects",projectsView);
-        vc.put("metrics",pluginsView);
-        vc.put("request", request); // The request can be used by the render() methods
+        
+        vc.put("request", request);
     }  
     
     /**

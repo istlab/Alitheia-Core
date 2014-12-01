@@ -1,0 +1,26 @@
+#set($selProject = $projects.getSelProject())
+
+<form id="projects" name="projects" method="post" action="/projects">
+  <fieldset>
+    <legend>
+      $tr.label("l0059"): $selProject.getName()
+    </legend>
+    <table class="borderless">
+      <tr> ## Confirmation message
+        <td class="borderless">
+          <b>$tr.message("delete_project")</b>
+        </td>
+      </tr>
+      <tr> ## Tool-bar
+        <td class="borderless">
+          ##Confirm
+          <input type="button" class="install" style="width: 100px;" value="$tr.label('l0006')" onclick="javascript:document.getElementById('reqAction').value='conRemProject';document.projects.submit();"/>
+          ## Cancel
+          <input type="button" class="install" style="width: 100px;" value="$tr.label('l0004')" onclick="javascript:document.projects.submit();"/>
+        </td>
+      </tr>
+    </table>
+  </fieldset>
+  #parse("projects_error_fieldset.html")
+  #parse("projects_hidden_fields.html")
+</form>

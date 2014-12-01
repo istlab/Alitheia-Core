@@ -30,7 +30,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 package eu.sqooss.impl.service.webadmin;
 
 import java.util.Hashtable;
@@ -45,18 +44,17 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /**
- * This is the service which provides a web-based administration
- * interface. This user interface is used for the addition and removal
- * of projects from Alitheia Core and likewise for metric
- * plugins. Users of the WebAdmin interface are also able to receive
- * basic system information such as uptime, number of running/failed
- * jobs, etc.
+ * This is the service which provides a web-based administration interface. This
+ * user interface is used for the addition and removal of projects from Alitheia
+ * Core and likewise for metric plugins. Users of the WebAdmin interface are
+ * also able to receive basic system information such as uptime, number of
+ * running/failed jobs, etc.
  */
 public class WebadminServiceImpl implements WebadminService {
 
     /**
-     * The Velocity Engine is used to to provide services for
-     * dynamically loading content into the page templates
+     * The Velocity Engine is used to to provide services for dynamically
+     * loading content into the page templates
      */
     private VelocityEngine ve;
 
@@ -66,14 +64,15 @@ public class WebadminServiceImpl implements WebadminService {
     private Logger logger = null;
 
     /**
-     * This String is used to represent the current "message of the
-     * day" available in the Alitheia Core
+     * This String is used to represent the current "message of the day"
+     * available in the Alitheia Core
      */
     private String messageOfTheDay = null;
 
     private BundleContext bc;
 
-    public WebadminServiceImpl() { }
+    public WebadminServiceImpl() {
+    }
 
     /**
      * Retrieves the "message of the day" String
@@ -93,6 +92,49 @@ public class WebadminServiceImpl implements WebadminService {
         messageOfTheDay = s;
     }
 
+    @Override
+    public void setInitParams(BundleContext bc, Logger l) {
+        this.logger = l;
+        this.bc = bc;
+    }
+
+    @Override
+    public void shutDown() {
+    }
+
+    @SuppressWarnings("rawtypes")
+	@Override
+    public boolean startUp() {
+        // Get a reference to the HTTPService, and then its object
+        HttpService sobjHTTPService = null;
+        ServiceReference srefHTTPService = bc.getServiceReference(
+                HttpService.class.getName());
+
+        if (srefHTTPService != null) {
+            sobjHTTPService = (HttpService) bc.getService(srefHTTPService);
+        } else {
+            logger.error("Could not find a HTTP service!");
+            return false;
+        }
+
+        initVelocity();
+
+        // Register the front-end servlets
+        if (sobjHTTPService != null) {
+            try {
+                sobjHTTPService.registerServlet(
+                        "/",
+                        makeAdminServlet(bc, this, logger, ve),
+                        new Hashtable(),
+                        null);
+            } catch (Exception e) {
+                logger.error("AdminServlet", e);
+                return false;
+            }
+        }
+        return true;
+    }
+    
     /*
      * The utility method used for the initialization of the velocity engine.
      */
@@ -112,52 +154,12 @@ public class WebadminServiceImpl implements WebadminService {
             logger.error("Velocity initialization",e);
         }
     }
-
-	@Override
-	public void setInitParams(BundleContext bc, Logger l) {
-		this.logger = l;
-		this.bc = bc;
-	}
-
-	@Override
-	public void shutDown() {
-	}
-
-	@Override
-	public boolean startUp() {        
-        // Get a reference to the HTTPService, and then its object
-        HttpService sobjHTTPService = null;
-        ServiceReference srefHTTPService = bc.getServiceReference(
-            HttpService.class.getName());
-        
-        if (srefHTTPService != null) {
-            sobjHTTPService = (HttpService) bc.getService(srefHTTPService);
-        }
-        else {
-            logger.error("Could not find a HTTP service!");
-            return false;
-        }
-
-        initVelocity();
-        
-        // Register the front-end servlets
-        if (sobjHTTPService != null) {
-            try {
-                sobjHTTPService.registerServlet(
-                    "/",
-                    new AdminServlet(bc, this, logger, ve),
-                    new Hashtable(),
-                    null);
-            }
-            catch (Exception e) {
-                logger.error("AdminServlet",e);
-                return false;
-            }
-        }
-        return true;
-	}
+    
+    public AdminServlet makeAdminServlet(BundleContext bc, WebadminService service, Logger logger, VelocityEngine ve) {
+    	return new AdminServlet(bc, this, logger, ve);
+    }
+    
 }
-
 
 // vi: ai nosi sw=4 ts=4 expandtab
 

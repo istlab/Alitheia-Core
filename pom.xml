@@ -1,63 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>eu</groupId>
-  <artifactId>sqooss</artifactId>
-  <version>0.95-SNAPSHOT</version>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>eu</groupId>
+    <artifactId>sqooss</artifactId>
+    <version>0.95-SNAPSHOT</version>
 
-  <name>The SQO-OSS project</name>
+    <name>The SQO-OSS project</name>
 
-  <description>Alitheia Core is a platform for conducting software engineering studies. 
-  	It integrates data from various sources such as from SVN, mailing lists and bug databases.
+    <description>Alitheia Core is a platform for conducting software engineering studies. 
+        It integrates data from various sources such as from SVN, mailing lists and bug databases.
 
-	Being a platform, and not a concrete implementation, means that by writing the appropriate plug-ins, 
-	you can instruct Alitheia Core to produce any measurements you are interested into and maybe 
-	integrate those measurements in high level quality evaluations.</description>
+        Being a platform, and not a concrete implementation, means that by writing the appropriate plug-ins, 
+        you can instruct Alitheia Core to produce any measurements you are interested into and maybe 
+        integrate those measurements in high level quality evaluations.</description>
 
-  <url>http://www.sqo-oss.org</url>
+    <url>http://www.sqo-oss.org</url>
 
-  <inceptionYear>2006</inceptionYear>
+    <inceptionYear>2006</inceptionYear>
 
-  <organization>
-    <name>Organisation for Free and Open Source Software Greece</name>
-    <url>http://www.ellak.gr/</url>
-  </organization>
+    <organization>
+        <name>Organisation for Free and Open Source Software Greece</name>
+        <url>http://www.ellak.gr/</url>
+    </organization>
 
-  <licenses>
-    <license>
-      <name>BSD 2-clause</name>
-      <url>http://en.wikipedia.org/wiki/BSD_licenses</url>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>BSD 2-clause</name>
+            <url>http://en.wikipedia.org/wiki/BSD_licenses</url>
+        </license>
+    </licenses>
 
-  <distributionManagement>
-    <repository>
-      <id>ac-main</id>
-      <name>Alitheia Core Main Repository</name>
-      <url>dav:https://maven.sqo-oss.org/</url>
-    </repository>
-    <snapshotRepository>
-    	<id>ac-snapshot</id>
-    	<name>Alitheia Core snapshot repository</name>
-    	<url>dav:https://maven.sqo-oss.org/snapshot</url>
-    </snapshotRepository>
-  </distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>ac-main</id>
+            <name>Alitheia Core Main Repository</name>
+            <url>dav:https://maven.sqo-oss.org/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ac-snapshot</id>
+            <name>Alitheia Core snapshot repository</name>
+            <url>dav:https://maven.sqo-oss.org/snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 
-  <properties>
-    <org.osgi.service.http.port>8080</org.osgi.service.http.port>
-    <org.osgi.service.http.port.secure>8443</org.osgi.service.http.port.secure>
+
+    <properties>
+        <org.osgi.service.http.port>3030</org.osgi.service.http.port>
+        <org.osgi.service.http.port.secure>3443</org.osgi.service.http.port.secure>
 
     <!-- MySQL and HSQLDB supported out of the box. Uncomment one of the sections below -->
-    <!-- MySQL 
     <eu.sqooss.db>MySQL</eu.sqooss.db>
     <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
     <eu.sqooss.db.schema>alitheia</eu.sqooss.db.schema>
     <eu.sqooss.db.user>alitheia</eu.sqooss.db.user>
     <eu.sqooss.db.passwd>alitheia</eu.sqooss.db.passwd>
     <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
-    -->   
-    
+ 
+    <!-- MySQL and HSQLDB supported out of the box. Uncomment one of the sections below -->
+    <!-- MySQL 
     <eu.sqooss.db>H2</eu.sqooss.db>
     <eu.sqooss.db.host>localhost</eu.sqooss.db.host>
     <eu.sqooss.db.schema>alitheia;LOCK_MODE=3;MULTI_THREADED=true</eu.sqooss.db.schema>
@@ -66,7 +67,7 @@
     <eu.sqooss.db.conpool>c3p0</eu.sqooss.db.conpool>
     <eu.sqooss.updater.svn.ommitfileless>true</eu.sqooss.updater.svn.ommitfileless>
     <eu.sqooss.updater.svn.handlecopies>branches</eu.sqooss.updater.svn.handlecopies>
-    
+     -->   
     <!-- If fast, only one randomly chosen metric per plug-in will be queried
     to determine whether recalculation is necessary. Slow is safer, but, well, slower-->
     <eu.sqooss.metricactivator.sync>slow</eu.sqooss.metricactivator.sync>
@@ -82,175 +83,183 @@
     <eu.sqooss.service.cache.dir>tmp</eu.sqooss.service.cache.dir>
   </properties>
   
-  <packaging>pom</packaging>
+    <packaging>pom</packaging>
 
-  <repositories>
-    <repository>
-      <name>JBoss</name>
-      <id>jboss</id>
-      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-    </repository>
-  </repositories>
+    <repositories>
+        <repository>
+            <name>JBoss</name>
+            <id>jboss</id>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
 
-  <modules>
-    <module>alitheia</module>
-    <module>plug-ins</module>
-    <module>metrics</module>
-    <module>external</module>
-    <module>parsers</module>
-    <module>web</module>
-  </modules>
+    <modules>
+        <module>alitheia</module>
+        <module>plug-ins</module>
+        <module>metrics</module>
+        <module>external</module>
+        <module>parsers</module>
+        <module>web</module>
+    </modules>
 
-  <developers>
-    <developer>
-      <id>gousiosg</id>
-      <name>Georgios Gousios</name>
-      <email>gousiosg@gmail.com</email>
-      <url>http://istlab.dmst.aueb.gr/~george</url>
-    </developer>
-    <developer>
-      <id>bkarak</id>
-      <name>Vassilios Karakoidas</name>
-      <email>vassilios.karakoidas@gmail.com</email>
-      <url>http://bkarak.wizhut.com/</url>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <id>gousiosg</id>
+            <name>Georgios Gousios</name>
+            <email>gousiosg@gmail.com</email>
+            <url>http://istlab.dmst.aueb.gr/~george</url>
+        </developer>
+        <developer>
+            <id>bkarak</id>
+            <name>Vassilios Karakoidas</name>
+            <email>vassilios.karakoidas@gmail.com</email>
+            <url>http://bkarak.wizhut.com/</url>
+        </developer>
+    </developers>
 
-  <scm>
-    <url>http://git.sqo-oss.org/</url>
-    <connection>scm:git:git://git.sqo-oss.org/sqo-oss.git</connection>
-    <developerConnection>scm:git:ssh://git@git.sqo-oss.org:sqo-oss.git</developerConnection>
-  </scm>
+    <scm>
+        <url>http://git.sqo-oss.org/</url>
+        <connection>scm:git:git://git.sqo-oss.org/sqo-oss.git</connection>
+        <developerConnection>scm:git:ssh://git@git.sqo-oss.org:sqo-oss.git</developerConnection>
+    </scm>
 
-  <!-- build -->
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.3</version>
-        <configuration>
-          <!-- FUTURE: executable jar
-          <archive>
-            <manifest>
-              <mainClass>org.sample.App</mainClass>
-            </manifest>
-          </archive>
-          -->
-          <!-- create a jar -->
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <!-- configure execution -->          
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.ops4j</groupId>
-        <artifactId>maven-pax-plugin</artifactId>
-        <version>1.4</version>
-        <configuration>
-          <framework>equinox</framework>
-          <provision>
-              <param>mvn:org.osgi/org.osgi.core/4.2.0@2</param>
-              <param>mvn:org.osgi/org.osgi.compendium/4.2.0@2</param>
-              <param>mvn:org.apache.felix/org.apache.felix.webconsole/1.2.8@2</param>
-              <param>mvn:org.apache.felix/org.apache.felix.scr/1.0.8@2</param>
-              <param>mvn:org.apache.felix/org.apache.felix.http.jetty/1.0.1@2</param>
-              <param>mvn:org.apache.felix/org.apache.felix.eventadmin/1.0.0@2</param>
-              <param>mvn:eu.sqooss.alitheia/core/0.95-SNAPSHOT@3</param>
-          </provision>
-          <runner>1.5.0</runner>
-         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <showWarnings>true</showWarnings>
-          <showDeprecation>true</showDeprecation>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.0</version>
-        <configuration>
-          <tagBase>https://svn.sqo-oss.org/tags</tagBase>
-        </configuration>
-      </plugin>
-    </plugins>
-    <extensions>
-        <extension>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-webdav</artifactId>
-            <version>1.0-beta-2</version>
-         </extension>
-    </extensions>
-  </build>
-
-  <!-- reporting -->
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
-        <configuration>
-          <aggregate>true</aggregate>
-          <destDir>api</destDir>
-          <excludePackageNames>eu.sqooss.impl.*</excludePackageNames> 
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <!-- profiles -->
-  <profiles>
-  	<profile>
-      <id>skiptests</id>
-      <activation>
-      	<activeByDefault>true</activeByDefault>
-      	<property>
-          <name>tests</name>
-          <value>0</value>
-        </property>
-      </activation>
-      <build>
+    <!-- build -->
+    <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.7.1</version>
-            <configuration>
-              <skipTests>true</skipTests>
-            </configuration>
-          </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <!-- FUTURE: executable jar
+                    <archive>
+                      <manifest>
+                        <mainClass>org.sample.App</mainClass>
+                      </manifest>
+                    </archive>
+                    -->
+                    <!-- create a jar -->
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <!-- configure execution -->          
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.ops4j</groupId>
+                <artifactId>maven-pax-plugin</artifactId>
+                <version>1.4</version>
+                <configuration>
+                    <framework>equinox</framework>
+                    <provision>
+                        <param>mvn:org.osgi/org.osgi.core/4.2.0@2</param>
+                        <param>mvn:org.osgi/org.osgi.compendium/4.2.0@2</param>
+                        <param>mvn:org.apache.felix/org.apache.felix.webconsole/1.2.8@2</param>
+                        <param>mvn:org.apache.felix/org.apache.felix.scr/1.0.8@2</param>
+                        <param>mvn:org.apache.felix/org.apache.felix.http.jetty/1.0.1@2</param>
+                        <param>mvn:org.apache.felix/org.apache.felix.eventadmin/1.0.0@2</param>
+                        <param>mvn:eu.sqooss.alitheia/core/0.95-SNAPSHOT@3</param>
+                    </provision>
+                    <runner>1.5.0</runner>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <tagBase>https://svn.sqo-oss.org/tags</tagBase>
+                </configuration>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>runtests</id>
-      <activation>
-      	<property>
-          <name>tests</name>
-          <value>1</value>
-        </property>
-      </activation>
-      <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav</artifactId>
+                <version>1.0-beta-2</version>
+            </extension>
+        </extensions>
+    </build>
+
+    <!-- reporting -->
+    <reporting>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.7.1</version>
-            <configuration>
-              <skipTests>false</skipTests>
-            </configuration>
-          </plugin>        
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <destDir>api</destDir>
+                    <excludePackageNames>eu.sqooss.impl.*</excludePackageNames> 
+                </configuration>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </reporting>
+
+    <!-- profiles -->
+    <profiles>
+        <profile>
+            <id>skiptests</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>tests</name>
+                    <value>0</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.7.1</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>runtests</id>
+            <activation>
+                <property>
+                    <name>tests</name>
+                    <value>1</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.7.1</version>
+                        <configuration>
+                            <skipTests>false</skipTests>
+                        </configuration>
+                    </plugin>        
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <dependencies>
+        <dependency>
+            <groupId>org.jmockit</groupId> 
+            <artifactId>jmockit</artifactId> 
+            <version>1.14</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

@@ -5,7 +5,7 @@
         <div id="contents">
           <h2>$tr.label("projects_mngm")</h2>
 #set($projectlist = $projects.getProjects())
-#if($projectlist.size()<1)
+#if($projectlist.size() < 1)
             $tr.label("no_projects_available")
 #else      
             <table>

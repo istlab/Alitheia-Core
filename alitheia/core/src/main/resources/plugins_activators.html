@@ -1,0 +1,13 @@
+#if($request.getParameter("showActivators") && $request.getParameter("showActivators") == "true")
+  #set($activators = $plugin.getActivationTypes())
+  #if($activators)
+    #foreach($activator in $activators)
+      <tr>
+      <td>&nbsp;</td>
+      <td colspan="3" class="attr">
+      <b>Activator:</b>&nbsp;$activator.getName()
+      </td>
+      </tr>
+    #end
+  #end
+#end

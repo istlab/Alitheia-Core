@@ -1,0 +1,56 @@
+#set ($valPropName = $metrics.getValPropName())
+#set ($valPropType = $metrics.getValPropType())
+#set ($valPropDescr = $metrics.getValPropDescr())
+#set ($valPropValue = $metrics.getValPropValue())
+<fieldset>
+	<legend>Create property for $selectedPlugin.getPluginName()</legend>
+	<table class="borderless">
+		<tr>
+	  		<td class="borderless" style="width:100px;">
+	  			<b>Name</b>
+	  		</td>
+	  		<td class="borderless">
+	  			<input type="text" class="form" id="propertyName" name="propertyName" value="$valPropName">
+	  		</td>
+		</tr>
+		<tr>
+	  		<td class="borderless" style="width:100px;">
+	  			<b>Description</b>
+	  		</td>
+	  		<td class="borderless">
+	  			<input type="text" class="form" id="propertyDescription" name="propertyDescription" value="$valPropDescr">
+			</td>
+		</tr>
+		<tr>
+		  	<td class="borderless" style="width:100px;">
+		  		<b>Type</b>
+		  	</td>
+		  	<td class="borderless">
+	    		<select class="form" id="propertyType" name="propertyType">
+	    			#foreach ($type in $metrics.getConfigurationTypes())
+	    				<option
+	    				#if ($type.equals($valPropType))
+	    					 selected
+	    				#end
+	    				value="$type">$type</option>
+	    			#end
+	    		</select>
+	  		</td>
+		</tr>
+		<tr>
+	 		<td class="borderless" style="width:100px;">
+	 			<b>Value</b>
+	 		</td>
+	  		<td class="borderless">
+	  			<input type="text" class="form" id="propertyValue" name="propertyValue" value="$valPropValue">
+	  		</td>
+		</tr>
+		<tr>
+	  		<td colspan="2" class="borderless">
+	  			<input type="button" class="install" style="width: 100px;" value="Create" onclick="javascript:document.getElementById('action').value='confirmProperty';document.metrics.submit();">
+	  			&nbsp;                
+	  			<input type="button" class="install" style="width: 100px;" value="Cancel" onclick="javascript:document.metrics.submit();">
+	  		</td>
+	  </tr>
+	</table>
+</fieldset>

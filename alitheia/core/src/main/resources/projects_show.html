@@ -1,0 +1,66 @@
+#set($selProject = $projects.getSelProject())
+<form id="projects" name="projects" method="post" action="/projects">
+  <fieldset>
+    <legend>
+      Project information
+    </legend>
+    <table class="borderless">
+      <tr>
+        <td class="borderless" style="width:100px;">
+          <b>Project name</b>
+        </td>
+        <td class="borderless">
+          $selProject.getName()
+        </td>
+      </tr>
+      <tr>
+        <td class="borderless" style="width:100px;">
+          <b>Homepage</b>
+        </td>
+        <td class="borderless">
+          $selProject.getWebsiteUrl()
+        </td>
+      </tr>
+      <tr>
+        <td class="borderless" style="width:100px;">
+          <b>Contact e-mail</b>
+        </td>
+        <td class="borderless">
+          $selProject.getContactUrl()
+        </td>
+      </tr>
+      <tr>
+        <td class="borderless" style="width:100px;">
+          <b>Bug database</b>
+        </td>
+        <td class="borderless">
+          $selProject.getBtsUrl()
+        </td>
+      </tr>
+      <tr>
+        <td class="borderless" style="width:100px;">
+          <b>Mailing list</b>
+        </td>
+        <td class="borderless">
+          $selProject.getMailUrl()
+        </td>
+      </tr>
+      <tr>
+        <td class="borderless" style="width:100px;">
+          <b>Source code</b>
+        </td>
+        <td class="borderless">
+          $selProject.getScmUrl()
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" class="borderless">
+          ##back button
+          <input type="button" class="install" style="width: 100px;" value="$tr.label('btn_back')" onclick="javascript:document.projects.submit();"/>
+        </td>
+      </tr>
+    </table>
+  </fieldset>
+  #parse("projects_error_fieldset.html")
+  #parse("projects_hidden_fields.html")
+</form>

@@ -1,0 +1,24 @@
+<table width="100%" cellpadding="0" cellspacing="0">
+	<thead>
+		<tr>
+			<td>Job Type</td>
+			<td>Num Jobs waiting</td>
+		</tr>
+	</thead>
+	#set ($jobWaiting = $jobs.getWaitingJobs())
+	<tbody>
+	#if ($jobWaiting.size() == 0)
+		<tr>
+			<td>No failures</td>
+			<td>&nbsp;			</td>
+		</tr>
+	#else
+		#foreach ($key in $jobWaiting.keySet())
+			<tr>
+				<td>$key</td>
+				<td>$jobWaiting.get($key)			</td>
+			</tr>
+		#end
+	#end
+	</tbody>
+</table>

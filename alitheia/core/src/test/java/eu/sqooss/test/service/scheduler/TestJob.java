@@ -41,7 +41,7 @@ import eu.sqooss.service.scheduler.Job;
  *
  * @author Christoph Schleifenbaum
  */
-class TestJob extends Job
+public class TestJob extends Job
 {
 
     private int n;

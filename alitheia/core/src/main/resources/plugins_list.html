@@ -1,0 +1,43 @@
+#if($metrics.isDebugOn())
+	$metrics.debugRequest($request)
+#end
+#if($metrics.isPluginsListEmpty())
+	<fieldset>
+	   <legend>All plug-ins</legend>
+		<span>
+			No plug-ins found!&nbsp;
+			<input type="button" class="install" style="width: 100px;" value="Refresh" onclick="javascript:window.location.reload(true);">
+		</span>
+	</fieldset>
+#else
+	<form id="metrics" name="metrics" method="post" action="/index">
+	#set ($errorMessages = $metrics.getErrorMessages())
+	#if ($errorMessages)
+		<fieldset>
+			<legend>Errors</legend>
+			$errorMessages
+		</fieldset>
+	#end
+	#set ($selectedPlugin = $metrics.getSelectedPlugin())
+	#set ($requestAction = $request.getParameter("action"))
+	#if ($selectedPlugin && $selectedPlugin.isInstalled() && ($requestAction.equals("createProperty") || $requestAction.equals("updateProperty")))
+		#if ($requestAction.equals("createProperty"))
+			#parse("plugin_properties_create.html")
+		#else
+			#parse("plugin_properties_update.html")
+		#end
+	#elseif($selectedPlugin)
+		#parse("plugin_details.html")	
+	#else
+		#parse("plugins_all.html")
+	#end
+	<input type="hidden" id="action" name="action" value="">
+    <input type="hidden" id="pluginHashcode" name="pluginHashcode" value="$metrics.getValHashcode()">
+    <input type="hidden" id="propertyName" name="propertyName" value="$metrics.getValPropName()">
+    <input type="hidden" id="propertyDescription" name="propertyDescription" value="$metrics.getValPropDescr()">
+    <input type="hidden" id="propertyType" name="propertyType" value="$metrics.getValPropType()">
+    <input type="hidden" id="propertyValue" name="propertyValue" value="$metrics.getValPropValue()">
+    <input type="hidden" id="showProperties" name="showProperties" value="$metrics.getValShowProp()">
+    <input type="hidden" id="showActivators" name="showActivators" value="$metrics.getValShowActv()">
+	</form>
+#end
