@@ -1,4 +1,4 @@
-# IN4189 Software Reengineering - Assignment 1
+# IN4189 Software Reengineering - Reverse Engineering and Detection Report 
 By Martijn den Hoedt - 4143760, Anton Bouter - 4167562
 
 ## Introduction
@@ -27,3 +27,21 @@ The main class of the Alitheia Core is AlitheiaCore.java, in the eu.sqooss.core 
 ### Impression of design and implementation
 
 We think that the Alitheia Core system looks well structured, because the classes seem to be properly distributed among packages with names that provide useful information. The core is properly isolated from the classes that provide services. Many classes also contain javadoc comments and additional comments to clarify functions when needed. However, the number of tests is very limited. We therefore have a relatively good first impression of the design and implementation of the system. Although the test suite should be expanded, we think reengineering the Alitheia Core is feasible, because the javadoc documentation makes it much easier.
+
+### Exceptional entities
+
+To study the exceptional entities, such as packages, classes and methods, a UML diagram can be very useful. Such a diagram shows which classes are related and in what way. A UML diagram can also be reverse engineered by a tool such as [UMLGraph](http://www.umlgraph.org/). The diagram in figure 1 displays all database objects and was created by Georgios Gousios using the UMLGraph tool on the Alitheia Core system [[1]](http://www.umlgraph.org/doc/ceg-er.html). From this diagram we can clearly see that many classes depend on the StoredProject class. The same goes for the Metric, ProjectVersion and Bug classes. All of these classes are part of the eu.sqooss.service.db package, which definitely is an exceptional entity, because it contains a very large number of classes. 
+
+<img src="./img/uml.png" width="931" height="437px" />
+
+<center>*Figure 1: UML Diagram of Alitheia Core*</center>
+
+### Inheritance structure
+
+As described earlier, the system is composed of many service interfaces that extend the AlitheiaCoreService interface, such as DBService, AdminService, LogManager and RestService. The implementations of all these classes must also implement the basic functions of the AlitheiaCoreService class.
+
+### Step through execution
+
+
+
+Finally, collisions are handled by locking the database whenever a thread starts a database session, such that no other threads can commit changes to the database. When changes are committed, the current session is closed and the lock on the database is released. The changes made during the current session can also be reverted by the function rollbackDBSession in DBService.  
