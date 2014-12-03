@@ -32,7 +32,7 @@ We performed a software analysis on the Alitheia Core to find shortcoming such a
 </ul></li>
 <li><a href="http://www.umlgraph.org/">UMLGraph</a>
 <ul>
-<li>Allows automatic drawing of UML class and sequence diagrams</li>
+<li>Allows automatic drawing of UML class and sequence diagrams.</li>
 </ul></li>
 </ul>
 
@@ -48,7 +48,7 @@ We performed a software analysis on the Alitheia Core to find shortcoming such a
 
 <h3>Important source code entities</h3>
 
-<p>The main class of the Alitheia Core is AlitheiaCore.java, in the eu.sqooss.core package, which initializes the core components of the system and provides a static instance of AlitheiaCore. All services of the AlitheiaCore classes can then be called by using the methods defined in the AlitheiaCoreService interface, which is present in the same package as the AlitheiaCore class. These services are implemented in the eu.sqooss.service package and divided into a large number of packages, such as admin, db, scheduler, updater and util. Each package can also contain classes that the service depends on.</p>
+<p>The main class of the Alitheia Core is <code>AlitheiaCore</code>, in the <code>eu.sqooss.core</code> package, which initializes the core components of the system and provides a static instance of AlitheiaCore. All services of the <code>AlitheiaCore</code> class can then be called by using the methods defined in the <code>AlitheiaCoreService</code> interface, which is present in the same package as the <code>AlitheiaCore</code> class. These services are implemented in the <code>eu.sqooss.service</code> package and divided into a large number of packages, such as <code>admin</code>, <code>db</code>, <code>scheduler</code>, <code>updater</code> and <code>util</code>. Each package can also contain classes that the service depends on.</p>
 
 <h3>Impression of design and implementation</h3>
 
@@ -64,7 +64,7 @@ We performed a software analysis on the Alitheia Core to find shortcoming such a
 
 <h3>Inheritance structure</h3>
 
-<p>As described earlier, the system is composed of many service interfaces that extend the AlitheiaCoreService interface, such as DBService, AdminService, LogManager and RestService. The implementations of all these classes must also implement the basic functions of the AlitheiaCoreService class.</p>
+<p>As described earlier, the system is composed of many service interfaces that extend the <code>AlitheiaCoreService</code> interface, such as <code>DBService</code>, <code>AdminService</code>, <code>LogManager</code> and <code>RestService</code>. The implementations of all these classes must also implement the basic functions of the <code>AlitheiaCoreService</code> class.</p>
 
 <h3>Step through execution</h3>
 
@@ -100,7 +100,9 @@ We performed a software analysis on the Alitheia Core to find shortcoming such a
 
 <h3>Interface Segregation Principle (ISP)</h3>
 
-<p>According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable. </p>
+<p>According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable.</p>
+
+<p>At this time, we have not searched for violations of this principle, but we might do this in the future if necessary.</p>
 
 <h3>Dependency Inversion Principle (DIP)</h3>
 
@@ -108,7 +110,19 @@ We performed a software analysis on the Alitheia Core to find shortcoming such a
 
 <h3>Acyclic Dependencies Principle (ADP)</h3>
 
+<p>This very simple principle states that software entities should not have cyclic dependencies. This is the case when some entity <code>A</code> depends on some entity <code>B</code>, but <code>B</code> also (indirectly) depends on <code>A</code>. Dependency cycles of more than two classes also violate the principle and should therefore be avoided.</p>
+
+<p>There are two cases of a violation of the Acyclic Dependencies Principle detected by X-Ray. There is a cycle between the <code>Status</code> and <code>BugStatus</code> class. There is also a cycle between the <code>Severity</code>and the <code>BugSeverity</code> class. Both <code>Status</code> and <code>Severity</code> are <code>enum</code>s within <code>BugStatus</code> and <code>Severity</code> respectively. Therefore we don't see it as a actual ADP violation.</p>
+
+<p>STAN4J gave a better overview of all classes, packages and dependencies between those in the project. Within the <code>.service.db</code> package a lot of cyclic dependencies can be found. On of these is the cyclic dependency between the <code>Plugin</code> and the <code>Metric</code> class. There are also cyclic dependencies between packages (<em>see figure below</em>).</p>
+
+<p><img src="./img/cycle1.png" alt="Cycle 1" title="package cycle 1" /></p>
+
+<p><img src="./img/cycle2.png" alt="Cycle 2" title="package cycle 2" /></p>
+
 <h3>Don't Repeat Yourself (DRY)</h3>
+
+<p>Another very simple principle is the DRY principle, which states that duplicate code must be avoided. This principle is violated when the modification of one element requires the modification of another unrelated element.</p>
 
 <p>We have looked for duplicated code with <a href="http://www.sonarqube.org/">SonarQube</a>. This tool found 313 lines of code (LOC) in a total of 31,760 LOC. Thus only 1% of the Alitheia Core project is duplicate code. The project contains 15,688 LOC with Java, the rest is comments or whitespace. We investigated a few instances of code duplication. One of them is <code>BugResolution</code> (lines 121-135) and <code>BTSEntry</code> (lines 203-216). </p>
 
