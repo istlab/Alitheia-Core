@@ -10,7 +10,7 @@ We performed a software analysis on the Alitheia Core to find shortcoming such a
  * Liskov substitution principle
  * Interface segregation principle
  * Dependency inversion principle
- 
+
 To simplify the detection procedure, the following software evaluation tools have been used: 
 
  * [SonarQube](http://www.sonarqube.org/)
@@ -20,7 +20,7 @@ To simplify the detection procedure, the following software evaluation tools hav
  * [X-Ray](http://xray.inf.usi.ch/xray.php)
     - Software visualization tool that provides e.g. a system complexity form and a class and package dependency view.
  * [UMLGraph](http://www.umlgraph.org/)
-    - Allows automatic drawing of UML class and sequence diagrams.
+    - Allows automatic drawing of UML class and sequence diagrams
 
 ## Initial Understanding and Detailed Model Capture
 
@@ -52,7 +52,5 @@ To study the exceptional entities, such as packages, classes and methods, a UML 
 As described earlier, the system is composed of many service interfaces that extend the AlitheiaCoreService interface, such as DBService, AdminService, LogManager and RestService. The implementations of all these classes must also implement the basic functions of the AlitheiaCoreService class.
 
 ### Step through execution
-
-
 
 Finally, collisions are handled by locking the database whenever a thread starts a database session, such that no other threads can commit changes to the database. When changes are committed, the current session is closed and the lock on the database is released. The changes made during the current session can also be reverted by the function rollbackDBSession in DBService.  
