@@ -45,7 +45,7 @@ To study the exceptional entities, such as packages, classes and methods, a UML 
 
 <img src="./img/uml.png" width="931" height="437px" />
 
-<center>*Figure 1: UML Diagram of Alitheia Core*</center>
+<center>*Figure 1: UML Diagram of the database entities of Alitheia Core*</center>
 
 ### Inheritance structure
 
@@ -53,4 +53,22 @@ As described earlier, the system is composed of many service interfaces that ext
 
 ### Step through execution
 
-Finally, collisions are handled by locking the database whenever a thread starts a database session, such that no other threads can commit changes to the database. When changes are committed, the current session is closed and the lock on the database is released. The changes made during the current session can also be reverted by the function rollbackDBSession in DBService.  
+## S.O.L.I.D. Design Principles
+
+The S.O.L.I.D. design principles were already named in the introduction, but to find shortcoming in the code, we shall explain them further in this section. 
+
+### Single Responsibility Principle
+This principle states that every software entity (class, function, variable, etc.) should have a single purpose and only one reason to change.  If it is violated, the violating entity should be split into two or more entities that satisfy the Single Responsibility Principle. 
+
+### Open/Closed Principle
+According to the Open/Closed principle, software entities should be open for extension, but closed for modification. This means that the software must be extensible without modifications to its source code. Also, an extension may not lead to a change in behaviour of the code that is extended.
+
+### Liskov Substitution Principle
+The principles of object oriented programming are underlined by this principle. It states that subtypes must be substitutable for their base types. Therefore, if a method expects some object A as a parameter, this method should also accept any class that is a superclass of A. The post-conditions of the method should still hold after such a substitution. 
+
+### Interface Segregation Principle
+According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable. 
+
+### Dependency Inversion Principle
+This principle states that high-level modules should not depend on low-level modules. Additionally, abstractions should not depend on details, but details should depend on abstractions. This means that the high-level modules cannot simply use low-level modules to perform some task. An interface should be used that implements the functions of the low-level module. The high-level class then calls the methods of the interface and the low-level class implements the interface.
+
