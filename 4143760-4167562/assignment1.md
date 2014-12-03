@@ -57,18 +57,33 @@ As described earlier, the system is composed of many service interfaces that ext
 
 The S.O.L.I.D. design principles were already named in the introduction, but to find shortcoming in the code, we shall explain them further in this section. 
 
-### Single Responsibility Principle
-This principle states that every software entity (class, function, variable, etc.) should have a single purpose and only one reason to change.  If it is violated, the violating entity should be split into two or more entities that satisfy the Single Responsibility Principle. 
-
-### Open/Closed Principle
-According to the Open/Closed principle, software entities should be open for extension, but closed for modification. This means that the software must be extensible without modifications to its source code. Also, an extension may not lead to a change in behaviour of the code that is extended.
-
-### Liskov Substitution Principle
-The principles of object oriented programming are underlined by this principle. It states that subtypes must be substitutable for their base types. Therefore, if a method expects some object A as a parameter, this method should also accept any class that is a superclass of A. The post-conditions of the method should still hold after such a substitution. 
-
 ### Interface Segregation Principle
 According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable. 
 
-### Dependency Inversion Principle
+## Problem Detection
+[inCode](https://www.intooitus.com/products/incode) found nine God classes, two of them are scoring a 10 out of 10 (`GitUpdater` and `ContributionMetricImpl`). The `GitUpdater` 767 LOC, but another bigger class called `SVNUUpdaterImpl` has 993 LOC. 
+
+### Single Responsibility Principle
+This principle states that every software entity (class, function, variable, etc.) should have a single purpose and only one reason to change.  If it is violated, the violating entity should be split into two or more entities that satisfy the Single Responsibility Principle.
+
+Both the `ContributionMetrixImpl` and the `GitUpdater` classes have many methods, use many attributes from many external classes. The `GitUpdater` class also contains multiple to-do's and code that is commented out. These two classes keep track of many things and can perform many actions, therefore they violate the single responsbility principle. Another example is the definition of `DecreasingLongComparator` and `RandomizedCompatator` within `MetricActivatorImpl.java`. In this way it's not easy to know such classes actually exists, not to mention reusing the code. 
+
+### Open/Closed Principle (OCP) or Liskov Substitution Principle (LSP)
+
+According to the Open/Closed principle, software entities should be open for extension, but closed for modification. This means that the software must be extensible without modifications to its source code. Also, an extension may not lead to a change in behaviour of the code that is extended.
+
+The principles of object oriented programming are underlined by the Liskov Substitution principle. It states that subtypes must be substitutable for their base types. Therefore, if a method expects some object A as a parameter, this method should also accept any class that is a superclass of A. The post-conditions of the method should still hold after such a substitution.
+
+### Dependency Inversion Principle (DIP)
+
 This principle states that high-level modules should not depend on low-level modules. Additionally, abstractions should not depend on details, but details should depend on abstractions. This means that the high-level modules cannot simply use low-level modules to perform some task. An interface should be used that implements the functions of the low-level module. The high-level class then calls the methods of the interface and the low-level class implements the interface.
 
+### Acyclic Dependencies Principle (ADP)
+
+### Don't Repeat Yourself (DRY)
+We have looked for duplicated code with [SonarQube](http://www.sonarqube.org/). This tool found 313 lines of code (LOC) in a total of 31,760 LOC. Thus only 1% of the Alitheia Core project is duplicate code. The project contains 15,688 LOC with Java, the rest is comments or whitespace. We investigated a few instances of code duplication. One of them is `BugResolution` (lines 121-135) and `BTSEntry` (lines 203-216). 
+
+### Simple shortcomings
+SonarQube is also able to detect a lot of other issues. In Alitheia Core are 1770 issues. These issues can point out confusing code formatting, like inconsistently placing curly braces. Also more important issues like never throwing generic exceptions, such as `Exception`, are detected in the Alitheia Core project.
+
+SonarQube is also able to calculate the complexicity of the code. The [complexity metrics](http://docs.codehaus.org/display/SONAR/Metrics+-+Complexity) used by SonarQube count every  `if`, `for`, `while`, `case`, `catch`, `throw` and `return` statement. The `PluginsView` has the highest complexity per function, but also a high amount of code per method. The inCode tool also found classes and methods with a high complexity.
