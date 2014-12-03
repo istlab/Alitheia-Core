@@ -53,4 +53,24 @@ As described earlier, the system is composed of many service interfaces that ext
 
 ### Step through execution
 
-Finally, collisions are handled by locking the database whenever a thread starts a database session, such that no other threads can commit changes to the database. When changes are committed, the current session is closed and the lock on the database is released. The changes made during the current session can also be reverted by the function rollbackDBSession in DBService.  
+Finally, collisions are handled by locking the database whenever a thread starts a database session, such that no other threads can commit changes to the database. When changes are committed, the current session is closed and the lock on the database is released. The changes made during the current session can also be reverted by the function rollbackDBSession in DBService.
+
+## Problem Detection
+[inCode](https://www.intooitus.com/products/incode) found nine God classes, two of them are scoring a 10 out of 10 (`GitUpdater` and `ContributionMetricImpl`). The `GitUpdater` 767 LOC, but another bigger class called `SVNUUpdaterImpl` has 993 LOC. 
+
+### Single Responsibility Principle
+Both the `ContributionMetrixImpl` and the `GitUpdater` classes have many methods, use many attributes from many external classes. The `GitUpdater` class also contains multiple to-do's and code that is commented out. These two classes keep track of many things and can perform many actions, therefore they violate the single responsbility principle. Another example is the definition of `DecreasingLongComparator` and `RandomizedCompatator` within `MetricActivatorImpl.java`. In this way it's not easy to know such classes actually exists, not to mention reusing the code. 
+
+### Open/Closed Principle (OCP) or Liskov Substitution Principle (LSP)
+
+### Dependency Inversion Principle (DIP)
+
+### Acyclic Dependencies Principle (ADP)
+
+### Don't Repeat Yourself (DRY)
+We have looked for duplicated code with [SonarQube](http://www.sonarqube.org/). This tool found 313 lines of code (LOC) in a total of 31,760 LOC. Thus only 1% of the Alitheia Core project is duplicate code. The project contains 15,688 LOC with Java, the rest is comments or whitespace. We investigated a few instances of code duplication. One of them is `BugResolution` (lines 121-135) and `BTSEntry` (lines 203-216). 
+
+### Simple shortcomings
+SonarQube is also able to detect a lot of other issues. In Alitheia Core are 1770 issues. These issues can point out confusing code formatting, like inconsistently placing curly braces. Also more important issues like never throw generic exceptions, such as `Exception`, are detected in the Alitheia Core project.
+
+SonarQube is also able to calculate the complexicity of the code. The [complexity metrics](http://docs.codehaus.org/display/SONAR/Metrics+-+Complexity) used by SonarQube is count every  `if`, `for`, `while`, `case`, `catch`, `throw` and `return` statement. The `PluginsView` has the highest complexity per function, but also a high amount of code per method. inCode also found classes and methods with a high complexcity.
