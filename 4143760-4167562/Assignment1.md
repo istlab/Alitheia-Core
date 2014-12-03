@@ -2,7 +2,7 @@
 By Martijn den Hoedt - 4143760, Anton Bouter - 4167562
 
 ## Introduction
-[Alitheia Core](http://www.sqo-oss.org/about) is a platform for automatic evaluation of software that is designed to simplify software engineering research. It can produce a broad picture of the quality of an Open Source project by analysing both hard project artifacts (source code) and soft project artifacts (mailing list, bug tracker entries).
+[Alitheia Core](http://www.sqo-oss.org/) is a platform for automatic evaluation of software that is designed to simplify software engineering research. It can produce a broad picture of the quality of an Open Source project by analysing both hard project artifacts (source code) and soft project artifacts (mailing list, bug tracker entries).
 We performed a software analysis on the Alitheia Core to find shortcoming such as design flaws and code smells. The first chapter of this report will describe the system and its structure, while the second chapter is dedicated to pinpointing shortcomings of the Alitheia Core. The focus is on detecting violations of the S.O.L.I.D. object-oriented design principles. These include the following five principles:
 
  * Single responsibility principle
@@ -11,12 +11,23 @@ We performed a software analysis on the Alitheia Core to find shortcoming such a
  * Interface segregation principle
  * Dependency inversion principle
  
-To simplify the detection procedure, the following software evaluation tools have been used: SonarQube, inCode, ...
+To simplify the detection procedure, the following software evaluation tools have been used: 
+
+ * [SonarQube](http://www.sonarqube.org/)
+    - Open platform to manage code quality, which covers criteria such as complexity, potential bugs, duplications, architecture & design.
+ * [inCode](https://www.intooitus.com/products/incode)
+    - Detects design flaws automatically and helps you resolve them.
+ * [X-Ray](http://xray.inf.usi.ch/xray.php)
+    - Software visualization tool that provides e.g. a system complexity form and a class and package dependency view.
+ * [UMLGraph](http://www.umlgraph.org/)
+    - Allows automatic drawing of UML class and sequence diagrams.
 
 ## Initial Understanding and Detailed Model Capture
 
+To find certain shortcomings in the design of the system, we must first understand it. This chapter is dedicated to the process of understanding the model and displaying its properties clearly by using reverse engineering tools to create models.
+
 ### Main features
-What makes Alitheia Core stand out is that it not only evaluates the final product, but also the developing process. This is done by evaluating the so called soft project artifacts, such as mailing lists and bug tracker entries, which leads to a broader picture of the quality of the software project. The different aspects of that are analysed are aggregated through a [multilevel quality model](http://www.dmst.aueb.gr/dds/pubs/conf/2008-OSS-qmodel/html/SGSS08.htm).
+What makes Alitheia Core stand out is that it not only evaluates the final product, but also the developing process. This is done by evaluating the so called soft project artifacts, such as mailing lists and bug tracker entries, which leads to a broader picture of the quality of the software project. The different aspects of that are analysed are aggregated through a [multilevel quality model](http://www.dmst.aueb.gr/dds/pubs/conf/2008-OSS-qmodel/html/SGSS08.htm) [[1]](http://www.sqo-oss.org/about).
 
 The Alitheia Core can also be used to automate and parallellize the execution of custom experiments. Studies on empirical data can easily be performed and the Alitheia Core can also be extended to produce any measurement you are interested in.
 
@@ -30,7 +41,7 @@ We think that the Alitheia Core system looks well structured, because the classe
 
 ### Exceptional entities
 
-To study the exceptional entities, such as packages, classes and methods, a UML diagram can be very useful. Such a diagram shows which classes are related and in what way. A UML diagram can also be reverse engineered by a tool such as [UMLGraph](http://www.umlgraph.org/). The diagram in figure 1 displays all database objects and was created by Georgios Gousios using the UMLGraph tool on the Alitheia Core system [[1]](http://www.umlgraph.org/doc/ceg-er.html). From this diagram we can clearly see that many classes depend on the StoredProject class. The same goes for the Metric, ProjectVersion and Bug classes. All of these classes are part of the eu.sqooss.service.db package, which definitely is an exceptional entity, because it contains a very large number of classes. 
+To study the exceptional entities, such as packages, classes and methods, a UML diagram can be very useful. Such a diagram shows which classes are related and in what way. A UML diagram can also be reverse engineered by a tool such as [UMLGraph](http://www.umlgraph.org/). The diagram in figure 1 displays all database objects and was created by Georgios Gousios using the UMLGraph tool on the Alitheia Core system [[2]](http://www.umlgraph.org/doc/ceg-er.html). From this diagram we can clearly see that many classes depend on the StoredProject class. The same goes for the Metric, ProjectVersion and Bug classes. All of these classes are part of the eu.sqooss.service.db package, which definitely is an exceptional entity, because it contains a very large number of classes. 
 
 <img src="./img/uml.png" width="931" height="437px" />
 
