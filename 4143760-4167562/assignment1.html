@@ -68,29 +68,39 @@ We performed a software analysis on the Alitheia Core to find shortcoming such a
 
 <h3>Step through execution</h3>
 
-<h2>S.O.L.I.D. Design Principles</h2>
-
-<p>The S.O.L.I.D. design principles were already named in the introduction, but to find shortcoming in the code, we shall explain them further in this section. </p>
-
-<h3>Interface Segregation Principle</h3>
-
-<p>According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable. </p>
-
 <h2>Problem Detection</h2>
 
-<p><a href="https://www.intooitus.com/products/incode">inCode</a> found nine God classes, two of them are scoring a 10 out of 10 (<code>GitUpdater</code> and <code>ContributionMetricImpl</code>). The <code>GitUpdater</code> 767 LOC, but another bigger class called <code>SVNUUpdaterImpl</code> has 993 LOC. </p>
+<p>After familiarizing ourselves with the system through the first chapter, we can now thoroughly look at the system to identify design flaws and/or code smells. We will first focus on the S.O.L.I.D. design principles, which were already named in the introduction. The meaning of each of these principles will first be explained, after which an example is shown from the Alitheia Core system. After the five basic S.O.L.I.D. principles, we will also try to find pieces of code that violate the Acyclic Dependencies Principle and lines of duplicated code. </p>
 
-<h3>Single Responsibility Principle</h3>
+<h3>Single Responsibility Principle (SRP)</h3>
 
 <p>This principle states that every software entity (class, function, variable, etc.) should have a single purpose and only one reason to change.  If it is violated, the violating entity should be split into two or more entities that satisfy the Single Responsibility Principle.</p>
 
-<p>Both the <code>ContributionMetrixImpl</code> and the <code>GitUpdater</code> classes have many methods, use many attributes from many external classes. The <code>GitUpdater</code> class also contains multiple to-do's and code that is commented out. These two classes keep track of many things and can perform many actions, therefore they violate the single responsbility principle. Another example is the definition of <code>DecreasingLongComparator</code> and <code>RandomizedCompatator</code> within <code>MetricActivatorImpl.java</code>. In this way it's not easy to know such classes actually exists, not to mention reusing the code. </p>
+<p>A very large class is the most likely to break this principle, so we used the tool <a href="https://www.intooitus.com/products/incode">inCode</a> to give a nice overview of properties such as number of methods and lines of code for each class. A screenshot of the overview of inCode is shown in Figure 2. This tool found nine so-called God classes, where two of them are scoring a 10 out of 10 (<code>GitUpdater</code> and <code>ContributionMetricImpl</code>). The <code>GitUpdater</code> has 767 lines of code, but another bigger class called <code>SVNUUpdaterImpl</code> has 993 lines of code.</p>
+
+<p><center>
+<img src="./img/inCodeOverview.png" width="581px" height="275px" /></p>
+
+<p><em>Figure 2: An overview of the design flaws that inCode has found.</em>
+</center></p>
+
+<p>Both the <code>ContributionMetricImpl</code> and the <code>GitUpdater</code> classes have many methods, use many attributes from many external classes. The <code>ContributionMetricImpl</code> class has methods such as <code>cleanupResource</code>, <code>run</code> and <code>updateField</code>. This implies that this class has multiple responsibilities, because cleaning up, running and updating a field should be considered separate tasks/responsibilities. The violation of the Single Responsibility Principle can possibly be fixed by splitting this class into multiple classes, each with their own unique responsibility. In this case, we should consider creating three separate classes that are responsible for cleaning up the resource, running the contribution metric and for updating the database. Because <code>ContributionMetricImpl</code> is such a large class, it might very well need to be split up in more than three classes to completely adhere to the Single Responsibility Principle.</p>
+
+<p>The first couple of methods of the <code>GitUpdater</code> class are <code>setUpdateParams</code>, <code>update</code> and <code>updateFromTo</code>. Up to this point, this class adheres to the Single Responsibility Principle, because its only responsibility is updating. However, later on we encounter the methods <code>processOneRevision</code>, <code>getAuthor</code> and <code>processCopiedFiles</code>, which seemingly involve other responsibilities than just updating. Again, this violation should be resolved by splitting the <code>GitUpdater</code> class into multiple classes that all have a single responsibility. This class also contains multiple to-do's and code that is commented out, which should also be fixed when the code is being reengineered. </p>
+
+<p>Finally, the definition of <code>DecreasingLongComparator</code> and <code>RandomizedCompatator</code> within the <code>MetricActivatorImpl</code> class also violates the Single Responsibility Principle, because the implementation of comparators should not be a responsibility of this class. </p>
+
+<p>Violations of the Single Responsibility Principle can cause code to be hard to locate, because it might be placed in a class that is mainly used for something completely different. This in turn causes the code to be more difficult to understand and to maintain.</p>
 
 <h3>Open/Closed Principle (OCP) or Liskov Substitution Principle (LSP)</h3>
 
 <p>According to the Open/Closed principle, software entities should be open for extension, but closed for modification. This means that the software must be extensible without modifications to its source code. Also, an extension may not lead to a change in behaviour of the code that is extended.</p>
 
 <p>The principles of object oriented programming are underlined by the Liskov Substitution principle. It states that subtypes must be substitutable for their base types. Therefore, if a method expects some object A as a parameter, this method should also accept any class that is a superclass of A. The post-conditions of the method should still hold after such a substitution.</p>
+
+<h3>Interface Segregation Principle (ISP)</h3>
+
+<p>According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable. </p>
 
 <h3>Dependency Inversion Principle (DIP)</h3>
 

@@ -20,7 +20,7 @@ To simplify the detection procedure, the following software evaluation tools hav
  * [X-Ray](http://xray.inf.usi.ch/xray.php)
     - Software visualization tool that provides e.g. a system complexity form and a class and package dependency view.
  * [UMLGraph](http://www.umlgraph.org/)
-    - Allows automatic drawing of UML class and sequence diagrams
+    - Allows automatic drawing of UML class and sequence diagrams.
 
 ## Initial Understanding and Detailed Model Capture
 
@@ -60,7 +60,13 @@ After familiarizing ourselves with the system through the first chapter, we can 
 ### Single Responsibility Principle (SRP)
 This principle states that every software entity (class, function, variable, etc.) should have a single purpose and only one reason to change.  If it is violated, the violating entity should be split into two or more entities that satisfy the Single Responsibility Principle.
 
-A very large class is the most likely to break this principle, so we used the tool [inCode](https://www.intooitus.com/products/incode) to give a nice overview of properties such as number of methods and lines of code for each class. This tool found nine so-called God classes, where two of them are scoring a 10 out of 10 (`GitUpdater` and `ContributionMetricImpl`). The `GitUpdater` has 767 lines of code, but another bigger class called `SVNUUpdaterImpl` has 993 lines of code.  
+A very large class is the most likely to break this principle, so we used the tool [inCode](https://www.intooitus.com/products/incode) to give a nice overview of properties such as number of methods and lines of code for each class. A screenshot of the overview of inCode is shown in Figure 2. This tool found nine so-called God classes, where two of them are scoring a 10 out of 10 (`GitUpdater` and `ContributionMetricImpl`). The `GitUpdater` has 767 lines of code, but another bigger class called `SVNUUpdaterImpl` has 993 lines of code.
+
+<center>
+<img src="./img/inCodeOverview.png" width="581px" height="275px" />
+
+*Figure 2: An overview of the design flaws that inCode has found.*
+</center>
 
 Both the `ContributionMetricImpl` and the `GitUpdater` classes have many methods, use many attributes from many external classes. The `ContributionMetricImpl` class has methods such as `cleanupResource`, `run` and `updateField`. This implies that this class has multiple responsibilities, because cleaning up, running and updating a field should be considered separate tasks/responsibilities. The violation of the Single Responsibility Principle can possibly be fixed by splitting this class into multiple classes, each with their own unique responsibility. In this case, we should consider creating three separate classes that are responsible for cleaning up the resource, running the contribution metric and for updating the database. Because `ContributionMetricImpl` is such a large class, it might very well need to be split up in more than three classes to completely adhere to the Single Responsibility Principle.
  
@@ -77,7 +83,9 @@ According to the Open/Closed principle, software entities should be open for ext
 The principles of object oriented programming are underlined by the Liskov Substitution principle. It states that subtypes must be substitutable for their base types. Therefore, if a method expects some object A as a parameter, this method should also accept any class that is a superclass of A. The post-conditions of the method should still hold after such a substitution.
 
 ### Interface Segregation Principle (ISP)
-According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable. 
+According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable.
+
+At this time, we have not searched for violations of this principle, but we might do this in the future if necessary.
 
 ### Dependency Inversion Principle (DIP)
 
@@ -85,7 +93,12 @@ This principle states that high-level modules should not depend on low-level mod
 
 ### Acyclic Dependencies Principle (ADP)
 
+This very simple principle states that software entities should not have cyclic dependencies. This is the case when some entity A depends on some entity B, but B also depends on A. Dependency cycles of more than two classes also violate the principle and should therefore be avoided.
+
 ### Don't Repeat Yourself (DRY)
+
+Another very simple principle is the DRY principle, which states that duplicate code must be avoided. This principle is violated when the modification of one element requires the modification of another unrelated element.
+
 We have looked for duplicated code with [SonarQube](http://www.sonarqube.org/). This tool found 313 lines of code (LOC) in a total of 31,760 LOC. Thus only 1% of the Alitheia Core project is duplicate code. The project contains 15,688 LOC with Java, the rest is comments or whitespace. We investigated a few instances of code duplication. One of them is `BugResolution` (lines 121-135) and `BTSEntry` (lines 203-216). 
 
 ### Simple shortcomings
