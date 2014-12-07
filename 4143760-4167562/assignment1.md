@@ -107,9 +107,9 @@ These examples above are violations of the Dependency Inversion Principle, becau
 
 This very simple principle states that software entities should not have cyclic dependencies. This is the case when some entity `A` depends on some entity `B`, but `B` also (indirectly) depends on `A`. Dependency cycles of more than two classes also violate the principle and should therefore be avoided.
 
-There are two cases of a violation of the Acyclic Dependencies Principle detected by X-Ray. There is a cycle between the `Status` and `BugStatus` class. There is also a cycle between the `Severity`and the `BugSeverity` class. Both `Status` and `Severity` are `enum`s within `BugStatus` and `Severity` respectively. Therefore we don't see it as a actual ADP violation.
+There are two cases of a violation of the Acyclic Dependencies Principle detected by X-Ray. There is a cycle between the `Status` and `BugStatus` class. There is also a cycle between the `Severity`and the `BugSeverity` class. Both `Status` and `Severity` are `enum`s within `BugStatus` and `Severity` respectively. Therefore we don't see them as actual ADP violations.
 
-STAN4J gave a better overview of all classes, packages and dependencies between those in the project. Within the `.service.db` package a lot of cyclic dependencies can be found. One of these is the cyclic dependency between the `Plugin` and the `Metric` class. There are also cyclic dependencies between packages (*see figure below*).
+STAN4J gave a better overview of all classes, packages and dependencies between those in the project. Within the `.service.db` package a lot of cyclic dependencies can be found. One of these is the cyclic dependency between the `Plugin` and the `Metric` class. There are also cyclic dependencies between packages (*see figure 5 and 6*).
 
 <center>![Cycle 1](./img/cycle1.png "package cycle 1")
 
