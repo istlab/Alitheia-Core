@@ -45,11 +45,17 @@ To study the exceptional entities, such as packages, classes and methods, a UML 
 
 <img src="./img/uml.png" width="931" height="437px" />
 
-<center>*Figure 1: UML Diagram of the database entities of Alitheia Core*</center>
+<center>*Figure 1: UML Diagram of the concrete database entities of Alitheia Core*</center>
 
 ### Inheritance structure
 
 As described earlier, the system is composed of many service interfaces that extend the `AlitheiaCoreService` interface, such as `DBService`, `AdminService`, `LogManager` and `RestService`. The implementations of all these classes must also implement the basic functions of the `AlitheiaCoreService` class.
+
+The inheritance structure is also displayed in Figure 2, which was created using X-Ray. A dark blue block is a concrete class, a light blue block is an abstract class and a white block is an interface. The length of each block denotes its number of lines of code, while the width denotes the number of methods. We can clearly see the structure of the database in the middle, with a large number of concrete classes that extend the abstract class DAObject.
+
+<img src="./img/core_system_complexity.png" width="912" height="394px" />
+
+<center>*Figure 2: X-Ray Diagram that displays the inheritance structure.*</center>
 
 ### Step through execution
 
@@ -60,12 +66,12 @@ After familiarizing ourselves with the system through the first chapter, we can 
 ### Single Responsibility Principle (SRP)
 This principle states that every software entity (class, function, variable, etc.) should have a single purpose and only one reason to change.  If it is violated, the violating entity should be split into two or more entities that satisfy the Single Responsibility Principle.
 
-A very large class is the most likely to break this principle, so we used the tool [inCode](https://www.intooitus.com/products/incode) to give a nice overview of properties such as number of methods and lines of code for each class. A screenshot of the overview of inCode is shown in Figure 2. This tool found nine so-called God classes, where two of them are scoring a 10 out of 10 (`GitUpdater` and `ContributionMetricImpl`). The `GitUpdater` has 767 lines of code, but another bigger class called `SVNUUpdaterImpl` has 993 lines of code.
+A very large class is the most likely to break this principle, so we used the tool [inCode](https://www.intooitus.com/products/incode) to give a nice overview of properties such as number of methods and lines of code for each class. A screenshot of the overview of inCode is shown in Figure 3. This tool found nine so-called God classes, where two of them are scoring a 10 out of 10 (`GitUpdater` and `ContributionMetricImpl`). The `GitUpdater` has 767 lines of code, but another bigger class called `SVNUUpdaterImpl` has 993 lines of code.
 
 <center>
 <img src="./img/inCodeOverview.png" width="581px" height="275px" />
 
-*Figure 2: An overview of the design flaws that inCode has found.*
+*Figure 3: An overview of the design flaws that inCode has found.*
 </center>
 
 Both the `ContributionMetricImpl` and the `GitUpdater` classes have many methods, use many attributes from many external classes. The `ContributionMetricImpl` class has methods such as `cleanupResource`, `run` and `updateField`. This implies that this class has multiple responsibilities, because cleaning up, running and updating a field should be considered separate tasks/responsibilities. The violation of the Single Responsibility Principle can possibly be fixed by splitting this class into multiple classes, each with their own unique responsibility. In this case, we should consider creating three separate classes that are responsible for cleaning up the resource, running the contribution metric and for updating the database. Because `ContributionMetricImpl` is such a large class, it might very well need to be split up in more than three classes to completely adhere to the Single Responsibility Principle.
@@ -91,7 +97,9 @@ At this time, we have not searched for violations of this principle, but we migh
 
 This principle states that high-level modules should not depend on low-level modules. Additionally, abstractions should not depend on details, but details should depend on abstractions. This means that the high-level modules cannot simply use low-level modules to perform some task. An interface should be used that implements the functions of the low-level module. The high-level class then calls the methods of the interface and the low-level class implements the interface.
 
-The STAN Eclipse plugin marks the following depedencies between the `AlitheiaCore` class and `AdminServiceImpl`, `ClusterNodeServiceImpl`, `DBServiceImpl`, `FDSServiceImpl`, `MetricActivatorImpl`, `PAServiceImpl`, `ResteasyServiceImpl`, `SchedulerServiceImpl`, `TDSServiceImpl`, `UpdaterServiceImpl` and `WebadminServiceImpl` class. These classes that end with "Impl" have an interface class, but the `AlitheiaCore` class is not using the interfaces. There is also a dependency between the `RestServiceApp` and the `RestServiceRegistery` and the `DiffFactory` and `UnifiedDiffParser` class. The `DiffFactory` class instantiate a `UnifiedDiffParser` object and not using the interface class. Also the `AlitheiaCore` class is instantiating a `LogManagerImpl` object instead of using its interface. 
+The STAN Eclipse plugin marks the following depedencies between the `AlitheiaCore` class and `AdminServiceImpl`, `ClusterNodeServiceImpl`, `DBServiceImpl`, `FDSServiceImpl`, `MetricActivatorImpl`, `PAServiceImpl`, `ResteasyServiceImpl`, `SchedulerServiceImpl`, `TDSServiceImpl`, `UpdaterServiceImpl` and `WebadminServiceImpl` classes. These classes that end with "Impl" have an interface class, but the `AlitheiaCore` class depends on the concrete class instead. There is also a dependency between the `RestServiceApp` and `RestServiceRegistery` classes, and between the `DiffFactory` and `UnifiedDiffParser` classes. The `DiffFactory` class instantiates a `UnifiedDiffParser` object and is not using the interface class. The `AlitheiaCore` class is also instantiating a `LogManagerImpl` object instead of using its interface.
+
+These examples above are violations of the Dependency Inversion Principle, because the the high-level class (e.g. `AlitheiaCore`) directly depends on the low-level class (e.g. `AdminServiceImpl`). This can easily be fixed, because interfaces already exist for all classes. Simply changing each reference to an abstract class to a reference to the interface should work, but it should still be tested before we can implement these changes.
 
 <center>
 <img src="img/impl-depedency.png" />
