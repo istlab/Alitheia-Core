@@ -43,9 +43,9 @@ We think that the Alitheia Core system looks well structured, because the classe
 
 To study the exceptional entities, such as packages, classes and methods, a UML diagram can be very useful. Such a diagram shows which classes are related and in what way. A UML diagram can also be reverse engineered by a tool such as [UMLGraph](http://www.umlgraph.org/). The diagram in figure 1 displays all database objects and was created by Georgios Gousios using the UMLGraph tool on the Alitheia Core system [[2]](http://www.umlgraph.org/doc/ceg-er.html). From this diagram we can clearly see that many classes depend on the StoredProject class. The same goes for the Metric, ProjectVersion and Bug classes. All of these classes are part of the eu.sqooss.service.db package, which definitely is an exceptional entity, because it contains a very large number of classes. 
 
-<img src="./img/uml.png" width="931" height="437px" />
+<center><img src="./img/uml.png" width="931" height="437px" />
 
-<center>*Figure 1: UML Diagram of the concrete database entities of Alitheia Core*</center>
+*Figure 1: UML Diagram of the concrete database entities of Alitheia Core*</center>
 
 ### Inheritance structure
 
@@ -53,9 +53,9 @@ As described earlier, the system is composed of many service interfaces that ext
 
 The inheritance structure is also displayed in Figure 2, which was created using X-Ray. A dark blue block is a concrete class, a light blue block is an abstract class and a white block is an interface. The length of each block denotes its number of lines of code, while the width denotes the number of methods. We can clearly see the structure of the database in the middle, with a large number of concrete classes that extend the abstract class DAObject.
 
-<img src="./img/core_system_complexity.png" width="912" height="394px" />
+<center><img src="./img/core_system_complexity.png" width="912" height="394px" />
 
-<center>*Figure 2: X-Ray Diagram that displays the inheritance structure.*</center>
+*Figure 2: X-Ray Diagram that displays the inheritance structure.*</center>
 
 
 ## Problem Detection
@@ -66,11 +66,9 @@ This principle states that every software entity (class, function, variable, etc
 
 A very large class is the most likely to break this principle, so we used the tool [inCode](https://www.intooitus.com/products/incode) to give a nice overview of properties such as number of methods and lines of code for each class. A screenshot of the overview of inCode is shown in Figure 3. This tool found nine so-called God classes, where two of them are scoring a 10 out of 10 (`GitUpdater` and `ContributionMetricImpl`). The `GitUpdater` has 767 lines of code, but another bigger class called `SVNUUpdaterImpl` has 993 lines of code.
 
-<center>
-<img src="./img/inCodeOverview.png" width="581px" height="275px" />
+<center><img src="./img/inCodeOverview.png" width="581px" height="275px" />
 
-*Figure 3: An overview of the design flaws that inCode has found.*
-</center>
+*Figure 3: An overview of the design flaws that inCode has found.*</center>
 
 Both the `ContributionMetricImpl` and the `GitUpdater` classes have many methods, use many attributes from many external classes. The `ContributionMetricImpl` class has methods such as `cleanupResource`, `run` and `updateField`. This implies that this class has multiple responsibilities, because cleaning up, running and updating a field should be considered separate tasks/responsibilities. The violation of the Single Responsibility Principle can possibly be fixed by splitting this class into multiple classes, each with their own unique responsibility. In this case, we should consider creating three separate classes that are responsible for cleaning up the resource, running the contribution metric and for updating the database. Because `ContributionMetricImpl` is such a large class, it might very well need to be split up in more than three classes to completely adhere to the Single Responsibility Principle.
  
@@ -101,11 +99,9 @@ The STAN Eclipse plugin marks the following depedencies between the `AlitheiaCor
 
 These examples above are violations of the Dependency Inversion Principle, because the the high-level class (e.g. `AlitheiaCore`) directly depends on the low-level class (e.g. `AdminServiceImpl`). This can easily be fixed, because interfaces already exist for all classes. Simply changing each reference to an abstract class to a reference to the interface should work, but it should still be tested before we can implement these changes.
 
-<center>
-<img src="img/impl-depedency.png" />
+<center><img src="img/impl-depedency.png" />
 
-*Package dependencies*
-</center>
+*Figure 4: Package dependencies*</center>
 
 ### Acyclic Dependencies Principle (ADP)
 
@@ -115,9 +111,13 @@ There are two cases of a violation of the Acyclic Dependencies Principle detecte
 
 STAN4J gave a better overview of all classes, packages and dependencies between those in the project. Within the `.service.db` package a lot of cyclic dependencies can be found. One of these is the cyclic dependency between the `Plugin` and the `Metric` class. There are also cyclic dependencies between packages (*see figure below*).
 
-![Cycle 1](./img/cycle1.png "package cycle 1")
+<center>![Cycle 1](./img/cycle1.png "package cycle 1")
 
-![Cycle 2](./img/cycle2.png "package cycle 2")
+*Figure 5: Cyclic dependency between packages*</center>
+
+<center>![Cycle 2](./img/cycle2.png "package cycle 2")
+
+*Figure 6: Cyclic dependency between packages*</center>
 
 ### Don't Repeat Yourself (DRY)
 
