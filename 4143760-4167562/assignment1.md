@@ -57,8 +57,6 @@ The inheritance structure is also displayed in Figure 2, which was created using
 
 <center>*Figure 2: X-Ray Diagram that displays the inheritance structure.*</center>
 
-### Step through execution
-
 
 ## Problem Detection
 After familiarizing ourselves with the system through the first chapter, we can now thoroughly look at the system to identify design flaws and/or code smells. We will first focus on the S.O.L.I.D. design principles, which were already named in the introduction. The meaning of each of these principles will first be explained, after which an example is shown from the Alitheia Core system. After the five basic S.O.L.I.D. principles, we will also try to find pieces of code that violate the Acyclic Dependencies Principle and lines of duplicated code. 
