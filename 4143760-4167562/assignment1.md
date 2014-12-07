@@ -91,7 +91,13 @@ At this time, we have not searched for violations of this principle, but we migh
 
 This principle states that high-level modules should not depend on low-level modules. Additionally, abstractions should not depend on details, but details should depend on abstractions. This means that the high-level modules cannot simply use low-level modules to perform some task. An interface should be used that implements the functions of the low-level module. The high-level class then calls the methods of the interface and the low-level class implements the interface.
 
-The STAN Eclipse plugin marks the following depedencies between the `AlitheiaCore` class and `AdminServiceImpl`, `ClusterNodeServiceImpl`, `DBServiceImpl`, `FDSServiceImpl`, `MetricActivatorImpl`, `PAServiceImpl`, `ResteasyServiceImpl`, `SchedulerServiceImpl`, `TDSServiceImpl`, `UpdaterServiceImpl` and `WebadminServiceImpl` class. These classes that end with "Impl" have an interface class, but the `AlitheiaCore` class is not using the interfaces. There is also a dependency between the `RestServiceApp` and the RestServiceRegistery` and the `DiffFactory` and `UnifiedDiffParser` class. The `DiffFactory` class instantiate a `UnifiedDiffParser` object and not using the interface class. Also the `AlitheiaCore` class is instantiating a `LogManagerImpl` object instead of using its interface. 
+The STAN Eclipse plugin marks the following depedencies between the `AlitheiaCore` class and `AdminServiceImpl`, `ClusterNodeServiceImpl`, `DBServiceImpl`, `FDSServiceImpl`, `MetricActivatorImpl`, `PAServiceImpl`, `ResteasyServiceImpl`, `SchedulerServiceImpl`, `TDSServiceImpl`, `UpdaterServiceImpl` and `WebadminServiceImpl` class. These classes that end with "Impl" have an interface class, but the `AlitheiaCore` class is not using the interfaces. There is also a dependency between the `RestServiceApp` and the `RestServiceRegistery` and the `DiffFactory` and `UnifiedDiffParser` class. The `DiffFactory` class instantiate a `UnifiedDiffParser` object and not using the interface class. Also the `AlitheiaCore` class is instantiating a `LogManagerImpl` object instead of using its interface. 
+
+<center>
+<img src="img/impl-depedency.png" />
+
+*Package dependencies*
+</center>
 
 ### Acyclic Dependencies Principle (ADP)
 
