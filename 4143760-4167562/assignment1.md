@@ -101,6 +101,12 @@ The STAN Eclipse plugin marks the following depedencies between the `AlitheiaCor
 
 These examples above are violations of the Dependency Inversion Principle, because the the high-level class (e.g. `AlitheiaCore`) directly depends on the low-level class (e.g. `AdminServiceImpl`). This can easily be fixed, because interfaces already exist for all classes. Simply changing each reference to an abstract class to a reference to the interface should work, but it should still be tested before we can implement these changes.
 
+<center>
+<img src="img/impl-depedency.png" />
+
+*Package dependencies*
+</center>
+
 ### Acyclic Dependencies Principle (ADP)
 
 This very simple principle states that software entities should not have cyclic dependencies. This is the case when some entity `A` depends on some entity `B`, but `B` also (indirectly) depends on `A`. Dependency cycles of more than two classes also violate the principle and should therefore be avoided.
