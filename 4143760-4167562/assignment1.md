@@ -80,7 +80,7 @@ Violations of the Single Responsibility Principle can cause code to be hard to l
 
 According to the Open/Closed principle, software entities should be open for extension, but closed for modification. This means that the software must be extensible without modifications to its source code. Also, an extension may not lead to a change in behaviour of the code that is extended.
 
-The principles of object oriented programming are underlined by the Liskov Substitution principle. It states that subtypes must be substitutable for their base types. Therefore, if a method expects some object A as a parameter, this method should also accept any class that is a superclass of A. The post-conditions of the method should still hold after such a substitution.
+The principles of object oriented programming are underlined by the Liskov Substitution principle. It states that subtypes must be substitutable for their base types. Therefore, if a method expects some object A as a parameter, this method should also accept any class that is a subclass of A. The post-conditions of the method should still hold after such a substitution.
 
 ### Interface Segregation Principle (ISP)
 According to this principle, no client should be forced to depend on methods it does not use. When the superclass of some class A contains methods that are not applicable to A, the Interface Segregation Principle is violated. When this happens, the superclass should be split such that its children do not have access to methods that are not applicable.
@@ -91,13 +91,15 @@ At this time, we have not searched for violations of this principle, but we migh
 
 This principle states that high-level modules should not depend on low-level modules. Additionally, abstractions should not depend on details, but details should depend on abstractions. This means that the high-level modules cannot simply use low-level modules to perform some task. An interface should be used that implements the functions of the low-level module. The high-level class then calls the methods of the interface and the low-level class implements the interface.
 
+The `AlitheiaCore` class uses the ... instead of their interface.
+
 ### Acyclic Dependencies Principle (ADP)
 
 This very simple principle states that software entities should not have cyclic dependencies. This is the case when some entity `A` depends on some entity `B`, but `B` also (indirectly) depends on `A`. Dependency cycles of more than two classes also violate the principle and should therefore be avoided.
 
 There are two cases of a violation of the Acyclic Dependencies Principle detected by X-Ray. There is a cycle between the `Status` and `BugStatus` class. There is also a cycle between the `Severity`and the `BugSeverity` class. Both `Status` and `Severity` are `enum`s within `BugStatus` and `Severity` respectively. Therefore we don't see it as a actual ADP violation.
 
-STAN4J gave a better overview of all classes, packages and dependencies between those in the project. Within the `.service.db` package a lot of cyclic dependencies can be found. On of these is the cyclic dependency between the `Plugin` and the `Metric` class. There are also cyclic dependencies between packages (*see figure below*).
+STAN4J gave a better overview of all classes, packages and dependencies between those in the project. Within the `.service.db` package a lot of cyclic dependencies can be found. One of these is the cyclic dependency between the `Plugin` and the `Metric` class. There are also cyclic dependencies between packages (*see figure below*).
 
 ![Cycle 1](./img/cycle1.png "package cycle 1")
 
