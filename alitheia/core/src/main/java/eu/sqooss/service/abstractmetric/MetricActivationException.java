@@ -1,4 +1,4 @@
-package eu.sqooss.service.metricactivator;
+package eu.sqooss.service.abstractmetric;
 
 public class MetricActivationException extends Exception {
 

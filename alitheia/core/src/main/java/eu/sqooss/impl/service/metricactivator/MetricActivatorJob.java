@@ -40,12 +40,12 @@ import org.hibernate.exception.LockAcquisitionException;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
+import eu.sqooss.service.abstractmetric.MetricActivator;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivator;
 import eu.sqooss.service.scheduler.Job;
 
 /**

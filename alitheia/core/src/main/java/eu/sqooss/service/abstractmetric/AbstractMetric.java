@@ -74,10 +74,6 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.db.StoredProjectMeasurement;
 import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.metricactivator.MetricActivationException;
-import eu.sqooss.service.metricactivator.MetricActivator;
-import eu.sqooss.service.pa.PluginAdmin;
-import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.util.Pair;
 

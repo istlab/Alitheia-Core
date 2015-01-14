@@ -31,13 +31,12 @@
  *
  */
 
-package eu.sqooss.service.pa;
+package eu.sqooss.service.abstractmetric;
 
 import java.util.Collection;
 import java.util.List;
 
 import eu.sqooss.core.AlitheiaCoreService;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.db.DAObject;
 
 /**
