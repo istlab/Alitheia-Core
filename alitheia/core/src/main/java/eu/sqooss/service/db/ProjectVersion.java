@@ -215,7 +215,15 @@ public class ProjectVersion extends DAObject {
 	public StoredProject getProject() {
 		return project;
 	}
+	
+	public long getProjectId(){
+		return project.getId();
+	}
 
+	public String getProjectName(){
+		return project.getName();	
+	}
+	
     public void setProject(StoredProject project) {
         this.project = project;
     }

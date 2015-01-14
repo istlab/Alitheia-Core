@@ -235,6 +235,17 @@ public class ProjectFile extends DAObject{
         return projectVersion;
     }
 
+    public String getRevisionId(){
+    	return projectVersion.getRevisionId();
+    }
+    public long getProjectId(){
+    	return projectVersion.getProjectId();
+    }
+    
+    public String getProjectName(){
+    	return projectVersion.getProjectName();
+    }
+    
     public void setState(ProjectFileState state) {
         this.state = state;
     }

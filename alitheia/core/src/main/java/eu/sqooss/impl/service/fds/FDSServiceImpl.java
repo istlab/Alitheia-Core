@@ -154,7 +154,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
     private OnDiskCheckout createCheckout(SCMAccessor scm, ProjectVersion pv, String path) {
         logger.info("Creating new checkout for " + pv);
 
-        File projectRoot = new File(fdsCheckoutRoot, pv.getProject().getName());
+        File projectRoot = new File(fdsCheckoutRoot, pv.getProjectName());
         // It might not exist yet
         projectRoot.mkdirs();
 
@@ -194,19 +194,22 @@ public class FDSServiceImpl implements FDSService, Runnable {
             return null;
         }
 
-        String projectVersion = pf.getProjectVersion().getRevisionId();
-        long projectId = pf.getProjectVersion().getProject().getId();
-        try {
+        String projectVersion = pf.getRevisionId();
+        long projectId = pf.getProjectId();
+        try {        	
             return tds.getAccessor(projectId).getSCMAccessor().newRevision(
                     projectVersion);
         } catch (InvalidAccessorException e) {
             logger.error("Invalid SCM accessor for project "
-                    + pf.getProjectVersion().getProject().getName() + " "
+                    + pf.getProjectName() + " "
                     + e.getMessage());
             return null;
         }
     }
-
+//	ProjectAccessor test1 = tds.getAccessor(projectId);
+//	SCMAccessor test2 = test1.getSCMAccessor();
+//	Revision test3 = test2.newRevision(projectVersion);
+//	return test3;
     /**
      * Get the File where the given project file will be cached locally by the
      * FDS.
@@ -230,7 +233,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
         // Path generation for a "single file checkout"
         File checkoutFile = new File(fdsCheckoutRoot
                 + System.getProperty("file.separator")
-                + pf.getProjectVersion().getProject().getId()
+                + pf.getProjectId()
                 + System.getProperty("file.separator") + pr.getUniqueId()
                 + System.getProperty("file.separator") + pf.getFileName());
 
@@ -248,17 +251,25 @@ public class FDSServiceImpl implements FDSService, Runnable {
      */
     private SCMAccessor projectFileAccessor(ProjectFile pf) {
         // Retrieve the project ID
-        long projectId = pf.getProjectVersion().getProject().getId();
+        long projectId = pf.getProjectId();
 
         // Get a TDS handle for the selected ProjectFile
         try {
             return tds.getAccessor(projectId).getSCMAccessor();
         } catch (InvalidAccessorException e) {
             logger.error("Invalid SCM accessor for project "
-                    + pf.getProjectVersion().getProject().getName() + " "
+                    + pf.getProjectName() + " "
                     + e.getMessage());
             return null;
         }
+    }
+    
+    /**
+     * Used for testing. It can pass a tds to be used for testing.
+     * @param newTds
+     */
+    public void setTds(TDSService newTds){
+    	this.tds = newTds;
     }
 
     /**
@@ -274,7 +285,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
         }
         if (!tds.accessorExists(projectId)) {
             throw new CheckoutException("No accessor available for project: "
-                    + pv.getProject().getName());
+                    + pv.getProjectName());
         }
 
         ProjectAccessor a = tds.getAccessor(projectId);
@@ -282,7 +293,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
         if (a == null) {
             logger.warn("Accessor not available even though it exists.");
             throw new CheckoutException("Accessor " + "for project "
-                    + pv.getProject().getName()
+                    + pv.getProjectName()
                     + " not available even though it exists.");
         }
 
@@ -291,14 +302,14 @@ public class FDSServiceImpl implements FDSService, Runnable {
             if (svn == null) {
                 logger
                         .warn("No SCM available for "
-                                + pv.getProject().getName());
+                                + pv.getProjectName());
                 throw new CheckoutException(
                         "No SCM accessor available for project "
-                                + pv.getProject().getName());
+                                + pv.getProjectName());
             }
         } catch (InvalidAccessorException e) {
             throw new CheckoutException("Invalid SCM accessor for project "
-                    + pv.getProject().getName() + " " + e.getMessage());
+                    + pv.getProjectName() + " " + e.getMessage());
         }
 
         return true;
@@ -368,7 +379,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
      * key for indexing cache checkouts.
      */
     private String cacheKey(ProjectVersion pv) {
-        return pv.getProject().getName() + "|" + pv.getId() + "|"
+        return pv.getProjectName() + "|" + pv.getId() + "|"
                 + pv.getRevisionId();
     }
 
@@ -513,12 +524,12 @@ public class FDSServiceImpl implements FDSService, Runnable {
             svn = tds.getAccessor(projectId).getSCMAccessor();
         } catch (InvalidAccessorException e) {
             throw new CheckoutException("Invalid SCM accessor for project "
-                    + pv.getProject().getName() + ": " + e.getMessage());
+                    + pv.getProjectName() + ": " + e.getMessage());
         }
         svn.newRevision(pv.getRevisionId());
         logger
                 .info("Finding available checkout for "
-                        + pv.getProject().getName() + " revision "
+                        + pv.getProjectName() + " revision "
                         + pv.getRevisionId());
 
         return new InMemoryCheckoutImpl(pv, pattern);
@@ -538,7 +549,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
             svn = tds.getAccessor(projectId).getSCMAccessor();
         } catch (InvalidAccessorException e) {
             throw new CheckoutException("Invalid SCM accessor for project "
-                    + pv.getProject().getName() + ": " + e.getMessage());
+                    + pv.getProjectName() + ": " + e.getMessage());
         }
 
         svn.newRevision(pv.getRevisionId());
