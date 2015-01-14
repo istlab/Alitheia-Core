@@ -80,6 +80,13 @@ public interface Diff {
      * Get all the chunks indexed by the file they apply to.
      */
     Map<String, List<DiffChunk>> getDiffChunks();
+    
+	/**
+	 * Parse a implementation of Diff.
+	 * 
+	 * @return true on success or false and set the error message.
+	 */
+    boolean parseDiff();
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab
