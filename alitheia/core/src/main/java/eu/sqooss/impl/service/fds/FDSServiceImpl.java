@@ -206,10 +206,7 @@ public class FDSServiceImpl implements FDSService, Runnable {
             return null;
         }
     }
-//	ProjectAccessor test1 = tds.getAccessor(projectId);
-//	SCMAccessor test2 = test1.getSCMAccessor();
-//	Revision test3 = test2.newRevision(projectVersion);
-//	return test3;
+    
     /**
      * Get the File where the given project file will be cached locally by the
      * FDS.
