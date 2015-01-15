@@ -1,0 +1,79 @@
+<h2>
+  <a class="small" href="/projects">$tr.label("projects_mngm")</a>
+  &raquo;
+  $tr.label("install_new_project")
+</h2>
+
+<hr />
+
+<fieldset>
+  <legend>$tr.label("install_new_project")</legend>
+  <form id="add-project" method="post" action="/projects?action=addProject" class="form-horizontal">
+    <div class="form-group">
+      <label for="input-name" class="col-sm-2 control-label">Project Name</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="input-name" name="name" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-web" class="col-sm-2 control-label">Homepage</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="input-web" name="web" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-contact" class="col-sm-2 control-label">Contact Email</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="input-contact" name="contact" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-bts" class="col-sm-2 control-label">Bug Database</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="input-bts" name="bts" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-mail" class="col-sm-2 control-label">Mailing List</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="input-mail" name="mail" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-scm" class="col-sm-2 control-label">Source Code</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="input-scm" name="scm" />
+      </div>
+    </div>
+
+    <div class="pull-right">
+      <input class="btn btn-default" type="submit" value="Install Project"/>
+    </div>
+  </form>
+</fieldset>
+
+<fieldset>
+  <legend>$tr.label("install_new_project_by_directory")</legend>
+  <form id="add-project-dir" method="post" action="/projects?action=addProjectDir" class="form-horizontal">
+    <div class="form-group">
+      <label for="input-dir" class="col-sm-2 control-label">Project Properties Directory</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="input-dir" name="dir" />
+      </div>
+    </div>
+
+    <div class="pull-right">
+      <input class="btn btn-default" type="submit" value="Install Project"/>
+    </div>
+  </form>
+</fieldset>
+
+<fieldset>
+  <legend>$tr.label("help")</legend>
+  $tr.message("project_help")
+</fieldset>

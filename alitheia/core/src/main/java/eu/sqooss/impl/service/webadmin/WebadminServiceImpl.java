@@ -33,8 +33,6 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import java.util.Hashtable;
-
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.osgi.framework.BundleContext;
@@ -45,18 +43,17 @@ import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.webadmin.WebadminService;
 
 /**
- * This is the service which provides a web-based administration
- * interface. This user interface is used for the addition and removal
- * of projects from Alitheia Core and likewise for metric
- * plugins. Users of the WebAdmin interface are also able to receive
- * basic system information such as uptime, number of running/failed
- * jobs, etc.
+ * This is the service which provides a web-based administration interface. This
+ * user interface is used for the addition and removal of projects from Alitheia
+ * Core and likewise for metric plugins. Users of the WebAdmin interface are
+ * also able to receive basic system information such as uptime, number of
+ * running/failed jobs, etc.
  */
 public class WebadminServiceImpl implements WebadminService {
 
     /**
-     * The Velocity Engine is used to to provide services for
-     * dynamically loading content into the page templates
+     * The Velocity Engine is used to to provide services for dynamically
+     * loading content into the page templates
      */
     private VelocityEngine ve;
 
@@ -66,17 +63,18 @@ public class WebadminServiceImpl implements WebadminService {
     private Logger logger = null;
 
     /**
-     * This String is used to represent the current "message of the
-     * day" available in the Alitheia Core
+     * This String is used to represent the current "message of the day"
+     * available in the Alitheia Core
      */
     private String messageOfTheDay = null;
 
     private BundleContext bc;
 
-    public WebadminServiceImpl() { }
+    public WebadminServiceImpl() {
+    }
 
     /**
-     * Retrieves the "message of the day" String
+     * Retrieves the "message of the day" String.
      *
      * @return the message as a String
      */
@@ -85,79 +83,65 @@ public class WebadminServiceImpl implements WebadminService {
     }
 
     /**
-     * Sets the "message of the day" String
+     * Sets the "message of the day" String.
      *
-     * @param s The text to be used as the "message of the day"
+     * @param message the new message of the day
      */
-    public void setMessageOfTheDay(String s) {
-        messageOfTheDay = s;
+    public void setMessageOfTheDay(String message) {
+        messageOfTheDay = message;
     }
 
-    /*
+    /**
      * The utility method used for the initialization of the velocity engine.
      */
     private void initVelocity() {
         try {
             ve = new VelocityEngine();
-            ve.setProperty("runtime.log.logsystem.class",
-                           "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-            ve.setProperty("runtime.log.logsystem.log4j.category",
-                           Logger.NAME_SQOOSS_WEBADMIN);
+            ve.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+            ve.setProperty("runtime.log.logsystem.log4j.category", Logger.NAME_SQOOSS_WEBADMIN);
             String resourceLoader = "classpath";
             ve.setProperty(RuntimeConstants.RESOURCE_LOADER, resourceLoader);
             ve.setProperty(resourceLoader + "." + RuntimeConstants.RESOURCE_LOADER + ".class",
-            "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        }
-        catch (Exception e) {
-            logger.error("Velocity initialization",e);
+                    "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        } catch (Exception e) {
+            logger.error("Velocity initialization", e);
         }
     }
 
-	@Override
-	public void setInitParams(BundleContext bc, Logger l) {
-		this.logger = l;
-		this.bc = bc;
-	}
+    @Override
+    public void setInitParams(BundleContext bc, Logger l) {
+        this.logger = l;
+        this.bc = bc;
+    }
 
-	@Override
-	public void shutDown() {
-	}
+    @Override
+    public void shutDown() {
+    }
 
-	@Override
-	public boolean startUp() {        
+    @Override
+    public boolean startUp() {
         // Get a reference to the HTTPService, and then its object
         HttpService sobjHTTPService = null;
-        ServiceReference srefHTTPService = bc.getServiceReference(
-            HttpService.class.getName());
-        
+        ServiceReference srefHTTPService = bc.getServiceReference(HttpService.class.getName());
+
         if (srefHTTPService != null) {
             sobjHTTPService = (HttpService) bc.getService(srefHTTPService);
-        }
-        else {
+        } else {
             logger.error("Could not find a HTTP service!");
             return false;
         }
 
         initVelocity();
-        
+
         // Register the front-end servlets
         if (sobjHTTPService != null) {
             try {
-                sobjHTTPService.registerServlet(
-                    "/",
-                    new AdminServlet(bc, this, logger, ve),
-                    new Hashtable(),
-                    null);
-            }
-            catch (Exception e) {
-                logger.error("AdminServlet",e);
+                sobjHTTPService.registerServlet("/", new AdminServlet(bc, this, logger, ve), null, null);
+            } catch (Exception e) {
+                logger.error("AdminServlet", e);
                 return false;
             }
         }
         return true;
-	}
+    }
 }
-
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

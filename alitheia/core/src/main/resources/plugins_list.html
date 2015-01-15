@@ -1,0 +1,16 @@
+<table id="plugins-list" class="table table-hover">
+  <thead>
+    <tr>
+      <th>$tr.label("plugin_status")</th>
+      <th>$tr.label("plugin_name")</th>
+      <th>$tr.label("plugin_class")</th>
+      <th>$tr.label("version")</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    #foreach ($plugin in $plugins)
+      #parse("plugins_list_item.html")
+    #end
+  </tbody>
+</table>

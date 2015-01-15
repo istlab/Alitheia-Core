@@ -1,0 +1,53 @@
+<h2>
+  <a class="small" href="/projects">$tr.label("projects_mngm")</a>
+  &raquo;
+  $project.getName()
+</h2>
+
+<hr />
+
+<fieldset>
+  <legend>$tr.label("project_details")</legend>
+
+  #parse("projects_list.html")
+
+  <div class="pull-right">
+    <button class="btn btn-default" onclick="window.location.search = '?action=removeProject&projectId=$project.getId()';">
+      $tr.label("delete_project")
+    </button>
+
+    <button class="btn btn-default" onclick="window.location.search = '?action=updateProject&projectId=$project.getId()';">
+      $tr.label("update_project")
+    </button>
+  </div>
+</fieldset>
+
+<!-- #*
+  <div class="pull-right">
+    #if ($plugin.isInstalled())
+      <button class="btn btn-default" onclick="window.location.search = 'action=syncPlugin&pluginHashcode=$plugin.getHashcode()'">
+        Synchronize
+      </button>
+      <button class="btn btn-default" onclick="window.location.search = 'action=uninstallPlugin&pluginHashcode=$plugin.getHashcode()'">
+        Uninstall
+      </button>
+    #else
+      <button class="btn btn-default" onclick="window.location.search = 'action=installPlugin&pluginHashcode=$plugin.getHashcode()'">'
+        Install
+      </button>
+    #end
+  </div>
+</fieldset>
+
+#if ($plugin.isInstalled())
+  <fieldset>
+    <legend>$tr.label("metrics")</legend>
+    #parse("metrics_list.html")
+  </fieldset>
+
+  <fieldset>
+    <legend>$tr.label("configs")</legend>
+    #parse("configs_list.html")
+  </fieldset>
+#end
+*# -->

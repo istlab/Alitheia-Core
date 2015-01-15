@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - Organization for Free and Open Source Software,  
+ * Copyright 2010 - Organization for Free and Open Source Software,
  *                 Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ public class ResteasyServiceImpl implements RestService {
 
 	private BundleContext bc;
     private Logger log ;
-   
+
 	@Override
 	public void addResource(Class<?> resource) {
 		unregisterApp();
@@ -57,7 +57,7 @@ public class ResteasyServiceImpl implements RestService {
 		RestServiceRegistry.getInstance().remove(resource);
 		registerApp();
 	}
-	
+
 	private void registerApp() {
 		HttpService http = getHttpService();
 
@@ -77,7 +77,7 @@ public class ResteasyServiceImpl implements RestService {
 		HttpService http = getHttpService();
 		http.unregister("/api");
 	}
-	
+
 	private HttpService getHttpService() {
 		HttpService http = null;
 		ServiceReference httpRef = bc.getServiceReference(
@@ -88,7 +88,7 @@ public class ResteasyServiceImpl implements RestService {
 		} else {
 			log.error("Could not find a HTTP service!");
 		}
-		
+
 		return http;
 	}
 
@@ -96,6 +96,7 @@ public class ResteasyServiceImpl implements RestService {
     public boolean startUp() {
         addResource(eu.sqooss.rest.api.StoredProjectResource.class);
         addResource(eu.sqooss.rest.api.MetricsResource.class);
+        addResource(eu.sqooss.rest.api.JobStatResource.class);
         return true;
     }
 

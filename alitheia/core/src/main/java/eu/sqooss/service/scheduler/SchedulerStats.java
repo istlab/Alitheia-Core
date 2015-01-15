@@ -2,7 +2,7 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,
  *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,58 +38,108 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.collections.list.SynchronizedList;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SchedulerStats.
+ */
+@XmlRootElement(name="schedulerStats")
 public class SchedulerStats {
-    // the number of jobs currently in the scheduler
+    /** The number of jobs currently in the scheduler. */
+    @XmlElement
     private long totalJobs = 0;
-    // the number of jobs which were finished
-    private long finishedJobs = 0;
-    // the number of jobs currently waiting
-    private long waitingJobs = 0;
-    // the number of jobs currently running
-    private long runningJobs = 0;
-    // the total number of threads available for scheduling
-    private long workerThreads = 0;
-    // the number of threads being idle at the moment
-    private long idleWorkerThreads = 0;
-    // the number of jobs which failed
-    private long failedJobs = 0;
-    //Classname->Failed Jobs 
-    private HashMap<String, Integer> failedJobTypes = new HashMap<String, Integer>();
-    //Classname->Num jobs waiting
-    private HashMap<String, Integer> waitingJobTypes = new HashMap<String, Integer>();
-    //Running jobs
-    private List<Job> runJobs = new Vector<Job>();
     
+    /** The number of jobs which were finished. */
+    @XmlElement
+    private long finishedJobs = 0;
+    
+    /** The number of jobs currently waiting. */
+    @XmlElement
+    private long waitingJobs = 0;
+
+    /** The number of jobs currently running. */
+    @XmlElement
+    private long runningJobs = 0;
+    
+    /** The total number of threads available for scheduling. */
+    @XmlElement
+    private long workerThreads = 0;
+
+    /** The number of threads being idle at the moment. */
+    @XmlElement
+    private long idleWorkerThreads = 0;
+
+    /** The number of jobs which failed. */
+    @XmlElement
+    private long failedJobs = 0;
+
+    /** The failed job types; Classname -> Failed Jobs. */
+    @XmlElement
+    private HashMap<String, Integer> failedJobTypes = new HashMap<String, Integer>();
+
+    /** The waiting job types; Classname -> # Jobs waiting. */
+    @XmlElement
+    private HashMap<String, Integer> waitingJobTypes = new HashMap<String, Integer>();
+
+    /** The runnning jobs. */
+    private List<Job> runJobs = new Vector<Job>();
+
+    /**
+     * Increment total jobs.
+     */
     public synchronized void incTotalJobs() {
         totalJobs++;
     }
 
+    /**
+     * Decrement total jobs.
+     */
     public synchronized void decTotalJobs() {
         totalJobs--;
     }
-   
+
+    /**
+     * Increment finished jobs.
+     */
     public synchronized void incFinishedJobs() {
         finishedJobs++;
     }
-    
+
+    /**
+     * Increment worker threads.
+     */
     public synchronized void incWorkerThreads() {
         workerThreads++;
     }
-    
+
+    /**
+     * Decrement worker threads.
+     */
     public synchronized void decWorkerThreads() {
         workerThreads--;
     }
-    
+
+    /**
+     * Increment idle worker threads.
+     */
     public synchronized void incIdleWorkerThreads() {
         idleWorkerThreads++;
     }
-    
+
+    /**
+     * Decrement idle worker threads.
+     */
     public synchronized void decIdleWorkerThreads() {
         idleWorkerThreads--;
     }
-    
+
+    /**
+     * Adds the failed job.
+     *
+     * @param classname the classname
+     */
     public synchronized void addFailedJob(String classname) {
         this.failedJobs++;
         if (failedJobTypes.containsKey(classname))
@@ -98,6 +148,11 @@ public class SchedulerStats {
             failedJobTypes.put(classname, 1);
     }
 
+    /**
+     * Adds the waiting job.
+     *
+     * @param classname the classname
+     */
     public synchronized void addWaitingJob(String classname) {
         this.waitingJobs++;
         if (waitingJobTypes.containsKey(classname))
@@ -105,7 +160,12 @@ public class SchedulerStats {
         else
             waitingJobTypes.put(classname, 1);
     }
-    
+
+    /**
+     * Removes the waiting job.
+     *
+     * @param classname the classname
+     */
     public synchronized void removeWaitingJob(String classname) {
         this.waitingJobs --;
         if (waitingJobTypes.containsKey(classname)) {
@@ -113,57 +173,117 @@ public class SchedulerStats {
             if (jobs == 0) {
                 waitingJobTypes.remove(classname);
             }
-            
+
             waitingJobTypes.put(classname, jobs);
         }
     }
- 
+
+    /**
+     * Adds the run job.
+     *
+     * @param j the j
+     */
     public synchronized void addRunJob(Job j) {
         this.runningJobs++;
         this.runJobs.add(j);
     }
-    
+
+    /**
+     * Removes the run job.
+     *
+     * @param j the job
+     */
     public synchronized void removeRunJob(Job j) {
         this.runningJobs--;
         this.runJobs.remove(j);
     }
-    
+
+    /**
+     * Gets the total jobs.
+     *
+     * @return the total jobs
+     */
     public long getTotalJobs() {
         return totalJobs;
     }
 
+    /**
+     * Gets the waiting jobs.
+     *
+     * @return the waiting jobs
+     */
     public long getWaitingJobs() {
         return waitingJobs;
     }
 
+    /**
+     * Gets the finished jobs.
+     *
+     * @return the finished jobs
+     */
     public long getFinishedJobs() {
         return finishedJobs;
     }
 
+    /**
+     * Gets the running jobs.
+     *
+     * @return the running jobs
+     */
     public long getRunningJobs() {
         return runningJobs;
     }
 
+    /**
+     * Gets the worker threads.
+     *
+     * @return the worker threads
+     */
     public long getWorkerThreads() {
         return workerThreads;
     }
 
+    /**
+     * Gets the idle worker threads.
+     *
+     * @return the idle worker threads
+     */
     public long getIdleWorkerThreads() {
         return idleWorkerThreads;
     }
 
+    /**
+     * Gets the failed jobs.
+     *
+     * @return the failed jobs
+     */
     public long getFailedJobs() {
         return failedJobs;
     }
-    
+
+    /**
+     * Gets the failed job types.
+     *
+     * @return the failed job types
+     */
     public HashMap<String, Integer> getFailedJobTypes() {
         return failedJobTypes;
     }
-    
+
+    /**
+     * Gets the waiting job types.
+     *
+     * @return the waiting job types
+     */
     public HashMap<String, Integer> getWaitingJobTypes() {
         return waitingJobTypes;
     }
-    
+
+    /**
+     * Gets the run jobs.
+     *
+     * @return the run jobs
+     */
     public synchronized List<String> getRunJobs() {
         Job[] jobs = new Job[runJobs.size()];
         runJobs.toArray(jobs);

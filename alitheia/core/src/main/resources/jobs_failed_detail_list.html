@@ -1,0 +1,30 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>$tr.label("job_type")</th>
+      <th>$tr.label("exception_type")</th>
+      <th>$tr.label("exception_text")</th>
+      <th>$tr.label("exception_stacktrace")</th>
+    </tr>
+  </thead>
+  
+  <tbody>
+    #foreach ($job in $failedJobs)
+      <tr>
+        <td>$job.getJobType()</td>
+        <td>$job.getExceptionType()</td>
+        <td>$job.getExceptionText()</td>
+        <td><button type="button" class="btn btn-sm btn-default" data-placement="left" data-toggle="popover" title="Stacktrace"
+        data-content="#foreach ($element in $job.getStackTrace())
+  $element
+#end">Click to show</button></td>
+      </tr>
+    #end
+  </tbody>
+</table>
+
+<script type="text/javascript">
+  $(function () {
+    $('[data-toggle="popover"]').popover()
+  });
+</script>

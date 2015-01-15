@@ -775,7 +775,7 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
 
     @Override
     public boolean startUp() {
-        String db  = bc.getProperty(DB).toLowerCase();
+        String db = bc.getProperty(DB).toLowerCase();
         String cs = connString.get(db);
         cs = cs.replaceAll("<HOST>", bc.getProperty(DB_HOST));
         cs = cs.replaceAll("<SCHEMA>", bc.getProperty(DB_SCHEMA));

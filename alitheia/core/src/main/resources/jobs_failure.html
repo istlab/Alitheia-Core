@@ -1,0 +1,17 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>$tr.label("job_type")</th>
+      <th>$tr.label("jobs_failed_amount")</th>
+    </tr>
+  </thead>
+  
+  <tbody>
+    #foreach ($job in $failStats)
+      <tr>
+        <td>$job.getKey()</td>
+        <td>$job.getValue()</td>
+      </tr>
+    #end
+  </tbody>
+</table>

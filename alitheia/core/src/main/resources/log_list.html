@@ -1,0 +1,13 @@
+<table id="log-list" class="table table-hover">
+  <thead>
+    <tr>
+      <th>$tr.label("log_message")</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    #foreach ($log in $logs)
+      #parse("log_list_item.html")
+    #end
+  </tbody>
+</table>

@@ -1,0 +1,19 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>$tr.label("project_id")</th>
+      <th>$tr.label("project_name")</th>
+      <th>$tr.label("last_version")</th>
+      <th>$tr.label("last_email")</th>
+      <th>$tr.label("last_bug")</th>
+      <th>$tr.label("evaluated")</th>
+      <th>$tr.label("host")</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    #foreach ($project in $projects)
+      #parse("projects_list_item.html")
+    #end
+  </tbody>
+</table>

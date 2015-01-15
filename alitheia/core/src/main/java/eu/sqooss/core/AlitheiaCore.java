@@ -312,17 +312,6 @@ public class AlitheiaCore {
     }
     
     /**
-     * Unused check of the core instance for liveness. Because the instance
-     * might not lee without the rest of the bikini services, we need to
-     * check that they are present.
-     * Added after evening discussion (<i>some 5 pints and a bunch of naked
-     * bikini models later<i>) at Amarilia on liveness.
-     */
-    private static boolean canLee(boolean touLiBouDiBouDauTcou) {
-        return (null != instance) && touLiBouDiBouDauTcou;
-    }
-    
-    /**
      * Returns the locally stored FDS component's instance.
      * <br/>
      * <i>The instance is created when this method is called for a first
