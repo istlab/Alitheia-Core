@@ -51,7 +51,7 @@ import eu.sqooss.service.util.FileUtils;
  */
 public class InMemoryDirectory {
     
-    private InMemoryCheckout checkout;
+    //private InMemoryCheckout checkout;
     private InMemoryDirectory parentDirectory;
    
     private String name;
@@ -68,11 +68,6 @@ public class InMemoryDirectory {
     public InMemoryDirectory(String name) {
         this();
         this.name = name;
-    }
-    
-    public InMemoryDirectory(InMemoryCheckout checkout) {
-        this("");
-        this.checkout = checkout;
     }
     
     public InMemoryDirectory(InMemoryDirectory parent, String name) {
@@ -110,13 +105,6 @@ public class InMemoryDirectory {
     public InMemoryDirectory getParentDirectory() {
         return parentDirectory;
     }
-    
-    /**
-     * Returns the checkout this directory belongs to.
-     */
-    public InMemoryCheckout getCheckout() {
-        return checkout == null ? parentDirectory.getCheckout() : checkout;
-    }
 
     /**
      * Returns the list of subdirectories this directory has.
@@ -140,25 +128,9 @@ public class InMemoryDirectory {
             return dir == null ? null : dir.getFile(fileName);
         }
 
-        return ProjectFile.findFile(
-                getCheckout().getProjectVersion().getProject().getId(),
-                FileUtils.basename(name), 
-                FileUtils.dirname(name),
-                getCheckout().getProjectVersion().getRevisionId());
-
+        return null;
     }
     
-    /**
-     * Returns the list of files this directory contains.
-     */
-    public List<ProjectFile> getFiles() {
-        @SuppressWarnings("unused")
-        ArrayList<ProjectFile> result = new ArrayList<ProjectFile>(files.size());
-        
-        return getCheckout().getProjectVersion().getFiles(
-                Directory.getDirectory(getPath(), false), 
-                ProjectVersion.MASK_FILES);
-    }
 
     public List<String> getFileNames() {
         return this.files;
@@ -189,7 +161,7 @@ public class InMemoryDirectory {
         }
 
         //Dir found, search files for matching file name
-        if (dir.getFiles().contains(file)) {
+        if (dir.getFileNames().contains(file)) {
             return true;
         }
         
