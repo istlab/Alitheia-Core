@@ -1,10 +1,13 @@
 package eu.sqooss.test.service.scheduler;
 
+import static org.junit.Assert.*;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
+import eu.sqooss.service.scheduler.Job.State;
 import eu.sqooss.service.scheduler.SchedulerException;
 
 public class SchedulerTests {
@@ -28,6 +31,17 @@ public class SchedulerTests {
         sched.enqueue(j3);
         TestJob j4 = new TestJob(20, "Test");
         sched.enqueue(j4);
+        
+        assertTrue(sched.isExecuting());
+
+		assertEquals(0, sched.getSchedulerStats().getFailedJobs());
+		assertEquals(0, sched.getSchedulerStats().getFinishedJobs());
+		assertEquals(4, sched.getSchedulerStats().getWaitingJobs());
+		
+		sched.jobStateChanged(j1, State.Running);
+		sched.jobStateChanged(j2, State.Running);
+		sched.jobStateChanged(j3, State.Running);
+		sched.jobStateChanged(j4, State.Running);
     }
     
     @AfterClass
