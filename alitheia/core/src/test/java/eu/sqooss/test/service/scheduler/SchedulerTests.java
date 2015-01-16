@@ -1,6 +1,7 @@
 package eu.sqooss.test.service.scheduler;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

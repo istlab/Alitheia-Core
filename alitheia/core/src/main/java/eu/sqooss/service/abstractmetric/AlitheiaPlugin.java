@@ -44,6 +44,7 @@ import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.metricactivator.MetricActivationException;
 import eu.sqooss.service.scheduler.Job;
 
 /**
