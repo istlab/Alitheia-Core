@@ -1,6 +1,7 @@
 package eu.sqooss.impl.service.fds;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 
@@ -11,9 +12,10 @@ public class InMemoryCheckoutImplTest {
 
 	@Test
 	public void getRootTest() {
-		ProjectVersion pv = new ProjectVersion();
+		ProjectVersion pv = mock(ProjectVersion.class);
+		when(pv.getFiles()).thenReturn(null);
 		InMemoryCheckoutImpl checkout = new InMemoryCheckoutImpl(pv);
-		assertTrue(false);
+		assertEquals("", checkout.getRoot().getName());
 	}
 
 	@Test
