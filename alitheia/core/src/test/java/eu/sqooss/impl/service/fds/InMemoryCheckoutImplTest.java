@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import org.junit.BeforeClass;
@@ -21,7 +20,7 @@ public class InMemoryCheckoutImplTest {
 	static AlitheiaCore core;
 
 	@BeforeClass
-	public static void setUp() throws MalformedURLException {
+	public static void setUp() {
 
 		bc = mock(BundleContext.class);
 		when(bc.getProperty("eu.sqooss.db")).thenReturn("H2");
