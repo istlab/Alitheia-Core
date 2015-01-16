@@ -3,6 +3,10 @@ By Martijn den Hoedt - 4143760 and Anton Bouter - 4167562
 
 ## Tests
 
+For the following classes we made unit tests:
+
+ - `SchedulerStats` in package `eu.sqooss.service.scheduler`
+
 ## Refactoring
 
 ### Package Dependency Cycle
