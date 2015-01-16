@@ -33,7 +33,6 @@
 
 package eu.sqooss.impl.service.fds;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -91,11 +90,12 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
 
 	/** {@inheritDoc} */
 	public ProjectFile getFile(String name) {
-		if (root == null)
-			createCheckout();
-		ProjectFile output = root.getFile(name);
-		if (output != null) {
-			return output;
+		/* Recursively traverse the directories of the provided file path */
+		if (name.indexOf('/') != -1) {
+			String pathName = name.substring(0, name.indexOf('/'));
+			String fileName = name.substring(name.indexOf('/') + 1);
+			InMemoryDirectory dir = getRoot().getSubdirectoryByName(pathName);
+			return dir == null ? null : getFile(fileName);
 		}
 
 		return ProjectFile.findFile(getProjectVersion().getProject().getId(),
@@ -103,19 +103,15 @@ class InMemoryCheckoutImpl implements InMemoryCheckout {
 				getProjectVersion().getRevisionId());
 	}
 
-    /**
-     * Returns the list of files this directory contains.
-     */
-    public List<ProjectFile> getFiles() {
-        @SuppressWarnings("unused")
-        ArrayList<ProjectFile> result = new ArrayList<ProjectFile>(root.getFileNames().size());
-        
-        return getProjectVersion().getFiles(
-                Directory.getDirectory(root.getPath(), false), 
-                ProjectVersion.MASK_FILES);
-    }
-	
-	
+	/**
+	 * Returns the list of files this directory contains.
+	 */
+	public List<ProjectFile> getFiles() {
+		return getProjectVersion().getFiles(
+				Directory.getDirectory(getRoot().getPath(), false),
+				ProjectVersion.MASK_FILES);
+	}
+
 	/** {@inheritDoc} */
 	public ProjectVersion getProjectVersion() {
 		return revision;

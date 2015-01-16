@@ -33,14 +33,8 @@
 
 package eu.sqooss.service.fds;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import eu.sqooss.service.db.Directory;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.util.FileUtils;
 
 /**
  * An InMemoryDirectory object represents part of an in-memory
@@ -112,25 +106,6 @@ public class InMemoryDirectory {
     public List<InMemoryDirectory> getSubDirectories() {
         return directories;
     }
-
-    /**
-     * Returns one file living in this directory or below.
-     * @param name The filename relative to this directory.
-     * @return A reference to a ProjectFile
-     */
-    public ProjectFile getFile(String name) {
-
-        /*Recursively traverse the directories of the provided file path*/
-        if (name.indexOf('/') != -1 ) {
-            String pathName = name.substring(0, name.indexOf('/'));
-            String fileName = name.substring(name.indexOf('/') + 1);
-            InMemoryDirectory dir = getSubdirectoryByName(pathName);
-            return dir == null ? null : dir.getFile(fileName);
-        }
-
-        return null;
-    }
-    
 
     public List<String> getFileNames() {
         return this.files;
