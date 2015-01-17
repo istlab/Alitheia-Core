@@ -5,21 +5,11 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.storage.file.FileRepository;
-import org.eclipse.jgit.treewalk.TreeWalk;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,7 +18,6 @@ import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.plugins.updater.git.GitProcessor;
-import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.Developer;
 import eu.sqooss.service.db.DeveloperAlias;
@@ -37,9 +26,7 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
-import eu.sqooss.service.tds.CommitCopyEntry;
 import eu.sqooss.service.tds.Revision;
-import eu.sqooss.service.tds.SCMAccessor;
 
 public class TestGitProcessor extends TestGitSetup {
 
