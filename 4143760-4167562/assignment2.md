@@ -44,11 +44,13 @@ In order to break the cycle we have removed the dependency from `InMemoryDirecto
 
 <img src="img/fds-after.png" width="693px" height="241px" />
 
-### Class Dependency Cycle in `.service.db`
+### Class Dependency Cycles in `.service.db`
 
 In the `.service.db` a very large tangle of classes can be found, as many as 38 classes depend on each other. To untangle these classes we have removed some dependencies between classes. 
 
 Between `Tag` and `StoredProject` was a cyclic dependency, this was due a two static methods in `Tag` that were called from `StoredProject` and needed a `StoredProject` as parameter. These two methods have been moved to `StoredProject` and are now non-static. This also follows the Object Oriented Programming way of programming better.  
+
+In order to remove yet another cyclic dependency, we moved two static methods from the `PluginConfigurator` to the `Plugin` class. This solves a part of the dependency between the two. `PluginConfigurator` still has a getter and setter for a `Plugin` object. This getter is never called, the setter is only called once and `PluginConfigurator` never uses the `Plugin` object in one of its methods. Therefore we removed the getter and setter and the variable declaration. Now the `PluginConfigurator` class doesn't depend on `Plugin`, thus the cyclic dependency is solved. 
 
 ## Bug Fixes
 
