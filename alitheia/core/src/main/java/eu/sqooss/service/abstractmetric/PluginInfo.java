@@ -379,7 +379,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
         newParam.setType(type);
         newParam.setValue(value);
         Plugin p = Plugin.getPluginByHashcode(hashcode);
-        newParam.setPlugin(p);
         return p.getConfigurations().add(newParam);
 }
 

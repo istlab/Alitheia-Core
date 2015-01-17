@@ -31,7 +31,7 @@
  *
  */
 
-package eu.sqooss.test.service.scheduler;
+package eu.sqooss.service.scheduler;
 
 import eu.sqooss.service.scheduler.Job;
 
