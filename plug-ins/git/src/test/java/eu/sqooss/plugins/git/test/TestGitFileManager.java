@@ -1,6 +1,6 @@
 package eu.sqooss.plugins.git.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

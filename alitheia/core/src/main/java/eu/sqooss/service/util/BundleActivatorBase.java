@@ -40,8 +40,8 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
 
 /**
  * This class provides the base functionality for the activation of an

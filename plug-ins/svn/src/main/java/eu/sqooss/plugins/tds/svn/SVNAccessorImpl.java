@@ -79,7 +79,6 @@ import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffFactory;
 import eu.sqooss.service.tds.InvalidProjectRevisionException;
 import eu.sqooss.service.tds.InvalidRepositoryException;
-import eu.sqooss.service.tds.PathChangeType;
 import eu.sqooss.service.tds.Revision;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.tds.SCMNode;

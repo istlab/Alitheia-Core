@@ -1,23 +1,23 @@
-package eu.sqooss.admin.test;
+package eu.sqooss.admin;
 
 import eu.sqooss.service.admin.AdminActionBase;
 
-public class FailingAction extends AdminActionBase {
+public class SucceedingAction extends AdminActionBase {
 
     @Override
     public String mnemonic() {
-        return "fail";
+        return "win";
     }
 
     @Override
     public String descr() {
-        return "An action that enjoys to fail itself";
+        return "An action that enjoys success";
     }
 
     @Override
     public void execute() throws Exception {
         super.execute();
-        error("1", "#fail");
-        throw new RuntimeException();
+        result("1", "#win");
+        finished("");
     }
 }

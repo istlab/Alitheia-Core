@@ -1,4 +1,4 @@
-package eu.sqooss.test.service.scheduler;
+package eu.sqooss.service.scheduler;
 
 import static org.junit.Assert.assertEquals;
 

@@ -33,14 +33,8 @@
 
 package eu.sqooss.service.fds;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import eu.sqooss.service.db.Directory;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.util.FileUtils;
 
 /**
  * An InMemoryDirectory object represents part of an in-memory
@@ -51,7 +45,7 @@ import eu.sqooss.service.util.FileUtils;
  */
 public class InMemoryDirectory {
     
-    private InMemoryCheckout checkout;
+    //private InMemoryCheckout checkout;
     private InMemoryDirectory parentDirectory;
    
     private String name;
@@ -68,11 +62,6 @@ public class InMemoryDirectory {
     public InMemoryDirectory(String name) {
         this();
         this.name = name;
-    }
-    
-    public InMemoryDirectory(InMemoryCheckout checkout) {
-        this("");
-        this.checkout = checkout;
     }
     
     public InMemoryDirectory(InMemoryDirectory parent, String name) {
@@ -110,54 +99,12 @@ public class InMemoryDirectory {
     public InMemoryDirectory getParentDirectory() {
         return parentDirectory;
     }
-    
-    /**
-     * Returns the checkout this directory belongs to.
-     */
-    public InMemoryCheckout getCheckout() {
-        return checkout == null ? parentDirectory.getCheckout() : checkout;
-    }
 
     /**
      * Returns the list of subdirectories this directory has.
      */
     public List<InMemoryDirectory> getSubDirectories() {
         return directories;
-    }
-
-    /**
-     * Returns one file living in this directory or below.
-     * @param name The filename relative to this directory.
-     * @return A reference to a ProjectFile
-     */
-    public ProjectFile getFile(String name) {
-
-        /*Recursively traverse the directories of the provided file path*/
-        if (name.indexOf('/') != -1 ) {
-            String pathName = name.substring(0, name.indexOf('/'));
-            String fileName = name.substring(name.indexOf('/') + 1);
-            InMemoryDirectory dir = getSubdirectoryByName(pathName);
-            return dir == null ? null : dir.getFile(fileName);
-        }
-
-        return ProjectFile.findFile(
-                getCheckout().getProjectVersion().getProject().getId(),
-                FileUtils.basename(name), 
-                FileUtils.dirname(name),
-                getCheckout().getProjectVersion().getRevisionId());
-
-    }
-    
-    /**
-     * Returns the list of files this directory contains.
-     */
-    public List<ProjectFile> getFiles() {
-        @SuppressWarnings("unused")
-        ArrayList<ProjectFile> result = new ArrayList<ProjectFile>(files.size());
-        
-        return getCheckout().getProjectVersion().getFiles(
-                Directory.getDirectory(getPath(), false), 
-                ProjectVersion.MASK_FILES);
     }
 
     public List<String> getFileNames() {
@@ -189,7 +136,7 @@ public class InMemoryDirectory {
         }
 
         //Dir found, search files for matching file name
-        if (dir.getFiles().contains(file)) {
+        if (dir.getFileNames().contains(file)) {
             return true;
         }
         

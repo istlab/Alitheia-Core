@@ -1,8 +1,9 @@
 package eu.sqooss.parsers.java;
 
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+
 import org.antlr.runtime.tree.Tree;
 
 public class GenericProcessor<T> implements TokenProcessor {
