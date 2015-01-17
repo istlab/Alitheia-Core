@@ -1,6 +1,10 @@
 # IN4189 Software Reengineering - Testing and Refactoring Report
 By Martijn den Hoedt - 4143760 and Anton Bouter - 4167562
 
+## Introduction
+
+In order to improve the maintainability of the Alitheia Core system, we have performed a number of refactorings. These refactorings include the removal of cyclic dependencies and violations of the Single Responsibility Principle, as well as some minor fixes. To ensure that the refactorings did not break the system, we have created unit tests for the involved classes. Reports of the test coverage is added to illustrate the newly added tests.
+
 ## Tests
 
 For the following classes we made unit tests. These tests can be found in packages with corresponding names in the `src/test/java` folder:
@@ -46,11 +50,11 @@ In order to break the cycle we have removed the dependency from `InMemoryDirecto
 
 ### Class Dependency Cycles in `.service.db`
 
-In the `.service.db` a very large tangle of classes can be found, as many as 38 classes depend on each other. To untangle these classes we have removed some dependencies between classes. 
+In the `.service.db` a very large tangle of classes can be found, as many as 38 classes depend on each other. To untangle these classes we have removed some dependencies between classes.
 
-Between `Tag` and `StoredProject` was a cyclic dependency, this was due a two static methods in `Tag` that were called from `StoredProject` and needed a `StoredProject` as parameter. These two methods have been moved to `StoredProject` and are now non-static. This also follows the Object Oriented Programming way of programming better.  
+Between `Tag` and `StoredProject` was a cyclic dependency, this was due a two static methods in `Tag` that were called from `StoredProject` and needed a `StoredProject` as parameter. These two methods have been moved to `StoredProject` and are now non-static. This also follows the Object Oriented Programming way of programming better.
 
-In order to remove yet another cyclic dependency, we moved two static methods from the `PluginConfigurator` to the `Plugin` class. This solves a part of the dependency between the two. `PluginConfigurator` still has a getter and setter for a `Plugin` object. This getter is never called, the setter is only called once and `PluginConfigurator` never uses the `Plugin` object in one of its methods. Therefore we removed the getter and setter and the variable declaration. Now the `PluginConfigurator` class doesn't depend on `Plugin`, thus the cyclic dependency is solved. 
+In order to remove yet another cyclic dependency, we moved two static methods from the `PluginConfigurator` to the `Plugin` class. This solves a part of the dependency between the two. `PluginConfigurator` still has a getter and setter for a `Plugin` object. This getter is never called, the setter is only called once and `PluginConfigurator` never uses the `Plugin` object in one of its methods. Therefore we removed the getter and setter and the variable declaration. Now the `PluginConfigurator` class doesn't depend on `Plugin`, thus the cyclic dependency is solved.
 
 ## Bug Fixes
 
@@ -84,3 +88,9 @@ This code does not make much sense, because now the amount of waiting jobs (`wai
 	}
 
 ## Recommendations 
+
+To further improve the maintainability of the system, we recommend some further refactorings. However, to perform refactorings, unit and integration tests are very much required to not break the system. These are currently severely lacking, therefore our first recommendation is to build a complete test suite for the system. This will be quite a large investment, but it will definitely pay off in the long run, because it will make refactorings much less time consuming. Additionally, tests will make it easier to extend the system, especially after many of the developers that originally designed the system will have departed.
+
+## Conclusions
+
+Even though the maintainability of the Alitheia Core system has been improved, it is still far from optimal, mainly because of the lack of tests. Therefore we recommend to invest in creating a test suite that covers a very large part of the project, because this will pay off in the long run.
