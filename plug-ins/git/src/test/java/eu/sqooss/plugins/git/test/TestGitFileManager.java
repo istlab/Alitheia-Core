@@ -1,6 +1,7 @@
 package eu.sqooss.plugins.git.test;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,10 +16,14 @@ import org.osgi.framework.BundleContext;
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.plugins.updater.git.GitFileManager;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectFileState;
+import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
+import eu.sqooss.service.tds.SCMNodeType;
 
 public class TestGitFileManager extends TestGitSetup {
 
@@ -32,21 +37,11 @@ public class TestGitFileManager extends TestGitSetup {
     @BeforeClass
     public static void setup() throws IOException, URISyntaxException {
         initTestRepo();
-        
-        bc = mock(BundleContext.class);
-		when(bc.getProperty("eu.sqooss.db")).thenReturn("H2");
-		when(bc.getProperty("eu.sqooss.db.host")).thenReturn("localhost");
-		when(bc.getProperty("eu.sqooss.db.schema")).thenReturn("alitheia;LOCK_MODE=3;MULTI_THREADED=true");
-		when(bc.getProperty("eu.sqooss.db.user")).thenReturn("sa");
-		when(bc.getProperty("eu.sqooss.db.passwd")).thenReturn("");
-		when(bc.getProperty("eu.sqooss.db.conpool")).thenReturn("c3p0");
-
-		core = new AlitheiaCore(bc);
            
         LogManager lm = new LogManagerImpl(true);
         l = lm.createLogger("sqooss.updater");
         
-        AlitheiaCore.testInstance();
+        //AlitheiaCore.testInstance();
         sp = new StoredProject();
         sp.setName(projectName);
     }
@@ -60,6 +55,21 @@ public class TestGitFileManager extends TestGitSetup {
     
     @Test
     public void testAddFile() {
+    	ProjectVersion version = new ProjectVersion(sp);
+    	String fPath = "someDir/bla/";
+    	ProjectFileState status = ProjectFileState.added();
+    	ProjectFile copyFrom = null;
+    	
+    	ProjectFile newFile = filem.addFile(version, fPath, status, 
+    			SCMNodeType.FILE, copyFrom);
+    	
+    	/*pf.setName(fname);
+        pf.setDir(dir);
+        pf.setState(status);
+        pf.setCopyFrom(copyFrom);
+        pf.setValidFrom(version);
+        pf.setValidUntil(null);*/
+        assertTrue(version.getVersionFiles().contains(newFile));
     	
     }
     
