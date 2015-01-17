@@ -1,0 +1,10 @@
+##display error messages
+#set ($errors = $projects.getErrors())
+#if($errors.size() > 0)
+<fieldset>
+  <legend>Errors</legend>
+#foreach($error in $errors)
+  $error <br/>
+#end 
+</fieldset>
+#end

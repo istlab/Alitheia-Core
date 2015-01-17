@@ -1,0 +1,40 @@
+#set($section=4)
+#parse("header.inc")
+<div id="main">
+#parse("menu.inc")
+	<div id="contents">
+          <h2>Failed Jobs (Last 1000)</h2>
+          <div id="bundles">
+          	<table width="100%" cellpadding="0" cellspacing="0">
+				<thead>
+					<tr>
+						<td>Job Type</td>
+						<td>Exception type</td>
+						<td>Exception text</td>
+						<td>Exception backtrace</td>
+					</tr>
+				</thead>
+				<tbody>
+			    #set ($failedJobs = $jobs.getFailedJobs())
+			    #if ($failedJobs)
+					#foreach ($job in $failedJobs)
+						#if ($job)
+							<tr>
+								<td>$job.getJobType()</td>
+								<td>$job.getExceptionType()</td>
+								<td>$job.getExceptionText()</td>
+								<td>$job.getExceptionBacktrace()			</td>
+							</tr>
+						#end
+					#end		
+				#else
+					<tr>
+						<td colspan="4">No failed jobs.</td>
+					</tr>
+				#end
+				</tbody>
+			</table>
+          </div>
+	</div>
+</div>
+#parse("sidebar.inc")

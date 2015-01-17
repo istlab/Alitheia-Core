@@ -1,0 +1,15 @@
+#if($request.getParameter("showProperties") && $request.getParameter("showProperties") == "true")
+  #set($properties = $plugin.getConfiguration())
+  #if($properties)
+    #foreach($property in $properties)
+    <tr>
+      <td>&nbsp;</td>
+      <td colspan="3" class="attr">
+        <b>Property:</b>&nbsp;$property.getName()
+        &nbsp;<b>Type:</b>&nbsp;$property.getType()
+        &nbsp;<b>Value:</b>&nbsp;$property.getValue()
+      </td>
+    </tr>
+    #end
+  #end
+#end

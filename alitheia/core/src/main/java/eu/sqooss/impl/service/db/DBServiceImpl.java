@@ -397,7 +397,6 @@ public class DBServiceImpl implements DBService, AlitheiaCoreService {
             return Collections.emptyList();
         }
     }
-
     public int callProcedure(String procName, List<String> args, Map<String, Object> params)
 			throws SQLException, QueryException {
 		boolean autoSession = !isDBSessionActive();

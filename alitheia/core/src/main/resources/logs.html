@@ -3,9 +3,16 @@
       <div id="main">
 #parse("menu.inc")
 	<div id="contents">
-          <h2>Alitheia Logs</h2>
-          <ul class="logs">
-            $admin.renderLogs()
+   		<h2>Alitheia Logs</h2>
+        <ul class="logs">
+#set ($logList = $logs.getLogs())
+#if ($logList.size() == 0)
+			<li>&lt;none&gt;</li>
+#else
+	#foreach ($log in $logList)
+			<li> $log </li>
+	#end
+#end
           </ul>
 	</div>
       </div>

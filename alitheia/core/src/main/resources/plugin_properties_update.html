@@ -1,0 +1,50 @@
+#set ($valPropName = $metrics.getValPropName())
+#set ($valPropType = $metrics.getValPropType())
+#set ($valPropDescr = $metrics.getValPropDescr())
+#set ($valPropValue = $metrics.getValPropValue())
+<fieldset>
+	<legend>Update property of $selectedPlugin.getPluginName()</legend>
+	<table class="borderless">
+		<tr>
+	  		<td class="borderless" style="width:100px;">
+	  			<b>Name</b>
+	  		</td>
+	  		<td class="borderless">
+	  			$valPropName
+	  		</td>
+		</tr>
+		<tr>
+	  		<td class="borderless" style="width:100px;">
+	  			<b>Description</b>
+	  		</td>
+	  		<td class="borderless">
+	  			$valPropDescr
+			</td>
+		</tr>
+		<tr>
+		  	<td class="borderless" style="width:100px;">
+		  		<b>Type</b>
+		  	</td>
+		  	<td class="borderless">
+	    		$valPropType
+	  		</td>
+		</tr>
+		<tr>
+	 		<td class="borderless" style="width:100px;">
+	 			<b>Value</b>
+	 		</td>
+	  		<td class="borderless">
+	  			<input type="text" class="form" id="propertyValue" name="propertyValue" value="$valPropValue">
+	  		</td>
+		</tr>
+		<tr>
+	  		<td colspan="2" class="borderless">
+	  			<input type="button" class="install" style="width: 100px;" value="Update" onclick="javascript:document.getElementById('action').value='confirmProperty';document.metrics.submit();">
+	  			&nbsp;  
+	  			<input type="button" class="install" style="width: 100px;" value="Remove" onclick="javascript:document.getElementById('action').value='removeProperty';document.metrics.submit();">
+                &nbsp;            
+	  			<input type="button" class="install" style="width: 100px;" value="Cancel" onclick="javascript:document.metrics.submit();">
+	  		</td>
+	  </tr>
+	</table>
+</fieldset>

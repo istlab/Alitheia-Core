@@ -1,0 +1,12 @@
+  ##addHiddenFields
+  ## "Action type" input field
+  <input type="hidden" id="reqAction" name="reqAction" value=""/>
+  ## "Project Id" input field
+  #if($selProject)
+  <input type="hidden" id="projectId" name="projectId" value="$selProject.getId()"/>
+  #else
+  <input type="hidden" id="projectId" name="projectId" value=""/>
+  #end
+  ## "Plug-in hashcode" input field
+  <input type="hidden" id="reqParSyncPlugin" name="reqParSyncPlugin" value=""/>
+  

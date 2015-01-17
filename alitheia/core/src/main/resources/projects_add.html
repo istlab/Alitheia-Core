@@ -1,0 +1,66 @@
+<form id="projects" name="projects" method="post" action="/projects">
+  <table class="borderless" width="100%">
+    <tr>
+      <td class="borderless" style="width:100px;">
+        <b>Project name</b>
+      </td>
+      <td class="borderless">
+        <input type="text" class="form" id="projectName" name="projectName" value="" size="60">
+      </td>
+    </tr>
+    <tr>
+      <td class="borderless" style="width:100px;">
+        <b>Contact e-mail</b>
+      </td>
+      <td class="borderless">
+        <input type="text" class="form" id="projectContact" name="projectContact" value="" size="60">
+      </td>
+    </tr>
+    <tr>
+      <td class="borderless" style="width:100px;">
+        <b>Bug database</b>
+      </td>
+      <td class="borderless">
+        <input type="text" class="form" id="projectBL" name="projectBL" value="" size="60">
+      </td>
+    </tr>
+    <tr>
+      <td class="borderless" style="width:100px;">
+        <b>Mailing list</b>
+      </td>
+      <td class="borderless">
+        <input type="text" class="form" id="projectML" name="projectML" value="" size="60">
+      </td>
+    </tr>
+    <tr>
+      <td class="borderless" style="width:100px;">
+        <b>Source code</b>
+      </td>
+      <td class="borderless">
+        <input type="text" class="form" id="projectSCM" name="projectSCM" value="" size="60">
+      </td>
+    </tr>
+    
+    <tr>
+      <td colspan="2" class="borderless">
+        ##apply button
+        <input type="button" class="install" style="width: 100px;" value="$tr.label('project_add')" onclick="javascript:document.getElementById('reqAction').value='conAddProject';document.projects.submit();"/>
+        ## Cancel
+        <input type="button" class="install" style="width: 100px;" value="$tr.label('l0004')" onclick="javascript:document.projects.submit();"/>
+      </td>
+    </tr>
+  </table>
+  #parse("projects_error_fieldset.html")
+  #parse("projects_hidden_fields.html")
+  <h2>$tr.label("help")</h2>
+  $tr.message("project_help")
+</form>
+    
+  
+  
+  
+  
+  
+  
+  
+  

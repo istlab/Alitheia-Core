@@ -1,9 +1,10 @@
+#set ($schedulerStats = $jobs.getSchedulerStats())    
       <div id="sidebar">
         <fieldset id="status">
           <legend>$tr.label("status")</legend>
           <ul>
-            <li class="uptime">$tr.label("uptime") : $UPTIME</li>
-            <li class="queue">$tr.label("queue_length") : $scheduler.WaitingJobs</li>
+            <li class="uptime">$tr.label("uptime") : $projects.getUptime()</li>
+            <li class="queue">$tr.label("queue_length") : $schedulerStats.getWaitingJobs()</li>
           </ul>
           <table>
             <tr>
@@ -23,7 +24,7 @@
         <fieldset id="jobs">
           <legend>$tr.label("job_info")</legend>
           <iframe style="width: 100%;" frameborder="0" scrolling="no" src="/jobstat">
-#parse("jobstat.inc")
+			#parse("job_stat.inc")
           </iframe>
         </fieldset>
         <fieldset id="options">

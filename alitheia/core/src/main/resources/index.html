@@ -1,13 +1,16 @@
 #set($section=1)
 #parse("header.inc")
+$metrics.exec($request)
       <div id="main">
 #parse("menu.inc")
         <div id="contents">
           <h2>$tr.label("plugins_mngm")</h2>
           <div id="table">
-            $metrics.render($request)
+          	#parse("plugins_list.html")
           </div>
         </div>
       </div>
 #parse("sidebar.inc")
-
+#set ($selectedPlugin = false)
+#set ($requestAction = false)
+#set ($errorMessages = false)

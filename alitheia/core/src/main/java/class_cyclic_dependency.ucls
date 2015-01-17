@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.7" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
+  realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
+  <interface id="1" language="java" name="eu.sqooss.service.metricactivator.MetricActivator" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/metricactivator/MetricActivator.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="60" width="193" x="803" y="137"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="2" language="java" name="eu.sqooss.service.metricactivator.MetricActivationException" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/metricactivator/MetricActivationException.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="60" width="210" x="803" y="337"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="eu.sqooss.service.abstractmetric.Result" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/Result.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="192" x="571" y="337"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <annotation id="4" language="java" name="eu.sqooss.service.abstractmetric.SchedulerHints" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/SchedulerHints.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="192" x="273" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </annotation>  
+  <class id="5" language="java" name="eu.sqooss.service.abstractmetric.MetricMismatchException" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/MetricMismatchException.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="60" width="207" x="1053" y="337"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <annotation id="6" language="java" name="eu.sqooss.service.abstractmetric.MetricDecl" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/MetricDecl.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="192" x="213" y="137"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </annotation>  
+  <class id="7" language="java" name="eu.sqooss.service.abstractmetric.AlreadyProcessingException" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/AlreadyProcessingException.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="60" width="227" x="304" y="337"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <interface id="8" language="java" name="eu.sqooss.service.abstractmetric.AlitheiaPlugin" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/AlitheiaPlugin.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="192" x="803" y="237"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </interface>  
+  <enumeration id="9" language="java" name="eu.sqooss.service.abstractmetric.InvocationOrder" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/InvocationOrder.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="60" width="192" x="41" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="10" language="java" name="eu.sqooss.service.abstractmetric.AbstractMetric" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/AbstractMetric.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="59" width="192" x="763" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="11" language="java" name="eu.sqooss.service.abstractmetric.Result.ResultType" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/Result.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="192" x="1281" y="437"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="12" language="java" name="eu.sqooss.service.abstractmetric.PluginAnnotationProcessor" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/PluginAnnotationProcessor.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="60" width="218" x="505" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <annotation id="13" language="java" name="eu.sqooss.service.abstractmetric.MetricDeclarations" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/abstractmetric/MetricDeclarations.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="60" width="192" x="466" y="137"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </annotation>  
+  <dependency id="14">    
+    <bendpoint x="435" y="137"/>    
+    <bendpoint x="435" y="237"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <dependency id="15">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <dependency id="16">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <dependency id="17">    
+    <bendpoint x="688" y="137"/>    
+    <bendpoint x="688" y="237"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <nesting id="18">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="11"/>  
+  </nesting>  
+  <dependency id="19">    
+    <bendpoint x="751" y="137"/>    
+    <bendpoint x="751" y="237"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <realization id="20">    
+    <bendpoint x="1026" y="137"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="8"/>  
+  </realization>  
+  <dependency id="21">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
+  <dependency id="22">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="3"/>  
+  </dependency>  
+  <dependency id="23">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <dependency id="24">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <dependency id="25">    
+    <bendpoint x="709" y="137"/>    
+    <bendpoint x="709" y="237"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="3"/>  
+  </dependency>  
+  <dependency id="26">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <dependency id="27">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <dependency id="28">    
+    <bendpoint x="1290" y="137"/>    
+    <bendpoint x="1290" y="237"/>    
+    <bendpoint x="1290" y="337"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="11"/>  
+  </dependency>  
+  <dependency id="29">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <dependency id="30">    
+    <bendpoint x="1047" y="137"/>    
+    <bendpoint x="1047" y="237"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <dependency id="31">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
+  <dependency id="32">    
+    <bendpoint x="772" y="137"/>    
+    <bendpoint x="772" y="237"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <dependency id="33">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <dependency id="34">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <dependency id="35">    
+    <bendpoint x="730" y="137"/>    
+    <bendpoint x="730" y="237"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="3"/>  
+  </dependency>  
+  <dependency id="36">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <association id="37">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="38" name="type"/>      
+      <multiplicity id="39" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="40">    
+    <bendpoint x="1311" y="137"/>    
+    <bendpoint x="1311" y="237"/>    
+    <bendpoint x="1311" y="337"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="11"/>  
+  </dependency>  
+  <dependency id="41">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <dependency id="42">    
+    <bendpoint x="1068" y="137"/>    
+    <bendpoint x="1068" y="237"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <dependency id="43">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="3"/>  
+  </dependency>  
+  <dependency id="44">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

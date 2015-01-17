@@ -1,0 +1,129 @@
+#set ($projectsList = $projects.getProjects())
+#set($selProject = $projects.getSelProject())
+#if($selProject)
+  #set ($refreshURL = "/projects?projectId=$selProject.getId()")  	
+  #set ($selProjDisable = "")
+  #set ($selProjHidden = "")
+#else
+  #set ($refreshURL = "/projects")
+  #set ($selProjDisable = 'disabled="disabled"')
+  #set ($selProjHidden = 'style="visibility: hidden"')
+#end
+
+<form id="projects" name="projects" method="post" action="/projects">
+  <fieldset>
+    <table>
+      <thead>
+        <tr class="head">
+          <td class="head" style="width: 10%;">$tr.label("l0066")</td>
+          <td class="head" style="width: 35%;">$tr.label("l0067")</td>
+          <td class="head" style="width: 15%;">$tr.label("l0068")</td>
+          <td class="head" style="width: 15%;">$tr.label("l0069")</td>
+          <td class="head" style="width: 15%;">$tr.label("l0070")</td>
+          <td class="head" style="width: 10%;">$tr.label("l0071")</td>
+          <td class="head" style="width: 10%;">$tr.label("l0073")</td>
+        </tr>
+      </thead>
+    #if ($projectsList.size() == 0)
+      <tbody>
+        <tr>
+          <td colspan="6" class="noattr">
+            $tr.message("no_projects")
+          </td>
+        </tr>
+      </tbody>
+    #else
+      #foreach ($project in $projectsList)
+        #if ($selProject && $project.getId() == $selProject.getId())
+          #set ($selVal = "")
+          #set ($selClass = "selected")
+        #else
+          #set ($selVal = $project.getId())
+          #set ($selClass = "edit")
+        #end
+      <tbody>
+        <tr class="$selClass" onclick="javascript:document.getElementById('projectId').value='$selVal';document.projects.submit();">
+          <td class="trans">$project.getId()</td>
+          <td class="trans">
+          #if($project.getId() == $request.getParameter("projectId"))
+            <input type="button" class="install" style="width: 100px;" value="$tr.label('btn_info')" onclick="javascript:document.getElementById('reqAction').value='conShowProject';document.projects.submit();"/>
+          #else
+            <img src="/edit.png" alt="[Edit]"/>
+          #end
+            &nbsp; $project.getName()
+          </td>
+          <td class="trans">
+            $projects.getLastProjectVersion($project)
+          </td>
+          <td class="trans">
+            $projects.getLastEmailDate($project)
+          </td>
+          <td class="trans">
+            $projects.getLastBug($project)
+          </td>
+          <td class="trans">
+            $projects.getEvalState($project)
+          </td>
+          <td class="trans">
+            $projects.getClusternode($project)
+          </td>
+        </tr>
+      </tbody>
+      #end
+    #end
+      <tbody>
+        <tr class="subhead">
+          <td>View</td>
+          <td colspan="6">
+            <input type="button" class="install" style="width: 100px;" value="$tr.label('l0008')" onclick="javascript:window.location='$refreshURL';"/>
+          </td>
+        </tr>
+        <tr class="subhead">
+          <td>Manage</td>
+          <td colspan="6">
+            <input type="button" class="install" style="width: 100px;" value="$tr.label('add_project')" onclick="javascript:document.getElementById('reqAction').value='reqAddProject';document.projects.submit();"/>
+            <input type="button" class="install" style="width: 100px;" value="$tr.label('l0059')" onclick="javascript:document.getElementById('reqAction').value='reqRemProject';document.projects.submit();" $selProjDisable/>
+          </td>
+        </tr>
+        <tr class="subhead">
+          <td>Update</td>
+          <td colspan="4">
+            <select name=reqUpd id=reqUpd $selProjHidden>
+            <optgroup label="Import Stage">  
+              <option disabled='disabled'>--</option>
+        #foreach ($updater in $projects.getUpdaters($selProject, "import"))
+              <option value="$updater.mnem()">$updater.descr()</option>
+        #end
+            </optgroup>
+            <optgroup label="Parse Stage">  
+              <option disabled='disabled'>--</option>
+        #foreach ($updater in $projects.getUpdaters($selProject, "parse"))
+              <option value="$updater.mnem()">$updater.descr()</option>
+        #end
+            </optgroup>
+            <optgroup label="Inference Stage">  
+              <option disabled='disabled'>--</option>
+        #foreach ($updater in $projects.getUpdaters($selProject, "inference"))
+              <option value="$updater.mnem()">$updater.descr()</option>
+        #end
+            </optgroup>
+            <optgroup label="Default Stage">  
+              <option disabled='disabled'>--</option>
+        #foreach ($updater in $projects.getUpdaters($selProject, "default"))
+              <option value="$updater.mnem()">$updater.descr()</option>
+        #end
+            </optgroup>
+          </select>
+            <input type="button" class="install" value="Run Updater" onclick="javascript:document.getElementById('reqAction').value='conUpdate';document.projects.submit();" $selProjDisable />
+            <input type="button" class="install" value="Run All Updaters" onclick="javascript:document.getElementById('reqAction').value='conUpdateAll';document.projects.submit();" $selProjDisable />
+          </td>
+          <td colspan="2" align="right">
+            <input type="button" class="install" value="Update all on $projects.getClusterName()" onclick="javascript:document.getElementById('reqAction').value='conUpdateAllOnNode';document.projects.submit();"/>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+  #parse("projects_error_fieldset.html")
+  #parse("projects_hidden_fields.html")
+</form>

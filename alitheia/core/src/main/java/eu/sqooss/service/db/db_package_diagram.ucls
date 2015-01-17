@@ -1,0 +1,1688 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.7" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <enumeration id="1" language="java" name="eu.sqooss.service.db.MetricType.Type" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/MetricType.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="322" width="196" x="4147" y="5633"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="2" language="java" name="eu.sqooss.service.db.ProjectVersionParent" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ProjectVersionParent.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="268" width="328" x="3333" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="3" language="java" name="eu.sqooss.service.db.Language" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/Language.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="358" width="166" x="2515" y="5145"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="4" language="java" name="eu.sqooss.service.db.Developer" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/Developer.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="556" width="409" x="1879" y="1355"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="5" language="java" name="eu.sqooss.service.db.BugStatus.Status" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugStatus.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="250" width="169" x="672" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="6" language="java" name="eu.sqooss.service.db.MailingList" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/MailingList.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="376" width="321" x="603" y="5145"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="eu.sqooss.service.db.ProjectFileMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ProjectFileMeasurement.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="286" width="315" x="2957" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="eu.sqooss.service.db.StoredProjectMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/StoredProjectMeasurement.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="268" width="236" x="1294" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="eu.sqooss.service.db.Branch" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/Branch.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="394" width="304" x="2863" y="4395"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="eu.sqooss.service.db.Tag" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/Tag.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="304" width="421" x="4020" y="4395"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="eu.sqooss.service.db.MailingListThread" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/MailingListThread.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="466" width="380" x="945" y="5633"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="12" language="java" name="eu.sqooss.service.db.BugResolution.Resolution" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugResolution.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="232" width="192" x="1099" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="13" language="java" name="eu.sqooss.service.db.ProjectVersionParentId" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ProjectVersionParentId.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="250" width="188" x="3757" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="14" language="java" name="eu.sqooss.service.db.StoredProject" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/StoredProject.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="1006" width="366" x="1711" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <interface id="15" language="java" name="eu.sqooss.service.db.DBService" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/DBService.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="520" width="502" x="520" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="16" language="java" name="eu.sqooss.service.db.NameSpace" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/NameSpace.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="412" width="350" x="2473" y="4395"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="17" language="java" name="eu.sqooss.service.db.MailMessageMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/MailMessageMeasurement.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="286" width="345" x="1612" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="18" language="java" name="eu.sqooss.service.db.ExecutionUnitMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ExecutionUnitMeasurement.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="286" width="353" x="3207" y="4395"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="19" language="java" name="eu.sqooss.service.db.Directory" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/Directory.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="340" width="243" x="2674" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="20" language="java" name="eu.sqooss.service.db.MailMessage" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/MailMessage.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="700" width="356" x="852" y="4395"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="21" language="java" name="eu.sqooss.service.db.ProjectVersionMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ProjectVersionMeasurement.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="286" width="359" x="3621" y="4395"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="22" language="java" name="eu.sqooss.service.db.DAObject" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/DAObject.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="141" width="194" x="2351" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="23" language="java" name="eu.sqooss.service.db.DeveloperAlias" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/DeveloperAlias.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="304" width="213" x="2117" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="24" language="java" name="eu.sqooss.service.db.MetricMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/MetricMeasurement.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="105" width="164" x="3865" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="25" language="java" name="eu.sqooss.service.db.BugPriority.Priority" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugPriority.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="178" width="172" x="460" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="26" language="java" name="eu.sqooss.service.db.EncapsulationUnit" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/EncapsulationUnit.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="376" width="384" x="2052" y="5633"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="27" language="java" name="eu.sqooss.service.db.MailingListThreadMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/MailingListThreadMeasurement.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="286" width="393" x="1279" y="5145"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="28" language="java" name="eu.sqooss.service.db.BugResolution" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugResolution.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="304" width="307" x="1385" y="1355"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="29" language="java" name="eu.sqooss.service.db.PluginConfiguration" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/PluginConfiguration.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="430" width="460" x="4383" y="5633"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="30" language="java" name="eu.sqooss.service.db.ConfigOption" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ConfigOption.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="412" width="290" x="1541" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="31" language="java" name="eu.sqooss.service.db.NameSpaceMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/NameSpaceMeasurement.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="268" width="218" x="3162" y="5145"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="32" language="java" name="eu.sqooss.service.db.BugSeverity.Severity" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugSeverity.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="250" width="178" x="881" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="33" language="java" name="eu.sqooss.service.db.BugReportMessage" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugReportMessage.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="358" width="235" x="1415" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="34" language="java" name="eu.sqooss.service.db.BugPriority" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugPriority.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="322" width="267" x="460" y="1355"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="35" language="java" name="eu.sqooss.service.db.Bug" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/Bug.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="718" width="326" x="1385" y="597"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="36" language="java" name="eu.sqooss.service.db.StoredProjectConfig" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/StoredProjectConfig.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="304" width="383" x="4132" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="37" language="java" name="eu.sqooss.service.db.BugSeverity" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugSeverity.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="304" width="277" x="1068" y="1355"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="38" language="java" name="eu.sqooss.service.db.MetricType" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/MetricType.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="340" width="265" x="4557" y="5145"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="39" language="java" name="eu.sqooss.service.db.OhlohDeveloper" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/OhlohDeveloper.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="448" width="294" x="42" y="597"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="40" language="java" name="eu.sqooss.service.db.BugStatus" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/BugStatus.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="304" width="261" x="767" y="1355"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="41" language="java" name="eu.sqooss.service.db.ConfigurationOption" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ConfigurationOption.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="376" width="320" x="4153" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="42" language="java" name="eu.sqooss.service.db.ProjectFile" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ProjectFile.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="1024" width="341" x="2412" y="1951"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="43" language="java" name="eu.sqooss.service.db.Metric" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/Metric.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="718" width="433" x="2721" y="5633"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="44" language="java" name="eu.sqooss.service.db.ProjectFileState" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ProjectFileState.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="430" width="352" x="2018" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="45" language="java" name="eu.sqooss.service.db.Plugin" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/Plugin.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="574" width="307" x="2487" y="6391"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="46" language="java" name="eu.sqooss.service.db.ExecutionUnit" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ExecutionUnit.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="448" width="360" x="2052" y="5145"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="47" language="java" name="eu.sqooss.service.db.EncapsulationUnitMeasurement" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/EncapsulationUnitMeasurement.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="286" width="401" x="2721" y="5145"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="48" language="java" name="eu.sqooss.service.db.ProjectDirectory" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ProjectDirectory.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="88" width="140" x="2494" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="49" language="java" name="eu.sqooss.service.db.ClusterNode" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ClusterNode.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="286" width="278" x="934" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="50" language="java" name="eu.sqooss.service.db.ProjectVersion" project="core" 
+    file="/core/src/main/java/eu/sqooss/service/db/ProjectVersion.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="1330" width="384" x="3333" y="3025"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <association id="51">    
+    <bendpoint x="1966" y="5145"/>    
+    <bendpoint x="1966" y="4395"/>    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="52" name="mmMeasurements"/>      
+      <multiplicity id="53" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="54">    
+    <bendpoint x="4017" y="3025"/>    
+    <end type="SOURCE" refId="21"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <generalization id="55">    
+    <bendpoint x="1384" y="1951"/>    
+    <bendpoint x="1785" y="1355"/>    
+    <bendpoint x="1785" y="597"/>    
+    <end type="SOURCE" refId="49"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="56">    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="57" name="versionFiles"/>      
+      <multiplicity id="58" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="42" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="59">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="60" name="executionUnits"/>      
+      <multiplicity id="61" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="46" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="62">    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="63" name="validFrom"/>      
+      <multiplicity id="64" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="65">    
+    <bendpoint x="1987" y="4395"/>    
+    <bendpoint x="1987" y="3025"/>    
+    <bendpoint x="2360" y="1951"/>    
+    <bendpoint x="2360" y="1355"/>    
+    <bendpoint x="2360" y="597"/>    
+    <end type="SOURCE" refId="46"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="66">    
+    <bendpoint x="366" y="5633"/>    
+    <bendpoint x="366" y="5145"/>    
+    <bendpoint x="366" y="4395"/>    
+    <bendpoint x="366" y="3025"/>    
+    <bendpoint x="366" y="1951"/>    
+    <bendpoint x="366" y="1355"/>    
+    <bendpoint x="366" y="597"/>    
+    <end type="SOURCE" refId="45"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="67">    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="68" name="outgoingBranches"/>      
+      <multiplicity id="69" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="70">    
+    <end type="SOURCE" refId="33" navigable="false">      
+      <attribute id="71" name="reporter"/>      
+      <multiplicity id="72" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="73">    
+    <bendpoint x="1312" y="597"/>    
+    <end type="SOURCE" refId="34"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <nesting id="74">    
+    <end type="SOURCE" refId="28"/>    
+    <end type="TARGET" refId="12"/>  
+  </nesting>  
+  <association id="75">    
+    <bendpoint x="2484" y="5145"/>    
+    <end type="SOURCE" refId="26" navigable="false">      
+      <attribute id="76" name="namespace"/>      
+      <multiplicity id="77" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="78">    
+    <bendpoint x="4122" y="1951"/>    
+    <bendpoint x="4122" y="1355"/>    
+    <bendpoint x="4122" y="597"/>    
+    <end type="SOURCE" refId="36"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="79">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="80" name="aliases"/>      
+      <multiplicity id="81" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="23" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="82">    
+    <end type="SOURCE" refId="47" navigable="false">      
+      <attribute id="83" name="encapsulationUnit"/>      
+      <multiplicity id="84" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="26" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="85">    
+    <bendpoint x="4492" y="4395"/>    
+    <bendpoint x="4080" y="3025"/>    
+    <end type="SOURCE" refId="47"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <generalization id="86">    
+    <bendpoint x="3590" y="4395"/>    
+    <bendpoint x="3996" y="3025"/>    
+    <end type="SOURCE" refId="31"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <association id="87">    
+    <end type="SOURCE" refId="26" navigable="false">      
+      <attribute id="88" name="execUnits"/>      
+      <multiplicity id="89" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="46" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="90">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="91" name="measurements"/>      
+      <multiplicity id="92" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="93">    
+    <bendpoint x="1333" y="597"/>    
+    <end type="SOURCE" refId="40"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="94">    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="95" name="copyFrom"/>      
+      <multiplicity id="96" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="42" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="97">    
+    <end type="SOURCE" refId="23" navigable="false">      
+      <attribute id="98" name="developer"/>      
+      <multiplicity id="99" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="100">    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="101" name="incomingBranches"/>      
+      <multiplicity id="102" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="103">    
+    <end type="SOURCE" refId="21" navigable="false">      
+      <attribute id="104" name="projectVersion"/>      
+      <multiplicity id="105" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="106">    
+    <bendpoint x="3473" y="5145"/>    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="107" name="versionMeasurements"/>      
+      <multiplicity id="108" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="21" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="109">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="110" name="list"/>      
+      <multiplicity id="111" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="112">    
+    <bendpoint x="2124" y="597"/>    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="113">    
+    <end type="SOURCE" refId="34" navigable="false">      
+      <attribute id="114" name="bugs"/>      
+      <multiplicity id="115" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="35" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="116">    
+    <end type="SOURCE" refId="35" navigable="false">      
+      <attribute id="117" name="reporter"/>      
+      <multiplicity id="118" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="119">    
+    <bendpoint x="1806" y="1355"/>    
+    <end type="SOURCE" refId="35" navigable="false">      
+      <attribute id="120" name="project"/>      
+      <multiplicity id="121" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="122">    
+    <bendpoint x="3452" y="5145"/>    
+    <end type="SOURCE" refId="21" navigable="false">      
+      <attribute id="123" name="metric"/>      
+      <multiplicity id="124" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="125">    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="126" name="parents"/>      
+      <multiplicity id="127" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="128">    
+    <bendpoint x="821" y="4395"/>    
+    <bendpoint x="1263" y="3025"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="129" name="storedProject"/>      
+      <multiplicity id="130" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="131">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="132" name="projectFile"/>      
+      <multiplicity id="133" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="42" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="134">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="135" name="changeVersion"/>      
+      <multiplicity id="136" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="137">    
+    <bendpoint x="2442" y="3025"/>    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="138" name="branches"/>      
+      <multiplicity id="139" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="140">    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="141" name="measurements"/>      
+      <multiplicity id="142" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="143">    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="144" name="metricType"/>      
+      <multiplicity id="145" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="38" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="146">    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="147" name="tags"/>      
+      <multiplicity id="148" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="149">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="150" name="clusternode"/>      
+      <multiplicity id="151" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="49" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="152">    
+    <end type="SOURCE" refId="31" navigable="false">      
+      <attribute id="153" name="namespace"/>      
+      <multiplicity id="154" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="155">    
+    <end type="SOURCE" refId="40" navigable="false">      
+      <attribute id="156" name="bugs"/>      
+      <multiplicity id="157" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="35" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="158">    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="159" name="dir"/>      
+      <multiplicity id="160" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="19" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="161">    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="162" name="nsMeasurements"/>      
+      <multiplicity id="163" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="31" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="164">    
+    <end type="SOURCE" refId="45" navigable="false">      
+      <attribute id="165" name="supportedMetrics"/>      
+      <multiplicity id="166" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="167">    
+    <end type="SOURCE" refId="48"/>    
+    <end type="TARGET" refId="42"/>  
+  </generalization>  
+  <association id="168">    
+    <bendpoint x="1744" y="5145"/>    
+    <bendpoint x="1655" y="4395"/>    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="169" name="projectMeasurements"/>      
+      <multiplicity id="170" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="171">    
+    <end type="SOURCE" refId="36" navigable="false">      
+      <attribute id="172" name="confOpt"/>      
+      <multiplicity id="173" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="41" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="174">    
+    <bendpoint x="3712" y="1355"/>    
+    <bendpoint x="3712" y="597"/>    
+    <end type="SOURCE" refId="24"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="175">    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="176" name="projectVersion"/>      
+      <multiplicity id="177" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="178">    
+    <bendpoint x="4566" y="4395"/>    
+    <bendpoint x="4566" y="3025"/>    
+    <bendpoint x="4566" y="1951"/>    
+    <bendpoint x="4566" y="1355"/>    
+    <bendpoint x="4566" y="597"/>    
+    <end type="SOURCE" refId="38"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="179">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="180" name="branchOutgoing"/>      
+      <multiplicity id="181" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="182">    
+    <bendpoint x="4852" y="5145"/>    
+    <bendpoint x="4852" y="4395"/>    
+    <bendpoint x="4852" y="3025"/>    
+    <bendpoint x="4852" y="1951"/>    
+    <bendpoint x="4852" y="1355"/>    
+    <bendpoint x="4852" y="597"/>    
+    <end type="SOURCE" refId="29"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="183">    
+    <bendpoint x="2793" y="1951"/>    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="184" name="commits"/>      
+      <multiplicity id="185" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="186">    
+    <end type="SOURCE" refId="27" navigable="false">      
+      <attribute id="187" name="metric"/>      
+      <multiplicity id="188" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="189">    
+    <bendpoint x="3431" y="5145"/>    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="190" name="execUnitMeasurements"/>      
+      <multiplicity id="191" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="192">    
+    <end type="SOURCE" refId="35" navigable="false">      
+      <attribute id="193" name="severity"/>      
+      <multiplicity id="194" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="37" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="195">    
+    <bendpoint x="1764" y="1355"/>    
+    <end type="SOURCE" refId="33" navigable="false">      
+      <attribute id="196" name="bug"/>      
+      <multiplicity id="197" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="35" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="198">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="199" name="projectVersions"/>      
+      <multiplicity id="200" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="201">    
+    <bendpoint x="2463" y="5145"/>    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="202" name="encapsulationUnits"/>      
+      <multiplicity id="203" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="26" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="204">    
+    <bendpoint x="1743" y="1355"/>    
+    <end type="SOURCE" refId="35" navigable="false">      
+      <attribute id="205" name="reportMessages"/>      
+      <multiplicity id="206" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="33" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="207">    
+    <bendpoint x="4143" y="1355"/>    
+    <bendpoint x="4143" y="597"/>    
+    <end type="SOURCE" refId="41"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="208">    
+    <end type="SOURCE" refId="35"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="209">    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="210" name="projectVersion"/>      
+      <multiplicity id="211" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="212">    
+    <end type="SOURCE" refId="31" navigable="false">      
+      <attribute id="213" name="metric"/>      
+      <multiplicity id="214" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="215">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="216" name="child"/>      
+      <multiplicity id="217" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="218">    
+    <end type="SOURCE" refId="26" navigable="false">      
+      <attribute id="219" name="measurements"/>      
+      <multiplicity id="220" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="47" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="221">    
+    <bendpoint x="2463" y="3025"/>    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="222" name="project"/>      
+      <multiplicity id="223" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="224">    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="225" name="executionUnit"/>      
+      <multiplicity id="226" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="46" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="227">    
+    <bendpoint x="1676" y="5145"/>    
+    <bendpoint x="1676" y="4395"/>    
+    <bendpoint x="1581" y="3025"/>    
+    <end type="SOURCE" refId="26" navigable="false">      
+      <attribute id="228" name="file"/>      
+      <multiplicity id="229" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="42" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="230">    
+    <end type="SOURCE" refId="37"/>    
+    <end type="TARGET" refId="32"/>  
+  </nesting>  
+  <generalization id="231">    
+    <bendpoint x="2339" y="1355"/>    
+    <bendpoint x="2339" y="597"/>    
+    <end type="SOURCE" refId="23"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="232">    
+    <bendpoint x="2318" y="1355"/>    
+    <bendpoint x="2318" y="597"/>    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="233">    
+    <bendpoint x="1945" y="4395"/>    
+    <bendpoint x="1945" y="5145"/>    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="234" name="metric"/>      
+      <multiplicity id="235" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="236">    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="237" name="state"/>      
+      <multiplicity id="238" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="44" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="239">    
+    <end type="SOURCE" refId="34"/>    
+    <end type="TARGET" refId="25"/>  
+  </nesting>  
+  <association id="240">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="241" name="pk"/>      
+      <multiplicity id="242" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="243">    
+    <end type="SOURCE" refId="38" navigable="false">      
+      <attribute id="244" name="metrics"/>      
+      <multiplicity id="245" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="246">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="247" name="threads"/>      
+      <multiplicity id="248" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="249">    
+    <end type="SOURCE" refId="37" navigable="false">      
+      <attribute id="250" name="bugs"/>      
+      <multiplicity id="251" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="35" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="252">    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="253" name="storedProject"/>      
+      <multiplicity id="254" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="255">    
+    <bendpoint x="2381" y="1951"/>    
+    <bendpoint x="2381" y="1355"/>    
+    <bendpoint x="2381" y="597"/>    
+    <end type="SOURCE" refId="44"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="256">    
+    <bendpoint x="408" y="4395"/>    
+    <bendpoint x="408" y="3025"/>    
+    <bendpoint x="408" y="1951"/>    
+    <bendpoint x="408" y="1355"/>    
+    <bendpoint x="408" y="597"/>    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="257">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <association id="258">    
+    <end type="SOURCE" refId="35" navigable="false">      
+      <attribute id="259" name="status"/>      
+      <multiplicity id="260" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="40" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="261">    
+    <end type="SOURCE" refId="39"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="262">    
+    <bendpoint x="3302" y="3025"/>    
+    <bendpoint x="3302" y="1951"/>    
+    <bendpoint x="3302" y="1355"/>    
+    <bendpoint x="3302" y="597"/>    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="263">    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="264" name="parent"/>      
+      <multiplicity id="265" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="20" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="266">    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="267" name="encUnitMeasurements"/>      
+      <multiplicity id="268" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="47" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="269">    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="270" name="list"/>      
+      <multiplicity id="271" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="272">    
+    <end type="SOURCE" refId="46" navigable="false">      
+      <attribute id="273" name="namespace"/>      
+      <multiplicity id="274" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="275">    
+    <end type="SOURCE" refId="44" navigable="false">      
+      <attribute id="276" name="files"/>      
+      <multiplicity id="277" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="42" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="278">    
+    <end type="SOURCE" refId="38"/>    
+    <end type="TARGET" refId="1"/>  
+  </nesting>  
+  <generalization id="279">    
+    <bendpoint x="1354" y="597"/>    
+    <end type="SOURCE" refId="37"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="280">    
+    <bendpoint x="4101" y="3025"/>    
+    <bendpoint x="4101" y="1951"/>    
+    <bendpoint x="4101" y="1355"/>    
+    <bendpoint x="4101" y="597"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="281">    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="282" name="measurements"/>      
+      <multiplicity id="283" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="284">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="285" name="developers"/>      
+      <multiplicity id="286" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="287">    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="288" name="plugin"/>      
+      <multiplicity id="289" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="45" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="290">    
+    <bendpoint x="2281" y="4395"/>    
+    <bendpoint x="2021" y="5145"/>    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="291" name="metric"/>      
+      <multiplicity id="292" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="293">    
+    <bendpoint x="2835" y="1951"/>    
+    <bendpoint x="2835" y="1355"/>    
+    <bendpoint x="2835" y="597"/>    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="294">    
+    <bendpoint x="4526" y="5145"/>    
+    <bendpoint x="4535" y="4395"/>    
+    <bendpoint x="4545" y="3025"/>    
+    <bendpoint x="4545" y="1951"/>    
+    <bendpoint x="4545" y="1355"/>    
+    <bendpoint x="4545" y="597"/>    
+    <end type="SOURCE" refId="43"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="295">    
+    <bendpoint x="2442" y="5145"/>    
+    <bendpoint x="2442" y="4395"/>    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="296" name="fileMeasurements"/>      
+      <multiplicity id="297" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="298">    
+    <end type="SOURCE" refId="27" navigable="false">      
+      <attribute id="299" name="thread"/>      
+      <multiplicity id="300" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="301">    
+    <end type="SOURCE" refId="41" navigable="false">      
+      <attribute id="302" name="configurations"/>      
+      <multiplicity id="303" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="36" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="304">    
+    <bendpoint x="387" y="5145"/>    
+    <bendpoint x="387" y="4395"/>    
+    <bendpoint x="387" y="3025"/>    
+    <bendpoint x="387" y="1951"/>    
+    <bendpoint x="387" y="1355"/>    
+    <bendpoint x="387" y="597"/>    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="305">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="306" name="bugReportMessages"/>      
+      <multiplicity id="307" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="33" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="308">    
+    <end type="SOURCE" refId="40"/>    
+    <end type="TARGET" refId="5"/>  
+  </nesting>  
+  <generalization id="309">    
+    <bendpoint x="3975" y="3025"/>    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <association id="310">    
+    <bendpoint x="1242" y="3025"/>    
+    <bendpoint x="800" y="4395"/>    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="311" name="mailingLists"/>      
+      <multiplicity id="312" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="313">    
+    <end type="SOURCE" refId="49" navigable="false">      
+      <attribute id="314" name="projects"/>      
+      <multiplicity id="315" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="316">    
+    <bendpoint x="975" y="5145"/>    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="317" name="messages"/>      
+      <multiplicity id="318" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="20" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="319">    
+    <bendpoint x="1560" y="3025"/>    
+    <bendpoint x="1723" y="4395"/>    
+    <bendpoint x="1723" y="5145"/>    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="320" name="encapsulationUnits"/>      
+      <multiplicity id="321" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="26" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="322">    
+    <bendpoint x="954" y="5145"/>    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="323" name="thread"/>      
+      <multiplicity id="324" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="325">    
+    <bendpoint x="1342" y="1951"/>    
+    <bendpoint x="861" y="3025"/>    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="326" name="mails"/>      
+      <multiplicity id="327" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="20" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="328">    
+    <bendpoint x="882" y="3025"/>    
+    <bendpoint x="1680" y="1951"/>    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="329" name="sender"/>      
+      <multiplicity id="330" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="331">    
+    <end type="SOURCE" refId="46" navigable="false">      
+      <attribute id="332" name="measurements"/>      
+      <multiplicity id="333" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="334">    
+    <bendpoint x="1741" y="597"/>    
+    <end type="SOURCE" refId="28"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="335">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="336" name="branchIncoming"/>      
+      <multiplicity id="337" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="338">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="339" name="measurements"/>      
+      <multiplicity id="340" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="27" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="341">    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="342" name="namespaces"/>      
+      <multiplicity id="343" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="344">    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="345" name="measurements"/>      
+      <multiplicity id="346" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="21" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="347">    
+    <end type="SOURCE" refId="47" navigable="false">      
+      <attribute id="348" name="metric"/>      
+      <multiplicity id="349" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="350">    
+    <bendpoint x="2400" y="3025"/>    
+    <bendpoint x="2260" y="4395"/>    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="351" name="executionUnits"/>      
+      <multiplicity id="352" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="46" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="353">    
+    <bendpoint x="4471" y="4395"/>    
+    <bendpoint x="4038" y="3025"/>    
+    <end type="SOURCE" refId="27"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <generalization id="354">    
+    <bendpoint x="3323" y="1355"/>    
+    <bendpoint x="3323" y="597"/>    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="355">    
+    <bendpoint x="3410" y="5145"/>    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="356" name="metric"/>      
+      <multiplicity id="357" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="358">    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="359" name="mail"/>      
+      <multiplicity id="360" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="20" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="361">    
+    <end type="SOURCE" refId="28" navigable="false">      
+      <attribute id="362" name="bugs"/>      
+      <multiplicity id="363" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="35" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="364">    
+    <bendpoint x="3691" y="1951"/>    
+    <bendpoint x="3691" y="1355"/>    
+    <bendpoint x="3691" y="597"/>    
+    <end type="SOURCE" refId="50"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="365">    
+    <end type="SOURCE" refId="29" navigable="false">      
+      <attribute id="366" name="plugin"/>      
+      <multiplicity id="367" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="45" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="368">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <association id="369">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="370" name="lang"/>      
+      <multiplicity id="371" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="372">    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="373" name="files"/>      
+      <multiplicity id="374" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="42" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="375">    
+    <end type="SOURCE" refId="42" navigable="false">      
+      <attribute id="376" name="validUntil"/>      
+      <multiplicity id="377" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="378">    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="379" name="measurements"/>      
+      <multiplicity id="380" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="31" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="381">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <association id="382">    
+    <bendpoint x="2814" y="1951"/>    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="383" name="committer"/>      
+      <multiplicity id="384" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="385">    
+    <bendpoint x="2402" y="1355"/>    
+    <bendpoint x="2402" y="597"/>    
+    <end type="SOURCE" refId="42"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <generalization id="386">    
+    <bendpoint x="1248" y="5145"/>    
+    <bendpoint x="1248" y="4395"/>    
+    <bendpoint x="903" y="3025"/>    
+    <bendpoint x="1321" y="1951"/>    
+    <bendpoint x="1722" y="1355"/>    
+    <bendpoint x="1762" y="597"/>    
+    <end type="SOURCE" refId="26"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="387">    
+    <end type="SOURCE" refId="35" navigable="false">      
+      <attribute id="388" name="resolution"/>      
+      <multiplicity id="389" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="28" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="390">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="391" name="configOpts"/>      
+      <multiplicity id="392" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="36" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="393">    
+    <end type="SOURCE" refId="50" navigable="false">      
+      <attribute id="394" name="project"/>      
+      <multiplicity id="395" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="396">    
+    <end type="SOURCE" refId="46" navigable="false">      
+      <attribute id="397" name="encapsulationUnit"/>      
+      <multiplicity id="398" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="26" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="399">    
+    <end type="SOURCE" refId="36" navigable="false">      
+      <attribute id="400" name="project"/>      
+      <multiplicity id="401" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="402">    
+    <bendpoint x="429" y="3025"/>    
+    <bendpoint x="429" y="1951"/>    
+    <bendpoint x="429" y="1355"/>    
+    <bendpoint x="429" y="597"/>    
+    <end type="SOURCE" refId="20"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="403">    
+    <end type="SOURCE" refId="35" navigable="false">      
+      <attribute id="404" name="priority"/>      
+      <multiplicity id="405" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="34" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="406">    
+    <bendpoint x="1827" y="1355"/>    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="407" name="bugs"/>      
+      <multiplicity id="408" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="35" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="409">    
+    <bendpoint x="1702" y="4395"/>    
+    <bendpoint x="1702" y="5145"/>    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="410" name="metric"/>      
+      <multiplicity id="411" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="43" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="412">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="413" name="storedProject"/>      
+      <multiplicity id="414" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="415">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="416" name="messages"/>      
+      <multiplicity id="417" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="20" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="418">    
+    <end type="SOURCE" refId="45" navigable="false">      
+      <attribute id="419" name="configurations"/>      
+      <multiplicity id="420" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="29" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="421">    
+    <bendpoint x="1848" y="1355"/>    
+    <bendpoint x="1848" y="597"/>    
+    <end type="SOURCE" refId="33"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="422">    
+    <bendpoint x="2421" y="4395"/>    
+    <bendpoint x="2421" y="3025"/>    
+    <end type="SOURCE" refId="46" navigable="false">      
+      <attribute id="423" name="file"/>      
+      <multiplicity id="424" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="42" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="425">    
+    <bendpoint x="4059" y="3025"/>    
+    <bendpoint x="4059" y="1951"/>    
+    <bendpoint x="4059" y="1355"/>    
+    <bendpoint x="4059" y="597"/>    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="426">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="427" name="parent"/>      
+      <multiplicity id="428" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="50" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="429">    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="430" name="mlThreadMeasurements"/>      
+      <multiplicity id="431" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="27" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

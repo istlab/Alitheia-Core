@@ -36,17 +36,12 @@ package eu.sqooss.service.scheduler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
-
-import java.lang.Comparable;
-import java.lang.InterruptedException;
+import java.util.List;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.util.Pair;
-
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.util.Pair;
 
 /**
  * Abstract base class for all jobs running by the scheduler.
@@ -55,524 +50,599 @@ import eu.sqooss.service.scheduler.SchedulerException;
  */
 public abstract class Job implements Comparable<Job> {
 
-    /**
-     * The state of the job.
-     * @author christoph
-     *
-     */
-    public enum State {
-        Created,
-        Queued,
-        Running,
-        Finished,
-        Error,
-        Yielded
-    }
+	/**
+	 * The state of the job.
+	 * 
+	 * @author christoph
+	 *
+	 */
+	public enum State {
+		Created, Queued, Running, Finished, Error, Yielded
+	}
 
-    /**
-     * This list contains the dependencies between the jobs.
-     * Each pair defines that the \a second one's execution depends on
-     * completion of the \a first one.
-     *
-     * As soon as the \a first job is finished, the pair is removed from
-     * the list.
-     */
-    protected List<Pair<Job,Job>> m_dependencies;
-    
-    /**
-     * List of jobs which depend on this job
-     */
-    private List<Job> m_dependees;
+	/**
+	 * This list contains the dependencies between the jobs. Each pair defines
+	 * that the \a second one's execution depends on completion of the \a first
+	 * one.
+	 *
+	 * As soon as the \a first job is finished, the pair is removed from the
+	 * list.
+	 */
+	protected List<Pair<Job, Job>> m_dependencies;
 
-    /**
-     * A list of objects that listen to this job's state changes  
-     */
-    private List<JobStateListener> listeners;
-    
-    private State m_state;
+	/**
+	 * List of jobs which depend on this job
+	 */
+	private List<Job> m_dependees;
 
-    private Scheduler m_scheduler;
+	/**
+	 * A list of objects that listen to this job's state changes
+	 */
+	private List<JobStateListener> listeners;
 
-    private Exception m_errorException;
-    
-    private WorkerThread m_worker;
-    
-    private int restarts = 0;
-    
-    private ResumePoint resumePoint;
-    
-    public void setWorkerThread(WorkerThread worker) {
-    	m_worker = worker;
-     }
-    
-    public WorkerThread getWorkerThread() {
-        return m_worker;
-     }
-    
-    /**
-     * @return The current state of the job.
-     */
-    public final State state() {
-        return m_state;
-    }
-    
-    /**
-     * Returns the Scheduler this Job was enqueued to.
-     */
-    public Scheduler getScheduler() {
-    	return m_scheduler;
-    }
-    
-    /**
-     * Adds a dependency.
-     * This job cannot be executed, as long \a other
-     * is not finished.
-     */
-    public final synchronized void addDependency(Job other) throws SchedulerException {
-        // Dependencies of jobs can ony be changed before the job is queued.
-        // Otherwise, race conditions would occur in which it would be undefined
-        // if the dependency is applied or not.
-        if ( (state() != State.Created) && (state() != State.Yielded) ) {
-        	throw new SchedulerException("Job dependencies cannot be added after the job has been queued.");
-        }
+	private State m_state;
 
-        // Don't allow circular dependencies
-        if( other.dependsOn(this) || (this==other) ) {
-            throw new SchedulerException("Job dependencies are not allowed to be cyclic.");
-        }
+	private Scheduler m_scheduler;
 
-        if (m_dependencies == null)
-            m_dependencies = new LinkedList<Pair<Job,Job>>();
-        
-        synchronized (m_dependencies) {
-            Pair<Job,Job> newDependency = new Pair<Job,Job>(other, this);
-            m_dependencies.add(newDependency);
-            other.addDependee(this);
-        }
-        callDependenciesChanged();
-    }
-    
-    /**
-     * Removes a dependency.
-     * \sa addDependency
-     */
-    public final void removeDependency(Job other) {
-        if (m_dependencies == null)
-            return;
-        synchronized(m_dependencies) {
-            List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
-            for (Pair<Job,Job> p: m_dependencies ) {
-                if ( (p.first == other) && (p.second == this) ) {
-                    doomed.add(p);
-                    removeDependee(other);
-                }
-            }
-            m_dependencies.removeAll(doomed);
-        }
-        callDependenciesChanged();
-    }
+	private Exception m_errorException;
 
-    /**
-     * Checks recursive whether this job depends on job \a other.
-     * @param other the job to check dependency of.
-     * @return true, when the job depends on \a other, otherwise false.
-     */
-    public final boolean dependsOn(Job other) {
-        if (m_dependencies == null)
-            return false;
-        synchronized(m_dependencies) {
-            for (Pair<Job,Job> p: m_dependencies ) {
-                if ( (p.first == other) && (p.second == this) ) {
-                    return true;
-                } else if ( (p.second == this) && p.first.dependsOn(other)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+	private WorkerThread m_worker;
 
-    private final synchronized void addDependee(Job other) {
-        if (m_dependees == null)
-            m_dependees = new ArrayList<Job>();
-        synchronized (m_dependees) {
-            m_dependees.add(other);
-        }
-    }
-    
-    private final synchronized void removeDependee(Job other) {
-        if (m_dependees == null)
-            return;
-        synchronized (m_dependees) {
-            m_dependees.remove(other);
-        }
-    }
-    
-    /**
-     * Executes the job. Makes sure that all dependencies are met. 
-     * 
-     * @return The time required to execute the Job in milliseconds.
-     * @throws Exception
-     */
-    final public long execute() throws Exception {
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
-        long timer = System.currentTimeMillis();
-        try {
-            setState(State.Running);
-            restart();
-            
-            /*Idiot/bad programmer proofing*/
-            assert (!dbs.isDBSessionActive());            
-            if (dbs.isDBSessionActive()) {
-                dbs.rollbackDBSession();
-                setState(State.Error); //No uncommitted sessions are tolerated
-            } else {
-                if (state() != State.Yielded)
-                    setState(State.Finished);
-            }   
-        } catch(Exception e) {
-            
-            if (dbs.isDBSessionActive()) {
-                dbs.rollbackDBSession();
-            }
-            
-            // In case of an exception, state becomes Error
-            m_errorException = e;
-            setState(State.Error);
-            // the Exception itself is forwarded
-            throw e;
-        }
-        return System.currentTimeMillis() - timer;
-    }
+	private int restarts = 0;
 
-    /**
-     * Sets the job's state to Queued and informs the job about the new
-     * scheduler.
-     * This method should only be called by Scheduler.enqueue.
-     * @throws SchedulerException If the job is already enqueued.
-     */
-    public final void callAboutToBeEnqueued(Scheduler s) throws SchedulerException {
-        if (m_scheduler != null) {
-            throw new SchedulerException("This job is already enqueued in a scheduler.");
-        }
-        aboutToBeEnqueued(s);
-        m_state = State.Queued;
-        m_scheduler = s;
-    }
+	private ResumePoint resumePoint;
 
-    /**
-     * Sets the job's state back from Queued to Created and informs about being
-     * dequeud.
-     * This method should only be called by Scheduler.dequeue.
-     */
-    public final void callAboutToBeDequeued(Scheduler s) {
-        aboutToBeDequeued(s);
+	public void setWorkerThread(WorkerThread worker) {
+		m_worker = worker;
+	}
 
-        if (m_state == State.Queued) {
-            m_state = State.Created;
-        }
+	public WorkerThread getWorkerThread() {
+		return m_worker;
+	}
 
-        m_scheduler = null;
-    }
+	/**
+	 * @return The current state of the job.
+	 */
+	public final State state() {
+		return m_state;
+	}
 
+	/**
+	 * Returns the Scheduler this Job was enqueued to.
+	 */
+	public Scheduler getScheduler() {
+		return m_scheduler;
+	}
 
-    /**
-     * The priority of the job is the order of job within the scheduler's queue.
-     * That leads to 0 being taking he highest precedence, then the higher numbers.
-     * It is not adviced to change the job's priority after it has been enqueued. That
-     * might lead to undefined behaviour.
-     * @return The priority of the job.
-     */
-    abstract public long priority();
+	/**
+	 * Adds a dependency. This job cannot be executed, as long \a other is not
+	 * finished.
+	 */
+	public final synchronized void addDependency(Job other)
+			throws SchedulerException {
+		// Dependencies of jobs can ony be changed before the job is queued.
+		// Otherwise, race conditions would occur in which it would be undefined
+		// if the dependency is applied or not.
+		if ((state() != State.Created) && (state() != State.Yielded)) {
+			throw new SchedulerException(
+					"Job dependencies cannot be added after the job has been queued.");
+		}
 
-    /**
-     * @return All unfinished jobs this job depends on.
-     */
-    public final List<Job> dependencies() {
-        if (m_dependencies == null)
-            return Collections.EMPTY_LIST;
-        
-        List<Job> result = new LinkedList<Job>();
-        synchronized (m_dependencies) {
-            for (Pair<Job,Job> p: m_dependencies) {
-                if (p.second == this) {
-                    result.add(p.first);
-                }
-            }
-        }
-        return result;
-    }
+		// Don't allow circular dependencies
+		if (other.dependsOn(this) || (this == other)) {
+			throw new SchedulerException(
+					"Job dependencies are not allowed to be cyclic.");
+		}
 
-    /**
-     * Waits for the job to finish.
-     * Note that this method even returns when the job's state changes to Error.
-     */
-    public final void waitForFinished() {
-    	try {
-            synchronized (this) {
-                // if this method is running inside of a WorkerThread
-                // we try to pass the job we're waiting for to the thread.
-                if (Thread.currentThread() instanceof WorkerThread) {
-                    WorkerThread t = (WorkerThread) Thread.currentThread();
-                    t.takeJob(this);
-                } else {
-                    throw new Exception();
-                }
-            }
-        } catch (Exception e) {
-            // if something went wrong with taking the job
-            // ok - we might be stuck...
-            if (m_scheduler.getSchedulerStats().getIdleWorkerThreads() == 0) {
-                m_scheduler.startOneShotWorkerThread();
-            }
-        }
-        synchronized (this) {
-            while (state() != State.Finished) {
-                if (state() == State.Error) {
-                    return;
-                }
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                }
-            }
-        }
-    }
+		if (m_dependencies == null)
+			m_dependencies = new LinkedList<Pair<Job, Job>>();
 
-    /**
-     * Checks, whether all dependencies are met and the job can be executed.
-     * @return true, when all dependencies are met.
-     */
-    public boolean canExecute() {
-        final List<Job> deps = dependencies();
-        Iterator<Job> it = deps.iterator();
-        while (it.hasNext()) {
-            Job j = it.next();
-            if (j.state() != State.Finished && j.state() != State.Error) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    /**
-     * Return the exception that caused this Job to quit
-     * @return An exception object or null if the job has finished normally
-     */
-    public final Exception getErrorException() {
-        return this.m_errorException;
-    }
+		synchronized (m_dependencies) {
+			Pair<Job, Job> newDependency = new Pair<Job, Job>(other, this);
+			m_dependencies.add(newDependency);
+			other.addDependee(this);
+		}
+		callDependenciesChanged();
+	}
 
-    /**
-     * XXX bogus method, only used for putting it in into a Pair.
-     */
-    public int compareTo(Job other)
-    {
-        return (this == other) ? 0 : 1;
-    }
+	/**
+	 * Removes a dependency. \sa addDependency
+	 */
+	public final void removeDependency(Job other) {
+		if (m_dependencies == null)
+			return;
+		synchronized (m_dependencies) {
+			List<Pair<Job, Job>> doomed = new LinkedList<Pair<Job, Job>>();
+			for (Pair<Job, Job> p : m_dependencies) {
+				if ((p.first == other) && (p.second == this)) {
+					doomed.add(p);
+					removeDependee(other);
+				}
+			}
+			m_dependencies.removeAll(doomed);
+		}
+		callDependenciesChanged();
+	}
 
-    /**
-     * Protected default constructor.
-     */
-    protected Job() {
-        m_scheduler = null;
-        m_errorException = null;
-        setState( State.Created );
-    }
+	/**
+	 * Checks recursive whether this job depends on job \a other.
+	 * 
+	 * @param other
+	 *            the job to check dependency of.
+	 * @return true, when the job depends on \a other, otherwise false.
+	 */
+	public final boolean dependsOn(Job other) {
+		if (m_dependencies == null)
+			return false;
+		synchronized (m_dependencies) {
+			for (Pair<Job, Job> p : m_dependencies) {
+				if ((p.first == other) && (p.second == this)) {
+					return true;
+				} else if ((p.second == this) && p.first.dependsOn(other)) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 
-    /**
-     * Sets the job's state.
-     * @param s The new state.
-     */
-    protected final void setState(State s) {
-        if (m_state == s) {
-            return;
-        }
+	private final synchronized void addDependee(Job other) {
+		if (m_dependees == null)
+			m_dependees = new ArrayList<Job>();
+		synchronized (m_dependees) {
+			m_dependees.add(other);
+		}
+	}
 
-        m_state = s;
+	private final synchronized void removeDependee(Job other) {
+		if (m_dependees == null)
+			return;
+		synchronized (m_dependees) {
+			m_dependees.remove(other);
+		}
+	}
 
-        if ((m_state == State.Finished || m_state == State.Error) && m_dependencies != null) {
-            // remove the job from the dependency list
-            List<Job> unblockedJobs = new LinkedList<Job>();
-            synchronized (m_dependencies) {
-                List<Pair<Job,Job>> doomed = new LinkedList<Pair<Job,Job>>();
-                for (Pair<Job,Job> p: m_dependencies) {
-                    if (p.first == this) {
-                        doomed.add(p);
-                        unblockedJobs.add(p.second);
-                    }
-                }
-                m_dependencies.removeAll(doomed);
-            }
-            /* tell all jobs depending on the now finished on to forward that
-             * to the scheduler
-             */
-            for (Job j: unblockedJobs) {
-                j.callDependenciesChanged();
-            }
-        }
-        
-        if ((m_state == State.Finished || m_state == State.Error) && m_dependees != null) {
-            synchronized (m_dependees) {
-                for (Job p: m_dependees) {
-                    p.callDependenciesChanged();
-                }
-                m_dependees.clear();
-            }
-        }
+	/**
+	 * Executes the job. Makes sure that all dependencies are met.
+	 * 
+	 * @return The time required to execute the Job in milliseconds.
+	 * @throws Exception
+	 */
+	final public long execute() throws Exception {
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+		long timer = System.currentTimeMillis();
+		try {
+			setState(State.Running);
+			restart();
 
-        if (m_scheduler != null) {
-            m_scheduler.jobStateChanged(this, s);
-        }
-        
-        stateChanged(m_state);
-        fireStateChangedEvent();
-        
-        synchronized(this) {
-        	notifyAll();
-        }
-    }
+			/* Idiot/bad programmer proofing */
+			assert (!dbs.isDBSessionActive());
+			if (dbs.isDBSessionActive()) {
+				dbs.rollbackDBSession();
+				setState(State.Error); // No uncommitted sessions are tolerated
+			} else {
+				if (state() != State.Yielded)
+					setState(State.Finished);
+			}
+		} catch (Exception e) {
 
-    /**
-     * Called, when the state of the job changed to \a state.
-     * The default implementation does nothing.
-     */
-    protected void stateChanged(State state) {
-        
-    }
+			if (dbs.isDBSessionActive()) {
+				dbs.rollbackDBSession();
+			}
 
-    /**
-     * If the job is queued to a scheduler, this methods tells the scheduler,
-     * that the job's dependencies have changed.
-     */
-    protected final void callDependenciesChanged() {
-        if (m_scheduler != null) {
-            m_scheduler.jobDependenciesChanged(this);
-        }
-    }
+			// In case of an exception, state becomes Error
+			m_errorException = e;
+			setState(State.Error);
+			// the Exception itself is forwarded
+			throw e;
+		}
+		return System.currentTimeMillis() - timer;
+	}
 
-    /**
-     * Restart a failing job by keeping count of the number of restarts
-     * @throws Exception to signify that the maximum number of restarts
-     * was reached
-     */
-    protected void restart() throws Exception {
-        restarts++;
-        if (restarts >= 5) {
-            throw new Exception("Too many restarts - failing job");
-        }
-        run();
-    }
-    
-    /**
-     * Run the job.
-     * 
-     * @throws Exception
-     *                 If thrown, the job ends up in Error state.
-     */
-    abstract protected void run() throws Exception;
+	/**
+	 * Sets the job's state to Queued and informs the job about the new
+	 * scheduler. This method should only be called by Scheduler.enqueue.
+	 * 
+	 * @throws SchedulerException
+	 *             If the job is already enqueued.
+	 */
+	public final void callAboutToBeEnqueued(Scheduler s)
+			throws SchedulerException {
+		if (m_scheduler != null) {
+			throw new SchedulerException(
+					"This job is already enqueued in a scheduler.");
+		}
+		aboutToBeEnqueued(s);
+		m_state = State.Queued;
+		m_scheduler = s;
+	}
 
-    /**
-     * Stop execution of the job until 
-     * @param p
-     * @throws SchedulerException 
-     */
-    public void yield(ResumePoint p) throws SchedulerException {
-        synchronized (this) {
-            System.err.println(Thread.currentThread().getId() + ":" + toString() + ": State is :" + m_state);
-            if (m_state == State.Running) {
-                setState(State.Yielded);
-                this.resumePoint = p;
-                m_scheduler.yield(this, p);
-            } else {
-                throw new SchedulerException("Cannot yield non-running job: " 
-                        + this + " (state was:" + state() + ")");
-            }
-        }
-    }
-    
-    public long resume() throws Exception {
-        long ts = System.currentTimeMillis();
-        DBService dbs = AlitheiaCore.getInstance().getDBService();
+	/**
+	 * Sets the job's state back from Queued to Created and informs about being
+	 * dequeud. This method should only be called by Scheduler.dequeue.
+	 */
+	public final void callAboutToBeDequeued(Scheduler s) {
+		aboutToBeDequeued(s);
 
-        if (state() != State.Yielded)
-            throw new SchedulerException("Cannot resume a non-yielded job");
-        
-        if (resumePoint == null)
-            throw new SchedulerException("Resume point is null");
-        
-        try {
-            setState(State.Running);
-            resumePoint.resume();
-                       
-            assert (!dbs.isDBSessionActive());            
-            if (dbs.isDBSessionActive()) {
-                dbs.rollbackDBSession();
-                setState(State.Error); //No uncommitted sessions are tolerated
-            } else {
-                setState(State.Finished);
-            }   
-        } catch(Exception e) {
-            
-            if (dbs.isDBSessionActive()) {
-                dbs.rollbackDBSession();
-            }
-            
-            // In case of an exception, state becomes Error
-            m_errorException = e;
-            setState(State.Error);
-            // the Exception itself is forwarded
-            throw e;
-        }
-        
-        return System.currentTimeMillis() - ts;
-    }
-    
-    /**
-     * This method is called during queueing, right before the job is added to
-     * the work queue.
-     * The job is not in state Queued at this time.
-     * @param s The scheduler, the job has been enqueued to.
-     */
-    protected void aboutToBeEnqueued(Scheduler s) {
-    }
+		if (m_state == State.Queued) {
+			m_state = State.Created;
+		}
 
-    /**
-     * This method is called right before the job is dequeued without being
-     * executed.
-     * The job is still in it's previoues state.
-     * @parem s The scheduler, the job is dequeued from.
-     */
-    protected void aboutToBeDequeued(Scheduler s) {
-    }
-    
-    /**
-     * Add a listener from the job's list of state listeners
-     */
-    public final synchronized void addJobStateListener(JobStateListener l) {
-        if (listeners == null)
-            listeners = new ArrayList<JobStateListener>();
-        listeners.add(l);
-    }
-    
-    /**
-     * Remove a listener from the job's list of state listeners
-     * @param l The listener to remove'
-     */
-    public final synchronized void removeJobStateListener(JobStateListener l) {
-        if (listeners == null)
-            return;
-        listeners.remove(l);
-    }
-    
-    /**
-     * Called when the job's state has changed to notify clients about that.
-     */
-    private void fireStateChangedEvent() {
-        if (listeners == null)
-            return;
-        for (JobStateListener l : listeners) {
-            l.jobStateChanged(this, m_state);
-        }
-    }
+		m_scheduler = null;
+	}
+
+	/**
+	 * The priority of the job is the order of job within the scheduler's queue.
+	 * That leads to 0 being taking he highest precedence, then the higher
+	 * numbers. It is not adviced to change the job's priority after it has been
+	 * enqueued. That might lead to undefined behaviour.
+	 * 
+	 * @return The priority of the job.
+	 */
+	abstract public long priority();
+
+	/**
+	 * @return All unfinished jobs this job depends on.
+	 */
+	public final List<Job> dependencies() {
+		if (m_dependencies == null)
+			return Collections.EMPTY_LIST;
+
+		List<Job> result = new LinkedList<Job>();
+		synchronized (m_dependencies) {
+			for (Pair<Job, Job> p : m_dependencies) {
+				if (p.second == this) {
+					result.add(p.first);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Waits for the job to finish. Note that this method even returns when the
+	 * job's state changes to Error.
+	 */
+	public final void waitForFinished() {
+		try {
+			synchronized (this) {
+				// if this method is running inside of a WorkerThread
+				// we try to pass the job we're waiting for to the thread.
+				if (Thread.currentThread() instanceof WorkerThread) {
+					WorkerThread t = (WorkerThread) Thread.currentThread();
+					t.takeJob(this);
+				} else {
+					throw new Exception();
+				}
+			}
+		} catch (Exception e) {
+			// if something went wrong with taking the job
+			// ok - we might be stuck...
+			if (m_scheduler.getSchedulerStats().getIdleWorkerThreads() == 0) {
+				m_scheduler.startOneShotWorkerThread();
+			}
+		}
+		synchronized (this) {
+			while (state() != State.Finished) {
+				if (state() == State.Error) {
+					return;
+				}
+				try {
+					wait();
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks, whether all dependencies are met and the job can be executed.
+	 * 
+	 * @return true, when all dependencies are met.
+	 */
+	public boolean canExecute() {
+		final List<Job> deps = dependencies();
+		Iterator<Job> it = deps.iterator();
+		while (it.hasNext()) {
+			Job j = it.next();
+			if (j.state() != State.Finished && j.state() != State.Error) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Return the exception that caused this Job to quit
+	 * 
+	 * @return An exception object or null if the job has finished normally
+	 */
+	public final Exception getErrorException() {
+		return this.m_errorException;
+	}
+
+	/**
+	 * XXX bogus method, only used for putting it in into a Pair.
+	 */
+	public int compareTo(Job other) {
+		return (this == other) ? 0 : 1;
+	}
+
+	/**
+	 * Protected default constructor.
+	 */
+	protected Job() {
+		m_scheduler = null;
+		m_errorException = null;
+		setState(State.Created);
+	}
+
+	/**
+	 * Sets the job's state.
+	 * 
+	 * @param s
+	 *            The new state.
+	 */
+	protected final void setState(State s) {
+		if (m_state == s) {
+			return;
+		}
+
+		m_state = s;
+
+		if ((m_state == State.Finished || m_state == State.Error)
+				&& m_dependencies != null) {
+			// remove the job from the dependency list
+			List<Job> unblockedJobs = new LinkedList<Job>();
+			synchronized (m_dependencies) {
+				List<Pair<Job, Job>> doomed = new LinkedList<Pair<Job, Job>>();
+				for (Pair<Job, Job> p : m_dependencies) {
+					if (p.first == this) {
+						doomed.add(p);
+						unblockedJobs.add(p.second);
+					}
+				}
+				m_dependencies.removeAll(doomed);
+			}
+			/*
+			 * tell all jobs depending on the now finished on to forward that to
+			 * the scheduler
+			 */
+			for (Job j : unblockedJobs) {
+				j.callDependenciesChanged();
+			}
+		}
+
+		if ((m_state == State.Finished || m_state == State.Error)
+				&& m_dependees != null) {
+			synchronized (m_dependees) {
+				for (Job p : m_dependees) {
+					p.callDependenciesChanged();
+				}
+				m_dependees.clear();
+			}
+		}
+
+		if (m_scheduler != null) {
+			m_scheduler.jobStateChanged(this, s);
+		}
+
+		stateChanged(m_state);
+		fireStateChangedEvent();
+
+		synchronized (this) {
+			notifyAll();
+		}
+	}
+
+	/**
+	 * Called, when the state of the job changed to \a state. The default
+	 * implementation does nothing.
+	 */
+	protected void stateChanged(State state) {
+
+	}
+
+	/**
+	 * If the job is queued to a scheduler, this methods tells the scheduler,
+	 * that the job's dependencies have changed.
+	 */
+	protected final void callDependenciesChanged() {
+		if (m_scheduler != null) {
+			m_scheduler.jobDependenciesChanged(this);
+		}
+	}
+
+	/**
+	 * Restart a failing job by keeping count of the number of restarts
+	 * 
+	 * @throws Exception
+	 *             to signify that the maximum number of restarts was reached
+	 */
+	protected void restart() throws Exception {
+		restarts++;
+		if (restarts >= 5) {
+			throw new Exception("Too many restarts - failing job");
+		}
+		run();
+	}
+
+	/**
+	 * Run the job.
+	 * 
+	 * @throws Exception
+	 *             If thrown, the job ends up in Error state.
+	 */
+	abstract protected void run() throws Exception;
+
+	/**
+	 * Stop execution of the job until
+	 * 
+	 * @param p
+	 * @throws SchedulerException
+	 */
+	public void yield(ResumePoint p) throws SchedulerException {
+		synchronized (this) {
+			System.err.println(Thread.currentThread().getId() + ":"
+					+ toString() + ": State is :" + m_state);
+			if (m_state == State.Running) {
+				setState(State.Yielded);
+				this.resumePoint = p;
+				m_scheduler.yield(this, p);
+			} else {
+				throw new SchedulerException("Cannot yield non-running job: "
+						+ this + " (state was:" + state() + ")");
+			}
+		}
+	}
+
+	public long resume() throws Exception {
+		long ts = System.currentTimeMillis();
+		DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+		if (state() != State.Yielded)
+			throw new SchedulerException("Cannot resume a non-yielded job");
+
+		if (resumePoint == null)
+			throw new SchedulerException("Resume point is null");
+
+		try {
+			setState(State.Running);
+			resumePoint.resume();
+
+			assert (!dbs.isDBSessionActive());
+			if (dbs.isDBSessionActive()) {
+				dbs.rollbackDBSession();
+				setState(State.Error); // No uncommitted sessions are tolerated
+			} else {
+				setState(State.Finished);
+			}
+		} catch (Exception e) {
+
+			if (dbs.isDBSessionActive()) {
+				dbs.rollbackDBSession();
+			}
+
+			// In case of an exception, state becomes Error
+			m_errorException = e;
+			setState(State.Error);
+			// the Exception itself is forwarded
+			throw e;
+		}
+
+		return System.currentTimeMillis() - ts;
+	}
+
+	public String getJobType() {
+		if (this.getClass() != null) { // TODO How does this ever fail? remove
+										// if, and try/catch
+			try {
+				// result.append(j.getClass().getPackage().getName());
+				// result.append(". " + j.getClass().getSimpleName());
+				return this.toString();
+			} catch (NullPointerException ex) {
+				return "<b>NA</b>";
+			}
+		} else {
+			return "<b>NA</b>";
+		}
+	}
+
+	public String getExceptionType() {
+		Exception e = this.getErrorException();
+		if (e != null) {
+			try {
+				StringBuilder result = new StringBuilder("");
+				result.append(e.getClass().getPackage().getName());
+				result.append(". " + e.getClass().getSimpleName());
+				return result.toString();
+			} catch (NullPointerException ex) {
+				return "<b>NA</b>";
+			}
+		} else {
+			return "<b>NA</b>";
+		}
+	}
+
+	public String getExceptionText() {
+		Exception e = this.getErrorException();
+		try {
+			return e.getMessage();
+		} catch (NullPointerException ex) {
+			return "<b>NA</b>";
+		}
+	}
+
+	public String getExceptionBacktrace() {
+		Exception e = this.getErrorException();
+		StringBuilder result = new StringBuilder("");
+		if ((e != null) && (e.getStackTrace() != null)) {
+			for (StackTraceElement m : e.getStackTrace()) {
+				if (m == null)
+					continue;
+				result.append(m.getClassName());
+				result.append(". ");
+				result.append(m.getMethodName());
+				result.append("(), (");
+				result.append(m.getFileName());
+				result.append(":");
+				result.append(m.getLineNumber());
+				result.append(")<br/>");
+			}
+			return result.toString();
+		} else {
+			return "<b>NA</b>";
+		}
+	}
+
+	/**
+	 * This method is called during queueing, right before the job is added to
+	 * the work queue. The job is not in state Queued at this time.
+	 * 
+	 * @param s
+	 *            The scheduler, the job has been enqueued to.
+	 */
+	protected void aboutToBeEnqueued(Scheduler s) {
+	}
+
+	/**
+	 * This method is called right before the job is dequeued without being
+	 * executed. The job is still in it's previoues state.
+	 * 
+	 * @parem s The scheduler, the job is dequeued from.
+	 */
+	protected void aboutToBeDequeued(Scheduler s) {
+	}
+
+	/**
+	 * Add a listener from the job's list of state listeners
+	 */
+	public final synchronized void addJobStateListener(JobStateListener l) {
+		if (listeners == null)
+			listeners = new ArrayList<JobStateListener>();
+		listeners.add(l);
+	}
+
+	/**
+	 * Remove a listener from the job's list of state listeners
+	 * 
+	 * @param l
+	 *            The listener to remove'
+	 */
+	public final synchronized void removeJobStateListener(JobStateListener l) {
+		if (listeners == null)
+			return;
+		listeners.remove(l);
+	}
+
+	/**
+	 * Called when the job's state has changed to notify clients about that.
+	 */
+	private void fireStateChangedEvent() {
+		if (listeners == null)
+			return;
+		for (JobStateListener l : listeners) {
+			l.jobStateChanged(this, m_state);
+		}
+	}
 }

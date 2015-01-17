@@ -1,0 +1,53 @@
+<fieldset>
+	<legend>All plug-ins</legend>
+	<table>
+		<thead>
+			<tr class="head">
+				<td class="head" style="width: 80px;">Status</td>
+				<td class="head" style="width: 30%;">Name</td>
+				<td class="head" style="width: 40%;">Class</td>
+				<td class="head">Version</td>
+			</tr>
+		</thead>
+		<tbody>
+		#foreach ($plugin in $metrics.getPluginsList())
+			#if(!$plugin.isInstalled())
+				<tr class="edit"
+				onclick="javascript:document.getElementById('pluginHashcode').value='$plugin.getHashcode()';document.metrics.submit();">
+					<td class="trans"><img src="/edit.png" alt="[Edit]" />&nbsp;Registered</td>
+					<td class="trans">$plugin.getPluginName()</td>
+					<td class="trans">$plugin.getPluginClass()</td>
+					<td class="trans">$plugin.getPluginVersion()</td>
+					#parse("plugins_properties.html")
+					#parse("plugins_activators.html")
+				</tr>
+			#end
+		#end
+		#foreach ($plugin in $metrics.getPluginsList())
+			#if($plugin.isInstalled())
+				<tr class="edit"
+				onclick="javascript:document.getElementById('pluginHashcode').value='$plugin.getHashcode()';document.metrics.submit();">
+					<td class="trans"><img src="/edit.png" alt="[Edit]" />&nbsp;Installed</td>
+					<td class="trans">$plugin.getPluginName()</td>
+					<td class="trans">$plugin.getPluginClass()</td>
+					<td class="trans">$plugin.getPluginVersion()</td>
+					#parse("plugins_properties.html")
+					#parse("plugins_activators.html")
+				</tr>
+			#end
+		#end
+		</tbody>
+	</table>
+	<span> <input type="checkbox"
+		#if($request.getParameter("showProperties") && $request.getParameter("showProperties") == "true")
+			 checked 
+		#end
+		onclick="javascript:document.getElementById('showProperties').value = this.checked;document.getElementById('pluginHashcode').value='';document.metrics.submit();">Display
+		properties <input type="checkbox"
+		#if($request.getParameter("showActivators") && $request.getParameter("showActivators") == "true")
+			 checked 
+		#end
+		onclick="javascript:document.getElementById('showActivators').value = this.checked;document.getElementById('pluginHashcode').value='';document.metrics.submit();">Display
+		activators
+	</span>
+</fieldset>
