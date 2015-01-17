@@ -16,6 +16,8 @@ To facilitate refactoring, unit tests must be present. Therefore we have created
  - `SchedulerStats` in package `eu.sqooss.service.scheduler`
  - `InMemoryDirectory` in package `eu.sqooss.service.fds`
  - `InMemoryCheckoutImpl` in package `eu.sqooss.impl.service.fds`
+ - `ProjectsView` in package `eu.sqooss.impl.service.webadmin`
+ - `WebAdminRenderer` in package `eu.sqooss.impl.service.webadmin`
  
 The line coverage of the core package after adding new tests is displayed in the figure below. It was increased considerably to a line coverage of 11% for the core package. This time, subpackages with a coverage less than 10% were omitted.
 
@@ -64,7 +66,7 @@ In order to remove yet another cyclic dependency, we moved two static methods fr
 
 ### Don't Repeat Yourself (DRY)
 
-With Google CodePro AnalytiX we found several instances of violations of the DRY princliple. On should not copy past code, because you will introduce the same bug on multiple places and it's hard to maintain. In `FDSSerivceImpl` the methods `getInMemoryCheckout(ProjectVersion pv, Pattern pattern)` and `getCheckout(ProjectVersion pv, String path)` have more than 10 lines of code exactly the same. We extracted a part of the method to a new method called `getSCNAccesor(ProjectVersion pv)`. Also in `WebAdminRenderer` we reduced the amount of duplicate code. The methods `renderJobFailStats()` and `renderJobWaitStats()` had about 20 lines of code in common. This time we made to methods which are now both called instead of those 20 lines of code.
+With Google CodePro AnalytiX we found several instances of violations of the DRY princliple. On should not copy past code, because you will introduce the same bug on multiple places and it's hard to maintain. In `FDSSerivceImpl` the methods `getInMemoryCheckout(ProjectVersion pv, Pattern pattern)` and `getCheckout(ProjectVersion pv, String path)` have more than 10 lines of code exactly the same. We extracted a part of the method to a new method called `getSCNAccesor(ProjectVersion pv)`. Also in `WebAdminRenderer` we reduced the amount of duplicate code. The methods `renderJobFailStats()` and `renderJobWaitStats()` had about 20 lines of code in common. This time we made to methods which are now both called instead of those 20 lines of code. The method `createFrom(.., ..)`, wich was around 250 LOC, has been reduced 40 LOC in size. This is done by exacting duplicate code in a new method called `addButtonSet(....)` which adds two buttons to the HTML code. This new method is called twice from the `createFrom(.., ..)` method. 
 
 ## Bug Fixes
 
