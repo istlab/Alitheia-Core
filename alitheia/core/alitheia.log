@@ -258,3 +258,445 @@ INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
 ERROR sqooss.rest - Could not find a HTTP service!
 INFO sqooss.admin - Action gc: removed 0 actions
 WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.db - Unable to find JDBC driver org.h2.Driver
+ERROR sqooss.db - DB service got no JDBC connectors.
+INFO sqooss.pa - Starting the PluginAdmin component.
+DEBUG sqooss.pa - The PluginAdmin component was successfully started.
+INFO sqooss.scheduler - Starting 16 worker threads
+INFO sqooss.tds - TDS service created.
+INFO sqooss.tds - TDS is now running the stuffer.
+INFO sqooss.tds - TDS Stuffer is finished.
+INFO sqooss.cluster - Got a valid reference to the logger
+ERROR sqooss.cluster - Could not load the HTTP service.
+INFO sqooss.cluster - Succesfully started clusternode service
+WARN sqooss.db - Trying to call a DBService method without an active session
+WARN sqooss.db - Trying to call a DBService method without an active session
+ERROR sqooss.cluster - Failed to register ClusterNode <pc>
+WARN sqooss.db - Trying to call a DBService method without an active session
+INFO sqooss.fds - Got TDS service for FDS.
+INFO sqooss.fds - No eu.sqooss.fds.root set, using default /var/tmp/alitheia
+ERROR sqooss.rest - Could not find a HTTP service!
+INFO sqooss.admin - Action gc: removed 0 actions

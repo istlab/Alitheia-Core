@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
 import eu.sqooss.service.scheduler.Job.State;
-import eu.sqooss.service.scheduler.SchedulerException;
 
 public class SchedulerTests {
 

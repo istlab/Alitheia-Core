@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import eu.sqooss.service.scheduler.SchedulerStats;
-
 public class SchedulerStatsTests {
 	@Test
 	public void initTest() {
