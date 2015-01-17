@@ -101,7 +101,7 @@ This code does not make much sense, because now the amount of waiting jobs (`wai
 
 ## Recommendations 
 
-To further improve the maintainability of the system, we recommend some further refactorings. However, to perform refactorings, unit and integration tests are very much required to not break the system. With a coverage of only 1.7% of the core, these were severely lacking. Even after the refactorings, a coverage of 9.8% is still very low.
+To further improve the maintainability of the system, we recommend some further refactorings. However, to perform refactorings, unit and integration tests are very much required to not break the system. With a coverage of only 1.7% of the core, these were severely lacking. Even after the refactorings, a coverage of 11% is still very low.
 
 Therefore our first recommendation is to build a complete test suite for the system. This will be quite a large investment, but it will definitely pay off in the long run, because it will make refactorings much less time consuming. Units tests would have prevented bugs as the ones described in the "Bug Fixes" section. Additionally, tests will make it easier to extend the system, especially after many of the developers that originally designed the system will have departed.
 
