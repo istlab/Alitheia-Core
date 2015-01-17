@@ -25,7 +25,8 @@ public class InMemoryCheckoutImplTest {
 		bc = mock(BundleContext.class);
 		when(bc.getProperty("eu.sqooss.db")).thenReturn("H2");
 		when(bc.getProperty("eu.sqooss.db.host")).thenReturn("localhost");
-		when(bc.getProperty("eu.sqooss.db.schema")).thenReturn("alitheia;LOCK_MODE=3;MULTI_THREADED=true");
+		when(bc.getProperty("eu.sqooss.db.schema")).thenReturn(
+				"alitheia;LOCK_MODE=3;MULTI_THREADED=true");
 		when(bc.getProperty("eu.sqooss.db.user")).thenReturn("sa");
 		when(bc.getProperty("eu.sqooss.db.passwd")).thenReturn("");
 		when(bc.getProperty("eu.sqooss.db.conpool")).thenReturn("c3p0");
