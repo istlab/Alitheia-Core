@@ -52,6 +52,10 @@ Between `Tag` and `StoredProject` was a cyclic dependency, this was due a two st
 
 In order to remove yet another cyclic dependency, we moved two static methods from the `PluginConfigurator` to the `Plugin` class. This solves a part of the dependency between the two. `PluginConfigurator` still has a getter and setter for a `Plugin` object. This getter is never called, the setter is only called once and `PluginConfigurator` never uses the `Plugin` object in one of its methods. Therefore we removed the getter and setter and the variable declaration. Now the `PluginConfigurator` class doesn't depend on `Plugin`, thus the cyclic dependency is solved. 
 
+### Don't Repeat Yourself (DRY)
+
+With Google CodePro AnalytiX we found several instances of violations of the DRY princliple. On should not copy past code, because you will introduce the same bug on multiple places and it's hard to maintain. In `FDSSerivceImpl` the methods `getInMemoryCheckout(ProjectVersion pv, Pattern pattern)` and `getCheckout(ProjectVersion pv, String path)` have more than 10 lines of code exactly the same. We extracted a part of the method to a new method called `getSCNAccesor(ProjectVersion pv)`. Also in `WebAdminRenderer` we reduced the amount of duplicate code. The methods `renderJobFailStats()` and `renderJobWaitStats()` had about 20 LOC in common. This time we made to methods which are now both called instead of those 20 LOC.
+
 ## Bug Fixes
 
 ### SchedulerStats
