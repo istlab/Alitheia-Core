@@ -93,7 +93,9 @@ This code does not make much sense, because now the amount of waiting jobs (`wai
 
 ## Recommendations 
 
-To further improve the maintainability of the system, we recommend some further refactorings. However, to perform refactorings, unit and integration tests are very much required to not break the system. These are currently severely lacking, therefore our first recommendation is to build a complete test suite for the system. This will be quite a large investment, but it will definitely pay off in the long run, because it will make refactorings much less time consuming. Additionally, tests will make it easier to extend the system, especially after many of the developers that originally designed the system will have departed.
+To further improve the maintainability of the system, we recommend some further refactorings. However, to perform refactorings, unit and integration tests are very much required to not break the system. These are currently severely lacking, therefore our first recommendation is to build a complete test suite for the system. This will be quite a large investment, but it will definitely pay off in the long run, because it will make refactorings much less time consuming. Units tests would have prevented bugs like described in the "Bug Fixes" section. Additionally, tests will make it easier to extend the system, especially after many of the developers that originally designed the system will have departed.
+
+The system consists out of many very large methods, this make testing very hard. Especially classes with HTML code generation consists out of much code duplication. We already fixed a few instances of code duplications, but there are many more. When methods are split up in smaller ones, it will also become easier to remove duplicated code. Therefore we recommend to split up methods were possible. The `PluginsView` class, with a method of almost 900 LOC and multiple instances of DRY violations, is a good one to start with.
 
 ## Conclusions
 
