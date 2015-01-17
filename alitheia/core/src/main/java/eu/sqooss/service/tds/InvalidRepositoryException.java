@@ -33,6 +33,7 @@
 
 package eu.sqooss.service.tds;
 
+import eu.sqooss.service.tds.TDSException;
 
 /**
  * This exception indicates that the repository is invalid for

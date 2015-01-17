@@ -35,6 +35,7 @@ package eu.sqooss.service.abstractmetric;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.tools.Diagnostic.Kind;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;

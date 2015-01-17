@@ -43,8 +43,8 @@ import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -52,9 +52,9 @@ import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
 import eu.sqooss.service.tds.MailAccessor;
+import eu.sqooss.service.logging.Logger;
 
 /**
  * This is the implementation of the simple access to mailing

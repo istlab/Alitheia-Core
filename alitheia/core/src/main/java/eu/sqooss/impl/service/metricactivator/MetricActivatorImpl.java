@@ -33,29 +33,15 @@
 
 package eu.sqooss.impl.service.metricactivator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import eu.sqooss.service.abstractmetric.InvocationOrder;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.InvocationOrder;
-import eu.sqooss.service.abstractmetric.MetricActivator;
-import eu.sqooss.service.abstractmetric.PluginAdmin;
-import eu.sqooss.service.abstractmetric.PluginInfo;
 import eu.sqooss.service.abstractmetric.SchedulerHints;
 import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
@@ -76,6 +62,9 @@ import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.metricactivator.MetricActivator;
+import eu.sqooss.service.pa.PluginAdmin;
+import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.scheduler.Job;
 import eu.sqooss.service.scheduler.Scheduler;
 import eu.sqooss.service.scheduler.SchedulerException;

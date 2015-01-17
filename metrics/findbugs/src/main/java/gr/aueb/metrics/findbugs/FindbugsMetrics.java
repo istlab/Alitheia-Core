@@ -29,55 +29,32 @@
  */
 package gr.aueb.metrics.findbugs;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.osgi.framework.BundleContext;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.abstractmetric.AbstractMetric;
-import eu.sqooss.service.abstractmetric.InvocationOrder;
-import eu.sqooss.service.abstractmetric.MetricDecl;
-import eu.sqooss.service.abstractmetric.MetricDeclarations;
-import eu.sqooss.service.abstractmetric.Result;
-import eu.sqooss.service.abstractmetric.SchedulerHints;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Metric;
-import eu.sqooss.service.db.ProjectFile;
-import eu.sqooss.service.db.ProjectFileMeasurement;
-import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.abstractmetric.*;
+import eu.sqooss.service.db.*;
 import eu.sqooss.service.fds.CheckoutException;
 import eu.sqooss.service.fds.FDSService;
 import eu.sqooss.service.fds.OnDiskCheckout;
 import eu.sqooss.service.util.FileUtils;
+import org.osgi.framework.BundleContext;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 
 @MetricDeclarations(metrics = {
 //Security

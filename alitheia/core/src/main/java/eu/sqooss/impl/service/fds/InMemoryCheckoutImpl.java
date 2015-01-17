@@ -36,86 +36,66 @@ package eu.sqooss.impl.service.fds;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import eu.sqooss.service.db.Directory;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.fds.InMemoryCheckout;
 import eu.sqooss.service.fds.InMemoryDirectory;
-import eu.sqooss.service.util.FileUtils;
 
 /**
- * An implementation of the InMemoryCheckout interface that uses the DB service
- * to retrieve file information for a specific version.
+ * An implementation of the InMemoryCheckout interface that uses the 
+ * DB service to retrieve file information for a specific version.
  */
 class InMemoryCheckoutImpl implements InMemoryCheckout {
+   
+    private ProjectVersion revision;
+    private InMemoryDirectory root;
+    private Pattern pattern;
 
-	private ProjectVersion revision;
-	private InMemoryDirectory root;
-	private Pattern pattern;
+    InMemoryCheckoutImpl(ProjectVersion pv) {
+        revision = pv;
+        pattern = Pattern.compile(".*");
+    }
 
-	InMemoryCheckoutImpl(ProjectVersion pv) {
-		revision = pv;
-		pattern = Pattern.compile(".*");
-	}
+    InMemoryCheckoutImpl(ProjectVersion pv, Pattern p) {
+        revision = pv;
+        pattern = p;
+    }
 
-	InMemoryCheckoutImpl(ProjectVersion pv, Pattern p) {
-		revision = pv;
-		pattern = p;
-	}
+    protected void createCheckout() {
+        root = new InMemoryDirectory(this);
+        
+        List<ProjectFile> projectFiles = revision.getFiles();
+        if (projectFiles != null && projectFiles.size() != 0) {
+            for (ProjectFile f : projectFiles) {
+                if (pattern.matcher(f.getFileName()).matches()) {
+                    if (!f.getIsDirectory()) {
+                        root.createSubDirectory(f.getDir().getPath()).addFile(f.getName());
+                    } else {
+                        root.createSubDirectory(f.getFileName());
+                    }
+                }
+            }
+        }
+    }
 
-	protected void createCheckout() {
-		root = new InMemoryDirectory();
+    /** {@inheritDoc} */
+    public InMemoryDirectory getRoot() {
+        if (root == null) 
+            createCheckout();
+        return root;
+    }
 
-		List<ProjectFile> projectFiles = revision.getFiles();
-		if (projectFiles != null && projectFiles.size() != 0) {
-			for (ProjectFile f : projectFiles) {
-				if (pattern.matcher(f.getFileName()).matches()) {
-					if (!f.getIsDirectory()) {
-						root.createSubDirectory(f.getDir().getPath()).addFile(
-								f.getName());
-					} else {
-						root.createSubDirectory(f.getFileName());
-					}
-				}
-			}
-		}
-	}
+    /** {@inheritDoc} */
+    public ProjectFile getFile(String name) {
+        if (root == null) 
+            createCheckout();
+        return root.getFile(name);
+    }
 
-	/** {@inheritDoc} */
-	public InMemoryDirectory getRoot() {
-		if (root == null)
-			createCheckout();
-		return root;
-	}
-
-	/** {@inheritDoc} */
-	public ProjectFile getFile(String name) {
-		/* Recursively traverse the directories of the provided file path */
-		if (name.indexOf('/') != -1) {
-			String pathName = name.substring(0, name.indexOf('/'));
-			String fileName = name.substring(name.indexOf('/') + 1);
-			InMemoryDirectory dir = getRoot().getSubdirectoryByName(pathName);
-			return dir == null ? null : getFile(fileName);
-		}
-
-		return ProjectFile.findFile(getProjectVersion().getProject().getId(),
-				FileUtils.basename(name), FileUtils.dirname(name),
-				getProjectVersion().getRevisionId());
-	}
-
-	/**
-	 * Returns the list of files this directory contains.
-	 */
-	public List<ProjectFile> getFiles() {
-		return getProjectVersion().getFiles(
-				Directory.getDirectory(getRoot().getPath(), false),
-				ProjectVersion.MASK_FILES);
-	}
-
-	/** {@inheritDoc} */
-	public ProjectVersion getProjectVersion() {
-		return revision;
-	}
+    /** {@inheritDoc} */
+    public ProjectVersion getProjectVersion() {
+        return revision;
+    }
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

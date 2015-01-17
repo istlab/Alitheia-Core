@@ -39,6 +39,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import eu.sqooss.metrics.contrib.ContributionMetricImpl;
+
 public class Activator implements BundleActivator {
 
     private ServiceRegistration registration;

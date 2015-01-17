@@ -33,6 +33,10 @@
 
 package eu.sqooss.service.db;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -43,6 +47,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DAObject;
 
 /**
  * Instances of this class represent the data of an SVN tag for a
@@ -102,6 +109,49 @@ public class Tag extends DAObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static ProjectVersion getProjectVersionForNamedTag(String tagName,
+            StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramTagName = "tagname";
+        String paramProject = "project_id";
+
+        String query = "select pv " 
+                + " from ProjectVersion pv, Tag t "
+                + " where t.projectVersion = pv " 
+                + " and t.name = :" + paramTagName 
+                + " and pv.project =:" + paramProject;
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(paramTagName, tagName);
+        parameters.put(paramProject, sp);
+
+        List<?> projectVersions = dbs.doHQL(query, parameters, 1);
+
+        if (projectVersions == null || projectVersions.size() == 0) {
+            return null;
+        } else {
+            return (ProjectVersion) projectVersions.get(0);
+        }
+    }
+    
+    public static List<ProjectVersion> getTaggedVersions(StoredProject sp) {
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+
+        String paramProject = "project_id";
+
+        String query = "select pv " 
+                + " from ProjectVersion pv, Tag t "
+                + " where t.projectVersion = pv " 
+                + " and pv.project =:" + paramProject;
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(paramProject, sp);
+
+        return (List<ProjectVersion>) dbs.doHQL(query, parameters);
+
     }
 
     @Override

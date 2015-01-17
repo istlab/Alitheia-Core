@@ -2,8 +2,8 @@
  * This file is part of the Alitheia system, developed by the SQO-OSS
  * consortium as part of the IST FP6 SQO-OSS project, number 033331.
  *
- * Copyright 2009 - 2010 - Organization for Free and Open Source Software,  
- * *                Athens, Greece.
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,29 +30,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package eu.sqooss.metrics.discussionheat;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+package eu.sqooss.test.service.scheduler;
 
-import eu.sqooss.metrics.discussionheat.DiscussionHeat;
+import eu.sqooss.service.scheduler.Job;
 
+/**
+ * This a test job class.
+ * It has the holy purpuse to print a string n times.
+ *
+ * @author Christoph Schleifenbaum
+ */
+class TestJob extends Job
+{
 
-public class DiscussionHeatActivator implements BundleActivator {
+    private int n;
+    private String s;
 
-    private ServiceRegistration registration;
-
-    public void start(BundleContext bc) throws Exception {
-
-        registration = bc.registerService(DiscussionHeat.class.getName(),
-                new DiscussionHeat(bc), null);
+    /**
+     * Contructor creating a job printing string \a s \a n times.
+     */
+    public TestJob(int n, String s) {
+        this.n = n;
+        this.s = s;
     }
 
-    public void stop(BundleContext context) throws Exception {
-        registration.unregister();
+    public long priority() {
+        return 0;
+    }
+    
+    protected void run() throws Exception {
+        System.out.println("Testjob running!");
+        for (int i = 0; i < n; ++i) {   
+            Thread.sleep(500);
+            System.out.println(s);
+        }
+        System.out.println("Testjob finished!");
     }
 }
-
-// vi: ai nosi sw=4 ts=4 expandtab
-

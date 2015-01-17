@@ -35,6 +35,7 @@ package eu.sqooss.service.db;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -50,216 +51,172 @@ import javax.persistence.Table;
 import eu.sqooss.core.AlitheiaCore;
 
 /**
- * Instances of this class represent data related to Alitheia Core plugins,
- * stored in the database
+ * Instances of this class represent data related to Alitheia Core
+ * plugins, stored in the database
  * 
  * @assoc 1 - n PluginConfiguration
  * @assoc 1 - n Metric
  */
 @Entity
-@Table(name = "PLUGIN")
+@Table(name="PLUGIN")
 public class Plugin extends DAObject {
-
+	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "PLUGIN_ID")
-	private long id;
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="PLUGIN_ID")
+	private long id; 
 
 	/**
-	 * the name of the plugin
-	 */
-	@Column(name = "NAME")
-	private String name;
+     * the name of the plugin
+     */
+	@Column(name="NAME")
+    private String name; 
 
-	/**
-	 * A representation of date on which the plugin was installed into the
-	 * ALitheia Core
-	 */
-	@Column(name = "INSTALL_DATE")
-	private Date installdate;
+    /**
+     * A representation of date on which the plugin was installed into
+     * the ALitheia Core
+     */
+	@Column(name="INSTALL_DATE")
+    private Date installdate; 
+    
+    /**
+     * The version number of this plugin
+     */
+	@Column(name="VERSION")
+    private String version; 
 
-	/**
-	 * The version number of this plugin
-	 */
-	@Column(name = "VERSION")
-	private String version;
+    /**
+     * A description of the plugin and the metrics provided
+     */
+	@Column(name="DESCRIPTION")
+    private String description; 
 
-	/**
-	 * A description of the plugin and the metrics provided
-	 */
-	@Column(name = "DESCRIPTION")
-	private String description;
+    /**
+     * Denotes if the metric is active as well as being installed
+     */
+	@Column(name="IS_ACTIVE")
+    private boolean active;
 
-	/**
-	 * Denotes if the metric is active as well as being installed
-	 */
-	@Column(name = "IS_ACTIVE")
-	private boolean active;
+    /**
+     * A hashcode representing the plugin bundle to ensure a unique
+     * identifier
+     */
+	@Column(name="HASHCODE")
+    private String hashcode;
 
-	/**
-	 * A hashcode representing the plugin bundle to ensure a unique identifier
-	 */
-	@Column(name = "HASHCODE")
-	private String hashcode;
-
-	/**
-	 * A list of all configuration entries for this plugin
-	 */
-	@OneToMany(mappedBy = "plugin", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<PluginConfiguration> configurations;
-
-	/**
-	 * A list of all supported metrics for this plugin
-	 */
-	@OneToMany(mappedBy = "plugin", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<Metric> supportedMetrics;
-
-	public long getId() {
+    /**
+     * A list of all configuration entries for this plugin
+     */
+	@OneToMany(mappedBy="plugin", cascade=CascadeType.ALL, orphanRemoval = true)
+    private Set<PluginConfiguration> configurations;
+    
+    /**
+     * A list of all supported metrics for this plugin
+     */
+	@OneToMany(mappedBy="plugin", cascade=CascadeType.ALL, orphanRemoval = true)
+    private Set<Metric> supportedMetrics;
+    
+    public long getId() {
 		return id;
 	}
 
 	public void setId(long id) {
 		this.id = id;
 	}
+    
+    public String getName() {
+        return name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public Date getInstalldate() {
+        return installdate;
+    }
 
-	public Date getInstalldate() {
-		return installdate;
-	}
+    public void setInstalldate(Date installdate) {
+        this.installdate = installdate;
+    }
+    
+    public String getVersion() {
+        return version;
+    }
 
-	public void setInstalldate(Date installdate) {
-		this.installdate = installdate;
-	}
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	public String getVersion() {
-		return version;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public boolean isActive() {
+        return active;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+    
+    public String getHashcode() {
+        return hashcode;
+    }
 
-	public boolean isActive() {
-		return active;
-	}
+    public void setHashcode(String hashcode) {
+        this.hashcode = hashcode;
+    }
+    
+    public Set<PluginConfiguration> getConfigurations() {
+        return configurations;
+    }
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+    public void setConfigurations(Set<PluginConfiguration> configurations) {
+        this.configurations = configurations;
+    }
 
-	public String getHashcode() {
-		return hashcode;
-	}
+    public Set<Metric> getSupportedMetrics() {
+        return supportedMetrics;
+    }
 
-	public void setHashcode(String hashcode) {
-		this.hashcode = hashcode;
-	}
+    public void setSupportedMetrics(Set<Metric> supportedMetrics) {
+        this.supportedMetrics = supportedMetrics;
+    }
 
-	public Set<PluginConfiguration> getConfigurations() {
-		return configurations;
-	}
-
-	public void setConfigurations(Set<PluginConfiguration> configurations) {
-		this.configurations = configurations;
-	}
-
-	public Set<Metric> getSupportedMetrics() {
-		return supportedMetrics;
-	}
-
-	public void setSupportedMetrics(Set<Metric> supportedMetrics) {
-		this.supportedMetrics = supportedMetrics;
-	}
-
-	public static List<Plugin> getPluginByName(String name) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-		HashMap<String, Object> s = new HashMap<String, Object>();
-		s.put("name", name);
-		return db.findObjectsByProperties(Plugin.class, s);
-	}
-
-	/**
-	 * Get Plugin by hashcode
-	 * 
-	 * @param hashcode
-	 *            The object's hashcode for the plugin class that implements the
-	 *            {@link eu.sqooss.service.abstractmetric.AlitheiaPlugin}
-	 *            interface
-	 * @return A Plugin object if the hashcode was found in the DB; null
-	 *         otherwise
-	 */
-	public static Plugin getPluginByHashcode(String hashcode) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-		HashMap<String, Object> s = new HashMap<String, Object>();
-		s.put("hashcode", hashcode);
-		List<Plugin> l = db.findObjectsByProperties(Plugin.class, s);
-		if (!l.isEmpty())
-			return l.get(0);
-
-		return null;
-	}
-
-	/**
-	 * Get a PluginConfiguration entry DAO or null in
-	 */
-	public PluginConfiguration getConfigurationEntry(
-			HashMap<String, Object> names) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-
-		names.put("plugin", this);
-
-		List<PluginConfiguration> l = db.findObjectsByProperties(
-				PluginConfiguration.class, names);
-
-		if (l.isEmpty()) {
-			return null;
-		}
-
-		return l.get(0);
-	}
-
-	/**
-	 * Update a configuration entry. If the entry is found and updated
-	 * successfully true will be returned. If not found or the update fails,
-	 * false will be returned.
-	 */
-	public boolean updConfigurationEntry(HashMap<String, Object> names) {
-		DBService db = AlitheiaCore.getInstance().getDBService();
-		PluginConfiguration pc = getConfigurationEntry(names);
-
-		if (pc == null) {
-			return false;
-		}
-
-		HashMap<String, Object> s = new HashMap<String, Object>();
-
-		names.put("plugin", this);
-
-		List<PluginConfiguration> l = db.findObjectsByProperties(
-				PluginConfiguration.class, s);
-
-		if (l.isEmpty()) {
-			return false;
-		}
-
-		return true;
-	}
+    public static List<Plugin> getPluginByName(String name) {
+        DBService db = AlitheiaCore.getInstance().getDBService();
+        HashMap<String, Object> s = new HashMap<String, Object>();
+        s.put("name", name);
+        return db.findObjectsByProperties(Plugin.class, s);
+    }
+        
+    /**
+     * Get Plugin by hashcode
+     * 
+     * @param hashcode
+     *                The object's hashcode for the plugin class that implements
+     *                the
+     *                {@link eu.sqooss.service.abstractmetric.AlitheiaPlugin}
+     *                interface
+     * @return A Plugin object if the hashcode was found in the DB; null
+     *         otherwise
+     */
+    public static Plugin getPluginByHashcode(String hashcode) {
+        DBService db = AlitheiaCore.getInstance().getDBService();
+        HashMap<String, Object> s = new HashMap<String, Object>();
+        s.put("hashcode", hashcode);
+        List<Plugin> l = db.findObjectsByProperties(Plugin.class, s); 
+        if (!l.isEmpty())
+            return l.get(0);
+        
+        return null;
+    }
 }
 
-// vi: ai nosi sw=4 ts=4 expandtab
+//vi: ai nosi sw=4 ts=4 expandtab
 

@@ -36,12 +36,17 @@ package eu.sqooss.service.scheduler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.LinkedList;
+
+import java.lang.Comparable;
+import java.lang.InterruptedException;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.util.Pair;
+
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.scheduler.SchedulerException;
 
 /**
  * Abstract base class for all jobs running by the scheduler.

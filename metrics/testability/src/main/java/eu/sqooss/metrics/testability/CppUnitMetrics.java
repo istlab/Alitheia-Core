@@ -34,10 +34,10 @@
 
 package eu.sqooss.metrics.testability;
 
-import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.IOException;
 
 /** Measure and obtain CppUnit testability metrics. */
 class CppUnitMetrics implements TestabilityScanner {

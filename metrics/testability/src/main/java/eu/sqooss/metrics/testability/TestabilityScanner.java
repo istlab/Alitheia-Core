@@ -34,8 +34,8 @@
 
 package eu.sqooss.metrics.testability;
 
-import java.io.IOException;
 import java.io.LineNumberReader;
+import java.io.IOException;
 
 /** Measure and obtain testability metrics. */
 interface TestabilityScanner {

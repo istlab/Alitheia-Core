@@ -35,8 +35,8 @@ package eu.sqooss.service.db;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -54,120 +54,118 @@ import org.hibernate.annotations.Index;
 import eu.sqooss.core.AlitheiaCore;
 
 /**
- * This class represents the data relating to a directory within an inserted
- * project's SVN tree, stored in the database
+ * This class represents the data relating to a directory within an
+ * inserted project's SVN tree, stored in the database
  * 
  * @assoc 1 - n ProjectFile
  */
-@XmlRootElement(name = "dir")
+@XmlRootElement(name="dir")
 @Entity
-@Table(name = "DIRECTORY")
+@Table(name="DIRECTORY")
 public class Directory extends DAObject {
-	/**
-	 * Semi-fake representation of a SVN root
-	 */
-	public static String SCM_ROOT = "/";
+    /**
+     * Semi-fake representation of a SVN root
+     */
+    public static String SCM_ROOT = "/";
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "DIRECTORY_ID")
+    @Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="DIRECTORY_ID")
 	@XmlElement
-	private long id;
-
+	private long id; 
+    
 	/**
-	 * The path within the SVN repo
-	 */
-	@Column(name = "PATH")
-	@XmlElement
-	@Index(name = "IDX_DIRECTORY_PATH")
-	private String path;
+     * The path within the SVN repo
+     */
+    @Column(name="PATH")
+    @XmlElement
+    @Index(name="IDX_DIRECTORY_PATH")
+    private String path;
+    
+    /**
+     * A set representing the files within this path
+     */
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "dir")
+    private Set<ProjectFile> files;
 
-	/**
-	 * A set representing the files within this path
-	 */
-	@OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "dir")
-	private Set<ProjectFile> files;
-
-	public long getId() {
+    public long getId() {
 		return id;
 	}
 
 	public void setId(long id) {
 		this.id = id;
 	}
+    
+    public String getPath() {
+        return path;
+    }
 
-	public String getPath() {
-		return path;
-	}
+    public void setPath(String path) {
+        this.path = path;
+    }    
+    
+    public Set<ProjectFile> getFiles() {
+        return files;
+    }
 
-	public void setPath(String path) {
-		this.path = path;
-	}
+    public void setFiles(Set<ProjectFile> files) {
+        this.files = files;
+    }
+    
+    public boolean isSubDirOf(Directory d) {
+        //
+        return false;
+    }
 
-	public Set<ProjectFile> getFiles() {
-		return files;
-	}
-
-	public void setFiles(Set<ProjectFile> files) {
-		this.files = files;
-	}
-
-	public boolean isSubDirOf(Directory d) {
-		//
-		return false;
-	}
-
-	/**
-	 * Return the entry in the Directory table that corresponds to the passed
-	 * argument. If the entry does not exist, it will optionally be created and
-	 * saved, depending on the second parameter
-	 * 
-	 * @param path
-	 *            The path of the Directory to search for
-	 * @param create
-	 *            Whether or not the directory entry will be created if not
-	 *            found. If true, it will be created.
-	 * @return A Directory record for the specified path or null on failure
-	 */
-	public static synchronized Directory getDirectory(String path, boolean create) {
-		DBService dbs = AlitheiaCore.getInstance().getDBService();
-		
-		Map<String, Object> parameterMap = new HashMap<String, Object>();
-		parameterMap.put("path", path);
-
-		List<Directory> dirs = dbs.findObjectsByProperties(Directory.class,
-				parameterMap);
-
-		/* Dir path in table, return it */
-		if (!dirs.isEmpty()) {
-			return dirs.get(0);
-		}
-
-		if (create) {
-			/* Dir path not in table, create it */
-			Directory d = new Directory();
-			d.setPath(path);
-			if (!dbs.addRecord(d)) {
-				return null;
-			}
-
-			return d;
-		}
-		// Dir not found and not created
-		return null;
-	}
-
-	public String toString() {
-		return this.path;
-	}
-
-	public boolean equals(Object obj) {
+    /**
+     * Return the entry in the Directory table that corresponds to the
+     * passed argument. If the entry does not exist, it will optionally be 
+     * created and saved, depending on the second parameter
+     *  
+     * @param path The path of the Directory to search for
+     * @param create Whether or not the directory entry will be created if
+     * not found. If true, it will be created.
+     * @return A Directory record for the specified path or null on failure
+     */
+    public static synchronized Directory getDirectory(String path, boolean create) {
+        
+        DBService dbs = AlitheiaCore.getInstance().getDBService();
+        Map<String,Object> parameterMap = new HashMap<String,Object>();
+        parameterMap.put("path", path);
+        
+        List<Directory> dirs = dbs.findObjectsByProperties(Directory.class,
+                parameterMap);
+        
+        /* Dir path in table, return it */
+        if ( !dirs.isEmpty() ) {
+            return dirs.get(0);
+        }
+        
+        if (create) {
+            /* Dir path not in table, create it */ 
+            Directory d = new Directory();
+            d.setPath(path);
+            if (!dbs.addRecord(d)) {
+                return null;
+            }
+        
+            return d;
+        }
+        //Dir not found and not created
+        return null;
+    }
+    
+    public String toString() {
+        return this.path;
+    }
+    
+    public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if ((obj == null) || (obj.getClass() != this.getClass()))
 			return false;
 		Directory test = (Directory) obj;
-		return (path != null && path.equals(test.path));
+		return  (path != null && path.equals(test.path));
 	}
 
 	public int hashCode() {
@@ -177,5 +175,5 @@ public class Directory extends DAObject {
 	}
 }
 
-// vi: ai nosi sw=4 ts=4 expandtab
+//vi: ai nosi sw=4 ts=4 expandtab
 

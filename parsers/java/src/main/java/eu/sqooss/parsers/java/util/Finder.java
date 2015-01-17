@@ -1,11 +1,11 @@
 package eu.sqooss.parsers.java.util;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Finder {
     private final Pattern pattern;

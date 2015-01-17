@@ -1,8 +1,8 @@
 package eu.sqooss.parsers.java;
 
-import java.util.LinkedList;
-
 import org.antlr.runtime.tree.Tree;
+
+import java.util.LinkedList;
 
 public class ASTWalker {
 

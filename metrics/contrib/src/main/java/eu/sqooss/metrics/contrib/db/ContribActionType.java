@@ -37,9 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.metrics.contrib.ContributionActions;
 import eu.sqooss.metrics.contrib.ContributionActions.ActionCategory;
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.StoredProject;
