@@ -46,7 +46,6 @@ public class TestGitFileManager extends TestGitSetup {
         LogManager lm = new LogManagerImpl(true);
         l = lm.createLogger("sqooss.updater");
         
-        AlitheiaCore.testInstance();
         sp = new StoredProject();
         sp.setName(projectName);
     }
