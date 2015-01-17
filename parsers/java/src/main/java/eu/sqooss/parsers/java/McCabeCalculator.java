@@ -4,7 +4,6 @@ package eu.sqooss.parsers.java;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import eu.sqooss.parsers.java.JavaTreeParser;
 import org.antlr.runtime.tree.Tree;
 
 public class McCabeCalculator 

@@ -12,14 +12,13 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.Tree;
 
+import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.parsers.java.ASTWalker;
 import eu.sqooss.parsers.java.CodeFragment;
 import eu.sqooss.parsers.java.EntityExtractor;
 import eu.sqooss.parsers.java.JavaTreeLexer;
 import eu.sqooss.parsers.java.JavaTreeParser;
 import eu.sqooss.parsers.java.SpanningNodeAdaptor;
-
-import eu.sqooss.core.AlitheiaCore;
 import eu.sqooss.service.db.DBService;
 import eu.sqooss.service.db.EncapsulationUnit;
 import eu.sqooss.service.db.ExecutionUnit;

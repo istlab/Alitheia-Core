@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import eu.sqooss.parsers.java.JavaTreeParser;
 import org.antlr.runtime.tree.Tree;
 
 /**

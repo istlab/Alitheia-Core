@@ -4,8 +4,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-import eu.sqooss.metrics.testability.TestabilityImplementation;
-
 
 public class TestabilityActivator implements BundleActivator {
 

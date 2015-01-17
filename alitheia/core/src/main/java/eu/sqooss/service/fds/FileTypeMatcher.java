@@ -33,7 +33,6 @@
 
 package eu.sqooss.service.fds;
 
-import java.lang.StringBuffer;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 

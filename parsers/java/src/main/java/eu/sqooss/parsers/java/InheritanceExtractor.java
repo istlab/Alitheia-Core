@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import eu.sqooss.parsers.java.JavaTreeParser;
 import org.antlr.runtime.tree.Tree;
 
 /**

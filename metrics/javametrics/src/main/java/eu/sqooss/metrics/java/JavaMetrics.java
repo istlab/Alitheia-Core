@@ -1,20 +1,32 @@
 package eu.sqooss.metrics.java;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import eu.sqooss.parsers.java.*;
-import eu.sqooss.service.fds.FDSService;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.Tree;
 import org.osgi.framework.BundleContext;
 
 import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.parsers.java.ASTWalker;
+import eu.sqooss.parsers.java.CBOCalculator;
+import eu.sqooss.parsers.java.EntityExtractor;
+import eu.sqooss.parsers.java.InheritanceExtractor;
+import eu.sqooss.parsers.java.JavaTreeLexer;
+import eu.sqooss.parsers.java.JavaTreeParser;
+import eu.sqooss.parsers.java.LCOMCalculator;
+import eu.sqooss.parsers.java.McCabeCalculator;
+import eu.sqooss.parsers.java.SpanningNodeAdaptor;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
@@ -28,10 +40,7 @@ import eu.sqooss.service.db.ExecutionUnitMeasurement;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
-import eu.sqooss.service.scheduler.Job;
-import eu.sqooss.service.scheduler.ResumePoint;
-import eu.sqooss.service.scheduler.Scheduler;
-import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.fds.FDSService;
 
 @MetricDeclarations(metrics = {
   @MetricDecl(mnemonic = "MCCABE", activators = {ExecutionUnit.class, ProjectVersion.class}, descr = "McCabe Complexity Metric"),

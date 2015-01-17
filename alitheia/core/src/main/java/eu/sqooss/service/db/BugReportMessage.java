@@ -35,8 +35,8 @@ package eu.sqooss.service.db;
 
 import java.util.Date;
 
-import javax.persistence.Column;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -46,8 +46,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlElement;
-
-import eu.sqooss.service.db.DAObject;
 
 /**
  * This class represents the primary data associated with a bug report

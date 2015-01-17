@@ -1,6 +1,5 @@
 package eu.sqooss.plugins.updater.git;
 
-import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.Logger;
 
 public class GitMessageHandler {
