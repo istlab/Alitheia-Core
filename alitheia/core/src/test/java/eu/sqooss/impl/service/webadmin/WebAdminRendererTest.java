@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.velocity.VelocityContext;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 
@@ -13,12 +12,10 @@ import eu.sqooss.core.AlitheiaCore;
 
 public class WebAdminRendererTest {
 
-	static BundleContext bc;
-	static AlitheiaCore core;
+	BundleContext bc;
+	AlitheiaCore core;
 
-	@BeforeClass
-	public static void setUp() {
-
+	public void setUp() {
 		bc = mock(BundleContext.class);
 		when(bc.getProperty("eu.sqooss.db")).thenReturn("H2");
 		when(bc.getProperty("eu.sqooss.db.host")).thenReturn("localhost");
@@ -32,7 +29,8 @@ public class WebAdminRendererTest {
 	}
 
 	@Test
-	public void renderJobFailedStatsTest() {
+	public void renderJobFailedStatsTest1() {
+		setUp();
 		VelocityContext vc = mock(VelocityContext.class);
 		new WebAdminRenderer(bc, vc);
 
@@ -57,7 +55,35 @@ public class WebAdminRendererTest {
 	}
 
 	@Test
+	public void renderJobWaitFailedTest2() {
+		setUp();
+		VelocityContext vc = mock(VelocityContext.class);
+		new WebAdminRenderer(bc, vc);
+		AbstractView.sobjSched.getSchedulerStats().addFailedJob("name");
+		
+		StringBuilder expected = new StringBuilder();
+		expected.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
+		expected.append("<thead>");
+		expected.append("<tr>");
+		expected.append("<td>Job Type</td>");
+		expected.append("<td>Num Jobs Failed</td>");
+		expected.append("</tr>");
+		expected.append("</thead>");
+		expected.append("<tbody>");
+		expected.append("<tr>");
+		expected.append("<td>name</td>");
+		expected.append("<td>1</td>");
+		expected.append("</tr></tbody>");
+		expected.append("</table>");
+		
+		String output = WebAdminRenderer.renderJobFailStats();
+		output = output.replaceAll("[\\t\\n]", "");
+		assertEquals(expected.toString(), output);
+	}
+	
+	@Test
 	public void renderJobWaitStatsTest() {
+		setUp();
 		VelocityContext vc = mock(VelocityContext.class);
 		new WebAdminRenderer(bc, vc);
 
@@ -76,6 +102,33 @@ public class WebAdminRendererTest {
 		expected.append("</tr></tbody>");
 		expected.append("</table>");
 
+		String output = WebAdminRenderer.renderJobWaitStats();
+		output = output.replaceAll("[\\t\\n]", "");
+		assertEquals(expected.toString(), output);
+	}
+	
+	@Test
+	public void renderJobWaitStatsTest2() {
+		setUp();
+		VelocityContext vc = mock(VelocityContext.class);
+		new WebAdminRenderer(bc, vc);
+		AbstractView.sobjSched.getSchedulerStats().addWaitingJob("name");
+		
+		StringBuilder expected = new StringBuilder();
+		expected.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
+		expected.append("<thead>");
+		expected.append("<tr>");
+		expected.append("<td>Job Type</td>");
+		expected.append("<td>Num Jobs Waiting</td>");
+		expected.append("</tr>");
+		expected.append("</thead>");
+		expected.append("<tbody>");
+		expected.append("<tr>");
+		expected.append("<td>name</td>");
+		expected.append("<td>1</td>");
+		expected.append("</tr></tbody>");
+		expected.append("</table>");
+		
 		String output = WebAdminRenderer.renderJobWaitStats();
 		output = output.replaceAll("[\\t\\n]", "");
 		assertEquals(expected.toString(), output);
