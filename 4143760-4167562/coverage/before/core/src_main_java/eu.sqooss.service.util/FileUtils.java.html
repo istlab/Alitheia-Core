@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>FileUtils.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.util</a> &gt; <span class="el_source">FileUtils.java</span></div><h1>FileUtils.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">/*</span>
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.util;
+
+import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * This is a static utility class for various file manipulations.
+ */
+<span class="nc" id="L44">public class FileUtils {</span>
+    /**
+     * Read the contents of a file and return them as a byte array.
+     *
+     * @param f File to read.
+     * @return File contents as a byte array or null on error (such
+     *      as empty file, no such file, or IO error).
+     */
+    public static byte[] fileContents(File f) {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (f==null) {</span>
+            // Bad parameters
+<span class="nc" id="L55">            return null;</span>
+        }
+
+<span class="nc bnc" id="L58" title="All 6 branches missed.">        if (!(f.exists() &amp;&amp; f.isFile() &amp;&amp; f.canRead())) {</span>
+            // Can only handle existing files
+<span class="nc" id="L60">            return null;</span>
+        }
+
+<span class="nc" id="L63">        int ilength = 0;</span>
+        // Block for hiding the long variable length.
+        try {
+<span class="nc" id="L66">            long length = f.length();</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (length &gt; Integer.MAX_VALUE) {</span>
+                // Refuse to return more than a few GB of data
+<span class="nc" id="L69">                return null;</span>
+            }
+<span class="nc" id="L71">            ilength = (int)length;</span>
+<span class="nc" id="L72">        } finally {</span>
+<span class="nc bnc" id="L73" title="All 6 branches missed.">            if (ilength &lt; 1) {</span>
+<span class="nc" id="L74">                return null;</span>
+            }
+<span class="nc" id="L76">        }</span>
+
+        try {
+<span class="nc" id="L79">            java.io.InputStream i = new java.io.FileInputStream(f);</span>
+<span class="nc" id="L80">            ByteArrayOutputStream o = new ByteArrayOutputStream(ilength);</span>
+
+            // Read in chunks at a time.
+            // TODO: optimize this away and create one byte array of the
+            // right length already.
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            byte[] chunk = new byte[(ilength &gt; 16384) ? 16384 : ilength];</span>
+            int r;
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            while ( (r=i.read(chunk,0,chunk.length)) &gt;= 0) {</span>
+<span class="nc" id="L88">                o.write(chunk,0,r);</span>
+            }
+
+<span class="nc" id="L91">            return o.toByteArray();</span>
+<span class="nc" id="L92">        } catch (java.io.IOException e) {</span>
+            // Just give up.
+<span class="nc" id="L94">            return null;</span>
+        }
+    }
+    
+    /**
+     * Return the filename portion of a path. 
+     * @param path The path to examine
+     * @return The filename or empty string if the path is empty or null
+     */
+    public static String basename (String path) {
+<span class="nc" id="L104">        String filename = path.substring(path.lastIndexOf('/') + 1);</span>
+        
+<span class="nc bnc" id="L106" title="All 4 branches missed.">        if (filename == null || filename.equalsIgnoreCase(&quot;&quot;)) {</span>
+<span class="nc" id="L107">            filename = &quot;&quot;;</span>
+        }
+<span class="nc" id="L109">        return filename;</span>
+    }
+    
+    /**
+     * Return the directory portion of a path. 
+     * @param path The path to examine
+     * @return The directory or an empty string if the path is empty or null
+     */
+    public static String dirname(String path) {
+<span class="nc" id="L118">        String dirPath = path.substring(0, path.lastIndexOf('/'));</span>
+<span class="nc bnc" id="L119" title="All 4 branches missed.">        if (dirPath == null || dirPath.equalsIgnoreCase(&quot;&quot;)) {</span>
+<span class="nc" id="L120">            dirPath = &quot;/&quot;; </span>
+        }
+<span class="nc" id="L122">        return dirPath;</span>
+    }
+    
+    /**
+     * Return the extension part from a filename.
+     * @param path The path to return the extension for
+     * @return The extension (without the preceding .) or an empty string if
+     * no extention can be found 
+     */
+    public static String extension(String path) {
+        String extension;
+        
+<span class="nc" id="L134">        String name = basename (path);</span>
+        
+<span class="nc" id="L136">        extension = name.substring(name.lastIndexOf('.') + 1);</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">        if (extension == null || extension.equalsIgnoreCase(&quot;&quot;))</span>
+<span class="nc" id="L138">            extension = &quot;&quot;;</span>
+        
+<span class="nc" id="L140">        return extension;</span>
+    }
+    
+    /**
+     * Append two repository paths making sure that there are the path 
+     * seperators are OK at the merge point. 
+     * 
+     * @param path The original path
+     * @param toAppend The path to append to the original path
+     * @return A String with the two paths appended
+     */
+    public static String appendPath(String path, String toAppend) {
+<span class="nc bnc" id="L152" title="All 2 branches missed.">    	if (path == null)</span>
+<span class="nc" id="L153">    		return toAppend;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">    	if (toAppend == null)</span>
+<span class="nc" id="L155">    		return path;</span>
+    	
+    	String newPath;
+    	
+<span class="nc bnc" id="L159" title="All 4 branches missed.">    	if (path.endsWith(&quot;/&quot;) &amp;&amp; toAppend.startsWith(&quot;/&quot;))</span>
+<span class="nc" id="L160">    		newPath = path.concat(toAppend.substring(1));</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">    	else if (!path.endsWith(&quot;/&quot;) &amp;&amp; !toAppend.startsWith(&quot;/&quot;))</span>
+<span class="nc" id="L162">    		newPath = path.concat(&quot;/&quot;).concat(toAppend);</span>
+    	else 
+<span class="nc" id="L164">    		newPath = path.concat(toAppend);</span>
+    	
+<span class="nc" id="L166">    	return newPath;</span>
+    }
+
+    /**
+     * Delete a directory and its contents recursively
+     *
+     * @param path The file path to include
+     */
+    public static void deleteRecursive(File path) {
+<span class="nc" id="L175">        File[] c = path.listFiles();</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        for (File file : c) {</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">            if (file.isDirectory()) {</span>
+<span class="nc" id="L178">                deleteRecursive(file);</span>
+<span class="nc" id="L179">                file.delete();</span>
+<span class="nc" id="L180">            } else {</span>
+<span class="nc" id="L181">                file.delete();</span>
+            }
+        }
+
+<span class="nc" id="L185">        path.delete();</span>
+<span class="nc" id="L186">    }</span>
+
+    /**
+     * Search recursively for a filename pattern in the provided path
+     *
+     * @return A list of files whose full path matches with the
+     * provided pattern
+     */
+    public static List&lt;File&gt; findGrep(File path, Pattern p) {
+<span class="nc" id="L195">        List&lt;File&gt; result = new ArrayList&lt;File&gt;();</span>
+
+<span class="nc" id="L197">        File[] c = path.listFiles();</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        for (File file : c) {</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if (file.isDirectory()) {</span>
+<span class="nc" id="L200">                result.addAll(findGrep(file, p));</span>
+<span class="nc" id="L201">            } else {</span>
+<span class="nc" id="L202">                Matcher m = p.matcher(file.getAbsolutePath());</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                if (m.find())</span>
+<span class="nc" id="L204">                    result.add(file);</span>
+            }
+        }
+<span class="nc" id="L207">        return result;</span>
+    }
+
+    /**
+     * Find the first file that matches with the provided pattern
+     * using breadth first traversal.
+     */
+    public static File findBreadthFirst(File path, Pattern p) {
+<span class="nc" id="L215">        File[] c = path.listFiles();</span>
+<span class="nc" id="L216">        List&lt;File&gt; dirs = new ArrayList&lt;File&gt;();</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        for (File file : c) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            if (file.isDirectory()) {</span>
+<span class="nc" id="L219">                dirs.add(file);</span>
+<span class="nc" id="L220">            } else {</span>
+<span class="nc" id="L221">                Matcher m = p.matcher(file.getAbsolutePath());</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">                if (m.find())</span>
+<span class="nc" id="L223">                    return file;</span>
+
+            }
+        }
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        for (File dir: dirs)</span>
+<span class="nc" id="L228">            return findBreadthFirst(dir, p);</span>
+<span class="nc" id="L229">        return null;</span>
+    }
+
+    public static List&lt;File&gt; findDirs(File path) {
+<span class="nc" id="L233">        return find(path, FindOpt.DIRS);</span>
+    }
+
+    public static List&lt;File&gt; findFiles(File path) {
+<span class="nc" id="L237">        return find(path, FindOpt.FILES);</span>
+    }
+
+    public static List&lt;File&gt; find(File path, FindOpt what) {
+<span class="nc" id="L241">        Set&lt;File&gt; toReturn = new HashSet&lt;File&gt;();</span>
+
+<span class="nc bnc" id="L243" title="All 4 branches missed.">        boolean dirs = (what == FindOpt.DIRS || what == FindOpt.ALL);</span>
+<span class="nc bnc" id="L244" title="All 4 branches missed.">        boolean files = (what == FindOpt.FILES || what == FindOpt.ALL);</span>
+
+<span class="nc" id="L246">        File[] c = path.listFiles();</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        for (File file : c) {</span>
+<span class="nc bnc" id="L248" title="All 4 branches missed.">            if (file.isFile() &amp;&amp; files)</span>
+<span class="nc" id="L249">                toReturn.add(file);</span>
+
+<span class="nc bnc" id="L251" title="All 4 branches missed.">            if (file.isDirectory() &amp;&amp; dirs) {</span>
+<span class="nc" id="L252">                toReturn.add(file);</span>
+<span class="nc" id="L253">                toReturn.addAll(find(file, what));</span>
+            }
+        }
+
+<span class="nc" id="L257">        List&lt;File&gt; result = new ArrayList&lt;File&gt;(toReturn);</span>
+
+<span class="nc" id="L259">        Collections.sort(result, new Comparator&lt;File&gt;() {</span>
+            @Override
+            public int compare(File a, File b) {
+<span class="nc" id="L262">                return (a.getAbsolutePath().compareTo(b.getAbsolutePath()));</span>
+            }
+        });
+<span class="nc" id="L265">        return result;</span>
+    }
+
+<span class="nc" id="L268">    public enum FindOpt {</span>
+<span class="nc" id="L269">        FILES, DIRS, ALL</span>
+    }
+
+    public static void copyFile(File source, File dest) throws IOException {
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        if (!dest.exists()) {</span>
+<span class="nc" id="L274">            dest.createNewFile();</span>
+        }
+<span class="nc" id="L276">        InputStream in = null;</span>
+<span class="nc" id="L277">        OutputStream out = null;</span>
+        try {
+<span class="nc" id="L279">            in = new FileInputStream(source);</span>
+<span class="nc" id="L280">            out = new FileOutputStream(dest);</span>
+
+            // Transfer bytes from in to out
+<span class="nc" id="L283">            byte[] buf = new byte[1024];</span>
+            int len;
+<span class="nc bnc" id="L285" title="All 2 branches missed.">            while ((len = in.read(buf)) &gt; 0) {</span>
+<span class="nc" id="L286">                out.write(buf, 0, len);</span>
+            }
+<span class="nc" id="L288">        } finally {</span>
+<span class="nc bnc" id="L289" title="All 4 branches missed.">            if (in != null) {</span>
+<span class="nc" id="L290">                in.close();</span>
+            }
+<span class="nc bnc" id="L292" title="All 4 branches missed.">            if (out != null) {</span>
+<span class="nc" id="L293">                out.close();</span>
+            }
+<span class="nc" id="L295">        }</span>
+<span class="nc" id="L296">    }</span>
+
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

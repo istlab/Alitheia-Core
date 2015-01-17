@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>PluginInfo.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.abstractmetric</a> &gt; <span class="el_source">PluginInfo.java</span></div><h1>PluginInfo.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">/*</span>
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.abstractmetric;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.util.StringUtils;
+
+/**
+ * This class holds runtime and configuration information about single metric
+ * plug-in.
+ * &lt;br/&gt;
+ * Usually an instance of a &lt;code&gt;PluginInfo&lt;/code&gt; is created from the
+ * &lt;code&gt;PluginAdmin&lt;/code&gt; implementation, just after a new metric plug-in
+ * bundle is installed in the OSGi framework, who registers a metric
+ * plug-in service. Some of the information provided from the metric
+ * plug-in object registered with that OSGi service, as well as part of
+ * the service's information are copied into this new &lt;code&gt;PluginInfo&lt;/code&gt;
+ * instance.
+ */
+public class PluginInfo implements Comparable&lt;PluginInfo&gt; {
+
+    /**
+     * This enumeration includes all permitted types of configuration values,
+     * that a metrics can support. The various configuration parameters and
+     * their values are used mostly from internal metric processes, like
+     * results rendering and validation.
+     */
+<span class="nc" id="L69">    public enum ConfigurationType {</span>
+<span class="nc" id="L70">        INTEGER,</span>
+<span class="nc" id="L71">        STRING,</span>
+<span class="nc" id="L72">        BOOLEAN,</span>
+<span class="nc" id="L73">        DOUBLE;</span>
+
+        public static ConfigurationType fromString(String config) {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (config.equals(BOOLEAN.toString()))</span>
+<span class="nc" id="L77">                return BOOLEAN;</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (config.equals(STRING.toString()))</span>
+<span class="nc" id="L80">                return STRING;</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (config.equals(INTEGER.toString()))</span>
+<span class="nc" id="L83">                return INTEGER;</span>
+           
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (config.equals(DOUBLE.toString()))</span>
+<span class="nc" id="L86">            	return DOUBLE;</span>
+
+<span class="nc" id="L88">            return null;</span>
+        }
+    };
+
+    /**
+     * The service reference of the service that registered this metric
+     * plug-in
+     */
+<span class="nc" id="L96">    private ServiceReference serviceRef = null;</span>
+
+    /**
+     * The name of the associated  metric plug-in
+     */
+<span class="nc" id="L101">    private String pluginName = null;</span>
+
+    /**
+     * The version of the associated metric plug-in
+     */
+<span class="nc" id="L106">    private String pluginVersion = null;</span>
+
+    /**
+     * This list include all activation interfaces supported by the associated
+     * metric plug-in.
+     * &lt;br/&gt;
+     * The list of permitted activation interfaces is described in the
+     * {@link AlitheiaPlugin} interface and currently includes:
+     * &lt;ul&gt;
+     *   &lt;li&gt;{@link StoredProjectMetric}&lt;/li&gt;
+     *   &lt;li&gt;{@link ProjectVersionMetric}&lt;/li&gt;
+     *   &lt;li&gt;{@link ProjectFileMetric}&lt;/li&gt;
+     *   &lt;li&gt;{@link FileGroupMetric}&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+<span class="nc" id="L121">    Set&lt;Class&lt;? extends DAObject&gt;&gt; activationTypes =</span>
+<span class="nc" id="L122">        new HashSet&lt;Class&lt;? extends DAObject&gt;&gt;();</span>
+
+    /**
+     * The hash code's value of the associated metric metric plug-in.
+     * &lt;br/&gt;
+     * After a new metric plug-in is registered as service in the OSGi
+     * framework, the &lt;code&gt;PluginAdmin&lt;/code&gt; initializes this field with
+     * the service's ID value, by calling the &lt;code&gt;setHashcode(String)&lt;/code&gt;
+     * method.
+     * &lt;br/&gt;
+     * Once the metric plug-in's &lt;code&gt;install()&lt;/code&gt; method is called,
+     * the &lt;code&gt;PluginAdmin&lt;/code&gt; replaces the old &lt;code&gt;PluginInfo&lt;/code&gt;
+     * with a new one, whose &lt;code&gt;hashcode&lt;/code&gt; field is initialized with
+     * the hash code's value, that this metric plug-in stored in its database
+     * record.
+     */
+    private String hashcode;
+
+    /**
+     * A list containing the current set of configuration parameters of the
+     * associated metric plug-in
+     */
+<span class="nc" id="L144">    private Set&lt;PluginConfiguration&gt; config =</span>
+<span class="nc" id="L145">        new HashSet&lt;PluginConfiguration&gt;();</span>
+
+    /**
+     * This flag is set to &lt;code&gt;false&lt;code&gt; on a newly registered metric
+     * plug-ins, and changed to &lt;code&gt;true&lt;/code&gt; after the metric plug-in's
+     * &lt;code&gt;install()&lt;/code&gt; method is called (and successfully performed).
+     */
+<span class="nc" id="L152">    public boolean installed = false;</span>
+
+    /**
+     * Empty constructor.
+     */
+<span class="nc" id="L157">    public PluginInfo() {</span>
+
+<span class="nc" id="L159">    }</span>
+
+    /**
+     * Simple constructor, that creates a new &lt;code&gt;PluginInfo&lt;/code&gt; instance
+     * and initializes it with the given metric plug-in's configuration
+     * parameters.
+     *
+     * @param c - the list of configuration parameters
+     */
+<span class="nc" id="L168">    public PluginInfo(Set&lt;PluginConfiguration&gt; c) {</span>
+<span class="nc" id="L169">        setPluginConfiguration(c);</span>
+<span class="nc" id="L170">    }</span>
+
+    /**
+     * Creates a new &lt;code&gt;PluginInfo&lt;/code&gt; instance, and initializes it with
+     * the given metric plug-in's configuration parameters and the description
+     * fields found in the given plug-in instance.
+     *
+     * @param c - the list of configuration parameters
+     * @param p the &lt;code&gt;AlitheiaPlugin&lt;/code&gt; instance
+     */
+<span class="nc" id="L180">    public PluginInfo(Set&lt;PluginConfiguration&gt; c, AlitheiaPlugin p) {</span>
+<span class="nc" id="L181">        setPluginConfiguration(c);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (p != null) {</span>
+<span class="nc" id="L183">            setPluginName(p.getName());</span>
+<span class="nc" id="L184">            setPluginVersion(p.getVersion());</span>
+<span class="nc" id="L185">            setActivationTypes(p.getActivationTypes());</span>
+        }
+<span class="nc" id="L187">    }</span>
+
+
+    /**
+     * Initializes the configuration set that is available for this plug-in.
+     * 
+     * @param c the plug-in configuration set
+     */
+    public void setPluginConfiguration (Set&lt;PluginConfiguration&gt; c) {
+<span class="nc" id="L196">        this.config = c;</span>
+<span class="nc" id="L197">    }</span>
+
+    /**
+     * Returns the list of existing metric configuration parameters.
+     *
+     * @return The list of configuration parameters.
+     */
+    public Set&lt;PluginConfiguration&gt; getConfiguration() {
+<span class="nc" id="L205">        return this.config;</span>
+    }
+
+    /**
+     * Returns the Id of the given configuration property.
+     *
+     * @param name the property's name
+     * @param type the property's type
+     *
+     * @return The property's Id, or &lt;code&gt;null&lt;/code&gt; if the property does
+     *   not exist.
+     */
+    public Long getConfPropId (String name, String type) {
+        // Check if all values are valid
+<span class="nc bnc" id="L219" title="All 4 branches missed.">        if ((name == null) || (type == null)) {</span>
+<span class="nc" id="L220">            return null;</span>
+        }
+        // Search for a matching property
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        for (PluginConfiguration property : config) {</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">            if ((property.getName().equals(name))</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">                    &amp;&amp; (property.getType().equals(type))) {</span>
+<span class="nc" id="L226">                return property.getId();</span>
+            }
+        }
+<span class="nc" id="L229">        return null;</span>
+    }
+
+    /**
+     * Verifies, if the specified configuration property exist in this
+     * plug-in's information object.
+     *
+     * @param name the property's name
+     * @param type the property's type
+     *
+     * @return &lt;code&gt;true&lt;/code&gt;, if such property is found,
+     *   or &lt;code&gt;false&lt;/code&gt; otherwise.
+     */
+    public boolean hasConfProp (String name, String type) {
+<span class="nc bnc" id="L243" title="All 2 branches missed.">        return ((getConfPropId(name, type) == null) ? false : true);</span>
+    }
+
+    /**
+     * Sets a new value of existing metric plugin's configuration property
+     * by creating a new database record.
+     *
+     * @param db the DB components object
+     * @param name the configuration property's name
+     * @param newVal the new value, that should be assigned to the
+     *   selected configuration property
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; upon successful update, of &lt;code&gt;false&lt;/code&gt;
+     *   when a corresponding database record does not exist.
+     *
+     * @throws &lt;code&gt;Exception&lt;/code&gt; upon incorrect value's syntax, or
+     *   invalid property's type.
+     */
+    public boolean updateConfigEntry(DBService db, String name, String newVal)
+        throws Exception {
+        // Check for an invalid name
+<span class="nc bnc" id="L264" title="All 2 branches missed.">        if (name == null) {</span>
+<span class="nc" id="L265">            throw new Exception(&quot;Invalid name!&quot;);</span>
+        }
+        // Check if such configuration property exists
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        for (PluginConfiguration pc : config) {</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">            if (pc.getName().equals(name)) {</span>
+                // Retrieve the configuration property's type
+<span class="nc" id="L271">                ConfigurationType type =</span>
+<span class="nc" id="L272">                    ConfigurationType.fromString(pc.getType());</span>
+                // Check for invalid type
+<span class="nc bnc" id="L274" title="All 2 branches missed.">                if (type == null) {</span>
+<span class="nc" id="L275">                    throw new Exception(&quot;Invalid property's type!&quot;);</span>
+                }
+                // Check for a boolean type
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                else if (type.equals(ConfigurationType.BOOLEAN)) {</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">                    if ((newVal.equals(&quot;true&quot;) == false)</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">                            &amp;&amp; (newVal.equals(&quot;false&quot;) == false)) {</span>
+<span class="nc" id="L281">                        throw new Exception(&quot;Not a valid boolean value!&quot;);</span>
+                    }
+                }
+                // Check for an integer type
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                else if (type.equals(ConfigurationType.INTEGER)) {</span>
+                    try {
+<span class="nc" id="L287">                        Integer.valueOf(newVal);</span>
+<span class="nc" id="L288">                    } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L289">                        throw new Exception(&quot;Not a valid integer value!&quot;);</span>
+                    }
+                }
+                
+                // Check for a double type
+<span class="nc bnc" id="L294" title="All 2 branches missed.">                else if (type.equals(ConfigurationType.DOUBLE)) {</span>
+                    try {
+<span class="nc" id="L296">                        Double.valueOf(newVal);</span>
+<span class="nc" id="L297">                    } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L298">                        throw new Exception(&quot;Not a valid double value!&quot;);</span>
+                    }
+                }
+
+                // Update the given configuration property
+<span class="nc" id="L303">                pc = db.attachObjectToDBSession(pc);</span>
+<span class="nc" id="L304">                pc.setValue(newVal);</span>
+<span class="nc" id="L305">                return true;</span>
+            }
+        }
+<span class="nc" id="L308">        return false;</span>
+    }
+
+    /**
+     * Adds a new configuration property for this metric plug-in by creating
+     * a new database record for it.
+     *
+     * @param db the DB components object
+     * @param name the configuration property's name
+     * @param description the configuration property's description
+     * @param type the configuration property's type
+     * @param value the configuration property's value
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; upon successful append, of &lt;code&gt;false&lt;/code&gt;
+     *   when a corresponding database record can not be created.
+     *
+     * @throws &lt;code&gt;Exception&lt;/code&gt; upon incorrect value's syntax,
+     *   invalid property's type, or invalid property's name.
+     */
+    public boolean addConfigEntry(
+            DBService db,
+            String name,
+            String description,
+            String type,
+            String value)
+    throws Exception {
+        // Check for an invalid name
+<span class="nc bnc" id="L335" title="All 2 branches missed.">        if (name == null) {</span>
+<span class="nc" id="L336">            throw new Exception(&quot;Invalid name!&quot;);</span>
+        }
+
+        // Check for invalid type
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        if ((type == null)</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">                || (ConfigurationType.fromString(type) == null)) {</span>
+<span class="nc" id="L342">            throw new Exception(&quot;Invalid type!&quot;);</span>
+        }
+
+        // Check for invalid value
+<span class="nc bnc" id="L346" title="All 2 branches missed.">        if (value == null) {</span>
+<span class="nc" id="L347">            throw new Exception(&quot;Invalid value!&quot;);</span>
+        }
+        // Check for invalid boolean value
+<span class="nc bnc" id="L350" title="All 2 branches missed.">        else if (type.equals(ConfigurationType.BOOLEAN.toString())) {</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">            if ((value.equals(&quot;true&quot;) == false)</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">                    &amp;&amp; (value.equals(&quot;false&quot;) == false)) {</span>
+<span class="nc" id="L353">                throw new Exception(&quot;Not a valid boolean value!&quot;);</span>
+            }
+        }
+        // Check for an invalid integer value
+<span class="nc bnc" id="L357" title="All 2 branches missed.">        else if (type.equals(ConfigurationType.INTEGER.toString())) {</span>
+            try {
+<span class="nc" id="L359">                Integer.valueOf(value);</span>
+<span class="nc" id="L360">            } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L361">                throw new Exception(&quot;Not a valid integer value!&quot;);</span>
+            }
+        }
+     
+     // Check for an invalid double value
+<span class="nc bnc" id="L366" title="All 2 branches missed.">        else if (type.equals(ConfigurationType.DOUBLE.toString())) {</span>
+            try {
+<span class="nc" id="L368">                Double.valueOf(value);</span>
+<span class="nc" id="L369">            } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L370">                throw new Exception(&quot;Not a valid double value!&quot;);</span>
+            }
+        }
+
+        // Add the new configuration property
+<span class="nc" id="L375">        PluginConfiguration newParam =</span>
+<span class="nc" id="L376">            new PluginConfiguration();</span>
+<span class="nc" id="L377">        newParam.setName(name);</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">        newParam.setMsg((description != null) ? description : &quot;&quot;);</span>
+<span class="nc" id="L379">        newParam.setType(type);</span>
+<span class="nc" id="L380">        newParam.setValue(value);</span>
+<span class="nc" id="L381">        Plugin p = Plugin.getPluginByHashcode(hashcode);</span>
+<span class="nc" id="L382">        newParam.setPlugin(p);</span>
+<span class="nc" id="L383">        return p.getConfigurations().add(newParam);</span>
+}
+
+    /**
+     * Removes an existing configuration property of this metric plug-in by
+     * deleting its database record.
+     *
+     * @param db the DB components object
+     * @param name the configuration property's name
+     * @param type the configuration property's type
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; upon successful remove, or &lt;code&gt;false&lt;/code&gt;
+     *   when a corresponding database record can not be found.
+     *
+     * @throws &lt;code&gt;Exception&lt;/code&gt; upon invalid property's type or name.
+     */
+    public boolean removeConfigEntry(
+            DBService db,
+            String name,
+            String type)
+    throws Exception {
+        // Check for an invalid name
+<span class="nc bnc" id="L405" title="All 2 branches missed.">        if (name == null) {</span>
+<span class="nc" id="L406">            throw new Exception(&quot;Invalid name!&quot;);</span>
+        }
+
+        // Check for invalid type
+<span class="nc bnc" id="L410" title="All 2 branches missed.">        if ((type == null)</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">                || (ConfigurationType.fromString(type) == null)) {</span>
+<span class="nc" id="L412">            throw new Exception(&quot;Invalid type!&quot;);</span>
+        }
+
+        // Get the property's Id
+<span class="nc" id="L416">        Long propId = getConfPropId(name, type);</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">        if (propId != null) {</span>
+            // Remove the specified configuration property
+<span class="nc" id="L419">            PluginConfiguration prop = db.findObjectById(</span>
+<span class="nc" id="L420">                    PluginConfiguration.class, propId);</span>
+<span class="nc bnc" id="L421" title="All 4 branches missed.">            if ((prop != null) &amp;&amp; (db.deleteRecord(prop))) {</span>
+<span class="nc" id="L422">                return true;</span>
+            }
+        }
+
+<span class="nc" id="L426">        return false;</span>
+}
+
+    /**
+     * Sets the metric's name. In practice the &lt;code&gt;metricName&lt;/code&gt;
+     * parameter must be equal with the name of the associated metric
+     * plug-in.
+     *
+     * @param metricName - the metric name
+     */
+    public void setPluginName(String metricName) {
+<span class="nc" id="L437">        this.pluginName = metricName;</span>
+<span class="nc" id="L438">    }</span>
+
+    /**
+     * Returns the metric name stored in this &lt;code&gt;MetricInfo&lt;/code&gt;
+     * object.
+     *
+     * @return Metric name.
+     */
+    public String getPluginName() {
+<span class="nc" id="L447">        return pluginName;</span>
+    }
+
+    /**
+     * Sets the metric's version. In practice the &lt;code&gt;metricVersion&lt;/code&gt;
+     * parameter must be equal with the version of the associated metric
+     * plug-in.
+     *
+     * @param metricVersion - a metric version
+     */
+    public void setPluginVersion(String metricVersion) {
+<span class="nc" id="L458">        this.pluginVersion = metricVersion;</span>
+<span class="nc" id="L459">    }</span>
+
+    /**
+     * Returns the metric version stored in this &lt;code&gt;MetricInfo&lt;/code&gt;
+     * object.
+     *
+     * @return Metric version.
+     */
+    public String getPluginVersion() {
+<span class="nc" id="L468">        return pluginVersion;</span>
+    }
+
+    /**
+     * Sets the list of supported activation interfaces (types). In practice
+     * the given list must contain the same entries like those supported by
+     * the associated metric plug-in.&lt;br/&gt;
+     * &lt;br/&gt;
+     * Note: Any previous entries in this list will be deleted by this action.
+     *
+     * @param l - the list of supported activation interfaces
+     */
+    public void setActivationTypes(Set&lt;Class&lt;? extends DAObject&gt;&gt; l) {
+<span class="nc" id="L481">        this.activationTypes = l;</span>
+<span class="nc" id="L482">    }</span>
+
+    /**
+     * Returns the list off all activation interfaces (types) supported by the
+     * associated metric plug-in.
+     *
+     * @return - the list of supported activation interfaces
+     */
+    public Set&lt;Class&lt;? extends DAObject&gt;&gt; getActivationTypes() {
+<span class="nc" id="L491">        return this.activationTypes;</span>
+    }
+
+    /**
+     * Adds one or more additional activation interfaces (types) to the
+     * locally stored list of supported activation interfaces.
+     *
+     * @param activator - the list of additional activation interfaces
+     */
+    public void addActivationType(Class&lt;? extends DAObject&gt; activator) {
+<span class="nc" id="L501">        this.activationTypes.add(activator);</span>
+<span class="nc" id="L502">    }</span>
+
+    /**
+     * Compares the provided activation interface to the locally stored list
+     * of supported activation interfaces.
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; when the given activation interface is found
+     * in the list, or &lt;code&gt;false&lt;/code&gt; otherwise.
+     */
+    public boolean isActivationType(Class&lt;? extends DAObject&gt; o) {
+        // Compare the activation list's entries to the given activation
+        // interface, until a match is found
+<span class="nc" id="L514">        Iterator&lt;Class&lt;? extends DAObject&gt;&gt; i =</span>
+<span class="nc" id="L515">            this.activationTypes.iterator();</span>
+<span class="nc bnc" id="L516" title="All 2 branches missed.">        while (i.hasNext()) {</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">            if (i.next().equals(o))</span>
+<span class="nc" id="L518">                return true;</span>
+        }
+<span class="nc" id="L520">        return false;</span>
+    }
+
+    /**
+     * Initializes the corresponding local field with the reference to the
+     * service, that registered the associated metric plug-in.
+     *
+     * @param serviceRef - the service reference
+     */
+    public void setServiceRef(ServiceReference serviceRef) {
+<span class="nc" id="L530">        this.serviceRef = serviceRef;</span>
+<span class="nc" id="L531">    }</span>
+
+    /**
+     * Returns the service reference that points to the associated metric
+     * plug-in.
+     *
+     * @return The service reference.
+     */
+    public ServiceReference getServiceRef() {
+<span class="nc" id="L540">        return serviceRef;</span>
+    }
+
+    /**
+     * Sets the hash code's value of this &lt;code&gt;MetricInfo&lt;/code&gt; instance.
+     * &lt;br/&gt;
+     * The value must be unique, which means that no other
+     * &lt;code&gt;MetricInfo&lt;/code&gt; with the same hash code should be kept by
+     * the &lt;code&gt;PluginAdmin&lt;/code&gt; instance that created this object.
+     *
+     * @param hashcode - the hash code's value of this object
+     */
+    public void setHashcode(String hashcode) {
+<span class="nc" id="L553">        this.hashcode = hashcode;</span>
+<span class="nc" id="L554">    }</span>
+
+    /**
+     * Returns the hash code's value of this &lt;code&gt;MetricInfo&lt;/code&gt; instance.
+     *
+     * @return The hash code's value of this object.
+     */
+    public String getHashcode() {
+<span class="nc" id="L562">        return hashcode;</span>
+    }
+
+    /**
+     * Creates a text representation of this &lt;code&gt;MetricInfo&lt;/code&gt;
+     * instance.
+     *
+     * @return The text representation of this object.
+     */
+    public String toString() {
+<span class="nc" id="L572">        StringBuilder b = new StringBuilder();</span>
+        // Add the metric plug-in's name
+<span class="nc" id="L574">        b.append((</span>
+<span class="nc bnc" id="L575" title="All 2 branches missed.">                ((getPluginName() != null)</span>
+<span class="nc bnc" id="L576" title="All 2 branches missed.">                        &amp;&amp; (getPluginName().length() &gt; 0))</span>
+<span class="nc" id="L577">                ? getPluginName()</span>
+<span class="nc" id="L578">                        : &quot;[UNKNOWN]&quot;));</span>
+        // Add the metric plug-in's version
+<span class="nc" id="L580">        b.append((</span>
+<span class="nc bnc" id="L581" title="All 2 branches missed.">                ((getPluginVersion() != null)</span>
+<span class="nc bnc" id="L582" title="All 2 branches missed.">                        &amp;&amp; (getPluginVersion().length() &gt; 0))</span>
+<span class="nc" id="L583">                ? getPluginVersion()</span>
+<span class="nc" id="L584">                        : &quot;[UNKNOWN]&quot;));</span>
+        // Add the metric plug-in's class name
+<span class="nc" id="L586">        b.append(&quot; [&quot;);</span>
+<span class="nc bnc" id="L587" title="All 2 branches missed.">        if (getServiceRef() != null) {</span>
+<span class="nc" id="L588">            String[] classNames =</span>
+<span class="nc" id="L589">                (String[]) serviceRef.getProperty(Constants.OBJECTCLASS);</span>
+<span class="nc" id="L590">            b.append ((</span>
+<span class="nc bnc" id="L591" title="All 2 branches missed.">                    ((classNames != null)</span>
+<span class="nc bnc" id="L592" title="All 2 branches missed.">                            &amp;&amp; (classNames.length &gt; 0))</span>
+<span class="nc" id="L593">                    ? (StringUtils.join(classNames, &quot;,&quot;))</span>
+<span class="nc" id="L594">                            : &quot;UNKNOWN&quot;));</span>
+<span class="nc" id="L595">        }</span>
+        else {
+<span class="nc" id="L597">            b.append(&quot;UNKNOWN&quot;);</span>
+        }
+<span class="nc" id="L599">        b.append(&quot;]&quot;);</span>
+<span class="nc" id="L600">        return b.toString();</span>
+    }
+
+	public int compareTo(PluginInfo pi) {
+<span class="nc" id="L604">		return hashcode.compareTo(pi.hashcode);</span>
+	}
+}
+
+//vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

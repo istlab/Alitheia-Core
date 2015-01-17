@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>Job.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.scheduler</a> &gt; <span class="el_source">Job.java</span></div><h1>Job.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">/*</span>
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.scheduler;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.LinkedList;
+
+import java.lang.Comparable;
+import java.lang.InterruptedException;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.util.Pair;
+
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.scheduler.SchedulerException;
+
+/**
+ * Abstract base class for all jobs running by the scheduler.
+ *
+ * @author Christoph Schleifenbam
+ */
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">public abstract class Job implements Comparable&lt;Job&gt; {</span>
+
+    /**
+     * The state of the job.
+     * @author christoph
+     *
+     */
+<span class="fc" id="L63">    public enum State {</span>
+<span class="fc" id="L64">        Created,</span>
+<span class="fc" id="L65">        Queued,</span>
+<span class="fc" id="L66">        Running,</span>
+<span class="fc" id="L67">        Finished,</span>
+<span class="fc" id="L68">        Error,</span>
+<span class="fc" id="L69">        Yielded</span>
+    }
+
+    /**
+     * This list contains the dependencies between the jobs.
+     * Each pair defines that the \a second one's execution depends on
+     * completion of the \a first one.
+     *
+     * As soon as the \a first job is finished, the pair is removed from
+     * the list.
+     */
+    protected List&lt;Pair&lt;Job,Job&gt;&gt; m_dependencies;
+    
+    /**
+     * List of jobs which depend on this job
+     */
+    private List&lt;Job&gt; m_dependees;
+
+    /**
+     * A list of objects that listen to this job's state changes  
+     */
+    private List&lt;JobStateListener&gt; listeners;
+    
+    private State m_state;
+
+    private Scheduler m_scheduler;
+
+    private Exception m_errorException;
+    
+    private WorkerThread m_worker;
+    
+<span class="fc" id="L100">    private int restarts = 0;</span>
+    
+    private ResumePoint resumePoint;
+    
+    public void setWorkerThread(WorkerThread worker) {
+<span class="nc" id="L105">    	m_worker = worker;</span>
+<span class="nc" id="L106">     }</span>
+    
+    public WorkerThread getWorkerThread() {
+<span class="nc" id="L109">        return m_worker;</span>
+     }
+    
+    /**
+     * @return The current state of the job.
+     */
+    public final State state() {
+<span class="fc" id="L116">        return m_state;</span>
+    }
+    
+    /**
+     * Returns the Scheduler this Job was enqueued to.
+     */
+    public Scheduler getScheduler() {
+<span class="nc" id="L123">    	return m_scheduler;</span>
+    }
+    
+    /**
+     * Adds a dependency.
+     * This job cannot be executed, as long \a other
+     * is not finished.
+     */
+    public final synchronized void addDependency(Job other) throws SchedulerException {
+        // Dependencies of jobs can ony be changed before the job is queued.
+        // Otherwise, race conditions would occur in which it would be undefined
+        // if the dependency is applied or not.
+<span class="nc bnc" id="L135" title="All 4 branches missed.">        if ( (state() != State.Created) &amp;&amp; (state() != State.Yielded) ) {</span>
+<span class="nc" id="L136">        	throw new SchedulerException(&quot;Job dependencies cannot be added after the job has been queued.&quot;);</span>
+        }
+
+        // Don't allow circular dependencies
+<span class="nc bnc" id="L140" title="All 4 branches missed.">        if( other.dependsOn(this) || (this==other) ) {</span>
+<span class="nc" id="L141">            throw new SchedulerException(&quot;Job dependencies are not allowed to be cyclic.&quot;);</span>
+        }
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (m_dependencies == null)</span>
+<span class="nc" id="L145">            m_dependencies = new LinkedList&lt;Pair&lt;Job,Job&gt;&gt;();</span>
+        
+<span class="nc" id="L147">        synchronized (m_dependencies) {</span>
+<span class="nc" id="L148">            Pair&lt;Job,Job&gt; newDependency = new Pair&lt;Job,Job&gt;(other, this);</span>
+<span class="nc" id="L149">            m_dependencies.add(newDependency);</span>
+<span class="nc" id="L150">            other.addDependee(this);</span>
+        }
+<span class="nc" id="L152">        callDependenciesChanged();</span>
+<span class="nc" id="L153">    }</span>
+    
+    /**
+     * Removes a dependency.
+     * \sa addDependency
+     */
+    public final void removeDependency(Job other) {
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (m_dependencies == null)</span>
+<span class="nc" id="L161">            return;</span>
+<span class="nc" id="L162">        synchronized(m_dependencies) {</span>
+<span class="nc" id="L163">            List&lt;Pair&lt;Job,Job&gt;&gt; doomed = new LinkedList&lt;Pair&lt;Job,Job&gt;&gt;();</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            for (Pair&lt;Job,Job&gt; p: m_dependencies ) {</span>
+<span class="nc bnc" id="L165" title="All 4 branches missed.">                if ( (p.first == other) &amp;&amp; (p.second == this) ) {</span>
+<span class="nc" id="L166">                    doomed.add(p);</span>
+<span class="nc" id="L167">                    removeDependee(other);</span>
+                }
+            }
+<span class="nc" id="L170">            m_dependencies.removeAll(doomed);</span>
+        }
+<span class="nc" id="L172">        callDependenciesChanged();</span>
+<span class="nc" id="L173">    }</span>
+
+    /**
+     * Checks recursive whether this job depends on job \a other.
+     * @param other the job to check dependency of.
+     * @return true, when the job depends on \a other, otherwise false.
+     */
+    public final boolean dependsOn(Job other) {
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (m_dependencies == null)</span>
+<span class="nc" id="L182">            return false;</span>
+<span class="nc" id="L183">        synchronized(m_dependencies) {</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            for (Pair&lt;Job,Job&gt; p: m_dependencies ) {</span>
+<span class="nc bnc" id="L185" title="All 4 branches missed.">                if ( (p.first == other) &amp;&amp; (p.second == this) ) {</span>
+<span class="nc" id="L186">                    return true;</span>
+<span class="nc bnc" id="L187" title="All 4 branches missed.">                } else if ( (p.second == this) &amp;&amp; p.first.dependsOn(other)) {</span>
+<span class="nc" id="L188">                    return true;</span>
+                }
+            }
+<span class="nc" id="L191">            return false;</span>
+        }
+    }
+
+    private final synchronized void addDependee(Job other) {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (m_dependees == null)</span>
+<span class="nc" id="L197">            m_dependees = new ArrayList&lt;Job&gt;();</span>
+<span class="nc" id="L198">        synchronized (m_dependees) {</span>
+<span class="nc" id="L199">            m_dependees.add(other);</span>
+        }
+<span class="nc" id="L201">    }</span>
+    
+    private final synchronized void removeDependee(Job other) {
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (m_dependees == null)</span>
+<span class="nc" id="L205">            return;</span>
+<span class="nc" id="L206">        synchronized (m_dependees) {</span>
+<span class="nc" id="L207">            m_dependees.remove(other);</span>
+        }
+<span class="nc" id="L209">    }</span>
+    
+    /**
+     * Executes the job. Makes sure that all dependencies are met. 
+     * 
+     * @return The time required to execute the Job in milliseconds.
+     * @throws Exception
+     */
+    final public long execute() throws Exception {
+<span class="nc" id="L218">        DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L219">        long timer = System.currentTimeMillis();</span>
+        try {
+<span class="nc" id="L221">            setState(State.Running);</span>
+<span class="nc" id="L222">            restart();</span>
+            
+            /*Idiot/bad programmer proofing*/
+<span class="nc bnc" id="L225" title="All 4 branches missed.">            assert (!dbs.isDBSessionActive());            </span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">            if (dbs.isDBSessionActive()) {</span>
+<span class="nc" id="L227">                dbs.rollbackDBSession();</span>
+<span class="nc" id="L228">                setState(State.Error); //No uncommitted sessions are tolerated</span>
+<span class="nc" id="L229">            } else {</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">                if (state() != State.Yielded)</span>
+<span class="nc" id="L231">                    setState(State.Finished);</span>
+            }   
+<span class="nc" id="L233">        } catch(Exception e) {</span>
+            
+<span class="nc bnc" id="L235" title="All 2 branches missed.">            if (dbs.isDBSessionActive()) {</span>
+<span class="nc" id="L236">                dbs.rollbackDBSession();</span>
+            }
+            
+            // In case of an exception, state becomes Error
+<span class="nc" id="L240">            m_errorException = e;</span>
+<span class="nc" id="L241">            setState(State.Error);</span>
+            // the Exception itself is forwarded
+<span class="nc" id="L243">            throw e;</span>
+        }
+<span class="nc" id="L245">        return System.currentTimeMillis() - timer;</span>
+    }
+
+    /**
+     * Sets the job's state to Queued and informs the job about the new
+     * scheduler.
+     * This method should only be called by Scheduler.enqueue.
+     * @throws SchedulerException If the job is already enqueued.
+     */
+    public final void callAboutToBeEnqueued(Scheduler s) throws SchedulerException {
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">        if (m_scheduler != null) {</span>
+<span class="nc" id="L256">            throw new SchedulerException(&quot;This job is already enqueued in a scheduler.&quot;);</span>
+        }
+<span class="fc" id="L258">        aboutToBeEnqueued(s);</span>
+<span class="fc" id="L259">        m_state = State.Queued;</span>
+<span class="fc" id="L260">        m_scheduler = s;</span>
+<span class="fc" id="L261">    }</span>
+
+    /**
+     * Sets the job's state back from Queued to Created and informs about being
+     * dequeud.
+     * This method should only be called by Scheduler.dequeue.
+     */
+    public final void callAboutToBeDequeued(Scheduler s) {
+<span class="nc" id="L269">        aboutToBeDequeued(s);</span>
+
+<span class="nc bnc" id="L271" title="All 2 branches missed.">        if (m_state == State.Queued) {</span>
+<span class="nc" id="L272">            m_state = State.Created;</span>
+        }
+
+<span class="nc" id="L275">        m_scheduler = null;</span>
+<span class="nc" id="L276">    }</span>
+
+
+    /**
+     * The priority of the job is the order of job within the scheduler's queue.
+     * That leads to 0 being taking he highest precedence, then the higher numbers.
+     * It is not adviced to change the job's priority after it has been enqueued. That
+     * might lead to undefined behaviour.
+     * @return The priority of the job.
+     */
+    abstract public long priority();
+
+    /**
+     * @return All unfinished jobs this job depends on.
+     */
+    public final List&lt;Job&gt; dependencies() {
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">        if (m_dependencies == null)</span>
+<span class="fc" id="L293">            return Collections.EMPTY_LIST;</span>
+        
+<span class="nc" id="L295">        List&lt;Job&gt; result = new LinkedList&lt;Job&gt;();</span>
+<span class="nc" id="L296">        synchronized (m_dependencies) {</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">            for (Pair&lt;Job,Job&gt; p: m_dependencies) {</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">                if (p.second == this) {</span>
+<span class="nc" id="L299">                    result.add(p.first);</span>
+                }
+            }
+        }
+<span class="nc" id="L303">        return result;</span>
+    }
+
+    /**
+     * Waits for the job to finish.
+     * Note that this method even returns when the job's state changes to Error.
+     */
+    public final void waitForFinished() {
+    	try {
+<span class="nc" id="L312">            synchronized (this) {</span>
+                // if this method is running inside of a WorkerThread
+                // we try to pass the job we're waiting for to the thread.
+<span class="nc bnc" id="L315" title="All 2 branches missed.">                if (Thread.currentThread() instanceof WorkerThread) {</span>
+<span class="nc" id="L316">                    WorkerThread t = (WorkerThread) Thread.currentThread();</span>
+<span class="nc" id="L317">                    t.takeJob(this);</span>
+<span class="nc" id="L318">                } else {</span>
+<span class="nc" id="L319">                    throw new Exception();</span>
+                }
+            }
+<span class="nc" id="L322">        } catch (Exception e) {</span>
+            // if something went wrong with taking the job
+            // ok - we might be stuck...
+<span class="nc bnc" id="L325" title="All 2 branches missed.">            if (m_scheduler.getSchedulerStats().getIdleWorkerThreads() == 0) {</span>
+<span class="nc" id="L326">                m_scheduler.startOneShotWorkerThread();</span>
+            }
+        }
+<span class="nc" id="L329">        synchronized (this) {</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">            while (state() != State.Finished) {</span>
+<span class="nc bnc" id="L331" title="All 2 branches missed.">                if (state() == State.Error) {</span>
+<span class="nc" id="L332">                    return;</span>
+                }
+                try {
+<span class="nc" id="L335">                    wait();</span>
+<span class="nc" id="L336">                } catch (InterruptedException e) {</span>
+                }
+            }
+        }
+<span class="nc" id="L340">    }</span>
+
+    /**
+     * Checks, whether all dependencies are met and the job can be executed.
+     * @return true, when all dependencies are met.
+     */
+    public boolean canExecute() {
+<span class="fc" id="L347">        final List&lt;Job&gt; deps = dependencies();</span>
+<span class="fc" id="L348">        Iterator&lt;Job&gt; it = deps.iterator();</span>
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">        while (it.hasNext()) {</span>
+<span class="nc" id="L350">            Job j = it.next();</span>
+<span class="nc bnc" id="L351" title="All 4 branches missed.">            if (j.state() != State.Finished &amp;&amp; j.state() != State.Error) {</span>
+<span class="nc" id="L352">                return false;</span>
+            }
+        }
+<span class="fc" id="L355">        return true;</span>
+    }
+    
+    /**
+     * Return the exception that caused this Job to quit
+     * @return An exception object or null if the job has finished normally
+     */
+    public final Exception getErrorException() {
+<span class="nc" id="L363">        return this.m_errorException;</span>
+    }
+
+    /**
+     * XXX bogus method, only used for putting it in into a Pair.
+     */
+    public int compareTo(Job other)
+    {
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        return (this == other) ? 0 : 1;</span>
+    }
+
+    /**
+     * Protected default constructor.
+     */
+<span class="fc" id="L377">    protected Job() {</span>
+<span class="fc" id="L378">        m_scheduler = null;</span>
+<span class="fc" id="L379">        m_errorException = null;</span>
+<span class="fc" id="L380">        setState( State.Created );</span>
+<span class="fc" id="L381">    }</span>
+
+    /**
+     * Sets the job's state.
+     * @param s The new state.
+     */
+    protected final void setState(State s) {
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">        if (m_state == s) {</span>
+<span class="nc" id="L389">            return;</span>
+        }
+
+<span class="fc" id="L392">        m_state = s;</span>
+
+<span class="pc bpc" id="L394" title="4 of 6 branches missed.">        if ((m_state == State.Finished || m_state == State.Error) &amp;&amp; m_dependencies != null) {</span>
+            // remove the job from the dependency list
+<span class="nc" id="L396">            List&lt;Job&gt; unblockedJobs = new LinkedList&lt;Job&gt;();</span>
+<span class="nc" id="L397">            synchronized (m_dependencies) {</span>
+<span class="nc" id="L398">                List&lt;Pair&lt;Job,Job&gt;&gt; doomed = new LinkedList&lt;Pair&lt;Job,Job&gt;&gt;();</span>
+<span class="nc bnc" id="L399" title="All 2 branches missed.">                for (Pair&lt;Job,Job&gt; p: m_dependencies) {</span>
+<span class="nc bnc" id="L400" title="All 2 branches missed.">                    if (p.first == this) {</span>
+<span class="nc" id="L401">                        doomed.add(p);</span>
+<span class="nc" id="L402">                        unblockedJobs.add(p.second);</span>
+                    }
+                }
+<span class="nc" id="L405">                m_dependencies.removeAll(doomed);</span>
+            }
+            /* tell all jobs depending on the now finished on to forward that
+             * to the scheduler
+             */
+<span class="nc bnc" id="L410" title="All 2 branches missed.">            for (Job j: unblockedJobs) {</span>
+<span class="nc" id="L411">                j.callDependenciesChanged();</span>
+            }
+        }
+        
+<span class="pc bpc" id="L415" title="4 of 6 branches missed.">        if ((m_state == State.Finished || m_state == State.Error) &amp;&amp; m_dependees != null) {</span>
+<span class="nc" id="L416">            synchronized (m_dependees) {</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">                for (Job p: m_dependees) {</span>
+<span class="nc" id="L418">                    p.callDependenciesChanged();</span>
+                }
+<span class="nc" id="L420">                m_dependees.clear();</span>
+            }
+        }
+
+<span class="pc bpc" id="L424" title="1 of 2 branches missed.">        if (m_scheduler != null) {</span>
+<span class="nc" id="L425">            m_scheduler.jobStateChanged(this, s);</span>
+        }
+        
+<span class="fc" id="L428">        stateChanged(m_state);</span>
+<span class="fc" id="L429">        fireStateChangedEvent();</span>
+        
+<span class="pc" id="L431">        synchronized(this) {</span>
+<span class="fc" id="L432">        	notifyAll();</span>
+        }
+<span class="fc" id="L434">    }</span>
+
+    /**
+     * Called, when the state of the job changed to \a state.
+     * The default implementation does nothing.
+     */
+    protected void stateChanged(State state) {
+        
+<span class="fc" id="L442">    }</span>
+
+    /**
+     * If the job is queued to a scheduler, this methods tells the scheduler,
+     * that the job's dependencies have changed.
+     */
+    protected final void callDependenciesChanged() {
+<span class="nc bnc" id="L449" title="All 2 branches missed.">        if (m_scheduler != null) {</span>
+<span class="nc" id="L450">            m_scheduler.jobDependenciesChanged(this);</span>
+        }
+<span class="nc" id="L452">    }</span>
+
+    /**
+     * Restart a failing job by keeping count of the number of restarts
+     * @throws Exception to signify that the maximum number of restarts
+     * was reached
+     */
+    protected void restart() throws Exception {
+<span class="nc" id="L460">        restarts++;</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">        if (restarts &gt;= 5) {</span>
+<span class="nc" id="L462">            throw new Exception(&quot;Too many restarts - failing job&quot;);</span>
+        }
+<span class="nc" id="L464">        run();</span>
+<span class="nc" id="L465">    }</span>
+    
+    /**
+     * Run the job.
+     * 
+     * @throws Exception
+     *                 If thrown, the job ends up in Error state.
+     */
+    abstract protected void run() throws Exception;
+
+    /**
+     * Stop execution of the job until 
+     * @param p
+     * @throws SchedulerException 
+     */
+    public void yield(ResumePoint p) throws SchedulerException {
+<span class="nc" id="L481">        synchronized (this) {</span>
+<span class="nc" id="L482">            System.err.println(Thread.currentThread().getId() + &quot;:&quot; + toString() + &quot;: State is :&quot; + m_state);</span>
+<span class="nc bnc" id="L483" title="All 2 branches missed.">            if (m_state == State.Running) {</span>
+<span class="nc" id="L484">                setState(State.Yielded);</span>
+<span class="nc" id="L485">                this.resumePoint = p;</span>
+<span class="nc" id="L486">                m_scheduler.yield(this, p);</span>
+<span class="nc" id="L487">            } else {</span>
+<span class="nc" id="L488">                throw new SchedulerException(&quot;Cannot yield non-running job: &quot; </span>
+<span class="nc" id="L489">                        + this + &quot; (state was:&quot; + state() + &quot;)&quot;);</span>
+            }
+        }
+<span class="nc" id="L492">    }</span>
+    
+    public long resume() throws Exception {
+<span class="nc" id="L495">        long ts = System.currentTimeMillis();</span>
+<span class="nc" id="L496">        DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+
+<span class="nc bnc" id="L498" title="All 2 branches missed.">        if (state() != State.Yielded)</span>
+<span class="nc" id="L499">            throw new SchedulerException(&quot;Cannot resume a non-yielded job&quot;);</span>
+        
+<span class="nc bnc" id="L501" title="All 2 branches missed.">        if (resumePoint == null)</span>
+<span class="nc" id="L502">            throw new SchedulerException(&quot;Resume point is null&quot;);</span>
+        
+        try {
+<span class="nc" id="L505">            setState(State.Running);</span>
+<span class="nc" id="L506">            resumePoint.resume();</span>
+                       
+<span class="nc bnc" id="L508" title="All 4 branches missed.">            assert (!dbs.isDBSessionActive());            </span>
+<span class="nc bnc" id="L509" title="All 2 branches missed.">            if (dbs.isDBSessionActive()) {</span>
+<span class="nc" id="L510">                dbs.rollbackDBSession();</span>
+<span class="nc" id="L511">                setState(State.Error); //No uncommitted sessions are tolerated</span>
+<span class="nc" id="L512">            } else {</span>
+<span class="nc" id="L513">                setState(State.Finished);</span>
+            }   
+<span class="nc" id="L515">        } catch(Exception e) {</span>
+            
+<span class="nc bnc" id="L517" title="All 2 branches missed.">            if (dbs.isDBSessionActive()) {</span>
+<span class="nc" id="L518">                dbs.rollbackDBSession();</span>
+            }
+            
+            // In case of an exception, state becomes Error
+<span class="nc" id="L522">            m_errorException = e;</span>
+<span class="nc" id="L523">            setState(State.Error);</span>
+            // the Exception itself is forwarded
+<span class="nc" id="L525">            throw e;</span>
+        }
+        
+<span class="nc" id="L528">        return System.currentTimeMillis() - ts;</span>
+    }
+    
+    /**
+     * This method is called during queueing, right before the job is added to
+     * the work queue.
+     * The job is not in state Queued at this time.
+     * @param s The scheduler, the job has been enqueued to.
+     */
+    protected void aboutToBeEnqueued(Scheduler s) {
+<span class="fc" id="L538">    }</span>
+
+    /**
+     * This method is called right before the job is dequeued without being
+     * executed.
+     * The job is still in it's previoues state.
+     * @parem s The scheduler, the job is dequeued from.
+     */
+    protected void aboutToBeDequeued(Scheduler s) {
+<span class="nc" id="L547">    }</span>
+    
+    /**
+     * Add a listener from the job's list of state listeners
+     */
+    public final synchronized void addJobStateListener(JobStateListener l) {
+<span class="nc bnc" id="L553" title="All 2 branches missed.">        if (listeners == null)</span>
+<span class="nc" id="L554">            listeners = new ArrayList&lt;JobStateListener&gt;();</span>
+<span class="nc" id="L555">        listeners.add(l);</span>
+<span class="nc" id="L556">    }</span>
+    
+    /**
+     * Remove a listener from the job's list of state listeners
+     * @param l The listener to remove'
+     */
+    public final synchronized void removeJobStateListener(JobStateListener l) {
+<span class="nc bnc" id="L563" title="All 2 branches missed.">        if (listeners == null)</span>
+<span class="nc" id="L564">            return;</span>
+<span class="nc" id="L565">        listeners.remove(l);</span>
+<span class="nc" id="L566">    }</span>
+    
+    /**
+     * Called when the job's state has changed to notify clients about that.
+     */
+    private void fireStateChangedEvent() {
+<span class="pc bpc" id="L572" title="1 of 2 branches missed.">        if (listeners == null)</span>
+<span class="fc" id="L573">            return;</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">        for (JobStateListener l : listeners) {</span>
+<span class="nc" id="L575">            l.jobStateChanged(this, m_state);</span>
+        }
+<span class="nc" id="L577">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

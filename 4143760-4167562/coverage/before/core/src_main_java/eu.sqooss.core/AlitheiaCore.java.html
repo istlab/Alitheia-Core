@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>AlitheiaCore.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.core</a> &gt; <span class="el_source">AlitheiaCore.java</span></div><h1>AlitheiaCore.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.core;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.impl.service.admin.AdminServiceImpl;
+import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
+import eu.sqooss.impl.service.db.DBServiceImpl;
+import eu.sqooss.impl.service.fds.FDSServiceImpl;
+import eu.sqooss.impl.service.logging.LogManagerImpl;
+import eu.sqooss.impl.service.metricactivator.MetricActivatorImpl;
+import eu.sqooss.impl.service.pa.PAServiceImpl;
+import eu.sqooss.impl.service.rest.ResteasyServiceImpl;
+import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
+import eu.sqooss.impl.service.tds.TDSServiceImpl;
+import eu.sqooss.impl.service.updater.UpdaterServiceImpl;
+import eu.sqooss.impl.service.webadmin.WebadminServiceImpl;
+import eu.sqooss.service.abstractmetric.MetricActivator;
+import eu.sqooss.service.abstractmetric.PluginAdmin;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.rest.RestService;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.webadmin.WebadminService;
+
+/**
+ * Startup class of the Alitheia framework's core. Its main goal is to
+ * initialize all core components and be able to provide them upon request.
+ * There is one AlitheiaCore instance which may be retrieved statically
+ * through getInstance(); after that you can use the get*Service() methods
+ * to get each of the other core components as needed.
+ */
+public class AlitheiaCore {
+
+    /** The Logger component's instance. */
+    private LogManagerImpl logger;
+    
+    /** The parent bundle's context object. */
+    private BundleContext bc;
+    
+    /** The Core is singleton-line because it has a special instance */
+<span class="fc" id="L86">    private static AlitheiaCore instance = null;</span>
+    
+    /** Holds initialised service instances */
+    private HashMap&lt;Class&lt;? extends AlitheiaCoreService&gt;, Object&gt; instances;
+    
+    /* Service Configuration */
+    private static Vector&lt;Class&lt;? extends AlitheiaCoreService&gt;&gt; services;
+    private static Map&lt;Class&lt;? extends AlitheiaCoreService&gt;, Class&lt;?&gt;&gt; implementations;
+
+    static {
+<span class="fc" id="L96">        services = new Vector&lt;Class&lt;? extends AlitheiaCoreService&gt;&gt;();</span>
+<span class="fc" id="L97">        implementations = new HashMap&lt;Class&lt;? extends AlitheiaCoreService&gt;, Class&lt;?&gt;&gt;();</span>
+
+    	/* 
+    	 * Order matters here as services are initialised 
+    	 * in the order they appear in this list
+    	 */
+    	//The following two services are started manually
+    	//services.add(LogManager.class); 
+    	//services.add(DBService.class);	
+    	//All services after this point are guaranteed to have access to the DB 
+<span class="fc" id="L107">    	services.add(PluginAdmin.class);</span>
+<span class="fc" id="L108">    	services.add(Scheduler.class);</span>
+<span class="fc" id="L109">    	services.add(TDSService.class);</span>
+<span class="fc" id="L110">    	services.add(ClusterNodeService.class);</span>
+<span class="fc" id="L111">    	services.add(FDSService.class);</span>
+<span class="fc" id="L112">    	services.add(MetricActivator.class);</span>
+<span class="fc" id="L113">    	services.add(UpdaterService.class);</span>
+<span class="fc" id="L114">    	services.add(WebadminService.class);</span>
+<span class="fc" id="L115">    	services.add(RestService.class);</span>
+<span class="fc" id="L116">    	services.add(AdminService.class);</span>
+
+<span class="fc" id="L118">    	implementations.put(LogManager.class, LogManagerImpl.class);</span>
+<span class="fc" id="L119">    	implementations.put(DBService.class, DBServiceImpl.class);	 </span>
+<span class="fc" id="L120">    	implementations.put(PluginAdmin.class, PAServiceImpl.class);</span>
+<span class="fc" id="L121">    	implementations.put(Scheduler.class, SchedulerServiceImpl.class);</span>
+<span class="fc" id="L122">    	implementations.put(TDSService.class, TDSServiceImpl.class);</span>
+<span class="fc" id="L123">    	implementations.put(ClusterNodeService.class, ClusterNodeServiceImpl.class);</span>
+<span class="fc" id="L124">    	implementations.put(FDSService.class, FDSServiceImpl.class);</span>
+<span class="fc" id="L125">    	implementations.put(MetricActivator.class, MetricActivatorImpl.class);</span>
+<span class="fc" id="L126">    	implementations.put(UpdaterService.class, UpdaterServiceImpl.class);</span>
+<span class="fc" id="L127">    	implementations.put(WebadminService.class, WebadminServiceImpl.class);</span>
+<span class="fc" id="L128">        implementations.put(RestService.class, ResteasyServiceImpl.class);</span>
+<span class="fc" id="L129">    	implementations.put(AdminService.class, AdminServiceImpl.class);</span>
+<span class="fc" id="L130">    }</span>
+   
+    /**
+     * Simple constructor.
+     * 
+     * @param bc The parent bundle's context object.
+     */
+<span class="nc" id="L137">    public AlitheiaCore(BundleContext bc) {</span>
+<span class="nc" id="L138">        this.bc = bc;</span>
+<span class="nc" id="L139">        instance = this;</span>
+<span class="nc" id="L140">        err(&quot;Instance Created&quot;);</span>
+        
+<span class="nc" id="L142">        instances = new HashMap&lt;Class&lt;? extends AlitheiaCoreService&gt;, Object&gt;();</span>
+<span class="nc" id="L143">        init();</span>
+<span class="nc" id="L144">    }</span>
+
+    /**
+     * The core has a blessed instance which you can get from here;
+     * that instance in turn will give you the DB service and others
+     * that it holds on to. So code that needs a particular service
+     * can use AlitheiaCore.getInstance().get*Service() to get
+     * a reference to specific services.
+     * 
+     * @return Instance, or null if it's not initialized yet
+     */
+    public static AlitheiaCore getInstance() {
+<span class="fc" id="L156">        return instance;</span>
+    }
+    
+    /*Create a temp instance to use for testing.*/
+    public static AlitheiaCore testInstance() {
+<span class="nc" id="L161">        instance = new AlitheiaCore(null);</span>
+<span class="nc" id="L162">        return instance;</span>
+    }
+    
+    /**
+     * Register an external implementation of an AlitheiaCore service. It
+     * will override any internally defined implementation.
+     *
+     * @param service The service interface to register an implementation for
+     * @param clazz The class that implements the registered service
+     */
+    public synchronized void registerService(
+            Class&lt;? extends AlitheiaCoreService&gt; service,
+            Class&lt;?&gt; clazz) {
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (!services.contains(service))</span>
+<span class="nc" id="L177">            services.add(service);</span>
+<span class="nc" id="L178">        implementations.put(service, clazz);</span>
+<span class="nc" id="L179">        initService(service);</span>
+<span class="nc" id="L180">    }</span>
+
+    /**
+     * Unregisters an external implementation of an Alitheia Core service. 
+     * This method does not check if external entities hold references to the
+     * service to be unregistered.
+     */
+    public synchronized void unregisterService(
+            Class&lt;? extends AlitheiaCoreService&gt; service) {
+<span class="nc" id="L189">        implementations.remove(service);</span>
+<span class="nc" id="L190">    }</span>
+
+    /**
+     * This method performs initialization of the &lt;code&gt;AlitheiaCore&lt;/code&gt;
+     * object by instantiating the core components, by calling the 
+     * method on their service interface. Failures are reported but do not 
+     * block the instatiation process).
+     */
+    private void init() {
+
+<span class="nc" id="L200">        err(&quot;Required services online, initialising&quot;);</span>
+
+<span class="nc" id="L202">        logger = new LogManagerImpl();</span>
+<span class="nc" id="L203">        logger.setInitParams(bc, null);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (!logger.startUp()) {</span>
+<span class="nc" id="L205">            err(&quot;Cannot start the log service, aborting&quot;);</span>
+        }
+<span class="nc" id="L207">        instances.put(LogManager.class, logger);</span>
+<span class="nc" id="L208">        err(&quot;Service &quot; + LogManagerImpl.class.getName() + &quot; started&quot;);</span>
+
+<span class="nc" id="L210">        DBService db = DBServiceImpl.getInstance();</span>
+<span class="nc" id="L211">        db.setInitParams(bc, logger.createLogger(&quot;sqooss.db&quot;));</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (!db.startUp()) {</span>
+<span class="nc" id="L213">            err(&quot;Cannot start the DB service, aborting&quot;);</span>
+        }
+<span class="nc" id="L215">        instances.put(DBService.class, db);</span>
+<span class="nc" id="L216">        err(&quot;Service &quot; + DBServiceImpl.class.getName() + &quot; started&quot;);</span>
+
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        for (Class&lt;? extends AlitheiaCoreService&gt; s : services) {</span>
+<span class="nc" id="L219">            initService(s);</span>
+        }
+
+<span class="nc" id="L222">    }</span>
+
+    private synchronized void initService(Class&lt;? extends AlitheiaCoreService&gt; s) {
+<span class="nc" id="L225">        Class&lt;?&gt; impl = implementations.get(s);</span>
+
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (impl == null) {</span>
+<span class="nc" id="L228">            err(&quot;No implementation found for service &quot; + s);</span>
+<span class="nc" id="L229">            return;</span>
+        }
+
+        try {
+<span class="nc" id="L233">            Object o = impl.newInstance();</span>
+
+<span class="nc bnc" id="L235" title="All 2 branches missed.">            if (o == null) {</span>
+<span class="nc" id="L236">                err(&quot;Service object for service &quot; + s</span>
+<span class="nc" id="L237">                        + &quot; could not be created&quot;);</span>
+<span class="nc" id="L238">                return;</span>
+            }
+
+            //Extract the unique service portion of the class FQN.
+            //e.g. from eu.sqooss.service.db.DBService -&gt; db
+<span class="nc" id="L243">            String[] paths = s.getCanonicalName().split(&quot;\\.&quot;);</span>
+
+            /* Logger names are constructed as per */
+<span class="nc" id="L246">            s.cast(o).setInitParams(bc,</span>
+<span class="nc" id="L247">                    logger.createLogger(&quot;sqooss.&quot; + paths[3]));</span>
+
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            if (!s.cast(o).startUp()) {</span>
+<span class="nc" id="L250">                err(&quot;Service &quot; + s + &quot; could not be started&quot;);</span>
+<span class="nc" id="L251">                return;</span>
+            }
+
+<span class="nc" id="L254">            instances.put(s, s.cast(o));</span>
+<span class="nc" id="L255">            err(&quot;Service &quot; + impl.getName() + &quot; started&quot;);</span>
+<span class="nc" id="L256">        } catch (Exception e) {</span>
+<span class="nc" id="L257">            e.printStackTrace();</span>
+        }
+<span class="nc" id="L259">    }</span>
+
+    public void shutDown() {
+<span class="nc" id="L262">    	List&lt;Class&lt;? extends AlitheiaCoreService&gt;&gt; revServices = </span>
+<span class="nc" id="L263">    		new ArrayList&lt;Class&lt;? extends AlitheiaCoreService&gt;&gt;(services);</span>
+<span class="nc" id="L264">    	Collections.reverse(revServices);</span>
+    	
+<span class="nc bnc" id="L266" title="All 2 branches missed.">    	for (Class&lt;? extends AlitheiaCoreService&gt; s : revServices) {</span>
+<span class="nc" id="L267">    		Object o = instances.get(s);</span>
+    		try	{
+<span class="nc" id="L269">    			s.cast(o).shutDown();</span>
+<span class="nc" id="L270">    			instances.remove(s);</span>
+<span class="nc" id="L271">    		} catch (Throwable t) {</span>
+<span class="nc" id="L272">    			t.printStackTrace();</span>
+			}    		
+    	}
+<span class="nc" id="L275">	}</span>
+
+    /**
+     * Returns the locally stored Logger component's instance.
+     * 
+     * @return The Logger component's instance.
+     */
+    public LogManager getLogManager() {
+<span class="nc" id="L283">        return (LogManager)instances.get(LogManager.class);</span>
+    }
+
+    /**
+     * Returns the locally stored WebAdmin component's instance.
+     * 
+     * @return The WebAdmin component's instance.
+     */
+    public WebadminService getWebadminService() {
+<span class="nc" id="L292">        return (WebadminService)instances.get(WebadminService.class);</span>
+    }
+
+    /**
+     * Returns the locally stored Plug-in Admin component's instance.
+     * 
+     * @return The Plug-in Admin component's instance.
+     */
+    public PluginAdmin getPluginAdmin() {
+<span class="nc" id="L301">        return (PluginAdmin)instances.get(PluginAdmin.class);</span>
+    }
+
+    /**
+     * Returns the locally stored DB component's instance.
+     * 
+     * @return The DB component's instance.
+     */
+    public DBService getDBService() {
+        //return (DBServiceImpl)instances.get(DBService.class);
+<span class="nc" id="L311">        return DBServiceImpl.getInstance(); // &lt;-- Ugly but required for testing.</span>
+    }
+    
+    /**
+     * Unused check of the core instance for liveness. Because the instance
+     * might not lee without the rest of the bikini services, we need to
+     * check that they are present.
+     * Added after evening discussion (&lt;i&gt;some 5 pints and a bunch of naked
+     * bikini models later&lt;i&gt;) at Amarilia on liveness.
+     */
+    private static boolean canLee(boolean touLiBouDiBouDauTcou) {
+<span class="nc bnc" id="L322" title="All 4 branches missed.">        return (null != instance) &amp;&amp; touLiBouDiBouDauTcou;</span>
+    }
+    
+    /**
+     * Returns the locally stored FDS component's instance.
+     * &lt;br/&gt;
+     * &lt;i&gt;The instance is created when this method is called for a first
+     * time.&lt;/i&gt;
+     * 
+     * @return The FDS component's instance.
+     */
+    public FDSService getFDSService() {
+<span class="nc" id="L334">        return (FDSService)instances.get(FDSService.class);</span>
+    }
+
+    /**
+     * Returns the locally stored Scheduler component's instance.
+     * &lt;br/&gt;
+     * &lt;i&gt;The instance is created when this method is called for a first
+     * time.&lt;/i&gt;
+     * 
+     * @return The Scheduler component's instance.
+     */
+    public Scheduler getScheduler() {
+<span class="nc" id="L346">        return (Scheduler)instances.get(Scheduler.class);</span>
+    }
+
+    /**
+     * Returns the locally stored Security component's instance.
+     * &lt;br/&gt;
+     * &lt;i&gt;The instance is created when this method is called for a first
+     * time.&lt;/i&gt;
+     * 
+     * @return The Security component's instance.
+     */
+    public SecurityManager getSecurityManager() {
+<span class="nc" id="L358">        return (SecurityManager)instances.get(SecurityManager.class);</span>
+    }
+
+    /**
+     * Returns the locally stored TDS component's instance.
+     * &lt;br/&gt;
+     * &lt;i&gt;The instance is created when this method is called for a first
+     * time.&lt;/i&gt;
+     * 
+     * @return The TDS component's instance.
+     */
+    public TDSService getTDSService() {
+<span class="nc" id="L370">        return (TDSService)instances.get(TDSService.class);</span>
+    }
+
+    /**
+     * Returns the locally stored Updater component's instance.
+     * &lt;br/&gt;
+     * &lt;i&gt;The instance is created when this method is called for a first
+     * time.&lt;/i&gt;
+     * 
+     * @return The Updater component's instance.
+     */
+    public UpdaterService getUpdater() {
+<span class="nc" id="L382">        return (UpdaterService)instances.get(UpdaterService.class);</span>
+    }
+
+    /**
+     * Returns the locally stored ClusterNodeService component's instance.
+     * &lt;br/&gt;
+     * &lt;i&gt;The instance is created when this method is called for a first
+     * time.&lt;/i&gt;
+     * 
+     * @return The ClusterNodeSerive component's instance.
+     */
+    public ClusterNodeService getClusterNodeService() {
+<span class="nc" id="L394">        return (ClusterNodeService)instances.get(ClusterNodeService.class);</span>
+    }
+
+    /**
+     * Returns the locally stored Metric Activator component's instance.
+     * 
+     * &lt;i&gt;The instance is created when this method is called for a first
+     * time.&lt;/i&gt;
+     * 
+     * @return The Metric Activator component's instance.
+     */
+    public MetricActivator getMetricActivator() {
+<span class="nc" id="L406">    	return (MetricActivator)instances.get(MetricActivator.class);</span>
+    }
+    
+    /**
+     * Returns the locally stored Administration Service component's instance.
+     * 
+     * @return The Administration Service component's instance.
+     */
+    public AdminService getAdminService() {
+<span class="nc" id="L415">    	return (AdminService)instances.get(AdminService.class);</span>
+    }
+	
+	private void err(String msg) {
+<span class="nc" id="L419">		System.err.println(&quot;AlitheiaCore: &quot; + msg);</span>
+<span class="nc" id="L420">	}</span>
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

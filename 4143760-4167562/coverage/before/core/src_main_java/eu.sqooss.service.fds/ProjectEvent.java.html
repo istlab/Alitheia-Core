@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>ProjectEvent.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.fds</a> &gt; <span class="el_source">ProjectEvent.java</span></div><h1>ProjectEvent.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.fds;
+
+import eu.sqooss.service.db.DAObject;
+
+/**
+ * A generic data transfer object holding references to 
+ * resources describing a project event.  
+ * 
+ */
+<span class="nc" id="L43">public abstract class ProjectEvent implements Comparable&lt;ProjectEvent&gt; {</span>
+    
+    /**
+     * Second-accurate timestamp
+     */
+    protected long timestamp;
+    
+    /**
+     * Database record about the event.
+     */
+    protected DAObject associatedDAO;
+        
+    /**
+     * @return the associated DAO
+     */
+    public DAObject getAssociatedDAO() {
+<span class="nc" id="L59">        return associatedDAO;</span>
+    }
+    
+    /**
+     * This value is used as the primary sorting discriminant for events.
+     * @return the timestamp in second-accuracy.
+     */
+    public long getTimestamp() {
+<span class="nc" id="L67">        return timestamp;</span>
+    }
+    
+    /**
+     * This value is used to further sort events with identical timestamps.
+     * @return an integer representing the &quot;priority&quot; of the event.
+     */
+    protected abstract int getEventPriority();
+
+    /**
+     * This value is used to further sort elements with identical timestamps and priorities.
+     * (e.g. two SCM commits happening in the same second)
+     * @return an integer representing the event id.
+     */
+    protected abstract long getEventId();
+
+        
+    /**
+     * Compare events using the following discriminants in order :
+     * timestamp -&gt; priority -&gt; event id
+     * @return -1/0/1 if the event is more prioritary/equal/less prioritary than other
+     */
+    public int compareTo(ProjectEvent other)
+    {
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if ( getTimestamp() == other.getTimestamp() ) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if ( getEventPriority() == other.getEventPriority() ) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                if ( getEventId() == other.getEventId() ) {</span>
+<span class="nc" id="L94">                    return 0;</span>
+                }
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                return getEventId() &gt; other.getEventId() ? 1 : -1;</span>
+            }
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            return getEventPriority() &gt; other.getEventPriority() ? 1 : -1;</span>
+        }
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        return getTimestamp() &gt; other.getTimestamp() ? 1 : -1;</span>
+    }
+}
+
+//vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

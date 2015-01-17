@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>UpdateProject.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.admin.actions</a> &gt; <span class="el_source">UpdateProject.java</span></div><h1>UpdateProject.java</h1><pre class="source lang-java linenums">package eu.sqooss.service.admin.actions;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.admin.AdminActionBase;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.updater.UpdaterService;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
+
+/**
+ * An action that triggers a project update.
+ * 
+ * &lt;h2&gt;Arguments&lt;/h2&gt;
+ * 
+ * &lt;table&gt;
+ * &lt;th&gt;
+ * &lt;td&gt;Argument&lt;/td&gt;
+ * &lt;td&gt;Required?&lt;/td&gt;
+ * &lt;td&gt;Explanation&lt;/td&gt;&lt;/th&gt;
+ * 
+ * &lt;tr&gt;
+ * &lt;td&gt;project&lt;/td&gt;
+ * &lt;td&gt;yes&lt;/td&gt;
+ * &lt;td&gt;The project (name or id) to run the update for&lt;/td&gt;
+ * &lt;/tr&gt;
+ * 
+ * &lt;tr&gt;
+ * &lt;td&gt;updater&lt;/td&gt;
+ * &lt;td&gt;no&lt;/td&gt;
+ * &lt;td&gt;The mnemonic of the updater to run. This parameter takes precedence over
+ * the next one, in case of conflict (i.e. specified updater not in specified
+ * stage)&lt;/td&gt;
+ * &lt;/tr&gt;
+ * 
+ * &lt;tr&gt;
+ * &lt;td&gt;stage&lt;/td&gt;
+ * &lt;td&gt;no&lt;/td&gt;
+ * &lt;td&gt;One of DEFAULT, IMPORT, PARSING, INFERENCE. If omitted, and the updater
+ * parameter is not set, all updaters available to the project will be run.&lt;/td&gt;
+ * &lt;/tr&gt;
+ * 
+ * &lt;/table&gt;
+ * 
+ * @author Georgios Gousios &lt;gousiosg@gmail.com&gt;
+ * 
+ */
+<span class="nc" id="L46">public class UpdateProject extends AdminActionBase {</span>
+
+    public static final String MNEMONIC = &quot;upd&quot;;
+    
+    @Override
+    public String mnemonic() {
+<span class="nc" id="L52">        return MNEMONIC;</span>
+    }
+
+    @Override
+    public String descr() {
+<span class="nc" id="L57">        return &quot;Schedules update jobs&quot;;</span>
+    }
+
+    @Override
+    public void execute() throws Exception {
+<span class="nc" id="L62">        super.execute();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        String project = (args.get(&quot;project&quot;) != null) ? args.get(&quot;project&quot;).toString() : null;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        String stage = (args.get(&quot;stage&quot;) != null) ? args.get(&quot;stage&quot;).toString() : null;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        String updater = (args.get(&quot;updater&quot;) != null) ? args.get(&quot;updater&quot;).toString() : null;</span>
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (project == null) {</span>
+<span class="nc" id="L68">            error(&quot;missing.param&quot;, &quot;Missing required parameter: project&quot;);</span>
+        }
+
+<span class="nc" id="L71">        Integer projectid = null;</span>
+        try {
+<span class="nc" id="L73">            projectid = Integer.parseInt(project);</span>
+<span class="nc" id="L74">        } catch (NumberFormatException nfe) {}</span>
+
+<span class="nc" id="L76">        StoredProject sp = null;</span>
+
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (projectid == null) {</span>
+            // The project was provided by name
+<span class="nc" id="L80">            sp = StoredProject.getProjectByName(project);</span>
+<span class="nc" id="L81">        } else {</span>
+<span class="nc" id="L82">            sp = StoredProject.loadDAObyId(projectid, StoredProject.class);</span>
+        }
+
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (sp == null) {</span>
+<span class="nc" id="L86">            error(&quot;project.notexists&quot;, &quot;Project &quot; + project + &quot; does not exist&quot;);</span>
+        }
+
+<span class="nc" id="L89">        UpdaterService u = AlitheiaCore.getInstance().getUpdater();</span>
+<span class="nc" id="L90">        UpdaterStage us = null;</span>
+        try {
+<span class="nc" id="L92">            us = UpdaterStage.valueOf(UpdaterStage.class, stage);</span>
+<span class="nc" id="L93">        } catch (Exception e) {</span>
+<span class="nc" id="L94">            warn(&quot;updater.stage.notexists&quot;,</span>
+<span class="nc" id="L95">                    &quot;No such stage &quot; + stage + &quot;:&quot; + e.getMessage());</span>
+        }
+
+        boolean scheduled;
+
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (updater == null) {</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (stage == null) {</span>
+<span class="nc" id="L102">                scheduled = u.update(sp);</span>
+<span class="nc" id="L103">            } else {</span>
+<span class="nc" id="L104">                scheduled = u.update(sp, us);</span>
+            }
+<span class="nc" id="L106">        } else {</span>
+<span class="nc" id="L107">            scheduled = u.update(sp, updater);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (!scheduled)</span>
+<span class="nc" id="L109">                warn(&quot;updater.notexists&quot;, &quot;No such updater: &quot; + updater);</span>
+        }
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (scheduled)</span>
+<span class="nc" id="L113">            finished(&quot;Project addded succesfully&quot;);</span>
+        else
+<span class="nc" id="L115">            error(&quot;updater.failed&quot;, &quot;Could not schedule update jobs, check the &quot; +</span>
+            		&quot;updater log for details&quot;);
+<span class="nc" id="L117">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

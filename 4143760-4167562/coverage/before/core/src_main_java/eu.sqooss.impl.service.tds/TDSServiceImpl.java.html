@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>TDSServiceImpl.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.tds</a> &gt; <span class="el_source">TDSServiceImpl.java</span></div><h1>TDSServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.tds;
+
+import java.net.URI;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.core.AlitheiaCoreService;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.DataAccessor;
+import eu.sqooss.service.tds.ProjectAccessor;
+import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.util.URIUtills;
+
+public class TDSServiceImpl implements TDSService, AlitheiaCoreService {
+<span class="nc" id="L53">    private Logger logger = null;</span>
+    private ConcurrentHashMap&lt;Long, ProjectDataAccessorImpl&gt; accessorPool;
+    private ConcurrentHashMap&lt;ProjectDataAccessorImpl, Integer&gt; accessorClaims;
+    
+<span class="nc" id="L57">    public TDSServiceImpl() {}</span>
+
+    // Interface methods
+
+    // For now, there is no difference between projectExists and
+    // accessorExists; in future there may be when accessor pooling
+    // and limiting is implemented. Then it may be that a project
+    // exists for the TDS but has no accessor yet.
+    /**{@inheritDoc}}*/
+    public boolean projectExists( long projectId ) {
+<span class="nc" id="L67">        return accessorPool.containsKey(new Long(projectId));</span>
+    }
+
+    /**{@inheritDoc}}*/
+    public boolean accessorExists( long projectId ) {
+<span class="nc" id="L72">        return projectExists(projectId);</span>
+    }
+
+    /**{@inheritDoc}}*/
+    public ProjectAccessor getAccessor( long projectId ) {
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (accessorExists(projectId)) {</span>
+<span class="nc" id="L78">            ProjectDataAccessorImpl a = accessorPool.get(projectId);</span>
+<span class="nc" id="L79">            synchronized (this) {</span>
+<span class="nc" id="L80">                int claims = accessorClaims.get(a);</span>
+<span class="nc" id="L81">                claims++;</span>
+<span class="nc" id="L82">                accessorClaims.put(a, claims);</span>
+            }
+            //logger.debug(&quot;Retrieving accessor for project &quot; + projectId);
+<span class="nc" id="L85">            return a;</span>
+        } else {
+<span class="nc" id="L87">            logger.warn(&quot;Retrieval request for non-existent project &quot; + projectId);</span>
+        }
+
+<span class="nc" id="L90">        return null;</span>
+    }
+
+    /**{@inheritDoc}}*/
+    public void releaseAccessor(ProjectAccessor td) {
+<span class="nc" id="L95">        logger.debug(&quot;Release accessor for &quot; + td.getName());</span>
+<span class="nc" id="L96">        synchronized (accessorClaims) {</span>
+<span class="nc" id="L97">            int claims = accessorClaims.get(td);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (claims &lt;= 0) {</span>
+<span class="nc" id="L99">                logger.error(&quot;Request to release not claimed accessor&quot;);</span>
+<span class="nc" id="L100">            } else {</span>
+<span class="nc" id="L101">                claims--;</span>
+<span class="nc" id="L102">                accessorClaims.put((ProjectDataAccessorImpl)td, claims);</span>
+            }
+        }
+<span class="nc" id="L105">    }</span>
+
+    /**{@inheritDoc}}*/
+    public void addAccessor( long id, String name, String bts, String mail, String scm ) {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (accessorExists(id)) {</span>
+<span class="nc" id="L110">            logger.warn(&quot;Adding duplicate project id &quot; + id + &quot; &lt;&quot; + name + &quot;&gt;&quot;);</span>
+            // Continue anyway
+        }
+<span class="nc" id="L113">        ProjectDataAccessorImpl a = new ProjectDataAccessorImpl(id,name,bts,mail,scm);</span>
+<span class="nc" id="L114">        accessorPool.putIfAbsent(new Long(id),a);</span>
+<span class="nc" id="L115">        accessorClaims.putIfAbsent(a, 1);</span>
+<span class="nc" id="L116">        logger.info(&quot;Added project &lt;&quot; + name + &quot;&gt;&quot;);</span>
+<span class="nc" id="L117">    }</span>
+    
+    /**{@inheritDoc}}*/
+    public boolean isURLSupported(String url) {
+<span class="nc" id="L121">        boolean supported = false;</span>
+<span class="nc" id="L122">        URI toTest = null;</span>
+        
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if ((toTest = URIUtills.toURI(url)) == null) {</span>
+<span class="nc" id="L125">        	logger.warn(&quot;Error converting to URI: &quot; + url);</span>
+<span class="nc" id="L126">        	return false;</span>
+        }
+
+<span class="nc" id="L129">        logger.debug(&quot;Checking URI: &quot; + toTest);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (String scheme : DataAccessorFactory.getSupportedSchemes()) {</span>
+<span class="nc" id="L131">        	logger.debug(&quot;Trying scheme: &quot; + scheme);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (scheme.equals(toTest.getScheme())) {</span>
+<span class="nc" id="L133">                supported = true;</span>
+<span class="nc" id="L134">                logger.debug(&quot;Found scheme: &quot; + scheme);</span>
+<span class="nc" id="L135">                break;</span>
+            }
+        }
+        
+<span class="nc" id="L139">        return supported;</span>
+    }
+    
+    /**
+     * Tell the TDS which projects are installed.
+     */
+    private void stuffer() {
+<span class="nc" id="L146">        logger.info(&quot;TDS is now running the stuffer.&quot;);</span>
+<span class="nc" id="L147">        DBService db = AlitheiaCore.getInstance().getDBService();</span>
+        
+<span class="nc bnc" id="L149" title="All 4 branches missed.">        if (db != null &amp;&amp; db.startDBSession()) {</span>
+            
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            for (StoredProject p : ClusterNode.thisNode().getProjects()) {</span>
+<span class="nc" id="L152">                addAccessor(p.getId(), p.getName(), p.getBtsUrl(), </span>
+<span class="nc" id="L153">                        p.getMailUrl(), p.getScmUrl());</span>
+            }
+<span class="nc" id="L155">            db.commitDBSession();</span>
+        }
+
+<span class="nc" id="L158">        logger.info(&quot;TDS Stuffer is finished.&quot;);</span>
+<span class="nc" id="L159">    }</span>
+
+	@Override
+	public void shutDown() {
+		
+<span class="nc" id="L164">	}</span>
+
+	@Override
+	public boolean startUp() {
+<span class="nc" id="L168">        ProjectDataAccessorImpl.logger = logger;</span>
+
+        //Wake up the DataAccessorFactory
+<span class="nc" id="L171">        new DataAccessorFactory(logger);</span>
+
+        //Init accessor store
+<span class="nc" id="L174">        accessorPool = new ConcurrentHashMap&lt;Long,ProjectDataAccessorImpl&gt;();</span>
+<span class="nc" id="L175">        accessorClaims = new ConcurrentHashMap&lt;ProjectDataAccessorImpl, Integer&gt;();</span>
+       
+<span class="nc" id="L177">        logger.info(&quot;TDS service created.&quot;);</span>
+        
+<span class="nc" id="L179">		stuffer();</span>
+<span class="nc" id="L180">		return true;</span>
+	}
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+<span class="nc" id="L185">	    this.logger = l;</span>
+<span class="nc" id="L186">	}</span>
+
+    @Override
+    public void registerPlugin(String[] protocols, Class&lt;? extends DataAccessor&gt; clazz) {
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        for (String protocol : protocols) {</span>
+<span class="nc" id="L191">            DataAccessorFactory.addImplementation(protocol, clazz);</span>
+        }
+<span class="nc" id="L193">    }</span>
+
+    @Override
+    public void unregisterPlugin(Class&lt;? extends DataAccessor&gt; clazz) {
+<span class="nc" id="L197">        DataAccessorFactory.removeImplementation(clazz);</span>
+<span class="nc" id="L198">    }</span>
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

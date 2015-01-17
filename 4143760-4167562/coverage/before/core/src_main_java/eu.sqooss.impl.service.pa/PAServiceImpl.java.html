@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>PAServiceImpl.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.pa</a> &gt; <span class="el_source">PAServiceImpl.java</span></div><h1>PAServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.pa;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.PluginAdmin;
+import eu.sqooss.service.abstractmetric.PluginInfo;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
+
+public class PAServiceImpl implements PluginAdmin, ServiceListener {
+
+    /* ===[ Constants: Service search filters ]=========================== */
+
+    private static final String SREF_FILTER_PLUGIN =
+        &quot;(&quot; + Constants.OBJECTCLASS + &quot;=&quot; + PluginAdmin.PLUGIN_CLASS + &quot;)&quot;;
+
+    /* ===[ Constants: Common log messages ]============================== */
+
+    private static final String NO_MATCHING_SERVICES =
+        &quot;No matching services were found!&quot;;
+    private static final String NOT_A_PLUGIN =
+        &quot;Not a metric plug-in service!&quot;;
+    private static final String INVALID_FILTER_SYNTAX =
+        &quot;Invalid filter syntax!&quot;;
+    private static final String INVALID_SREF =
+        &quot;Invalid service reference!&quot;;
+    private static final String CANT_GET_SOBJ =
+        &quot;The service object can not be retrieved!&quot;;
+
+    /* ===[ Global variable ]============================================= */
+
+    // The parent bundle's context object
+    private BundleContext bc;
+
+    // Required SQO-OSS components
+    private Logger logger;
+<span class="nc" id="L92">    private DBService sobjDB = null;</span>
+<span class="nc" id="L93">    private AlitheiaCore sobjCore = null;</span>
+    
+    /**
+     * Keeps a list of registered metric plug-in's services, indexed by the
+     * plugin's hash code (stored in the database).
+     */
+<span class="nc" id="L99">    private ConcurrentHashMap&lt;String, PluginInfo&gt; registeredPlugins =</span>
+<span class="nc" id="L100">        new ConcurrentHashMap&lt;String, PluginInfo&gt;();</span>
+
+<span class="nc" id="L102">    public PAServiceImpl () { }</span>
+
+    /**
+     * Retrieves the service Id of the specified service reference.
+     *
+     * @param sref - the service reference
+     *
+     * @return The service Id.
+     */
+    private Long getServiceId (ServiceReference sref) {
+        // Check for a valid service reference
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (sref == null) {</span>
+<span class="nc" id="L114">            logger.error(INVALID_SREF);</span>
+<span class="nc" id="L115">            return null;</span>
+        }
+        try {
+<span class="nc" id="L118">            return (Long) sref.getProperty(Constants.SERVICE_ID);</span>
+        }
+<span class="nc" id="L120">        catch (ClassCastException e) {</span>
+<span class="nc" id="L121">            return null;</span>
+        }
+    }
+
+    /**
+     * Extracts the service Id of the metric plug-in service described in the
+     * metric plug-in's information object located by the specified hash
+     * code's value.
+     *
+     * @param hash - the hash code's value
+     *
+     * @return The service Id.
+     */
+    private Long getServiceId (String hash) {
+<span class="nc bnc" id="L135" title="All 4 branches missed.">        if ((hash != null) &amp;&amp; (registeredPlugins.containsKey(hash))) {</span>
+            // Get the plug-in info object pointed by the given hash
+<span class="nc" id="L137">            PluginInfo infoPlugin = registeredPlugins.get(hash);</span>
+
+            // Return the service's Id
+<span class="nc" id="L140">            return getServiceId(infoPlugin.getServiceRef());</span>
+        }
+
+<span class="nc" id="L143">        return null;</span>
+    }
+
+    /**
+     * Gets the metric plug-in's service reference, that is registered with
+     * the given service Id.
+     *
+     * @param serviceId - the service Id
+     *
+     * @return The metric plug-in's service reference.
+     */
+    private ServiceReference getPluginService (Long serviceId) {
+        // Format a search filter for a service with the given service Id
+<span class="nc" id="L156">        String serviceFilter =</span>
+<span class="nc" id="L157">            &quot;(&quot; + Constants.SERVICE_ID +&quot;=&quot; + serviceId + &quot;)&quot;;</span>
+
+        // Retrieve all services that match the search filter
+<span class="nc" id="L160">        ServiceReference[] matchingServices = null;</span>
+        try {
+            /* Since the service search is performed using a service Id,
+             * it MUST return only one service reference.
+             */
+<span class="nc" id="L165">            matchingServices = bc.getServiceReferences(null, serviceFilter);</span>
+<span class="nc bnc" id="L166" title="All 4 branches missed.">            if ((matchingServices == null) || (matchingServices.length != 1)) {</span>
+<span class="nc" id="L167">                logger.error(NO_MATCHING_SERVICES);</span>
+<span class="nc" id="L168">            }</span>
+            else {
+<span class="nc" id="L170">                return matchingServices[0];</span>
+            }
+        }
+<span class="nc" id="L173">        catch (InvalidSyntaxException e) {</span>
+<span class="nc" id="L174">            logger.error(INVALID_FILTER_SYNTAX);</span>
+        }
+
+<span class="nc" id="L177">        return null;</span>
+    }
+
+    /**
+     * Gets the metric plug-in's object registered with the given service.
+     *
+     * @param srefPlugin - the metric plug-in's service reference
+     *
+     * @return The metric plug-in's object.
+     */
+    private AlitheiaPlugin getPluginObject (ServiceReference srefPlugin) {
+        // Check for a valid service reference
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (srefPlugin == null) {</span>
+<span class="nc" id="L190">            logger.error(INVALID_SREF);</span>
+<span class="nc" id="L191">            return null;</span>
+        }
+        try {
+            // Retrieve the metric plug-in's object from the service reference
+<span class="nc" id="L195">            AlitheiaPlugin sobjPlugin = (AlitheiaPlugin) bc.getService(srefPlugin);</span>
+            // Check for a valid plug-in object
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            if (sobjPlugin == null) {</span>
+<span class="nc" id="L198">                logger.error(CANT_GET_SOBJ);</span>
+            }
+<span class="nc" id="L200">            return sobjPlugin;</span>
+        }
+<span class="nc" id="L202">        catch (ClassCastException e) {</span>
+<span class="nc" id="L203">            logger.warn(NOT_A_PLUGIN);</span>
+        }
+
+<span class="nc" id="L206">        return null;</span>
+    }
+
+    /**
+     * Creates a new &lt;code&gt;PluginInfo&lt;/code&gt; object for registered plug-in
+     * from the given metric plug-in's service.
+     *
+     * @param srefPlugin - the metric plug-in's service reference
+     *
+     * @return The new &lt;code&gt;PluginInfo&lt;/code&gt; object, or &lt;code&gt;null&lt;/code&gt;
+     *   upon failure.
+     */
+    private PluginInfo createRegisteredPI (ServiceReference srefPlugin) {
+        // Get the metric plug-in's object
+<span class="nc" id="L220">        AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);</span>
+
+        // Create a plug-in info object
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        if (sobjPlugin != null) {</span>
+<span class="nc" id="L224">            logger.debug(</span>
+<span class="nc" id="L225">                    &quot;Creating info object for registered plug-in &quot;</span>
+<span class="nc" id="L226">                    + sobjPlugin.getName());</span>
+//            PluginInfo pluginInfo = new PluginInfo();
+//            pluginInfo.setPluginName(sobjPlugin.getName());
+//            pluginInfo.setPluginVersion(sobjPlugin.getVersion());
+//            pluginInfo.setServiceRef(srefPlugin);
+//            pluginInfo.setHashcode(getServiceId(srefPlugin).toString());
+<span class="nc" id="L232">            PluginInfo pluginInfo =</span>
+<span class="nc" id="L233">                new PluginInfo(sobjPlugin.getConfigurationSchema(), sobjPlugin);</span>
+<span class="nc" id="L234">            pluginInfo.setServiceRef(srefPlugin);</span>
+<span class="nc" id="L235">            pluginInfo.setHashcode(sobjPlugin.getUniqueKey());</span>
+            // Mark as not installed
+<span class="nc" id="L237">            pluginInfo.installed = false;</span>
+<span class="nc" id="L238">            return pluginInfo;</span>
+        }
+
+<span class="nc" id="L241">        return null;</span>
+    }
+
+    /**
+     * Creates a new &lt;code&gt;PluginInfo&lt;/code&gt; object for installed plug-in
+     * from the given metric plug-in's service and database record.
+     *
+     * @param srefPlugin - the metric plug-in's service reference
+     * @param p - the DAO object associated with this metric plug-in
+     *
+     * @return The new &lt;code&gt;PluginInfo&lt;/code&gt; object, or &lt;code&gt;null&lt;/code&gt;
+     *   upon failure.
+     */
+    private PluginInfo createInstalledPI (ServiceReference srefPlugin, Plugin p) {
+        // Get the metric plug-in's object
+<span class="nc" id="L256">        AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);</span>
+        // Create a plug-in info object
+<span class="nc bnc" id="L258" title="All 2 branches missed.">        if (sobjPlugin != null) {</span>
+<span class="nc" id="L259">            logger.debug(</span>
+<span class="nc" id="L260">                    &quot;Creating info object for installed plug-in &quot;</span>
+<span class="nc" id="L261">                    + sobjPlugin.getName());</span>
+<span class="nc" id="L262">            PluginInfo pluginInfo =</span>
+<span class="nc" id="L263">                new PluginInfo(p.getConfigurations(), sobjPlugin);</span>
+<span class="nc" id="L264">            pluginInfo.setServiceRef(srefPlugin);</span>
+<span class="nc" id="L265">            pluginInfo.setHashcode(p.getHashcode());</span>
+            // Mark as installed
+<span class="nc" id="L267">            pluginInfo.installed = true;</span>
+<span class="nc" id="L268">            return pluginInfo;</span>
+        }
+
+<span class="nc" id="L271">        return null;</span>
+    }
+
+    /**
+     * Returns the database record associated with the metric plug-in that is
+     * referenced by the given service reference.
+     *
+     * @param srefPlugin - the plug-in's service reference
+     *
+     * @return The &lt;code&gt;Plugin&lt;/code&gt; DAO object if found in the database,
+     *   or &lt;code&gt;null&lt;/code&gt; when a matching record does not exist.
+     */
+    Plugin pluginRefToPluginDAO(ServiceReference srefPlugin) {
+        // Get the metric plug-in's object
+<span class="nc" id="L285">        AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);</span>
+
+        // Return the DAO object associated with this plug-in
+<span class="nc bnc" id="L288" title="All 2 branches missed.">        if (sobjPlugin != null) {</span>
+<span class="nc" id="L289">            return Plugin.getPluginByHashcode(sobjPlugin.getUniqueKey());</span>
+        }
+
+<span class="nc" id="L292">        return null;</span>
+    }
+
+    /**
+     * Gets the &lt;code&gt;PluginInfo&lt;/code&gt; object assigned to the given metric
+     * plug-in's service.
+     *
+     * @param srefPlugin - the plug-in's service reference
+     *
+     * @return The &lt;code&gt;PluginInfo&lt;/code&gt; object, or &lt;code&gt;null&lt;/code&gt; when
+     *  this plug-in has no &lt;code&gt;PluginInfo&lt;/code&gt; object assigned to it.
+     */
+    private PluginInfo getPluginInfo(ServiceReference srefPlugin) {
+        // Search for a match through all PluginInfo objects
+<span class="nc bnc" id="L306" title="All 2 branches missed.">        if (srefPlugin != null) {</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">            for (PluginInfo p : registeredPlugins.values()) {</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">                if (p.getServiceRef().equals(srefPlugin))</span>
+<span class="nc" id="L309">                    return p;</span>
+            }
+        }
+
+<span class="nc" id="L313">        return null;</span>
+    }
+
+    /**
+     * Performs various maintenance operations upon registration of a new
+     * metric plug-in's service.
+     *
+     * @param srefPlugin - the metric plug-in's service reference
+     */
+    private void pluginRegistered (ServiceReference srefPlugin) {
+        // Keeps the PluginInfo object
+        PluginInfo pluginInfo;
+
+        // Try to get the DAO that belongs to this metric plug-in
+<span class="nc" id="L327">        Plugin daoPlugin = pluginRefToPluginDAO(srefPlugin);</span>
+
+        // Plug-in that is already installed, has a valid DAO
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        if (daoPlugin != null) {</span>
+            // Create an info object for installed plug-in
+<span class="nc" id="L332">            pluginInfo = createInstalledPI(srefPlugin, daoPlugin);</span>
+<span class="nc" id="L333">        }</span>
+        // This plug-in is just registered
+        else {
+            // Create an info object for registered plug-in
+<span class="nc" id="L337">            pluginInfo = createRegisteredPI(srefPlugin);</span>
+        }
+
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        if (pluginInfo == null) {</span>
+<span class="nc" id="L341">            logger.error(</span>
+<span class="nc" id="L342">                    &quot;Upon plug-in service registration - &quot;</span>
+                    + &quot; can not create a PluginInfo object!&quot;);
+<span class="nc" id="L344">        }</span>
+        else {
+            // Store the info object into the info object's list
+<span class="nc" id="L347">            registeredPlugins.put(pluginInfo.getHashcode(), pluginInfo);</span>
+<span class="nc" id="L348">            logger.info(</span>
+<span class="nc" id="L349">                    &quot;Plug-in service (&quot; + pluginInfo.getPluginName() + &quot;)&quot;</span>
+<span class="nc" id="L350">                    + &quot; was registered.&quot;);</span>
+        }
+<span class="nc" id="L352">    }</span>
+
+    /**
+     * Performs various maintenance operations during unregistration of an
+     * existing metric plug-in's service.
+     *
+     * @param srefPlugin - the metric plug-in's service reference
+     */
+    private void pluginUnregistering (ServiceReference srefPlugin) {
+        // Get the PluginInfo object assigned to this plug-in
+<span class="nc" id="L362">        PluginInfo pluginInfo = getPluginInfo(srefPlugin);</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">        if (pluginInfo == null) {</span>
+<span class="nc" id="L364">            logger.error(</span>
+<span class="nc" id="L365">                    &quot;During plug-in service unregistration - &quot;</span>
+                    + &quot; a matching PluginInfo object was not found!&quot;);
+<span class="nc" id="L367">            return;</span>
+        }
+        else {
+            // Remove the info object from the info object's list
+<span class="nc" id="L371">            registeredPlugins.remove(pluginInfo.getHashcode());</span>
+<span class="nc" id="L372">            logger.info(</span>
+<span class="nc" id="L373">                    &quot;Plug-in service (&quot; + pluginInfo.getPluginName() + &quot;)&quot;</span>
+<span class="nc" id="L374">                    + &quot; is unregistering.&quot;);</span>
+        }
+<span class="nc" id="L376">    }</span>
+
+    /**
+     * Performs various maintenance operations upon a change in an existing
+     * metric plug-in's service
+     *
+     * @param srefPlugin - the metric plug-in's service reference
+     */
+    private void pluginModified (ServiceReference srefPlugin) {
+        // Get the PluginInfo object assigned to this plug-in
+<span class="nc" id="L386">        PluginInfo pluginInfo = getPluginInfo(srefPlugin);</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">        if (pluginInfo != null) {</span>
+<span class="nc" id="L388">            logger.info(</span>
+<span class="nc" id="L389">                    &quot;Plug-in service (&quot; + pluginInfo.getPluginName() + &quot;)&quot;</span>
+<span class="nc" id="L390">                    + &quot; was modified.&quot;);</span>
+        }
+<span class="nc" id="L392">    }</span>
+
+/* ===[ Implementation of the ServiceListener interface ]================= */
+
+    public void serviceChanged(ServiceEvent event) {
+        // Get a reference to the affected service
+<span class="nc" id="L398">        ServiceReference affectedService = event.getServiceReference();</span>
+
+<span class="nc" id="L400">        sobjDB.startDBSession();</span>
+        
+        // Find out what happened to the service
+<span class="nc bnc" id="L403" title="All 4 branches missed.">        switch (event.getType()) {</span>
+        // New service was registered
+        case ServiceEvent.REGISTERED:
+<span class="nc" id="L406">            pluginRegistered(affectedService);</span>
+<span class="nc" id="L407">            break;</span>
+        // An existing service is unregistering
+        case ServiceEvent.UNREGISTERING:
+<span class="nc" id="L410">            pluginUnregistering(affectedService);</span>
+<span class="nc" id="L411">            break;</span>
+        // The configuration of an existing service was modified
+        case ServiceEvent.MODIFIED:
+<span class="nc" id="L414">            pluginModified(affectedService);</span>
+        }
+
+        // Close the DB session
+<span class="nc" id="L418">        sobjDB.commitDBSession();</span>
+<span class="nc" id="L419">    }</span>
+
+/* ===[ Implementation of the PluginAdmin interface ]===================== */
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#listPlugins()
+     */
+    public Collection&lt;PluginInfo&gt; listPlugins() {
+<span class="nc" id="L427">        return registeredPlugins.values();</span>
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#installPlugin(java.lang.String)
+     */
+    public boolean installPlugin(String hash) {
+<span class="nc" id="L434">        Long sid = getServiceId(hash);</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">        if (sid != null) {</span>
+<span class="nc" id="L436">            return installPlugin (sid);</span>
+        }
+<span class="nc" id="L438">        return false;</span>
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#installPlugin(java.lang.Long)
+     */
+    public boolean installPlugin(Long serviceID) {
+<span class="nc" id="L445">        logger.info (</span>
+<span class="nc" id="L446">                &quot;Installing plugin with service ID &quot; + serviceID);</span>
+
+        // Pre-formated error messages
+<span class="nc" id="L449">        final String INSTALL_FAILED =</span>
+<span class="nc" id="L450">            &quot;The installation of plugin with&quot;</span>
+<span class="nc" id="L451">            + &quot; service ID &quot;+ serviceID</span>
+<span class="nc" id="L452">            + &quot; failed : &quot;;</span>
+
+        try {
+            // Get the metric plug-in's service
+<span class="nc" id="L456">            ServiceReference srefPlugin = getPluginService(serviceID);</span>
+
+            // Get the metric plug-in's object
+<span class="nc" id="L459">            AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);</span>
+<span class="nc bnc" id="L460" title="All 2 branches missed.">            if (sobjPlugin != null) {</span>
+                // Execute the install() method of this metric plug-in,
+                // and update the plug-in's information object upon success.
+<span class="nc bnc" id="L463" title="All 2 branches missed.">                if (sobjPlugin.install()) {</span>
+                    // Get the DAO that belongs to this metric plug-in
+<span class="nc" id="L465">                    Plugin daoPlugin = pluginRefToPluginDAO(srefPlugin);</span>
+<span class="nc bnc" id="L466" title="All 2 branches missed.">                    if (daoPlugin != null) {</span>
+                        // Create an info object for installed plug-in
+<span class="nc" id="L468">                        PluginInfo pluginInfo = createInstalledPI(srefPlugin,</span>
+<span class="nc" id="L469">                                daoPlugin);</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">                        if (pluginInfo != null) {</span>
+                            // Remove the old &quot;registered&quot; info object
+<span class="nc" id="L472">                            registeredPlugins.remove(</span>
+<span class="nc" id="L473">                                    sobjPlugin.getUniqueKey());</span>
+                            // Store the info object
+<span class="nc" id="L475">                            registeredPlugins.put(</span>
+<span class="nc" id="L476">                                    pluginInfo.getHashcode(), pluginInfo);</span>
+<span class="nc" id="L477">                            return true;</span>
+                        }
+                    }
+                }
+            }
+            else {
+<span class="nc" id="L483">                logger.warn(INSTALL_FAILED + CANT_GET_SOBJ);</span>
+            }
+<span class="nc" id="L485">        } catch (Error e) {</span>
+<span class="nc" id="L486">            logger.warn(INSTALL_FAILED + e);</span>
+        }
+
+<span class="nc" id="L489">        return false;</span>
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.String)
+     */
+    public boolean uninstallPlugin(String hash) {
+<span class="nc" id="L496">        Long sid = getServiceId(hash);</span>
+<span class="nc bnc" id="L497" title="All 2 branches missed.">        if (sid != null) {</span>
+<span class="nc" id="L498">            return uninstallPlugin (sid);</span>
+        }
+<span class="nc" id="L500">        return false;</span>
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#uninstallPlugin(java.lang.Long)
+     */
+    public boolean uninstallPlugin(Long serviceID) {
+<span class="nc" id="L507">        Scheduler s = AlitheiaCore.getInstance().getScheduler();</span>
+        try {
+<span class="nc" id="L509">            PluginUninstallJob puj = new PluginUninstallJob(serviceID);</span>
+<span class="nc" id="L510">            s.enqueue(puj);</span>
+<span class="nc" id="L511">        } catch (SchedulerException e) {</span>
+<span class="nc" id="L512">            ServiceReference srefPlugin = getPluginService(serviceID);</span>
+            // Get the metric plug-in's object
+<span class="nc" id="L514">            AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);</span>
+<span class="nc" id="L515">            logger.warn(&quot;Failed to enqueue plugin uninstall job for plug-in &lt;&quot; </span>
+<span class="nc" id="L516">                    +  sobjPlugin.getName() + &quot;&gt;. Error was: &quot; + e.getMessage());</span>
+<span class="nc" id="L517">            return false;</span>
+        }
+<span class="nc" id="L519">        return true;</span>
+    }
+
+    public &lt;T extends DAObject&gt; List&lt;PluginInfo&gt; listPluginProviders(Class&lt;T&gt; o) {
+
+<span class="nc" id="L524">        Iterator&lt;PluginInfo&gt; plugins = registeredPlugins.values().iterator();</span>
+<span class="nc" id="L525">        ArrayList&lt;PluginInfo&gt; matching = new ArrayList&lt;PluginInfo&gt;();</span>
+
+<span class="nc bnc" id="L527" title="All 2 branches missed.">        while (plugins.hasNext()) {</span>
+<span class="nc" id="L528">            PluginInfo pi = plugins.next();</span>
+<span class="nc bnc" id="L529" title="All 2 branches missed.">            if ((pi.installed)</span>
+<span class="nc bnc" id="L530" title="All 2 branches missed.">                    &amp;&amp; (pi.isActivationType(o))</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">                    &amp;&amp; (pi.getServiceRef() != null)) {</span>
+<span class="nc" id="L532">                matching.add(pi);</span>
+            }
+        }
+<span class="nc" id="L535">        return matching;</span>
+    }
+
+    public PluginInfo getPluginInfo(AlitheiaPlugin m) {
+<span class="nc" id="L539">        PluginInfo mi = null;</span>
+<span class="nc" id="L540">        Collection&lt;PluginInfo&gt; c = listPlugins();</span>
+<span class="nc" id="L541">        Iterator&lt;PluginInfo&gt; i = c.iterator();</span>
+
+<span class="nc bnc" id="L543" title="All 2 branches missed.">        while (i.hasNext()) {</span>
+<span class="nc" id="L544">            mi = i.next();</span>
+
+<span class="nc bnc" id="L546" title="All 2 branches missed.">            if (mi.getPluginName().equals(m.getName())</span>
+<span class="nc bnc" id="L547" title="All 2 branches missed.">                    &amp;&amp; mi.getPluginVersion().equals(m.getVersion())) {</span>
+<span class="nc" id="L548">                return mi;</span>
+            }
+        }
+<span class="nc" id="L551">        return null;</span>
+    }
+
+    public PluginInfo getPluginInfo(String hash) {
+<span class="nc" id="L555">        return registeredPlugins.get(hash);</span>
+    }
+
+    /* (non-Javadoc)
+     * @see eu.sqooss.service.pa.PluginAdmin#getPlugin(eu.sqooss.service.pa.PluginInfo)
+     */
+    public AlitheiaPlugin getPlugin(PluginInfo pluginInfo) {
+<span class="nc bnc" id="L562" title="All 2 branches missed.">        if (pluginInfo != null) {</span>
+<span class="nc" id="L563">            return getPluginObject(pluginInfo.getServiceRef());</span>
+        }
+
+<span class="nc" id="L566">        return null;</span>
+    }
+
+    public void pluginUpdated(AlitheiaPlugin p) {
+        // Get the plug-in's info object
+<span class="nc" id="L571">        PluginInfo pi = getPluginInfo(p);</span>
+        // Will happen if called during bundle's startup
+<span class="nc bnc" id="L573" title="All 2 branches missed.">        if (pi == null) {</span>
+<span class="nc" id="L574">            logger.warn(&quot;Ignoring configuration update for not active&quot; +</span>
+<span class="nc" id="L575">                    &quot; plugin &lt;&quot; + p.getName() + &quot;&gt; bundle.&quot;);</span>
+<span class="nc" id="L576">            return;</span>
+        }
+        // Check for installed metric plug-in
+<span class="nc bnc" id="L579" title="All 2 branches missed.">        if (pi.installed) {</span>
+<span class="nc" id="L580">            ServiceReference srefPlugin = pi.getServiceRef();</span>
+<span class="nc" id="L581">            Plugin pDao = pluginRefToPluginDAO(srefPlugin);</span>
+<span class="nc" id="L582">            pi = createInstalledPI(srefPlugin, pDao);</span>
+<span class="nc bnc" id="L583" title="All 2 branches missed.">            if (pi != null) {</span>
+<span class="nc" id="L584">                registeredPlugins.put(pi.getHashcode(), pi);</span>
+<span class="nc" id="L585">                logger.info(&quot;Plug-in (&quot; + pi.getPluginName()</span>
+<span class="nc" id="L586">                        + &quot;) successfuly updated&quot;);</span>
+                // TODO: Not sure, if this is the correct plug-in method
+                //       to call upon configuration update, but it is the
+                //       only one which performs something in that scope.
+                //getPlugin(pi).update();
+            }
+<span class="nc" id="L592">        }</span>
+        // The given metric plug-in is not installed
+        else {
+<span class="nc" id="L595">            logger.warn(&quot;Ignoring configuration update for registered&quot;</span>
+<span class="nc" id="L596">                    + &quot; plug-in (&quot; + p.getName() + &quot;)&quot;);</span>
+        }
+<span class="nc" id="L598">    }</span>
+
+    public AlitheiaPlugin getImplementingPlugin(String mnemonic) {
+<span class="nc" id="L601">        Iterator&lt;String&gt; i = registeredPlugins.keySet().iterator();</span>
+
+<span class="nc bnc" id="L603" title="All 2 branches missed.">        while (i.hasNext()) {</span>
+<span class="nc" id="L604">            PluginInfo pi = registeredPlugins.get(i.next());</span>
+            // Skip metric plug-ins that are registered but not installed
+<span class="nc bnc" id="L606" title="All 2 branches missed.">            if (pi.installed) {</span>
+<span class="nc" id="L607">                ServiceReference sr = pi.getServiceRef();</span>
+<span class="nc" id="L608">                Plugin p = pluginRefToPluginDAO(sr);</span>
+<span class="nc" id="L609">                Set&lt;Metric&gt; lm = p.getSupportedMetrics();</span>
+<span class="nc bnc" id="L610" title="All 2 branches missed.">                for (Metric m : lm){</span>
+<span class="nc bnc" id="L611" title="All 2 branches missed.">                    if (m.getMnemonic().equals(mnemonic)) {</span>
+<span class="nc" id="L612">                        return getPlugin(pi);</span>
+                    }
+                }
+            }
+        }
+        // No plug-ins found
+<span class="nc" id="L618">        return null;</span>
+    }
+    
+    private class PluginUninstallJob extends Job {
+
+        private Long serviceID;
+        
+<span class="nc" id="L625">        public PluginUninstallJob(Long serviceID) {</span>
+<span class="nc" id="L626">            this.serviceID = serviceID;</span>
+<span class="nc" id="L627">        }</span>
+        
+        @Override
+        public long priority() {
+            // TODO Auto-generated method stub
+<span class="nc" id="L632">            return 0x3;</span>
+        }
+
+        @Override
+        protected void run() throws Exception {
+            // TODO Auto-generated method stub
+<span class="nc" id="L638">            logger.info (</span>
+<span class="nc" id="L639">                    &quot;Uninstalling plugin with service ID &quot; + serviceID);</span>
+
+            // Pre-formated error messages
+<span class="nc" id="L642">            final String UNINSTALL_FAILED =</span>
+<span class="nc" id="L643">                &quot;The uninstallation of plugin with&quot;</span>
+<span class="nc" id="L644">                + &quot; service ID &quot;+ serviceID</span>
+<span class="nc" id="L645">                + &quot; failed : &quot;;</span>
+
+            try {
+<span class="nc" id="L648">                DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L649">                dbs.startDBSession();</span>
+                // Get the metric plug-in's service
+<span class="nc" id="L651">                ServiceReference srefPlugin = getPluginService(serviceID);</span>
+
+                // Get the metric plug-in's object
+<span class="nc" id="L654">                AlitheiaPlugin sobjPlugin = getPluginObject(srefPlugin);</span>
+<span class="nc bnc" id="L655" title="All 2 branches missed.">                if (sobjPlugin == null) {</span>
+<span class="nc" id="L656">                    logger.warn(UNINSTALL_FAILED + CANT_GET_SOBJ);</span>
+                }
+                // Execute the remove() method of this metric plug-in,
+                // and update the plug-in's information object upon success.
+<span class="nc bnc" id="L660" title="All 2 branches missed.">                if (sobjPlugin.remove()) {</span>
+                    // Release the stored configuration DAOs
+<span class="nc" id="L662">                    getPluginInfo(sobjPlugin).setPluginConfiguration(</span>
+<span class="nc" id="L663">                            new HashSet&lt;PluginConfiguration&gt;());</span>
+                    
+                    // Create an info object for registered plug-in
+<span class="nc" id="L666">                    PluginInfo pluginInfo =</span>
+<span class="nc" id="L667">                        createRegisteredPI(srefPlugin);</span>
+<span class="nc bnc" id="L668" title="All 2 branches missed.">                    if (pluginInfo != null) {</span>
+                        // Remove the old &quot;installed&quot; info object
+<span class="nc" id="L670">                        registeredPlugins.remove(</span>
+<span class="nc" id="L671">                                sobjPlugin.getUniqueKey());</span>
+                        // Store the info object
+<span class="nc" id="L673">                        registeredPlugins.put(</span>
+<span class="nc" id="L674">                                pluginInfo.getHashcode(), pluginInfo);</span>
+                    }
+                }
+<span class="nc" id="L677">                dbs.commitDBSession();</span>
+<span class="nc" id="L678">            } catch (Exception e) {</span>
+<span class="nc" id="L679">                logger.warn(UNINSTALL_FAILED, e);</span>
+            }
+<span class="nc" id="L681">        }</span>
+        
+        @Override
+        public String toString() {
+<span class="nc" id="L685">            return &quot;PluginUninstallJob - ServiceID:{&quot; + serviceID + &quot;}&quot; ;</span>
+        }
+    }
+
+	@Override
+	public boolean startUp() {
+<span class="nc" id="L691">	    logger.info(&quot;Starting the PluginAdmin component.&quot;);</span>
+
+        // Get the AlitheiaCore's object
+<span class="nc" id="L694">        sobjCore = AlitheiaCore.getInstance();</span>
+
+<span class="nc bnc" id="L696" title="All 2 branches missed.">        if (sobjCore != null) {</span>
+            // Obtain the required core components
+<span class="nc" id="L698">            sobjDB = sobjCore.getDBService();</span>
+<span class="nc bnc" id="L699" title="All 2 branches missed.">            if (sobjDB == null) {</span>
+<span class="nc" id="L700">                logger.error(&quot;Can not obtain the DB object!&quot;);</span>
+            }
+
+            try {
+<span class="nc" id="L704">                bc.addServiceListener(this, SREF_FILTER_PLUGIN);</span>
+<span class="nc" id="L705">            } catch (InvalidSyntaxException e) {</span>
+<span class="nc" id="L706">                logger.error(&quot;Invalid filter syntax &quot;, e);</span>
+            }
+            
+<span class="nc" id="L709">            logger.debug(&quot;The PluginAdmin component was successfully started.&quot;);</span>
+<span class="nc" id="L710">        }</span>
+        else {
+<span class="nc" id="L712">            logger.error(&quot;Can not obtain the Core object!&quot;);</span>
+        }
+<span class="nc" id="L714">		return true;</span>
+	}
+
+	@Override
+	public void shutDown() {
+<span class="nc" id="L719">		return ;</span>
+	}
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+<span class="nc" id="L724">	    this.bc = bc;</span>
+<span class="nc" id="L725">        this.logger = l;</span>
+<span class="nc" id="L726">	}</span>
+}
+
+//vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

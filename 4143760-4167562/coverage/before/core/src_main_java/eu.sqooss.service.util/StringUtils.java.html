@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>StringUtils.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.util</a> &gt; <span class="el_source">StringUtils.java</span></div><h1>StringUtils.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.util;
+
+import java.util.List;
+
+<span class="nc" id="L38">public class StringUtils {</span>
+    /**
+    * Concatenate the strings in @p names, placing @p sep
+    * between each (except at the end) and return the resulting
+    * string.
+    *
+    * @see QStringList::join
+    *
+    * Test cases:
+    *   - null separator, empty separator, one-character and longer string separator
+    *   - null names, 0-length names, 1 name, n names
+    */
+    public static String join(String[] names, String sep) {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if ( names == null ) {</span>
+<span class="nc" id="L52">            return null;</span>
+        }
+<span class="nc" id="L54">        int l = names.length;</span>
+
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (l&lt;1) {</span>
+<span class="nc" id="L57">            return &quot;&quot;;</span>
+        }
+
+        // This is just a (bad) guess at the capacity required
+<span class="nc" id="L61">        StringBuilder b = new StringBuilder( l * sep.length() + l + 1 );</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        for ( int i=0; i&lt;l; i++ ) {</span>
+<span class="nc" id="L63">            b.append(names[i]);</span>
+<span class="nc bnc" id="L64" title="All 4 branches missed.">            if ( (i &lt; (l-1)) &amp;&amp; (sep != null) ) {</span>
+<span class="nc" id="L65">                b.append(sep);</span>
+            }
+        }
+<span class="nc" id="L68">        return b.toString();</span>
+    }
+
+    /**
+     * Overload of join() for use with List.
+     *
+     * @param names List of strings to join together
+     * @param sep   Separator between strings (may be null)
+     * @return null if names is null; strings in names joined with
+     *          sep in between otherwise.
+     */
+    public static String join(List&lt;String&gt; names, String sep) {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if ( names == null ) {</span>
+<span class="nc" id="L81">            return null;</span>
+        }
+<span class="nc" id="L83">        int l = names.size();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (l&lt;1) {</span>
+<span class="nc" id="L85">            return &quot;&quot;;</span>
+        }
+
+        // This is just a (bad) guess at the capacity required
+<span class="nc" id="L89">        StringBuilder b = new StringBuilder( l * sep.length() + l + 1);</span>
+<span class="nc" id="L90">        int i = 0;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        for ( String s : names ) {</span>
+<span class="nc" id="L92">            b.append(s);</span>
+<span class="nc bnc" id="L93" title="All 4 branches missed.">            if ( (i &lt; (l-1)) &amp;&amp; (sep != null) ) {</span>
+<span class="nc" id="L94">                b.append(sep);</span>
+            }
+        }
+<span class="nc" id="L97">        return b.toString();</span>
+    }
+
+    /**
+    * Given a bitfield value @p value, and an array that names
+    * each bit position, return a comma-separated string that
+    * names each bit position that is set in @p value.
+    *
+    * Test cases:
+    *   - value 0, a few random ones, -1 (0xffffffffffffffff), MAXINT.
+    *   - null names, 0-length names, names contains nulls,
+    *   - names contains empty strings, names too short for value,
+    *   - names too long.
+    */
+    public static String bitfieldToString(String[] statenames, int value) {
+<span class="nc bnc" id="L112" title="All 6 branches missed.">        if ( (value == 0) || (statenames == null) || (statenames.length == 0) ) {</span>
+<span class="nc" id="L113">            return &quot;&quot;;</span>
+        }
+<span class="nc" id="L115">        StringBuilder b = new StringBuilder();</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        for ( int statebit = 0; statebit &lt; statenames.length; statebit++ ) {</span>
+<span class="nc" id="L117">            int statebitvalue = 1 &lt;&lt; statebit ;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            if ( (value &amp; statebitvalue) != 0 ) {</span>
+                // ASSERT: statebit &lt; statenames.length
+                // TODO: handle null strings
+<span class="nc" id="L121">                b.append(statenames[statebit]);</span>
+                // TODO: make this bit-twiddling, may fail with negative value
+<span class="nc" id="L123">                value -= statebitvalue;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                if ( value != 0 ) {</span>
+<span class="nc" id="L125">                    b.append(&quot;, &quot;);</span>
+                }
+            }
+        }
+<span class="nc" id="L129">        return b.toString();</span>
+    }
+
+    /**
+     * Given a String, this function returns an XHTML-safe version of the same
+     */
+    public static String makeXHTMLSafe(String line){
+<span class="nc" id="L136">        return line.replace(&quot;&amp;&quot;, &quot;&amp;amp;&quot;)</span>
+<span class="nc" id="L137">            .replace(&quot;&lt;&quot;, &quot;&amp;lt;&quot;)</span>
+<span class="nc" id="L138">            .replace(&quot;&gt;&quot;, &quot;&amp;gt;&quot;);</span>
+    }
+
+    /**
+     * Find the given needle string in an array (haystack) of strings.
+     * Returns the index of the needle in the haystack, or -1 if not found.
+     *
+     * @param haystack Array of strings to search.
+     * @param needle String to search for.
+     * @return -1 if the needle is not found or the needle or haystack
+     *      is invalid. Otherwise the index (&gt;=0) of the needle in the
+     *      haystack.
+     */
+    public static int indexOf(String[] haystack, String needle) {
+<span class="nc bnc" id="L152" title="All 4 branches missed.">        if ( (haystack == null) || (needle == null) ) {</span>
+<span class="nc" id="L153">            return -1;</span>
+        }
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (int i = 0; i&lt;haystack.length; i++) {</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (haystack[i].equals(needle)) {</span>
+<span class="nc" id="L157">                return i;</span>
+            }
+        }
+<span class="nc" id="L160">        return -1;</span>
+    }
+
+    /**
+     * State whether the given needle string is to be found in the haystack.
+     *
+     * @param haystack Array of strings to search through.
+     * @param needle String to search for.
+     * @return true iff the needle occurs in the haystack.
+     */
+    public static boolean contains(String[] haystack, String needle) {
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        return indexOf(haystack,needle) &gt;= 0;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

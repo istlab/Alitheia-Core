@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>InMemoryCheckoutImpl.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.fds</a> &gt; <span class="el_source">InMemoryCheckoutImpl.java</span></div><h1>InMemoryCheckoutImpl.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.fds;
+
+import java.util.List;
+import java.util.regex.Pattern;
+
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.fds.InMemoryCheckout;
+import eu.sqooss.service.fds.InMemoryDirectory;
+
+/**
+ * An implementation of the InMemoryCheckout interface that uses the 
+ * DB service to retrieve file information for a specific version.
+ */
+class InMemoryCheckoutImpl implements InMemoryCheckout {
+   
+    private ProjectVersion revision;
+    private InMemoryDirectory root;
+    private Pattern pattern;
+
+<span class="nc" id="L54">    InMemoryCheckoutImpl(ProjectVersion pv) {</span>
+<span class="nc" id="L55">        revision = pv;</span>
+<span class="nc" id="L56">        pattern = Pattern.compile(&quot;.*&quot;);</span>
+<span class="nc" id="L57">    }</span>
+
+<span class="nc" id="L59">    InMemoryCheckoutImpl(ProjectVersion pv, Pattern p) {</span>
+<span class="nc" id="L60">        revision = pv;</span>
+<span class="nc" id="L61">        pattern = p;</span>
+<span class="nc" id="L62">    }</span>
+
+    protected void createCheckout() {
+<span class="nc" id="L65">        root = new InMemoryDirectory(this);</span>
+        
+<span class="nc" id="L67">        List&lt;ProjectFile&gt; projectFiles = revision.getFiles();</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        if (projectFiles != null &amp;&amp; projectFiles.size() != 0) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            for (ProjectFile f : projectFiles) {</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                if (pattern.matcher(f.getFileName()).matches()) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                    if (!f.getIsDirectory()) {</span>
+<span class="nc" id="L72">                        root.createSubDirectory(f.getDir().getPath()).addFile(f.getName());</span>
+<span class="nc" id="L73">                    } else {</span>
+<span class="nc" id="L74">                        root.createSubDirectory(f.getFileName());</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L79">    }</span>
+
+    /** {@inheritDoc} */
+    public InMemoryDirectory getRoot() {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (root == null) </span>
+<span class="nc" id="L84">            createCheckout();</span>
+<span class="nc" id="L85">        return root;</span>
+    }
+
+    /** {@inheritDoc} */
+    public ProjectFile getFile(String name) {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (root == null) </span>
+<span class="nc" id="L91">            createCheckout();</span>
+<span class="nc" id="L92">        return root.getFile(name);</span>
+    }
+
+    /** {@inheritDoc} */
+    public ProjectVersion getProjectVersion() {
+<span class="nc" id="L97">        return revision;</span>
+    }
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>SchedulerTests.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.test.service.scheduler</a> &gt; <span class="el_source">SchedulerTests.java</span></div><h1>SchedulerTests.java</h1><pre class="source lang-java linenums">package eu.sqooss.test.service.scheduler;
+
+import static org.junit.Assert.*;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import eu.sqooss.impl.service.scheduler.SchedulerServiceImpl;
+import eu.sqooss.service.scheduler.Job.State;
+import eu.sqooss.service.scheduler.SchedulerException;
+
+<span class="fc" id="L13">public class SchedulerTests {</span>
+    
+    static SchedulerServiceImpl sched;
+    
+    @BeforeClass
+    public static void setUp() {
+<span class="fc" id="L19">        sched = new SchedulerServiceImpl();</span>
+<span class="fc" id="L20">        sched.startExecute(2);</span>
+<span class="fc" id="L21">    }</span>
+
+    @Test
+    public void testJobYield() throws SchedulerException {
+        
+<span class="fc" id="L26">        TestJob j1 = new TestJob(20, &quot;Test&quot;);</span>
+<span class="fc" id="L27">        sched.enqueue(j1);</span>
+<span class="fc" id="L28">        TestJob j2 = new TestJob(20, &quot;Test&quot;);</span>
+<span class="fc" id="L29">        sched.enqueue(j2);</span>
+<span class="fc" id="L30">        TestJob j3 = new TestJob(20, &quot;Test&quot;);</span>
+<span class="fc" id="L31">        sched.enqueue(j3);</span>
+<span class="fc" id="L32">        TestJob j4 = new TestJob(20, &quot;Test&quot;);</span>
+<span class="fc" id="L33">        sched.enqueue(j4);</span>
+        
+<span class="fc" id="L35">        assertTrue(sched.isExecuting());</span>
+
+<span class="fc" id="L37">		assertEquals(0, sched.getSchedulerStats().getFailedJobs());</span>
+<span class="fc" id="L38">		assertEquals(0, sched.getSchedulerStats().getFinishedJobs());</span>
+<span class="fc" id="L39">		assertEquals(4, sched.getSchedulerStats().getWaitingJobs());</span>
+		
+<span class="fc" id="L41">		sched.jobStateChanged(j1, State.Running);</span>
+<span class="fc" id="L42">		sched.jobStateChanged(j2, State.Running);</span>
+<span class="fc" id="L43">		sched.jobStateChanged(j3, State.Running);</span>
+<span class="fc" id="L44">		sched.jobStateChanged(j4, State.Running);</span>
+<span class="fc" id="L45">    }</span>
+    
+    @AfterClass
+    public static void tearDown() {
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        while (sched.getSchedulerStats().getWaitingJobs() &gt; 0)</span>
+            try {
+<span class="nc" id="L51">                Thread.sleep(500);</span>
+<span class="nc" id="L52">            } catch (InterruptedException e) {}</span>
+            
+<span class="fc" id="L54">        sched.stopExecute();</span>
+<span class="fc" id="L55">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

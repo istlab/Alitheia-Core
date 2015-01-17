@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>AdminServlet.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.webadmin</a> &gt; <span class="el_source">AdminServlet.java</span></div><h1>AdminServlet.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.webadmin;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.AddProject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.util.Pair;
+import eu.sqooss.service.webadmin.WebadminService;
+
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import java.util.Hashtable;
+import java.util.Locale;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceReference;
+
+public class AdminServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+<span class="nc" id="L70">    private static BundleContext bc = null;</span>
+<span class="nc" id="L71">    private static WebadminService webadmin = null;</span>
+
+    /// Logger given by our owner to write log messages to.
+<span class="nc" id="L74">    private Logger logger = null;</span>
+    
+<span class="nc" id="L76">    private DBService db = null;</span>
+
+    // Content tables
+<span class="nc" id="L79">    private Hashtable&lt;String, String&gt; dynamicContentMap = null;</span>
+<span class="nc" id="L80">    private Hashtable&lt;String, Pair&lt;String, String&gt;&gt; staticContentMap = null;</span>
+
+    // Dynamic substitutions
+<span class="nc" id="L83">    VelocityContext vc = null;</span>
+<span class="nc" id="L84">    VelocityEngine ve = null;</span>
+
+    // Renderer of content
+<span class="nc" id="L87">    WebAdminRenderer adminView = null;</span>
+
+    // Plug-ins view
+<span class="nc" id="L90">    PluginsView pluginsView = null;</span>
+
+    // Projects view
+<span class="nc" id="L93">    ProjectsView projectsView = null;</span>
+
+<span class="nc" id="L95">    TranslationProxy tr = new TranslationProxy();</span>
+    
+<span class="nc" id="L97">    public AdminServlet(BundleContext bc,</span>
+            WebadminService webadmin,
+            Logger logger,
+            VelocityEngine ve) {
+<span class="nc" id="L101">        AdminServlet.webadmin = webadmin;</span>
+<span class="nc" id="L102">        AdminServlet.bc = bc;</span>
+<span class="nc" id="L103">        this.ve = ve;</span>
+<span class="nc" id="L104">        this.logger = logger;</span>
+        
+<span class="nc" id="L106">        AlitheiaCore core = AlitheiaCore.getInstance();</span>
+<span class="nc" id="L107">        db = core.getDBService();</span>
+        
+        // Create the static content map
+<span class="nc" id="L110">        staticContentMap = new Hashtable&lt;String, Pair&lt;String, String&gt;&gt;();</span>
+<span class="nc" id="L111">        addStaticContent(&quot;/screen.css&quot;, &quot;text/css&quot;);</span>
+<span class="nc" id="L112">        addStaticContent(&quot;/webadmin.css&quot;, &quot;text/css&quot;);</span>
+<span class="nc" id="L113">        addStaticContent(&quot;/sqo-oss.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L114">        addStaticContent(&quot;/queue.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L115">        addStaticContent(&quot;/uptime.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L116">        addStaticContent(&quot;/greyBack.jpg&quot;, &quot;image/x-jpg&quot;);</span>
+<span class="nc" id="L117">        addStaticContent(&quot;/projects.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L118">        addStaticContent(&quot;/logs.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L119">        addStaticContent(&quot;/metrics.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L120">        addStaticContent(&quot;/gear.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L121">        addStaticContent(&quot;/header-repeat.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L122">        addStaticContent(&quot;/add_user.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L123">        addStaticContent(&quot;/edit.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L124">        addStaticContent(&quot;/jobs.png&quot;, &quot;image/x-png&quot;);</span>
+<span class="nc" id="L125">        addStaticContent(&quot;/rules.png&quot;, &quot;image/x-png&quot;);</span>
+
+        // Create the dynamic content map
+<span class="nc" id="L128">        dynamicContentMap = new Hashtable&lt;String, String&gt;();</span>
+<span class="nc" id="L129">        dynamicContentMap.put(&quot;/&quot;, &quot;index.html&quot;);</span>
+<span class="nc" id="L130">        dynamicContentMap.put(&quot;/index&quot;, &quot;index.html&quot;);</span>
+<span class="nc" id="L131">        dynamicContentMap.put(&quot;/projects&quot;, &quot;projects.html&quot;);</span>
+<span class="nc" id="L132">        dynamicContentMap.put(&quot;/projectlist&quot;, &quot;projectslist.html&quot;);</span>
+<span class="nc" id="L133">        dynamicContentMap.put(&quot;/logs&quot;, &quot;logs.html&quot;);</span>
+<span class="nc" id="L134">        dynamicContentMap.put(&quot;/jobs&quot;, &quot;jobs.html&quot;);</span>
+<span class="nc" id="L135">        dynamicContentMap.put(&quot;/alljobs&quot;, &quot;alljobs.html&quot;);</span>
+<span class="nc" id="L136">        dynamicContentMap.put(&quot;/users&quot;, &quot;users.html&quot;);</span>
+<span class="nc" id="L137">        dynamicContentMap.put(&quot;/rules&quot;, &quot;rules.html&quot;);</span>
+<span class="nc" id="L138">        dynamicContentMap.put(&quot;/jobstat&quot;, &quot;jobstat.html&quot;);</span>
+
+        // Now the dynamic substitutions and renderer
+<span class="nc" id="L141">        vc = new VelocityContext();</span>
+<span class="nc" id="L142">        adminView = new WebAdminRenderer(bc, vc);</span>
+
+        // Create the various view objects
+<span class="nc" id="L145">        pluginsView = new PluginsView(bc, vc);</span>
+<span class="nc" id="L146">        projectsView = new ProjectsView(bc, vc);</span>
+<span class="nc" id="L147">    }</span>
+
+    /**
+     * Add content to the static map
+     */
+    private void addStaticContent(String path, String type) {
+<span class="nc" id="L153">        Pair&lt;String, String&gt; p = new Pair&lt;String, String&gt; (path,type);</span>
+<span class="nc" id="L154">        staticContentMap.put(path, p);</span>
+<span class="nc" id="L155">    }</span>
+
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response) throws ServletException,
+                                                              IOException {
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (!db.isDBSessionActive()) {</span>
+<span class="nc" id="L161">            db.startDBSession();</span>
+        } 
+        
+        try {
+<span class="nc" id="L165">            String query = request.getPathInfo();</span>
+
+            // Add the request to the log
+<span class="nc" id="L168">            logger.debug(&quot;GET:&quot; + query);</span>
+
+            // This is static content
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            if (query.startsWith(&quot;/stop&quot;)) {</span>
+<span class="nc" id="L172">                vc.put(&quot;RESULTS&quot;, &quot;&lt;p&gt;Alitheia Core is now shutdown.&lt;/p&gt;&quot;);</span>
+<span class="nc" id="L173">                sendPage(response, request, &quot;/results.html&quot;);</span>
+
+                // Now stop the system
+<span class="nc" id="L176">                logger.info(&quot;System stopped by user request to webadmin.&quot;);</span>
+                try {
+<span class="nc" id="L178">                    bc.getBundle(0).stop();</span>
+<span class="nc" id="L179">                } catch (BundleException be) {</span>
+<span class="nc" id="L180">                    logger.warn(&quot;Could not stop bundle 0.&quot;);</span>
+                    // And ignore
+                }
+<span class="nc" id="L183">                return;</span>
+            }
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (query.startsWith(&quot;/restart&quot;)) {</span>
+<span class="nc" id="L186">                vc.put(&quot;RESULTS&quot;, &quot;&lt;p&gt;Alitheia Core is now restarting.&lt;/p&gt;&quot;);</span>
+<span class="nc" id="L187">                sendPage(response, request, &quot;/results.html&quot;);</span>
+
+                //FIXME: How do we do a restart?
+<span class="nc" id="L190">                return;</span>
+            }
+<span class="nc bnc" id="L192" title="All 4 branches missed.">            else if ((query != null) &amp;&amp; (staticContentMap.containsKey(query))) {</span>
+<span class="nc" id="L193">                sendResource(response, staticContentMap.get(query));</span>
+<span class="nc" id="L194">            }</span>
+<span class="nc bnc" id="L195" title="All 4 branches missed.">            else if ((query != null) &amp;&amp; (dynamicContentMap.containsKey(query))) {</span>
+<span class="nc" id="L196">                sendPage(response, request, dynamicContentMap.get(query));</span>
+            }
+<span class="nc" id="L198">        } catch (NullPointerException e) {</span>
+<span class="nc" id="L199">            logger.warn(&quot;Got a NPE while rendering a page.&quot;,e);</span>
+<span class="nc" id="L200">            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);</span>
+<span class="nc" id="L201">        } finally {</span>
+<span class="nc bnc" id="L202" title="All 10 branches missed.">            if (db.isDBSessionActive()) {</span>
+<span class="nc" id="L203">                db.commitDBSession();</span>
+            }
+<span class="nc" id="L205">        }</span>
+<span class="nc" id="L206">    }</span>
+
+    protected void doPost(HttpServletRequest request,
+                          HttpServletResponse response) throws ServletException,
+                                                               IOException {
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        if (!db.isDBSessionActive()) {</span>
+<span class="nc" id="L212">            db.startDBSession();</span>
+        } 
+        
+        try {
+<span class="nc" id="L216">            String query = request.getPathInfo();</span>
+<span class="nc" id="L217">            logger.debug(&quot;POST:&quot; + query);</span>
+
+<span class="nc bnc" id="L219" title="All 2 branches missed.">            if (query.startsWith(&quot;/addproject&quot;)) {</span>
+                //addProject(request);
+<span class="nc" id="L221">                sendPage(response, request, &quot;/results.html&quot;);</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">            } else if (query.startsWith(&quot;/diraddproject&quot;)) {</span>
+<span class="nc" id="L223">                AdminService as = AlitheiaCore.getInstance().getAdminService();</span>
+<span class="nc" id="L224">                AdminAction aa = as.create(AddProject.MNEMONIC);</span>
+<span class="nc" id="L225">                aa.addArg(&quot;dir&quot;, request.getParameter(&quot;properties&quot;));</span>
+<span class="nc" id="L226">                as.execute(aa);</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                if (aa.hasErrors())</span>
+<span class="nc" id="L228">                	vc.put(&quot;RESULTS&quot;, aa.errors());</span>
+                else
+<span class="nc" id="L230">                	vc.put(&quot;RESULTS&quot;, aa.results());</span>
+<span class="nc" id="L231">                sendPage(response, request, &quot;/results.html&quot;);</span>
+<span class="nc" id="L232">            } else {</span>
+<span class="nc" id="L233">                doGet(request,response);</span>
+            }
+<span class="nc" id="L235">        } catch (NullPointerException e) {</span>
+<span class="nc" id="L236">            logger.warn(&quot;Got a NPE while handling POST data.&quot;);</span>
+<span class="nc" id="L237">            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);</span>
+<span class="nc" id="L238">        } finally {</span>
+<span class="nc bnc" id="L239" title="All 6 branches missed.">            if (db.isDBSessionActive()) {</span>
+<span class="nc" id="L240">                db.commitDBSession();</span>
+            }
+<span class="nc" id="L242">        }</span>
+<span class="nc" id="L243">    }</span>
+    
+    /**
+     * Sends a resource (stored in the jar file) as a response. The mime-type
+     * is set to @p mimeType . The @p path to the resource should start
+     * with a / .
+     *
+     * Test cases:
+     *   - null mimetype, null path, bad path, relative path, path not found,
+     *   - null response
+     *
+     * TODO: How to simulate conditions that will cause IOException
+     */
+    protected void sendResource(HttpServletResponse response, Pair&lt;String,String&gt; source)
+        throws ServletException, IOException {
+        
+<span class="nc" id="L259">        InputStream istream = getClass().getResourceAsStream(source.first);</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">        if ( istream == null ) {</span>
+<span class="nc" id="L261">            throw new IOException(&quot;Path not found: &quot; + source.first);</span>
+        }
+
+<span class="nc" id="L264">        byte[] buffer = new byte[1024];</span>
+<span class="nc" id="L265">        int bytesRead = 0;</span>
+<span class="nc" id="L266">        int totalBytes = 0;</span>
+
+<span class="nc" id="L268">        response.setContentType(source.second);</span>
+<span class="nc" id="L269">        ServletOutputStream ostream = response.getOutputStream();</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">        while ((bytesRead = istream.read(buffer)) &gt; 0) {</span>
+<span class="nc" id="L271">            ostream.write(buffer,0,bytesRead);</span>
+<span class="nc" id="L272">            totalBytes += bytesRead;</span>
+        }
+<span class="nc" id="L274">    }</span>
+
+    protected void sendPage(
+            HttpServletResponse response,
+            HttpServletRequest request,
+            String path)
+        throws ServletException, IOException {
+<span class="nc" id="L281">        Template t = null;</span>
+        try {
+<span class="nc" id="L283">            t = ve.getTemplate( path );</span>
+<span class="nc" id="L284">        } catch (Exception e) {</span>
+<span class="nc" id="L285">            logger.warn(&quot;Failed to get template &lt;&quot; + path + &quot;&gt;&quot;);</span>
+<span class="nc" id="L286">            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);</span>
+<span class="nc" id="L287">            return;</span>
+        }
+<span class="nc" id="L289">        StringWriter writer = new StringWriter();</span>
+<span class="nc" id="L290">        PrintWriter print = response.getWriter();</span>
+
+        // Do any substitutions that may be required
+<span class="nc" id="L293">        createSubstitutions(request);</span>
+<span class="nc" id="L294">        response.setContentType(&quot;text/html&quot;);</span>
+<span class="nc" id="L295">        t.merge(vc, writer);</span>
+
+<span class="nc" id="L297">        print.print(writer.toString());</span>
+<span class="nc" id="L298">    }</span>
+
+    private void createSubstitutions(HttpServletRequest request) {
+        // Initialize the resource bundles with the provided locale
+<span class="nc" id="L302">        AbstractView.initResources(Locale.ENGLISH);</span>
+
+        // Simple string substitutions
+<span class="nc" id="L305">        vc.put(&quot;APP_NAME&quot;, AbstractView.getLbl(&quot;app_name&quot;));</span>
+<span class="nc" id="L306">        vc.put(&quot;COPYRIGHT&quot;,</span>
+<span class="nc" id="L307">                &quot;Copyright 2007-2008&quot;</span>
+                + &quot;&lt;a href=\&quot;http://www.sqo-oss.eu/about/\&quot;&gt;&quot;
+                + &quot;&amp;nbsp;SQO-OSS Consortium Members&quot;
+                + &quot;&lt;/a&gt;&quot;);
+<span class="nc" id="L311">        vc.put(&quot;LOGO&quot;, &quot;&lt;img src='/logo' id='logo' alt='Logo' /&gt;&quot;);</span>
+<span class="nc" id="L312">        vc.put(&quot;UPTIME&quot;, WebAdminRenderer.getUptime());</span>
+
+        // Object-based substitutions
+<span class="nc" id="L315">        vc.put(&quot;scheduler&quot;, adminView.sobjSched.getSchedulerStats());</span>
+<span class="nc" id="L316">        vc.put(&quot;tr&quot;,tr); // translations proxy</span>
+<span class="nc" id="L317">        vc.put(&quot;admin&quot;,adminView);</span>
+<span class="nc" id="L318">        vc.put(&quot;projects&quot;,projectsView);</span>
+<span class="nc" id="L319">        vc.put(&quot;metrics&quot;,pluginsView);</span>
+<span class="nc" id="L320">        vc.put(&quot;request&quot;, request); // The request can be used by the render() methods</span>
+<span class="nc" id="L321">    }  </span>
+    
+    /**
+     * This is a class whose sole purpose is to provide a useful API from
+     * within Velocity templates for the translation functions offered by
+     * the AbstractView. Only one object needs to be created, and it
+     * forwards all the label(), message() and error() calls to the translation
+     * methods of the view.
+     */
+    public class TranslationProxy {
+<span class="nc" id="L331">        public TranslationProxy() { </span>
+<span class="nc" id="L332">        }</span>
+        
+        /** Translate a label */
+        public String label(String s) {
+<span class="nc" id="L336">            return AbstractView.getLbl(s);</span>
+        }
+        
+        /** Translate a (multi-line, html formatted) message */
+        public String message(String s) {
+<span class="nc" id="L341">            return AbstractView.getMsg(s);</span>
+        }
+        
+        /** Translate an error message */
+        public String error(String s) {
+<span class="nc" id="L346">            return AbstractView.getErr(s);</span>
+        }
+    }
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

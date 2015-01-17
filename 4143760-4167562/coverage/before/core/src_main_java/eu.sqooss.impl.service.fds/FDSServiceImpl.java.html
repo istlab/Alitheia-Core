@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>FDSServiceImpl.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.fds</a> &gt; <span class="el_source">FDSServiceImpl.java</span></div><h1>FDSServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.fds;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+
+import eu.sqooss.service.util.FileUtils;
+import org.apache.commons.codec.binary.Hex;
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.fds.CheckoutException;
+import eu.sqooss.service.fds.FDSService;
+import eu.sqooss.service.fds.InMemoryCheckout;
+import eu.sqooss.service.fds.OnDiskCheckout;
+import eu.sqooss.service.fds.Timeline;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.InvalidAccessorException;
+import eu.sqooss.service.tds.InvalidProjectRevisionException;
+import eu.sqooss.service.tds.InvalidRepositoryException;
+import eu.sqooss.service.tds.PathChangeType;
+import eu.sqooss.service.tds.ProjectAccessor;
+import eu.sqooss.service.tds.Revision;
+import eu.sqooss.service.tds.SCMAccessor;
+import eu.sqooss.service.tds.TDSService;
+
+/** {@inheritDoc} */
+public class FDSServiceImpl implements FDSService, Runnable {
+    /** The logger for the FDS. */
+<span class="nc" id="L74">    private Logger logger = null;</span>
+    /** We use the TDS for raw data access. */
+<span class="nc" id="L76">    private TDSService tds = null;</span>
+
+    /**
+     * The FDS is configured to place checkouts -- which are the main things
+     * that the FDS is supposed to manage -- somewhere in the filesystem. This
+     * is the root of those checkouts; underneath here each project has a
+     * directory, and then checkouts of that project live under there.
+     */
+<span class="nc" id="L84">    private File fdsCheckoutRoot = null;</span>
+    /**
+     * Checkouts are done in directories with a random prefix; this is done to
+     * avoid the suggestion that the checkouts are tied to specific revisions.
+     * We generate the random prefixes with this random generator.
+     */
+<span class="nc" id="L90">    private Random randomCheckout = null;</span>
+
+    /**
+     * Cache checkouts in a live system. The cache will not be re-populated from
+     * on disk data if the system is shutdown.
+     */
+    private ConcurrentHashMap&lt;String, OnDiskCheckout&gt; checkoutCache;
+
+    /**
+     * Number of handles acquired on each cached checkout.
+     */
+    private ConcurrentHashMap&lt;OnDiskCheckout, Integer&gt; checkoutHandles;
+
+    private BundleContext bc;
+    
+    /*
+     * The following constants influence the formatting of checkout and project
+     * directory names.
+     */
+    /**
+     * Project IDs are formatted as decimals (with leading zeroes) of this
+     * length; 8 covers the expected range of IDs.
+     */
+    private static final int INT_AS_DECIMAL_LENGTH = 8;
+    /**
+     * Each checkout gets a random hex string prefixed to a guaranteed unique
+     * identifier. The length of the prefix is defined here.
+     */
+    private static final int RANDOM_PREFIX_LENGTH = 8;
+    /**
+     * States how many hex digits are needed to express an int.
+     */
+    private static final int INT_AS_HEX_LENGTH = 8;
+
+<span class="nc" id="L124">    public FDSServiceImpl() { }</span>
+
+    /**
+     * The FDS considers its checkout root to be 'private' and will write all
+     * kinds of stuff in there. The checkouts need to be cleaned up on shutdown
+     * at the very least, in order to avoid polluting the filesystem with
+     * orphaned checkout directories.
+     * 
+     */
+    private class CleanupThread extends Thread {
+
+<span class="nc" id="L135">        public CleanupThread(String name) {</span>
+<span class="nc" id="L136">            super(name);</span>
+<span class="nc" id="L137">        }</span>
+
+        public void run() {
+<span class="nc" id="L140">            System.err.println(&quot;Cleaning up &quot; + fdsCheckoutRoot);</span>
+<span class="nc" id="L141">            logger.info(&quot;Cleaning up &quot; + fdsCheckoutRoot);</span>
+<span class="nc" id="L142">            DiskUtil.rmRf(fdsCheckoutRoot);</span>
+<span class="nc" id="L143">        }</span>
+    }
+
+    /**
+     * Create, for a given SCM accessor, an on disk checkout at a given
+     * revision. This assumes that there is not already a checkout for this
+     * project in this revision, and uses the SCM itself to do the checkout
+     * somewhere underneath the FDS root.
+     * 
+     * @return
+     */
+    private OnDiskCheckout createCheckout(SCMAccessor scm, ProjectVersion pv, String path) {
+<span class="nc" id="L155">        logger.info(&quot;Creating new checkout for &quot; + pv);</span>
+
+<span class="nc" id="L157">        File projectRoot = new File(fdsCheckoutRoot, pv.getProject().getName());</span>
+        // It might not exist yet
+<span class="nc" id="L159">        projectRoot.mkdirs();</span>
+
+        // Side effect: throws if the revision is invalid
+<span class="nc" id="L162">        Revision r = scm.newRevision(pv.getRevisionId());</span>
+<span class="nc" id="L163">        File checkoutRoot = new File(projectRoot, pv.getRevisionId());</span>
+
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (checkoutRoot.exists()) {</span>
+<span class="nc" id="L166">            logger.warn(&quot;Checkout root &lt;&quot; + checkoutRoot + &quot;&gt; exists. &quot; +</span>
+<span class="nc" id="L167">                    &quot;Cleaning up&quot;);</span>
+<span class="nc" id="L168">            FileUtils.deleteRecursive(checkoutRoot);</span>
+        }
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if (!checkoutRoot.mkdirs()) {</span>
+<span class="nc" id="L171">            logger.warn(&quot;Could not create checkout root &lt;&quot; + checkoutRoot</span>
+<span class="nc" id="L172">                    + &quot;&gt;&quot;);</span>
+<span class="nc" id="L173">            return null;</span>
+        }
+
+        // Now checkoutRoot exists and is a directory.
+<span class="nc" id="L177">        logger.info(&quot;Created checkout root &lt;&quot; + checkoutRoot + &quot;&gt;&quot;);</span>
+<span class="nc" id="L178">        OnDiskCheckoutImpl c = new OnDiskCheckoutImpl(scm, path, pv, checkoutRoot);</span>
+<span class="nc" id="L179">        return c;</span>
+    }
+
+    /**
+     * For a project file, return the SCM revision that it refers to.
+     * 
+     * @param pf
+     *            The ProjectFile to look up.
+     * @return The SCM revision for the project or null if the project file is
+     *         deleted or otherwise unavailable.
+     */
+    private Revision projectFileRevision(ProjectFile pf) {
+        // Make sure that the file exists in the specified project version
+<span class="nc" id="L192">        String fileStatus = pf.getState().toString();</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        if (PathChangeType.valueOf(fileStatus) == PathChangeType.DELETED) {</span>
+<span class="nc" id="L194">            return null;</span>
+        }
+
+<span class="nc" id="L197">        String projectVersion = pf.getProjectVersion().getRevisionId();</span>
+<span class="nc" id="L198">        long projectId = pf.getProjectVersion().getProject().getId();</span>
+        try {
+<span class="nc" id="L200">            return tds.getAccessor(projectId).getSCMAccessor().newRevision(</span>
+<span class="nc" id="L201">                    projectVersion);</span>
+<span class="nc" id="L202">        } catch (InvalidAccessorException e) {</span>
+<span class="nc" id="L203">            logger.error(&quot;Invalid SCM accessor for project &quot;</span>
+<span class="nc" id="L204">                    + pf.getProjectVersion().getProject().getName() + &quot; &quot;</span>
+<span class="nc" id="L205">                    + e.getMessage());</span>
+<span class="nc" id="L206">            return null;</span>
+        }
+    }
+
+    /**
+     * Get the File where the given project file will be cached locally by the
+     * FDS.
+     * 
+     * @param pf
+     *            ProjectFile to look up.
+     * @param r
+     *            Revision of the project file; this is a minor optimization, if
+     *            r is null the revision is retrieved from @p pf anyway.
+     * @return File for this project file, or null if there is no such file in
+     *         the given revision.
+     */
+    private File projectFileLocal(ProjectFile pf, Revision r) {
+<span class="nc" id="L223">        Revision pr = null;</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        if (r == null) {</span>
+<span class="nc" id="L225">            pr = projectFileRevision(pf);</span>
+<span class="nc" id="L226">        } else {</span>
+<span class="nc" id="L227">            pr = r;</span>
+        }
+
+        // Path generation for a &quot;single file checkout&quot;
+<span class="nc" id="L231">        File checkoutFile = new File(fdsCheckoutRoot</span>
+<span class="nc" id="L232">                + System.getProperty(&quot;file.separator&quot;)</span>
+<span class="nc" id="L233">                + pf.getProjectVersion().getProject().getId()</span>
+<span class="nc" id="L234">                + System.getProperty(&quot;file.separator&quot;) + pr.getUniqueId()</span>
+<span class="nc" id="L235">                + System.getProperty(&quot;file.separator&quot;) + pf.getFileName());</span>
+
+        // TODO: possibly also look in existing checkouts?
+<span class="nc" id="L238">        return checkoutFile;</span>
+    }
+
+    /**
+     * For a given project file, return the SCM accessor that can be used to get
+     * at the file contents.
+     * 
+     * @param pf
+     *            The project file to look up.
+     * @return The accessor or null on failure.
+     */
+    private SCMAccessor projectFileAccessor(ProjectFile pf) {
+        // Retrieve the project ID
+<span class="nc" id="L251">        long projectId = pf.getProjectVersion().getProject().getId();</span>
+
+        // Get a TDS handle for the selected ProjectFile
+        try {
+<span class="nc" id="L255">            return tds.getAccessor(projectId).getSCMAccessor();</span>
+<span class="nc" id="L256">        } catch (InvalidAccessorException e) {</span>
+<span class="nc" id="L257">            logger.error(&quot;Invalid SCM accessor for project &quot;</span>
+<span class="nc" id="L258">                    + pf.getProjectVersion().getProject().getName() + &quot; &quot;</span>
+<span class="nc" id="L259">                    + e.getMessage());</span>
+<span class="nc" id="L260">            return null;</span>
+        }
+    }
+
+    /**
+     * Check whether a checkout can be done
+     */
+    private boolean canCheckout(ProjectVersion pv) throws CheckoutException {
+
+<span class="nc" id="L269">        long projectId = pv.getProject().getId();</span>
+
+<span class="nc bnc" id="L271" title="All 2 branches missed.">        if (!tds.projectExists(projectId)) {</span>
+<span class="nc" id="L272">            throw new CheckoutException(&quot;No such project &quot; + pv.getProject()</span>
+<span class="nc" id="L273">                    + &quot; to check out.&quot;);</span>
+        }
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        if (!tds.accessorExists(projectId)) {</span>
+<span class="nc" id="L276">            throw new CheckoutException(&quot;No accessor available for project: &quot;</span>
+<span class="nc" id="L277">                    + pv.getProject().getName());</span>
+        }
+
+<span class="nc" id="L280">        ProjectAccessor a = tds.getAccessor(projectId);</span>
+
+<span class="nc bnc" id="L282" title="All 2 branches missed.">        if (a == null) {</span>
+<span class="nc" id="L283">            logger.warn(&quot;Accessor not available even though it exists.&quot;);</span>
+<span class="nc" id="L284">            throw new CheckoutException(&quot;Accessor &quot; + &quot;for project &quot;</span>
+<span class="nc" id="L285">                    + pv.getProject().getName()</span>
+<span class="nc" id="L286">                    + &quot; not available even though it exists.&quot;);</span>
+        }
+
+        try {
+<span class="nc" id="L290">            SCMAccessor svn = a.getSCMAccessor();</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">            if (svn == null) {</span>
+<span class="nc" id="L292">                logger</span>
+<span class="nc" id="L293">                        .warn(&quot;No SCM available for &quot;</span>
+<span class="nc" id="L294">                                + pv.getProject().getName());</span>
+<span class="nc" id="L295">                throw new CheckoutException(</span>
+<span class="nc" id="L296">                        &quot;No SCM accessor available for project &quot;</span>
+<span class="nc" id="L297">                                + pv.getProject().getName());</span>
+            }
+<span class="nc" id="L299">        } catch (InvalidAccessorException e) {</span>
+<span class="nc" id="L300">            throw new CheckoutException(&quot;Invalid SCM accessor for project &quot;</span>
+<span class="nc" id="L301">                    + pv.getProject().getName() + &quot; &quot; + e.getMessage());</span>
+        }
+
+<span class="nc" id="L304">        return true;</span>
+    }
+
+    // Checkout cache ops
+    /**
+     * Atomic get from cache and increment handle count.
+     */
+    private synchronized OnDiskCheckout getCheckoutFromCache(ProjectVersion pv) {
+
+<span class="nc bnc" id="L313" title="All 4 branches missed.">        if (pv == null || pv.getId() == 0) {</span>
+<span class="nc" id="L314">            return null;</span>
+        }
+
+<span class="nc" id="L317">        OnDiskCheckout co = checkoutCache.get(cacheKey(pv));</span>
+
+<span class="nc bnc" id="L319" title="All 2 branches missed.">        if (co == null)</span>
+<span class="nc" id="L320">            return null;</span>
+
+<span class="nc" id="L322">        checkoutHandles.put(co, checkoutHandles.get(co) + 1);</span>
+
+<span class="nc" id="L324">        return co;</span>
+    }
+
+    /**
+     * Atomic decrement of checkout handle counts.
+     */
+    private synchronized void returnCheckout(OnDiskCheckout c) {
+<span class="nc bnc" id="L331" title="All 2 branches missed.">        if (c == null)</span>
+<span class="nc" id="L332">            return;</span>
+
+<span class="nc bnc" id="L334" title="All 2 branches missed.">        if (checkoutHandles.contains(c))</span>
+<span class="nc" id="L335">            checkoutHandles.put(c, checkoutHandles.get(c) - 1);</span>
+<span class="nc" id="L336">    }</span>
+
+    /**
+     * Atomic add checkout to both cache tables
+     */
+    private synchronized void addCheckoutToCache(ProjectVersion pv,
+            OnDiskCheckout c) {
+<span class="nc" id="L343">        checkoutCache.putIfAbsent(cacheKey(pv), c);</span>
+<span class="nc" id="L344">        checkoutHandles.putIfAbsent(c, 0);</span>
+<span class="nc" id="L345">    }</span>
+
+    /**
+     * Atomically check whether the checkout can be updated
+     */
+    private synchronized boolean isUpdatable(OnDiskCheckout c) {
+<span class="nc bnc" id="L351" title="All 2 branches missed.">        if (checkoutHandles.get(c) &gt; 0)</span>
+<span class="nc" id="L352">            return false;</span>
+<span class="nc" id="L353">        return true;</span>
+    }
+
+    /**
+     * Check if there is a checkout for a specific project version.
+     */
+    private synchronized boolean cacheContains(ProjectVersion pv) {
+<span class="nc bnc" id="L360" title="All 2 branches missed.">        if (checkoutCache.keySet().contains(cacheKey(pv)))</span>
+<span class="nc" id="L361">            return true;</span>
+<span class="nc" id="L362">        return false;</span>
+    }
+
+    // Cache key ops
+    /**
+     * Munge together info from the provided project version to create a unique
+     * key for indexing cache checkouts.
+     */
+    private String cacheKey(ProjectVersion pv) {
+<span class="nc" id="L371">        return pv.getProject().getName() + &quot;|&quot; + pv.getId() + &quot;|&quot;</span>
+<span class="nc" id="L372">                + pv.getRevisionId();</span>
+    }
+
+    /**
+     * Retrieve the project name part of the provided cache key.
+     */
+    private String cacheKeyProject(String key) {
+<span class="nc bnc" id="L379" title="All 4 branches missed.">        if (key == null || key.length() == 0)</span>
+<span class="nc" id="L380">            return null;</span>
+
+<span class="nc" id="L382">        return key.split(&quot;|&quot;)[0];</span>
+    }
+
+    /**
+     * Retrieve from the provided cache key and resolve from the DB the
+     * ProjectVersion object attached to a checkout.
+     */
+    private ProjectVersion cacheKeyProjectVersion(String key) {
+<span class="nc bnc" id="L390" title="All 4 branches missed.">        if (key == null || key.length() == 0)</span>
+<span class="nc" id="L391">            return null;</span>
+
+<span class="nc" id="L393">        DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+
+<span class="nc" id="L395">        Long id = Long.parseLong(key.split(&quot;|&quot;)[1]);</span>
+<span class="nc" id="L396">        return dbs.findObjectById(ProjectVersion.class, id);</span>
+    }
+
+    /**
+     * Convert between database and SCM revision representations
+     */
+    private static Revision projectVersionToRevision(ProjectVersion pv) {
+<span class="nc" id="L403">        TDSService tds = AlitheiaCore.getInstance().getTDSService();</span>
+<span class="nc" id="L404">        SCMAccessor scm = null;</span>
+
+<span class="nc bnc" id="L406" title="All 2 branches missed.">        if (tds.accessorExists(pv.getProject().getId())) {</span>
+<span class="nc" id="L407">            scm = (SCMAccessor) tds.getAccessor(pv.getProject().getId());</span>
+<span class="nc" id="L408">        } else {</span>
+<span class="nc" id="L409">            return null;</span>
+        }
+
+<span class="nc" id="L412">        return scm.newRevision(pv.getRevisionId());</span>
+    }
+
+    // ===[ INTERFACE METHODS ]===============================================
+
+    /** {@inheritDoc} */
+    public synchronized File getFile(ProjectFile pf) {
+<span class="nc" id="L419">        Revision projectRevision = projectFileRevision(pf);</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">        if (projectRevision == null) {</span>
+<span class="nc" id="L421">            return null;</span>
+        }
+
+<span class="nc" id="L424">        File checkoutFile = projectFileLocal(pf, projectRevision);</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">        if (checkoutFile == null) {</span>
+<span class="nc" id="L426">            return null;</span>
+        }
+
+<span class="nc" id="L429">        SCMAccessor scm = projectFileAccessor(pf);</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">        if (scm == null) {</span>
+<span class="nc" id="L431">            return null;</span>
+        }
+
+        try {
+            // Skip the checkout, in case this ProjectFile is already
+            // available (i.e. retrieved in a previous checkout)
+<span class="nc bnc" id="L437" title="All 4 branches missed.">            if (!(checkoutFile.exists() &amp;&amp; checkoutFile.length() &lt;= 0)) {</span>
+                // Create the path to the target file if it doesn't exist
+<span class="nc bnc" id="L439" title="All 2 branches missed.">                if ((checkoutFile.getParentFile() != null)</span>
+<span class="nc bnc" id="L440" title="All 2 branches missed.">                        &amp;&amp; (!checkoutFile.getParentFile().exists())) {</span>
+<span class="nc" id="L441">                    checkoutFile.getParentFile().mkdirs();</span>
+                }
+                // Try to checkout the target file
+<span class="nc" id="L444">                scm.getFile(pf.getFileName(), projectRevision, checkoutFile);</span>
+            }
+
+            // Make sure that the target file is accessible
+<span class="nc bnc" id="L448" title="All 4 branches missed.">            if ((checkoutFile.exists()) &amp;&amp; (checkoutFile.isFile())</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">                    &amp;&amp; (checkoutFile.canRead())) {</span>
+<span class="nc" id="L450">                return checkoutFile;</span>
+            }
+            // returning null here is fine
+<span class="nc" id="L453">        } catch (InvalidRepositoryException e) {</span>
+<span class="nc" id="L454">            logger.error(&quot;The repository for &quot; + pf.toString()</span>
+<span class="nc" id="L455">                    + &quot; is invalid: &quot; + e.getMessage());</span>
+<span class="nc" id="L456">        } catch (InvalidProjectRevisionException e) {</span>
+<span class="nc" id="L457">            logger.error(&quot;The repository for &quot;</span>
+<span class="nc" id="L458">                    + pf.getProjectVersion().getProject() + &quot; has no revision &quot;</span>
+<span class="nc" id="L459">                    + projectRevision + &quot;:&quot; + e.getMessage());</span>
+<span class="nc" id="L460">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L461">            logger.error(&quot;File &quot; + pf.toString() + &quot; not found in the given &quot;</span>
+<span class="nc" id="L462">                    + &quot;repository: &quot; + e.getMessage());</span>
+        }
+<span class="nc" id="L464">        return null;</span>
+    }
+
+    /** {@inheritDoc} */
+    public InputStream getFileContents(ProjectFile pf) {
+
+<span class="nc" id="L470">        Revision projectRevision = projectFileRevision(pf);</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">        if (projectRevision == null) {</span>
+<span class="nc" id="L472">            return null;</span>
+        }
+
+<span class="nc" id="L475">        SCMAccessor scm = projectFileAccessor(pf);</span>
+<span class="nc" id="L476">        ByteArrayOutputStream buff = new ByteArrayOutputStream();</span>
+        try {
+<span class="nc" id="L478">            scm.getFile(pf.getFileName(), projectRevision, buff);</span>
+<span class="nc" id="L479">        } catch (InvalidProjectRevisionException e) {</span>
+<span class="nc" id="L480">            logger.error(&quot;The repository for &quot; + pf.toString()</span>
+<span class="nc" id="L481">                    + &quot; is invalid: &quot; + e.getMessage());</span>
+<span class="nc" id="L482">        } catch (InvalidRepositoryException e) {</span>
+<span class="nc" id="L483">            logger.error(&quot;The repository for &quot;</span>
+<span class="nc" id="L484">                    + pf.getProjectVersion().getProject() + &quot; has no revision &quot;</span>
+<span class="nc" id="L485">                    + projectRevision + &quot;:&quot; + e.getMessage());</span>
+<span class="nc" id="L486">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L487">            logger.error(&quot;File &quot; + pf.toString() + &quot; not found in the given &quot;</span>
+<span class="nc" id="L488">                    + &quot;repository: &quot; + e.getMessage());</span>
+        }
+
+<span class="nc" id="L491">        ByteArrayInputStream contents = new ByteArrayInputStream(buff</span>
+<span class="nc" id="L492">                .toByteArray());</span>
+<span class="nc" id="L493">        return contents;</span>
+    }
+
+    /** {@inheritDoc} */
+    public InMemoryCheckout getInMemoryCheckout(ProjectVersion pv)
+            throws CheckoutException {
+<span class="nc" id="L499">        return getInMemoryCheckout(pv, Pattern.compile(&quot;.*&quot;));</span>
+    }
+
+    /** {@inheritDoc} */
+    public InMemoryCheckout getInMemoryCheckout(ProjectVersion pv,
+            Pattern pattern) throws CheckoutException {
+
+<span class="nc bnc" id="L506" title="All 2 branches missed.">        if (!canCheckout(pv)) {</span>
+<span class="nc" id="L507">            return null;</span>
+        }
+
+<span class="nc" id="L510">        long projectId = pv.getProject().getId();</span>
+<span class="nc" id="L511">        SCMAccessor svn = null;</span>
+        try {
+<span class="nc" id="L513">            svn = tds.getAccessor(projectId).getSCMAccessor();</span>
+<span class="nc" id="L514">        } catch (InvalidAccessorException e) {</span>
+<span class="nc" id="L515">            throw new CheckoutException(&quot;Invalid SCM accessor for project &quot;</span>
+<span class="nc" id="L516">                    + pv.getProject().getName() + &quot;: &quot; + e.getMessage());</span>
+        }
+<span class="nc" id="L518">        svn.newRevision(pv.getRevisionId());</span>
+<span class="nc" id="L519">        logger</span>
+<span class="nc" id="L520">                .info(&quot;Finding available checkout for &quot;</span>
+<span class="nc" id="L521">                        + pv.getProject().getName() + &quot; revision &quot;</span>
+<span class="nc" id="L522">                        + pv.getRevisionId());</span>
+
+<span class="nc" id="L524">        return new InMemoryCheckoutImpl(pv, pattern);</span>
+    }
+
+    /** {@inheritDoc} */
+    public OnDiskCheckout getCheckout(ProjectVersion pv, String path)
+            throws CheckoutException {
+
+<span class="nc bnc" id="L531" title="All 2 branches missed.">        if (!canCheckout(pv)) {</span>
+<span class="nc" id="L532">            return null;</span>
+        }
+
+<span class="nc" id="L535">        long projectId = pv.getProject().getId();</span>
+<span class="nc" id="L536">        SCMAccessor svn = null;</span>
+        try {
+<span class="nc" id="L538">            svn = tds.getAccessor(projectId).getSCMAccessor();</span>
+<span class="nc" id="L539">        } catch (InvalidAccessorException e) {</span>
+<span class="nc" id="L540">            throw new CheckoutException(&quot;Invalid SCM accessor for project &quot;</span>
+<span class="nc" id="L541">                    + pv.getProject().getName() + &quot;: &quot; + e.getMessage());</span>
+        }
+
+<span class="nc" id="L544">        svn.newRevision(pv.getRevisionId());</span>
+
+<span class="nc" id="L546">        logger.info(&quot;Finding available checkout for &quot; + pv);</span>
+<span class="nc" id="L547">        OnDiskCheckout co = getCheckoutFromCache(pv);</span>
+
+<span class="nc bnc" id="L549" title="All 2 branches missed.">        if (co != null) {</span>
+            // Checkout acquired from cache, return it.
+<span class="nc" id="L551">            return co;</span>
+        }
+
+        // Search for a cached checkout that could be updated
+        /*Set&lt;String&gt; c = checkoutCache.keySet();
+        OnDiskCheckoutImpl updatable = null;
+
+        for (String s : c) {
+            if (cacheKeyProject(s).equals(pv.getProject())) {
+                ProjectVersion cached = cacheKeyProjectVersion(s);
+                if (cached.lt(pv)) {
+                    updatable = (OnDiskCheckoutImpl) getCheckoutFromCache(cached);
+
+                    if (checkoutHandles.get(updatable) == 1) {
+                        try {
+                            updateCheckout(updatable, pv);
+                        } finally {
+                            releaseCheckout(updatable);
+                        }
+                        return getCheckoutFromCache(pv);
+                    }
+                    releaseCheckout(updatable);
+                    updatable = null;
+                }
+            }
+        }
+
+        // No updatable checkout found, create
+        synchronized (pv) {
+            if (!cacheContains(pv))
+                addCheckoutToCache(pv, createCheckout(svn, pv));
+        } */
+        //return getCheckoutFromCache(pv);
+<span class="nc" id="L584">        return createCheckout(svn, pv, path);</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean updateCheckout(OnDiskCheckout c, ProjectVersion pv)
+            throws CheckoutException {
+
+<span class="nc bnc" id="L591" title="All 2 branches missed.">        if (c != null) {</span>
+<span class="nc" id="L592">            return false;</span>
+        }
+
+        // Check if the checkout is held by another client before updating
+<span class="nc bnc" id="L596" title="All 2 branches missed.">        if (!isUpdatable(c)) {</span>
+<span class="nc" id="L597">            return false;</span>
+        }
+
+<span class="nc" id="L600">        OnDiskCheckoutImpl cimpl = (OnDiskCheckoutImpl) c;</span>
+<span class="nc" id="L601">        cimpl.lock();</span>
+
+        // Check if an update took place while waiting for the lock to become
+        // available
+<span class="nc bnc" id="L605" title="All 2 branches missed.">        if (cimpl.getProjectVersion().gt(pv)) {</span>
+<span class="nc" id="L606">            logger.error(&quot;Error updating checkout. Checkout has been&quot;</span>
+                    + &quot; already updated to a newer version&quot;);
+<span class="nc" id="L608">            throw new CheckoutException(&quot;Checkout already updated&quot;);</span>
+<span class="nc bnc" id="L609" title="All 2 branches missed.">        } else if (cimpl.getProjectVersion().eq(pv)) {</span>
+<span class="nc" id="L610">            return true;</span>
+        }
+
+<span class="nc" id="L613">        SCMAccessor scm = (SCMAccessor) AlitheiaCore.getInstance()</span>
+<span class="nc" id="L614">                .getTDSService().getAccessor(pv.getProject().getId());</span>
+        try {
+<span class="nc" id="L616">            scm.updateCheckout(cimpl.getRepositoryPath(),</span>
+<span class="nc" id="L617">                    projectVersionToRevision(cimpl.getProjectVersion()),</span>
+<span class="nc" id="L618">                    projectVersionToRevision(pv), cimpl.getRoot());</span>
+<span class="nc" id="L619">            cimpl.setRevision(pv);</span>
+
+<span class="nc" id="L621">        } catch (InvalidProjectRevisionException e) {</span>
+<span class="nc" id="L622">            throw new CheckoutException(&quot;Project version &quot; + pv</span>
+<span class="nc" id="L623">                    + &quot; does not map to an SCM revision. Error was:&quot;</span>
+<span class="nc" id="L624">                    + e.getMessage());</span>
+<span class="nc" id="L625">        } catch (InvalidRepositoryException e) {</span>
+<span class="nc" id="L626">            throw new CheckoutException(&quot;Error accessing repository &quot;</span>
+<span class="nc" id="L627">                    + scm.toString() + &quot;. Error was:&quot; + e.getMessage());</span>
+<span class="nc" id="L628">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L629">            throw new CheckoutException(&quot;Error accessing checkout root. &quot;</span>
+<span class="nc" id="L630">                    + e.getMessage());</span>
+<span class="nc" id="L631">        } finally {</span>
+<span class="nc" id="L632">            cimpl.unlock();</span>
+<span class="nc" id="L633">        }</span>
+<span class="nc" id="L634">        return true;</span>
+    }
+
+    /** {@inheritDoc} */
+    public void releaseCheckout(OnDiskCheckout c) {
+
+        /*
+        if (c == null) {
+            logger.warn(&quot;Attempting to release null checkout&quot;);
+            return;
+        }
+
+        if (!checkoutCache.contains(c)) {
+            logger.warn(&quot;Attempting to release not cached checkout&quot;);
+            return;
+        }
+
+        returnCheckout(c);
+        */
+<span class="nc" id="L653">        File root = null;</span>
+        try {
+<span class="nc" id="L655">            root = c.getRoot();</span>
+<span class="nc" id="L656">            FileUtils.deleteRecursive(root);</span>
+<span class="nc" id="L657">        } catch (Exception e) {</span>
+<span class="nc" id="L658">            logger.error(&quot;Cannot clean up checkout root: &quot; +</span>
+<span class="nc" id="L659">                    root.getAbsolutePath());</span>
+        }
+<span class="nc" id="L661">        c = null;</span>
+<span class="nc" id="L662">    }</span>
+
+    public Timeline getTimeline(StoredProject c) {
+<span class="nc" id="L665">        return new TimelineImpl(c);</span>
+    }
+
+    public void run() {
+
+<span class="nc" id="L670">    }</span>
+
+    @Override
+    public void setInitParams(BundleContext bc, Logger l) {
+<span class="nc" id="L674">        logger = l;</span>
+<span class="nc" id="L675">        this.bc = bc;</span>
+<span class="nc" id="L676">    }</span>
+
+    @Override
+    public void shutDown() {
+<span class="nc" id="L680">        String s = bc.getProperty(&quot;eu.sqooss.fds.cleanupOnExit&quot;);</span>
+
+<span class="nc bnc" id="L682" title="All 4 branches missed.">        if (s != null &amp;&amp; s.equals(&quot;true&quot;)) {</span>
+<span class="nc" id="L683">            CleanupThread t = new CleanupThread(&quot;FDS cleanup thread&quot;);</span>
+<span class="nc" id="L684">            Runtime.getRuntime().addShutdownHook(t);</span>
+<span class="nc" id="L685">            logger.info(&quot;Registered shutdown cleanup thread&quot;);</span>
+        }
+<span class="nc" id="L687">    }</span>
+
+    @Override
+    public boolean startUp() {
+<span class="nc" id="L691">        tds = AlitheiaCore.getInstance().getTDSService();</span>
+<span class="nc" id="L692">        logger.info(&quot;Got TDS service for FDS.&quot;);</span>
+
+<span class="nc" id="L694">        checkoutCache = new ConcurrentHashMap&lt;String, OnDiskCheckout&gt;();</span>
+<span class="nc" id="L695">        checkoutHandles = new ConcurrentHashMap&lt;OnDiskCheckout, Integer&gt;();</span>
+        // Get the checkout root from the properties file.
+<span class="nc" id="L697">        String s = bc.getProperty(&quot;eu.sqooss.fds.root&quot;);</span>
+<span class="nc bnc" id="L698" title="All 2 branches missed.">        if (s == null) {</span>
+<span class="nc" id="L699">            logger.info(&quot;No eu.sqooss.fds.root set, using default /var/tmp/alitheia&quot;);</span>
+<span class="nc" id="L700">            s = &quot;/var/tmp/alitheia&quot;;</span>
+<span class="nc" id="L701">        } else {</span>
+<span class="nc" id="L702">            logger.info(&quot;FDS root directory &quot; + s);</span>
+        }
+<span class="nc" id="L704">        fdsCheckoutRoot = new File(s);</span>
+<span class="nc" id="L705">        randomCheckout = new Random();</span>
+
+<span class="nc" id="L707">        return true;</span>
+    }
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

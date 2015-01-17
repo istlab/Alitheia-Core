@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>MetricActivatorImpl.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.metricactivator</a> &gt; <span class="el_source">MetricActivatorImpl.java</span></div><h1>MetricActivatorImpl.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.metricactivator;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
+
+import eu.sqooss.service.abstractmetric.InvocationOrder;
+
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.AbstractMetric;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.MetricActivator;
+import eu.sqooss.service.abstractmetric.PluginAdmin;
+import eu.sqooss.service.abstractmetric.PluginInfo;
+import eu.sqooss.service.abstractmetric.SchedulerHints;
+import eu.sqooss.service.cluster.ClusterNodeActionException;
+import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.EncapsulationUnit;
+import eu.sqooss.service.db.ExecutionUnit;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.MailingListThread;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.MetricType.Type;
+import eu.sqooss.service.db.NameSpace;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.util.GraphTS;
+
+public class MetricActivatorImpl  implements MetricActivator {
+
+    /** The parent bundle's context object. */
+    private BundleContext bc;
+
+    private AlitheiaCore core;
+    private Logger logger;
+    private PluginAdmin pa;
+    private DBService db;
+    private Scheduler sched;
+<span class="nc" id="L84">    private boolean fastSync = false;</span>
+
+    private AtomicLong priority;
+    
+    private HashMap&lt;MetricType.Type, Class&lt;? extends DAObject&gt;&gt; metricTypesToActivators;
+    
+<span class="nc" id="L90">    public MetricActivatorImpl() { }</span>
+
+    @Override
+	public &lt;T extends DAObject&gt; void runMetric(T resource, AlitheiaPlugin ap) {
+<span class="nc" id="L94">    	Class&lt;? extends DAObject&gt; activator = resource.getClass();</span>
+<span class="nc" id="L95">    	Job j = new MetricActivatorJob((AbstractMetric)ap, resource.getId(), logger, </span>
+<span class="nc" id="L96">    			metricTypesToActivators.get(activator),</span>
+<span class="nc" id="L97">    			priority.incrementAndGet(),</span>
+<span class="nc" id="L98">    			fastSync);</span>
+    	try {
+<span class="nc" id="L100">            sched.enqueue(j);</span>
+<span class="nc" id="L101">        } catch (SchedulerException e) {</span>
+<span class="nc" id="L102">            logger.error(&quot;Could not start metric scheduler job&quot;);</span>
+        }
+<span class="nc" id="L104">	}</span>
+
+    /**{@inheritDoc}*/
+    @Override
+    public void syncMetrics(StoredProject sp, Class&lt;? extends DAObject&gt; actType) {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">    	if (!canRunOnHost(sp))</span>
+<span class="nc" id="L110">            return;</span>
+        
+<span class="nc" id="L112">        List&lt;PluginInfo&gt; plugins = pa.listPluginProviders(actType);</span>
+        
+<span class="nc bnc" id="L114" title="All 4 branches missed.">        if (plugins == null || plugins.size() == 0) {</span>
+<span class="nc" id="L115">            logger.warn(&quot;No metrics found for activation type &quot; </span>
+<span class="nc" id="L116">                    + actType.getName());</span>
+<span class="nc" id="L117">            return;</span>
+        }
+        
+        /* Fire up plug-ins */
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        for (PluginInfo pi : plugins) {</span>
+<span class="nc" id="L122">           AbstractMetric m = (AbstractMetric) bc.getService(pi.getServiceRef());</span>
+           try {
+<span class="nc" id="L124">               sched.enqueue(new MetricSchedulerJob(m, sp));</span>
+<span class="nc" id="L125">           } catch (SchedulerException e) {</span>
+<span class="nc" id="L126">               logger.error(&quot;Could not start metric scheduler job&quot;);</span>
+           }
+        }
+<span class="nc" id="L129">    }</span>
+
+    /**{@inheritDoc}*/
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public void syncMetrics(AlitheiaPlugin ap) {
+<span class="nc" id="L135">        List&lt;StoredProject&gt; lp = </span>
+<span class="nc" id="L136">            (List&lt;StoredProject&gt;) db.doHQL(&quot;from StoredProject&quot;);</span>
+        
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        for(StoredProject sp : lp) {</span>
+<span class="nc" id="L139">            syncMetric(ap, sp);</span>
+        }
+<span class="nc" id="L141">    }</span>
+
+    /**{@inheritDoc}*/
+    @Override
+    public void syncMetrics(StoredProject sp) {
+<span class="nc" id="L146">        Collection&lt;PluginInfo&gt; plugins = pa.listPlugins();</span>
+        
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        for(PluginInfo p : plugins) {</span>
+<span class="nc" id="L149">            AlitheiaPlugin ap = </span>
+<span class="nc" id="L150">                (AlitheiaPlugin) bc.getService(p.getServiceRef());</span>
+<span class="nc" id="L151">            syncMetric(ap, sp);</span>
+        }
+<span class="nc" id="L153">    }</span>
+
+    /**{@inheritDoc}*/
+    @Override
+    public void syncMetric(AlitheiaPlugin m, StoredProject sp) {
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (!canRunOnHost(sp))</span>
+<span class="nc" id="L159">            return;</span>
+<span class="nc" id="L160">        Set&lt;AlitheiaPlugin&gt; deps = new HashSet&lt;AlitheiaPlugin&gt;();</span>
+<span class="nc" id="L161">        deps.add(m);</span>
+        
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        for (String s: m.getDependencies()) {</span>
+<span class="nc" id="L164">        	deps.add(pa.getImplementingPlugin(s));</span>
+        }
+        
+<span class="nc" id="L167">        List&lt;AlitheiaPlugin&gt; toExec = getExecutionOrder(deps);</span>
+        
+        try {
+<span class="nc" id="L170">            Collections.reverse(toExec);</span>
+<span class="nc" id="L171">        	List&lt;Job&gt; jobs = new ArrayList&lt;Job&gt;();</span>
+<span class="nc" id="L172">        	Job old = null;</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        	for (AlitheiaPlugin a : toExec) {</span>
+<span class="nc" id="L174">        		Job j = new MetricSchedulerJob(a, sp);</span>
+<span class="nc" id="L175">        		jobs.add(j);</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        		if (old != null) {</span>
+<span class="nc" id="L177">        			old.addDependency(j);</span>
+        		}
+<span class="nc" id="L179">        		old = j;</span>
+        	}
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        	for (Job j : jobs) {</span>
+<span class="nc" id="L182">        		sched.enqueue(j);</span>
+        	}
+<span class="nc" id="L184">        } catch (SchedulerException e) {</span>
+<span class="nc" id="L185">            logger.error(&quot;Could not start metric scheduler job&quot;);</span>
+        }
+<span class="nc" id="L187">    }</span>
+
+    private boolean canRunOnHost(StoredProject sp) {
+<span class="nc" id="L190">        ClusterNodeService cns = null;</span>
+        
+<span class="nc" id="L192">        cns = core.getClusterNodeService();</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        if (cns == null) {</span>
+<span class="nc" id="L194">            logger.warn(&quot;ClusterNodeService reference not found &quot; +</span>
+            		&quot;- ClusterNode assignment checks will be ignored&quot;);
+<span class="nc" id="L196">            return true;</span>
+        } else {
+<span class="nc" id="L198">            ClusterNode node = sp.getClusternode();</span>
+            
+<span class="nc bnc" id="L200" title="All 2 branches missed.">            if (node == null) {</span>
+                // project is not assigned yet to any ClusterNode, assign it
+                // here by-default
+                try {
+<span class="nc" id="L204">                    cns.assignProject(sp);</span>
+<span class="nc" id="L205">                } catch (ClusterNodeActionException ex) {</span>
+<span class="nc" id="L206">                    logger.warn(&quot;Couldn't assign project &quot; + sp.getName()</span>
+<span class="nc" id="L207">                            + &quot; to ClusterNode &quot; + cns.getClusterNodeName());</span>
+<span class="nc" id="L208">                    return false;</span>
+                }
+            } else {
+                // project is somewhere assigned , check if it is assigned to
+                // this Cluster Node
+<span class="nc bnc" id="L213" title="All 2 branches missed.">                if (!cns.isProjectAssigned(sp)) {</span>
+<span class="nc" id="L214">                    logger.warn(&quot;Project &quot; + sp.getName() + &quot; is not assigned&quot; +</span>
+<span class="nc" id="L215">                        &quot; to this ClusterNode - Ignoring Metric synchronization&quot;);</span>
+<span class="nc" id="L216">                    return false;</span>
+                }
+            }
+        }
+        // Done with ClusterNode Checks
+<span class="nc" id="L221">        return true;</span>
+    }
+    
+    private List&lt;AlitheiaPlugin&gt; getExecutionOrder(Set&lt;AlitheiaPlugin&gt; unordered) {
+<span class="nc" id="L225">    	Map&lt;AlitheiaPlugin, Integer&gt; idx = new HashMap&lt;AlitheiaPlugin, Integer&gt;();</span>
+<span class="nc" id="L226">    	Map&lt;Integer, AlitheiaPlugin&gt; invidx = new HashMap&lt;Integer, AlitheiaPlugin&gt;();</span>
+    	
+<span class="nc" id="L228">    	GraphTS&lt;AlitheiaPlugin&gt; graph = new GraphTS&lt;AlitheiaPlugin&gt;(unordered.size());</span>
+    	
+    	//Build the adjacency matrix
+<span class="nc bnc" id="L231" title="All 2 branches missed.">    	for (AlitheiaPlugin p : unordered) {</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">    		if (!idx.containsKey(p)) {</span>
+<span class="nc" id="L233">        		int n = graph.addVertex(p);</span>
+<span class="nc" id="L234">	    		idx.put(p, n);</span>
+<span class="nc" id="L235">	    		invidx.put(n, p);</span>
+	    	}
+    		
+<span class="nc" id="L238">    	    Set&lt;String&gt; deps = p.getDependencies();</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">    	    for (String metric : deps) {</span>
+<span class="nc" id="L240">    	    	AlitheiaPlugin dep = pa.getImplementingPlugin(metric);</span>
+    	    	
+    	    	//Metrics are allowed to introduce self depedencies
+<span class="nc bnc" id="L243" title="All 2 branches missed.">    	    	if (p.equals(dep)) {</span>
+<span class="nc" id="L244">    	    	    continue;</span>
+    	    	}
+    	    	
+<span class="nc bnc" id="L247" title="All 2 branches missed.">    	    	if (!idx.containsKey(dep)) {</span>
+<span class="nc" id="L248">    	    		int n = graph.addVertex(dep);</span>
+<span class="nc" id="L249">    	    		idx.put(dep, n);</span>
+<span class="nc" id="L250">    	    		invidx.put(n, dep);</span>
+    	    	}
+<span class="nc" id="L252">    	    	graph.addEdge(idx.get(p), idx.get(dep));</span>
+    	    }
+    	}
+    	
+<span class="nc" id="L256">    	List&lt;AlitheiaPlugin&gt; sorted = graph.topo();</span>
+    	
+<span class="nc" id="L258">    	logger.debug(&quot;Calculated metric order:&quot;);</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">    	for (AlitheiaPlugin p : sorted) {</span>
+<span class="nc" id="L260">    		logger.debug(&quot;  &quot; + p.getName());</span>
+    	}
+    	
+<span class="nc" id="L263">    	return sorted;</span>
+    }
+    
+    /**
+     * Job that creates metric jobs. Used to avoid blocking the UI or user
+     * scipts while scheduling large metric updates. Its priority ensures
+     * that it will not fill up queues while updater jobs are running, 
+     * leaving memory free till it is really required. 
+     */
+    private class MetricSchedulerJob extends Job {
+
+        private AlitheiaPlugin m;
+        private StoredProject sp;
+        
+<span class="nc" id="L277">        public MetricSchedulerJob(AlitheiaPlugin m, StoredProject sp) {</span>
+<span class="nc" id="L278">            this.m = m;</span>
+<span class="nc" id="L279">            this.sp = sp;</span>
+<span class="nc" id="L280">        }</span>
+        
+        @Override
+        public long priority() {
+<span class="nc" id="L284">            return 0x2;</span>
+        }
+
+        @Override
+        protected void run() throws Exception {
+<span class="nc" id="L289">            DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L290">            dbs.startDBSession();</span>
+<span class="nc" id="L291">            sp = DAObject.loadDAObyId(sp.getId(), StoredProject.class);</span>
+<span class="nc" id="L292">            PluginInfo mi = pa.getPluginInfo(m);</span>
+<span class="nc" id="L293">            Set&lt;Class&lt;? extends DAObject&gt;&gt; actTypes = mi.getActivationTypes();</span>
+            
+<span class="nc bnc" id="L295" title="All 4 branches missed.">            if ((actTypes == null) || actTypes.isEmpty()) {</span>
+<span class="nc" id="L296">                logger.error(&quot;Plugin &quot; + mi.getPluginName() +</span>
+<span class="nc" id="L297">                            &quot; has no activation types&quot;);</span>
+<span class="nc" id="L298">                return;</span>
+            }
+
+<span class="nc" id="L301">            List&lt;Metric&gt; metrics = pa.getPlugin(mi).getAllSupportedMetrics();</span>
+            
+<span class="nc" id="L303">            Map&lt;MetricType.Type, TreeSet&lt;Long&gt;&gt; objectIds = new HashMap&lt;MetricType.Type, TreeSet&lt;Long&gt;&gt;();</span>
+
+<span class="nc bnc" id="L305" title="All 2 branches missed.">            for (Metric m : metrics) {</span>
+<span class="nc" id="L306">            	Map&lt;MetricType.Type, SortedSet&lt;Long&gt;&gt; IDs = </span>
+<span class="nc" id="L307">            		pa.getImplementingPlugin(m.getMnemonic()).getObjectIdsToSync(sp, m);</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">            	for (MetricType.Type t : IDs.keySet()) {</span>
+            		
+<span class="nc bnc" id="L310" title="All 2 branches missed.">            		if (objectIds.get(t) == null) {</span>
+<span class="nc" id="L311">                    	objectIds.put(t, new TreeSet&lt;Long&gt;());	</span>
+                    }
+                    
+<span class="nc" id="L314">                    objectIds.get(t).addAll(IDs.get(t));</span>
+            	}
+            }
+            
+<span class="nc" id="L318">            AbstractMetric metric = </span>
+<span class="nc" id="L319">                (AbstractMetric) bc.getService(mi.getServiceRef());</span>
+<span class="nc" id="L320">            HashSet&lt;Job&gt; jobs = new HashSet&lt;Job&gt;();</span>
+            
+            /*Check what is the default activation ordering as suggested by the metric*/
+            Class&lt;? extends DAObject&gt;[] activOrder;
+            InvocationOrder invOrder;
+<span class="nc" id="L325">            SchedulerHints hints = metric.getClass().getAnnotation(SchedulerHints.class);</span>
+
+<span class="nc bnc" id="L327" title="All 2 branches missed.">            if (hints == null) {</span>
+<span class="nc" id="L328">                activOrder = (Class&lt;? extends DAObject&gt;[])</span>
+<span class="nc" id="L329">            		SchedulerHints.class.getMethod(&quot;activationOrder&quot;).getDefaultValue();</span>
+<span class="nc" id="L330">                invOrder = (InvocationOrder)</span>
+<span class="nc" id="L331">                       SchedulerHints.class.getMethod(&quot;invocationOrder&quot;).getDefaultValue();</span>
+<span class="nc" id="L332">            } else {</span>
+<span class="nc" id="L333">                activOrder = hints.activationOrder();</span>
+<span class="nc" id="L334">                invOrder = hints.invocationOrder();</span>
+            }
+
+			/*
+			 * Iterate over all activation types but only create a job when
+			 * there exists stuff to recalculate the metric on.
+			 */
+<span class="nc bnc" id="L341" title="All 2 branches missed.">            for (Class&lt;? extends DAObject&gt; activator : activOrder) {</span>
+<span class="nc" id="L342">            	MetricType.Type actType = MetricType.fromActivator(activator);</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">            	if (!objectIds.keySet().contains(actType))</span>
+<span class="nc" id="L344">            		continue;</span>
+
+                //We assume that resource IDs increase monotonically
+<span class="nc" id="L347">                TreeSet&lt;Long&gt; ids = objectIds.get(actType);</span>
+<span class="nc" id="L348">                TreeSet&lt;Long&gt; tmp = null;</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">                if (invOrder.equals(InvocationOrder.NEWFIRST)) {</span>
+<span class="nc" id="L350">                    tmp = new TreeSet&lt;Long&gt;(new DecreasingLongComparator());</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">                } else if (invOrder.equals(InvocationOrder.RANDOM)) {</span>
+<span class="nc" id="L352">                    tmp = new TreeSet&lt;Long&gt;(new RandomizedComparator());</span>
+                }
+
+<span class="nc bnc" id="L355" title="All 2 branches missed.">                if (tmp != null) {</span>
+<span class="nc" id="L356">                    tmp.addAll(ids);</span>
+<span class="nc" id="L357">                    ids = tmp;</span>
+                }
+
+<span class="nc bnc" id="L360" title="All 2 branches missed.">                for (Long l : ids) {</span>
+<span class="nc" id="L361">            		jobs.add(new MetricActivatorJob(metric, l, logger, </span>
+<span class="nc" id="L362">            			metricTypesToActivators.get(actType),</span>
+<span class="nc" id="L363">            			priority.incrementAndGet(),</span>
+<span class="nc" id="L364">            			fastSync));</span>
+            	}
+            }
+<span class="nc" id="L367">            sched.enqueueNoDependencies(jobs);</span>
+<span class="nc" id="L368">            dbs.commitDBSession();</span>
+<span class="nc" id="L369">        }</span>
+        
+        @Override
+        public String toString() {
+<span class="nc" id="L373">            return &quot;MetricSchedulerJob - Project:{&quot; + sp + &quot;} Metric:{&quot; + m + &quot;}&quot;;</span>
+        }
+    }
+
+<span class="nc" id="L377">    class DecreasingLongComparator implements Comparator&lt;Long&gt; {</span>
+        @Override
+        public int compare(Long a, Long b) {
+<span class="nc bnc" id="L380" title="All 2 branches missed.">            if (a &gt; b)</span>
+<span class="nc" id="L381">                return -1;</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">            else if (a &lt; b)</span>
+<span class="nc" id="L383">                return 1;</span>
+<span class="nc" id="L384">            return 0;</span>
+        }
+    }
+
+<span class="nc" id="L388">    class RandomizedComparator implements Comparator&lt;Long&gt; {</span>
+<span class="nc" id="L389">        Random r = new Random();</span>
+        @Override
+        public int compare(Long a, Long b) {
+<span class="nc bnc" id="L392" title="All 2 branches missed.">            if(r.nextBoolean())</span>
+<span class="nc" id="L393">                return -1;</span>
+            else
+<span class="nc" id="L395">                return 1;</span>
+        }
+    }
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+<span class="nc" id="L401">		this.bc = bc;</span>
+<span class="nc" id="L402">		this.logger = l;</span>
+		
+<span class="nc" id="L404">        metricTypesToActivators = new HashMap&lt;Type, Class&lt;? extends DAObject&gt;&gt;();</span>
+<span class="nc" id="L405">        metricTypesToActivators.put(Type.NAMESPACE, NameSpace.class);</span>
+<span class="nc" id="L406">        metricTypesToActivators.put(Type.ENCAPSUNIT, EncapsulationUnit.class);</span>
+<span class="nc" id="L407">        metricTypesToActivators.put(Type.EXECUNIT, ExecutionUnit.class);</span>
+<span class="nc" id="L408">        metricTypesToActivators.put(Type.SOURCE_DIRECTORY, ProjectFile.class);</span>
+<span class="nc" id="L409">        metricTypesToActivators.put(Type.SOURCE_FILE, ProjectFile.class);</span>
+<span class="nc" id="L410">        metricTypesToActivators.put(Type.BUG, Bug.class);</span>
+<span class="nc" id="L411">        metricTypesToActivators.put(Type.PROJECT_VERSION, ProjectVersion.class);</span>
+<span class="nc" id="L412">        metricTypesToActivators.put(Type.MAILING_LIST, MailingList.class);</span>
+<span class="nc" id="L413">        metricTypesToActivators.put(Type.MAILMESSAGE, MailMessage.class);</span>
+<span class="nc" id="L414">        metricTypesToActivators.put(Type.MAILTHREAD, MailingListThread.class);</span>
+<span class="nc" id="L415">	}</span>
+
+	@Override
+	public void shutDown() {
+<span class="nc" id="L419">	}</span>
+
+	@Override
+	public boolean startUp() {
+<span class="nc" id="L423">        core = AlitheiaCore.getInstance();</span>
+
+<span class="nc" id="L425">        priority = new AtomicLong();</span>
+        //Lower priorities are reserved for updater jobs
+<span class="nc" id="L427">        priority.set(0x1000);</span>
+        
+<span class="nc" id="L429">        this.pa = core.getPluginAdmin();</span>
+<span class="nc" id="L430">        this.db = core.getDBService();</span>
+<span class="nc" id="L431">        this.sched = core.getScheduler();</span>
+        
+<span class="nc" id="L433">        String sync = bc.getProperty(&quot;eu.sqooss.metricactivator.sync&quot;);</span>
+        
+<span class="nc bnc" id="L435" title="All 4 branches missed.">        if (sync != null &amp;&amp; sync.equalsIgnoreCase(&quot;fast&quot;))</span>
+<span class="nc" id="L436">            this.fastSync = true;</span>
+	
+<span class="nc" id="L438">        return true;</span>
+	}
+}
+
+//vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

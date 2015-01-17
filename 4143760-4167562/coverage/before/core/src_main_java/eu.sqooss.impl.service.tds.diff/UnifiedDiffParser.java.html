@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>UnifiedDiffParser.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.tds.diff</a> &gt; <span class="el_source">UnifiedDiffParser.java</span></div><h1>UnifiedDiffParser.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.tds.diff;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import eu.sqooss.service.tds.Diff;
+import eu.sqooss.service.tds.DiffChunk;
+import eu.sqooss.service.tds.Revision;
+import eu.sqooss.service.tds.DiffChunk.DiffOp;
+import eu.sqooss.service.util.FileUtils;
+
+/**
+ * An implementation of the Diff interface, for the unified diff format.
+ *  
+ * @author Georgios Gousios - &lt;gousiosg@gmail.com&gt;
+ * @see {@link http://en.wikipedia.org/wiki/Diff#Unified_format}
+ *
+ */
+public class UnifiedDiffParser implements Diff {
+	/* 
+	 * Most patterns copied verbatim from Perl unified diff parser implementation:
+	 * http://search.cpan.org/~nikc/SVN-Web-0.53/lib/SVN/Web/Diff.pm
+	 */
+<span class="nc" id="L67">	private static String diffChunkStart = &quot;^\\@\\@ -(\\d+)(,\\d+)?\\s*[+](\\d+)(,\\d+)? \\@\\@$&quot;;</span>
+<span class="nc" id="L68">	private static String propChunkStart = &quot;^Property.*:\\s*(.*)$&quot;;</span>
+<span class="nc" id="L69">	private static String chunkFileSource = &quot;^\\-\\-\\- ([^\\s]+)\\s+(.+)$&quot;;</span>
+<span class="nc" id="L70">	private static String chunkFileTarget = &quot;^\\+\\+\\+ ([^\\s]+)\\s+(.+)$&quot;;</span>
+<span class="nc" id="L71">	private static String index = &quot;^Index:\\s?(.*)$&quot;;</span>
+<span class="nc" id="L72">	private static String eqs = &quot;^=*&quot;;</span>
+	
+	private Revision revStart,revEnd;
+	private String theDiff;
+	private String basePath;
+	private Set&lt;String&gt; changedPaths;
+	private Map&lt;String, List&lt;DiffChunk&gt;&gt; diffChunks;
+<span class="nc" id="L79">    private String error = &quot;&quot;;</span>
+<span class="nc" id="L80">	private boolean parsed = false;</span>
+	
+<span class="nc" id="L82">    public UnifiedDiffParser(Revision start, Revision end, </span>
+    		String basePath, String diff) {
+<span class="nc" id="L84">        revStart = start;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (end!=null) {</span>
+<span class="nc" id="L86">            revEnd = end;</span>
+        } 
+        
+<span class="nc" id="L89">        theDiff = diff;</span>
+<span class="nc" id="L90">        this.basePath = basePath;</span>
+<span class="nc" id="L91">        changedPaths = new HashSet&lt;String&gt;();</span>
+<span class="nc" id="L92">        diffChunks = new HashMap&lt;String, List&lt;DiffChunk&gt;&gt;();</span>
+<span class="nc" id="L93">        this.parsed = false;</span>
+<span class="nc" id="L94">    }</span>
+    
+    public String getError() {
+<span class="nc" id="L97">    	return error;</span>
+    }
+    
+    /** {@inheritDoc} */
+    public Revision getSourceRevision() {
+<span class="nc" id="L102">        return revStart;</span>
+    }
+
+    /** {@inheritDoc} */
+    public Revision getTargetRevision() {
+<span class="nc" id="L107">        return revEnd;</span>
+    }
+
+    /** {@inheritDoc} */
+	public Set&lt;String&gt; getChangedPaths() {
+<span class="nc" id="L112">		return changedPaths;</span>
+	}
+
+	/** {@inheritDoc} */
+	public Map&lt;String, List&lt;DiffChunk&gt;&gt; getDiffChunks() {
+<span class="nc" id="L117">		return diffChunks;</span>
+	}
+	
+	/** {@inheritDoc} */
+	public String getDiffData() {
+<span class="nc" id="L122">		return theDiff;</span>
+	}
+	
+	/**
+	 * Parse a unified diff and return true on success or false
+	 * and set the error message.
+	 */
+	public boolean parseDiff() {
+		//Don't re-parse the parsed diff
+<span class="nc bnc" id="L131" title="All 2 branches missed.">		if (parsed)</span>
+<span class="nc" id="L132">			return true;</span>
+		
+<span class="nc" id="L134">		Pattern chunkStart = Pattern.compile(diffChunkStart);</span>
+<span class="nc" id="L135">		Pattern propChunk = Pattern.compile(propChunkStart);</span>
+<span class="nc" id="L136">		Pattern fileTarget = Pattern.compile(chunkFileTarget);</span>
+<span class="nc" id="L137">		Pattern fileSource = Pattern.compile(chunkFileSource);</span>
+<span class="nc" id="L138">		Pattern idx = Pattern.compile(index);</span>
+<span class="nc" id="L139">		Pattern equals = Pattern.compile(eqs);</span>
+		
+<span class="nc" id="L141">		Matcher m = null;</span>
+		
+<span class="nc" id="L143">		BufferedReader r = new BufferedReader(new StringReader(theDiff));</span>
+		String line;
+		
+<span class="nc" id="L146">		boolean diffStart = false, chnkStart = false;</span>
+<span class="nc" id="L147">		StringBuffer curChunkText = null;</span>
+<span class="nc" id="L148">		String curPath = null;</span>
+<span class="nc" id="L149">		DiffChunkImpl curChunk = null;</span>
+<span class="nc" id="L150">		List&lt;DiffChunk&gt; curChunkList = null;</span>
+		try {
+<span class="nc bnc" id="L152" title="All 2 branches missed.">			while ((line = r.readLine()) != null) {</span>
+				/*
+				 * Skip SVN introduced lines like
+				 * Index: specs/src/eu/sqooss/impl/service/dsl/SpRevision.java
+				 * ===========================================================
+				 */
+<span class="nc bnc" id="L158" title="All 2 branches missed.">				if (idx.matcher(line).matches() || </span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">						equals.matcher(line).matches()) {</span>
+<span class="nc" id="L160">					continue;</span>
+				}
+				
+				/* Match lines like
+				 * --- specs/src/eu/sqooss/impl/service/dsl/SpRevision.java
+				 * 
+				 * 
+				 * and record file name. Match either of those 2 lines
+				 * signifies start of parsing chunks
+				 */
+<span class="nc bnc" id="L170" title="All 2 branches missed.">				if (fileSource.matcher(line).matches()) {</span>
+					//New group found
+<span class="nc bnc" id="L172" title="All 2 branches missed.">					if (diffStart == true &amp;&amp; </span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">							curChunkList.size() != 0) {</span>
+<span class="nc" id="L174">						diffChunks.put(curPath, curChunkList);</span>
+					}
+					
+<span class="nc" id="L177">					m = fileSource.matcher(line);</span>
+<span class="nc" id="L178">					m.matches();</span>
+<span class="nc" id="L179">					curPath = FileUtils.appendPath(basePath, m.group(1));</span>
+<span class="nc" id="L180">					changedPaths.add(curPath);</span>
+<span class="nc" id="L181">					curChunkList = new ArrayList&lt;DiffChunk&gt;();</span>
+<span class="nc" id="L182">					diffStart = true;</span>
+<span class="nc" id="L183">					continue;</span>
+				}
+				/* those lines are not really interesting
+				 * +++ specs/src/eu/sqooss/impl/service/dsl/SpRevision.java
+				 */
+<span class="nc bnc" id="L188" title="All 2 branches missed.">				if (fileTarget.matcher(line).matches()) {</span>
+<span class="nc" id="L189">					continue;</span>
+				}
+				
+				/*
+				 * Match a chunk describing a property change 
+				 * (this is SVN specific code)
+				 *  Property changes on: ProjectFile.java
+				 */
+<span class="nc bnc" id="L197" title="All 2 branches missed.">				if (propChunk.matcher(line).matches()) {</span>
+					/* Match */
+<span class="nc bnc" id="L199" title="All 2 branches missed.">					if (chnkStart == true) {</span>
+<span class="nc" id="L200">						curChunk.setChunk(curChunkText.toString());</span>
+<span class="nc" id="L201">						curChunkList.add(curChunk);</span>
+					}
+					
+<span class="nc" id="L204">					chnkStart = true;</span>
+<span class="nc" id="L205">					curChunk = new DiffChunkImpl();</span>
+<span class="nc" id="L206">					curChunk.setDiffOp(DiffOp.UNDEF);</span>
+<span class="nc" id="L207">					curChunkText = new StringBuffer();</span>
+					
+					/* If the property change is the only thing
+					 * appearing in the diff, we need to start 
+					 * parsing and init some variables first. 
+					 */
+<span class="nc bnc" id="L213" title="All 2 branches missed.">					if (!diffStart) {</span>
+<span class="nc" id="L214">						curChunkList = new ArrayList&lt;DiffChunk&gt;();</span>
+<span class="nc" id="L215">						diffStart = true;</span>
+<span class="nc" id="L216">						m = propChunk.matcher(line);</span>
+<span class="nc" id="L217">						m.matches();</span>
+<span class="nc" id="L218">						curPath = FileUtils.appendPath(basePath, m.group(1));</span>
+<span class="nc" id="L219">						changedPaths.add(curPath);</span>
+					}
+				}
+				
+<span class="nc bnc" id="L223" title="All 2 branches missed.">				if (!diffStart) {</span>
+<span class="nc" id="L224">					error = &quot;Not a chunk header: &quot; + line;</span>
+<span class="nc" id="L225">					return false;</span>
+				}
+				
+				
+				
+				/* Match chunk start lines like
+				 * @@ -111,10 +111,10 @@ or
+				 * @@ -1 +1 @@
+				 */
+<span class="nc bnc" id="L234" title="All 2 branches missed.">				if (chunkStart.matcher(line).matches()) {</span>
+					
+<span class="nc bnc" id="L236" title="All 2 branches missed.">					if (chnkStart == true) {</span>
+<span class="nc" id="L237">						curChunk.setChunk(curChunkText.toString());</span>
+<span class="nc" id="L238">						curChunkList.add(curChunk);</span>
+					}
+					
+<span class="nc" id="L241">					chnkStart = true;</span>
+<span class="nc" id="L242">					curChunk = new DiffChunkImpl();</span>
+<span class="nc" id="L243">					m = chunkStart.matcher(line);</span>
+					//We already know that it matches, just trigger the group extraction
+<span class="nc" id="L245">					m.matches(); </span>
+					
+					//Unified diffs do not support this
+<span class="nc" id="L248">					curChunk.setDiffOp(DiffOp.UNDEF);</span>
+<span class="nc" id="L249">					curChunk.setPath(curPath);					</span>
+<span class="nc" id="L250">					curChunk.setSourceStartLine(Integer.parseInt(m.group(1)));</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">					if (m.group(2) != null) {</span>
+<span class="nc" id="L252">						curChunk.setSourceLenght(Integer.parseInt(m.group(2).substring(1)));</span>
+<span class="nc" id="L253">					} else {</span>
+<span class="nc" id="L254">						curChunk.setSourceLenght(0);</span>
+					}
+<span class="nc" id="L256">					curChunk.setTargetStartLine(Integer.parseInt(m.group(3)));</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">					if (m.group(4) != null) {</span>
+<span class="nc" id="L258">						curChunk.setTargetLength(Integer.parseInt(m.group(4).substring(1)));</span>
+<span class="nc" id="L259">					} else {</span>
+<span class="nc" id="L260">						curChunk.setTargetLength(0);</span>
+					}
+<span class="nc" id="L262">					curChunkText = new StringBuffer();</span>
+<span class="nc" id="L263">					continue;</span>
+				}
+				
+<span class="nc" id="L266">				curChunkText.append(line).append(&quot;\n&quot;);</span>
+			}
+<span class="nc" id="L268">		} catch (IOException e) {</span>
+<span class="nc" id="L269">			error = &quot;Error reading diff file&quot;;</span>
+<span class="nc" id="L270">			return false;</span>
+		}
+		//Clean up
+<span class="nc bnc" id="L273" title="All 2 branches missed.">		if (curChunk != null) { </span>
+<span class="nc" id="L274">			curChunk.setChunk(curChunkText.toString());</span>
+<span class="nc" id="L275">			curChunkList.add(curChunk);</span>
+<span class="nc" id="L276">			diffChunks.put(curPath, curChunkList);</span>
+<span class="nc" id="L277">		} else {</span>
+			//This means that the actual diff was empty
+<span class="nc" id="L279">			List&lt;DiffChunk&gt; l = Collections.emptyList();</span>
+<span class="nc" id="L280">			diffChunks.put(curPath, l);</span>
+		}
+		
+		//Don't hold up space now that the diff is parsed
+<span class="nc" id="L284">		theDiff = null;</span>
+<span class="nc" id="L285">		parsed = true;</span>
+<span class="nc" id="L286">		return true;</span>
+	}
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>
