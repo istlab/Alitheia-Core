@@ -107,9 +107,8 @@ public class TestGitUpdater extends TestGitSetup {
         
         LogManager lm = new LogManagerImpl(true);
         l = lm.createLogger("sqooss.updater");
-        db = core.getDBService();
         
-        //db = new DBServiceImpl(conProp, config.toURL() , l);
+        db = new DBServiceImpl(conProp, config.toURL() , l);
         db.startDBSession();
         sp = new StoredProject();
         sp.setName(projectName);
