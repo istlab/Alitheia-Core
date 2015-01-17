@@ -1,16 +1,16 @@
 package eu.sqooss.plugins.git.test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -30,8 +30,6 @@ import eu.sqooss.impl.service.db.DBServiceImpl;
 import eu.sqooss.impl.service.logging.LogManagerImpl;
 import eu.sqooss.plugins.updater.git.GitUpdater;
 import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.db.Developer;
-import eu.sqooss.service.db.DeveloperAlias;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectFileState;
 import eu.sqooss.service.db.ProjectVersion;
@@ -39,9 +37,6 @@ import eu.sqooss.service.db.StoredProject;
 import eu.sqooss.service.logging.LogManager;
 import eu.sqooss.service.logging.Logger;
 import eu.sqooss.service.tds.AccessorException;
-import eu.sqooss.service.tds.CommitLog;
-import eu.sqooss.service.tds.InvalidProjectRevisionException;
-import eu.sqooss.service.tds.InvalidRepositoryException;
 import eu.sqooss.service.tds.Revision;
 
 public class TestGitUpdater extends TestGitSetup {
@@ -109,8 +104,6 @@ public class TestGitUpdater extends TestGitSetup {
         
         LogManager lm = new LogManagerImpl(true);
         l = lm.createLogger("sqooss.updater");
-        
-        AlitheiaCore.testInstance();
         
         db = new DBServiceImpl(conProp, config.toURL() , l);
         db.startDBSession();
