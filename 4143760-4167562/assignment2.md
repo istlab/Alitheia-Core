@@ -62,6 +62,10 @@ Between `Tag` and `StoredProject` was a cyclic dependency, this was due a two st
 
 In order to remove yet another cyclic dependency, we moved two static methods from the `PluginConfigurator` to the `Plugin` class. This solves a part of the dependency between the two. `PluginConfigurator` still has a getter and setter for a `Plugin` object. This getter is never called, the setter is only called once and `PluginConfigurator` never uses the `Plugin` object in one of its methods. Therefore we removed the getter and setter and the variable declaration. Now the `PluginConfigurator` class doesn't depend on `Plugin`, thus the cyclic dependency is solved.
 
+### Don't Repeat Yourself (DRY)
+
+With Google CodePro AnalytiX we found several instances of violations of the DRY princliple. On should not copy past code, because you will introduce the same bug on multiple places and it's hard to maintain. In `FDSSerivceImpl` the methods `getInMemoryCheckout(ProjectVersion pv, Pattern pattern)` and `getCheckout(ProjectVersion pv, String path)` have more than 10 lines of code exactly the same. We extracted a part of the method to a new method called `getSCNAccesor(ProjectVersion pv)`. Also in `WebAdminRenderer` we reduced the amount of duplicate code. The methods `renderJobFailStats()` and `renderJobWaitStats()` had about 20 LOC in common. This time we made to methods which are now both called instead of those 20 LOC.
+
 ## Bug Fixes
 
 ### SchedulerStats
@@ -95,9 +99,12 @@ This code does not make much sense, because now the amount of waiting jobs (`wai
 
 ## Recommendations 
 
+<<<<<<< HEAD
 To further improve the maintainability of the system, we recommend some further refactorings. However, to perform refactorings, unit and integration tests are very much required to not break the system. With a coverage of only 1.7% of the core, these were severely lacking. Even after the refactorings, a coverage of 9.8% is still very low.
 
-Therefore our first recommendation is to build a complete test suite for the system. This will be quite a large investment, but it will definitely pay off in the long run, because it will make refactorings much less time consuming. Additionally, tests will make it easier to extend the system, especially after many of the developers that originally designed the system will have departed.
+Therefore our first recommendation is to build a complete test suite for the system. This will be quite a large investment, but it will definitely pay off in the long run, because it will make refactorings much less time consuming. Units tests would have prevented bugs as the ones described in the "Bug Fixes" section. Additionally, tests will make it easier to extend the system, especially after many of the developers that originally designed the system will have departed.
+
+The system consists of many very large methods, this make testing very hard. Especially classes with HTML code generation consist of much code duplication. We have already fixed a few instances of code duplication, but there are many more. When methods are split up in smaller ones, it will also become easier to remove duplicated code. Therefore we recommend to split up methods where possible. The `PluginsView` class, with a method of almost 900 lines of code and multiple instances of DRY violations, is a good one to start with.
 
 ## Conclusions
 

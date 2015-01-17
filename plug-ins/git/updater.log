@@ -50,3 +50,43 @@ INFO - Got a valid reference to the logger
 INFO - Succesfully started updater service
 INFO - Initializing Hibernate with URL <file:/home/anton/Alitheia-Core/alitheia/core/src/main/resources/hibernate.cfg.xml>
 ERROR - Failed to initialize Hibernate: org.slf4j.helpers.MessageFormatter.format(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: org.slf4j.helpers.MessageFormatter.format(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: Could not initialize class org.hibernate.cfg.AnnotationConfiguration
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: org.slf4j.helpers.MessageFormatter.format(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: Could not initialize class org.hibernate.cfg.AnnotationConfiguration
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: org.slf4j.helpers.MessageFormatter.format(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: Could not initialize class org.hibernate.cfg.AnnotationConfiguration
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: org.slf4j.helpers.MessageFormatter.format(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: Could not initialize class org.hibernate.cfg.AnnotationConfiguration
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: org.slf4j.helpers.MessageFormatter.format(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;
+INFO - Got a valid reference to the logger
+INFO - Succesfully started updater service
+INFO - Initializing Hibernate with URL <file:/home/martijn/Documents/Alitheia-Core/alitheia/core/target/classes/hibernate.cfg.xml>
+ERROR - Failed to initialize Hibernate: Could not initialize class org.hibernate.cfg.AnnotationConfiguration
