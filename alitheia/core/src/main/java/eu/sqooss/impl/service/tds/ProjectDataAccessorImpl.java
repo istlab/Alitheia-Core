@@ -36,10 +36,10 @@ package eu.sqooss.impl.service.tds;
 import java.net.URI;
 
 import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.tds.InvalidAccessorException;
-import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.BTSAccessor;
+import eu.sqooss.service.tds.InvalidAccessorException;
 import eu.sqooss.service.tds.MailAccessor;
+import eu.sqooss.service.tds.ProjectAccessor;
 import eu.sqooss.service.tds.SCMAccessor;
 import eu.sqooss.service.util.URIUtills;
 

@@ -33,21 +33,10 @@
 
 package eu.sqooss.impl.service.webadmin;
 
-import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.webadmin.WebAdminRenderer;
-import eu.sqooss.service.admin.AdminAction;
-import eu.sqooss.service.admin.AdminService;
-import eu.sqooss.service.admin.actions.AddProject;
-import eu.sqooss.service.db.DBService;
-import eu.sqooss.service.logging.Logger;
-import eu.sqooss.service.util.Pair;
-import eu.sqooss.service.webadmin.WebadminService;
-
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.util.Hashtable;
 import java.util.Locale;
 
@@ -57,13 +46,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
-
+import org.apache.velocity.app.VelocityEngine;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.AddProject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.util.Pair;
+import eu.sqooss.service.webadmin.WebadminService;
 
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;

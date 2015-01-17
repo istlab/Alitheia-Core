@@ -1,13 +1,14 @@
 package eu.sqooss.service.fds;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-
-import eu.sqooss.service.fds.InMemoryDirectory;
 
 public class InMemoryDirectoryTest {
 
@@ -79,7 +80,7 @@ public class InMemoryDirectoryTest {
 	@Test
 	public void pathExistsTest() {
 		InMemoryDirectory dir = new InMemoryDirectory("name");
-		assertEquals(false, dir.pathExists("/folder"));
+		assertEquals(true, dir.pathExists(null));
 	}
 
 	@Test

@@ -33,7 +33,6 @@
 
 package eu.sqooss.service.scheduler;
 
-import eu.sqooss.service.scheduler.Job;
 
 /**
  * This a test job class.
