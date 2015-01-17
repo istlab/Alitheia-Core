@@ -33,21 +33,12 @@
 
 package eu.sqooss.service.db;
 
-import java.util.HashMap;
-import java.util.List;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import eu.sqooss.core.AlitheiaCore;
 
 @Entity
 @Table(name="PLUGIN_CONFIGURATION")
@@ -69,10 +60,6 @@ public class PluginConfiguration extends DAObject {
 	
 	@Column(name="MSG")
     private String msg;
-
-	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name="PLUGIN_ID", referencedColumnName="PLUGIN_ID")
-    private Plugin plugin;
 
     public long getId() {
 		return id;
@@ -98,14 +85,6 @@ public class PluginConfiguration extends DAObject {
         this.type = type;
     }
 
-    public Plugin getPlugin() {
-        return plugin;
-    }
-
-    public void setPlugin(Plugin p) {
-        this.plugin = p;
-    }
-
     public String getName() {
         return name;
     }
@@ -120,48 +99,5 @@ public class PluginConfiguration extends DAObject {
 
     public void setMsg(String msg) {
         this.msg = msg;
-    }
-    
-    /**
-     * Get a PluginConfiguration entry DAO or null in 
-     */
-    public static PluginConfiguration getConfigurationEntry(Plugin p, HashMap<String, Object> names) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        
-        names.put("plugin", p);
-                
-        List<PluginConfiguration> l = db.findObjectsByProperties(PluginConfiguration.class, names);
-        
-        if(l.isEmpty()) {
-            return null;
-        }
-        
-        return l.get(0);
-    }
-    
-    /**
-     * Update a configuration entry. If the entry is found and updated 
-     * successfully true will be returned. If not found or the update 
-     * fails, false will be returned.
-     */
-    public static boolean updConfigurationEntry(Plugin p, HashMap<String, Object> names) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        PluginConfiguration pc = getConfigurationEntry(p, names);
-        
-        if (pc == null) {
-            return false;
-        }
-        
-        HashMap<String, Object> s = new HashMap<String, Object>();
-        
-        names.put("plugin", p);
-        
-        List<PluginConfiguration> l = db.findObjectsByProperties(PluginConfiguration.class, s);
-        
-        if (l.isEmpty()) {
-            return false;
-        }
-        
-        return true;
     }
 }
