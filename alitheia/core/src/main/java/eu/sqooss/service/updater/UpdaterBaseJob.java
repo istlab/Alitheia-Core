@@ -52,7 +52,7 @@ public abstract class UpdaterBaseJob extends Job {
     protected Logger logger;
     protected DBService dbs;
     protected StoredProject project;
-    protected UpdaterServiceImpl updater;
+    protected UpdaterService updater;
     
     public void setUpdateParams(StoredProject sp, Logger l) {
         this.project = sp;

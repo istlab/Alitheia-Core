@@ -65,7 +65,7 @@ public class DiffFactory {
     public Diff doUnifiedDiff(Revision start, Revision end, 
             String basePath, String diff) {
         
-        UnifiedDiffParser d = new UnifiedDiffParser(start, end, basePath, diff);
+    	Diff d = new UnifiedDiffParser(start, end, basePath, diff);
         if (d.parseDiff())
             return d;
         

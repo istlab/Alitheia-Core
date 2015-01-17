@@ -85,41 +85,152 @@ public class MetricType extends DAObject {
 	 * activation types, but not necessarily on a 1-1 basis.
 	 */
     public enum Type {
-
-        PROJECT,
-        SOURCE_FILE,
-        SOURCE_DIRECTORY, 
-        MAILING_LIST,
-        BUG, PROJECT_VERSION,
-        MAILTHREAD, MAILMESSAGE,
-        DEVELOPER, NAMESPACE,
-        EXECUNIT, ENCAPSUNIT;
-
-        public static Type fromString(String s) {
-            if ("SOURCE_CODE".equals(s) || "SOURCE_FILE".equals(s))
-                return Type.SOURCE_FILE;
-            if ("SOURCE_FOLDER".equals(s) || "SOURCE_DIRECTORY".equals(s))
-                return Type.SOURCE_DIRECTORY;
-            else if ("MAILING_LIST".equals(s))
-                return Type.MAILING_LIST;
-            else if ("BUG_DATABASE".equals(s) || "BUG".equals(s))
-                return Type.BUG;
-            else if ("THREAD".equals(s) || "MAILTHREAD".equals(s))
-                return Type.MAILTHREAD;
-            else if ("MAILMESSAGE".equals(s))
-                return Type.MAILMESSAGE;
-            else if ("PROJECT_WIDE".equals(s) || "PROJECT_VERSION".equals(s))
-                return Type.PROJECT_VERSION;
-            else if ("DEVELOPER".equals(s))
-            	return Type.DEVELOPER;
-            else if ("NAMESPACE".equals(s))
-                return Type.NAMESPACE;
-            else if ("EXECUNIT".equals(s))
-                return Type.EXECUNIT;
-            else if ("ENCAPSUNIT".equals(s))
-                return Type.ENCAPSUNIT;
-            else
+        PROJECT{
+            public Type fromStringType(String s){
+                if("PROJECT".equals(s))
+                    return Type.PROJECT;		
                 return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return StoredProject.class;
+            }
+        },
+        SOURCE_FILE{
+            public Type fromStringType(String s){
+                if ("SOURCE_CODE".equals(s) || "SOURCE_FILE".equals(s))
+                    return Type.SOURCE_FILE;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return ProjectFile.class;
+            }
+        },
+        SOURCE_DIRECTORY{
+            public Type fromStringType(String s){
+                if ("SOURCE_FOLDER".equals(s) || "SOURCE_DIRECTORY".equals(s))
+                    return Type.SOURCE_DIRECTORY;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return ProjectDirectory.class;
+            }
+        }, 
+        MAILING_LIST{
+            public Type fromStringType(String s){
+                if ("MAILING_LIST".equals(s))
+                    return Type.MAILING_LIST;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return MailingList.class;
+            }
+        },
+        BUG{
+            public Type fromStringType(String s){
+                if ("BUG_DATABASE".equals(s) || "BUG".equals(s))
+                    return Type.BUG;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return Bug.class;
+            }
+        },
+        PROJECT_VERSION{
+            public Type fromStringType(String s){
+                if ("PROJECT_WIDE".equals(s) || "PROJECT_VERSION".equals(s))
+                    return Type.PROJECT_VERSION;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return ProjectVersion.class;
+            }
+        },
+        MAILTHREAD{
+            public Type fromStringType(String s){
+                if ("THREAD".equals(s) || "MAILTHREAD".equals(s))
+                    return Type.MAILTHREAD;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return MailingListThread.class;
+            }
+        },
+        MAILMESSAGE{
+            public Type fromStringType(String s){
+                if ("MAILMESSAGE".equals(s))
+                    return Type.MAILMESSAGE;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return MailMessage.class;
+            }
+        },
+        DEVELOPER{
+            public Type fromStringType(String s){
+                if ("DEVELOPER".equals(s))
+                    return Type.DEVELOPER;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return Developer.class;
+            }
+        },
+        NAMESPACE{
+            public Type fromStringType(String s){
+                if ("NAMESPACE".equals(s))
+                    return Type.NAMESPACE;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return NameSpace.class;
+            }
+        },
+        EXECUNIT{
+            public Type fromStringType(String s){
+                if ("EXECUNIT".equals(s))
+                    return Type.EXECUNIT;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return ExecutionUnit.class;
+            }
+        },
+        ENCAPSUNIT{
+            public Type fromStringType(String s){
+                if ("ENCAPSUNIT".equals(s))
+                    return Type.ENCAPSUNIT;
+                return null;
+            }
+
+            public Class<? extends DAObject> toActivator(){
+                return EncapsulationUnit.class;
+            }
+        };
+
+        public abstract Type fromStringType(String s);
+
+        public abstract Class<? extends DAObject> toActivator();
+        
+        public static Type fromString(String s) {
+            Type result = null;
+            for(Type t : Type.values()){
+                result = t.fromStringType(s);
+                if(result != null){
+                    return result;
+                }
+            }
+            return result;
         }
     }
 
@@ -214,35 +325,9 @@ public class MetricType extends DAObject {
 	   return null;
 	}
 	
-	public Class<? extends DAObject> toActivator() {
-	    switch(Type.fromString(this.type)) {
-	        case SOURCE_DIRECTORY:
-	            return ProjectDirectory.class;
-	        case SOURCE_FILE:
-	            return ProjectFile.class;
-	        case PROJECT_VERSION:
-	            return ProjectVersion.class;
-	        case PROJECT:
-	            return StoredProject.class;
-	        case MAILMESSAGE:
-	            return MailMessage.class;
-	        case MAILING_LIST:
-	            return MailingList.class;
-	        case MAILTHREAD:
-	            return MailingListThread.class;
-	        case BUG:
-	            return Bug.class;
-	        case DEVELOPER:
-	        	return Developer.class;
-	        case NAMESPACE:
-	            return NameSpace.class;
-	        case ENCAPSUNIT:
-	            return EncapsulationUnit.class;
-	        case EXECUNIT:
-	            return ExecutionUnit.class;
-	    }
-	    return null;
-	}
+    public Class<? extends DAObject> toActivator() {
+        return Type.fromString(type).toActivator();
+    }
 }
 
 //vi: ai nosi sw=4 ts=4 expandtab
