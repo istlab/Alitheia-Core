@@ -17,9 +17,9 @@ To facilitate refactoring, unit tests must be present. Therefore we have created
  - `InMemoryDirectory` in package `eu.sqooss.service.fds`
  - `InMemoryCheckoutImpl` in package `eu.sqooss.impl.service.fds`
  
-The line coverage of the core package after adding new tests is displayed in the figure below.
+The line coverage of the core package after adding new tests is displayed in the figure below. It was increased considerably to a line coverage of 11% for the core package. This time, subpackages with a coverage less than 10% were omitted.
 
-<img src="img/coreCoverageAfter.png" width="1019px" height="237px" />
+<img src="img/coreCoverageAfter.png" width="897px" height="394px" />
 
 ## Refactoring
 
@@ -64,7 +64,7 @@ In order to remove yet another cyclic dependency, we moved two static methods fr
 
 ### Don't Repeat Yourself (DRY)
 
-With Google CodePro AnalytiX we found several instances of violations of the DRY princliple. On should not copy past code, because you will introduce the same bug on multiple places and it's hard to maintain. In `FDSSerivceImpl` the methods `getInMemoryCheckout(ProjectVersion pv, Pattern pattern)` and `getCheckout(ProjectVersion pv, String path)` have more than 10 lines of code exactly the same. We extracted a part of the method to a new method called `getSCNAccesor(ProjectVersion pv)`. Also in `WebAdminRenderer` we reduced the amount of duplicate code. The methods `renderJobFailStats()` and `renderJobWaitStats()` had about 20 LOC in common. This time we made to methods which are now both called instead of those 20 LOC.
+With Google CodePro AnalytiX we found several instances of violations of the DRY princliple. On should not copy past code, because you will introduce the same bug on multiple places and it's hard to maintain. In `FDSSerivceImpl` the methods `getInMemoryCheckout(ProjectVersion pv, Pattern pattern)` and `getCheckout(ProjectVersion pv, String path)` have more than 10 lines of code exactly the same. We extracted a part of the method to a new method called `getSCNAccesor(ProjectVersion pv)`. Also in `WebAdminRenderer` we reduced the amount of duplicate code. The methods `renderJobFailStats()` and `renderJobWaitStats()` had about 20 lines of code in common. This time we made to methods which are now both called instead of those 20 lines of code.
 
 ## Bug Fixes
 
