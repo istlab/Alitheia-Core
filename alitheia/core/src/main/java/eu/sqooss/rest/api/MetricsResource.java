@@ -64,7 +64,8 @@ public class MetricsResource {
 	public List<Metric> getMetrics() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from Metric";
-		List<Metric> sp = (List<Metric>) db.doHQL(q);
+		@SuppressWarnings("unchecked")
+        List<Metric> sp = (List<Metric>) db.doHQL(q);
 		return sp;
 	}
 	
@@ -74,7 +75,8 @@ public class MetricsResource {
 	public List<MetricType> getMetricTypes() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from MetricType";
-		List<MetricType> sp = (List<MetricType>) db.doHQL(q);
+		@SuppressWarnings("unchecked")
+        List<MetricType> sp = (List<MetricType>) db.doHQL(q);
 		return sp;
 	}
 
@@ -94,7 +96,7 @@ public class MetricsResource {
 	    Metric m = DAObject.loadDAObyId(id, Metric.class);
 	    
 	    if (m == null)
-	        return Collections.EMPTY_LIST;  
+	        return Collections.emptyList();  
 	    
 	   return getResult(m, resourceIds);
     }
@@ -120,12 +122,12 @@ public class MetricsResource {
         AlitheiaPlugin ap = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin(m.getMnemonic());
         
         if (ap == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         Class<? extends DAObject> clazz = m.getMetricType().toActivator();
         
         if (clazz == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         List<Result> result = new ArrayList<Result>();
         
@@ -144,7 +146,7 @@ public class MetricsResource {
         }
         
         if (result.isEmpty())
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         return result; 
 	}
@@ -165,7 +167,7 @@ public class MetricsResource {
         Metric m = Metric.getMetricByMnemonic(name);
         
         if (m == null)
-            return Collections.EMPTY_LIST;  
+            return Collections.emptyList();  
         
        return getResult(m, resourceIds);
     }
@@ -177,7 +179,7 @@ public class MetricsResource {
 		MetricType mt = MetricType.getMetricType(Type.fromString(type));
 		
 		if (mt == null) //No metric of this type has been installed yet
-		    return Collections.EMPTY_SET;
+		    return Collections.emptySet();
 		
 		return mt.getMetrics();
 	}

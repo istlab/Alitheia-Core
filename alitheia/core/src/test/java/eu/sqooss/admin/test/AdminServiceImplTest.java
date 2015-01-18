@@ -3,6 +3,7 @@ package eu.sqooss.admin.test;
 import static org.junit.Assert.*;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,15 +23,6 @@ public class AdminServiceImplTest {
     @BeforeClass
     public static void setUp() {
         impl = new AdminServiceImpl();
-    }
-
-    @Test
-    public void testAdminServiceImpl() {
-        assertNotNull(impl);
-    }
-
-    @Test
-    public void testRegisterAdminAction() {
         RunTimeInfo rti = new RunTimeInfo();
         impl.registerAdminAction(rti.mnemonic(), RunTimeInfo.class);
         assertEquals(1, impl.getAdminActions().size());
@@ -58,7 +50,9 @@ public class AdminServiceImplTest {
 
         fail = impl.create("fail");
         assertNotNull(fail);
-        ActionContainer ac = impl.liveactions().get(1L);
+        ConcurrentMap<Long, ActionContainer> liveactions = impl.liveactions();
+        assertEquals(1L, liveactions.size());
+        ActionContainer ac = liveactions.get(liveactions.keySet().iterator().next());
         assertNotNull(ac);
         assertEquals(-1, ac.end);
 

@@ -1,12 +1,9 @@
-#set($section=2)
-#parse("header.inc")
-      <div id="main">
-#parse("menu.inc")
-	<div id="contents">
-          <h2>Alitheia Logs</h2>
-          <ul class="logs">
-            $admin.renderLogs()
-          </ul>
-	</div>
-      </div>
-#parse("sidebar.inc")
+<h2>$tr.label("logs_mngm")</h2>
+
+<hr />
+
+<fieldset>
+  <legend>$tr.label("Recent logs")</legend>
+  #parse("log_list.html")
+</fieldset>
+

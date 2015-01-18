@@ -1,0 +1,32 @@
+<script type="text/javascript" src="/js/status.js"></script>
+
+<fieldset id="status">
+  <legend>$tr.label("status")</legend>
+  <dl class="dl-horizontal">
+    <dt>$tr.label("uptime")</dt>
+    <dd>$UPTIME</dd>
+
+    <dt>$tr.label("queue_length"))</dt>
+    <dd>$scheduler.WaitingJobs</dd>
+  </dl>
+  <ul>
+    <li class="uptime">$tr.label("uptime") : $UPTIME</li>
+    <li class="queue">$tr.label("queue_length") : $scheduler.WaitingJobs</li>
+  </ul>
+  <table>
+    <tr>
+      <td style="width: 50%; padding: 0;">
+        <form id="start" method="post" action="admin">
+          <input type="hidden" name="action" value="restart" />
+          <input type="submit" style="width: 100%;" value="$tr.label("restart")" />
+        </form>
+      </td>
+      <td style="width: 50%; padding: 0;">
+        <form id="stop" method="post" action="admin">
+          <input type="hidden" name="action" value="stop" />
+          <input type="submit" style="width: 100%;" value="$tr.label("stop")" />
+        </form>
+      </td>
+    </tr>
+  </table>
+</fieldset>

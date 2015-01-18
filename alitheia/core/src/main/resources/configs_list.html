@@ -1,0 +1,23 @@
+<table id="configs-list" class="table">
+  <thead>
+    <tr>
+      <th>$tr.label("config_name")</th>
+      <th>$tr.label("config_type")</th>
+      <th>$tr.label("config_value")</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    #if (! $configs || $configs.isEmpty() )
+      <tr class="warning">
+        <td colspan="3">
+          $tr.label("plugin_no_configs")
+        </td>
+      </tr>
+    #else
+      #foreach ($config in $configs)
+        #parse("configs_list_item.html")
+      #end
+    #end
+  </tbody>
+</table>

@@ -1,0 +1,24 @@
+<table id="metrics-list" class="table">
+  <thead>
+    <tr>
+      <th>$tr.label("metric_id")</th>
+      <th>$tr.label("metric_name")</th>
+      <th>$tr.label("metric_type")</th>
+      <th>$tr.label("description")</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    #if (! $metrics || $metrics.isEmpty() )
+      <tr class="warning">
+        <td colspan="4">
+          $tr.label("plugin_no_metrics")
+        </td>
+      </tr>
+    #else
+      #foreach ($metric in $metrics)
+        #parse("metrics_list_item.html")
+      #end
+    #end
+  </tbody>
+</table>

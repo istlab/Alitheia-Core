@@ -328,7 +328,8 @@ public class SVNUpdaterImpl implements MetadataUpdater {
                     " using default:" + this.hc);
         }
         
-        this.ommitFileless = (System.getProperty(OMMIT_NO_FILES_VERSIONS).equals("false"))?false:true;
+        String prop = System.getProperty(OMMIT_NO_FILES_VERSIONS);
+        this.ommitFileless = (null == prop || prop.equals("false"))?false:true;
         if (ommitFileless)
             info("Ommiting versions with no processed files");
         

@@ -175,6 +175,19 @@ public class StoredProject extends DAObject {
     public void setMailUrl(String url) {
     	addConfig(ConfigOption.PROJECT_ML_URL, url);
     }
+        
+    public ProjectVersion getLastProjectVersion() {
+        return ProjectVersion.getLastProjectVersion(this);
+    }
+    
+    public MailMessage getLatestMailMessage() {
+        return MailMessage.getLatestMailMessage(this);
+    }
+    
+    public Bug getLastBug() {
+       return Bug.getLastUpdate(this);
+    }
+
     
     public List<ProjectVersion> getProjectVersions() {
         return projectVersions;

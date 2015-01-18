@@ -1,0 +1,48 @@
+<tr style="cursor: pointer;" onclick="window.location.search = '?action=showProject&projectId=$project.getId()'">
+  <td>$project.getId()</td>
+  <td>$project.getName()</td>
+
+  <td>
+    #set($lastProjectVersion = $project.getLastProjectVersion())
+    #if ($lastProjectVersion)
+      $lastProjectVersion.getSequence() ($lastProjectVersion.getRevisionId())
+    #else
+      None
+    #end
+  </td>
+
+  <td>
+    #set($latestMailMessage = $project.getLatestMailMessage())
+    #if ($latestMailMessage)
+      $latestMailMessage.getSendDate()
+    #else
+      None
+    #end
+  </td>
+
+  <td>
+    #set($lastBug = $project.getLastBug())
+    #if ($lastBug)
+      $lastBug.getBugId()
+    #else
+      None
+    #end
+  </td>
+
+  <td>
+    #if ($project.isEvaluated())
+      $tr.label("project_is_evaluated")
+    #else
+      $tr.label("project_not_evaluated")
+    #end
+  </td>
+
+  <td>
+    #set($clusterNode = $project.getClusternode())
+    #if ($clusterNode)
+      $clusterNode.getName()
+    #else
+      (local)
+    #end
+  </td>
+</tr>

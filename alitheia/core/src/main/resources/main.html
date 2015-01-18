@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SQO-OSS: $APP_NAME</title>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/bootstrap.css" />
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="/css/screen.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/webadmin.css" /> -->
+  </head>
+  <body class="section-$section">
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <div class="navbar-brand">
+            <img src="/img/sqo-oss.png" alt="SQO-OSS Logo" style="height: 20px;" />
+          </div>
+        </div>
+
+        <ul class="nav navbar-nav" id="menu">
+          <li id="nav-1"><a href="/index">$tr.label("plugins")</a></li>
+          <li id="nav-3"><a href="/projects">$tr.label("projects")</a></li>
+          <li id="nav-2"><a href="/logs">$tr.label("logs")</a></li>
+          <li id="nav-4"><a href="/jobs">$tr.label("jobs")</a></li>
+          <li id="nav-7"><a href="/rules">$tr.label("rules")</a></li>
+          <li class="divider"></li>
+          <li><a href="#" onclick="window.location.reload();">Refresh</a></li>
+        </ul>
+
+        <div class="navbar-header pull-right">
+          <div class="navbar-brand">
+            $APP_NAME
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      #parse("message_list.html")
+      <div class="row">
+        <div class="col-sm-10">
+          #parse($contentPath)
+        </div>
+        <div id="sidebar" class="col-sm-2">
+          <fieldset id="status">
+            <legend>$tr.label("status")</legend>
+            <dl>
+              <dt>$tr.label("uptime")</dt>
+              <dd>$UPTIME</dd>
+            </dl>
+            <div class="pull-right">
+              <button class="btn btn-default btn-xs" onclick="window.location = '/admin?action=restart'">
+                $tr.label("restart")
+              </button>
+
+              <button class="btn btn-default btn-xs" onclick="window.location = '/admin?action=stop'">
+                $tr.label("stop")
+              </button>
+            </div>
+          </fieldset>
+
+          #parse("job_stats.html")
+
+          <fieldset id="options">
+            <legend>$tr.label("motd")</legend>
+            <form id="motd" method="post" action="motd">
+              <input type="text" class="form-control input-sm" name="motdtext" />
+
+              <br />
+
+              <div class="pull-right">
+                <input type="submit" class="btn btn-default btn-xs" value="$tr.label("set_save")" />
+              </div>
+            </form>
+          </fieldset>
+        </div>
+      </div>
+      <div class="row">
+        <div id="footer" class="col-xs-12">
+          <p>
+          $COPYRIGHT
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

@@ -135,7 +135,8 @@ public class StringUtils {
     public static String makeXHTMLSafe(String line){
         return line.replace("&", "&amp;")
             .replace("<", "&lt;")
-            .replace(">", "&gt;");
+            .replace(">", "&gt;")
+            .replace("\"", "&#34;");
     }
 
     /**

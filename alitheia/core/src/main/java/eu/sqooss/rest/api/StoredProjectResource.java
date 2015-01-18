@@ -58,29 +58,49 @@ public class StoredProjectResource {
 
 	public StoredProjectResource() {}
 	
+	/**
+	 * Retrieves all projects.
+	 *
+	 * @return the projects
+	 */
 	@GET
 	@Produces({"application/xml", "application/json"})
 	@Path("/project/")
 	public List<StoredProject> getProjects() {
 		DBService db = AlitheiaCore.getInstance().getDBService();
 		String q = " from StoredProject";
-		List<StoredProject> sp = (List<StoredProject>) db.doHQL(q);
+		
+		@SuppressWarnings("unchecked")
+        List<StoredProject> sp = (List<StoredProject>) db.doHQL(q);
 		return sp;
 	}
 
+	/**
+	 * Retrieve a specific project by its id
+	 *
+	 * @param id the project id
+	 * @return the project
+	 */
 	@Path("/project/{id}")
 	@GET
     @Produces({"application/xml", "application/json"})
 	public StoredProject getProject(@PathParam("id") String id) {
 		
 		StoredProject sp = null;
-		if (id.matches("^[0-9]*$")) //numeric id
+		if (id.matches("^[0-9]*$")) { //numeric id
 			sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);
-		else 
+		} else {
 			sp = StoredProject.getProjectByName(id);
+		}
 		return sp;
 	}
 	
+	/**
+	 * Retrieve all versions of a specific project by id
+	 *
+	 * @param id the project id
+	 * @return the versions
+	 */
 	@Path("/project/{id}/versions")
 	@GET
 	@Produces({"application/xml", "application/json"})
@@ -90,6 +110,13 @@ public class StoredProjectResource {
 		return sp.getProjectVersions();
 	}
 	
+	/**
+	 * Retrieve specific project versions of a project
+	 *
+	 * @param id the project id
+	 * @param vid the version ids (comma-separated)
+	 * @return the versions
+	 */
 	@Path("/project/{id}/versions/{vid: .+}")
 	@GET
 	@Produces({"application/xml", "application/json"})
@@ -98,7 +125,7 @@ public class StoredProjectResource {
 		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);
 	
 		if (sp == null)
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		
 		Set<String>  ids = new HashSet<String>();
 	    int count = 0;
@@ -121,6 +148,13 @@ public class StoredProjectResource {
 		return versions;
 	}
 
+	/**
+	 * Retrieve specific version of a project
+	 *
+	 * @param prid the project id
+	 * @param verid the version id
+	 * @return the version
+	 */
 	@Path("/project/{id}/version/{vid}")
 	@GET
 	@Produces({"application/xml", "application/json"})
@@ -138,6 +172,13 @@ public class StoredProjectResource {
 		return ProjectVersion.getVersionByRevision(getProject(prid), verid);
 	}
 
+	/**
+	 * Retrieve all files for a specific project with a given version
+	 *
+	 * @param prid the project id
+	 * @param verid the version id
+	 * @return the all files
+	 */
 	@Path("/project/{id}/version/{vid}/files/")
     @GET
     @Produces({"application/xml", "application/json"})
@@ -146,11 +187,19 @@ public class StoredProjectResource {
         
 	    ProjectVersion pv = getVersion(prid, verid);
 	    if (pv == null)
-	        return Collections.EMPTY_LIST;
+	        return Collections.emptyList();
 	        
         return pv.getFiles((Directory)null, ProjectVersion.MASK_FILES);
     }
 
+	/**
+	 * Retrieves all files for a specific project and version in a specific directory
+	 *
+	 * @param prid the project id
+	 * @param verid the version id
+	 * @param path the path
+	 * @return the files in directory
+	 */
 	@Path("/project/{id}/version/{vid}/files/{dir: .+}")
     @GET
     @Produces({"application/xml", "application/json"})
@@ -160,7 +209,7 @@ public class StoredProjectResource {
         
         ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         if (!path.startsWith("/"))
             path = "/" + path;
@@ -169,6 +218,13 @@ public class StoredProjectResource {
                 ProjectVersion.MASK_FILES);
     }
 
+	/**
+	 * Retrieves all changed files for a specific project and version
+	 *
+	 * @param prid the project id
+	 * @param verid the version id
+	 * @return the changed files
+	 */
 	@Path("/project/{id}/version/{vid}/files/changed")
     @GET
     @Produces({"application/xml", "application/json"})
@@ -177,11 +233,18 @@ public class StoredProjectResource {
         
         ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         
         return pv.getVersionFiles();
     }
 
+	/**
+	 * Retrieves all directories for a specific project and version
+	 *
+	 * @param prid the project id
+	 * @param verid the version id
+	 * @return the directories
+	 */
 	@Path("/project/{id}/version/{vid}/dirs/")
     @GET
     @Produces({"application/xml", "application/json"})
@@ -190,12 +253,20 @@ public class StoredProjectResource {
         
 	    ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
  
         return pv.getFiles((Directory)null,
                 ProjectVersion.MASK_DIRECTORIES);
 	}
 
+	/**
+     * Retrieves all directories for a specific project and version and specific sub-directory
+     *
+     * @param prid the project id
+     * @param verid the version id
+	 * @param path the subdirectory
+	 * @return the directories
+	 */
 	@Path("/project/{id}/version/{vid}/dirs/{dir: .+}")
     @GET
     @Produces({"application/xml", "application/json"})
@@ -205,7 +276,7 @@ public class StoredProjectResource {
         
         ProjectVersion pv = getVersion(prid, verid);
         if (pv == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         if (!path.startsWith("/"))
             path = "/" + path;

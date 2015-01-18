@@ -1,0 +1,12 @@
+<tr style="cursor: pointer;" onclick="document.location.search = '?action=showPlugin&pluginHashcode=$plugin.getHashcode()';">
+  <td>
+    #if ($plugin.isInstalled())
+      $tr.label("plugin_installed")
+    #else
+      $tr.label("plugin_registered")
+    #end
+  </td>
+  <td>$plugin.getPluginName()</td>
+  <td>$plugin.getServiceClassNames()</td>
+  <td>$plugin.getPluginVersion()</td>
+</tr>
