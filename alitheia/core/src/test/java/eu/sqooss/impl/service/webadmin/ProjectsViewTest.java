@@ -1,12 +1,10 @@
 package eu.sqooss.impl.service.webadmin;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -21,17 +19,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.impl.service.cluster.ClusterNodeServiceImpl;
-import eu.sqooss.impl.service.pa.PAServiceImpl;
-import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
-import eu.sqooss.service.abstractmetric.PluginAdmin;
-import eu.sqooss.service.abstractmetric.PluginInfo;
-import eu.sqooss.service.cluster.ClusterNodeActionException;
 import eu.sqooss.service.cluster.ClusterNodeService;
 import eu.sqooss.service.db.ClusterNode;
-import eu.sqooss.service.db.DAObject;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.logging.Logger;
 
 @PrepareForTest(ClusterNode.class)
 @RunWith(PowerMockRunner.class)
