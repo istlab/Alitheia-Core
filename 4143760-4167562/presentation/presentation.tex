@@ -1,0 +1,107 @@
+% TU Delft Beamer template
+% Author: Maarten Abbink
+% Delft University of Technology
+% March 2014
+% Version 2.0
+% Based on original version 1.0 of Carl Schneider
+\documentclass{beamer}
+\usepackage[english]{babel}
+\usepackage{calc}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{qtree}
+\usepackage{soul}
+\usepackage{threeparttable}
+\usepackage{algorithm2e}
+\usepackage{minibox}
+\mode<presentation>{\usetheme{tud}}
+
+\SetKwProg{Fn}{Function}{ :}{end}
+\SetKw{Break}{break}
+
+\title[]{Reengineering Alitheia Core}
+\institute[TU Delft]{Software Reengineering - IN4189}
+\author{Anton Bouter - Martijn den Hoedt}
+\date{\today}
+
+% Insert frame before each subsection (requires 2 latex runs)
+\AtBeginSubsection[] {
+	\begin{frame}<beamer>\frametitle{\titleSubsec}
+		\tableofcontents[currentsection,currentsubsection]  % Generation of the Table of Contents
+	\end{frame}
+}
+% Define the title of each inserted pre-subsection frame
+\newcommand*\titleSubsec{Next Subsection}
+% Define the title of the "Table of Contents" frame
+\newcommand*\titleTOC{Outline}
+
+% define a symbol which can be removed if you don't need it
+\newcommand{\field}[1]{\mathbb{#1}}
+\newcommand{\Zset}{\field{Z}}
+
+\begin{document}
+
+% remove the next line if you don't want a background image
+\setbeamertemplate{footline}{\usebeamertemplate*{minimal footline}}
+\frame{\titlepage}
+
+\setbeamertemplate{footline}{\usebeamertemplate*{minimal footline}}
+\begin{frame}
+    \frametitle{Outline}
+    \begin{itemize}
+        \item Shortcomings
+        \item Improvements
+        \item Future plans
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Shortcomings - Single Responsibility Principle}
+    \begin{itemize}
+        \item A
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Shortcomings - Open/Closed Principle}
+    \begin{itemize}
+        \item A
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Shortcomings - Dependency Inversion Principle}
+    \begin{itemize}
+        \item A
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Shortcomings - Acyclic Dependency Principle}
+    \begin{itemize}
+        \item A
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Shortcomings - Lack of tests}
+    \begin{itemize}
+        \item A
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conclusion}
+    \begin{itemize}
+    		\item Gief moneyz
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Questions}
+    \hspace{.25\linewidth}
+    \Huge{Questions?}
+\end{frame}
+
+\end{document}
