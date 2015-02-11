@@ -52,40 +52,105 @@
     \begin{itemize}
         \item Shortcomings
         \item Improvements
-        \item Future plans
+        \item Recommendations
+        \item Conclusions
     \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Scenario}
+    \begin{columns}
+    
+        \begin{column}{0.3\textwidth}
+        		\centering
+            \includegraphics[width=0.5\textwidth]{../img/personIcon.png}
+            \\ \vspace{30px}
+            \centering
+            \includegraphics<1>[width=0.5\textwidth]{../img/personIcon.png}
+            \tikz\node[opacity=0.3]{\includegraphics<2->[width=0.5\textwidth]{../img/personIcon.png}};
+        \end{column}
+        
+        \begin{column}{0.3\textwidth}
+        		\centering
+            \includegraphics[width=\textwidth]{../img/sqo-oss.png}
+        \end{column}
+        
+        \begin{column}{0.3\textwidth}
+        		\centering
+            \includegraphics<-4>[width=0.5\textwidth]{../img/personIcon.png}
+            \tikz\node[opacity=0.3]{\includegraphics<5->[width=0.5\textwidth]{../img/personIcon.png}};
+            \\ \vspace{30px}
+            \includegraphics<-2>[width=0.5\textwidth]{../img/personIcon.png}
+            \tikz\node[opacity=0.3]{\includegraphics<3>[width=0.5\textwidth]{../img/personIcon.png}};
+            \includegraphics<4->[width=0.5\textwidth]{../img/personIcon2.png}
+        \end{column}
+        
+    \end{columns}
 \end{frame}
 
 \begin{frame}
     \frametitle{Shortcomings - Single Responsibility Principle}
     \begin{itemize}
-        \item A
+        \item Every software entity should have a single purpose.
+        \item inCode tool
     \end{itemize}
+    
+    \begin{figure}
+    	\centering
+    	\includegraphics[width=0.8\textwidth]{../img/inCodeOverview.png}
+    \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Shortcomings - Open/Closed Principle}
-    \begin{itemize}
-        \item A
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Shortcomings - Dependency Inversion Principle}
-    \begin{itemize}
-        \item A
-    \end{itemize}
+    \frametitle{Shortcomings - Dependency Inversion \\ Principle}
+	\begin{columns}
+	
+	\begin{column}{0.4\textwidth}    
+    		\begin{itemize}
+    		    \item High-level modules should not depend on low-level modules.
+    		    \item STAN Eclipse plugin
+    		\end{itemize}
+    \end{column}
+    
+    \begin{column}{0.6\textwidth}
+    		\begin{figure}
+    		\centering
+    		\includegraphics[width=\textwidth]{../img/impl-depedency.png}
+    		\end{figure}
+    \end{column}
+    
+    \end{columns}
 \end{frame}
 
 \begin{frame}
     \frametitle{Shortcomings - Acyclic Dependency Principle}
     \begin{itemize}
-        \item A
+        \item If A depends on B, B should not depend on A.
+        \item STAN Eclipse plugin        
+        \item Violations in service.db package.
     \end{itemize}
+    
+    \begin{figure}
+    	\centering
+    	\includegraphics[width=\textwidth]{../img/cycle1.png}
+    \end{figure}
 \end{frame}
 
 \begin{frame}
     \frametitle{Shortcomings - Lack of tests}
+    \begin{itemize}
+        \item EclEmma tool
+        \item \textbf{Terrible coverage of 1.9\%!}
+        
+    \end{itemize}
+    \begin{figure}
+    	\centering
+    		\includegraphics[width=\textwidth]{../img/coreCoverageBefore.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Improvements}
     \begin{itemize}
         \item A
     \end{itemize}
