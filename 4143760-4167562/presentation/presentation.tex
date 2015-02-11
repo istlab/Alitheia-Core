@@ -15,6 +15,7 @@
 \usepackage{threeparttable}
 \usepackage{algorithm2e}
 \usepackage{minibox}
+\usepackage[gen]{eurosym}
 \mode<presentation>{\usetheme{tud}}
 
 \SetKwProg{Fn}{Function}{ :}{end}
@@ -102,6 +103,18 @@
 \end{frame}
 
 \begin{frame}
+    \frametitle{Improvements - Single Responsibility Principle}
+    \begin{itemize}
+        \item Split GitUpdater into 4 classes.
+    \end{itemize}
+    
+    \begin{figure}
+    	\centering
+    	\includegraphics[width=0.8\textwidth]{../img/gitUpdaterDependencies.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
     \frametitle{Shortcomings - Dependency Inversion \\ Principle}
 	\begin{columns}
 	
@@ -137,10 +150,24 @@
 \end{frame}
 
 \begin{frame}
+    \frametitle{Improvements - Acyclic Dependency Principle}
+    Solved cyclic dependencies:
+    \begin{itemize}
+        \item service.abstractmetric
+        \item service.fds
+    \end{itemize}
+    
+    \begin{figure}
+    	\centering
+    	\includegraphics[width=\textwidth]{../img/fds-after.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
     \frametitle{Shortcomings - Lack of tests}
     \begin{itemize}
         \item EclEmma tool
-        \item \textbf{Terrible coverage of 1.9\%!}
+        \item \textbf{Terrible coverage of 1.7\%!}
         
     \end{itemize}
     \begin{figure}
@@ -150,16 +177,33 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Improvements}
+    \frametitle{Improvements - Tests}
     \begin{itemize}
-        \item A
+        \item Core coverage of 11.0\%.
+    \end{itemize}
+    
+    \begin{figure}
+    	\centering
+    		\includegraphics[width=\textwidth]{../img/coreCoverageAfter.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Recommendations}
+    \begin{itemize}
+    		\item Create tests.
+    		\item<2-> Create more tests.
+    		\item<3-> Perform more refactorings to fix SRP and DIP problems.
+    		\item<4-> $\euro{}$ 15.000 to hire additional developers.
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Conclusion}
     \begin{itemize}
-    		\item Gief moneyz
+    		\item Many problems that affect maintainability.
+    		\item Some improvements have been made.
+    		\item $\euro{}$ 15.000 required to keep the system maintainable.
     \end{itemize}
 \end{frame}
 
