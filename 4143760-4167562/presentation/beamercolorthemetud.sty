@@ -1,0 +1,49 @@
+% TU Delft Beamer template
+% Author: Maarten Abbink
+% Delft Universiy of Technology
+% March 2014
+\mode<presentation>
+
+% outer theme colors
+\setbeamercolor{normal text}{fg=tudBlack}
+\setbeamercolor{alerted text}{fg=tudOrange}
+\setbeamercolor{example text}{fg=tudGreen}
+
+\setbeamercolor*{structure}{fg=tudCyan}
+
+\setbeamercolor*{decoration}{fg=tudWhite,bg=tudCyan}
+
+\setbeamercolor*{palette primary}{use=decoration,fg=decoration.fg,bg=decoration.bg}
+\setbeamercolor*{palette secondary}{parent=palette primary}
+\setbeamercolor*{palette tertiary}{parent=palette secondary}
+\setbeamercolor*{palette quaternary}{use=palette primary,bg=palette primary.fg}
+
+\setbeamercolor{separation line}{bg=tudBlack}
+\setbeamercolor{fine separation line}{parent=separation line}
+
+\setbeamercolor{upper separation line foot}{parent=fine separation line}
+\setbeamercolor{middle separation line foot}{parent=separation line,bg=tudWhite}
+\setbeamercolor{lower separation line foot}{parent=separation line}
+
+\setbeamercolor{titlelike}{parent=structure}
+
+%inner theme colors
+\setbeamercolor{title block body}{fg=tudWhite,bg=tudBlack}
+\setbeamercolor{title}{parent=title block body}
+\setbeamercolor{subtitle}{parent=title}
+\setbeamercolor{institute}{parent=structure}
+\setbeamercolor{author}{parent=title block body}
+\setbeamercolor{date}{parent=author}
+
+\setbeamercolor{block title}{parent=normal text,bg=tudLavender}
+\setbeamercolor{block title alerted}{parent=block title,bg=tudYellow}
+\setbeamercolor{block title example}{parent=block title,bg=tudSeaGreen}
+
+\setbeamercolor{block body}{parent=normal text,use=block title,bg=block title.bg!50!bg}
+\setbeamercolor{block body alerted}{parent=normal text,use=block title alerted,bg=block title alerted.bg!50!bg}
+\setbeamercolor{block body example}{parent=normal text,use=block title example,bg=block title example.bg!50!bg}
+
+\setbeamercolor{item projected}{use=item,fg=tudWhite,bg=item.fg}
+
+\mode
+<all>

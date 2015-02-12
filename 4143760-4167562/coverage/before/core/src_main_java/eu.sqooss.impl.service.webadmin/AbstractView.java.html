@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>AbstractView.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.webadmin</a> &gt; <span class="el_source">AbstractView.java</span></div><h1>AbstractView.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.webadmin;
+
+import java.net.URI;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.velocity.VelocityContext;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.MetricActivator;
+import eu.sqooss.service.abstractmetric.PluginAdmin;
+import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.LogManager;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Scheduler;
+import eu.sqooss.service.tds.TDSService;
+import eu.sqooss.service.updater.UpdaterService;
+
+public abstract class AbstractView {
+    // Core components
+<span class="nc" id="L62">    protected static AlitheiaCore sobjCore = null;</span>
+<span class="nc" id="L63">    protected static ServiceReference srefCore = null;</span>
+
+    // Critical logging components
+<span class="nc" id="L66">    protected static LogManager sobjLogManager = null;</span>
+<span class="nc" id="L67">    protected static Logger sobjLogger = null;</span>
+
+    // Service components
+<span class="nc" id="L70">    protected static DBService sobjDB = null;</span>
+<span class="nc" id="L71">    protected static MetricActivator compMA = null;</span>
+<span class="nc" id="L72">    protected static PluginAdmin sobjPA = null;</span>
+<span class="nc" id="L73">    protected static Scheduler sobjSched = null;</span>
+<span class="nc" id="L74">    protected static TDSService sobjTDS = null;</span>
+<span class="nc" id="L75">    protected static UpdaterService sobjUpdater = null;</span>
+<span class="nc" id="L76">    protected static ClusterNodeService sobjClusterNode = null;</span>
+<span class="nc" id="L77">    protected static SecurityManager sobjSecurity = null;</span>
+
+    // Velocity stuff
+<span class="nc" id="L80">    protected static VelocityContext vc = null;</span>
+<span class="nc" id="L81">    protected BundleContext bc = null;</span>
+
+    // Names of the various resource files
+<span class="nc" id="L84">    private static String RES_LABELS_FILE   = &quot;ResourceLabels&quot;;</span>
+<span class="nc" id="L85">    private static String RES_ERRORS_FILE   = &quot;ResourceErrors&quot;;</span>
+<span class="nc" id="L86">    private static String RES_MESSAGES_FILE = &quot;ResourceMessages&quot;;</span>
+
+    // Resource bundles
+<span class="nc" id="L89">    private static ResourceBundle resLbl = null;</span>
+<span class="nc" id="L90">    private static ResourceBundle resMsg = null;</span>
+<span class="nc" id="L91">    private static ResourceBundle resErr = null;</span>
+
+    // Debug flag - global for all views
+<span class="nc" id="L94">    protected static boolean DEBUG = false;</span>
+    
+    // Some constants that are used internally
+<span class="nc" id="L97">    private static String NULL_PARAM_NAME = &quot;Undefined parameter name!&quot;;</span>
+
+    /**
+     * Instantiates a new &lt;code&gt;AbstractView&lt;/code&gt; object.
+     * 
+     * @param bundlecontext the parent bundle's context
+     * @param vc the Velocity instance's context
+     */
+<span class="nc" id="L105">    public AbstractView(BundleContext bundlecontext, VelocityContext vc) {</span>
+        // Keep the Velocity context instance
+<span class="nc" id="L107">        this.vc = vc;</span>
+<span class="nc" id="L108">        this.bc = bundlecontext;</span>
+       
+<span class="nc" id="L110">        sobjCore = AlitheiaCore.getInstance();</span>
+        
+        // Retrieve the instances of the core components
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (sobjCore != null) {</span>
+            //Get the log manager's instance
+<span class="nc" id="L115">            sobjLogManager = sobjCore.getLogManager();</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            if (sobjLogManager != null) {</span>
+                // Instantiate a dedicated logger 
+<span class="nc" id="L118">                sobjLogger = sobjLogManager.createLogger(</span>
+<span class="nc" id="L119">                        Logger.NAME_SQOOSS_WEBADMIN);</span>
+            }
+
+            // Get the database component's instance
+<span class="nc" id="L123">            sobjDB = sobjCore.getDBService();</span>
+<span class="nc bnc" id="L124" title="All 4 branches missed.">            if ((sobjDB == null) &amp;&amp; (sobjLogger != null))</span>
+<span class="nc" id="L125">                sobjLogger.debug(&quot;Could not get the database component's instance.&quot;);</span>
+
+            // Get the plug-in admin's instance
+<span class="nc" id="L128">            sobjPA = sobjCore.getPluginAdmin();</span>
+<span class="nc bnc" id="L129" title="All 4 branches missed.">            if ((sobjPA == null) &amp;&amp; (sobjLogger != null))</span>
+<span class="nc" id="L130">                sobjLogger.debug(&quot;Could not get the plug-in admin's instance.&quot;);</span>
+
+            // Get the scheduler's instance
+<span class="nc" id="L133">            sobjSched = sobjCore.getScheduler();</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">            if ((sobjSched == null) &amp;&amp; (sobjLogger != null))</span>
+<span class="nc" id="L135">                sobjLogger.debug(&quot;Could not get the scheduler's instance.&quot;);</span>
+
+            // Get the metric activator's instance
+<span class="nc" id="L138">            compMA = sobjCore.getMetricActivator();</span>
+<span class="nc bnc" id="L139" title="All 4 branches missed.">            if ((compMA == null) &amp;&amp; (sobjLogger != null))</span>
+<span class="nc" id="L140">                sobjLogger.debug(&quot;Could not get the metric activator's instance.&quot;);</span>
+
+            // Get the TDS component's instance
+<span class="nc" id="L143">            sobjTDS = sobjCore.getTDSService();</span>
+<span class="nc bnc" id="L144" title="All 4 branches missed.">            if ((sobjTDS == null) &amp;&amp; (sobjLogger != null))</span>
+<span class="nc" id="L145">                sobjLogger.debug(&quot;Could not get the TDS component's instance.&quot;);</span>
+
+            // Get the updater component's instance
+<span class="nc" id="L148">            sobjUpdater = sobjCore.getUpdater();</span>
+<span class="nc bnc" id="L149" title="All 4 branches missed.">            if ((sobjUpdater == null) &amp;&amp; (sobjLogger != null))</span>
+<span class="nc" id="L150">                sobjLogger.debug(&quot;Could not get the updater component's instance.&quot;);</span>
+
+            // Get the ClusterNodeService component's instance
+<span class="nc" id="L153">            sobjClusterNode = sobjCore.getClusterNodeService();</span>
+<span class="nc bnc" id="L154" title="All 4 branches missed.">            if ((sobjClusterNode != null) &amp;&amp; (sobjLogger != null))</span>
+<span class="nc" id="L155">                sobjLogger.debug(&quot;Got the ClusterNodeService component's instance.&quot;);</span>
+
+            
+            // Get the security manager's instance
+<span class="nc" id="L159">            sobjSecurity = sobjCore.getSecurityManager();</span>
+<span class="nc bnc" id="L160" title="All 4 branches missed.">            if ((sobjSecurity == null) &amp;&amp; (sobjLogger != null))</span>
+<span class="nc" id="L161">                sobjLogger.debug(&quot;Could not get the security manager's instance.&quot;);</span>
+        }
+<span class="nc" id="L163">    }</span>
+
+    /**
+     * Initializes the various resource bundle with the specified locale.
+     * 
+     * @param locale the user's locale
+     */
+    public static void initResources (Locale locale) {
+<span class="nc" id="L171">        resLbl = getLabelsBundle(locale);</span>
+<span class="nc" id="L172">        resErr = getErrorsBundle(locale);</span>
+<span class="nc" id="L173">        resMsg = getMessagesBundle(locale);</span>
+<span class="nc" id="L174">    }</span>
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all label strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
+     */
+    public static String getLbl (String name) {
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (resLbl != null) {</span>
+            try {
+<span class="nc" id="L189">                return resLbl.getString(name);</span>
+            }
+<span class="nc" id="L191">            catch (NullPointerException ex) {</span>
+<span class="nc" id="L192">                return NULL_PARAM_NAME;</span>
+            }
+<span class="nc" id="L194">            catch (MissingResourceException ex) {</span>
+<span class="nc" id="L195">                return name;</span>
+            }
+        }
+<span class="nc" id="L198">        return name;</span>
+    }
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all error strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
+     */
+    public static String getErr (String name) {
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (resErr != null) {</span>
+            try {
+<span class="nc" id="L214">                return resErr.getString(name);</span>
+            }
+<span class="nc" id="L216">            catch (NullPointerException ex) {</span>
+<span class="nc" id="L217">                return NULL_PARAM_NAME;</span>
+            }
+<span class="nc" id="L219">            catch (MissingResourceException ex) {</span>
+<span class="nc" id="L220">                return name;</span>
+            }
+        }
+<span class="nc" id="L223">        return name;</span>
+    }
+
+    /**
+     * Retrieves the value of the given resource property from the
+     * resource bundle that stores all message strings.
+     * 
+     * @param name the name of the resource property
+     * 
+     * @return The property's value, when that property can be found in the
+     *   corresponding resource bundle, OR the provided property name's
+     *   parameter, when such property is missing.
+     */
+    public static String getMsg (String name) {
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (resMsg != null) {</span>
+            try {
+<span class="nc" id="L239">                return resMsg.getString(name);</span>
+            }
+<span class="nc" id="L241">            catch (NullPointerException ex) {</span>
+<span class="nc" id="L242">                return NULL_PARAM_NAME;</span>
+            }
+<span class="nc" id="L244">            catch (MissingResourceException ex) {</span>
+<span class="nc" id="L245">                return name;</span>
+            }
+        }
+<span class="nc" id="L248">        return name;</span>
+    }
+
+    // TODO: Move this method's logic in the initResources() once all views
+    // are using the new methods.
+	public static ResourceBundle getLabelsBundle(Locale locale) {
+<span class="nc" id="L254">		locale = Locale.ENGLISH;</span>
+<span class="nc" id="L255">		return ResourceBundle.getBundle(RES_LABELS_FILE, locale);</span>
+	}
+
+    // TODO: Move this method's logic in the initResources() once all views
+    // are using the new methods.
+	public static ResourceBundle getErrorsBundle(Locale locale) {
+<span class="nc" id="L261">		locale = Locale.ENGLISH;</span>
+<span class="nc" id="L262">		return ResourceBundle.getBundle(RES_ERRORS_FILE, locale);</span>
+	}
+
+    // TODO: Move this method's logic in the initResources() once all views
+    // are using the new methods.
+    public static ResourceBundle getMessagesBundle (Locale locale) {
+<span class="nc" id="L268">    	locale = Locale.ENGLISH;</span>
+<span class="nc" id="L269">    	return ResourceBundle.getBundle(RES_MESSAGES_FILE, locale);</span>
+    }
+
+    /**
+     * Construct an HTML-based list of all parameters and their values, that
+     * are contained in the given servlet's request object. Useful for debug
+     * of the views functionality.
+     * 
+     * @param request the servlet's request object
+     * 
+     * @return The list of request parameters.
+     */
+    protected static String debugRequest (HttpServletRequest request) {
+<span class="nc" id="L282">        StringBuilder b = new StringBuilder();</span>
+<span class="nc" id="L283">        Enumeration&lt;?&gt; e = request.getParameterNames();</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">        while (e.hasMoreElements()) {</span>
+<span class="nc" id="L285">            String key = (String) e.nextElement();</span>
+<span class="nc" id="L286">            b.append(key + &quot;=&quot; + request.getParameter(key) + &quot;&lt;br/&gt;\n&quot;);</span>
+        }
+<span class="nc" id="L288">        return b.toString();</span>
+    }
+
+    /**
+     * Generates a string that contains a &lt;b&gt;2*num&lt;/b&gt; spaces.
+     * &lt;br/&gt;
+     * &lt;i&gt;Used for indentation of the HTML content that is generated by the
+     * various views.&lt;/i&gt;
+     * 
+     * @param num the indentation depth
+     * 
+     * @return The indentation string.
+     */
+    protected static String sp (long num) {
+<span class="nc" id="L302">        StringBuilder b = new StringBuilder();</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">        for (long i = 0; i &lt; num; i++)</span>
+<span class="nc" id="L304">            b.append(&quot;  &quot;);</span>
+<span class="nc" id="L305">        return b.toString();</span>
+    }
+
+    /**
+     * Generates a simple table row (&lt;i&gt;with two columns&lt;/i&gt;) that represents
+     * a single text input element with a title line. The title line will be
+     * stored in the first cell, while the text input will be placed in the
+     * second cell.
+     * &lt;br/&gt;
+     * &lt;i&gt;This method is used by the various views for generating simple input
+     * screens.&lt;/i&gt;
+     * 
+     * @param title the title that will preceed the input element
+     * @param parName the input element's name
+     * @param parValue the input element's initial value
+     * @param in the indentation depth
+     * 
+     * @return The string that contains the table's row, or an empty string
+     *   upon invalid (&lt;code&gt;null&lt;/code&gt;) name of the input element.
+     */
+    protected static String normalInputRow (
+            String title, String parName, String parValue, long in) {
+        // Stores the assembled HTML content
+<span class="nc" id="L328">        StringBuilder b = new StringBuilder(&quot;\n&quot;);</span>
+
+        // Create the input field's row
+<span class="nc bnc" id="L331" title="All 2 branches missed.">        if (parName != null) {</span>
+<span class="nc" id="L332">            b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L333">            b.append(sp(in) + &quot;&lt;td class=\&quot;borderless\&quot;&quot;</span>
+<span class="nc" id="L334">                    + &quot; style=\&quot;width:100px;\&quot;&gt;&quot;</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">                    + &quot;&lt;b&gt;&quot; + ((title != null) ? title : &quot;&quot;) + &quot;&lt;/b&gt;&quot;</span>
+<span class="nc" id="L336">                    + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L337">            b.append(sp(in++) + &quot;&lt;td class=\&quot;borderless\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L338">            b.append(sp(in) + &quot;&lt;input type=\&quot;text\&quot;&quot;</span>
+<span class="nc" id="L339">                    + &quot; class=\&quot;form\&quot;&quot;</span>
+<span class="nc" id="L340">                    + &quot; id=\&quot;&quot; + parName + &quot;\&quot;&quot;</span>
+<span class="nc" id="L341">                    + &quot; name=\&quot;&quot; + parName + &quot;\&quot;&quot;</span>
+<span class="nc" id="L342">                    + &quot; value=\&quot;&quot;</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">                    + ((parValue != null) ? parValue : &quot;&quot; )</span>
+<span class="nc" id="L344">                    + &quot;\&quot; size=\&quot;60\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L345">            b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L346">            b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+        }
+
+        // Return the generated content
+<span class="nc" id="L350">        return b.toString();</span>
+    }
+
+    /**
+     * Generates a simple table row (&lt;i&gt;with two columns&lt;/i&gt;) that represents
+     * a single text message with a title line. The title line will be
+     * stored in the first cell, while the message will be placed in the
+     * second cell.
+     * &lt;br/&gt;
+     * &lt;i&gt;This method is used by the various views for generating simple info
+     * screens.&lt;/i&gt;
+     * 
+     * @param title the title that will preceed the text message
+     * @param value the text message
+     * @param in the indentation depth
+     * 
+     * @return The string that contains the table's row.
+     */
+    protected static String normalInfoRow (
+            String title, String value, long in) {
+        // Stores the assembled HTML content
+<span class="nc" id="L371">        StringBuilder b = new StringBuilder(&quot;\n&quot;);</span>
+
+        // Create the info row
+<span class="nc" id="L374">        b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L375">        b.append(sp(in) + &quot;&lt;td class=\&quot;borderless\&quot;&quot;</span>
+<span class="nc" id="L376">                + &quot; style=\&quot;width:100px;\&quot;&gt;&quot;</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">                + &quot;&lt;b&gt;&quot; + ((title != null) ? title : &quot;&quot;) + &quot;&lt;/b&gt;&quot;</span>
+<span class="nc" id="L378">                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L379">        b.append(sp(in++) + &quot;&lt;td class=\&quot;borderless\&quot;&gt;\n&quot;);</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">        b.append(sp(in) + ((value != null) ? value : &quot;&quot;) + &quot;\n&quot;);</span>
+<span class="nc" id="L381">        b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L382">        b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+        
+        // Return the generated content
+<span class="nc" id="L385">        return b.toString();</span>
+    }
+
+    /**
+     * Produces an HTML fieldset tag which encapsulates the HTML
+     * content that is stored in the given &lt;code&gt;StringBuilder&lt;/code&gt; object.
+     * 
+     * @param name the fieldset legend's name
+     * @param css the CSS class name to use
+     * @param content the HTML content
+     * @param in the indentation depth
+     * 
+     * @return The HTML presentation.
+     */
+    protected static String normalFieldset (
+            String name,
+            String css,
+            StringBuilder content,
+            long in) {
+<span class="nc bnc" id="L404" title="All 4 branches missed.">        if ((content != null) &amp;&amp; (content.toString().length() &gt; 0)) {</span>
+<span class="nc" id="L405">            return (sp(in) + &quot;&lt;fieldset&quot;</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">                    + ((css != null) ? &quot;class=\&quot;&quot; + css + &quot;\&quot;&quot;: &quot;&quot;)</span>
+<span class="nc" id="L407">                    + &quot;&gt;\n&quot;</span>
+<span class="nc" id="L408">                    + sp(++in) + &quot;&lt;legend&gt;&quot;</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">                    + ((name != null) ? name : &quot;NONAME&quot;)</span>
+<span class="nc" id="L410">                    + &quot;&lt;/legend&gt;\n&quot;</span>
+<span class="nc" id="L411">                    + content.toString()</span>
+<span class="nc" id="L412">                    + sp(--in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+        }
+<span class="nc" id="L414">        return (&quot;&quot;);</span>
+    }
+
+    // TODO: Remove this method, since it is not I18n compatible.
+    protected static String errorFieldset (StringBuilder errors, long in) {
+<span class="nc" id="L419">        return normalFieldset(&quot;Errors&quot;, null, errors, in);</span>
+    }
+
+    /**
+     * Creates a &lt;code&gt;Long&lt;/code&gt; object from the content of the given
+     * &lt;code&gt;String&lt;/code&gt; object, while handling internally any thrown
+     * exception.
+     * 
+     * @param value the &lt;code&gt;String&lt;/code&gt; value
+     * 
+     * @return The &lt;code&gt;Long&lt;/code&gt; value.
+     */
+    protected static Long fromString (String value) {
+        try {
+<span class="nc" id="L433">            return (new Long(value));</span>
+        }
+<span class="nc" id="L435">        catch (NumberFormatException ex){</span>
+<span class="nc" id="L436">            return null;</span>
+        }
+    }
+
+    /**
+     * Method for validation of a simple name-based properties.
+     * &lt;br/&gt;
+     * The validation will be successful on values that contain alphanumeric
+     * characters, plus the space character (&lt;i&gt;as long as it does not appear
+     * as first or last character in the sequence&lt;/i&gt;).
+     * 
+     * @param text the property value
+     * 
+     * @return &lt;code&gt;true&lt;/code&gt; upon successful validation,
+     *   or &lt;code&gt;false&lt;/code&gt; otherwise.
+     */
+    protected static boolean checkName (String text) {
+<span class="nc bnc" id="L453" title="All 2 branches missed.">        if (text == null) return false;</span>
+
+        // Check for head or foot occurrence of deprecated signs
+<span class="nc" id="L456">        Pattern p = Pattern.compile(&quot;^[ ]+.*&quot;);</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">        if (p.matcher(text).matches()) return false;</span>
+<span class="nc" id="L458">        p = Pattern.compile(&quot;.*[ ]+$&quot;);</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">        if (p.matcher(text).matches()) return false;</span>
+        // Check the name
+<span class="nc" id="L461">        p = Pattern.compile(&quot;[\\p{Alnum} ]+&quot;);</span>
+<span class="nc" id="L462">        return p.matcher(text).matches();</span>
+    }
+
+    /**
+     * Method for validation of a project name-based properties.
+     * &lt;br/&gt;
+     * The validation will be successful on values that contain alphanumeric
+     * characters, plus the space and the underscore characters
+     * (&lt;i&gt;as long as they do not appear as first or last character in the
+     * sequence&lt;/i&gt;).
+     * 
+     * @param text the property value
+     * 
+     * @return &lt;code&gt;true&lt;/code&gt; upon successful validation,
+     *   or &lt;code&gt;false&lt;/code&gt; otherwise.
+     */
+    protected static boolean checkProjectName (String text) {
+<span class="nc bnc" id="L479" title="All 2 branches missed.">        if (text == null) return false;</span>
+
+        // Check for head or foot occurrence of deprecated signs
+<span class="nc" id="L482">        Pattern p = Pattern.compile(&quot;^[ _\\-]+.*&quot;);</span>
+<span class="nc bnc" id="L483" title="All 2 branches missed.">        if (p.matcher(text).matches()) return false;</span>
+<span class="nc" id="L484">        p = Pattern.compile(&quot;.*[ _\\-]+$&quot;);</span>
+<span class="nc bnc" id="L485" title="All 2 branches missed.">        if (p.matcher(text).matches()) return false;</span>
+        // Check the name
+<span class="nc" id="L487">        p = Pattern.compile(&quot;[\\p{Alnum}_\\- ]+&quot;);</span>
+<span class="nc" id="L488">        return p.matcher(text).matches();</span>
+    }
+
+    /**
+     * Method for validation of properties that hold an email address.
+     * &lt;br/&gt;
+     * The validation will be successful on values that satisfy the email
+     * address specification from RFC 2822.
+     * &lt;br/&gt;
+     * &lt;i&gt;Note: this methods tries to follow RFC 2822 as much as possible,
+     * but is not yet fully compatible with it.&lt;/i&gt;
+     * 
+     * @param text the property value
+     * 
+     * @return &lt;code&gt;true&lt;/code&gt; upon successful validation,
+     *   or &lt;code&gt;false&lt;/code&gt; otherwise.
+     */
+    protected static boolean checkEmail (String text) {
+<span class="nc bnc" id="L506" title="All 2 branches missed.">        if (text == null) return false;</span>
+
+        // Check for adjacent dot signs
+<span class="nc" id="L509">        Pattern p = Pattern.compile(&quot;\\.\\.&quot;);</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">        if (p.matcher(text).matches()) return false;</span>
+        // Split the email into local and domain part
+<span class="nc" id="L512">        String parts[] = text.split(&quot;@&quot;);</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">        if (parts.length != 2) return false;</span>
+        // Check for head or foot occurrence of dot signs
+<span class="nc" id="L515">        p = Pattern.compile(&quot;^[.].*&quot;);</span>
+<span class="nc bnc" id="L516" title="All 2 branches missed.">        if (p.matcher(parts[0]).matches()) return false;</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">        if (p.matcher(parts[1]).matches()) return false;</span>
+<span class="nc" id="L518">        p = Pattern.compile(&quot;.*[.]$&quot;);</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">        if (p.matcher(parts[0]).matches()) return false;</span>
+<span class="nc bnc" id="L520" title="All 2 branches missed.">        if (p.matcher(parts[1]).matches()) return false;</span>
+        // Local part's regular expression
+<span class="nc" id="L522">        Pattern l = Pattern.compile(&quot;^[\\p{Alnum}!#$%*/?|^{}`~&amp;'+-=_.]+$&quot;);</span>
+        // Domain part's regular expression
+<span class="nc" id="L524">        Pattern d = Pattern.compile(&quot;^[\\p{Alnum}.-]+[.][\\p{Alpha}]{2,4}$&quot;);</span>
+        // Match both parts
+<span class="nc bnc" id="L526" title="All 2 branches missed.">        return ((l.matcher(parts[0]).matches())</span>
+<span class="nc bnc" id="L527" title="All 2 branches missed.">                &amp;&amp; (d.matcher(parts[1]).matches()));</span>
+    }
+
+    /**
+     * Check if the provided URL is supported by the TDS data accessor 
+     * plug-ins.
+     * @param url The URL to check
+     * @return True if the URL is supported, false otherwise or if the 
+     * provided string is not a URL.
+     */
+    protected static boolean checkTDSUrl (String url) {
+<span class="nc" id="L538">        return sobjTDS.isURLSupported(url);</span>
+    }
+}
+
+//vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

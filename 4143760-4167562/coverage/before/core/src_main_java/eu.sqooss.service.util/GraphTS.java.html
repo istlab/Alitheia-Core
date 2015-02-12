@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>GraphTS.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.util</a> &gt; <span class="el_source">GraphTS.java</span></div><h1>GraphTS.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.util;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Topological sorting for Alitheia Core plugin invocations. Based on code
+ * distributed in the public domain by http://www.algorithm-code.com
+ * 
+ * @author Georgios Gousios &lt;gousiosg@aueb.gr&gt;
+ * 
+ */
+public class GraphTS&lt;T&gt; {
+
+<span class="nc" id="L49">    private int MAX_VERTS = 20;</span>
+
+	private Vertex vertexList[]; // list of vertices
+
+	private int matrix[][]; // adjacency matrix
+
+	private int numVerts; // current number of vertices
+
+	private ArrayList&lt;T&gt; sortedArray;
+
+<span class="nc" id="L59">	public GraphTS(int numvertices) {</span>
+<span class="nc" id="L60">	    MAX_VERTS = numvertices;</span>
+<span class="nc" id="L61">	    vertexList = (Vertex[]) Array.newInstance(Vertex.class, MAX_VERTS);</span>
+<span class="nc" id="L62">		matrix = new int[MAX_VERTS][MAX_VERTS];</span>
+<span class="nc" id="L63">		numVerts = 0;</span>
+<span class="nc" id="L64">		sortedArray = new ArrayList&lt;T&gt;(numvertices);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		for (int i = 0; i &lt; MAX_VERTS; i++) {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">			for (int k = 0; k &lt; MAX_VERTS; k++)</span>
+<span class="nc" id="L67">				matrix[i][k] = 0;</span>
+			//sortedArray.add((T)null);
+		}
+<span class="nc" id="L70">	}</span>
+
+	public int addVertex(T lab) {
+<span class="nc" id="L73">		vertexList[numVerts++] = new Vertex(lab);</span>
+<span class="nc" id="L74">		return numVerts;</span>
+	}
+
+	public void addEdge(int start, int end) {
+<span class="nc" id="L78">		matrix[start - 1][end - 1] = 1;</span>
+<span class="nc" id="L79">	}</span>
+
+	public void displayVertex(int v) {
+<span class="nc" id="L82">		System.out.print(vertexList[v].label);</span>
+<span class="nc" id="L83">	}</span>
+
+	public List&lt;T&gt; topo() { // toplogical sort 
+<span class="nc" id="L86">		int orig_nVerts = numVerts;</span>
+
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		while (numVerts &gt; 0) // while vertices remain,</span>
+		{
+			// get a vertex with no successors, or -1
+<span class="nc" id="L91">			int currentVertex = noSuccessors();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			if (currentVertex == -1) // must be a cycle</span>
+			{
+<span class="nc" id="L94">				System.out.println(&quot;ERROR: Graph has cycles&quot;);</span>
+<span class="nc" id="L95">				return null;</span>
+			}
+			// insert vertex label in sorted array (start at end)
+<span class="nc" id="L98">			sortedArray.add(vertexList[currentVertex].label);</span>
+
+<span class="nc" id="L100">			deleteVertex(currentVertex); // delete vertex</span>
+		}
+
+<span class="nc" id="L103">		return sortedArray;</span>
+	}
+
+	public int noSuccessors() // returns vert with no successors (or -1 if no
+	// such verts)
+	{
+		boolean isEdge; // edge from row to column in adjMat
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		for (int row = 0; row &lt; numVerts; row++) {</span>
+<span class="nc" id="L112">			isEdge = false; // check edges</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">			for (int col = 0; col &lt; numVerts; col++) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">				if (matrix[row][col] &gt; 0) // if edge to another,</span>
+				{
+<span class="nc" id="L116">					isEdge = true;</span>
+<span class="nc" id="L117">					break; // this vertex has a successor try another</span>
+				}
+			}
+<span class="nc bnc" id="L120" title="All 2 branches missed.">			if (!isEdge) // if no edges, has no successors</span>
+<span class="nc" id="L121">				return row;</span>
+		}
+<span class="nc" id="L123">		return -1; // no</span>
+	}
+
+	public void deleteVertex(int delVert) {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">		if (delVert != numVerts - 1) // if not last vertex, delete from</span>
+		// vertexList
+		{
+<span class="nc bnc" id="L130" title="All 2 branches missed.">			for (int j = delVert; j &lt; numVerts - 1; j++)</span>
+<span class="nc" id="L131">				vertexList[j] = vertexList[j + 1];</span>
+
+<span class="nc bnc" id="L133" title="All 2 branches missed.">			for (int row = delVert; row &lt; numVerts - 1; row++)</span>
+<span class="nc" id="L134">				moveRowUp(row, numVerts);</span>
+
+<span class="nc bnc" id="L136" title="All 2 branches missed.">			for (int col = delVert; col &lt; numVerts - 1; col++)</span>
+<span class="nc" id="L137">				moveColLeft(col, numVerts - 1);</span>
+		}
+<span class="nc" id="L139">		numVerts--; // one less vertex</span>
+<span class="nc" id="L140">	}</span>
+
+	private void moveRowUp(int row, int length) {
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		for (int col = 0; col &lt; length; col++)</span>
+<span class="nc" id="L144">			matrix[row][col] = matrix[row + 1][col];</span>
+<span class="nc" id="L145">	}</span>
+
+	private void moveColLeft(int col, int length) {
+<span class="nc bnc" id="L148" title="All 2 branches missed.">		for (int row = 0; row &lt; length; row++)</span>
+<span class="nc" id="L149">			matrix[row][col] = matrix[row][col + 1];</span>
+<span class="nc" id="L150">	}</span>
+	
+	@Override
+	public String toString() {
+<span class="nc" id="L154">	    String result = &quot;&quot;;</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">	    for(int i = 0; i &lt; numVerts; i++){</span>
+<span class="nc" id="L156">	        result = result + vertexList[i].label + &quot;[&quot;;</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">	        for (int j = 0; j &lt; numVerts; j++)</span>
+<span class="nc" id="L158">	            result = result + matrix[i][j] + &quot;,&quot;;</span>
+<span class="nc" id="L159">	        result += &quot;]\n&quot;;</span>
+	    }
+<span class="nc" id="L161">	    return result;</span>
+	            
+	}
+
+	class Vertex {
+	    public T label;
+
+<span class="nc" id="L168">	    public Vertex(T lab) {</span>
+<span class="nc" id="L169">	        label = lab;</span>
+<span class="nc" id="L170">	    }</span>
+	}
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>WebAdminRenderer.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.webadmin</a> &gt; <span class="el_source">WebAdminRenderer.java</span></div><h1>WebAdminRenderer.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.webadmin;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.velocity.VelocityContext;
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.util.StringUtils;
+
+/**
+ * The WebAdminRender class provides functions for rendering content
+ * to be displayed within the WebAdmin interface.
+ *
+ * @author, Paul J. Adams &lt;paul.adams@siriusit.co.uk&gt;
+ * @author, Boryan Yotov &lt;b.yotov@prosyst.com&gt;
+ */
+public class WebAdminRenderer  extends AbstractView {
+    /**
+     * Represents the system time at which the WebAdminRender (and
+     * thus the system) was started. This is required for the system
+     * uptime display.
+     */
+<span class="nc" id="L59">    private static long startTime = new Date().getTime();</span>
+
+    public WebAdminRenderer(BundleContext bundlecontext, VelocityContext vc) {
+<span class="nc" id="L62">        super(bundlecontext, vc);</span>
+<span class="nc" id="L63">    }</span>
+
+    /**
+     * Creates and HTML table displaying the details of all the jobs
+     * that have failed whilst the system has been up
+     *
+     * @return a String representing the HTML table
+     */
+    public static String renderJobFailStats() {
+<span class="nc" id="L72">        StringBuilder result = new StringBuilder();</span>
+<span class="nc" id="L73">        HashMap&lt;String,Integer&gt; fjobs = sobjSched.getSchedulerStats().getFailedJobTypes();</span>
+<span class="nc" id="L74">        result.append(&quot;&lt;table width=\&quot;100%\&quot; cellpadding=\&quot;0\&quot; cellspacing=\&quot;0\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L75">        result.append(&quot;\t&lt;thead&gt;\n&quot;);</span>
+<span class="nc" id="L76">        result.append(&quot;\t\t&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L77">        result.append(&quot;\t\t\t&lt;td&gt;Job Type&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L78">        result.append(&quot;\t\t\t&lt;td&gt;Num Jobs Failed&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L79">        result.append(&quot;\t\t&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L80">        result.append(&quot;\t&lt;/thead&gt;\n&quot;);</span>
+<span class="nc" id="L81">        result.append(&quot;\t&lt;tbody&gt;\n&quot;);</span>
+
+<span class="nc" id="L83">        String[] jobfailures = fjobs.keySet().toArray(new String[1]);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for(String key : jobfailures) {</span>
+<span class="nc" id="L85">            result.append(&quot;\t\t&lt;tr&gt;\n\t\t\t&lt;td&gt;&quot;);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            result.append(key==null ? &quot;No failures&quot; : key);</span>
+<span class="nc" id="L87">            result.append(&quot;&lt;/td&gt;\n\t\t\t&lt;td&gt;&quot;);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            result.append(key==null ? &quot;&amp;nbsp;&quot; : fjobs.get(key));</span>
+<span class="nc" id="L89">            result.append(&quot;\t\t\t&lt;/td&gt;\n\t\t&lt;/tr&gt;&quot;);</span>
+        }
+<span class="nc" id="L91">        result.append(&quot;\t&lt;/tbody&gt;\n&quot;);</span>
+<span class="nc" id="L92">        result.append(&quot;&lt;/table&gt;&quot;);</span>
+<span class="nc" id="L93">        return result.toString();</span>
+    }
+
+    /**
+     * Creates and HTML table with information about the jobs that
+     * failed and the recorded exceptions
+     * @return
+     */
+    public static String renderFailedJobs() {
+<span class="nc" id="L102">        StringBuilder result = new StringBuilder();</span>
+<span class="nc" id="L103">        Job[] jobs = sobjSched.getFailedQueue();</span>
+<span class="nc" id="L104">        result.append(&quot;&lt;table width=\&quot;100%\&quot; cellpadding=\&quot;0\&quot; cellspacing=\&quot;0\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L105">        result.append(&quot;\t&lt;thead&gt;\n&quot;);</span>
+<span class="nc" id="L106">        result.append(&quot;\t\t&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L107">        result.append(&quot;\t\t\t&lt;td&gt;Job Type&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L108">        result.append(&quot;\t\t\t&lt;td&gt;Exception type&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L109">        result.append(&quot;\t\t\t&lt;td&gt;Exception text&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L110">        result.append(&quot;\t\t\t&lt;td&gt;Exception backtrace&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L111">        result.append(&quot;\t\t&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L112">        result.append(&quot;\t&lt;/thead&gt;\n&quot;);</span>
+<span class="nc" id="L113">        result.append(&quot;\t&lt;tbody&gt;\n&quot;);</span>
+
+<span class="nc bnc" id="L115" title="All 4 branches missed.">        if ((jobs != null) &amp;&amp; (jobs.length &gt; 0)) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            for(Job j: jobs) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                if (j == null) continue;</span>
+<span class="nc" id="L118">                result.append(&quot;\t\t&lt;tr&gt;\n\t\t\t&lt;td&gt;&quot;);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                if (j.getClass() != null) {</span>
+                    try {
+                        //result.append(j.getClass().getPackage().getName());
+                        //result.append(&quot;. &quot; + j.getClass().getSimpleName());
+<span class="nc" id="L123">			result.append(j.toString());</span>
+<span class="nc" id="L124">                    }</span>
+<span class="nc" id="L125">                    catch (NullPointerException ex) {</span>
+<span class="nc" id="L126">                        result.append(&quot;&lt;b&gt;NA&lt;b&gt;&quot;);</span>
+                    }
+<span class="nc" id="L128">                }</span>
+                else {
+<span class="nc" id="L130">                    result.append(&quot;&lt;b&gt;NA&lt;b&gt;&quot;);</span>
+                }
+<span class="nc" id="L132">                result.append(&quot;&lt;/td&gt;\n\t\t\t&lt;td&gt;&quot;);</span>
+<span class="nc" id="L133">                Exception e = j.getErrorException();</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                if (e != null) {</span>
+                    try {
+<span class="nc" id="L136">                        result.append(e.getClass().getPackage().getName());</span>
+<span class="nc" id="L137">                        result.append(&quot;. &quot; + e.getClass().getSimpleName());</span>
+<span class="nc" id="L138">                    }</span>
+<span class="nc" id="L139">                    catch (NullPointerException ex) {</span>
+<span class="nc" id="L140">                        result.append(&quot;&lt;b&gt;NA&lt;b&gt;&quot;);</span>
+                    }
+<span class="nc" id="L142">                }</span>
+                else {
+<span class="nc" id="L144">                    result.append(&quot;&lt;b&gt;NA&lt;/b&gt;&quot;);</span>
+                }
+<span class="nc" id="L146">                result.append(&quot;&lt;/td&gt;\n\t\t\t&lt;td&gt;&quot;);</span>
+                try {
+<span class="nc" id="L148">                    result.append(e.getMessage());</span>
+<span class="nc" id="L149">                }</span>
+<span class="nc" id="L150">                catch (NullPointerException ex) {</span>
+<span class="nc" id="L151">                    result.append(&quot;&lt;b&gt;NA&lt;b&gt;&quot;);</span>
+                }
+<span class="nc" id="L153">                result.append(&quot;&lt;/td&gt;\n\t\t\t&lt;td&gt;&quot;);</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">                if ((e != null)</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">                        &amp;&amp; (e.getStackTrace() != null)) {</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">                    for(StackTraceElement m: e.getStackTrace()) {</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                        if (m == null) continue;</span>
+<span class="nc" id="L158">                        result.append(m.getClassName());</span>
+<span class="nc" id="L159">                        result.append(&quot;. &quot;);</span>
+<span class="nc" id="L160">                        result.append(m.getMethodName());</span>
+<span class="nc" id="L161">                        result.append(&quot;(), (&quot;);</span>
+<span class="nc" id="L162">                        result.append(m.getFileName());</span>
+<span class="nc" id="L163">                        result.append(&quot;:&quot;);</span>
+<span class="nc" id="L164">                        result.append(m.getLineNumber());</span>
+<span class="nc" id="L165">                        result.append(&quot;)&lt;br/&gt;&quot;);</span>
+                    }
+<span class="nc" id="L167">                }</span>
+                else {
+<span class="nc" id="L169">                    result.append(&quot;&lt;b&gt;NA&lt;/b&gt;&quot;);</span>
+                }
+<span class="nc" id="L171">                result.append(&quot;\t\t\t&lt;/td&gt;\n\t\t&lt;/tr&gt;&quot;);</span>
+            }
+<span class="nc" id="L173">        }</span>
+        else {
+<span class="nc" id="L175">            result.append (&quot;&lt;tr&gt;&lt;td colspan=\&quot;4\&quot;&gt;No failed jobs.&lt;/td&gt;&lt;/tr&gt;&quot;);</span>
+        }
+<span class="nc" id="L177">        result.append(&quot;\t&lt;/tbody&gt;\n&quot;);</span>
+<span class="nc" id="L178">        result.append(&quot;&lt;/table&gt;&quot;);</span>
+
+<span class="nc" id="L180">        return result.toString();</span>
+    }
+
+    /**
+     * Creates an HTML unordered list displaying the contents of the current system log
+     *
+     * @return a String representing the HTML unordered list items
+     */
+    public static String renderLogs() {
+<span class="nc" id="L189">        String[] names = sobjLogManager.getRecentEntries();</span>
+
+<span class="nc bnc" id="L191" title="All 4 branches missed.">        if ((names != null) &amp;&amp; (names.length &gt; 0)) {</span>
+<span class="nc" id="L192">            StringBuilder b = new StringBuilder();</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">            for (String s : names) {</span>
+<span class="nc" id="L194">                b.append(&quot;\t\t\t\t\t&lt;li&gt;&quot; + StringUtils.makeXHTMLSafe(s) + &quot;&lt;/li&gt;\n&quot;);</span>
+            }
+
+<span class="nc" id="L197">            return b.toString();</span>
+        } else {
+<span class="nc" id="L199">            return &quot;\t\t\t\t\t&lt;li&gt;&amp;lt;none&amp;gt;&lt;/li&gt;\n&quot;;</span>
+        }
+    }
+
+    /**
+     * Returns a string representing the uptime of the Alitheia core
+     * in dd:hh:mm:ss format
+     */
+    public static String getUptime() {
+        long remainder;
+<span class="nc" id="L209">        long currentTime = new Date().getTime();</span>
+<span class="nc" id="L210">        long timeRunning = currentTime - startTime;</span>
+
+        // Get the elapsed time in days, hours, mins, secs
+<span class="nc" id="L213">        int days = new Long(timeRunning / 86400000).intValue();</span>
+<span class="nc" id="L214">        remainder = timeRunning % 86400000;</span>
+<span class="nc" id="L215">        int hours = new Long(remainder / 3600000).intValue();</span>
+<span class="nc" id="L216">        remainder = remainder % 3600000;</span>
+<span class="nc" id="L217">        int mins = new Long(remainder / 60000).intValue();</span>
+<span class="nc" id="L218">        remainder = remainder % 60000;</span>
+<span class="nc" id="L219">        int secs = new Long(remainder / 1000).intValue();</span>
+
+<span class="nc" id="L221">        return String.format(&quot;%d:%02d:%02d:%02d&quot;, days, hours, mins, secs);</span>
+    }
+    
+
+    public static String renderJobWaitStats() {
+<span class="nc" id="L226">        StringBuilder result = new StringBuilder();</span>
+<span class="nc" id="L227">        HashMap&lt;String,Integer&gt; wjobs = sobjSched.getSchedulerStats().getWaitingJobTypes();</span>
+<span class="nc" id="L228">        result.append(&quot;&lt;table width=\&quot;100%\&quot; cellpadding=\&quot;0\&quot; cellspacing=\&quot;0\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L229">        result.append(&quot;\t&lt;thead&gt;\n&quot;);</span>
+<span class="nc" id="L230">        result.append(&quot;\t\t&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L231">        result.append(&quot;\t\t\t&lt;td&gt;Job Type&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L232">        result.append(&quot;\t\t\t&lt;td&gt;Num Jobs Waiting&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L233">        result.append(&quot;\t\t&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L234">        result.append(&quot;\t&lt;/thead&gt;\n&quot;);</span>
+<span class="nc" id="L235">        result.append(&quot;\t&lt;tbody&gt;\n&quot;);</span>
+
+<span class="nc" id="L237">        String[] jobfailures = wjobs.keySet().toArray(new String[1]);</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">        for(String key : jobfailures) {</span>
+<span class="nc" id="L239">            result.append(&quot;\t\t&lt;tr&gt;\n\t\t\t&lt;td&gt;&quot;);</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">            result.append(key==null ? &quot;No failures&quot; : key);</span>
+<span class="nc" id="L241">            result.append(&quot;&lt;/td&gt;\n\t\t\t&lt;td&gt;&quot;);</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">            result.append(key==null ? &quot;&amp;nbsp;&quot; : wjobs.get(key));</span>
+<span class="nc" id="L243">            result.append(&quot;\t\t\t&lt;/td&gt;\n\t\t&lt;/tr&gt;&quot;);</span>
+        }
+<span class="nc" id="L245">        result.append(&quot;\t&lt;/tbody&gt;\n&quot;);</span>
+<span class="nc" id="L246">        result.append(&quot;&lt;/table&gt;&quot;);</span>
+<span class="nc" id="L247">        return result.toString();</span>
+    }
+
+    public static String renderJobRunStats() {
+<span class="nc" id="L251">        StringBuilder result = new StringBuilder();</span>
+<span class="nc" id="L252">        List&lt;String&gt; rjobs = sobjSched.getSchedulerStats().getRunJobs();</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">        if (rjobs.size() == 0) {</span>
+<span class="nc" id="L254">            return &quot;No running jobs&quot;;</span>
+        }
+<span class="nc" id="L256">        result.append(&quot;&lt;ul&gt;\n&quot;);</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        for(String s : rjobs) {</span>
+<span class="nc" id="L258">            result.append(&quot;\t&lt;li&gt;&quot;);</span>
+<span class="nc" id="L259">            result.append(s);</span>
+<span class="nc" id="L260">            result.append(&quot;\t&lt;/li&gt;\n&quot;);</span>
+        }
+<span class="nc" id="L262">        result.append(&quot;&lt;/ul&gt;\n&quot;);</span>
+<span class="nc" id="L263">        return result.toString();</span>
+    }
+}
+
+//vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

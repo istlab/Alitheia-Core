@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>BidiMap.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.util</a> &gt; <span class="el_source">BidiMap.java</span></div><h1>BidiMap.java</h1><pre class="source lang-java linenums">package eu.sqooss.service.util;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Quick and dirty implementation of a bidirectional map.  
+ * 
+ * @author Georgios Gousios &lt;gousiosg@gmail.com&gt;
+ *
+ * @param &lt;K&gt;
+ * @param &lt;V&gt;
+ */
+public class BidiMap&lt;K, V&gt; extends HashMap&lt;K, V&gt; {
+
+    Map&lt;V, K&gt; inverse;
+    
+    public BidiMap() {
+<span class="nc" id="L19">        super();</span>
+<span class="nc" id="L20">        inverse = new HashMap&lt;V, K&gt;();</span>
+<span class="nc" id="L21">    }</span>
+    
+    public K getKey(V value) {
+<span class="nc" id="L24">        return inverse.get(value);</span>
+    }
+        
+    @Override
+    public V put(K key, V value) {
+<span class="nc" id="L29">        V prev = super.put(key, value);</span>
+<span class="nc" id="L30">        inverse.put(value, key);</span>
+<span class="nc" id="L31">        return prev;</span>
+    };
+    
+    @Override
+    public void putAll(Map&lt;? extends K, ? extends V&gt; m) {
+<span class="nc" id="L36">        super.putAll(m);</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        for (K key : m.keySet()) {</span>
+<span class="nc" id="L38">            inverse.put(super.get(key), key);</span>
+        }
+<span class="nc" id="L40">    }</span>
+    
+    @Override
+    public V remove(Object key) {
+<span class="nc" id="L44">        V value = super.remove(key);</span>
+<span class="nc" id="L45">        inverse.remove(value);</span>
+<span class="nc" id="L46">        return value;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

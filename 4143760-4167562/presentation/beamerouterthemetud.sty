@@ -1,0 +1,69 @@
+% TU Delft Beamer template
+% Author: Maarten Abbink
+% Delft Universiy of Technology
+% March 2014
+\mode<presentation>
+
+\setbeamercolor{author in head/foot}{parent=palette tertiary}
+\setbeamercolor{title in head/foot}{parent=palette secondary}
+\setbeamercolor{date in head/foot}{parent=palette primary}
+\setbeamercolor{section in head/foot}{parent=palette tertiary}
+\setbeamercolor{subsection in head/foot}{parent=palette primary}
+\setbeamercolor{navigtion symbols in head/foot}{parent=palette primary}
+\setbeamercolor{logo in head/foot}{parent=palette quaternary}
+
+\setbeamercolor*{navigation symbols}{parent=palette primary}
+\setbeamercolor*{navigation symbols dimmed}{parent=palette primary,fg=parent.fg!20!parent.bg}
+
+\setbeamersize{text margin left=1cm}
+\setbeamersize{text margin right=0.5cm}
+
+\defbeamertemplate*{sidebar left}{}{
+	\begin{beamercolorbox}[wd=0.5cm,ht=2.5cm]{decoration}
+	\end{beamercolorbox}
+}
+
+\defbeamertemplate*{footline}{}{
+	\leavevmode%
+	\vskip0pt%
+	\begin{beamercolorbox}[wd=\paperwidth,colsep=0.5pt]{middle separation line foot}
+	\end{beamercolorbox}
+	\vskip0pt%
+	\hbox{%
+		\begin{beamercolorbox}[wd=.666667\paperwidth,ht=2.25ex,dp=1ex,left]{title in head/foot}%
+			\usebeamerfont{title in head/foot}~\insertshorttitle
+		\end{beamercolorbox}%
+		\begin{beamercolorbox}[wd=.433333\paperwidth,ht=2.25ex,dp=1ex,left]{date in head/foot}%
+			\usebeamerfont{date in head/foot}\insertshortdate{}
+            \hfill
+			\insertframenumber{} / \inserttotalframenumber
+		\end{beamercolorbox}
+	}%
+	\vskip0pt%
+}
+
+\defbeamertemplate*{minimal footline}{}{
+	\leavevmode%
+	\vskip0pt%
+	\begin{beamercolorbox}[wd=\paperwidth,colsep=0.5pt]{middle separation line foot}
+	\end{beamercolorbox}
+	\vskip0pt%
+	\hbox{%
+		\begin{beamercolorbox}[wd=.666667\paperwidth,ht=2.25ex,dp=1ex,left]{title in head/foot}%
+			\usebeamerfont{title in head/foot}~\insertshorttitle
+		\end{beamercolorbox}%
+		\begin{beamercolorbox}[wd=.433333\paperwidth,ht=2.25ex,dp=1ex,left]{date in head/foot}%
+			\usebeamerfont{date in head/foot}\insertshortdate{}
+            \hfill
+			\insertframenumber{} / \inserttotalframenumber
+		\end{beamercolorbox}
+	}%
+	\vskip0pt%
+}
+
+% this normally contains the navigation links
+\defbeamertemplate*{sidebar right}{}{}
+
+\mode
+<all>
+

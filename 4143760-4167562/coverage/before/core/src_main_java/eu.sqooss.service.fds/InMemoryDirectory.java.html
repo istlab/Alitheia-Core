@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>InMemoryDirectory.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.fds</a> &gt; <span class="el_source">InMemoryDirectory.java</span></div><h1>InMemoryDirectory.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.fds;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import eu.sqooss.service.db.Directory;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.util.FileUtils;
+
+/**
+ * An InMemoryDirectory object represents part of an in-memory
+ * checkout. InMemoryDirectory objects hang together in a tree
+ * for a directory hierarchy. Each directory may contain
+ * files; you can use getFile() to retrieve references to
+ * project files from the checkout.
+ */
+public class InMemoryDirectory {
+    
+    private InMemoryCheckout checkout;
+    private InMemoryDirectory parentDirectory;
+   
+    private String name;
+    
+    private List&lt;String&gt; files;
+    private List&lt;InMemoryDirectory&gt; directories;
+   
+<span class="nc" id="L62">    public InMemoryDirectory() {</span>
+<span class="nc" id="L63">        name = new String();</span>
+<span class="nc" id="L64">        files = new LinkedList&lt;String&gt;();</span>
+<span class="nc" id="L65">        directories = new LinkedList&lt;InMemoryDirectory&gt;();</span>
+<span class="nc" id="L66">    }</span>
+    
+    public InMemoryDirectory(String name) {
+<span class="nc" id="L69">        this();</span>
+<span class="nc" id="L70">        this.name = name;</span>
+<span class="nc" id="L71">    }</span>
+    
+    public InMemoryDirectory(InMemoryCheckout checkout) {
+<span class="nc" id="L74">        this(&quot;&quot;);</span>
+<span class="nc" id="L75">        this.checkout = checkout;</span>
+<span class="nc" id="L76">    }</span>
+    
+    public InMemoryDirectory(InMemoryDirectory parent, String name) {
+<span class="nc" id="L79">        this(name);</span>
+<span class="nc" id="L80">        this.parentDirectory = parent;</span>
+<span class="nc" id="L81">    }</span>
+    
+    /**
+     * Returns the name of the directory.
+     * Returns an empty string for the project's root directory.
+     */
+    public String getName() {
+<span class="nc" id="L88">        return name;</span>
+    }
+    
+    /**
+     * Returns the complete path of this directory.
+     */
+    public String getPath() {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">    	if (parentDirectory==null) {</span>
+<span class="nc" id="L96">    		return &quot;/&quot; + getName();</span>
+    	} else {
+<span class="nc" id="L98">    		String parentPath = parentDirectory.getPath();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">    		if (!parentPath.endsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L100">    			parentPath = parentPath + &quot;/&quot;;</span>
+    		}
+<span class="nc" id="L102">    		return parentPath + getName();</span>
+    	}
+    }
+   
+    /**
+     * Returns this directory's parent directory.
+     * Might be null, if this is the root directory.
+     */
+    public InMemoryDirectory getParentDirectory() {
+<span class="nc" id="L111">        return parentDirectory;</span>
+    }
+    
+    /**
+     * Returns the checkout this directory belongs to.
+     */
+    public InMemoryCheckout getCheckout() {
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        return checkout == null ? parentDirectory.getCheckout() : checkout;</span>
+    }
+
+    /**
+     * Returns the list of subdirectories this directory has.
+     */
+    public List&lt;InMemoryDirectory&gt; getSubDirectories() {
+<span class="nc" id="L125">        return directories;</span>
+    }
+
+    /**
+     * Returns one file living in this directory or below.
+     * @param name The filename relative to this directory.
+     * @return A reference to a ProjectFile
+     */
+    public ProjectFile getFile(String name) {
+
+        /*Recursively traverse the directories of the provided file path*/
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (name.indexOf('/') != -1 ) {</span>
+<span class="nc" id="L137">            String pathName = name.substring(0, name.indexOf('/'));</span>
+<span class="nc" id="L138">            String fileName = name.substring(name.indexOf('/') + 1);</span>
+<span class="nc" id="L139">            InMemoryDirectory dir = getSubdirectoryByName(pathName);</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            return dir == null ? null : dir.getFile(fileName);</span>
+        }
+
+<span class="nc" id="L143">        return ProjectFile.findFile(</span>
+<span class="nc" id="L144">                getCheckout().getProjectVersion().getProject().getId(),</span>
+<span class="nc" id="L145">                FileUtils.basename(name), </span>
+<span class="nc" id="L146">                FileUtils.dirname(name),</span>
+<span class="nc" id="L147">                getCheckout().getProjectVersion().getRevisionId());</span>
+
+    }
+    
+    /**
+     * Returns the list of files this directory contains.
+     */
+    public List&lt;ProjectFile&gt; getFiles() {
+        @SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L156">        ArrayList&lt;ProjectFile&gt; result = new ArrayList&lt;ProjectFile&gt;(files.size());</span>
+        
+<span class="nc" id="L158">        return getCheckout().getProjectVersion().getFiles(</span>
+<span class="nc" id="L159">                Directory.getDirectory(getPath(), false), </span>
+<span class="nc" id="L160">                ProjectVersion.MASK_FILES);</span>
+    }
+
+    public List&lt;String&gt; getFileNames() {
+<span class="nc" id="L164">        return this.files;</span>
+    }
+    
+    /**
+     * Search if the provided path exists in this directory or below  
+     * 
+     * @return true, if the provided path can be reached from the current 
+     * directory 
+     */
+    public boolean pathExists(String path) {
+        //Check if the path points to a dir first
+<span class="nc" id="L175">        InMemoryDirectory dir = getSubdirectoryByName(path);</span>
+        
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (dir != null) {</span>
+<span class="nc" id="L178">            return true;</span>
+        }
+        
+        // Split directory part from (possible) file part and re-check
+<span class="nc" id="L182">        String file = path.substring(path.lastIndexOf('/') + 1, path.length());</span>
+<span class="nc" id="L183">        path = path.substring(0, path.lastIndexOf('/'));</span>
+<span class="nc" id="L184">        dir = getSubdirectoryByName(path);</span>
+
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (dir == null) {</span>
+            // Dir not found
+<span class="nc" id="L188">            return false;</span>
+        }
+
+        //Dir found, search files for matching file name
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (dir.getFiles().contains(file)) {</span>
+<span class="nc" id="L193">            return true;</span>
+        }
+        
+<span class="nc" id="L196">        return false;</span>
+    }
+    
+    /**
+     * Adds a file.
+     * 
+     * @param path The filename relative to this directory.
+     */
+    public void addFile(String path) {
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (path.indexOf('/') == -1 ) {</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        	if (!files.contains(path)) {</span>
+<span class="nc" id="L207">        		files.add(path);</span>
+        	}
+<span class="nc" id="L209">        } else {</span>
+<span class="nc" id="L210">            String pathName = path.substring(0, path.indexOf('/'));</span>
+<span class="nc" id="L211">            String fileName = path.substring(path.indexOf('/') + 1);</span>
+<span class="nc" id="L212">            InMemoryDirectory dir = getOrCreateSubdirectoryByName(pathName);</span>
+<span class="nc" id="L213">            dir.addFile(fileName);</span>
+        }
+<span class="nc" id="L215">    }</span>
+
+    /**
+     * Deletes a file.
+     * @param path The filename relative to this directory.
+     */
+    public void deleteFile(String path) {
+<span class="nc bnc" id="L222" title="All 2 branches missed.">    	if (path.indexOf('/') == -1) {</span>
+    		// might be a file
+<span class="nc" id="L224">    		files.remove(path);</span>
+    		// but it might even be a directory...
+<span class="nc" id="L226">    		directories.remove(getSubdirectoryByName(path));</span>
+<span class="nc" id="L227">    	} else {</span>
+<span class="nc" id="L228">    		String pathName = path.substring(0, path.indexOf('/'));</span>
+<span class="nc" id="L229">    		String fileName = path.substring(path.indexOf('/') + 1);</span>
+<span class="nc" id="L230">    		InMemoryDirectory dir = getSubdirectoryByName(pathName);</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">    		if (dir != null ) {</span>
+<span class="nc" id="L232">    			dir.deleteFile(fileName);</span>
+    		}
+    	}
+<span class="nc" id="L235">    }</span>
+    
+    /**
+     * Gets a subdirectory.
+     * @param path The name of the directory.
+     * @return An InMemoryDirectory reference.
+     */
+    public InMemoryDirectory getSubdirectoryByName(String path) {
+<span class="nc bnc" id="L243" title="All 4 branches missed.">    	if (path == null || path.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L244">    		return this;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">    	} else if (path.indexOf('/') == -1 ) {</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">            for (InMemoryDirectory dir : directories) {</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">                if (dir.getName().equals(path)) {</span>
+<span class="nc" id="L248">                    return dir;</span>
+                }
+            }
+<span class="nc" id="L251">            return null;</span>
+    	}
+<span class="nc" id="L253">    	String pathName = path.substring(0, path.indexOf('/'));</span>
+<span class="nc" id="L254">    	String fileName = path.substring(path.indexOf('/') + 1);</span>
+
+<span class="nc" id="L256">    	return getSubdirectoryByName(pathName).getSubdirectoryByName(fileName);</span>
+    }
+ 
+    /**
+     * Creates a subdirectory
+     * @param name The name of the subdirectory to create.
+     * @return A reference to the new directory.
+     */
+    public InMemoryDirectory createSubDirectory(String name) {
+<span class="nc bnc" id="L265" title="All 4 branches missed.">    	if (name == null || name.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L266">    		return this;</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">    	} else if (name.indexOf('/') == -1) {</span>
+<span class="nc" id="L268">          	InMemoryDirectory dir = getSubdirectoryByName(name);</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">          	if (dir == null ) {</span>
+<span class="nc" id="L270">          		dir = new InMemoryDirectory(this, name);</span>
+          	}
+<span class="nc bnc" id="L272" title="All 2 branches missed.">          	if (!directories.contains(dir)) {</span>
+<span class="nc" id="L273">          		directories.add(dir);</span>
+          	}
+<span class="nc" id="L275">        	return getSubdirectoryByName(name);</span>
+    	} else {
+<span class="nc" id="L277">    		String pathName = name.substring(0, name.indexOf('/'));</span>
+<span class="nc" id="L278">    		String fileName = name.substring(name.indexOf('/') + 1);</span>
+<span class="nc" id="L279">    		InMemoryDirectory dir = getOrCreateSubdirectoryByName(pathName);</span>
+<span class="nc" id="L280">    		return dir.createSubDirectory(fileName);</span>
+    	}
+ 
+    }
+    
+    /**
+     * Gets a subdirectory. If the wanted one couldn't be found, it's created.
+     * @param name The name of the directory.
+     * @return An InMemoryDirectory reference.
+     */
+    protected InMemoryDirectory getOrCreateSubdirectoryByName(String name) {
+    	// if it's empty, it's us!
+<span class="nc bnc" id="L292" title="All 2 branches missed.">    	if (name.length() == 0) {</span>
+<span class="nc" id="L293">    		return this;</span>
+    	}
+    	
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        for (InMemoryDirectory dir : directories) {</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">            if (dir.getName().equals(name) ) {</span>
+<span class="nc" id="L298">                return dir;</span>
+            }
+        }
+
+        // not found? create it
+<span class="nc" id="L303">        return createSubDirectory(name);</span>
+    }
+    
+    /**
+     * Nice formatting of this directory including subdirectories and files.
+     * @param indentation The indentation of the root.
+     * @return A String containing a nicely formatted directory tree.
+     */
+    protected String toString(int indentation) {
+<span class="nc" id="L312">    	String result = &quot;&quot;;</span>
+<span class="nc" id="L313">    	String indent = &quot;&quot;;</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">    	for (int i=0; i &lt; indentation; ++i)</span>
+<span class="nc" id="L315">    		indent = indent + &quot; &quot;;</span>
+    	
+<span class="nc" id="L317">    	result = result + indent + getName() + &quot;\n&quot;;</span>
+    	
+<span class="nc bnc" id="L319" title="All 2 branches missed.">    	for (InMemoryDirectory d: directories) {</span>
+<span class="nc" id="L320">    		result = result + d.toString(indentation + 1);</span>
+    	}
+<span class="nc bnc" id="L322" title="All 2 branches missed.">    	for (String file: files) {</span>
+<span class="nc" id="L323">    		result = result + indent + &quot; &quot; + file + &quot;\n&quot;;</span>
+    	}
+    	
+<span class="nc" id="L326">    	return result;</span>
+    }
+   
+    /** {@inheritDoc} */
+    public String toString() {
+<span class="nc" id="L331">    	return toString(0);</span>
+    }
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

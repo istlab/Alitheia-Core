@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>FileTypeMatcher.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.fds</a> &gt; <span class="el_source">FileTypeMatcher.java</span></div><h1>FileTypeMatcher.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">/*</span>
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.fds;
+
+import java.lang.StringBuffer;
+import java.util.HashMap;
+import java.util.regex.Pattern;
+
+/**
+ * A simple, file extension based, file type matcher class. It uses a set of
+ * statically loaded look-up tables and string comparisons to do its job.
+ */
+public final class FileTypeMatcher {
+
+	private static FileTypeMatcher instance;
+<span class="nc" id="L47">	private static HashMap&lt;String, FileType&gt; lookupTable = new HashMap&lt;String, FileType&gt;();</span>
+
+	private static Pattern doc;
+	private static Pattern locale;
+	
+<span class="nc" id="L52">	private FileTypeMatcher() {</span>
+<span class="nc" id="L53">		StringBuffer pattern = new StringBuffer();</span>
+<span class="nc" id="L54">		pattern.append(&quot;.*\\.(&quot;);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		for(String doc : docMimes) {</span>
+<span class="nc" id="L56">			pattern.append(doc).append(&quot;|&quot;);</span>
+		}
+<span class="nc" id="L58">		pattern.deleteCharAt(pattern.length() - 1);</span>
+<span class="nc" id="L59">		pattern.append(&quot;)$&quot;);</span>
+		
+<span class="nc" id="L61">		doc = Pattern.compile(pattern.toString());</span>
+<span class="nc" id="L62">		locale = Pattern.compile(locales);</span>
+<span class="nc" id="L63">	}</span>
+
+	public static FileTypeMatcher getInstance() {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if (instance == null) {</span>
+<span class="nc" id="L67">			instance = new FileTypeMatcher();</span>
+		}
+<span class="nc" id="L69">		return instance;</span>
+	}
+
+	/**
+	 * File types enumeration. These are the distinguished types of files that
+	 * Alitheia works with. The list is clearly not exhaustive nor complete;
+	 * some file types could easily be put in one or the other category (e.g.
+	 * XML docbook) and some obvious file types are missing.
+	 */
+<span class="nc" id="L78">	public enum FileType {</span>
+<span class="nc" id="L79">		/**</span>
+		 * Source code files
+		 */
+<span class="nc" id="L82">		SRC,</span>
+<span class="nc" id="L83">		/**</span>
+		 * Binary files
+		 */
+<span class="nc" id="L86">		BIN,</span>
+<span class="nc" id="L87">		/**</span>
+		 * Documentation files
+		 */
+<span class="nc" id="L90">		DOC,</span>
+<span class="nc" id="L91">		/**</span>
+		 * XML file formats
+		 */
+<span class="nc" id="L94">		XML,</span>
+<span class="nc" id="L95">		/**</span>
+		 * Raw text files. Includes all non-binary files.
+		 */
+<span class="nc" id="L98">		TXT,</span>
+<span class="nc" id="L99">		/**</span>
+		 * Translation files
+		 */
+<span class="nc" id="L102">		TRANS</span>
+	}
+
+<span class="nc" id="L105">	private static String[] srcMimes = { &quot;.C&quot;, &quot;.CBL&quot;, &quot;.COB&quot;, &quot;.F&quot;, &quot;.S&quot;,</span>
+<span class="nc" id="L106">			&quot;.ad&quot;, &quot;.ada&quot;, &quot;.adb&quot;, &quot;.ads&quot;, &quot;.am&quot;, &quot;.asm&quot;, &quot;.asp&quot;, &quot;.aspx&quot;,</span>
+<span class="nc" id="L107">			&quot;.atf&quot;, &quot;.autoforms&quot;, &quot;.awk&quot;, &quot;.bas&quot;, &quot;.bat&quot;, &quot;.c&quot;, &quot;.c++&quot;, &quot;.cbl&quot;,</span>
+<span class="nc" id="L108">			&quot;.cc&quot;, &quot;.ccg&quot;, &quot;.cgi&quot;, &quot;.cls&quot;, &quot;.cob&quot;, &quot;.cpp&quot;, &quot;.cpy&quot;, &quot;.cs&quot;,</span>
+<span class="nc" id="L109">			&quot;.csh&quot;, &quot;.css&quot;, &quot;.cxx&quot;, &quot;.d&quot;, &quot;.diff&quot;, &quot;.dlg&quot;, &quot;.dsp&quot;, &quot;.dtd&quot;,</span>
+<span class="nc" id="L110">			&quot;.e&quot;, &quot;.ec&quot;, &quot;.ecp&quot;, &quot;.el&quot;, &quot;.exp&quot;, &quot;.f&quot;, &quot;.f77&quot;, &quot;.fd&quot;, &quot;.for&quot;,</span>
+<span class="nc" id="L111">			&quot;.gnorba&quot;, &quot;.h&quot;, &quot;.hg&quot;, &quot;.hh&quot;, &quot;.hpp&quot;, &quot;.hs&quot;, &quot;.hxx&quot;,</span>
+<span class="nc" id="L112">			&quot;.i&quot;, &quot;.i3&quot;, &quot;.idl&quot;, &quot;.ids&quot;, &quot;.inc&quot;, &quot;.itk&quot;, &quot;.java&quot;, &quot;.jl&quot;, &quot;.js&quot;,</span>
+<span class="nc" id="L113">			&quot;.jsp&quot;, &quot;.l&quot;, &quot;.lex&quot;, &quot;.ll&quot;, &quot;.lsp&quot;, &quot;.m&quot;, &quot;.m3&quot;, &quot;.m4&quot;, &quot;.ml&quot;,</span>
+<span class="nc" id="L114">			&quot;.ml3&quot;, &quot;.p&quot;, &quot;.pad&quot;, &quot;.pas&quot;, &quot;.patch&quot;, &quot;.pc&quot;, &quot;.pcc&quot;, &quot;.perl&quot;,</span>
+<span class="nc" id="L115">			&quot;.php&quot;, &quot;.php3&quot;, &quot;.php4&quot;, &quot;.pl&quot;, &quot;.plot&quot;, &quot;.plugin&quot;, &quot;.pm&quot;, &quot;.pod&quot;,</span>
+<span class="nc" id="L116">			&quot;.ppd&quot;, &quot;.pri&quot;, &quot;.pro&quot;, &quot;.py&quot;, &quot;.rb&quot;, &quot;.s&quot;, &quot;.schema&quot;, &quot;.scm&quot;,</span>
+<span class="nc" id="L117">			&quot;.sed&quot;, &quot;.sh&quot;, &quot;.sql&quot;, &quot;.tcl&quot;, &quot;.tk&quot;, &quot;.trm&quot;, &quot;.upd&quot;, &quot;.vb&quot;,</span>
+<span class="nc" id="L118">			&quot;.vbs&quot;, &quot;.vim&quot;, &quot;.xs&quot;, &quot;.xsl&quot;, &quot;.y&quot;, &quot;.yy&quot;, &quot;.scala&quot;};</span>
+
+<span class="nc" id="L120">	private static String[] docMimes = { &quot;readme.*&quot;, &quot;changelog.*&quot;, &quot;todo.*&quot;,</span>
+<span class="nc" id="L121">			&quot;credits.*&quot;, &quot;authors.*&quot;, &quot;changes.*&quot;, &quot;news.*&quot;, &quot;install.*&quot;,</span>
+<span class="nc" id="L122">			&quot;hacking.*&quot;, &quot;copyright.*&quot;, &quot;licen[sc]e.*&quot;, &quot;copying.*&quot;,</span>
+<span class="nc" id="L123">			&quot;manifest&quot;, &quot;faq&quot;, &quot;building&quot;, &quot;howto&quot;, &quot;design&quot;, &quot;�les&quot;,</span>
+<span class="nc" id="L124">			&quot;subdirs&quot;, &quot;maintainers&quot;, &quot;developers&quot;, &quot;contributors&quot;, &quot;thanks&quot;,</span>
+<span class="nc" id="L125">			&quot;testing&quot;, &quot;build&quot;, &quot;comments?&quot;, &quot;bugs&quot;, &quot;buglist&quot;, &quot;problems&quot;,</span>
+<span class="nc" id="L126">			&quot;debug&quot;, &quot;hacks&quot;, &quot;hacking&quot;, &quot;versions?&quot;, &quot;mappings&quot;, &quot;tips&quot;,</span>
+<span class="nc" id="L127">			&quot;ideas?&quot;, &quot;spec&quot;, &quot;compiling&quot;, &quot;notes&quot;, &quot;missing&quot;, &quot;done&quot;, &quot;omf&quot;,</span>
+<span class="nc" id="L128">			&quot;lsm&quot;, &quot;directory&quot;, &quot;dox&quot;, &quot;html&quot;, &quot;txt&quot;, &quot;lyx&quot;, &quot;tex&quot;,</span>
+<span class="nc" id="L129">			&quot;tex&quot;, &quot;sgml&quot;, &quot;docbook&quot;, &quot;xhtml&quot;, &quot;phtml&quot;, &quot;shtml&quot;, &quot;htm&quot;,</span>
+<span class="nc" id="L130">			&quot;rdf&quot;, &quot;phtm&quot;, &quot;ref&quot;, &quot;css&quot;, &quot;dsl&quot;, &quot;ent&quot;, &quot;xml&quot;, &quot;xsl&quot;,</span>
+<span class="nc" id="L131">			&quot;.gnuplot&quot;, </span>
+<span class="nc" id="L132">			&quot;entities&quot;, &quot;man&quot;, &quot;manpages&quot;, &quot;man\\.[0-9]+&quot;, &quot;docs$&quot; };</span>
+
+<span class="nc" id="L134">	private static String[] xmlFormats = { &quot;.xml&quot;, &quot;.svn&quot;, &quot;.argo&quot;, &quot;.graffle&quot;,</span>
+<span class="nc" id="L135">			&quot;.vcproj&quot;, &quot;.csproj&quot;, &quot;.rdf&quot;, &quot;.wsdl&quot;, &quot;.pom&quot;, &quot;.omf&quot; };</span>
+
+<span class="nc" id="L137">	private static String[] binMimes = { &quot;.pdf&quot;, &quot;.png&quot;, &quot;.jpg&quot;, &quot;.tiff&quot;,</span>
+<span class="nc" id="L138">			&quot;.dvi&quot;, &quot;.gz&quot;, &quot;.zip&quot;, &quot;.gif&quot;, &quot;.exe&quot;, &quot;.jar&quot;, &quot;.doc&quot;, &quot;.png&quot;,</span>
+<span class="nc" id="L139">			&quot;.o&quot;, &quot;.class&quot;, &quot;.pyc&quot;, &quot;.bmp&quot;, &quot;.ico&quot;, &quot;.bz2&quot;, &quot;.jpeg&quot;, &quot;.war&quot;,</span>
+<span class="nc" id="L140">			&quot;.tif&quot;, &quot;.ppt&quot;, &quot;.xls&quot;, &quot;.mp3&quot;, &quot;.wmf&quot;, &quot;.gif&quot;, &quot;.dll&quot;, &quot;.so&quot; };</span>
+
+<span class="nc" id="L142">	private static String[] transMimes = { &quot;.po&quot; };</span>
+
+	private static final String locales = &quot;ar_SA|zh_CN|zh_TW|nl_NL|en_AU|en_CA|&quot;
+			+ &quot;en_GB|en_US|fr_CA|fr_FR|de_DE|iw_IL|hi_IN|it_IT|ja_JP|ko_KR|&quot;
+			+ &quot;pt_BR|es_ES|sv_SE|th_TH|th_TH_TH|sq_AL|ar_DZ|ar_BH|ar_EG|&quot;
+			+ &quot;ar_IQ|ar_JO|ar_KW|ar_LB|ar_LY|ar_MA|ar_OM|ar_QA|ar_SD|ar_SY|&quot;
+			+ &quot;ar_TN|ar_AE|ar_YE|be_BY|bg_BG|ca_ES|zh_HK|hr_HR|cs_CZ|da_DK|&quot;
+			+ &quot;nl_BE|en_IN|en_IE|en_NZ|en_ZA|et_EE|fi_FI|fr_BE|fr_LU|fr_CH|&quot;
+			+ &quot;de_AT|de_LU|de_CH|el_GR|hu_HU|is_IS|it_CH|lv_LV|lt_LT|mk_MK|&quot;
+			+ &quot;no_NO|no_NO_NY|pl_PL|pt_PT|ro_RO|ru_RU|sr_YU|sh_YU|sk_SK|sl_SI|&quot;
+			+ &quot;es_AR|es_BO|es_CL|es_CO|es_CR|es_DO|es_EC|es_SV|es_GT|es_HN|&quot;
+			+ &quot;es_MX|es_NI|es_PA|es_PY|es_PE|es_PR|es_UY|es_VE|tr_TR|uk_UA&quot;;
+
+	static {
+<span class="nc" id="L156">		lookupTable = new HashMap&lt;String, FileType&gt;();</span>
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		for (String s : srcMimes)</span>
+<span class="nc" id="L159">			lookupTable.put(s, FileType.SRC);</span>
+
+<span class="nc bnc" id="L161" title="All 2 branches missed.">		for (String s : docMimes)</span>
+<span class="nc" id="L162">			lookupTable.put(s, FileType.DOC);</span>
+
+<span class="nc bnc" id="L164" title="All 2 branches missed.">		for (String s : xmlFormats)</span>
+<span class="nc" id="L165">			lookupTable.put(s, FileType.XML);</span>
+
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		for (String s : binMimes)</span>
+<span class="nc" id="L168">			lookupTable.put(s, FileType.BIN);</span>
+
+<span class="nc bnc" id="L170" title="All 2 branches missed.">		for (String s : transMimes)</span>
+<span class="nc" id="L171">			lookupTable.put(s, FileType.TRANS);	</span>
+<span class="nc" id="L172">	}</span>
+
+	/**
+	 * Return the file extension of path, or null if no file extension can be
+	 * found. This works on whole paths, not just filenames. The last component
+	 * of path is assumed to be a filename component (e.g. /foo/bar/baz.cpp
+	 * shouldn't be a directory, and will return &quot;cpp&quot; as extension).
+	 * 
+	 * @param path
+	 *            File path to extract the extension for
+	 * @return Extension (without the trailing .) or null if none
+	 */
+	public static String getFileExtension(String path) {
+<span class="nc bnc" id="L185" title="All 2 branches missed.">		if (null == path) {</span>
+<span class="nc" id="L186">			return null;</span>
+		}
+		// We use \Q and \E to quote the separator char, as it might
+		// be a character that is interpreted by the RE engine. And
+		// we can't just use \ to escape it, since it might be a
+		// character where \x is interpreted as well.
+<span class="nc" id="L192">		String pathSeparatorRE = &quot;\\Q&quot; + java.io.File.separatorChar + &quot;\\E&quot;;</span>
+<span class="nc" id="L193">		String extensionSeparatorRE = &quot;\\.&quot;;</span>
+		// Keep trailing components
+<span class="nc" id="L195">		String[] components = path.split(pathSeparatorRE, -1);</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">		if (components.length == 0) {</span>
+			// So the path consisted only of a separator?
+<span class="nc" id="L198">			return null;</span>
+		}
+<span class="nc bnc" id="L200" title="All 2 branches missed.">		if (components[components.length - 1].length() &gt; 0) {</span>
+<span class="nc" id="L201">			components = components[components.length - 1].split(</span>
+<span class="nc" id="L202">					extensionSeparatorRE, -1);</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">			if (components.length == 0) {</span>
+				// No components?
+<span class="nc" id="L205">				return null;</span>
+			}
+<span class="nc bnc" id="L207" title="All 2 branches missed.">			if (components[components.length - 1].length() &gt; 0) {</span>
+<span class="nc" id="L208">				String extension = &quot;.&quot; + components[components.length - 1];</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">				if (path.endsWith(extension)) {</span>
+<span class="nc" id="L210">					return extension;</span>
+				} else {
+					// This shouldn't be possible
+<span class="nc" id="L213">					return null;</span>
+				}
+			} else {
+<span class="nc" id="L216">				return null;</span>
+			}
+		} else {
+<span class="nc" id="L219">			return null;</span>
+		}
+	}
+
+	/**
+	 * Get the (presumed) filetype of the path, based on file extensions and
+	 * some heuristics. Operates on full pathnames (see getFileExtension()
+	 * above).
+	 * 
+	 * @param path
+	 *            Path to get file type from.
+	 * @return FileType or TXT if none could be determined.
+	 */
+	public FileType getFileType(String path) {
+<span class="nc" id="L233">		String ext = getFileExtension(path);</span>
+<span class="nc" id="L234">		FileType ft = getFileTypeFromExt(ext);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		if (null != ft) {</span>
+<span class="nc" id="L236">			return ft;</span>
+		}
+		
+<span class="nc bnc" id="L239" title="All 2 branches missed.">		if (doc.matcher(path).find())</span>
+<span class="nc" id="L240">			return FileType.DOC;</span>
+		
+<span class="nc bnc" id="L242" title="All 2 branches missed.">		if (locale.matcher(path).matches()) {</span>
+<span class="nc" id="L243">			return FileType.TRANS;</span>
+		}
+
+<span class="nc" id="L246">		return FileType.TXT;</span>
+	}
+
+	/**
+	 * Checks whether a file is of text type
+	 * 
+	 * @param path
+	 *            The path to check
+	 * @return True is the file is a text file as identified by the 
+	 * extension
+	 */
+	public boolean isTextType(String path) {
+<span class="nc bnc" id="L258" title="All 2 branches missed.">		return !isBinaryType(path);</span>
+	}
+
+	/**
+	 * Checks whether a file is of binary type
+	 * 
+	 * @param path
+	 *            The path to check
+	 * @return True is the file is a binary file as identified by the 
+	 * extension
+	 */
+	public boolean isBinaryType(String path) {
+<span class="nc bnc" id="L270" title="All 2 branches missed.">		if (getFileType(path).equals(FileType.BIN)) {</span>
+<span class="nc" id="L271">			return true;</span>
+		}
+<span class="nc" id="L273">		return false;</span>
+	}
+	
+	/**
+     * Checks whether a file is of source code type
+     * 
+     * @param path The path to check
+     * @return True is the file is a source code file as identified by the 
+     * extension
+     */
+	public boolean isSourceFile(String path) {
+<span class="nc" id="L284">	    FileType ft = getFileType(path);</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">	    if (ft.equals(FileType.SRC)) {</span>
+<span class="nc" id="L286">	        return true;</span>
+	    }
+<span class="nc" id="L288">	    return false;</span>
+	}
+
+	/**
+	 * Given a filename extension ext, check the known lists of file extensions
+	 * for an exact match.
+	 * 
+	 * @param ext
+	 *            File extension to check for
+	 * @return A FileType or null if no match is found
+	 */
+	public static FileType getFileTypeFromExt(String ext) {
+<span class="nc" id="L300">		FileType ft = null;</span>
+<span class="nc" id="L301">		ft = lookupTable.get(ext);</span>
+<span class="nc" id="L302">		return ft;</span>
+	}
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

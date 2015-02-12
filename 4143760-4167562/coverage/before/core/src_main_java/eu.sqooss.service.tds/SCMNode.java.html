@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>SCMNode.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.tds</a> &gt; <span class="el_source">SCMNode.java</span></div><h1>SCMNode.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.tds;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A node in an SCM system. The node can either be a file or a 
+ * directory. It can hold references to other nodes enclosed 
+ * in the represented node.  
+ *
+ */
+public class SCMNode {
+    
+    /**
+     * The type of the node
+     */
+    private SCMNodeType type;
+    
+    /**
+     * The path represented by the node
+     */
+    private String path;
+    
+    /**
+     * The SCM revision this node 
+     */
+    private Revision revision;
+    
+    /**
+     * The list of children of the node, if the node is a directory
+     */
+    private List&lt;SCMNode&gt; children;
+    
+<span class="nc" id="L67">    public SCMNode(String path, SCMNodeType type, Revision revision) {</span>
+<span class="nc" id="L68">        this.path = path;</span>
+<span class="nc" id="L69">        this.type = type;</span>
+<span class="nc" id="L70">        this.revision = revision;</span>
+        
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (type.equals(SCMNodeType.DIR)) {</span>
+<span class="nc" id="L73">            children = new ArrayList&lt;SCMNode&gt;();</span>
+        }
+<span class="nc" id="L75">    }</span>
+    
+    /**
+     * Add a node to the list of children of this node. If the node to 
+     * be added belongs to a node that is deeper in the hierarchy, then
+     * the path between the current node and the node to be added is
+     * constructed by adding intermediate directory nodes. If the node
+     * to be added belongs to a different part of the tree, then
+     * it is not added to the children of  current node.
+     * 
+     * @param child The node to append to the current node
+     */
+    public void appendChild(SCMNode child) {
+        
+        /*Files do not have children*/
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (type.equals(SCMNodeType.FILE)) {</span>
+<span class="nc" id="L91">            return;</span>
+        }
+        
+        /* Return if the child exists or if we try to append the node on itself*/
+<span class="nc bnc" id="L95" title="All 4 branches missed.">        if (childExists(child) || equals(child)) {</span>
+<span class="nc" id="L96">            return;</span>
+        }
+        
+        /* The child's path should point somewhere under our path */
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (!child.getPath().startsWith(path)) {</span>
+<span class="nc" id="L101">            return;</span>
+        }
+        
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (child.type.equals(SCMNodeType.DIR)) {</span>
+<span class="nc" id="L105">            createDir(child.path);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        } else if (child.type.equals(SCMNodeType.FILE)) {</span>
+<span class="nc" id="L107">            createFile(child.path);</span>
+<span class="nc" id="L108">        } else {</span>
+<span class="nc" id="L109">            System.err.println(&quot;SCMNode: Uknown node type&quot;);</span>
+        }
+<span class="nc" id="L111">    }</span>
+    
+    protected void createDir(String path) {
+        
+<span class="nc" id="L115">        String parentPath = getPath();</span>
+<span class="nc" id="L116">        String toAddPath = path.substring(getPath().length());</span>
+<span class="nc" id="L117">        String[] pathElems = toAddPath.split(&quot;/&quot;);</span>
+<span class="nc" id="L118">        String workingPath = parentPath;</span>
+        
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        for (String dir : pathElems) {</span>
+<span class="nc" id="L121">            workingPath += &quot;/&quot; + dir;</span>
+<span class="nc" id="L122">            SCMNode d = getNodeByPath(workingPath);</span>
+            
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (d == null) {</span>
+<span class="nc" id="L125">                SCMNode n = new SCMNode(workingPath, SCMNodeType.DIR, revision);</span>
+<span class="nc" id="L126">                d = getNodeByPath(parentPath);</span>
+<span class="nc" id="L127">                d.children.add(n);</span>
+            }
+<span class="nc" id="L129">            parentPath = workingPath;</span>
+        }
+<span class="nc" id="L131">    }</span>
+    
+    protected void createFile(String path) {
+        
+<span class="nc" id="L135">        String dirPath = path.substring(0, path.lastIndexOf('/') + 1);</span>
+<span class="nc" id="L136">        createDir(dirPath);</span>
+<span class="nc" id="L137">        SCMNode parent = getNodeByPath(dirPath);</span>
+<span class="nc" id="L138">        SCMNode file = new SCMNode(path, SCMNodeType.FILE, getRevision());</span>
+<span class="nc" id="L139">        parent.children.add(file);</span>
+<span class="nc" id="L140">    }</span>
+    
+    /**
+     * Get a node by path name
+     * 
+     * @param path The path to search for
+     * @return The node represented by the path if found; null otherwise or if
+     * the provided path is null.
+     */
+    public SCMNode getNodeByPath(String path) {
+        
+<span class="nc bnc" id="L151" title="All 4 branches missed.">        if (path.equals(this.path) || path.equals(&quot;&quot;)) { </span>
+<span class="nc" id="L152">            return this;</span>
+        }
+        
+<span class="nc bnc" id="L155" title="All 4 branches missed.">        if (path == null || !path.startsWith(getPath())) {</span>
+<span class="nc" id="L156">            return null;</span>
+        }
+        
+<span class="nc" id="L159">        String[] pathElems = path.split(&quot;/&quot;);</span>
+<span class="nc" id="L160">        String curPath = getPath();</span>
+<span class="nc" id="L161">        SCMNode curNode = this;</span>
+<span class="nc" id="L162">        boolean found = false;</span>
+        
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        for (String d : pathElems) {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            for (SCMNode n : curNode.children) {</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                if (n.getPath().equals(curPath + &quot;/&quot; + d)) {</span>
+<span class="nc" id="L167">                    curPath += &quot;/&quot; + d;</span>
+<span class="nc" id="L168">                    curNode = n;</span>
+<span class="nc" id="L169">                    found = true;</span>
+<span class="nc" id="L170">                    break;</span>
+                }
+            }
+            
+<span class="nc bnc" id="L174" title="All 2 branches missed.">            if (found == false) </span>
+<span class="nc" id="L175">                return null;</span>
+        }
+        
+<span class="nc" id="L178">        return curNode;</span>
+    }
+    
+    /**
+     * Flattens the directory hierarchy and returns all the nodes contained in 
+     * this node and below as a list. The order of the nodes in the returned
+     * list is unspecified.
+     * 
+     * @param node
+     * @return A list of nodes, possibly empty if the provided node is null
+     */
+    public List&lt;SCMNode&gt; getSCMNodeList(SCMNode node) {
+<span class="nc" id="L190">        List&lt;SCMNode&gt; nodeList = new ArrayList&lt;SCMNode&gt;();</span>
+        
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (node == null) {</span>
+<span class="nc" id="L193">            return nodeList;</span>
+        }
+        
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        for (SCMNode n : node.getChildren()) {</span>
+<span class="nc" id="L197">            nodeList.add(n);</span>
+            
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if (n.getType().equals(SCMNodeType.DIR)) {</span>
+<span class="nc" id="L200">                nodeList.addAll(getSCMNodeList(n));</span>
+            }
+        }
+        
+<span class="nc" id="L204">        nodeList.add(node);</span>
+        
+<span class="nc" id="L206">        return nodeList;</span>
+    }
+    
+    /**
+     * Check if the provided node belonds to  the children of this node 
+     * recursively.
+     * 
+     * @param child The node to check for existence
+     * 
+     * @return True, if the node is found in the hierarchy of nodes below
+     * this node; false otherwise.
+     */
+    public boolean childExists(SCMNode child) {
+<span class="nc bnc" id="L219" title="All 2 branches missed.">       if (child == null) {</span>
+<span class="nc" id="L220">           return false;</span>
+       }
+       
+<span class="nc bnc" id="L223" title="All 2 branches missed.">       for (SCMNode node : children) {</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">           if (node.equals(child)) {</span>
+<span class="nc" id="L225">               return true;</span>
+           }
+           
+<span class="nc bnc" id="L228" title="All 2 branches missed.">           if (node.getType().equals(SCMNodeType.DIR)) {</span>
+<span class="nc" id="L229">               node.childExists(child);</span>
+           }
+       }
+        
+<span class="nc" id="L233">       return false; </span>
+    }
+
+    /**
+     * @return the type of the node
+     */
+    public SCMNodeType getType() {
+<span class="nc" id="L240">        return type;</span>
+    }
+
+    /**
+     * @return the path of the node
+     */
+    public String getPath() {
+<span class="nc" id="L247">        return path;</span>
+    }
+
+    /**
+     * @return the revision
+     */
+    public Revision getRevision() {
+<span class="nc" id="L254">        return revision;</span>
+    }
+
+    /**
+     * @return the children of this node, if the node
+     * is a directory, else null;
+     */
+    public List&lt;SCMNode&gt; getChildren() {
+<span class="nc" id="L262">        return children;</span>
+    }
+    
+    /** {@inheritDoc} */
+    public boolean equals(SCMNode node) {
+<span class="nc bnc" id="L267" title="All 2 branches missed.">        if (this.path.equals(node.getPath()) &amp;&amp;</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">            this.revision == node.getRevision() &amp;&amp;</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">            this.type.equals(node.getType())) {</span>
+<span class="nc" id="L270">            return true;</span>
+        } else {
+<span class="nc" id="L272">            return false;</span>
+        }       
+    }
+    
+    /**
+     * Nice formatting of this directory including subdirectories and files.
+     * Shameless copy from InMemoryDirectory.toString().
+     * @param indentation The indentation of the root.
+     * @return A String containing a nicely formatted directory tree.
+     */
+    protected String toString(int indentation) {
+<span class="nc" id="L283">        String result = &quot;&quot;;</span>
+<span class="nc" id="L284">        String indent = &quot;&quot;;</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">        for (int i=0; i &lt; indentation; ++i)</span>
+<span class="nc" id="L286">                indent = indent + &quot; &quot;;</span>
+        
+<span class="nc" id="L288">        String name = path.substring(path.lastIndexOf(&quot;/&quot;), path.length());</span>
+        
+<span class="nc" id="L290">        result = result + indent + name + &quot;\n&quot;;</span>
+        
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        for (SCMNode n: children) {</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">            if(n.type == SCMNodeType.DIR) {</span>
+<span class="nc" id="L294">                result = result + n.toString(indentation + 1);</span>
+<span class="nc" id="L295">            } else {</span>
+<span class="nc" id="L296">                name = n.path.substring(n.path.lastIndexOf(&quot;/&quot;), n.path.length());</span>
+<span class="nc" id="L297">                result = result + indent + &quot; &quot; + name + &quot;\n&quot;;</span>
+            }
+        }
+        
+<span class="nc" id="L301">        return result;</span>
+    }
+   
+    /** {@inheritDoc} */
+    public String toString() {
+<span class="nc" id="L306">        return toString(0);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

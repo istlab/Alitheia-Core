@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>StoredProjectResource.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.rest.api</a> &gt; <span class="el_source">StoredProjectResource.java</span></div><h1>StoredProjectResource.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.rest.api;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Directory;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.ProjectFile;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
+
+@Path(&quot;/api&quot;)
+public class StoredProjectResource {
+
+<span class="nc" id="L59">	public StoredProjectResource() {}</span>
+	
+	@GET
+	@Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	@Path(&quot;/project/&quot;)
+	public List&lt;StoredProject&gt; getProjects() {
+<span class="nc" id="L65">		DBService db = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L66">		String q = &quot; from StoredProject&quot;;</span>
+<span class="nc" id="L67">		List&lt;StoredProject&gt; sp = (List&lt;StoredProject&gt;) db.doHQL(q);</span>
+<span class="nc" id="L68">		return sp;</span>
+	}
+
+	@Path(&quot;/project/{id}&quot;)
+	@GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	public StoredProject getProject(@PathParam(&quot;id&quot;) String id) {
+		
+<span class="nc" id="L76">		StoredProject sp = null;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		if (id.matches(&quot;^[0-9]*$&quot;)) //numeric id</span>
+<span class="nc" id="L78">			sp = DAObject.loadDAObyId(Long.valueOf(id), StoredProject.class);</span>
+		else 
+<span class="nc" id="L80">			sp = StoredProject.getProjectByName(id);</span>
+<span class="nc" id="L81">		return sp;</span>
+	}
+	
+	@Path(&quot;/project/{id}/versions&quot;)
+	@GET
+	@Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	public List&lt;ProjectVersion&gt; getAllVersions(@PathParam(&quot;id&quot;) Long id) {
+<span class="nc" id="L88">		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);</span>
+	
+<span class="nc" id="L90">		return sp.getProjectVersions();</span>
+	}
+	
+	@Path(&quot;/project/{id}/versions/{vid: .+}&quot;)
+	@GET
+	@Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	public List&lt;ProjectVersion&gt; getVersions(@PathParam(&quot;id&quot;) Long id,
+			@PathParam(&quot;vid&quot;) String vid) {
+<span class="nc" id="L98">		StoredProject sp = DAObject.loadDAObyId(id, StoredProject.class);</span>
+	
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		if (sp == null)</span>
+<span class="nc" id="L101">			return Collections.EMPTY_LIST;</span>
+		
+<span class="nc" id="L103">		Set&lt;String&gt;  ids = new HashSet&lt;String&gt;();</span>
+<span class="nc" id="L104">	    int count = 0;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">	    for (String resourceId : vid.split(&quot;,&quot;)) {</span>
+<span class="nc" id="L106">	        ids.add(resourceId);</span>
+<span class="nc" id="L107">	        count++;</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">	        if (count &gt;=64) {</span>
+<span class="nc" id="L109">	            break;</span>
+	        }
+	    }
+		
+<span class="nc" id="L113">	    List&lt;ProjectVersion&gt; versions = new ArrayList&lt;ProjectVersion&gt;();</span>
+	    
+<span class="nc bnc" id="L115" title="All 2 branches missed.">	    for (String verid : ids) {</span>
+<span class="nc" id="L116">	    	ProjectVersion pv = ProjectVersion.getVersionByRevision(sp, verid);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">	    	if (pv != null)</span>
+<span class="nc" id="L118">	    	    versions.add(pv);</span>
+	    }
+	    
+<span class="nc" id="L121">		return versions;</span>
+	}
+
+	@Path(&quot;/project/{id}/version/{vid}&quot;)
+	@GET
+	@Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	public ProjectVersion getVersion(@PathParam(&quot;id&quot;) String prid,
+			@PathParam(&quot;vid&quot;) String verid) {
+		
+<span class="nc bnc" id="L130" title="All 2 branches missed.">	    if (verid.equals(&quot;first&quot;)) </span>
+<span class="nc" id="L131">	        return ProjectVersion.getFirstProjectVersion(getProject(prid));</span>
+	    
+<span class="nc bnc" id="L133" title="All 2 branches missed.">	    if (verid.equals(&quot;latest&quot;))</span>
+<span class="nc" id="L134">	        return ProjectVersion.getLastMeasuredVersion (</span>
+<span class="nc" id="L135">	                Metric.getMetricByMnemonic(&quot;TLOC&quot;), //This can break, FIXME</span>
+<span class="nc" id="L136">	                getProject(prid));</span>
+	    
+<span class="nc" id="L138">		return ProjectVersion.getVersionByRevision(getProject(prid), verid);</span>
+	}
+
+	@Path(&quot;/project/{id}/version/{vid}/files/&quot;)
+    @GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+    public List&lt;ProjectFile&gt; getAllFiles(@PathParam(&quot;id&quot;) String prid,
+            @PathParam(&quot;vid&quot;) String verid) {
+        
+<span class="nc" id="L147">	    ProjectVersion pv = getVersion(prid, verid);</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">	    if (pv == null)</span>
+<span class="nc" id="L149">	        return Collections.EMPTY_LIST;</span>
+	        
+<span class="nc" id="L151">        return pv.getFiles((Directory)null, ProjectVersion.MASK_FILES);</span>
+    }
+
+	@Path(&quot;/project/{id}/version/{vid}/files/{dir: .+}&quot;)
+    @GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+    public List&lt;ProjectFile&gt; getFilesInDir(@PathParam(&quot;id&quot;) String prid,
+            @PathParam(&quot;vid&quot;) String verid,
+            @PathParam(&quot;dir&quot;) String path) {
+        
+<span class="nc" id="L161">        ProjectVersion pv = getVersion(prid, verid);</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (pv == null)</span>
+<span class="nc" id="L163">            return Collections.EMPTY_LIST;</span>
+        
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (!path.startsWith(&quot;/&quot;))</span>
+<span class="nc" id="L166">            path = &quot;/&quot; + path;</span>
+        
+<span class="nc" id="L168">        return pv.getFiles(Directory.getDirectory(path, false), </span>
+<span class="nc" id="L169">                ProjectVersion.MASK_FILES);</span>
+    }
+
+	@Path(&quot;/project/{id}/version/{vid}/files/changed&quot;)
+    @GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+    public Set&lt;ProjectFile&gt; getChangedFiles(@PathParam(&quot;id&quot;) String prid,
+            @PathParam(&quot;vid&quot;) String verid) {
+        
+<span class="nc" id="L178">        ProjectVersion pv = getVersion(prid, verid);</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (pv == null)</span>
+<span class="nc" id="L180">            return Collections.EMPTY_SET;</span>
+        
+<span class="nc" id="L182">        return pv.getVersionFiles();</span>
+    }
+
+	@Path(&quot;/project/{id}/version/{vid}/dirs/&quot;)
+    @GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+    public List&lt;ProjectFile&gt; getDirs(@PathParam(&quot;id&quot;) String prid,
+            @PathParam(&quot;vid&quot;) String verid) {
+        
+<span class="nc" id="L191">	    ProjectVersion pv = getVersion(prid, verid);</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (pv == null)</span>
+<span class="nc" id="L193">            return Collections.EMPTY_LIST;</span>
+ 
+<span class="nc" id="L195">        return pv.getFiles((Directory)null,</span>
+<span class="nc" id="L196">                ProjectVersion.MASK_DIRECTORIES);</span>
+	}
+
+	@Path(&quot;/project/{id}/version/{vid}/dirs/{dir: .+}&quot;)
+    @GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+    public List&lt;ProjectFile&gt; getDirs(@PathParam(&quot;id&quot;) String prid,
+            @PathParam(&quot;vid&quot;) String verid,
+            @PathParam(&quot;dir&quot;) String path) {
+        
+<span class="nc" id="L206">        ProjectVersion pv = getVersion(prid, verid);</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (pv == null)</span>
+<span class="nc" id="L208">            return Collections.EMPTY_LIST;</span>
+        
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (!path.startsWith(&quot;/&quot;))</span>
+<span class="nc" id="L211">            path = &quot;/&quot; + path;</span>
+        
+<span class="nc" id="L213">        return pv.getFiles(Directory.getDirectory(path, false), </span>
+<span class="nc" id="L214">                ProjectVersion.MASK_DIRECTORIES);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

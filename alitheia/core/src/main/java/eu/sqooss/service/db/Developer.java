@@ -36,8 +36,8 @@ package eu.sqooss.service.db;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -56,7 +56,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import eu.sqooss.core.AlitheiaCore;
-import eu.sqooss.service.db.DAObject;
 
 /**
  * A DAObject representing a developer belonging to a project.

@@ -56,9 +56,11 @@ import eu.sqooss.metrics.contrib.db.ContribActionType;
 import eu.sqooss.service.abstractmetric.AbstractMetric;
 import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
 import eu.sqooss.service.abstractmetric.AlreadyProcessingException;
+import eu.sqooss.service.abstractmetric.MetricActivationException;
 import eu.sqooss.service.abstractmetric.MetricDecl;
 import eu.sqooss.service.abstractmetric.MetricDeclarations;
 import eu.sqooss.service.abstractmetric.MetricMismatchException;
+import eu.sqooss.service.abstractmetric.PluginInfo;
 import eu.sqooss.service.abstractmetric.Result;
 import eu.sqooss.service.abstractmetric.Result.ResultType;
 import eu.sqooss.service.db.Bug;
@@ -72,442 +74,445 @@ import eu.sqooss.service.db.MailingList;
 import eu.sqooss.service.db.MailingListThread;
 import eu.sqooss.service.db.Metric;
 import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.db.PluginConfiguration;
 import eu.sqooss.service.db.ProjectFile;
 import eu.sqooss.service.db.ProjectVersion;
 import eu.sqooss.service.db.StoredProject;
-import eu.sqooss.service.db.MetricType.Type;
 import eu.sqooss.service.fds.FileTypeMatcher;
-import eu.sqooss.service.metricactivator.MetricActivationException;
-import eu.sqooss.service.pa.PluginInfo;
 import eu.sqooss.service.tds.Diff;
 import eu.sqooss.service.tds.DiffChunk;
 import eu.sqooss.service.tds.SCMAccessor;
 
-@MetricDeclarations(metrics={
-    @MetricDecl(mnemonic="CONTRIB", descr="Developer Contribution Metric",
-            dependencies={"Wc.loc"}, 
-            activators={Developer.class, ProjectVersion.class, 
-                        MailingListThread.class, Bug.class})
-})
+@MetricDeclarations(metrics = { @MetricDecl(mnemonic = "CONTRIB", descr = "Developer Contribution Metric", dependencies = { "Wc.loc" }, activators = {
+		Developer.class, ProjectVersion.class, MailingListThread.class,
+		Bug.class }) })
 public class ContributionMetricImpl extends AbstractMetric {
 
-     /** Number of files after which a commit is considered too big */
-    public static final String CONFIG_CMF_THRES = "CMF_threshold";
-    
-    /** Name of the measurement*/
-    public static final String METRIC_CONTRIB = "CONTRIB";
-    
-    public ContributionMetricImpl(BundleContext bc) {
-        super(bc);
-    }
-    
-    public boolean install() {
-    	 boolean result = super.install();
-         if (result) {
-             addConfigEntry(CONFIG_CMF_THRES, 
-                 "5" , 
-                 "Number of committed files above which the developer is " +
-                 "penalized", 
-                 PluginInfo.ConfigurationType.INTEGER);
-         }
-         return result;
-    }
-    
-    public boolean remove() {
-        boolean result = true;
-        
-        String[] tables = { "ContribAction",
-                           "ContribActionType"};
-        
-        for (String tablename : tables) {
-            result &= db.deleteRecords((List<DAObject>) db.doHQL(
-                    "from " + tablename));
-        }
-        
-        result &= super.remove();
-        return result;
-    }
-    
-    /**{@inheritDoc}*/
-    public boolean cleanup(DAObject sp) {
-        boolean result = true;
-        
-        if (!(sp instanceof StoredProject)) {
-            log.warn("We only support cleaning up per stored project for now");
-            return false;
-        }
-        result &= cleanupResource (((StoredProject)sp).getProjectVersions(), 
-                ActionCategory.C);
-        result &= cleanupResource(((StoredProject)sp).getBugs(), 
-                ActionCategory.B);
-        
-        Set<MailingList> mlists = ((StoredProject) sp).getMailingLists();
-        for (MailingList ml : mlists) {
-            result &= cleanupResource(ml.getMessages(), ActionCategory.M);            
-        }
-       
-        return result;
-    }
+	/** Number of files after which a commit is considered too big */
+	public static final String CONFIG_CMF_THRES = "CMF_threshold";
 
-    private boolean cleanupResource (Collection<? extends DAObject> c, 
-            ActionCategory ac) {
-        
-        Map<String,Object> params = new HashMap<String,Object>();
-        boolean result = false;
-        
-        for(DAObject o : c) {
-            params.put("changedResourceId", o.getId());
-            params.put("actionCategory", ac.toString());
-            List<ContribAction> pas = 
-                db.findObjectsByProperties(ContribAction.class, params);
-            if (!pas.isEmpty()) {
-                for (ContribAction pa : pas) {
-                    result &= db.deleteRecord(pa);
-                }
-            }
-            params.clear();
-        }
-        return result;
-    }
+	/** Name of the measurement */
+	public static final String METRIC_CONTRIB = "CONTRIB";
 
-    @Override
-    public Map<MetricType.Type, SortedSet<Long>> getObjectIdsToSync(StoredProject sp, Metric m) 
-    	throws MetricActivationException {
-    	Map<MetricType.Type, SortedSet<Long>> IDs = new HashMap<Type, SortedSet<Long>>();
-    	Map<String, Object> params = new HashMap<String, Object>();
-    	params.put("sp", sp);
-    	
-    	String qVersionIDs = "select pv.id from ProjectVersion pv where pv.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='C') and pv.project = :sp order by pv.sequence";
-    	List<Long> objectIds = (List<Long>) db.doHQL(qVersionIDs, params);
-    	TreeSet<Long> ids = new TreeSet<Long>();
-    	ids.addAll(objectIds);
-    	IDs.put(MetricType.Type.PROJECT_VERSION, ids);
-    	
-    	String qThreadIDs = "select mlt.id from MailingListThread mlt where mlt.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='M') and mlt.list.storedProject = :sp order by mlt.lastUpdated";
-    	objectIds = (List<Long>) db.doHQL(qThreadIDs, params);
-    	ids = new TreeSet<Long>();
-    	ids.addAll(objectIds);
-    	IDs.put(MetricType.Type.MAILTHREAD, ids);
-    	
-    	String qBugIDs = "select b.id from Bug b where b.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='B') and b.project = :sp order by b.updateRun";
-    	objectIds = (List<Long>) db.doHQL(qBugIDs, params);
-    	ids = new TreeSet<Long>();
-    	ids.addAll(objectIds);
-    	IDs.put(MetricType.Type.BUG, ids);
-    	
-    	return IDs;
-    }
-    
-    /*
-     * The following methods are dummy implementations that just
-     * check if a result has been calculated for the provided
-     * DAO or not. 
-     */
-    public List<Result> getResult(ProjectVersion a, Metric m) {
-       return checkResult(a, ActionCategory.C, m);
-    }
-    
-    public List<Result> getResult(MailingListThread mm, Metric m) {
-        return checkResult(mm, ActionCategory.M, m);
-    }
-    
-    public List<Result> getResult(Bug b, Metric m) {
-        return checkResult(b, ActionCategory.B, m);
-    }
-    
-    private List<Result> checkResult(DAObject o, ActionCategory ac, 
-            Metric m) {
-        ArrayList<Result> res = new ArrayList<Result>();
-        
-        if (getResult(o) == null)
-            return null;
+	public ContributionMetricImpl(BundleContext bc) {
+		super(bc);
+	}
 
-        //Return a dummy result to indicate successful run on this 
-        //project resource
-        res.add(new Result(o, m, "1", ResultType.INTEGER));
-        return res;
-    }
+	public boolean install() {
+		boolean result = super.install();
+		if (result) {
+			addConfigEntry(CONFIG_CMF_THRES, "5",
+					"Number of committed files above which the developer is "
+							+ "penalized", PluginInfo.ConfigurationType.INTEGER);
+		}
+		return result;
+	}
 
-    private ContribAction getResult(DAObject o) {
-        String paramChResource = "paramChResource";
-        String paramActionCategory = "paramActionCategory";
-        
-        String query = "select ca " +
-            "from ContribAction ca, ContribActionType cat " +
-            " where ca.contribActionType = cat " +
-            " and cat.actionCategory = :" + paramActionCategory +
-            " and ca.changedResourceId = :" + paramChResource ;
-        
-        Map<String,Object> parameters = new HashMap<String,Object>();
-        parameters.put(paramChResource, o.getId());
-        
-        if (o instanceof MailingListThread || o instanceof MailMessage) {
-            parameters.put(paramActionCategory, ActionCategory.M.toString());
-        } else if (o instanceof ProjectVersion) {
-            parameters.put(paramActionCategory, ActionCategory.C.toString());
-        } else if (o instanceof Bug) {
-            parameters.put(paramActionCategory, ActionCategory.B.toString());
-        } 
+	public boolean remove() {
+		boolean result = true;
 
-        List<ContribAction> lp = (List<ContribAction>) db.doHQL(query, parameters, 1);
-    
-        if (lp == null || lp.isEmpty()) {
-            return null;
-        }
-        
-        return lp.get(0);
-    }
+		String[] tables = { "ContribAction", "ContribActionType" };
 
-    /*
-     * This plug-in's result is only returned per developer. 
-     */
-    public List<Result> getResult(Developer d, Metric m) {
-        ArrayList<Result> results = new ArrayList<Result>();
-        ProjectVersion newestPV = ProjectVersion.getLastProjectVersion(d.getStoredProject());
-        
-        double result = 0;
-        
-        //Get a list of action types that have been recorded per project 
-        //until the newest project version
-        for (ContribActionType cat : 
-            ContribActionType.getProjectActionTypes(d.getStoredProject(), newestPV.getDate())) {
-            long total = ContribAction.getTotalActionsPerTypePerProject(d.getStoredProject(), newestPV.getDate(), cat);
-            long perDev = ContribAction.getDevActionsPerType(d, newestPV.getDate(), cat);
-            
-            if (total != 0) { 
-                if (cat.getIsPositive()) {
-                    result += (double)(perDev / total);
-                } else {
-                    result -= (double)(perDev / total);
-                }
-            }
-        }
+		for (String tablename : tables) {
+			result &= db.deleteRecords((List<DAObject>) db.doHQL("from "
+					+ tablename));
+		}
 
-        Result re = new Result(d, m, result, Result.ResultType.DOUBLE);
-        results.add(re);
-        
-        return results;
-    }
+		result &= super.remove();
+		return result;
+	}
 
-    public void run(Developer v) throws AlreadyProcessingException {}
-    
-    public void run(Bug b) throws AlreadyProcessingException {
-        updateField(b, b.getReporter(), ActionType.BRP, true, 1);
-        
-        if (b.getResolution().equals(BugResolution.Resolution.DUPLICATE))
-            updateField(b, b.getReporter(), ActionType.BDUP, true, 1);
-        
-        for(BugReportMessage brm : b.getReportMessages()) {
-            updateField(b, brm.getReporter(), ActionType.BCC, true, 1);
-        }
-    }
+	/** {@inheritDoc} */
+	public boolean cleanup(DAObject sp) {
+		boolean result = true;
 
-    public void run(MailingListThread t) throws AlreadyProcessingException {
-        Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
-        List<MailMessage> emails = t.getMessagesByArrivalOrder();
-        MailMessage lastProcessed = null;
-        
-        //Find the last email in this thread
-        //that has been processed in a previous invocation. Avoid 
-        //scanning threads with just one email.
-        for (int i = emails.size() - 1; i > 0; i--) { 
-            //Find first email whose contrib action is not null
-            ContribAction old = getResult(emails.get(i));
-            if (old != null) {
-                lastProcessed = DAObject.loadDAObyId(
-                        old.getChangedResourceId(), MailMessage.class);
-            }
-        }
-        
-        for (MailMessage mm : emails) {
-            ContribAction ca = getResult(mm);
-            if (ca!= null) {
-                //This mail has been processed again, check if the
-                //email that closes the thread has been updated
-                if (lastProcessed != null && mm.equals(lastProcessed)) {
-                    ContribAction oldCa = ContribAction.getContribAction(
-                            lastProcessed.getSender(), lastProcessed.getId(),
-                            ContribActionType.getContribActionType(
-                                    ActionType.MCT, true));
-                    if (oldCa != null) {
-                        oldCa.setTotal(oldCa.getTotal() - 1);
-                    }
-                }
-                continue;
-            }
-                        
-            if (mm.getParent() == null) {
-                //New thread
-                updateField(mm, mm.getSender(), ActionType.MST, true, 1);
-            } else {
-                if (mm.getDepth() == 1) {
-                  //First reply to a thread
-                    MailMessage firstMessage = t.getMessagesAtLevel(1).get(0);
-                    if (firstMessage.equals(mm))
-                        updateField(mm, mm.getSender(), ActionType.MFR, true, 1);
-                }
-                
-                if (mm.equals(emails.get(emails.size() - 1))) {
-                    //Mail that closes a thread
-                    updateField(mm, mm.getSender(), ActionType.MCT, true, 1);
-                }
-            }
-            
-            //updateField(mm, mm.getSender(), ActionType.MSE, true, 1);
-        }
-    }
-    
-    public void run(ProjectVersion pv) throws AlreadyProcessingException {
-        /* Read config options in advance*/        
-        FileTypeMatcher.FileType fType;
-        Developer dev = pv.getCommitter();
-        Set<ProjectFile> projectFiles = pv.getVersionFiles();
-        List<Metric> locMetric = new ArrayList<Metric>();
-        AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin("Wc.loc");
-        
-        if (plugin != null) {
-            locMetric.add(Metric.getMetricByMnemonic("Wc.loc"));
-        } else {
-            err("Could not find the WC plugin", pv);
-            return;
-        }
-        
-        int numFilesThreshold;
-        
-        PluginConfiguration config = getConfigurationOption(
-                ContributionMetricImpl.CONFIG_CMF_THRES);
-        
-        if (config == null || 
-                Integer.parseInt(config.getValue()) <= 0) {
-            err("Plug-in configuration option " 
-            		+ ContributionMetricImpl.CONFIG_CMF_THRES 
-                    + " not found", pv);
-            return; 
-        } else {
-            numFilesThreshold = Integer.parseInt(config.getValue());
-        }    
-        
-        Pattern bugNumberLabel = Pattern.compile("\\A.*(pr:|bug:).*\\Z",
-                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+		if (!(sp instanceof StoredProject)) {
+			log.warn("We only support cleaning up per stored project for now");
+			return false;
+		}
+		result &= cleanupResource(((StoredProject) sp).getProjectVersions(),
+				ActionCategory.C);
+		result &= cleanupResource(((StoredProject) sp).getBugs(),
+				ActionCategory.B);
 
-        Pattern pHatLabel = Pattern.compile(
-                "\\A.*(ph:|pointy hat|p?hat:).*\\Z", Pattern.CASE_INSENSITIVE
-                        | Pattern.MULTILINE | Pattern.DOTALL);
-        Matcher m;
+		Set<MailingList> mlists = ((StoredProject) sp).getMailingLists();
+		for (MailingList ml : mlists) {
+			result &= cleanupResource(ml.getMessages(), ActionCategory.M);
+		}
 
-        //Commit message is empty
-        if (pv.getCommitMsg().length() == 0) {
-            updateField(pv, dev, ActionType.CEC, false, 1);
-        } else {
-            //Commit contains a bug report number
-            m = bugNumberLabel.matcher(pv.getCommitMsg());
-            if (m.matches()) {
-                updateField(pv, dev, ActionType.CBN, true, 1);
-            }
-            //Commit awards a pointy hat
-            m = pHatLabel.matcher(pv.getCommitMsg());
-            if (m.matches()) {
-                updateField(pv, dev, ActionType.CPH, true, 1);
-            }
-        }
-        
-        //Commit more files in a commit than the provided threshold
-        if (projectFiles.size() > numFilesThreshold) {
-            updateField(pv, dev, ActionType.CMF, false, 1);
-        }
+		return result;
+	}
 
-        FileTypeMatcher ftm = FileTypeMatcher.getInstance();
-        Iterator<ProjectFile> i = projectFiles.iterator();
-        
-        while (i.hasNext()) {
-            ProjectFile pf = i.next();
-            
-            if (pf.getIsDirectory()) {
-                //New directory added
-                if (pf.isAdded()) {
-                    updateField(pv, dev, ActionType.CND, true, 1);
-                }
-                continue;
-            }
-            
-            fType = ftm.getFileType(pf.getFileName());
-            
-            if (pf.getCopyFrom() != null) {
-                debug("Ignoring copied file " + pf, pf.getProjectVersion());
-                continue;
-            }
-            
-            //Commit of a source file
-            if (ftm.isTextType(pf.getFileName())) {
-                //Source file changed, calc number of lines commited
-                try {
-                    if (pf.isDeleted()) {
-                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
-                        updateField(pv, dev, ActionType.CREM, true, locPrev);
-                    } else if(pf.isReplaced()) {
-                    	int locPrev = getLOCResult(pf.getPreviousFileVersion(), plugin, locMetric);
-                        updateField(pv, dev, ActionType.CREM, true, locPrev);
-                        updateField(pv, dev, ActionType.CNS, true, 1);
-                        updateField(pv, dev, ActionType.CADD, true, 
-                        		getLOCResult(pf, plugin, locMetric));
-                    }
-                    //Source file just added
-                    else if (pf.isAdded()) {
-                        updateField(pv, dev, ActionType.CNS, true, 1);
-                        updateField(pv, dev, ActionType.CADD, true, 
-                        		getLOCResult(pf, plugin, locMetric));
-                    } else {
-                        //Existing file, get lines of previous version
-                        ProjectFile prevFile = pf.getPreviousFileVersion();
-                        
-                        if (prevFile == null) {
-                        	warn("Could not find previous version", pf);
-                        	continue;
-                        }
-                        
-                        SCMAccessor scm = AlitheiaCore.getInstance().getTDSService().getAccessor(pv.getProject().getId()).getSCMAccessor();
-                        Diff d = scm.getDiff(pf.getFileName(), 
-                        		scm.newRevision(prevFile.getProjectVersion().getRevisionId()),
-                        		scm.newRevision(pf.getProjectVersion().getRevisionId()));
-                        Map<String, List<DiffChunk>> diff = d.getDiffChunks();
-                        List<DiffChunk> chunks = diff.get(pf.getFileName());
-                        
-                        if (chunks == null)
-                        	continue; //Diff was empty
-                        
-                        int added = 0, removed = 0;
-                        
-                        for (DiffChunk chunk : chunks) {
-                        	String theDiff = chunk.getChunk();
-                        	BufferedReader r = new BufferedReader(new StringReader(theDiff));
-                    		String line;
-                    		while ((line = r.readLine()) != null) {
-                    			if (line.startsWith("+")) 
-                    				added ++;
-                    			if (line.startsWith("-"))
-                    				removed++;
-                    		}
-                        }
-                        
-                        if (added != 0 && removed != 0 ) {
-                        	updateField(pv, dev, ActionType.CCNG, true, Math.min(added, removed));
-                        }
-                        
-                        if (added > removed) {
-                        	updateField(pv, dev, ActionType.CADD, true, Math.abs(added - removed));
-                        }
-                        else { 
-                        	updateField(pv, dev, ActionType.CREM, true, Math.abs(added - removed));
-                        }
-                    }
-                } catch (Exception e) {
-                	err(e.getMessage(), pf);
-				} 
-            }
-            
-            if (pf.isAdded()) {
-            	if (fType == FileTypeMatcher.FileType.SRC) {
+	private boolean cleanupResource(Collection<? extends DAObject> c,
+			ActionCategory ac) {
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		boolean result = false;
+
+		for (DAObject o : c) {
+			params.put("changedResourceId", o.getId());
+			params.put("actionCategory", ac.toString());
+			List<ContribAction> pas = db.findObjectsByProperties(
+					ContribAction.class, params);
+			if (!pas.isEmpty()) {
+				for (ContribAction pa : pas) {
+					result &= db.deleteRecord(pa);
+				}
+			}
+			params.clear();
+		}
+		return result;
+	}
+
+	@Override
+	public Map<MetricType.Type, SortedSet<Long>> getObjectIdsToSync(
+			StoredProject sp, Metric m) throws MetricActivationException {
+		Map<MetricType.Type, SortedSet<Long>> IDs = new HashMap<Type, SortedSet<Long>>();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("sp", sp);
+
+		String qVersionIDs = "select pv.id from ProjectVersion pv where pv.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='C') and pv.project = :sp order by pv.sequence";
+		List<Long> objectIds = (List<Long>) db.doHQL(qVersionIDs, params);
+		TreeSet<Long> ids = new TreeSet<Long>();
+		ids.addAll(objectIds);
+		IDs.put(MetricType.Type.PROJECT_VERSION, ids);
+
+		String qThreadIDs = "select mlt.id from MailingListThread mlt where mlt.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='M') and mlt.list.storedProject = :sp order by mlt.lastUpdated";
+		objectIds = (List<Long>) db.doHQL(qThreadIDs, params);
+		ids = new TreeSet<Long>();
+		ids.addAll(objectIds);
+		IDs.put(MetricType.Type.MAILTHREAD, ids);
+
+		String qBugIDs = "select b.id from Bug b where b.id not in (select ca.changedResourceId from ContribAction ca where developer.storedProject =:sp and ca.contribActionType.actionCategory='B') and b.project = :sp order by b.updateRun";
+		objectIds = (List<Long>) db.doHQL(qBugIDs, params);
+		ids = new TreeSet<Long>();
+		ids.addAll(objectIds);
+		IDs.put(MetricType.Type.BUG, ids);
+
+		return IDs;
+	}
+
+	/*
+	 * The following methods are dummy implementations that just check if a
+	 * result has been calculated for the provided DAO or not.
+	 */
+	public List<Result> getResult(ProjectVersion a, Metric m) {
+		return checkResult(a, ActionCategory.C, m);
+	}
+
+	public List<Result> getResult(MailingListThread mm, Metric m) {
+		return checkResult(mm, ActionCategory.M, m);
+	}
+
+	public List<Result> getResult(Bug b, Metric m) {
+		return checkResult(b, ActionCategory.B, m);
+	}
+
+	private List<Result> checkResult(DAObject o, ActionCategory ac, Metric m) {
+		ArrayList<Result> res = new ArrayList<Result>();
+
+		if (getResult(o) == null)
+			return null;
+
+		// Return a dummy result to indicate successful run on this
+		// project resource
+		res.add(new Result(o, m, "1", ResultType.INTEGER));
+		return res;
+	}
+
+	private ContribAction getResult(DAObject o) {
+		String paramChResource = "paramChResource";
+		String paramActionCategory = "paramActionCategory";
+
+		String query = "select ca "
+				+ "from ContribAction ca, ContribActionType cat "
+				+ " where ca.contribActionType = cat "
+				+ " and cat.actionCategory = :" + paramActionCategory
+				+ " and ca.changedResourceId = :" + paramChResource;
+
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put(paramChResource, o.getId());
+
+		if (o instanceof MailingListThread || o instanceof MailMessage) {
+			parameters.put(paramActionCategory, ActionCategory.M.toString());
+		} else if (o instanceof ProjectVersion) {
+			parameters.put(paramActionCategory, ActionCategory.C.toString());
+		} else if (o instanceof Bug) {
+			parameters.put(paramActionCategory, ActionCategory.B.toString());
+		}
+
+		List<ContribAction> lp = (List<ContribAction>) db.doHQL(query,
+				parameters, 1);
+
+		if (lp == null || lp.isEmpty()) {
+			return null;
+		}
+
+		return lp.get(0);
+	}
+
+	/*
+	 * This plug-in's result is only returned per developer.
+	 */
+	public List<Result> getResult(Developer d, Metric m) {
+		ArrayList<Result> results = new ArrayList<Result>();
+		ProjectVersion newestPV = ProjectVersion.getLastProjectVersion(d
+				.getStoredProject());
+
+		double result = 0;
+
+		// Get a list of action types that have been recorded per project
+		// until the newest project version
+		for (ContribActionType cat : ContribActionType.getProjectActionTypes(
+				d.getStoredProject(), newestPV.getDate())) {
+			long total = ContribAction.getTotalActionsPerTypePerProject(
+					d.getStoredProject(), newestPV.getDate(), cat);
+			long perDev = ContribAction.getDevActionsPerType(d,
+					newestPV.getDate(), cat);
+
+			if (total != 0) {
+				if (cat.getIsPositive()) {
+					result += (double) (perDev / total);
+				} else {
+					result -= (double) (perDev / total);
+				}
+			}
+		}
+
+		Result re = new Result(d, m, result, Result.ResultType.DOUBLE);
+		results.add(re);
+
+		return results;
+	}
+
+	public void run(Developer v) throws AlreadyProcessingException {
+	}
+
+	public void run(Bug b) throws AlreadyProcessingException {
+		updateField(b, b.getReporter(), ActionType.BRP, true, 1);
+
+		if (b.getResolution().equals(BugResolution.Resolution.DUPLICATE))
+			updateField(b, b.getReporter(), ActionType.BDUP, true, 1);
+
+		for (BugReportMessage brm : b.getReportMessages()) {
+			updateField(b, brm.getReporter(), ActionType.BCC, true, 1);
+		}
+	}
+
+	public void run(MailingListThread t) throws AlreadyProcessingException {
+		Metric contrib = Metric.getMetricByMnemonic(METRIC_CONTRIB);
+		List<MailMessage> emails = t.getMessagesByArrivalOrder();
+		MailMessage lastProcessed = null;
+
+		// Find the last email in this thread
+		// that has been processed in a previous invocation. Avoid
+		// scanning threads with just one email.
+		for (int i = emails.size() - 1; i > 0; i--) {
+			// Find first email whose contrib action is not null
+			ContribAction old = getResult(emails.get(i));
+			if (old != null) {
+				lastProcessed = DAObject.loadDAObyId(
+						old.getChangedResourceId(), MailMessage.class);
+			}
+		}
+
+		for (MailMessage mm : emails) {
+			ContribAction ca = getResult(mm);
+			if (ca != null) {
+				// This mail has been processed again, check if the
+				// email that closes the thread has been updated
+				if (lastProcessed != null && mm.equals(lastProcessed)) {
+					ContribAction oldCa = ContribAction.getContribAction(
+							lastProcessed.getSender(), lastProcessed.getId(),
+							ContribActionType.getContribActionType(
+									ActionType.MCT, true));
+					if (oldCa != null) {
+						oldCa.setTotal(oldCa.getTotal() - 1);
+					}
+				}
+				continue;
+			}
+
+			if (mm.getParent() == null) {
+				// New thread
+				updateField(mm, mm.getSender(), ActionType.MST, true, 1);
+			} else {
+				if (mm.getDepth() == 1) {
+					// First reply to a thread
+					MailMessage firstMessage = t.getMessagesAtLevel(1).get(0);
+					if (firstMessage.equals(mm))
+						updateField(mm, mm.getSender(), ActionType.MFR, true, 1);
+				}
+
+				if (mm.equals(emails.get(emails.size() - 1))) {
+					// Mail that closes a thread
+					updateField(mm, mm.getSender(), ActionType.MCT, true, 1);
+				}
+			}
+
+			// updateField(mm, mm.getSender(), ActionType.MSE, true, 1);
+		}
+	}
+
+	public void run(ProjectVersion pv) throws AlreadyProcessingException {
+		/* Read config options in advance */
+		FileTypeMatcher.FileType fType;
+		Developer dev = pv.getCommitter();
+		Set<ProjectFile> projectFiles = pv.getVersionFiles();
+		List<Metric> locMetric = new ArrayList<Metric>();
+		AlitheiaPlugin plugin = AlitheiaCore.getInstance().getPluginAdmin()
+				.getImplementingPlugin("Wc.loc");
+
+		if (plugin != null) {
+			locMetric.add(Metric.getMetricByMnemonic("Wc.loc"));
+		} else {
+			err("Could not find the WC plugin", pv);
+			return;
+		}
+
+		int numFilesThreshold;
+
+		PluginConfiguration config = getConfigurationOption(ContributionMetricImpl.CONFIG_CMF_THRES);
+
+		if (config == null || Integer.parseInt(config.getValue()) <= 0) {
+			err("Plug-in configuration option "
+					+ ContributionMetricImpl.CONFIG_CMF_THRES + " not found",
+					pv);
+			return;
+		} else {
+			numFilesThreshold = Integer.parseInt(config.getValue());
+		}
+
+		Pattern bugNumberLabel = Pattern.compile("\\A.*(pr:|bug:).*\\Z",
+				Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+
+		Pattern pHatLabel = Pattern.compile(
+				"\\A.*(ph:|pointy hat|p?hat:).*\\Z", Pattern.CASE_INSENSITIVE
+						| Pattern.MULTILINE | Pattern.DOTALL);
+		Matcher m;
+
+		// Commit message is empty
+		if (pv.getCommitMsg().length() == 0) {
+			updateField(pv, dev, ActionType.CEC, false, 1);
+		} else {
+			// Commit contains a bug report number
+			m = bugNumberLabel.matcher(pv.getCommitMsg());
+			if (m.matches()) {
+				updateField(pv, dev, ActionType.CBN, true, 1);
+			}
+			// Commit awards a pointy hat
+			m = pHatLabel.matcher(pv.getCommitMsg());
+			if (m.matches()) {
+				updateField(pv, dev, ActionType.CPH, true, 1);
+			}
+		}
+
+		// Commit more files in a commit than the provided threshold
+		if (projectFiles.size() > numFilesThreshold) {
+			updateField(pv, dev, ActionType.CMF, false, 1);
+		}
+
+		FileTypeMatcher ftm = FileTypeMatcher.getInstance();
+		Iterator<ProjectFile> i = projectFiles.iterator();
+
+		while (i.hasNext()) {
+			ProjectFile pf = i.next();
+
+			if (pf.getIsDirectory()) {
+				// New directory added
+				if (pf.isAdded()) {
+					updateField(pv, dev, ActionType.CND, true, 1);
+				}
+				continue;
+			}
+
+			fType = ftm.getFileType(pf.getFileName());
+
+			if (pf.getCopyFrom() != null) {
+				debug("Ignoring copied file " + pf, pf.getProjectVersion());
+				continue;
+			}
+
+			// Commit of a source file
+			if (ftm.isTextType(pf.getFileName())) {
+				// Source file changed, calc number of lines commited
+				try {
+					if (pf.isDeleted()) {
+						int locPrev = getLOCResult(pf.getPreviousFileVersion(),
+								plugin, locMetric);
+						updateField(pv, dev, ActionType.CREM, true, locPrev);
+					} else if (pf.isReplaced()) {
+						int locPrev = getLOCResult(pf.getPreviousFileVersion(),
+								plugin, locMetric);
+						updateField(pv, dev, ActionType.CREM, true, locPrev);
+						updateField(pv, dev, ActionType.CNS, true, 1);
+						updateField(pv, dev, ActionType.CADD, true,
+								getLOCResult(pf, plugin, locMetric));
+					}
+					// Source file just added
+					else if (pf.isAdded()) {
+						updateField(pv, dev, ActionType.CNS, true, 1);
+						updateField(pv, dev, ActionType.CADD, true,
+								getLOCResult(pf, plugin, locMetric));
+					} else {
+						// Existing file, get lines of previous version
+						ProjectFile prevFile = pf.getPreviousFileVersion();
+
+						if (prevFile == null) {
+							warn("Could not find previous version", pf);
+							continue;
+						}
+
+						SCMAccessor scm = AlitheiaCore.getInstance()
+								.getTDSService()
+								.getAccessor(pv.getProject().getId())
+								.getSCMAccessor();
+						Diff d = scm.getDiff(pf.getFileName(), scm
+								.newRevision(prevFile.getProjectVersion()
+										.getRevisionId()), scm.newRevision(pf
+								.getProjectVersion().getRevisionId()));
+						Map<String, List<DiffChunk>> diff = d.getDiffChunks();
+						List<DiffChunk> chunks = diff.get(pf.getFileName());
+
+						if (chunks == null)
+							continue; // Diff was empty
+
+						int added = 0, removed = 0;
+
+						for (DiffChunk chunk : chunks) {
+							String theDiff = chunk.getChunk();
+							BufferedReader r = new BufferedReader(
+									new StringReader(theDiff));
+							String line;
+							while ((line = r.readLine()) != null) {
+								if (line.startsWith("+"))
+									added++;
+								if (line.startsWith("-"))
+									removed++;
+							}
+						}
+
+						if (added != 0 && removed != 0) {
+							updateField(pv, dev, ActionType.CCNG, true,
+									Math.min(added, removed));
+						}
+
+						if (added > removed) {
+							updateField(pv, dev, ActionType.CADD, true,
+									Math.abs(added - removed));
+						} else {
+							updateField(pv, dev, ActionType.CREM, true,
+									Math.abs(added - removed));
+						}
+					}
+				} catch (Exception e) {
+					err(e.getMessage(), pf);
+				}
+			}
+
+			if (pf.isAdded()) {
+				if (fType == FileTypeMatcher.FileType.SRC) {
 					// Commit of a new source file: +
 					updateField(pv, dev, ActionType.CNS, true, 1);
 				}
@@ -526,82 +531,82 @@ public class ContributionMetricImpl extends AbstractMetric {
 					// Commit of a translation file: +
 					updateField(pv, dev, ActionType.CTF, true, 1);
 				}
-            }
-        }
-    }
+			}
+		}
+	}
 
-    private int getLOCResult(ProjectFile pf, AlitheiaPlugin plugin, 
-            List<Metric> locMetric) 
-        throws MetricMismatchException, AlreadyProcessingException, Exception {
-      //Get lines of current version of the file from the wc metric
-        List<Result> r = plugin.getResult(pf, locMetric);
-        if (r != null && !r.isEmpty()) {
-            return Integer.parseInt(r.get(0).getResult().toString());
-        }
-        else { 
-            warn("Plugin <" + plugin.getName() + "> did" +
-                    " not return a result for file " + pf, 
-                    pf.getProjectVersion() );
-            return 0;
-        }
-    }
-    
-    private void updateField(DAObject o, Developer dev, 
-            ActionType actionType, boolean isPositive, int value) {
-        DBService db = AlitheiaCore.getInstance().getDBService();
-        ContribActionType at = ContribActionType.getContribActionType(actionType,
-                isPositive);
-        
-        if (at == null) {
-            db.rollbackDBSession();
-            return;
-        }
+	private int getLOCResult(ProjectFile pf, AlitheiaPlugin plugin,
+			List<Metric> locMetric) throws MetricMismatchException,
+			AlreadyProcessingException, Exception {
+		// Get lines of current version of the file from the wc metric
+		List<Result> r = plugin.getResult(pf, locMetric);
+		if (r != null && !r.isEmpty()) {
+			return Integer.parseInt(r.get(0).getResult().toString());
+		} else {
+			warn("Plugin <" + plugin.getName() + "> did"
+					+ " not return a result for file " + pf,
+					pf.getProjectVersion());
+			return 0;
+		}
+	}
 
-        ContribAction a = ContribAction.getContribAction(dev, o.getId(), at);
+	private void updateField(DAObject o, Developer dev, ActionType actionType,
+			boolean isPositive, int value) {
+		DBService db = AlitheiaCore.getInstance().getDBService();
+		ContribActionType at = ContribActionType.getContribActionType(
+				actionType, isPositive);
 
-        if (a == null) {
-            a = new ContribAction();
-            a.setDeveloper(dev);
-            a.setChangedResourceId(o.getId());
-            a.setContribActionType(at);
-            a.setTotal(value);
-            
-            if (o instanceof ProjectVersion)
-                a.setChangedResourceTimestamp(((ProjectVersion)o).getDate());
-            else if (o instanceof MailingListThread)
-                a.setChangedResourceTimestamp(((MailingListThread)o).getLastUpdated());
-            else if (o instanceof MailMessage)
-                a.setChangedResourceTimestamp(((MailMessage)o).getSendDate());
-            else if (o instanceof Bug)
-                a.setChangedResourceTimestamp(((Bug)o).getCreationTS());
-            else
-                a.setChangedResourceTimestamp(null); //Make it fail
-            
-            db.addRecord(a);
-        } else {
-            a.setTotal(a.getTotal() + value);
-        }
-    }
-   
-    private void err(String msg, DAObject o) {
-    	log.error("Contrib (" + o.getClass() + "): Object: " + o.toString() 
-    			+ " Error:"+ msg);
-    }
-    
-    private void warn(String msg, DAObject o) {
-    	log.warn("Contrib (" + o.getClass() + "): Object: " + o.toString() 
-    			+ " Warning:" + msg);
-    }
-    
-    private void info(String msg, DAObject o) {
-    	log.info("Contrib (" + o.getClass() + "): Object: " + o.toString() 
-    			+ " Info:" + msg);
-    }
-    
-    private void debug(String msg, DAObject o) {
-    	log.debug("Contrib (" + o.getClass() + "): Object: " + o.toString() 
-    			+ " Debug:" + msg);
-    }
+		if (at == null) {
+			db.rollbackDBSession();
+			return;
+		}
+
+		ContribAction a = ContribAction.getContribAction(dev, o.getId(), at);
+
+		if (a == null) {
+			a = new ContribAction();
+			a.setDeveloper(dev);
+			a.setChangedResourceId(o.getId());
+			a.setContribActionType(at);
+			a.setTotal(value);
+
+			if (o instanceof ProjectVersion)
+				a.setChangedResourceTimestamp(((ProjectVersion) o).getDate());
+			else if (o instanceof MailingListThread)
+				a.setChangedResourceTimestamp(((MailingListThread) o)
+						.getLastUpdated());
+			else if (o instanceof MailMessage)
+				a.setChangedResourceTimestamp(((MailMessage) o).getSendDate());
+			else if (o instanceof Bug)
+				a.setChangedResourceTimestamp(((Bug) o).getCreationTS());
+			else
+				a.setChangedResourceTimestamp(null); // Make it fail
+
+			db.addRecord(a);
+		} else {
+			a.setTotal(a.getTotal() + value);
+		}
+	}
+
+	private void err(String msg, DAObject o) {
+		log.error("Contrib (" + o.getClass() + "): Object: " + o.toString()
+				+ " Error:" + msg);
+	}
+
+	private void warn(String msg, DAObject o) {
+		log.warn("Contrib (" + o.getClass() + "): Object: " + o.toString()
+				+ " Warning:" + msg);
+	}
+
+	private void info(String msg, DAObject o) {
+		log.info("Contrib (" + o.getClass() + "): Object: " + o.toString()
+				+ " Info:" + msg);
+	}
+
+	private void debug(String msg, DAObject o) {
+		log.debug("Contrib (" + o.getClass() + "): Object: " + o.toString()
+				+ " Debug:" + msg);
+	}
 }
 
 // vi: ai nosi sw=4 ts=4 expandtab

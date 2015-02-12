@@ -1,0 +1,70 @@
+% TU Delft Beamer template
+% Author: Maarten Abbink
+% Delft Universiy of Technology
+% March 2014
+\DeclareOptionBeamer{shadow}[true]{\def\beamer@themerounded@shadow{#1}}
+\ExecuteOptionsBeamer{shadow=false}
+\ProcessOptionsBeamer
+
+\mode<presentation>
+
+\defbeamertemplate*{title page}{}{
+	\newsavebox\titleBox
+	\newsavebox\subtitleBox
+	\newsavebox\instituteBox
+	\newsavebox\authorBox
+	\newsavebox\dateBox
+	\sbox{\titleBox}{\usebeamercolor[fg]{title}\usebeamerfont{title}\inserttitle}
+	\ifx\insertsubtitle\@empty%
+		\sbox{\subtitleBox}{}
+	\else%
+		\sbox{\subtitleBox}{\usebeamercolor[fg]{subtitle}\usebeamerfont{subtitle}\insertsubtitle}
+	\fi%
+	\sbox{\instituteBox}{\usebeamercolor[fg]{institute}\usebeamerfont{institute}\insertinstitute}
+	\sbox{\authorBox}{\usebeamercolor[fg]{author}\usebeamerfont{author}\insertauthor}
+	\sbox{\dateBox}{\usebeamercolor[fg]{date}\usebeamerfont{date}\insertdate}
+	\newlength{\titleBoxWidth}
+	\newlength{\titleBoxInnerWidth}
+	\setlength{\titleBoxInnerWidth}{\maxof{\wd\titleBox}{\maxof{\wd\subtitleBox}{\maxof{\wd\instituteBox}{\maxof{\wd\authorBox}{\wd\dateBox}}}}}
+	\setlength{\titleBoxWidth}{\titleBoxInnerWidth}
+	\addtolength{\titleBoxWidth}{1cm}
+	
+	\begin{textblock*}{\titleBoxWidth}(0.5cm,2.5cm)
+	\begin{beamercolorbox}[sep=2mm,leftskip=3mm,rightskip=3mm,wd=\titleBoxWidth,center]{title block body}
+	\begin{beamercolorbox}[sep=0pt,vmode,wd=\titleBoxInnerWidth,left]{}
+		\begin{beamercolorbox}[wd=\wd\titleBox]{title}
+            \usebeamercolor[fg]{title}\usebeamerfont{title}Reengineering Alitheia Core%
+		\end{beamercolorbox}%
+		\ifx\insertsubtitle\@empty%
+		\else%
+			\vskip1mm
+			\begin{beamercolorbox}[wd=\wd\subtitleBox]{subtitle}
+				\usebox{\subtitleBox}%
+			\end{beamercolorbox}
+		\fi%
+		\vskip1mm
+		\begin{beamercolorbox}[wd=\wd\instituteBox]{institute}
+			\usebox{\instituteBox}%
+		\end{beamercolorbox}
+		\vskip7mm
+		\begin{beamercolorbox}[wd=\wd\authorBox]{author}
+			\usebox{\authorBox}%
+		\end{beamercolorbox}
+		\vskip1mm
+		\begin{beamercolorbox}[wd=\wd\dateBox]{date}
+			February 12, 2015%
+		\end{beamercolorbox}
+		\vskip0pt
+	\end{beamercolorbox}
+	\end{beamercolorbox}
+	\end{textblock*}
+}
+
+\addtobeamertemplate{frametitle}{\hspace*{0.5cm}}
+
+\setbeamertemplate{blocks}[rounded][shadow=\beamer@themerounded@shadow]
+\setbeamertemplate{items}[circle]
+\setbeamertemplate{sections/subsections in toc}[circle]
+
+\mode
+<all>

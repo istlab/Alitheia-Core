@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>ProjectsView.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.webadmin</a> &gt; <span class="el_source">ProjectsView.java</span></div><h1>ProjectsView.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.webadmin;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.velocity.VelocityContext;
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.PluginInfo;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.actions.AddProject;
+import eu.sqooss.service.admin.actions.UpdateProject;
+import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.scheduler.SchedulerException;
+import eu.sqooss.service.updater.Updater;
+import eu.sqooss.service.updater.UpdaterService.UpdaterStage;
+
+public class ProjectsView extends AbstractView {
+    // Script for submitting this page
+<span class="nc" id="L64">    private static String SUBMIT = &quot;document.projects.submit();&quot;;</span>
+
+    // Action parameter's values
+<span class="nc" id="L67">    private static String ACT_REQ_ADD_PROJECT   = &quot;reqAddProject&quot;;</span>
+<span class="nc" id="L68">    private static String ACT_CON_ADD_PROJECT   = &quot;conAddProject&quot;;</span>
+<span class="nc" id="L69">    private static String ACT_REQ_REM_PROJECT   = &quot;reqRemProject&quot;;</span>
+<span class="nc" id="L70">    private static String ACT_CON_REM_PROJECT   = &quot;conRemProject&quot;;</span>
+<span class="nc" id="L71">    private static String ACT_REQ_SHOW_PROJECT  = &quot;conShowProject&quot;;</span>
+<span class="nc" id="L72">    private static String ACT_CON_UPD_ALL       = &quot;conUpdateAll&quot;;</span>
+<span class="nc" id="L73">    private static String ACT_CON_UPD           = &quot;conUpdate&quot;;</span>
+<span class="nc" id="L74">    private static String ACT_CON_UPD_ALL_NODE  = &quot;conUpdateAllOnNode&quot;;</span>
+
+    // Servlet parameters
+<span class="nc" id="L77">    private static String REQ_PAR_ACTION        = &quot;reqAction&quot;;</span>
+<span class="nc" id="L78">    private static String REQ_PAR_PROJECT_ID    = &quot;projectId&quot;;</span>
+<span class="nc" id="L79">    private static String REQ_PAR_PRJ_NAME      = &quot;projectName&quot;;</span>
+<span class="nc" id="L80">    private static String REQ_PAR_PRJ_WEB       = &quot;projectHomepage&quot;;</span>
+<span class="nc" id="L81">    private static String REQ_PAR_PRJ_CONT      = &quot;projectContact&quot;;</span>
+<span class="nc" id="L82">    private static String REQ_PAR_PRJ_BUG       = &quot;projectBL&quot;;</span>
+<span class="nc" id="L83">    private static String REQ_PAR_PRJ_MAIL      = &quot;projectML&quot;;</span>
+<span class="nc" id="L84">    private static String REQ_PAR_PRJ_CODE      = &quot;projectSCM&quot;;</span>
+<span class="nc" id="L85">    private static String REQ_PAR_SYNC_PLUGIN   = &quot;reqParSyncPlugin&quot;;</span>
+<span class="nc" id="L86">    private static String REQ_PAR_UPD           = &quot;reqUpd&quot;;</span>
+    
+    /**
+     * Instantiates a new projects view.
+     *
+     * @param bundlecontext the &lt;code&gt;BundleContext&lt;/code&gt; object
+     * @param vc the &lt;code&gt;VelocityContext&lt;/code&gt; object
+     */
+    public ProjectsView(BundleContext bundlecontext, VelocityContext vc) {
+<span class="nc" id="L95">        super(bundlecontext, vc);</span>
+<span class="nc" id="L96">    }</span>
+
+    /**
+     * Renders the various project's views.
+     *
+     * @param req the servlet's request object
+     *
+     * @return The HTML presentation of the generated view.
+     */
+    public static String render(HttpServletRequest req) {
+        // Stores the assembled HTML content
+<span class="nc" id="L107">        StringBuilder b = new StringBuilder(&quot;\n&quot;);</span>
+        // Stores the accumulated error messages
+<span class="nc" id="L109">        StringBuilder e = new StringBuilder();</span>
+        // Indentation spacer
+<span class="nc" id="L111">        int in = 6;</span>
+
+        // Initialize the resource bundles with the request's locale
+<span class="nc" id="L114">        initResources(req.getLocale());</span>
+
+        // Request values
+<span class="nc" id="L117">        String reqValAction        = &quot;&quot;;</span>
+<span class="nc" id="L118">        Long   reqValProjectId     = null;</span>
+
+        // Selected project
+<span class="nc" id="L121">        StoredProject selProject = null;</span>
+
+        // ===============================================================
+        // Parse the servlet's request object
+        // ===============================================================
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (req != null) {</span>
+            // DEBUG: Dump the servlet's request parameter
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (DEBUG) {</span>
+<span class="nc" id="L129">                b.append(debugRequest(req));</span>
+            }
+
+            // Retrieve the selected editor's action (if any)
+<span class="nc" id="L133">            reqValAction = req.getParameter(REQ_PAR_ACTION);</span>
+            
+            // Retrieve the selected project's DAO (if any)
+<span class="nc" id="L136">            reqValProjectId = fromString(req.getParameter(REQ_PAR_PROJECT_ID));</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (reqValProjectId != null) {</span>
+<span class="nc" id="L138">                selProject = sobjDB.findObjectById(</span>
+<span class="nc" id="L139">                        StoredProject.class, reqValProjectId);</span>
+            }
+            
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (reqValAction == null) {</span>
+<span class="nc" id="L143">                reqValAction = &quot;&quot;;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            } else if (reqValAction.equals(ACT_CON_ADD_PROJECT)) {</span>
+<span class="nc" id="L145">            	selProject = addProject(e, req, in);</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            } else if (reqValAction.equals(ACT_CON_REM_PROJECT)) {</span>
+<span class="nc" id="L147">            	selProject = removeProject(e, selProject, in);</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            } else if (reqValAction.equals(ACT_CON_UPD)) {</span>
+<span class="nc" id="L149">            	triggerUpdate(e, selProject, in, req.getParameter(REQ_PAR_UPD));</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">            } else if (reqValAction.equals(ACT_CON_UPD_ALL)) {</span>
+<span class="nc" id="L151">            	triggerAllUpdate(e, selProject, in);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            } else if (reqValAction.equals(ACT_CON_UPD_ALL_NODE)) {</span>
+<span class="nc" id="L153">            	triggerAllUpdateNode(e, selProject, in);</span>
+<span class="nc" id="L154">            } else {</span>
+            	// Retrieve the selected plug-in's hash-code
+<span class="nc" id="L156">        		String reqValSyncPlugin = req.getParameter(REQ_PAR_SYNC_PLUGIN);</span>
+<span class="nc" id="L157">        		syncPlugin(e, selProject, reqValSyncPlugin);</span>
+            }
+        }
+<span class="nc" id="L160">        createFrom(b, e, selProject, reqValAction , in);</span>
+<span class="nc" id="L161">        return b.toString();</span>
+    }
+  
+    private static StoredProject addProject(StringBuilder e, HttpServletRequest r, int indent) {
+<span class="nc" id="L165">        AdminService as = AlitheiaCore.getInstance().getAdminService();</span>
+<span class="nc" id="L166">    	AdminAction aa = as.create(AddProject.MNEMONIC);</span>
+<span class="nc" id="L167">    	aa.addArg(&quot;scm&quot;, r.getParameter(REQ_PAR_PRJ_CODE));</span>
+<span class="nc" id="L168">    	aa.addArg(&quot;name&quot;, r.getParameter(REQ_PAR_PRJ_NAME));</span>
+<span class="nc" id="L169">    	aa.addArg(&quot;bts&quot;, r.getParameter(REQ_PAR_PRJ_BUG));</span>
+<span class="nc" id="L170">    	aa.addArg(&quot;mail&quot;, r.getParameter(REQ_PAR_PRJ_MAIL));</span>
+<span class="nc" id="L171">    	aa.addArg(&quot;web&quot;, r.getParameter(REQ_PAR_PRJ_WEB));</span>
+<span class="nc" id="L172">    	as.execute(aa);</span>
+    	
+<span class="nc bnc" id="L174" title="All 2 branches missed.">    	if (aa.hasErrors()) {</span>
+<span class="nc" id="L175">            vc.put(&quot;RESULTS&quot;, aa.errors());</span>
+<span class="nc" id="L176">            return null;</span>
+    	} else { 
+<span class="nc" id="L178">            vc.put(&quot;RESULTS&quot;, aa.results());</span>
+<span class="nc" id="L179">            return StoredProject.getProjectByName(r.getParameter(REQ_PAR_PRJ_NAME));</span>
+    	}
+    }
+    
+    // ---------------------------------------------------------------
+    // Remove project
+    // ---------------------------------------------------------------
+    private static StoredProject removeProject(StringBuilder e, 
+    		StoredProject selProject, int indent) {
+<span class="nc bnc" id="L188" title="All 2 branches missed.">    	if (selProject != null) {</span>
+			// Deleting large projects in the foreground is
+			// very slow
+<span class="nc" id="L191">			ProjectDeleteJob pdj = new ProjectDeleteJob(sobjCore, selProject);</span>
+			try {
+<span class="nc" id="L193">				sobjSched.enqueue(pdj);</span>
+<span class="nc" id="L194">			} catch (SchedulerException e1) {</span>
+<span class="nc" id="L195">				e.append(sp(indent)).append(getErr(&quot;e0034&quot;)).append(&quot;&lt;br/&gt;\n&quot;);</span>
+			}
+<span class="nc" id="L197">			selProject = null;</span>
+<span class="nc" id="L198">		} else {</span>
+<span class="nc" id="L199">			e.append(sp(indent) + getErr(&quot;e0034&quot;) + &quot;&lt;br/&gt;\n&quot;);</span>
+		}
+<span class="nc" id="L201">    	return selProject;</span>
+    }
+
+	// ---------------------------------------------------------------
+	// Trigger an update
+	// ---------------------------------------------------------------
+	private static void triggerUpdate(StringBuilder e,
+			StoredProject selProject, int indent, String mnem) {
+<span class="nc" id="L209">		AdminService as = AlitheiaCore.getInstance().getAdminService();</span>
+<span class="nc" id="L210">		AdminAction aa = as.create(UpdateProject.MNEMONIC);</span>
+<span class="nc" id="L211">		aa.addArg(&quot;project&quot;, selProject.getId());</span>
+<span class="nc" id="L212">		aa.addArg(&quot;updater&quot;, mnem);</span>
+<span class="nc" id="L213">		as.execute(aa);</span>
+
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		if (aa.hasErrors()) {</span>
+<span class="nc" id="L216">            vc.put(&quot;RESULTS&quot;, aa.errors());</span>
+<span class="nc" id="L217">        } else { </span>
+<span class="nc" id="L218">            vc.put(&quot;RESULTS&quot;, aa.results());</span>
+        }
+<span class="nc" id="L220">	}</span>
+
+	// ---------------------------------------------------------------
+	// Trigger update on all resources for that project
+	// ---------------------------------------------------------------
+	private static void triggerAllUpdate(StringBuilder e,
+			StoredProject selProject, int indent) {
+<span class="nc" id="L227">	    AdminService as = AlitheiaCore.getInstance().getAdminService();</span>
+<span class="nc" id="L228">        AdminAction aa = as.create(UpdateProject.MNEMONIC);</span>
+<span class="nc" id="L229">        aa.addArg(&quot;project&quot;, selProject.getId());</span>
+<span class="nc" id="L230">        as.execute(aa);</span>
+
+<span class="nc bnc" id="L232" title="All 2 branches missed.">        if (aa.hasErrors()) {</span>
+<span class="nc" id="L233">            vc.put(&quot;RESULTS&quot;, aa.errors());</span>
+<span class="nc" id="L234">        } else { </span>
+<span class="nc" id="L235">            vc.put(&quot;RESULTS&quot;, aa.results());</span>
+        }
+<span class="nc" id="L237">	}</span>
+	
+	// ---------------------------------------------------------------
+	// Trigger update on all resources on all projects of a node
+	// ---------------------------------------------------------------
+    private static void triggerAllUpdateNode(StringBuilder e,
+			StoredProject selProject, int in) {
+<span class="nc" id="L244">		Set&lt;StoredProject&gt; projectList = ClusterNode.thisNode().getProjects();</span>
+		
+<span class="nc bnc" id="L246" title="All 2 branches missed.">		for (StoredProject project : projectList) {</span>
+<span class="nc" id="L247">			triggerAllUpdate(e, project, in);</span>
+		}
+<span class="nc" id="L249">	}</span>
+	
+	// ---------------------------------------------------------------
+	// Trigger synchronize on the selected plug-in for that project
+	// ---------------------------------------------------------------
+    private static void syncPlugin(StringBuilder e, StoredProject selProject, String reqValSyncPlugin) {
+<span class="nc bnc" id="L255" title="All 4 branches missed.">		if ((reqValSyncPlugin != null) &amp;&amp; (selProject != null)) {</span>
+<span class="nc" id="L256">			PluginInfo pInfo = sobjPA.getPluginInfo(reqValSyncPlugin);</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">			if (pInfo != null) {</span>
+<span class="nc" id="L258">				AlitheiaPlugin pObj = sobjPA.getPlugin(pInfo);</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">				if (pObj != null) {</span>
+<span class="nc" id="L260">					compMA.syncMetric(pObj, selProject);</span>
+<span class="nc" id="L261">					sobjLogger.debug(&quot;Syncronise plugin (&quot; + pObj.getName()</span>
+<span class="nc" id="L262">							+ &quot;) on project (&quot; + selProject.getName() + &quot;).&quot;);</span>
+				}
+			}
+		}
+<span class="nc" id="L266">    }</span>
+    
+    private static void createFrom(StringBuilder b, StringBuilder e, 
+    		StoredProject selProject, String reqValAction, int in) {
+
+        // ===============================================================
+        // Create the form
+        // ===============================================================
+<span class="nc" id="L274">        b.append(sp(in) + &quot;&lt;form id=\&quot;projects\&quot;&quot;</span>
+<span class="nc" id="L275">                + &quot; name=\&quot;projects\&quot;&quot;</span>
+<span class="nc" id="L276">                + &quot; method=\&quot;post\&quot;&quot;</span>
+<span class="nc" id="L277">                + &quot; action=\&quot;/projects\&quot;&gt;\n&quot;);</span>
+
+        // ===============================================================
+        // Display the accumulated error messages (if any)
+        // ===============================================================
+<span class="nc" id="L282">        b.append(errorFieldset(e, ++in));</span>
+
+        // Get the complete list of projects stored in the SQO-OSS framework
+<span class="nc" id="L285">        Set&lt;StoredProject&gt; projects = ClusterNode.thisNode().getProjects();</span>
+<span class="nc" id="L286">        Collection&lt;PluginInfo&gt; metrics = sobjPA.listPlugins();</span>
+
+        // ===================================================================
+        // &quot;Show project info&quot; view
+        // ===================================================================
+<span class="nc bnc" id="L291" title="All 2 branches missed.">        if ((reqValAction.equals(ACT_REQ_SHOW_PROJECT))</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                &amp;&amp; (selProject != null)) {</span>
+            // Create the field-set
+<span class="nc" id="L294">            b.append(sp(in++) + &quot;&lt;fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L295">            b.append(sp(in) + &quot;&lt;legend&gt;&quot;</span>
+<span class="nc" id="L296">                    + &quot;Project information&quot;</span>
+<span class="nc" id="L297">                    + &quot;&lt;/legend&gt;\n&quot;);</span>
+<span class="nc" id="L298">            b.append(sp(in++) + &quot;&lt;table class=\&quot;borderless\&quot;&gt;\n&quot;);</span>
+            // Create the input fields
+<span class="nc" id="L300">            b.append(normalInfoRow(</span>
+<span class="nc" id="L301">                    &quot;Project name&quot;, selProject.getName(), in));</span>
+<span class="nc" id="L302">            b.append(normalInfoRow(</span>
+<span class="nc" id="L303">                    &quot;Homepage&quot;, selProject.getWebsiteUrl(), in));</span>
+<span class="nc" id="L304">            b.append(normalInfoRow(</span>
+<span class="nc" id="L305">                    &quot;Contact e-mail&quot;, selProject.getContactUrl(), in));</span>
+<span class="nc" id="L306">            b.append(normalInfoRow(</span>
+<span class="nc" id="L307">                    &quot;Bug database&quot;, selProject.getBtsUrl(), in));</span>
+<span class="nc" id="L308">            b.append(normalInfoRow(</span>
+<span class="nc" id="L309">                    &quot;Mailing list&quot;, selProject.getMailUrl(), in));</span>
+<span class="nc" id="L310">            b.append(normalInfoRow(</span>
+<span class="nc" id="L311">                    &quot;Source code&quot;, selProject.getScmUrl(), in));</span>
+
+            //------------------------------------------------------------
+            // Tool-bar
+            //------------------------------------------------------------
+<span class="nc" id="L316">            b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L317">            b.append(sp(in++)</span>
+<span class="nc" id="L318">                    + &quot;&lt;td colspan=\&quot;2\&quot; class=\&quot;borderless\&quot;&gt;\n&quot;);</span>
+            // Back button
+<span class="nc" id="L320">            b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L321">                    + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L322">                    + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L323">                    + &quot; value=\&quot;&quot; + getLbl(&quot;btn_back&quot;) + &quot;\&quot;&quot;</span>
+<span class="nc" id="L324">                    + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L325">                    + SUBMIT + &quot;\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L326">            b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L327">            b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L328">            b.append(sp(--in) + &quot;&lt;/table&gt;\n&quot;);</span>
+<span class="nc" id="L329">            b.append(sp(--in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L330">        }</span>
+        // ===================================================================
+        // &quot;Add project&quot; editor
+        // ===================================================================
+<span class="nc bnc" id="L334" title="All 2 branches missed.">        else if (reqValAction.equals(ACT_REQ_ADD_PROJECT)) {</span>
+            // Create the field-set
+<span class="nc" id="L336">            b.append(sp(in++) + &quot;&lt;table class=\&quot;borderless\&quot; width='100%'&gt;\n&quot;);</span>
+            // Create the input fields
+<span class="nc" id="L338">            b.append(normalInputRow(</span>
+<span class="nc" id="L339">                    &quot;Project name&quot;, REQ_PAR_PRJ_NAME, &quot;&quot;, in));</span>
+<span class="nc" id="L340">            b.append(normalInputRow(</span>
+<span class="nc" id="L341">                    &quot;Homepage&quot;, REQ_PAR_PRJ_WEB, &quot;&quot;, in));</span>
+<span class="nc" id="L342">            b.append(normalInputRow(</span>
+<span class="nc" id="L343">                    &quot;Contact e-mail&quot;, REQ_PAR_PRJ_CONT, &quot;&quot;, in));</span>
+<span class="nc" id="L344">            b.append(normalInputRow(</span>
+<span class="nc" id="L345">                    &quot;Bug database&quot;, REQ_PAR_PRJ_BUG, &quot;&quot;, in));</span>
+<span class="nc" id="L346">            b.append(normalInputRow(</span>
+<span class="nc" id="L347">                    &quot;Mailing list&quot;, REQ_PAR_PRJ_MAIL, &quot;&quot;, in));</span>
+<span class="nc" id="L348">            b.append(normalInputRow(</span>
+<span class="nc" id="L349">                    &quot;Source code&quot;, REQ_PAR_PRJ_CODE, &quot;&quot;, in));</span>
+
+            //------------------------------------------------------------
+            // Tool-bar
+            //------------------------------------------------------------
+<span class="nc" id="L354">            b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L355">            b.append(sp(in++)</span>
+<span class="nc" id="L356">                    + &quot;&lt;td colspan=\&quot;2\&quot; class=\&quot;borderless\&quot;&gt;\n&quot;);</span>
+            // Apply button
+<span class="nc" id="L358">            b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L359">                    + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L360">                    + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L361">                    + &quot; value=\&quot;&quot; + getLbl(&quot;project_add&quot;) + &quot;\&quot;&quot;</span>
+<span class="nc" id="L362">                    + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L363">                    + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L364">                    + REQ_PAR_ACTION + &quot;').value='&quot;</span>
+<span class="nc" id="L365">                    + ACT_CON_ADD_PROJECT + &quot;';&quot;</span>
+<span class="nc" id="L366">                    + SUBMIT + &quot;\&quot;&gt;\n&quot;);</span>
+            // Cancel button
+<span class="nc" id="L368">            b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L369">                    + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L370">                    + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L371">                    + &quot; value=\&quot;&quot; + getLbl(&quot;cancel&quot;) + &quot;\&quot;&quot;</span>
+<span class="nc" id="L372">                    + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L373">                    + SUBMIT + &quot;\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L374">            b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L375">            b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L376">            b.append(sp(--in) + &quot;&lt;/table&gt;\n&quot;);</span>
+<span class="nc" id="L377">        }</span>
+        // ===================================================================
+        // &quot;Delete project&quot; confirmation view
+        // ===================================================================
+<span class="nc bnc" id="L381" title="All 2 branches missed.">        else if ((reqValAction.equals(ACT_REQ_REM_PROJECT))</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">                &amp;&amp; (selProject != null)) {</span>
+<span class="nc" id="L383">            b.append(sp(in++) + &quot;&lt;fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L384">            b.append(sp(in) + &quot;&lt;legend&gt;&quot; + getLbl(&quot;l0059&quot;)</span>
+<span class="nc" id="L385">                    + &quot;: &quot; + selProject.getName()</span>
+<span class="nc" id="L386">                    + &quot;&lt;/legend&gt;\n&quot;);</span>
+<span class="nc" id="L387">            b.append(sp(in++) + &quot;&lt;table class=\&quot;borderless\&quot;&gt;&quot;);</span>
+            // Confirmation message
+<span class="nc" id="L389">            b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L390">            b.append(sp(in) + &quot;&lt;td class=\&quot;borderless\&quot;&gt;&quot;</span>
+<span class="nc" id="L391">                    + &quot;&lt;b&gt;&quot; + getMsg(&quot;delete_project&quot;) + &quot;&lt;/b&gt;&quot;</span>
+<span class="nc" id="L392">                    + &quot;&lt;/td&gt;\n&quot;);</span>
+
+<span class="nc" id="L394">            b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+            //------------------------------------------------------------
+            // Tool-bar
+            //------------------------------------------------------------
+<span class="nc" id="L398">            b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L399">            b.append(sp(in++)</span>
+<span class="nc" id="L400">                    + &quot;&lt;td class=\&quot;borderless\&quot;&gt;\n&quot;);</span>
+            // Confirm button
+<span class="nc" id="L402">            b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L403">                    + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L404">                    + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L405">                    + &quot; value=\&quot;&quot; + getLbl(&quot;l0006&quot;) + &quot;\&quot;&quot;</span>
+<span class="nc" id="L406">                    + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L407">                    + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L408">                    + REQ_PAR_ACTION + &quot;').value='&quot;</span>
+<span class="nc" id="L409">                    + ACT_CON_REM_PROJECT + &quot;';&quot;</span>
+<span class="nc" id="L410">                    + SUBMIT + &quot;\&quot;&gt;\n&quot;);</span>
+            // Cancel button
+<span class="nc" id="L412">            b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L413">                    + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L414">                    + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L415">                    + &quot; value=\&quot;&quot; + getLbl(&quot;l0004&quot;) + &quot;\&quot;&quot;</span>
+<span class="nc" id="L416">                    + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L417">                    + SUBMIT + &quot;\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L418">            b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L419">            b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L420">            b.append(sp(--in) + &quot;&lt;/table&gt;&quot;);</span>
+<span class="nc" id="L421">            b.append(sp(in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L422">        }</span>
+        // ===================================================================
+        // Projects list view
+        // ===================================================================
+        else {
+<span class="nc" id="L427">            addHeaderRow(b,in);</span>
+
+<span class="nc bnc" id="L429" title="All 2 branches missed.">            if (projects.isEmpty()) {</span>
+<span class="nc" id="L430">                b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L431">                b.append(sp(in) + &quot;&lt;td colspan=\&quot;6\&quot; class=\&quot;noattr\&quot;&gt;\n&quot;</span>
+<span class="nc" id="L432">                        + getMsg(&quot;no_projects&quot;)</span>
+<span class="nc" id="L433">                        + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L434">                b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L435">            }</span>
+            else {
+                //------------------------------------------------------------
+                // Create the content rows
+                //------------------------------------------------------------
+<span class="nc" id="L440">                b.append(sp(in++) + &quot;&lt;tbody&gt;\n&quot;);</span>
+<span class="nc bnc" id="L441" title="All 2 branches missed.">                for (StoredProject nextPrj : projects) {</span>
+<span class="nc" id="L442">                    boolean selected = false;</span>
+<span class="nc bnc" id="L443" title="All 2 branches missed.">                    if ((selProject != null)</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">                            &amp;&amp; (selProject.getId() == nextPrj.getId())) {</span>
+<span class="nc" id="L445">                        selected = true;</span>
+                    }
+<span class="nc" id="L447">                    b.append(sp(in++) + &quot;&lt;tr class=\&quot;&quot;</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">                            + ((selected) ? &quot;selected&quot; : &quot;edit&quot;) + &quot;\&quot;&quot;</span>
+<span class="nc" id="L449">                            + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L450">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L451">                            + REQ_PAR_PROJECT_ID + &quot;').value='&quot;</span>
+<span class="nc bnc" id="L452" title="All 2 branches missed.">                            + ((selected) ? &quot;&quot; : nextPrj.getId())</span>
+<span class="nc" id="L453">                            + &quot;';&quot;</span>
+<span class="nc" id="L454">                            + SUBMIT + &quot;\&quot;&gt;\n&quot;);</span>
+                    // Project Id
+<span class="nc" id="L456">                    b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L457">                            + nextPrj.getId()</span>
+<span class="nc" id="L458">                            + &quot;&lt;/td&gt;\n&quot;);</span>
+                    // Project name
+<span class="nc" id="L460">                    b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">                            + ((selected)</span>
+<span class="nc" id="L462">                                    ? &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+                                        + &quot; class=\&quot;install\&quot;&quot;
+                                        + &quot; style=\&quot;width: 100px;\&quot;&quot;
+                                        + &quot; value=\&quot;&quot;
+<span class="nc" id="L466">                                        + getLbl(&quot;btn_info&quot;)</span>
+<span class="nc" id="L467">                                        + &quot;\&quot;&quot;</span>
+<span class="nc" id="L468">                                        + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L469">                                        + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L470">                                        + REQ_PAR_ACTION + &quot;').value='&quot; </span>
+<span class="nc" id="L471">                                        + ACT_REQ_SHOW_PROJECT + &quot;';&quot;</span>
+<span class="nc" id="L472">                                        + SUBMIT + &quot;\&quot;&gt;&quot;</span>
+<span class="nc" id="L473">                                    : &quot;&lt;img src=\&quot;/edit.png\&quot;&quot;</span>
+                                        + &quot; alt=\&quot;[Edit]\&quot;/&gt;&quot;)
+<span class="nc" id="L475">                            + &quot;&amp;nbsp;&quot;</span>
+<span class="nc" id="L476">                            + nextPrj.getName()</span>
+<span class="nc" id="L477">                            + &quot;&lt;/td&gt;\n&quot;);</span>
+                    // Last project version
+<span class="nc" id="L479">                    String lastVersion = getLbl(&quot;l0051&quot;);</span>
+<span class="nc" id="L480">                    ProjectVersion v = ProjectVersion.getLastProjectVersion(nextPrj);</span>
+<span class="nc bnc" id="L481" title="All 2 branches missed.">                    if (v != null) {</span>
+<span class="nc" id="L482">                        lastVersion = String.valueOf(v.getSequence()) + &quot;(&quot; + v.getRevisionId() + &quot;)&quot;;</span>
+                    }
+<span class="nc" id="L484">                    b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L485">                            + lastVersion</span>
+<span class="nc" id="L486">                            + &quot;&lt;/td&gt;\n&quot;);</span>
+                    // Date of the last known email
+<span class="nc" id="L488">                    MailMessage mm = MailMessage.getLatestMailMessage(nextPrj);</span>
+<span class="nc" id="L489">                    b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc bnc" id="L490" title="All 2 branches missed.">                            + ((mm == null)?getLbl(&quot;l0051&quot;):mm.getSendDate())</span>
+<span class="nc" id="L491">                            + &quot;&lt;/td&gt;\n&quot;);</span>
+                    // ID of the last known bug entry
+<span class="nc" id="L493">                    Bug bug = Bug.getLastUpdate(nextPrj);</span>
+<span class="nc" id="L494">                    b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">                            + ((bug == null)?getLbl(&quot;l0051&quot;):bug.getBugID())</span>
+<span class="nc" id="L496">                            + &quot;&lt;/td&gt;\n&quot;);</span>
+                    // Evaluation state
+<span class="nc" id="L498">                    String evalState = getLbl(&quot;project_not_evaluated&quot;);</span>
+<span class="nc bnc" id="L499" title="All 2 branches missed.">                    if (nextPrj.isEvaluated()) {</span>
+<span class="nc" id="L500">                    	evalState = getLbl(&quot;project_is_evaluated&quot;);</span>
+                    }
+<span class="nc" id="L502">                    b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L503">                            + evalState</span>
+<span class="nc" id="L504">                            + &quot;&lt;/td&gt;\n&quot;);</span>
+                    
+                    // Cluster node
+<span class="nc" id="L507">                    String nodename = null;</span>
+<span class="nc bnc" id="L508" title="All 2 branches missed.">                    if (null != nextPrj.getClusternode()) {</span>
+<span class="nc" id="L509">                        nodename = nextPrj.getClusternode().getName();</span>
+<span class="nc" id="L510">                    } else {</span>
+<span class="nc" id="L511">                        nodename = &quot;(local)&quot;;</span>
+                    }
+<span class="nc" id="L513">                    b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot; + nodename + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L514">                    b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc bnc" id="L515" title="All 4 branches missed.">                    if ((selected) &amp;&amp; (metrics.isEmpty() == false)) {</span>
+<span class="nc" id="L516">                        showLastAppliedVersion(nextPrj, metrics, b);</span>
+                    }
+                }
+            }
+            //----------------------------------------------------------------
+            // Tool-bar
+            //----------------------------------------------------------------
+<span class="nc" id="L523">            addToolBar(selProject,b,in);</span>
+
+            //----------------------------------------------------------------
+            // Close the table
+            //----------------------------------------------------------------
+<span class="nc" id="L528">            b.append(sp(--in) + &quot;&lt;/tbody&gt;\n&quot;);</span>
+<span class="nc" id="L529">            b.append(sp(--in) + &quot;&lt;/table&gt;\n&quot;);</span>
+<span class="nc" id="L530">            b.append(sp(--in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+        }
+
+        // ===============================================================
+        // INPUT FIELDS
+        // ===============================================================
+<span class="nc" id="L536">        addHiddenFields(selProject,b,in);</span>
+
+        // ===============================================================
+        // Close the form
+        // ===============================================================
+<span class="nc" id="L541">        b.append(sp(--in) + &quot;&lt;/form&gt;\n&quot;);</span>
+<span class="nc" id="L542">    }</span>
+
+
+    private static void addHiddenFields(StoredProject selProject,
+            StringBuilder b,
+            long in) {
+        // &quot;Action type&quot; input field
+<span class="nc" id="L549">        b.append(sp(in) + &quot;&lt;input type='hidden' id='&quot; + REQ_PAR_ACTION + </span>
+<span class="nc" id="L550">                &quot;' name='&quot; + REQ_PAR_ACTION + &quot;' value=''&gt;\n&quot;);</span>
+        // &quot;Project Id&quot; input field
+<span class="nc" id="L552">        b.append(sp(in) + &quot;&lt;input type='hidden' id='&quot; + REQ_PAR_PROJECT_ID +</span>
+<span class="nc" id="L553">                &quot;' name='&quot; + REQ_PAR_PROJECT_ID +</span>
+<span class="nc bnc" id="L554" title="All 2 branches missed.">                &quot;' value='&quot; + ((selProject != null) ? selProject.getId() : &quot;&quot;) +</span>
+<span class="nc" id="L555">                &quot;'&gt;\n&quot;);</span>
+        // &quot;Plug-in hashcode&quot; input field
+<span class="nc" id="L557">        b.append(sp(in) + &quot;&lt;input type='hidden' id='&quot; + REQ_PAR_SYNC_PLUGIN +</span>
+<span class="nc" id="L558">                &quot;' name='&quot; + REQ_PAR_SYNC_PLUGIN + </span>
+<span class="nc" id="L559">                &quot;' value=''&gt;\n&quot;);</span>
+<span class="nc" id="L560">    }</span>
+    
+    private static void addToolBar(StoredProject selProject,
+            StringBuilder b,
+            long in) {
+<span class="nc" id="L565">        b.append(sp(in++) + &quot;&lt;tr class=\&quot;subhead\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L566">        b.append(sp(in++) + &quot;&lt;td&gt;View&lt;/td&gt;&lt;td colspan=\&quot;6\&quot;&gt;\n&quot;);</span>
+        // Refresh button
+<span class="nc bnc" id="L568" title="All 2 branches missed.">        b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot; + &quot; class=\&quot;install\&quot;&quot; + &quot; style=\&quot;width: 100px;\&quot;&quot; + &quot; value=\&quot;&quot; + getLbl(&quot;l0008&quot;) + &quot;\&quot;&quot; + &quot; onclick=\&quot;javascript:&quot; + &quot;window.location='/projects&quot; + ((selProject != null)</span>
+<span class="nc" id="L569">                ? &quot;?&quot; + REQ_PAR_PROJECT_ID + &quot;=&quot; + selProject.getId()</span>
+<span class="nc" id="L570">                : &quot;&quot;) + &quot;';\&quot;&quot; + &quot;&gt;&quot;);</span>
+<span class="nc" id="L571">        b.append(&quot;&lt;/td&gt;&lt;/tr&gt;&lt;tr class=\&quot;subhead\&quot;&gt;&lt;td&gt;Manage&lt;/td&gt;&lt;td colspan='6'&gt;\n&quot;);</span>
+        // Add project button
+<span class="nc" id="L573">        b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot; + &quot; class=\&quot;install\&quot;&quot; + &quot; style=\&quot;width: 100px;\&quot;&quot; + &quot; value=\&quot;&quot; + getLbl(&quot;add_project&quot;) + &quot;\&quot;&quot; + &quot; onclick=\&quot;javascript:&quot; + &quot;document.getElementById('&quot; + REQ_PAR_ACTION + &quot;').value='&quot; + ACT_REQ_ADD_PROJECT + &quot;';&quot; + SUBMIT + &quot;\&quot;&gt;\n&quot;);</span>
+        // Remove project button
+<span class="nc bnc" id="L575" title="All 2 branches missed.">        b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot; + &quot; class=\&quot;install\&quot;&quot; + &quot; style=\&quot;width: 100px;\&quot;&quot; + &quot; value=\&quot;&quot; + getLbl(&quot;l0059&quot;) + &quot;\&quot;&quot; + &quot; onclick=\&quot;javascript:&quot; + &quot;document.getElementById('&quot; + REQ_PAR_ACTION + &quot;').value='&quot; + ACT_REQ_REM_PROJECT + &quot;';&quot; + SUBMIT + &quot;\&quot;&quot; + ((selProject != null) ? &quot;&quot; : &quot; disabled&quot;) + &quot;&gt;&quot;);</span>
+<span class="nc" id="L576">        b.append(&quot;&lt;/td&gt;&lt;/tr&gt;&lt;tr class='subhead'&gt;&lt;td&gt;Update&lt;/td&gt;&lt;td colspan='4'&gt;\n&quot;);</span>
+        
+<span class="nc bnc" id="L578" title="All 2 branches missed.">        if (selProject != null) {</span>
+<span class="nc bnc" id="L579" title="All 2 branches missed.">            b.append(sp(in) + &quot;&lt;select name=\&quot;&quot; + REQ_PAR_UPD + &quot;\&quot; id=\&quot;&quot; + REQ_PAR_UPD + &quot;\&quot; &quot; + ((selProject != null) ? &quot;&quot; : &quot; disabled=\&quot;disabled\&quot;&quot;) + &quot;&gt;\n&quot;);</span>
+<span class="nc" id="L580">            b.append(sp(in) + &quot;&lt;optgroup label=\&quot;Import Stage\&quot;&gt;&quot;);</span>
+<span class="nc bnc" id="L581" title="All 2 branches missed.">            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.IMPORT)) {</span>
+<span class="nc" id="L582">                b.append(&quot;&lt;option value=\&quot;&quot;).append(u.mnem()).append(&quot;\&quot;&gt;&quot;).append(u.descr()).append(&quot;&lt;/option&gt;&quot;);</span>
+            }
+<span class="nc" id="L584">            b.append(sp(in) + &quot;&lt;/optgroup&gt;&quot;);</span>
+<span class="nc" id="L585">            b.append(sp(in) + &quot;&lt;optgroup label=\&quot;Parse Stage\&quot;&gt;&quot;);</span>
+<span class="nc bnc" id="L586" title="All 2 branches missed.">            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.PARSE)) {</span>
+<span class="nc" id="L587">                b.append(&quot;&lt;option value=\&quot;&quot;).append(u.mnem()).append(&quot;\&quot;&gt;&quot;).append(u.descr()).append(&quot;&lt;/option&gt;&quot;);</span>
+            }
+<span class="nc" id="L589">            b.append(sp(in) + &quot;&lt;/optgroup&gt;&quot;);</span>
+<span class="nc" id="L590">            b.append(sp(in) + &quot;&lt;optgroup label=\&quot;Inference Stage\&quot;&gt;&quot;);</span>
+<span class="nc bnc" id="L591" title="All 2 branches missed.">            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.INFERENCE)) {</span>
+<span class="nc" id="L592">                b.append(&quot;&lt;option value=\&quot;&quot;).append(u.mnem()).append(&quot;\&quot;&gt;&quot;).append(u.descr()).append(&quot;&lt;/option&gt;&quot;);</span>
+            }
+<span class="nc" id="L594">            b.append(sp(in) + &quot;&lt;/optgroup&gt;&quot;);</span>
+<span class="nc" id="L595">            b.append(sp(in) + &quot;&lt;optgroup label=\&quot;Default Stage\&quot;&gt;&quot;);</span>
+<span class="nc bnc" id="L596" title="All 2 branches missed.">            for (Updater u : sobjUpdater.getUpdaters(selProject, UpdaterStage.DEFAULT)) {</span>
+<span class="nc" id="L597">                b.append(&quot;&lt;option value=\&quot;&quot;).append(u.mnem()).append(&quot;\&quot;&gt;&quot;).append(u.descr()).append(&quot;&lt;/option&gt;&quot;);</span>
+            }
+<span class="nc" id="L599">            b.append(sp(in) + &quot;&lt;/optgroup&gt;&quot;);</span>
+<span class="nc" id="L600">            b.append(sp(in) + &quot;&lt;/select&gt;&quot;);</span>
+        }
+
+        // Trigger updater
+<span class="nc bnc" id="L604" title="All 2 branches missed.">        b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot; class=\&quot;install\&quot; value=\&quot;Run Updater\&quot; onclick=\&quot;javascript:document.getElementById('&quot; + REQ_PAR_ACTION + &quot;').value='&quot; + ACT_CON_UPD + &quot;';&quot; + SUBMIT + &quot;\&quot;&quot; + ((selProject != null)? &quot;&quot; : &quot; disabled&quot;) + &quot;&gt;\n&quot;);</span>
+        // Trigger all updates
+<span class="nc bnc" id="L606" title="All 2 branches missed.">        b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot; + &quot; class=\&quot;install\&quot;&quot; + &quot; value=\&quot;Run All Updaters\&quot; onclick=\&quot;javascript:document.getElementById('&quot; + REQ_PAR_ACTION + &quot;').value='&quot; + ACT_CON_UPD_ALL + &quot;';&quot; + SUBMIT + &quot;\&quot;&quot; + (((selProject != null))</span>
+<span class="nc" id="L607">                ? &quot;&quot; : &quot; disabled&quot;) + &quot;&gt;\n&quot;);</span>
+<span class="nc" id="L608">        b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L609">        b.append(sp(--in) + &quot;&lt;td colspan=\&quot;2\&quot; align=\&quot;right\&quot;&gt;\n&quot;);</span>
+     // Trigger updates on host
+<span class="nc" id="L611">        b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot; + &quot; class=\&quot;install\&quot; value=\&quot;Update all on &quot;+ sobjClusterNode.getClusterNodeName() +&quot;\&quot;&quot; + &quot; onclick=\&quot;javascript:&quot; + &quot;document.getElementById('&quot; + REQ_PAR_ACTION + &quot;').value='&quot; + ACT_CON_UPD_ALL_NODE + &quot;';&quot; + SUBMIT + &quot;\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L612">        b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L613">        b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L614">    }</span>
+    
+    private static void showLastAppliedVersion(
+            StoredProject project,
+            Collection&lt;PluginInfo&gt; metrics,
+            StringBuilder b) {
+<span class="nc bnc" id="L620" title="All 2 branches missed.">        for(PluginInfo m : metrics) {</span>
+<span class="nc bnc" id="L621" title="All 2 branches missed.">            if (m.installed) {</span>
+<span class="nc" id="L622">                b.append(&quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L623">                b.append(sp(1) + &quot;&lt;td colspan=\&quot;7\&quot;&quot;</span>
+<span class="nc" id="L624">                        + &quot; class=\&quot;noattr\&quot;&gt;\n&quot;</span>
+<span class="nc" id="L625">                        + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L626">                        + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L627">                        + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L628">                        + &quot; value=\&quot;Synchronise\&quot;&quot;</span>
+<span class="nc" id="L629">                        + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L630">                        + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L631">                        + REQ_PAR_SYNC_PLUGIN + &quot;').value='&quot;</span>
+<span class="nc" id="L632">                        + m.getHashcode() + &quot;';&quot;</span>
+<span class="nc" id="L633">                        + SUBMIT + &quot;\&quot;&quot;</span>
+<span class="nc" id="L634">                        + &quot;&gt;&quot;</span>
+<span class="nc" id="L635">                        + &quot;&amp;nbsp;&quot;</span>
+<span class="nc" id="L636">                        + m.getPluginName()</span>
+<span class="nc" id="L637">                        + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L638">                b.append(&quot;&lt;/tr&gt;\n&quot;);</span>
+            }
+        }
+<span class="nc" id="L641">    }</span>
+
+    private static void addHeaderRow(StringBuilder b, long in) {
+        //----------------------------------------------------------------
+        // Create the header row
+        //----------------------------------------------------------------
+<span class="nc" id="L647">        b.append(sp(in++) + &quot;&lt;table&gt;\n&quot;);</span>
+<span class="nc" id="L648">        b.append(sp(in++) + &quot;&lt;thead&gt;\n&quot;);</span>
+<span class="nc" id="L649">        b.append(sp(in++) + &quot;&lt;tr class=\&quot;head\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L650">        b.append(sp(in) + &quot;&lt;td class='head'  style='width: 10%;'&gt;&quot;</span>
+<span class="nc" id="L651">                + getLbl(&quot;l0066&quot;)</span>
+<span class="nc" id="L652">                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L653">        b.append(sp(in) + &quot;&lt;td class='head' style='width: 35%;'&gt;&quot;</span>
+<span class="nc" id="L654">                + getLbl(&quot;l0067&quot;)</span>
+<span class="nc" id="L655">                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L656">        b.append(sp(in) + &quot;&lt;td class='head' style='width: 15%;'&gt;&quot;</span>
+<span class="nc" id="L657">                + getLbl(&quot;l0068&quot;)</span>
+<span class="nc" id="L658">                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L659">        b.append(sp(in) + &quot;&lt;td class='head' style='width: 15%;'&gt;&quot;</span>
+<span class="nc" id="L660">                + getLbl(&quot;l0069&quot;)</span>
+<span class="nc" id="L661">                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L662">        b.append(sp(in) + &quot;&lt;td class='head' style='width: 15%;'&gt;&quot;</span>
+<span class="nc" id="L663">                + getLbl(&quot;l0070&quot;)</span>
+<span class="nc" id="L664">                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L665">        b.append(sp(in) + &quot;&lt;td class='head' style='width: 10%;'&gt;&quot;</span>
+<span class="nc" id="L666">                + getLbl(&quot;l0071&quot;)</span>
+<span class="nc" id="L667">                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L668">        b.append(sp(in) + &quot;&lt;td class='head' style='width: 10%;'&gt;&quot;</span>
+<span class="nc" id="L669">                + getLbl(&quot;l0073&quot;)</span>
+<span class="nc" id="L670">                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L671">        b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L672">        b.append(sp(--in) + &quot;&lt;/thead&gt;\n&quot;);</span>
+<span class="nc" id="L673">    }</span>
+}
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

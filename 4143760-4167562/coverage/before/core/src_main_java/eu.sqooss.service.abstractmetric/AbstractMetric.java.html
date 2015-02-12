@@ -1,0 +1,942 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>AbstractMetric.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.abstractmetric</a> &gt; <span class="el_source">AbstractMetric.java</span></div><h1>AbstractMetric.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,  
+ *                 Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+package eu.sqooss.service.abstractmetric;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.EncapsulationUnitMeasurement;
+import eu.sqooss.service.db.ExecutionUnitMeasurement;
+import eu.sqooss.service.db.MailMessageMeasurement;
+import eu.sqooss.service.db.MailingListThreadMeasurement;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricMeasurement;
+import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.NameSpaceMeasurement;
+import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.db.ProjectFileMeasurement;
+import eu.sqooss.service.db.ProjectVersionMeasurement;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.db.StoredProjectMeasurement;
+import eu.sqooss.service.db.MetricType.Type;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.scheduler.Job;
+import eu.sqooss.service.util.Pair;
+
+/**
+ * A base class for all metrics. Implements basic functionality such as
+ * logging setup and plug-in information retrieval from the OSGi bundle
+ * manifest file. Metrics can choose to directly implement
+ * the {@link eu.sqooss.abstractmetric.AlitheiaPlugin} interface instead of 
+ * extending this class.
+ */
+public abstract class AbstractMetric implements AlitheiaPlugin {
+
+    /** Reference to the metric bundle context */
+    protected BundleContext bc;
+
+    /** Logger for administrative operations */
+<span class="nc" id="L93">    protected Logger log = null;</span>
+
+    /** Reference to the DB service, not to be passed to metric jobs */
+    protected DBService db;
+
+    /** 
+     * Reference to the plugin administrator service, not to be passed to 
+     * metric jobs 
+     */
+    protected PluginAdmin pa;
+    
+    /**
+     * The scheduler job that executes this metric. 
+     */
+<span class="nc" id="L107">    protected ThreadLocal&lt;Job&gt; job = new ThreadLocal&lt;Job&gt;();</span>
+
+    /** 
+     * Metric mnemonics for the metrics required to be present for this 
+     * metric to operate.
+     */
+<span class="nc" id="L113">    private Set&lt;String&gt; dependencies = new HashSet&lt;String&gt;();</span>
+    
+    /** Set of declared metrics indexed by their mnemonic*/
+<span class="nc" id="L116">    private Map&lt;String, Metric&gt; metrics = new HashMap&lt;String, Metric&gt;();</span>
+    
+    /** The list of this plug-in's activators*/
+<span class="nc" id="L119">    private Set&lt;Class&lt;? extends DAObject&gt;&gt; activators =</span>
+<span class="nc" id="L120">        new HashSet&lt;Class&lt;? extends DAObject&gt;&gt;();</span>
+
+<span class="nc" id="L122">    private Map&lt;Metric, List&lt;Class&lt;? extends DAObject&gt;&gt;&gt; metricActType =</span>
+<span class="nc" id="L123">    	new HashMap&lt;Metric, List&lt;Class&lt;? extends DAObject&gt;&gt;&gt;();</span>
+    
+    protected static final String QRY_SYNC_PV = &quot;select pv.id from ProjectVersion pv &quot; +
+    		&quot;where pv.project = :project and not exists(&quot; +
+    		&quot;	select pvm.projectVersion from ProjectVersionMeasurement pvm &quot; +
+    		&quot;	where pvm.projectVersion.id = pv.id and pvm.metric.id = :metric) &quot; +
+    		&quot;order by pv.sequence asc&quot;;
+    
+    protected static final String QRY_SYNC_PF = &quot;select pf.id &quot; +
+    		&quot;from ProjectVersion pv, ProjectFile pf &quot; +
+    		&quot;where pf.projectVersion=pv and pv.project = :project &quot; +
+    		&quot;and not exists (&quot; +
+    		&quot;	select pfm.projectFile &quot; +
+    		&quot;	from ProjectFileMeasurement pfm &quot; +
+    		&quot;	where pfm.projectFile.id = pf.id &quot; +
+    		&quot;	and pfm.metric.id = :metric) &quot; +
+    		&quot;	and pf.isDirectory = false)  &quot; +
+    		&quot;order by pv.sequence asc&quot;;
+    
+    protected static final String QRY_SYNC_PD = &quot;select pf.id &quot; +
+		&quot;from ProjectVersion pv, ProjectFile pf &quot; +
+		&quot;where pf.projectVersion=pv and pv.project = :project &quot; +
+		&quot;and not exists (&quot; +
+		&quot;	select pfm.projectFile &quot; +
+		&quot;	from ProjectFileMeasurement pfm &quot; +
+		&quot;	where pfm.projectFile.id = pf.id &quot; +
+		&quot;	and pfm.metric.id = :metric) &quot; +
+		&quot;	and pf.isDirectory = true)  &quot; +
+		&quot;order by pv.sequence asc&quot;;
+    
+    protected static final String QRY_SYNC_MM = &quot;select mm.id &quot; +
+    		&quot;from MailMessage mm &quot; +
+    		&quot;where mm.list.storedProject = :project &quot; +
+    		&quot;and mm.id not in (&quot; +
+    		&quot;	select mmm.mail.id &quot; +
+    		&quot;	from MailMessageMeasurement mmm &quot; +
+    		&quot;	where mmm.metric.id =:metric and mmm.mail.id = mm.id))&quot;;
+    
+    protected static final String QRY_SYNC_MT = &quot;select mlt.id &quot; +
+    		&quot;from MailingListThread mlt &quot; +
+    		&quot;where mlt.list.storedProject = :project &quot; +
+    		&quot;and mlt.id not in (&quot; +
+    		&quot;	select mltm.thread.id &quot; +
+    		&quot;	from MailingListThreadMeasurement mltm &quot; +
+    		&quot;	where mltm.metric.id =:metric and mltm.thread.id = mlt.id)&quot;;
+    
+    protected static final String QRY_SYNC_DEV = &quot;select d.id &quot; +
+    		&quot;from Developer d &quot; +
+    		&quot;where d.storedProject = :project&quot;;
+    
+    protected static final String QRY_SYNC_NS = &quot;select ns.id &quot; +
+            &quot;from NameSpace ns, ProjectVersion pv &quot; +
+            &quot;where pv = ns.changeVersion &quot; +
+            &quot;and pv.project = :project &quot; +
+            &quot;and not exists ( &quot; +
+            &quot;   select nsm &quot; + 
+            &quot;   from NameSpaceMeasurement nsm &quot; + 
+            &quot;   where nsm.metric.id = :metric &quot; +
+            &quot;   and nsm.namespace = ns) &quot; +
+            &quot;order by pv.sequence asc&quot;;
+    
+    protected static final String QRY_SYNC_ENCUNT = &quot;select encu.id &quot; +
+            &quot;from EncapsulationUnit encu, ProjectVersion pv, ProjectFile pf &quot; +
+            &quot; where pf.projectVersion = pv &quot; +
+            &quot; and encu.file = pf &quot; +
+            &quot;and pv.project = :project &quot; +
+            &quot;and not exists ( &quot; +
+            &quot;    select eum &quot; +
+            &quot;    from EncapsulationUnitMeasurement eum &quot; +
+            &quot;    where eum.encapsulationUnit = encu &quot; +
+            &quot;    and eum.metric.id = :metric &quot; +
+            &quot; ) order by pv.sequence asc &quot;;
+    
+    protected static final String QRY_SYNC_EXECUNT = &quot;select exu.id &quot; +
+    		&quot;from ExecutionUnit exu, EncapsulationUnit encu, &quot; +
+    		&quot;     ProjectVersion pv, ProjectFile pf &quot; +
+            &quot;where pf.projectVersion = pv &quot; +
+            &quot;and encu.file = pf &quot; +
+            &quot;and pv.project = :project &quot; +
+            &quot;and exu.changed = true &quot; +
+            &quot;and exu.encapsulationUnit = encu &quot; +
+            &quot;and not exists ( &quot; +
+            &quot;    select eum  &quot; +
+            &quot;    from ExecutionUnitMeasurement eum &quot; +
+            &quot;    where eum.executionUnit = exu &quot; +
+            &quot;    and eum.metric.id = :metric) &quot; +
+            &quot;order by pv.sequence asc&quot;;
+    
+    /**
+     * Init basic services common to all implementing classes
+     * @param bc - The bundle context of the implementing metric - to be passed
+     * by the activator.
+     */
+<span class="nc" id="L216">    protected AbstractMetric(BundleContext bc) {</span>
+
+<span class="nc" id="L218">        this.bc = bc;</span>
+       
+<span class="nc" id="L220">        log = AlitheiaCore.getInstance().getLogManager().createLogger(Logger.NAME_SQOOSS_METRIC);</span>
+
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        if (log == null) {</span>
+<span class="nc" id="L223">            System.out.println(&quot;ERROR: Got no logger&quot;);</span>
+        }
+
+<span class="nc" id="L226">        db = AlitheiaCore.getInstance().getDBService();</span>
+
+<span class="nc bnc" id="L228" title="All 2 branches missed.">        if(db == null)</span>
+<span class="nc" id="L229">            log.error(&quot;Could not get a reference to the DB service&quot;);</span>
+
+<span class="nc" id="L231">        pa = AlitheiaCore.getInstance().getPluginAdmin();</span>
+
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if(pa == null)</span>
+<span class="nc" id="L234">            log.error(&quot;Could not get a reference to the Plugin Administation &quot;</span>
+                    + &quot;service&quot;);
+        
+        /*Discover the declared metrics*/
+<span class="nc" id="L238">        MetricDeclarations md = this.getClass().getAnnotation(MetricDeclarations.class);</span>
+
+<span class="nc bnc" id="L240" title="All 4 branches missed.">		if (md != null &amp;&amp; md.metrics().length &gt; 0) {</span>
+<span class="nc bnc" id="L241" title="All 2 branches missed.">			for (MetricDecl metric : md.metrics()) {</span>
+<span class="nc" id="L242">				log.debug(&quot;Found metric: &quot; + metric.mnemonic() + &quot; with &quot;</span>
+<span class="nc" id="L243">						+ metric.activators().length + &quot; activators&quot;);</span>
+
+<span class="nc bnc" id="L245" title="All 2 branches missed.">				if (metrics.containsKey(metric.mnemonic())) {</span>
+<span class="nc" id="L246">				    log.error(&quot;Duplicate metric mnemonic &quot; + metric.mnemonic());</span>
+<span class="nc" id="L247">				    continue;</span>
+				}
+				
+<span class="nc" id="L250">				Metric m = new Metric();</span>
+<span class="nc" id="L251">				m.setDescription(metric.descr());</span>
+<span class="nc" id="L252">				m.setMnemonic(metric.mnemonic());</span>
+<span class="nc" id="L253">				m.setMetricType(new MetricType(MetricType.fromActivator(metric.activators()[0])));</span>
+			
+<span class="nc" id="L255">				List&lt;Class&lt;? extends DAObject&gt;&gt; activs = new ArrayList&lt;Class&lt;? extends DAObject&gt;&gt;();				</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">				for (Class&lt;? extends DAObject&gt; o : metric.activators()) {</span>
+<span class="nc" id="L257">					activs.add(o);</span>
+				}
+				
+<span class="nc" id="L260">				metricActType.put(m, activs);</span>
+				
+<span class="nc" id="L262">				activators.addAll(Arrays.asList(metric.activators()));</span>
+				
+<span class="nc" id="L264">				metrics.put(m.getMnemonic(), m);</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">				if (metric.dependencies().length &gt; 0)</span>
+<span class="nc" id="L266">					dependencies.addAll(Arrays.asList(metric.dependencies()));</span>
+			}
+<span class="nc" id="L268">		} else {</span>
+<span class="nc" id="L269">			log.warn(&quot;Plug-in &quot; + getName() + &quot; declares no metrics&quot;);</span>
+		}
+<span class="nc" id="L271">     }</span>
+
+    /**
+     * Retrieve author information from the plug-in bundle
+     */
+    public String getAuthor() {
+
+<span class="nc" id="L278">        return (String) bc.getBundle().getHeaders().get(</span>
+<span class="nc" id="L279">                org.osgi.framework.Constants.BUNDLE_CONTACTADDRESS);</span>
+    }
+
+    /**
+     * Retrieve the plug-in description from the plug-in bundle
+     */
+    public String getDescription() {
+
+<span class="nc" id="L287">        return (String) bc.getBundle().getHeaders().get(</span>
+<span class="nc" id="L288">                org.osgi.framework.Constants.BUNDLE_DESCRIPTION);</span>
+    }
+
+    /**
+     * Retrieve the plug-in name as specified in the metric bundle
+     */
+    public String getName() {
+
+<span class="nc" id="L296">        return (String) bc.getBundle().getHeaders().get(</span>
+<span class="nc" id="L297">                org.osgi.framework.Constants.BUNDLE_NAME);</span>
+    }
+
+    /**
+     * Retrieve the plug-in version as specified in the metric bundle
+     */
+    public String getVersion() {
+
+<span class="nc" id="L305">        return (String) bc.getBundle().getHeaders().get(</span>
+<span class="nc" id="L306">                org.osgi.framework.Constants.BUNDLE_VERSION);</span>
+    }
+
+    /**
+     * Retrieve the installation date for this plug-in version
+     */
+    public final Date getDateInstalled() {
+<span class="nc" id="L313">        return Plugin.getPluginByHashcode(getUniqueKey()).getInstalldate();</span>
+    }
+
+<span class="nc" id="L316">    Map&lt;Long,Pair&lt;Object,Long&gt;&gt; blockerObjects = new ConcurrentHashMap&lt;Long,Pair&lt;Object,Long&gt;&gt;();</span>
+
+    /**
+     * Call the appropriate getResult() method according to
+     * the type of the entity that is measured.
+     *
+     * Use this method if you don't want the metric results
+     * to be calculated on-demand. Otherwise, use getResult().
+     *
+     * @param o DAO that specifies the desired result type.
+     *      The type of o is used to dispatch to the correct
+     *      specialized getResult() method of the sub-interfaces.
+     * @return result (measurement) performed by this metric
+     *      on the project data specified by o.
+     * @throws MetricMismatchException if the DAO is of a type
+     *      not supported by this metric.
+     */
+     @SuppressWarnings(&quot;unchecked&quot;)
+     public List&lt;Result&gt; getResultIfAlreadyCalculated(DAObject o, List&lt;Metric&gt; l) throws MetricMismatchException {
+<span class="nc" id="L335">        boolean found = false;        </span>
+<span class="nc" id="L336">        List&lt;Result&gt; result = new ArrayList&lt;Result&gt;();</span>
+        
+<span class="nc bnc" id="L338" title="All 2 branches missed.">        for (Metric m : l) {</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">            if (!metrics.containsKey(m.getMnemonic())) {</span>
+<span class="nc" id="L340">                throw new MetricMismatchException(&quot;Metric &quot; + m.getMnemonic()</span>
+<span class="nc" id="L341">                        + &quot; not defined by plugin &quot;</span>
+<span class="nc" id="L342">                        + Plugin.getPluginByHashcode(getUniqueKey()).getName());</span>
+            }
+<span class="nc" id="L344">            List&lt;Result&gt; re = null;</span>
+            try {
+<span class="nc" id="L346">                Method method = findGetResultMethod(o.getClass());</span>
+<span class="nc" id="L347">                re = (List&lt;Result&gt;) method.invoke(this, o, m);</span>
+<span class="nc" id="L348">            } catch (SecurityException e) {</span>
+<span class="nc" id="L349">                logErr(&quot;getResult&quot;, o, e);</span>
+<span class="nc" id="L350">            } catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L351">                log.error(&quot;No method getResult(&quot; + m.getMetricType().toActivator() + &quot;) for type &quot;</span>
+<span class="nc" id="L352">                        + this.getClass().getName());</span>
+<span class="nc" id="L353">            } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L354">                logErr(&quot;getResult&quot;, o, e);</span>
+<span class="nc" id="L355">            } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L356">                logErr(&quot;getResult&quot;, o, e);</span>
+<span class="nc" id="L357">            } catch (InvocationTargetException e) {</span>
+<span class="nc" id="L358">                logErr(&quot;getResult&quot;, o, e);</span>
+            }
+<span class="nc bnc" id="L360" title="All 4 branches missed.">            if (re != null &amp;&amp; !re.isEmpty()) {</span>
+<span class="nc" id="L361">                result.addAll(re);</span>
+            }
+        }
+
+<span class="nc" id="L365">        return result;</span>
+    }
+
+     private Method findGetResultMethod(Class&lt;?&gt; clazz) 
+     throws NoSuchMethodException {
+<span class="nc" id="L370">     Method m = null;</span>
+     
+     try {
+<span class="nc" id="L373">         m = this.getClass().getMethod(&quot;getResult&quot;, clazz, Metric.class);                </span>
+<span class="nc" id="L374">     } catch (NoSuchMethodException nsme) {</span>
+         try {
+<span class="nc" id="L376">             m = this.getClass().getMethod(&quot;getResult&quot;, clazz.getSuperclass(), Metric.class);</span>
+<span class="nc" id="L377">         } catch (NoSuchMethodException nsme1) {</span>
+<span class="nc" id="L378">             throw nsme;</span>
+         }
+     }
+
+<span class="nc" id="L382">     return m;</span>
+     }
+     
+    /**
+     * Call the appropriate getResult() method according to
+     * the type of the entity that is measured.
+     *
+     * If the appropriate getResult() doesn't return any value,
+     * the metric is forced to calculate the result. Then the
+     * appropriate getResult() method is called again.
+     *
+     * @param o DAO that specifies the desired result type.
+     *      The type of o is used to dispatch to the correct
+     *      specialized getResult() method of the sub-interfaces.
+     * @return result (measurement) performed by this metric
+     *      on the project data specified by o.
+     * @throws MetricMismatchException if the DAO is of a type
+     *      not supported by this metric.
+     * @throws AlreadyProcessingException 
+     */
+    public List&lt;Result&gt; getResult(DAObject o, List&lt;Metric&gt; l) 
+    throws MetricMismatchException, AlreadyProcessingException, Exception {
+<span class="nc" id="L404">        List&lt;Result&gt; r = getResultIfAlreadyCalculated(o, l);</span>
+
+        // the result hasn't been calculated yet. Do so.
+<span class="nc bnc" id="L407" title="All 4 branches missed.">        if (r == null || r.size() == 0) {</span>
+           /*
+             * To ensure that no two instances of the metric operate on the same
+             * DAO lock on the DAO. Working on the same DAO can happen often
+             * when a plugin starts the calculation of another metric as a
+             * result of a plugin dependency association. This lock has the side
+             * effect that no two Plugins can be invoked with the same DAO as an
+             * argument even if the plug-ins do not depend on each other.
+             */
+<span class="nc" id="L416">            synchronized (lockObject(o)) {</span>
+                try {
+<span class="nc" id="L418">                    run(o);</span>
+                    
+<span class="nc" id="L420">                    r = getResultIfAlreadyCalculated(o, l);</span>
+<span class="nc bnc" id="L421" title="All 4 branches missed.">                    if (r == null || r.size() == 0) {</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">                        if (job.get().state() != Job.State.Yielded)</span>
+<span class="nc" id="L423">                            log.debug(&quot;Metric &quot; + getClass() + &quot; didn't return&quot;</span>
+<span class="nc" id="L424">                                + &quot;a result even after running it. DAO: &quot;</span>
+<span class="nc" id="L425">                                + o.getId());</span>
+                    }
+<span class="nc" id="L427">                } finally {</span>
+<span class="nc" id="L428">                    unlockObject(o);</span>
+<span class="nc" id="L429">                }</span>
+            }
+        }
+
+<span class="nc" id="L433">        return r;</span>
+    }
+
+<span class="nc" id="L436">    private Map&lt;Long,Pair&lt;Object,Integer&gt;&gt; locks = new HashMap&lt;Long,Pair&lt;Object,Integer&gt;&gt;();</span>
+    
+    private Object lockObject(DAObject o) throws AlreadyProcessingException {
+<span class="nc" id="L439">    	synchronized (locks) {</span>
+<span class="nc bnc" id="L440" title="All 2 branches missed.">            if (!locks.containsKey(o.getId())) {</span>
+<span class="nc" id="L441">                locks.put(o.getId(), </span>
+<span class="nc" id="L442">                        new Pair&lt;Object, Integer&gt;(new Object(),0));</span>
+            }
+<span class="nc" id="L444">            Pair&lt;Object, Integer&gt; p = locks.get(o.getId());</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">            if (p.second + 1 &gt; 1) {</span>
+                /*
+                 * Break and reschedule the calculation of each call to the
+                 * getResult method if it originates from another thread than
+                 * the thread that has currently locked the DAO object. 
+                 * This is required for the DB transaction in the stopped
+                 * job to see the results of the calculation of the original
+                 * job.
+                 */ 
+<span class="nc" id="L454">                log.debug(&quot;DAO Id:&quot; + o.getId() + </span>
+<span class="nc" id="L455">                        &quot; Already locked - failing job&quot;);</span>
+                try {
+<span class="nc" id="L457">                    throw new AlreadyProcessingException();</span>
+<span class="nc" id="L458">                } finally {</span>
+<span class="nc" id="L459">                    MetricActivator ma = AlitheiaCore.getInstance().getMetricActivator();</span>
+<span class="nc" id="L460">                    ma.runMetric(o, this);</span>
+<span class="nc" id="L461">                }</span>
+            }
+<span class="nc" id="L463">            p.second = p.second + 1;</span>
+<span class="nc" id="L464">            return p.first;</span>
+        }
+    }
+    
+    private void unlockObject(DAObject o) {
+<span class="nc" id="L469">    	synchronized(locks) {</span>
+<span class="nc" id="L470">    		Pair&lt;Object,Integer&gt; p = locks.get(o.getId());</span>
+<span class="nc" id="L471">    		p.second = p.second - 1;</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">    		if (p.second == 0) {</span>
+<span class="nc" id="L473">    			locks.remove(o.getId());</span>
+<span class="nc" id="L474">    		} else {</span>
+<span class="nc" id="L475">    		log.debug(&quot;Unlocking DAO Id:&quot; + o.getId());</span>
+    		}
+    	}
+<span class="nc" id="L478">    }</span>
+    
+    /**
+     * Call the appropriate run() method according to the type of the entity
+     * that is measured.
+     *
+     * @param o
+     *                DAO which determines which sub-interface run method is
+     *                called and also determines what is to be measured by that
+     *                sub-interface.
+     * @throws MetricMismatchException
+     *                 if the DAO is of a type not supported by this metric.
+     */
+    public void run(DAObject o) throws MetricMismatchException, 
+        AlreadyProcessingException, Exception {
+
+<span class="nc bnc" id="L494" title="All 2 branches missed.">        if (!checkDependencies()) {</span>
+<span class="nc" id="L495">            log.error(&quot;Plug-in dependency check failed&quot;);</span>
+<span class="nc" id="L496">            return;</span>
+        }
+
+        try {
+<span class="nc" id="L500">            Method m = findRunMethod(&quot;run&quot;, o.getClass());</span>
+<span class="nc" id="L501">            m.invoke(this, o);</span>
+<span class="nc" id="L502">        } catch (SecurityException e) {</span>
+<span class="nc" id="L503">            logErr(&quot;run&quot;, o, e);</span>
+<span class="nc" id="L504">        } catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L505">            logErr(&quot;run&quot;, o, e);</span>
+<span class="nc" id="L506">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L507">            logErr(&quot;run&quot;, o, e);</span>
+<span class="nc" id="L508">        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L509">            logErr(&quot;run&quot;, o, e);</span>
+<span class="nc" id="L510">        } catch (InvocationTargetException e) {</span>
+            // Forward exception to metric job exception handler
+<span class="nc bnc" id="L512" title="All 2 branches missed.">            if (e.getCause() instanceof AlreadyProcessingException) {</span>
+<span class="nc" id="L513">                throw (AlreadyProcessingException) e.getCause();</span>
+            } else {
+<span class="nc bnc" id="L515" title="All 4 branches missed.">                if (e != null &amp;&amp; e.getCause() != null) {</span>
+<span class="nc" id="L516">                    logErr(&quot;run&quot;, o, e);</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">                    if (e.getCause() != null)</span>
+<span class="nc" id="L518">                        throw new Exception(e.getCause());</span>
+                    else
+<span class="nc" id="L520">                        throw new Exception(e);</span>
+                }
+            }
+        }
+<span class="nc" id="L524">    }</span>
+    
+    private Method findRunMethod(String name, Class&lt;?&gt; clazz) 
+        throws NoSuchMethodException {
+<span class="nc" id="L528">        Method m = null;</span>
+        
+        try {
+<span class="nc" id="L531">            m = this.getClass().getMethod(name, clazz);                </span>
+<span class="nc" id="L532">        } catch (NoSuchMethodException nsme) {</span>
+            try {
+<span class="nc" id="L534">                m = this.getClass().getMethod(name, clazz.getSuperclass());</span>
+<span class="nc" id="L535">            } catch (NoSuchMethodException nsme1) {</span>
+<span class="nc" id="L536">                throw nsme;</span>
+            }
+        }
+       
+<span class="nc" id="L540">        return m;</span>
+    }
+    
+    private void logErr(String method, DAObject o, Exception e) {
+<span class="nc" id="L544">        log.error(&quot;Plugin:&quot; + this.getClass().toString() + </span>
+<span class="nc" id="L545">                &quot;\nDAO id: &quot; + o.getId() + </span>
+<span class="nc" id="L546">                &quot;\nDAO class: &quot; + o.getClass() +</span>
+<span class="nc" id="L547">                &quot;\nDAO toString(): &quot; + o.toString() +</span>
+<span class="nc" id="L548">                &quot;\nError when invoking the &quot; + method + &quot; method.&quot; +</span>
+<span class="nc" id="L549">                &quot;\nException:&quot; + e.getClass().getName() +</span>
+<span class="nc" id="L550">                &quot;\nError:&quot; + e.getMessage() + </span>
+<span class="nc" id="L551">                &quot;\nReason:&quot; + e.getCause(), e);</span>
+<span class="nc" id="L552">    }</span>
+
+    /** {@inheritDoc} */
+    public List&lt;Metric&gt; getAllSupportedMetrics() {
+<span class="nc" id="L556">        String qry = &quot;from Metric m where m.plugin=:plugin&quot;;</span>
+<span class="nc" id="L557">        Map&lt;String,Object&gt; params = new HashMap&lt;String,Object&gt;();</span>
+<span class="nc" id="L558">        params.put(&quot;plugin&quot;, Plugin.getPluginByHashcode(getUniqueKey()));</span>
+        
+<span class="nc" id="L560">        return (List&lt;Metric&gt;)db.doHQL(qry, params);</span>
+    }
+    
+    /** {@inheritDoc} */
+    public List&lt;Metric&gt; getSupportedMetrics(Class&lt;? extends DAObject&gt; activator) {
+<span class="nc" id="L565">        List&lt;Metric&gt; m = new ArrayList&lt;Metric&gt;();</span>
+
+        //Query the database just once
+<span class="nc" id="L568">        List&lt;Metric&gt; all = getAllSupportedMetrics();</span>
+        
+<span class="nc bnc" id="L570" title="All 4 branches missed.">        if (all == null || all.isEmpty())</span>
+<span class="nc" id="L571">            return m;</span>
+        
+<span class="nc bnc" id="L573" title="All 2 branches missed.">        for (Metric metric : all) {</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">            if (getMetricActivationTypes(metric).contains(activator)) {</span>
+<span class="nc" id="L575">                m.add(metric);</span>
+            }
+        }
+        
+<span class="nc" id="L579">        return m;</span>
+    }
+   
+    /**
+     * Register the metric to the DB. Subclasses can run their custom
+     * initialization routines (i.e. registering DAOs or tables) after calling
+     * super().install()
+     */
+    public boolean install() {
+        //1. check if dependencies are satisfied
+<span class="nc bnc" id="L589" title="All 2 branches missed.">        if (!checkDependencies()) {</span>
+<span class="nc" id="L590">            log.error(&quot;Plug-in installation failed&quot;);</span>
+<span class="nc" id="L591">            return false;</span>
+        }
+        
+<span class="nc" id="L594">        HashMap&lt;String, Object&gt; h = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L595">        h.put(&quot;name&quot;, this.getName());</span>
+
+<span class="nc" id="L597">        List&lt;Plugin&gt; plugins = db.findObjectsByProperties(Plugin.class, h);</span>
+
+<span class="nc bnc" id="L599" title="All 2 branches missed.">        if (!plugins.isEmpty()) {</span>
+<span class="nc" id="L600">            log.warn(&quot;A plugin with name &lt;&quot; + getName()</span>
+<span class="nc" id="L601">                    + &quot;&gt; is already installed, won't re-install.&quot;);</span>
+<span class="nc" id="L602">            return false;</span>
+        }
+
+
+        //2. Add the plug-in
+<span class="nc" id="L607">        Plugin p = new Plugin();</span>
+<span class="nc" id="L608">        p.setName(getName());</span>
+<span class="nc" id="L609">        p.setInstalldate(new Date(System.currentTimeMillis()));</span>
+<span class="nc" id="L610">        p.setVersion(getVersion());</span>
+<span class="nc" id="L611">        p.setActive(true);</span>
+<span class="nc" id="L612">        p.setHashcode(getUniqueKey());</span>
+<span class="nc" id="L613">        boolean result =  db.addRecord(p);</span>
+        
+        //3. Add the metrics
+<span class="nc bnc" id="L616" title="All 2 branches missed.">        for (String mnem :metrics.keySet()) {</span>
+<span class="nc" id="L617">        	Metric m = metrics.get(mnem);</span>
+<span class="nc" id="L618">        	Type type = Type.fromString(m.getMetricType().getType());</span>
+<span class="nc" id="L619">        	MetricType newType = MetricType.getMetricType(type);</span>
+<span class="nc bnc" id="L620" title="All 2 branches missed.">        	if (newType == null) {</span>
+<span class="nc" id="L621">                newType = new MetricType(type);</span>
+<span class="nc" id="L622">                db.addRecord(newType);</span>
+<span class="nc" id="L623">                m.setMetricType(newType);</span>
+            }
+        	
+<span class="nc" id="L626">        	m.setMetricType(newType);</span>
+<span class="nc" id="L627">        	m.setPlugin(p);</span>
+<span class="nc" id="L628">        	db.addRecord(m);</span>
+        }
+        
+<span class="nc" id="L631">        return result;</span>
+    }
+
+    /**
+     * Remove a plug-in's record from the DB. The DB's referential integrity
+     * mechanisms are expected to automatically remove associated records.
+     * Subclasses should also clean up any custom tables created.
+     */
+    public boolean remove() {
+<span class="nc" id="L640">        Plugin p = Plugin.getPluginByHashcode(getUniqueKey());</span>
+<span class="nc" id="L641">        return db.deleteRecord(p);</span>
+    }
+    
+    /**
+     * Default (empty) implementation of the clean up method. What to 
+     * do with the provided DAO is left to sub-classes to decide.
+     * {@inheritDoc}
+     */
+    public boolean cleanup(DAObject sp) {
+<span class="nc" id="L650">        log.warn(&quot;Empty cleanup method for plug-in &quot; </span>
+<span class="nc" id="L651">                + this.getClass().getName());</span>
+<span class="nc" id="L652">        return true; </span>
+    }
+
+    /**{@inheritDoc}}*/
+    public boolean update() {
+<span class="nc" id="L657">        ServiceReference serviceRef = null;</span>
+<span class="nc" id="L658">        serviceRef = bc.getServiceReference(AlitheiaCore.class.getName());</span>
+
+<span class="nc" id="L660">        MetricActivator ma =</span>
+<span class="nc" id="L661">            ((AlitheiaCore)bc.getService(serviceRef)).getMetricActivator();</span>
+
+<span class="nc bnc" id="L663" title="All 2 branches missed.">        if (ma == null) {</span>
+<span class="nc" id="L664">            return false;</span>
+        }
+
+<span class="nc" id="L667">        ma.syncMetrics(this);</span>
+
+<span class="nc" id="L669">        return true;</span>
+    }
+
+    /**{@inheritDoc}*/
+    public final Set&lt;Class&lt;? extends DAObject&gt;&gt; getActivationTypes() {    
+<span class="nc" id="L674">        return activators;</span>
+    }
+
+    /**
+     * Return an MD5 hex key uniquely identifying the plug-in
+     */
+    public final String getUniqueKey() {
+<span class="nc" id="L681">    	MessageDigest m = null;</span>
+		try {
+<span class="nc" id="L683">			m = MessageDigest.getInstance(&quot;MD5&quot;);</span>
+<span class="nc" id="L684">		} catch (NoSuchAlgorithmException e) {</span>
+<span class="nc" id="L685">			log.error(&quot;Cannot find a valid implementation of the MD5 &quot; +</span>
+					&quot;hash algorithm&quot;);
+		}
+<span class="nc" id="L688">    	String name = this.getClass().getCanonicalName();</span>
+<span class="nc" id="L689">		byte[] data = name.getBytes(); </span>
+<span class="nc" id="L690">		m.update(data,0,data.length);</span>
+<span class="nc" id="L691">		BigInteger i = new BigInteger(1,m.digest());</span>
+<span class="nc" id="L692">		return String.format(&quot;%1$032X&quot;, i);</span>
+    }
+
+    /** {@inheritDoc} */
+    public final Set&lt;PluginConfiguration&gt; getConfigurationSchema() {
+        // Retrieve the plug-in's info object
+<span class="nc" id="L698">        PluginInfo pi = pa.getPluginInfo(getUniqueKey());</span>
+<span class="nc bnc" id="L699" title="All 2 branches missed.">        if (pi == null) {</span>
+            // The plug-in's info object is always null during bundle startup,
+            // but if it is not available when the bundle is active, something
+            // is possibly wrong.
+<span class="nc bnc" id="L703" title="All 2 branches missed.">            if (bc.getBundle().getState() == Bundle.ACTIVE) {</span>
+<span class="nc" id="L704">                log.warn(&quot;Plugin &lt;&quot; + getName() + &quot;&gt; is loaded but not installed.&quot;);</span>
+            }
+<span class="nc" id="L706">            return Collections.emptySet();</span>
+        }
+<span class="nc" id="L708">        return pi.getConfiguration();</span>
+    }
+
+    /**
+     * Add an entry to this plug-in's configuration schema.
+     *
+     * @param name The name of the configuration property
+     * @param defValue The default value for the configuration property
+     * @param msg The description of the configuration property
+     * @param type The type of the configuration property
+     */
+    protected final void addConfigEntry(String name, String defValue,
+            String msg, PluginInfo.ConfigurationType type) {
+        // Retrieve the plug-in's info object
+<span class="nc" id="L722">        PluginInfo pi = pa.getPluginInfo(getUniqueKey());</span>
+        // Will happen if called during bundle's startup
+<span class="nc bnc" id="L724" title="All 2 branches missed.">        if (pi == null) {</span>
+<span class="nc" id="L725">            log.warn(&quot;Adding configuration key &lt;&quot; + name +</span>
+<span class="nc" id="L726">                &quot;&gt; to plugin &lt;&quot; + getName() + &quot;&gt; failed: &quot; +</span>
+<span class="nc" id="L727">                &quot;no PluginInfo.&quot;);</span>
+<span class="nc" id="L728">            return;</span>
+        }
+        // Modify the plug-in's configuration
+        try {
+            // Update property
+<span class="nc bnc" id="L733" title="All 2 branches missed.">            if (pi.hasConfProp(name, type.toString())) {</span>
+<span class="nc bnc" id="L734" title="All 2 branches missed.">                if (pi.updateConfigEntry(db, name, defValue)) {</span>
+                    // Update the Plug-in Admin's information
+<span class="nc" id="L736">                    pa.pluginUpdated(pa.getPlugin(pi));</span>
+<span class="nc" id="L737">                }</span>
+                else {
+<span class="nc" id="L739">                    log.error(&quot;Property (&quot; + name +&quot;) update has failed!&quot;);</span>
+                }
+<span class="nc" id="L741">            }</span>
+            // Create property
+            else {
+<span class="nc" id="L744">                if (pi.addConfigEntry(</span>
+<span class="nc bnc" id="L745" title="All 2 branches missed.">                        db, name, msg, type.toString(), defValue)) {</span>
+                    // Update the Plug-in Admin's information
+<span class="nc" id="L747">                    pa.pluginUpdated(pa.getPlugin(pi));</span>
+<span class="nc" id="L748">                }</span>
+                else {
+<span class="nc" id="L750">                    log.error(&quot;Property (&quot; + name +&quot;) append has failed!&quot;);</span>
+                }
+            }
+<span class="nc" id="L753">        }</span>
+<span class="nc" id="L754">        catch (Exception ex){</span>
+<span class="nc" id="L755">            log.error(&quot;Can not modify property (&quot; + name +&quot;) for plugin (&quot;</span>
+<span class="nc" id="L756">                    + getName(), ex);</span>
+        }
+<span class="nc" id="L758">    }</span>
+
+    /**
+     * Remove an entry from the plug-in's configuration schema
+     *
+     * @param name The name of the configuration property to remove
+     * @param name The type of the configuration property to remove
+     */
+    protected final void removeConfigEntry(
+            String name,
+            PluginInfo.ConfigurationType type) {
+        // Retrieve the plug-in's info object
+<span class="nc" id="L770">        PluginInfo pi = pa.getPluginInfo(getUniqueKey());</span>
+        // Will happen if called during bundle's startup
+<span class="nc bnc" id="L772" title="All 2 branches missed.">        if (pi == null) {</span>
+<span class="nc" id="L773">            log.warn(&quot;Removing configuration key &lt;&quot; + name +</span>
+<span class="nc" id="L774">                &quot;&gt; from plugin &lt;&quot; + getName() + &quot;&gt; failed: &quot; +</span>
+<span class="nc" id="L775">                &quot;no PluginInfo.&quot;);</span>
+<span class="nc" id="L776">            return;</span>
+        }
+        // Modify the plug-in's configuration
+        try {
+<span class="nc bnc" id="L780" title="All 2 branches missed.">            if (pi.hasConfProp(name, type.toString())) {</span>
+<span class="nc bnc" id="L781" title="All 2 branches missed.">                if (pi.removeConfigEntry(db, name, type.toString())) {</span>
+                    // Update the Plug-in Admin's information
+<span class="nc" id="L783">                    pa.pluginUpdated(pa.getPlugin(pi));</span>
+<span class="nc" id="L784">                }</span>
+                else {
+<span class="nc" id="L786">                    log.error(&quot;Property (&quot; + name +&quot;) remove has failed!&quot;);</span>
+                }
+<span class="nc" id="L788">            }</span>
+            else {
+<span class="nc" id="L790">                log.error(&quot;Property (&quot; + name +&quot;) does not exist!&quot;);</span>
+            }
+<span class="nc" id="L792">        }</span>
+<span class="nc" id="L793">        catch (Exception ex){</span>
+<span class="nc" id="L794">            log.error(&quot;Can not remove property (&quot; + name +&quot;) from plugin (&quot;</span>
+<span class="nc" id="L795">                    + getName() + &quot;)&quot;, ex);</span>
+        }
+<span class="nc" id="L797">    }</span>
+    
+    /**
+     * Get a configuration option for this metric from the plugin configuration
+     * store
+     * 
+     * @param config The configuration option to retrieve
+     * @return The configuration entry corresponding the provided description or
+     * null if not found in the plug-in's configuration schema
+     */
+    public PluginConfiguration getConfigurationOption(String config) {
+<span class="nc" id="L808">        Set&lt;PluginConfiguration&gt; conf = </span>
+<span class="nc" id="L809">            pa.getPluginInfo(getUniqueKey()).getConfiguration();</span>
+        
+<span class="nc" id="L811">        Iterator&lt;PluginConfiguration&gt; i = conf.iterator();</span>
+        
+<span class="nc bnc" id="L813" title="All 2 branches missed.">        while (i.hasNext()) {</span>
+<span class="nc" id="L814">            PluginConfiguration pc = i.next();</span>
+<span class="nc bnc" id="L815" title="All 2 branches missed.">            if (pc.getName().equals(config)) {</span>
+<span class="nc" id="L816">                return pc;</span>
+            }
+        }
+        
+        /* Config option not found */
+<span class="nc" id="L821">        return null;</span>
+    }
+    
+<span class="nc" id="L824">    private static Map&lt;Class&lt;? extends MetricMeasurement&gt;, String&gt; resultFieldNames = </span>
+<span class="nc" id="L825">        new HashMap&lt;Class&lt;? extends MetricMeasurement&gt;, String&gt;();</span>
+    
+    static {
+<span class="nc" id="L828">        resultFieldNames.put(StoredProjectMeasurement.class, &quot;storedProject&quot;);</span>
+<span class="nc" id="L829">        resultFieldNames.put(ProjectVersionMeasurement.class, &quot;projectVersion&quot;);</span>
+<span class="nc" id="L830">        resultFieldNames.put(ProjectFileMeasurement.class, &quot;projectFile&quot;);</span>
+<span class="nc" id="L831">        resultFieldNames.put(MailMessageMeasurement.class, &quot;mail&quot;);</span>
+<span class="nc" id="L832">        resultFieldNames.put(MailingListThreadMeasurement.class, &quot;thread&quot;);</span>
+<span class="nc" id="L833">        resultFieldNames.put(ExecutionUnitMeasurement.class, &quot;executionUnit&quot;);</span>
+<span class="nc" id="L834">        resultFieldNames.put(EncapsulationUnitMeasurement.class, &quot;encapsulationUnit&quot;);</span>
+<span class="nc" id="L835">        resultFieldNames.put(NameSpaceMeasurement.class, &quot;namespace&quot;);</span>
+<span class="nc" id="L836">    }</span>
+
+    /**
+     * Convenience method to get the measurement for a single metric.
+     */
+    protected List&lt;Result&gt; getResult(DAObject o, Class&lt;? extends MetricMeasurement&gt; clazz, 
+            Metric m, Result.ResultType type) {
+<span class="nc" id="L843">        DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L844">        Map&lt;String, Object&gt; props = new HashMap&lt;String, Object&gt;();</span>
+        
+<span class="nc" id="L846">        props.put(resultFieldNames.get(clazz), o);</span>
+<span class="nc" id="L847">        props.put(&quot;metric&quot;, m);</span>
+<span class="nc" id="L848">        List resultat = dbs.findObjectsByProperties(clazz, props);</span>
+        
+<span class="nc bnc" id="L850" title="All 2 branches missed.">        if (resultat.isEmpty())</span>
+<span class="nc" id="L851">            return Collections.EMPTY_LIST;</span>
+        
+<span class="nc" id="L853">        ArrayList&lt;Result&gt; result = new ArrayList&lt;Result&gt;();</span>
+<span class="nc" id="L854">        result.add(new Result(o, m, ((MetricMeasurement)resultat.get(0)).getResult(), type));</span>
+<span class="nc" id="L855">        return result;</span>
+        
+    }
+
+    /**{@inheritDoc}*/
+    @Override
+    public final List&lt;Class&lt;? extends DAObject&gt;&gt; getMetricActivationTypes (Metric m) {
+<span class="nc" id="L862">        return metricActType.get(m);</span>
+    }
+    
+    /**
+     * Check if the plug-in dependencies are satisfied
+     */
+    private boolean checkDependencies() {
+<span class="nc bnc" id="L869" title="All 2 branches missed.">        for (String mnemonic : dependencies) {</span>
+        	//Check thyself first
+<span class="nc bnc" id="L871" title="All 2 branches missed.">        	if (metrics.containsKey(mnemonic))</span>
+<span class="nc" id="L872">        		continue;</span>
+        	
+<span class="nc bnc" id="L874" title="All 2 branches missed.">            if (pa.getImplementingPlugin(mnemonic) == null) {</span>
+<span class="nc" id="L875">                log.error(&quot;No plug-in implements metric &quot;  + mnemonic + </span>
+<span class="nc" id="L876">                        &quot; which is required by &quot; + getName());</span>
+<span class="nc" id="L877">                return false;</span>
+            }
+        }
+<span class="nc" id="L880">        return true;</span>
+    }
+    
+    /** {@inheritDoc} */
+    public Set&lt;String&gt; getDependencies() {
+<span class="nc" id="L885">        return dependencies;</span>
+    }
+
+    @Override
+    public Map&lt;MetricType.Type, SortedSet&lt;Long&gt;&gt; getObjectIdsToSync(StoredProject sp, Metric m) 
+    throws MetricActivationException {
+
+<span class="nc" id="L892">    	Map&lt;MetricType.Type, SortedSet&lt;Long&gt;&gt; IDs = new HashMap&lt;Type, SortedSet&lt;Long&gt;&gt;();</span>
+    	
+<span class="nc" id="L894">        Map&lt;String, Object&gt; params = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L895">        params.put(&quot;project&quot;, sp);</span>
+<span class="nc" id="L896">        params.put(&quot;metric&quot;, m.getId());</span>
+
+<span class="nc" id="L898">    	String q = null;</span>
+    	
+<span class="nc bnc" id="L900" title="All 2 branches missed.">    	for (Class&lt;? extends DAObject&gt; at : getMetricActivationTypes(m)) {</span>
+    	
+<span class="nc bnc" id="L902" title="All 2 branches missed.">	    	if (MetricType.fromActivator(at) == Type.PROJECT_VERSION) {</span>
+<span class="nc" id="L903">	    		q = QRY_SYNC_PV;</span>
+<span class="nc bnc" id="L904" title="All 2 branches missed.">	    	} else if (MetricType.fromActivator(at) == Type.SOURCE_FILE) {</span>
+<span class="nc" id="L905">	    		q = QRY_SYNC_PF;</span>
+<span class="nc bnc" id="L906" title="All 2 branches missed.">	    	} else if (MetricType.fromActivator(at) == Type.SOURCE_DIRECTORY) {</span>
+<span class="nc" id="L907">	    		q = QRY_SYNC_PD;</span>
+<span class="nc bnc" id="L908" title="All 2 branches missed.">	     	} else if (MetricType.fromActivator(at) == Type.MAILING_LIST) {</span>
+<span class="nc" id="L909">	    		throw new MetricActivationException(&quot;Metric synchronisation with MAILING_LIST objects not implemented&quot;);</span>
+<span class="nc bnc" id="L910" title="All 2 branches missed.">	    	} else if (MetricType.fromActivator(at) == Type.MAILMESSAGE) {</span>
+<span class="nc" id="L911">	    		q = QRY_SYNC_MM;</span>
+<span class="nc bnc" id="L912" title="All 2 branches missed.">	    	} else if (MetricType.fromActivator(at) == Type.MAILTHREAD) {</span>
+<span class="nc" id="L913">	    		q = QRY_SYNC_MT;</span>
+<span class="nc bnc" id="L914" title="All 2 branches missed.">	    	} else if (MetricType.fromActivator(at) == Type.BUG) {</span>
+<span class="nc" id="L915">	    		throw new MetricActivationException(&quot;Metric synchronisation with BUG objects not implemented&quot;);</span>
+<span class="nc bnc" id="L916" title="All 2 branches missed.">	    	} else if (MetricType.fromActivator(at) == Type.DEVELOPER) {</span>
+<span class="nc" id="L917">	    		q = QRY_SYNC_DEV;</span>
+<span class="nc bnc" id="L918" title="All 2 branches missed.">	    	} else if (MetricType.fromActivator(at) == Type.NAMESPACE) {</span>
+<span class="nc" id="L919">                q = QRY_SYNC_NS;</span>
+<span class="nc bnc" id="L920" title="All 2 branches missed.">            } else if (MetricType.fromActivator(at) == Type.ENCAPSUNIT) {</span>
+<span class="nc" id="L921">                q = QRY_SYNC_ENCUNT;</span>
+<span class="nc bnc" id="L922" title="All 2 branches missed.">            } else if (MetricType.fromActivator(at) == Type.EXECUNIT) {</span>
+<span class="nc" id="L923">                q = QRY_SYNC_EXECUNT;</span>
+<span class="nc" id="L924">            } else {</span>
+<span class="nc" id="L925">	    		throw new MetricActivationException(&quot;Metric synchronisation with GENERIC objects not implemented&quot;);</span>
+	    	}
+	    	
+<span class="nc" id="L928">	    	List&lt;Long&gt; objectIds = (List&lt;Long&gt;) db.doHQL(q, params);</span>
+<span class="nc" id="L929">	    	TreeSet&lt;Long&gt; ids = new TreeSet&lt;Long&gt;();</span>
+<span class="nc" id="L930">	    	ids.addAll(objectIds);</span>
+<span class="nc" id="L931">	    	IDs.put(MetricType.fromActivator(at), ids);</span>
+    	}
+<span class="nc" id="L933">    	return IDs;</span>
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void setJob(Job j) {
+<span class="nc" id="L939">        this.job.set(j);</span>
+<span class="nc" id="L940">    }</span>
+ }
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>ClusterNodeServiceImpl.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.cluster</a> &gt; <span class="el_source">ClusterNodeServiceImpl.java</span></div><h1>ClusterNodeServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software,
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.cluster;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.cluster.ClusterNodeActionException;
+import eu.sqooss.service.cluster.ClusterNodeService;
+import eu.sqooss.service.db.ClusterNode;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.updater.UpdaterService;
+
+/**
+ * @author George M. Zouganelis
+ *
+ */
+public class ClusterNodeServiceImpl extends HttpServlet implements ClusterNodeService {
+    private static final long serialVersionUID = 1L;
+	static final String localServerName;
+	static{
+		String hostname;
+		try {
+<span class="nc" id="L72">			java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();</span>
+<span class="nc" id="L73">			hostname = localMachine.getHostName();</span>
+<span class="nc" id="L74">		}</span>
+<span class="nc" id="L75">		catch(java.net.UnknownHostException ex) {</span>
+    		// TODO: Clustering - Implement a hashing algorithm for unique server identification
+<span class="nc" id="L77">			hostname = &quot;unknown host&quot;;</span>
+		} 		
+<span class="nc" id="L79">		localServerName = hostname;</span>
+			
+<span class="nc" id="L81">	}</span>
+
+<span class="nc" id="L83">    private Logger logger = null;</span>
+<span class="nc" id="L84">    private AlitheiaCore core = null;</span>
+<span class="nc" id="L85">    private HttpService httpService = null;</span>
+    private BundleContext context;
+<span class="nc" id="L87">    private DBService dbs = null;</span>
+<span class="nc" id="L88">    private UpdaterService upds = null;</span>
+    
+<span class="nc" id="L90">    private ClusterNode thisNode = null;</span>
+
+<span class="nc" id="L92">    public ClusterNodeServiceImpl() {}</span>
+    
+    public String getClusterNodeName(){
+<span class="nc" id="L95">	   return thisNode.getName();</span>
+    }
+    
+    /**
+     * Assign a StoredProject to a ClusterNode
+     * Reasonable causes of failure:
+     *  1.NULL passed server
+     *  2.NULL passed project
+     *  3.Assignment is locked (server is working on project)
+     *  
+     * @param node the cluster node target
+     * @param project stored project to assign 
+     * @return
+     */
+    public boolean assignProject(ClusterNode node, StoredProject project) throws ClusterNodeActionException {
+    	// check if valid server passed
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (node==null) {</span>
+<span class="nc" id="L112">    		throw new ClusterNodeActionException(&quot;Request to assign a project to a null clusternode&quot;);</span>
+    	}
+    	// check if valid project passed
+<span class="nc bnc" id="L115" title="All 2 branches missed.">    	if (project==null) {</span>
+<span class="nc" id="L116">    		throw new ClusterNodeActionException(&quot;Request to assign a null project to a clusternode&quot;);</span>
+    	}
+
+        try {          
+        	// check if project is already assigned to any ClusterNode
+<span class="nc" id="L121">            ClusterNode assignment = project.getClusternode();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (assignment == null) {</span>
+                // new project assignment
+<span class="nc" id="L124">                logger.info(&quot;Assigning project &quot; + project.getName() + &quot; to &quot;</span>
+<span class="nc" id="L125">                        + node.getName());</span>
+<span class="nc" id="L126">                node.getProjects().add(project);</span>
+<span class="nc" id="L127">            } else {</span>
+<span class="nc" id="L128">                logger.info(&quot;Moving project &quot; + project.getName() + &quot; from &quot;</span>
+<span class="nc" id="L129">                        + assignment.getName() + &quot; to &quot;</span>
+<span class="nc" id="L130">                        + node.getName());</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                if (assignment.getId() == node.getId()) {</span>
+<span class="nc" id="L132">                    logger.info(&quot;No need to move &quot; + project.getName()</span>
+<span class="nc" id="L133">                            + &quot; - Already assigned!&quot;);</span>
+<span class="nc" id="L134">                    return true;</span>
+                }
+            }
+<span class="nc" id="L137">        } catch (Exception e) {</span>
+<span class="nc" id="L138">            throw new ClusterNodeActionException(&quot;Failed to assign project [&quot;</span>
+<span class="nc" id="L139">                    + project.getName() + &quot;] to clusternode [&quot; + node.getName()</span>
+<span class="nc" id="L140">                    + &quot;]&quot;);</span>
+        }
+<span class="nc" id="L142">    	return true;</span>
+    }
+
+    /**
+     * Assign a StoredProject to this ClusterNode
+     * @param project project to assign
+     * @return  
+     */
+    public boolean assignProject(StoredProject project) throws ClusterNodeActionException {
+		try {
+<span class="nc" id="L152">			return assignProject(thisNode, project);</span>
+<span class="nc" id="L153">		} catch (ClusterNodeActionException ex) {</span>
+<span class="nc" id="L154">			throw ex;</span>
+		}
+    }
+
+    /**
+     * Overload for convenience. Use string instead of stored project.
+     * @param projectname project's name to assign
+     */
+    public boolean assignProject(String projectname) throws ClusterNodeActionException {
+<span class="nc" id="L163">    	dbs.startDBSession();</span>
+<span class="nc" id="L164">    	StoredProject project = StoredProject.getProjectByName(projectname);</span>
+<span class="nc" id="L165">    	dbs.rollbackDBSession();</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (project == null) {</span>
+            //the project was not found, can't be assign
+<span class="nc" id="L168">        	String errorMessage = &quot;The project [&quot; + projectname + &quot;] was not found&quot;; </span>
+<span class="nc" id="L169">            logger.warn(errorMessage);</span>
+<span class="nc" id="L170">            throw new ClusterNodeActionException(errorMessage);</span>
+        }
+        try {
+<span class="nc" id="L173">            return assignProject(project);</span>
+<span class="nc" id="L174">        } catch (ClusterNodeActionException ex) {</span>
+<span class="nc" id="L175">        	throw ex;</span>
+        }
+        
+    }
+    
+    /**
+     * Check if a StoredProject is assigned to this ClusterNode
+     * @param project project to check
+     * @return  
+     */
+    public boolean isProjectAssigned(StoredProject project){
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        return (project.getClusternode() != null);</span>
+    }
+
+    
+    // Format an XML response
+    private String createXMLResponse(String resultMessage, String statusMessage, int statusCode){
+<span class="nc" id="L192">        StringBuilder s = new StringBuilder();</span>
+<span class="nc" id="L193">        s.append(&quot;&lt;?xml version=\&quot;1.0\&quot;?&gt;\n&quot;);</span>
+<span class="nc" id="L194">        s.append(&quot;&lt;sqo-oss-response service=\&quot;clusternode\&quot;&gt;\n&quot;);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (resultMessage!=null) {</span>
+<span class="nc" id="L196">            s.append(&quot;&lt;result&gt;&quot; + resultMessage + &quot;&lt;/result&gt;\n&quot;);</span>
+<span class="nc" id="L197">        } else {</span>
+<span class="nc" id="L198">            s.append(&quot;&lt;result/&gt;\n&quot;);</span>
+        }
+<span class="nc" id="L200">        s.append(&quot;&lt;status code=\&quot;&quot; + String.valueOf(statusCode) + &quot;\&quot;&quot;);</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (statusMessage!=null) {</span>
+<span class="nc" id="L202">            s.append(&quot;&gt;&quot; + statusMessage + &quot;&lt;/status&gt;\n&quot;);</span>
+<span class="nc" id="L203">        } else {</span>
+<span class="nc" id="L204">            s.append(&quot;/&gt;\n&quot;);</span>
+        }
+<span class="nc" id="L206">        s.append(&quot;&lt;/sqo-oss-response&gt;\n&quot;);</span>
+<span class="nc" id="L207">    	return s.toString();</span>
+    }
+    
+    // send the XML response back to the client
+    private void sendXMLResponse(HttpServletResponse response, int status, String content) throws ServletException, IOException {
+<span class="nc" id="L212">        response.setStatus(status);</span>
+<span class="nc" id="L213">    	response.setContentType(&quot;text/xml;charset=UTF-8&quot;);</span>
+<span class="nc" id="L214">    	response.getWriter().println(content);</span>
+<span class="nc" id="L215">    	response.flushBuffer();</span>
+<span class="nc" id="L216">    }</span>
+    
+
+    /**
+     * This is the standard HTTP request handler. It maps GET parameters based on 
+     * the mandatory 'action' parameter to misc internal processes.
+     *
+     * The response codes in HTTP are used as follows:
+     * - SC_OK  if the requested action succeeds
+     * - SC_BAD_REQUEST (400) if the request is syntactically incorrect, which in
+     *          this case means that one of the required parameter &quot;action&quot;
+     *          is missing, or projectid is not a long integer.
+     * - SC_NOT_FOUND (404) if the project or clusternode does not exist in the database.
+     * - SC_NOT_IMPLEMENTED if the action type is not supported
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+    	
+<span class="nc" id="L235">    	String requestedAction = request.getParameter(&quot;action&quot;);</span>
+
+<span class="nc" id="L237">    	String projectname = request.getParameter(&quot;projectname&quot;);</span>
+<span class="nc" id="L238">        String projectid = request.getParameter(&quot;projectid&quot;);</span>
+<span class="nc" id="L239">        String clusternode = request.getParameter(&quot;clusternode&quot;);</span>
+    	
+        String content;          // holder of complete response output
+        StringBuilder bcontent;  // holder of complete response output
+        
+        StoredProject project;
+        ClusterNode node;
+        
+        // ERROR if no action requested
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        if (requestedAction == null) {</span>
+<span class="nc" id="L249">        	content=createXMLResponse(null, &quot;Unknown action&quot;,HttpServletResponse.SC_BAD_REQUEST);</span>
+<span class="nc" id="L250">        	sendXMLResponse(response, HttpServletResponse.SC_BAD_REQUEST,content); </span>
+<span class="nc" id="L251">           return;</span>
+        }
+        
+        // ERROR if unknown action requested
+<span class="nc" id="L255">        ClusterNodeAction action = null;</span>
+        try {
+<span class="nc" id="L257">            action = ClusterNodeAction.valueOf(requestedAction.toUpperCase());</span>
+<span class="nc" id="L258">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L259">            String errorMessage = &quot;Bad action [&quot; + requestedAction + &quot;]&quot;;</span>
+<span class="nc" id="L260">            logger.warn(errorMessage);</span>
+<span class="nc" id="L261">            content=createXMLResponse(null, errorMessage,HttpServletResponse.SC_NOT_IMPLEMENTED);</span>
+<span class="nc" id="L262">            sendXMLResponse(response, HttpServletResponse.SC_NOT_IMPLEMENTED, content);</span>
+<span class="nc" id="L263">            return;</span>
+        }
+        
+          
+        // Perform Actions
+<span class="nc bnc" id="L268" title="All 4 branches missed.">        switch (action){</span>
+         case ASSIGN_PROJECT :
+        	 // valid parameters:
+        	 // projectname : Name of the project to assign.  
+        	 // projectid   : ID of the project to assign. 
+        	 //               Used ONLY if projectname parameter is missing, or projectname not found
+        	 // clusternode : The Clusternode name to which the project will be assigned
+        	 //               If empty, assign it to this clusternode
+        	 // Example: http://localhost:8088/clusternode?action=assign_project&amp;projectname=iTALC&amp;clusternode=sqoserver1
+
+<span class="nc" id="L278">        	 dbs.startDBSession();</span>
+<span class="nc" id="L279">         	 project = StoredProject.getProjectByName(projectname);</span>
+<span class="nc" id="L280">         	 dbs.rollbackDBSession();</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">         	 if (project==null) {</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">         		 if (projectid!=null)  {</span>
+<span class="nc" id="L283">                     long id = 0;</span>
+                     try {
+<span class="nc" id="L285">                    	 id = Long.valueOf(projectid);</span>
+<span class="nc" id="L286">                     } catch (Exception ex){</span>
+<span class="nc" id="L287">              	    	 content=createXMLResponse(null,&quot;Invalid projectid [&quot; + projectid + &quot;]&quot;, HttpServletResponse.SC_BAD_REQUEST);</span>
+<span class="nc" id="L288">            	    	 sendXMLResponse(response, HttpServletResponse.SC_BAD_REQUEST, content);</span>
+<span class="nc" id="L289">            	    	 break;                   	 </span>
+                     }
+<span class="nc" id="L291">                     dbs.startDBSession();</span>
+<span class="nc" id="L292">            		 project = dbs.findObjectById(StoredProject.class, id);</span>
+<span class="nc" id="L293">            		 dbs.rollbackDBSession();</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">            		 if (project==null) {</span>
+<span class="nc" id="L295">               	    	content = createXMLResponse(null,&quot;Project with id:&quot; + projectid + &quot; not found&quot;, HttpServletResponse.SC_NOT_FOUND);</span>
+<span class="nc" id="L296">            	    	sendXMLResponse(response, HttpServletResponse.SC_NOT_FOUND, content);</span>
+<span class="nc" id="L297">            	    	break;                   	             			 </span>
+            		 }
+         	     } else {
+<span class="nc" id="L300">         	    	content = createXMLResponse(null,&quot;Project &quot; + projectname + &quot; not found&quot;, HttpServletResponse.SC_NOT_FOUND);</span>
+<span class="nc" id="L301">        	    	sendXMLResponse(response, HttpServletResponse.SC_NOT_FOUND, content);</span>
+<span class="nc" id="L302">        	    	break;</span>
+         	     }
+         	 }
+         	 
+<span class="nc bnc" id="L306" title="All 2 branches missed.">         	 if (clusternode==null) {</span>
+<span class="nc" id="L307">         	     node = thisNode;	 </span>
+<span class="nc" id="L308">         	 } else {</span>
+<span class="nc" id="L309">         	     dbs.startDBSession();</span>
+<span class="nc" id="L310">         	     node = ClusterNode.getClusteNodeByName(clusternode);</span>
+<span class="nc" id="L311">         	     dbs.rollbackDBSession();</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">         	     if (node==null) {</span>
+<span class="nc" id="L313">                     content = createXMLResponse(null,&quot;ClusterNode &quot; + clusternode + &quot; not found&quot;, HttpServletResponse.SC_NOT_FOUND);</span>
+<span class="nc" id="L314">                     sendXMLResponse(response, HttpServletResponse.SC_NOT_FOUND, content);</span>
+<span class="nc" id="L315">                     break;         	         </span>
+         	     }
+         	 }
+        	 try {
+<span class="nc bnc" id="L319" title="All 2 branches missed.">        	     if (assignProject(node,project)){</span>
+<span class="nc" id="L320">        	    	content = createXMLResponse(null, &quot;Project &quot; + project.getName() + &quot; assigned to &quot; + node.getName(), HttpServletResponse.SC_OK);</span>
+<span class="nc" id="L321">        	    	sendXMLResponse(response, HttpServletResponse.SC_OK, content);       	    	</span>
+        	     }        	     
+<span class="nc" id="L323">        	 } catch (ClusterNodeActionException ex) {</span>
+<span class="nc" id="L324">     	    	content = createXMLResponse(null, ex.getMessage(), HttpServletResponse.SC_BAD_REQUEST);</span>
+<span class="nc" id="L325">    	    	sendXMLResponse(response, HttpServletResponse.SC_BAD_REQUEST, content);        		 </span>
+        	 }     
+<span class="nc" id="L327">        	 break;</span>
+         case GET_ASSIGNED_PROJECTS:
+        	 // valid parameters:
+        	 // clusternode : The Clusternode name to query for
+        	 //               If empty, assign it to this clusternode
+        	 // Example: http://localhost:8088/clusternode?action=get_assigned_projects&amp;clusternode=sqoserver1
+
+             // TODO: Clustering - Extract interface  
+<span class="nc bnc" id="L335" title="All 2 branches missed.">             if (clusternode==null) {</span>
+<span class="nc" id="L336">           	     node = thisNode;	 </span>
+<span class="nc" id="L337">           	 } else {</span>
+<span class="nc" id="L338">           	     dbs.startDBSession();</span>
+<span class="nc" id="L339">           	     node = ClusterNode.getClusteNodeByName(clusternode);</span>
+<span class="nc" id="L340">           	     dbs.rollbackDBSession();</span>
+           	 }
+<span class="nc bnc" id="L342" title="All 2 branches missed.">         	 if (node==null){</span>
+<span class="nc" id="L343">      	    	content = createXMLResponse(null, &quot;ClusterNode &quot;+clusternode+&quot; not found&quot;, HttpServletResponse.SC_NOT_FOUND);</span>
+<span class="nc" id="L344">    	    	sendXMLResponse(response, HttpServletResponse.SC_NOT_FOUND, content);</span>
+<span class="nc" id="L345">    	    	break;</span>
+         	 }
+         	          	 
+<span class="nc" id="L348">             bcontent = new StringBuilder();</span>
+<span class="nc" id="L349">             dbs.startDBSession();</span>
+<span class="nc" id="L350">             Set&lt;StoredProject&gt; assignments = ClusterNode.thisNode().getProjects();</span>
+<span class="nc bnc" id="L351" title="All 4 branches missed.">             if ((assignments!=null) &amp;&amp;  (assignments.size()&gt;0) ){</span>
+<span class="nc" id="L352">                 bcontent.append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">                 for (StoredProject sp : assignments) {                </span>
+<span class="nc" id="L354">                     bcontent.append(&quot;&lt;project id=\&quot;&quot; + sp.getId() + &quot;\&quot;&quot;);</span>
+                                          // check if project is currently being updated
+                     // yes/no/unknown, (unknown means that this project is assigned to another clusternode instance)                    
+<span class="nc" id="L357">                     bcontent.append(&quot;&gt;&quot; + sp.getName() + &quot;&lt;/project&gt;\n&quot;);</span>
+                 }
+             }
+<span class="nc" id="L360">             dbs.rollbackDBSession();</span>
+<span class="nc" id="L361">             content = createXMLResponse(bcontent.toString(), &quot;Project list processed succesfuly&quot;, HttpServletResponse.SC_OK);</span>
+<span class="nc" id="L362">             sendXMLResponse(response, HttpServletResponse.SC_OK, content);</span>
+<span class="nc" id="L363">        	 break;</span>
+         case GET_KNOWN_SERVERS:
+             // valid parameters: No need for parameters!
+             // Example: http://localhost:8088/clusternode?action=get_known_servers
+<span class="nc" id="L367">             bcontent = new StringBuilder();</span>
+<span class="nc" id="L368">             dbs.startDBSession();</span>
+<span class="nc" id="L369">             List&lt;ClusterNode&gt; nodes = (List&lt;ClusterNode&gt;) dbs.doHQL(&quot;FROM ClusterNode&quot;,null);</span>
+<span class="nc bnc" id="L370" title="All 4 branches missed.">             if ((nodes!=null) &amp;&amp;  (nodes.size()&gt;0) ){</span>
+<span class="nc" id="L371">                 bcontent.append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">                 for (ClusterNode cn : nodes) {                </span>
+<span class="nc" id="L373">                     bcontent.append(&quot;&lt;clusternode id=\&quot;&quot; + cn.getId() + &quot;\&quot;&gt;&quot; + cn.getName() + &quot;&lt;/clusternode&gt;\n&quot;);</span>
+                 }
+             }
+<span class="nc" id="L376">             dbs.rollbackDBSession();</span>
+<span class="nc" id="L377">             content = createXMLResponse(bcontent.toString(), &quot;Clusternode list processed succesfuly&quot;, HttpServletResponse.SC_OK);</span>
+<span class="nc" id="L378">             sendXMLResponse(response, HttpServletResponse.SC_OK, content);</span>
+        	 break;
+         default:
+        	 // you shouldn't be here! - implement missing actions!
+        	 
+        }
+<span class="nc" id="L384">    }</span>
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+<span class="nc" id="L388">		this.context = bc;</span>
+<span class="nc" id="L389">		this.logger = l;</span>
+<span class="nc" id="L390">	}</span>
+
+	@Override
+<span class="nc" id="L393">	public void shutDown() {}</span>
+
+	@Override
+	public boolean startUp() {
+		
+		/* Get a reference to the core service*/
+<span class="nc" id="L399">        ServiceReference serviceRef = null;</span>
+      
+<span class="nc" id="L401">        core = AlitheiaCore.getInstance();</span>
+<span class="nc" id="L402">        dbs = core.getDBService();</span>
+<span class="nc" id="L403">        upds = core.getUpdater();</span>
+<span class="nc bnc" id="L404" title="All 2 branches missed.">        if (logger != null) {</span>
+<span class="nc" id="L405">            logger.info(&quot;Got a valid reference to the logger&quot;);</span>
+<span class="nc" id="L406">        } else {</span>
+<span class="nc" id="L407">            System.out.println(&quot;ERROR: ClusteNodeService got no logger&quot;);</span>
+        }
+
+        /* Get a reference to the HTTP service */
+<span class="nc" id="L411">        serviceRef = context.getServiceReference(&quot;org.osgi.service.http.HttpService&quot;);</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">        if (serviceRef != null) {</span>
+<span class="nc" id="L413">            httpService = (HttpService) context.getService(serviceRef);</span>
+           	try {
+<span class="nc" id="L415">				httpService.registerServlet(&quot;/clusternode&quot;, (Servlet) this, null, null);</span>
+<span class="nc" id="L416">			} catch (ServletException e) {</span>
+<span class="nc" id="L417">				logger.error(&quot;Cannot register servlet to path /clusternode&quot;);</span>
+<span class="nc" id="L418">				return false;</span>
+<span class="nc" id="L419">			} catch (NamespaceException e) {</span>
+<span class="nc" id="L420">				logger.error(&quot;Duplicate registration at path /clusternode&quot;);</span>
+<span class="nc" id="L421">				return false;</span>
+			}
+        } else {
+<span class="nc" id="L424">            logger.error(&quot;Could not load the HTTP service.&quot;);</span>
+        }
+<span class="nc" id="L426">        logger.info(&quot;Succesfully started clusternode service&quot;);</span>
+
+		
+		// At this point, this ClusterNode has not been registered to the
+		// database yet, so do it!
+<span class="nc bnc" id="L431" title="All 2 branches missed.">		if (thisNode == null) { // paranoia check</span>
+<span class="nc" id="L432">			dbs.startDBSession();</span>
+			// Check if previously registered in DB
+<span class="nc" id="L434">			Map&lt;String, Object&gt; serverProps = new HashMap&lt;String, Object&gt;(1);</span>
+<span class="nc" id="L435">			serverProps.put(&quot;name&quot;, localServerName);</span>
+<span class="nc" id="L436">			List&lt;ClusterNode&gt; s = dbs.findObjectsByProperties(</span>
+<span class="nc" id="L437">					ClusterNode.class, serverProps);</span>
+
+<span class="nc bnc" id="L439" title="All 2 branches missed.">			if (s.isEmpty()) {</span>
+				// not registered yet, create a record in DB
+<span class="nc" id="L441">				thisNode = new ClusterNode();</span>
+<span class="nc" id="L442">				thisNode.setName(localServerName);</span>
+<span class="nc bnc" id="L443" title="All 2 branches missed.">				if (!dbs.addRecord(thisNode)) {</span>
+<span class="nc" id="L444">					logger.error(&quot;Failed to register ClusterNode &lt;&quot;</span>
+<span class="nc" id="L445">							+ localServerName + &quot;&gt;&quot;);</span>
+<span class="nc" id="L446">					dbs.rollbackDBSession();</span>
+<span class="nc" id="L447">					return false;</span>
+				} else {
+<span class="nc" id="L449">					dbs.commitDBSession();</span>
+<span class="nc" id="L450">					logger.info(&quot;ClusterNode &lt;&quot; + localServerName</span>
+<span class="nc" id="L451">							+ &quot;&gt; registered succesfully.&quot;);</span>
+<span class="nc" id="L452">					return true;</span>
+				}
+			} else {
+				// already registered, keep the record from DB
+<span class="nc" id="L456">				dbs.rollbackDBSession();</span>
+<span class="nc" id="L457">				thisNode = s.get(0);</span>
+<span class="nc" id="L458">				logger.info(&quot;ClusterNode &lt;&quot; + localServerName</span>
+<span class="nc" id="L459">						+ &quot;&gt; registered succesfully.&quot;);</span>
+			}
+		}
+<span class="nc" id="L462">		return true;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

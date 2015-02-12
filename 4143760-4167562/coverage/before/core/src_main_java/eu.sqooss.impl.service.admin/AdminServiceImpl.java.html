@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>AdminServiceImpl.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.admin</a> &gt; <span class="el_source">AdminServiceImpl.java</span></div><h1>AdminServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2010 - Organization for Free and Open Source Software,  
+ *                 Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.admin;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+
+import org.osgi.framework.BundleContext;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.admin.AdminAction;
+import eu.sqooss.service.admin.AdminService;
+import eu.sqooss.service.admin.AdminAction.AdminActionStatus;
+import eu.sqooss.service.admin.actions.AddProject;
+import eu.sqooss.service.admin.actions.RunTimeInfo;
+import eu.sqooss.service.admin.actions.UpdateProject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.logging.Logger;
+
+/**
+ * Implementation of the {@link AdminService} interface. Tracks all submitted
+ * actions and uses a background thread to delete old ones. 
+ * 
+ * @author Georgios Gousios &lt;gousiosg@gmail.com&gt;
+ */
+@Path(&quot;/api&quot;)
+public class AdminServiceImpl extends Thread implements AdminService {
+
+	static {
+<span class="fc" id="L69">		services = new HashMap&lt;String, Class&lt;? extends AdminAction&gt;&gt;();</span>
+	}
+	
+<span class="fc" id="L72">    static Map&lt;String, Class&lt;? extends AdminAction&gt;&gt; services;</span>
+    ConcurrentMap&lt;Long, ActionContainer&gt; liveactions;
+    AtomicLong id;
+
+    Logger log;
+
+<span class="fc" id="L78">    public AdminServiceImpl() {</span>
+<span class="fc" id="L79">        liveactions = new ConcurrentHashMap&lt;Long, ActionContainer&gt;();</span>
+<span class="fc" id="L80">        id = new AtomicLong();</span>
+        //if (AlitheiaCore.getInstance() != null)
+        //    log = AlitheiaCore.getInstance().getLogManager().createLogger(&quot;sqooss.admin&quot;);
+<span class="fc" id="L83">        start();</span>
+<span class="fc" id="L84">    }</span>
+
+    public static void registerAction(String uniq,
+            Class&lt;? extends AdminAction&gt; clazz) {
+<span class="nc" id="L88">    	services.put(uniq, clazz);</span>
+<span class="nc" id="L89">    }</span>
+    
+    @Override
+    public void registerAdminAction(String uniq,
+            Class&lt;? extends AdminAction&gt; clazz) {
+<span class="fc" id="L94">        services.put(uniq, clazz);</span>
+<span class="fc" id="L95">    }</span>
+
+    @Override
+    public void execute(AdminAction a) {
+<span class="fc" id="L99">        boolean commitDB = false;</span>
+<span class="fc" id="L100">        DBService db = null;</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (AlitheiaCore.getInstance() != null) {</span>
+<span class="nc" id="L102">            db = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (db.isDBSessionActive() != true) {</span>
+<span class="nc" id="L104">                commitDB = true;</span>
+<span class="nc" id="L105">                db.startDBSession();</span>
+            }
+        }
+        
+<span class="fc" id="L109">        debug(&quot;Executing action : &quot; + a.id() + &quot; &quot;);</span>
+        try{
+<span class="fc" id="L111">            a.execute();</span>
+<span class="fc" id="L112">        } catch (Exception e) {</span>
+<span class="pc bpc" id="L113" title="3 of 4 branches missed.">            if ((db != null) &amp;&amp; commitDB)</span>
+<span class="nc" id="L114">                db.rollbackDBSession();</span>
+<span class="fc" id="L115">            err(&quot;Error executing action &quot; + a.mnemonic() + &quot;, id &quot; + a.id() + </span>
+<span class="fc" id="L116">                    &quot;\nCause:&quot; + e.getMessage(), e);</span>
+<span class="nc" id="L117">        } finally {</span>
+<span class="pc" id="L118">            ActionContainer ac = liveactions.get(a.id());</span>
+<span class="pc bpc" id="L119" title="4 of 6 branches missed.">            if (db != null)</span>
+<span class="nc bnc" id="L120" title="All 12 branches missed.">                if (db.isDBSessionActive() &amp;&amp; commitDB)</span>
+<span class="nc" id="L121">                    db.commitDBSession();</span>
+<span class="pc" id="L122">            ac.end = System.currentTimeMillis();</span>
+<span class="pc" id="L123">            debug(&quot;Action &quot; + a.id() + &quot; finished in &quot; + (ac.end - ac.start) + &quot; msec&quot; );</span>
+<span class="nc" id="L124">        }</span>
+<span class="fc" id="L125">    }</span>
+
+    @GET
+    @Produces({ &quot;application/xml&quot;, &quot;application/json&quot; })
+    @Path(&quot;/actions/&quot;)
+    @Override
+    public Set&lt;AdminAction&gt; getAdminActions() {
+<span class="fc" id="L132">        Set&lt;AdminAction&gt; actions = new HashSet&lt;AdminAction&gt;();</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        for (Class&lt;? extends AdminAction&gt; aa : services.values()) {</span>
+            try {
+<span class="fc" id="L135">                actions.add(aa.newInstance());</span>
+<span class="pc" id="L136">            } catch (Exception e) {</span>
+<span class="nc" id="L137">                err(&quot;Error instantiating action: &quot;</span>
+<span class="nc" id="L138">                        + aa.getCanonicalName() + &quot;: &quot; + e.getMessage());</span>
+<span class="nc" id="L139">                return null;</span>
+            }
+        }
+<span class="fc" id="L142">        return actions;</span>
+    }
+
+    @GET
+    @Produces({ &quot;application/xml&quot;, &quot;application/json&quot; })
+    @Path(&quot;/actions/{id}&quot;)
+    public AdminAction show(Long id) {
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        if (liveactions.get(id) != null)</span>
+<span class="fc" id="L150">            return liveactions.get(id).aa;</span>
+<span class="fc" id="L151">        return null;</span>
+    }
+
+    @GET
+    @Produces({ &quot;application/xml&quot;, &quot;application/json&quot; })
+    @Path(&quot;/actions/{id}/result&quot;)
+    public Map&lt;String, Object&gt; result() {
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (liveactions.get(id) == null)</span>
+<span class="nc" id="L159">            return null;</span>
+
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (liveactions.get(id).end == -1)</span>
+<span class="nc" id="L162">            return null;</span>
+
+<span class="nc" id="L164">        return liveactions.get(id).aa.results();</span>
+    }
+
+    @GET
+    @Produces({ &quot;application/xml&quot;, &quot;application/json&quot; })
+    @Path(&quot;/actions/{id}/status&quot;)
+    public AdminActionStatus status() {
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (liveactions.get(id) != null)</span>
+<span class="nc" id="L172">            return liveactions.get(id).aa.status();</span>
+
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (liveactions.get(id).end == -1)</span>
+<span class="nc" id="L175">            return null;</span>
+<span class="nc" id="L176">        return null;</span>
+    }
+
+    @GET
+    @Produces({ &quot;application/xml&quot;, &quot;application/json&quot; })
+    @Path(&quot;/actions/{id}/error&quot;)
+    public Map&lt;String, Object&gt; error() {
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (liveactions.get(id) != null)</span>
+<span class="nc" id="L184">            return liveactions.get(id).aa.results();</span>
+<span class="nc" id="L185">        return null;</span>
+    }
+
+    @POST
+    @Produces({ &quot;application/xml&quot;, &quot;application/json&quot; })
+    @Path(&quot;/actions/{uniq}&quot;)
+    public AdminAction create(String uniq) {
+<span class="fc" id="L192">        Class&lt;? extends AdminAction&gt; clazz = services.get(uniq);</span>
+
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (clazz == null)</span>
+<span class="fc" id="L195">            return null;</span>
+
+        try {
+<span class="fc" id="L198">            long aid = id.addAndGet(1);</span>
+<span class="fc" id="L199">            AdminAction aa = clazz.newInstance();</span>
+<span class="fc" id="L200">            aa.setId(aid);</span>
+
+<span class="fc" id="L202">            ActionContainer ac = new ActionContainer(aa);</span>
+<span class="fc" id="L203">            liveactions.put(aa.id(), ac);</span>
+<span class="fc" id="L204">            return aa;</span>
+<span class="nc" id="L205">        } catch (Exception e) {</span>
+<span class="nc" id="L206">            return null;</span>
+        }
+    }
+
+    public final class ActionContainer {
+
+<span class="fc" id="L212">        public ActionContainer(AdminAction aa) {</span>
+<span class="fc" id="L213">            this.aa = aa;</span>
+<span class="fc" id="L214">            this.start = System.currentTimeMillis();</span>
+<span class="fc" id="L215">            this.end = -1;</span>
+<span class="fc" id="L216">        }</span>
+
+        public AdminAction aa;
+        public long start;
+        public long end; // -1 means action not executed
+    }
+
+    @Override
+    public final void run() {
+<span class="nc" id="L225">        while (true) {</span>
+<span class="fc" id="L226">            gc(10 * 60 * 1000);</span>
+            try {
+<span class="nc" id="L228">                sleep(10 * 60 * 1000); //10 minutes</span>
+<span class="nc" id="L229">            } catch (InterruptedException ignored) {}</span>
+        }
+    }
+
+    /* Delete actions older than time milliseconds */
+    public final int gc(long time) {
+<span class="fc" id="L235">        Iterator&lt;Long&gt; i = liveactions.keySet().iterator();</span>
+<span class="fc" id="L236">        long ts = System.currentTimeMillis();</span>
+<span class="fc" id="L237">        int count = 0;</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">        while (i.hasNext()) {</span>
+<span class="fc" id="L239">            long id = i.next();</span>
+<span class="fc bfc" id="L240" title="All 2 branches covered.">            if (liveactions.get(id).end &gt; -1 &amp;&amp; // Action executed</span>
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">                    ts - liveactions.get(id).end &gt; time) {</span>
+<span class="fc" id="L242">                liveactions.remove(id);</span>
+<span class="fc" id="L243">                count++;</span>
+            }
+        }
+<span class="fc" id="L246">        info(&quot;Action gc: removed &quot; + count +&quot; actions&quot;);</span>
+<span class="fc" id="L247">        return count;</span>
+    }
+
+    // Methods to help testing, not to be used elsewhere
+    @Deprecated
+    public ConcurrentMap&lt;Long, ActionContainer&gt; liveactions() {
+<span class="fc" id="L253">        return liveactions;</span>
+    }
+    
+    private void debug(String msg) {
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if (log != null)</span>
+<span class="nc" id="L258">            log.debug(msg);</span>
+<span class="fc" id="L259">    }</span>
+    
+    private void err(String msg) {
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (log != null)</span>
+<span class="nc" id="L263">            log.error(msg);</span>
+<span class="nc" id="L264">    }</span>
+    
+    private void err(String msg, Exception e) {
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">        if (log != null)</span>
+<span class="nc" id="L268">            log.error(msg, e);</span>
+<span class="fc" id="L269">    }</span>
+        
+    private void info(String msg) {
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">        if (log != null)</span>
+<span class="nc" id="L273">            log.info(msg);</span>
+<span class="fc" id="L274">    }</span>
+
+	@Override
+	public boolean startUp() {
+<span class="nc" id="L278">		services.put(AddProject.MNEMONIC, AddProject.class);</span>
+<span class="nc" id="L279">		services.put(RunTimeInfo.MNEMONIC, RunTimeInfo.class);</span>
+<span class="nc" id="L280">		services.put(UpdateProject.MNEMONIC, UpdateProject.class);</span>
+<span class="nc" id="L281">		return true;</span>
+	}
+
+	@Override
+	public void shutDown() {
+<span class="nc" id="L286">	}</span>
+
+	@Override
+	public void setInitParams(BundleContext bc, Logger l) {
+<span class="nc" id="L290">		log = l;</span>
+<span class="nc" id="L291">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

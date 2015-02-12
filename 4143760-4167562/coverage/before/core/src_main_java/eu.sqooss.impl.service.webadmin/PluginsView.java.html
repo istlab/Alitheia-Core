@@ -1,0 +1,986 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>PluginsView.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.webadmin</a> &gt; <span class="el_source">PluginsView.java</span></div><h1>PluginsView.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.webadmin;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.velocity.VelocityContext;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+
+import eu.sqooss.service.abstractmetric.PluginInfo;
+import eu.sqooss.service.abstractmetric.PluginInfo.ConfigurationType;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.Plugin;
+import eu.sqooss.service.db.PluginConfiguration;
+import eu.sqooss.service.util.StringUtils;
+
+public class PluginsView extends AbstractView{
+
+    public PluginsView(BundleContext bundlecontext, VelocityContext vc) {
+<span class="nc" id="L57">        super(bundlecontext, vc);</span>
+<span class="nc" id="L58">    }</span>
+
+    /**
+     * Renders the various plug-in's views.
+     * 
+     * @param req the servlet's request object
+     * 
+     * @return The HTML presentation of the generated view.
+     */
+    public static String render(HttpServletRequest req) {
+        // Stores the assembled HTML content
+<span class="nc" id="L69">        StringBuilder b = new StringBuilder(&quot;\n&quot;);</span>
+        // Stores the accumulated error messages
+<span class="nc" id="L71">        StringBuilder e = new StringBuilder();</span>
+        // Indentation spacer
+<span class="nc" id="L73">        long in = 6;</span>
+
+        // Request parameters
+<span class="nc" id="L76">        String reqParAction        = &quot;action&quot;;</span>
+<span class="nc" id="L77">        String reqParHashcode      = &quot;pluginHashcode&quot;;</span>
+<span class="nc" id="L78">        String reqParPropName      = &quot;propertyName&quot;;</span>
+<span class="nc" id="L79">        String reqParPropDescr     = &quot;propertyDescription&quot;;</span>
+<span class="nc" id="L80">        String reqParPropType      = &quot;propertyType&quot;;</span>
+<span class="nc" id="L81">        String reqParPropValue     = &quot;propertyValue&quot;;</span>
+<span class="nc" id="L82">        String reqParShowProp      = &quot;showProperties&quot;;</span>
+<span class="nc" id="L83">        String reqParShowActv      = &quot;showActivators&quot;;</span>
+        // Recognized &quot;action&quot; parameter's values
+<span class="nc" id="L85">        String actValInstall       = &quot;installPlugin&quot;;</span>
+<span class="nc" id="L86">        String actValUninstall     = &quot;uninstallPlugin&quot;;</span>
+<span class="nc" id="L87">        String actValSync          = &quot;syncPlugin&quot;;</span>
+<span class="nc" id="L88">        String actValReqAddProp    = &quot;createProperty&quot;;</span>
+<span class="nc" id="L89">        String actValReqUpdProp    = &quot;updateProperty&quot;;</span>
+<span class="nc" id="L90">        String actValConAddProp    = &quot;confirmProperty&quot;;</span>
+<span class="nc" id="L91">        String actValConRemProp    = &quot;removeProperty&quot;;</span>
+        // Request values
+<span class="nc" id="L93">        String reqValAction        = &quot;&quot;;</span>
+<span class="nc" id="L94">        String reqValHashcode      = null;</span>
+<span class="nc" id="L95">        String reqValPropName      = null;</span>
+<span class="nc" id="L96">        String reqValPropDescr     = null;</span>
+<span class="nc" id="L97">        String reqValPropType      = null;</span>
+<span class="nc" id="L98">        String reqValPropValue     = null;</span>
+<span class="nc" id="L99">        boolean reqValShowProp     = false;         // Show plug-in properties</span>
+<span class="nc" id="L100">        boolean reqValShowActv     = false;         // Show plug-in activators</span>
+        // Info object of the selected plug-in
+<span class="nc" id="L102">        PluginInfo selPI           = null;</span>
+
+        // Proceed only when at least one plug-in is registered
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (sobjPA.listPlugins().isEmpty()) {</span>
+<span class="nc" id="L106">            b.append(normalFieldset(</span>
+<span class="nc" id="L107">                    &quot;All plug-ins&quot;,</span>
+<span class="nc" id="L108">                    null,</span>
+<span class="nc" id="L109">                    new StringBuilder(&quot;&lt;span&gt;&quot;</span>
+                            + &quot;No plug-ins found!&amp;nbsp;&quot;
+                            + &quot;&lt;input type=\&quot;button\&quot;&quot;
+                            + &quot; class=\&quot;install\&quot;&quot;
+                            + &quot; style=\&quot;width: 100px;\&quot;&quot;
+                            + &quot; value=\&quot;Refresh\&quot;&quot;
+                            + &quot; onclick=\&quot;javascript:&quot;
+                            + &quot;window.location.reload(true);&quot;
+                            + &quot;\&quot;&gt;&quot;
+                            + &quot;&lt;/span&gt;&quot;),
+<span class="nc" id="L119">                    in));</span>
+<span class="nc" id="L120">        }</span>
+        else {
+            // ===============================================================
+            // Parse the servlet's request object
+            // ===============================================================
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (req != null) {</span>
+                // DEBUG: Dump the servlet's request parameter
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                if (DEBUG) {</span>
+<span class="nc" id="L128">                    b.append(debugRequest(req));</span>
+                }
+
+                // Retrieve the selected editor's action (if any)
+<span class="nc" id="L132">                reqValAction = req.getParameter(reqParAction);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                if (reqValAction == null) {</span>
+<span class="nc" id="L134">                    reqValAction = &quot;&quot;;</span>
+                };
+                // Retrieve the various display flags
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                if ((req.getParameter(reqParShowProp) != null)</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                        &amp;&amp; (req.getParameter(reqParShowProp).equals(&quot;true&quot;))) {</span>
+<span class="nc" id="L139">                    reqValShowProp = true;</span>
+                }
+<span class="nc bnc" id="L141" title="All 2 branches missed.">                if ((req.getParameter(reqParShowActv) != null)</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                        &amp;&amp; (req.getParameter(reqParShowActv).equals(&quot;true&quot;))) {</span>
+<span class="nc" id="L143">                    reqValShowActv = true;</span>
+                }
+                // Retrieve the selected configuration property's values
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                if ((reqValAction.equals(actValConAddProp))</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">                        || (reqValAction.equals(actValReqUpdProp))</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">                        || (reqValAction.equals(actValConRemProp))) {</span>
+                    // Name, description, type and value
+<span class="nc" id="L150">                    reqValPropName  = req.getParameter(reqParPropName);</span>
+<span class="nc" id="L151">                    reqValPropDescr = req.getParameter(reqParPropDescr);</span>
+<span class="nc" id="L152">                    reqValPropType  = req.getParameter(reqParPropType);</span>
+<span class="nc" id="L153">                    reqValPropValue = req.getParameter(reqParPropValue);</span>
+                }
+                // Retrieve the selected plug-in's hash code
+<span class="nc" id="L156">                reqValHashcode = req.getParameter(reqParHashcode);</span>
+                // Plug-in based actions
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                if (reqValHashcode != null) {</span>
+                    // =======================================================
+                    // Plug-in install request
+                    // =======================================================
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                    if (reqValAction.equals(actValInstall)) {</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                        if (sobjPA.installPlugin(reqValHashcode) == false) {</span>
+<span class="nc" id="L164">                            e.append(&quot;Plug-in can not be installed!&quot;</span>
+                                    + &quot; Check log for details.&quot;);
+<span class="nc" id="L166">                        }</span>
+                        // Persist the DB changes
+                        else {
+<span class="nc" id="L169">                            PluginInfo pInfo =</span>
+<span class="nc" id="L170">                                sobjPA.getPluginInfo(reqValHashcode);</span>
+<span class="nc" id="L171">                            sobjPA.pluginUpdated(sobjPA.getPlugin(pInfo));</span>
+                        }
+<span class="nc" id="L173">                    }</span>
+                    // =======================================================
+                    // Plug-in un-install request
+                    // =======================================================
+<span class="nc bnc" id="L177" title="All 2 branches missed.">                    else if (reqValAction.equals(actValUninstall)) {</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">                        if (sobjPA.uninstallPlugin(reqValHashcode) == false) {</span>
+<span class="nc" id="L179">                            e.append(&quot;Plug-in can not be uninstalled.&quot;</span>
+                                    + &quot; Check log for details.&quot;);
+<span class="nc" id="L181">                        } else {</span>
+<span class="nc" id="L182">                            e.append(&quot;A job was scheduled to remove the plug-in&quot;);</span>
+                        }
+                    } 
+                }
+                // Retrieve the selected plug-in's info object
+<span class="nc bnc" id="L187" title="All 2 branches missed.">                if (reqValHashcode != null) {</span>
+<span class="nc" id="L188">                    selPI = sobjPA.getPluginInfo(reqValHashcode);</span>
+                }
+                // Plug-in info based actions
+<span class="nc bnc" id="L191" title="All 4 branches missed.">                if ((selPI != null) &amp;&amp; (selPI.installed)) {</span>
+                    // =======================================================
+                    // Plug-in synchronize (on all projects) request
+                    // =======================================================
+<span class="nc bnc" id="L195" title="All 2 branches missed.">                    if (reqValAction.equals(actValSync)) {</span>
+<span class="nc" id="L196">                        compMA.syncMetrics(sobjPA.getPlugin(selPI));</span>
+<span class="nc" id="L197">                    }</span>
+                    // =======================================================
+                    // Plug-in's configuration property removal
+                    // =======================================================
+<span class="nc bnc" id="L201" title="All 2 branches missed.">                    else if (reqValAction.equals(actValConRemProp)) {</span>
+<span class="nc" id="L202">                        if (selPI.hasConfProp(</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                                reqValPropName, reqValPropType)) {</span>
+                            try {
+<span class="nc" id="L205">                                if (selPI.removeConfigEntry(</span>
+<span class="nc" id="L206">                                        sobjDB,</span>
+<span class="nc" id="L207">                                        reqValPropName,</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                                        reqValPropType)) {</span>
+                                    // Update the Plug-in Admin's information
+<span class="nc" id="L210">                                    sobjPA.pluginUpdated(</span>
+<span class="nc" id="L211">                                            sobjPA.getPlugin(selPI));</span>
+                                    // Reload the PluginInfo object
+<span class="nc" id="L213">                                    selPI = sobjPA.getPluginInfo(</span>
+<span class="nc" id="L214">                                            reqValHashcode);</span>
+<span class="nc" id="L215">                                }</span>
+                                else {
+<span class="nc" id="L217">                                    e.append(&quot;Property removal&quot;</span>
+                                            + &quot; has failed!&quot;
+                                            + &quot; Check log for details.&quot;);
+                                }
+<span class="nc" id="L221">                            }</span>
+<span class="nc" id="L222">                            catch (Exception ex) {</span>
+<span class="nc" id="L223">                                e.append(ex.getMessage());</span>
+                            }
+<span class="nc" id="L225">                        }</span>
+                        else {
+<span class="nc" id="L227">                            e.append (&quot;Unknown configuration property!&quot;);</span>
+                        }
+                        // Return to the update view upon error
+<span class="nc bnc" id="L230" title="All 2 branches missed.">                        if (e.toString().length() &gt; 0) {</span>
+<span class="nc" id="L231">                            reqValAction = actValReqUpdProp;</span>
+                        }
+<span class="nc" id="L233">                    }</span>
+                    // =======================================================
+                    // Plug-in's configuration property creation/update
+                    // =======================================================
+<span class="nc bnc" id="L237" title="All 2 branches missed.">                    else if (reqValAction.equals(actValConAddProp)) {</span>
+                        // Check for a property update
+<span class="nc" id="L239">                        boolean update = selPI.hasConfProp(</span>
+<span class="nc" id="L240">                                reqValPropName, reqValPropType);</span>
+                        // Update configuration property
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                        if (update) {</span>
+                            try {
+<span class="nc" id="L244">                                if (selPI.updateConfigEntry(</span>
+<span class="nc" id="L245">                                        sobjDB,</span>
+<span class="nc" id="L246">                                        reqValPropName,</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">                                        reqValPropValue)) {</span>
+                                    // Update the Plug-in Admin's information
+<span class="nc" id="L249">                                    sobjPA.pluginUpdated(</span>
+<span class="nc" id="L250">                                            sobjPA.getPlugin(selPI));</span>
+                                    // Reload the PluginInfo object
+<span class="nc" id="L252">                                    selPI =</span>
+<span class="nc" id="L253">                                        sobjPA.getPluginInfo(reqValHashcode);</span>
+<span class="nc" id="L254">                                }</span>
+                                else {
+<span class="nc" id="L256">                                    e.append(&quot;Property update&quot;</span>
+                                            + &quot; has failed!&quot;
+                                            + &quot; Check log for details.&quot;);
+                                }
+<span class="nc" id="L260">                            }</span>
+<span class="nc" id="L261">                            catch (Exception ex) {</span>
+<span class="nc" id="L262">                                e.append(ex.getMessage());</span>
+                            }
+<span class="nc" id="L264">                        }</span>
+                        // Create configuration property
+                        else {
+                            try {
+<span class="nc" id="L268">                                if (selPI.addConfigEntry(</span>
+<span class="nc" id="L269">                                        sobjDB,</span>
+<span class="nc" id="L270">                                        reqValPropName,</span>
+<span class="nc" id="L271">                                        reqValPropDescr,</span>
+<span class="nc" id="L272">                                        reqValPropType,</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                                        reqValPropValue)) {</span>
+                                    // Update the Plug-in Admin's information
+<span class="nc" id="L275">                                    sobjPA.pluginUpdated(</span>
+<span class="nc" id="L276">                                            sobjPA.getPlugin(selPI));</span>
+                                    // Reload the PluginInfo object
+<span class="nc" id="L278">                                    selPI =</span>
+<span class="nc" id="L279">                                        sobjPA.getPluginInfo(reqValHashcode);</span>
+<span class="nc" id="L280">                                }</span>
+                                else {
+<span class="nc" id="L282">                                    e.append(&quot;Property creation&quot;</span>
+                                            + &quot; has failed!&quot;
+                                            + &quot; Check log for details.&quot;);
+                                }
+<span class="nc" id="L286">                            }</span>
+<span class="nc" id="L287">                            catch (Exception ex) {</span>
+<span class="nc" id="L288">                                e.append(ex.getMessage());</span>
+                            }
+                        }
+                        // Return to the create/update view upon error
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                        if (e.toString().length() &gt; 0) {</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">                            if (update) reqValAction = actValReqUpdProp;</span>
+<span class="nc" id="L294">                            else reqValAction = actValReqAddProp;</span>
+                        }
+                    }
+                }
+            }
+
+            // ===============================================================
+            // Create the form
+            // ===============================================================
+<span class="nc" id="L303">            b.append(sp(in++) + &quot;&lt;form id=\&quot;metrics\&quot;&quot;</span>
+<span class="nc" id="L304">                    + &quot; name=\&quot;metrics\&quot;&quot;</span>
+<span class="nc" id="L305">                    + &quot; method=\&quot;post\&quot;&quot;</span>
+<span class="nc" id="L306">                    + &quot; action=\&quot;/index\&quot;&gt;\n&quot;);</span>
+
+            // ===============================================================
+            // Display the accumulated error messages (if any)
+            // ===============================================================
+<span class="nc" id="L311">            b.append(errorFieldset(e, in));</span>
+
+            // ===============================================================
+            // &quot;Create/update configuration property&quot; editor
+            // ===============================================================
+<span class="nc bnc" id="L316" title="All 4 branches missed.">            if ((selPI != null) &amp;&amp; (selPI.installed)</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">                    &amp;&amp; ((reqValAction.equals(actValReqAddProp))</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">                            || (reqValAction.equals(actValReqUpdProp)))) {</span>
+                // Input field values are stored here
+<span class="nc" id="L320">                String value = null;</span>
+                // Create the field-set
+<span class="nc" id="L322">                b.append(sp(in) + &quot;&lt;fieldset&gt;\n&quot;);</span>
+                // Check for a property update request
+<span class="nc" id="L324">                boolean update = selPI.hasConfProp(</span>
+<span class="nc" id="L325">                        reqValPropName, reqValPropType);</span>
+<span class="nc" id="L326">                b.append(sp(++in) + &quot;&lt;legend&gt;&quot;</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">                        + ((update)</span>
+<span class="nc" id="L328">                                ? &quot;Update property of &quot;</span>
+<span class="nc" id="L329">                                : &quot;Create property for &quot;)</span>
+<span class="nc" id="L330">                        + selPI.getPluginName()</span>
+<span class="nc" id="L331">                        + &quot;&lt;/legend&gt;\n&quot;);</span>
+<span class="nc" id="L332">                b.append(sp(in) + &quot;&lt;table class=\&quot;borderless\&quot;&gt;&quot;);</span>
+                // Property's name
+<span class="nc bnc" id="L334" title="All 2 branches missed.">                value = ((reqValPropName != null) ? reqValPropName : &quot;&quot;);</span>
+<span class="nc" id="L335">                b.append(sp(in) + &quot;&lt;tr&gt;\n&quot;</span>
+<span class="nc" id="L336">                        + sp(++in)</span>
+<span class="nc" id="L337">                        + &quot;&lt;td class=\&quot;borderless\&quot; style=\&quot;width:100px;\&quot;&gt;&quot;</span>
+<span class="nc" id="L338">                        + &quot;&lt;b&gt;Name&lt;/b&gt;&quot;</span>
+<span class="nc" id="L339">                        + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L340">                        + sp(in)</span>
+<span class="nc" id="L341">                        + &quot;&lt;td class=\&quot;borderless\&quot;&gt;&quot;</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">                        + ((update) ? value</span>
+<span class="nc" id="L343">                                : &quot;&lt;input type=\&quot;text\&quot;&quot;</span>
+                                    + &quot; class=\&quot;form\&quot;&quot;
+<span class="nc" id="L345">                                    + &quot; id=\&quot;&quot; + reqParPropName + &quot;\&quot;&quot;</span>
+<span class="nc" id="L346">                                    + &quot; name=\&quot;&quot; + reqParPropName + &quot;\&quot;&quot;</span>
+<span class="nc" id="L347">                                    + &quot; value=\&quot;&quot; + value + &quot;\&quot;&gt;&quot;)</span>
+<span class="nc" id="L348">                                    + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L349">                                    + sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+                // Property's description
+<span class="nc bnc" id="L351" title="All 2 branches missed.">                value = ((reqValPropDescr != null) ? reqValPropDescr : &quot;&quot;);</span>
+<span class="nc" id="L352">                b.append(sp(in) + &quot;&lt;tr&gt;\n&quot;</span>
+<span class="nc" id="L353">                        + sp(++in)</span>
+<span class="nc" id="L354">                        + &quot;&lt;td class=\&quot;borderless\&quot; style=\&quot;width:100px;\&quot;&gt;&quot;</span>
+<span class="nc" id="L355">                        + &quot;&lt;b&gt;Description&lt;/b&gt;&quot;</span>
+<span class="nc" id="L356">                        + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L357">                        + sp(in)</span>
+<span class="nc" id="L358">                        + &quot;&lt;td class=\&quot;borderless\&quot;&gt;&quot;</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">                        + ((update) ? value</span>
+<span class="nc" id="L360">                                : &quot;&lt;input type=\&quot;text\&quot;&quot;</span>
+                                    + &quot; class=\&quot;form\&quot;&quot;
+<span class="nc" id="L362">                                    + &quot; id=\&quot;&quot; + reqParPropDescr + &quot;\&quot;&quot;</span>
+<span class="nc" id="L363">                                    + &quot; name=\&quot;&quot; + reqParPropDescr + &quot;\&quot;&quot;</span>
+<span class="nc" id="L364">                                    + &quot; value=\&quot;&quot; + value + &quot;\&quot;&gt;&quot;)</span>
+<span class="nc" id="L365">                                    + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L366">                                    + sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+                // Property's type
+<span class="nc bnc" id="L368" title="All 2 branches missed.">                value = ((reqValPropType != null) ? reqValPropType : &quot;&quot;);</span>
+<span class="nc" id="L369">                b.append(sp(in) + &quot;&lt;tr&gt;\n&quot;</span>
+<span class="nc" id="L370">                        + sp(++in)</span>
+<span class="nc" id="L371">                        + &quot;&lt;td class=\&quot;borderless\&quot; style=\&quot;width:100px;\&quot;&gt;&quot;</span>
+<span class="nc" id="L372">                        + &quot;&lt;b&gt;Type&lt;/b&gt;&quot;</span>
+<span class="nc" id="L373">                        + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L374">                        + sp(in)</span>
+<span class="nc" id="L375">                        + &quot;&lt;td class=\&quot;borderless\&quot;&gt;\n&quot;</span>
+<span class="nc" id="L376">                        + sp(++in));</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">                if (update) {</span>
+<span class="nc" id="L378">                    b.append(value);</span>
+<span class="nc" id="L379">                }</span>
+                else {
+<span class="nc" id="L381">                    b.append(&quot;&lt;select class=\&quot;form\&quot;&quot;</span>
+<span class="nc" id="L382">                            + &quot; id=\&quot;&quot; + reqParPropType + &quot;\&quot;&quot;</span>
+<span class="nc" id="L383">                            + &quot; name=\&quot;&quot; + reqParPropType + &quot;\&quot;&gt;\n&quot;);</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">                    for (ConfigurationType type : ConfigurationType.values()) {</span>
+<span class="nc" id="L385">                        boolean selected = type.toString().equals(value);</span>
+<span class="nc" id="L386">                        b.append(sp(in) + &quot;&lt;option&quot;</span>
+<span class="nc" id="L387">                                + &quot; value=\&quot;&quot; + type.toString() + &quot;\&quot;&quot;</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">                                + ((selected) ? &quot; selected&quot; : &quot;&quot;)</span>
+<span class="nc" id="L389">                                + &quot;&gt;&quot;</span>
+<span class="nc" id="L390">                                + type.toString()</span>
+<span class="nc" id="L391">                                + &quot;&lt;/option&gt;\n&quot;);</span>
+                    }
+<span class="nc" id="L393">                    b.append(sp(in) + &quot;&lt;/select&gt;\n&quot;);</span>
+                }
+<span class="nc" id="L395">                b.append(sp(--in)</span>
+<span class="nc" id="L396">                        + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L397">                        + sp(--in)</span>
+<span class="nc" id="L398">                        + &quot;&lt;/tr&gt;\n&quot;);</span>
+                // Property's value
+<span class="nc bnc" id="L400" title="All 2 branches missed.">                value = ((reqValPropValue != null) ? reqValPropValue : &quot;&quot;);</span>
+<span class="nc" id="L401">                b.append(sp(in) + &quot;&lt;tr&gt;\n&quot;</span>
+<span class="nc" id="L402">                        + sp(++in)</span>
+<span class="nc" id="L403">                        + &quot;&lt;td class=\&quot;borderless\&quot; style=\&quot;width:100px;\&quot;&gt;&quot;</span>
+<span class="nc" id="L404">                        + &quot;&lt;b&gt;Value&lt;/b&gt;&quot;</span>
+<span class="nc" id="L405">                        + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L406">                        + sp(in)</span>
+<span class="nc" id="L407">                        + &quot;&lt;td class=\&quot;borderless\&quot;&gt;&quot;</span>
+<span class="nc" id="L408">                        + &quot;&lt;input type=\&quot;text\&quot;&quot;</span>
+<span class="nc" id="L409">                        + &quot; class=\&quot;form\&quot;&quot;</span>
+<span class="nc" id="L410">                        + &quot; id=\&quot;&quot; + reqParPropValue + &quot;\&quot;&quot;</span>
+<span class="nc" id="L411">                        + &quot; name=\&quot;&quot; + reqParPropValue + &quot;\&quot;&quot;</span>
+<span class="nc" id="L412">                        + &quot; value=\&quot;&quot; + value +&quot;\&quot;&gt;&quot;</span>
+<span class="nc" id="L413">                        + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L414">                        + sp(--in)</span>
+<span class="nc" id="L415">                        + &quot;&lt;/tr&gt;\n&quot;);</span>
+                // Command tool-bar
+<span class="nc bnc" id="L417" title="All 2 branches missed.">                value = ((update) ? &quot;Update&quot; : &quot;Create&quot;);</span>
+<span class="nc" id="L418">                b.append(sp(in) + &quot;&lt;tr&gt;\n&quot;</span>
+<span class="nc" id="L419">                        + sp(++in)</span>
+<span class="nc" id="L420">                        + &quot;&lt;td colspan=\&quot;2\&quot; class=\&quot;borderless\&quot;&gt;&quot;</span>
+<span class="nc" id="L421">                        + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L422">                        + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L423">                        + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L424">                        + &quot; value=\&quot;&quot; + value + &quot;\&quot;&quot;</span>
+<span class="nc" id="L425">                        + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L426">                        + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L427">                        + reqParAction + &quot;').value='&quot;</span>
+<span class="nc" id="L428">                        + actValConAddProp + &quot;';&quot;</span>
+<span class="nc" id="L429">                        + &quot;document.metrics.submit();\&quot;&gt;&quot;</span>
+<span class="nc" id="L430">                        + &quot;&amp;nbsp;&quot;);</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">                if (update) {</span>
+<span class="nc" id="L432">                    b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L433">                            + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L434">                            + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L435">                            + &quot; value=\&quot;Remove\&quot;&quot;</span>
+<span class="nc" id="L436">                            + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L437">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L438">                            + reqParAction + &quot;').value='&quot;</span>
+<span class="nc" id="L439">                            + actValConRemProp + &quot;';&quot;</span>
+<span class="nc" id="L440">                            + &quot;document.metrics.submit();\&quot;&gt;&quot;</span>
+<span class="nc" id="L441">                            + &quot;&amp;nbsp;&quot;);</span>
+                }
+<span class="nc" id="L443">                b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L444">                        + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L445">                        + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L446">                        + &quot; value=\&quot;Cancel\&quot;&quot;</span>
+<span class="nc" id="L447">                        + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L448">                        + &quot;document.metrics.submit();\&quot;&gt;&quot;</span>
+<span class="nc" id="L449">                        + &quot;&lt;/td&gt;\n&quot;</span>
+<span class="nc" id="L450">                        + sp(--in)</span>
+<span class="nc" id="L451">                        + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L452">                b.append(sp(--in) + &quot;&lt;/table&gt;&quot;);</span>
+<span class="nc" id="L453">                b.append(sp(--in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L454">            }</span>
+            // ===============================================================
+            // Plug-in editor
+            // ===============================================================
+<span class="nc bnc" id="L458" title="All 2 branches missed.">            else if (selPI != null) {</span>
+                // Create the plug-in field-set
+<span class="nc" id="L460">                b.append(sp(in) + &quot;&lt;fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L461">                b.append(sp(++in) + &quot;&lt;legend&gt;&quot;</span>
+<span class="nc" id="L462">                        + selPI.getPluginName()</span>
+<span class="nc" id="L463">                        + &quot;&lt;/legend&gt;\n&quot;);</span>
+                //------------------------------------------------------------
+                // Create the plug-in info table
+                //------------------------------------------------------------
+<span class="nc" id="L467">                b.append(sp(in) + &quot;&lt;table&gt;\n&quot;);</span>
+<span class="nc" id="L468">                b.append(sp(++in) + &quot;&lt;thead&gt;\n&quot;);</span>
+<span class="nc" id="L469">                b.append(sp(++in) + &quot;&lt;tr class=\&quot;head\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L470">                b.append(sp(++in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L471">                        + &quot; style=\&quot;width: 80px;\&quot;&gt;&quot;</span>
+<span class="nc" id="L472">                        + &quot;Status&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L473">                b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L474">                        + &quot; style=\&quot;width: 30%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L475">                        + &quot;Name&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L476">                b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L477">                        + &quot; style=\&quot;width: 40%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L478">                        + &quot;Class&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L479">                b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&gt;Version&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L480">                b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L481">                b.append(sp(--in) + &quot;&lt;/thead&gt;\n&quot;);</span>
+                // Display the plug-in's info
+<span class="nc" id="L483">                b.append(sp(in) + &quot;&lt;tbody&gt;\n&quot;);</span>
+<span class="nc" id="L484">                b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+                // Plug-in state
+<span class="nc" id="L486">                b.append(sp(++in) + &quot;&lt;td&gt;&quot;</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">                        + ((selPI.installed) </span>
+<span class="nc" id="L488">                                ? &quot;Installed&quot; : &quot;Registered&quot;)</span>
+<span class="nc" id="L489">                                + &quot;&lt;/td&gt;\n&quot;);</span>
+                // Plug-in name
+<span class="nc" id="L491">                b.append(sp(in) + &quot;&lt;td&gt;&quot;</span>
+<span class="nc" id="L492">                        + selPI.getPluginName() + &quot;&lt;/td&gt;\n&quot;);</span>
+                // Plug-in class
+<span class="nc" id="L494">                b.append(sp(in) + &quot;&lt;td&gt;&quot;</span>
+<span class="nc" id="L495">                        + StringUtils.join((String[]) (</span>
+<span class="nc" id="L496">                                selPI.getServiceRef().getProperty(</span>
+<span class="nc" id="L497">                                        Constants.OBJECTCLASS)),&quot;,&quot;)</span>
+<span class="nc" id="L498">                                        + &quot;&lt;/td&gt;\n&quot;);</span>
+                // Plug-in version
+<span class="nc" id="L500">                b.append(sp(in) + &quot;&lt;td&gt;&quot;</span>
+<span class="nc" id="L501">                        + selPI.getPluginVersion() + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L502">                b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+                // Plug-in tool-bar
+<span class="nc" id="L504">                b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L505">                b.append(sp(in++) + &quot;&lt;td colspan=\&quot;4\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L506">                b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L507">                        + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L508">                        + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L509">                        + &quot; value=\&quot;Plug-ins list\&quot;&quot;</span>
+<span class="nc" id="L510">                        + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L511">                        + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L512">                        + reqParHashcode + &quot;').value='';&quot;</span>
+<span class="nc" id="L513">                        + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L514">                        + &quot;&gt;\n&quot;);</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">                if (selPI.installed) {</span>
+<span class="nc" id="L516">                    b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L517">                            + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L518">                            + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L519">                            + &quot; value=\&quot;Uninstall\&quot;&quot;</span>
+<span class="nc" id="L520">                            + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L521">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L522">                            + reqParAction + &quot;').value='&quot;</span>
+<span class="nc" id="L523">                            + actValUninstall + &quot;';&quot;</span>
+<span class="nc" id="L524">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L525">                            + reqParHashcode +&quot;').value='&quot;</span>
+<span class="nc" id="L526">                            + selPI.getHashcode() + &quot;';&quot;</span>
+<span class="nc" id="L527">                            + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L528">                            + &quot;&gt;\n&quot;);</span>
+<span class="nc" id="L529">                    b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L530">                            + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L531">                            + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L532">                            + &quot; value=\&quot;Synchronise\&quot;&quot;</span>
+<span class="nc" id="L533">                            + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L534">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L535">                            + reqParAction + &quot;').value='&quot;</span>
+<span class="nc" id="L536">                            + actValSync + &quot;';&quot;</span>
+<span class="nc" id="L537">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L538">                            + reqParHashcode +&quot;').value='&quot;</span>
+<span class="nc" id="L539">                            + selPI.getHashcode() + &quot;';&quot;</span>
+<span class="nc" id="L540">                            + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L541">                            + &quot;&gt;\n&quot;);</span>
+<span class="nc" id="L542">                }</span>
+                else {
+<span class="nc" id="L544">                    b.append(sp(in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L545">                            + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L546">                            + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L547">                            + &quot; value=\&quot;Install\&quot;&quot;</span>
+<span class="nc" id="L548">                            + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L549">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L550">                            + reqParAction + &quot;').value='&quot;</span>
+<span class="nc" id="L551">                            + actValInstall + &quot;';&quot;</span>
+<span class="nc" id="L552">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L553">                            + reqParHashcode +&quot;').value='&quot;</span>
+<span class="nc" id="L554">                            + selPI.getHashcode() + &quot;';&quot;</span>
+<span class="nc" id="L555">                            + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L556">                            + &quot;&gt;\n&quot;);</span>
+                }
+<span class="nc" id="L558">                b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L559">                b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+                // Close the plug-in table
+<span class="nc" id="L561">                b.append(sp(--in) + &quot;&lt;/tbody&gt;\n&quot;);</span>
+<span class="nc" id="L562">                b.append(sp(--in) + &quot;&lt;/table&gt;\n&quot;);</span>
+
+                //------------------------------------------------------------
+                // Registered metrics, activators and configuration 
+                //------------------------------------------------------------
+<span class="nc bnc" id="L567" title="All 2 branches missed.">                if (selPI.installed) {</span>
+                    //--------------------------------------------------------
+                    // Create the metrics field-set
+                    //--------------------------------------------------------
+<span class="nc" id="L571">                    b.append(sp(++in) + &quot;&lt;fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L572">                    b.append(sp(++in) + &quot;&lt;legend&gt;&quot;</span>
+<span class="nc" id="L573">                            + &quot;Supported metrics&quot;</span>
+<span class="nc" id="L574">                            + &quot;&lt;/legend&gt;\n&quot;);</span>
+                    // Create the metrics table
+<span class="nc" id="L576">                    b.append(sp(in) + &quot;&lt;table&gt;\n&quot;);</span>
+<span class="nc" id="L577">                    b.append(sp(++in) + &quot;&lt;thead&gt;\n&quot;);</span>
+<span class="nc" id="L578">                    b.append(sp(++in) + &quot;&lt;tr class=\&quot;head\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L579">                    b.append(sp(++in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L580">                            + &quot; style=\&quot;width: 10%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L581">                            + &quot;Id&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L582">                    b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L583">                            + &quot; style=\&quot;width: 25%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L584">                            + &quot;Name&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L585">                    b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L586">                            + &quot; style=\&quot;width: 25%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L587">                            + &quot;Type&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L588">                    b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L589">                            + &quot; style=\&quot;width: 40%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L590">                            + &quot;Description&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L591">                    b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L592">                    b.append(sp(--in) + &quot;&lt;/thead&gt;\n&quot;);</span>
+                    // Display the list of supported metrics
+<span class="nc" id="L594">                    b.append(sp(in++) + &quot;&lt;tbody&gt;\n&quot;);</span>
+                    // Get the list of supported metrics
+<span class="nc" id="L596">                    List&lt;Metric&gt; metrics =</span>
+<span class="nc" id="L597">                        sobjPA.getPlugin(selPI).getAllSupportedMetrics();</span>
+<span class="nc bnc" id="L598" title="All 4 branches missed.">                    if ((metrics == null) || (metrics.isEmpty())) {</span>
+<span class="nc" id="L599">                        b.append(sp(in++) + &quot;&lt;tr&gt;&quot;);</span>
+<span class="nc" id="L600">                        b.append(sp(in) + &quot;&lt;td colspan=\&quot;4\&quot; class=\&quot;noattr\&quot;&gt;&quot;</span>
+<span class="nc" id="L601">                                + &quot;This plug-in does not support metrics.&quot;</span>
+<span class="nc" id="L602">                                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L603">                        b.append(sp(--in)+ &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L604">                    }</span>
+                    else {
+<span class="nc bnc" id="L606" title="All 2 branches missed.">                        for (Metric metric: metrics) {</span>
+<span class="nc" id="L607">                            b.append(sp(in++) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L608">                            b.append(sp(in) + &quot;&lt;td&gt;&quot;</span>
+<span class="nc" id="L609">                                    + metric.getId() + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L610">                            b.append(sp(in) + &quot;&lt;td&gt;&quot;</span>
+<span class="nc" id="L611">                                    + metric.getMnemonic() + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L612">                            b.append(sp(in) + &quot;&lt;td&gt;&quot;</span>
+<span class="nc" id="L613">                                    + metric.getMetricType().getType()</span>
+<span class="nc" id="L614">                                    + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L615">                            b.append(sp(in) + &quot;&lt;td&gt;&quot;</span>
+<span class="nc" id="L616">                                    + metric.getDescription() + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L617">                            b.append(sp(--in)+ &quot;&lt;/tr&gt;\n&quot;);</span>
+                        }
+                    }
+                    // Close the metrics table
+<span class="nc" id="L621">                    b.append(sp(--in) + &quot;&lt;/tbody&gt;\n&quot;);</span>
+                    // Close the metrics table
+<span class="nc" id="L623">                    b.append(sp(--in) + &quot;&lt;/table&gt;\n&quot;);</span>
+                    // Close the metric field-set
+<span class="nc" id="L625">                    b.append(sp(--in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+                    //--------------------------------------------------------
+                    // Create the properties field-set
+                    //--------------------------------------------------------
+<span class="nc" id="L629">                    b.append(sp(++in) + &quot;&lt;fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L630">                    b.append(sp(++in) + &quot;&lt;legend&gt;&quot;</span>
+<span class="nc" id="L631">                            + &quot;Configuration properties&quot;</span>
+<span class="nc" id="L632">                            + &quot;&lt;/legend&gt;\n&quot;);</span>
+                    // Create the properties table
+<span class="nc" id="L634">                    b.append(sp(in) + &quot;&lt;table&gt;\n&quot;);</span>
+<span class="nc" id="L635">                    b.append(sp(++in) + &quot;&lt;thead&gt;\n&quot;);</span>
+<span class="nc" id="L636">                    b.append(sp(++in) + &quot;&lt;tr class=\&quot;head\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L637">                    b.append(sp(++in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L638">                            + &quot; style=\&quot;width: 30%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L639">                            + &quot;Name&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L640">                    b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L641">                            + &quot; style=\&quot;width: 20%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L642">                            + &quot;Type&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L643">                    b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L644">                            + &quot; style=\&quot;width: 50%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L645">                            + &quot;Value&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L646">                    b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L647">                    b.append(sp(--in) + &quot;&lt;/thead&gt;\n&quot;);</span>
+                    // Display the set of configuration properties
+<span class="nc" id="L649">                    b.append(sp(in++) + &quot;&lt;tbody&gt;\n&quot;);</span>
+                    // Get the plug-in's configuration set
+<span class="nc" id="L651">                    Set&lt;PluginConfiguration&gt; config = Plugin.getPluginByHashcode(selPI.getHashcode()).getConfigurations();</span>
+<span class="nc bnc" id="L652" title="All 4 branches missed.">                    if ((config == null) || (config.isEmpty())) {</span>
+<span class="nc" id="L653">                        b.append(sp(in++) + &quot;&lt;tr&gt;&quot;);</span>
+<span class="nc" id="L654">                        b.append(sp(in) + &quot;&lt;td colspan=\&quot;3\&quot; class=\&quot;noattr\&quot;&gt;&quot;</span>
+<span class="nc" id="L655">                                + &quot;This plug-in has no configuration properties.&quot;</span>
+<span class="nc" id="L656">                                + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L657">                        b.append(sp(--in)+ &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L658">                    }</span>
+                    else {
+<span class="nc bnc" id="L660" title="All 2 branches missed.">                        for (PluginConfiguration param : config) {</span>
+<span class="nc" id="L661">                            b.append(sp(in++) + &quot;&lt;tr class=\&quot;edit\&quot;&quot;</span>
+<span class="nc" id="L662">                                    + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L663">                                    + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L664">                                    + reqParAction + &quot;').value='&quot;</span>
+<span class="nc" id="L665">                                    + actValReqUpdProp + &quot;';&quot;</span>
+<span class="nc" id="L666">                                    + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L667">                                    + reqParPropName + &quot;').value='&quot;</span>
+<span class="nc" id="L668">                                    + param.getName() + &quot;';&quot;</span>
+<span class="nc" id="L669">                                    + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L670">                                    + reqParPropType + &quot;').value='&quot;</span>
+<span class="nc" id="L671">                                    + param.getType() + &quot;';&quot;</span>
+<span class="nc" id="L672">                                    + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L673">                                    + reqParPropDescr + &quot;').value='&quot;</span>
+<span class="nc" id="L674">                                    + param.getMsg() + &quot;';&quot;</span>
+<span class="nc" id="L675">                                    + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L676">                                    + reqParPropValue + &quot;').value='&quot;</span>
+<span class="nc" id="L677">                                    + param.getValue() + &quot;';&quot;</span>
+<span class="nc" id="L678">                                    + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L679">                                    + &quot;&gt;\n&quot;);</span>
+                            // Property's name and description
+<span class="nc" id="L681">                            String description = param.getMsg();</span>
+<span class="nc bnc" id="L682" title="All 2 branches missed.">                            if (param.getMsg() == null)</span>
+<span class="nc" id="L683">                                description = &quot;No description available.&quot;;</span>
+<span class="nc" id="L684">                            b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&quot;</span>
+<span class="nc" id="L685">                                    + &quot; title=\&quot;&quot; + description + &quot;\&quot;&gt;&quot;</span>
+<span class="nc" id="L686">                                    + &quot;&lt;img src=\&quot;/edit.png\&quot; alt=\&quot;[Edit]\&quot;/&gt;&quot;</span>
+<span class="nc" id="L687">                                    + &quot;&amp;nbsp;&quot; + param.getName()</span>
+<span class="nc" id="L688">                                    + &quot;&lt;/td&gt;\n&quot;);</span>
+                            // Property's type
+<span class="nc" id="L690">                            b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L691">                                    + param.getType()</span>
+<span class="nc" id="L692">                                    + &quot;&lt;/td&gt;\n&quot;);</span>
+                            // Property's value
+<span class="nc" id="L694">                            b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L695">                                    + param.getValue()</span>
+<span class="nc" id="L696">                                    + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L697">                            b.append(sp(--in)+ &quot;&lt;/tr&gt;\n&quot;);</span>
+                        }
+                    }
+                    // Command tool-bar
+<span class="nc" id="L701">                    b.append(sp(in) + &quot;&lt;tr&gt;\n&quot;);</span>
+<span class="nc" id="L702">                    b.append(sp(++in) + &quot;&lt;td colspan=\&quot;3\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L703">                    b.append(sp(++in) + &quot;&lt;input type=\&quot;button\&quot;&quot;</span>
+<span class="nc" id="L704">                            + &quot; class=\&quot;install\&quot;&quot;</span>
+<span class="nc" id="L705">                            + &quot; style=\&quot;width: 100px;\&quot;&quot;</span>
+<span class="nc" id="L706">                            + &quot; value=\&quot;Add property\&quot;&quot;</span>
+<span class="nc" id="L707">                            + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L708">                            + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L709">                            + reqParAction + &quot;').value='&quot;</span>
+<span class="nc" id="L710">                            + actValReqAddProp + &quot;';&quot;</span>
+<span class="nc" id="L711">                            + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L712">                            + &quot;&gt;\n&quot;);</span>
+<span class="nc" id="L713">                    b.append(sp(--in) + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L714">                    b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+                    // Close the properties table
+<span class="nc" id="L716">                    b.append(sp(--in) + &quot;&lt;/tbody&gt;\n&quot;);</span>
+                    // Close the properties table
+<span class="nc" id="L718">                    b.append(sp(--in) + &quot;&lt;/table&gt;\n&quot;);</span>
+                    // Close the properties field-set
+<span class="nc" id="L720">                    b.append(sp(--in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+                }
+
+                // Close the plug-in field-set
+<span class="nc" id="L724">                b.append(sp(--in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L725">            }</span>
+            // ===============================================================
+            // Plug-ins list
+            // ===============================================================
+            else {
+                // Create the field-set
+<span class="nc" id="L731">                b.append(sp(in) + &quot;&lt;fieldset&gt;\n&quot;);</span>
+<span class="nc" id="L732">                b.append(sp(++in) + &quot;&lt;legend&gt;All plug-ins&lt;/legend&gt;\n&quot;);</span>
+                // Retrieve information for all registered metric plug-ins
+<span class="nc" id="L734">                Collection&lt;PluginInfo&gt; l = sobjPA.listPlugins();</span>
+                //------------------------------------------------------------
+                // Create the header row
+                //------------------------------------------------------------
+<span class="nc" id="L738">                b.append(sp(in) + &quot;&lt;table&gt;\n&quot;);</span>
+<span class="nc" id="L739">                b.append(sp(++in) + &quot;&lt;thead&gt;\n&quot;);</span>
+<span class="nc" id="L740">                b.append(sp(++in) + &quot;&lt;tr class=\&quot;head\&quot;&gt;\n&quot;);</span>
+<span class="nc" id="L741">                b.append(sp(++in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L742">                        + &quot; style=\&quot;width: 80px;\&quot;&gt;&quot;</span>
+<span class="nc" id="L743">                        + &quot;Status&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L744">                b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L745">                        + &quot; style=\&quot;width: 30%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L746">                        + &quot;Name&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L747">                b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&quot;</span>
+<span class="nc" id="L748">                        + &quot; style=\&quot;width: 40%;\&quot;&gt;&quot;</span>
+<span class="nc" id="L749">                        + &quot;Class&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L750">                b.append(sp(in) + &quot;&lt;td class=\&quot;head\&quot;&gt;Version&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L751">                b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+<span class="nc" id="L752">                b.append(sp(--in) + &quot;&lt;/thead&gt;\n&quot;);</span>
+                //------------------------------------------------------------
+                // Create the content row
+                //------------------------------------------------------------
+<span class="nc" id="L756">                b.append(sp(in++) + &quot;&lt;tbody&gt;\n&quot;);</span>
+                //------------------------------------------------------------
+                // Display not-installed plug-ins first
+                //------------------------------------------------------------
+<span class="nc bnc" id="L760" title="All 2 branches missed.">                for(PluginInfo i : l) {</span>
+<span class="nc bnc" id="L761" title="All 2 branches missed.">                    if (i.installed == false) {</span>
+<span class="nc" id="L762">                        b.append(sp(in) + &quot;&lt;tr class=\&quot;edit\&quot;&quot;</span>
+<span class="nc" id="L763">                                + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L764">                                + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L765">                                + reqParHashcode + &quot;').value='&quot;</span>
+<span class="nc" id="L766">                                + i.getHashcode() + &quot;';&quot;</span>
+<span class="nc" id="L767">                                + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L768">                                + &quot;&gt;\n&quot;);</span>
+                        // Plug-in state
+<span class="nc" id="L770">                        b.append(sp(++in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L771">                                + &quot;&lt;img src=\&quot;/edit.png\&quot; alt=\&quot;[Edit]\&quot;/&gt;&quot;</span>
+<span class="nc" id="L772">                                + &quot;&amp;nbsp;Registered&lt;/td&gt;\n&quot;);</span>
+                        // Plug-in name
+<span class="nc" id="L774">                        b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L775">                            + i.getPluginName()</span>
+<span class="nc" id="L776">                            + &quot;&lt;/td&gt;\n&quot;);</span>
+                        // Plug-in class
+<span class="nc" id="L778">                        b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L779">                                + StringUtils.join((String[]) (</span>
+<span class="nc" id="L780">                                        i.getServiceRef().getProperty(</span>
+<span class="nc" id="L781">                                                Constants.OBJECTCLASS)),&quot;,&quot;)</span>
+<span class="nc" id="L782">                                                + &quot;&lt;/td&gt;\n&quot;);</span>
+                        // Plug-in version
+<span class="nc" id="L784">                        b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L785">                                + i.getPluginVersion() + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L786">                        b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+                        // Extended plug-in information
+<span class="nc" id="L788">                        b.append(renderPluginAttributes(</span>
+<span class="nc" id="L789">                                i, reqValShowProp, reqValShowActv, in));</span>
+                    }
+                }
+                //------------------------------------------------------------
+                // Installed plug-ins
+                //------------------------------------------------------------
+<span class="nc bnc" id="L795" title="All 2 branches missed.">                for(PluginInfo i : l) {</span>
+<span class="nc bnc" id="L796" title="All 2 branches missed.">                    if (i.installed) {</span>
+<span class="nc" id="L797">                        b.append(sp(in) + &quot;&lt;tr class=\&quot;edit\&quot;&quot;</span>
+<span class="nc" id="L798">                                + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L799">                                + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L800">                                + reqParHashcode + &quot;').value='&quot;</span>
+<span class="nc" id="L801">                                + i.getHashcode() + &quot;';&quot;</span>
+<span class="nc" id="L802">                                + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L803">                                + &quot;&gt;\n&quot;);</span>
+                        // Plug-in state
+<span class="nc" id="L805">                        b.append(sp(++in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L806">                                + &quot;&lt;img src=\&quot;/edit.png\&quot; alt=\&quot;[Edit]\&quot;/&gt;&quot;</span>
+<span class="nc" id="L807">                                + &quot;&amp;nbsp;Installed&lt;/td&gt;\n&quot;);</span>
+                        // Plug-in name
+<span class="nc" id="L809">                        b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L810">                                + i.getPluginName()</span>
+<span class="nc" id="L811">                                + &quot;&lt;/td&gt;\n&quot;);</span>
+                        // Plug-in class
+<span class="nc" id="L813">                        b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L814">                                + StringUtils.join((String[]) (</span>
+<span class="nc" id="L815">                                        i.getServiceRef().getProperty(</span>
+<span class="nc" id="L816">                                                Constants.OBJECTCLASS)),&quot;,&quot;)</span>
+<span class="nc" id="L817">                                                + &quot;&lt;/td&gt;\n&quot;);</span>
+                        // Plug-in version
+<span class="nc" id="L819">                        b.append(sp(in) + &quot;&lt;td class=\&quot;trans\&quot;&gt;&quot;</span>
+<span class="nc" id="L820">                                + i.getPluginVersion() + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L821">                        b.append(sp(--in) + &quot;&lt;/tr&gt;\n&quot;);</span>
+                        // Extended plug-in information
+<span class="nc" id="L823">                        b.append(renderPluginAttributes(</span>
+<span class="nc" id="L824">                                i, reqValShowProp, reqValShowActv, in));</span>
+                    }
+                }
+                //------------------------------------------------------------
+                // Close the table
+                //------------------------------------------------------------
+<span class="nc" id="L830">                b.append(sp(--in) + &quot;&lt;/tbody&gt;\n&quot;);</span>
+<span class="nc" id="L831">                b.append(sp(--in) + &quot;&lt;/table&gt;\n&quot;);</span>
+                //------------------------------------------------------------
+                // Display flags
+                //------------------------------------------------------------
+<span class="nc" id="L835">                b.append(sp(in) + &quot;&lt;span&gt;\n&quot;);</span>
+<span class="nc" id="L836">                b.append(sp(++in) + &quot;&lt;input&quot;</span>
+<span class="nc" id="L837">                        + &quot; type=\&quot;checkbox\&quot;&quot;</span>
+<span class="nc bnc" id="L838" title="All 2 branches missed.">                        + ((reqValShowProp) ? &quot;checked&quot; : &quot;&quot;)</span>
+<span class="nc" id="L839">                        + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L840">                        + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L841">                        + reqParShowProp + &quot;').value = this.checked;&quot;</span>
+<span class="nc" id="L842">                        + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L843">                        + reqParHashcode + &quot;').value='';&quot;</span>
+<span class="nc" id="L844">                        + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L845">                        + &quot;&gt;Display properties\n&quot;);</span>
+<span class="nc" id="L846">                b.append(sp(++in) + &quot;&lt;input&quot;</span>
+<span class="nc" id="L847">                        + &quot; type=\&quot;checkbox\&quot;&quot;</span>
+<span class="nc bnc" id="L848" title="All 2 branches missed.">                        + ((reqValShowActv) ? &quot;checked&quot; : &quot;&quot;)</span>
+<span class="nc" id="L849">                        + &quot; onclick=\&quot;javascript:&quot;</span>
+<span class="nc" id="L850">                        + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L851">                        + reqParShowActv + &quot;').value = this.checked;&quot;</span>
+<span class="nc" id="L852">                        + &quot;document.getElementById('&quot;</span>
+<span class="nc" id="L853">                        + reqParHashcode + &quot;').value='';&quot;</span>
+<span class="nc" id="L854">                        + &quot;document.metrics.submit();\&quot;&quot;</span>
+<span class="nc" id="L855">                        + &quot;&gt;Display activators\n&quot;);</span>
+<span class="nc" id="L856">                b.append(sp(--in) + &quot;&lt;/span&gt;\n&quot;);</span>
+                // Close the field-set
+<span class="nc" id="L858">                b.append(sp(--in) + &quot;&lt;/fieldset&gt;\n&quot;);</span>
+            }
+
+            // ===============================================================
+            // INPUT FIELDS
+            // ===============================================================
+            // &quot;Action type&quot; input field
+<span class="nc" id="L865">            b.append(sp(in) + &quot;&lt;input type=\&quot;hidden\&quot;&quot;</span>
+<span class="nc" id="L866">                    + &quot; id=\&quot;&quot; + reqParAction + &quot;\&quot;&quot;</span>
+<span class="nc" id="L867">                    + &quot; name=\&quot;&quot; + reqParAction + &quot;\&quot;&quot;</span>
+<span class="nc" id="L868">                    + &quot; value=\&quot;\&quot;&gt;\n&quot;);</span>
+            // &quot;Selected plug-in's hash code&quot; input field
+<span class="nc" id="L870">            b.append(sp(in) + &quot;&lt;input type=\&quot;hidden\&quot;&quot;</span>
+<span class="nc" id="L871">                    + &quot; id=\&quot;&quot; + reqParHashcode + &quot;\&quot;&quot;</span>
+<span class="nc" id="L872">                    + &quot; name=\&quot;&quot; + reqParHashcode + &quot;\&quot;&quot;</span>
+<span class="nc" id="L873">                    + &quot; value=\&quot;&quot;</span>
+<span class="nc bnc" id="L874" title="All 2 branches missed.">                    + ((reqValHashcode != null) ? reqValHashcode : &quot;&quot;)</span>
+<span class="nc" id="L875">                    + &quot;\&quot;&gt;\n&quot;);</span>
+            // &quot;Configuration attribute's name&quot; input field
+<span class="nc" id="L877">            b.append(sp(in) + &quot;&lt;input type=\&quot;hidden\&quot;&quot;</span>
+<span class="nc" id="L878">                    + &quot; id=\&quot;&quot; + reqParPropName + &quot;\&quot;&quot;</span>
+<span class="nc" id="L879">                    + &quot; name=\&quot;&quot; + reqParPropName + &quot;\&quot;&quot;</span>
+<span class="nc" id="L880">                    + &quot; value=\&quot;&quot;</span>
+<span class="nc bnc" id="L881" title="All 2 branches missed.">                    + ((reqValPropName != null) ? reqValPropName : &quot;&quot;)</span>
+<span class="nc" id="L882">                    + &quot;\&quot;&gt;\n&quot;);</span>
+            // &quot;Configuration attribute's description&quot; input field
+<span class="nc" id="L884">            b.append(sp(in) + &quot;&lt;input type=\&quot;hidden\&quot;&quot;</span>
+<span class="nc" id="L885">                    + &quot; id=\&quot;&quot; + reqParPropDescr + &quot;\&quot;&quot;</span>
+<span class="nc" id="L886">                    + &quot; name=\&quot;&quot; + reqParPropDescr + &quot;\&quot;&quot;</span>
+<span class="nc" id="L887">                    + &quot; value=\&quot;&quot;</span>
+<span class="nc bnc" id="L888" title="All 2 branches missed.">                    + ((reqValPropDescr != null) ? reqValPropDescr : &quot;&quot;)</span>
+<span class="nc" id="L889">                    + &quot;\&quot;&gt;\n&quot;);</span>
+            // &quot;Configuration attribute's type&quot; input field
+<span class="nc" id="L891">            b.append(sp(in) + &quot;&lt;input type=\&quot;hidden\&quot;&quot;</span>
+<span class="nc" id="L892">                    + &quot; id=\&quot;&quot; + reqParPropType + &quot;\&quot;&quot;</span>
+<span class="nc" id="L893">                    + &quot; name=\&quot;&quot; + reqParPropType + &quot;\&quot;&quot;</span>
+<span class="nc" id="L894">                    + &quot; value=\&quot;&quot;</span>
+<span class="nc bnc" id="L895" title="All 2 branches missed.">                    + ((reqValPropType != null) ? reqValPropType : &quot;&quot;)</span>
+<span class="nc" id="L896">                    + &quot;\&quot;&gt;\n&quot;);</span>
+            // &quot;Configuration attribute's value&quot; input field
+<span class="nc" id="L898">            b.append(sp(in) + &quot;&lt;input type=\&quot;hidden\&quot;&quot;</span>
+<span class="nc" id="L899">                    + &quot; id=\&quot;&quot; + reqParPropValue + &quot;\&quot;&quot;</span>
+<span class="nc" id="L900">                    + &quot; name=\&quot;&quot; + reqParPropValue + &quot;\&quot;&quot;</span>
+<span class="nc" id="L901">                    + &quot; value=\&quot;&quot;</span>
+<span class="nc bnc" id="L902" title="All 2 branches missed.">                    + ((reqValPropValue != null) ? reqValPropValue : &quot;&quot;)</span>
+<span class="nc" id="L903">                    + &quot;\&quot;&gt;\n&quot;);</span>
+            // &quot;Show configuration properties&quot; input field
+<span class="nc" id="L905">            b.append(sp(in) + &quot;&lt;input type=\&quot;hidden\&quot;&quot;</span>
+<span class="nc" id="L906">                    + &quot; id=\&quot;&quot; + reqParShowProp + &quot;\&quot;&quot;</span>
+<span class="nc" id="L907">                    + &quot; name=\&quot;&quot; + reqParShowProp + &quot;\&quot;&quot;</span>
+<span class="nc" id="L908">                    + &quot; value=\&quot;&quot;</span>
+<span class="nc" id="L909">                    + reqValShowProp</span>
+<span class="nc" id="L910">                    + &quot;\&quot;&gt;\n&quot;);</span>
+            // &quot;Show activators&quot; input field
+<span class="nc" id="L912">            b.append(sp(in) + &quot;&lt;input type=\&quot;hidden\&quot;&quot;</span>
+<span class="nc" id="L913">                    + &quot; id=\&quot;&quot; + reqParShowActv + &quot;\&quot;&quot;</span>
+<span class="nc" id="L914">                    + &quot; name=\&quot;&quot; + reqParShowActv + &quot;\&quot;&quot;</span>
+<span class="nc" id="L915">                    + &quot; value=\&quot;&quot;</span>
+<span class="nc" id="L916">                    + reqValShowActv</span>
+<span class="nc" id="L917">                    + &quot;\&quot;&gt;\n&quot;);</span>
+
+            // ===============================================================
+            // Close the form
+            // ===============================================================
+<span class="nc" id="L922">            b.append(sp(--in) + &quot;&lt;/form&gt;\n&quot;);</span>
+        }
+
+<span class="nc" id="L925">        return b.toString();</span>
+    }
+
+    /**
+     * Creates a set of table rows populated with the plug-in properties and
+     * activators, as found in the given &lt;code&gt;PluginInfo&lt;/code&gt; object
+     * 
+     * @param pluginInfo the plug-in's &lt;code&gt;PluginInfo&lt;/code&gt; object
+     * @param showProperties display flag
+     * @param showActivators display flag
+     * @param in indentation value for the generated HTML content
+     * 
+     * @return The table as HTML presentation.
+     */
+    private static String renderPluginAttributes(
+            PluginInfo pluginInfo,
+            boolean showProperties,
+            boolean showActivators,
+            long in) {
+        // Stores the assembled HTML content
+<span class="nc" id="L945">        StringBuilder b = new StringBuilder();</span>
+        // List the metric plug-in's configuration properties
+<span class="nc bnc" id="L947" title="All 2 branches missed.">        if (showProperties) {</span>
+<span class="nc" id="L948">            Set&lt;PluginConfiguration&gt; l =</span>
+<span class="nc" id="L949">                pluginInfo.getConfiguration();</span>
+            // Skip if this plug-ins has no configuration
+<span class="nc bnc" id="L951" title="All 4 branches missed.">            if ((l != null) &amp;&amp; (l.isEmpty() == false)) {</span>
+<span class="nc bnc" id="L952" title="All 2 branches missed.">                for (PluginConfiguration property : l) {</span>
+<span class="nc" id="L953">                    b.append(sp(in++) + &quot;&lt;tr&gt;&quot;);</span>
+<span class="nc" id="L954">                    b.append(sp(in) + &quot;&lt;td&gt;&amp;nbsp;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L955">                    b.append(sp(in) + &quot;&lt;td colspan=\&quot;3\&quot; class=\&quot;attr\&quot;&gt;&quot;</span>
+<span class="nc" id="L956">                            + &quot;&lt;b&gt;Property:&lt;/b&gt; &quot; + property.getName()</span>
+<span class="nc" id="L957">                            + &quot;&amp;nbsp;&lt;b&gt;Type:&lt;/b&gt; &quot; + property.getType()</span>
+<span class="nc" id="L958">                            + &quot;&amp;nbsp;&lt;b&gt;Value:&lt;/b&gt; &quot; + property.getValue()</span>
+<span class="nc" id="L959">                            + &quot;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L960">                    b.append(sp(--in)+ &quot;&lt;/tr&gt;\n&quot;);</span>
+                }
+            }
+        }
+        // List the metric plug-in's activator types
+<span class="nc bnc" id="L965" title="All 2 branches missed.">        if (showActivators) {</span>
+<span class="nc" id="L966">            Set&lt;Class&lt;? extends DAObject&gt;&gt; activators =</span>
+<span class="nc" id="L967">                pluginInfo.getActivationTypes();</span>
+            // Skip if this plug-ins has no activators
+<span class="nc bnc" id="L969" title="All 2 branches missed.">            if (activators != null) {</span>
+<span class="nc bnc" id="L970" title="All 2 branches missed.">                for (Class&lt;? extends DAObject&gt; activator : activators) {</span>
+<span class="nc" id="L971">                    b.append(&quot;&lt;tr&gt;&quot;);</span>
+<span class="nc" id="L972">                    b.append(&quot;&lt;td&gt;&amp;nbsp;&lt;/td&gt;\n&quot;);</span>
+<span class="nc" id="L973">                    b.append(&quot;&lt;td colspan=\&quot;3\&quot; class=\&quot;attr\&quot;&gt;&quot;</span>
+                            + &quot;&lt;b&gt;Activator:&lt;/b&gt; &quot;
+<span class="nc" id="L975">                            + activator.getName()</span>
+<span class="nc" id="L976">                            + &quot;&lt;/td&gt;&quot;);</span>
+<span class="nc" id="L977">                    b.append(&quot;&lt;/tr&gt;\n&quot;);</span>
+                }
+            }
+        }
+<span class="nc" id="L981">        return b.toString();</span>
+    }
+}
+
+//vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

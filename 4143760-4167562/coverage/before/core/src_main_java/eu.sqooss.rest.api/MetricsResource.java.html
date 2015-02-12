@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>MetricsResource.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.rest.api</a> &gt; <span class="el_source">MetricsResource.java</span></div><h1>MetricsResource.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2010 - Organization for Free and Open Source Software,  
+ *                 Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+package eu.sqooss.rest.api;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.abstractmetric.AlitheiaPlugin;
+import eu.sqooss.service.abstractmetric.Result;
+import eu.sqooss.service.db.DAObject;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.Metric;
+import eu.sqooss.service.db.MetricType;
+import eu.sqooss.service.db.MetricType.Type;
+
+/**
+ *  @author Georgios Gousios &lt;gousiosg@gmail.com&gt;
+ *
+ */
+@Path(&quot;/api&quot;)
+public class MetricsResource {
+
+<span class="nc" id="L59">	public MetricsResource() {}</span>
+
+	@GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	@Path(&quot;/metrics/&quot;)
+	public List&lt;Metric&gt; getMetrics() {
+<span class="nc" id="L65">		DBService db = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L66">		String q = &quot; from Metric&quot;;</span>
+<span class="nc" id="L67">		List&lt;Metric&gt; sp = (List&lt;Metric&gt;) db.doHQL(q);</span>
+<span class="nc" id="L68">		return sp;</span>
+	}
+	
+	@GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	@Path(&quot;/metrics/types&quot;)
+	public List&lt;MetricType&gt; getMetricTypes() {
+<span class="nc" id="L75">		DBService db = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L76">		String q = &quot; from MetricType&quot;;</span>
+<span class="nc" id="L77">		List&lt;MetricType&gt; sp = (List&lt;MetricType&gt;) db.doHQL(q);</span>
+<span class="nc" id="L78">		return sp;</span>
+	}
+
+	@Path(&quot;/metrics/by-id/{id}&quot;)
+	@GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	public Metric getMetricById(@PathParam(&quot;id&quot;) Long id) {
+<span class="nc" id="L85">		return DAObject.loadDAObyId(id, Metric.class);</span>
+	}
+	
+	@Path(&quot;/metrics/by-id/{id}/result/{rid: .+}&quot;)
+    @GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+    public List&lt;Result&gt; getMetricResult(@PathParam(&quot;id&quot;) Long id,
+            @PathParam(&quot;rid&quot;) String resourceIds) {
+	    
+<span class="nc" id="L94">	    Metric m = DAObject.loadDAObyId(id, Metric.class);</span>
+	    
+<span class="nc bnc" id="L96" title="All 2 branches missed.">	    if (m == null)</span>
+<span class="nc" id="L97">	        return Collections.EMPTY_LIST;  </span>
+	    
+<span class="nc" id="L99">	   return getResult(m, resourceIds);</span>
+    }
+	
+	public List&lt;Result&gt; getResult(Metric m, String resourceIds) {
+<span class="nc" id="L103">	    Set&lt;Long&gt;  ids = new HashSet&lt;Long&gt;();</span>
+<span class="nc" id="L104">        int count = 0;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (String resourceId : resourceIds.split(&quot;,&quot;)) {</span>
+            try {
+<span class="nc" id="L107">                Long l = Long.parseLong(resourceId);</span>
+<span class="nc" id="L108">                ids.add(l);</span>
+<span class="nc" id="L109">            } catch (NumberFormatException nfe) {}</span>
+            
+<span class="nc" id="L111">            count++;</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (count &gt;=64) {</span>
+<span class="nc" id="L113">                break;</span>
+            }
+        }
+        
+<span class="nc" id="L117">        List&lt;Metric&gt; metricList = new ArrayList&lt;Metric&gt;();</span>
+<span class="nc" id="L118">        metricList.add(m);</span>
+        
+<span class="nc" id="L120">        AlitheiaPlugin ap = AlitheiaCore.getInstance().getPluginAdmin().getImplementingPlugin(m.getMnemonic());</span>
+        
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (ap == null)</span>
+<span class="nc" id="L123">            return Collections.EMPTY_LIST;</span>
+        
+<span class="nc" id="L125">        Class&lt;? extends DAObject&gt; clazz = m.getMetricType().toActivator();</span>
+        
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (clazz == null)</span>
+<span class="nc" id="L128">            return Collections.EMPTY_LIST;</span>
+        
+<span class="nc" id="L130">        List&lt;Result&gt; result = new ArrayList&lt;Result&gt;();</span>
+        
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        for (Long daoId : ids) {</span>
+            try {
+<span class="nc" id="L134">                DAObject dao = DAObject.loadDAObyId(daoId, clazz);</span>
+                
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (dao == null)</span>
+<span class="nc" id="L137">                    continue;</span>
+                
+<span class="nc" id="L139">                List&lt;Result&gt; r = ap.getResultIfAlreadyCalculated(dao, metricList);</span>
+<span class="nc" id="L140">                result.addAll(r);</span>
+<span class="nc" id="L141">            } catch (Exception e) {</span>
+<span class="nc" id="L142">                e.printStackTrace();</span>
+            }
+        }
+        
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (result.isEmpty())</span>
+<span class="nc" id="L147">            return Collections.EMPTY_LIST;</span>
+        
+<span class="nc" id="L149">        return result; </span>
+	}
+    
+	@Path(&quot;/metrics/by-mnem/{mnem}&quot;)
+	@GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	public Metric getMetricByMnem(@PathParam(&quot;mnem&quot;) String name) {
+<span class="nc" id="L156">		return Metric.getMetricByMnemonic(name);</span>
+	}
+	
+	@Path(&quot;/metrics/by-mnem/{mnem}/result/{rid: .+}&quot;)
+    @GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+    public List&lt;Result&gt; getMetricResultByMnem(@PathParam(&quot;mnem&quot;) String name,
+            @PathParam(&quot;rid&quot;) String resourceIds) {
+        
+<span class="nc" id="L165">        Metric m = Metric.getMetricByMnemonic(name);</span>
+        
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        if (m == null)</span>
+<span class="nc" id="L168">            return Collections.EMPTY_LIST;  </span>
+        
+<span class="nc" id="L170">       return getResult(m, resourceIds);</span>
+    }
+	
+	@Path(&quot;/metrics/by-type/{type}&quot;)
+	@GET
+    @Produces({&quot;application/xml&quot;, &quot;application/json&quot;})
+	public Set&lt;Metric&gt; getMetricByType(@PathParam(&quot;type&quot;) String type) {
+<span class="nc" id="L177">		MetricType mt = MetricType.getMetricType(Type.fromString(type));</span>
+		
+<span class="nc bnc" id="L179" title="All 2 branches missed.">		if (mt == null) //No metric of this type has been installed yet</span>
+<span class="nc" id="L180">		    return Collections.EMPTY_SET;</span>
+		
+<span class="nc" id="L182">		return mt.getMetrics();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

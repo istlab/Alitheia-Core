@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>TimelineImpl.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.fds</a> &gt; <span class="el_source">TimelineImpl.java</span></div><h1>TimelineImpl.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.impl.service.fds;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import eu.sqooss.core.AlitheiaCore;
+import eu.sqooss.service.db.Bug;
+import eu.sqooss.service.db.DBService;
+import eu.sqooss.service.db.MailMessage;
+import eu.sqooss.service.db.MailingList;
+import eu.sqooss.service.db.ProjectVersion;
+import eu.sqooss.service.db.StoredProject;
+import eu.sqooss.service.fds.BugDBEvent;
+import eu.sqooss.service.fds.MailingListEvent;
+import eu.sqooss.service.fds.ProjectEvent;
+import eu.sqooss.service.fds.RepositoryEvent;
+import eu.sqooss.service.fds.Timeline;
+
+/**
+ * The TimelineImpl implements the Timeline interface. It represents a
+ * chronological view of the events that change a project's state.
+ */
+class TimelineImpl implements Timeline {
+   
+    private StoredProject project;
+
+<span class="nc" id="L67">    public TimelineImpl(StoredProject project) {</span>
+<span class="nc" id="L68">        this.project = project;</span>
+<span class="nc" id="L69">    }</span>
+
+    private SortedSet&lt;RepositoryEvent&gt; getScmTimeLine(Calendar from, Calendar to) {
+<span class="nc" id="L72">        SortedSet&lt;RepositoryEvent&gt; result = new TreeSet&lt;RepositoryEvent&gt;();</span>
+        
+<span class="nc" id="L74">        final long begin = from.getTimeInMillis();</span>
+<span class="nc" id="L75">        final long end = to.getTimeInMillis();</span>
+        
+<span class="nc" id="L77">        DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L78">        StringBuilder query = new StringBuilder(&quot;select pv &quot;);</span>
+<span class="nc" id="L79">        query.append(&quot;from ProjectVersion pv &quot;);</span>
+<span class="nc" id="L80">        query.append(&quot;where pv.timestamp &lt; :paramTo &quot;);</span>
+<span class="nc" id="L81">        query.append(&quot;and pv.timestamp &gt; :paramFrom &quot;);</span>
+<span class="nc" id="L82">        query.append(&quot;and pv.project = :paramProject &quot;);</span>
+<span class="nc" id="L83">        Map&lt;String, Object&gt; params = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L84">        params.put(&quot;paramTo&quot;, end);</span>
+<span class="nc" id="L85">        params.put(&quot;paramFrom&quot;, begin);</span>
+<span class="nc" id="L86">        params.put(&quot;paramProject&quot;, project);</span>
+        
+<span class="nc" id="L88">        List&lt;ProjectVersion&gt; versions = (List&lt;ProjectVersion&gt;) dbs.doHQL(query.toString(), params);</span>
+        
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        for(ProjectVersion version : versions) {</span>
+<span class="nc" id="L91">        	result.add( new RepositoryEvent(version.getTimestamp(), version) );</span>
+        }
+<span class="nc" id="L93">        return result;</span>
+    }
+    
+    private SortedSet&lt;MailingListEvent&gt; getMailTimeLine(Calendar from, Calendar to) {
+<span class="nc" id="L97">        SortedSet&lt;MailingListEvent&gt; result = new TreeSet&lt;MailingListEvent&gt;();</span>
+        
+<span class="nc" id="L99">        final Date begin = from.getTime();</span>
+<span class="nc" id="L100">        final Date end = to.getTime();</span>
+        
+<span class="nc" id="L102">        DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L103">        StringBuilder query = new StringBuilder(&quot;select mm &quot;);</span>
+<span class="nc" id="L104">        query.append(&quot;from MailMessage mm &quot;);</span>
+<span class="nc" id="L105">        query.append(&quot;where mm.sendDate &lt; :paramTo &quot;);</span>
+<span class="nc" id="L106">        query.append(&quot;and mm.sendDate &gt; :paramFrom &quot;);</span>
+<span class="nc" id="L107">        query.append(&quot;and mm.list = :paramList &quot;);</span>
+<span class="nc" id="L108">        Map&lt;String, Object&gt; params = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L109">        params.put(&quot;paramTo&quot;, end);</span>
+<span class="nc" id="L110">        params.put(&quot;paramFrom&quot;, begin);        </span>
+        
+<span class="nc" id="L112">        Set&lt;MailingList&gt; lists = project.getMailingLists();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (lists != null) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">			for (MailingList list : lists) {</span>
+<span class="nc" id="L115">				params.put(&quot;paramList&quot;, list);</span>
+<span class="nc" id="L116">				List&lt;MailMessage&gt; messages = (List&lt;MailMessage&gt;) dbs.doHQL(query.toString(), params);</span>
+
+<span class="nc bnc" id="L118" title="All 2 branches missed.">				for (MailMessage message : messages) {</span>
+<span class="nc" id="L119">					result.add(new MailingListEvent(</span>
+<span class="nc" id="L120">							message.getSendDate().getTime(), message));</span>
+				}
+			}
+		}
+
+<span class="nc" id="L125">        return result;</span>
+    }
+
+    private SortedSet&lt;BugDBEvent&gt; getBugTimeLine(Calendar from, Calendar to) {
+<span class="nc" id="L129">        SortedSet&lt;BugDBEvent&gt; result = new TreeSet&lt;BugDBEvent&gt;();</span>
+
+<span class="nc" id="L131">        final Date begin = from.getTime();</span>
+<span class="nc" id="L132">        final Date end = to.getTime();</span>
+
+<span class="nc" id="L134">        DBService dbs = AlitheiaCore.getInstance().getDBService();</span>
+<span class="nc" id="L135">        StringBuilder query = new StringBuilder(&quot;select b &quot;);</span>
+<span class="nc" id="L136">        query.append(&quot;from Bug b &quot;);</span>
+<span class="nc" id="L137">        query.append(&quot;where b.creationTS &lt; :paramTo &quot;);</span>
+<span class="nc" id="L138">        query.append(&quot;and b.creationTS &gt; :paramFrom &quot;);</span>
+<span class="nc" id="L139">        query.append(&quot;and b.project = :paramProject &quot;);</span>
+<span class="nc" id="L140">        Map&lt;String, Object&gt; params = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L141">        params.put(&quot;paramTo&quot;, end);</span>
+<span class="nc" id="L142">        params.put(&quot;paramFrom&quot;, begin);</span>
+<span class="nc" id="L143">        params.put(&quot;paramProject&quot;, project);</span>
+<span class="nc" id="L144">        List&lt;Bug&gt; bugs = (List&lt;Bug&gt;) dbs.doHQL(query.toString(), params);</span>
+        
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        for (Bug bug : bugs) {</span>
+<span class="nc" id="L147">			result.add(new BugDBEvent(bug.getCreationTS().getTime(), bug));</span>
+		}
+<span class="nc" id="L149">        return result;</span>
+    }
+ 
+    // Interface Timeline
+    /** {@inheritDoc} */
+    public SortedSet&lt;ProjectEvent&gt; getTimeLine(Calendar from, Calendar to, ResourceType rt) {
+<span class="nc" id="L155">        return getTimeLine( from, to, EnumSet.of(rt) );</span>
+    }
+
+    public SortedSet&lt;ProjectEvent&gt; getTimeLine(Calendar from, Calendar to, EnumSet&lt;ResourceType&gt; rts) {
+<span class="nc" id="L159">        SortedSet&lt;ProjectEvent&gt; result = new TreeSet&lt;ProjectEvent&gt;();</span>
+
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (rts.contains(ResourceType.SCM)) {</span>
+<span class="nc" id="L162">            result.addAll(getScmTimeLine(from, to));</span>
+        }
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if(rts.contains(ResourceType.MAIL)) {</span>
+<span class="nc" id="L165">            result.addAll(getMailTimeLine(from, to));</span>
+        }
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        if(rts.contains(ResourceType.BTS)) {</span>
+<span class="nc" id="L168">            result.addAll(getBugTimeLine(from, to ));</span>
+        }
+
+<span class="nc" id="L171">        return result;</span>
+    }
+}
+
+
+
+// vi: ai nosi sw=4 ts=4 expandtab
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

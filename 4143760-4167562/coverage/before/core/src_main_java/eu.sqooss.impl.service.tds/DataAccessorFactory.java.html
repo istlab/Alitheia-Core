@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>DataAccessorFactory.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.impl.service.tds</a> &gt; <span class="el_source">DataAccessorFactory.java</span></div><h1>DataAccessorFactory.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ * 
+ * Copyright 2008 - 2010 - Organization for Free and Open Source Software, 
+ *                 Athens, Greece.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * 
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ * 
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ */
+
+package eu.sqooss.impl.service.tds;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import eu.sqooss.service.logging.Logger;
+import eu.sqooss.service.tds.AccessorException;
+import eu.sqooss.service.tds.DataAccessor;
+
+/** 
+ * A factory class that registers all data accessor implementations and returns
+ *  DataAccessor instances according to data store URIs.   
+ */
+public class DataAccessorFactory {
+    
+    private static Logger log;
+<span class="nc" id="L52">    private static Map&lt;String, Class&lt;?&gt;&gt; implementations = null;</span>
+    
+<span class="nc" id="L54">    DataAccessorFactory(Logger l) {</span>
+<span class="nc" id="L55">        DataAccessorFactory.log = l;</span>
+<span class="nc" id="L56">        implementations = new ConcurrentHashMap&lt;String, Class&lt;?&gt;&gt;();</span>
+<span class="nc" id="L57">    }</span>
+    
+    /**
+     * Register a DataAccessor implementation class. If there is another 
+     * implementation for the provided scheme, it will be overwritten. 
+     * 
+     * @param scheme The URL scheme this implementation supports
+     * @param impl The implementing class
+     */
+    public synchronized static void addImplementation(String scheme, 
+            Class&lt;? extends DataAccessor&gt; impl) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (implementations.containsKey(scheme)) {</span>
+<span class="nc" id="L69">            log.warn(&quot;Overwriting implementation class &quot; </span>
+<span class="nc" id="L70">                    + implementations.get(scheme) + &quot; for scheme &quot; + scheme);</span>
+        }
+<span class="nc" id="L72">        log.info(&quot;Adding handler class &quot; + impl.getName() + &quot; for scheme &quot;</span>
+<span class="nc" id="L73">                + scheme);</span>
+<span class="nc" id="L74">        implementations.put(scheme, impl);</span>
+<span class="nc" id="L75">    }</span>
+    
+    /**
+     * Unregister a TDS implementation class.
+     * @param impl
+     */
+    public synchronized static void removeImplementation(Class&lt;? extends DataAccessor&gt; impl) {
+<span class="nc" id="L82">        String foundKey = null;</span>
+        
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (String protocol : implementations.keySet()) {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (implementations.get(protocol).equals(impl)) {</span>
+<span class="nc" id="L86">                foundKey = protocol;</span>
+<span class="nc" id="L87">                break;</span>
+            }
+        }
+        
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (foundKey != null) {</span>
+<span class="nc" id="L92">            implementations.remove(foundKey);</span>
+<span class="nc" id="L93">            log.info(&quot;Removing handler class &quot; + impl.getName() + &quot; for scheme &quot;</span>
+<span class="nc" id="L94">                    + foundKey);</span>
+        }
+<span class="nc" id="L96">    }</span>
+     
+    /**
+     * Get a list of all supported URI schemes.
+     * @return A, possibly empty, Set of supported URI schemes.
+     */
+    public static Set&lt;String&gt; getSupportedSchemes() {
+<span class="nc" id="L103">        return implementations.keySet();</span>
+    }
+    
+    
+    
+    /**
+     * Get the appropriate accessor for the provided URL. Will  attempt
+     * to initialize the accessor.
+     * @param url The location of the data store the accessor must handle
+     * @param name the project name to retrieve an accessor for
+     * @return The accessor instance, or null if there are errors when
+     * initialising the accessor or if there is no accessor to handle
+     * the provided URI.
+     */
+    public static DataAccessor getInstance(URI url, String name) {
+
+<span class="nc bnc" id="L119" title="All 4 branches missed.">        if (url == null || url.getScheme() == null) {</span>
+<span class="nc" id="L120">            log.warn(&quot;Request for accessor with empty URI&quot;);</span>
+<span class="nc" id="L121">            return null;</span>
+        }
+        
+<span class="nc" id="L124">        Class&lt;?&gt; handler = implementations.get(url.getScheme());</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (handler == null) {</span>
+<span class="nc" id="L127">            log.warn(&quot;No accessor found for scheme &quot; + url.getScheme());</span>
+<span class="nc" id="L128">            return null;</span>
+        }
+
+        try {
+            //DataAccessor da = (DataAccessor) handler.newInstance();
+<span class="nc" id="L133">            Object o = handler.newInstance();</span>
+<span class="nc" id="L134">            DataAccessor da = (DataAccessor)o;</span>
+<span class="nc" id="L135">            da.init(url, name);</span>
+<span class="nc" id="L136">            return da;</span>
+<span class="nc" id="L137">        } catch (InstantiationException e) {</span>
+<span class="nc" id="L138">            log.error(&quot;Error instantiating data accessor class &quot;</span>
+<span class="nc" id="L139">                    + handler.getName() + &quot; for URI &quot; + url.toString() + &quot;:&quot;</span>
+<span class="nc" id="L140">                    + e.getMessage());</span>
+<span class="nc" id="L141">            return null;</span>
+<span class="nc" id="L142">        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L143">            log.error(&quot;Error instantiating data accessor class &quot;</span>
+<span class="nc" id="L144">                    + handler.getName() + &quot; for URI &quot; + url.toString() + &quot;:&quot;</span>
+<span class="nc" id="L145">                    + e.getMessage());</span>
+<span class="nc" id="L146">            return null;</span>
+<span class="nc" id="L147">        } catch (AccessorException e) {</span>
+<span class="nc" id="L148">            log.error(&quot;The accessor class &quot; + handler.getName() + &quot; failed&quot;</span>
+<span class="nc" id="L149">                    + &quot; while instantiating accessor for URI &quot; + url.toString()</span>
+<span class="nc" id="L150">                    + &quot;:&quot; + e.getMessage());</span>
+<span class="nc" id="L151">            return null;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>

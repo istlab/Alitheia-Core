@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../.resources/report.gif" type="image/gif"/><title>Pair.java</title><link rel="stylesheet" href="../../../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../.sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">JUnit (Jan 15, 2015 3:49:07 PM)</a> &gt; <a href="../../index.html" class="el_group">core</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">eu.sqooss.service.util</a> &gt; <span class="el_source">Pair.java</span></div><h1>Pair.java</h1><pre class="source lang-java linenums">/*
+ * This file is part of the Alitheia system, developed by the SQO-OSS
+ * consortium as part of the IST FP6 SQO-OSS project, number 033331.
+ *
+ * Copyright 2007 - 2010 - Organization for Free and Open Source Software,  
+ *                Athens, Greece.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     * Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+package eu.sqooss.service.util;
+
+import java.lang.Comparable;
+
+/**
+ * This class is a container for an object pair.
+ *
+ * @author Christoph Schleifenbaum
+ */
+public class Pair&lt;T1,T2&gt; implements Comparable&lt;Pair&lt;T1,T2&gt;&gt; {
+
+    /**
+     * First value.
+     */
+    public T1 first;
+
+    /**
+     * Second value.
+     */
+    public T2 second;
+
+    /**
+     * Default contructor.
+     * Fills both values with null.
+     */
+<span class="nc" id="L59">    public Pair() {</span>
+<span class="nc" id="L60">        this.first = null;</span>
+<span class="nc" id="L61">        this.second = null;</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Constructor.
+     * @param first The value used for first.
+     * @param second The value used for second.
+     */
+<span class="nc" id="L69">    public Pair(T1 first, T2 second) {</span>
+<span class="nc" id="L70">        this.first = first;</span>
+<span class="nc" id="L71">        this.second = second;</span>
+<span class="nc" id="L72">    }</span>
+
+    /**
+     * Compares this object with the specified object for order.
+     * @param other the Object to be compared.
+     * @return negative integer, zero, or a positive integer as this object is 
+     * less than, equal to, or greater than the specified object.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public int compareTo(Pair&lt;T1,T2&gt; other) {
+<span class="nc bnc" id="L82" title="All 6 branches missed.">        if (this == other || !(first instanceof Comparable&lt;?&gt;) || !(second instanceof Comparable&lt;?&gt;)) {</span>
+<span class="nc" id="L83">            return 0;</span>
+        }
+
+<span class="nc" id="L86">        int firstComp = ((Comparable&lt;T1&gt;)first).compareTo( other.first );</span>
+        
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        return (firstComp != 0) ? firstComp : ((Comparable&lt;T2&gt;)second).compareTo(other.second);</span>
+    }
+
+    public String toString() {
+<span class="nc" id="L92">        StringBuilder b = new StringBuilder();</span>
+<span class="nc" id="L93">        b.append(&quot;(&quot;);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (first != null) {</span>
+<span class="nc" id="L95">            b.append(first.toString());</span>
+<span class="nc" id="L96">        } else {</span>
+<span class="nc" id="L97">            b.append(&quot;null&quot;);</span>
+        }
+<span class="nc" id="L99">        b.append(&quot;,&quot;);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (second != null) {</span>
+<span class="nc" id="L101">            b.append(second.toString());</span>
+<span class="nc" id="L102">        } else {</span>
+<span class="nc" id="L103">            b.append(&quot;null&quot;);</span>
+        }
+<span class="nc" id="L105">        b.append(&quot;)&quot;);</span>
+
+<span class="nc" id="L107">        return b.toString();</span>
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (obj == null)</span>
+<span class="nc" id="L113">            return false;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (obj == this)</span>
+<span class="nc" id="L115">            return true;</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (obj.getClass() != getClass())</span>
+<span class="nc" id="L117">            return false;</span>
+
+<span class="nc" id="L119">        Pair p = (Pair)obj;</span>
+        
+<span class="nc bnc" id="L121" title="All 4 branches missed.">        return first.equals(p.first) &amp;&amp; second.equals(p.second);</span>
+    }
+    
+    @Override
+    public int hashCode() {
+<span class="nc" id="L126">        int result = 1;</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        result = 31 * result + ((first == null) ? 0 : first.hashCode());</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        result = 31 * result + ((second == null) ? 0 : second.hashCode());</span>
+<span class="nc" id="L129">        return result;        </span>
+    }
+}
+
+
+// vi: ai nosi sw=4 ts=4 expandtab
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.2.201409121644</span>JUnit (Jan 15, 2015 3:49:07 PM)</div></body></html>
