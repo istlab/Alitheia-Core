@@ -34,6 +34,7 @@
 package eu.sqooss.impl.service.scheduler;
 
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -102,6 +103,7 @@ public class SchedulerServiceImpl implements Scheduler {
     public void enqueueBlock(List<Job> jobs) throws SchedulerException {
         synchronized (this) {
             for (Job job : jobs) {
+            	if (logger != null) //Added by Joost
                 logger.debug("SchedulerServiceImpl: queuing job " + job.toString());
                 job.callAboutToBeEnqueued(this);
                 blockedQueue.add(job);
@@ -138,6 +140,14 @@ public class SchedulerServiceImpl implements Scheduler {
          * synchronize here would actually dead-lock this, since no new items
          * can be added as long someone is waiting for items
          */
+    	for (Iterator iterator = workQueue.iterator(); iterator.hasNext();) {
+			Job j = (Job) iterator.next();
+			System.out.println("Job in workqueue: "+j.toString() +": "+j.state());
+		}
+    	for (Iterator iterator = blockedQueue.iterator(); iterator.hasNext();) {
+    		Job j = (Job) iterator.next();
+    		System.out.println("Job in blockQueue: "+j.toString() +": "+j.state());
+    	}
         return workQueue.take();
     }
 
@@ -241,7 +251,7 @@ public class SchedulerServiceImpl implements Scheduler {
     }
 
     public WorkerThread[] getWorkerThreads() {
-        return (WorkerThread[]) this.myWorkerThreads.toArray();
+        return (WorkerThread[]) this.myWorkerThreads.toArray(new WorkerThread[0]);
     }
 
     public void startOneShotWorkerThread() {
@@ -286,7 +296,7 @@ public class SchedulerServiceImpl implements Scheduler {
     public boolean createAuxQueue(Job j, Deque<Job> jobs, ResumePoint p)
             throws SchedulerException {
         
-        if (jobs.isEmpty()) {
+        if (jobs.isEmpty() && logger != null) { //add by Joost
             logger.warn("Empty job queue passed to createAuxQueue(). Ignoring request");
             return false;
         }

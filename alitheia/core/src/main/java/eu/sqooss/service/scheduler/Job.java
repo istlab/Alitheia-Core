@@ -222,7 +222,8 @@ public abstract class Job implements Comparable<Job> {
             restart();
             
             /*Idiot/bad programmer proofing*/
-            assert (!dbs.isDBSessionActive());            
+            assert (!dbs.isDBSessionActive());  
+            
             if (dbs.isDBSessionActive()) {
                 dbs.rollbackDBSession();
                 setState(State.Error); //No uncommitted sessions are tolerated
@@ -494,7 +495,6 @@ public abstract class Job implements Comparable<Job> {
     public long resume() throws Exception {
         long ts = System.currentTimeMillis();
         DBService dbs = AlitheiaCore.getInstance().getDBService();
-
         if (state() != State.Yielded)
             throw new SchedulerException("Cannot resume a non-yielded job");
         
@@ -504,7 +504,6 @@ public abstract class Job implements Comparable<Job> {
         try {
             setState(State.Running);
             resumePoint.resume();
-                       
             assert (!dbs.isDBSessionActive());            
             if (dbs.isDBSessionActive()) {
                 dbs.rollbackDBSession();
